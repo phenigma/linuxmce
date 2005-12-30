@@ -3360,10 +3360,12 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
         ParseObject( pObj, pObj, pObj, Type, 0 );
     }
 
-
+	bool bCacheAll = DATA_Get_CacheSize()==-1;
     for( DesignObj_OrbiterMap::iterator oi = m_mapObj_All.begin(  ); oi != m_mapObj_All.end(  ); ++oi  )
     {
         DesignObj_Orbiter *pObj = ( *oi ).second;
+		if( bCacheAll )
+			pObj->m_bKeepGraphicInCache=true;
 
         // Now match up all the up/down/left/right
         if(  pObj->m_PK_DesignObj_Up  )

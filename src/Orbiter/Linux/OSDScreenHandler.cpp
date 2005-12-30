@@ -12,6 +12,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/DatabaseUtils.h"
 #include "../WizardLogic.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
 
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
@@ -184,9 +185,15 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				if( pText )
 				{
 					if( sCityRegion.size()==0 )
+					{
 						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_your_postal_code_CONST];
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"enterpostal");
+					}
 					else
+					{
 						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"confirmpostal");
+					}
 				}
 			}
 		}
@@ -214,11 +221,17 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				if( pText )
 				{
 					if( bPostalCodeOk )
+					{
 						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"confirmpostal");
+					}
 					else
+					{
 						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Bad_Zip_Code_CONST];
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"enterpostal");
+					}
 				}
-				m_pOrbiter->CMD_Refresh("");
+				m_pOrbiter->CMD_Regen_Screen();
 				return true;
 			}
 		}
@@ -1136,8 +1149,30 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 				string sAlarmModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				string sDeviceData = StringUtils::ltos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort;
 
+				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Security_Interface_CONST);
 				m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()), sDeviceData,
 					iPK_Device_ControlledVia);
+// HACK!!!  This damn DSC panel doesn't seem to be able to report it's sensors automatically.  We're just going to fake it for now
+{
+	m_pWizardLogic->AddDevice(DEVICETEMPLATE_Door_Sensor_CONST, 
+		StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST)
+		+ "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|3",
+		m_pWizardLogic->m_nPK_Device_AlarmPanel);
+	m_pWizardLogic->AddDevice(DEVICETEMPLATE_Motion_Detector_CONST, 
+		StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST)
+		+ "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|1",
+		m_pWizardLogic->m_nPK_Device_AlarmPanel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
+
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
+	m_pOrbiter->CMD_Refresh("*");
+	return true;
+}
 
 				m_pWizardLogic->m_bAlarmPanelCommandReceived = false;
 				m_pWizardLogic->m_bAlarmPanelIsOk = false;

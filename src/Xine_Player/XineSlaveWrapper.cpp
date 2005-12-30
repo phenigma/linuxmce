@@ -1917,7 +1917,7 @@ void XineSlaveWrapper::setOutputSpeakerArrangement( string strOutputSpeakerArran
 {
     xine_cfg_entry_t xineConfigEntry;
 
-    g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement." );
+	g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement: %s", strOutputSpeakerArrangement.c_str() );
 
     xine_config_register_enum ( m_pXine, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs,
                                 "Speaker arrangement",
