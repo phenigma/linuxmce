@@ -696,6 +696,9 @@
 #define COMMAND_Send_Orbiter_Popups_CONST 758
 #define COMMAND_Get_Sensors_List_CONST 759
 #define COMMAND_Send_Command_To_Child_CONST 760
+#define COMMAND_Live_TV_CONST 762
+#define COMMAND_Exit_CONST 763
+#define COMMAND_Set_Active_Menu_CONST 764
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
