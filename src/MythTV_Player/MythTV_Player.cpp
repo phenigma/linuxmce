@@ -1023,6 +1023,9 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 
 void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
+{
+}
+
 //<-dceag-c29-b->
 
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
@@ -1123,9 +1126,9 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 {
 	string sResult;
 
-	if( sText=="old_recordings )
+	if( sText=="old_recordings" )
 		sendMythCommand("jump playbackrecordings", sResult);
-	else if( sText=="future_recordings )
+	else if( sText=="future_recordings" )
 		sendMythCommand("jump manage_recordings", sResult);
 	else
 		sendMythCommand("jump mainmenu", sResult);
