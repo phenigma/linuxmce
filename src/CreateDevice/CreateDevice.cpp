@@ -159,11 +159,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0
 
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
-				if( threaded_mysql_query(SQL)<0 )
-				{
-					cout << "Error adding device" << endl;
-					return 0;
-				}
+				threaded_mysql_query(SQL,true);
 			}
 		}
 		SQL = "SELECT FK_DeviceCategory_Parent FROM DeviceCategory WHERE PK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
@@ -191,11 +187,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_cou
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Executing %s",SQL.c_str());
-			if( threaded_mysql_query(SQL)<0 )
-			{
-				cout << "Error adding device" << endl;
-				return 0;
-			}
+			threaded_mysql_query(SQL,true);
 		}
 	}
 
@@ -218,11 +210,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 					SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 						"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 				}
-				if( threaded_mysql_query(SQL)<0 )
-				{
-					cout << "Error adding device" << endl;
-					return 0;
-				}
+				threaded_mysql_query(SQL,true);
 			}
 		}
 	}
@@ -585,7 +573,7 @@ void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValu
 	result1.r=mysql_query_result( SQL );
 	if( !result1.r || result1.r->row_count==0 )
 		threaded_mysql_query("INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) "
-			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ");");
+			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ");",true);
 
 	threaded_mysql_query("UPDATE Device_DeviceData SET IK_DeviceData='"
 		+ StringUtils::SQLEscape(sValue) + "' WHERE "

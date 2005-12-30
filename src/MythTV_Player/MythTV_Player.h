@@ -418,9 +418,11 @@ public:
 
 	/** @brief COMMAND: #548 - Menu */
 	/** Go to the PVR's main menu */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
 
-	virtual void CMD_Menu() { string sCMD_Result; CMD_Menu(sCMD_Result,NULL);};
-	virtual void CMD_Menu(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #761 - Recorded TV Menu */

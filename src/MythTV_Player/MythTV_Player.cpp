@@ -28,7 +28,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "DCE/PlainClientSocket.h"
 
 #include <iostream>
 using namespace std;
@@ -1017,25 +1016,24 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 //<-dceag-c29-b->
+
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
 			/**  */
 		/** @param #12 Position Y */
 			/**  */
-{
-}
 
 void MythTV_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
 }
 //<-dceag-c81-b->
+
 	/** @brief COMMAND: #81 - Navigate Next */
 	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
 		/** @param #41 StreamID */
 			/** The stream on which to do the navigation. */
-
 
 void MythTV_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c81-e->
@@ -1076,7 +1074,6 @@ void MythTV_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD
 		/** @param #9 Text */
 			/** nimic */
 
-
 void MythTV_Player::CMD_Info(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c123-e->
 {
@@ -1108,30 +1105,26 @@ void MythTV_Player::CMD_Text(string &sCMD_Result,Message *pMessage)
 }
 //<-dceag-c548-b->
 
-/** @brief COMMAND: #548 - Menu */
+	/** @brief COMMAND: #548 - Menu */
 	/** Go to the PVR's main menu */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
 
-void MythTV_Player::CMD_Menu(string &sCMD_Result,Message *pMessage)
+void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
 	string sResult;
 
-	sendMythCommand("jump mainmenu", sResult);
+	if( sText=="old_recordings )
+		sendMythCommand("jump playbackrecordings", sResult);
+	else if( sText=="future_recordings )
+		sendMythCommand("jump manage_recordings", sResult);
+	else
+		sendMythCommand("jump mainmenu", sResult);
 }
-//<-dceag-c761-b->
 
-	/** @brief COMMAND: #761 - Recorded TV Menu */
-	/** Go to the list of recorded shows */
-
-void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
-//<-dceag-c761-e->
-{
-	string sResult;
-
-	sendMythCommand("jump playbackrecordings", sResult);
-
-}
 //<-dceag-c762-b->
+
 	/** @brief COMMAND: #762 - Live TV */
 	/** Go to Live TV */
 
@@ -1143,6 +1136,7 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 	sendMythCommand("jump livetv", sResult);
 }
 //<-dceag-c763-b->
+
 	/** @brief COMMAND: #763 - Exit */
 	/** Exit guide */
 

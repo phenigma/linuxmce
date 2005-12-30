@@ -27,7 +27,7 @@ using namespace DCE;
 #include "../pluto_main/Table_EventParameter.h"
 
 #include "DataGrid.h"
-
+#include "MythTvMediaStream.h"
 #ifndef WIN32
 #include "MythTvWrapper.h"
 #include <libmythtv/frame.h>
@@ -640,4 +640,95 @@ class DataGridTable *MythTV_PlugIn::TvProviders(string GridID,string Parms,void 
 	}
 
 	return pDataGrid;
+}
+//<-dceag-c409-b->
+
+	/** @brief COMMAND: #409 - Save Bookmark */
+	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
+		/** @param #39 Options */
+			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area with the media */
+
+void MythTV_PlugIn::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+//<-dceag-c409-e->
+{
+}
+
+//<-dceag-c698-b->
+
+	/** @brief COMMAND: #698 - Get Extended Media Data */
+	/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
+		/** @param #3 PK_DesignObj */
+			/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
+		/** @param #68 ProgramID */
+			/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
+
+void MythTV_PlugIn::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c698-e->
+{
+}
+
+//<-dceag-c764-b->
+
+	/** @brief COMMAND: #764 - Set Active Menu */
+	/** Indicate which menu is active, options are:
+live, nonlive, osd */
+		/** @param #9 Text */
+			/** The menu currently active */
+
+void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c764-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
+
+    class MythTvStream *pMediaStream =
+        (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+
+    if( !pMediaStream )
+        return;  /** Can't do anything */
+
+	if( sText=="live" )
+	{
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
+		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_pvr_full_screen_CONST;
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+	}
+	else if( sText=="nonlive" )
+	{
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
+		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_pvr_full_screen_CONST;
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+	}
+	else if( sText=="osd" )
+	{
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
+		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_generic_app_full_screen_CONST;
+		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+	}
+
+	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
+	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
+		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+		{
+			BoundRemote *pBoundRemote = ( *itBR ).second;
+			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
+		}
+g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d",(int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);
+		m_pMedia_Plugin->WaitForMessageQueue();
+		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+		{
+			BoundRemote *pBoundRemote = ( *itBR ).second;
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				0,"<%=NP_R%>","","",false,false);
+			SendCommand(CMD_Goto_Screen);
+		}
+	}
 }

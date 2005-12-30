@@ -130,6 +130,38 @@ public:
 	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #409 - Save Bookmark */
+	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
+		/** @param #39 Options */
+			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area with the media */
+
+	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea) { string sCMD_Result; CMD_Save_Bookmark(sOptions.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #698 - Get Extended Media Data */
+	/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
+		/** @param #3 PK_DesignObj */
+			/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
+		/** @param #68 ProgramID */
+			/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
+
+	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID) { string sCMD_Result; CMD_Get_Extended_Media_Data(sPK_DesignObj.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #764 - Set Active Menu */
+	/** Indicate which menu is active, options are:
+live, nonlive, osd */
+		/** @param #9 Text */
+			/** The menu currently active */
+
+	virtual void CMD_Set_Active_Menu(string sText) { string sCMD_Result; CMD_Set_Active_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
     };
 //<-dceag-end-b->

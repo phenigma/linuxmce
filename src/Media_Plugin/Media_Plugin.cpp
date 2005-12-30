@@ -4576,7 +4576,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 			return;
 		}
 	}
-
+/*  allow all bookmarking for now
 	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%> (MT:" + StringUtils::itos(pMediaStream->m_iPK_MediaType) + ")");
@@ -4586,7 +4586,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 
 		return;
 	}
-
+*/
 	string sPosition,sText;
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 		pMediaStream->m_iStreamID_get(),&sText,&sPosition);
