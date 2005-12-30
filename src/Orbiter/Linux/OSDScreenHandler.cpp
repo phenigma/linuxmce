@@ -1358,7 +1358,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	// comes back to the screen and we don't want to keep reloading each time
 	if(DESIGNOBJ_butFinal_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 	{
-		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST,
+		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST),
 			"/home/monster/final.mpg",0,0,"");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
