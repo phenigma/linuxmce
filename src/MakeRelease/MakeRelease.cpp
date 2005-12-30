@@ -75,7 +75,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion;
+string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true;
@@ -116,6 +116,11 @@ bool ZipFiles(string sArchiveFileName);
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
+	if( g_sReplacePluto.size() && sInput.find("MakeRelease.cpp")==string::npos )
+	{
+		StringUtils::Replace(sInput,"/tmp/MakeRelease.tmp", "Pluto", g_sReplacePluto );
+		sInput = "/tmp/MakeRelease.tmp";
+	}
 	if( !g_bSimulate && sInput.find("MakeRelease.cpp")==string::npos && // Don't do the replace on this file
 			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true) || StringUtils::EndsWith(sInput,"login.php",true) ) )
@@ -173,6 +178,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'm':
 			g_sManufacturer = argv[++optnum];
+			break;
+		case 'x':
+			g_sReplacePluto = argv[++optnum];
 			break;
 		case 'o':
 			g_iPK_Distro = atoi(argv[++optnum]);
@@ -1096,6 +1104,8 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "<=compile_date=>", g_sCompile_Date );
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
+				if( g_sReplacePluto.size() )
+					StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "Pluto", g_sReplacePluto );
 			}
 		}
 		// Now we've got to run the make file
