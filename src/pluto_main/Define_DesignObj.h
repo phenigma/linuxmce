@@ -1883,6 +1883,10 @@
 #define DESIGNOBJ_butYesRegenThis_CONST 4767
 #define DESIGNOBJ_butYesRegenAll_CONST 4768
 #define DESIGNOBJ_butNoRegenLater_CONST 4769
+#define DESIGNOBJ_mnuPVROSD_CONST 4775
+#define DESIGNOBJ_mnuPVRRecording_CONST 4777
+#define DESIGNOBJ_pvr_recording_full_screen_CONST 4778
+#define DESIGNOBJ_pvr_osd_full_screen_CONST 4780
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

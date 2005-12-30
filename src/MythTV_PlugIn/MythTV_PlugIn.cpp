@@ -684,51 +684,48 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 
     g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
 
-    class MythTvStream *pMediaStream =
-        (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+    MythTvMediaStream *pMythTvMediaStream =
+		ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pMessage->m_dwPK_Device_From]));
 
-    if( !pMediaStream )
+    if( !pMythTvMediaStream )
+	{
+	    g_pPlutoLogger->Write(LV_CRITICAL, "MythTV_PlugIn::CMD_Set_Active_Menu stream is NULL");
         return;  /** Can't do anything */
+	}
 
+	int PK_DesignObj_Remote,PK_DesignObj_OSD;
 	if( sText=="live" )
 	{
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
-		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_pvr_full_screen_CONST;
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+		PK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
+		PK_DesignObj_OSD=DESIGNOBJ_pvr_full_screen_CONST;
 	}
 	else if( sText=="nonlive" )
 	{
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
-		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_pvr_full_screen_CONST;
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+		PK_DesignObj_Remote=DESIGNOBJ_mnuPVRRecording_CONST;
+		PK_DesignObj_OSD=DESIGNOBJ_pvr_recording_full_screen_CONST;
 	}
-	else if( sText=="osd" )
+	else
 	{
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
-		pMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_generic_app_full_screen_CONST;
-		pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
+		PK_DesignObj_Remote=DESIGNOBJ_mnuPVROSD_CONST;
+		PK_DesignObj_OSD=DESIGNOBJ_pvr_osd_full_screen_CONST;
 	}
 
 	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
-	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
+	for( MapEntertainArea::iterator itEA = pMythTvMediaStream->m_mapEntertainArea.begin( );itEA != pMythTvMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
 		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
+			RemoteControlSet *pRemoteControlSet =
+				pMythTvMediaStream->m_mapRemoteControlSet[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device];
+			pRemoteControlSet->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
+			pRemoteControlSet->m_iPK_DesignObj_OSD = PK_DesignObj_OSD;
+
 			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
-		}
-g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d",(int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);
-		m_pMedia_Plugin->WaitForMessageQueue();
-		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-		{
-			BoundRemote *pBoundRemote = ( *itBR ).second;
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				0,"<%=NP_R%>","","",false,false);
-			SendCommand(CMD_Goto_Screen);
+				pMythTvMediaStream,false,true);
 		}
 	}
 }
