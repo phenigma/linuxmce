@@ -15,8 +15,8 @@ RunSQL "$Q"
 #mv /tmp/Start_X.sh /usr/pluto/bin/Start_X.sh
 #chmod +x /usr/pluto/bin/Start_X.sh
 
-sed 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf > /tmp/my.cnf
-mv /tmp/my.cnf /etc/mysql/my.cnf
+sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
 
 set +e  # we want the exit code
 grep 'deb http://www.yttron.as.ro/ realextra main' /etc/apt/sources.list > /dev/null
