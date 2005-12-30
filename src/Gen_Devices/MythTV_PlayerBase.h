@@ -174,8 +174,7 @@ public:
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Text(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Menu(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Live_TV(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Exit(string &sCMD_Result,class Message *pMessage) {};
 
@@ -1162,7 +1161,8 @@ public:
 				case 548:
 					{
 						string sCMD_Result="OK";
-						CMD_Menu(sCMD_Result,pMessage);
+					string sText=pMessage->m_mapParameters[9];
+						CMD_Menu(sText.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1179,32 +1179,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Menu(sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case 761:
-					{
-						string sCMD_Result="OK";
-						CMD_Recorded_TV_Menu(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Recorded_TV_Menu(sCMD_Result,pMessage);
+								CMD_Menu(sText.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

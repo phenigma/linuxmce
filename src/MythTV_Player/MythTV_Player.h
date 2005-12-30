@@ -426,13 +426,6 @@ public:
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #761 - Recorded TV Menu */
-	/** Go to the list of recorded shows */
-
-	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
-	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #762 - Live TV */
 	/** Go to Live TV */
 
