@@ -26,6 +26,7 @@ namespace DCE
     private:
         long unsigned int            m_iMythFrontendWindowId;
 	    pluto_pthread_mutex_t m_MythMutex;
+		DeviceData_Base *m_pDevice_MythTV_Plugin;
 
         /** Private member variables */
         int                          m_iControllingDevice;

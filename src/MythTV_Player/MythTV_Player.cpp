@@ -104,6 +104,7 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 {
 	m_MythMutex.Init(NULL);
 	g_pMythPlayer = this;
+	m_pDevice_MythTV_Plugin=NULL;
 
 #ifndef WIN32 
 	m_pRatWrapper = NULL;
@@ -117,6 +118,13 @@ bool MythTV_Player::GetConfig()
 	if( !MythTV_Player_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	m_pDevice_MythTV_Plugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_MythTV_PlugIn_CONST);
+	if( !m_pDevice_MythTV_Plugin )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"I need a myth plugin to function");
+		return false;
+	}
+
 #ifndef WIN32
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
     signal(SIGCHLD, sh); /* install handler */
