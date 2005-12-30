@@ -39,7 +39,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
-
+#include "DCE/PlainClientSocket.h"
 #include "PlutoUtils/ProcessUtils.h"
 
 #include <sstream>
