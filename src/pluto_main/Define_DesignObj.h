@@ -1891,6 +1891,9 @@
 #define DESIGNOBJ_pvr_recording_full_screen_CONST 4777
 #define DESIGNOBJ_pvr_recording_full_screen_with_CONST 4778
 #define DESIGNOBJ_pvr_osd_full_screen_CONST 4779
+#define DESIGNOBJ_dgPickRoomSmallList_CONST 4780
+#define DESIGNOBJ_butUserStatus_CONST 4781
+#define DESIGNOBJ_icoUserStatus_CONST 4782
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -922,6 +922,8 @@
 #define TEXT_Yes_Regen_this_CONST 1634
 #define TEXT_Yes_Regen_All_CONST 1635
 #define TEXT_No_Regen_Later_CONST 1636
+#define TEXT_no_tv_speakers_CONST 1637
+#define TEXT_Yes_I_use_a_receiver_CONST 1638
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
