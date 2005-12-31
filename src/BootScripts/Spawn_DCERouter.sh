@@ -24,6 +24,7 @@ while [ "$i" -le 200 ]; do
 	echo $(date) Starting > "$new_log"
 
 	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.newlog)
+	mysqldump pluto_main Device > /var/log/pluto/device.$(date +%F-%T)
 	if [ "${Valgrind/DCERouter}" != "$Valgrind" ]; then
 		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost &> >(tee $new_log)
 	else
