@@ -206,6 +206,8 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 	    system("eject");
 	}
 
+	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
+	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
 	m_pDisk_Drive_Functions->m_bTrayOpen = !m_pDisk_Drive_Functions->m_bTrayOpen;
 }

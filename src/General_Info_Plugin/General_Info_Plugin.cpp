@@ -1539,6 +1539,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	{
 		pRow_Device_Child = vectRow_Device_Child[0];
 		pRow_Device_Child->Reload();   // Don't overwrite the room or other data that may already be there
+		return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
 	}
 	else
 	{

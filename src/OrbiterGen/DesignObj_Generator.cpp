@@ -118,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1257 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==2640 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -139,6 +139,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
     if( !m_pRow_DesignObjVariation_Standard )
     {
         cerr << "Aborting building of: " << m_pRow_DesignObj->PK_DesignObj_get() << " because there were no variations." << endl << "Attempts to use will fail at runtime." << endl;
+		m_pOrbiterGenerator->m_iPK_CommandGroup=0;
         return;
     }
 
@@ -211,6 +212,7 @@ int k=2;
 							cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 							g_pPlutoLogger->Write(LV_STATUS,"Not building screen %d, using cache",
 								m_pRow_DesignObj->PK_DesignObj_get());
+							m_pOrbiterGenerator->m_iPK_CommandGroup=0;
 							return;
 						}
 						else
@@ -403,7 +405,8 @@ Table_Image *p = m_mds->Image_get();
 							if( !file )
 							{
 								cerr << "File: " << sGraphicFile << " exists, but is not readable" << endl;
-								throw "Error reading file";
+								g_pPlutoLogger->Write(LV_CRITICAL,"File %s exists, but is not readable",sGraphicFile.c_str());
+								return;
 							}
 							size_t s_read = fread(buf,1,200,file);
 							size_t i;
@@ -414,7 +417,10 @@ Table_Image *p = m_mds->Image_get();
 							}
 
 							if( i>=s_read-15 )
-								throw "Cannot get width and height of " + sGraphicFile;
+							{
+								g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get width and height of  %s",sGraphicFile.c_str());
+								return;
+							}
 
 							Width=buf[i+6]*256+buf[i+7];
 							Height=buf[i+10]*256+buf[i+11];
@@ -601,7 +607,7 @@ Table_Image *p = m_mds->Image_get();
                 if( !drStyle )
                 {
                     cerr << "Cannot find style for object - specified style: " << drOVTSL_match->FK_Style_get();
-                    throw "Cannot open style";
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot open style");
                 }
                 CGText *pCGText = new CGText(this,drOVTSL_match,m_pOrbiterGenerator->m_pRow_Orbiter);
 if( pCGText->m_sText=="1" )
@@ -614,7 +620,7 @@ int k=2;
                 if( !pCGText->m_mapTextStyle.size() )
                 {
                     cerr << "Cannot find a matching style variation for " << drStyle->PK_Style_get() << endl;
-                    throw "Cannot find a matching style variation";
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find a matching style variation");
                 }
 
                 // Be sure we have put all used styles in the map
@@ -1005,7 +1011,7 @@ int k=2;
 		if( pCGArray->m_bContainsMore)
         {
             if( m_alMPArray.size()>0 )
-                throw "There is more than one multi-page array for object variation: " + drOVO->PK_DesignObjVariation_DesignObj_get();
+				g_pPlutoLogger->Write(LV_CRITICAL,"There is more than one multi-page array for object variation: %d",drOVO->PK_DesignObjVariation_DesignObj_get());
 
             m_alMPArray.push_back(pCGArray);
             int Page=1;
@@ -1045,6 +1051,9 @@ int k=2;
         }
 
     }
+if( m_pRow_DesignObj->PK_DesignObj_get()==2640 )
+int k=2;
+
 
 	DesignObjZoneList::iterator itZone;
     for(itZone=m_ZoneList.begin();itZone!=m_ZoneList.end();++itZone)
@@ -1059,7 +1068,8 @@ int k=2;
         if( tmpDesignObj_Goto!=0 )
         {
             if( PK_DesignObj_Goto!=0 )
-                throw "DesignObj " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get() + " has more than 1 goto";
+				g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj %d %s has more than 1 goto",
+					m_pRow_DesignObj->PK_DesignObj_get(),m_pRow_DesignObj->Description_get().c_str());
             else
                 PK_DesignObj_Goto = tmpDesignObj_Goto;
         }
@@ -1073,7 +1083,7 @@ int k=2;
         else if( tmpDesignObj_Goto!=0 )
         {
             if( PK_DesignObj_Goto!=0 )
-                throw "DesignObj " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get() + " has more than 1 goto";
+				g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj %d %s has more than 1 goto",m_pRow_DesignObj->PK_DesignObj_get(),m_pRow_DesignObj->Description_get().c_str());
             else
                 PK_DesignObj_Goto = tmpDesignObj_Goto;
         }
@@ -1141,7 +1151,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 			if( itParm!=oca->m_ParameterList.end() )
 			{
                 if(PK_DesignObj_Goto!=0)
-                    throw "Multiple goto's in object " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get();
+					g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj(2) %d %s has more than 1 goto",m_pRow_DesignObj->PK_DesignObj_get(),m_pRow_DesignObj->Description_get().c_str());
 
                 bool b;
                 size_t pos;
@@ -1170,7 +1180,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
                     }
                     catch(...)
                     {
-                        throw "Cannot go to screen: " + (*itParm).second + " from object: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get());
+						g_pPlutoLogger->Write(LV_CRITICAL,"Cannot go to screen: %s from %d",(*itParm).second.c_str(),m_pRow_DesignObj->PK_DesignObj_get());
                     }
                 }
             }
@@ -1262,7 +1272,10 @@ int k=2;
 
         Row_DesignObj * drDesignObj_new = m_mds->DesignObj_get()->GetRow(PK_DesignObj_Goto);
         if( !drDesignObj_new )
-            throw "Illegal attempt to goto screen: " + StringUtils::itos(PK_DesignObj_Goto) + " from: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " screen: " + StringUtils::itos(m_pOrbiterGenerator->m_iPK_DesignObj_Screen);
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Illegal attempt to goto screen: %d from %d screen %d",PK_DesignObj_Goto,m_pRow_DesignObj->PK_DesignObj_get(),m_pOrbiterGenerator->m_iPK_DesignObj_Screen);
+			return;
+		}
 
         map<int,string> *htPriorVariables = &m_pOrbiterGenerator->m_mapVariable;
         m_pOrbiterGenerator->m_mapVariable = htNewVariables;
@@ -1283,7 +1296,10 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
     vector<class Row_DesignObjVariation *> vectrov;
     drDesignObj->DesignObjVariation_FK_DesignObj_getrows(&vectrov);
     if( vectrov.size()==0 )
-        throw "No variation for object: " + StringUtils::itos(drDesignObj->PK_DesignObj_get());
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No variation for object: %d",drDesignObj->PK_DesignObj_get());
+		return;
+	}
 
     for(size_t s=0;s<vectrov.size();++s)
     {
@@ -1335,7 +1351,10 @@ void DesignObj_Generator::PickStyleVariation(class Row_Style * drStyle,OrbiterGe
         drStyle = drStyle->Table_Style_get()->GetRow(1);
         drStyle->StyleVariation_FK_Style_getrows(&vectrsv);
         if( vectrsv.size()==0 )
-            throw "No variation for style: " + StringUtils::itos(drStyle->PK_Style_get());
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"No variation for style: %d",drStyle->PK_Style_get());
+			return;
+		}
     }
 
     // Find the best style for each variation
@@ -1810,7 +1829,7 @@ int k=2;
 
             if( !drUser )
             {
-                throw "User: " + StringUtils::itos(PK_User) + " in text " + Text + " is invalid";
+				g_pPlutoLogger->Write(LV_CRITICAL,"User %d in text %s is invalid",PK_User,Text.c_str());
             }
 
             sValue = drUser->Nickname_isNull() ? drUser->UserName_get() : drUser->Nickname_get();
@@ -1822,7 +1841,7 @@ int k=2;
 
             if( !pRow_Text_LS  )
             {
-                throw "Text: " + StringUtils::itos(PK_Text) + " is invalid";
+				g_pPlutoLogger->Write(LV_CRITICAL,"Text %d is invalid",PK_Text);
             }
 
             sValue = pRow_Text_LS->Description_get();

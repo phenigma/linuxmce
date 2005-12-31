@@ -6975,6 +6975,11 @@ void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pM
 
 void Orbiter::FireEntAreaRoomCommands()
 {
+	if( !m_pLocationInfo )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::FireEntAreaRoomCommands no location");
+		return;
+	}
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"set current location to ea %d room %d",
 		m_pLocationInfo->PK_EntertainArea,m_pLocationInfo->PK_Room);
