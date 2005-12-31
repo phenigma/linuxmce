@@ -442,7 +442,7 @@ void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), "", "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneName, string sPK_Device)
+void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPK_Device, string sPhoneName)
 { 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
@@ -450,6 +450,11 @@ void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneN
 	//string sCaption;
 	//m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_New_Phone_Enter_Number(PK_Screen, sPhoneName, sPK_Device);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::BadGotoScreen(int PK_Screen)

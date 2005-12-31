@@ -8281,11 +8281,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_New_Phone_Enter_Number(long DeviceIDFrom, long DeviceIDTo,
-			string sPhoneName, string sPK_Device)
+			string sPK_Device, string sPhoneName)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+				2 /* PK_Device */, sPK_Device.c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8293,11 +8293,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_New_Phone_Enter_Number_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sPhoneName, string sPK_Device)
+			string sPK_Device, string sPhoneName)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+				2 /* PK_Device */, sPK_Device.c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8305,11 +8305,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_New_Phone_Enter_Number_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sPhoneName, string sPK_Device)
+			string sPK_Device, string sPhoneName)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+				2 /* PK_Device */, sPK_Device.c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8317,11 +8317,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_New_Phone_Enter_Number_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sPhoneName, string sPK_Device)
+			string sPK_Device, string sPhoneName)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+				2 /* PK_Device */, sPK_Device.c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8402,6 +8402,54 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
 				COMMANDPARAMETER_PK_Screen_CONST, "205" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Sensors_Viewed_By_Camera : public PreformedCommand
+	{
+	public:
+		SCREEN_Sensors_Viewed_By_Camera(long DeviceIDFrom, long DeviceIDTo,
+			string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
+				2 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_Sensors_Viewed_By_Camera_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Sensors_Viewed_By_Camera_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
+				2 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_Sensors_Viewed_By_Camera_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Sensors_Viewed_By_Camera_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
+				2 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_Sensors_Viewed_By_Camera_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Sensors_Viewed_By_Camera_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
+				2 /* PK_Device */, sPK_Device.c_str());
 		}
 	};
 
@@ -8629,9 +8677,10 @@ namespace DCE
 		virtual void SCREEN_VOIP_Provider(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AV_Devices(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, string sIPAddress, string sPK_DHCPDevice){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneName, string sPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPK_Device, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -9704,9 +9753,9 @@ namespace DCE
 				}
 				case 203:
 				{
+					string sPK_Device = pMessage->m_mapParameters[2];
 					string sPhoneName = pMessage->m_mapParameters[191];
-					string sPK_Device = pMessage->m_mapParameters[204];
-					SCREEN_New_Phone_Enter_Number(nPK_Screen, sPhoneName, sPK_Device);
+					SCREEN_New_Phone_Enter_Number(nPK_Screen, sPK_Device, sPhoneName);
 					break;
 				}
 				case 204:
@@ -9717,6 +9766,12 @@ namespace DCE
 				case 205:
 				{
 					SCREEN_Need_Regen_Orbiter(nPK_Screen);
+					break;
+				}
+				case 206:
+				{
+					string sPK_Device = pMessage->m_mapParameters[2];
+					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, sPK_Device);
 					break;
 				}
 

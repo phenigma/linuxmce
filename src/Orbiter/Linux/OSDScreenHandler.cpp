@@ -1264,7 +1264,7 @@ bool OSDScreenHandler::AlarmPanel_DatagridSelected(CallBackData *pData)
 		{
 			switch(pCellInfoData->m_nPK_Datagrid)
 			{
-				case DATAGRID_Alarm_Sensors_CONST:
+				case DATAGRID_Devices_Children_Of_CONST:
 				{
 					string sSensorId = pCellInfoData->m_sValue;
 					string sSensorName = m_pWizardLogic->GetDeviceName(sSensorId);

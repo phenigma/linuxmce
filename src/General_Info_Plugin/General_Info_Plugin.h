@@ -74,6 +74,7 @@ public:
 	void PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 	void PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 	void PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
+	void PostCreateDevice_Cameras(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 
 	// Private methods
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);
@@ -98,6 +99,7 @@ public:
 	class DataGridTable *BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 	class DataGridTable *UsersGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *CountriesGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *DevicesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
@@ -351,6 +353,17 @@ public:
 
 	virtual void CMD_Check_Mounts() { string sCMD_Result; CMD_Check_Mounts(sCMD_Result,NULL);};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #765 - Set Device Relations */
+	/** Set which devices are related to which */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #103 sPK_Device_List */
+			/** The devices it relates to */
+
+	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List) { string sCMD_Result; CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

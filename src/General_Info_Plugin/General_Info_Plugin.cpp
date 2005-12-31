@@ -151,7 +151,7 @@ bool General_Info_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::ChildrenInfo)), 
-		DATAGRID_Alarm_Sensors_CONST,PK_DeviceTemplate_get());
+		DATAGRID_Devices_Children_Of_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AvailableSerialPorts)), 
@@ -189,6 +189,10 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::CountriesGrid)), 
 		DATAGRID_Countries_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DevicesOfCategory)), 
+		DATAGRID_Devices_Of_Category_CONST,PK_DeviceTemplate_get());
+	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
 
@@ -810,6 +814,40 @@ class DataGridTable *General_Info_Plugin::UsersGrid( string GridID, string Parms
 		Row_Users *pRow_Users = vectRow_Users[s];
 		pCell = new DataGridCell(pRow_Users->UserName_get(),StringUtils::itos(pRow_Users->PK_Users_get()));
 			pDataGrid->SetData( iCol++, iRow, pCell );
+		if( iCol>=iWidth )
+		{
+			iCol=0;
+			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::DevicesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 1;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0,iCol=0;
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + 
+		Parms + " ORDER BY Device.Description",&vectRow_Device);
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device = vectRow_Device[s];
+		Row_Room *pRow_Room = pRow_Device->FK_Room_getrow();
+
+		string sDescription = pRow_Device->Description_get();
+		if( pRow_Room )
+			sDescription += "(" + pRow_Room->Description_get() + ")";
+
+		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+		pDataGrid->SetData( iCol++, iRow, pCell );
 		if( iCol>=iWidth )
 		{
 			iCol=0;
@@ -2071,6 +2109,8 @@ void General_Info_Plugin::PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate
 	// TODO -- THIS SHOULD BE A 'REGISTER CREATE DEVICE' INTERCEPTOR WHERE YOU REGISTER A DEVICETEMPLATE/CATEGORY, AND A PRE/POST CREATE CALLBACK
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) )
 		PostCreateDevice_NetworkStorage(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
+		PostCreateDevice_Cameras(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 }
 
 void General_Info_Plugin::PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
@@ -2106,6 +2146,24 @@ void General_Info_Plugin::PostCreateDevice_NetworkStorage(int iPK_Device,int iPK
 		iPK_Device,iPK_DeviceTemplate);
 #endif
 	CMD_Check_Mounts();
+}
+
+void General_Info_Plugin::PostCreateDevice_Cameras(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PostCreateDevice_Cameras device  %d template %d",
+		iPK_Device,iPK_DeviceTemplate);
+#endif
+	string sSQL = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
+		+ StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) + " LIMIT 1";
+
+	PlutoSqlResult result_set;
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count && pOH_Orbiter )
+	{
+		DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			StringUtils::itos(iPK_Device));
+		SendCommand(SCREEN_Sensors_Viewed_By_Camera);
+	}
 }
 
 //<-dceag-c752-b->
@@ -2170,4 +2228,17 @@ void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRo
 		Row_Device *pRow_Device_Child = vectRow_Device[s];
 		SetRoomForDevice(pRow_Device_Child,pRow_Room);
 	}
+}
+//<-dceag-c765-b->
+
+	/** @brief COMMAND: #765 - Set Device Relations */
+	/** Set which devices are related to which */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #103 sPK_Device_List */
+			/** The devices it relates to */
+
+void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c765-e->
+{
 }
