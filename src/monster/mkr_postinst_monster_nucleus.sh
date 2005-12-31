@@ -30,6 +30,7 @@ chmod 777 /etc/rc2.d/S20dvd
 chmod +x /etc/rc2.d/S20dvd
 
 cd /home
+rm mythtv.tar.gz || true
 wget http://plutohome.com/download/docs/mythtv.tar.gz
 tar zxvf mythtv.tar.gz
 cd mythtv
