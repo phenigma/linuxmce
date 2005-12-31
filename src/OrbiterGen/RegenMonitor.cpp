@@ -268,6 +268,9 @@ string RegenMonitor::AllScenariosFloorplans()
 	sSQL = "select count(FK_Installation),max(psc_mod) FROM Floorplan";
 	sResult += QueryAsModString(sSQL);
 
+	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::AllScenariosFloorplans pass 1 %s=%s",
+		sSQL.c_str(),sResult.c_str());
+
 	sSQL = "select count(PK_CommandGroup),max(CommandGroup.psc_mod),max(CommandGroup_Room.psc_mod),max(CommandGroup_Command.psc_mod),max(CommandGroup_Command_CommandParameter.psc_mod) "
 		"FROM CommandGroup "
 		"LEFT JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup "
@@ -275,6 +278,9 @@ string RegenMonitor::AllScenariosFloorplans()
 		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command ";
 
 	sResult += QueryAsModString(sSQL);
+
+	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::AllScenariosFloorplans pass 2 %s=%s",
+		sSQL.c_str(),sResult.c_str());
 
 	return sResult;
 }
