@@ -2092,22 +2092,11 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 
 void XineSlaveWrapper::DisplayOSDText( string sText )
 {
-// temporary hack!!!  something outside our framework is deleteing the osd and causing is to re-delete it and make 
-// the system crash.  Keep track of the prior values so we can see if someone is deleting it;
-static int last_osd_width=-1,last_osd_height=-1,last_osd_handle=-1;
-    XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
-
+	g_pPlutoLogger->Write( LV_CRITICAL, "XineSlaveWrapper::DisplayOSDText %p %s", (void *) m_xine_osd_t, sText.c_str() );
     if ( xineStream == NULL )
         return ;
-if( m_xine_osd_t && 
-   (m_xine_osd_t.osd.width!=last_osd_width || m_xine_osd_t.osd.height!=last_osd_height || m_xine_osd_t.osd.handle!=last_osd_handle) )
-{
-g_pPlutoLogger->Write( LV_CRITICAL, "Somebody deleted our osd %p again!!! w %d/%d h %d/%d ha %d/%d",m_xine_osd_t,
-	m_xine_osd_t.osd.width,last_osd_width,m_xine_osd_t.osd.height,last_osd_height,m_xine_osd_t.osd.handle,last_osd_handle );
-m_xine_osd_t=NULL;
 
-}
-    if ( sText.size() == 0 )
+	if ( sText.size() == 0 && false ) // Todo -- put this back?!!!  Something is freeing the osd and it's not us, so this crashes!
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
         if ( m_xine_osd_t )
@@ -2125,10 +2114,8 @@ m_xine_osd_t=NULL;
     xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
     xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
     xine_osd_show( m_xine_osd_t, 0 );
-last_osd_width=m_xine_osd_t.osd.width;
-last_osd_height=m_xine_osd_t.osd.height;
-last_osd_handle=m_xine_osd_t.osd.handle;
-    g_pPlutoLogger->Write( LV_CRITICAL, "Attempting to display %s", sText.c_str() );
+
+	g_pPlutoLogger->Write( LV_CRITICAL, "Attempting to display %s", sText.c_str() );
 }
 
 void XineSlaveWrapper::StartSpecialSeek( int Speed )
