@@ -33,7 +33,11 @@ namespace DCE
 	pthread_t		     m_threadMonitorMyth;
 	bool			     m_bPlaying;
         int                          m_iControllingDevice;
+	// This is a temporary hack until Chris P fixes myth deadlock problem
+	#define MYTH_WAITPOLLTIME 2 
+	time_t			     m_MythWaitPoll;
         pthread_t                    m_qApplicationThreadId;
+		string m_CurrentMode, m_CurrentProgram;
 #ifndef WIN32
 		RatPoisonWrapper            *m_pRatWrapper;
 #endif
