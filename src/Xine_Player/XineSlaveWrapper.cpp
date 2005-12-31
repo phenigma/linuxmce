@@ -1125,6 +1125,7 @@ int XineSlaveWrapper::translate_point( int gui_x, int gui_y, int *video_x, int *
 void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType desiredSpeed )
 {
     XineStream * pStream;
+	g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
 
     if ( ( pStream = getStreamForId( iStreamID, "Can't set the speed of a non existent stream (%d)!" ) ) == NULL )
         return ;
@@ -2091,12 +2092,22 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 
 void XineSlaveWrapper::DisplayOSDText( string sText )
 {
+// temporary hack!!!  something outside our framework is deleteing the osd and causing is to re-delete it and make 
+// the system crash.  Keep track of the prior values so we can see if someone is deleting it;
+static int last_osd_width=-1,last_osd_height=-1,last_osd_handle=-1;
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
 
     if ( xineStream == NULL )
         return ;
+if( m_xine_osd_t && 
+   (m_xine_osd_t.osd.width!=last_osd_width || m_xine_osd_t.osd.height!=last_osd_height || m_xine_osd_t.osd.handle!=last_osd_handle) )
+{
+g_pPlutoLogger->Write( LV_CRITICAL, "Somebody deleted our osd %p again!!! w %d/%d h %d/%d ha %d/%d",m_xine_osd_t,
+	m_xine_osd_t.osd.width,last_osd_width,m_xine_osd_t.osd.height,last_osd_height,m_xine_osd_t.osd.handle,last_osd_handle );
+m_xine_osd_t=NULL;
 
-    if ( sText.size() == 0 && false )                   // *** put back
+}
+    if ( sText.size() == 0 )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
         if ( m_xine_osd_t )
@@ -2114,6 +2125,9 @@ void XineSlaveWrapper::DisplayOSDText( string sText )
     xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
     xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
     xine_osd_show( m_xine_osd_t, 0 );
+last_osd_width=m_xine_osd_t.osd.width;
+last_osd_height=m_xine_osd_t.osd.height;
+last_osd_handle=m_xine_osd_t.osd.handle;
     g_pPlutoLogger->Write( LV_CRITICAL, "Attempting to display %s", sText.c_str() );
 }
 
@@ -2147,6 +2161,7 @@ void XineSlaveWrapper::StopSpecialSeek()
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
     xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
     g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
+	DisplayOSDText("");
 }
 
 void XineSlaveWrapper::Dynamic_Pointer::pointer_hide()
