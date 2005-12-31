@@ -1,7 +1,14 @@
 #!/bin/bash
 
-nobuild="-b"
-#nobuild=""
+monster="y"
+
+# if we receive a "force-build" parameter, ignore this setting
+if [[ "$1" != "force-build" ]]; then
+	nobuild="-b"
+	#nobuild=""
+else
+	shift
+fi
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
@@ -37,6 +44,24 @@ function changeSvnPermissions
 	sudo -u www-data cp /home/sources/svn-repositories/svn-users-permissions /home/sources/svn-repositories/svn-users-permissions-bak
 	sudo -u www-data cp /home/sources/svn-repositories/svn-users-permissions-updated /home/sources/svn-repositories/svn-users-permissions
 }
+
+ReplacePluto()
+{
+	File="$1"
+	ProperName="$2"
+	WebSite="$3"
+
+	# What the?!  sed only replaces one instance per line so do it multipe times??
+	sed -i "s/Pluto/$ProperName/" $File
+	sed -i "s/plutohome.com/$WebSite/" $File
+	sed -i "s/Pluto/$ProperName/" $File
+	sed -i "s/Pluto/$ProperName/" $File
+	sed -i "s/Pluto/$ProperName/" $File
+	sed -i "s/plutohome.com/$WebSite/" $File
+	sed -i "s/plutohome.com/$WebSite/" $File
+	sed -i "s/plutohome.com/$WebSite/" $File
+}
+
 
 Q="select PK_Version from Version ORDER BY date desc, PK_Version limit 1"
 version=$(echo "$Q;" | mysql -N pluto_main)
@@ -84,6 +109,21 @@ if [ "$nobuild" = "" ]; then
 else
     cd /home/MakeRelease/trunk
 fi
+
+if [ "$monster" = "y" ]; then
+	echo "Doing a Monster build"
+	echo "update Text_LS set Description = replace(Description,'Pluto','Monster');" | mysql main_sqlcvs
+	echo "update Text_LS set Description = replace(Description,'pluto','monster');" | mysql main_sqlcvs
+	echo "update Text_LS set Description = replace(Description,'PLUTO','MONSTER');" | mysql main_sqlcvs
+	ReplacePluto "web/pluto-admin/languages/en/login.lang.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/languages/en/userHome.lang.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/operations/login.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/operations/userHome.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/orbiter.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "Monster" "monstercable.com"
+	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "Monster" "monstercable.com"
+Fi
 
 #Do some database maintenance to correct any errors
 # Be sure all debian packages are marked as being compatible with debian distro
@@ -138,8 +178,6 @@ fi
 
 `dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
 
-
-
 echo Setting this version as the current one.
 rm $BASE_OUT_FOLDER/current
 ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
@@ -151,7 +189,7 @@ ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 #"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 #popd
 pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache > >(tee /home/MakeRelease/MakeRelease-CD.log)
+"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 popd
 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
@@ -190,10 +228,6 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
 
-pushd /home/MakeRelease/trunk/external/VDR.Oct-9-2005/
-bash -x /home/MakeRelease/trunk/external/VDR.Oct-9-2005//buildall.sh > /home/MakeRelease/VDR.log
-find -name '*.deb' -print -exec cp '{}' /home/samba/repositories/pluto/replacements/main/binary-i386/ ';'
-popd
 
 pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
 ./update-repository
@@ -204,20 +238,20 @@ if [ $version -ne 1 ]; then
     pushd /home/builds
     rm upload/download.tar.gz
 	cd $version_name
-	md5sum installation-cd.iso > installation-cd-$version_name.md5
+	md5sum installation-cd.iso > installation-cd.$version_name.md5
 	mv installation-cd.iso installation-cd.$version_name.iso
 	echo $version_name > current_version
     tar zcvf ../upload/download.tar.gz *
-    scp ../upload/download.tar.gz uploads@66.235.209.27:~/
+    scp ../upload/download.tar.gz uploads@plutohome.com:~/
 
     cd ../upload
     sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-    scp dumpvp.tar.gz uploads@66.235.209.27:~/
+    scp dumpvp.tar.gz uploads@plutohome.com:~/
 
 	cd /home/WorkNew/src/MakeRelease
 	sh -x DirPatch.sh
-	scp replacements.tar.gz uploads@66.235.209.27:~/
-	scp replacements.patch.sh uploads@66.235.209.27:~/
+	scp replacements.tar.gz uploads@plutohome.com:~/
+	scp replacements.patch.sh uploads@plutohome.com:~/
     popd
 	
 	# SourceForge CVS
