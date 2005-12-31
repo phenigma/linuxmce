@@ -107,6 +107,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
 //-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 {
+g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1 %s", FileName.c_str());
     SDL_Surface * Drawing = pScreenImage;
 
     png_bytepp image_rows;
@@ -114,6 +115,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     int BitsPerColor;
 
     File = fopen(FileName.c_str(), "wb");
+g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1b %s", FileName.c_str());
 
     image_rows = new png_bytep[Drawing->h];
     for (int n = 0; n < Drawing->h; n++)
@@ -138,6 +140,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     png_destroy_write_struct(&png_ptr, &png_info);
     fclose(File);
+g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 2 %s", FileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
@@ -152,8 +155,10 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     {  
 g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1 Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
+g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1b Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
         string sCmdLine = string("convert -colors 4096 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
         system(sCmdLine.c_str());
+g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1c Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     }
     else
     {
