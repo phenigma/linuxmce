@@ -93,6 +93,16 @@ public:
 
 #endif
 
+void* monitorMythThread(void* param)
+{
+	while(g_pMythPlayer->m_bExiting==false)
+	{
+		Sleep(900);
+		g_pMythPlayer->pollMythStatus();
+	}
+	
+}
+
 // MythContext *gContext;
 
 //<-dceag-const-b->
@@ -110,6 +120,10 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 	m_pRatWrapper = NULL;
 #endif
     m_iMythFrontendWindowId = 0;
+    m_bExiting = false;
+    m_bPlaying = false;
+    pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
+    
 }
 
 //<-dceag-getconfig-b->
@@ -145,6 +159,8 @@ MythTV_Player::~MythTV_Player()
 
     delete m_pRatWrapper;
 #endif
+	m_bExiting = true;
+	pthread_join(m_threadMonitorMyth, NULL);
 }
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
@@ -170,6 +186,7 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 		sendMythCommand("jump livetv", sResult);
 		g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
 	} while(time(NULL) < timeout && sResult != "OK");
+	m_bPlaying = true;
 
 
     return true;
@@ -248,12 +265,15 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 void MythTV_Player::pollMythStatus()
 {
-	string sResult;
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	sendMythCommand("query location", sResult);
+	if (m_bPlaying)
+	{
+		string sResult;
 
-
-
+		sendMythCommand("query location", sResult);
+		g_pPlutoLogger->Write(LV_WARNING,"Status: %s",sResult.c_str());
+	}
 }
 
 void MythTV_Player::selectWindow()
@@ -302,7 +322,9 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
 		return false;
 	}
-	// Wait for Myth's console prompt.	g_pPlutoLogger->Write(LV_STATUS,"connected");
+
+	// Wait for Myth's console prompt.
+	g_pPlutoLogger->Write(LV_STATUS,"connected");
 	do
 	{
 		if ( !_PlainClientSocket.ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
@@ -472,6 +494,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
+	m_bPlaying=false;
 #endif
 }
 
@@ -835,6 +858,7 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 //<-dceag-c38-e->
 {
 #ifndef WIN32
+	m_bPlaying = false;
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
@@ -1132,6 +1156,19 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 		sendMythCommand("jump manage_recordings", sResult);
 	else
 		sendMythCommand("jump mainmenu", sResult);
+}
+//<-dceag-c761-b->
+
+	/** @brief COMMAND: #761 - Recorded TV Menu */
+	/** Go to the list of recorded shows */
+
+void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c761-e->
+{
+	string sResult;
+
+	sendMythCommand("jump playbackrecordings", sResult);
+
 }
 
 //<-dceag-c762-b->

@@ -26,9 +26,12 @@ namespace DCE
     private:
         long unsigned int            m_iMythFrontendWindowId;
 	    pluto_pthread_mutex_t m_MythMutex;
-		DeviceData_Base *m_pDevice_MythTV_Plugin;
 
         /** Private member variables */
+	DeviceData_Base *m_pDevice_MythTV_Plugin;
+
+	pthread_t		     m_threadMonitorMyth;
+	bool			     m_bPlaying;
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
 #ifndef WIN32
@@ -41,7 +44,6 @@ namespace DCE
         bool LaunchMythFrontend(bool bSelectWindow=true);
 
         void processKeyBoardInputRequest(int iXKeySym);
-		void pollMythStatus();
 		bool sendMythCommand(const char *Cmd, string &sResult);
 
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
@@ -51,6 +53,7 @@ namespace DCE
         /** Private methods */
     public:
         /** Public member variables */
+	bool m_bExiting;
 
 //<-dceag-const-b->
 public:
@@ -62,6 +65,7 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+		void pollMythStatus();
 
 		virtual void KillSpawnedDevices();
 		virtual void CreateChildren();
@@ -424,6 +428,13 @@ public:
 
 	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #761 - Recorded TV Menu */
+	/** Go to the list of recorded shows */
+
+	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #762 - Live TV */
