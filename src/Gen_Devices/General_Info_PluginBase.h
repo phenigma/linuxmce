@@ -145,7 +145,7 @@ public:
 	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,bool bReverse,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -722,7 +722,8 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string ssPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+					bool bReverse=(pMessage->m_mapParameters[204]=="1" ? true : false);
+						CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),bReverse,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -739,7 +740,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),bReverse,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -46,6 +46,7 @@ using namespace DCE;
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_Users.h"
 #include "pluto_main/Table_Country.h"
+#include "pluto_main/Table_Device_Device_Related.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
@@ -2237,8 +2238,36 @@ void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRo
 			/** The device */
 		/** @param #103 sPK_Device_List */
 			/** The devices it relates to */
+		/** @param #204 Reverse */
+			/** If true, the device list are the source devices and the PK_Device is the relation */
 
-void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,bool bReverse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c765-e->
 {
+	string::size_type pos=0;
+	while(pos<ssPK_Device_List.size())
+	{
+		int PK_Device,PK_Device_Related;
+		if( bReverse )
+		{
+			PK_Device = atoi(StringUtils::Tokenize(ssPK_Device_List,"|",pos).c_str());
+			PK_Device_Related = iPK_Device;
+		}
+		else
+		{
+			PK_Device_Related = atoi(StringUtils::Tokenize(ssPK_Device_List,"|",pos).c_str());
+			PK_Device = iPK_Device;
+		}
+		if( !PK_Device || !PK_Device_Related )
+			continue;
+
+		Row_Device_Device_Related *pRow_Device_Device_Related = m_pDatabase_pluto_main->Device_Device_Related_get()->GetRow(PK_Device,PK_Device_Related);
+		if( pRow_Device_Device_Related )
+			continue;  // It's already there
+
+		pRow_Device_Device_Related = m_pDatabase_pluto_main->Device_Device_Related_get()->AddRow();
+		pRow_Device_Device_Related->FK_Device_set(PK_Device);
+		pRow_Device_Device_Related->FK_Device_Related_set(PK_Device_Related);
+	}
+	m_pDatabase_pluto_main->Device_Device_Related_get()->Commit();
 }

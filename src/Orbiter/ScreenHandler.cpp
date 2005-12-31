@@ -64,9 +64,9 @@ void ScreenHandler::RefreshDatagrid(long PK_DesignObj_Datagrid)
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::GotoDesignObj(int PK_DesignObj)
+void ScreenHandler::GotoDesignObj(int PK_DesignObj,string sID,bool bStore_Variables,bool bCant_Go_Back)
 {
-	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), sID, "", bStore_Variables, bCant_Go_Back);
 }
 //-----------------------------------------------------------------------------------------------------
 int ScreenHandler::GetCurrentScreen_PK_DesignObj()
@@ -106,6 +106,7 @@ void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, 
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress)
 {
+	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddress;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMacAddress);
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, sMacAddress);
 }
@@ -113,11 +114,10 @@ void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAdd
 void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, string sPK_Device, 
 												   string sDescription, string sComments)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sPK_Device;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sComments);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPK_Device);
-	ScreenHandlerBase::SCREEN_NewPlugAndPlayDevice(PK_Screen, sPK_Device, sDescription, sComments);
+	GotoScreen(SCREEN_NewPlugAndPlayDevice_CONST,sPK_Device,true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_SensorsNotReady(long PK_Screen, string sDescription)
@@ -447,14 +447,13 @@ void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPK_Dev
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
 
-	//string sCaption;
-	//m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_New_Phone_Enter_Number(PK_Screen, sPhoneName, sPK_Device);
+	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,sPK_Device,true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
+	GotoScreen(SCREEN_Sensors_Viewed_By_Camera_CONST,sPK_Device,true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::BadGotoScreen(int PK_Screen)

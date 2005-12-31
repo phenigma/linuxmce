@@ -5676,7 +5676,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 		//}
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got a go back, but no screen to return to");
+		GotoMainMenu();
 }
 
 //<-dceag-c5-b->
@@ -5792,7 +5792,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 
 	pScreenHistory_New->SetObj(pObj_New);
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
-
+	if( sID.size() )
+		pScreenHistory_New->m_sID=sID;
+	
     vm.Release(  );
 
     // See if we need to store the variables on this screen,  so we restore them in case of a go back

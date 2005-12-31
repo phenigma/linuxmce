@@ -24,12 +24,12 @@ $GEN_CLASSES$
 		ScreenHandlerBase(map<int,int> *p_MapDesignObj) { m_p_MapDesignObj=p_MapDesignObj; }
 		virtual ~ScreenHandlerBase() {}
 
-		virtual void GotoDesignObj(int PK_DesignObj)=0;
-		virtual void GotoScreen(int PK_Screen)
+		virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false)=0;
+		virtual void GotoScreen(int PK_Screen,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false)
 		{
 			int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 			if( PK_DesignObj )
-				GotoDesignObj(PK_DesignObj);
+				GotoDesignObj(PK_DesignObj,sID,bStore_Variables,bCant_Go_Back);
 			else
 				BadGotoScreen(PK_Screen);
 		}
