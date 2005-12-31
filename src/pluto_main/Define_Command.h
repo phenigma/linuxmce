@@ -699,6 +699,7 @@
 #define COMMAND_Live_TV_CONST 762
 #define COMMAND_Exit_CONST 763
 #define COMMAND_Set_Active_Menu_CONST 764
+#define COMMAND_Set_Device_Relations_CONST 765
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

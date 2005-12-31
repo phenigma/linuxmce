@@ -1894,6 +1894,9 @@
 #define DESIGNOBJ_dgPickRoomSmallList_CONST 4780
 #define DESIGNOBJ_butUserStatus_CONST 4781
 #define DESIGNOBJ_icoUserStatus_CONST 4782
+#define DESIGNOBJ_mnuSensorsViewedByCamera_CONST 4783
+#define DESIGNOBJ_dgVisibleSensors_CONST 4784
+#define DESIGNOBJ_butSetVisibleSensors_CONST 4785
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

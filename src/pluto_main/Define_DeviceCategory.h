@@ -97,7 +97,6 @@
 #define DEVICECATEGORY_Network_Storage_CONST 150
 #define DEVICECATEGORY_Embedded_Tuners_CONST 151
 
-
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_TABLE_FIELD "DeviceCategory.PK_DeviceCategory"
