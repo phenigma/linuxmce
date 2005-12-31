@@ -2092,6 +2092,7 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 
 void XineSlaveWrapper::DisplayOSDText( string sText )
 {
+    XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
 	g_pPlutoLogger->Write( LV_CRITICAL, "XineSlaveWrapper::DisplayOSDText %p %s", (void *) m_xine_osd_t, sText.c_str() );
     if ( xineStream == NULL )
         return ;
