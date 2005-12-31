@@ -854,6 +854,17 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage)
 //<-dceag-c744-e->
 {
+	if( !iPK_Users )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From); 
+#endif
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_iPK_Users )
+			iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
+		else
+			return;
+	}
 	class Row_Users* pRow_Users;
 	pRow_Users=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
 	if( pRow_Users )

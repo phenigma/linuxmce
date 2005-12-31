@@ -1431,15 +1431,8 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	{
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
-		{
-			if( vectEntertainArea.size()==1 )
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 2");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
-				SendCommand(CMD_Eject_Disk_Cat);
-			}
 			continue; // Don't know what area it should be played in, or there's no media playing there
-		}
+
 		pEntertainArea->m_pMediaStream->m_sLastPosition = ""; // Be sure we get a real position
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );

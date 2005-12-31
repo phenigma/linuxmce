@@ -212,20 +212,22 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 			int PK_CommandGroup; // Get the sleeping group for this room
 			commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0,&PK_CommandGroup);  // Bedtime is parm1=3
 
+			if( PK_CommandGroup )
+				pCommandGroup->AddCommand(m_dwPK_Device_DCERouter,COMMAND_Execute_Command_Group_CONST,0,1,
+					COMMANDPARAMETER_PK_CommandGroup_CONST,StringUtils::itos(PK_CommandGroup).c_str());
+
 			map<int,pair<int,int> > map_Device_Type_RoomType;
 			GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
 
+			vector<Row_EntertainArea *> vectRow_EntertainArea;
+			pRow_Room->Table_Room_get()->Database_pluto_main_get()->EntertainArea_get()->GetRows("1=1",&vectRow_EntertainArea);
+			for(size_t s=0;s<vectRow_EntertainArea.size();++s)
+				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,1,1,
+					COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(vectRow_EntertainArea[s]->PK_EntertainArea_get()).c_str());
 			for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
 			{
 				if( IsPublicInteriorRoom(it->second.second) )
-				{
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,1,0);
-					vector<Row_EntertainArea *> vectRow_EntertainArea;
-					pRow_Room->EntertainArea_FK_Room_getrows(&vectRow_EntertainArea);
-					for(size_t s=0;s<vectRow_EntertainArea.size();++s)
-						pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,1,1,
-						COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(vectRow_EntertainArea[s]->PK_EntertainArea_get()).c_str());
-				}
 				else if( IsExterior(it->second.second) )
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,1,0);
 			}
