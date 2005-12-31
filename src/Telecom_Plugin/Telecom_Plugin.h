@@ -58,6 +58,9 @@ public:
 	// Other
 	string GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber);
 
+	// Interceptors
+	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

@@ -38,7 +38,7 @@
 using namespace std;
 using namespace DCE;
 
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
 {
 	cerr << "CreateDevice::DoIt called with: iPK_DHCPDevice=" << iPK_DHCPDevice << "; iPK_DeviceTemplate=" << iPK_DeviceTemplate
 		<< "; sIPAddress=" << sIPAddress << "; sMacAddress=" << sMacAddress << "; PK_Device_ControlledVia=" << PK_Device_ControlledVia 
@@ -97,10 +97,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	int iPK_Package = row[4] ? atoi(row[4]) : 0;
 
-	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,IPAddress,MACaddress,Status";
+	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,FK_Room,IPAddress,MACaddress,Status";
 	if( PK_Device_ControlledVia )
 		SQL += ",FK_Device_ControlledVia";
-	SQL+=") VALUES('" + StringUtils::SQLEscape(row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + ",'" + sIPAddress + "','" + sMacAddress + "','" + (m_bDontCallConfigureScript ? "" : "**RUN_CONFIG**") + "'";
+	SQL+=") VALUES('" + StringUtils::SQLEscape(row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + 
+		"," + (iPK_Room ? StringUtils::itos(iPK_Room) : "NULL") + ",'" + sIPAddress + "','" + sMacAddress + "','" + (m_bDontCallConfigureScript ? "" : "**RUN_CONFIG**") + "'";
 	if( PK_Device_ControlledVia )
 		SQL += "," + StringUtils::itos(PK_Device_ControlledVia);
 		

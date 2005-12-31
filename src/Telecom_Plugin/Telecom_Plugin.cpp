@@ -55,6 +55,8 @@ using namespace DCE;
 #include "pluto_telecom/Table_PhoneNumber.h"
 #include "pluto_telecom/Table_PhoneType.h"
 #include "callmanager.h"
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -137,6 +139,7 @@ bool Telecom_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );	
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -859,7 +862,16 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 		m_pDatabase_pluto_main->Users_get()->Commit();
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode for invalid user %d",iPK_Users);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set user mode for invalid user %d",iPK_Users);
+
+	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			StringUtils::itos(iPK_UserMode),"user" + StringUtils::itos(iPK_Users));
+		SendCommand(CMD_Set_Bound_Icon);
+	}
 }
 //<-dceag-c751-b->
 
@@ -903,4 +915,23 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
 	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
 	system(cmdline.c_str());
+}
+
+bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
+	if( bRegistered )
+	{
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
+		vector<Row_Users *> vectRow_Users;
+		m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
+		for(size_t s=0;s<vectRow_Users.size();++s)
+		{
+			Row_Users *pRow_Users = vectRow_Users[s];
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				StringUtils::itos(pRow_Users->FK_UserMode_get()),"user" + StringUtils::itos(pRow_Users->PK_Users_get()));
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+	}
+	return true;
 }

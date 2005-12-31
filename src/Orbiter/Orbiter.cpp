@@ -2394,6 +2394,27 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		}
 		CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "housemode" + StringUtils::itos(PK_DeviceGroup),true);
 	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST )
+	{
+		// This is actually at startup time.  Figure out what user this is controlling
+		int PK_Users=0;
+		for(DesignObjZoneList::iterator itZ=pDesignObj_Orbiter->m_ZoneList.begin();itZ!=pDesignObj_Orbiter->m_ZoneList.end();++itZ)
+		{
+			DesignObjZone *pDesignObjZone = *itZ;
+
+			for(DesignObjCommandList::iterator it=pDesignObjZone->m_Commands.begin();it!=pDesignObjZone->m_Commands.end();++it)
+			{
+				DesignObjCommand *pDesignObjCommand = *it;
+				if( pDesignObjCommand->m_PK_Command==COMMAND_Set_Variable_CONST )
+				{
+					int PK_Variable = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+					if( PK_Variable == VARIABLE_PK_Users_CONST )
+						PK_Users = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
+				}
+			}
+		}
+		CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "user" + StringUtils::itos(PK_Users),true);
+	}
 }
 
 void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
@@ -3208,26 +3229,40 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				CMD_Goto_Screen("", atoi(m_sInitialScreen.c_str()));
 			else
 				GotoMainMenu();
-
-			char *pData=NULL; int iSize=0;
-			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
-				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
-			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
-			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
-			if( !SendCommand( CMD_Orbiter_Registered ) )
-			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
-				//PromptUser("Something went very wrong. Cannot register with router!");
-				//OnQuit();
-
-				//when this happens, it's because someone did a reload router while orbiter was reloading
-				OnUnexpectedDisconnect();
-				return;
-			}
-			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
-			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
-			delete pData;
 		}
+
+		// AB 12/29/2005 -- Needed to move this up since orbiter registered may cause
+		// bind icon commands to come back, which aren't available until after the startup commands
+		// And we can't call the startup commands until the above scope is terminated so a goto a screen with NeedToRender
+		if( m_pScreenHistory_Current )
+		{
+			DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
+			for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+			{
+				DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
+				if(  pObj->m_Action_StartupList.size(  )>0  )
+					ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
+			}
+		}
+
+		char *pData=NULL; int iSize=0;
+		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
+			m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
+		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+		CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
+		if( !SendCommand( CMD_Orbiter_Registered ) )
+		{
+			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
+			//PromptUser("Something went very wrong. Cannot register with router!");
+			//OnQuit();
+
+			//when this happens, it's because someone did a reload router while orbiter was reloading
+			OnUnexpectedDisconnect();
+			return;
+		}
+		m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
+		m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
+		delete pData;
 
 		if( !m_pScreenHistory_Current )
 		{
@@ -3240,13 +3275,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
         AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width, 
             m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
-		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
-		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
-		{
-			DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
-			if(  pObj->m_Action_StartupList.size(  )>0  )
-				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
-		}
 		m_bStartingUp=false;
 	}
 }

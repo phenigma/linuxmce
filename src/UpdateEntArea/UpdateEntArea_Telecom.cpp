@@ -82,8 +82,14 @@ void UpdateEntArea::AddDefaultTelecomScenarios(Row_Room *pRow_Room)
 		Row_Users *pRow_Users = vectRow_Users[s];
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,pRow_Users->UserName_get(),0,1,pRow_Users->PK_Users_get());
 		if( pCommandGroup )
-			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
+		{
+			pCommandGroup->m_pRow_CommandGroup->FK_DesignObj_set(DESIGNOBJ_butUserStatus_CONST);
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,1,2,
+				COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_Users_CONST).c_str(),
+				COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(pRow_Users->PK_Users_get()).c_str());
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,2,1,
 				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_UserStatus_CONST).c_str());
+		}
 	}
 }
 
