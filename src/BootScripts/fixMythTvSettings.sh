@@ -58,9 +58,12 @@ addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
 addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
 addEntries VertScanPercentage	2	$hostname;
 addEntries HorizScanPercentage	1	$hostname;
+addEntries NetworkControlEnabled	1	$hostname;
 addEntries NetworkControlPort	10001	$hostname;
-addEntries UseXVMC 1	$hostname;
-addEntries Deinterlace 1	$hostname;
+addEntries UseXVMC	1 	$hostname;
+addEntries UseMPEG2Dec	0	$hostname;
+addEntries UseOpenGLVSync	0	$hostname;
+addEntries Deinterlace	1	$hostname;
 addEntries DeinterlaceFilter bobdeint	$hostname;
 
 echo -n Creating and/or setting the cache and recorded folder paths ...
