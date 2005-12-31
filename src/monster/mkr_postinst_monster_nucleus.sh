@@ -17,6 +17,7 @@ RunSQL "$Q"
 
 sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
 sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+sed -i 's/--daemon --logfile/--daemon --verbose all --logfile/g' /etc/init.d/mythtv-backend
 
 set +e  # we want the exit code
 grep 'deb http://www.yttron.as.ro/ realextra main' /etc/apt/sources.list > /dev/null
