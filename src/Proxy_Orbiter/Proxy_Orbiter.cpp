@@ -150,12 +150,15 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
     {  
+g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1 Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
         string sCmdLine = string("convert -colors 4096 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
         system(sCmdLine.c_str());
     }
     else
     {
+g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen else 1 Current screen: %s qty %d",  
+					  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),(int) m_ImageQuality);
         //generate the jpeg or png image with current screen
         if(m_ImageQuality == 100) //we'll use pngs for best quality
             SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
@@ -163,6 +166,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
             SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
     }
 
+g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen xml Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     SaveXML(CURRENT_SCREEN_XML);
 
 	m_iImageCounter++;
@@ -174,6 +178,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
 {
+g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 1 %s", sFileName.c_str());
     m_dequeXMLItems.clear();
     GenerateXMLItems(m_pScreenHistory_Current->GetObj());
     string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->GetObj());
@@ -220,7 +225,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         sSoftKeys + 
         "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
+g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 2 %s", sFileName.c_str());
     FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, sXMLString.c_str(), sXMLString.size());
+g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 3 %s", sFileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
