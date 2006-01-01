@@ -381,6 +381,11 @@ CommandGroup::CommandGroup(CommandGroupArray *pCommandGroupArray,Row_CommandGrou
 	] = this;
 }
 
+static bool CommandComparer(Command *x, Command *y)
+{
+	return x->m_iOrder<y->m_iOrder;
+}
+
 void CommandGroup::Commit()
 {
 	vector<Row_CommandGroup_Command *> vectRow_CommandGroup_Command;
@@ -388,7 +393,7 @@ void CommandGroup::Commit()
 		GetRows("FK_CommandGroup="+StringUtils::itos(m_pRow_CommandGroup->PK_CommandGroup_get()) + " ORDER BY OrderNum",
 		&vectRow_CommandGroup_Command);
 
-	m_listCommand.sort();
+	m_listCommand.sort(CommandComparer);
 	int iRecordCounter=0;
 	for(list<Command *>::iterator it=m_listCommand.begin();it!=m_listCommand.end();++it)
 		(*it)->Commit( iRecordCounter<vectRow_CommandGroup_Command.size() ? vectRow_CommandGroup_Command[iRecordCounter++] : NULL );
