@@ -84,6 +84,21 @@ void UpdateEntArea::AddDefaultEventHandlers()
 		ResetEventHandler_psc_mod(pRow_EventHandler);
 	}
 
+	// Create a handler for all the security breaches
+	int iSecurityAlerts[] = {EVENT_Security_Breach_CONST,EVENT_Fire_Alarm_CONST,EVENT_Reset_Alarm_CONST};
+	for(int iCount=0;iCount<3;iCount++)
+	{
+		pCommandGroup=CreateSecurityAlertCommandGroup(commandGroupArray,iSecurityAlerts[iCount]);
+		pRow_EventHandler=CreateGenericEventHandler(commandGroupArray,TEMPLATE_Security_Events_CONST,2,iSecurityAlerts[iCount],"Security Event " + StringUtils::itos(iSecurityAlerts[iCount]),iSecurityAlerts[iCount]);
+		if( pRow_EventHandler )  // The user didn't change it, so go ahead and confirm it's current
+		{
+			if( pCommandGroup )
+				pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
+			pRow_EventHandler->Table_EventHandler_get()->Commit();
+			ResetEventHandler_psc_mod(pRow_EventHandler);
+		}
+	}
+
 	m_pDatabase_pluto_main->EventHandler_get()->Commit();
 	m_pDatabase_pluto_main->Criteria_get()->Commit();
 	m_pDatabase_pluto_main->CriteriaParmNesting_get()->Commit();
@@ -428,3 +443,81 @@ Row_Criteria *UpdateEntArea::SetWatchingMediaCriteria(Row_EventHandler *pRow_Eve
 	else
 		return NULL;
 }
+
+CommandGroup *UpdateEntArea::CreateSecurityAlertCommandGroup(CommandGroupArray &commandGroupArray,int PK_Event)
+{
+	int iOrder=1;
+	CommandGroup *pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_Events_CONST,"Security Event " + StringUtils::itos(PK_Event),0,2,PK_Event); // 2=security events
+	if( !pCommandGroup )
+		return NULL;
+
+	for(map<int, LevelOfMedia >::iterator it=m_mapEnt_Area_Auto_Media.begin();it!=m_mapEnt_Area_Auto_Media.end();++it)
+	{
+		string sFile;
+
+		if( PK_Event==EVENT_Security_Breach_CONST && (it->second ==lomContainsMD || it->second ==lomContainsOtherVideo) )
+			sFile="/home/public/data/samples/security/security.mpg";
+		else if( PK_Event==EVENT_Security_Breach_CONST )
+			sFile="/home/public/data/samples/security/security.mp3";
+		else if( PK_Event==EVENT_Fire_Alarm_CONST && (it->second ==lomContainsMD || it->second ==lomContainsOtherVideo) )
+			sFile="/home/public/data/samples/security/fire.mpg";
+		else if( PK_Event==EVENT_Fire_Alarm_CONST )
+			sFile="/home/public/data/samples/security/fire.mp3";
+
+		if( sFile.size()==0 )
+			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
+				COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str());
+		else
+			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,
+				COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str(),
+				COMMANDPARAMETER_Filename_CONST,sFile.c_str());
+	}
+
+	// Turn on all lights if this is not just resetting the alarm
+	if( PK_Event!=EVENT_Reset_Alarm_CONST )
+	{
+		map<int,pair<int,int> > map_Device_Type_RoomType;
+		GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
+		for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
+			pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,1,0);
+	}
+
+	return pCommandGroup;
+}
+
+Row_EventHandler *UpdateEntArea::CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event)
+{
+	vector<Row_EventHandler *> vectRow_EventHandler;
+	string sSQL = "FK_Template=" + StringUtils::itos(PK_Template) + 
+		" AND TemplateParm1=" + StringUtils::itos(Parm1) + " AND TemplateParm2=" + StringUtils::itos(Parm2) + "";
+	
+	// There should only be 1
+	m_pDatabase_pluto_main->EventHandler_get()->GetRows(sSQL,&vectRow_EventHandler);
+	for(size_t s=1;s<vectRow_EventHandler.size();++s)
+	{
+		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())==0 )
+			pRow_EventHandler->Delete();
+	}
+
+	Row_EventHandler *pRow_EventHandler;
+	if( vectRow_EventHandler.size() )
+	{
+		pRow_EventHandler = vectRow_EventHandler[0];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())!=0 )
+			return NULL;
+	}
+	else	// There is no such event handler.  Create it
+		pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->AddRow();
+
+	pRow_EventHandler->Description_set(sDescription);
+	pRow_EventHandler->FK_Event_set(PK_Event);
+	pRow_EventHandler->FK_Installation_set(m_iPK_Installation);
+	pRow_EventHandler->FK_Template_set(PK_Template);
+	pRow_EventHandler->TemplateParm1_set(Parm1);
+	pRow_EventHandler->TemplateParm2_set(Parm2);
+	pRow_EventHandler->UserCreated_set(0);
+
+	return pRow_EventHandler;
+}
+

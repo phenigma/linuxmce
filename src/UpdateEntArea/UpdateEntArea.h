@@ -71,6 +71,8 @@ public:
 	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 
 	// Helper functions for events
+	Row_EventHandler *CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event);
+
 	CommandGroup *CreateLeaveHomeCommandGroup(CommandGroupArray &commandGroupArray);
 	Row_EventHandler *CreateLeaveHomeEventHandler(CommandGroupArray &commandGroupArray);
 	Row_Criteria *SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHandler);
@@ -79,6 +81,8 @@ public:
 	CommandGroup *CreateWatchingMediaCommandGroup(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching);
 	Row_EventHandler *CreateWatchingMediaEventHandler(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching);
 	Row_Criteria *SetWatchingMediaCriteria(Row_EventHandler *pRow_EventHandler);
+
+	CommandGroup *CreateSecurityAlertCommandGroup(CommandGroupArray &commandGroupArray,int PK_Event);
 
 	// Misc helper functions for determining types of lights and rooms
 	bool IsLight(int PK_FloorplanType);
