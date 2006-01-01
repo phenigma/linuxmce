@@ -75,6 +75,7 @@ public:
 	void AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 	void SetDefaultAnnouncementDevices();
+	void SetDefaultNotifications();
 
 	// Helper functions for events
 	Row_EventHandler *CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event);

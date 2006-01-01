@@ -33,6 +33,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "Security_Plugin.h"
 #include "../Telecom_Plugin/Telecom_Plugin.h"
 
@@ -150,6 +151,19 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 	while( pos<(*s).size() && pos!=string::npos )
 	{
         string sPhoneNumber = StringUtils::Tokenize((*s),",",pos);
+		if( iType==TYPE_ORBITER )
+			// The phone number is the orbiter's device number
+			sPhoneNumber = DatabaseUtils::GetDeviceData(m_pSecurity_Plugin->m_pDatabase_pluto_main,atoi(sPhoneNumber.c_str()),DEVICEDATA_Mobile_Orbiter_Phone_CONST);
+
+		// Temporary hack until we get a good dialing rule set up
+		StringUtils::Replace(&sPhoneNumber,",","");
+		StringUtils::Replace(&sPhoneNumber," ","");
+		if( sPhoneNumber[0]!='9' )
+			if( sPhoneNumber[1]!='1' )
+				sPhoneNumber = "91" + sPhoneNumber;
+			else
+				sPhoneNumber = "9" + sPhoneNumber;
+
 		bool bMonitor = StringUtils::Tokenize((*s),",",pos)=="1";
 		bool bSecurity = StringUtils::Tokenize((*s),",",pos)=="1";
 		bool bFire = StringUtils::Tokenize((*s),",",pos)=="1";

@@ -28,6 +28,7 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_CommandGroup_EntertainArea.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Define_DeviceData.h"
@@ -518,3 +519,30 @@ void UpdateEntArea::GetDevicesTypesAndRoomTypes(int PK_DeviceCategory,map<int,pa
 		while ((row = mysql_fetch_row(result_set.r)))
 			(*p_map_Device_Type_RoomType)[ atoi(row[0]) ] = make_pair<int,int> (row[1] ? atoi(row[1]) : 0,row[2] ? atoi(row[2]) : 0);
 }
+
+
+
+Row_Device_DeviceData *UpdateEntArea::GetUnmodifiedDeviceData(int PK_Device,int PK_DeviceData)
+{
+    Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);
+	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->psc_mod_get().c_str())!=0 && pRow_Device_DeviceData->IK_DeviceData_get()!="auto" )
+		return NULL; // User made his own changes
+
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(PK_Device);
+		pRow_Device_DeviceData->FK_DeviceData_set(PK_DeviceData);
+		m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
+	}
+
+	return pRow_Device_DeviceData;
+}
+
+void UpdateEntArea::SetDeviceData(int PK_Device,int PK_DeviceData,string sValue)
+{
+	string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(sValue) + "',psc_mod=0" +
+		" WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+}
+

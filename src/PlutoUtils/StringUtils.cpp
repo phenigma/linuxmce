@@ -163,18 +163,32 @@ string StringUtils::Replace( string sInput, const string &sSearch, const string 
 {
     string::size_type s=0;
 
-    while( ( s=sInput.find( sSearch, s ) ) != string::npos ) // search for the first apperence of the sSearch string
-    {
-        sInput.replace( s, sSearch.length(), sReplace );
-        s += sReplace.length();
-    }
+	if( sReplace.size()==0 )
+	{
+		// It would seem the normal process in the else block should work for empty sReplcae strings, but it doesn'
+		while( ( s=sInput.find( sSearch, s ) ) != string::npos ) // search for the first apperence of the sSearch string
+		{
+			string s1 = sInput.substr(0,s);
+			string s2 = sInput.substr( s + sSearch.size() );
+			sInput = s1 + s2;  // this seems inefficient, but the output isn't correct if I do this in one step
+		}
+	}
+	else
+	{
+		while( ( s=sInput.find( sSearch, s ) ) != string::npos ) // search for the first apperence of the sSearch string
+		{
+			sInput.replace( s, sSearch.length(), sReplace );
+			s += sReplace.length();
+		}
+	}
 
     return sInput;
 }
 
 string StringUtils::Replace( string *sInput, const string &sSearch, const string &sReplace )
 {
-	return (*sInput) = StringUtils::Replace( (*sInput),sSearch,sReplace );	
+	string sTmp = StringUtils::Replace( (*sInput),sSearch,sReplace );  // This seems so inefficient, but for some reason I'm getting weird results when I try to do the assignment in 1 step
+	return (*sInput) = sTmp;
 }
 
 #ifndef SYMBIAN
