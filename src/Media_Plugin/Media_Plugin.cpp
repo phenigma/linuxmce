@@ -5041,12 +5041,20 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
-			if( bSpeedChanged || pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST )
+			if( !bSpeedChanged )
 			{
-				Message *pMessageOut = new Message(pMessage);
-				pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-				QueueMessageToRouter(pMessageOut);
+				if( pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Mobile_Orbiter_CONST )
+					continue;  // No mobile phones
+
+				// No embedded orbiters, like those in phones
+				if( pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+					pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory!=DEVICECATEGORY_Media_Director_CONST )
+						continue;
 			}
+
+			Message *pMessageOut = new Message(pMessage);
+			pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+			QueueMessageToRouter(pMessageOut);
 		}
 	}
 
