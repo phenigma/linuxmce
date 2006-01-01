@@ -1578,7 +1578,11 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(size_t s=0;s<vectD.size();++s)
                 {
                     Row_Device *drDevice = vectD[s];
-                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get(),NULL,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+					Row_Room *pRow_Room = drDevice->FK_Room_getrow();
+					string sRoom;
+					if( pRow_Room )
+						sRoom = pRow_Room->Description_get();
+                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get() + "(" + sRoom + ")",NULL,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }
             break;

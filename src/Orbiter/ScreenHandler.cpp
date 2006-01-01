@@ -174,7 +174,8 @@ void ScreenHandler::SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_De
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCheckingDrive(long PK_Screen)
 {
-	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>", false, "20");
+	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>", false, "20",true,
+		"Eject","0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 " + StringUtils::itos(COMMAND_Eject_Disk_CONST));
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogUnableToSavePlaylist(long PK_Screen)

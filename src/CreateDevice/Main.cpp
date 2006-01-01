@@ -4,6 +4,7 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 #include "CreateDevice.h"
+#include "UserUtils.h"
 
 #include <iostream>
 #include <sstream>
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.newlog");
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
-	string sIPAddress,sMacAddress,sDeviceData;
+	string sIPAddress,sMacAddress,sDeviceData,sUserName;
 	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false;
 
 	bool bError=false;
@@ -98,6 +99,9 @@ int main(int argc, char *argv[])
 		case 'b':
 			bInstallPackagesInBackground = true;
 			break;
+		case 'U':
+			sUserName = argv[++optnum];
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -105,7 +109,7 @@ int main(int argc, char *argv[])
 		};
 	}
 
-	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate) )
+	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate && sUserName.size()==0) )
 	{
 		cout << "CreateDevice, v." << VERSION << endl
 			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
@@ -115,6 +119,7 @@ int main(int argc, char *argv[])
 			<< "[-R PK_Device (if there are multiple possible controlled Via's)]" << endl
 			<< "[-x don't call InstallNewDevice to add packages]" << endl
 			<< "[-b Install packages in background]" << endl
+			<< "[-U Username] CreateUser--not device" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -127,6 +132,23 @@ int main(int argc, char *argv[])
 	for(int optnum=1;optnum<argc;++optnum)
 		args += string(argv[optnum]) + " ";
 	g_pPlutoLogger->Write(LV_STATUS,"Called with: %s",args.c_str());
+
+	if( sUserName.size() )
+	{
+		MySqlHelper mySqlHelper(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
+		if( dceConfig.m_iPK_Installation<1 )
+		{
+			PlutoSqlResult result;
+			MYSQL_ROW row;
+			string SQL = "SELECT DISTINCT PK_Installation FROM Installation";
+			if( ( result.r=mySqlHelper.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && result.r->row_count==1 )
+				dceConfig.m_iPK_Installation = atoi(row[0]);
+		}
+		UserUtils userUtils(&mySqlHelper,dceConfig.m_iPK_Installation);
+		int PK_Users = userUtils.AddUser(sUserName);
+		cout << sUserName << endl;
+		return 0;
+	}
 
 	CreateDevice createDevice(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 	createDevice.m_bDontInstallPackages=bDontInstallPackages;

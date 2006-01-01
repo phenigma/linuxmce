@@ -171,6 +171,7 @@ namespace DCE
 			string sSQL = "UPDATE Device SET Status='" + StringUtils::SQLEscape(sStatus) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
 			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_mysql_query(sSQL);
 			m_pRow_Device->Reload();
+			m_sStatus=sStatus;
 		}
 		void m_sState_set(string sState)
 		{
@@ -178,6 +179,7 @@ namespace DCE
 			string sSQL = "UPDATE Device SET State='" + StringUtils::SQLEscape(sState) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
 			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_mysql_query(sSQL);
 			m_pRow_Device->Reload();
+			m_sState=sState;
 		}
 
 		// **** POINTERS CREATED BY THE SERIALIZED ID'S ****

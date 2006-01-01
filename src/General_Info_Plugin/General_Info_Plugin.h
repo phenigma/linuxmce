@@ -73,6 +73,7 @@ public:
 
 	void PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 	void PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
+	void PostCreateSecurityDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 	void PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 	void PostCreateDevice_Cameras(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 

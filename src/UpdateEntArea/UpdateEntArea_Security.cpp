@@ -63,6 +63,8 @@ void UpdateEntArea::AddDefaultSecurityScenarios()
 		if( pRow_Room )
 			AddDefaultSecurityScenarios(pRow_Room);
 	}
+
+	SetDefaultAnnouncementDevices();
 }
 
 void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
@@ -138,3 +140,61 @@ void UpdateEntArea::AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Devi
 				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(vectRow_Device[s]->PK_Device_get()).c_str());
 	}
 }
+
+void UpdateEntArea::SetDefaultAnnouncementDevices()
+{
+	Row_Device *pRow_Device_Security_PlugIn=NULL;
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Security_Plugin_CONST),&vectRow_Device);
+	if( vectRow_Device.size()==0 )
+		return;
+	
+	pRow_Device_Security_PlugIn = vectRow_Device[0];
+	Row_Device_DeviceData *pRow_Device_DeviceData = GetUnmodifiedDeviceData(pRow_Device_Security_PlugIn->PK_Device_get(),DEVICEDATA_PK_Device_CONST);
+	if( !pRow_Device_DeviceData )
+		return; // The user has changed this list
+
+	vectRow_Device.clear();
+	m_pDatabase_pluto_main->Device_get()->GetRows("WHERE FK_DeviceTemplate in (" + 
+		StringUtils::itos(DEVICETEMPLATE_Xine_Player_CONST) + "," +
+		StringUtils::itos(DEVICETEMPLATE_SqueezeBox_Player_CONST)
+		+ ")"
+		,&vectRow_Device);
+
+	string sList;
+
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device = vectRow_Device[s];
+		if( sList.size() )
+			sList += ",";
+		sList += StringUtils::itos(pRow_Device->PK_Device_get());
+	}
+
+	SetDeviceData(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_Device_CONST,sList);
+}
+
+Row_Device_DeviceData *UpdateEntArea::GetUnmodifiedDeviceData(int PK_Device,int PK_DeviceData)
+{
+    Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);
+	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->psc_mod_get().c_str())!=0 && pRow_Device_DeviceData->IK_DeviceData_get()!="auto" )
+		return NULL; // User made his own changes
+
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(PK_Device);
+		pRow_Device_DeviceData->FK_DeviceData_set(PK_DeviceData);
+		m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
+	}
+
+	return pRow_Device_DeviceData;
+}
+
+void UpdateEntArea::SetDeviceData(int PK_Device,int PK_DeviceData,string sValue)
+{
+	string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(sValue) + "',psc_mod=0" +
+		" WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+}
+

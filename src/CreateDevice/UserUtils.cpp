@@ -99,6 +99,23 @@ int UserUtils::AddUser(string sUsername)
 	string sCmd = "/usr/pluto/bin/SetPasswords.sh " + StringUtils::itos(PK_Users) + " \"" + sUsername + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
 	system(sCmd.c_str());
+
+	MySqlHelper mySqlHelper_telecom(m_pMySqlHelper->m_sMySQLHost,m_pMySqlHelper->m_sMySQLUser,m_pMySqlHelper->m_sMySQLPass,"pluto_telecom");
+
+	string sPK_Users = StringUtils::itos(PK_Users);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",1,0,0,1,'ring,');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",2,0,0,1,'voicemail,0');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",4,0,0,1,'voicemail,0');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",4,1,1,1,'ring,');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",3,0,0,1,'voicemail,0');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",3,1,1,1,'ring,');";
+	mySqlHelper_telecom.threaded_mysql_query(sSQL);
+
 	return PK_Users;
 }
 

@@ -57,6 +57,7 @@ using namespace DCE;
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Event_Plugin/Event_Plugin.h"
@@ -2113,10 +2114,36 @@ void General_Info_Plugin::PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate
 		PostCreateDevice_NetworkStorage(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
 		PostCreateDevice_Cameras(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Security_Device_CONST) )
+		PostCreateSecurityDevice(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 }
 
 void General_Info_Plugin::PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
 {
+}
+
+void General_Info_Plugin::PostCreateSecurityDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
+{
+	int PK_FloorplanObjectType=0;
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(iPK_Device,DEVICEDATA_PK_FloorplanObjectType_CONST);
+	if( pRow_Device_DeviceData )
+		PK_FloorplanObjectType = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+
+	string sDefaultSecuritySetting;
+	if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Door_Sensor_CONST )
+		sDefaultSecuritySetting = "1,0,N1,1,1,2,N1"; // Monitor mode, security alert when armed, announcement when entertaining
+	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_WINDOW_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Window_Sensor_CONST )
+		sDefaultSecuritySetting = "0,0,N1,2,2,0,N1"; // Make an announcement when the user is at home, security breach when away
+	else if( iPK_DeviceTemplate==DEVICETEMPLATE_Glass_Break_Sensor_CONST )
+		sDefaultSecuritySetting = "0,2,N1,N1,N1,2,N1"; // Always announcement or trigger an alarm
+	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Motion_Detector_CONST )
+		sDefaultSecuritySetting = "0,0,N1,0,0,0,N1"; // Only active when away
+	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_SMOKE_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Smoke_Detector_CONST )
+		sDefaultSecuritySetting = "1,N1,N1,N1,N1,N1,N1"; // Always an alarm
+	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_AIRQUALITY_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Air_Quality_Sensor_CONST )
+		sDefaultSecuritySetting = "1,N1,N1,N1,N1,N1,N1"; // Always an alarm
+
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Alert_CONST,sDefaultSecuritySetting);
 }
 
 bool General_Info_Plugin::OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData)

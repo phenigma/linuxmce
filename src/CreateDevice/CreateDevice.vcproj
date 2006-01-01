@@ -140,6 +140,9 @@
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
+			<File
+				RelativePath=".\UserUtils.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

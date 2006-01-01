@@ -1095,11 +1095,19 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
     if( !Media_Plugin_Command::ReceivedMessage( pMessage ) )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Media plug base class didn't handle message id: %d", pMessage->m_dwID );
-        // We didn't handle it. Give it to the appropriate plug-in. Assume it's coming from an orbiter
+	
+		// We didn't handle it. Give it to the appropriate plug-in. Assume it's coming from an orbiter
         class EntertainArea *pEntertainArea;
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
 		if( !pOH_Orbiter ) // It could be a remote control
 			pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
+
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Eject_Disk_CONST )
+		{
+			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+			SendCommand(CMD_Eject_Disk_Cat);
+			return true;
+		}
 
 		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
         {

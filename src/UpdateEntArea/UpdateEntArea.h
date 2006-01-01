@@ -9,6 +9,7 @@
 
 class Row_EventHandler;
 class Row_Criteria;
+class Row_Device_DeviceData;
 
 namespace DefaultScenarios
 {
@@ -41,6 +42,10 @@ public:
 	void AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 
+	// Misc utility functions
+	void SetDeviceData(int PK_Device,int PK_DeviceData,string sValue);
+	Row_Device_DeviceData *GetUnmodifiedDeviceData(int PK_Device,int PK_DeviceData);
+
 	// Get all devices within a certain category and, if PK_Room!=0, in a room, and fill the results
 	// into p_map_Device_Type, which is a map of PK_Device,PK_FloorplanObjectType, and if 
 	// p_mapType is not NULL, is a map of PK_FloorplanObjectType to a list of PK_Device
@@ -69,6 +74,7 @@ public:
 	// Helper functions for security
 	void AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
+	void SetDefaultAnnouncementDevices();
 
 	// Helper functions for events
 	Row_EventHandler *CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event);
