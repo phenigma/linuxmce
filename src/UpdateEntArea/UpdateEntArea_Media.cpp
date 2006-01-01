@@ -75,8 +75,9 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	sSQL="SELECT PK_Device,Description FROM Device_EntertainArea "
 		"JOIN Device ON FK_Device=PK_Device "
 		"JOIN DeviceTemplate_MediaType ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate "
-		"WHERE FK_MediaType=" + StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
+		"WHERE FK_MediaType=" + StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " ORDER BY PK_Device";
 
+	int iOrder=1;
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
@@ -88,7 +89,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				sDesc += string("\n") + row[1];
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_Pluto_Sources_CONST,sDesc,ICON_TV_CONST,atoi(row[0]),MEDIATYPE_pluto_LiveTV_CONST);
 			if( pCommandGroup )
-				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
+				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
 		}
 	}
 
@@ -138,8 +139,9 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 			"JOIN Device ON FK_Device=PK_Device "
 			"JOIN DeviceTemplate_MediaType ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate "
 			"JOIN MediaType ON FK_MediaType=PK_MediaType "
-			"WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_MediaType NOT IN (1,2,3,4,5,6,7,20,21,22,23,24)";
+			"WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_MediaType NOT IN (1,2,3,4,5,6,7,20,21,22,23,24) ORDER BY PK_Device";
 
+		iOrder=1;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row;
 		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
@@ -159,7 +161,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				string sDesc = row[2] + string("\n") + pRow_Device->Description_get();
 				pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_NP_Sources_CONST,sDesc,0,atoi(row[0]),atoi(row[1]));
 				if( pCommandGroup )
-					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
+					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
 			}
 		}
 	}

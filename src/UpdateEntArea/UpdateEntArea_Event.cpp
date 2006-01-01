@@ -138,19 +138,19 @@ CommandGroup *UpdateEntArea::CreateLeaveHomeCommandGroup(CommandGroupArray &comm
 	for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
 	{
 		if( IsInteriorRoom(it->second.second) )
-			pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,1,0);
+			pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
 	}
 
 	iOrder=1000;
 	vector<Row_EntertainArea *> vectRow_EntertainArea;
-	m_pDatabase_pluto_main->EntertainArea_get()->GetRows("1=1",&vectRow_EntertainArea);
+	m_pDatabase_pluto_main->EntertainArea_get()->GetRows("1=1 ORDER BY PK_EntertainArea",&vectRow_EntertainArea);
 	for(size_t s=0;s<vectRow_EntertainArea.size();++s)
 		pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
 			COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(vectRow_EntertainArea[s]->PK_EntertainArea_get()).c_str());
 
 	iOrder=2000;
 	vector<Row_Users *> vectRow_Users;
-	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
+	m_pDatabase_pluto_main->Users_get()->GetRows("1=1 ORDER BY PK_Users",&vectRow_Users);
 	for(size_t s=0;s<vectRow_Users.size();++s)
 	{
 		Row_Users *pRow_Users = vectRow_Users[s];
@@ -479,7 +479,7 @@ CommandGroup *UpdateEntArea::CreateSecurityAlertCommandGroup(CommandGroupArray &
 		map<int,pair<int,int> > map_Device_Type_RoomType;
 		GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
 		for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
-			pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,1,0);
+			pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,iOrder++,0);
 	}
 
 	return pCommandGroup;

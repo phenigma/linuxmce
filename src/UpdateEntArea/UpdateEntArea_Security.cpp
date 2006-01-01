@@ -102,7 +102,7 @@ void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
 void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray)
 {
 	CommandGroup *pCommandGroup;
-	int iScenarioNum=1;
+	int iScenarioNum=1,iOrder=1;
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		string sRoom;
@@ -122,7 +122,7 @@ void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_View_Cameras_CONST,
 			sRoom,0,iScenarioNum++,0);
 		if( pCommandGroup )
-			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,2,
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,iOrder++,2,
 				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_QuadViewCameras_CONST).c_str(),
 				COMMANDPARAMETER_sPK_Device_List_CONST,sDevices.c_str());
 	}
@@ -130,13 +130,14 @@ void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device
 
 void UpdateEntArea::AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray)
 {
+	int iOrder=1;
 	CommandGroup *pCommandGroup;
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_View_Camera_CONST,
 			vectRow_Device[s]->Description_get(),0,s,0);
 		if( pCommandGroup )
-			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,2,
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,iOrder++,2,
 				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SingleCameraViewOnly_CONST).c_str(),
 				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(vectRow_Device[s]->PK_Device_get()).c_str());
 	}
