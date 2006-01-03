@@ -700,6 +700,9 @@
 #define COMMAND_Exit_CONST 763
 #define COMMAND_Set_Active_Menu_CONST 764
 #define COMMAND_Set_Device_Relations_CONST 765
+#define COMMAND_Composite_2_CONST 766
+#define COMMAND_HDMI_2_CONST 767
+#define COMMAND_RGB_2_CONST 768
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
