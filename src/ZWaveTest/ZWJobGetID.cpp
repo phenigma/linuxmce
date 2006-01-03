@@ -4,6 +4,13 @@
 #include "PlutoZWSerialAPI.h"
 
 #include <stdio.h>
+#include <string.h>
+
+union String2ULong
+{
+	char buffer[4];
+	unsigned long number;
+};
 
 // ----------------------------------
 
@@ -68,6 +75,15 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 				buffer[0] == RESPONSE &&
 				buffer[1] == FUNC_ID_MEMORY_GET_ID )
 			{
+				union String2ULong s2ul;
+				
+				memcpy(s2ul.buffer, &buffer[2], 4);
+				
+				handler()->setHomeID(s2ul.number);
+				handler()->setNodeID(buffer[6]);
+				
+				setState(ZWaveJob::STOPPED);
+				
 				return true;
 			}
 			break;
