@@ -63,7 +63,15 @@ class PlutoZWSerialAPI
 
 		virtual void setVersion(std::string& version);
 
-	private:
+		virtual unsigned char capabilities() const;
+
+		virtual void setCapabilities(unsigned char capabilities);
+
+		virtual unsigned char firmwareVersion() const;
+
+		virtual void setFirmwareVersion(unsigned char firmwareVersion);
+
+		private:
 
 		PlutoZWSerialAPI();
 		

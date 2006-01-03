@@ -35,7 +35,8 @@ class PlutoZWSerialAPI::Private
 		unsigned short nodeID;
 		unsigned short sucID;
 		std::string version;
-		
+		unsigned char capabilities;
+		unsigned char firmwareVersion;
 		ZWaveJob * currentJob;
 		char command[65536];
 		size_t commandLength;
@@ -249,6 +250,26 @@ std::string PlutoZWSerialAPI::version() const
 void PlutoZWSerialAPI::setVersion(std::string& version)
 {
 	d->version = version;
+}
+
+unsigned char PlutoZWSerialAPI::firmwareVersion() const
+{
+	return d->firmwareVersion;
+}
+
+void PlutoZWSerialAPI::setFirmwareVersion(unsigned char firmwareVersion)
+{
+	d->firmwareVersion = firmwareVersion;
+}
+
+unsigned char PlutoZWSerialAPI::capabilities() const
+{
+	return d->capabilities;
+}
+
+void PlutoZWSerialAPI::setCapabilities(unsigned char capabilities)
+{
+	d->capabilities = capabilities; 
 }
 
 unsigned short PlutoZWSerialAPI::nodeID() const

@@ -34,8 +34,25 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 				break;
 			if(buffer[0] != RESPONSE || buffer[1] != FUNC_ID_SERIAL_API_GET_INIT_DATA)
 				break;
-			if(buffer[3] != 29) //hard coded into docs
+			if(buffer[4] != 29) //hard coded into docs
 				break;
+			//save capabilities
+			handler()->setCapabilities(buffer[3]);
+			//save version
+			handler()->setFirmwareVersion(buffer[2]);
+			//get the nodes
+			unsigned short node_index = 0;
+			for(int i = 5; i < 9; i++)
+			{
+				for(int j = 0; j < 8; j++)
+				{
+					node_index++;
+					if( (1 << j) & buffer[i])
+					handler()->insertNode(new ZWaveNode(handler()->homeID(), node_index));
+				}
+			}
+			
+			return true;
 	}
 	return false;
 }
