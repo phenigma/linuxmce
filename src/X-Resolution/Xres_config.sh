@@ -32,11 +32,20 @@ else
 	ModeName="\"${Width}x${Height}\""
 fi
 
-awk '
+awk -v "Force=$Force" '
 	BEGIN { Monitor = 0; Display = 0; }
 	/Modeline/ || /Modes/ { next }
 	/Section..*"Monitor"/ { print; Monitor = 1; next; }
-	/EndSection/ && Monitor == 1 { print "\tModeline '"${Modeline//\"/\\\"}"'"; print; Monitor = 0; next; }
+	/EndSection/ && Monitor == 1 {
+		print "\tModeline '"${Modeline//\"/\\\"}"'";
+		if (Force == "yes") {
+			print "\tHorizSync 28-500";
+			print "\tVertRefresh 43-500";
+		}
+		print;
+		Monitor = 0;
+		next;
+	}
 	/SubSection..*"Display"/ { print; Display = 1; next; }
 	/EndSubSection/ && Display == 1 { print "\t\tModes '"${ModeName//\"/\\\"}"'"; print; Display = 0; next; }
 	{ print }
