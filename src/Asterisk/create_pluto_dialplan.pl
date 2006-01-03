@@ -118,6 +118,16 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
         $action =~ s/[&]$//;
         $action .= ",$TIMEOUT)";
     }
+    if($DB_ROW->{'Routing'} =~ /^ring,$/)
+    {
+        $action = "Dial(";
+        foreach my $i (sort(values(%PHONES)))
+        {
+            $action .= "Local/".$i."\@trusted&";
+        }
+        $action =~ s/[&]$//;
+        $action .= ",$TIMEOUT)";
+    }
     if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
     {
         $action = "Dial(Local/".$USERS{$1}."\@trusted,$TIMEOUT)";
@@ -128,7 +138,14 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     }
     if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
     {
-        $action = "Macro(vm,".$USERS{$1}.")";
+		if(defined $USERS{$1})
+		{
+       		$action = "Macro(vm,".$USERS{$1}.")";
+		}
+		else
+		{
+			$action = "Macro(vm,".$user.")";
+		}
     }
     if($tmp ne $user."-".$pri."-".$um)
     {
