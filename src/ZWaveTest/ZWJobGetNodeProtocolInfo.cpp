@@ -12,11 +12,14 @@ class ZWJobGetNodeProtocolInfo::Private
 	
 		Private();
 		~Private();
+		
+		unsigned short nodeID;
 	
 	private:
 };
 
 ZWJobGetNodeProtocolInfo::Private::Private()
+	: nodeID(0)
 {
 }
 
@@ -30,7 +33,7 @@ ZWJobGetNodeProtocolInfo::ZWJobGetNodeProtocolInfo(PlutoZWSerialAPI * zwAPI)
 	: ZWaveJob(zwAPI)
 {
 	d = new Private();
-	setType(ZWaveJob::GET_ID);
+	setType(ZWaveJob::GET_NODE_PROTOCOL_INFO);
 }
 
 ZWJobGetNodeProtocolInfo::~ZWJobGetNodeProtocolInfo()
@@ -41,16 +44,22 @@ ZWJobGetNodeProtocolInfo::~ZWJobGetNodeProtocolInfo()
 
 bool ZWJobGetNodeProtocolInfo::run()
 {
-	// send	FUNC_ID_MEMORY_GET_ID
-	char buffer[10];
+	if( d->nodeID != 0 )
+	{
+		char buffer[10];
+		
+		buffer[0] = REQUEST;
+		buffer[1] = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO;
+		buffer[2] = (unsigned char)d->nodeID;
+		buffer[3] = 0;
+		
+		setState(ZWaveJob::RUNNING);
+		
+		return handler()->sendData(buffer, 3);
+	}
 	
-	buffer[0] = REQUEST;
-	buffer[1] = FUNC_ID_MEMORY_GET_ID;
-	buffer[2] = 0;
-	
-	setState(ZWaveJob::RUNNING);
-	
-	return handler()->sendData(buffer, 2);
+	g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo wrong node id.");
+	return false;
 }
 
 bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
@@ -64,13 +73,29 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 			break;
 			
 		case ZWaveJob::RUNNING :
-			if( length >= 7 && 
+			if( length >= 8 && 
 				buffer[0] == RESPONSE &&
-				buffer[1] == FUNC_ID_MEMORY_GET_ID )
+				buffer[1] == FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO )
 			{
-				setState(ZWaveJob::STOPPED);
-				
-				return true;
+				ZWaveNode * node = handler()->getNode(d->nodeID);
+				if( node != NULL )
+				{
+					node->setCapabilities(buffer[2]);
+					node->setSecurity(buffer[3]);
+					// buffer[4] is reserved
+					node->setBasicType(buffer[5]);
+					node->setGenericType(buffer[6]);
+					node->setSpecificType(buffer[7]);
+					
+					setState(ZWaveJob::STOPPED);
+					
+					return true;
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo there isn't such node ID: %d.",
+						d->nodeID);
+				}
 			}
 			else
 			{
@@ -81,3 +106,14 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 	
 	return false;
 }
+
+void ZWJobGetNodeProtocolInfo::setNodeID(unsigned short id)
+{
+	d->nodeID = id;
+}
+
+unsigned short ZWJobGetNodeProtocolInfo::nodeID()
+{
+	return d->nodeID;
+}
+		

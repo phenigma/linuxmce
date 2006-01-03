@@ -145,6 +145,9 @@
 			<File
 				RelativePath=".\ZWJobGetVersion.cpp">
 			</File>
+			<File
+				RelativePath=".\ZWJobInitialize.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -185,6 +188,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobGetVersion.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobInitialize.h">
 			</File>
 		</Filter>
 		<Filter

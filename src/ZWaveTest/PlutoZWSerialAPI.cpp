@@ -31,12 +31,14 @@ class PlutoZWSerialAPI::Private
 		JobsDeque jobsQueue;
 		NodesMap nodes;
 		PlutoZWSerialAPI::SerialState state;
+		
 		unsigned long homeID;
 		unsigned short nodeID;
 		unsigned short sucID;
 		std::string version;
 		unsigned char capabilities;
 		unsigned char firmwareVersion;
+		
 		ZWaveJob * currentJob;
 		char command[65536];
 		size_t commandLength;
@@ -67,6 +69,9 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 
 PlutoZWSerialAPI::Private::~Private()
 {
+	//TODO !!!:
+	// delete all the queued jobs
+	// delete all the nodes
 	delete connection;
 	connection = NULL;
 }

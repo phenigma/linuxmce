@@ -29,7 +29,7 @@ ZWJobGetSUC::ZWJobGetSUC(PlutoZWSerialAPI * zwAPI)
 	: ZWaveJob(zwAPI)
 {
 	d = new Private();
-	setType(ZWaveJob::GET_ID);
+	setType(ZWaveJob::GET_SUC);
 }
 
 ZWJobGetSUC::~ZWJobGetSUC()

@@ -5,6 +5,7 @@
 ZWJobGetInitData::ZWJobGetInitData(PlutoZWSerialAPI* ser):
 	ZWaveJob(ser)
 {
+	setType(ZWaveJob::GET_INIT_DATA);
 }
 
 

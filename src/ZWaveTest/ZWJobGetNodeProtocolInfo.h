@@ -17,6 +17,12 @@ class ZWJobGetNodeProtocolInfo : public ZWaveJob
 		/** It is called to process the protocol data flow.*/
 		virtual bool processData(const char * buffer, size_t length);
 		
+		/** You will get information about this node.*/
+		virtual void setNodeID(unsigned short id);
+		
+		/** Returns the node id.*/
+		virtual unsigned short nodeID();
+		
 	private:
 	
 		// disable the default constructor
