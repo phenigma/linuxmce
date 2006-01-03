@@ -68,7 +68,8 @@ $out.='
 		{
 			$resType = "";
 		}
-		$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType'";
+		$force = "-f"; $force = ""; // XXX
+		$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType $force'";
 		exec($cmd, $retArray);
 		
 		$out.='
