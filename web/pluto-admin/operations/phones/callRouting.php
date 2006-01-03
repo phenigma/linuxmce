@@ -269,12 +269,12 @@ function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
 			break;
 			case 'user':
 				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID'].' AND PK_Users!='.$user);
-				$div_user=pulldownFromArray($users,'user_'.$suffix,(int)@$oldValues);
+				$div_user=pulldownFromArray($users,'user_'.$suffix,(int)@$oldValues,'','key','');
 				$out.='<div id="div_user_'.$suffix.'" '.$styleHidden.'>'.$div_user.'</div>';
 			break;		
 			case 'voicemail':
 				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);
-				$div_voicemail=pulldownFromArray($users,'voicemail_'.$suffix,(int)@$oldValues);
+				$div_voicemail=pulldownFromArray($users,'voicemail_'.$suffix,(int)@$oldValues,'','key','');
 				$out.='<div id="div_voicemail_'.$suffix.'" '.$styleHidden.'>'.$div_voicemail.'<br>For more datails about your voicemail please dial "*98" followed by your user extension and your voicemail password, then follow voice menu.<br>
 There you can record your greetings, check for voicemail and so on.</div>';
 			break;		
