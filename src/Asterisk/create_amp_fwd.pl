@@ -116,7 +116,7 @@ foreach my $var (keys %IN_VARS)
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
 #run AMP's scripts to generate asterisk's config
-`/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
+`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&clk_reload=true' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
 #reload asterisk

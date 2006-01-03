@@ -47,7 +47,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$DECLARED_PREFIX."|.";
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="teliax";
+$TRUNK_VARS{'channelid'}="teliax-out";
 $TRUNK_VARS{'peerdetails'} ="allow=gsm\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
@@ -59,8 +59,12 @@ $TRUNK_VARS{'peerdetails'}.="type=friend\n";
 $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
 $TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
 $TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
-$TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
-$TRUNK_VARS{'userconfig'}="context=from-pstn\ntype=friend\n";
+$TRUNK_VARS{'usercontext'}="teliax";
+$TRUNK_VARS{'userconfig'}="context=from-pstn\n";
+$TRUNK_VARS{'userconfig'}.="type=friend\n";
+$TRUNK_VARS{'userconfig'}.="auth=md5\n";
+$TRUNK_VARS{'userconfig'}.="username=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'userconfig'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@voip-co2.teliax.com";
 foreach my $var (keys %TRUNK_VARS)
 {
@@ -78,7 +82,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
 	chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax-out[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }
@@ -116,8 +120,9 @@ foreach my $var (keys %IN_VARS)
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
 #run AMP's scripts to generate asterisk's config
-`/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
+`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&clk_reload=true' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
 #reload asterisk
 `asterisk -r -x reload`;
+
