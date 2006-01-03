@@ -116,10 +116,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\SerialConnection.cpp">
+				RelativePath=".\PlutoZWSerialAPI.cpp">
 			</File>
 			<File
-				RelativePath=".\ZW_SerialAPI.cpp">
+				RelativePath=".\SerialConnection.cpp">
 			</File>
 			<File
 				RelativePath=".\ZWaveJob.cpp">
@@ -130,6 +130,9 @@
 			<File
 				RelativePath=".\ZWaveTest.cpp">
 			</File>
+			<File
+				RelativePath=".\ZWJobGetID.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -139,16 +142,19 @@
 				RelativePath=".\main.h">
 			</File>
 			<File
-				RelativePath=".\SerialConnection.h">
+				RelativePath=".\PlutoZWSerialAPI.h">
 			</File>
 			<File
-				RelativePath=".\ZW_SerialAPI.h">
+				RelativePath=".\SerialConnection.h">
 			</File>
 			<File
 				RelativePath=".\ZWaveJob.h">
 			</File>
 			<File
 				RelativePath=".\ZWaveNode.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetID.h">
 			</File>
 		</Filter>
 		<Filter

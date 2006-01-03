@@ -1,7 +1,7 @@
 #ifndef _ZWAVE_JOB_H_
 #define _ZWAVE_JOB_H_
 
-class ZW_SerialAPI;
+class PlutoZWSerialAPI;
 
 class ZWaveJob
 {
@@ -11,7 +11,7 @@ class ZWaveJob
 		
 		enum ZW_JOB { NOTHING=0, VERSION, GET_INFO, SET_INFO, INITIALIZE, RECEIVE, ADD_NODE, REMOVE_NODE };
 
-		ZWaveJob(ZW_SerialAPI*);
+		ZWaveJob(PlutoZWSerialAPI*);
 		
 		virtual ~ZWaveJob();
 		
@@ -36,10 +36,13 @@ class ZWaveJob
 	protected:
 	
 		/** Returns the job handler.*/
-		virtual ZW_SerialAPI* handler() const;
+		virtual PlutoZWSerialAPI* handler() const;
 		
 	private:
 	
+		// disable the default constructor
+		ZWaveJob();
+		
 		class Private;
 		Private * d;
 };

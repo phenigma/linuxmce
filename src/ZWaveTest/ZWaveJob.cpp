@@ -2,22 +2,23 @@
 
 #include "main.h"
 #include "SerialConnection.h"
+#include "PlutoZWSerialAPI.h"
 
 class ZWaveJob::Private
 {
 	public:
 	
-		Private(ZW_SerialAPI *);
+		Private(PlutoZWSerialAPI *);
 		~Private();
 		
-		ZW_SerialAPI * handler;
+		PlutoZWSerialAPI * handler;
 		ZWaveJob::JobState state;
 		ZWaveJob::ZW_JOB type;
 		
 	private:
 };
 
-ZWaveJob::Private::Private(ZW_SerialAPI * zwAPI)
+ZWaveJob::Private::Private(PlutoZWSerialAPI * zwAPI)
 	: handler(zwAPI),
 	  state(ZWaveJob::IDLE),
 	  type(ZWaveJob::NOTHING)
@@ -29,7 +30,7 @@ ZWaveJob::Private::~Private()
 }
 
 
-ZWaveJob::ZWaveJob(ZW_SerialAPI * zwAPI)
+ZWaveJob::ZWaveJob(PlutoZWSerialAPI * zwAPI)
 {
 	d = new Private(zwAPI);
 	if( d == NULL )
@@ -64,7 +65,7 @@ void ZWaveJob::setType(ZWaveJob::ZW_JOB type)
 	d->type = type;
 }
 
-ZW_SerialAPI* ZWaveJob::handler() const
+PlutoZWSerialAPI* ZWaveJob::handler() const
 {
 	return d->handler;
 }

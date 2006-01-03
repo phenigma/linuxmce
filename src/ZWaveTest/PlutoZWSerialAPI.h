@@ -16,15 +16,15 @@ typedef deque<ZWaveJob*> JobsDeque;
 typedef JobsDeque::iterator JobsDequeIterator;
 typedef JobsDeque::const_iterator JobsDequeCIterator;
 
-class ZW_SerialAPI
+class PlutoZWSerialAPI
 {
 	public:
 
 		enum SerialState { STOPPED, IDLE, RUNNING, WAITTING };
 		
-		static ZW_SerialAPI * instance();
+		static PlutoZWSerialAPI * instance();
 
-		virtual ~ZW_SerialAPI();
+		virtual ~PlutoZWSerialAPI();
 
 		virtual bool start();
 		
@@ -42,13 +42,21 @@ class ZW_SerialAPI
 		
 		virtual const NodesMap& getNodes() const;
 		
+		virtual unsigned long homeID() const;
+		
+		virtual void setHomeID(unsigned long);
+		
+		virtual unsigned short nodeID() const;
+		
+		virtual void setNodeID(unsigned short);
+		
 		virtual bool processData(const char * buffer, size_t length);
 
 	private:
 
-		ZW_SerialAPI();
+		PlutoZWSerialAPI();
 		
-		static ZW_SerialAPI * ref;
+		static PlutoZWSerialAPI * ref;
 
 		class Private;
 		Private * d;

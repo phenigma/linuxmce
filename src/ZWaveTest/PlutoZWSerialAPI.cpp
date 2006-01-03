@@ -1,25 +1,38 @@
-#include ".\zw_serialapi.h"
+#include "PlutoZWSerialAPI.h"
 
 #include "main.h"
 #include "SerialConnection.h"
 
 #include <string.h>
 
-ZW_SerialAPI * ZW_SerialAPI::ref = NULL;
+// thread sleep for 200 msec
+#ifdef _WIN32
+#include <windows.h>
+#include <winbase.h>
+#define READ_DELAY 200
+#else
+#include <unistd.h>
+#define READ_DELAY 200000
+#endif
+
+
+PlutoZWSerialAPI * PlutoZWSerialAPI::ref = NULL;
 
 // -------------- Private -----------------------------------
-class ZW_SerialAPI::Private
+class PlutoZWSerialAPI::Private
 {
 	public:
 
-		Private(ZW_SerialAPI*);
+		Private(PlutoZWSerialAPI*);
 
 		~Private();
 
 		SerialConnection * connection;
 		JobsDeque jobsQueue;
 		NodesMap nodes;
-		ZW_SerialAPI::SerialState state;
+		PlutoZWSerialAPI::SerialState state;
+		unsigned long homeID;
+		unsigned short nodeID;
 		
 		ZWaveJob * currentJob;
 		char command[65536];
@@ -27,12 +40,14 @@ class ZW_SerialAPI::Private
 
 	private:
 
-		ZW_SerialAPI * parent_;
+		PlutoZWSerialAPI * parent_;
 };
 
-ZW_SerialAPI::Private::Private(ZW_SerialAPI * parent)
+PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	: connection(NULL),
-	  state(ZW_SerialAPI::STOPPED),
+	  state(PlutoZWSerialAPI::STOPPED),
+	  homeID(0L),
+	  nodeID(0),
 	  currentJob(NULL),
 	  commandLength(0),
 	  parent_(parent)
@@ -46,24 +61,24 @@ ZW_SerialAPI::Private::Private(ZW_SerialAPI * parent)
 	}
 }
 
-ZW_SerialAPI::Private::~Private()
+PlutoZWSerialAPI::Private::~Private()
 {
 	delete connection;
 	connection = NULL;
 }
 
-// ------------ ZW_SerialAPI -----------------------
-ZW_SerialAPI * ZW_SerialAPI::instance()
+// ------------ PlutoZWSerialAPI -----------------------
+PlutoZWSerialAPI * PlutoZWSerialAPI::instance()
 {
 	if(ref == NULL)
 	{
-		ref = new ZW_SerialAPI();
+		ref = new PlutoZWSerialAPI();
 	}
 	
 	return ref;
 }
 
-ZW_SerialAPI::ZW_SerialAPI()
+PlutoZWSerialAPI::PlutoZWSerialAPI()
 {
 	d = new Private(this);
 	if(d == NULL)
@@ -72,15 +87,15 @@ ZW_SerialAPI::ZW_SerialAPI()
 	}
 }
 
-ZW_SerialAPI::~ZW_SerialAPI()
+PlutoZWSerialAPI::~PlutoZWSerialAPI()
 {
 	delete d;
 	d = NULL;
 }
 
-bool ZW_SerialAPI::start()
+bool PlutoZWSerialAPI::start()
 {
-	if( d->state == ZW_SerialAPI::STOPPED )
+	if( d->state == PlutoZWSerialAPI::STOPPED )
 	{
 		if( d->jobsQueue.size() )
 		{
@@ -88,7 +103,7 @@ bool ZW_SerialAPI::start()
 			{
 				d->currentJob = d->jobsQueue.front();
 				d->jobsQueue.pop_front();
-				d->state = ZW_SerialAPI::RUNNING;
+				d->state = PlutoZWSerialAPI::RUNNING;
 				d->currentJob->run();
 				
 				return true;
@@ -99,22 +114,22 @@ bool ZW_SerialAPI::start()
 	return false;
 }
 
-bool ZW_SerialAPI::stop()
+bool PlutoZWSerialAPI::stop()
 {
-	if( d->state != ZW_SerialAPI::STOPPED )
+	if( d->state != PlutoZWSerialAPI::STOPPED )
 	{
 		d->connection->disconnect();
-		d->state = ZW_SerialAPI::STOPPED;
+		d->state = PlutoZWSerialAPI::STOPPED;
 	}
 	
 	return true;
 }
 
-bool ZW_SerialAPI::listen()
+bool PlutoZWSerialAPI::listen()
 {
-	if( d->state = ZW_SerialAPI::RUNNING )
+	if( d->state = PlutoZWSerialAPI::RUNNING )
 	{
-		d->state = ZW_SerialAPI::WAITTING;
+		d->state = PlutoZWSerialAPI::WAITTING;
 		while( d->connection->isConnected() )
 		{
 			if( d->connection->hasCommand() )
@@ -125,12 +140,12 @@ bool ZW_SerialAPI::listen()
 				{
 					if( d->currentJob != NULL )
 					{
-						d->state = ZW_SerialAPI::RUNNING;
+						d->state = PlutoZWSerialAPI::RUNNING;
 						if( !d->currentJob->processData(d->command, d->commandLength) )
 						{
 							// TODO error
 						}
-						d->state = ZW_SerialAPI::WAITTING;
+						d->state = PlutoZWSerialAPI::WAITTING;
 					}
 					
 					// check if the job has finished
@@ -142,9 +157,9 @@ bool ZW_SerialAPI::listen()
 						{
 							d->currentJob = d->jobsQueue.front();
 							d->jobsQueue.pop_front();
-							d->state = ZW_SerialAPI::RUNNING;
+							d->state = PlutoZWSerialAPI::RUNNING;
 							d->currentJob->run();
-							d->state = ZW_SerialAPI::WAITTING;
+							d->state = PlutoZWSerialAPI::WAITTING;
 						}
 						else
 						{
@@ -158,21 +173,25 @@ bool ZW_SerialAPI::listen()
 				}
 			}
 			
-			// sleep 10 ms
+#ifdef _WIN32
+	Sleep(READ_DELAY);
+#else
+	usleep(READ_DELAY);
+#endif
 		}
 	}
 	
 	return true;
 }
 
-bool ZW_SerialAPI::insertJob(ZWaveJob * job)
+bool PlutoZWSerialAPI::insertJob(ZWaveJob * job)
 {
 	// TODO Insert INIT job as the first job if the state is STOPPED
 	d->jobsQueue.push_back(job);
 	return true;
 }
 
-bool ZW_SerialAPI::insertNode(ZWaveNode * node)
+bool PlutoZWSerialAPI::insertNode(ZWaveNode * node)
 {
 	if( d->nodes.end() == d->nodes.find( node->nodeID() ) )
 	{
@@ -183,7 +202,7 @@ bool ZW_SerialAPI::insertNode(ZWaveNode * node)
 	return false;
 }
 
-bool ZW_SerialAPI::removeNode(unsigned short id)
+bool PlutoZWSerialAPI::removeNode(unsigned short id)
 {
 	NodesMapIterator it = d->nodes.find(id);
 	if( it != d->nodes.end() )
@@ -193,7 +212,7 @@ bool ZW_SerialAPI::removeNode(unsigned short id)
 	return true;
 }
 
-ZWaveNode * ZW_SerialAPI::getNode(unsigned short id)
+ZWaveNode * PlutoZWSerialAPI::getNode(unsigned short id)
 {
 	NodesMapCIterator it = d->nodes.find(id);
 	if( it != d->nodes.end() )
@@ -204,12 +223,32 @@ ZWaveNode * ZW_SerialAPI::getNode(unsigned short id)
 	return NULL;
 }
 
-const NodesMap& ZW_SerialAPI::getNodes() const
+const NodesMap& PlutoZWSerialAPI::getNodes() const
 {
 	return d->nodes;
 }
 
-bool ZW_SerialAPI::processData(const char * buffer, size_t length)
+unsigned long PlutoZWSerialAPI::homeID() const
+{
+	return d->homeID;
+}
+
+void PlutoZWSerialAPI::setHomeID(unsigned long id)
+{
+	d->homeID = id;
+}
+
+unsigned short PlutoZWSerialAPI::nodeID() const
+{
+	return d->nodeID;
+}
+
+void PlutoZWSerialAPI::setNodeID(unsigned short id)
+{
+	d->nodeID = id;
+}
+
+bool PlutoZWSerialAPI::processData(const char * buffer, size_t length)
 {
 	return true;
 }
