@@ -7280,8 +7280,9 @@ void Orbiter::ContinuousRefresh( void *data )
 	{
 		if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 		{
-			if( !m_bDisplayOn )
-				return; // Nothing more to do
+			//hack to make screensaver work again. 
+			//if( !m_bDisplayOn )
+			//	return; // Nothing more to do
 
 			DesignObjText *pText = FindText( m_pScreenHistory_Current->GetObj(), TEXT_USR_ENTRY_CONST );
 			if( pText  )
