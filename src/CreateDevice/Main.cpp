@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 		}
 		UserUtils userUtils(&mySqlHelper,dceConfig.m_iPK_Installation);
 		int PK_Users = userUtils.AddUser(sUserName);
-		cout << sUserName << endl;
+		cout << PK_Users << endl;
 		return 0;
 	}
 
