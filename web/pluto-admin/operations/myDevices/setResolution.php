@@ -49,10 +49,19 @@ $out.='
 		<td>'.pulldownFromArray($refreshArray,'refresh',@$oldRefresh).'</td>
 	</tr>
 	<tr>
+		<td><B>Force resolution</B></td>
+		<td><input type="checkbox" name="force" value="1"></td>
+	</tr>
+	<tr>
 		<td colspan="2" align="center"><input type="submit" class="button" name="test" value="Test resolution and refresh"></td>
 	</tr>
 </table>		
 		</form>
+		<script>
+			var frmvalidator = new formValidator("setResolution");
+ 			frmvalidator.addValidation("resolution","dontselect=0","Please choose the resolution.");
+			frmvalidator.addValidation("refresh","dontselect=0","Please choose the refresh.");
+		</script>
 		';
 		
 	} elseif($action=='confirm'){
@@ -68,7 +77,7 @@ $out.='
 		{
 			$resType = "";
 		}
-		$force = "-f"; $force = ""; // XXX
+		$force=((int)@$_REQUEST['force']==1)?'-f':'';
 		$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType $force'";
 		exec($cmd, $retArray);
 		
