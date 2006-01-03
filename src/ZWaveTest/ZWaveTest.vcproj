@@ -134,6 +134,9 @@
 				RelativePath=".\ZWJobGetID.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWJobGetSUC.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWJobGetInitData.cpp">
 			</File>
 			<File
@@ -167,6 +170,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobGetID.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetSUC.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobGetInitData.h">

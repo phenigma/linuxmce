@@ -51,6 +51,10 @@ class PlutoZWSerialAPI
 		
 		virtual void setNodeID(unsigned short);
 		
+		virtual unsigned short sucID() const;
+		
+		virtual void setSucID(unsigned short);
+		
 		virtual bool sendData(char *buffer, size_t length);
 		
 		virtual bool processData(const char * buffer, size_t length);

@@ -1,15 +1,16 @@
-#ifndef _ZWJOBGETID_H_
-#define _ZWJOBGETID_H_
+#ifndef _ZWJOBGETSUC_H_
+#define _ZWJOBGETSUC_H_
 
-#include "ZWaveJob.h"
+#include "zwavejob.h"
 
-class ZWJobGetID : public ZWaveJob
+class ZWJobGetSUC :
+	public ZWaveJob
 {
 	public:
 	
-		ZWJobGetID(PlutoZWSerialAPI*);
+		ZWJobGetSUC(PlutoZWSerialAPI*);
 		
-		virtual ~ZWJobGetID();
+		virtual ~ZWJobGetSUC();
 		
 		/** It is called to perform the job.*/
 		virtual bool run();
@@ -20,7 +21,7 @@ class ZWJobGetID : public ZWaveJob
 	private:
 	
 		// disable the default constructor
-		ZWJobGetID();
+		ZWJobGetSUC();
 		
 		class Private;
 		Private * d;

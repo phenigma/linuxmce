@@ -33,8 +33,9 @@ class PlutoZWSerialAPI::Private
 		PlutoZWSerialAPI::SerialState state;
 		unsigned long homeID;
 		unsigned short nodeID;
+		unsigned short sucID;
 		std::string version;
-
+		
 		ZWaveJob * currentJob;
 		char command[65536];
 		size_t commandLength;
@@ -49,6 +50,7 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	  state(PlutoZWSerialAPI::STOPPED),
 	  homeID(0L),
 	  nodeID(0),
+	  sucID(0),
 	  currentJob(NULL),
 	  commandLength(0),
 	  parent_(parent)
@@ -257,6 +259,16 @@ unsigned short PlutoZWSerialAPI::nodeID() const
 void PlutoZWSerialAPI::setNodeID(unsigned short id)
 {
 	d->nodeID = id;
+}
+
+unsigned short PlutoZWSerialAPI::sucID() const
+{
+	return d->sucID;
+}
+
+void PlutoZWSerialAPI::setSucID(unsigned short id)
+{
+	d->sucID = id;
 }
 
 bool PlutoZWSerialAPI::sendData(char *buffer, size_t length)

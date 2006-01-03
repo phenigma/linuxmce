@@ -2,6 +2,7 @@
 #include "ZWJobGetID.h"
 #include "ZW_SerialAPI.h"
 #include "PlutoZWSerialAPI.h"
+#include "main.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -68,6 +69,7 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
@@ -85,6 +87,10 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 				setState(ZWaveJob::STOPPED);
 				
 				return true;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID error: %*.*s", length, length, buffer);
 			}
 			break;
 	}
