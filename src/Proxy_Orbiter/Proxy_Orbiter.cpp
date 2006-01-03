@@ -153,12 +153,18 @@ g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 2 %s", FileName.c_str());
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
     {  
+		//the bad news is that convert gets stuck for some pictures while converting to 12 bit colors
+		//the good news is that the cisco phone can read 32 or 24 bit colors images and convert them automatically
+		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
+
+		/*
 g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1 Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
 g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1b Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
         string sCmdLine = string("convert -colors 4096 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
         system(sCmdLine.c_str());
 g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1c Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+		*/
     }
     else
     {
