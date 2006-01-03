@@ -47,6 +47,7 @@ bool SerialConnection::isConnected()
 	return serialPort != NULL;
 }
 
+// TODO: use 'const char * buffer'
 int SerialConnection::send(char *buffer, size_t len)
 {
 	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)

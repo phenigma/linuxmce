@@ -50,6 +50,8 @@ class PlutoZWSerialAPI
 		
 		virtual void setNodeID(unsigned short);
 		
+		virtual bool sendData(char *buffer, size_t length);
+		
 		virtual bool processData(const char * buffer, size_t length);
 
 	private:

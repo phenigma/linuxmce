@@ -248,6 +248,18 @@ void PlutoZWSerialAPI::setNodeID(unsigned short id)
 	d->nodeID = id;
 }
 
+bool PlutoZWSerialAPI::sendData(char *buffer, size_t length)
+{
+	if( !d->connection->send(buffer, length) )
+	{
+		return true;
+	}
+	
+	// TODO: error
+	
+	return false;
+}
+
 bool PlutoZWSerialAPI::processData(const char * buffer, size_t length)
 {
 	return true;

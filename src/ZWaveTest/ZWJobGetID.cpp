@@ -1,5 +1,7 @@
 
-#include "zwjobgetid.h"
+#include "ZWJobGetID.h"
+#include "ZW_SerialAPI.h"
+#include "PlutoZWSerialAPI.h"
 
 #include <stdio.h>
 
@@ -29,6 +31,7 @@ ZWJobGetID::ZWJobGetID(PlutoZWSerialAPI * zwAPI)
 	: ZWaveJob(zwAPI)
 {
 	d = new Private();
+	setType(ZWaveJob::GET_ID);
 }
 
 ZWJobGetID::~ZWJobGetID(void)
@@ -39,10 +42,36 @@ ZWJobGetID::~ZWJobGetID(void)
 
 bool ZWJobGetID::run()
 {
-	return true;
+	// send	FUNC_ID_MEMORY_GET_ID
+	char buffer[10];
+	
+	buffer[0] = REQUEST;
+	buffer[1] = FUNC_ID_MEMORY_GET_ID;
+	buffer[2] = 0;
+	
+	setState(ZWaveJob::RUNNING);
+	
+	return handler()->sendData(buffer, 2);
 }
 
 bool ZWJobGetID::processData(const char * buffer, size_t length)
 {
+	switch( state() )
+	{
+		default :
+		case ZWaveJob::IDLE :
+		case ZWaveJob::STOPPED :
+			break;
+			
+		case ZWaveJob::RUNNING :
+			if( length >= 7 && 
+				buffer[0] == RESPONSE &&
+				buffer[1] == FUNC_ID_MEMORY_GET_ID )
+			{
+				return true;
+			}
+			break;
+	}
+	
 	return false;
 }
