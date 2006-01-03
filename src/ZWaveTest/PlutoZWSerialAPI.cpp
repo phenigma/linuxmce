@@ -33,7 +33,8 @@ class PlutoZWSerialAPI::Private
 		PlutoZWSerialAPI::SerialState state;
 		unsigned long homeID;
 		unsigned short nodeID;
-		
+		std::string version;
+
 		ZWaveJob * currentJob;
 		char command[65536];
 		size_t commandLength;
@@ -236,6 +237,16 @@ unsigned long PlutoZWSerialAPI::homeID() const
 void PlutoZWSerialAPI::setHomeID(unsigned long id)
 {
 	d->homeID = id;
+}
+
+std::string PlutoZWSerialAPI::version() const
+{
+	return d->version;
+}
+
+void PlutoZWSerialAPI::setVersion(std::string& version)
+{
+	d->version = version;
 }
 
 unsigned short PlutoZWSerialAPI::nodeID() const

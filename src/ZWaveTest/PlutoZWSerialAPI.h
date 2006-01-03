@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <map>
+#include <string>
 
 #include "ZWaveNode.h"
 #include "ZWaveJob.h"
@@ -53,6 +54,10 @@ class PlutoZWSerialAPI
 		virtual bool sendData(char *buffer, size_t length);
 		
 		virtual bool processData(const char * buffer, size_t length);
+
+		virtual std::string version() const;
+
+		virtual void setVersion(std::string& version);
 
 	private:
 
