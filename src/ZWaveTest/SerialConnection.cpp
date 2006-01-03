@@ -49,6 +49,7 @@ bool SerialConnection::isConnected()
 
 int SerialConnection::send(char *buffer, size_t len)
 {
+	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)
 	int returnValue = 0;
 	if(buffer != NULL)
 		if(instance->serialPort!= NULL)
@@ -121,9 +122,9 @@ int SerialConnection::hasCommand()
 	int returnValue = 1;
 	if(buffer.size() < 4)
 		return 0;
-	if( buffer.front() == 0x06 )
+	if( buffer.front() == SERIAL_ACK )
 		buffer.pop_front();
-	if( buffer.front() == 0x01 )
+	if( buffer.front() == SERIAL_SOF )
 	{
 		std::deque<char>::iterator i = buffer.begin();
 		unsigned int len = *(++i) ;
@@ -137,7 +138,13 @@ int SerialConnection::hasCommand()
 			for(i = buffer.begin() + 2; i != endPack; i++)
 				tmpSum ^= *i; 
 			if(tmpSum == checkSum)
+			{
 				returnValue = 1;
+				char ack = SERIAL_ACK;
+				pthread_mutex_lock( &mutex_serial );
+				serialPort->Write(&ack, 1);
+				pthread_mutex_unlock( &mutex_serial );
+			}
 			else
 				returnValue = 0;
 		}

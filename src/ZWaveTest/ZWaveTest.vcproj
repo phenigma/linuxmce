@@ -133,6 +133,9 @@
 			<File
 				RelativePath=".\ZWJobGetID.cpp">
 			</File>
+			<File
+				RelativePath=".\ZWJobGetVersion.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -148,6 +151,9 @@
 				RelativePath=".\SerialConnection.h">
 			</File>
 			<File
+				RelativePath=".\ZW_SerialAPI.h">
+			</File>
+			<File
 				RelativePath=".\ZWaveJob.h">
 			</File>
 			<File
@@ -155,6 +161,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobGetID.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetVersion.h">
 			</File>
 		</Filter>
 		<Filter

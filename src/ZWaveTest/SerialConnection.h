@@ -6,6 +6,9 @@
 #include <deque>
 #include <pthread.h>
 
+#define SERIAL_ACK 0x06
+#define SERIAL_SOF 0x01
+
 /**
 * Singleton class that takes care of the serial connection interface. 
 *Send is single thread, receive is multi thread.
