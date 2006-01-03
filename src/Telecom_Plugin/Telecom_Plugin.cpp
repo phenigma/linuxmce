@@ -935,7 +935,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 	{
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
 		vector<Row_Users *> vectRow_Users;
-		m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
+		m_pDatabase_pluto_main->Users_get()->GetRows(COMMANDGROUP_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRouter->iPK_Installation_get()),&vectRow_Users);
 		for(size_t s=0;s<vectRow_Users.size();++s)
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
