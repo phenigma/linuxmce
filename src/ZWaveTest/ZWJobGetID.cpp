@@ -42,7 +42,7 @@ ZWJobGetID::ZWJobGetID(PlutoZWSerialAPI * zwAPI)
 	setType(ZWaveJob::GET_ID);
 }
 
-ZWJobGetID::~ZWJobGetID(void)
+ZWJobGetID::~ZWJobGetID()
 {
 	delete d;
 	d = NULL;

@@ -134,10 +134,13 @@
 				RelativePath=".\ZWJobGetID.cpp">
 			</File>
 			<File
-				RelativePath=".\ZWJobGetSUC.cpp">
+				RelativePath=".\ZWJobGetInitData.cpp">
 			</File>
 			<File
-				RelativePath=".\ZWJobGetInitData.cpp">
+				RelativePath=".\ZWJobGetNodeProtocolInfo.cpp">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetSUC.cpp">
 			</File>
 			<File
 				RelativePath=".\ZWJobGetVersion.cpp">
@@ -172,10 +175,13 @@
 				RelativePath=".\ZWJobGetID.h">
 			</File>
 			<File
-				RelativePath=".\ZWJobGetSUC.h">
+				RelativePath=".\ZWJobGetInitData.h">
 			</File>
 			<File
-				RelativePath=".\ZWJobGetInitData.h">
+				RelativePath=".\ZWJobGetNodeProtocolInfo.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetSUC.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobGetVersion.h">
