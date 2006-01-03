@@ -132,8 +132,11 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	echo "Return code: $Ret" >>"$new_log"
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
+		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
+		sed -i "/^$device_id\$/ d" "$AlreadyRunning"
 		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
+		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		exit
 	elif [ "$Ret" -eq 2 ]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
