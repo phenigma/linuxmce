@@ -144,5 +144,7 @@ foreach my $var (keys %IN_VARS)
 
 #run AMP's scripts to generate asterisk's config
 `/var/www/pluto-admin/amp/admin/retrieve_sip_conf_from_mysql.pl`;
+#create telecom defaults
+`/usr/pluto/bin/create_telecom_defaults.pl`;
 #reload asterisk
 `asterisk -r -x reload`;

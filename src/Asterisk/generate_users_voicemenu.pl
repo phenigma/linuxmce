@@ -87,3 +87,5 @@ sub generate_voice()
     `curl '$SERVER$URL_SOUND' > /tmp/curl.wav`;
     `/usr/bin/sox /tmp/curl.wav -r 8000 -c 1 $FILE resample -ql`;
 }
+
+`/usr/pluto/bin/create_telecom_defaults.pl`;
