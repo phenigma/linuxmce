@@ -7,6 +7,13 @@ Height="$2"
 Refresh="$3"
 Type="$4"
 
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+		"-f") Force=yes ;;
+	esac
+	shift
+done
+
 ShowDialog()
 {
 	local pidOfX="$1"
