@@ -134,6 +134,9 @@
 				RelativePath=".\ZWJobGetID.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWJobGetInitData.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWJobGetVersion.cpp">
 			</File>
 		</Filter>
@@ -151,6 +154,9 @@
 				RelativePath=".\SerialConnection.h">
 			</File>
 			<File
+				RelativePath=".\ZW_classcmd.h">
+			</File>
+			<File
 				RelativePath=".\ZW_SerialAPI.h">
 			</File>
 			<File
@@ -161,6 +167,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobGetID.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobGetInitData.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobGetVersion.h">
