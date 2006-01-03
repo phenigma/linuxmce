@@ -238,7 +238,7 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 
 string RegenMonitor::AllDevicesRooms()
 {
-	string sSQL = "select count(PK_Device),max(Device.psc_mod),max(Device_DeviceData.psc_mod),"
+	string sSQL = "select count(PK_Device)," /* max(Device.psc_mod), */ "max(Device_DeviceData.psc_mod),"  // TODO - HACK - figure out what's modifying the device and put that back
 		"max(DeviceTemplate.psc_mod) from Device JOIN DeviceTemplate on Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN Device_DeviceData ON FK_Device=PK_Device "
 		"LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate "

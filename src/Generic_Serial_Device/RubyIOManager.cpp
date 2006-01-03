@@ -120,7 +120,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
     	            if(sparbitstop == "E81") {
         	            pio->setParityBitStop(epbsE81);
             	    } else
-                	if(sparbitstop == "081") {
+                	if(sparbitstop == "O81") {
 	                    pio->setParityBitStop(epbsO81);
         	        } else {
     	                /*more to be implemented*/
