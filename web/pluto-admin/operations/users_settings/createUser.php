@@ -212,42 +212,55 @@ function createUser($output,$dbADO) {
             	$SambaPass=''; // we can't issue an error here, can we?
 			$LinuxSalt = '$1$Pluto$'; // should we generate this? :)
             $LinuxPass = crypt($userPassword, $LinuxSalt);
-                
-			$insertUser = '
-					INSERT INTO Users (UserName,Password, HasMailbox,
-					AccessGeneralMailbox,FirstName,
-					LastName,Nickname,Extension,
-					FK_Language,FK_Installation_Main,PINCode,Password_Unix,Password_Samba) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
-			$query = $dbADO->Execute($insertUser,array(
-					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
-					$userLastName,$userNickname,$userExtension,
-					$userLanguage,$userMainInstallation,$pinCodeMd5,$LinuxPass,$SambaPass
-					));
-			$insertID = $dbADO->Insert_ID();
+            
+            $cmd='sudo -u root /usr/pluto/bin/CreateDevice -U "'.$username.'"';
+            
+            $insertID=exec($cmd,$retMessage);
+            
+            if(@$insertID>0){
+				$dbADO->Execute('
+					UPDATE Users SET
+						Password=?,
+						HasMailbox=?,
+						AccessGeneralMailbox=?,
+						FirstName=?,
+						LastName=?,
+						Nickname=?,
+						Extension=?,
+						FK_Language=?,
+						PINCode=?,
+						Password_Unix=?,
+						Password_Samba=?,
+						FK_Installation_Main=?
+					WHERE PK_Users=?',
+				array($passMd5, $hasMailbox, $userAccessGeneralMailbox, $userFirstName, $userLastName, $userNickname, $userExtension, $userLanguage, $pinCodeMd5, $LinuxPass, $SambaPass,$userMainInstallation,$insertID));
 			
 					
-			$insertUserToInstallation = "
-			INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation)
-				VALUES(?,?,?)
-			";
-			$_SESSION['createUser']=array();
-			$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$insertID,$userCanModifyInstallation));
+				$insertUserToInstallation = "
+					UPDATE Installation_Users
+						SET userCanModifyInstallation=?
+					WHERE FK_Installation=? AND FK_Users=?";
+				$_SESSION['createUser']=array();
+				$query=$dbADO->Execute($insertUserToInstallation,array($userCanModifyInstallation,$installationID,$insertID));
 
-			$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-			exec($commandToSend);
-			
-			$out.="
-			<script>
-				alert('User created!');
-			    opener.document.forms.{$from}.action.value='form';
-				opener.document.forms.{$from}.lastAction.value='newEventToMasterDevice';
-				opener.document.forms.{$from}.submit();
-				self.close();
-			</script>
-			";			
+				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
+				exec($commandToSend);
+            			
+				$out.="
+				<script>
+					alert('User created!');
+				    opener.document.forms.{$from}.action.value='form';
+					opener.document.forms.{$from}.submit();
+					self.close();
+				</script>
+				";			
+            }else{
+				header("Location: index.php?section=createUser&error=".urlencode(join("<br>",$retMessage)));
+				exit();
+            }
 		} else {				
 			header("Location: index.php?section=createUser&from=$from");
+			exit();
 		}		
 		
 	} else {
