@@ -758,6 +758,9 @@ g_pPlutoLogger->Write(LV_STATUS,"::Screen saver Bypass screen saver now: %d",(in
 	{
 		CMD_Set_Main_Menu("V");
 		GotoScreen(m_sMainMenu);
+
+		//make sure the display is on
+		m_bDisplayOn = true;
 	}
 }
 
@@ -5762,7 +5765,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 		pObj_New = m_pScreenHistory_Current->GetObj();
     }
 
-	//hack! if the simulator is running, we won't go to pluto admin screen
+	//if the simulator is running, we won't go to pluto admin screen
 	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST) )
 		return;
 
@@ -7280,9 +7283,8 @@ void Orbiter::ContinuousRefresh( void *data )
 	{
 		if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 		{
-			//hack to make screensaver work again. 
-			//if( !m_bDisplayOn )
-			//	return; // Nothing more to do
+			if( !m_bDisplayOn )
+				return; // Nothing more to do
 
 			DesignObjText *pText = FindText( m_pScreenHistory_Current->GetObj(), TEXT_USR_ENTRY_CONST );
 			if( pText  )
@@ -7368,7 +7370,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
                 }
             }
         }
-        if(  iLocation!=-1 && iLocation<m_dequeLocation.size() )
+        if(  iLocation!=-1 && iLocation < int(m_dequeLocation.size()))
         {
             LocationInfo *pLocation = m_dequeLocation[iLocation];
             pLocation->m_pvectGraphic = &(pObj->m_vectGraphic);
