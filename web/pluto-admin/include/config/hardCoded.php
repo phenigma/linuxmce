@@ -66,6 +66,7 @@
 	// PK_Template from table Template
 	
 	$GLOBALS['LightingScenariosTemplate']=9;		// Lighting Scenarios
+	$GLOBALS['LightingAutomaticTemplate']=31;		// Lighting Automatic Scenarios
 	$GLOBALS['ClimateScenariosTemplate']=10;		// Climate Scenarios
 	$GLOBALS['securityScenariosTemplate']=12;		// Security Scenarios
 	$GLOBALS['MediaScenariosTemplate']=1;			// Media Scenarios

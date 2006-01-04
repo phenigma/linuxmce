@@ -213,8 +213,7 @@ function createUser($output,$dbADO) {
 			$LinuxSalt = '$1$Pluto$'; // should we generate this? :)
             $LinuxPass = crypt($userPassword, $LinuxSalt);
             
-            $cmd='sudo -u root /usr/pluto/bin/CreateDevice -U "'.$username.'"';
-            
+            $cmd='sudo -u root /usr/pluto/bin/CreateDevice -U "'.$username.'"';		// this will actually create an user !!!
             $insertID=exec($cmd,$retMessage);
             
             if(@$insertID>0){

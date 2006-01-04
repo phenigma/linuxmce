@@ -251,5 +251,8 @@ function processSubmit($telecomADO){
 			$telecomADO->Execute('INSERT INTO Line_HouseMode (ID,`Type`,EK_HouseMode,Routing) VALUES (?,?,?,?)',array($id,$type,$mode,$routingValue));
 		}
 	}
+
+	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+	exec($cmd);
 }
 ?>

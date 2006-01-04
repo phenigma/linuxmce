@@ -539,11 +539,13 @@ $out='';
 				WHERE FK_DeviceTemplate=?',$deviceID);				
 			$dtRelatedRows='';
 			while($rowRel=$resRel->FetchRow()){
+				$pipePos=strpos($rowRel['Value'],'|');
+				$relValue=($pipePos!==false)?substr($rowRel['Value'],0,$pipePos):$rowRel['Value'];
 				$dtRelatedRows.='
 					<tr>
 						<td>&nbsp;</td>
 						<td bgcolor="#EEEEEE">'.$rowRel['Description'].'</td>
-						<td bgcolor="#EEEEEE">'.$dtRelatedValues[$rowRel['Value']].'</td>
+						<td bgcolor="#EEEEEE">'.$dtRelatedValues[$relValue].'</td>
 						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\'Are you sure you want to delete this relation?\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
 					</tr>';
 			}

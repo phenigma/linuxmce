@@ -1,5 +1,9 @@
 <?
 function editDeviceParams($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceParams.lang.php');
+	
 	global $PlutoSupportHost;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
@@ -104,17 +108,17 @@ $installationID = (int)@$_SESSION['installationID'];
 	$childsNo = getChildsNo($deviceID,$dbADO);
 	
 	if(isCritical($DeviceTemplate)){
-		$deleteLink='<a href="javascript: if (confirm(\'WARNING !!! This is a critical device !!! Are you sure you want to delete it? '.($childsNo>0?'It has '.$childsNo.' '.($childsNo>1?'children':'child'):'').'!\')) {document.location.href=\'index.php?section=deleteCriticalDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete Device</a> (NOT RECOMENDED)';
+		$deleteLink='<a href="javascript: if (confirm(\''.$TEXT_DELETE_CRITICAL_DEVICE_CONFIRMATION_CONST.'\')) {document.location.href=\'index.php?section=deleteCriticalDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">'.$TEXT_DELETE_DEVICE_CONST.'</a> '.$TEXT_NOT_RECOMENDED_CONST;
 	}else{
-		$deleteLink='<a href="javascript: if (confirm(\'Are you sure you want to delete this device? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete This Device</a>';
+		$deleteLink='<a href="javascript: if (confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">'.$TEXT_DELETE_THIS_DEVICE_CONST.'</a>';
 	}
 	
-	$manufHomeLink=($ManufacturerURL!='')?'<a href="'.$ManufacturerURL.'" target="_blank" title="Manufacturer URL"><img src="include/images/home.png" border="0" align="middle"></a>':'';
-	$internalLink=($ManufacturerURL!='' && $InternalURLSuffix!='')?'<a href="'.$ManufacturerURL.$InternalURLSuffix.'" title="Device URL on manufacturer site" target="_blank"><img src="include/images/file.png" border="0" align="middle"></a>':'';
-	$resetDeviceLink=($ImplementsDCE==1)?'<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'&action=reset">Reset device</a>':'';
+	$manufHomeLink=($ManufacturerURL!='')?'<a href="'.$ManufacturerURL.'" target="_blank" title="'.$TEXT_MANUFACTURER_URL_CONST.'"><img src="include/images/home.png" border="0" align="middle"></a>':'';
+	$internalLink=($ManufacturerURL!='' && $InternalURLSuffix!='')?'<a href="'.$ManufacturerURL.$InternalURLSuffix.'" title="'.$TEXT_DEVICE_URL_MANUFACTURER_SITE_CONST.'" target="_blank"><img src="include/images/file.png" border="0" align="middle"></a>':'';
+	$resetDeviceLink=($ImplementsDCE==1)?'<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'&action=reset">'.$TEXT_RESET_DEVICE_CONST.'</a>':'';
 	
 	if(isset($_REQUEST['showNote'])){
-		$Alert='alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.");
+		$Alert='alert("'.$TEXT_ADVANCED_PREPARATION_NOTE_CONST.'");
 		';
 	}	
 	$out.='
@@ -131,27 +135,27 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	<table width="100%" bgcolor="#F0F3F8">
 		<tr>
-			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
+			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">'.($deviceID==0?$TEXT_CREATE_TOP_LEVEL_DEVICE_CONST:$TEXT_CREATE_CHILD_DEVICE_CONST).'</a> &nbsp; &nbsp; &nbsp;
 			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
-			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
+			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">'.$TEXT_SEND_COMMAND_TO_DEVICE_CONST.'</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
 			</td>
-			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View errors in log</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View whole log</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">Follow log</a>
+			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_FOLLOW_LOG_CONST.'</a>
 				'.$coreSystemLog.'
 			</td>
 		</tr>
 	</table>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
-	<legend>Device Info #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
+	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
 	<table>
-	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>'.$TEXT_DESCRIPTION_CONST.'</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
 	<tr>
-		<td>Device Template</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
+		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
-		<td>Device Template Comments</td>
+		<td>'.$TEXT_DEVICE_TEMPLATE_COMMENTS_CONST.'</td>
 		<td>'.$dtComments.'</td>
 	</tr>
 	

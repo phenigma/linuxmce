@@ -1,5 +1,9 @@
 <?
 function editComputingApplications($output,$dbADO,$mediadbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editComputingApplications.lang.php');
+
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -31,7 +35,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		$tableRows.='
 			<tr bgcolor="'.$color.'">
 				<td>'.$pic.'</td>
-				<td>Description: <B>'.$appArray['Description'][$i].'</B><br>Path to binary: <B>'.$appArray['Binary'][$i].'</B><br>Arguments: <B>'.$appArray['Arguments'][$i].'</B></td>
+				<td>'.$TEXT_DESCRIPTION_CONST.': <B>'.$appArray['Description'][$i].'</B><br>Path to binary: <B>'.$appArray['Binary'][$i].'</B><br>Arguments: <B>'.$appArray['Arguments'][$i].'</B></td>
 				<td align="center">
 					<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
 					<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
@@ -79,45 +83,46 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		<input type="hidden" name="mdID" value="'.$mdID.'">	
 		<input type="hidden" name="currentPos" value="">
 		
-	<div align="center"><h3>Edit Computing Applications</h3>
-	The following applications will appear on the ‘Computing’ menu:</div><br>
+	<div align="center"><h3>'.$TEXT_EDIT_COMPUTING_APPLICATIONS_CONST.'</h3>
+	'.$TEXT_COMPUTING_INFO_CONST.'</div><br>
+		
 	<table cellpadding="3" cellspacing="0" align="center">
 		<tr>
 			<td valign="top">'.$tree.'</td>
 			<td valign="top"><table cellpadding="3" cellspacing="0" align="center">
 			<tr bgcolor="lightblue">
-				<td align="center" colspan="2"><B>Application</B></td>
-				<td align="center"><B>Action</B></td>
+				<td align="center" colspan="2"><B>'.$TEXT_APPLICATION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
 			'.$tableRows.'
 			<tr>
 				<td>&nbsp;</td>
 			</tr>
 			<tr bgcolor="lightblue">
-				<td colspan="3"><B>Add new application</B></td>
+				<td colspan="3"><B>'.$TEXT_ADD_NEW_APPLICATION_CONST.'</B></td>
 			</tr>
 			<tr>
-				<td><B>Select icon</B></td>
+				<td><B>'.$TEXT_SELECT_ICON_CONST.'</B></td>
 				<td><input type="file" name="picture" value=""></td>
 			</tr>
 			<tr>
-				<td><B>Description</B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td><input type="text" name="description"></td>
 			</tr>
 			<tr>
-				<td><B>Path to binary</B></td>
+				<td><B>'.$TEXT_PATH_TO_BINARY_CONST.'</B></td>
 				<td><input type="text" name="path"></td>
 			</tr>
 			<tr>
-				<td><B>Arguments</B></td>
+				<td><B>'.$TEXT_ARGUMENTS_CONST.'</B></td>
 				<td><input type="text" name="arguments"></td>
 			</tr>
 			<tr>
-				<td><B>Also add to media directors</B></td>
+				<td><B>'.$TEXT_ADD_TO_MEDIA_DIRECTORS_CONST.'</B></td>
 				<td>'.$mdCheckboxes.'</td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add"> <input type="button" class="button" name="close" value="Close" onclick="self.close();"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onclick="self.close();"></td>
 			</tr>
 		</table></td>
 		</tr>	
@@ -128,7 +133,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=editComputingApplications&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=editComputingApplications&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -149,7 +154,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 				if(!@move_uploaded_file($_FILES['picture']['tmp_name'],$fixedPath.'/'.$picture.'.'.$extension)){
 					$mediadbADO->Execute('DELETE FROM Picture WHERE PK_Picture=?',$picture);
 					$picture=NULL;
-					$err='Picture not uploaded, check the rights for '.$fixedPath;
+					$err=$TEXT_ERROR_UPLOAD_PATH_CONST.' '.$fixedPath;
 				}
 				
 			}
@@ -199,14 +204,14 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			
 		}
 		
-		$sufix=(@$err!='')?'&error='.$err:'&msg=Computing Applications were updated';
+		$sufix=(@$err!='')?'&error='.$err:'&msg='.$TEXT_COMPUTING_APPLICATIONS_UPDATED_CONST;
 		
 		header("Location: index.php?section=editComputingApplications&mdID=$mdID".$sufix);		
 	}
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit Computing Applications');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_COMPUTING_APPLICATIONS_CONST);
 	$output->output();
 }
 
@@ -224,6 +229,10 @@ function getQuickStartTemplates($dbADO){
 }
 
 function getQuickStartTree($usedTemplates,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editComputingApplications.lang.php');
+	
 	$nodes=getNodesArray('QuickStartCategory','PK_QuickStartCategory','FK_QuickStartCategory_Parent',$dbADO);
 	$quickStartTemplates=getQuickStartTemplates($dbADO);
 	
@@ -231,7 +240,7 @@ function getQuickStartTree($usedTemplates,$dbADO){
 		<input type="hidden" name="qst" value="">
 	<table cellpadding="3" cellspacing="0">
 		<tr bgcolor="lightblue">
-			<td colspan="2"><B>Quick start templates</B></td>
+			<td colspan="2"><B>'.$TEXT_QUICK_START_TEMPLATES_CONST.'</B></td>
 		</tr>';
 	foreach ($nodes['root_node'] AS $rootNode){
 		$out.='
@@ -241,7 +250,7 @@ function getQuickStartTree($usedTemplates,$dbADO){
 		if(count(@$quickStartTemplates[$rootNode])==0){
 			$out.='
 				<tr>
-					<td style="padding-left:20px;" colspan="2">No quick start templates in this category.</td>
+					<td style="padding-left:20px;" colspan="2">'.$TEXT_NO_QUICK_START_TEMPLATES_CATEGORY_CONST.'</td>
 				</tr>
 			';
 		}
@@ -250,7 +259,7 @@ function getQuickStartTree($usedTemplates,$dbADO){
 			$out.='
 				<tr>
 					<td style="padding-left:20px;">'.$quickStartTemplates['description'][$qsTemplate].'</td>
-					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ Add ]</a></td>
+					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ '.$TEXT_ADD_CONST.' ]</a></td>
 				</tr>
 			';
 			}
@@ -260,7 +269,7 @@ function getQuickStartTree($usedTemplates,$dbADO){
 	}
 	$out.='
 		<tr>
-			<td colspan="2"><a href="javascript:windowOpen(\'index.php?section=editQuickStartTemplates\',\'\')">Add other software</a> to permanently appear in this quick launch for all Pluto users</td>
+			<td colspan="2"><a href="javascript:windowOpen(\'index.php?section=editQuickStartTemplates\',\'\')">'.$TEXT_ADD_OTHER_SOFTWARE_CONST.'</a> '.$TEXT_ADD_OTHER_SOFTWARE_NOTE_CONST.'</td>
 		</tr>	
 	</table>';
 	
@@ -268,6 +277,10 @@ function getQuickStartTree($usedTemplates,$dbADO){
 }
 
 function getQuickStartChilds($nodes,$quickStartTemplates,$selectedCategory,$usedTemplates){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editComputingApplications.lang.php');
+	
 	$out='';
 	foreach ($nodes[$selectedCategory] AS $childNode){
 		$out.='
@@ -277,7 +290,7 @@ function getQuickStartChilds($nodes,$quickStartTemplates,$selectedCategory,$used
 		if(count(@$quickStartTemplates[$childNode])==0){
 			$out.='
 				<tr>
-					<td style="padding-left:20px;" colspan="2">No quick start templates in this category.</td>
+					<td style="padding-left:20px;" colspan="2">'.$TEXT_NO_QUICK_START_TEMPLATES_CATEGORY_CONST.'</td>
 				</tr>
 			';
 		}
@@ -286,7 +299,7 @@ function getQuickStartChilds($nodes,$quickStartTemplates,$selectedCategory,$used
 			$out.='
 				<tr>
 					<td style="padding-left:20px;">'.$quickStartTemplates['description'][$qsTemplate].'</td>
-					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ Add ]</a></td>
+					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ '.$TEXT_ADD_CONST.' ]</a></td>
 				</tr>
 			';
 			}
