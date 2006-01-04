@@ -13,7 +13,19 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include <stack>
+#include <map>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "asteriskmanager.h"
+
+#include "DCE/DCEConfig.h"
+#include "PlutoUtils/MySQLHelper.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_DeviceTemplate.h"
 using namespace ASTERISK;
 
 //<-dceag-const-b->
@@ -306,3 +318,96 @@ void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Re
 	}
 }
 //<-dceag-createinst-b->!
+//<-dceag-createinst-e->!
+
+#define VOICEMAIL_LOCATION "/var/lib/asterisk/sounds/voicemail/default/" 
+#define CHECK_PERIOD 60
+std::map <int,int> ext2user;
+
+void * startVoiceMailThread(void * Arg)
+{
+	Asterisk *asterisk = (Asterisk *) Arg;
+	g_pPlutoLogger->Write(LV_STATUS, "Started VoiceMail Thread");
+	std::map <int,int> users2vm;
+	
+	char buffer[1024];
+	int seconds = 0;
+
+	while(!asterisk->GetMBQuit())
+	{
+		if(seconds > CHECK_PERIOD)
+		{
+			DIR * dir1=opendir(VOICEMAIL_LOCATION);
+			if(dir1)
+			{
+				struct dirent *dirent1 = NULL;
+				while((dirent1 = readdir(dir1)))
+				{
+					struct stat statbuf;
+					strcpy(buffer,VOICEMAIL_LOCATION);
+					strcat(buffer,dirent1->d_name);
+					stat(buffer,&statbuf);
+					if((S_ISDIR(statbuf.st_mode)) && (dirent1->d_name[0] != '.'))
+					{
+						int vmcount=0;
+						int exten=atoi(dirent1->d_name);
+						strcat(buffer,"/INBOX/");
+						DIR * dir2=opendir(buffer);
+						if(dir2)
+						{
+							struct dirent *dirent2 = NULL;
+							while((dirent2 = readdir(dir2)))
+							{
+								if(strstr(dirent2->d_name,".gsm"))
+								{
+									vmcount++;
+								}
+							}
+							closedir(dir2);
+						}
+						g_pPlutoLogger->Write(LV_STATUS, "Found %d voicemails for user %d (ext %d)",vmcount,ext2user[exten],exten);
+						if((vmcount != users2vm[exten]) && (ext2user[exten] != 0))
+						{
+							g_pPlutoLogger->Write(LV_STATUS, "Will send an event that user voicemail count has changed");
+							Message *msg=new Message(asterisk->GetData()->m_dwPK_Device, DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Voice_Mail_Changed_CONST,0);
+							msg->m_mapParameters[EVENTPARAMETER_PK_Users_CONST] = StringUtils::itos(ext2user[exten]);
+							msg->m_mapParameters[EVENTPARAMETER_Value_CONST] = StringUtils::itos(vmcount);
+							asterisk->GetEvents()->SendMessage(msg);
+							users2vm[exten]=vmcount;
+						}
+					}
+				}
+				closedir(dir1);
+			}
+			seconds = 0;
+		}
+		seconds++;
+		Sleep(1000);
+	}
+	return NULL;
+}
+
+void Asterisk::CreateChildren()
+{
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	char *sql_buff="SELECT PK_Users,Extension FROM Users";
+	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
+		return;
+	}	
+	while((row = mysql_fetch_row(result_set.r)))
+	{
+		ext2user[atoi(row[1])] = atoi(row[0]);
+	}
+	if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");
+		m_bQuit = 1;
+		exit(1);
+	}
+	pthread_detach(voicemailThread);
+}

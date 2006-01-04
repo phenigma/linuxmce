@@ -14,10 +14,11 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-
+		pthread_t voicemailThread;
 		// Private methods
 public:
 		// Public member variables
+		int GetMBQuit() {return m_bQuit;};
 
 //<-dceag-const-b->
 public:
@@ -31,6 +32,7 @@ public:
 //<-dceag-const-e->
 
 		virtual bool Connect(int iPK_DeviceTemplate);
+		virtual void CreateChildren();
 
 //<-dceag-h-b->
 	/*
