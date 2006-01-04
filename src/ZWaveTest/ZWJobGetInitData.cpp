@@ -2,6 +2,9 @@
 #include "PlutoZWSerialAPI.h"
 #include "ZW_SerialAPI.h"
 
+//this number is hard coded into docs, so I will use it as it is
+#define MAGIC_LEN 29 
+
 ZWJobGetInitData::ZWJobGetInitData(PlutoZWSerialAPI* ser):
 	ZWaveJob(ser)
 {
@@ -35,7 +38,7 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 				break;
 			if(buffer[0] != RESPONSE || buffer[1] != FUNC_ID_SERIAL_API_GET_INIT_DATA)
 				break;
-			if(buffer[4] != 29) //hard coded into docs
+			if(buffer[4] != MAGIC_LEN) //hard coded into docs
 				break;
 			//save capabilities
 			handler()->setCapabilities(buffer[3]);
@@ -52,7 +55,6 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 					handler()->insertNode(new ZWaveNode(handler()->homeID(), node_index));
 				}
 			}
-			
 			return true;
 	}
 	return false;
