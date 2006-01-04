@@ -1162,6 +1162,10 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 		StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST)
 		+ "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|1",
 		m_pWizardLogic->m_nPK_Device_AlarmPanel);
+	m_pWizardLogic->AddDevice(DEVICETEMPLATE_Doorbell_button_CONST, 
+		StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST)
+		+ "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|8",
+		m_pWizardLogic->m_nPK_Device_AlarmPanel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");

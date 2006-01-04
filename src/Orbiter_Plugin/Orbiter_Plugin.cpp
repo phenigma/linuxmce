@@ -1599,7 +1599,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		// It's an OSD -- see if there are any unconfigured devices
 		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
-
+/* hold off on this for now
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms \n%s\n%s\n",m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
@@ -1633,6 +1633,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 				}
 			}
 		}
+*/
 	}
 	else
 	{

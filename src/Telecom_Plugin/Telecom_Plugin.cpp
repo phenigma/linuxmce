@@ -869,6 +869,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 	pRow_Users=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
 	if( pRow_Users )
 	{
+		pRow_Users->Reload();
 		pRow_Users->FK_UserMode_set(iPK_UserMode);
 		m_pDatabase_pluto_main->Users_get()->Commit();
 	}

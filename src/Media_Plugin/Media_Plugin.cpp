@@ -4097,6 +4097,9 @@ void Media_Plugin::CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCM
 int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&pMediaDevice_Source,MediaDevice *&pMediaDevice_Dest,
 	EntertainArea *&pEntertainArea,MediaStream *&pMediaStream)
 {
+	if( !pMediaDevice )
+		return 0;
+
     for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
     {
         MediaStream *pMS = (*it).second;
@@ -4123,6 +4126,9 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 		for( MapEntertainArea::iterator it=pMS->m_mapEntertainArea.begin( );it!=pMS->m_mapEntertainArea.end( );++it )
 		{
 			EntertainArea *pEA = ( *it ).second;
+			if( !pEA->m_pMediaDevice_ActiveDest )
+				continue;
+
 			if( pEA->m_pMediaDevice_ActiveDest==pMediaDevice || pEA->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_pDevice_MD==pMediaDevice->m_pDeviceData_Router )
 			{
 				pMediaStream = pMS;
