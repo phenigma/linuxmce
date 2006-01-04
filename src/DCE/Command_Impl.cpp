@@ -442,9 +442,10 @@ bool Command_Impl::RouterNeedsReload()
 
 int Command_Impl::DeviceIdInvalid()
 {
+#ifndef WINCE
 	cout << "Device ID is invalid.  Exiting..." << endl;
 	exit(3);
-#ifndef WINCE
+
 	map<int,string> mapDevices;
 	GetDevicesByTemplate(PK_DeviceTemplate_get(),&mapDevices);
 	cout << "A valid device ID is required to connect to the router." << endl
