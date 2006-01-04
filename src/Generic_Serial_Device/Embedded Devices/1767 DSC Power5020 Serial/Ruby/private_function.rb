@@ -1,4 +1,4 @@
-#private functions  03 Ian 06 17:30
+#private functions  03-Ian-06 17:30
 def readLine
 $index=0
 $line=String.new

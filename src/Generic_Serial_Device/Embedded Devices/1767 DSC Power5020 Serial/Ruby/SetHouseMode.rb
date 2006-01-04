@@ -1,5 +1,5 @@
 def SetHouseMode(value_to_assign, pk_users, password, pk_devicegroup, handling_instructions)
-#03-Ian-06 12:10
+#SetHouseMode 03-Ian-06 12:10
 #log parameters
 $logFile.print "SetHouseMode:" + "  "
 $logFile.print "Value:"         +   value_to_assign          + "  "
@@ -55,30 +55,3 @@ end
 
 if $bFlush then $logFile.flush end
 end
-
-def ReportChildDevice
-#03-Ian-06 17:38
-$sensorStatus=Hash.new
-$sensorType=Hash.new
-$partStatus=Hash.new
-
-$panelStatus=2
-
-$logFile.print "ReportChildDevice\n"
-
-#DSCSetDescArm($bDescArm)
-DSCSetTimeStamp(true)
-DSCSetTimeBroadcast(true)
-
-$panelStatus=1	#??
-if $bInit == true then 
-	$logFile.print "Already intit. Not send StatusReport" + "\n"
-else
-	DSCStatusReport2()
-end
-
-if $bFlush then $logFile.flush end
-end
-
-#03 Ian 06 16:15
-logState()

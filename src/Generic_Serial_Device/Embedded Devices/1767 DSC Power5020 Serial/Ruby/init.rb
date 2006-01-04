@@ -1,8 +1,8 @@
-#init                      03 Ian 06 17:30
+#Init                      04-Ian-06 16:10
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
-$logFile = File.new("/var/log/pluto/RaduL.log", "w")
+$logFile = File.new("/var/log/pluto/DSCPower5020.log", "w")
 #global variables
 $waitTime = 400      #wait time in comunication
 $bFlush = true        #log imediatly every event,comand
@@ -15,9 +15,9 @@ $bDescArm=false
 $bTimeStamp=false
 $bTimeBroadcast=false
 
-$bPartDetect=true
+$bPartDetect=true    #?
 
-#read from serial
+#buffer for reading from serial
 $line=String.new
 $lineIndex=0
 
@@ -90,17 +90,17 @@ $errCode = {
 }
 
 #if device has childs already initialise
-if (device_.childdevices_) == nil or (device_.childdevices_.empty?) then 
+if (device_.childdevices_ == nil) or (device_.childdevices_.empty?) then 
 	$bInit = false
 else 
 	$bInit = true 
 end
 
-$logFile.print "Starting DSC \n"
+$logFile.print "Starting DSC Power5020\n"
 logState()
 
-if device_.devdata_ != nil then 
-	if (device_.devdata_[135]) != nil and ( device_.devdata_[135].empty? == false) then
+if (device_.devdata_ != nil) then 
+	if (device_.devdata_[135] != nil) and ( device_.devdata_[135].empty? == false) then
 		$logFile.print "Mapping:" + device_.devdata_[135] + "\n"
 		mapp( device_.devdata_[135] )
 	else

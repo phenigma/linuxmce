@@ -1,6 +1,7 @@
 #! /bin/bash
 
 myCmd=745
+myObj=47
 myPass='1472'
 myPartNo=0
 
@@ -18,4 +19,4 @@ echo "Parameter number: " $#
 echo "Password: " $myPass
 echo "Part no: " $myPartNo
 
-/usr/pluto/bin/MessageSend localhost 0 56 1 $myCmd 99 $myPass 48 $myPartNo
+/usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd 99 $myPass 48 $myPartNo
