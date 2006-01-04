@@ -78,24 +78,24 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 	$out.='
 	<table align="center" cellpadding="2" cellspacing="0">';
 	$idArray=array();
-	foreach ($phoneNumbers AS $userID=>$pnArray){
-
+	foreach ($users AS $userID=>$username){
+	
 		$out.='
 		<tr>
-			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$users[$userID].'</B></td>
+			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$username.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>Phone number</B></td>
 			<td align="center"><B>Action</B></td>
 		</tr>';
-		foreach ($pnArray AS $id=>$number){
+
+		foreach ($phoneNumbers[$userID] AS $id=>$number){
 			$idArray[]=$id;
 			$out.='
 			<tr>
 				<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
 				<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_PRIORITY_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=priorityCallers&action=del&did='.$id.'\'"></td>
 			</tr>';
-			
 		}
 		$out.='
 		<tr >
