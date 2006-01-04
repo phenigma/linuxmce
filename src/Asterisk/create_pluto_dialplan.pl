@@ -311,4 +311,4 @@ sub get_all_phones_extensions()
     $DB_STATEMENT->finish();
 }
 
-`asterisk -rx 'reload'`;
+`asterisk -rx reload`;

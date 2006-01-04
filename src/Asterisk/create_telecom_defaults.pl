@@ -32,13 +32,23 @@ foreach my $key (keys (%USERS))
     unless($USERS{$key} eq '0')
     {
         print "Add defaults for user $key\n";
-        for(my $i = 1; $i <= 4; $i++)
+		
+        $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','1','0','1','ring,".$PHONES."');";
+        $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+        $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+        $DB_STATEMENT->finish();
+        $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','1','1','1','ring,".$PHONES."');";
+        $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+        $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+        $DB_STATEMENT->finish();
+
+        for(my $i = 2; $i <= 4; $i++)
         {
-            $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','".$i."','0','1','ring,".$PHONES."');";
+            $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','".$i."','0','1','voicemail,".$USERS{$key}."');";
             $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
             $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
             $DB_STATEMENT->finish();
-            $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','".$i."','1','1','ring,".$PHONES."');";
+            $DB_SQL = "insert into UserRouting (EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing) values ('".$key."','".$i."','1','1','voicemail,".$USERS{$key}."');";
             $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
             $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
             $DB_STATEMENT->finish();
@@ -93,7 +103,7 @@ sub read_pluto_config()
 
 sub get_all_users_extensions()
 {
-    $DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail from Users where `Extension` like '30_'";
+    $DB_SQL = "select PK_Users,Extension from Users where `Extension` like '30_'";
     $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
     while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
@@ -121,7 +131,7 @@ sub get_all_lines_extensions()
         $LINES{$DB_ROW->{'id'}} = "SIP";
     }
     $DB_STATEMENT->finish();
-    $DB_SQL = "select id, data from iax where keyword='account' and id like '9999%'";
+    $DB_SQL = "select id, data from iax where keyword='account' and id like '9999_'";
     $DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
     while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
