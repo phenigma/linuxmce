@@ -57,6 +57,9 @@ pluto_apt_conf='// Pluto apt conf add-on
 //Acquire::ftp::ProxyLogin { "USER $(SITE_USER)@$(SITE):$(SITE_PORT)"; "PASS $(SITE_PASS)"; };
 //Acquire::http::Proxy::dcerouter "DIRECT";
 Apt::Cache-Limit "12582912";
+Dpkg::Options { "--force-confold"; };
+Acquire::http::timeout "10";
+Acquire::ftp::timeout "10";
 '
 
 # Install critical (Deb talk: essential) packages
