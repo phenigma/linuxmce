@@ -90,7 +90,7 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID error: %*.*s", length, length, buffer);
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID data error");
 			}
 			break;
 	}

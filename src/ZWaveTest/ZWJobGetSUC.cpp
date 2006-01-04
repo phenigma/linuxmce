@@ -75,7 +75,7 @@ bool ZWJobGetSUC::processData(const char * buffer, size_t length)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetSUC error: %*.*s", length, length, buffer);
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetSUC data error");
 			}
 			break;
 	}

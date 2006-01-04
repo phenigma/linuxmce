@@ -68,6 +68,7 @@ bool ZWJobInitialize::run()
 	d->currentJob = new ZWJobGetVersion(handler());
 	if( d->currentJob == NULL )
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize allocation error!");
 		return false;
 	}
 	
@@ -84,7 +85,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			// TODO error
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: .");
 			return false;
 		}
 	}
@@ -122,7 +123,8 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 						}
 						else
 						{
-							// TODO memory error
+							g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize allocation error!");
+							return false;
 						}
 					}
 				}
@@ -137,7 +139,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 				break;
 				
 			default:
-				// TODO error
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job type.");
 				break;
 		}
 		
@@ -157,5 +159,5 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 		}
 	}
 	
-	return false;
+	return true;
 }
