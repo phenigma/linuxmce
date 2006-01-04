@@ -1,4 +1,4 @@
-#event process  03Ian06 12:35
+#event process  03-Ian-06 12:35
 
 #read event code from serial
 readLine
