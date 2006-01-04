@@ -1,6 +1,8 @@
 #include "SerialConnection.h"
 #include "main.h"
 
+#define DEBUG_EUGEN 1
+
 SerialConnection* SerialConnection::instance = NULL;
 
 SerialConnection::SerialConnection():serialPort(NULL)
@@ -21,7 +23,9 @@ int SerialConnection::connect()
 {
 	try
 	{
+#ifndef DEBUG_EUGEN
 		serialPort = new CSerialPort("COM1", 9600, epbsN81);
+#endif
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 		
@@ -44,12 +48,29 @@ int SerialConnection::disconnect()
 
 bool SerialConnection::isConnected()
 {
+#ifdef DEBUG_EUGEN
+	return true;
+#else
 	return serialPort != NULL;
+#endif
 }
 
 // TODO: use 'const char * buffer'
 int SerialConnection::send(char *buffer, size_t len)
 {
+#ifdef DEBUG_EUGEN
+	pthread_mutex_lock( &instance->mutex_buffer );
+	g_pPlutoLogger->Write(LV_WARNING, "\nSend:\n");
+	for(size_t i=0; i<len; i++)
+	{
+			g_pPlutoLogger->Write(LV_WARNING, "0x%x ", buffer[i]);
+	}
+	g_pPlutoLogger->Write(LV_WARNING, "\n--------------\n");
+	g_pPlutoLogger->Flush();
+	pthread_mutex_unlock( &instance->mutex_buffer );
+	
+	return (int)len;
+#else
 	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)
 	int returnValue = 0;
 	if(buffer != NULL)
@@ -70,6 +91,7 @@ int SerialConnection::send(char *buffer, size_t len)
 	else returnValue = -1;
 
 	return returnValue ;
+#endif
 }
 
 int SerialConnection::receiveCommand(char *b, size_t *len)
@@ -122,7 +144,10 @@ int SerialConnection::hasCommand()
 	pthread_mutex_lock( &instance->mutex_buffer );
 	int returnValue = 1;
 	if(buffer.size() < 4)
+	{
+		pthread_mutex_unlock( &instance->mutex_buffer );
 		return 0;
+	}
 	if( buffer.front() == SERIAL_ACK )
 		buffer.pop_front();
 	if( buffer.front() == SERIAL_SOF )
@@ -178,20 +203,47 @@ void *SerialConnection::receiveFunction(void *)
 {
 	if(instance->isConnected())
 	{
-		char mybuf[100];
-		int len = 100;
+		char mybuf[1024];
+		size_t len = 1024;
+#ifdef DEBUG_EUGEN
+		FILE * serialData = fopen("serial.txt", "r");
+		if( serialData != NULL )
+		{
+			while( NULL != fgets(mybuf, (int)len, serialData) )
+			{
+				pthread_mutex_lock( &instance->mutex_buffer );
+				unsigned nr = 0;
+				int i = 0;
+				g_pPlutoLogger->Write(LV_WARNING, "\nGet:\n");
+				while( 0 != sscanf(&mybuf[i], "%x", &nr) )
+				{
+					i += 3;
+					g_pPlutoLogger->Write(LV_WARNING, "0x%x ", nr);
+					instance->buffer.push_back((unsigned char)nr);
+				}
+				g_pPlutoLogger->Write(LV_WARNING, "\n---------------\n");
+				g_pPlutoLogger->Flush();
+				pthread_mutex_unlock( &instance->mutex_buffer );
+			}
+			
+			fclose(serialData);
+		}
+#else
 		while(true)
 		{
 			len = 100;
 			pthread_mutex_lock( &instance->mutex_serial );
-			size_t len = instance->serialPort->Read(mybuf, 100);
+			len = instance->serialPort->Read(mybuf, 100);
 			pthread_mutex_unlock( &instance->mutex_serial );
 
 			pthread_mutex_lock( &instance->mutex_buffer );
 			while(--len >= 0)
 				instance->buffer.push_back(mybuf[len]);
 			pthread_mutex_unlock( &instance->mutex_buffer );
+			
+			//TODO delay
 		}
+#endif
 	}
 	return NULL;
 }

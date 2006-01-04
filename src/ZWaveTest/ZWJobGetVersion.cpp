@@ -8,7 +8,7 @@
 ZWJobGetVersion::ZWJobGetVersion(PlutoZWSerialAPI* ser):
 	ZWaveJob(ser)
 {
-
+	setType(ZWaveJob::GET_VERSION);
 }
 
 ZWJobGetVersion::~ZWJobGetVersion()

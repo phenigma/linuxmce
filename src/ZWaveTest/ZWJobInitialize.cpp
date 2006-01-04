@@ -76,6 +76,8 @@ bool ZWJobInitialize::run()
 	//d->currentJob = d->jobsQueue.front();
 	//d->jobsQueue.pop_front();
 	
+	setState( ZWaveJob::RUNNING );
+	
 	return d->currentJob->run();
 }
 
