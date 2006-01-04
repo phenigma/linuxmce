@@ -148,6 +148,9 @@
 			<File
 				RelativePath=".\ZWJobInitialize.cpp">
 			</File>
+			<File
+				RelativePath=".\ZWJobSwitchChangeLevel.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -167,6 +170,9 @@
 			</File>
 			<File
 				RelativePath=".\ZW_SerialAPI.h">
+			</File>
+			<File
+				RelativePath=".\ZW_transport_api.h">
 			</File>
 			<File
 				RelativePath=".\ZWaveJob.h">
@@ -191,6 +197,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobInitialize.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobSwitchChangeLevel.h">
 			</File>
 		</Filter>
 		<Filter

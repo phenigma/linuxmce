@@ -72,15 +72,25 @@ int SerialConnection::send(char *buffer, size_t len)
 	return (int)len;
 #else
 	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)
+
 	int returnValue = 0;
 	if(buffer != NULL)
 		if(instance->serialPort!= NULL)
 		{
 			try
 			{
+				char *paddedBuffer = NULL;
+				len += 3;
+				paddedBuffer = new char(len);
+				paddedBuffer[0] = SOF; 
+				paddedBuffer[1] = len - 2;
+				paddedBuffer[len - 1] = checkSum(buffer, len - 3);
+				memcpy(&(paddedBuffer[2]), buffer, len - 3);
 				pthread_mutex_lock( &mutex_serial );
-				serialPort->Write(buffer, len);
+				serialPort->Write(paddedBuffer, len);
 				pthread_mutex_unlock( &mutex_serial );
+				delete paddedBuffer;
+				paddedBuffer = NULL;
 			}
 			catch(...)
 			{
@@ -156,7 +166,7 @@ int SerialConnection::hasCommand()
 		unsigned int len = *(++i) ;
 		if(buffer.size() >= len + 3) //SOF+LEN+CHECK
 		{
-			i += len + 1;
+			i += len + 2;
 			char checkSum = *i;
 			char tmpSum = 0;
 			std::deque<char>::iterator endPack;

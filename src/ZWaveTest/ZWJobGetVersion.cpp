@@ -21,7 +21,7 @@ bool ZWJobGetVersion::run()
 	setState(ZWaveJob::RUNNING);
 	char data[] = {REQUEST, FUNC_ID_ZW_GET_VERSION };
 	size_t len = 2;
-	return handler()->sendData(data, len);;
+	return handler()->sendData(data, len);
 }
 
 bool ZWJobGetVersion::processData(const char * buffer, size_t length)
