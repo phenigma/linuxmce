@@ -24,6 +24,9 @@ function phoneLines($output,$astADO) {
 	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
 	$providerData['teliax (US number, pay incoming)']['script']='create_amp_teliax.pl';
 
+	$providerData['NuFone']['url']='http://www.nufone.net/';
+	$providerData['NuFone']['script']='create_amp_nufone.pl';
+
 	$pulldownOptions='';
 	foreach (array_keys($providerData) AS $option){
 		$pulldownOptions.='<option value="'.$option.'" '.((@$_REQUEST['provider']==$option)?'selected':'').'>'.$option.'</option>
@@ -169,7 +172,7 @@ function phoneLinesTable($astADO){
 		FROM iax 
 		INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 		INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
-		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax') OR (iax.data='efon'))");
+		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out'))");
 	while($row=$res->FetchRow()){
 		$count++;
 		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
