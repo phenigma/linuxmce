@@ -223,8 +223,9 @@ g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 1 %s", sFileName.c_st
         nCount++;
     }
 
-    string sPrompt = "DEBUG: Areas available: " + StringUtils::ltos(nCount - 1) + "/" + 
-        StringUtils::ltos(m_dequeXMLItems.size() + m_dequeCellXMLItems.size());
+    string sPrompt;
+		//= "DEBUG: Areas available: " + StringUtils::ltos(nCount - 1) + "/" + 
+        //StringUtils::ltos(m_dequeXMLItems.size() + m_dequeCellXMLItems.size());
     string sXMLString = 
         "<CiscoIPPhoneGraphicFileMenu>\r\n"
         "<Title>Pluto Orbiter</Title>\r\n"
