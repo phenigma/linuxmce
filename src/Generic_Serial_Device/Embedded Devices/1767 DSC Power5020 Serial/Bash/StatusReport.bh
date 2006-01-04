@@ -1,0 +1,6 @@
+#!/bin/bash
+myCmd=759
+myObj=47
+
+echo /usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd
+/usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd

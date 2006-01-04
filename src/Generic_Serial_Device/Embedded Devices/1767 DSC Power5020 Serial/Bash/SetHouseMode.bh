@@ -1,0 +1,29 @@
+#! /bin/bash
+
+myCmd=19
+myObj=56
+myPart=0
+myValue=2
+myPass=1234
+
+if [[ "$#" -ge 1 ]]; then
+  echo "Set arm type: " $1
+  myValue = $1	
+fi
+
+if [[ "$#" -ge 2 ]]; then
+  echo "Set part no: " $2
+  $myPart = $2
+fi
+
+echo "Parameter number" $#
+echo "Command:" $myCmd
+echo "My obj:" $myObj
+echo "Password:" $myPass
+echo "Value:" $myValue
+echo "Part no:" $myPart 
+
+
+/usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd 99 $myPass 100 $myPart 5 $myValue  
+echo /usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd 99 $myPass 100 $myPart 5 $myValue  
+

@@ -1,0 +1,21 @@
+#! /bin/bash
+
+myCmd=750
+myTime='15:32'
+myDate='12-13-05'
+
+if [[ "$#" -ge 1 ]]; then
+  myTime=$1
+  echo "Set time" $1
+fi
+
+if [[ "$#" -ge 2 ]]; then
+  myDate=$2
+  echo "Set date" $2
+fi
+
+echo "Parameter number" $#
+echo "Time: " $myTime
+echo "Date: " $myDate
+
+/usr/pluto/bin/MessageSend localhost 0 56 1 $myCmd 102 $myTime 109 $myDate

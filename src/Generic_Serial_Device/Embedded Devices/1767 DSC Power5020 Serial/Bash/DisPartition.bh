@@ -1,0 +1,21 @@
+#! /bin/bash
+
+myCmd=745
+myPass='1472'
+myPartNo=0
+
+if [[ "$#" -ge 1 ]]; then
+  myPass=$1
+  echo "Set password: " $1
+fi
+
+if [[ "$#" -ge 2 ]]; then
+  myPartNo=$2
+  echo "Set part no: " $2
+fi
+
+echo "Parameter number: " $#
+echo "Password: " $myPass
+echo "Part no: " $myPartNo
+
+/usr/pluto/bin/MessageSend localhost 0 56 1 $myCmd 99 $myPass 48 $myPartNo

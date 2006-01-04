@@ -1,0 +1,21 @@
+#! /bin/bash
+
+myCmd=747
+myArm='AWAY'
+myPartNo=0
+
+if [[ "$#" -ge 1 ]]; then
+  myArm=$1
+  echo "Set arm type: " $1
+fi
+
+if [[ "$#" -ge 2 ]]; then
+  myPartNo=$2
+  echo "Set part no: " $2
+fi
+
+echo "Parameter number" $#
+echo "Arm type: " $myArm
+echo "Set part no: " $myPartNo
+
+/usr/pluto/bin/MessageSend localhost 0 56 1 $myCmd 14 $myArmType 48 $myParNo

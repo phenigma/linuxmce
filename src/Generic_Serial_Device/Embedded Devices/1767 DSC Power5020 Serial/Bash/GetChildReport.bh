@@ -1,0 +1,17 @@
+#! /bin/bash
+
+myCmd=756
+myObj=47
+
+if [[ "$#" -ge 1 ]]; then
+  echo "Set my obj: " $1
+  myObj=$1
+fi
+
+echo "My cmd "  $myCmd
+echo "My object"  $myObj
+
+/usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd 
+echo /usr/pluto/bin/MessageSend localhost 0 $myObj 1 $myCmd 
+
+ 
