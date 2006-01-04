@@ -3,6 +3,13 @@
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
 
+// jobs
+#include "ZWJobGetVersion.h"
+#include "ZWJobGetID.h"
+#include "ZWJobGetInitData.h"
+#include "ZWJobGetSUC.h"
+#include "ZWJobGetNodeProtocolInfo.h"
+
 #include <stdio.h>
 
 // ----------------------------------
@@ -28,6 +35,16 @@ ZWJobInitialize::Private::Private()
 
 ZWJobInitialize::Private::~Private()
 {
+	delete currentJob;
+	currentJob = NULL;
+	
+	ZWaveJob * job = NULL;
+	for(JobsDequeIterator it=jobsQueue.begin(); it!=jobsQueue.end(); ++it)
+	{
+		job = (*it);
+		delete job;
+		job = NULL;
+	}
 }
 
 // ----------------------------------
@@ -47,10 +64,98 @@ ZWJobInitialize::~ZWJobInitialize()
 
 bool ZWJobInitialize::run()
 {
-	return true;
+	// start the initialization with ZWave API version
+	d->currentJob = new ZWJobGetVersion(handler());
+	if( d->currentJob == NULL )
+	{
+		return false;
+	}
+	
+	// add jobs
+	//d->currentJob = d->jobsQueue.front();
+	//d->jobsQueue.pop_front();
+	
+	return d->currentJob->run();
 }
 
 bool ZWJobInitialize::processData(const char * buffer, size_t length)
 {
+	if( d->currentJob != NULL )
+	{
+		if( !d->currentJob->processData(buffer, length) )
+		{
+			// TODO error
+			return false;
+		}
+	}
+	
+	// check if the job has finished
+	if( ZWaveJob::STOPPED == d->currentJob->state() )
+	{
+		// next step
+		switch( d->currentJob->type() )
+		{
+			case ZWaveJob::GET_VERSION :
+				// TODO check the version
+				d->jobsQueue.push_back( new ZWJobGetID(handler()) );
+				break;
+				
+			case ZWaveJob::GET_ID :
+				d->jobsQueue.push_back( new ZWJobGetInitData(handler()) );
+				break;
+				
+			case ZWaveJob::GET_INIT_DATA :
+				{
+					// check if there is a SUC
+					d->jobsQueue.push_back( new ZWJobGetSUC(handler()) );
+					
+					// get the information about all the nodes from the ZWave network
+					const NodesMap& nodes = handler()->getNodes();
+					ZWJobGetNodeProtocolInfo * job = NULL;
+					for(NodesMapCIterator it=nodes.begin(); it!=nodes.end(); ++it)
+					{
+						job = new ZWJobGetNodeProtocolInfo(handler());
+						if( job != NULL )
+						{
+							job->setNodeID( (*it).second->nodeID() );
+							d->jobsQueue.push_back(job);
+						}
+						else
+						{
+							// TODO memory error
+						}
+					}
+				}
+				break;
+				
+			case ZWaveJob::GET_SUC :
+				// TODO: what's up if there is a SUC
+				break;
+				
+			case ZWaveJob::GET_NODE_PROTOCOL_INFO :
+				// nothing
+				break;
+				
+			default:
+				// TODO error
+				break;
+		}
+		
+		// next job
+		delete d->currentJob;
+		d->currentJob = NULL;
+		if( d->jobsQueue.size() )
+		{
+			d->currentJob = d->jobsQueue.front();
+			d->jobsQueue.pop_front();
+			return d->currentJob->run();
+		}
+		else
+		{
+			setState(ZWaveJob::STOPPED);
+			return true;
+		}
+	}
+	
 	return false;
 }

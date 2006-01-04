@@ -69,9 +69,25 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 
 PlutoZWSerialAPI::Private::~Private()
 {
-	//TODO !!!:
-	// delete all the queued jobs
-	// delete all the nodes
+	delete currentJob;
+	currentJob = NULL;
+	
+	ZWaveJob * job = NULL;
+	for(JobsDequeIterator it=jobsQueue.begin(); it!=jobsQueue.end(); ++it)
+	{
+		job = (*it);
+		delete job;
+		job = NULL;
+	}
+	
+	ZWaveNode * node = NULL;
+	for(NodesMapIterator itNode=nodes.begin(); itNode!=nodes.end(); ++itNode)
+	{
+		node = (*itNode).second;
+		delete node;
+		node = NULL;
+	}
+	
 	delete connection;
 	connection = NULL;
 }
@@ -113,9 +129,7 @@ bool PlutoZWSerialAPI::start()
 				d->currentJob = d->jobsQueue.front();
 				d->jobsQueue.pop_front();
 				d->state = PlutoZWSerialAPI::RUNNING;
-				d->currentJob->run();
-				
-				return true;
+				return d->currentJob->run();
 			}
 		}
 	}
@@ -153,6 +167,8 @@ bool PlutoZWSerialAPI::listen()
 						if( !d->currentJob->processData(d->command, d->commandLength) )
 						{
 							// TODO error
+							stop();
+							return false;
 						}
 						d->state = PlutoZWSerialAPI::WAITTING;
 					}
@@ -167,7 +183,12 @@ bool PlutoZWSerialAPI::listen()
 							d->currentJob = d->jobsQueue.front();
 							d->jobsQueue.pop_front();
 							d->state = PlutoZWSerialAPI::RUNNING;
-							d->currentJob->run();
+							if( !d->currentJob->run() )
+							{
+								// TODO error
+								stop();
+								return false;
+							}
 							d->state = PlutoZWSerialAPI::WAITTING;
 						}
 						else
@@ -179,6 +200,8 @@ bool PlutoZWSerialAPI::listen()
 				else
 				{
 					// print the error
+					stop();
+					return false;
 				}
 			}
 			
