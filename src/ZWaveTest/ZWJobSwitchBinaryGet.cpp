@@ -76,7 +76,7 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 				d->txStatusCount ++;
 				return true;				
 			}
-			else
+			else//buffer[1] == REQUEST
 			{
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the tx status is here");
 				setState(ZWaveJob::STOPPED);
