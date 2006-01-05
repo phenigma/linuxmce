@@ -149,6 +149,9 @@
 				RelativePath=".\ZWJobInitialize.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWJobLightLevel.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWJobSwitchBinaryGet.cpp">
 			</File>
 			<File
@@ -200,6 +203,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWJobInitialize.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobLightLevel.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobSwitchBinaryGet.h">
