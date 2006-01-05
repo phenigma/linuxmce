@@ -389,6 +389,7 @@ void * startVoiceMailThread(void * Arg)
 
 void Asterisk::CreateChildren()
 {
+	Asterisk_Command::CreateChildren();
 	DCEConfig dceconf;
 	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 	PlutoSqlResult result_set;
