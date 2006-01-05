@@ -52,9 +52,10 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 				{
 					node_index++;
 					if( (1 << j) & buffer[i])
-					handler()->insertNode(new ZWaveNode(handler()->homeID(), node_index));
+						handler()->insertNode(new ZWaveNode(handler()->homeID(), node_index));
 				}
 			}
+			setState(ZWaveJob::STOPPED);
 			return true;
 	}
 	return false;

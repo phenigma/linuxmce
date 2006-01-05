@@ -148,7 +148,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 		// next job
 		delete d->currentJob;
 		d->currentJob = NULL;
-		if( d->jobsQueue.size() )
+		if( d->jobsQueue.size() > 0 )
 		{
 			d->currentJob = d->jobsQueue.front();
 			d->jobsQueue.pop_front();

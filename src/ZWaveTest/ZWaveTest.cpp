@@ -18,7 +18,7 @@ namespace DCE
 int main(int argc, char* argv[])
 {
 	g_pPlutoLogger = new FileLogger("ZWaveText.log");
-	g_pPlutoLogger->Write(LV_WARNING, "\n------- BEGIN --------\n");
+	g_pPlutoLogger->Write(LV_WARNING, "------- BEGIN --------");
 
 	PlutoZWSerialAPI * zwAPI = PlutoZWSerialAPI::instance();
 	if( zwAPI != NULL )
