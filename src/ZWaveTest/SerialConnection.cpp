@@ -176,7 +176,7 @@ int SerialConnection::hasCommand()
 		{
 			i += len;
 			char checkSum = *i;
-			char tmpSum = 0xff;
+			char tmpSum = (char)0xff;
 			// checksum( Length_Byte + Command_Array_Bytes )
 			std::deque<char>::iterator endPack = buffer.begin() + len + 1;
 			for(i = buffer.begin() + 1; i != endPack; i++)
@@ -208,7 +208,7 @@ int SerialConnection::hasCommand()
 
 char SerialConnection::checkSum(char *b, int len)
 {
-	char returnValue = 0xff;
+	char returnValue = (char)0xff;
 	if( b == NULL)
 	{
 		return returnValue;
