@@ -19,15 +19,20 @@ ZWJobSwitchBinaryGet::Private::Private(unsigned short nID)
 	: nodeID(nID),
 	txStatusCount(0)
 {
+
 }
 
 ZWJobSwitchBinaryGet::ZWJobSwitchBinaryGet(PlutoZWSerialAPI * zwAPI, unsigned short nodeID)
 	: ZWaveJob(zwAPI)
 {
+	d = new Private(nodeID);
+	setType(ZWaveJob::GET_SWITCH_BINARY);
 }
 
 ZWJobSwitchBinaryGet::~ZWJobSwitchBinaryGet()
 {
+	delete d;
+	d = NULL;
 }
 
 bool ZWJobSwitchBinaryGet::run()
