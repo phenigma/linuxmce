@@ -107,7 +107,9 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 			case ZWaveJob::SET_SWITCH_LEVEL :
 				d->jobsQueue.push_back( new ZWJobSwitchBinaryGet(handler(), d->nodeID) );
 				break;
-				
+			case ZWaveJob::GET_SWITCH_BINARY:
+				//nothing
+				break;
 			default:
 				g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: wrong job type.");
 				break;
