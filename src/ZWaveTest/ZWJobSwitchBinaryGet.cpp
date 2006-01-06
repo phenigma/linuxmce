@@ -1,4 +1,4 @@
-#include ".\ZWJobSwitchBinaryGet.h"
+#include "ZWJobSwitchBinaryGet.h"
 #include "ZW_SerialAPI.h"
 #include "ZW_transport_api.h"
 #include "ZW_classcmd.h"

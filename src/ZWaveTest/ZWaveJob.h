@@ -1,5 +1,6 @@
 #ifndef _ZWAVE_JOB_H_
 #define _ZWAVE_JOB_H_
+#include <stddef.h>
 
 class PlutoZWSerialAPI;
 

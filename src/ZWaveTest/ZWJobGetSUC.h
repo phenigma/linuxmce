@@ -1,7 +1,7 @@
 #ifndef _ZWJOBGETSUC_H_
 #define _ZWJOBGETSUC_H_
 
-#include "zwavejob.h"
+#include "ZWaveJob.h"
 
 class ZWJobGetSUC :
 	public ZWaveJob

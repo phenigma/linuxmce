@@ -1,4 +1,4 @@
-#include "zwavenode.h"
+#include "ZWaveNode.h"
 
 #include "main.h"
 #include "SerialConnection.h"

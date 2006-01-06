@@ -150,7 +150,7 @@ bool PlutoZWSerialAPI::stop()
 
 bool PlutoZWSerialAPI::listen()
 {
-	if( d->state = PlutoZWSerialAPI::RUNNING )
+	if( PlutoZWSerialAPI::RUNNING == d->state )
 	{
 		d->state = PlutoZWSerialAPI::WAITTING;
 		while( d->connection->isConnected() )

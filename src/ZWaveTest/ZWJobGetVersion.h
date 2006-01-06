@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _ZWJOBGETVERSION_H_
+#define _ZWJOBGETVERSION_H_
 #include "ZWaveJob.h"
 
 class ZWJobGetVersion :
@@ -16,3 +17,4 @@ public:
 	
 
 };
+#endif

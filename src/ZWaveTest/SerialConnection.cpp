@@ -184,7 +184,7 @@ int SerialConnection::hasCommand()
 			if(tmpSum == checkSum)
 			{
 				returnValue = 1;
-				char ack = SERIAL_ACK;
+				//char ack = SERIAL_ACK;
 				pthread_mutex_lock( &mutex_serial );
 #ifdef DEBUG_EUGEN
 				g_pPlutoLogger->Write(LV_WARNING, "Send ACK");
@@ -273,7 +273,7 @@ void *SerialConnection::receiveFunction(void *)
 
 SerialConnection::~SerialConnection()
 {
-	pthread_exit(write_thread);
+	pthread_exit(&write_thread);
 	pthread_mutex_destroy(&mutex_serial);
 	pthread_mutex_destroy(&mutex_buffer);
 	delete serialPort;

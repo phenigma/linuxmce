@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _ZWJOBINITDATA_H_
+#define _ZWJOBINITDATA_H_
 #include "ZWaveJob.h"
 
 class ZWJobGetInitData :
@@ -14,3 +15,5 @@ public:
 	/** It is called to process the protocol data flow.*/
 	virtual bool processData(const char * buffer, size_t length);
 };
+
+#endif
