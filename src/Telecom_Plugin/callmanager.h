@@ -38,6 +38,7 @@ public:
 
 	CallData* findCallByPendingCmdID(int id);
 	CallData* findCallByOwnerDevID(int id);
+	ListCallData_Manager* getCallList();
 	
 private:
 	ListCallData_Manager calls_;

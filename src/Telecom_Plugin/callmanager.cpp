@@ -109,5 +109,9 @@ CallManager::findCallByOwnerDevID(int id) {
 	return (it != calls_.end()) ? *it : 0;
 }
 
+ListCallData_Manager* CallManager::getCallList() {
+	return &calls_;
+}
+
 
 };

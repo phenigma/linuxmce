@@ -53,11 +53,17 @@ public:
 			return id_; }
 	void setID(std::string id) {
 			id_ = id; }
+			
+	std::string getCallerID() {
+			return callerId_; }
+	void setCallerID(std::string callerId) {
+			callerId_ = callerId; }
 
 	/*state info*/
 private:
 	CALLSTATE state_;
 	std::string id_;
+	std::string callerId_;
 
 	int pendingCmdID_;
 	int ownerDevID_;

@@ -111,6 +111,8 @@ Telecom_Plugin::~Telecom_Plugin()
 	
 }
 
+
+#define DATAGRID_All_Calls_CONST 60
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Telecom_Plugin::Register()
@@ -135,6 +137,10 @@ bool Telecom_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::PhoneBookListOfNos))
 		,DATAGRID_Phone_Book_List_of_Nos_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ActiveCallsGrid))
+		,DATAGRID_All_Calls_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
@@ -400,6 +406,7 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 			pCallData = new CallData();
 			pCallData->setOwnerDevID(phoneID);
 			pCallData->setID(sPhoneCallID);
+			pCallData->setCallerID(sPhoneCallerID);
 			CallManager::getInstance()->addCall(pCallData);
 			
 			g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());			
@@ -407,10 +414,9 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 		}
 		else
 		{
+			g_pPlutoLogger->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
 			pCallData->setID(sPhoneCallID);
 			pCallData->setState(CallData::STATE_NOTDEFINED);			
-			g_pPlutoLogger->Write(LV_WARNING, "This should not happend, already have a call on device %d in state %d",phoneID,pCallData->getState());
-			g_pPlutoLogger->Write(LV_WARNING, "However if this is a hardphone...this is probably possible");
 		}
 	}
 }
@@ -923,6 +929,10 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	{
 		cmdline += "/usr/pluto/bin/create_amp_teliax.pl";
 	}
+	if(sName == "nufone")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_nufone.pl";
+	}
 	
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
 	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
@@ -946,4 +956,24 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 		}
 	}
 	return true;
+}
+
+class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "ActiveCalls request received for GridID: %s with Params: %s.",GridID.c_str(), Parms.c_str());
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	int Row = 0;
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+	std::list<CallData*>::iterator it = calls->begin();
+	while(it != calls->end())
+	{
+		string text="Between "+StringUtils::itos((*it)->getOwnerDevID())+" and "+((*it)->getCallerID());
+		g_pPlutoLogger->Write(LV_STATUS,"%s",text.c_str());
+		pCell = new DataGridCell(text,0);
+		pDataGrid->SetData(0,Row, pCell);
+		Row++;
+		it++;
+	}
+	return pDataGrid;
 }
