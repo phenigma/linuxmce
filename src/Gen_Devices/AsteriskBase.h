@@ -32,9 +32,14 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 36,0));
 	}
 
-	virtual void Voice_Mail_Changed()
+	virtual void Voice_Mail_Changed(string sValue,int iPK_Users)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 37,0));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 37,2,30,sValue.c_str(),31,StringUtils::itos(iPK_Users).c_str()));
+	}
+
+	virtual void PBX_Hangup(string sPhoneExtension)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 56,1,22,sPhoneExtension.c_str()));
 	}
 
 };
@@ -114,6 +119,11 @@ public:
 		m_pData = new Asterisk_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -142,7 +152,8 @@ public:
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage) { GetEvents()->PBX_CommandResult(iCommandID,iResult,sMessage.c_str()); }
 	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID) { GetEvents()->PBX_Ring(sPhoneExtension.c_str(),sPhoneCallID.c_str(),sPhoneCallerID.c_str()); }
 	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
-	void EVENT_Voice_Mail_Changed() { GetEvents()->Voice_Mail_Changed(); }
+	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users) { GetEvents()->Voice_Mail_Changed(sValue.c_str(),iPK_Users); }
+	void EVENT_PBX_Hangup(string sPhoneExtension) { GetEvents()->PBX_Hangup(sPhoneExtension.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
