@@ -64,6 +64,9 @@ namespace DCE
         virtual void RenderScreen();
 
         virtual void ParseHardKeys();
+
+		virtual void RedrawObjects();
+		virtual void RealRedraw( void *data );
 	};
 }
 //-----------------------------------------------------------------------------------------------------

@@ -184,7 +184,7 @@ void SDLGraphic::putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_c
         break;
 
     case 4:
-        * (Uint32 *) pixel = pixel_color;
+        * (Uint32 *) pixel = pixel_color | 0xFF000000; //opaque
         break;
     }
 }

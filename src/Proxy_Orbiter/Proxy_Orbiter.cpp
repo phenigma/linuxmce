@@ -140,17 +140,39 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     fclose(File);
 }
 //-----------------------------------------------------------------------------------------------------
+void xxProxy_Orbiter::RealRedraw( void *data )
+{
+	m_dequeCellXMLItems.clear();
+	g_pPlutoLogger->Write(LV_CRITICAL, "xxProxy_Orbiter::RealRedraw");
+	m_bRerenderScreen = true; //force full redraw
+
+	Orbiter::RealRedraw(data);
+}
+//-----------------------------------------------------------------------------------------------------
+void xxProxy_Orbiter::RedrawObjects()
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "xxProxy_Orbiter::RedrawObjects");
+
+	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
+	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
+		return; // Nothing to do anyway
+
+	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&xxProxy_Orbiter::RealRedraw, NULL, pe_ALL );
+}
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
 
-    if(NULL != m_pScreenHistory_Current)
+	if(NULL != m_pScreenHistory_Current)
     {
 		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     }
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
+	{
 		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
+	}
     else
     {
         //generate the jpeg or png image with current screen
@@ -325,7 +347,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()
 {
-
+	m_dequeCellXMLItems.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::EndPaint()
