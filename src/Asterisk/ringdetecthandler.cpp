@@ -60,6 +60,12 @@ RingDetectHandler::handleToken(Token* ptoken) {
 			party = rest;
 		}
 	}
+//////////////// IMPLEMENT THIS
+///Event: Newexten
+///Channel: IAX2/222@222/4
+///Context: from-internal
+///Extension: 918777588648
+
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_HANGUP)
 	{
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
@@ -86,7 +92,10 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		}
 		if(!success)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+			if(channel.find("Local")<0)
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+			}
 			return 0;
 		}
 	}
@@ -96,7 +105,12 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Channel Ringing: %s", channel.c_str());
-		
+		int pos=channel.find("Local");
+		if(pos>=0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Ignore call on Local channel, wait for real one %d in %s ",pos,channel.c_str());
+			return 0;
+		}
 		string ringphoneid;
 		if(!Utils::ParseChannel(channel, &ringphoneid)) {
 			if(RuntimeConfig::getInstance()->isCallOriginating(ringphoneid)) {
