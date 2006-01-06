@@ -73,6 +73,8 @@ public:
 	
 	void NotifyResult(int iCommandID, int iResult, 
 						const std::string Message);
+
+	void NotifyHangup(const std::string sSrcExt);
 	
 private:
 	DCE::Asterisk* pAsterisk;

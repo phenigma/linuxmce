@@ -30,6 +30,9 @@ Utils::ParseChannel(const std::string channel,
 	oldpos = pos + 1;
 	pos = channel.find('-',oldpos);
 	if(pos < 0) {
+		pos = channel.find('@',oldpos);	
+	}
+	if(pos < 0) {
 		pos = channel.find('/',oldpos);	
 	}
 	if(pos < 0) {

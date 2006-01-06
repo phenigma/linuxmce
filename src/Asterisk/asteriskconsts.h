@@ -5,6 +5,8 @@
 #define TOKEN_EVENT			"Event"
 #define TOKEN_STATE			"State"
 #define TOKEN_CHANNEL		"Channel"
+#define TOKEN_CHANNEL1		"Channel1"
+#define TOKEN_CHANNEL2		"Channel2"
 #define TOKEN_EXTRACHANNEL  "ExtraChannel"
 #define TOKEN_RESPONSE		"Response"
 #define TOKEN_MESSAGE		"Message"
@@ -16,12 +18,11 @@
 #define TOKEN_CONTEXT		"Context"
 #define TOKEN_PRIORITY		"Priority"
 
-
-
 /* events */
 #define EVENT_NEWCHANNEL 	"Newchannel"
 #define EVENT_NEWEXTEN 		"Newexten"
 #define EVENT_HANGUP 		"Hangup"
+#define EVENT_LINK			"Link"
 
 /* states */
 #define STATE_RING 			"Ring"

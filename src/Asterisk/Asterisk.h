@@ -47,7 +47,8 @@ public:
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage);
 	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID);
 	void EVENT_Incoming_Call();
-	void EVENT_Voice_Mail_Changed();
+	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users);
+	void EVENT_PBX_Hangup(string sPhoneExtension);
 
 			*****COMMANDS***** we need to implement
 	*/

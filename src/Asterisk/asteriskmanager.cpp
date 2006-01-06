@@ -102,6 +102,13 @@ void AsteriskManager::NotifyRing(std::string sCallerID, const std::string sSrcEx
 	pAsterisk->EVENT_PBX_Ring(sSrcExt, sChannel, sCallerID);
 }
 
+void AsteriskManager::NotifyHangup(const std::string sSrcExt) {
+	if(!pAsterisk) {
+	    return;
+	}
+	pAsterisk->EVENT_PBX_Hangup(sSrcExt);
+}
+
 void AsteriskManager::NotifyResult(int iCommandID, int iResult, 
 						const std::string Message) 
 {	
