@@ -107,7 +107,6 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
 //-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 {
-g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1 %s", FileName.c_str());
     SDL_Surface * Drawing = pScreenImage;
 
     png_bytepp image_rows;
@@ -115,7 +114,6 @@ g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1 %s", FileName.c_str());
     int BitsPerColor;
 
     File = fopen(FileName.c_str(), "wb");
-g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1b %s", FileName.c_str());
 
     image_rows = new png_bytep[Drawing->h];
     for (int n = 0; n < Drawing->h; n++)
@@ -140,36 +138,21 @@ g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 1b %s", FileName.c_str());
 
     png_destroy_write_struct(&png_ptr, &png_info);
     fclose(File);
-g_pPlutoLogger->Write(LV_STATUS, "SaveImageToFile 2 %s", FileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
+
     if(NULL != m_pScreenHistory_Current)
     {
 		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     }
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-    {  
-		//the bad news is that convert gets stuck for some pictures while converting to 12 bit colors
-		//the good news is that the cisco phone can read 32 or 24 bit colors images and convert them automatically
 		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
-
-		/*
-g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1 Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
-g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1b Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-        string sCmdLine = string("convert -colors 4096 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
-        system(sCmdLine.c_str());
-g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen if 1c Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-		*/
-    }
     else
     {
-g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen else 1 Current screen: %s qty %d",  
-					  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),(int) m_ImageQuality);
         //generate the jpeg or png image with current screen
         if(m_ImageQuality == 100) //we'll use pngs for best quality
             SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
@@ -177,9 +160,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen else 1 Cur
             SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
     }
 
-g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen xml Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     SaveXML(CURRENT_SCREEN_XML);
-
 	m_iImageCounter++;
     
     g_pPlutoLogger->Write(LV_WARNING, "Image/xml generated. Wake up! Screen %s", 
@@ -189,7 +170,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen xml Curren
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
 {
-g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 1 %s", sFileName.c_str());
     m_dequeXMLItems.clear();
     GenerateXMLItems(m_pScreenHistory_Current->GetObj());
     string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->GetObj());
@@ -237,9 +217,7 @@ g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 1 %s", sFileName.c_st
         sSoftKeys + 
         "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
-g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 2 %s", sFileName.c_str());
     FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, sXMLString.c_str(), sXMLString.size());
-g_pPlutoLogger->Write(LV_STATUS, "xxProxy_Orbiter::SaveXML 3 %s", sFileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
