@@ -256,7 +256,7 @@ function installationSettings($output,$dbADO) {
 			}
 			
 		}
-
+		$pulldownValue=(strpos($selectedRipFormat,';')!==false)?substr($selectedRipFormat,0,strpos($selectedRipFormat,';')):$selectedRipFormat;
 		$out.='
 					</table>
 		
@@ -266,7 +266,7 @@ function installationSettings($output,$dbADO) {
 					<td colspan="2" align="center" bgcolor="lightblue"><B>Miscelaneous</B>:</td>
 				</tr>
 				<tr>
-					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',substr($selectedRipFormat,0,strpos($selectedRipFormat,';')),'onChange="setOptions();"').'</td>
+					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',$pulldownValue,'onChange="setOptions();"').'</td>
 				</tr>				
 				<tr>
 					<td align="left" colspan="2">'.rippingSettings($selectedRipFormat).'</td>

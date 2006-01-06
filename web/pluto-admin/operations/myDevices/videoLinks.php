@@ -1,5 +1,9 @@
 <?
 function videoLinks($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/videoLinks.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -34,11 +38,12 @@ function videoLinks($output,$dbADO) {
 	<form action="index.php" method="POST" name="videoLinks">
 	<input type="hidden" name="section" value="videoLinks">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h3>Security - Video links</h3></div>
-	<p align="center">For each security sensor/zone indicate which surveillance camera(s) Pluto should show you when that sensor is tripped.</p>
+		
+	<div align="center"><h3>'.$TEXT_SECURITY_VIDEO_LINKS_CONST.'</h3></div>
+	<p align="center">'.$TEXT_VIDEO_LINKS_NOTE_CONST.'</p>
 		<table align="center">
 			<tr bgcolor="lightblue">
-				<td><B>Intercom \ Camera</B></td>';
+				<td><B>'.$TEXT_INTERCOM_CAMERA_CONST.'</B></td>';
 		$colCount=0;
 		foreach($displayedCols AS $key=>$label){
 			$colCount++;
@@ -62,7 +67,7 @@ function videoLinks($output,$dbADO) {
 			<input type="hidden" name="cameraIDArray" value="'.join(',',$cameraIDArray).'">
 			<input type="hidden" name="intercomIDArray" value="'.join(',',$intercomIDArray).'">
 			<tr>
-				<td align="center" colspan="'.($colCount+1).'"><input type="submit" class="button" name="update" value="Update"  ></td>
+				<td align="center" colspan="'.($colCount+1).'"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 			</tr>
 		</table>
 		</form>
@@ -100,13 +105,13 @@ function videoLinks($output,$dbADO) {
 			}
 		}
 		
-		header("Location: index.php?section=videoLinks&msg=Video links was updated");		
+		header("Location: index.php?section=videoLinks&msg=$TEXT_VIDEO_LINKS_UPDATED_CONST");		
 	}
 
-	$output->setNavigationMenu(array("Security - Video links"=>'index.php?section=videoLinks'));
+	$output->setNavigationMenu(array($TEXT_SECURITY_VIDEO_LINKS_CONST=>'index.php?section=videoLinks'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Video Links');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SECURITY_VIDEO_LINKS_CONST);
 	$output->output();
 }
 ?>

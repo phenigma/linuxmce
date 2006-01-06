@@ -864,6 +864,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	// required to read files larger than 2G
 	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':$path;
 	$cmd='sudo -u root find "'.$PathParm.'" '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
+	//echo $cmd;
 	exec($cmd,$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
@@ -1107,6 +1108,22 @@ function getChilds($parentID,$dbADO) {
 
 function builtTopMenu($website,$dbADO)
 {
+	$cachedTopMenu=(getcwd()).'/cached/topMenu';
+	$cachedIDs=(getcwd()).'/cached/topMenuIDs';
+
+	// get existing devices to compare them with old ones
+	$devices=join(',',array_keys(getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC')));
+
+	
+	// if something changed in Device table, or the cached menu does not exist, rebuild menu
+	if(file_exists($cachedTopMenu)){
+		$oldIDs=file($cachedIDs);
+		if($devices==trim($oldIDs[1])){
+			return join('',file($cachedTopMenu));
+		}
+	}
+	
+		
 	$selectMenu = "
 		SELECT DISTINCT PageSetup.* FROM PageSetup 
 		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
@@ -1126,7 +1143,18 @@ function builtTopMenu($website,$dbADO)
 		$menuPages.=getSubmenu($website,$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
 		$pos++;
 	}
-	return $menuPages;
+	// write top menu file and devices/page setup IDs
+	writeFile($cachedTopMenu,$menuPages,'w');
+	$IDs="#Devices IDs\n";
+	$IDs.=$devices;
+	writeFile($cachedIDs,$IDs,'w');
+
+	if(file_exists($cachedTopMenu)){
+		writeFile($GLOBALS['ErrorLog'],date('d-m-Y H:i:s').' ERROR: The cached menu cannot be written to '.$cachedTopMenu."\n\n");
+		return join('',file($cachedTopMenu));
+	}else{
+		return $menuPages;
+	}
 }
 
 function getSubmenu($website,$level,$parentID,$dbADO)
@@ -4480,7 +4508,7 @@ function getNodesArray($table,$pk_field,$fk_parent_field,$dbADO){
 
 function writeFile($filename,$content,$mode='w+')
 {
-   if (!$handle = fopen($filename, $mode)) {
+   if (!$handle = @fopen($filename, $mode)) {
          return 1; // Cannot open file ($filename)
     }
 

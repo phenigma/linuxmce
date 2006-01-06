@@ -1,5 +1,9 @@
 <?php
 function setResolution($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/setResolution.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -31,8 +35,8 @@ function setResolution($output,$dbADO) {
 		<input type="hidden" name="mdID" value="'.$mdID.'">
 		
 <span style="padding-left:10px; padding-right:10px;">
-<h3>Change resolution and refresh</h3>		
-Choose resolution and refresh and click "test resolution" button.
+<h3>'.$TEXT_SET_RESOLUTION_TITLE_CONST.'</h3>		
+'.$TEXT_SET_RESOLUTION_INFO_CONST.'
 </span>
 <br><br>';
 
@@ -41,26 +45,26 @@ Choose resolution and refresh and click "test resolution" button.
 $out.='
 <table>
 	<tr>
-		<td><B>Resolution</B></td>
+		<td><B>'.$TEXT_RESOLUTION_CONST.'</B></td>
 		<td>'.pulldownFromArray($videoSettingsArray,'resolution',@$oldResolution).'</td>
 	</tr>
 	<tr>
-		<td><B>Refresh</B></td>
+		<td><B>'.$TEXT_REFRESH_CONST.'</B></td>
 		<td>'.pulldownFromArray($refreshArray,'refresh',@$oldRefresh).'</td>
 	</tr>
 	<tr>
-		<td><B>Force resolution</B></td>
+		<td><B>'.$TEXT_FORCE_RESOLUTION_CONST.'</B></td>
 		<td><input type="checkbox" name="force" value="1"></td>
 	</tr>
 	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="test" value="Test resolution and refresh"></td>
+		<td colspan="2" align="center"><input type="submit" class="button" name="test" value="'.$TEXT_TEST_RESOLUTION_AND_REFRESH_CONST.'"></td>
 	</tr>
 </table>		
 		</form>
 		<script>
 			var frmvalidator = new formValidator("setResolution");
- 			frmvalidator.addValidation("resolution","dontselect=0","Please choose the resolution.");
-			frmvalidator.addValidation("refresh","dontselect=0","Please choose the refresh.");
+ 			frmvalidator.addValidation("resolution","dontselect=0","'.$TEXT_RESOLUTION_REQUIRED_CONST.'");
+			frmvalidator.addValidation("refresh","dontselect=0","'.$TEXT_REFRESH_REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -103,7 +107,7 @@ if((ereg('Failed',$answer))){
 		<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
 	</tr>
 	<tr>
-		<td colspan="2" align="center"><input type="button" class="button" name="retry" value="Try again" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
+		<td colspan="2" align="center"><input type="button" class="button" name="retry" value="'.$TEXT_TRY_AGAIN_CONST.'" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
 	</tr>
 </table>';
 	$answer='<span class="err">'.$answer.'</span>';
@@ -111,17 +115,17 @@ if((ereg('Failed',$answer))){
 }else{
 	preg_match("/Current resolution: *([0-9]+) *x *([0-9]+) *@ *([0-9]+) *Hz/",$answer,$matches);
 	if(count($matches)!=4){
-		$answer='<span class="err">Cannot retrieve valid resolution and refresh: '.$answer.'</span>';
+		$answer='<span class="err">'.$TEXT_ERROR_RESOLUTION_FAILED_CONST.' '.$answer.'</span>';
 		$noUpdate=1;
 	}
 	$out.='
 	<table>
 		<tr>
-			<td><B>Resolution</B></td>
+			<td><B>'.$TEXT_RESOLUTION_CONST.'</B></td>
 			<td>'.$videoSettingsArray[$resolution].'</td>
 		</tr>
 		<tr>
-			<td><B>Refresh</B></td>
+			<td><B>'.$TEXT_REFRESH_CONST.'</B></td>
 			<td>'.$refreshArray[$refresh].'</td>
 		</tr>
 		<tr>
@@ -133,15 +137,15 @@ if((ereg('Failed',$answer))){
 		<input type="hidden" name="realRefresh" value="'.@$matches[3].'">
 		<tr>
 			<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
-			<td>quick reload router & regenerate the UI at this resolution now?</td>
+			<td>'.$TEXT_SET_RESOLUTION_QUICKRELOAD_ROUTER_CONST.'</td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="'.$TEXT_YES_CONST.'"> <input type="submit" class="button" name="noBtn" value="'.$TEXT_NO_CONST.'"></td>
 		</tr>';
 	}else{
 		$out.='
 		<tr>
-			<td colspan="2" align="center"><input type="button" class="button" name="retry" value="Try again" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
+			<td colspan="2" align="center"><input type="button" class="button" name="retry" value="'.$TEXT_TRY_AGAIN_CONST.'" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
 		</tr>
 		';
 	}
@@ -157,7 +161,7 @@ if((ereg('Failed',$answer))){
 		
 			$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 			if (!$canModifyInstallation){
-				header("Location: index.php?section=setResolution&error=You are not authorised to change the installation.");
+				header("Location: index.php?section=setResolution&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 				exit(0);
 			}
 
@@ -195,7 +199,7 @@ if((ereg('Failed',$answer))){
 				
 			}
 			
-			$msg='Resolution and refresh updated.';
+			$msg=$TEXT_SET_RESOLUTION_SUCCESS_CONST;
 		}else{
 			$Answer="N";
 		}
@@ -211,7 +215,7 @@ if((ereg('Failed',$answer))){
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Setup resolution and refresh');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SET_RESOLUTION_TITLE_CONST);			
 	$output->output();
 }
 ?>

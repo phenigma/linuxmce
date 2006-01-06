@@ -9,7 +9,6 @@ function editDeviceParams($output,$dbADO) {
 /* @var $rs ADORecordSet */
 
 $out='';
-$dbADO->debug=false;
 $deviceID = (int)$_REQUEST['deviceID'];
 $installationID = (int)@$_SESSION['installationID'];
 

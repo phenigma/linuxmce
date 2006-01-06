@@ -1,5 +1,9 @@
 <?
 function genericSerialDevices($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/genericSerialDevices.lang.php');
+		
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -74,18 +78,19 @@ function genericSerialDevices($output,$dbADO) {
 	<form action="index.php" method="POST" name="genericSerialDevices">
 	<input type="hidden" name="section" value="genericSerialDevices">
 	<input type="hidden" name="action" value="add">
-	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>Generic Serial Devices</h3></div>';
+	<input type="hidden" name="cmd" value="0">	
+				
+	<div align="center"><h3>'.$TEXT_GENERIC_SERIAL_DEVICES_CONST.'</h3></div>';
 			
 		$out.='
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
-				<tr>
-					<td align="center"><B>Device</B></td>
-					<td align="center"><B>Device template</B></td>
-					<td align="center"><B>Room</b>
-					<td><B>Controlled by</B></td>
-					<td align="center"><B>Data</B></td>
-					<td align="center"><B>Actions</B></td>
+				<tr bgcolor="lightblue">
+					<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ROOM_CONST.'</b>
+					<td align="center"><B>'.$TEXT_CONTROLLED_BY_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DATA_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>
 					';
 				$displayedAVDevices=array();
@@ -254,10 +259,10 @@ function genericSerialDevices($output,$dbADO) {
 					
 					$buttons='';
 					$buttons.='	
-						<input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
-						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button" name="btn" value="Ruby Source Code" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br> ';
-					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="return confirm(\'Are you sure you want to delete this device?\');"></td>';
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+						<input type="button" class="button" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br> ';
+					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');"></td>';
 					
 					$controlledByPulldown='<select name="controlledBy_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
@@ -276,7 +281,7 @@ function genericSerialDevices($output,$dbADO) {
 			$out.='
 				<tr>
 					<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+					<td align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 					<td  align="right">'.$roomPulldown.'</td>
 					<td align="right">'.$controlledByPulldown.'</td>
 					<td valign="top" align="right">'.$deviceDataBox.'</td>
@@ -294,7 +299,7 @@ function genericSerialDevices($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -302,14 +307,14 @@ function genericSerialDevices($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.genericSerialDevices.action.value=\'externalSubmit\';document.genericSerialDevices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=genericSerialDevices\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_GSD_DEVICE_CONST.'" onClick="document.genericSerialDevices.action.value=\'externalSubmit\';document.genericSerialDevices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=genericSerialDevices\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("genericSerialDevices");
- //			frmvalidator.addValidation("Description","req","Please enter a device description");			
-//	 		frmvalidator.addValidation("masterDevice","dontselect=0","Please select a Device Template!");			
+ //			frmvalidator.addValidation("Description","req","'.$TEXT_GSD_DEVICE_DESCRIPTION_REQUIRED_CONST.'");			
+//	 		frmvalidator.addValidation("masterDevice","dontselect=0","'.$TEXT_GSD_DEVICE_TEMPLATE_REQUIRED_CONST.'");			
 		</script>
 	
 	</form>
@@ -319,7 +324,7 @@ function genericSerialDevices($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=genericSerialDevices&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=genericSerialDevices&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -411,13 +416,13 @@ function genericSerialDevices($output,$dbADO) {
 		}
 		
 		
-		header("Location: index.php?section=genericSerialDevices&msg=The devices was updated".@$anchor);		
+		header("Location: index.php?section=genericSerialDevices&msg=$TEXT_GSD_DEVICES_UPDATED_CONST".@$anchor);		
 	}
 
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Generic Serial Devices');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_GENERIC_SERIAL_DEVICES_CONST);
 	$output->output();
 }
 

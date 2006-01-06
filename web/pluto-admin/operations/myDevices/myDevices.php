@@ -1,37 +1,39 @@
 <?
-//se iau intai cele selectate, din baza de date si apoi se verifica array-ul din DeviceTemplate_DeviceParameter!
 function myDevices($output,$dbADO) {
-/* @var $dbADO ADOConnection */
-/* @var $rs ADORecordSet */
-$installationID = (int)@$_SESSION['installationID'];
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/myDevices.lang.php');
 
-$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'leftTree';
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+	$installationID = (int)@$_SESSION['installationID'];
 
-if ($action == 'showBasicInfo') {
-	$out='
-		All the devices in your installation are in the tree on the left.  Choose one to edit its data settings manually.  Normally we recommend you use one of the wizards rather than editing the devices manually.
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'leftTree';
+
+	if ($action == 'showBasicInfo') {
+		$out=$TEXT_MYDEVICES_NOTE_CONST.'
 	
-		<a href="index.php?section=addMyDevice&parentID=0">Add a top level device</a>
+		<br><br><a href="index.php?section=addMyDevice&parentID=0">'.$TEXT_ADD_TOP_LEVEL_DEVICE_CONST.'</a>
 	';	
-} elseif ($action=='leftTree') {
-	$myDevicesJsArray = '
+	} elseif ($action=='leftTree') {
+		$myDevicesJsArray = '
 			modelsArray = new Array();
 	';
-	$jsTree='';
-	//$query1 = "select * from Device where FK_Device_ControlledVia IS NULL";
-	$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
-	$res1 = $dbADO->_Execute($query1);
+		$jsTree='';
+		//$query1 = "select * from Device where FK_Device_ControlledVia IS NULL";
+		$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
+		$res1 = $dbADO->_Execute($query1);
 		if ($res1) {
 			while ($row1 = $res1->FetchRow()) {
-				$jsTree.='				    
+				$jsTree.='
 					auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.$row1['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
 					auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
 				';
 				$jsTree.=getDeviceChilds($row1['PK_Device'],$dbADO);
 			}
 		}
-$out='';		
-$scriptInHead = "
+		$out='';
+		$scriptInHead = "
 
 <!-- As in a client-side built tree, all the tree infrastructure is put in place
      within the HEAD block, but the actual tree rendering is trigered within the
@@ -57,7 +59,7 @@ ICONPATH = 'scripts/treeview/'
 HIGHLIGHT = 1
 GLOBALTARGET = 'R'
 
-foldersTree = gFld('<b>My Devices</b>', \"index.php?section=myDevices&action=showBasicInfo\");
+foldersTree = gFld('<b>$TEXT_MY_DEVICES_CONST</b>', \"index.php?section=myDevices&action=showBasicInfo\");
 foldersTree.xID = 1001635872
 $jsTree
 
@@ -117,7 +119,7 @@ $myDevicesJsArray
 </script>
 ";
 
-$out.='<span style="font-color:#FFFFFF"><table border=0><tr><td><font size=-2><a style="font-size:7pt;text-decoration:none;color:#FFFFFF" href="http://www.treemenu.net/" target=_blank>JavaScript Tree Menu</a></font></td></tr></table></span>
+		$out.='<span style="font-color:#FFFFFF"><table border=0><tr><td><font size=-2><a style="font-size:7pt;text-decoration:none;color:#FFFFFF" href="http://www.treemenu.net/" target=_blank>JavaScript Tree Menu</a></font></td></tr></table></span>
 					<span>
 					<script>
 						initializeDocument();						
@@ -126,18 +128,18 @@ $out.='<span style="font-color:#FFFFFF"><table border=0><tr><td><font size=-2><a
 					A tree for site navigation will open here if you enable JavaScript in your browser.
 					</noscript>';
 
-$output->setScriptInHead($scriptInHead);		
-}
+		$output->setScriptInHead($scriptInHead);
+	}
 
-//$action=='showBasicInfo'?('Add top level device'=>'index.php?section=editMasterDevice&model='.$deviceID):''
+	//$action=='showBasicInfo'?('Add top level device'=>'index.php?section=editMasterDevice&model='.$deviceID):''
 
-$output->setNavigationMenu(array("My Devices"=>'index.php?section=myDevices'));
+	$output->setNavigationMenu(array($TEXT_MY_DEVICES_CONST=>'index.php?section=myDevices'));
 
-$output->setScriptCalendar('null');
+	$output->setScriptCalendar('null');
 
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
-$output->output();  	
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MY_DEVICES_CONST);
+	$output->output();
 }
 
 function getDeviceChilds($parentID,$dbADO) {
@@ -146,11 +148,11 @@ function getDeviceChilds($parentID,$dbADO) {
 	$jsTree='';
 	if ($resGP) {
 		while ($row=$resGP->FetchRow()) {
-				$jsTree.= '
+			$jsTree.= '
 					auxS'.$row['PK_Device'].' = insFld(auxS'.$parentID.', gFld("'.$row['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row['PK_Device'].'"))
 					auxS'.$row['PK_Device'].'.xID = '.$row['PK_Device'].';
 				';
-				$jsTree.=getDeviceChilds($row['PK_Device'],$dbADO);
+			$jsTree.=getDeviceChilds($row['PK_Device'],$dbADO);
 		}
 	}
 	return $jsTree;

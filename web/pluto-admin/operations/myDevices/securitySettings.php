@@ -1,5 +1,9 @@
 <?
 function securitySettings($output,$dbADO,$securitydbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/securitySettings.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -16,7 +20,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 		$alertTypesLabels[$row['PK_AlertType']]=$row['Description'];
 	}
 	
-	$pullDownArray = array(0=>'Do Nothing',2=>'Announcement',3=>'Snap Picture');
+	$pullDownArray = array(0=>$TEXT_DO_NOTHING_CONST,2=>$TEXT_ANNOUNCEMENT_CONST,3=>$TEXT_SNAP_PICTURE_CONST);
 	
 	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
 	
@@ -45,15 +49,17 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	</script>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+		
 	<form action="index.php" method="POST" name="securitySettings">
 	<input type="hidden" name="section" value="securitySettings">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h3>Reaction to sensors</h3></div>
-	<p align="center">For each security sensor, or zone, in the house, indicate what Pluto should do when the sensor is triggered for each security mode.  If \'Monitor Mode\', aka Baby Sitter Mode, is checked, then when the house is is Monitor Mode you will be notified on your phone whenever the sensor is tripped and shown a picture.</p>
+		
+	<div align="center"><h3>'.$TEXT_REACTION_TO_SENSORS_CONST.'</h3></div>
+	<p align="center">'.$TEXT_REACTION_TO_SENSORS_NOTE_CONST.'</p>
 		<table align="center">
 			<tr bgcolor="lightblue">
 				<td></td>
-				<td align="center"><B>Monitor mode</B></td>';
+				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>';
 			foreach($properties AS $label){
 				$out.='
 					<td align="center"><B>N</B></td>
@@ -135,10 +141,10 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
 		$out.='
 			<tr>
-				<td colspan="13" align="left">* Check the boxes under "N" column if you want to receive notifications for this alert</td>
+				<td colspan="13" align="left">* '.$TEXT_REACTION_TO_SENSORS_NOTIFICATION_CONST.'</td>
 			</tr>		
 			<tr>
-				<td colspan="13" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
+				<td colspan="13" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 			</tr>
 		</table>
 		</form>
@@ -149,7 +155,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=securitySettings&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=securitySettings&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		// process and redirect
@@ -165,13 +171,13 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 			$dbADO->Execute($updateDDD,array($newProperties,$GLOBALS['securityAlert'],$device));
 		}		
 		
-		header("Location: index.php?section=securitySettings&msg=Security settings updated.");		
+		header("Location: index.php?section=securitySettings&msg=$TEXT_SECURITY_SETTINGS_UPDATED_CONST");		
 	}
 
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Security settings');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_REACTION_TO_SENSORS_CONST);
 	$output->output();
 }
 ?>
