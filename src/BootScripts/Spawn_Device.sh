@@ -133,7 +133,7 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
 		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
-		sed -i "/^$device_id\$/ d" "$AlreadyRunning"
+		sed -i "/^[^0-9]*$device_id[^0-9]*\$/ d" "$AlreadyRunning"
 		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
