@@ -62,32 +62,45 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 		case ZWaveJob::RUNNING:
 			if(length < 2)
 			{
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, length too small");
+				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small");
 				break;
 			}
 			if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
 			{
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
+				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
 				break;				
 			}
 			if(buffer[0] == RESPONSE)
 			{
-				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the response is here");
+				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the response is here");
 				return true;				
 			}
-			else if(d->txStatusCount == 0)//buffer[1] == REQUEST
+			else if(d->txStatusCount == 0)//buffer[0] == REQUEST
 			{
-				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the tx status is here");
+				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
 				d->txStatusCount ++;
 				return true;				
 			}
-			else//buffer[1] == REQUEST
+			else//buffer[0] == REQUEST
 			{
-				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the tx status is here");
+				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
+				switch(buffer[3])
+				{
+					case TRANSMIT_COMPLETE_OK:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command completed OK");
+						break;
+					case TRANSMIT_COMPLETE_NO_ACK:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
+						break;
+					case TRANSMIT_COMPLETE_FAIL:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "failed to transmit command");
+						break;
+					default:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
+				}
 				setState(ZWaveJob::STOPPED);
 				return true;				
 			}
-
 	}
 	return false;
 }

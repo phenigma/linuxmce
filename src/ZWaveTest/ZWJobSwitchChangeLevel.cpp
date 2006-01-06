@@ -80,8 +80,23 @@ bool ZWJobSwitchChangeLevel::processData(const char * buffer, size_t length)
 			else //buffer[1] == REQUEST
 			{
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the tx status is here");
+				switch(buffer[3])
+				{
+					case TRANSMIT_COMPLETE_OK:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command completed OK");
+						break;
+					case TRANSMIT_COMPLETE_NO_ACK:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
+						break;
+					case TRANSMIT_COMPLETE_FAIL:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "failed to transmit command");
+						break;
+					default:
+						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
+				}
 				setState(ZWaveJob::STOPPED);
 				return true;				
+			
 			}
 	}
 	return false;
