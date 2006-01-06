@@ -8144,6 +8144,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
 			+ " instead of " + StringUtils::itos(iSC_Version) + ".  Please install a newer version.");
 		OnQuit();
+		exit(0);
 	}
 	else
 	{
@@ -8155,11 +8156,18 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		if( iResponse==prNo )
 		{
 			OnQuit();
+			exit(0);
 			return false;
 		}
 
 		RegenOrbiter();
 		OnQuit();
+
+#ifdef WIN32
+		OnUnexpectedDisconnect(); //force a reload
+#else
+		exit(0);
+#endif
 	}
 
 	return false;
