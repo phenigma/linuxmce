@@ -1606,6 +1606,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
     m_vectObjs_Selected.clear(  );
     m_vectObjs_TabStops.clear(  );
     m_mapDevice_Selected.clear(  );
+	m_mapFloorplanObject_Selected.clear();
     vm.Release(  );
 
     //also reset the last selected object from the floorplan.
@@ -2455,6 +2456,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 			nd.Release();
 
             m_mapDevice_Selected.clear();
+			m_mapFloorplanObject_Selected.clear();
             m_pObj_LastSelected=NULL;
             m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
 			PK_DesignObj_Toolbar_ToTurnOn=0;
@@ -2466,6 +2468,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
             if( pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()==0 )
             {
                 m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
+				m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject;
                 m_iLastEntryInDeviceGroup=0;  // If we touch it again, it will trigger the block above
             }
             else
@@ -2487,7 +2490,10 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 		if( m_mapDevice_Selected.find(pDesignObj_Orbiter->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
 			m_mapDevice_Selected.erase(pDesignObj_Orbiter->m_pFloorplanObject->PK_Device);
 		else
+		{
 	        m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
+			m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject;
+		}
         m_pObj_LastSelected=pDesignObj_Orbiter;
     }
 
@@ -3452,7 +3458,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	string sResult;
     DCE::CMD_Get_Floorplan_Layout CMD_Get_Floorplan_Layout(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, &sResult);
     SendCommand(CMD_Get_Floorplan_Layout);
-
+ 
       string::size_type pos=0;
     int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
 #ifdef DEBUG
@@ -5097,8 +5103,14 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="SDD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 			{
-				if( it->second )
+				if(it->second)
 					Output += it->second->m_sDescription + ",";
+				else 
+				{
+					//this is a media floorplan object; it doesn't have a device associated
+					FloorplanObject *pfObj = m_mapFloorplanObject_Selected[it->first];
+					Output += pfObj->DeviceDescription + ",";
+				}
 			}
         else if(  Variable=="R" && m_pLocationInfo  )
             Output += StringUtils::itos( m_pLocationInfo->PK_Room );
