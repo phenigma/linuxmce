@@ -1,4 +1,4 @@
-#Init                      04-Ian-06 16:10
+#Init                      09-Ian-06 11:00
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
@@ -10,6 +10,7 @@ $bFlush = true        #log imediatly every event,comand
 #panel settings
 $MaxSensor=64
 $MaxPartition=8
+$MinLinLenght=7
 $MaxLineLength=30
 $bDescArm=false
 $bTimeStamp=false
@@ -96,8 +97,8 @@ else
 	$bInit = true 
 end
 
-$logFile.print "Starting DSC Power5020\n"
-logState()
+log( "Starting DSC Power5020\n" )
+logState( true )
 
 if (device_.devdata_ != nil) then 
 	if (device_.devdata_[135] != nil) and ( device_.devdata_[135].empty? == false) then
@@ -113,6 +114,6 @@ else
 end
 #mapp("")
 
-$logFile.print "\n\n"
-if $bFlush then $logFile.flush end
+log( "\n\n" )
+
 
