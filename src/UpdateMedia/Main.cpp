@@ -19,6 +19,10 @@
 #include <conio.h>
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
 #else
 #include "inotify/FileNotifier.h"
 #endif
@@ -33,10 +37,14 @@ namespace UpdateMediaVars
 {
     bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
     string sDirectory;
+	vector<string> vectModifiedFolders;
 
     Database_pluto_media *g_pDatabase_pluto_media = NULL;
     Database_pluto_main *g_pDatabase_pluto_main = NULL;
+
     pluto_pthread_mutex_t g_ConnectionMutex("connections");
+	pluto_pthread_mutex_t g_FoldersListMutex("folders list");
+	pthread_cond_t g_ActionCond;
 }
 
 using namespace UpdateMediaVars;
@@ -46,9 +54,49 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
-#ifndef WIN32
+void *UpdateMediaThread(void *)
+{
+	while(true)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Worked thread: \"I'm wake!\"");        
+		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
+
+		while(vectModifiedFolders.size())
+		{
+			string sItem = vectModifiedFolders.front();
+			flm.Release();
+
+			g_pPlutoLogger->Write(LV_WARNING, "Folder to sync: %s", sItem.c_str());	
+			PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
+			g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
+
+			UpdateMedia UpdateMedia(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
+			UpdateMedia.DoIt();
+
+			if( bUpdateSearchTokens )
+				UpdateMedia.UpdateSearchTokens();
+
+			if( bUpdateThumbnails )
+				UpdateMedia.UpdateThumbnails();
+
+			g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
+
+			flm.Relock();
+			vectModifiedFolders.erase(vectModifiedFolders.begin());
+		}
+
+		g_pPlutoLogger->Write(LV_WARNING, "Nothing to process, sleeping 1 minute...");        
+		timespec abstime;
+		abstime.tv_sec = (long) (time(NULL) + 60); 
+		abstime.tv_nsec = 0;
+		flm.TimedCondWait(abstime);		
+	}
+}
+
 void OnModify(list<string> &listFiles) 
 {
+g_pPlutoLogger->Write(LV_STATUS, "Notifier with new event...");        
+
 	for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
 	{
 		string sItem = *it;
@@ -62,25 +110,30 @@ void OnModify(list<string> &listFiles)
 			size_t nPos = sItem.rfind("/");
 			if(nPos != string::npos)
 				sItem = sItem.substr(0, nPos);
+
+g_pPlutoLogger->Write(LV_STATUS, "New folder %d...", sItem.c_str());        
+
+			PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
+
+			bool bFound = false;
+			for(vector<string>::iterator it = vectModifiedFolders.begin(); it != vectModifiedFolders.end(); it++)
+			{
+				if(*it == sItem)
+				{
+					bFound = true;
+					break;
+				}
+			}
+
+			if(!bFound)
+			{
+				vectModifiedFolders.push_back(sItem);
+				g_pPlutoLogger->Write(LV_STATUS, "Waking up worker thread...");        
+				pthread_cond_broadcast(&g_ActionCond);
+			}
 		} 
-
-		g_pPlutoLogger->Write(LV_WARNING, "Folder to sync: %s", sItem.c_str());	
-        PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
-        g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
-
-        UpdateMedia UpdateMedia(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
-        UpdateMedia.DoIt();
-
-        if( bUpdateSearchTokens )
-            UpdateMedia.UpdateSearchTokens();
-
-        if( bUpdateThumbnails )
-            UpdateMedia.UpdateThumbnails();
-
-        g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
 	}
 }
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -169,7 +222,9 @@ int main(int argc, char *argv[])
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Running as daemon... ");
 
+		pthread_cond_init(&g_ActionCond, NULL);
         g_ConnectionMutex.Init(NULL);
+		g_FoldersListMutex.Init(NULL, &g_ActionCond);
 
         string sPlutoMediaDbName = "pluto_media";
         string sPlutoMainDbName = "pluto_main";
@@ -198,10 +253,15 @@ int main(int argc, char *argv[])
 		FileNotifier fileNotifier;
 		fileNotifier.RegisterCallbacks(OnModify, OnModify); //we'll use the same callback for OnCreate and OnDelete events
   		fileNotifier.Watch(sDirectory);
-		fileNotifier.Run();//it waits for worker thread to exist; the user must press CTRL+C to finish it
+
+		pthread_t UpdateMediaThreadId;
+		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
+
+		fileNotifier.Run();//it waits for worker thread to exit; the user must press CTRL+C to finish it
 #endif
 
         pthread_mutex_destroy(&g_ConnectionMutex.mutex);
+		pthread_mutex_destroy(&g_FoldersListMutex.mutex);
 	}
 
 	return 0;
