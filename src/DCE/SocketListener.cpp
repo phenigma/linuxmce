@@ -145,10 +145,12 @@ void SocketListener::Run()
 		dwFlags |= O_NONBLOCK;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 
+#if 0
 		// set close-on-exec flag
 		dwFlags = fcntl(m_Socket, F_GETFD);
 		dwFlags |= FD_CLOEXEC;
 		fcntl(m_Socket, F_SETFD, dwFlags);
+#endif
 #endif
 		m_bRunning = true; // So we know when we started
 		while( !m_bTerminate ) // while the listener dosen't terminate
