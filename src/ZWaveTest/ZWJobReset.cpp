@@ -82,7 +82,7 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 			if( length >= 3 && 
 				buffer[0] == REQUEST &&
 				buffer[1] == FUNC_ID_ZW_SET_DEFAULT &&
-				buffer[2] == 1 )
+				buffer[2] == 1 /* completed*/ )
 			{
 				setState( ZWaveJob::STOPPED );
 				return true;

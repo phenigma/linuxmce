@@ -46,15 +46,31 @@ bool ZWJobReceive::run()
 	// send	FUNC_ID_MEMORY_GET_ID
 	char buffer[10];
 	
+	// ZWave implementation is doing this
+	// but ThinkControl not
+	// What to do ?
+#if 0
+	buffer[0] = REQUEST;
+	buffer[1] = FUNC_ID_SERIAL_API_APPL_NODE_INFORMATION;
+	buffer[2] = 1; // true == listening
+	buffer[3] = GENERIC_TYPE_STATIC_CONTROLLER;
+	buffer[4] = SPECIFIC_TYPE_PORTABLE_REMOTE_CONTROLLER;
+	buffer[5] = 1; // one param
+	buffer[6] = COMMAND_CLASS_CONTROLLER_REPLICATION; // param
+	buffer[7] = 0;
+	
+	handler()->sendData(buffer, 7);
+#endif
+	
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_ZW_NEW_CONTROLLER;
-	buffer[2] = 0;
-	buffer[3] = 0;
+	buffer[2] = NEW_CTRL_STATE_RECEIVE;
+	buffer[3] = 1; // Callback FunctionID
 	buffer[4] = 0;
 	
 	setState(ZWaveJob::RUNNING);
 	
-	return handler()->sendData(buffer, 2);
+	return handler()->sendData(buffer, 4);
 }
 
 bool ZWJobReceive::processData(const char * buffer, size_t length)
@@ -67,7 +83,15 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 			g_pPlutoLogger->Write(LV_WARNING, "ZWJobReceive wrong state.");
 			break;
 			
-		case ZWaveJob::RUNNING :
+		case ZWaveJob::RUNNING : // ??? May be
+			if( length >= 3 && 
+				buffer[0] == RESPONSE &&
+				buffer[1] == FUNC_ID_ZW_NEW_CONTROLLER &&
+				buffer[2] == 1 )
+			{
+				setState( ZWaveJob::STOPPED );
+				return true;
+			}
 			break;
 	}
 	
