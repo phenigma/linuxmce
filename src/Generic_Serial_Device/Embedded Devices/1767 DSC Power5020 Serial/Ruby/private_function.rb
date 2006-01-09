@@ -1,4 +1,4 @@
-#private functions  06-Ian-06 16:45
+#private functions  09-Ian-06 11:00
 def log( buff )
 if  $logFile.nil? then
 	print( buff )
@@ -16,68 +16,60 @@ word.each_byte{ |i|
 }
 
 log( "\n" )
-if $bFlush then $logFile.flush end
 end
 
 def badParam(funcName,paramName)
 log( "Bad parameter in: " + funcName + " Parmeter:" + paramName + "\n" )
-if $bFlush then $logFile.flush end
 end
 
-def logState()
+def logState(bZones)
 logTime = Time.now
 timeStr = logTime.strftime("%d-%m-%Y  %H:%M:%S  ")
 
 log( "PC5401 state:" + "\n" )
 log( "Machine time:" + timeStr + "\n" )
 log( "Max partition:" + $MaxPartition.to_s + "   Max sensor:" + $MaxSensor.to_s + "   " )
-log( "Max line length:" + $MaxLineLength.to_s + "\n" )
+log( "Max line length:" + $MaxLineLength.to_s + "   "  )
+log( "Min line length:" + $MinLineLength.to_s + "\n" )
 
 log( "PC5401 State:" + $panelState.to_s + " Init:" + $bInit.to_s + "\n"  )
 log( "TimeStamp:" + $bTimeStamp.to_s + " TimeBroadcast:" + $bTimeBroadcast.to_s + "   " )
 log( "Descriptive arm:" + $bDescArm.to_s + "\n" )
 
-log( "Partitions list: " + $partStr + "\n" )
-log( "Sensors list: " + $zoneStr + "\n" )
+if (bZone=true) then
+	#log zone and partition
+	log( "Partitions list: " + $partStr + "\n" )
+	log( "Sensors list: " + $zoneStr + "\n" )
 
-#log open zone
-log( "Sensor open:" )
-$sensorStatus.each{ |key, value|
-	log( key.to_s + " -> " + value.to_s )
-	if $sensorType.has_key?(key) then log( " -> " + $sensorType[key].to_s ) end
-	log( "\n" )
-}
+	#log open zone
+	log( "Sensor open:" )
+	$sensorStatus.each{ |key, value|
+		log( key.to_s + " -> " + value.to_s )
+		if $sensorType.has_key?(key) then log( " -> " + $sensorType[key].to_s ) end
+		log( "\n" )
+	}
+end
 
 log( "\n" )
-if $bFlush then $logFile.flush end
+end
+
+def getCmdType(code)
+cmdNo=code.to_i
+if (cmdNo < 500) then return "Command:" end
+if (cmdNo >= 500) and (cmdNo <= 502) then return "Cmd_ack:"  end
+if (cmdNo > 502) then return "Event:"  end
 end
 
 def logCmd(code)
-#logState()
+logState(false)
 
-logTime = Time.now
-timeStr = logTime.strftime("%d-%m-%Y  %H:%M:%S  ")
-
-cmdNo=code.to_i
-
-log( "Machine time:" + timeStr + "\n" )
-log( "PC5401 State:" + $panelState.to_s + " Init:" + $bInit.to_s + "\n" )
-log( "TimeStamp:" + $bTimeStamp.to_s + " TimeBroadcast:" + $bTimeBroadcast.to_s )
-log( "\n" )
-
-if (cmdNo < 500) then log( "Command:" ) end
-if (cmdNo >= 500) and (cmdNo <= 502) then log( "Cmd_ack:" ) end
-if (cmdNo > 502) then log( "Event:" ) end
-
-log( code.to_s + "  " )
+log( getCmdType(code) + code.to_s + "  " )
 if $cmdCode.has_key?(code) then 
 	log( $cmdCode[code] )
 else 
 	log( "Unknown code" )
 end
 log( "\n\n" )
-
-if $bFlush then $logFile.flush end
 end
 
 def mapp(zones)      #mapping Partition -> Zones
@@ -101,9 +93,8 @@ end
 def checkSumProc(buff)
 count=0   
 chkStr=String.new
+
 outStr=buff
-#log( "\nCheckSum call:\n" )
-#log( "Size:" + buff.size.to_s + "  " + buff + "\n" )
 outStr.each_byte{ |i|
 	count += i
 	#log( i.to_s + ":" + count.to_s + "\n" )
@@ -117,7 +108,6 @@ return outStr
 end
 
 #IO operation
-
 def readLine
 $index=0
 $line=String.new
@@ -132,7 +122,7 @@ while cod[0,1] != "\n" do
 		log( "Can not read from serial " + "\n" )
 	end
 		
-	if ($line.size>$MaxLineLength) then
+	if ($line.size>$MaxLineLength) or ($line.Size<$MinLineLength) then
 		log( "Comunication error. Line size" + $line.size.to_s + "\n" )
 		#send error ...
 	end	
@@ -153,7 +143,6 @@ else
 	buff=String.new
 end
 
-if $bFlush then $logFile.flush end
 return buff
 end
 
@@ -178,7 +167,6 @@ else                                #ready to process another command
 	log( "Send cmd" + "\n\n" )
 end
 
-if $bFlush then $logFile.flush end
 end
 
 def sendCmd2()
@@ -195,7 +183,6 @@ else                                    #buffer empty
 	$cmdBuffer.delete_at(0)
 end
 
-if $bFlush then $logFile.flush end
 #return buff2
 end
 
@@ -248,7 +235,6 @@ if ($bInit == true) then        #fire sensor trip only after adding child
 	end
 end
 
-if $bFlush then $logFile.flush end
 end
 
 def addPart(val,status)
@@ -273,7 +259,6 @@ else
 	log( "partStr:"  + $partStr  +  "\n" )
 end  #found end
 
-if $bFlush then $logFile.flush end
 end
 
 def addChildDevices      #add to data base
@@ -281,7 +266,7 @@ if $partStr.empty? then
 	log( "Child list is empty not fire event" + "\n" )
 else
 	if ($bInit == true) then 
-		log( "Already initialized." + "\n" )
+		log( "Already initialized not fire event." + "\n" )
 	else
 		$bInit=true
 		
@@ -291,11 +276,10 @@ else
 		SendCommand(reportEv)
 		
 		log( "Fire 54 event:" + $partStr + "\n" )
-		logState()
+		logState(true)
 	end	
 end
 
-if $bFlush then $logFile.flush end
 end
 
 
