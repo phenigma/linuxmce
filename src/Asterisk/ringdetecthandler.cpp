@@ -72,6 +72,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		bool success=false;
 		for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
 		{
+			string exten=(*it).first;
 			string newchan=(*it).second;
 			int pos = newchan.find(channel);
 			if( pos >=0)
@@ -88,7 +89,8 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				success=true;
 			}
 			AsteriskManager* manager = AsteriskManager::getInstance();
-			manager->NotifyHangup((*it).first);
+			g_pPlutoLogger->Write(LV_STATUS, "Will notify hangup on %s",exten.c_str());
+			manager->NotifyHangup(exten);
 		}
 		if(!success)
 		{
@@ -113,31 +115,61 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		}
 		string ringphoneid;
 		if(!Utils::ParseChannel(channel, &ringphoneid)) {
-			if(RuntimeConfig::getInstance()->isCallOriginating(ringphoneid)) {
-				g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Origination a call. Skipping issue Ring event.",
-							ringphoneid.c_str());
-			} else {
-				if(map_ringext.find(ringphoneid) == map_ringext.end())
-				{
+			if(map_ringext.find(ringphoneid) == map_ringext.end())
+			{
 //					g_pPlutoLogger->Write(LV_WARNING, "No previos ring to this channel !!!");
-					map_ringext[ringphoneid]="";
+				map_ringext[ringphoneid]="";
 //					return 0;
-				}
-				map_ringext[ringphoneid] += string(" ")+channel;
-				if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
+			}
+			map_ringext[ringphoneid] += string(" ")+channel;
+			if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
+			{
+				string callerid = ptoken->getKey(TOKEN_CALLERID);
+				if(callerid.find_first_of("0123456789") < 0)
 				{
-					string callerid = ptoken->getKey(TOKEN_CALLERID);				
+					callerid = "";	
+					channel = map_ringext[ringphoneid];
+					int oldpos=0;				
+
+					string tmp1, tmp2;
+					do
+					{
+						pos = channel.find(' ',oldpos);
+						if(pos <0)
+						{
+							tmp1 = channel.substr(oldpos, channel.length());
+						}
+						else
+						{
+							tmp1= channel.substr(oldpos, pos - oldpos);
+						}
+						if(!Utils::ParseChannel(tmp1, &tmp2))
+						{
+							if(tmp2 != ringphoneid)
+							{
+								callerid += tmp2+" ";
+							}
+						}
+						oldpos = pos+1;
+
+					}
+					while(pos>=0);
+				}
+				if(RuntimeConfig::getInstance()->isCallOriginating(ringphoneid)) {
+					g_pPlutoLogger->Write(LV_STATUS, "Phone %s is originating a call. Skipping issue Ring event.",
+							ringphoneid.c_str());
+				} else {
 					AsteriskManager* manager = AsteriskManager::getInstance();
 					manager->NotifyRing(callerid, ringphoneid, map_ringext[ringphoneid]);
-					g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event.",ringphoneid.c_str());
+					g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event. with callerid %s",ringphoneid.c_str(),callerid.c_str());
 				}
-
-				/* as idea 	:  we need both  map_ringext[ringphoneid] and channel, and use one or another or both depending on situation */
 			}
-		} else {
+
+			/* as idea 	:  we need both  map_ringext[ringphoneid] and channel, and use one or another or both depending on situation */
+		}
+		else {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
 		}
-		
 	}
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_LINK) 
 	{
