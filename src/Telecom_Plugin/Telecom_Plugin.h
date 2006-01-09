@@ -195,7 +195,9 @@ private:
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
 	 
-	bool Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
+	bool IncomingCall( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	bool Hangup( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 private:
     DeviceData_Router* find_AsteriskDevice();
@@ -205,6 +207,9 @@ private:
 	int iCmdCounter;
 	int generate_NewCommandID();
 	map<int,int> map_orbiter2embedphone;
+	map<int,int> map_embedphone2orbiter;
+	map<int,int> map_ext2device;
+	map<int,int> map_device2ext;
 		
 };	
 

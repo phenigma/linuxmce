@@ -96,6 +96,14 @@ bool Telecom_Plugin::GetConfig()
 	for(size_t s=0;s<vectDevices.size();++s)
 	{
 		map_orbiter2embedphone[vectDevices[s]->FK_Device_ControlledVia_get()] = vectDevices[s]->PK_Device_get();
+		map_embedphone2orbiter[vectDevices[s]->PK_Device_get()] = vectDevices[s]->FK_Device_ControlledVia_get();		
+	}
+	vector<class Row_Device_DeviceData*> vectDeviceData;
+	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD+string("=") + StringUtils::itos(DEVICEDATA_PhoneNumber_CONST), &vectDeviceData);
+	for(size_t s=0;s<vectDevices.size();++s)
+	{
+		map_ext2device[atoi(vectDeviceData[s]->IK_DeviceData_get().c_str())] = vectDeviceData[s]->FK_Device_get();
+		map_device2ext[vectDeviceData[s]->FK_Device_get()] = atoi(vectDeviceData[s]->IK_DeviceData_get().c_str());
 	}
 
 	return true;
@@ -111,8 +119,6 @@ Telecom_Plugin::~Telecom_Plugin()
 	
 }
 
-
-#define DATAGRID_All_Calls_CONST 60
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Telecom_Plugin::Register()
@@ -145,8 +151,8 @@ bool Telecom_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );	
-    RegisterMsgInterceptor((MessageInterceptorFn)(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
-
+    RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
+    RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::Hangup) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_PBX_Hangup_CONST);
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -968,12 +974,33 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	std::list<CallData*>::iterator it = calls->begin();
 	while(it != calls->end())
 	{
-		string text="Between "+StringUtils::itos((*it)->getOwnerDevID())+" and "+((*it)->getCallerID());
-		g_pPlutoLogger->Write(LV_STATUS,"%s",text.c_str());
-		pCell = new DataGridCell(text,StringUtils::itos((*it)->getOwnerDevID()));
-		pDataGrid->SetData(0,Row, pCell);
-		Row++;
+//		if(map_device2ext[(*it)->getOwnerDevID()] != 0)
+//		{
+//			string text="Between "+StringUtils::itos(map_device2ext[(*it)->getOwnerDevID()])+" and "+((*it)->getCallerID());
+			string text=(*it)->getID();
+			g_pPlutoLogger->Write(LV_STATUS,"%s",text.c_str());
+			pCell = new DataGridCell(text,StringUtils::itos((*it)->getOwnerDevID()));
+			if(map_embedphone2orbiter[(*it)->getOwnerDevID()]!=0)
+			{
+				SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,map_embedphone2orbiter[(*it)->getOwnerDevID()]);
+				pCell->m_pMessage = SCREEN_DevCallInProgress_.m_pMessage;
+			}
+			pDataGrid->SetData(0,Row, pCell);
+			Row++;
+//		}
 		it++;
 	}
 	return pDataGrid;
+}
+
+bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
+	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Hangup (%d) event received from PBX.",iPhoneExtension);	
+	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
+	if(pCallData) {
+		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
+		CallManager::getInstance()->removeCall(pCallData);		
+	}
+	return true;
 }
