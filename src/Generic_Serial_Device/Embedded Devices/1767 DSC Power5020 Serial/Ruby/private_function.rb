@@ -1,4 +1,4 @@
-#private functions  09-Ian-06 11:00
+#private functions  09-Ian-06 11:50
 def log( buff )
 if  $logFile.nil? then
 	print( buff )
@@ -22,7 +22,7 @@ def badParam(funcName,paramName)
 log( "Bad parameter in: " + funcName + " Parmeter:" + paramName + "\n" )
 end
 
-def logState(bZones)
+def logState(bSensors)
 logTime = Time.now
 timeStr = logTime.strftime("%d-%m-%Y  %H:%M:%S  ")
 
@@ -36,7 +36,7 @@ log( "PC5401 State:" + $panelState.to_s + " Init:" + $bInit.to_s + "\n"  )
 log( "TimeStamp:" + $bTimeStamp.to_s + " TimeBroadcast:" + $bTimeBroadcast.to_s + "   " )
 log( "Descriptive arm:" + $bDescArm.to_s + "\n" )
 
-if (bZone=true) then
+if (bSensors==true) then
 	#log zone and partition
 	log( "Partitions list: " + $partStr + "\n" )
 	log( "Sensors list: " + $zoneStr + "\n" )
@@ -162,7 +162,7 @@ if ($panelState == 3) then    #wait to finish another command
 	$cmdBuffer.push(buff2)
 	log( "Adding cmd to buffer" + "\n\n" )
 else                                #ready to process another command
-	sendbuff2)
+	send( buff2 )
 	$panelState=3
 	log( "Send cmd" + "\n\n" )
 end
@@ -171,13 +171,12 @@ end
 
 def sendCmd2()
 log( "Start cmd2: " )
-$logFile.flush
 
 if $cmdBuffer.empty? then      #execute first command from buffer
 	if ($panelState == 3) then $panelState=2 end 
 else                                    #buffer empty
 	log( "Send cmd2: " )
-	send$cmdBuffer.first)
+	send( $cmdBuffer.first )
 	logString($cmdBuffer[0])
 
 	$cmdBuffer.delete_at(0)
@@ -224,7 +223,6 @@ if ($bInit == true) then        #fire sensor trip only after adding child
 	}
 	log( "\n" )
 	log( "Fire 9 event with " + idNo.to_s + " " + status.to_s + "\n" )
-	$logFile.flush
 
 	if (idNo != -1) then 
 		tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i
