@@ -1,3 +1,3 @@
-#Release 03-Ian-06  12:10
+#Release 04-Ian-06  16:30
 
-if $logFile != nil then $logFile.close end
+if ($logFile != nil) then $logFile.close end
