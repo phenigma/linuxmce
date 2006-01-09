@@ -3,6 +3,7 @@
 #include "ZW_SerialAPI.h"
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
+#include "ZW_classcmd.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,16 +45,27 @@ ZWJobReset::~ZWJobReset()
 
 bool ZWJobReset::run()
 {
-	// send	FUNC_ID_MEMORY_GET_ID
 	char buffer[10];
 	
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_SERIAL_API_APPL_NODE_INFORMATION;
-	buffer[2] = 0;
+	buffer[2] = 1; // true == listening
+	buffer[3] = GENERIC_TYPE_STATIC_CONTROLLER;
+	buffer[4] = SPECIFIC_TYPE_PORTABLE_REMOTE_CONTROLLER;
+	buffer[5] = 1; // one param
+	buffer[6] = COMMAND_CLASS_CONTROLLER_REPLICATION; // param
+	buffer[7] = 0;
+	
+	handler()->sendData(buffer, 7);
+	
+	buffer[0] = REQUEST;
+	buffer[1] = FUNC_ID_ZW_SET_DEFAULT;
+	buffer[2] = 1; // Callback FunctionID
+	buffer[3] = 0;
 	
 	setState(ZWaveJob::RUNNING);
 	
-	return handler()->sendData(buffer, 2);
+	return handler()->sendData(buffer, 3);
 }
 
 bool ZWJobReset::processData(const char * buffer, size_t length)
@@ -67,6 +79,14 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 			break;
 			
 		case ZWaveJob::RUNNING :
+			if( length >= 3 && 
+				buffer[0] == REQUEST &&
+				buffer[1] == FUNC_ID_ZW_SET_DEFAULT &&
+				buffer[2] == 1 )
+			{
+				setState( ZWaveJob::STOPPED );
+				return true;
+			}
 			break;
 	}
 	

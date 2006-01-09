@@ -18,7 +18,7 @@ EXTERNAL_LIBS_NAMES += SerializeClass DCECommon Serial PlutoUtils
 sources =  PlutoZWSerialAPI.cpp ZWJobGetInitData.cpp ZWJobGetVersion.cpp ZWJobSwitchBinaryGet.cpp \
 	ZWaveNode.cpp SerialConnection.cpp ZWJobGetNodeProtocolInfo.cpp ZWJobInitialize.cpp \
 	ZWJobSwitchChangeLevel.cpp ZWJobGetID.cpp ZWJobGetSUC.cpp ZWJobLightLevel.cpp \
-	ZWaveJob.cpp ZWaveTest.cpp
+	ZWaveJob.cpp ZWaveTest.cpp  ZWJobReset.cpp ZWJobReceive.cpp
 
 LDLIBS_NAMES = $(EXTERNAL_LIBS_NAMES)
 
