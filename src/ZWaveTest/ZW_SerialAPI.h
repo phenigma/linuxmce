@@ -127,3 +127,82 @@
 #define CONTROLLER_STATUS_SLAVE_MASK                    0x01
 
 #define MAGIC_VALUE                                     0x42
+
+/*Defined libraries*/
+#define ZW_LIB_CONTROLLER_STATIC  0x01
+#define ZW_LIB_CONTROLLER         0x02
+#define ZW_LIB_SLAVE_ENHANCED     0x03
+#define ZW_LIB_SLAVE              0x04
+#define ZW_LIB_INSTALLER          0x05
+#define ZW_NO_INTELLIGENT_LIFE    0x06
+
+/*remote status mask defines*/
+#define REMOTE_STATUS_SLAVE_BIT        0x01  /*1 indicates slave*/
+
+/* SetLearnNodeState parameter */
+#define LEARN_NODE_STATE_OFF    0
+#define LEARN_NODE_STATE_NEW    1
+#define LEARN_NODE_STATE_UPDATE 2
+#define LEARN_NODE_STATE_DELETE 3
+
+// SetLearnNodeState callback status 
+#define LEARN_STATE_ROUTING_PENDING    0x80
+#define LEARN_STATE_DONE               0x40
+#define LEARN_STATE_FAIL               0x20
+
+// idleLearnState callback status
+#define UPDATE_STATE_ROUTING_PENDING  0x80
+#define UPDATE_STATE_ADD_DONE         0x40       
+#define UPDATE_STATE_DELETE_DONE      0x20 
+#define UPDATE_STATE_SUC_ID           0x10
+
+/* ZW_NewController parameter */
+#define NEW_CTRL_STATE_SEND				0x01
+#define NEW_CTRL_STATE_RECEIVE			0x02
+#define NEW_CTRL_STATE_STOP_OK			0x03
+#define NEW_CTRL_STATE_STOP_FAIL		0x04
+#define NEW_CTRL_STATE_ABORT			0x05
+#define NEW_CTRL_STATE_CHANGE			0x06
+#define NEW_CTRL_STATE_DELETE			0x07
+#define NEW_CTRL_STATE_MAKE_NEW         0x08
+// NewController callback status 
+#define NEW_CONTROLLER_FAILED			0x00
+#define NEW_CONTROLLER_DONE				0x01
+#define NEW_CONTROLLER_LEARNED			0x02
+#define NEW_CONTROLLER_CHANGE_DONE		0x03
+#define NEW_CONTROLLER_DELETED			0x04
+#define NEW_CONTROLLER_MAKE_NEW_DONE    0x05
+
+/* Listening bit in NODEINFO capability */
+#define NODEINFO_LISTENING_MASK     0x80
+#define NODEINFO_LISTENING_SUPPORT  0x80
+
+#define ZW_SUC_SET_SUCCEEDED    0x05
+#define ZW_SUC_SET_FAILED       0x06
+
+/* From ZW_transport.h --- begin */
+/* Transmit frame option flags */
+#define TRANSMIT_OPTION_ACK         0x01   /* request acknowledge from destination node */
+#define TRANSMIT_OPTION_LOW_POWER   0x02   /* transmit at low output power level (1/3 of normal RF range)*/  
+/*#ifdef ZW_CONTROLLER*/
+#define TRANSMIT_OPTION_AUTO_ROUTE  0x04   /* request retransmission via repeater nodes */
+#define TRANSMIT_OPTION_FORCE_ROUTE 0x08   /* request transmission via repeater nodes */
+/*#endif*/
+        
+/* Received frame status flags */
+#define RECEIVE_STATUS_ROUTED_BUSY  0x01
+#define RECEIVE_STATUS_LOW_POWER	0x02   /* received at low output power level */
+
+
+/* Predefined Node ID's */
+#define NODE_BROADCAST    0xFF    /* broadcast */
+
+/* Transmit complete codes */
+#define TRANSMIT_COMPLETE_OK      0x00  
+#define TRANSMIT_COMPLETE_NO_ACK  0x01  /* retransmission error */
+#define TRANSMIT_COMPLETE_FAIL    0x02  /* transmit error */ 
+/*#ifdef ZW_CONTROLLER*/
+/* Assign route transmit complete but no routes was found */
+#define TRANSMIT_COMPLETE_NOROUTE 0x04  /* no route found in assignroute */
+                                        /* therefore nothing was transmitted */
+
