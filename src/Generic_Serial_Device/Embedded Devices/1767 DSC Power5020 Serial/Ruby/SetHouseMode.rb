@@ -1,5 +1,5 @@
 def SetHouseMode(value_to_assign, pk_users, password, pk_devicegroup, handling_instructions)
-#SetHouseMode 06-Ian-06 16:30
+#SetHouseMode 09-Ian-06 11:30
 #log parameters
 log( "SetHouseMode:" + "  " )
 log( "Value:"         +   value_to_assign           + "  " )
@@ -31,7 +31,7 @@ else
 end
 
 log( "Size:" + partList.size.to_s + " Partition list: " )
-partList.each { |i| log( i.to_s + " " }
+partList.each { |i| log( i.to_s + " ") }
 log( "\n" )
 
 case valueNo
@@ -53,5 +53,4 @@ when 6      # armed extended away
 	DSCArmPartition("AWAY",i.to_s,password) }
 end
 
-if $bFlush then $logFile.flush end
 end
