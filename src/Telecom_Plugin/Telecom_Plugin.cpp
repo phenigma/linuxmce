@@ -960,7 +960,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 
 class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "ActiveCalls request received for GridID: %s with Params: %s.",GridID.c_str(), Parms.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "ActiveCalls request received for GridID: %s",GridID.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	int Row = 0;
@@ -970,7 +970,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	{
 		string text="Between "+StringUtils::itos((*it)->getOwnerDevID())+" and "+((*it)->getCallerID());
 		g_pPlutoLogger->Write(LV_STATUS,"%s",text.c_str());
-		pCell = new DataGridCell(text,0);
+		pCell = new DataGridCell(text,StringUtils::itos((*it)->getOwnerDevID()));
 		pDataGrid->SetData(0,Row, pCell);
 		Row++;
 		it++;
