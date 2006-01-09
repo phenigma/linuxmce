@@ -1897,6 +1897,7 @@
 #define DESIGNOBJ_mnuSensorsViewedByCamera_CONST 4783
 #define DESIGNOBJ_dgVisibleSensors_CONST 4784
 #define DESIGNOBJ_butSetVisibleSensors_CONST 4785
+#define DESIGNOBJ_dgAllCalls_CONST 4788
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
