@@ -1,5 +1,9 @@
 <?
 function help($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/help.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -9,7 +13,7 @@ function help($output,$dbADO) {
 	$installationID=(int)$_SESSION['installationID'];
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($deviceID==0){
-		die('Invalid device template.');
+		die($TEXT_ERROR_INVALID_DEVICE_TEMPLATE_CONST);
 	}
 	
 	if ($action == 'form') {
@@ -23,7 +27,7 @@ function help($output,$dbADO) {
 				$deviceName=$deviceFields['Description'][$i];
 			}
 			
-			$documents.='<br>Device Template: <B>'.$deviceFields['Template'][$i].'</B><br>'.getDocumentsChilds($deviceFields['FK_Document'][$i],$documentsTree);
+			$documents.='<br>'.$TEXT_DEVICE_TEMPLATE_CONST.': <B>'.$deviceFields['Template'][$i].'</B><br>'.getDocumentsChilds($deviceFields['FK_Document'][$i],$documentsTree);
 		}
 		
 	$out.='
@@ -39,7 +43,8 @@ function help($output,$dbADO) {
 	<form action="index.php" method="POST" name="help">
 	<input type="hidden" name="section" value="help">
 	<input type="hidden" name="action" value="add">	
-	<p>Here are all the documents that can be of help when using your <B>'.$deviceName.'</B>. Pluto\'s documentation is like a wiki. While viewing a document you can click "activate edit mode" to make your own changes or additions. You can also add your own document by clicking the "add new document" button below. Any changes or additions will be merged back into Pluto\'s main documentation tree, and pending review, will then become a part of every other Pluto user\'s documentation, and they will see your documents when they click the help button. So feel free to make additions, it helps the whole community.<br><br>
+	
+	<p>'.$TEXT_HELP_DOCUMENTS_CONST.' <B>'.$deviceName.'</B>. '.$TEXT_HELP_DOCUMENTS_INFO_CONST.'<br><br>
 	'.$documents.'
 	</form>
 	';
@@ -47,7 +52,7 @@ function help($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=help&parentID=$parentID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=help&parentID=$parentID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -57,7 +62,7 @@ function help($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Help');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_HELP_CONST);
 	$output->output();
 }
 
@@ -75,16 +80,20 @@ function getDocumentTree($dbADO){
 }
 
 function getDocumentsChilds($docID,$documentsTree,$spacer=''){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/help.lang.php');
+	
 	$out='';
 	if($docID==0){
-		return '|--No documents.';
+		return '|--'.$TEXT_NO_DOCUMENTS_CONST.'.';
 	}
 	if(in_array($docID,array_keys($documentsTree))){
 		$out.='<a href="../support/index.php?section=document&docID='.$docID.'" target="_blank">'.$documentsTree[$docID]['Title'].'</a><br>';
 		foreach ($documentsTree[$docID]['Childs'] AS $childID){
 			$out.=$spacer.'&nbsp;&nbsp;&nbsp;&nbsp;|--'.getDocumentsChilds($childID,$documentsTree,'&nbsp;&nbsp;&nbsp;&nbsp;'.$spacer);
 		}
-		$out.=$spacer.'&nbsp;&nbsp;&nbsp;&nbsp;|--<a href="../support/index.php?section=addDocument&parentID='.$docID.'&edit=1" target="_blank">[Add new document here]</a><br>';
+		$out.=$spacer.'&nbsp;&nbsp;&nbsp;&nbsp;|--<a href="../support/index.php?section=addDocument&parentID='.$docID.'&edit=1" target="_blank">['.$TEXT_ADD_NEW_DOCUMENT_HERE_CONST.']</a><br>';
 	}
 	
 	return $out;

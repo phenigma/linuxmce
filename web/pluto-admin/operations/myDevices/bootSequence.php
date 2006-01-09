@@ -176,6 +176,10 @@ function bootSequence($output,$dbADO) {
 				$parameters=@$_POST['parameters_'.$value];
 				$updateDeviceStartupScript='UPDATE Device_StartupScript SET Boot_Order=?, Background=?, Enabled=?, Parameter=? WHERE FK_Device=? AND FK_StartupScript=?';
 				$dbADO->Execute($updateDeviceStartupScript,array($order,$background_,$enabled,$parameters,$computer,$value));
+				
+				// generate simlinks 
+				$cmd='ln -s XXXX';
+				exec($cmd);
 			}
 			header('Location: index.php?section=bootSequence&computer='.$computer);
 		}

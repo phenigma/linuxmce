@@ -1,5 +1,9 @@
 <?
 function tunerConfig($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/tunerConfig.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -19,16 +23,16 @@ function tunerConfig($output,$dbADO) {
 	<input type="hidden" name="dtID" value="'.$dtID.'">	
 	<input type="hidden" name="categoryID" value="'.$categoryID.'">	
 		
-	<div align="center"><B>Tuner(s) setup</B></div>	
+	<div align="center"><B>'.$TEXT_TUNER_SETUP_CONST.'</B></div>	
 	<br><br>';
 	if($categoryID!=$GLOBALS['AmpsReceivers']){
 		$out.='
 	<table>
 		<tr>
-			<td align="center" colspan="2" class="err"><B>WARNING: if you close this window without setting any tuner you won\'t be able to use the TV.</B></td>
+			<td align="center" colspan="2" class="err"><B>'.$TEXT_TUNER_WARNING_CONST.'</B></td>
 		</tr>	
 		<tr>
-			<td align="right"><B>How many Tuners does this have?</B></td>
+			<td align="right"><B>'.$TEXT_TUNNERS_QUESTION_CONST.'</B></td>
 			<td><select name="tunerNo">
 				<option value="1">1</option>
 				<option value="2">2</option>
@@ -37,28 +41,28 @@ function tunerConfig($output,$dbADO) {
 		</td>
 		</tr>	
 		<tr>
-			<td colspan="2">By tuner we mean an input for an antenna or RF cable input where there is an internal tuner that picks the channel/frequency. We\'re not asking about inputs, like composite, svideo, a/v, etc.--just tuners. Most TV\'s have only 1 tuners--in other words there is just 1 antenna input. But some high-end TV\'s have 2 or more tuners. If you\'re not sure, just leave it at 1</td>
+			<td colspan="2">'.$TEXT_TUNERS_INFO_CONST.'</td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="Save"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"></td>
 		</tr>		
 	</table>';
 	}else{
 	$out.='	<table>
 		<tr>
-			<td align="center" colspan="2" class="err"><B>WARNING: if you close this window without setting any tuner you won\'t be able to use the TV.</B></td>
+			<td align="center" colspan="2" class="err"><B>'.$TEXT_TUNER_WARNING_CONST.'</B></td>
 		</tr>	
 		<tr>
-			<td align="center" colspan="2"><B>Tuner:</B> <input type="checkbox" name="command[]" value="'.$GLOBALS['AM_Command'].'" checked> AM <input type="checkbox" name="command[]" value="'.$GLOBALS['FM_Command'].'" checked> FM <input type="checkbox" name="command[]" value="'.$GLOBALS['WB_Command'].'"> WB <input type="checkbox" name="command[]" value="'.$GLOBALS['SW_Command'].'"> SW</td>
+			<td align="center" colspan="2"><B>'.$TEXT_TUNER_CONST.':</B> <input type="checkbox" name="command[]" value="'.$GLOBALS['AM_Command'].'" checked> AM <input type="checkbox" name="command[]" value="'.$GLOBALS['FM_Command'].'" checked> FM <input type="checkbox" name="command[]" value="'.$GLOBALS['WB_Command'].'"> WB <input type="checkbox" name="command[]" value="'.$GLOBALS['SW_Command'].'"> SW</td>
 		</tr>	
 		<tr>
-			<td colspan="2">We need to know if this is a receiver with a built-in tuner. In other words, if it has various inputs for other devices (like dvd, cd, etc.), but also has a built in tuner for the radio, normally AM/FM.</td>
+			<td colspan="2">'.$TEXT_BUILTIN_TUNER_CONST.'</td>
 		</tr>	
 		<tr>
 			<td colspan="2" align="center">&nbsp;</td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="Yes, it has a tuner, and I have indicated them above"> <input type="button" class="button" onClick="self.close();" value="No this isn\'t a receiver with a built-in tuner"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_TUNER_CONFIRMATION_CONST.'"> <input type="button" class="button" onClick="self.close();" value="'.$TEXT_TUNER_INFIRMATION_CONST.'"></td>
 		</tr>		
 	</table>';
 	}
@@ -70,7 +74,7 @@ $out.='
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=tunerConfig&dtID=$dtID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=tunerConfig&dtID=$dtID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		$controlPipeQuery='

@@ -37,6 +37,7 @@ $TEXT_TEMPLATE_CONST='Template';
 $TEXT_ACTION_CONST='Action';
 $TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST='You are not authorised to modify installation.';
 $TEXT_PARAMETERS_CONST='Parameters';
+$TEXT_PARAMETER_CONST='Parameter';
 $TEXT_CLICK_HERE_CONST='click here';
 $TEXT_COMMENTS_CONST='Comments';
 $TEXT_PROPERTIES_CONST='Properties';

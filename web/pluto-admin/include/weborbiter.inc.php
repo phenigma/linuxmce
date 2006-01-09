@@ -124,7 +124,7 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 	$out='';
 	
 	// get proxy orbiter IP address 
-	$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.FK_Device_ControlledVia,DD.IK_DeviceData AS Port,Parent.IPAddress',$dbADO,'INNER JOIN Device_DeviceData DD ON DD.FK_Device=Device.PK_Device AND DD.FK_DeviceData='.$GLOBALS['ListenPort'].' LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device WHERE Device.FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
+	$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.FK_Device_ControlledVia,DD.IK_DeviceData AS Port,Parent.IPAddress',$dbADO,'INNER JOIN Device_DeviceData DD ON DD.FK_Device=Device.PK_Device AND DD.FK_DeviceData='.$GLOBALS['ListenPort'].' LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device WHERE Device.FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter'].' AND Parent.PK_Device IS NOT NULL');
 
 	if(count($ProxyOrbiterInfo)!=0){
 		$address=$ProxyOrbiterInfo['IPAddress'][0];

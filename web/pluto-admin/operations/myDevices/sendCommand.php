@@ -1,5 +1,8 @@
 <?
 function sendCommand($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/sendCommand.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -9,7 +12,7 @@ function sendCommand($output,$dbADO) {
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$installationID=(int)@$_SESSION['installationID'];
 	if($deviceID==0){
-		die('Invalid Device ID specified.');
+		die($TEXT_ERROR_INVALID_DEVICEID_SPECIFIED_CONST);
 	}
 	$commandID=(int)@$_REQUEST['command'];
 	$resParamType=$dbADO->Execute('SELECT * FROM ParameterType');
@@ -38,7 +41,7 @@ function sendCommand($output,$dbADO) {
 			ORDER BY Description ASC 
 		',$deviceID);
 		$commandsPulldown='<select name="command" onChange="document.sendCommand.action.value=\'form\';document.sendCommand.submit();">
-			<option value="0">- Please select -</option>';
+			<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 		while($row=$resCommands->FetchRow()){
 			$commandsPulldown.='<option value="'.$row['PK_Command'].'" '.(($row['PK_Command']==$commandID)?'selected':'').'>'.$row['Description'].'</option>';
 		}
@@ -51,19 +54,20 @@ function sendCommand($output,$dbADO) {
 		<input type="hidden" name="section" value="sendCommand">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="action" value="add">	
+		
 		<br><br>
 			<table>
 				<tr>
-					<td valign="top" colspan="3">Device <B>'.$rowDevice['Description'].'</B>, # <B>'.$rowDevice['PK_Device'].'</B> <td>
+					<td valign="top" colspan="3">'.$TEXT_DEVICE_CONST.' <B>'.$rowDevice['Description'].'</B>, # <B>'.$rowDevice['PK_Device'].'</B> <td>
 				</tr>
 				<tr>
-					<td valign="top" colspan="3">Device template <B>'.$rowDevice['Template'].'</B>, category <B>'.$rowDevice['Category'].'</B> and manufacturer <B>'.$rowDevice['Manufacturer'].'</B>.<td>
+					<td valign="top" colspan="3">'.$TEXT_DEVICE_TEMPLATE_CONST.' <B>'.$rowDevice['Template'].'</B>, '.strtolower($TEXT_DEVICE_CATEGORY_CONST).' <B>'.$rowDevice['Category'].'</B> '.strtolower($TEXT_MANUFACTURER_CONST).' <B>'.$rowDevice['Manufacturer'].'</B>.<td>
 				</tr>
 				<tr>
 					<td valign="top" colspan="3">&nbsp;<td>
 				</tr>		
 				<tr>
-					<td colspan="3">Send to this device the command '.$commandsPulldown.'</td>
+					<td colspan="3">'.$TEXT_SEND_DEVICE_THE_COMMAND_CONST.' '.$commandsPulldown.'</td>
 				</tr>';
 		if($commandID!=0){
 			$resParams=$dbADO->Execute('
@@ -77,15 +81,15 @@ function sendCommand($output,$dbADO) {
 				$parmsArray[$rowParam['FK_CommandParameter']]=$rowParam['FK_ParameterType'];
 				$isOut+=$rowParam['IsOut'];
 			}
-			$deliveryMessage=($isOut>0)?'<br>This command has out parameters.  Delivery confirmation is required.<input type="hidden" name="isOut" value="1">':'';
+			$deliveryMessage=($isOut>0)?'<br>'.$TEXT_OUT_PARAMETERS_DELIVERY_CONFIRMATION_REQUIRED_CONST.'<input type="hidden" name="isOut" value="1">':'';
 			$out.='
 				<tr>
 					<td valign="top" colspan="3"><input type="checkbox" name="confirmation" value="1" '.(($isOut>0)?'disabled checked':'').' '.((@$_REQUEST['conf']==1)?'checked':'').'> Request delivery confirmation'.$deliveryMessage.'<td>
 				</tr>
 				<tr bgcolor="#DDDDDD">
-					<td align="center"><B>Param</B></td>
-					<td align="center"><B>Data</B></td>
-					<td align="center"><B>File</B></td>
+					<td align="center"><B>'.$TEXT_PARAMETER_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DATA_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_FILE_CONST.'</B></td>
 				</tr>';		
 			$resParams->MoveFirst();	
 			while ($rowParam=$resParams->FetchRow()){
@@ -101,7 +105,7 @@ function sendCommand($output,$dbADO) {
 			}
 			$out.='
 				<tr bgcolor="#DDDDDD">
-					<td  align="center" colspan="3"><input type="submit" class="button" name="send" value="Send Message"> <input type="reset" class="button" name="cancel" value="Cancel"></td>
+					<td  align="center" colspan="3"><input type="submit" class="button" name="send" value="'.$TEXT_SEND_MESSAGE_CONST.'"> <input type="reset" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 				<input type="hidden" name="parmsArray" value="'.urlencode(serialize($parmsArray)).'">
 				';
@@ -115,7 +119,7 @@ function sendCommand($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=sendCommand&deviceID=$deviceID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=sendCommand&deviceID=$deviceID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		// MessageSend [-r | -o] localhost 0 [device] 1 [command id] [parm1] [value1] [parm2] [value2]
@@ -150,8 +154,8 @@ function sendCommand($output,$dbADO) {
 		$commandToSend="/usr/pluto/bin/MessageSend localhost $firstParam 0 $deviceID 1 $commandID$parmsValues";		
 		exec($commandToSend,$retMessage);
 		
-		header("Location: index.php?section=sendCommand&deviceID=$deviceID&command=$commandID&conf=$conf&msg=Message Sent succesfully.  <br>$commandToSend<br>Response was:<br>".join('<br>',$retMessage));
-		
+		header("Location: index.php?section=sendCommand&deviceID=$deviceID&command=$commandID&conf=$conf&msg='.$TEXT_MESSAGE_SENT_SUCCESFULLY_CONST.'  <br>$commandToSend<br>'.$TEXT_RESPONSE_WAS_CONST.':<br>".join('<br>',$retMessage));
+		exit();		
 	}
 
 	$output->setScriptCalendar('null');
