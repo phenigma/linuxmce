@@ -143,6 +143,7 @@
 #define BUTTON_double_quote_CONST 199
 #define BUTTON_percent_CONST 200
 #define BUTTON_Alphanumeric_keys_CONST 201
+#define BUTTON_No_key_CONST 202
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
