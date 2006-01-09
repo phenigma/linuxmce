@@ -8792,9 +8792,9 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
     else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
     {
         if( m_iRotation==90 || m_iRotation==270 )
-			pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+			pObj_Datagrid->m_FixedRowHeight = (pObj_Datagrid->m_rPosition.Width - (pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1))/pObj_Datagrid->m_MaxRow;
 		else
-			pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+			pObj_Datagrid->m_FixedRowHeight = (pObj_Datagrid->m_rPosition.Height - (pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1))/pObj_Datagrid->m_MaxRow;
     }
     if(  ( pObj_Datagrid->m_FixedColumnWidth == 0 && pObj_Datagrid->m_MaxCol == 0 ) || ( pObj_Datagrid->m_FixedRowHeight == 0 && pObj_Datagrid->m_MaxRow == 0 )  )
     {
@@ -8871,6 +8871,17 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
         }
         Counter++;
     }
+
+	//also adjust the datagrid height not to show the black slide on the bottom.
+	if( m_iRotation == 90 || m_iRotation == 270 )
+		pObj_Datagrid->m_rPosition.Width = 
+			pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
+			(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
+	else
+		pObj_Datagrid->m_rPosition.Height = 
+			pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
+			(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
+
 	pObj_Datagrid->m_bParsed=true;
 }
 
