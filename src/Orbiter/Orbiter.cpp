@@ -3848,58 +3848,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 }
             }
         }
-
-		//we don't need this anymore
-		/*
-        if(m_bCaptureKeyboard_DataGrid)
-        {
-            if(
-                ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
-                ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
-                ( PK_Button == BUTTON_Back_CONST )
-                )
-            {
-				PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
-				PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-                PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-                if(m_vectObjs_GridsOnScreen.size() > 0)
-                {
-                    vector<DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin();
-                    DesignObj_DataGrid *pDataGrid = *it;
-
-					bool bResponse;
-					int iPK_Variable = pDataGrid->m_iPK_Variable;
-					string sValue_To_Assign = m_sCaptureKeyboard_InternalBuffer;
-					int iWidth = pDataGrid->m_MaxCol, iHeight = pDataGrid->m_MaxRow;
-
-					string sParams; 
-					sParams = SubstituteVariables(pDataGrid->m_sOptions, pDataGrid, 0, 0 );
-					//sParams += SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 );
-					sParams += sValue_To_Assign;
-					DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(m_dwPK_Device, m_dwPK_Device_DatagridPlugIn,  
-						StringUtils::itos( m_dwIDataGridRequestCounter ), pDataGrid->m_sGridID, 
-						pDataGrid->m_iPK_Datagrid, sParams, pDataGrid->m_iPK_DeviceTemplate, 
-						&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
-					if(!SendCommand(CMD_Populate_Datagrid) || !bResponse) // wait for a response
-						g_pPlutoLogger->Write(LV_CRITICAL, "Populate datagrid from command: %d failed", pDataGrid->m_sGridID);
-					else if(iPK_Variable)
-						CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
-
-					if(pDataGrid->m_sExtraInfo.find('S')!=string::npos && pDataGrid->m_sSeek.length()==0 && !pDataGrid->sSelVariable.empty())
-					{
-						pDataGrid->m_sSeek = "~" + m_mapVariable[atoi(pDataGrid->sSelVariable.c_str())];
-					}
-
-					m_vectObjs_NeedRedraw.push_back(pDataGrid);
-					return true; 
-				}
-            }
-        }
-		*/
     }
-
-    //TODO: seek in data grid
-
 #else
     if( m_bCaptureKeyboard_OnOff && m_iCaptureKeyboard_PK_Variable )
     {
@@ -3919,7 +3868,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
         }
     }
     if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->GetObj(),  PK_Button ) )  )
-	//bHandled = ClickedButton(m_pScreenHistory_Current->m_pObj, PK_Button);
     {
         if(  PK_Button>=BUTTON_Up_Arrow_CONST && PK_Button<=BUTTON_Right_Arrow_CONST  ) // up,  down,  left or right
         {

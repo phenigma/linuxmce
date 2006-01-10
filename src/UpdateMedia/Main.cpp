@@ -58,7 +58,7 @@ void *UpdateMediaThread(void *)
 {
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Worked thread: \"I'm wake!\"");        
+		g_pPlutoLogger->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 
 		while(vectModifiedFolders.size())
@@ -95,7 +95,7 @@ void *UpdateMediaThread(void *)
 
 void OnModify(list<string> &listFiles) 
 {
-g_pPlutoLogger->Write(LV_STATUS, "Notifier with new event...");        
+	g_pPlutoLogger->Write(LV_STATUS, "Notified with new event...");        
 
 	for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
 	{
@@ -111,7 +111,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Notifier with new event...");
 			if(nPos != string::npos)
 				sItem = sItem.substr(0, nPos);
 
-g_pPlutoLogger->Write(LV_STATUS, "New folder %d...", sItem.c_str());        
+			g_pPlutoLogger->Write(LV_STATUS, "New folder %s...", sItem.c_str());        
 
 			PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 

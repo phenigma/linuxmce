@@ -47,7 +47,7 @@ void FileNotifier::Watch(string sDirectory)
 		{
 			int wd = m_inotify.watch(*it, IN_ALL_EVENTS);
 
-			//g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
 			m_mapWatchedFiles[wd] = *it; 
 		}
 		catch(...)
@@ -79,6 +79,8 @@ void *WorkerThread(void *p)
             PLUTO_SAFETY_LOCK(wfm, pFileNotifier->m_WatchedFilesMutex);
             string sFilename = pFileNotifier->m_mapWatchedFiles_Find(event.wd) + "/" + event.name;
             wfm.Release();
+
+			g_pPlutoLogger->Write(LV_STATUS, "inotify: New event for %s", sFilename.c_str());
 
             bool bIsDir = (event.mask & IN_ISDIR) != 0;
 			list<string> listFiles;
