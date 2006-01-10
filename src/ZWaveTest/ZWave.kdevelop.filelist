@@ -37,3 +37,11 @@ ZWJobSwitchBinaryGet.cpp
 ZWJobSwitchBinaryGet.h
 ZWJobSwitchChangeLevel.cpp
 ZWJobSwitchChangeLevel.h
+/zwjobaddnode.h
+/zwjobaddnode.cpp
+/zwjobaddnode.h
+/zwjobaddnode.cpp
+ZWJobAddNode.cpp
+ZWJobAddNode.h
+ZWJobRemoveNode.cpp
+ZWJobRemoveNode.h
