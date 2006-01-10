@@ -226,7 +226,10 @@ if ($bInit == true) then        #fire sensor trip only after adding child
 
 	if (idNo != -1) then 
 		tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i
-		tripEv.params_[25] = status.to_s                     #25 state
+		if (status.to_s == "true") then
+			tripEv.params_[25] = "1"
+		else
+			tripEv.params_[25] = "0"
 		SendCommand(tripEv)
 	else
 		log( "Didn't find the child with name" + val.to_s + "\n" )
