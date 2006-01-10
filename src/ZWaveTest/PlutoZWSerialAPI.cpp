@@ -263,13 +263,13 @@ const NodesMap& PlutoZWSerialAPI::getNodes() const
 void PlutoZWSerialAPI::clearNodes()
 {
 	ZWaveNode * node = NULL;
-	for(NodesMapIterator itNode=nodes.begin(); itNode!=nodes.end(); ++itNode)
+	for(NodesMapIterator itNode=d->nodes.begin(); itNode!=d->nodes.end(); ++itNode)
 	{
 		node = (*itNode).second;
 		delete node;
 		node = NULL;
 	}
-	nodes.clear();
+	d->nodes.clear();
 }
 
 unsigned long PlutoZWSerialAPI::homeID() const
