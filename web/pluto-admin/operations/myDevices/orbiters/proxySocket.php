@@ -2,7 +2,7 @@
 function proxySocket($output,$dbADO){
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
 		$phoneIPAddress=$_SERVER['REMOTE_ADDR'];
-		$ProxyOrbiterInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$phoneIPAddress.'\' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
+		$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.PK_Device AS DeviceID, FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$phoneIPAddress.'\' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
 		if(count($ProxyOrbiterInfo)!=0){
 			$address=$ProxyOrbiterInfo['IPAddress'][0];
 			if($address=='' || is_null($address)){
@@ -14,15 +14,18 @@ function proxySocket($output,$dbADO){
 				}
 			}
 			$port=$ProxyOrbiterInfo['Port'][0];
+			$deviceID=$ProxyOrbiterInfo['DeviceID'][0];
 		}else{
 			$address=@$_REQUEST['address'];
 			$port=@$_REQUEST['port'];
-			xml_die($address,$port,$command,"\n\nOrbiter proxy not found for phone IP ".$phoneIPAddress."\n",'Invalid phone IP '.$phoneIPAddress);
+			$deviceID=(int)$_REQUEST['deviceID'];
+			xml_die($deviceID,$address,$port,$command,"\n\nOrbiter proxy not found for phone IP ".$phoneIPAddress."\n",'Invalid phone IP '.$phoneIPAddress);
 		}
 
 	}else{
 		$address=@$_REQUEST['address'];
 		$port=@$_REQUEST['port'];
+		$deviceID=(int)$_REQUEST['deviceID'];
 	}
 	$refresh=@$_REQUEST['refresh'];
 	$command=$_REQUEST['command'];
@@ -34,7 +37,7 @@ function proxySocket($output,$dbADO){
 	write_log("\n".date('d-m-Y H:i:s')."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	if ($socket === false) {
-		xml_die($address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Failed to connect');
+		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Failed to connect');
 	} else {
 		write_log("OK.\n");
 	}
@@ -43,7 +46,7 @@ function proxySocket($output,$dbADO){
 
 	if ($result !==true) {
 		@socket_close($socket);
-		xml_die($address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",'Failed to connect');
+		xml_die($deviceID,$address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",'Failed to connect');
 	} else {
 		write_log("Connected on socket ... OK.\n");
 	}
@@ -52,12 +55,12 @@ function proxySocket($output,$dbADO){
 	
 	// get image
 	if($command=='IMAGE'){
-		$out.=getImage($socket,$refresh);
+		$out.=getImage($deviceID,$socket,$refresh);
 	}
 	
 	// send touch command
 	if(strpos($command,'TOUCH')!==false){
-		$out.=sendCommand($socket,$command,$refresh);
+		$out.=sendCommand($deviceID,$socket,$command,$refresh);
 	}
 	
 	// send XML command
@@ -66,18 +69,18 @@ function proxySocket($output,$dbADO){
 		$x=(int)@$_REQUEST['x'];
 		$y=(int)@$_REQUEST['y'];
 		if($x!=0 && $y!=0){
-			$out.=sendCommand($socket,'TOUCH '.$x.'x'.$y,$refresh);
+			$out.=sendCommand($deviceID,$socket,'TOUCH '.$x.'x'.$y,$refresh);
 		}else{
 			$key=@$_REQUEST['key'];
 			if($key==''){
-				getImage($socket);
+				getImage($deviceID,$socket);
 			}else{
-				$out.=sendCommand($socket,'PLUTO_KEY '.$key,$refresh);
+				$out.=sendCommand($deviceID,$socket,'PLUTO_KEY '.$key,$refresh);
 			}
 		}
-		$XML=getXML($socket);
+		$XML=getXML($deviceID,$socket);
 		socket_close($socket);
-		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML";
+		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML&deviceID=$deviceID";
 		
 		Header("Refresh: 5; url=$refreshURL");
 		Header("Content-type: text/xml"); 
@@ -96,11 +99,11 @@ function proxySocket($output,$dbADO){
 	$output->output();  
 }
 
-function getImage($socket,$refresh=''){
-	$in = "IMAGE ".rand(10000,11000)."\n";
+function getImage($deviceID,$socket,$refresh=''){
+	$in = "IMAGE ".$deviceID."\n";
 	$out='';
 
-	write_log("Sending command $in");
+	write_log("Sending to device $deviceID the command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
@@ -126,23 +129,23 @@ function getImage($socket,$refresh=''){
 		}
 		
 		if(isset($outImage)){
-			$isSaved=writeFile(getcwd().'/security_images/orbiter_screen.png',$outImage);
+			$isSaved=writeFile(getcwd().'/security_images/'.$deviceID.'_cisco.png',$outImage);
 			write_log("Received image size $imageSize \n");
 			
 		}
 	}
 	if((int)$refresh>0){
-		$out.=reloadImageJS();
+		$out.=reloadImageJS($deviceID);
 	}
 	
 	return $out;
 }
 
-function getXML($socket){
-	$in = "XML ".rand(10000,11000)."\n";
+function getXML($deviceID,$socket){
+	$in = "XML $deviceID\n";
 	$out='';
 	
-	write_log("Sending command $in");
+	write_log("Sending to device $deviceID the command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
@@ -177,12 +180,12 @@ function getXML($socket){
 
 
 
-function sendCommand($socket,$command,$refresh){
+function sendCommand($deviceID,$socket,$command,$refresh){
 	$in = $command."\n";
 
 	$out='';
 
-	write_log("Sending command $in");
+	write_log("Sending command to device $deviceID $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
@@ -196,17 +199,17 @@ function sendCommand($socket,$command,$refresh){
 	}
 	$out.=$outResponse;
 
-	$out.=getImage($socket,$refresh);
+	$out.=getImage($deviceID,$socket,$refresh);
 	
 	return $out;
 }
 
 // reload the image "screen" from parent
-function reloadImageJS(){
+function reloadImageJS($deviceID){
 	$js='
 		<script>
 			parent.document.getElementById("screen").src="rooms/spacer.gif";
-			parent.document.getElementById("screen").src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(0,10000).'";
+			parent.document.getElementById("screen").src="include/image.php?imagepath='.getcwd().'/security_images/'.$deviceID.'_cisco.png&randno='.rand(0,10000).'";
 		</script>
 	';
 	
@@ -238,7 +241,7 @@ function getCoreIP($dbADO)
 	return @$row['IPAddress'];
 }
 
-function xml_die($address,$port,$command,$message,$userFriendlyMessage=''){
+function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage=''){
 	// the phone has 32 characters limit for values
 	write_log(trim($message));
 	$xmlMessage=($userFriendlyMessage!='')?$userFriendlyMessage:str_replace("\n","",trim($message));
@@ -256,7 +259,7 @@ function xml_die($address,$port,$command,$message,$userFriendlyMessage=''){
 	</MenuItem>	
 </CiscoIPPhoneGraphicFileMenu>';
 
-	$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=$command";
+	$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=$command&deviceID=$deviceID";
 	Header("Refresh: 5; url=$refreshURL");
 	Header("Content-type: text/xml"); 
 	write_log("\nRedirecting to $refreshURL\n");

@@ -200,6 +200,7 @@ function queryExternalServer($url){
 	// set URL and other appropriate options
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
 	
 	// grab URL and pass it to the browser
 	$result=curl_exec($ch);

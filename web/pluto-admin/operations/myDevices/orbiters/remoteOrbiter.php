@@ -10,11 +10,12 @@ function remoteOrbiter($output,$dbADO){
 		$address=$_POST['host'];
 		$port=$_POST['port'];
 		$refresh=$_POST['refresh'];
+		$ciscoOrbiter=(int)$_POST['orbiterID'];
 		
 		// TODO: replace image path
-		$iframeSRC='index.php?section=proxySocket&address='.$address.'&port='.$port.'&refresh='.$refresh;
+		$iframeSRC='index.php?section=proxySocket&address='.$address.'&port='.$port.'&refresh='.$refresh.'&deviceID='.$ciscoOrbiter;
 		$orbiterScreen=
-			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(10000,99999).'" onClick="sendTouch();">
+			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/'.$ciscoOrbiter.'_cisco.png&randno='.rand(10000,99999).'" onClick="sendTouch();">
 				<iframe id="imageLoader" src="'.$iframeSRC.'&command=IMAGE"></iframe>';
 		$jsFunction='
 		<script src="scripts/connectionWizard/connectionWizard.js" type="text/javascript" language="JavaScript"></script>
@@ -76,8 +77,7 @@ function remoteOrbiter($output,$dbADO){
 	if($action=='form'){
 		$serverIP=(isset($_REQUEST['host']))?$_REQUEST['host']:'192.168.80.1';
 		$port=(isset($_POST['port']))?$_POST['port']:'3451';
-		
-		$orbiters=getDevicesArrayFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
+		$orbiters=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'].' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
 		$out.='
 		<div class="err">'.stripslashes(@$_GET['error']).'</div>
 		<div class="confirm"><B>'.@stripslashes($_GET['msg']).'</B></div>
@@ -121,5 +121,6 @@ function remoteOrbiter($output,$dbADO){
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  		
 }
+
 
 ?>

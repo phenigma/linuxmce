@@ -160,17 +160,17 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 	
 	// get image
 	if($command=='IMAGE'){
-		$out=getImage($socket,$refresh);
+		$out=getImage($deviceID,$socket,$refresh);
 	}
 	
 	// send touch command
 	if(strpos($command,'TOUCH')!==false){
-		$out=sendCommand($socket,$command,$refresh);
+		$out=sendCommand($deviceID,$socket,$command,$refresh);
 	}	
 
 	// send PLUTO KEY command
 	if(strpos($command,'PLUTO_KEY')!==false){
-		$out=sendCommand($socket,$command,$refresh);
+		$out=sendCommand($deviceID,$socket,$command,$refresh);
 	}
 	
 	web_socket_close($socket);
@@ -181,7 +181,7 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 
 
 // old proxyOrbiter functions
-function getImage($socket,$refresh=''){
+function getImage($deviceID,$socket,$refresh=''){
 	$in = "IMAGE ".rand(10000,11000)."\n";
 	$out='Trying to connect ...';
 
@@ -201,14 +201,14 @@ function getImage($socket,$refresh=''){
 		}
 		
 		if(isset($outImage)){
-			$isSaved=writeFile(getcwd().'/security_images/orbiter_screen.png',$outImage);
+			$isSaved=writeFile(getcwd().'/security_images/'.$deviceID.'_web.png',$outImage);
 			write_log("Received image size $imageSize \n");
 		}else{
 			$out=socket_failed(1);
 		}
 	}
-	if(file_exists(getcwd().'/security_images/orbiter_screen.png')){
-		$out=jsFunctions().'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(10000,99999).'" onClick="sendTouch();"><br>'.buttons_bar();	
+	if(file_exists(getcwd().'/security_images/'.$deviceID.'_web.png')){
+		$out=jsFunctions().'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/'.$deviceID.'_web.png&randno='.rand(10000,99999).'" onClick="sendTouch();"><br>'.buttons_bar();	
 	}
 	
 	return $out;
@@ -245,14 +245,14 @@ function getXML($socket){
 
 
 
-function sendCommand($socket,$command,$refresh){
+function sendCommand($deviceID,$socket,$command,$refresh){
 	$in = $command."\n";
 
 	$out='';
 
 	$written=web_socket_write($socket, $in);
 	$outResponse= web_socket_read($socket, 2048,PHP_NORMAL_READ);
-	$out=getImage($socket,$refresh);
+	$out=getImage($deviceID,$socket,$refresh);
 	
 	return $out;
 }
