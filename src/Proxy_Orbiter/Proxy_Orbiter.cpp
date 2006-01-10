@@ -94,7 +94,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
         "address=192.168.80.1&amp;"
         "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
         "command=XML&amp;";
-    m_sPngImageUrl = m_sBaseUrl + "security_images/orbiter_screen.png";
+	m_sPngImageUrl = m_sBaseUrl + "security_images/" + StringUtils::ltos(m_dwPK_Device) + ".png";
 
     Initialize(gtSDLGraphic);
     StartListening(m_iListenPort);
