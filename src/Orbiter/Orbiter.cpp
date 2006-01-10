@@ -2619,7 +2619,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	    PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 
         int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-        int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow : 0;
+        int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
         
         if( nHColumn==-1 && nHRow==-1 )
 			return;
@@ -2890,16 +2890,16 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
 				bScrolledOutsideGrid=true;
             // Continue only if we're not already highlighting the last cell
-			else if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow + 1 < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
+			else if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
             {
                 pDesignObj_DataGrid->m_iHighlightedRow++;
                 // See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
-                if(pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
+                if(pDesignObj_DataGrid->m_iHighlightedRow >= pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
                 {
                     int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
                     CMD_Scroll_Grid( "", "", PK_Direction );
-                    pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
+                    pDesignObj_DataGrid->m_iHighlightedRow = 1; /*iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow + 1*/;
                 }
             }
 			else
@@ -5052,12 +5052,12 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 			{
 				if(it->second)
-					Output += it->second->m_sDescription + ",";
+					Output += it->second->m_sDescription + ", ";
 				else 
 				{
 					//this is a media floorplan object; it doesn't have a device associated
 					FloorplanObject *pfObj = m_mapFloorplanObject_Selected[it->first];
-					Output += pfObj->DeviceDescription + ",";
+					Output += pfObj->DeviceDescription + ", ";
 				}
 			}
         else if(  Variable=="R" && m_pLocationInfo  )
