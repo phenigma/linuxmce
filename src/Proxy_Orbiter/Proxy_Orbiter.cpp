@@ -143,7 +143,6 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 void xxProxy_Orbiter::RealRedraw( void *data )
 {
 	m_dequeCellXMLItems.clear();
-	g_pPlutoLogger->Write(LV_CRITICAL, "xxProxy_Orbiter::RealRedraw");
 	m_bRerenderScreen = true; //force full redraw
 
 	Orbiter::RealRedraw(data);
@@ -151,13 +150,21 @@ void xxProxy_Orbiter::RealRedraw( void *data )
 //-----------------------------------------------------------------------------------------------------
 void xxProxy_Orbiter::RedrawObjects()
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "xxProxy_Orbiter::RedrawObjects");
-
 	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
 		return; // Nothing to do anyway
 
 	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&xxProxy_Orbiter::RealRedraw, NULL, pe_ALL );
+}
+//-----------------------------------------------------------------------------------------------------
+string xxProxy_Orbiter::GetDevicePngFileName()
+{
+	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_IMAGE;
+}
+//-----------------------------------------------------------------------------------------------------
+string xxProxy_Orbiter::GetDeviceXmlFileName()
+{
+	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_XML;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
@@ -170,19 +177,18 @@ void xxProxy_Orbiter::RedrawObjects()
     }
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-	{
-		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
-	}
-    else
-    {
-        //generate the jpeg or png image with current screen
-        if(m_ImageQuality == 100) //we'll use pngs for best quality
-            SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
-        else
-            SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
-    }
+		m_ImageQuality = 100;
 
-    SaveXML(CURRENT_SCREEN_XML);
+	string sDevicePng = GetDevicePngFileName();
+	string sDeviceXml = GetDeviceXmlFileName();
+
+	//generate the jpeg or png image with current screen
+    if(m_ImageQuality == 100) //we'll use pngs for best quality
+        SaveImageToFile(pScreenImage, sDevicePng);
+    else
+        SDL_SaveJPG(pScreenImage, sDevicePng.c_str(), m_ImageQuality);
+
+    SaveXML(sDeviceXml);
 	m_iImageCounter++;
     
     g_pPlutoLogger->Write(LV_WARNING, "Image/xml generated. Wake up! Screen %s", 
@@ -239,7 +245,7 @@ void xxProxy_Orbiter::RedrawObjects()
         sSoftKeys + 
         "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
-    FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, sXMLString.c_str(), sXMLString.size());
+    FileUtils::WriteBufferIntoFile(GetDeviceXmlFileName(), sXMLString.c_str(), sXMLString.size());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
@@ -409,7 +415,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
         else
         {
             size_t size;
-            char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_IMAGE,size);
+            char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDevicePngFileName(),size);
             if( !pBuffer )
             {
                 g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
@@ -429,7 +435,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
     else if( sLine.substr(0,3)=="XML" )
     {
         size_t size;
-        char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
+        char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDeviceXmlFileName(),size);
         if( !pBuffer )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");

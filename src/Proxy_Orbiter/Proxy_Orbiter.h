@@ -10,7 +10,6 @@ using namespace std;
 #include "../Orbiter/SDL/OrbiterSDL.h"
 #include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
-#define CURRENT_SCREEN_IMAGE_TEMP   "screen_temp.png"
 #define CURRENT_SCREEN_IMAGE        "screen.png"
 #define CURRENT_SCREEN_XML          "screen.xml"
 //-----------------------------------------------------------------------------------------------------
@@ -67,6 +66,9 @@ namespace DCE
 
 		virtual void RedrawObjects();
 		virtual void RealRedraw( void *data );
+
+		inline string GetDevicePngFileName();
+		inline string GetDeviceXmlFileName();
 	};
 }
 //-----------------------------------------------------------------------------------------------------
