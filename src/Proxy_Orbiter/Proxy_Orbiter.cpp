@@ -93,7 +93,8 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
         //"address=" + m_sMyIPAddress + "&amp;"
         "address=192.168.80.1&amp;"
         "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
-        "command=XML&amp;";
+        "command=XML&amp;"
+		"deviceID=" + StringUtils::ltos(m_dwPK_Device) + "&amp;";
 	m_sPngImageUrl = m_sBaseUrl + "security_images/" + StringUtils::ltos(m_dwPK_Device) + "_cisco.png";
 
     Initialize(gtSDLGraphic);
