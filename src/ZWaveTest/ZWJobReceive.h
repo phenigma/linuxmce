@@ -7,6 +7,8 @@ class ZWJobReceive : public ZWaveJob
 {
 	public:
 	
+		enum ReceivingState { STOP=0, START, RECEIVING };
+		
 		ZWJobReceive(PlutoZWSerialAPI*);
 		
 		virtual ~ZWJobReceive();

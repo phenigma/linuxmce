@@ -84,6 +84,7 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 				buffer[1] == FUNC_ID_ZW_SET_DEFAULT &&
 				buffer[2] == 1 /* completed*/ )
 			{
+				handler()->clearNodes();
 				setState( ZWaveJob::STOPPED );
 				return true;
 			}

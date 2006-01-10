@@ -43,6 +43,8 @@ class PlutoZWSerialAPI
 		
 		virtual const NodesMap& getNodes() const;
 		
+		virtual void clearNodes();
+		
 		virtual unsigned long homeID() const;
 		
 		virtual void setHomeID(unsigned long);

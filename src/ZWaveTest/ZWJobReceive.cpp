@@ -14,11 +14,14 @@ class ZWJobReceive::Private
 	
 		Private();
 		~Private();
+		
+		ZWJobReceive::ReceivingState state;
 	
 	private:
 };
 
 ZWJobReceive::Private::Private()
+	: state(ZWJobReceive::STOP)
 {
 }
 
@@ -68,6 +71,7 @@ bool ZWJobReceive::run()
 	buffer[3] = 1; // Callback FunctionID
 	buffer[4] = 0;
 	
+	d->state = ZWJobReceive::START;
 	setState(ZWaveJob::RUNNING);
 	
 	return handler()->sendData(buffer, 4);
@@ -83,13 +87,54 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 			g_pPlutoLogger->Write(LV_WARNING, "ZWJobReceive wrong state.");
 			break;
 			
-		case ZWaveJob::RUNNING : // ??? May be
-			if( length >= 3 && 
+		case ZWaveJob::RUNNING :
+			if( length >= 6 && 
 				buffer[0] == RESPONSE &&
 				buffer[1] == FUNC_ID_ZW_NEW_CONTROLLER &&
 				buffer[2] == 1 )
 			{
-				setState( ZWaveJob::STOPPED );
+				if( ZWJobReceive::STOP == d->state )
+				{
+					setState( ZWaveJob::STOPPED );
+					// TODO as in ZWave sources dec_ctrl.c
+					// check if the sender controller is SUC
+					// if it is, then set it as your SUC
+				}
+				else
+				{
+					// buffer[3]... buffer[6] etc = LEARN_NODE
+					// Node Status
+					switch( buffer[3] )
+					{
+						case NEW_CONTROLLER_LEARNED:
+							// what to do here ?
+							d->state = ZWJobReceive::RECEIVING;
+							break;
+						
+						case NEW_CONTROLLER_CHANGE_DONE :
+						case NEW_CONTROLLER_DONE :
+						{
+							// the receiving it's done, change the controller state
+							// back to normal state (stop == not receiving)
+							char buf[10];
+							buf[0] = REQUEST;
+							buf[1] = FUNC_ID_ZW_NEW_CONTROLLER;
+							buf[2] = NEW_CTRL_STATE_STOP_OK;
+							buf[3] = 1; // Callback FunctionID
+							buf[4] = 0;
+							
+							d->state = ZWJobReceive::STOP;
+							handler()->sendData(buf, 4);
+							break;
+						}
+						
+						case NEW_CONTROLLER_FAILED :
+						default:
+							setState( ZWaveJob::STOPPED );
+							break;
+					}
+				}
+				
 				return true;
 			}
 			break;
