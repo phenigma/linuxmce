@@ -1,0 +1,154 @@
+Source: mythtv
+Section: graphics
+Priority: optional
+Maintainer: Radu Cristescu <radu.c@plutohome.com>
+Build-Depends: debhelper (>> 3.0.0), libqt3-mt-dev, libmysqlclient14-dev | libmysqlclient-dev, libfreetype6-dev, libvorbis-dev, liblame-dev, liblircclient-dev, libartsc0-dev, libasound2-dev, libxinerama-dev | xlibs-static-dev (<< 6.8.1-1), libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1), libxext-dev | xlibs-static-dev (<< 6.8.1-1), libdvb-dev, g++-3.3
+Standards-Version: 3.5.4
+Bugs: mailto:radu.c@plutohome.com
+
+Package: mythtv
+Architecture: all
+Depends: mythtv-database (= ${Source-Version}), mythtv-frontend (= ${Source-Version}), mythtv-backend (= ${Source-Version})
+Recommends: mythtv-doc, mythtv-themes
+Description: A personal video recorder application (client and server)
+ MythTV implements the following PVR features, and more, with a
+ unified graphical interface:
+ .
+  - Basic 'live-tv' functionality. Pause/Fast Forward/Rewind "live" TV.
+  - Video compression using RTjpeg or MPEG-4
+  - Program listing retrieval using XMLTV
+  - Themable, semi-transparent on-screen display
+  - Electronic program guide
+  - Scheduled recording of TV programs
+  - Resolution of conflicts between scheduled recordings
+  - Basic video editing
+ .
+ http://www.mythtv.org/
+ .
+ This package will install a complete MythTV client/server environment
+ on a single system.
+
+Package: mythtv-common
+Architecture: all
+Depends: debconf, adduser, pwgen, mysql-client, ttf-freefont
+Recommends: mythtv-doc (= ${Source-Version})
+Conflicts: mythtv (<< 0.8-1)
+Replaces: mythtv (<< 0.8-1), mythtv-frontend (<< 0.15-3)
+Description: A personal video recorder application (common data)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains infrastructure needed by both the client and
+ the server.
+
+Package: mythtv-doc
+Architecture: all
+Conflicts: mythtv (<< 0.8-1)
+Replaces: mythtv (<< 0.8-1)
+Description: A personal video recorder application (documentation)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains documentation, including the MythTV HOWTO.
+
+Package: mythtv-database
+Architecture: all
+Depends: mythtv-common (= ${Source-Version}), libdbd-mysql-perl, mysql-server, debconf
+Conflicts: mythtv (<< 0.8-1), mythtv-common (<< 0.8-2)
+Replaces: mythtv (<< 0.8-1), mythtv-common (<< 0.8-2)
+Description: A personal video recorder application (database)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package sets up a MySQL database for use my MythTV.  It should be
+ installed on the system where the MySQL server resides.
+
+Package: mythtv-backend
+Architecture: any
+Depends: mythtv-common (= ${Source-Version}), ${shlibs:Depends}, cron, wget, debconf
+Conflicts: mythtv (<< 0.8-1)
+Replaces: mythtv (<< 0.8-1)
+Recommends: mythtv-database, logrotate, xmltv-util
+Suggests: mythtv-frontend, mythweb, mythtv-debug
+Description: A personal video recorder application (server)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains only the server software, which provides video
+ and audio capture and encoding services.  In order to be useful, it
+ requires a mythtv-frontend installation, either on the same system or
+ one reachable via the network.
+ .
+ A database is also required.  The mythtv-database package must be
+ installed, either on the same system, or one reachable via the
+ network.
+ .
+ For a complete installation of all MythTV components, install the
+ 'mythtv' package.
+
+Package: mythtv-frontend
+Architecture: any
+Depends: mythtv-common (= ${Source-Version}), ${shlibs:Depends}, debconf, adduser
+Suggests: mythtv-backend, mythmusic, mythweather, mythgallery, mythdvd, mythvideo, mythgame
+Conflicts: mythtv (<< 0.8-1)
+Replaces: mythtv (<< 0.8-1)
+Recommends: mysql-server
+Suggests: mythtv-backend, mythtv-debug
+Description: A personal video recorder application (client)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains only the client software, which provides a
+ front-end for playback and configuration.  It requires access to a
+ mythtv-backend installation, either on the same system or one
+ reachable via the network.
+ .
+ A database is also required.  The mythtv-database package must be
+ installed, either on the same system, or one reachable via the
+ network.
+ .
+ For a complete installation of all MythTV components, install the
+ 'mythtv' package.
+
+Package: libmyth-0.18.1
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, libqt3-mt-mysql | libqt3c102-mt-mysql
+Conflicts: mythtv (<< 0.7-5)
+Replaces: mythtv (<< 0.7-5)
+Suggests: mythtv-debug
+Description: Common library code for MythTV and add-on modules (runtime)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains a shared library, libmyth, which is used by
+ various components in the system.
+
+Package: libmyth-0.18.1-dev
+Architecture: any
+Section: devel
+Depends: libmyth-0.18.1 (= ${Source-Version}), libqt3c102-mt-dev | libqt3-mt-dev
+Provides: libmyth-dev
+Conflicts: libmyth-dev
+Description: Common library code for MythTV and add-on modules (development)
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains files needed for developing applications which
+ use libmyth (such as the various add-ons for MythTV)
+
+Package: mythtv-debug
+Architecture: any
+Section: devel
+Depends: libmyth-0.18.1 (= ${Source-Version}) | mythtv-frontend (= ${Source-Version}) | mythtv-backend (= ${Source-Version})
+Description: Debugging symbols for MythTV
+ MythTV provides a unified graphical interface for recording and viewing
+ television programs.  Refer to the mythtv package for more information.
+ .
+ This package contains debugging symbols for mythtv-frontend,
+ mythtv-backend and libmyth.  You'll want these if you need to run
+ MythTV in a debugger such as gdb.
+ .
+ Once this package is installed, you can run gdb on your existing
+ MythTV binaries as if they had been compiled with debugging
+ information.
