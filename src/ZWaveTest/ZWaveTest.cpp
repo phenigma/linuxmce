@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 					}
 					while(*line.end() == ' ' || *line.end() == '\t' || *line.end() == '\r' || *line.end() == '\n')
 						line.erase(line.size() - 1, 1);
-					int nodeIndex = line.rfind(' ');
+					size_t nodeIndex = line.rfind(' ');
 					nodeID =   (int) strtol(&(line.c_str()[nodeIndex]), (char **)NULL, 10);
 					if(nodeID == 0 && errno == EINVAL)
 					{
