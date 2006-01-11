@@ -1,4 +1,4 @@
-#Init                      09-Ian-06 11:00
+#Init                      11-Ian-06 10:45
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
@@ -10,7 +10,7 @@ $bFlush = true        #log imediatly every event,comand
 #panel settings
 $MaxSensor=64
 $MaxPartition=8
-$MinLinLenght=7
+$MinLineLength=7
 $MaxLineLength=30
 $bDescArm=false
 $bTimeStamp=false
@@ -39,6 +39,8 @@ $bInit=false
 $cmdBuffer=Array.new
 $bCmdSuccess=true
 $timeNo=0
+
+#$myIo = MyIO.new
 
 $cmdCode = { 
 "001"    =>    "Status report",
