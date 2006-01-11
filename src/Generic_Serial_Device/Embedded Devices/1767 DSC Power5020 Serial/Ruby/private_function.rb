@@ -1,4 +1,21 @@
-#private functions  09-Ian-06 11:50
+#private functions  11-Ian-06 14:00
+
+class MyIO
+
+	def intialize
+		print "Constructor MyIo \n"
+	end
+	
+	def send(buff)
+	if conn_.nil? then
+		log( "Problem with sending data to serial!!! \n" )
+	else
+		log ( "Sending data from MyIo class \n" )
+		conn_.Send(buff)
+	end
+	end
+end
+
 def log( buff )
 if  $logFile.nil? then
 	print( buff )
@@ -9,7 +26,7 @@ end
 end
 
 def logString(word)
-log( "Line read Size:" + word.size.to_s + "  String:" )
+log( "Line size:" + word.size.to_s + "  String:" )
 word.each_byte{ |i| 
 	#if i >='0' and i<= '9' then log( l= end
 	log( i.to_s + "  " )
@@ -28,13 +45,13 @@ timeStr = logTime.strftime("%d-%m-%Y  %H:%M:%S  ")
 
 log( "PC5401 state:" + "\n" )
 log( "Machine time:" + timeStr + "\n" )
-log( "Max partition:" + $MaxPartition.to_s + "   Max sensor:" + $MaxSensor.to_s + "   " )
+log( "Max partition:" + $MaxPartition.to_s + "   Max sensor:" + $MaxSensor.to_s + "\n" )
 log( "Max line length:" + $MaxLineLength.to_s + "   "  )
 log( "Min line length:" + $MinLineLength.to_s + "\n" )
 
 log( "PC5401 State:" + $panelState.to_s + " Init:" + $bInit.to_s + "\n"  )
 log( "TimeStamp:" + $bTimeStamp.to_s + " TimeBroadcast:" + $bTimeBroadcast.to_s + "   " )
-log( "Descriptive arm:" + $bDescArm.to_s + "\n" )
+log( "Descriptive arm:" + $bDescArm.to_s )
 
 if (bSensors==true) then
 	#log zone and partition
@@ -46,7 +63,6 @@ if (bSensors==true) then
 	$sensorStatus.each{ |key, value|
 		log( key.to_s + " -> " + value.to_s )
 		if $sensorType.has_key?(key) then log( " -> " + $sensorType[key].to_s ) end
-		log( "\n" )
 	}
 end
 
@@ -78,7 +94,7 @@ list.each{ |i|
 	list2=i.split("=")
 
 	if (list2.size != 2) then 
-		badParameters( "Mapp", "Zones" ) 
+		badParam( "Mapp", "Zones" ) 
 		next 
 	end      #bad format string
 
@@ -121,13 +137,15 @@ while cod[0,1] != "\n" do
 	else
 		log( "Can not read from serial " + "\n" )
 	end
-		
-	if ($line.size>$MaxLineLength) or ($line.Size<$MinLineLength) then
-		log( "Comunication error. Line size" + $line.size.to_s + "\n" )
-		#send error ...
-	end	
 end
+		      
+#if ($line.size() >$MaxLineLength) or ($line.size() < $MinLineLength) then
+if ($line.size() > 30 ) or ($line.size() < 7) then
+	log( "Comunication error. Line size:" + $line.size.to_s + "\n" )
+	#send error ...
+end	
 
+log( "Read line " )
 logString($line)
 end
 
@@ -156,26 +174,27 @@ end
 
 def sendCmd(buff)
 buff2=checkSumProc(buff)
-logString(buff2)
 
 if ($panelState == 3) then    #wait to finish another command
 	$cmdBuffer.push(buff2)
-	log( "Adding cmd to buffer" + "\n\n" )
+	log( "Adding cmd to buffer" + "   " )
 else                                #ready to process another command
 	send( buff2 )
 	$panelState=3
-	log( "Send cmd" + "\n\n" )
+	log( "Send comand" + "   " )
 end
 
+logString(buff2)
 end
 
 def sendCmd2()
-log( "Start cmd2: " )
+log( "Try to send next command from buffer." )
 
 if $cmdBuffer.empty? then      #execute first command from buffer
+	log( "Buffer is empty\n" )
 	if ($panelState == 3) then $panelState=2 end 
 else                                    #buffer empty
-	log( "Send cmd2: " )
+	log( "Sending comand from buffer.\n" )
 	send( $cmdBuffer.first )
 	logString($cmdBuffer[0])
 
@@ -225,11 +244,12 @@ if ($bInit == true) then        #fire sensor trip only after adding child
 	log( "Fire 9 event with " + idNo.to_s + " " + status.to_s + "\n" )
 
 	if (idNo != -1) then 
-		tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i
-		if (status.to_s == "true") then
+		tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i		
+		if (status.to_s == "true") then 
 			tripEv.params_[25] = "1"
 		else
 			tripEv.params_[25] = "0"
+		end
 		SendCommand(tripEv)
 	else
 		log( "Didn't find the child with name" + val.to_s + "\n" )
@@ -342,7 +362,8 @@ else
 	buff += '0' 
 end
 
-sendCmd(buff)
+send(buff)
+#$myIo.send(buff)
 end
 
 def DSCSimulateAlarmCmd(value)
