@@ -155,7 +155,13 @@
 				RelativePath=".\ZWJobReceive.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWJobRemoveNode.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWJobReset.cpp">
+			</File>
+			<File
+				RelativePath=".\ZWJobSetLearnNodeState.cpp">
 			</File>
 			<File
 				RelativePath=".\ZWJobSwitchBinaryGet.cpp">
@@ -217,7 +223,13 @@
 				RelativePath=".\ZWJobReceive.h">
 			</File>
 			<File
+				RelativePath=".\ZWJobRemoveNode.h">
+			</File>
+			<File
 				RelativePath=".\ZWJobReset.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobSetLearnNodeState.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobSwitchBinaryGet.h">
