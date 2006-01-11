@@ -19,23 +19,11 @@ SerialConnection *SerialConnection::getInstance()
 	return instance;
 }
 
-int SerialConnection::connect()
+int SerialConnection::connect(const char *port)
 {
 	try
 	{
-#ifndef WIN32
-#ifdef DEBUG_EUGEN
-		serialPort = new CSerialPort("ttyS1", 9600, epbsN81);
-#else
-		serialPort = new CSerialPort("ttyS0", 9600, epbsN81);
-#endif
-#else
-#ifdef DEBUG_EUGEN
-		serialPort = new CSerialPort("COM2", 9600, epbsN81);
-#else
-		serialPort = new CSerialPort("COM1", 9600, epbsN81);
-#endif
-#endif //_WIN32
+		serialPort = new CSerialPort(port, 9600, epbsN81);
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 

@@ -36,8 +36,10 @@ public:
 	virtual int disconnect();
 
 	/**connect to the serial port
+	*@param port the serial port connected to the ZWave device 
+	*(eg.: in windows can be "COM1", in linux "ttyS0")
 	*@return 0 if successfull, else negative*/
-	virtual int connect();
+	virtual int connect(const char *port);
 	
 	/**checks if the serial connection class has been initialized*/
 	virtual bool isConnected();
