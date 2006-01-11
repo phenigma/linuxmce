@@ -37,6 +37,7 @@ ZWJobSwitchBinaryGet.cpp
 ZWJobSwitchBinaryGet.h
 ZWJobSwitchChangeLevel.cpp
 ZWJobSwitchChangeLevel.h
+commands.txt
 /zwjobaddnode.h
 /zwjobaddnode.cpp
 /zwjobaddnode.h
@@ -47,3 +48,4 @@ ZWJobRemoveNode.cpp
 ZWJobRemoveNode.h
 /ZWJobSetLearnNodeState.h
 /ZWJobSetLearnNodeState.cpp
+
