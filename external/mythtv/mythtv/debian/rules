@@ -36,7 +36,8 @@ config.mak: configure
 		--dvb-path=/usr/include \
 		--enable-firewire \
 		--enable-ivtv \
-		--enable-joystick-menu
+		--enable-joystick-menu \
+		--enable-proc-opt
 
 	$(CCVARS) qmake -o Makefile PREFIX=/usr mythtv.pro
 
