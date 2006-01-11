@@ -402,7 +402,10 @@ void Asterisk::CreateChildren()
 	}	
 	while((row = mysql_fetch_row(result_set.r)))
 	{
-		ext2user[atoi(row[1])] = atoi(row[0]);
+		if(row[1])
+		{
+			ext2user[atoi(row[1])] = atoi(row[0]);
+		}
 	}
 	if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
 	{
