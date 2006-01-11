@@ -19,21 +19,38 @@ int main(int argc, char* argv[])
 {
 	g_pPlutoLogger = new FileLogger("ZWaveText.log");
 	g_pPlutoLogger->Write(LV_WARNING, "------- BEGIN --------");
-
+	
 	PlutoZWSerialAPI * zwAPI = PlutoZWSerialAPI::instance();
 	if( zwAPI != NULL )
 	{
-		ZWJobInitialize * initJob = new ZWJobInitialize(zwAPI);
-		if( initJob != NULL )
+		FILE* fstream = NULL;
+		fstream = fopen("commands.txt", "r");
+		if(fstream != NULL)
 		{
-			zwAPI->insertJob(initJob);
-			zwAPI->start();
-			zwAPI->listen();
+			char buffer[1024];
+			while(fgets(buffer, 1024, fstream) != NULL)
+			{
+				if(buffer[0] == '#' || strlen(buffer) == 0)
+					continue;
+				if(strncmp(buffer, "init", 4) == 0)
+				{
+					ZWJobInitialize * initJob = new ZWJobInitialize(zwAPI);
+					if( initJob != NULL )
+					{
+						zwAPI->insertJob(initJob);
+						zwAPI->start();
+						zwAPI->listen();
+					}
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "unkown command %s", buffer);
+				}
+			}
 		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING, "unable to open commands.txt");
 	}
 	g_pPlutoLogger->Flush();
-		
 	return 0;
 }
-
-

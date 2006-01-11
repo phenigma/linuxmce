@@ -23,14 +23,22 @@ int SerialConnection::connect()
 {
 	try
 	{
+#ifndef WIN32
+#ifdef DEBUG_EUGEN
+		serialPort = new CSerialPort("ttyS1", 9600, epbsN81);
+#else
+		serialPort = new CSerialPort("ttyS0", 9600, epbsN81);
+#endif
+#else
 #ifdef DEBUG_EUGEN
 		serialPort = new CSerialPort("COM2", 9600, epbsN81);
 #else
 		serialPort = new CSerialPort("COM1", 9600, epbsN81);
 #endif
+#endif //_WIN32
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
-		
+
 		pthread_create(&write_thread, NULL, &receiveFunction, NULL);
 	}
 	catch(...)
@@ -157,6 +165,10 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 	return 0;
 }
 
+/**
+ * 
+ * @return 
+ */
 int SerialConnection::hasCommand()
 {
 	pthread_mutex_lock( &instance->mutex_buffer );
@@ -166,7 +178,7 @@ int SerialConnection::hasCommand()
 		pthread_mutex_unlock( &instance->mutex_buffer );
 		return 0;
 	}
-	if( buffer.front() == SERIAL_ACK )
+	while( buffer.front() == SERIAL_ACK )
 		buffer.pop_front();
 	if( buffer.front() == SERIAL_SOF )
 	{
