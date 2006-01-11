@@ -68,8 +68,8 @@ void *WorkerThread(void *p)
 		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
-		//g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
-		//	event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
+			event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
 
 		bool bCreateEvent = event.mask & IN_CREATE || event.mask & IN_MOVED_TO;
 		bool bDeleteEvent = event.mask & IN_DELETE || event.mask & IN_MOVED_FROM;

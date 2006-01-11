@@ -1,6 +1,8 @@
 #include "inotify.h"
 #include "inotify-syscalls.h"
 #include "inotify_class.h"
+#include "DCE/Logger.h"
+using namespace DCE;
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -10,15 +12,20 @@ inotify::inotify()
 	inotify_fd = inotify_init();
 	if (inotify_fd == -1)
 		throw string("Unable to get inotify handler");
+
+g_pPlutoLogger->Write(LV_STATUS, "inotifiy::inotify %d", inotify_fd);	
 }
 
 inotify::~inotify()
 {
+g_pPlutoLogger->Write(LV_STATUS, "inotifiy::~inotify");	
 	close(inotify_fd);
 }
 
 int inotify::watch(string path, __u32 mask)
 {
+g_pPlutoLogger->Write(LV_STATUS, "inotify:watch %s mask %d", path.c_str(), mask);
+	
 	int wd = inotify_add_watch(inotify_fd, path.c_str(), mask);
 	if (wd == -1)
 		throw string("Failed to set watch");
@@ -27,6 +34,7 @@ int inotify::watch(string path, __u32 mask)
 
 void inotify::unwatch(int watch_id)
 {
+g_pPlutoLogger->Write(LV_STATUS, "inotify:unwatch id %d", watch_id);	
 	if (inotify_rm_watch(inotify_fd, watch_id) == -1)
 		throw string("Failed to remove watch");
 }
@@ -45,6 +53,8 @@ bool inotify::pending_events()
 
 cpp_inotify_event inotify::get_event()
 {
+g_pPlutoLogger->Write(LV_STATUS, "inotify::get_event; event_queue size %d", event_queue.size());
+	
 	if (event_queue.size() == 0)
 	{
 		char buffer[inotify_buffer_size];
