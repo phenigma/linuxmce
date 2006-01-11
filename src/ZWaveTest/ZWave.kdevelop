@@ -14,7 +14,7 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>ZWave</mainprogram>
+      <mainprogram>ZWaveTest</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs/>
@@ -157,4 +157,8 @@
       <showvcsfields>false</showvcsfields>
     </tree>
   </kdevfileview>
+  <ctagspart>
+    <customArguments/>
+    <customTagfilePath/>
+  </ctagspart>
 </kdevelop>
