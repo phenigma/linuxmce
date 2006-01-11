@@ -24,7 +24,7 @@ if($action=='form') {
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		header("Location: index.php?section=climateScenarios&msg=Climate Scenario deleted.");
+		header("Location: index.php?section=climateScenarios&msg=$TEXT_CLIMATE_SCENARIO_DELETED_CONST");
 	}
 
 	

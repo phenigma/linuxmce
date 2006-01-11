@@ -1131,7 +1131,7 @@ switch ($section) {
 	break;	
 	case 'sortScenarios';
 		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
+		$output->setTemplateFileType('large');
 	    include_once('operations/myScenarios/sortScenarios.php');
 	    sortScenarios($output,$dbADO);
 	break;	

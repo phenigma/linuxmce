@@ -1,5 +1,9 @@
 <?php
 function securityScenarios($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/securityScenarios.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -49,7 +53,7 @@ if($action=='form') {
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
 	if($resRooms->RecordCount()==0){
-		$out.='There are no rooms in this installation. Go to <a href="index.php?section=rooms">rooms</a> section to add rooms.';
+		$out.=$TEXT_SS_NO_ROOMS_CONST;
 	}
 	$displayedCommandGroups=array();
 	$displayedRooms=array();
@@ -78,7 +82,7 @@ if($action=='form') {
 		if($resCommandGroups->RecordCount()==0){
 		$out.='
 			<tr>
-				<td colspan="3">No security scenarios for this room.</td>
+				<td colspan="3">'.$TEXT_NO_SECURITY_SCENARIOS_CONST.'</td>
 			</tr>';
 		}
 		while($rowCG=$resCommandGroups->FetchRow()){
@@ -99,31 +103,33 @@ if($action=='form') {
 				$out.='
 				<tr bgcolor="#DDDDDD">
 					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
-					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=testScenario">Test</a></td>
-					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
-					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
-					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
+					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=testScenario">'.$TEXT_TEST_CONST.'</a></td>
+					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">'.$TEXT_EDIT_SIMPLE_MODE_CONST.'</a></td>
+					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">'.$TEXT_EDIT_WIZARD_MODE_CONST.'</a></td>
+					<td align="center"><a href="#" onClick="javascript:if(confirm(\''.$TEXT_DELETE_SECURITY_SCENARIO_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>
 				';
 			}else{
 				$out.='
 				<tr bgcolor="#FF9F9F">
 					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
-					<td align="center" colspan="3">Invalid scenario, one or more device(s) no longer exists.</td>
-					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to keep this scenario? It will no longer appear on Security Scenarios since it had invalid parameters.\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">Keep</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
+					<td align="center" colspan="3">'.$TEXT_INVALID_SECURITY_SCENARIO_CONST.'</td>
+					<td align="center">
+						<a href="#" onClick="javascript:if(confirm(\''.$TEXT_KEEP_INVALID_SECURITY_SCENARIO_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">'.$TEXT_KEEP_CONST.'</a> 
+						<a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>
 				';
 			
 			}
 		}
-		$out.='</table><input type="button" class="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.urlencode($rowRooms['RoomName']).'&action=addScenario\'">';
+		$out.='</table><input type="button" class="button" name="newScenario" value="'.$TEXT_NEW_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.urlencode($rowRooms['RoomName']).'&action=addScenario\'">';
 	}
 	$out.='		</td>
 			</tr>';
 		if(count($displayedRooms)!=0){
 			$out.='
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="Update"  ></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 			</tr>';
 		}
 			$out.='
@@ -144,14 +150,14 @@ if($action=='form') {
 		<input type="hidden" name="RoomName" value="'.stripslashes($_REQUEST['RoomName']).'">	
 		<table cellpadding="4" cellspacing="0" border="0">
 			<tr>
-				<td colspan="2"><h3>New quad camera security scenario</h3></td>
+				<td colspan="2"><h3>'.$TEXT_NEW_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'</h3></td>
 			</tr>
 			<tr>
-				<td><B>Description: </B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.': </B></td>
 				<td><textarea name="description" style="width:200px;"></textarea></td>
 			</tr>
 			<tr>
-				<td colspan="2"><b>Select cameras for quad view:</b></td>
+				<td colspan="2"><b>'.$TEXT_SELECT_CAMERAS_FOR_QUAD_VIEW_CONST.':</b></td>
 			</tr>';
 			$camerasTxt='';
 			$xinePlayers=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
@@ -165,7 +171,7 @@ if($action=='form') {
 			for($i=1;$i<5;$i++){
 				$out.='
 				<tr>
-					<td><B>Camera '.$i.': </B></td>
+					<td><B>'.$TEXT_CAMERA_CONST.' '.$i.': </B></td>
 					<td><select name="camera_'.$i.'">
 						<option value="0"></option>
 						'.$camerasTxt.'						
@@ -174,12 +180,12 @@ if($action=='form') {
 			}
 		$out.='	
 			<tr>
-				<td align="center" colspan="2"><input type="submit" class="button" name="addScenario" value="Add new quad camera security scenario"  > <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
+				<td align="center" colspan="2"><input type="submit" class="button" name="addScenario" value="'.$TEXT_NEW_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'"  > <input type="button" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
 			</tr>
 		</table>
 			<script>
 		 		var frmvalidator = new formValidator("securityScenarios");
- 				frmvalidator.addValidation("description","req","Please enter a description");			
+ 				frmvalidator.addValidation("description","req","'.$TEXT_SECURITY_SCENARIO_DESCRIPTION_REQUIRED_CONST.'");			
 			</script>		
 	</form>
 ';
@@ -227,27 +233,28 @@ if($action=='form') {
 		<input type="hidden" name="section" value="securityScenarios">
 		<input type="hidden" name="action" value="update">	
 		<input type="hidden" name="cgID" value="'.$cgID.'">	
+	
 		<table cellpadding="4" cellspacing="0" border="0">
 			<tr>
-				<td colspan="2"><h3>Edit quad camera security scenario</h3></td>
+				<td colspan="2"><h3>'.$TEXT_EDIT_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'</h3></td>
 			</tr>
 			<tr>
-				<td><B>Description: </B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.': </B></td>
 				<td><textarea name="description" style="width:200px;" rows="2">'.$description.'</textarea></td>
 			</tr>
 			<tr>
-				<td><B>Hint: </B></td>
+				<td><B>'.$TEXT_HINT_CONST.': </B></td>
 				<td><input type="text" name="hint" value="'.$hint.'"></td>
 			</tr>
 			<tr>
-				<td colspan="2"><b>Select cameras for quad view:</b></td>
+				<td colspan="2"><b>'.$TEXT_SELECT_CAMERAS_FOR_QUAD_VIEW_CONST.':</b></td>
 			</tr>';
 			foreach($GLOBALS['camerasVariableNumbersArray'] as $pos=>$cameraNO){
 				$out.='
 				<input type="hidden" name="oldCamera_'.$cameraNO.'" value="'.@$oldIDs[$cameraNO].'">
 				<input type="hidden" name="oldCameraCG_C_'.$cameraNO.'" value="'.@$CG_CArray[$cameraNO].'">
 				<tr>
-					<td><B>Camera '.($pos+1).': </B></td>
+					<td><B>'.$TEXT_CAMERA_CONST.' '.($pos+1).': </B></td>
 					<td><select name="camera_'.$cameraNO.'">
 						<option value="0"></option>';
 					$xinePlayers=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
@@ -263,12 +270,12 @@ if($action=='form') {
 			}
 		$out.='	
 			<tr>
-				<td align="center" colspan="2"><input type="submit" class="button" name="editScenario" value="Update quad camera security scenario"> <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
+				<td align="center" colspan="2"><input type="submit" class="button" name="editScenario" value="'.$TEXT_UPDATE_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'"> <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
 			</tr>
 		</table>
 			<script>
 		 		var frmvalidator = new formValidator("securityScenarios");
- 				frmvalidator.addValidation("description","req","Please enter a description");			
+ 				frmvalidator.addValidation("description","req","'.$TEXT_SECURITY_SCENARIO_DESCRIPTION_REQUIRED_CONST.'");			
 			</script>		
 	</form>
 ';
@@ -277,13 +284,13 @@ if($action=='form') {
 	$cgID=$_REQUEST['cgID'];
 	testScenario($cgID);
 	
-	header("Location: index.php?section=securityScenarios&msg=Command to test security scenario no. $cgID was sent.");
+	header("Location: index.php?section=securityScenarios&msg=$TEXT_SECURITY_SCENARIO_TEST_CONST");
 	exit();	
 }else{
 	// check if the user has the right to modify installation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 	if (!$canModifyInstallation){
-		header("Location: index.php?section=securityScenarios&error=You are not authorised to change the installation.");
+		header("Location: index.php?section=securityScenarios&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 		exit(0);
 	}
 
@@ -291,14 +298,14 @@ if($action=='form') {
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		header("Location: index.php?section=securityScenarios&msg=The security scenario was deleted.");
+		header("Location: index.php?section=securityScenarios&msg=$TEXT_SECURITY_SCENARIO_DELETED_CONST");
 	}
 
 	if(isset($_GET['cgKeepID']) && (int)$_GET['cgKeepID']!=0){
 		$cgToKeep=(int)$_GET['cgKeepID'];
 		$dbADO->Execute('UPDATE CommandGroup SET FK_Template = NULL WHERE PK_CommandGroup=?',$cgToKeep);
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		header("Location: index.php?section=securityScenarios&msg=The security scenario was keeped as custom scenario.");
+		header("Location: index.php?section=securityScenarios&msg=$TEXT_SECURITY_SCENARIO_KEEPED_CONST");
 	}
 
 	if(isset($_POST['addScenario'])){
@@ -345,7 +352,7 @@ if($action=='form') {
 		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,30,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
-		$msg="New security scenario was added.";
+		$msg=$TEXT_SECURITY_SCENARIO_ADDED_CONST;
 	}
 
 	
@@ -419,7 +426,7 @@ if($action=='form') {
 				}
 			}
 		}
-		$msg="The security scenario was edited.";
+		$msg=$TEXT_SECURITY_SCENARIO_UPDATED_CONST;
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=securityScenarios&msg=$msg");
 		exit();	
@@ -451,16 +458,16 @@ if($action=='form') {
 		}
 		
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		$msg="The security scenario was updated.";
+		$msg=$TEXT_SECURITY_SCENARIO_UPDATED_CONST;
 	}
 	
 	header("Location: index.php?section=securityScenarios&msg=$msg");
 }
 
-	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Security Scenarios"=>'index.php?section=securityScenarios'));
+	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_SECURITY_SCENARIOS_CONST=>'index.php?section=securityScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Security Scenarios');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SECURITY_SCENARIOS_CONST);
 	$output->output();
 
 }

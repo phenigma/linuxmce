@@ -1,5 +1,9 @@
 <?php
 function mobileScenarios($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mobileScenarios.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -44,7 +48,7 @@ if($action=='form') {
 	$displayedCommandGroups=array();
 	$out.='
 		<tr bgcolor="#D1D9EA">
-			<td colspan="4" align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.mobileScenarios.action.value=\'addToRoom\';document.mobileScenarios.submit();"></td>
+			<td colspan="4" align="right"><input type="button" class="button" name="add" value="'.$TEXT_ADD_MOBILE_ORBITER_SCENARIO_CONST.'" onClick="javascript:document.mobileScenarios.action.value=\'addToRoom\';document.mobileScenarios.submit();"></td>
 		</tr>';
 	$selectCommandGroups='
 			SELECT * 
@@ -55,7 +59,7 @@ if($action=='form') {
 	if($resCommandGroups->RecordCount()==0){
 		$out.='
 		<tr>
-			<td colspan="3" align="center">No mobile scenarios.</td>
+			<td colspan="3" align="center">'.$TEXT_NO_MOBILE_SCENARIOS_CONST.'</td>
 		</tr>';
 	}
 	$pos=0;
@@ -67,7 +71,11 @@ if($action=='form') {
 				<td>Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<textarea style="width:200px;" name="commandGroup_'.$rowCG['PK_CommandGroup'].'">'.$rowCG['Description'].'</textarea> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.nl2br($rowCG['Description']).': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td><a href="#" onclick="document.mobileScenarios.action.value=\'testScenario\';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Test</a> <a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td>
+					<a href="#" onclick="document.mobileScenarios.action.value=\'testScenario\';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">$TEXT_TEST_CONST</a>
+					<a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">'.$TEXT_EDIT_CONST.'</a> 
+					<a href="#" onClick="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_MOBILE_SCENARIO_CONST.'\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">'.$TEXT_DELETE_CONST.'</a>
+				</td>
 			</tr>
 			';
 		$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -75,7 +83,7 @@ if($action=='form') {
 	if(count($displayedCommandGroups)>0){
 		$out.='
 		<tr>
-			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="Update"  ></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -83,15 +91,14 @@ if($action=='form') {
 		</table>
 	<input type="hidden" name="displayedCommandGroups" value="'.join(',',$displayedCommandGroups).'">	
 	</form>
-	* These scenarios appear on the phone only when you are AWAY from the home.
-	';
+	* '.$TEXT_MOBILE_SCENARIOS_NOTE_CONST;
 							
 }else{	
 	// action='add'
 	if($action=='testScenario'){
 		$scenarioToTest=(int)$_REQUEST['editedCgID'];
 		testScenario($scenarioToTest);
-		header("Location: index.php?section=mobileScenarios&msg=Command to test mobile scenario no. $scenarioToTest was sent.");
+		header("Location: index.php?section=mobileScenarios&msg=$TEXT_MOBILE_SCENARIO_TEST_CONST");
 		exit();
 	}
 		
@@ -101,7 +108,7 @@ if($action=='form') {
 		$dbADO->Execute($insertCommandGroup,array('New Mobile orbiter scenario',$arrayID,$installationID,NULL));
 		$insertID=$dbADO->Insert_ID();
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		$msg='New Mobile orbiter scenario added.&lastAdded='.$insertID;
+		$msg=$TEXT_MOBILE_ORBITER_SCENARIO_ADDED_CONST.'&lastAdded='.$insertID;
 	}
 
 	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
@@ -118,7 +125,7 @@ if($action=='form') {
 			header('Location: index.php?section=scenarioWizard&from=mobileScenarios&cgID='.$_REQUEST['editedCgID'].'&wizard=2');
 			exit();
 		}
-		$msg=(isset($msg))?$msg:"Mobile Orbiter Scenario updated.";
+		$msg=(isset($msg))?$msg:$TEXT_MOBILE_ORBITER_SCENARIO_UPDATED_CONST;
 	}
 	
 
@@ -127,17 +134,17 @@ if($action=='form') {
 	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
-		header("Location: index.php?section=mobileScenarios&msg=Lighting scenario deleted.");
+		header("Location: index.php?section=mobileScenarios&msg=$TEXT_MOBILE_ORBITER_SCENARIO_DELETED_CONST");
 	}
 	
 	header("Location: index.php?section=mobileScenarios&msg=".@$msg);
 	exit();
 }
 
-	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Mobile Orbiter Scenarios"=>'index.php?section=mobileScenarios'));
+	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_MOBILE_ORBITER_SCENARIOS_CONST=>'index.php?section=mobileScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Mobile Orbiter Scenarios');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MOBILE_ORBITER_SCENARIOS_CONST);
 	$output->output();
 
 }

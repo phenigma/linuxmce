@@ -1,5 +1,9 @@
 <?php
 function mediaScenarios($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mediaScenarios.lang.php');
+	
 	global $dbPlutoMainDatabase;	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -29,8 +33,7 @@ function mediaScenarios($output,$dbADO) {
 	$resEntAreas->MoveFirst();
 	$displayedMediaScenarios=array();
 
-	$out='Each Media Scenario will be a button on the Orbiter.  To use Media from a Pluto Media Director, just check the box for the type of media you want.  To use Media from
-	another source, like a VCR, DVD player, etc., use the "Add Media Scenario" section.';
+	$out=$TEXT_MEDIA_SCENARIOS_NOTE_CONST;
 	if($action=='form'){
 		$devicesMediaType=getDevicesArrayFromCategory($GLOBALS['rootAVEquipment'],$dbADO);	// start with all A/V/ devices
 		$out.=setLeftMenu($dbADO).'
@@ -47,22 +50,23 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="optionName" value="">	
 				<input type="hidden" name="actionType" value="">
 				<input type="hidden" name="EntAreaDescription" value="'.@$eaDescriptions[$_POST['newEntArea']].'">
-				<input type="hidden" name="GoTo" value="">	
+				<input type="hidden" name="GoTo" value="">
+			
 			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-			<div align="center"><h2>Media scenarios</h2></div>
-		<a href="index.php?section=sortScenarios&sortBy=EntertainArea">Sort scenarios</a>
+			<div align="center"><h2>'.$TEXT_MEDIA_SCENARIOS_CONST.'</h2></div>
+		<a href="index.php?section=sortScenarios&sortBy=EntertainArea">'.$TEXT_SORT_SCENARIOS_CONST.'</a>
 			<table>
 				<tr>
-					<td colspan="2"><B>Add Media Scenario</B><a name="addMS"></a></td>
+					<td colspan="2"><B>'.$TEXT_ADD_MEDIA_SCENARIO_CONST.'</B><a name="addMS"></a></td>
 				</tr>
 				<tr>
-					<td>Description</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.'</td>
 					<td><textarea name="newDescription" rows="3" style="width:200px;">'.@$_POST['newDescription'].'</textarea></td>
 				</tr>
 				<tr>
-					<td>Entertain Area</td>
+					<td>'.$TEXT_ENTERTAIN_AREA_CONST.'</td>
 					<td><select name="newEntArea" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-						<option value="0">please select</option>';
+						<option value="0">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 			
 			while($rowEntAreas=$resEntAreas->FetchRow()){
 				$out.='<option value="'.$rowEntAreas['PK_EntertainArea'].'" '.((@$_POST['newEntArea']==$rowEntAreas['PK_EntertainArea'])?'selected':'').'>'.$rowEntAreas['Description'].'</option>';
@@ -73,7 +77,7 @@ function mediaScenarios($output,$dbADO) {
 			if($resEntAreas->RecordCount()==0){
 				$out.='
 				<tr>
-					<td colspan="2" class="err">No entertain areas available. They will be created automatically when you next restart your Core, and you can add media scenarios then. If you want to manually configure your entertainment areas please do so on the <a href="index.php?section=rooms">Rooms</a> page. Refer to the help on that page for details.</td>
+					<td colspan="2" class="err">'.$TEXT_NO_ENTERTAIN_AREA_CONST.' <a href="index.php?section=rooms">'.$TEXT_GOTO_ROOMS_CONST.'</a></td>
 				</tr>';
 			}
 			
@@ -95,20 +99,20 @@ function mediaScenarios($output,$dbADO) {
 				}
 				$out.='
 					<tr>
-						<td>Device</td>
+						<td>'.$TEXT_DEVICE_CONST.'</td>
 						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()" '.((substr(@$_POST['MSDevice'],-1)=='-')?'style="background:red;"':'').'>
-							<option value="0" style="background:white;">Please select</option>';
+							<option value="0" style="background:white;">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 
 				foreach ($devicesMediaType AS $deviceID=>$description){
 					$out.='<option value="'.$deviceID.'-'.@$deviceTemplatesArray[$deviceID].'" '.((@$_POST['MSDevice']==$deviceID.'-'.@$deviceTemplatesArray[$deviceID])?'selected':'').' '.((!isset($deviceTemplatesArray[$deviceID]))?'style="background:red;"':'style="background:white;"').'>'.$description.'</option>';
 				}
 				$out.='
-						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' Devices in red do not have any media types set on the A/V Properties page or they are not assigned to this entertain area.  Go to the <a href="index.php?section=avWizard">A/V Equipment</a> page and choose A/V Properties to set them.':'').'</td>
+						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?$TEXT_NO_AV_PROPERTIES_SET_CONST:'').'</td>
 					</tr>';
 			if($resDevices->RecordCount()==0){
 				$out.='
 				<tr>
-					<td colspan="2" class="err">No media devices in selected entertain area. Please add media devices to this entertain area.</td>
+					<td colspan="2" class="err">'.$TEXT_NO_MEDIA_DEVICES_CONST.'</td>
 				</tr>';
 			}
 
@@ -119,7 +123,7 @@ function mediaScenarios($output,$dbADO) {
 					<tr>
 						<td>Type</td>
 						<td><select name="newType" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-							<option value="0">Please select</option>';
+							<option value="0">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 					$getMediaTypes='
 						SELECT * FROM MediaType 
 							INNER JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType
@@ -136,14 +140,14 @@ function mediaScenarios($output,$dbADO) {
 					if($resMediaTypes->RecordCount()==0){
 						$out.='
 							<tr>
-								<td colspan="2" class="err">Selected device does not have any media type. Please select another device.</td>
+								<td colspan="2" class="err">'.$TEXT_NO_MEDIA_TYPE_CONST.'</td>
 							</tr>';
 					}						
 					
 					if(isset($_POST['newType']) && $_POST['newType']!='0'){
 						$out.='
 						<tr>
-							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="add"  ></td>
+							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"  ></td>
 						</tr>
 						';
 					}
@@ -173,7 +177,7 @@ function mediaScenarios($output,$dbADO) {
 			if($resMediaScenarios->RecordCount()==0){
 				$out.='
 				<tr>
-					 <td align="center" colspan="7">No Media Scenarios</td>
+					 <td align="center" colspan="7">'.$TEXT_NO_MEDIA_SCENARIOS_CONST.'</td>
 				</tr>';
 			}
 			
@@ -189,12 +193,12 @@ function mediaScenarios($output,$dbADO) {
 					
 				$out.='
 				<tr>
-					<td align="left"><B>Description</B></td>
-					<td align="center"><B>Type</B></td>
-					<td align="center"><B>Device</B></td>
-					<td align="center"><B>Remote</B></td>
-					<td align="center"><B>Device template</B></td>
-					<td align="center"><B>Filename</B></td>
+					<td align="left"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_REMOTE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B></td>
 					<td>&nbsp;</td>
 				</tr>';
 					while($rowParams=$resParams->FetchRow()){
@@ -225,7 +229,11 @@ function mediaScenarios($output,$dbADO) {
 					<td align="center">'.@$remoteName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DesignObj']].'</td>
 					<td align="center">'.@$deviceTemplateName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DeviceTemplate']].'</td>
 					<td align="center">'.@$paramsArray[$GLOBALS['commandParamFilename']].'</td>
-					<td align="center"><a href="index.php?section=mediaScenarios&cgID='.$rowMediaScenarios['PK_CommandGroup'].'&action=testScenario">Test</a> <a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete the scenario?\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">Delete</a></td>
+					<td align="center">
+						<a href="index.php?section=mediaScenarios&cgID='.$rowMediaScenarios['PK_CommandGroup'].'&action=testScenario">'.$TEXT_TEST_CONST.'</a> 
+						<a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a> 
+						<a href="#" onClick="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_MEDIA_SCENARIO_CONST.'\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">'.$TEXT_DELETE_CONST.'</a>
+					</td>
 				</tr>
 				';
 			}
@@ -234,7 +242,7 @@ function mediaScenarios($output,$dbADO) {
 		if(count($displayedMediaScenarios)>0){
 			$out.='
 			<tr>
-				<td colspan="7" align="center"><input type="submit" class="button" name="saveChanges" value="Choose preferred remotes" onclick="windowOpen(\'index.php?section=mediaRemotes\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')";> <input type="submit" class="button" name="saveChanges" value="Update descriptions"  ></td>
+				<td colspan="7" align="center"><input type="submit" class="button" name="saveChanges" value="'.$TEXT_CHOOSE_PREFERRED_REMOTES_CONST.'" onclick="windowOpen(\'index.php?section=mediaRemotes\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')";> <input type="submit" class="button" name="saveChanges" value="'.$TEXT_UPDATE_DESCRIPTIONS_CONST.'"  ></td>
 			</tr>
 			';
 		}
@@ -257,7 +265,7 @@ function mediaScenarios($output,$dbADO) {
 		if($action=='testScenario'){
 			$scenarioToTest=(int)$_REQUEST['cgID'];
 			testScenario($scenarioToTest);
-			header("Location: index.php?section=mediaScenarios&msg=Command to test media scenario no. $scenarioToTest was sent.");
+			header("Location: index.php?section=mediaScenarios&msg=$TEXT_MEDIA_SCENARIO_TEST_CONST");
 			exit();
 		}
 		if ($canModifyInstallation) {
@@ -311,7 +319,7 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
 						}
 						setOrbitersNeedConfigure($installationID,$dbADO);
-						$msg="New Media Scenario was added.";
+						$msg=$TEXT_MEDIA_SCENARIO_ADDED;
 					}
 
 					if(isset($_POST['optionEntArea']) && $_POST['optionEntArea']!=''){
@@ -332,7 +340,7 @@ function mediaScenarios($output,$dbADO) {
 							exec($command);
 								
 							setOrbitersNeedConfigure($installationID,$dbADO);
-							$msg="New Media Scenario was added.";
+							$msg=$TEXT_MEDIA_SCENARIO_ADDED;
 						}else{
 							$selectOptions='
 								SELECT PK_CommandGroup FROM CommandGroup
@@ -343,7 +351,7 @@ function mediaScenarios($output,$dbADO) {
 							$rowOption=$resOptions->FetchRow();
 							deleteCommandGroup($rowOption['PK_CommandGroup'],$dbADO);
 							setOrbitersNeedConfigure($installationID,$dbADO);
-							$msg="Media Scenario was deleted.";
+							$msg=$TEXT_MEDIA_SCENARIO_DELETED_CONST;
 						}						
 					}
 				}
@@ -355,9 +363,9 @@ function mediaScenarios($output,$dbADO) {
 	if(@$_REQUEST['GoTo']=='addMS')
 		$jumpTo=';self.location=\'#addMS\'';
 
-	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Media Scenarios"=>'index.php?section=mediaScenarios'));	
+	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_MEDIA_SCENARIOS_CONST=>'index.php?section=mediaScenarios'));	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Media Scenarios');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MEDIA_SCENARIOS_CONST);	
 	$output->output();
 }
 ?>

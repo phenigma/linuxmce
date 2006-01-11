@@ -1,5 +1,9 @@
 <?php
 function myScenarios($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/myScenarios.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -9,11 +13,8 @@ $installationID = (int)@$_SESSION['installationID'];
 
 $out.='<div align="left" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br><br>';
 if ($action == 'showBasicInfo') {
-	$out.='
-		All the scenarios in your installation are shown in the tree to the left.  The scenarios correspond to buttons on your Orbiters.
-		It is usually faster to use the wizard to create basic scenarios, like lighting, climate, etc.  This section allows you to 
-		select a scenario and manually edit the commands that it will fire.
-	';	
+	$out.=$TEXT_MY_SCENARIOS_NOTE_CONST;	
+	
 } elseif($action=='showArrayCommands') {
 	$arrayID = cleanInteger(@$_REQUEST['array']);	
 	$queryGetCommands = 'SELECT * FROM CommandGroup WHERE FK_Installation = ? AND FK_Array = ?';
@@ -29,7 +30,7 @@ if ($action == 'showBasicInfo') {
 					window.open(locationA,\'\',attributes);
 				}
 	</script>
-	<input type="button" class="button" name="addCommandGroup" value="Add my scenario" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');"">
+	<input type="button" class="button" name="addCommandGroup" value="'.$TEXT_ADD_MY_SCENARIO_CONST.'" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');"">
 	';
 							
 }
@@ -37,13 +38,13 @@ if ($action == 'showBasicInfo') {
 
 
 
-	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios'));
+	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios'));
 	if(isset($_REQUEST['msg']))
 		$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setScriptCalendar('null');
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Scenarios');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MY_SCENARIOS_CONST);			
 	$output->output(); 
 }
 ?>

@@ -8,6 +8,7 @@ $TEXT_NO_CLIMATE_SCENARIOS_CONST='No climate scenarios for this room.';
 $TEXT_SEE_CONST='See';
 $TEXT_DEFAULT_ON_CONST='Default ON';
 $TEXT_DEFAULT_OFF_CONST='Default OFF';
+$TEXT_CLIMATE_SCENARIO_DELETED_CONST='Climate scenario deleted.';
 $TEXT_CLIMATE_SCENARIOS_CONFIRM_DELETE_CONST='Are you sure you want to delete this scenario?';
 $TEXT_CLIMATE_SCENARIO_ADDED_CONST='New Climate Scenario added.';
 $TEXT_CLIMATE_SCENARIO_TEST_CONST='The command to test climate scenario was sent.';

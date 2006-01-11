@@ -1,5 +1,9 @@
 <?
 function firewall($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/firewall.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
 //	$dbADO->debug=true;
@@ -27,17 +31,18 @@ function firewall($output,$dbADO) {
 	<input type="hidden" name="section" value="firewall">
 	<input type="hidden" name="action" value="add">
 	<div align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+		
 	<table border="0" align="center">
 		<tr>
-			<td colspan="7" align="center"><b>Firewall rules</b></td>
+			<td colspan="7" align="center"><b>'.$TEXT_FIREWALL_RULES_CONST.'</b></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
-			<td align="center"><B>Protocol</B></td>
-			<td align="center"><B>Source Port</B></td>
-			<td align="center"><B>Destination Port</B></td>
-			<td align="center"><B>Destination IP</B></td>
-			<td align="center"><B>Rule Type</B></td>
-			<td align="center"><B>Limit to IP</B></td>
+			<td align="center"><B>'.$TEXT_PROTOCOL_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_SOURCE_PORT_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_DESTINATION_PORT_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_DESTINATION_IP_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_RULE_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_LIMIT_TO_IP_CONST.'</B></td>
 			<td>&nbsp;</td>
 		</tr>';
 		$res=$dbADO->Execute('SELECT * FROM Firewall');
@@ -50,7 +55,7 @@ function firewall($output,$dbADO) {
 					<td align="center">'.$row['DestinationIP'].'</td>
 					<td align="center">'.$row['RuleType'].'</td>
 					<td align="center">'.$row['SourceIP'].'</td>
-					<td align="center"><a href="index.php?section=firewall&action=del&delid='.$row['PK_Firewall'].'">Delete</a></td>
+					<td align="center"><a href="index.php?section=firewall&action=del&delid='.$row['PK_Firewall'].'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>';
 		}
 		$out.='
@@ -58,15 +63,15 @@ function firewall($output,$dbADO) {
 			<td colspan="7" align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="7" align="center" bgcolor="#EEEEEE"><B>Add new firewall rule</B></td>
+			<td colspan="7" align="center" bgcolor="#EEEEEE"><B>'.$TEXT_ADD_NEW_FIREWALL_RULE_CONST.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
-			<td align="center"><B>Protocol</B></td>
-			<td align="center"><B>Source Port</B></td>
-			<td align="center"><B>Destination Port</B></td>
-			<td align="center"><B>Destination IP</B></td>
-			<td align="center"><B>Rule Type</B></td>
-			<td align="center"><B>Limit to IP*</B></td>
+			<td align="center"><B>'.$TEXT_PROTOCOL_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_SOURCE_PORT_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_DESTINATION_PORT_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_DESTINATION_IP_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_RULE_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_LIMIT_TO_IP_CONST.'*</B></td>
 			<td>&nbsp;</td>
 		</tr>				
 		<tr>
@@ -85,23 +90,23 @@ function firewall($output,$dbADO) {
 			<td align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="7" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="Add"></td>
+			<td colspan="7" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 		</tr>		
 		<tr>
-			<td colspan="7" align="left">* Optional field.</td>
+			<td colspan="7" align="left">* '.$TEXT_OPTIONAL_FIELD_CONST.'</td>
 		</tr>		
 	</table>	
 	</form>
 		<script>
 		 	var frmvalidator = new formValidator("firewall");
-// 			frmvalidator.addValidation("internalCoreIP_1","req","Please enter an IP address.");
+// 			frmvalidator.addValidation("internalCoreIP_1","req","'.$TEXT_IP_REQUIRED_CONST.'");
 		</script>
 	';
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=firewall&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=firewall&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		if(isset($_POST['add'])){
@@ -124,12 +129,12 @@ function firewall($output,$dbADO) {
 		
 		exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
 		
-		header("Location: index.php?section=firewall&msg=Firewall rules updated.");
+		header("Location: index.php?section=firewall&msg=$TEXT_FIREWALL_RULES_UPDATED_CONST");
 	}
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Network Settings');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FIREWALL_RULES_CONST);
 	$output->output();
 }
 ?>
