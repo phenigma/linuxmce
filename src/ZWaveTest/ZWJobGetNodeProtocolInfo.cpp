@@ -78,6 +78,17 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 				buffer[1] == FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO )
 			{
 				ZWaveNode * node = handler()->getNode(d->nodeID);
+				
+				if( node == NULL )
+				{
+					node = new ZWaveNode(handler()->homeID(), d->nodeID);
+					if( !handler()->insertNode(node) )
+					{
+						delete node;
+						node = NULL;
+					}
+				}
+				
 				if( node != NULL )
 				{
 					node->setCapabilities(buffer[2]);

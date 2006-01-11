@@ -15,6 +15,9 @@
 #include "main.h"
 #include "ZW_classcmd.h"
 
+#include "ZWJobSetLearnNodeState.h"
+#include "ZWJobGetNodeProtocolInfo.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -23,19 +26,33 @@
 class ZWJobAddNode::Private
 {
 	public:
+	
 		Private();
-		
 		~Private();
 	
+		JobsDeque jobsQueue;
+		ZWaveJob * currentJob;
+		
 	private:
 };
 
 ZWJobAddNode::Private::Private()
+	: currentJob(NULL)
 {
 }
 
 ZWJobAddNode::Private::~Private()
 {
+	delete currentJob;
+	currentJob = NULL;
+	
+	ZWaveJob * job = NULL;
+	for(JobsDequeIterator it=jobsQueue.begin(); it!=jobsQueue.end(); ++it)
+	{
+		job = (*it);
+		delete job;
+		job = NULL;
+	}
 }
 
 // ----------------------------------
@@ -55,58 +72,62 @@ ZWJobAddNode::~ZWJobAddNode()
 
 bool ZWJobAddNode::processData(const char* buffer, size_t length)
 {
-	switch( state() )
+	if( d->currentJob != NULL )
 	{
-		default :
-		case ZWaveJob::IDLE :
-		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode wrong state.");
-			break;
-			
-		case ZWaveJob::RUNNING :
-			if( length >= 6 && 
-				buffer[0] == RESPONSE &&
-				buffer[1] == FUNC_ID_ZW_SET_LEARN_NODE_STATE &&
-				buffer[2] == 1 /* completed*/ )
-			{
-				// Node Status
-				switch( buffer[3] )
-				{
-					case LEARN_STATE_ROUTING_PENDING :
-						break;
-					
-					case LEARN_STATE_DONE :
-						break;
-					
-					case LEARN_STATE_FAIL :
-					default :
-						break;
-				}
-				
-				// 
-				
-				// LEARN_NODE_STATE_OFF
-				
-				setState( ZWaveJob::STOPPED );
-				return true;
-			}
-			break;
+		if( !d->currentJob->processData(buffer, length) )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: .");
+			return false;
+		}
 	}
 	
-	return false;
+	// check if the job has finished
+	if( ZWaveJob::STOPPED == d->currentJob->state() )
+	{
+		// next step
+		switch( d->currentJob->type() )
+		{
+			case ZWaveJob::GET_ID :
+				d->jobsQueue.push_back( new ZWJobGetNodeProtocolInfo(handler()) );
+				break;
+				
+			default:
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job type.");
+				break;
+		}
+		
+		// next job
+		delete d->currentJob;
+		d->currentJob = NULL;
+		if( d->jobsQueue.size() > 0 )
+		{
+			d->currentJob = d->jobsQueue.front();
+			d->jobsQueue.pop_front();
+			return d->currentJob->run();
+		}
+		else
+		{
+			setState(ZWaveJob::STOPPED);
+			return true;
+		}
+	}
+	
+	return true;
 }
 
 bool ZWJobAddNode::run()
 {
-	char buffer[10];
+	// start the initialization with ZWave API version
+	d->currentJob = new ZWJobSetLearnNodeState(handler());
+	if( d->currentJob == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize allocation error!");
+		return false;
+	}
+	((ZWJobSetLearnNodeState*)d->currentJob)->setMode( LEARN_NODE_STATE_NEW );
 	
-	buffer[0] = REQUEST;
-	buffer[1] = FUNC_ID_ZW_SET_LEARN_NODE_STATE;
-	buffer[2] = 1; // Callback FunctionID
-	buffer[3] = 0;
+	setState( ZWaveJob::RUNNING );
 	
-	setState(ZWaveJob::RUNNING);
-	
-	return handler()->sendData(buffer, 3);
+	return d->currentJob->run();
 }
 

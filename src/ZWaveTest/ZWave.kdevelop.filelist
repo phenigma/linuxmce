@@ -45,3 +45,5 @@ ZWJobAddNode.cpp
 ZWJobAddNode.h
 ZWJobRemoveNode.cpp
 ZWJobRemoveNode.h
+/ZWJobSetLearnNodeState.h
+/ZWJobSetLearnNodeState.cpp

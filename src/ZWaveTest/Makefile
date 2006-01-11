@@ -19,7 +19,7 @@ sources =  PlutoZWSerialAPI.cpp ZWJobGetInitData.cpp ZWJobGetVersion.cpp ZWJobSw
 	ZWaveNode.cpp SerialConnection.cpp ZWJobGetNodeProtocolInfo.cpp ZWJobInitialize.cpp \
 	ZWJobSwitchChangeLevel.cpp ZWJobGetID.cpp ZWJobGetSUC.cpp ZWJobLightLevel.cpp \
 	ZWaveJob.cpp ZWaveTest.cpp  ZWJobReset.cpp ZWJobReceive.cpp \
-	ZWJobAddNode.cpp ZWJobRemoveNode.cpp
+	ZWJobSetLearnNodeState.cpp ZWJobAddNode.cpp ZWJobRemoveNode.cpp
 
 LDLIBS_NAMES = $(EXTERNAL_LIBS_NAMES)
 
