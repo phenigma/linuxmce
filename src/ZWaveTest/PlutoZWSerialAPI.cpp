@@ -118,13 +118,13 @@ PlutoZWSerialAPI::~PlutoZWSerialAPI()
 	d = NULL;
 }
 
-bool PlutoZWSerialAPI::start()
+bool PlutoZWSerialAPI::start(const char *port)
 {
 	if( d->state == PlutoZWSerialAPI::STOPPED )
 	{
 		if( d->jobsQueue.size() )
 		{
-			if( !d->connection->connect() )
+			if( !d->connection->connect(port) )
 			{
 				d->currentJob = d->jobsQueue.front();
 				d->jobsQueue.pop_front();

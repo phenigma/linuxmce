@@ -27,7 +27,7 @@ class PlutoZWSerialAPI
 
 		virtual ~PlutoZWSerialAPI();
 
-		virtual bool start();
+		virtual bool start(const char *port);
 		
 		virtual bool listen();
 		
