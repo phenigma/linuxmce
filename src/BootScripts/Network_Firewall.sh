@@ -6,6 +6,7 @@ OpenPort()
 {
 	local Protocol Port FilterIP
 	local FilterMsg
+	local parmPort
 	
 	Protocol="$1"
 	Port="$2"
@@ -14,7 +15,11 @@ OpenPort()
 	[ "$FilterIP" != "0.0.0.0/0" ] && FilterMsg="; Limited to: $FilterIP"
 
 	echo "  Port: $Port/$Protocol$FilterMsg"
-	iptables -A INPUT -p "$Protocol" -s "$FilterIP" --dport "$Port" -j ACCEPT
+
+	if [[ -n "$Port" && "$Port" -ne 0 ]]; then
+		parmPort="--dport $Port"
+	fi
+	iptables -A INPUT -p "$Protocol" -s "$FilterIP" $parmPort -j ACCEPT
 }
 
 ForwardPort()
