@@ -73,6 +73,15 @@ function phoneNumberForm($telecomADO,$userID){
 	$pnData=getFieldsAsArray('PhoneNumber','FK_Contact,FK_PhoneType,CountryCode,AreaCode,PhoneNumber,Extension,DialAs',$telecomADO,'WHERE PK_PhoneNumber='.$id);
 
 	$out='
+	<script>
+		function setDialAs(){
+			cc=document.editPhoneNumber.CountryCode.value;
+			ac=document.editPhoneNumber.AreaCode.value;
+			pn=document.editPhoneNumber.PhoneNumber.value;
+			dialAs=((cc=="1")?"91":"9011"+cc)+ac+pn;
+			document.editPhoneNumber.DialAs.value=dialAs;
+		}
+	</script>	
 	<input type="hidden" name="id" value="'.$id.'">
 	<table celspacing="0" cellpadding="3" align="center">
 		<tr>
@@ -88,15 +97,15 @@ function phoneNumberForm($telecomADO,$userID){
 		</tr>	
 		<tr>
 			<td><B>Country Code</B></td>
-			<td><input type="text" name="CountryCode" value="'.$pnData['CountryCode'][0].'"></td>
+			<td><input type="text" name="CountryCode" value="'.$pnData['CountryCode'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
 			<td><B>Area Code</B></td>
-			<td><input type="text" name="AreaCode" value="'.$pnData['AreaCode'][0].'"></td>
+			<td><input type="text" name="AreaCode" value="'.$pnData['AreaCode'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
 			<td><B>Phone Number</B></td>
-			<td><input type="text" name="PhoneNumber" value="'.$pnData['PhoneNumber'][0].'"></td>
+			<td><input type="text" name="PhoneNumber" value="'.$pnData['PhoneNumber'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
 			<td><B>Extension</B></td>
