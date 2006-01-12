@@ -12,7 +12,7 @@ OpenPort()
 	Port="$2"
 	FilterIP="${3:-0.0.0.0/0}"
 
-	[ "$FilterIP" != "0.0.0.0/0" ] && FilterMsg="; Limited to: $FilterIP"
+	[[ "$FilterIP" != "0.0.0.0/0" ]] && FilterMsg="; Limited to: $FilterIP"
 
 	echo "  Port: $Port/$Protocol$FilterMsg"
 
@@ -34,8 +34,8 @@ ForwardPort()
 	DestPort="$5"
 	FilterIP="${6:-0.0.0.0/0}"
 
-	[ "$DestPort" -eq 0 ] && DestPort="$SrcPort"
-	[ "$FilterIP" != "0.0.0.0/0" ] && FilterMsg="; Limited to: $FilterIP"
+	[[ "$DestPort" -eq 0 ]] && DestPort="$SrcPort"
+	[[ "$FilterIP" != "0.0.0.0/0" ]] && FilterMsg="; Limited to: $FilterIP"
 	
 	echo "  Source port: $SrcPort/$Protocol; Destination: $DestIP:$DestPort$FilterMsg"
 	iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
@@ -58,14 +58,14 @@ iptables -t nat -F PREROUTING
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-if [ -n "$IntIP" ]; then
+if [[ -n "$IntIP" ]]; then
 	#TODO: use 4 byte netmask in these calculations
 	IntNet="$(echo "$IntIP" | cut -d. -f-3).0"
 	IntBitmask=24
 	iptables -A INPUT -p udp --dport 67 -j ACCEPT # BOOTP/DHCP
 	iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 
-	if [ "$ExtIP" != "dhcp" ]; then
+	if [[ "$ExtIP" != "dhcp" ]]; then
 		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j SNAT --to-source $ExtIP
 	else
 		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j MASQUERADE
@@ -84,13 +84,13 @@ for Port in $R; do
 	DestIP=$(Field 5 "$Port")
 	SrcIP=$(Field 6 "$Port")
 
-	if [ "$SrcPortEnd" -eq 0 ]; then
+	if [[ "$SrcPortEnd" -eq 0 ]]; then
 		ForwardPort "$Protocol" "$ExtIP" "$SrcPort" "$DestIP" "$DestPort"
 	else
 		DPort="$DestPort"
-		for SPort in $(seq $SrcPort $SrcPortEnd); do
+		for ((SPort=SrcPort; SPort<=SrcPortEnd; SPort++)); do
 			ForwardPort "$Protocol" "$ExtIP" "$SPort" "$DestIP" "$DPort" "$SrcIP"
-			: $((++DPort))
+			((++DPort))
 		done
 	fi
 done
@@ -105,10 +105,6 @@ for Port in $R; do
 	Port2=$(Field 3 "$Port")
 	SrcIP=$(Field 4 "$Port")
 
-	[ "$Port2" -eq 0 ] && Port2="$Port1"
-	if [[ "$Port2" -ne "$Port1" ]]; then
-		OpenPort "$Protocol" "$Port1:$Port2" "$SrcIP"
-	else
-		OpenPort "$Protocol" "$Port1" "$SrcIP"
-	fi
+	[[ "$Port2" -eq 0 ]] && Port2="$Port1"
+	OpenPort "$Protocol" "$Port1:$Port2" "$SrcIP"
 done
