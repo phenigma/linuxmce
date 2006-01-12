@@ -20,7 +20,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS += -DQT_THREAD_SUPPORT -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries
 INTERNAL_LIBS_NAMES += pluto_main pluto_media
-EXTERNAL_LIBS_NAMES += qt-mt myth-0.18.1 mythtv-0.18.1
+EXTERNAL_LIBS_NAMES += qt-mt myth-0.19 mythtv-0.19
 
 Gen_Dev_Files += 
 sources += \
