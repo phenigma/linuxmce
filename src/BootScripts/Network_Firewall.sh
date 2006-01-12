@@ -16,7 +16,7 @@ OpenPort()
 
 	echo "  Port: $Port/$Protocol$FilterMsg"
 
-	if [[ -n "$Port" && "$Port" -ne 0 ]]; then
+	if [[ -n "$Port" && ( "$Port" == *:* || "$Port" -ne 0 ) ]]; then
 		parmPort="--dport $Port"
 	fi
 	iptables -A INPUT -p "$Protocol" -s "$FilterIP" $parmPort -j ACCEPT
@@ -106,7 +106,9 @@ for Port in $R; do
 	SrcIP=$(Field 4 "$Port")
 
 	[ "$Port2" -eq 0 ] && Port2="$Port1"
-	for FPort in $(seq $Port1 $Port2); do
-		OpenPort "$Protocol" "$FPort" "$SrcIP"
-	done
+	if [[ "$Port2" -ne "$Port1" ]]; then
+		OpenPort "$Protocol" "$Port1:$Port2" "$SrcIP"
+	else
+		OpenPort "$Protocol" "$Port1" "$SrcIP"
+	fi
 done
