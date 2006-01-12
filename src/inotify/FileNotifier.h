@@ -37,6 +37,10 @@ public:
 
     bool m_bCancelThread;
     inotify m_inotify;
+	
+	int m_wdRootFolder;
+	string m_sRootFolder;
+	void ResetWatches();
 
     pluto_pthread_mutex_t m_WatchedFilesMutex;
     string m_mapWatchedFiles_Find(int wd)	

@@ -22,7 +22,9 @@ FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
 
     m_pfOnCreate = NULL;
 	m_pfOnDelete = NULL;
-					
+
+	m_wdRootFolder = 0;
+
 
     m_WatchedFilesMutex.Init(NULL);
 }
@@ -47,6 +49,12 @@ void FileNotifier::Watch(string sDirectory)
 		{
 			int wd = m_inotify.watch(*it, IN_ALL_EVENTS);
 
+			if(!m_wdRootFolder)
+			{
+				m_wdRootFolder = wd; //root folder
+				m_sRootFolder = sDirectory;
+			}
+
 			g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
 			m_mapWatchedFiles[wd] = *it; 
 		}
@@ -55,6 +63,13 @@ void FileNotifier::Watch(string sDirectory)
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to add notifier for file %s", sItem.c_str());
 		}
     }
+}
+//-----------------------------------------------------------------------------------------------------
+void FileNotifier::ResetWatches()
+{
+	m_sRootFolder = "";
+	m_wdRootFolder = 0;
+	m_mapWatchedFiles.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 void *WorkerThread(void *p)
@@ -68,11 +83,22 @@ void *WorkerThread(void *p)
 		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
-		g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
-			event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
+		//g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
+		//	event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
 
 		bool bCreateEvent = event.mask & IN_CREATE || event.mask & IN_MOVED_TO;
 		bool bDeleteEvent = event.mask & IN_DELETE || event.mask & IN_MOVED_FROM;
+
+		if(event.mask & IN_DELETE_SELF)
+		{
+			if(pFileNotifier->m_wdRootFolder == event.wd)
+			{
+				string sRootFolder = pFileNotifier->m_sRootFolder;
+				pFileNotifier->ResetWatches(); 
+				g_pPlutoLogger->Write(LV_CRITICAL, "Voodoo with the root folder; someone reseted our watches. Reinitializing.");
+				pFileNotifier->Watch(sRootFolder);
+			}
+		}
 		
 		if(bCreateEvent || bDeleteEvent)
         {
