@@ -169,6 +169,7 @@ function bootSequence($output,$dbADO) {
 		}
 		if(isset($_POST['save'])){
 			$displayedSSArray=explode(',',$_POST['displayedSS']);
+			
 			foreach($displayedSSArray AS $value){
 				$order=@$_POST['order_'.$value];
 				$background_=@$_POST['background_'.$value];
@@ -176,11 +177,9 @@ function bootSequence($output,$dbADO) {
 				$parameters=@$_POST['parameters_'.$value];
 				$updateDeviceStartupScript='UPDATE Device_StartupScript SET Boot_Order=?, Background=?, Enabled=?, Parameter=? WHERE FK_Device=? AND FK_StartupScript=?';
 				$dbADO->Execute($updateDeviceStartupScript,array($order,$background_,$enabled,$parameters,$computer,$value));
-				
-				// generate simlinks 
-				$cmd='ln -s XXXX';
-				exec($cmd);
 			}
+			
+			shell_exec("sudo /usr/pluto/bin/generateRcScripts.sh {$computer}");
 			header('Location: index.php?section=bootSequence&computer='.$computer);
 		}
 		
