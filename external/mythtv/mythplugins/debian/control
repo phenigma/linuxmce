@@ -1,0 +1,72 @@
+Source: mythplugins
+Section: graphics
+Priority: optional
+Maintainer: Matt Zimmerman <mdz@debian.org>
+Build-Depends: debhelper (>> 3.0.0), libmyth-0.19-dev, kdelibs4-dev, xlibmesa-gl-dev | xlibmesa-dev | libgl-dev, libdvdread3-dev, libvorbis-dev (>= 1.0.0-1), libflac-dev (>= 1.0.4-4), libmad0-dev, libcdaudio0-dev, libcdparanoia0-dev, libid3tag0-dev, fftw-dev, libsdl1.2-dev, liblame-dev, libfaad2-dev, g++-3.3, libexif-dev (>= 0.6.9-6), libtiff4-dev | libtiff-dev
+Standards-Version: 3.5.2
+Bugs: mailto:mdz@debian.org
+
+Package: mythplugins
+Architecture: all
+Recommends: mythweb, mythbrowser, mythdvd, mythmusic, mythnews, mythvideo, mythweather
+Description: Wrapper package for MythTV plugins.
+
+Package: mythbrowser
+Architecture: any
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Description: A small web browser module for MythTV
+
+Package: mythdvd
+Architecture: any
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Recommends: xine | ogle | mplayer
+Suggests: transcode, mythvideo
+Description: DVD add-on module for MythTV
+ MythDVD provides an interface for launching your preferred DVD player
+ from MythTV, and also supports transcoding DVDs into audio/video
+ streams which can be played by MythVideo, using the transcode package.
+
+Package: mythgallery
+Architecture: all
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Description: Image gallery/slideshow add-on module for MythTV
+ MythGallery allows you to visually browse a directory tree containing
+ image files.  It can display any image file format supported by Qt,
+ and supports image rotation and simple slideshows.
+
+Package: mythmusic
+Architecture: any
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Description: Music add-on module for MythTV
+ MythMusic provides a digital audio jukebox integrated with MythTV.
+ It supports Ogg Vorbis, FLAC and MP3 streams, displays
+ visualizations, and can also encode new Ogg Vorbis or FLAC streams
+ from audio CDs using a CD-ROM drive.
+
+Package: mythnews
+Architecture: any
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Description: An RSS feed news reader module for MythTV
+
+Package: mythvideo
+Architecture: any
+Depends: mythtv-common (>= 0.11-2), mythtv-frontend (>= 0.19-1), ${shlibs:Depends}, libxml-simple-perl, libwww-perl
+Description: A generic video player frontend module for MythTV
+ MythVideo allows you to browse and play video streams, using an external
+ player, from within the MythTV interface.
+
+Package: mythweather
+Architecture: any
+Depends: mythtv-common, mythtv-frontend (>= 0.19-1), ${shlibs:Depends}
+Description: Weather add-on module for MythTV
+ MythWeather displays current and forecast weather information within
+ MythTV.
+
+Package: mythweb
+Architecture: all
+Depends: mythtv-common, apache2 | httpd, libapache2-mod-php4 | php4, php4-mysql
+Description: Web interface add-on module for MythTV
+ MythWeb provides a web interface which can be used to view listings,
+ schedule recordings, delete recordings, and search for programs.
+ It can also browse mythmusic's music database, and may eventually
+ support playing music streams as well.

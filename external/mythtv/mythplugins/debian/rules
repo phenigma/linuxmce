@@ -1,0 +1,140 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=3
+
+export QTDIR=$(shell for qtdir in /usr/share/qt3 /usr/share/qt; do if test -d $$qtdir; then echo $$qtdir; break; fi; done)
+
+CCVARS=CC=gcc-3.4 CXX=g++-3.4 LINK=g++-3.4
+
+config.mak: configure
+	dh_testdir
+
+	if [ $$PWD != $${PWD#/usr} ]; then \
+		echo "You must not build this package under /usr due to Debian bug #180240" >&2; \
+		exit 1; \
+	fi
+
+	$(CCVARS) ./configure --prefix=/usr --enable-opengl --disable-mythgame --disable-mythphone --enable-mythgallery --enable-mythmusic --enable-mythbrowser --enable-aac --enable-fftw --compile-type=debug
+	$(CCVARS) qmake -o Makefile PREFIX=/usr mythplugins.pro
+
+build: build-stamp
+
+build-stamp: config.mak
+	dh_testdir
+
+	$(MAKE) $(CCVARS)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) distclean
+	find . -name '.qmake*' | xargs --no-run-if-empty rm -f
+	rm -f config.mak config.h
+	rm -f debian/shlibs.local
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	#dh_installdirs -pmythbrowser
+	dh_installdirs -pmythdvd var/lib/mythdvd/temp
+	dh_installdirs -pmythmusic etc/mythtv usr/share/mythtv/sql
+	dh_installdirs -pmythnews
+	dh_installdirs -pmythvideo var/lib/mythvideo
+	dh_installdirs -pmythweather etc/mythtv
+
+	dh_installdirs -pmythweb etc/mythtv/mythweb var/cache/mythweb/image_cache var/www etc/mythtv usr/share/mythtv var/cache/mythweb/php_sessions
+
+	# Add here commands to install the package into debian/...
+	for plugin in mythbrowser mythdvd mythgallery mythmusic mythnews mythvideo mythweather; do \
+		$(MAKE) -C $$plugin install INSTALL_ROOT=$(CURDIR)/debian/$$plugin; \
+	done
+
+	# Handle the mythweb install
+	cp -R mythweb $(CURDIR)/debian/mythweb/usr/share/mythtv
+
+	mv debian/mythweb/usr/share/mythtv/mythweb/.htaccess \
+		debian/mythweb/etc/mythtv/mythweb-htaccess.conf
+	mv debian/mythweb/usr/share/mythtv/mythweb/config/conf.php \
+		debian/mythweb/usr/share/mythtv/mythweb/config/conf.php.dist
+
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+#	dh_installdebconf -i
+	dh_installdocs -pmythweb mythweb/README
+#	dh_installexamples -i
+	dh_installmenu -i
+#	dh_installlogrotate -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installmime -i
+#	dh_installinit -i
+#	dh_installcron -i
+#	dh_installman -i
+#	dh_installinfo -i
+#	dh_undocumented -i
+	dh_installchangelogs -i
+	dh_link -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+#	dh_perl -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+	dh_installdebconf -a
+	#dh_installdocs -pmythbrowser mythbrowser/README mythbrowser/AUTHORS
+	dh_installdocs -pmythdvd mythdvd/README mythdvd/UPGRADING	
+	dh_installdocs -pmythgallery mythgallery/README mythgallery/AUTHORS mythgallery/UPGRADING
+	dh_installdocs -pmythmusic mythmusic/README mythmusic/UPGRADING mythmusic/AUTHORS
+	dh_installdocs -pmythnews mythnews/README mythnews/AUTHORS
+	dh_installdocs -pmythvideo mythvideo/README mythvideo/UPGRADING
+	dh_installdocs -pmythweather mythweather/README mythweather/AUTHORS
+#	dh_installexamples -a
+#	dh_installmenu -a
+#	dh_installlogrotate -a
+#	dh_installemacsen -a
+#	dh_installpam -a
+#	dh_installmime -a
+#	dh_installinit -a
+#	dh_installcron -a
+#	dh_installman -a
+#	dh_installinfo -a
+#	dh_undocumented -a
+	dh_installchangelogs -a
+	dh_link -a
+	dh_strip -a -Xusr/lib/debug
+	dh_compress -a
+	dh_fixperms -a
+#	dh_makeshlibs -a
+	dh_installdeb -a
+#	dh_perl -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

@@ -1,0 +1,5 @@
+usr/share/mythtv/mythweb var/www/mythweb
+var/cache/mythweb/image_cache usr/share/mythtv/mythweb/image_cache
+var/lib/mythtv usr/share/mythtv/mythweb/video_dir
+etc/mythtv/mythweb-htaccess.conf usr/share/mythtv/mythweb/.htaccess
+etc/mythtv/mythweb-settings.php usr/share/mythtv/mythweb/config/conf.php
