@@ -85,6 +85,20 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 					
 					case LEARN_STATE_DONE :
 					{
+						size_t len = buffer[5];
+						if( length >= len + 6 &&
+							len + 3 <= sizeof(d->learnInfo) )
+						{
+							d->learnInfolength = len + 3;
+							memcpy(d->learnInfo, &buffer[3], d->learnInfolength);
+							d->failed = false;
+						}
+						else
+						{
+							// TODO error
+							g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSetLearnNodeState: learn_info too big.");
+							d->failed = true;
+						}
 						setState( ZWaveJob::STOPPED );
 						break;
 					}
@@ -92,6 +106,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 					case LEARN_STATE_FAIL :
 					default :
 						// TODO error
+						g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSetLearnNodeState: failed.");
 						d->failed = true;
 						setState( ZWaveJob::STOPPED );
 						break;
@@ -117,6 +132,8 @@ bool ZWJobSetLearnNodeState::run()
 	
 	setState(ZWaveJob::RUNNING);
 	
+	d->failed = false;
+	
 	return handler()->sendData(buffer, 3);
 }
 
@@ -132,10 +149,14 @@ unsigned char ZWJobSetLearnNodeState::mode() const
 
 int ZWJobSetLearnNodeState::learnInfo(char* buffer, size_t* length)
 {
-	if( !d->failed )
+	if( !d->failed && *length >= d->learnInfolength )
 	{
-//		if( )
+		memcpy(buffer, d->learnInfo, d->learnInfolength);
+		*length = d->learnInfolength;
+		return 0;
 	}
+	
+	*length = 0;
 	
 	return -1;
 }
