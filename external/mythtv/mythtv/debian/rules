@@ -14,7 +14,7 @@ export DH_COMPAT=3
 
 export QTDIR=$(shell for qtdir in /usr/share/qt3 /usr/share/qt; do if test -d $$qtdir; then echo $$qtdir; break; fi; done)
 
-CCVARS=CC=gcc-3.3 CXX=g++-3.3 LINK=g++-3.3
+CCVARS=CC=gcc CXX=g++ LINK=g++
 
 config.mak: configure
 	dh_testdir
@@ -36,8 +36,7 @@ config.mak: configure
 		--dvb-path=/usr/include \
 		--enable-firewire \
 		--enable-ivtv \
-		--enable-joystick-menu \
-		--enable-proc-opt
+		--enable-joystick-menu
 
 	$(CCVARS) qmake -o Makefile PREFIX=/usr mythtv.pro
 
@@ -149,8 +148,8 @@ binary-arch: build install
 	dh_makeshlibs -a -Xusr/lib/mythtv/filters
 	dh_installdeb -a
 	# Don't use dh_shlibdeps -L just yet, so we can build on woody easily
-	cp debian/libmyth-0.18.1/DEBIAN/shlibs debian/shlibs.local
-	dh_shlibdeps -a -ldebian/libmyth-0.18.1/usr/lib
+	cp debian/libmyth-0.19/DEBIAN/shlibs debian/shlibs.local
+	dh_shlibdeps -a -ldebian/libmyth-0.19/usr/lib
 	dh_gencontrol -a
 	dh_md5sums -a
 	dh_builddeb -a

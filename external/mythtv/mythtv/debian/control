@@ -2,7 +2,7 @@ Source: mythtv
 Section: graphics
 Priority: optional
 Maintainer: Radu Cristescu <radu.c@plutohome.com>
-Build-Depends: debhelper (>> 3.0.0), libqt3-mt-dev, libmysqlclient14-dev | libmysqlclient-dev, libfreetype6-dev, libvorbis-dev, liblame-dev, liblircclient-dev, libartsc0-dev, libasound2-dev, libxinerama-dev | xlibs-static-dev (<< 6.8.1-1), libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1), libxext-dev | xlibs-static-dev (<< 6.8.1-1), libdvb-dev, g++-3.3
+Build-Depends: debhelper (>> 3.0.0), libqt3-mt-dev, libmysqlclient14-dev | libmysqlclient-dev, libfreetype6-dev, libvorbis-dev, liblame-dev, liblircclient-dev, libartsc0-dev, libasound2-dev, libxinerama-dev | xlibs-static-dev (<< 6.8.1-1), libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1), libxext-dev | xlibs-static-dev (<< 6.8.1-1), libdvb-dev, g++-3.3 | g++-3.4
 Standards-Version: 3.5.4
 Bugs: mailto:radu.c@plutohome.com
 
@@ -110,7 +110,7 @@ Description: A personal video recorder application (client)
  For a complete installation of all MythTV components, install the
  'mythtv' package.
 
-Package: libmyth-0.18.1
+Package: libmyth-0.19
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, libqt3-mt-mysql | libqt3c102-mt-mysql
@@ -124,10 +124,10 @@ Description: Common library code for MythTV and add-on modules (runtime)
  This package contains a shared library, libmyth, which is used by
  various components in the system.
 
-Package: libmyth-0.18.1-dev
+Package: libmyth-0.19-dev
 Architecture: any
 Section: devel
-Depends: libmyth-0.18.1 (= ${Source-Version}), libqt3c102-mt-dev | libqt3-mt-dev
+Depends: libmyth-0.19 (= ${Source-Version}), libqt3c102-mt-dev | libqt3-mt-dev
 Provides: libmyth-dev
 Conflicts: libmyth-dev
 Description: Common library code for MythTV and add-on modules (development)
@@ -140,7 +140,7 @@ Description: Common library code for MythTV and add-on modules (development)
 Package: mythtv-debug
 Architecture: any
 Section: devel
-Depends: libmyth-0.18.1 (= ${Source-Version}) | mythtv-frontend (= ${Source-Version}) | mythtv-backend (= ${Source-Version})
+Depends: libmyth-0.19 (= ${Source-Version}) | mythtv-frontend (= ${Source-Version}) | mythtv-backend (= ${Source-Version})
 Description: Debugging symbols for MythTV
  MythTV provides a unified graphical interface for recording and viewing
  television programs.  Refer to the mythtv package for more information.
