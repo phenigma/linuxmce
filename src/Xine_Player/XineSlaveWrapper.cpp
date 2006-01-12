@@ -397,14 +397,13 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
  */
 bool XineSlaveWrapper::playStream( int streamID, string mediaPosition, bool playbackStopped )
 {
+    StopSpecialSeek();
     if ( m_xine_osd_t )
     {
         // Freeing causes a seg fault.  I guess that means xinelib automatically frees it when the stream changes???
         // xine_osd_free(m_xine_osd_t);
         m_xine_osd_t = NULL;
     }
-
-    StopSpecialSeek();
 
     XineStream *xineStream = getStreamForId( streamID, "XineSlaveWrapper::playStream() could not play an empty stream!" );
 
@@ -423,8 +422,8 @@ bool XineSlaveWrapper::playStream( int streamID, string mediaPosition, bool play
         if ( pos )
         {
             // This functionality in xine keeps bouncing back and forth between working and not working
-			// With some Xine revisions you can pass the seek position in when you start playing, but 
-			// other times you must wait at least 500ms after starting the stream before trying to seek
+            // With some Xine revisions you can pass the seek position in when you start playing, but
+            // other times you must wait at least 500ms after starting the stream before trying to seek
             // or else you get
             // "Stream is not seekable".  In such cases we have a m_iSpecialOneTimeSeek that we will use
             // if we fail to do the seek correctly
@@ -666,9 +665,9 @@ void XineSlaveWrapper::xineEventListener( void *userData, const xine_event_t *ev
             xineStream->m_bIsRendering = false;
             break;
             case XINE_EVENT_QUIT:
-				g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
-				// the playback completed is sent from another place. (see the stopMedia)
-				break;
+                g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
+                // the playback completed is sent from another place. (see the stopMedia)
+                break;
 
             case XINE_EVENT_PROGRESS:
             {
@@ -881,11 +880,11 @@ void *XineSlaveWrapper::eventProcessingLoop( void *arguments )
         }
         if ( pStream->m_pOwner->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
         {
-			pStream->m_pOwner->Seek(pStream->m_pOwner->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
+            pStream->m_pOwner->Seek(pStream->m_pOwner->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
             pStream->m_pOwner->m_iSpecialOneTimeSeek = 0;
         }
         if ( g_iSpecialSeekSpeed )
-			pStream->m_pOwner->HandleSpecialSeekSpeed();
+            pStream->m_pOwner->HandleSpecialSeekSpeed();
 
         usleep( 100000 );
     }
@@ -1125,7 +1124,7 @@ int XineSlaveWrapper::translate_point( int gui_x, int gui_y, int *video_x, int *
 void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType desiredSpeed )
 {
     XineStream * pStream;
-	g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
+    g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
 
     if ( ( pStream = getStreamForId( iStreamID, "Can't set the speed of a non existent stream (%d)!" ) ) == NULL )
         return ;
@@ -1185,21 +1184,21 @@ void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType des
     }
 
     if ( desiredSpeed == PLAYBACK_FF_1 )
-        DisplayOSDText( "" );
+       DisplayOSDText( "" );
     else
-        DisplaySpeedAndTimeCode();
+       DisplaySpeedAndTimeCode();
 
     if ( g_iSpecialSeekSpeed && !NewSpecialSeekSpeed )
-        StopSpecialSeek();
+       StopSpecialSeek();
     else if ( NewSpecialSeekSpeed )
-        StartSpecialSeek( NewSpecialSeekSpeed );
+       StartSpecialSeek( NewSpecialSeekSpeed );
 
     g_pPlutoLogger->Write( LV_STATUS, "Setting speed to special %d real %d desired %d", g_iSpecialSeekSpeed, xineSpeed, desiredSpeed );
     if ( ( xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0 ) || xineSpeed != XINE_SPEED_PAUSE )
         xine_set_param( pStream->m_pStream, XINE_PARAM_SPEED, xineSpeed );
 }
 
-XineSlaveWrapper::PlayBackSpeedType XineSlaveWrapper::getPlaybackStream( int iStreamID )
+XineSlaveWrapper::PlayBackSpeedType XineSlaveWrapper::getPlaybackSpeed( int iStreamID )
 {
     XineStream * pStream;
 
@@ -1313,13 +1312,12 @@ void XineSlaveWrapper::pauseMediaStream( int iStreamID )
 {
     int stoppedTime, completeTime;
 
-    if ( getPlaybackStream( iStreamID ) == PLAYBACK_STOP )
+    if ( getPlaybackSpeed( iStreamID ) == PLAYBACK_STOP )
         changePlaybackSpeed( iStreamID, PLAYBACK_FF_1 );
     else
         changePlaybackSpeed( iStreamID, PLAYBACK_STOP );
 
     getStreamPlaybackPosition( iStreamID, stoppedTime, completeTime );
-
     g_pPlutoLogger->Write( LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime );
 }
 
@@ -1768,7 +1766,7 @@ void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
 {
     g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event %d", ( int ) m_isSlimClient );
     if ( ! m_isSlimClient )
-		m_pAggregatorObject->EVENT_Playback_Completed(iStreamID, bWithErrors );
+        m_pAggregatorObject->EVENT_Playback_Completed(iStreamID, bWithErrors );
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )
@@ -1861,6 +1859,7 @@ void XineSlaveWrapper::simulateKeystroke( int plutoButton )
 {
     Window oldWindow;
     int oldRevertBehaviour;
+    g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::simulateKeystroke(): plutoButton=%d", plutoButton );
 
     XLockDisplay( XServerDisplay );
     XGetInputFocus( XServerDisplay, &oldWindow, &oldRevertBehaviour );
@@ -1918,7 +1917,7 @@ void XineSlaveWrapper::setOutputSpeakerArrangement( string strOutputSpeakerArran
 {
     xine_cfg_entry_t xineConfigEntry;
 
-	g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement: %s", strOutputSpeakerArrangement.c_str() );
+    g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement: %s", strOutputSpeakerArrangement.c_str() );
 
     xine_config_register_enum ( m_pXine, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs,
                                 "Speaker arrangement",
@@ -2066,6 +2065,7 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
     getStreamPlaybackPosition( 1, seconds, totalTime );
     g_pPlutoLogger->Write( LV_STATUS, "seconds %d", seconds );
     seconds /= 1000;
+    int seconds_only = seconds;
     int hours = seconds / 3600;
     seconds -= hours * 3600;
     int minutes = seconds / 60;
@@ -2087,22 +2087,28 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
     else
         sSpeed += StringUtils::itos( seconds );
 
-    DisplayOSDText( sSpeed );
+    if ( ( g_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
+        DisplayOSDText("");
+    else
+        DisplayOSDText( sSpeed );
 }
 
 void XineSlaveWrapper::DisplayOSDText( string sText )
 {
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
-	g_pPlutoLogger->Write( LV_CRITICAL, "XineSlaveWrapper::DisplayOSDText %p %s", (void *) m_xine_osd_t, sText.c_str() );
+    g_pPlutoLogger->Write( LV_CRITICAL, "XineSlaveWrapper::DisplayOSDText %p %s", (void *) m_xine_osd_t, sText.c_str() );
     if ( xineStream == NULL )
         return ;
 
-	if ( sText.size() == 0 && false ) // Todo -- put this back?!!!  Something is freeing the osd and it's not us, so this crashes!
+    // now fixed
+    // todo -- put this back?!!!  Something is freeing the osd and it's not us, so this crashes!
+    if ( sText.size() == 0 )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
         if ( m_xine_osd_t )
             xine_osd_free( m_xine_osd_t );
         m_xine_osd_t = NULL;
+        g_iSpecialSeekSpeed = 0;
         return ;
     }
 
@@ -2116,7 +2122,7 @@ void XineSlaveWrapper::DisplayOSDText( string sText )
     xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
     xine_osd_show( m_xine_osd_t, 0 );
 
-	g_pPlutoLogger->Write( LV_CRITICAL, "Attempting to display %s", sText.c_str() );
+    g_pPlutoLogger->Write( LV_CRITICAL, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
 }
 
 void XineSlaveWrapper::StartSpecialSeek( int Speed )
@@ -2126,14 +2132,16 @@ void XineSlaveWrapper::StartSpecialSeek( int Speed )
     if ( xineStream == NULL )
         return ;
 
-	int totalTime;
+    int totalTime;
     gettimeofday( &m_tsLastSpecialSeek, NULL );
-	getStreamPlaybackPosition( 1, m_posLastSpecialSeek, totalTime );
+    getStreamPlaybackPosition( 1, m_posLastSpecialSeek, totalTime );
 
-	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
+    g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
     xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 2 * 90000 );
+    m_iPrebuffer = xine_get_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER );
     g_iSpecialSeekSpeed = Speed;
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
+    DisplaySpeedAndTimeCode();
     g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
 }
 
@@ -2147,9 +2155,9 @@ void XineSlaveWrapper::StopSpecialSeek()
     g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
     g_iSpecialSeekSpeed = 0;
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
+    DisplayOSDText("");
     xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
     g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
-	DisplayOSDText("");
 }
 
 void XineSlaveWrapper::Dynamic_Pointer::pointer_hide()
@@ -2196,27 +2204,27 @@ XineSlaveWrapper::Dynamic_Pointer::~Dynamic_Pointer()
 void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
 {
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
-	if ( xineStream == NULL )
-		return ;
+    if ( xineStream == NULL )
+        return ;
 
-	if( tolerance_ms==0 )
-	{
+    if( tolerance_ms==0 )
+    {
 
-		timespec ts1,ts2,tsElapsed;
-		gettimeofday( &ts1, NULL );
+        timespec ts1,ts2,tsElapsed;
+        gettimeofday( &ts1, NULL );
 
-		xine_play( xineStream->m_pStream, 0, pos );
+        xine_play( xineStream->m_pStream, 0, pos );
 
-		gettimeofday( &ts2, NULL );
-		tsElapsed = ts2-ts1;
+        gettimeofday( &ts2, NULL );
+        tsElapsed = ts2-ts1;
         int positionTime, totalTime;
         getStreamPlaybackPosition( 1, positionTime, totalTime );
-		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d, off by %d",
-			tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
-			pos,positionTime,positionTime-pos);
-		return ;
-	}
-		
+        g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d, off by %d",
+            tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
+            pos,positionTime,positionTime-pos);
+        return ;
+    }
+
     g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek seek to %d tolerance %d", pos, tolerance_ms );
 
     for ( int i = 0;i < 10;++i )
@@ -2229,7 +2237,7 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
         }
         else
         {
-			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
+            g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
             xine_play( xineStream->m_pStream, 0, pos );
         }
     }
@@ -2243,29 +2251,28 @@ void XineSlaveWrapper::HandleSpecialSeekSpeed()
 
     DisplaySpeedAndTimeCode();
 
-	timespec ts;
+    timespec ts;
     gettimeofday( &ts, NULL );
 
-	timespec tsElapsed = ts-m_tsLastSpecialSeek;
-	int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
-	int seekTime = m_posLastSpecialSeek + (msElapsed * g_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
-	int positionTime, totalTime;
-	getStreamPlaybackPosition( 1, positionTime, totalTime );
-	        
-	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
-		g_iSpecialSeekSpeed, msElapsed,
-		m_posLastSpecialSeek,seekTime,positionTime);
+    timespec tsElapsed = ts-m_tsLastSpecialSeek;
+    int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
+    int seekTime = m_posLastSpecialSeek + (msElapsed * g_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
+    int positionTime, totalTime;
+    getStreamPlaybackPosition( 1, positionTime, totalTime );
 
-	if ( seekTime < 0 || seekTime > totalTime )
+    g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
+        g_iSpecialSeekSpeed, msElapsed,
+        m_posLastSpecialSeek,seekTime,positionTime);
+
+    if ( seekTime < 0 || seekTime > totalTime )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
         StopSpecialSeek();
         m_pAggregatorObject->ReportTimecode( xineStream->m_iStreamID, xineStream->m_iPlaybackSpeed );
-		return;
+        return;
     }
 
-	m_tsLastSpecialSeek=ts;
-	m_posLastSpecialSeek=seekTime;
-	Seek(seekTime,0);
+    m_tsLastSpecialSeek=ts;
+    m_posLastSpecialSeek=seekTime;
+    Seek(seekTime,0);
 }
-

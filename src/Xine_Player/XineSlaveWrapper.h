@@ -116,9 +116,9 @@ private:
     int m_iTimeCodeReportFrequency;
     int m_iSpecialOneTimeSeek;
 
-	// Used to handle rewind and fastforward to keep track of where we last seeked
-	timespec m_tsLastSpecialSeek;
-	int m_posLastSpecialSeek;
+    // Used to handle rewind and fastforward to keep track of where we last seeked
+    timespec m_tsLastSpecialSeek;
+    int m_posLastSpecialSeek;
 
     string m_sXineVideoDriverName;
     string m_sXineAudioDriverName;
@@ -289,7 +289,7 @@ public:
     /**
      * @brief get current playback speed
      */
-    PlayBackSpeedType getPlaybackStream( int iStreamID );
+    PlayBackSpeedType getPlaybackSpeed( int iStreamID );
 
     /**
      * @brief stop the stream playback.
@@ -406,9 +406,9 @@ public:
     void StartSpecialSeek( int Speed );
     void StopSpecialSeek();
 
-	// Do the seeking in these functions
-	void Seek(int pos,int tolerance_ms);
-	void HandleSpecialSeekSpeed();  // Used for handling rewind and fast forward
+    // Do the seeking in these functions
+    void Seek(int pos,int tolerance_ms);
+    void HandleSpecialSeekSpeed();  // Used for handling rewind and fast forward
 
     class Dynamic_Pointer
     {
