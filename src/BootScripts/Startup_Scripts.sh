@@ -3,26 +3,22 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
 
-setterm -blank >/dev/console # disable console blanking
-
-chmod 777 /etc/pluto.conf # ensure access rights on pluto.conf
-
 Parameter="$1"; shift
-Device="$PK_Device"
 
+if [[ "$Parameter" != "start" && "$Parameter" != "stop" ]]; then
+	echo "Usage: $0 start|stop"
+	exit 1
+fi
+
+setterm -blank >/dev/console             # disable console blanking
+chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
 /usr/pluto/bin/Report_Machine_Status.sh
-# TODO: script parameter is obsolete (already); remove
-
 rm /var/log/pluto/running.pids
-rm -rf /tmp/* # I doubt that this is safe to do here
+rm -rf /tmp/*                            # I doubt that this is safe to do here (mee too :)
 chmod 777 /var/log/pluto
-
-# remove all ttyS_* (created by gc100s) entries from /dev
-rm -f /dev/ttyS_*
-
-# clean up locks
-mkdir -p /usr/pluto/locks
-rm -f /usr/pluto/locks/*
+rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
+mkdir -p /usr/pluto/locks                # clean up locks
+rm -f /usr/pluto/locks/*                 # clean up locks
 
 # assure some settings
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
@@ -32,118 +28,31 @@ Q="SELECT PK_Users FROM Users LIMIT 1"
 R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
 
-if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
-	echo "Usage: $0 start|script|stop"
+# remove problematic diskless services (can't poweroff if these get stopped)
+# TODO: don't do this on Core (doesn't hurt though)
+if [[ "$Parameter" == "stop" ]]; then
+	rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
+fi
+
+# If this is the first boot then we need to generate and run pluto rc scripts
+if [[ "$Parameter" == "start" ]]; then
+	ConfGet "FirstBoot"
+	if [[ "$FirstBoot" != "false" ]] ;then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating and running Pluto rc startup scripts for the first time"
+		/usr/pluto/bin/generateRcScripts.sh
+		for i in /etc/rc2.d/S22-*-Pluto_* ;do
+			[[ ! -f $i ]] && continue
+			$i start
+		done	
+		ConfSet "FirstBoot" "false"
+	fi	    					
+fi
+
+# These is left here only for logging
+if [[ -e /usr/pluto/install/.notdone ]]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
 	exit 1
 fi
-
-if [ "$Parameter" == "script" ]; then
-	Script=1
-	moonIP="$1"
-fi
-
-if [ "$Parameter" == "start" -o "$Parameter" == "script" ]; then
-	When="S"
-elif [ "$Parameter" == "stop" ]; then
-	When="P"
-	rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking} # remove problematic diskless services (can't poweroff if these get stopped)
-	# TODO: don't do this on Core (doesn't hurt though)
-fi
-
-[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device"
-if [ -e /usr/pluto/install/.notdone ]; then
-	[ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
-	exit 1
-fi
-
-if [ -n "$Script" ]; then
-	Q="SELECT PK_Device
-FROM Device
-WHERE IPaddress='$moonIP'
-LIMIT 1"
-	Device=$(RunSQL 0 "$Q")
-fi
-
-Q="SELECT Command,Enabled,Background,FK_DeviceTemplate,Parameter
-FROM Device_StartupScript
-JOIN StartupScript ON FK_StartupScript=PK_StartupScript
-WHERE FK_Device='$Device' AND StartupScript.When='$When'
-ORDER BY Boot_Order"
-
-if [ ! -e /etc/pluto.startup ]; then
-	result="$(RunSQL "$Q")"
-else
-	result="$(cat /etc/pluto.startup)"
-fi
-
-if [ -n "$Script" ]; then
-	echo "$result"
-	exit
-fi
-[ -z "$result" ] && echo "No boot scripts were configured for device $Device for '$When'" && exit
-
-FindDevice()
-{
-	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}"
-
-	if [ -z "$PK_Device_Parent" -o -z "$FK_DeviceTemplate" ]; then
-		echo ""
-		return 1
-	fi
-
-	local i R Q
-	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'"
-	R="$(RunSQL "$Q")"
-
-	if [ -z "$R" ]; then
-		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
-		R="$(RunSQL "$Q")"
-		for i in $R; do
-			FindDevice "$i" "$FK_DeviceTemplate" && return 0
-		done
-	else
-		echo "$R"
-		return 0
-	fi
-	return 1
-}
-
-for line in $result; do
-	script="$(Field 1 $line)"
-	enabled="$(Field 2 $line)"
-	Background="$(Field 3 "$line")"
-	FK_DeviceTemplate="$(Field 4 $line)"
-	Parameter="$(Field 5 $line)"
-
-	if [ "$enabled" -eq 0 ]; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (not enabled)"
-		continue
-	fi
-	
-	if [ "$FK_DeviceTemplate" != NULL ]; then
-		FoundDevice="$(FindDevice "$PK_Device" "$FK_DeviceTemplate")"
-		if [ -z "$FoundDevice" ]; then
-			Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (no corresponding device found)"
-			continue
-		fi
-	fi
-	
-	Screen=""
-	[ "$Background" -ne 0 ] && Screen="screen -d -m -S \"BkgSS-$script\""
-	
-	if [ -e "./$script" ]; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
-		eval $Screen "\"./$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
-	elif [ -e "/usr/pluto/bin/$script" ]; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '/usr/pluto/bin/$script' '$Parameter'"
-		eval $Screen "\"/usr/pluto/bin/$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
-	elif [ -e "$script" ]; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
-		eval $Screen "\"$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
-	else
-		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Boot Script: Command '$script' not found"
-	fi
-done
 
 # Someone said this fixed his NFS problems; I'm putting it here for both Core and MDs
 # Canceled because of PPPoE MTU issues
