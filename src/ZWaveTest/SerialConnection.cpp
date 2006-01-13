@@ -228,9 +228,8 @@ char SerialConnection::checkSum(char *b, int len)
 	for(int i=0; i< len; i++)
 	{
 		returnValue ^= b[i]; 
-		g_pPlutoLogger->Write(LV_WARNING, "b[%d]=%x", i, b[i]);
+//		g_pPlutoLogger->Write(LV_WARNING, "b[%d]=%x", i, b[i]);
 	}
-	g_pPlutoLogger->Write(LV_WARNING, "check = %x", i, returnValue);
 	return returnValue;
 }
 
