@@ -84,7 +84,7 @@ bool SerialConnection::isConnected()
 }
 
 // TODO: use 'const char * buffer'
-int SerialConnection::send(char *buffer, size_t len)
+int SerialConnection::send(char *b, size_t len)
 {
 #ifdef DEBUG_EUGEN
 	pthread_mutex_lock( &instance->mutex_buffer );
@@ -112,14 +112,14 @@ int SerialConnection::send(char *buffer, size_t len)
 	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)
 
 	int returnValue = 0;
-	if(buffer != NULL)
+	if(b != NULL)
 		if(instance->serialPort!= NULL)
 		{
 			try
 			{
 				char *paddedBuffer = NULL;
 				len += 3;
-				paddedBuffer = new char((int)len);
+				paddedBuffer = new char[(int)len];
 				if(paddedBuffer == NULL)
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL, "unable to allocate memory!!!");
@@ -127,8 +127,8 @@ int SerialConnection::send(char *buffer, size_t len)
 				}
 				paddedBuffer[0] = SERIAL_SOF; 
 				paddedBuffer[1] = (char)len - 2;
-				memcpy(&(paddedBuffer[2]), buffer, len - 3);
-				paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, (int)len - 2);
+				memcpy(&(paddedBuffer[2]), b, len - 3);
+				paddedBuffer[(int)len - 1] = checkSum(&(paddedBuffer[1]), (int)len - 2);
 				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(paddedBuffer, len);
 				pthread_mutex_unlock( &mutex_serial );
@@ -213,6 +213,7 @@ int SerialConnection::hasCommand()
 	int returnValue = 1;
 	if(buffer.size() < 4)
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
 		pthread_mutex_unlock( &instance->mutex_buffer );
 		return 0;
 	}
@@ -310,14 +311,18 @@ void *SerialConnection::receiveFunction(void *)
 		{
 			len = 100;
 			pthread_mutex_lock( &instance->mutex_serial );
-			g_pPlutoLogger->Write(LV_WARNING, "before read");
 			len = instance->serialPort->Read(mybuf, 100);
-			g_pPlutoLogger->Write(LV_WARNING, "after read");
+			if(len > 100)
+				len = 0;
 			pthread_mutex_unlock( &instance->mutex_serial );
 
-			pthread_mutex_lock( &instance->mutex_buffer );
-			while(--len >= 0)
-				instance->buffer.push_back(mybuf[len]);
+			if(len != 0)
+			{
+				pthread_mutex_lock( &instance->mutex_buffer );
+			
+				while(--len >= 0)
+					instance->buffer.push_back(mybuf[len]);
+			}
 			pthread_mutex_unlock( &instance->mutex_buffer );
 			
 #ifdef _WIN32 	
