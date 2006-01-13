@@ -83,6 +83,12 @@ bool ZWJobInitialize::run()
 
 bool ZWJobInitialize::processData(const char * buffer, size_t length)
 {
+	if( ZWaveJob::RUNNING != state() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job state.");
+		return false;
+	}
+	
 	if( d->currentJob != NULL )
 	{
 		if( !d->currentJob->processData(buffer, length) )

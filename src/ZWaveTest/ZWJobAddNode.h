@@ -1,7 +1,7 @@
 //
-// C++ Interface: zwjobaddnode
+// C++ Interface: ZWJobAddNode
 //
-// Description: 
+// Description: ZWave Add Node Command
 //
 //
 // Author: Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
@@ -23,7 +23,7 @@ class ZWJobAddNode : public ZWaveJob
 {
 	public:
 	
-		ZWJobAddNode(PlutoZWSerialAPI* arg1);
+		ZWJobAddNode(PlutoZWSerialAPI*);
 	
 		virtual ~ZWJobAddNode();
 	

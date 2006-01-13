@@ -23,7 +23,7 @@ class ZWJobRemoveNode : public ZWaveJob
 {
 	public:
 	
-		ZWJobRemoveNode(PlutoZWSerialAPI* arg1);
+		ZWJobRemoveNode(PlutoZWSerialAPI*);
 	
 		virtual ~ZWJobRemoveNode();
 	

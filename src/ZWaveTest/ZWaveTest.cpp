@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	
 	if(argc != 2)
 	{
-		printf("usage: %c <port name>\n", argv[0]);
+		printf("usage: %s <port name>\n", argv[0]);
 	}
 	
 	PlutoZWSerialAPI * zwAPI = PlutoZWSerialAPI::instance();
@@ -48,8 +48,6 @@ int main(int argc, char* argv[])
 					if( initJob != NULL )
 					{
 						zwAPI->insertJob(initJob);
-						zwAPI->start(argv[1]);
-						zwAPI->listen();
 					}
 				}
 				else if(line.find("light") == 0)
@@ -82,8 +80,6 @@ int main(int argc, char* argv[])
 					if(lightJob != NULL)
 					{
 						zwAPI->insertJob( lightJob );
-						zwAPI->start(argv[1]);
-						zwAPI->listen();
 					}
 				}
 				else
@@ -91,6 +87,11 @@ int main(int argc, char* argv[])
 					g_pPlutoLogger->Write(LV_WARNING, "unkown  command %s", line.c_str());
 				}
 			}
+			fclose(fstream);
+			
+			// process the commands
+			zwAPI->start(argv[1]);
+			zwAPI->listen();
 		}
 		else
 			g_pPlutoLogger->Write(LV_WARNING, "unable to open commands.txt");

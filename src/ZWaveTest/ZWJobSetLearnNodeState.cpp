@@ -28,7 +28,7 @@ class ZWJobSetLearnNodeState::Private
 		~Private();
 		
 		unsigned char mode;
-		char learnInfo[128];
+		char learnInfo[LEARN_INFO_MAX];
 		size_t learnInfolength;
 		bool failed;
 	

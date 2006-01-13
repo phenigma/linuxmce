@@ -14,6 +14,8 @@
 
 #include "ZWaveJob.h"
 
+#define LEARN_INFO_MAX 128
+
 /**
 ZWave Set Learn Node State Command
  
@@ -45,6 +47,7 @@ class ZWJobSetLearnNodeState : public ZWaveJob
 		/** Fill the buffer with the LEARN_INFO data.
 		  * @param buffer will be filled with data
 		  * @param length will contain the length of the data.
+		  * LEARN_INFO = Status Byte, NodeID Byte, Param Length Byte, Param[0]...Param[Length-1]
 		  * @return 0 for success
 		  */
 		virtual int learnInfo(char* buffer, size_t* length);

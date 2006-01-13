@@ -1,7 +1,7 @@
 //
-// C++ Implementation: zwjobaddnode
+// C++ Implementation: ZWJobAddNode
 //
-// Description: 
+// Description: ZWave Add Node Command
 //
 //
 // Author: Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
@@ -72,6 +72,12 @@ ZWJobAddNode::~ZWJobAddNode()
 
 bool ZWJobAddNode::processData(const char* buffer, size_t length)
 {
+	if( ZWaveJob::RUNNING != state() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: wrong job state.");
+		return false;
+	}
+	
 	if( d->currentJob != NULL )
 	{
 		if( !d->currentJob->processData(buffer, length) )
@@ -87,12 +93,58 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 		// next step
 		switch( d->currentJob->type() )
 		{
-			case ZWaveJob::GET_ID :
-				d->jobsQueue.push_back( new ZWJobGetNodeProtocolInfo(handler()) );
+			case ZWaveJob::SET_LEARN_NODE_STATE :
+			{
+				if( LEARN_NODE_STATE_NEW == ((ZWJobSetLearnNodeState*)(d->currentJob))->mode() )
+				{
+					char learnInfo[LEARN_INFO_MAX];
+					size_t learnInfoLength = LEARN_INFO_MAX;
+					if( !((ZWJobSetLearnNodeState*)(d->currentJob))->learnInfo(learnInfo, &learnInfoLength) &&
+						learnInfoLength )
+					{
+						// LEARN_INFO = Status Byte, NodeID Byte, Param Length Byte, Param[0]...Param[Length-1]
+						// ZWJobSetLearnNodeState was running well
+						// Just ask info about the node
+						// Then set the learning off
+						ZWJobGetNodeProtocolInfo * nodeInfo = new ZWJobGetNodeProtocolInfo(handler());
+						ZWJobSetLearnNodeState * learnOff = new ZWJobSetLearnNodeState(handler());
+						if( nodeInfo != NULL && learnOff != NULL )
+						{
+							nodeInfo->setNodeID( learnInfo[1] );
+							d->jobsQueue.push_back( nodeInfo );
+							
+							learnOff->setMode( LEARN_NODE_STATE_OFF );
+							d->jobsQueue.push_back( learnOff );
+						}
+						else
+						{
+							g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode allocation error!");
+							
+							delete nodeInfo;
+							nodeInfo = NULL;
+							
+							delete learnOff;
+							learnOff = NULL;
+						}
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode SET_LEARN_NODE_STATE FAILURE!");
+					}
+				}
+				else
+				{
+					// just nothing to do
+				}
+				break;
+			}
+				
+			case ZWaveJob::GET_NODE_PROTOCOL_INFO :
+				// just nothing to do
 				break;
 				
 			default:
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job type.");
+				g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: wrong job type.");
 				break;
 		}
 		
@@ -121,7 +173,7 @@ bool ZWJobAddNode::run()
 	d->currentJob = new ZWJobSetLearnNodeState(handler());
 	if( d->currentJob == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize allocation error!");
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode allocation error!");
 		return false;
 	}
 	((ZWJobSetLearnNodeState*)d->currentJob)->setMode( LEARN_NODE_STATE_NEW );
