@@ -4609,7 +4609,6 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         }
         else
         {
-			//chrism : we need to talk about this!
             if(PK_Command==COMMAND_Populate_Datagrid_CONST)
             {
 				// If we already added messages to the queue, go ahead and send them out so that the populate datagrid is executed in the proper order
@@ -4731,34 +4730,36 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
 				else
 					pMessage->m_vectExtraMessages.push_back( pThisMessage );
         }
-    }
-    if(  pMessage && !m_bLocalMode  )
-    {
-		if( bGetConfirmation )
+
+		if(  pMessage && !m_bLocalMode  )
 		{
-			pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
-			string sResponse; // We'll use this only if a response wasn't passed in
-			bool bResult = m_pcRequestSocket->SendMessage( pMessage, sResponse );
-			if( !bResult || sResponse != "OK" )
-				g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed with result %d Response %s",(int) bResult,sResponse.c_str());
-		}
-		else if( pMessage->m_dwID==COMMAND_Bind_to_Media_Remote_CONST )
-		{
-			pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
-			Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
-			if( pResponse && pResponse->m_dwID )
+			if( bGetConfirmation )
 			{
-                ReceivedMessage( pResponse );
-				delete pResponse;
+				pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
+				string sResponse; // We'll use this only if a response wasn't passed in
+				bool bResult = m_pcRequestSocket->SendMessage( pMessage, sResponse );
+				if( !bResult || sResponse != "OK" )
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed with result %d Response %s",(int) bResult,sResponse.c_str());
 			}
+			else if( pMessage->m_dwID==COMMAND_Bind_to_Media_Remote_CONST )
+			{
+				pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
+				Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
+				if( pResponse && pResponse->m_dwID )
+				{
+					ReceivedMessage( pResponse );
+					delete pResponse;
+				}
+			}
+			else
+			{
+				if( !m_pcRequestSocket->SendMessage( pMessage ) )
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+			}
+			pMessage = NULL;
 		}
-		else
-		{
-			if( !m_pcRequestSocket->SendMessage( pMessage ) )
-				g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
-		}
-		pMessage = NULL;
     }
+
     if(  bRefreshGrids  )
     {
         // This includes a populate datagrid.  We are probably changing the contents of a
