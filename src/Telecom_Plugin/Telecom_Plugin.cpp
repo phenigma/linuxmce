@@ -93,14 +93,14 @@ bool Telecom_Plugin::GetConfig()
 	}
 	vector<class Row_Device*> vectDevices;
 	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICETEMPLATE_FIELD + string("=") + StringUtils::itos(DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST), &vectDevices);
-	for(size_t s=0;s<vectDevices.size();++s)
+	for(size_t s=0;s<vectDevices.size();s++)
 	{
 		map_orbiter2embedphone[vectDevices[s]->FK_Device_ControlledVia_get()] = vectDevices[s]->PK_Device_get();
 		map_embedphone2orbiter[vectDevices[s]->PK_Device_get()] = vectDevices[s]->FK_Device_ControlledVia_get();		
 	}
 	vector<class Row_Device_DeviceData*> vectDeviceData;
 	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD+string("=") + StringUtils::itos(DEVICEDATA_PhoneNumber_CONST), &vectDeviceData);
-	for(size_t s=0;s<vectDevices.size();++s)
+	for(size_t s=0;s<vectDeviceData.size();s++)
 	{
 		map_ext2device[atoi(vectDeviceData[s]->IK_DeviceData_get().c_str())] = vectDeviceData[s]->FK_Device_get();
 		map_device2ext[vectDeviceData[s]->FK_Device_get()] = atoi(vectDeviceData[s]->IK_DeviceData_get().c_str());
@@ -399,13 +399,9 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 void 
 Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
 {
-	int phoneID=0;
-	vector<class Row_Device_DeviceData*> vectDeviceData;
-	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD+string("=") + StringUtils::itos(DEVICEDATA_PhoneNumber_CONST)+ " AND " +
-	                                                         DEVICE_DEVICEDATA_IK_DEVICEDATA_FIELD +string("=") + sPhoneExtension , &vectDeviceData);
-	if(vectDeviceData.size()>0)
+	int phoneID=map_ext2device[atoi(sPhoneExtension.c_str())];
+	if(phoneID>0)
 	{
-		phoneID= vectDeviceData[0]->FK_Device_get();
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(!pCallData) {
 			/*create new call data*/
@@ -972,22 +968,93 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	int Row = 0;
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 	std::list<CallData*>::iterator it = calls->begin();
+	std::list<std::string> text_list;
 	while(it != calls->end())
 	{
-//		if(map_device2ext[(*it)->getOwnerDevID()] != 0)
-//		{
-//			string text="Between "+StringUtils::itos(map_device2ext[(*it)->getOwnerDevID()])+" and "+((*it)->getCallerID());
-			string text=(*it)->getID();
-			g_pPlutoLogger->Write(LV_STATUS,"%s",text.c_str());
-			pCell = new DataGridCell(text,StringUtils::itos((*it)->getOwnerDevID()));
-			if(map_embedphone2orbiter[(*it)->getOwnerDevID()]!=0)
+		string channels = (*it)->getID();
+		list<int> ext_list;
+		string ext_txt;
+		int pos = 0, oldpos = 0, count = 0;
+		g_pPlutoLogger->Write(LV_STATUS,"Channels : %s associated with %d",channels.c_str(),(*it)->getOwnerDevID());
+		do
+		{
+			pos = channels.find(' ',oldpos);
+			string chan;
+			int ext;
+			string sext;
+			if(pos < 0)
 			{
-				SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,map_embedphone2orbiter[(*it)->getOwnerDevID()]);
-				pCell->m_pMessage = SCREEN_DevCallInProgress_.m_pMessage;
+				chan = channels.substr(oldpos, channels.length());
 			}
-			pDataGrid->SetData(0,Row, pCell);
-			Row++;
-//		}
+			else
+			{
+				if(pos==oldpos)
+				{
+					oldpos=pos+1;
+					continue;
+				}
+				chan = channels.substr(oldpos, pos - oldpos);
+			}
+			if(ParseChannel(chan,&ext,&sext)==0)
+			{
+				if(find(ext_list.begin(), ext_list.end(), ext) == ext_list.end())
+				{
+					ext_list.push_back(ext);
+					ext_txt+=sext+string(" ");
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], calllerid [%s]",chan.c_str(),(*it)->getCallerID().c_str()); 
+				if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"   chan add");
+					ext_txt+=((*it)->getCallerID())+string(" ");
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"   chan skip");
+				}
+			}
+			oldpos=pos+1;
+			count++;
+		}
+		while(pos>=0);
+		if(count>1)
+		{
+			if(find(text_list.begin(), text_list.end(), ext_txt) == text_list.end())
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
+				pCell = new DataGridCell(ext_txt,"");
+				pCell->m_pMessage=NULL;
+				for(list<int>::iterator it2=ext_list.begin();it2!=ext_list.end();it2++)
+				{
+					if(map_embedphone2orbiter[map_ext2device[(*it2)]] != 0)
+					{
+						SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,map_embedphone2orbiter[map_ext2device[(*it2)]]);
+						if(!pCell->m_pMessage)
+						{
+							pCell->m_pMessage = SCREEN_DevCallInProgress_.m_pMessage;
+						}
+						else
+						{
+							pCell->m_pMessage->m_vectExtraMessages.push_back(SCREEN_DevCallInProgress_.m_pMessage);
+						}
+					}
+				}
+				pDataGrid->SetData(0,Row, pCell);
+				text_list.push_back(ext_txt);
+				Row++;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());			
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"INSUFFICIENT CALLDATA %s",ext_txt.c_str());
+		}
 		it++;
 	}
 	return pDataGrid;
@@ -996,11 +1063,54 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup (%d) event received from PBX.",iPhoneExtension);	
+	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d($%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
 	if(pCallData) {
 		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
 		CallManager::getInstance()->removeCall(pCallData);		
 	}
 	return true;
+}
+
+int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension) 
+{
+	int pos, oldpos = 0;
+	
+	pos = channel.find('/');
+	if(pos < 0) {
+		return -1;
+	}
+	
+	oldpos = pos + 1;
+	pos = channel.find('@',oldpos);	
+	if(pos < 0) {
+		pos = channel.find('-',oldpos);	
+	}
+	if(pos < 0) {
+		pos = channel.find('/',oldpos);	
+	}
+	if(pos < 0) {
+		pos = channel.find('&',oldpos);	
+	}
+	if(pos < 0) {
+		pos = channel.find(',',oldpos);	
+	}
+	if(pos < 0) {
+		pos = channel.find('|',oldpos);
+	}
+	if(pos < 0) {
+		pos = channel.find('|',oldpos);
+	}
+	if(pos < 0) {
+		return -1;
+	}
+	
+	if(iextension && sextension) {
+		*sextension = channel.substr(oldpos, pos - oldpos);
+		if(sscanf(sextension->c_str(),"%d",iextension)!=1)
+		{
+			return -1;
+		}
+	}
+	return 0;
 }

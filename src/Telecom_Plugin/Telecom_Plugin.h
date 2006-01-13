@@ -198,10 +198,11 @@ private:
 	bool IncomingCall( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool Hangup( class Socket *pSocket, class Message *pMessage,
-					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );						
 private:
     DeviceData_Router* find_AsteriskDevice();
     DeviceData_Router* find_Device(int iPK_Device);
+	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 
 private:
 	int iCmdCounter;

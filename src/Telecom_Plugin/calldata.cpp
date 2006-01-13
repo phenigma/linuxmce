@@ -16,6 +16,9 @@ namespace DCE {
 
 CallData::CallData() {
 	state_ = STATE_NOTDEFINED;
+	id_=""  ;
+	callerId_="";
+	
 }
 
 CallData::~CallData() {
