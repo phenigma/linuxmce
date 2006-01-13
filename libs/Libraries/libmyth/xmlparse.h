@@ -31,14 +31,16 @@ class XMLParse
     void parseContainer(QDomElement &, QString &, int &, QRect &);
     void parseListArea(LayerSet *, QDomElement &);
     void parseBar(LayerSet *, QDomElement &);
+    bool parseDefaultCategoryColors(QMap<QString, QString> &catColors);
     void parseGuideGrid(LayerSet *, QDomElement &);
     void parseManagedTreeList(LayerSet *, QDomElement &);
     void parseTextArea(LayerSet *, QDomElement &);
+    void parseRichTextArea(LayerSet *, QDomElement &);
     void parseMultiTextArea(LayerSet *, QDomElement &);
     void parseRemoteEdit(LayerSet *, QDomElement &);
     void parseStatusBar(LayerSet *, QDomElement &);
     void parseImage(LayerSet *, QDomElement &);
-    void parseAnimatedImage(LayerSet *, QDomElement &);
+    bool parseAnimatedImage(LayerSet *, QDomElement &);
     void parseRepeatedImage(LayerSet *, QDomElement &);
     void parsePushButton(LayerSet *, QDomElement &);
     void parseTextButton(LayerSet *, QDomElement &);

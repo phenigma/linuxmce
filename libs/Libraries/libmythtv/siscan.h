@@ -1,124 +1,207 @@
+// -*- Mode: c++ -*-
 
+#ifndef SISCAN_H
+#define SISCAN_H
+
+// Qt includes
 #include <qobject.h>
 #include <qstring.h>
-#include "dvbchannel.h"
+#include <qmap.h>
+#include <qmutex.h>
+#include <qvaluelist.h>
+#include <qdatetime.h>
+
+// MythTV includes
+#include "frequencytables.h"
+
+#ifdef USING_DVB
+#define USE_SIPARSER
 #include "sitypes.h"
 #include "dvbtypes.h"
+#endif // USING_DVB
 
-typedef QValueList<Event> QList_Events;
-typedef QValueList<QList_Events*> QListList_Events;
+#define SISCAN(args...) \
+    if (channel) VERBOSE(VB_SIPARSER, QString("SIScan(%1): ") \
+                         .arg(channel->GetDevice()) << args); \
+    else VERBOSE(VB_SIPARSER, QString("SIScan(u): ") << args);
 
-typedef enum { IDLE, TRANSPORT_LIST, EIT_CRAWL } SCANMODE;
+class MSqlQuery;
+class ChannelBase;
+class Channel;
+class DVBChannel;
+class SignalMonitor;
+class DTVSignalMonitor;
+class DVBSignalMonitor;
+class ProgramAssociationTable;
+class ProgramMapTable;
+class ServiceDescriptionTable;
+class NetworkInformationTable;
+class VirtualChannelTable;
+class MasterGuideTable;
+class ScanStreamData;
+class EITHelper;
+class DVBSIParser;
 
-/* Class used for doing a list of frequencies / transports 
-   This is used for ATSC/NA Digital Cable and also scan all transports */
-class TransportScanList
+typedef enum
 {
-public:
-    TransportScanList()
-    {
-        mplexid = -1;
-        complete = false;
-        scanning = false;
-        Frequency = "";
-        Modulation = "";
-        FriendlyName = "";
-    }
-    TransportScanList(int _mplexid)
-    {
-        mplexid = _mplexid;
-        complete = false;
-        scanning = false;
-    }
-    int mplexid;                /* DB Mplexid */
-    bool complete;              /* scan status */
-    dvb_tuning_t tuning;        /* DVB Tuning struct if mplexid == -1 */
-    QString FriendlyName;       /* Name to display in scanner dialog */
-    QString Frequency;          /* Frequency as QString */
-    QString Modulation;         /* Modulation as QString */
-    int SourceID;               /* Associated SourceID */
-    bool UseTimer;              /* Set if timer is used after lock for getting PAT */
+    IDLE,           ///< Don't do anything
+    TRANSPORT_LIST, ///< Actively scan for channels
+} SCANMODE;
 
-    bool scanning;              /* Probbably Unnecessary */
-
-};
+typedef QMap<uint, const ProgramMapTable *> PMTMap;
 
 class SIScan : public QObject
 {
-Q_OBJECT
-
-public:
-
-    SIScan(DVBChannel* advbchannel, int _sourceID);
+    Q_OBJECT
+  public:
+    SIScan(QString _cardtype, ChannelBase* _channel, int _sourceID,
+           uint signal_timeout, uint channel_timeout);
     ~SIScan();
 
-    void StartScanner();
-    void StopScanner();
+    void StartScanner(void);
+    void StopScanner(void);
 
-    bool ATSCScanTransport(int SourceID, int FrequencyBand);
-    bool ScanTransports();
-    bool ScanServices(int TransportID = -1);
+    bool ScanTransports(int SourceID,
+                        const QString std,
+                        const QString modulation,
+                        const QString country);
+    bool ScanTransports(const QString sistandard);
+    bool ScanTransport(int mplexid);
+
+    bool ScanServices(void);
     bool ScanServicesSourceID(int SourceID);
-    void SetSourceID(int _SourceID);
 
-    void SetFTAOnly(bool _fFTAOnly) { FTAOnly = _fFTAOnly;}
-    void SetForceUpdate(bool _force) { forceUpdate = _force;}
-    void SetScanTimeout(int _timeout) { ScanTimeout = _timeout;}
+    void SetSourceID(int _SourceID)   { sourceID                = _SourceID; }
+    void SetFTAOnly(bool _fFTAOnly)   { ignoreEncryptedServices = _fFTAOnly; }
+    void SetTVOnly(bool _tvOnly)      { ignoreAudioOnlyServices = _tvOnly;   }
+    void SetForceUpdate(bool _force)  { forceUpdate             = _force;    }
+    void SetRenameChannels(bool _r)   { renameChannels          = _r; }
+    void SetChannelFormat(const QString _fmt) { channelFormat   = _fmt; }
 
-public slots:
+    SignalMonitor    *GetSignalMonitor(void) { return signalMonitor; }
+    DTVSignalMonitor *GetDTVSignalMonitor(void);
+    DVBSignalMonitor *GetDVBSignalMonitor(void);
 
+  public slots:
     // Handler for complete tables
     void TransportTableComplete();
     void ServiceTableComplete();
-    void EventsReady(QMap_Events* EventList);
 
-signals:
+  signals:
     // Values from 1-100 of scan completion
     void PctServiceScanComplete(int pct);
     void PctTransportScanComplete(int pct);
+    void ServiceScanUpdateStatusText(const QString& status);
     void ServiceScanUpdateText(const QString& status);
     void TransportScanUpdateText(const QString& status);
-    void ServiceScanComplete();
-    void TransportScanComplete();
+    void ServiceScanComplete(void);
+    void TransportScanComplete(void);
 
-private:
+  private slots:
+    void HandlePAT(const ProgramAssociationTable*);
+    void HandleVCT(uint tsid, const VirtualChannelTable*);
+    void HandleMGT(const MasterGuideTable*);
+    void HandleSDT(uint tsid, const ServiceDescriptionTable*);
+    void HandleNIT(const NetworkInformationTable*);
 
-    static void *ServiceScanThreadHelper(void*);
-    static void *TransportScanThreadHelper(void*);
+  private:
+    // some useful gets
+    Channel          *GetChannel(void);
+    DVBChannel       *GetDVBChannel(void);
 
-    void UpdateTransportsInDB(NITObject NIT);
+    /// \brief Called by SpawnScanner to run scanning thread
+    void RunScanner(void);
+    /// \brief Thunk to call RunScanner from pthread
+    static void *SpawnScanner(void *param);
+
+    bool HasTimedOut(void);
+    void HandleActiveScan(void);
+    bool Tune(const transport_scan_items_it_t transport);
+    int InsertMultiplex(const transport_scan_items_it_t transport);
+    void ScanTransport(const transport_scan_items_it_t transport);
+
+    /// \brief Updates Transport Scan progress bar
+    inline void UpdateScanPercentCompleted(void);
+
+    void HandleMPEGDBInsertion(const ScanStreamData *sd, bool wait);
+    void UpdatePATinDB(int mplexid,
+                       const ProgramAssociationTable*,
+                       const PMTMap &,
+                       bool force_update);
+
+    void HandleATSCDBInsertion(const ScanStreamData *sd, bool wait);
+    void UpdateVCTinDB(int mplexid,
+                       const VirtualChannelTable*,
+                       bool force_update);
+
+    void HandleDVBDBInsertion(const ScanStreamData *sd, bool wait);
+    void UpdateSDTinDB(int mplexid,
+                       const ServiceDescriptionTable*,
+                       bool force_update);
+
+    bool HandlePostInsertion(void);
+
+    void OptimizeNITFrequencies(NetworkInformationTable *nit);
+
+    // old stuff
+    void verifyTransport(TransportScanItem& t);
+#ifdef USE_SIPARSER
+    void HandleSIParserEvents(void);
     void CheckNIT(NITObject& NIT);
+    void UpdateTransportsInDB(NITObject NIT);
+    void UpdateServicesInDB(int tid_db, QMap_SDTObject SDT);
+    static void *SpawnSectionReader(void*);
+#endif // USE_SIPARSER
 
-    void UpdateServicesInDB(QMap_SDTObject SDT);
-    int  GenerateNewChanID();
-    int  GetDVBTID(uint16_t NetworkID,uint16_t TransportID,int CurrentMplexID);
-    void AddEvents();
+  private:
+    // Set in constructor
+    ChannelBase      *channel;
+    SignalMonitor    *signalMonitor;
+    int               sourceID;
+    SCANMODE          scanMode;
+    uint              signalTimeout;
+    uint              channelTimeout;
 
-    bool scannerRunning;                 
+    // Settable
+    bool              ignoreAudioOnlyServices;
+    bool              ignoreEncryptedServices;
+    bool              forceUpdate;
+    bool              renameChannels;
+    QString           channelFormat;
+
+    // State
+    bool              threadExit;
+    bool              waitingForTables;
+    QTime             timer;
+
+    // Transports List
+    int                         transportsScanned;
+    transport_scan_items_t      scanTransports;
+    transport_scan_items_it_t   current;
+    transport_scan_items_it_t   nextIt;
+    QMap<uint, uint>            dvbChanNums;
+
+#ifdef USE_SIPARSER
     bool serviceListReady;
-    bool sourceIDTransportTuned;
     bool transportListReady;
-    bool eventsReady;
-    int  transportsToScan;
-    int  transportsCount;
 
-    QListList_Events Events;
     QMap_SDTObject SDT;
-
     NITObject NIT;
-    DVBChannel *chan;
-    int sourceID;
-    QValueList<TransportScanList> scanTransports;
+    pthread_t siparser_thread;
+  public:
+    DVBSIParser* siparser;
+  private:
+#endif // USE_SIPARSER
 
-    QTime timer;
-
-    bool threadExit;
-    bool FTAOnly;
-    bool forceUpdate;
-    int ScanTimeout;
-    SCANMODE scanMode;
-    pthread_mutex_t events_lock;
+    /// Scanner thread, runs SIScan::StartScanner()
+    pthread_t        scanner_thread;
+    bool             scanner_thread_running;
 };
 
-#define SISCAN(args...) \
-    VERBOSE(VB_SIPARSER, QString("SIScan#%1: ").arg(chan->GetCardNum()) << args);
+inline void SIScan::UpdateScanPercentCompleted(void)
+{
+    int tmp = (transportsScanned * 100) / scanTransports.size();
+    emit PctServiceScanComplete(tmp);
+}
+
+#endif // SISCAN_H

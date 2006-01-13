@@ -1,14 +1,22 @@
 /*
- * $Id: sitypes.h 5859 2005-03-27 18:18:56Z taylor $
+ * $Id: sitypes.h 7573 2005-10-25 14:55:59Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  */
 
 #ifndef SITYPES_H
 #define SITYPES_H
 
+#include <vector>
+using namespace std;
+
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
+
+#include "config.h"
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 /* This file will contain all of the common objects for DVB SI and 
    ATSC PSIP parsing */
@@ -218,32 +226,43 @@ public:
     // Do array for EIT Events
 };
 
-// Classes for tracking table loads
+/// Class for tracking DVB sections
 class SectionTracker
 {
-public:
-    SectionTracker() { Reset(); }
-    /* Clear values */
-    void Reset();
-    /* Mark certain sections unused (Only used in DVBEIT) */
+  public:
+    SectionTracker() : maxSections(-1), version(-1), empty(true) {;}
+
+    /// Clear values to defaults
+    void Reset(void);
+    /// Mark certain tables as unused (used for EIT).
     void MarkUnused(int Section);
-    /* Check for complete section load */
-    int Complete();
-    // Debug function to know what sections have been loaded
-    QString loadStatus();
+    /// Add a section to this tracker
+    int  AddSection(const tablehead *head);
 
-    int AddSection(tablehead *head);
+    /// Do we have all the entries?
+    bool IsComplete(void) const;
+    /// Do we have any entries?
+    bool IsEmpty(void)    const { return empty; }
+    /// Debug function to know what sections have been loaded
+    QString Status(void)  const;
 
-private:
-    int16_t MaxSections;       // Max number of sections
-    int8_t  Version;           // Table Version
-    uint8_t Filled[0x100];     // Fill status of each section
+    typedef enum fill_status
+    {
+        kStatusEmpty = 0, kStatusFilled = 1,  kStatusUnused = 2
+    } FillStatus;
+  private:
+    int        maxSections;         ///< Maximum number of sections
+    int        version;             ///< PSIP Table Version
+    bool       empty;               ///< do we have any section?
+    vector<FillStatus> fillStatus;  ///< Fill status of each section
 };
 
 // Tables to hold Actual Network Objects
 class SDTObject
 {
 public:
+    enum {TV=1,RADIO=2};
+
     SDTObject() { Reset(); }
     void Reset();
 
@@ -273,7 +292,7 @@ public:
     uint8_t  Data_Length;
     uint8_t  Data[256];
 };
-typedef QMap<uint16_t, CAPMTObject> CAMap;
+typedef QValueList<CAPMTObject> CAList;
 
 class Descriptor
 {
@@ -292,6 +311,7 @@ class ElementaryPIDObject
 {
 public:
     ElementaryPIDObject() { Reset(); }
+    void deepCopy(const ElementaryPIDObject&);
     void Reset();
 
     ES_Type Type;
@@ -299,10 +319,11 @@ public:
     uint16_t PID;
     QString Description;
     QString Language;
-    CAMap CA;
+    CAList CA;
     DescriptorList Descriptors;
     bool Record;
 };
+typedef QValueList<ElementaryPIDObject> ComponentList;
 
 class Person
 {
@@ -314,36 +335,46 @@ public:
     QString name;
 };
 
+/** Used to hold information captured from EIT and ETT tables. */
 class Event
 {
 //TODO: Int conversion
-public:
+  public:
     Event() { Reset(); }
+    void deepCopy(const Event&);
 
     void Reset();
     void clearEventValues();
 
-    uint16_t SourcePID;    /* Used in ATSC for Checking for ETT PID being filtered */
-    QDateTime StartTime;
-    QDateTime EndTime;
-    uint16_t TransportID;
-    uint16_t NetworkID;
-    QString LanguageCode;
-    uint16_t ServiceID;    /* NOT the Virtual Channel Number used by ATSC */
-    QString Event_Name;
-    QString Event_Subtitle;
-    QString Description;
-    uint16_t EventID;
-    QString ContentDescription;
-    QString Year;
+    /// Used in ATSC for Checking for ETT PID being filtered
+    uint    SourcePID;
+    uint    TransportID;
+    uint    NetworkID;
+    uint    ServiceID;    ///< NOT the Virtual Channel Number used by ATSC
+    uint    EventID;
+    bool    Stereo;
+    bool    HDTV;
+    bool    SubTitled;
+    int     ETM_Location; ///< Used to flag still waiting ETTs for ATSC
+    bool    ATSC;
+    uint    PartNumber;   ///< Episode number in series.
+    uint    PartTotal;    ///< Number of episodes in series.
+
+
+    QDateTime   StartTime;
+    QDateTime   EndTime;
+    QDate       OriginalAirDate;
+
+    QString     LanguageCode;
+    QString     Event_Name;
+    QString     Event_Subtitle;
+    QString     Description;
+    QString     ContentDescription;
+    QString     Year;
+    /// One of these four strings: "movie", "series", "sports" or "tvshow"
+    QString     CategoryType;
     QStringList Actors;
-    bool Stereo;
-    bool HDTV;
-    bool SubTitled;
-    int ETM_Location;    /* Used to flag still waiting ETTs for ATSC */
-    bool ATSC;
-    //bool PreviouslyShown;
-    QDate OriginalAirDate;
+
     QValueList<Person> Credits;
 };
 
@@ -418,24 +449,36 @@ public:
 
 class PMTObject
 {
-public:
+  public:
     PMTObject() { Reset(); }
+    PMTObject(const PMTObject &other);
+    PMTObject& operator=(const PMTObject &other);
+    void shallowCopy(const PMTObject &other);
+    void deepCopy(const PMTObject &other);
     void Reset();
 
-    bool TelevisionService() { return hasVideo && hasAudio; }
-    bool OnAir() { return TelevisionService(); }
-    bool FTA() { return !hasCA; }
+    /// \brief Returns true if PMT contains at least one audio stream
+    bool HasAudioService() const { return hasAudio; }
+    /// \brief Returns true if PMT contains at least one video stream
+    bool HasVideoService() const { return hasVideo; }
+    /// \brief Returns true if PMT contains at least one video stream
+    ///        and one audio stream
+    bool HasTelevisionService() const { return hasVideo && hasAudio; }
+    /// \brief Returns true if the streams are not encrypted ("Free-To-Air")
+    bool FTA() const { return !hasCA; }
 
-    uint16_t PCRPID;
-    uint16_t ServiceID;
-    uint16_t PMTPID;
-    CAMap CA;
+  public:
+    uint16_t       PCRPID;
+    uint16_t       ServiceID;
+    uint16_t       PMTPID;
+    CAList         CA;
     DescriptorList Descriptors;
-    QValueList<ElementaryPIDObject> Components;
+    ComponentList  Components;
 
-    bool hasCA;
-    bool hasAudio;
-    bool hasVideo;
+    // helper variables
+    bool           hasCA;
+    bool           hasAudio;
+    bool           hasVideo;
 };
 
 /* PAT Handler */

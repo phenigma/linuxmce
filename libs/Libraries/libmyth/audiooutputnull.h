@@ -2,6 +2,7 @@
 #define AUDIOOUTPUTNULL
 
 #include <qmutex.h>
+#include <pthread.h>
 
 #include "audiooutputbase.h"
 
@@ -50,6 +51,10 @@ private:
     QMutex        pcm_output_buffer_mutex;
     unsigned char pcm_output_buffer[NULLAUDIO_OUTPUT_BUFFER_SIZE];
     int           current_buffer_size;
+
+    int           locked_audio_channels;
+    int           locked_audio_bits;
+    int           locked_audio_samplerate;
 };
 
 #endif

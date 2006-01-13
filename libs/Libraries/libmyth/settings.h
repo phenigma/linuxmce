@@ -30,6 +30,7 @@ public:
 
     virtual void load() = 0;
     virtual void save() = 0;
+    virtual void save(QString /*destination*/) { }
 
     // A name for looking up the setting
     void setName(QString str) {
@@ -53,6 +54,10 @@ public:
 
     virtual void setEnabled(bool b) { enabled = b; }
     bool isEnabled() { return enabled; }
+
+public slots:
+    virtual void enableOnSet(const QString &val);
+    virtual void enableOnUnset(const QString &val);
 
 protected:
     bool labelAboveWidget; 
@@ -119,6 +124,7 @@ class ConfigurationGroup: virtual public Configurable
     virtual void load();
 
     virtual void save();
+    virtual void save(QString destination);
 
     void setUseLabel(bool useit) { uselabel = useit; }
     void setUseFrame(bool useit) { useframe = useit; }
@@ -179,6 +185,7 @@ public:
 
     void raise(Configurable* child);
     virtual void save();
+    virtual void save(QString destination);
 
     // save all children, or only the top?
     void setSaveAll(bool b) { saveAll = b; };
@@ -294,11 +301,15 @@ public:
 
 class SpinBoxSetting: public BoundedIntegerSetting {
 protected:
-    SpinBoxSetting(int min, int max, int step, bool allow_single_step = false):
+    SpinBoxSetting(int min, int max, int step, 
+                   bool allow_single_step = false,
+                   QString special_value_text = ""):
         BoundedIntegerSetting(min, max, step),
-	sstep(allow_single_step) {};
+	sstep(allow_single_step),
+        svtext(special_value_text) {};
 
     bool sstep;
+    QString svtext;
     
 public:
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent, 
@@ -325,14 +336,7 @@ signals:
 public slots:
 
     virtual void setValue(const QString& newValue);
-
-    virtual void setValue(int which) {
-        if ((unsigned)which > values.size()-1) {
-            cout << "SelectSetting::setValue(): invalid index " << which << endl;
-            return;
-        }
-        setValue(values[which]);
-    };
+    virtual void setValue(int which);
 
     virtual QString getSelectionLabel(void) const {
         if (!isSet)
@@ -382,16 +386,8 @@ protected:
     };
 
 public:
-    virtual void setValue(QString newValue) {
-        if (!rw)
-            cout << "BUG: attempted to set value of read-only ComboBox as string\n";
-        else
-            Setting::setValue(newValue);
-    };
-
-    virtual void setValue(int which) {
-        SelectSetting::setValue(which);
-    };
+    virtual void setValue(QString newValue);
+    virtual void setValue(int which);
 
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent, 
                                   const char* widgetName = 0);
@@ -608,6 +604,7 @@ public:
 
     virtual void load() = 0;
     virtual void save() = 0;
+    virtual void save(QString /*destination*/) { }
 
 protected:
     QString getColumn(void) const { return column; };
@@ -626,6 +623,7 @@ public:
 
     virtual void load();
     virtual void save();
+    virtual void save(QString destination);
 
 protected:
 
@@ -639,6 +637,7 @@ class TransientStorage: virtual public Setting {
 public:
     virtual void load() {  }
     virtual void save() {  }
+    virtual void save(QString) {  }
 };
 
 class AutoIncrementStorage: virtual public IntegerSetting, public DBStorage {
@@ -650,6 +649,7 @@ public:
 
     virtual void load() { };
     virtual void save();
+    virtual void save(QString destination);
 };
 
 class ButtonSetting: virtual public Setting {
@@ -731,6 +731,7 @@ public:
         SimpleDBStorage("settings", "data") {
         setName(name);
     };
+    virtual ~HostSetting() { ; }
 
 protected:
     virtual QString whereClause(void);
@@ -768,6 +769,7 @@ class HostCheckBox: public CheckBoxSetting, public HostSetting {
   public:
     HostCheckBox(const QString &name) :
         HostSetting(name) { }
+    virtual ~HostCheckBox() { ; }
 };
 
 class HostComboBox: public ComboBoxSetting, public HostSetting {
@@ -867,5 +869,26 @@ class GlobalImageSelect: public ImageSelectSetting, public GlobalSetting {
         GlobalSetting(name) { }
 };
 
+class GlobalTimeBox: public ComboBoxSetting, public GlobalSetting {
+  public:
+    GlobalTimeBox(const QString &name, const QString &defaultTime = "00:00",
+                  const int interval = 1) :
+        ComboBoxSetting(false, 30 / interval),
+        GlobalSetting(name)
+    {
+        int hour;
+        int minute;
+        QString timeStr;
+
+        for (hour = 0; hour < 24; hour++)
+        {
+            for (minute = 0; minute < 60; minute += interval)
+            {
+                timeStr = timeStr.sprintf("%02d:%02d", hour, minute);
+                addSelection(timeStr, timeStr, timeStr == defaultTime);
+            }
+        }
+    }
+};
 
 #endif

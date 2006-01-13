@@ -5,7 +5,7 @@
 
 #include "settings.h"
 
-
+class SourceSetting;
 class ChannelListSetting;
 class ChannelEditor: public VerticalConfigurationGroup,
                      public ConfigurationDialog {
@@ -14,20 +14,23 @@ public:
     ChannelEditor();
     virtual int exec();
 
+    MythDialog* dialogWidget(MythMainWindow *parent, const char* name);
+
 public slots:
     void menu(int);
     void del();
     void edit();
     void edit(int);
     void scan();
-    void advanced();
+    void transportEditor();
+    void deleteChannels();
 
 private:
-    ChannelListSetting* list;
-    int id;
-
+    int                 id;
+    SourceSetting      *source;
+    ChannelListSetting *list;
     TransButtonSetting *buttonScan;
-    TransButtonSetting *buttonAdvanced;
+    TransButtonSetting *buttonTransportEditor;
 };
 
 class ChannelID;

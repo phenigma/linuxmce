@@ -8,19 +8,21 @@
 #include <qptrlist.h>
 #include <qpixmap.h>
 #include <qpushbutton.h>
+#include <qlabel.h>
 #include <qevent.h>
 #include <qvaluevector.h>
 #include <qscrollview.h>
+#include <qthread.h>
+#include <qlayout.h>
 
 #include <vector>
 using namespace std;
-
-#include "uitypes.h"
 
 class XMLParse;
 class UIType;
 class UIManagedTreeListType;
 class UITextType;
+class UIRichTextType;
 class UIMultiTextType;
 class UIPushButtonType;
 class UITextButtonType;
@@ -33,9 +35,14 @@ class UIImageType;
 class UIStatusBarType;
 class UIListBtnType;
 class UIListTreeType;
+class UIKeyboardType;
 class LayerSet;
 class GenericTree;
 class MythMediaDevice;
+class MythLineEdit;
+class MythRemoteLineEdit;
+class MythListBox; 
+struct fontProp;
 
 const int kExternalKeycodeEventType = 33213;
 const int kExitToMainMenuEventType = 33214;
@@ -59,6 +66,7 @@ class ExitToMainMenuEvent : public QCustomEvent
 };
 
 #define REG_KEY(a, b, c, d) gContext->GetMainWindow()->RegisterKey(a, b, c, d)
+#define GET_KEY(a, b) gContext->GetMainWindow()->GetKey(a, b)
 #define REG_JUMP(a, b, c, d) gContext->GetMainWindow()->RegisterJump(a, b, c, d)
 #define REG_MEDIA_HANDLER(a, b, c, d, e) gContext->GetMainWindow()->RegisterMediaHandler(a, b, c, d, e)
 #define REG_MEDIAPLAYER(a,b,c) gContext->GetMainWindow()->RegisterMediaPlugin(a, b, c)
@@ -83,10 +91,17 @@ class MythMainWindow : public QDialog
     QWidget *currentWidget(void);
 
     bool TranslateKeyPress(const QString &context, QKeyEvent *e, 
-                           QStringList &actions);
+                           QStringList &actions, bool allowJumps = true);
 
+    void ClearKey(const QString &context, const QString &action);
+    void BindKey(const QString &context, const QString &action,
+		 const QString &key);
     void RegisterKey(const QString &context, const QString &action,
                      const QString &description, const QString &key);
+    QString GetKey(const QString &context, const QString &action) const;
+
+    void ClearJump(const QString &destination);
+    void BindJump(const QString &destination, const QString &key);
     void RegisterJump(const QString &destination, const QString &description,
                       const QString &key, void (*callback)(void));
     void RegisterMediaHandler(const QString &destination, 
@@ -108,7 +123,7 @@ class MythMainWindow : public QDialog
     void keyPressEvent(QKeyEvent *e);
     void customEvent(QCustomEvent *ce);
     void closeEvent(QCloseEvent *e);
-
+    
     void ExitToMainMenu();
 
     QObject *getTarget(QKeyEvent &key);
@@ -189,6 +204,8 @@ class MythPopupBox : public MythDialog
                        QObject *target = NULL, const char *slot = NULL);
 
     int ExecPopup(QObject *target = NULL, const char *slot = NULL);
+    int ExecPopupAtXY(int destx, int desty,
+                      QObject *target = NULL, const char *slot = NULL);
 
     static void showOkPopup(MythMainWindow *parent, QString title,
                             QString message);
@@ -221,20 +238,98 @@ class MythPopupBox : public MythDialog
     bool arrowAccel;
 };
 
+/** The MythTV progress bar dialog.
+
+    This dialog is responsible for displaying a progress bar box on
+    the screen. This is used when you have a known set of steps to
+    perform and the possibility of calling the \p setProgress call at
+    the end of each step.
+
+	If you do not know the number of steps, use \p MythBusyDialog
+	instead.
+
+    The dialog widget also updates the LCD display if present.
+
+*/
 class MythProgressDialog: public MythDialog
 {
   public:
+    /** Create a progress bar dialog.
+        
+        \param message the title string to appear in the progress dialog.
+        \param totalSteps the total number of steps
+     */
     MythProgressDialog(const QString& message, int totalSteps);
 
+    /* \brief Close the dialog.
+
+        This will close the dialog and return the LCD to the Time screen 
+    */
     void Close(void);
+    /* \brief Update the progress bar.  
+
+       This will move the progress bar the percentage-completed as
+       determined by \p curprogress and the totalsteps as set by the
+       call to the constructor.
+
+       The LCD is updated as well.
+    */
     void setProgress(int curprogress);
+
     void keyPressEvent(QKeyEvent *);
 
-  private:
+  protected:
     QProgressBar *progress;
-    int steps;
 
+  private:
+    void setTotalSteps(int totalSteps);
+    int steps;
+    int m_totalSteps;
     QPtrList<class LCDTextItem> * textItems;
+};
+
+/** MythDialog box that displays a busy spinner-style dialog box to
+    indicate the program is busy, but that the number of steps needed
+    is unknown. 
+
+    Ie. used by MythMusic when scanning the filesystem for musicfiles.
+ */
+class MythBusyDialog : public MythProgressDialog
+{
+    Q_OBJECT
+  public:
+    /** \brief Create the busy indicator.  
+
+        Creates the dialog widget and sets up the timer that causes
+        the widget to indicate progress every 100msec;
+
+        \param title the title to appear in the progress bar dialog
+    */
+    MythBusyDialog(const QString &title);
+
+    ~MythBusyDialog();
+
+    /** \brief Setup a timer to 'move' the spinner
+
+        This will create a \p QTimer object that will update the
+        spinner ever \p interval msecs.
+
+        \param interval msecs between movement, default is 100
+    */
+    void start(int interval = 100);
+
+    /** \brief Close the dialog.
+
+        This will close the dialog and stop the timer.		
+    */
+    void Close();
+
+  protected slots:
+    void setProgress();
+    void timeout();
+
+  private:
+    QTimer *timer;
 };
 
 class MythThemedDialog : public MythDialog
@@ -244,8 +339,12 @@ class MythThemedDialog : public MythDialog
     MythThemedDialog(MythMainWindow *parent, QString window_name,
                      QString theme_filename = "", const char *name = 0,
                      bool setsize = true);
+    MythThemedDialog(MythMainWindow *parent, const char *name = 0,
+                     bool setsize = true);
+
    ~MythThemedDialog();
 
+    virtual bool loadThemedWindow(QString window_name, QString theme_filename);
     virtual void loadWindow(QDomElement &);
     virtual void parseContainer(QDomElement &);
     virtual void parseFont(QDomElement &);
@@ -256,6 +355,7 @@ class MythThemedDialog : public MythDialog
     UIType *getCurrentFocusWidget();
     UIManagedTreeListType *getUIManagedTreeListType(const QString &name);
     UITextType *getUITextType(const QString &name);
+    UIRichTextType *getUIRichTextType(const QString &name);
     UIMultiTextType *getUIMultiTextType(const QString &name);
     UIPushButtonType *getUIPushButtonType(const QString &name);
     UITextButtonType *getUITextButtonType(const QString &name);
@@ -268,8 +368,11 @@ class MythThemedDialog : public MythDialog
     UIStatusBarType *getUIStatusBarType(const QString &name);
     UIListBtnType *getUIListBtnType(const QString &name);
     UIListTreeType *getUIListTreeType(const QString &name);
-    LayerSet* getContainer(const QString &name);
+    UIKeyboardType *getUIKeyboardType(const QString &name);
 
+    LayerSet* getContainer(const QString &name);
+    fontProp* getFont(const QString &name);
+    
     void setContext(int a_context) { context = a_context; }
     int  getContext(){return context;}
 
@@ -292,7 +395,7 @@ class MythThemedDialog : public MythDialog
     // These need to be just "protected" so that subclasses can mess with them
     XMLParse *getTheme() {return theme;}
     QDomElement& getXmlData() {return xmldata;}
-    
+
     QPixmap my_background;
     QPixmap my_foreground;
 

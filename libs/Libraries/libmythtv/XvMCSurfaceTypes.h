@@ -4,31 +4,37 @@
 
 #ifdef USING_XVMC
 
-#include "../libmyth/mythcontext.h"
+#include <qwindowdefs.h>
+#include "mythcontext.h"
 #include <X11/extensions/XvMC.h>
+#include "util-x11.h"
 
-extern "C" {
 #include "../libavcodec/xvmc_render.h"
-}
+
+#ifndef XVMC_VLD
+#define XVMC_VLD 0x0020000
+#endif
+
+typedef enum { XvVLD, XvIDCT, XvMC } XvMCAccelID;
 
 class XvMCSurfaceTypes 
 {
   public:
     XvMCSurfaceTypes(Display *dpy, XvPortID port) : num(0) 
     {
-        surfaces = XvMCListSurfaceTypes(dpy, port, &num);
+        X11S(surfaces = XvMCListSurfaceTypes(dpy, port, &num));
     }
         
     ~XvMCSurfaceTypes() 
     {
-        XFree(surfaces);
+        X11S(XFree(surfaces));
     }
 
     /// Find an appropriate surface on the current port.
     inline int find(int pminWidth, int pminHeight, int chroma, bool vld,
                     bool idct, int mpeg, int pminSubpictureWidth, 
                     int pminSubpictureHeight);
-        
+
     bool hasChroma420(int surface) const 
     {
         return XVMC_CHROMA_FORMAT_420 == surfaces[surface].chroma_format;
@@ -83,10 +89,7 @@ class XvMCSurfaceTypes
 
     bool hasVLDAcceleration(int surface) const
     {
-#ifdef USING_XVMC_VLD
         return XVMC_VLD == (surfaces[surface].mc_type & XVMC_VLD);
-#endif
-        return 0;
     }
 
     bool hasMPEG1Support(int surface) const 
@@ -148,11 +151,12 @@ class XvMCSurfaceTypes
                      XvPortID portMin, XvPortID portMax,
                      XvPortID& port, int& surfNum);
 
-    /// Find out if there is an IDCT Acceleration capable surface on any port.
-    static bool hasIDCT(int width, int height,
-                        int chroma = XVMC_CHROMA_FORMAT_420,
-                        Display *disp = 0);
-
+    /// Find out if there is a surface on any port capable of a
+    /// specific acceleration type.
+    static bool has(Display *pdisp,
+                    XvMCAccelID accel_type, uint stream_type, int chroma,
+                    uint width, uint height, uint osd_width, uint osd_height);
+        
     ostream& print(ostream& os, int s) const;
     ostream& print(ostream& os) const;
     ostream& operator<<(ostream& os) const { return print(os); }

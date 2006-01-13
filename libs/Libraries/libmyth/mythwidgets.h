@@ -19,9 +19,14 @@
 #include <qradiobutton.h>
 #include <qimage.h>
 #include <qlabel.h>
-#include <qtimer.h>
+#include <qtimer.h> 
 
 #include <vector>
+
+using namespace std;
+
+#include "virtualkeyboard.h"
+
 
 // These widgets follow these general navigation rules:
 //
@@ -117,15 +122,19 @@ class MythLineEdit : public QLineEdit
     Q_OBJECT
   public:
     MythLineEdit(QWidget *parent=NULL, const char* widgetName=0) :
-      QLineEdit(parent, widgetName) { rw = true; };
+      QLineEdit(parent, widgetName) { rw = true; Init(); };
 
     MythLineEdit(const QString& contents, QWidget *parent=NULL, 
                  const char* widgetName=0) :
-      QLineEdit(contents, parent, widgetName) { rw = true; };
+      QLineEdit(contents, parent, widgetName) { rw = true; Init(); };
+
+    virtual ~MythLineEdit();
 
     void setHelpText(QString help) { helptext = help; };
     void setRW(bool readwrite = true) { rw = readwrite; };
     void setRO() { rw = false; };
+    void setPopupPosition(PopupPosition pos) { popupPosition = pos; }
+    PopupPosition getPopupPosition(void) { return popupPosition; }
 
  public slots:
      virtual void setText(const QString& text);
@@ -137,10 +146,15 @@ class MythLineEdit : public QLineEdit
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void focusInEvent(QFocusEvent *e); 
     virtual void focusOutEvent(QFocusEvent *e);
+    virtual void hideEvent(QHideEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    void Init(void);
 
   private:
+    VirtualKeyboard *popup;
     QString helptext;
     bool rw;
+    PopupPosition popupPosition;
 };
 
 // A Line edit that does special things when you press number keys 
@@ -148,7 +162,7 @@ class MythRemoteLineEdit : public QTextEdit
 {
     Q_OBJECT
   public:
-    
+
     MythRemoteLineEdit( QWidget * parent, const char * name = 0 );
     MythRemoteLineEdit( const QString & contents, QWidget * parent, const char * name = 0 );    
     MythRemoteLineEdit( QFont *a_font, QWidget * parent, const char * name = 0 );    
@@ -157,9 +171,14 @@ class MythRemoteLineEdit : public QTextEdit
     void setHelpText(QString help) { helptext = help; }
     void setCycleTime(float desired_interval); // in seconds
     void setCharacterColors(QColor unselected, QColor selected, QColor special);
+    void insert(QString text);
+    void backspace();
+    void del();
+    void setPopupPosition(PopupPosition pos) { popupPosition = pos; };
+    PopupPosition getPopupPosition(void) { return popupPosition; };
 
   signals:
-    
+
     void    shiftState(bool);
     void    cycleState(QString current_choice, QString set);
     void    changeHelpText(QString);
@@ -208,12 +227,15 @@ class MythRemoteLineEdit : public QTextEdit
     QColor  col_unselected;
     QColor  col_selected;
     QColor  col_special;
-        
+
     QString  hex_unselected;
     QString  hex_selected;
     QString  hex_special;
 
     int m_lines;
+
+    VirtualKeyboard *popup;
+    PopupPosition popupPosition;
 };
 
 class MythTable : public QTable

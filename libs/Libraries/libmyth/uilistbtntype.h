@@ -85,8 +85,8 @@ class UIListTreeType : public UIType
 
     UIListGenericTree *GetCurrentPosition(void);
 
-    void Draw(QPainter *p, int order, int);
-    void DrawRegion(QPainter *p, QRect &area, int order, int);
+    void Draw(QPainter *p, int order, int context);
+    void DrawRegion(QPainter *p, QRect &area, int order, int context);
 
     void Redraw(void);
     void RedrawCurrent(void);
@@ -111,6 +111,8 @@ class UIListTreeType : public UIType
     void enter();
     void moveAwayFrom(UIListGenericTree *node);
     int  getNumbItemsVisible();
+    bool incSearchStart();
+    bool incSearchNext();
 
   signals:
     
@@ -118,6 +120,10 @@ class UIListTreeType : public UIType
     void itemSelected(UIListTreeType *parent, UIListGenericTree *item);
     void itemEntered(UIListTreeType *parent, UIListGenericTree *item);
 
+  public slots:
+    bool takeFocus();
+    void looseFocus();
+      
   private:
     void FillLevelFromTree(UIListGenericTree *item, UIListBtnType *list);
     void ClearLevel(UIListBtnType *list);
@@ -163,6 +169,7 @@ class UIListBtnType : public UIType
                   bool showArrow=true, bool showScrollArrows=false);
     ~UIListBtnType();
 
+    void  SetParentListTree(UIListTreeType* parent) { m_parentListTree = parent;}
     void  SetFontActive(fontProp *font);
     void  SetFontInactive(fontProp *font);
     void  SetSpacing(int spacing);
@@ -170,11 +177,12 @@ class UIListBtnType : public UIType
     void  SetItemRegColor(const QColor& beg, const QColor& end, uint alpha);
     void  SetItemSelColor(const QColor& beg, const QColor& end, uint alpha);
     
-    void  Draw(QPainter *p, int order, int);
-    void  Draw(QPainter *p, int order, int, bool active_on);
+    void  Draw(QPainter *p, int order, int context);
+    void  Draw(QPainter *p, int order, int context, bool active_on);
     void  SetActive(bool active);
     void  Reset();
-
+    void  calculateScreenArea();
+     
     void  SetItemCurrent(UIListBtnTypeItem* item);
     void  SetItemCurrent(int pos);
     UIListBtnTypeItem* GetItemCurrent();
@@ -196,6 +204,9 @@ class UIListBtnType : public UIType
     void  MoveUp(int count);    
     bool  MoveToNamedPosition(const QString &position_name);
 
+    bool  incSearchStart();
+    bool  incSearchNext();
+
     bool  IsVisible() { return m_visible; }
     void  SetVisible(bool vis) { m_visible = vis; }
 
@@ -204,6 +215,10 @@ class UIListBtnType : public UIType
 
     QRect GetArea(void) { return m_rect; }
     uint   GetNumbItemsVisible(){ return m_itemsVisible; }
+  
+  public slots:
+    bool takeFocus();
+    void looseFocus();
 
   private:
     void  Init();
@@ -211,6 +226,8 @@ class UIListBtnType : public UIType
 
     void  InsertItem(UIListBtnTypeItem *item);
     void  RemoveItem(UIListBtnTypeItem *item);
+
+    UIListTreeType *m_parentListTree;
 
     QRect m_rect;
     QRect m_contentsRect;
@@ -268,7 +285,10 @@ class UIListBtnType : public UIType
     friend class UIListBtnTypeItem;
   
     int m_xdrawoffset;
-  
+
+    QString  m_incSearch;
+    bool     m_bIncSearchContains;
+
   signals:
 
     void itemSelected(UIListBtnTypeItem* item);
@@ -306,7 +326,8 @@ class UIListBtnTypeItem
     void setChecked(CheckState state);
 
     void setDrawArrow(bool flag);
-
+    bool getDrawArrow(void) { return m_showArrow; }
+     
     void setData(void *data);
     void *getData();
     

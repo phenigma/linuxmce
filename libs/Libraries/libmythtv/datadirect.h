@@ -238,13 +238,13 @@ class DataDirectProcessor
     QString getUserID() const { return userid; }
     QString getPassword() const { return password; }
     QString getLineup() const { return selectedlineupid; }
-    int getSource() { return source; }
-
+    int getSource() {return source;}
+    
     void setUserID(QString uid) { userid = uid; };
     void setPassword(QString pwd) { password = pwd; };
     void setLineup(QString lid) { selectedlineupid = lid; };
-    void setSource(int _source) { source = _source; }
-
+    void setSource(int _source) {source = _source;}
+    
     QDateTime getActualListingsFrom() const { return actuallistingsfrom; }
     QDateTime getActualListingsTo() const { return actuallistingsto; }
 
@@ -268,13 +268,15 @@ class DataDirectProcessor
 
     void setInputFile(const QString &filename);
 
+    bool getNextSuggestedTime(void);
+
     QValueList<DataDirectStation> stations;
     QValueList<DataDirectLineup> lineups;
     QValueList<DataDirectLineupMap> lineupmaps;
      
   private:
     int source;
-
+    
     QString selectedlineupid;
     QString userid;
     QString password;

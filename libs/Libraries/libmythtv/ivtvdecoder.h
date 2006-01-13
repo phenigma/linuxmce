@@ -24,6 +24,7 @@ struct IvtvQueuedFrame
     IvtvQueuedFrame(void) { raw = 0; actual = 0; };
     IvtvQueuedFrame(int r, long long a) { raw = r; actual = a; };
 };
+typedef QValueList<IvtvQueuedFrame> ivtv_frame_list_t;
 
 class IvtvDecoder : public DecoderBase
 {
@@ -42,13 +43,13 @@ class IvtvDecoder : public DecoderBase
     void WriteStoredData(RingBuffer *rb, bool storevid, long timecodeOffset)
                            { (void)rb; (void)storevid; (void)timecodeOffset;}
     void SetRawAudioState(bool state) { (void)state; }
-    bool GetRawAudioState(void) { return false; }
+    bool GetRawAudioState(void) const { return false; }
     void SetRawVideoState(bool state) { (void)state; }
-    bool GetRawVideoState(void) { return false; }
+    bool GetRawVideoState(void) const { return false; }
 
     long UpdateStoredFrameNum(long frame) { (void)frame; return 0; }
 
-    QString GetEncodingType(void) { return QString("MPEG-2"); }
+    QString GetEncodingType(void) const { return QString("MPEG-2"); }
 
     void UpdateFramesPlayed(void);
 
@@ -58,39 +59,41 @@ class IvtvDecoder : public DecoderBase
   private:
     int MpegPreProcessPkt(unsigned char *buf, int len, 
                           long long startpos, long stopframe);
-    void SeekReset(long long newkey = 0, int skipframes = 0,
-                   bool needFlush = false);
+    void SeekReset(long long newkey = 0, uint skipframes = 0,
+                   bool needFlush = false, bool discardFrames = false);
     bool ReadWrite(int onlyvideo, long stopframe = LONG_MAX);
-    bool StepFrames(int start, int count);
+    bool StepFrames(long long start, long long count);
 
-    int frame_decoded;
+    static bool CheckDevice(void);
 
-    long long lastStartFrame;
+  private:
+    bool              validvpts;
+    bool              gotvideo;
+    bool              gopset;
+    bool              needPlay;
+    unsigned int      mpeg_state;
 
-    int prevgoppos;
+    int               prevgoppos;
+    int               firstgoppos;
 
-    bool gopset;
+    unsigned char    *vidbuf;
+    int               vidread;
+    int               vidwrite;
+    int               vidfull;
+    int               vidframes;
+    int               frame_decoded;
+    long long         videoPlayed;
+    long long         lastStartFrame;
+    long long         laststartpos;
 
-    bool validvpts;
+    int               nexttoqueue;
+    int               lastdequeued;
+    ivtv_frame_list_t queuedlist;
 
-    int firstgoppos;
-    bool gotvideo;
-
-    long long laststartpos;
-
-    static bool ntsc;
-
-    static const int vidmax = 131072; // must be a power of 2
-    unsigned char vidbuf[vidmax];
-    int vidread, vidwrite, vidfull;
-    int vidframes;
-    unsigned mpeg_state;
-    bool needPlay;
-    long long videoPlayed;
-
-    int nexttoqueue;
-    int lastdequeued;
-    QValueList<IvtvQueuedFrame> queuedlist;
+  private:
+    static bool       device_ok;
+    static bool       ntsc;
+    static const uint vidmax;
 };
 
 #endif

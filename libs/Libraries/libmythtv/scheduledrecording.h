@@ -21,6 +21,7 @@ class SRProfileSelector;
 class SRDupIn;
 class SRDupMethod;
 class SRAutoTranscode;
+class SRTranscoderSelector;
 class SRAutoCommFlag;
 class SRAutoUserJob1;
 class SRAutoUserJob2;
@@ -43,6 +44,7 @@ class SREndDate;
 class SRCategory;
 class SRRecPriority;
 class SRRecGroup;
+class SRPlayGroup;
 class SRSeriesid;
 class SRProgramid;
 class SRFindDay;
@@ -54,6 +56,7 @@ class ScheduledRecording: public ConfigurationGroup, public ConfigurationDialog 
     Q_OBJECT
 public:
     ScheduledRecording();
+    ~ScheduledRecording();
     ScheduledRecording(const ScheduledRecording& other);
 
     virtual void load();
@@ -62,7 +65,7 @@ public:
                                      const char* widgetName=0);    
     
     void makeOverride(void);
-    ProgramInfo* getProgramInfo() { return m_pginfo; }
+    const ProgramInfo* getProgramInfo() const { return m_pginfo; }
     RootSRGroup* getRootGroup() { return rootGroup; }
 
     RecordingType getRecordingType(void) const;
@@ -70,47 +73,53 @@ public:
     RecSearchType getSearchType(void) const;
     void setSearchType(RecSearchType);
 
-    bool GetAutoExpire(void) const;
-    void SetAutoExpire(bool expire);
+    int GetAutoExpire(void) const;
+    void SetAutoExpire(int expire);
 
     int GetMaxEpisodes(void) const;
     bool GetMaxNewest(void) const;
+
+    int GetTranscoder(void) const;
 
     int GetAutoRunJobs(void) const;
 
     void setStart(const QDateTime& start);
     void setEnd(const QDateTime& end);
+    int getRecPriority(void) const;
     void setRecPriority(int recpriority);
     void setRecGroup(const QString& recgroup);
+    void setPlayGroup(const QString& recgroup);
 
     
-    virtual void save();
+    virtual void save(bool send_reschedule_signal = true);
+    virtual void save(QString);
 
     virtual void loadByID(int id);
-    virtual void loadByProgram(ProgramInfo* proginfo);
+    virtual void loadByProgram(const ProgramInfo* proginfo);
     virtual void loadBySearch(RecSearchType lsearch,
-                              QString text, QString what);
+                              QString textname, QString forwhat);
+    virtual void loadBySearch(RecSearchType lsearch, QString textname,
+                              QString from, QString forwhat);
+    virtual void modifyPowerSearchByID(int rid,
+                                       QString textname, QString forwhat);
+    virtual void modifyPowerSearchByID(int rid, QString textname,
+                                       QString from, QString forwhat);
 
     virtual int exec(bool saveOnExec = true, bool doLoad = false)
         { return ConfigurationDialog::exec(saveOnExec, doLoad); }    
         
     void remove();
     int getRecordID(void) const { return id->intValue(); };
+    QString getRecordTitle(void) const;
+    QString getRecordSubTitle(void) const;
+    QString getRecordDescription(void) const;
     QString getProfileName(void) const;
 
     void findMatchingPrograms(list<ProgramInfo*>& proglist);
 
     // Do any necessary bookkeeping after a matching program has been
     // recorded
-    void doneRecording(const ProgramInfo& proginfo);
-
-    // Remember a program has been reccorded before (means it won't
-    // be recorded again)
-    void addHistory(const ProgramInfo& proginfo);
-
-    // Forget whether a program has been recorded before (allows it to
-    // be recorded again)
-    void forgetHistory(const ProgramInfo& proginfo);
+    void doneRecording(ProgramInfo& proginfo);
 
     static void fillSelections(SelectSetting* setting);
 
@@ -127,6 +136,7 @@ public:
     void setDupInObj(SRDupIn* val) {dupin = val;}
     void setDupMethodObj(SRDupMethod* val) {dupmethod = val;}
     void setAutoTranscodeObj(SRAutoTranscode* val) {autotranscode = val;}
+    void setTranscoderObj(SRTranscoderSelector* val) {transcoder = val;}
     void setAutoCommFlagObj(SRAutoCommFlag* val) {autocommflag = val;}
     void setAutoUserJob1Obj(SRAutoUserJob1* val) {autouserjob1 = val;}
     void setAutoUserJob2Obj(SRAutoUserJob2* val) {autouserjob2 = val;}
@@ -149,6 +159,7 @@ public:
     void setCategoryObj(SRCategory* val) {category = val;}
     void setRecPriorityObj(SRRecPriority* val) {recpriority = val;}
     void setRecGroupObj(SRRecGroup* val) {recgroup = val;}
+    void setPlayGroupObj(SRPlayGroup* val) {playgroup = val;}
     void setSeriesIDObj(SRSeriesid* val) {seriesid = val;}
     void setProgramIDObj(SRProgramid* val) {programid = val;}
     void setFindDayObj(SRFindDay* val) {findday = val;}
@@ -162,13 +173,15 @@ public:
 
 public slots:
     void runProgList();
+    void runPrevList();
+    void testRecording();
 
 protected slots:
     void runShowDetails();
 
 protected:
     virtual void setDefault(bool haschannel);
-    virtual void setProgram(ProgramInfo *proginfo);
+    virtual void setProgram(const ProgramInfo *proginfo);
     void fetchChannelInfo();
     
     class ID: virtual public IntegerSetting,
@@ -191,6 +204,7 @@ protected:
     class SRDupIn* dupin;
     class SRDupMethod* dupmethod;
     class SRAutoTranscode* autotranscode;
+    class SRTranscoderSelector* transcoder;
     class SRAutoCommFlag* autocommflag;
     class SRAutoUserJob1* autouserjob1;
     class SRAutoUserJob2* autouserjob2;
@@ -213,6 +227,7 @@ protected:
     class SRCategory* category;
     class SRRecPriority* recpriority;
     class SRRecGroup* recgroup;
+    class SRPlayGroup* playgroup;
     class SRSeriesid* seriesid;
     class SRProgramid* programid;
     class SRFindDay* findday;
@@ -220,7 +235,7 @@ protected:
     class SRFindId* findid;
     class SRParentId* parentid;
     
-    ProgramInfo* m_pginfo;
+    const ProgramInfo* m_pginfo;
     QGuardedPtr<RootSRGroup> rootGroup;
     QGuardedPtr<RecOptDialog> m_dialog;
     QString chanstr;

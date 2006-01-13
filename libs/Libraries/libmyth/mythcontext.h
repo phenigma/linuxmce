@@ -12,11 +12,14 @@
 #include <qsocketdevice.h>
 #include <qstringlist.h>
 #include <qnetwork.h> 
-#include <qmutex.h>
+#include <qmap.h>
 
+#include <cerrno>
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "mythobservable.h"
 
 using namespace std;
 
@@ -29,33 +32,88 @@ class QSqlDatabase;
 class QSqlQuery;
 class QSqlError;
 class QSocket;
+class QSocketDevice;
 class MythMainWindow;
 class MythPluginManager;
 class MediaMonitor;
 class MythMediaDevice;
 class DisplayRes;
 class MDBManager;
+class MythContextPrivate;
 
-enum VerboseMask {
-    VB_IMPORTANT = 0x0001,
-    VB_GENERAL   = 0x0002,
-    VB_RECORD    = 0x0004,
-    VB_PLAYBACK  = 0x0008,
-    VB_CHANNEL   = 0x0010,
-    VB_OSD       = 0x0020,
-    VB_FILE      = 0x0040,
-    VB_SCHEDULE  = 0x0080,
-    VB_NETWORK   = 0x0100,
-    VB_COMMFLAG  = 0x0200,
-    VB_AUDIO     = 0x0400,
-    VB_LIBAV     = 0x0800,
-    VB_JOBQUEUE  = 0x1000,
-    VB_SIPARSER  = 0x2000,
-    VB_NONE      = 0x0000,
-    VB_ALL       = 0xffff
+/// This MAP is for the various VERBOSITY flags, used to select which
+/// messages we want printed to the console.
+///
+/// The 5 fields are:
+///     enum
+///     enum value
+///     "-v" arg string
+///     additive flag (explicit = 0, additive = 1)
+///     help text for "-v help"
+///
+/// To create a new VB_* flag, this is the only piece of code you need to
+/// modify, then you can start using the new flag and it will automatically be
+/// processed by the parse_verbose_arg() function and help info printed when
+/// "-v help" is used.
+
+#define VERBOSE_MAP(F) \
+    F(VB_ALL,       0xffffffff, "all",       0,  \
+      "ALL available debug output")              \
+    F(VB_IMPORTANT, 0x00000001, "important", 0,  \
+      "Errors or other very important messages") \
+    F(VB_GENERAL,   0x00000002, "general",   1,  \
+      "General info")                            \
+    F(VB_RECORD,    0x00000004, "record",    1,  \
+      "Recording related messages")              \
+    F(VB_PLAYBACK,  0x00000008, "playback",  1,  \
+      "Playback related messages")               \
+    F(VB_CHANNEL,   0x00000010, "channel",   1,  \
+      "Channel related messages")                \
+    F(VB_OSD,       0x00000020, "osd",       1,  \
+      "On-Screen Display related messages")      \
+    F(VB_FILE,      0x00000040, "file",      1,  \
+      "File and AutoExpire related messages")    \
+    F(VB_SCHEDULE,  0x00000080, "schedule",  1,  \
+      "Scheduling related messages")             \
+    F(VB_NETWORK,   0x00000100, "network",   1,  \
+      "Network protocol related messages")       \
+    F(VB_COMMFLAG,  0x00000200, "commflag",  1,  \
+      "Commercial Flagging related messages")    \
+    F(VB_AUDIO,     0x00000400, "audio",     1,  \
+      "Audio related messages")                  \
+    F(VB_LIBAV,     0x00000800, "libav",     1,  \
+      "Enables libav debugging")                 \
+    F(VB_JOBQUEUE,  0x00001000, "jobqueue",  1,  \
+      "JobQueue related messages")               \
+    F(VB_SIPARSER,  0x00002000, "siparser",  1,  \
+      "Siparser related messages")               \
+    F(VB_EIT,       0x00004000, "eit",       1,  \
+      "EIT related messages")                    \
+    F(VB_VBI,       0x00008000, "vbi",       1,  \
+      "VBI related messages")                    \
+    F(VB_DATABASE,  0x00010000, "database",  1,  \
+      "Display all SQL commands executed")       \
+    F(VB_NONE,      0x00000000, "none",      0,  \
+      "NO debug output")
+
+enum VerboseMask
+{
+#define VERBOSE_ENUM(ARG_ENUM, ARG_VALUE, ARG_STRING, ARG_ADDITIVE, ARG_HELP)\
+    ARG_ENUM = ARG_VALUE ,
+    VERBOSE_MAP(VERBOSE_ENUM)
 };
 
-enum LogPriorities {
+/// This global variable is set at startup with the flags 
+/// of the verbose messages we want to see.
+extern unsigned int print_verbose_messages;
+extern QString verboseString;
+
+int parse_verbose_arg(QString arg);
+
+
+/// These are the database logging priorities used for filterig the logs.
+enum LogPriorities
+{
     LP_EMERG     = 0,
     LP_ALERT     = 1,
     LP_CRITICAL  = 2,
@@ -66,23 +124,24 @@ enum LogPriorities {
     LP_DEBUG     = 7
 };
 
-struct DatabaseParams {
-    QString dbHostName;         // database server
-    QString dbUserName;         // DB user name 
-    QString dbPassword;         // DB password
-    QString dbName;             // database name
-    QString dbType;             // database type (MySQL, Postgres, etc.)
+/// Structure containing the basic Database parameters
+struct DatabaseParams
+{
+    QString dbHostName;         ///< database server
+    QString dbUserName;         ///< DB user name 
+    QString dbPassword;         ///< DB password
+    QString dbName;             ///< database name
+    QString dbType;             ///< database type (MySQL, Postgres, etc.)
     
-    bool    localEnabled;       // true if localHostName is not default
-    QString localHostName;      // name used for loading/saving settings
+    bool    localEnabled;       ///< true if localHostName is not default
+    QString localHostName;      ///< name used for loading/saving settings
     
-    bool    wolEnabled;         // true if wake-on-lan params are used
-    int     wolReconnect;       // seconds to wait for reconnect
-    int     wolRetry;           // times to retry
-    QString wolCommand;         // command to use for wake-on-lan
+    bool    wolEnabled;         ///< true if wake-on-lan params are used
+    int     wolReconnect;       ///< seconds to wait for reconnect
+    int     wolRetry;           ///< times to retry to reconnect
+    QString wolCommand;         ///< command to use for wake-on-lan
 };
     
-
 // The verbose_mutex lock is a recursive lock so it is possible (while
 // not recommended) to use a VERBOSE macro within another VERBOSE macro.
 // But waiting for another thread to do something is not safe within a 
@@ -121,55 +180,60 @@ do { \
 
 #endif // DEBUG
 
-class MythEvent : public QCustomEvent
+/// This can be appended to the VERBOSE args with either
+/// "+" (with QStrings) or "<<" (with c strings). It uses
+/// a thread safe version of strerror to produce the
+/// string representation of errno and puts it on the 
+/// next line in the verbose output.
+#define ENO QString("\n\t\t\teno: ") + safe_eno_to_string(errno)
+
+/// Verbose helper function for ENO macro
+QString safe_eno_to_string(int errnum);
+
+/** \class MythPrivRequest
+ *  \brief Container for requests that require privledge escalation.
+ *
+ *   Currently this is used for just one thing, increasing the
+ *   priority of the video output thread to a real-time priority.
+ *   These requests are made by calling gContext->addPrivRequest().
+ *
+ *  \sa NuppelVideoPlayer::StartPlaying(void)
+ *  \sa MythContext:addPrivRequest(MythPrivRequest::Type, void*)
+ */
+class MythPrivRequest
 {
   public:
-    enum Type { MythEventMessage = (User + 1000) };
-
-    MythEvent(const QString &lmessage) : QCustomEvent(MythEventMessage)
-    {
-        message = lmessage;
-        extradata = "empty";
-    }
-    MythEvent(const QString &lmessage, const QStringList &lextradata)
-           : QCustomEvent(MythEventMessage)
-    {
-        message = lmessage;
-        extradata = lextradata;
-    }
-    
-    ~MythEvent() {}
-
-    const QString& Message() const { return message; }
-    const QString& ExtraData(int idx = 0) const { return extradata[idx]; } 
-    const QStringList& ExtraDataList() const { return extradata; } 
-    int ExtraDataCount() const { return extradata.size(); }
-
-  private:
-    QString message;
-    QStringList extradata;
-};
-
-class MythPrivRequest 
-{
- public:
     typedef enum { MythRealtime, MythExit, PrivEnd } Type;
     MythPrivRequest(Type t, void *data) : m_type(t), m_data(data) {}
     Type getType() const { return m_type; }
     void *getData() const { return m_data; }
- private:
+  private:
     Type m_type;
     void *m_data;
 };
 
-#define MYTH_BINARY_VERSION "0.18.1.20050523-1"
-#define MYTH_PROTO_VERSION "15"
+/// Update this whenever the plug-in API changes.
+/// Including changes in the libmythtv class methods used by plug-ins.
+#define MYTH_BINARY_VERSION "0.19.20051208-1"
 
-extern int print_verbose_messages;
+/** \brief Increment this whenever the MythTV network protocol changes.
+ *
+ *   You must also update this value in
+ *   mythplugins/mythweb/includes/mythbackend.php
+ */
+#define MYTH_PROTO_VERSION "23"
 
-class MythContextPrivate;
-
-class MythContext : public QObject
+/** \class MythContext
+ *  \brief This class contains the runtime context for MythTV.
+ *
+ *   This class can be used to query for and set global and host
+ *   settings, and is used to communicate between the frontends
+ *   and backends. It also contains helper functions for theming
+ *   and for getting system defaults, parsing the command line, etc.
+ *   It also contains support for database error printing, and
+ *   database message logging.
+ */
+class MythContext : public QObject, public MythObservable
 {
     Q_OBJECT
   public:
@@ -182,12 +246,22 @@ class MythContext : public QObject
 
     QString GetHostName(void);
 
-    bool ConnectToMasterServer(void);
-    bool ConnectServer(const QString &hostname, int port);
+    void ClearSettingsCache(QString myKey = "", QString newVal = "");
+    void ActivateSettingsCache(bool activate = true);
+
+    bool ConnectToMasterServer(bool blockingClient = true);
+    QSocketDevice *ConnectServer(QSocket *eventSocket,
+                                 const QString &hostname,
+                                 int port,
+                                 bool blockingClient = false);
     bool IsConnectedToMaster(void);
     void SetBackend(bool backend);
     bool IsBackend(void);
+    bool IsFrontendOnly(void);
 
+    void BlockShutdown(void);
+    void AllowShutdown(void);
+    
     QString GetInstallPrefix(void);
     QString GetShareDir(void);
     QString GetLibraryDir(void);
@@ -252,6 +326,8 @@ class MythContext : public QObject
     void SaveSetting(const QString &key, int newValue);
     void SaveSetting(const QString &key, const QString &newValue);
     QString GetSetting(const QString &key, const QString &defaultval = "");
+    void SaveSettingOnHost(const QString &key, const QString &newValue,
+                           const QString &host);
 
     // Convenience setting query methods
     int GetNumSetting(const QString &key, int defaultval = 0);
@@ -266,6 +342,8 @@ class MythContext : public QObject
                              const QString &defaultval = "");
     int GetNumSettingOnHost(const QString &key, const QString &host,
                             int defaultval = 0);
+    double GetFloatSettingOnHost(const QString &key, const QString &host,
+                                 double defaultval = 0.0);
 
     void SetSetting(const QString &key, const QString &newValue);
 
@@ -277,17 +355,13 @@ class MythContext : public QObject
 
     void ThemeWidget(QWidget *widget);
 
+    bool FindThemeFile(QString &filename);
     QPixmap *LoadScalePixmap(QString filename, bool fromcache = true); 
     QImage *LoadScaleImage(QString filename, bool fromcache = true);
 
-    void addListener(QObject *obj);
-    void removeListener(QObject *obj);
-    void dispatch(MythEvent &e);
-    void dispatchNow(MythEvent &e);
-
     bool SendReceiveStringList(QStringList &strlist, bool quickTimeout = false);
 
-    QImage *CacheRemotePixmap(const QString &url);
+    QImage *CacheRemotePixmap(const QString &url, bool reCache = false);
 
     void SetMainWindow(MythMainWindow *mainwin);
     MythMainWindow *GetMainWindow(void);
@@ -322,10 +396,6 @@ class MythContext : public QObject
     void waitPrivRequest() const;
     MythPrivRequest popPrivRequest();
 
-    void addCurrentLocation(QString location);
-    QString removeCurrentLocation(void);
-    QString getCurrentLocation(void);
-
     static QMutex verbose_mutex;
 
   private slots:
@@ -344,11 +414,14 @@ class MythContext : public QObject
     void RemoveCacheDir(const QString &dirname);
 
     MythContextPrivate *d;
+    QString app_binary_version;
 
-    QMutex locationLock;
-    QValueList <QString> currentLocation;
+    bool useSettingsCache;
+    QMutex cacheLock;
+    QMap <QString, QString> settingsCache;
 };
 
+/// This global variable contains the MythContext instance for the application
 extern MythContext *gContext;
 
 #endif

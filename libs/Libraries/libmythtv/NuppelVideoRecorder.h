@@ -1,13 +1,10 @@
 #ifndef NUPPELVIDEORECORDER
 #define NUPPELVIDEORECORDER
 
-#include <qstring.h>
-#include <qmap.h>
-#include <vector>
+// C headers
 #include <sys/time.h>
 #include <time.h>
 #include <pthread.h>
-
 #ifdef MMX
 #undef MMX
 #define MMXBLAH
@@ -17,18 +14,23 @@
 #define MMX
 #endif
 
-#include "recorderbase.h"
-
-#include "commercial_skip.h"
-#include "minilzo.h"
-#include "format.h"
-
-extern "C" {
-#include "../libavcodec/avcodec.h"
 #include "filter.h"
-}
+#include "minilzo.h"
+#undef HAVE_AV_CONFIG_H
+#include "../libavcodec/avcodec.h"
 
+// C++ std headers
+#include <vector>
 using namespace std;
+
+// Qt headers
+#include <qstring.h>
+#include <qmap.h>
+
+// MythTV headers
+#include "recorderbase.h"
+#include "format.h"
+#include "ccdecoder.h"
 
 struct video_audio;
 struct VBIData;
@@ -39,10 +41,10 @@ class ChannelBase;
 class FilterManager;
 class FilterChain;
 
-class NuppelVideoRecorder : public RecorderBase
+class NuppelVideoRecorder : public RecorderBase, public CCReader
 {
  public:
-    NuppelVideoRecorder(ChannelBase *channel);
+    NuppelVideoRecorder(TVRec *rec, ChannelBase *channel);
    ~NuppelVideoRecorder();
 
     void SetOption(const QString &name, int value);
@@ -52,7 +54,7 @@ class NuppelVideoRecorder : public RecorderBase
     void SetOptionsFromProfile(RecordingProfile *profile,
                                const QString &videodev,
                                const QString &audiodev,
-                               const QString &vbidev, int ispip);
+                               const QString &vbidev);
  
     void Initialize(void);
     void StartRecording(void);
@@ -60,8 +62,7 @@ class NuppelVideoRecorder : public RecorderBase
     
     void Pause(bool clear = true);
     void Unpause(void);
-    bool GetPause(void); 
-    void WaitForPause(void);   
+    bool IsPaused(void) const;
  
     bool IsRecording(void);
     bool IsErrored(void);
@@ -76,14 +77,18 @@ class NuppelVideoRecorder : public RecorderBase
     void SetTranscoding(bool value) { transcoding = value; };
 
     long long GetKeyframePosition(long long desired);
-    void GetBlankFrameMap(QMap<long long, int> &blank_frame_map);
+
+    void SetNextRecording(const ProgramInfo*, RingBuffer*);
+    void ResetForNewFile(void);
+    void FinishRecording(void);
+    void StartNewFile(void);
 
     // reencode stuff
     void StreamAllocate(void);
     void WriteHeader(void);
     void WriteSeekTable(void);
     void WriteKeyFrameAdjustTable(QPtrList<struct kfatable_entry> *kfa_table);
-    void UpdateSeekTable(int frame_num, bool update_db, long offset = 0);
+    void UpdateSeekTable(int frame_num, bool update_db = true, long offset = 0);
 
     bool SetupAVCodec(void);
     void SetupRTjpeg(void);
@@ -94,6 +99,9 @@ class NuppelVideoRecorder : public RecorderBase
     void WriteAudio(unsigned char *buf, int fnum, int timecode);
     void WriteText(unsigned char *buf, int len, int timecode, int pagenr);
 
+ public slots:
+    void deleteLater(void);
+
  protected:
     static void *WriteThread(void *param);
     static void *AudioThread(void *param);
@@ -102,20 +110,22 @@ class NuppelVideoRecorder : public RecorderBase
     void doWriteThread(void);
     void doAudioThread(void);
     void doVbiThread(void);
-    
+
  private:
-    inline void NuppelVideoRecorder::WriteFrameheader(rtframeheader *fh);
+    inline void WriteFrameheader(rtframeheader *fh);
+
+    void SavePositionMap(bool force);
 
     void InitBuffers(void);
     void InitFilters(void);   
     void ResizeVideoBuffers(void);
 
-    int MJPEGInit(void);
+    bool MJPEGInit(void);
  
     int SpawnChildren(void);
     void KillChildren(void);
     
-    void BufferIt(unsigned char *buf, int len = -1);
+    void BufferIt(unsigned char *buf, int len = -1, bool forcekey = false);
     
     int CreateNuppelFile(void);
 
@@ -124,11 +134,8 @@ class NuppelVideoRecorder : public RecorderBase
 
     void FormatTeletextSubtitles(struct VBIData *vbidata);
     void FormatCC(struct cc *cc);
-    void FormatCCField(struct cc *cc, int tc, int field);
-    QChar CharCC(int code);
-    void ResetCC(struct cc *cc, int mode);
-    void BufferCC(struct cc *cc, int mode, int len, int clr);
-    int NewRowCC(struct cc *cc, int mode, int len);
+    void AddTextData(unsigned char *buf, int len,
+                     long long timecode, char type);
     
     bool encoding;
     
@@ -155,15 +162,12 @@ class NuppelVideoRecorder : public RecorderBase
     int usebttv;
     float video_aspect;
 
-    CommDetect *commDetect;
     bool transcoding;
 
     int mp3quality;
     char *mp3buf;
     int mp3buf_size;
     lame_global_flags *gf;
-
-    QMap<long long, int> blank_frames;
 
     RTjpeg *rtjc;
 
@@ -211,15 +215,15 @@ class NuppelVideoRecorder : public RecorderBase
     vector<struct seektable_entry> *seektable;
     QMap<long long, long long> positionMap;
     QMap<long long, long long> positionMapDelta;
+    QMutex positionMapLock;
+    long long lastPositionMapPos;
 
     long long extendeddataOffset;
 
     long long framesWritten;
 
     bool livetv;
-    bool paused;
-    bool pausewritethread;
-    bool actuallypaused;
+    bool writepaused;
     bool audiopaused;
     bool mainpaused;
 
@@ -247,6 +251,8 @@ class NuppelVideoRecorder : public RecorderBase
     int qualdiff;
     int mp4opts;
     int mb_decision;
+    /// Number of threads to use for MPEG-2 and MPEG-4 encoding
+    int encoding_thread_count;
 
     QString videoFilterList;
     FilterChain *videoFilters;
@@ -277,7 +283,11 @@ class NuppelVideoRecorder : public RecorderBase
     bool correct_bttv;
 
     int volume;
+
+    CCDecoder *ccd;
+
     bool go7007;
+    bool resetcapture;
 };
 
 #endif

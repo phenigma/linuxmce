@@ -113,7 +113,8 @@ class UIType : public QObject
 
     bool    isShown(){return !hidden;}
     bool    isHidden(){return hidden;}
-
+    bool    isFocused(){return has_focus;}
+    
   public slots:
 
     virtual bool takeFocus();
@@ -347,10 +348,11 @@ class UIListType : public UIType
 
     void SetCount(int cnt) { m_count = cnt;
                              if (m_count)
-                                 m_selheight = (int)(m_area.height() / m_count);
+                                m_selheight = (int)(m_area.height() / m_count); 
                              else
-                                 m_selheight = 0;
-                         }
+                                m_selheight = 0;
+                           }
+                                
 
     void SetItemText(int, int, QString);
     void SetItemText(int, QString);
@@ -473,6 +475,7 @@ class UIImageType : public UIType
     bool    m_isvalid;
     bool    m_flex;
     bool    m_show;
+    bool    m_transparent;
     int     m_drop_x;
     int     m_drop_y;
     int     m_force_x;
@@ -509,6 +512,8 @@ class UIAnimatedImageType : public UIType
     bool IsPaused() { return !timer.isActive(); }
     void NextImage();
     void PreviousImage();
+    void GotoFirstImage() { m_currentimage = 1; }
+     
     virtual void Draw(QPainter *, int, int);
 
   public slots:
@@ -612,6 +617,92 @@ class UITextType : public UIType
 
 };
 
+class UIRichTextType : public UIType
+{
+    Q_OBJECT
+
+    public:
+        UIRichTextType(const QString &, fontProp *, const QString &, int,
+                   QRect displayrect, QRect textrect);
+        ~UIRichTextType();
+
+        QString Name() { return m_name; }
+
+        void SetText(const QString &text);
+        QString GetText() { return m_message; }
+
+        QRect DisplayArea() { return m_displayArea; }
+        void SetDisplayArea(const QRect &rect) { m_displayArea = rect; }
+        void SetShowScrollArrows(bool bShowArrows) 
+            { m_showScrollArrows = bShowArrows; }
+
+        QRect TextArea() { return m_textArea; }
+        void SetTextArea(const QRect &rect) { m_textArea = rect; }
+
+        void SetImageUpArrowReg(QPixmap img, QPoint loc) 
+            { m_upArrowReg = img; m_upArrowRegPos = loc; }
+        void SetImageDnArrowReg(QPixmap img, QPoint loc) 
+            { m_dnArrowReg = img; m_dnArrowRegPos = loc; }
+        void SetImageUpArrowSel(QPixmap img, QPoint loc) 
+            { m_upArrowSel = img; m_upArrowSelPos = loc; }
+        void SetImageDnArrowSel(QPixmap img, QPoint loc) 
+            { m_dnArrowSel = img; m_dnArrowSelPos = loc; }
+
+        void SetBackground(QPixmap *background);
+        void SetBackgroundImages(QString bgImageReg, QString bgImageSel);
+
+        virtual void calculateScreenArea();
+
+        virtual void Draw(QPainter *, int, int);
+    public slots:
+        void ScrollDown(void);
+        void ScrollUp(void);
+        void ScrollPageDown(void);
+        void ScrollPageUp(void);
+
+        virtual bool takeFocus();
+        virtual void looseFocus();
+
+    protected:
+        void refreshImage();
+        void updateBackground();
+        void loadBackgroundImg(bool &changed);
+
+        QRect m_displayArea;
+        QRect m_textArea;
+
+        int   m_yPos;        // current scroll position
+        int   m_textHeight;  // total height of rendered text
+
+        QString m_message;
+        QString m_bgImageReg;
+        QString m_bgImageSel;
+
+        fontProp *m_font;
+
+        QPixmap *m_background;    // clipped image of the window background 
+        QPixmap *m_compBackground;// composite of the window background + the
+                                  // widget background image 
+        QPixmap *m_image;         // the completed image including the rich text
+
+        QString m_backgroundFile;   //< current source of background image
+        QImage  *m_backgroundImage; //< current widget background image)
+
+        bool     m_showScrollArrows;
+        bool     m_showUpArrow;
+        bool     m_showDnArrow;
+
+        QPoint   m_upArrowRegPos;
+        QPoint   m_dnArrowRegPos;
+        QPoint   m_upArrowSelPos;
+        QPoint   m_dnArrowSelPos;
+
+        QPixmap  m_upArrowReg;
+        QPixmap  m_dnArrowReg;
+        QPixmap  m_upArrowSel;
+        QPixmap  m_dnArrowSel;
+};
+
 class UIMultiTextType : public UITextType
 {
 
@@ -680,6 +771,7 @@ class UIRemoteEditType : public UIType
     ~UIRemoteEditType();
     
     void    createEdit(MythThemedDialog* parent);
+    QWidget *getEdit(void) { return (QWidget*) edit; };
     void    Draw(QPainter *, int drawlayer, int context);
     void    setArea(QRect area){m_displaysize = area;}
     void    setText(const QString some_text);
@@ -690,13 +782,14 @@ class UIRemoteEditType : public UIType
 
   public slots:
     void takeFocusAwayFromEditor(bool up_or_down);
+    void editorChanged(QString value);
     virtual bool takeFocus();
     virtual void looseFocus();
     virtual void show();
     virtual void hide();
      
   signals:
-    void    changed();
+    void    textChanged(QString value);
 
   private:
     MythRemoteLineEdit *edit;
@@ -827,6 +920,8 @@ class UIManagedTreeListType : public UIType
     void    activate();
     void    enter();
     void    deactivate(){active_node = NULL;}
+    bool    incSearchStart();
+    bool    incSearchNext();
 
   signals:
 
@@ -870,6 +965,8 @@ class UIManagedTreeListType : public UIType
     QPoint                  selectPoint;
     QPoint                  upArrowOffset;
     QPoint                  downArrowOffset;
+    QString                 incSearch;
+    bool                    bIncSearchContains;
 };
 
 class UIPushButtonType : public UIType
@@ -963,7 +1060,8 @@ class UICheckBoxType : public UIType
     void    Draw(QPainter *, int drawlayer, int context);
     void    setPosition(QPoint pos){m_displaypos = pos;}
     void    calculateScreenArea();
-
+    bool    getState(){return checked;}
+     
   public slots:
 
     void    push();
@@ -1030,7 +1128,9 @@ class UISelectorType : public UIPushButtonType
     void    calculateScreenArea();
     void    addItem(int an_int, const QString &a_string);
     void    setFont(fontProp *font) { m_font = font; }
-
+    QString getCurrentString();
+    int     getCurrentInt();
+    
   public slots:
 
     void push(bool up_or_down);
@@ -1038,7 +1138,8 @@ class UISelectorType : public UIPushButtonType
     void activate(){push(true);}
     void cleanOut(){current_data = NULL; my_data.clear();}
     void setToItem(int which_item);
-
+    void setToItem(const QString &which_item);
+     
   signals:
 
     void    pushed(int);
@@ -1085,36 +1186,83 @@ class UIKeyType : public UIType
     UIKeyType(const QString &);
     ~UIKeyType();
 
-    void SetContainer(LayerSet *container) { m_container = container; }
-    UIType *GetType(const QString &name) { return m_container->GetType(name); }
-
-    QString GetAction() { return m_action; }
-    QString GetChars() { return m_chars; }
     QPoint GetPosition() { return m_pos; }
-    QString GetClicked() { return m_clicked; }
-    QString GetNotClicked() { return m_notclicked; }
-    QString GetSubtitle() { return m_subtitle; }
 
-    void SetAction(QString action) { m_action = action; }
-    void SetClicked(QString filename) { m_clicked = filename; }
-    void SetNotClicked(QString filename) { m_notclicked = filename; }
-    void SetSubtitle(QString filename) { m_subtitle = filename; }
-    void SetChars(QString chars) { m_chars = chars; }
-    void SetFont(QString font) { m_font = font; }
+    void SetArea(QRect &area) { m_area = area; }
     void SetPosition(QPoint pos) { m_pos = pos; }
+    void SetImages(QPixmap *normal, QPixmap *focused, QPixmap *down,
+                   QPixmap *downFocused);
+    void SetDefaultImages(QPixmap *normal, QPixmap *focused, QPixmap *down,
+                          QPixmap *downFocused);
 
-    virtual void Draw(QPainter *, int, int);
+    void SetFonts(fontProp *normal, fontProp *focused, fontProp *down,
+                  fontProp *downFocused);
+    void SetDefaultFonts(fontProp *normal, fontProp *focused, fontProp *down,
+                         fontProp *downFocused);
+
+    void    SetType(QString type) { m_type = type; }
+    QString GetType() { return m_type; }
+
+    void    SetChars(QString normal, QString shift, QString alt, QString shiftAlt);
+    QString GetChar();
+
+    void    SetMoves(QString moveLeft, QString moveRight, QString moveUp, 
+                  QString moveDown);
+    QString GetMove(QString direction);
+
+    void SetShiftState(bool sh, bool ag); 
+    void SetOn(bool bOn) { m_bDown = bOn; refresh(); }
+    bool IsOn(void) { return m_bDown; }
+
+    void SetToggleKey(bool bOn) { m_bToggle = bOn; }
+    bool IsToggleKey(void) { return m_bToggle; }
+
+   virtual void Draw(QPainter *, int, int);
+    virtual void calculateScreenArea();
+
+  public slots:
+    void    push();
+    void    unPush();
+    void    activate(){push();}
+
+  signals:
+    void    pushed();
 
   private:
-    QString m_action;
-    QString m_clicked;
-    QString m_notclicked;
-    QString m_subtitle;
-    QString m_chars;
-    QString m_font;
+    QString decodeChar(QString c);
+
+    QRect   m_area;
+    QString m_type;
+
+    QPixmap *m_normalImg;
+    QPixmap *m_focusedImg;
+    QPixmap *m_downImg;
+    QPixmap *m_downFocusedImg;
+
+    fontProp *m_normalFont;
+    fontProp *m_focusedFont;
+    fontProp *m_downFont;
+    fontProp *m_downFocusedFont;
+
     QPoint m_pos;
 
-    LayerSet *m_container;
+    QString m_normalChar; 
+    QString m_shiftChar; 
+    QString m_altChar; 
+    QString m_shiftAltChar;
+
+    QString m_moveLeft;
+    QString m_moveRight;
+    QString m_moveUp;
+    QString m_moveDown;
+
+    bool    m_bShift;
+    bool    m_bAlt;
+    bool    m_bDown;
+    bool    m_bToggle;
+
+    bool    m_bPushed;
+    QTimer  m_pushTimer;
 };
 
 class UIKeyboardType : public UIType
@@ -1125,20 +1273,64 @@ class UIKeyboardType : public UIType
     UIKeyboardType(const QString &, int);
     ~UIKeyboardType();
 
-    typedef QValueList <UIKeyType*> KeyList;
-    void SetContainer(LayerSet *container) { m_container = container; }
-    UIType *GetType(const QString &name) { return m_container->GetType(name); }
-    UIKeyType *GetKey(const QString &action);
-    KeyList GetKeys() { return m_keymap.values(); }
+    typedef QPtrList <UIKeyType> KeyList;
 
-    void AddKey(const QString &action, UIKeyType *key) { m_keymap[action] = key; }
-    bool HasKey(const QString &action) { return m_keymap.keys().contains(action); }
+    void SetContainer(LayerSet *container) { m_container = container; }
+    void SetArea(QRect &area) { m_area = area; }
+    void SetEdit(QWidget* edit) { m_parentEdit = edit; }
+    void SetParentDialog(MythThemedDialog * parentDialog)
+            { m_parentDialog = parentDialog; }
+
+    KeyList GetKeys() { return m_keyList; }
+    void AddKey(UIKeyType *key);
 
     virtual void Draw(QPainter *, int, int);
+    virtual void calculateScreenArea();
+    virtual void keyPressEvent(QKeyEvent *e);
+
+  private slots:
+    void charKey();
+    void lockOnOff();
+    void shiftLOnOff();
+    void shiftROnOff();
+    void shiftOff();
+    void altGrOnOff();
+    void compOnOff();
+    void updateButtons();
+    void leftCursor();
+    void rightCursor();
+    void backspaceKey();
+    void delKey();
+    void close(); 
 
   private:
-    LayerSet *m_container;
-    QMap <QString, UIKeyType*> m_keymap;
+    void init();
+    void insertChar(QString c);
+    void moveUp();
+    void moveDown();
+    void moveLeft();
+    void moveRight();
+    UIKeyType *findKey(QString keyName);
+
+    QRect     m_area;
+
+    bool m_bInitalized;
+
+    bool      m_bCompTrap;
+    QString   m_comp1;
+
+    UIKeyType *m_altKey;
+    UIKeyType *m_lockKey;
+    UIKeyType *m_shiftLKey;
+    UIKeyType *m_shiftRKey;
+    UIKeyType *m_focusedKey;
+    UIKeyType *m_doneKey;
+
+    QWidget          *m_parentEdit;
+    MythThemedDialog *m_parentDialog;
+
+    LayerSet  *m_container;
+    KeyList   m_keyList;
 };
 
 #endif

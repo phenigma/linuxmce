@@ -9,21 +9,19 @@
 #ifndef DTVRECORDER_H
 #define DTVRECORDER_H
 
+#include <vector>
+using namespace std;
+
 #include "recorderbase.h"
 
 class TSPacket;
 
 class DTVRecorder: public RecorderBase
 {
+    Q_OBJECT
   public:
-    DTVRecorder::DTVRecorder() : 
-        _first_keyframe(0), _position_within_gop_header(0),
-        _keyframe_seen(false), _last_keyframe_seen(0), _last_gop_seen(0),
-        _last_seq_seen(0), _stream_fd(-1), _error(false),
-        _request_recording(false), _request_pause(false), _wait_for_keyframe_option(true),
-        _recording(false), _paused(false), _wait_for_keyframe(true),
-        _buffer(0), _buffer_size(0),
-        _frames_seen_count(0), _frames_written_count(0) {;}
+    DTVRecorder(TVRec *rec, const char *name = "DTVRecorder");
+    ~DTVRecorder();
 
     void SetOption(const QString &opt, const QString &value)
     {
@@ -35,15 +33,6 @@ class DTVRecorder: public RecorderBase
     bool IsRecording(void) { return _recording; }
     bool IsErrored(void) { return _error; }
 
-    void Pause(bool /*clear*/)
-    {
-        _paused = false;
-        _request_pause = true;
-    }
-    virtual void Unpause(void) { _request_pause = false; }
-    virtual bool GetPause(void) { return _paused; }
-    virtual void WaitForPause(void);
-
     long long GetKeyframePosition(long long desired);
     long long GetFramesWritten(void) { return _frames_written_count; }
 
@@ -51,45 +40,62 @@ class DTVRecorder: public RecorderBase
     void Initialize(void) {;}
     int GetVideoFd(void) { return _stream_fd; }
 
-    void GetBlankFrameMap(QMap<long long, int> &blank_frame_map);
+    virtual void SetNextRecording(const ProgramInfo*, RingBuffer*);
+
     virtual void Reset();
   protected:
     void FinishRecording(void);
-    void FindKeyframes(const TSPacket* tspacket);
-    void HandleKeyframe();
+    void ResetForNewFile(void);
 
-    // used for scanning pes header for group of pictures header
-    int _first_keyframe;
-    int _position_within_gop_header;
-    bool _keyframe_seen;
-    long long _last_keyframe_seen, _last_gop_seen, _last_seq_seen;
+    bool FindKeyframes(const TSPacket* tspacket);
+    void HandleKeyframe();
+    void SavePositionMap(bool force);
+
+    void BufferedWrite(const TSPacket &tspacket);
 
     // file handle for stream
     int _stream_fd;
 
-    // irrecoverable recording error detected
-    bool _error;
+    // used for scanning pes headers for keyframes
+    uint      _header_pos;
+    int       _first_keyframe;
+    unsigned long long _last_gop_seen;
+    unsigned long long _last_seq_seen;
+    unsigned long long _last_keyframe_seen;
 
-    // API call is requesting action
+    /// True if API call has requested a recording be [re]started
     bool _request_recording;
-    bool _request_pause; // Pause recording: for channel changes, and to stop recording
-    bool _wait_for_keyframe_option; // Wait for the a GOP/SEQ-start before sending data
-    // recording or pause is actually being performed
+    /// Wait for the a GOP/SEQ-start before sending data
+    bool _wait_for_keyframe_option;
+
+    // state tracking variables
+    /// True iff recording is actually being performed
     bool _recording;
-    bool _paused;
-    bool _wait_for_keyframe;
+    /// True iff irrecoverable recording error detected
+    bool _error;
 
     // packet buffer
     unsigned char* _buffer;
-    int  _buffer_size;
+    int            _buffer_size;
+
+    // keyframe finding buffer
+    bool                  _buffer_packets;
+    vector<unsigned char> _payload_buffer;
 
     // statistics
-    long long _frames_seen_count;
-    long long _frames_written_count;
+    unsigned long long _frames_seen_count;
+    unsigned long long _frames_written_count;
 
     // position maps for seeking
+    QMutex                     _position_map_lock;
     QMap<long long, long long> _position_map;
     QMap<long long, long long> _position_map_delta;
+
+    // constants
+    /// If the number of regular frames detected since the last
+    /// detected keyframe exceeds this value, then we begin marking
+    /// random regular frames as keyframes.
+    static const uint kMaxKeyFrameDistance;
 };
 
 #endif // DTVRECORDER_H

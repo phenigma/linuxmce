@@ -15,7 +15,6 @@ class VideoOutputNull : public VideoOutput
     void Show(FrameScanType );
 
     void InputChanged(int width, int height, float aspect);
-    void AspectChanged(float aspect);
     void Zoom(int direction);
 
     void EmbedInWidget(WId wid, int x, int y, int w, int h);
@@ -32,12 +31,9 @@ class VideoOutputNull : public VideoOutput
 
   private:
     void Exit(void);
-    bool CreateNullBuffers(void);
-    void DeleteNullBuffers(void);
 
     bool XJ_started;
 
-    VideoFrame *scratchFrame;
     VideoFrame pauseFrame;
 };
 

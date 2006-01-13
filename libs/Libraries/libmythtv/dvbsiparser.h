@@ -34,6 +34,8 @@
 
 #include <qobject.h>
 #include <qvaluelist.h>
+#include <qmutex.h>
+
 #include "dvbtypes.h"
 #include "siparser.h"
 
@@ -61,7 +63,7 @@ class PIDFilterManager
 class DVBSIParser : public SIParser
 {
 public:
-    DVBSIParser(int cardnum);
+    DVBSIParser(int cardnum, bool start_thread = false);
     ~DVBSIParser();
 
     /* Control PIDs */
@@ -74,22 +76,28 @@ public:
     void StartSectionReader();
     void StopSectionReader();
 
+public slots:
+    void deleteLater(void);
+
 private:
+    /// System information thread thunk, runs DVBSIParser::StartSectionReader()
+    static void *SystemInfoThread(void *param);
 
     int                                cardnum;
 
     /* Thread related */
     bool                               exitSectionThread;
     bool                               sectionThreadRunning;
-    pthread_mutex_t                    poll_lock;
+    bool                               selfStartedThread;
+    QMutex                             pollLock;
+    pthread_t                          siparser_thread;
 
     /* Filter / fd management */
     typedef QMap<int,PIDFilterManager> PIDFDMap;
     PIDFDMap                           PIDfilterManager;
     int                                pollLength;
     pollfd                            *pollArray;
-    bool                   filterChange;
-
+    bool                               filterChange;
 };
 
 #endif //DVBSIPARSER_H

@@ -11,126 +11,109 @@
 #include <qstring.h>
 #include <qsqldatabase.h>
 
-#include <map>
-using namespace std;
-
 #include "mythcontext.h"
 #include "mythdbcon.h"
 #include "channelbase.h"
 
 #include "dvbtypes.h"
 #include "dvbdiseqc.h"
-#include "dvbsiparser.h"
 
 class TVRec;
 class DVBCam;
-class DVBSignalMonitor;
 
 class DVBChannel : public QObject, public ChannelBase
 {
     Q_OBJECT
-public:
+  public:
     DVBChannel(int cardnum, TVRec *parent = NULL);
     ~DVBChannel();
 
-    bool Open();
-    void Close() {};
-    void CloseDVB();
+    bool Open(void);
+    void Close(void);
 
-    fe_type_t GetCardType() { return info.type; };
-
-    bool SetTransportByInt(int mplexid);
+    // Sets
     bool SetChannelByString(const QString &chan);
-    void StopTuning();
     void SetFreqTable(const QString &name);
-    void SwitchToInput(const QString &inputname, const QString &chan);
-    void SwitchToInput(int newcapchannel, bool setstarting)
-                      { (void)newcapchannel; (void)setstarting; }
+    void SetCAPMT(const PMTObject *pmt);
 
-    void GetCurrentChannel(dvb_channel_t *& chan)
-        { chan = &chan_opts; };
+    // Gets
+    bool IsOpen(void)                   const { return GetFd() >= 0; }
+    int  GetFd(void)                    const { return fd_frontend; }
 
-    bool ParseQPSK(const QString& frequency, const QString& inversion,
-                   const QString& symbol_rate, const QString& fec_inner,
-                   const QString& pol, 
-                   const QString& diseqc_type, const QString& diseqc_port,
-                   const QString& diseqc_pos,
-                   const QString& lnb_lof_switch, const QString& lnb_lof_hi,
-                   const QString& lnb_lof_lo, dvb_tuning_t& t);
+    QString GetDevice(void) const { return QString::number(GetCardNum()); }
+    /// Returns DVB device number, used to construct filenames for DVB devices
+    int     GetCardNum(void)            const { return cardnum; };
+    /// Returns frontend name as reported by driver
+    QString GetFrontendName(void)       const { return info.name; }
+    const dvb_channel_t& GetCurrentChannel() const
+        { return chan_opts; };
+    bool GetTuningParams(DVBTuning &tuning) const;
+    fe_type_t   GetCardType(void)       const { return info.type; };
+    /// Returns table standard ("dvb" or "atsc")
+    QString     GetSIStandard(void)     const { return chan_opts.sistandard; }
+    /// Returns the dvb service id if the table standard is "dvb"
+    uint        GetServiceID(void)      const { return chan_opts.serviceID; }
+    /// Returns true iff SetPMT has been called with a non-NULL value.
+    bool        IsPMTSet(void)          const { return chan_opts.IsPMTSet(); }
+    /// Returns true iff PMT has video and audio
+    bool HasTelevisionService(void) const
+        { return chan_opts.pmt.HasTelevisionService(); }
+    /// Returns true iff we have a faulty DVB driver that munges PMT
+    bool HasCRCBug(void)                const { return has_crc_bug; }
 
-    bool ParseQAM(const QString& frequency, const QString& inversion,
-                  const QString& symbol_rate, const QString& fec_inner,
-                  const QString& modulation, dvb_tuning_t& t);
+    // Commands
+    bool SwitchToInput(const QString &inputname, const QString &chan);
+    bool SwitchToInput(int newcapchannel, bool setstarting);
+    bool Tune(const dvb_channel_t& channel, bool force_reset=false);
 
-    bool ParseOFDM(const QString& frequency, const QString& inversion,
-                   const QString& bandwidth, const QString& coderate_hp,
-                   const QString& coderate_lp, const QString& constellation,
-                   const QString& trans_mode, const QString& guard_interval,
-                   const QString& hierarchy, dvb_tuning_t& p);
+    // Set/Get/Command just for SIScan/ScanWizardScanner
+    void SetMultiplexID(int mplexid)          { currentTID = mplexid; };
+    int  GetMultiplexID(void)           const { return currentTID; };
+    bool TuneMultiplex(uint mplexid);
 
-    bool ParseATSC(const QString& frequency, const QString modulation,
-                   dvb_tuning_t& t);
+    // PID caching
+    void SaveCachedPids(const pid_cache_t&) const;
+    void GetCachedPids(pid_cache_t&) const;
 
-    bool Tune(dvb_channel_t& channel, bool all=false);
-    bool TuneTransport(dvb_channel_t& channel, bool all=false, int timeout=30000);
-    int  GetCurrentTransportDBID() { return currentTID; };
-    void SetCurrentTransportDBID(int _id) { currentTID = _id; };
-    int  GetCardNum() { return cardnum; };
+    // Messages to DVBChannel
+  public slots:
     void RecorderStarted();
+    void SetPMT(const PMTObject *pmt);
+    void deleteLater(void);
 
-    void SetCAPMT(PMTObject pmt);
+    // Messages from DVBChannel
+  signals:
+    void UpdatePMTObject(const PMTObject *);
 
-    void StartMonitor();
-    void StopMonitor();
-
-    DVBSIParser*        siparser;
-    DVBSignalMonitor*   monitor;
-
-public slots:
-    void SetPMT(PMTObject NewPMT);
-
-signals:
-    void ChannelChanged(dvb_channel_t& chan);
-    void Tuning(dvb_channel_t& channel);
-
-private:
+  private:
+    int  GetCardID(void) const;
+    int  GetChanID(void) const;
     bool GetTransportOptions(int mplexid);
+    bool GetChannelOptions(const QString &channum);
 
-    bool GetChannelOptions(QString channum);
-
-    void PrintChannelOptions();
+    void InitializeInputs(void);
 
     void CheckOptions();
-    bool CheckModulation(fe_modulation_t& modulation);
-    bool CheckCodeRate(fe_code_rate_t& rate);
+    bool CheckModulation(fe_modulation_t modulation) const;
+    bool CheckCodeRate(fe_code_rate_t rate) const;
 
-    bool ParseTransportQuery(MSqlQuery& query);
+  private:
+    // Data
+    DVBDiSEqC*        diseqc; ///< Used to send commands to external devices
+    DVBCam*           dvbcam; ///< Used to decrypt encrypted streams
 
-    bool TuneQPSK(dvb_tuning_t& tuning, bool reset, bool& havetuned);
-    bool TuneQAM(dvb_tuning_t& tuning, bool reset, bool& havetuned);
-    bool TuneOFDM(dvb_tuning_t& tuning, bool reset, bool& havetuned);
-    bool TuneATSC(dvb_tuning_t& tuning, bool reset, bool& havetuned);
+    dvb_frontend_info info;        ///< Contains info on tuning hardware
+    dvb_channel_t     chan_opts;   ///< Tuning options sent to tuning hardware
+    DVBTuning         prev_tuning; ///< Last tuning options sent to hardware
 
-    static void *SpawnSectionReader(void *param);
-    static void *SpawnSIParser(void *param);
+    volatile int      fd_frontend; ///< File descriptor for tuning hardware
+    int               cardnum;     ///< DVB Card number
+    bool              has_crc_bug; ///< true iff our driver munges PMT
+    int               currentTID;  ///< Stores mplexid from database
 
-    DVBDiSEqC*          diseqc;
-    DVBCam*             dvbcam;
+    bool              first_tune;  ///< Used to force hardware reset
 
-    pthread_t           siparser_thread;
-
-    dvb_frontend_info   info;
-    dvb_channel_t       chan_opts;
-    dvb_tuning_t        prev_tuning;
-
-    int     cardnum;
-    volatile int fd_frontend;
-    int     currentTID;
-
-
-    bool    stopTuning;
-    bool    force_channel_change;
-    bool    first_tune;
+    int               nextcapchannel; ///< Signal an input change
 };
 
 #endif

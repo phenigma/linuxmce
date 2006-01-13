@@ -11,13 +11,6 @@
 
 using namespace std;
 
-#define LCD_KEY_UP    'A'
-#define LCD_KEY_LEFT  'B'
-#define LCD_KEY_DOWN  'C'
-#define LCD_KEY_RIGHT 'D'
-#define LCD_KEY_YES   'E'
-#define LCD_KEY_NO    'F'
-
 enum CHECKED_STATE {CHECKED = 0, UNCHECKED, NOTCHECKABLE };
 
 class LCDMenuItem
@@ -107,11 +100,24 @@ class LCD : public QObject
 
     static bool m_server_unavailable;
     static class LCD * m_lcd;
-
+    
   public:
    ~LCD();
 
+    enum { 
+        MUSIC_REPEAT_NONE  = 0,
+        MUSIC_REPEAT_TRACK = 1,
+        MUSIC_REPEAT_ALL   = 2,
+    };
+
+    enum { 
+        MUSIC_SHUFFLE_NONE  = 0,
+        MUSIC_SHUFFLE_RAND  = 1,
+        MUSIC_SHUFFLE_SMART = 2,
+    };
+
     static class LCD * Get(void);
+    static void SetupLCD (void);
 
     // Used to actually connect to an LCD device       
     bool connectToHost(const QString &hostname, unsigned int port);
@@ -124,7 +130,7 @@ class LCD : public QObject
     // Note: the use of switchToMusic and setLevels is discouraged, because it 
     // has become obvious that most LCD devices cannot handle communications 
     // fast enough to make them useful.
-    void switchToMusic(const QString &artist, const QString &track);
+    void switchToMusic(const QString &artist, const QString &album, const QString &track);
 
     // You can set 10 (or less) equalizer values here (between 0.0 and 1.0)
     void setLevels(int numbLevels, float *values);
@@ -153,8 +159,29 @@ class LCD : public QObject
     // define the screen, row, and alignment of the text
     void switchToGeneric(QPtrList<LCDTextItem> *textItems);
 
-    // Do a progress bar with the generic level between 0 and 1.0
+    /** \brief Update the generic progress bar.
+        \param generic_progress a value between 0 and 1.0
+    */
     void setGenericProgress(float generic_progress);
+
+    /** \brief Update the generic screen to display a busy spinner.
+        \note The LCD busy spinner only 'moves' when this is called
+              instead of the lcdserver just handling it itself. 
+    */
+    void setGenericBusy();
+
+    // Do a music progress bar with the generic level between 0 and 1.0
+    void setMusicProgress(QString time, float generic_progress);
+
+    /** \brief Set music player's repeat properties         
+        \param repeat the state of repeat
+    */
+    void setMusicRepeat(int repeat);
+
+    /** \brief Set music player's shuffle properties             
+        \param repeat the state of repeat
+    */
+    void setMusicShuffle(int shuffle);
 
     // Show the Volume Level top_text scrolls
     void switchToVolume(QString app_name);
@@ -167,111 +194,54 @@ class LCD : public QObject
     // up without having to actual destroy the LCD object
     void switchToNothing();
         
-    // If you want to be pleasant, call shutdown()before deleting your LCD 
+    // If you want to be pleasant, call shutdown() before deleting your LCD 
     // device
     void shutdown();
     
     // outputText spins through the ptr list and outputs the text according to 
     // the params set in the LCDTextItem object
     // gContext->LCDsetGenericProgress(percent_heard) for an example
-    void outputText(QPtrList<LCDTextItem> *textItems);
+//    void outputText(QPtrList<LCDTextItem> *textItems);
 
-    void setupLEDs(int(*LedMaskFunc)(void)) { GetLEDMask = LedMaskFunc; }
+    void setupLEDs(int(*LedMaskFunc)(void));
 
     void stopAll(void);
-
+    
+    uint getLCDHeight(void) { return lcd_height; }
+    uint getLCDWidth(void) { return lcd_width; }
+    
+    void resetServer(void); // tell the mythlcdserver to reload its settings
+    
   private slots: 
     void veryBadThings(int);       // Communication Errors
     void serverSendingData();      // Data coming back from LCDd
 
     void restartConnection();      // Try to re-establish the connection to 
-                                   // LCDd every 10 seconds
-
-    void outputTime();             // Fire from a timer
-    void outputLEDs();             // Fire from a timer
-    void outputMusic();            // Short timer (equalizer)
-    void outputChannel();          // Longer timer (progress bar)
-    void outputGeneric();          // Longer timer (progress bar)
-    void outputVolume();
-
-    void scrollMenuText();         // Scroll the menu items if need be
-    void beginScrollingMenuText(); // But only after a bit of time has gone by
-    void scrollText();             // Scroll the topline text
-    void beginScrollingText();     // But only after a bit of time has gone by
-    void unPopMenu();              // Remove the Pop Menu display
-        
+                                   // LCDServer every 10 seconds
+    void outputLEDs(); 
+         
   private:
-    void outputCenteredText(QString theScreen, QString theText,
-                            QString widget = "topWidget", int row = 1);
-
-    void outputLeftText(QString theScreen, QString theText,
-                        QString widget = "topWidget", int row = 1);
-    void outputRightText(QString theScreen, QString theText,
-                         QString widget = "topWidget", int row = 1);
-   
     void sendToServer(const QString &someText);
     void init();
-    void assignScrollingText(QString theText, QString theWidget = "topWidget", 
-                             int theRox = 1);
-
-    void startTime();
-    void startMusic(QString artist, QString track);
-    void startChannel(QString channum, QString title, QString subtitle);
-    void startGeneric(QPtrList<LCDTextItem> * textItems);
-    void startMenu(QPtrList<LCDMenuItem> *menuItems, QString app_name,
-                   bool popMenu);
-
     void handleKeyPress(QString key);
-    void startVolume(QString app_name);
-
-    unsigned int theMode;
-
+    QString quotedString(const QString &s);
+    
     QSocket *socket;
-    QTimer *LEDTimer;
-    QTimer *timeTimer;
-    QTimer *musicTimer;
-    QTimer *channelTimer;
-    QTimer *genericTimer;
-    QTimer *scrollTimer;
-    QTimer *preScrollTimer;
-    QTimer *menuScrollTimer;
-    QTimer *menuPreScrollTimer;
-    QTimer *popMenuTimer;
     QTimer *retryTimer;
-
-    void setWidth(unsigned int);
-    void setHeight(unsigned int);
-    void setCellWidth(unsigned int);
-    void setCellHeight(unsigned int);
+    QTimer *LEDTimer;
+    
     void describeServer();
 
-    unsigned int lcdWidth;
-    unsigned int lcdHeight;
-    unsigned int cellWidth;
-    unsigned int cellHeight;
-        
-    float EQlevels[10];
-    float progress;
-    float generic_progress;
-    float volume_level;
-
-    QString scrollingText;
-    QString scrollWidget;
-    int scrollRow;
-    unsigned int scrollPosition;
-    QString timeformat;
-        
-    unsigned int menuScrollPosition;
-    QPtrList<LCDMenuItem> *lcdMenuItems;
-
     bool connected;
-    bool timeFlash;
 
     QString send_buffer;
     QString last_command;
     QString hostname;
     unsigned int port;
 
+    int  lcd_width;
+    int  lcd_height;
+    
     bool lcd_ready;
 
     bool lcd_showtime;
@@ -280,9 +250,13 @@ class LCD : public QObject
     bool lcd_showmusic;
     bool lcd_showchannel;
     bool lcd_showvolume;
+    bool lcd_showrecstatus;
     bool lcd_backlighton;
-    int  lcd_popuptime;
-
+    bool lcd_heartbeaton;
+    int  lcd_popuptime;    
+    QString lcd_showmusic_items;
+    QString lcd_keystring;
+    
     int (*GetLEDMask)(void);
 };
 

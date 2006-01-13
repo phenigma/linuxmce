@@ -2,6 +2,7 @@
 #define AUDIOOUTPUTBASE
 
 #include <iostream>
+#include <pthread.h>
 using namespace std;
 
 #include <qstring.h>
@@ -11,7 +12,7 @@ using namespace std;
 #include "samplerate.h"
 #include "SoundTouch.h"
 
-#define AUDBUFSIZE 512000
+#define AUDBUFSIZE 768000
 
 class AudioOutputBase : public AudioOutput
 {
@@ -104,7 +105,6 @@ class AudioOutputBase : public AudioOutput
     int fragment_size;
     long soundcard_buffer_size;
     QString audiodevice;
-    long total_written;
 
     float audio_stretchfactor;
     AudioOutputSource source;

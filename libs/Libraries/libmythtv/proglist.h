@@ -29,8 +29,8 @@ class ProgLister : public MythDialog
     Q_OBJECT
 
   public:
-    ProgLister(ProgListType pltype, const QString &view, 
-	       MythMainWindow *parent, const char *name = 0);
+    ProgLister(ProgListType pltype, const QString &view, const QString &from,
+               MythMainWindow *parent, const char *name = 0);
     ~ProgLister();
 
   protected slots:
@@ -62,6 +62,7 @@ class ProgLister : public MythDialog
 
   private:
     ProgListType type;
+    QString addTables;
     QDateTime startTime;
     QDateTime searchTime;
     QString dayFormat;
@@ -109,6 +110,8 @@ class ProgLister : public MythDialog
     void fillItemList(void);
     void LoadWindow(QDomElement &);
 
+    void updateKeywordInDB(const QString &text);
+
     void createPopup(void);
     void deletePopup(void);
 
@@ -131,7 +134,8 @@ class ProgLister : public MythDialog
     MythComboBox *powerStation;
     MythPushButton *powerOkButton;
 
-    QString powerStringToSQL(QString &qphrase);
+    void powerStringToSQL(const QString &qphrase, QString &output, 
+                          MSqlBindings &bindings);
 };
 
 #endif

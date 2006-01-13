@@ -46,17 +46,18 @@ class NuppelDecoder : public DecoderBase
     int OpenFile(RingBuffer *rbuffer, bool novideo, char testbuf[2048]);
     bool GetFrame(int onlyvideo);
 
-    bool isLastFrameKey(void) { return (lastKey == framesPlayed); }
+    // lastFrame is really (framesPlayed - 1) since we increment after getting
+    bool isLastFrameKey(void) { return (lastKey == (framesPlayed - 1)); }
     void WriteStoredData(RingBuffer *rb, bool writevid, long timecodeOffset);
     void ClearStoredData(void);
 
     long UpdateStoredFrameNum(long framenumber);
 
-    QString GetEncodingType(void);
+    QString GetEncodingType(void) const;
 
   private:
-    inline bool NuppelDecoder::ReadFileheader(struct rtfileheader *fileheader);
-    inline bool NuppelDecoder::ReadFrameheader(struct rtframeheader *frameheader);
+    inline bool ReadFileheader(struct rtfileheader *fileheader);
+    inline bool ReadFrameheader(struct rtframeheader *frameheader);
 
     bool DecodeFrame(struct rtframeheader *frameheader,
                      unsigned char *lstrm, VideoFrame *frame);
@@ -66,8 +67,8 @@ class NuppelDecoder : public DecoderBase
     void CloseAVCodec(void);
     void StoreRawData(unsigned char *strm);
 
-    void SeekReset(long long newKey = 0, int skipFrames = 0,
-                   bool needFlush = false);
+    void SeekReset(long long newKey = 0, uint skipFrames = 0,
+                   bool needFlush = false, bool discardFrames = false);
 
     friend int get_nuppel_buffer(struct AVCodecContext *c, AVFrame *pic);
     friend void release_nuppel_buffer(struct AVCodecContext *c, AVFrame *pic);
@@ -98,7 +99,8 @@ class NuppelDecoder : public DecoderBase
 
     int effdsp;
 
-    unsigned char *directbuf;
+    VideoFrame *directframe;
+    VideoFrame *decoded_video_frame;
 
     AVCodec *mpa_codec;
     AVCodecContext *mpa_ctx;

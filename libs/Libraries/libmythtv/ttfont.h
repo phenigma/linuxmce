@@ -8,7 +8,12 @@
 #include <qstring.h>
 #include <qmap.h>
 #include <qcolor.h>
+
+#include "config.h"
+
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
+#endif
 
 struct Raster_Map;
 class OSDSurface;
@@ -22,7 +27,7 @@ enum kTTF_Color {
 class TTFFont
 {
   public:
-     TTFFont(char *file, int size, int video_width, int video_height,
+     TTFFont(char *file, int size, float wscale,
              float hmult);
     ~TTFFont();
 
@@ -41,9 +46,9 @@ class TTFFont
      void CalcWidth(const QString &text, int *width_return);
 
      int SpaceWidth() { return spacewidth; }
-     int Size() { return m_size; }
+     int Size() { return loadedfontsize; }
 
-     void Reinit(int width, int height, float hmult);
+     void Reinit(float wscale, float hmult);
 
   private:
      void KillFace(void);
@@ -95,6 +100,7 @@ class TTFFont
      QString m_file;
 
      int loadedfontsize;
+     float m_wscale;
      float m_hmult;
 };
 

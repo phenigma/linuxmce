@@ -2,16 +2,18 @@
 #define PROGRAMINFO_H_
 
 #include "recordingtypes.h"
+#include "mythdbcon.h"
 
-#include <qsqldatabase.h>
 #include <qstring.h>
 #include <qdatetime.h>
 #include <qmap.h>
 #include <vector>
 
 using namespace std;
+typedef QMap<long long, long long> frm_pos_map_t;
+typedef QMap<long long, int> frm_dir_map_t;
 
-#define NUMPROGRAMLINES 39
+#define NUMPROGRAMLINES 40
 
 typedef enum {
     MARK_UNSET = -10,
@@ -49,16 +51,21 @@ enum TranscoderStatus {
 };
 
 enum FlagMask {
-    FL_COMMFLAG  = 0x01,
-    FL_CUTLIST   = 0x02,
-    FL_AUTOEXP   = 0x04,
-    FL_EDITING   = 0x08,
-    FL_BOOKMARK  = 0x10
+    FL_COMMFLAG       = 0x01,
+    FL_CUTLIST        = 0x02,
+    FL_AUTOEXP        = 0x04,
+    FL_EDITING        = 0x08,
+    FL_BOOKMARK       = 0x10,
+    FL_INUSERECORDING = 0x20,
+    FL_INUSEPLAYING   = 0x40
 };
 
 enum RecStatusType {
-    rsDeleted = -5,
-    rsStopped = -4,
+    rsTunerBusy = -8,
+    rsLowDiskSpace = -7,
+    rsCancelled = -6,
+    rsMissed = -5,
+    rsAborted = -4,
     rsRecorded = -3,
     rsRecording = -2,
     rsWillRecord = -1,
@@ -68,13 +75,18 @@ enum RecStatusType {
     rsCurrentRecording = 3,
     rsEarlierShowing = 4,
     rsTooManyRecordings = 5,
-    rsCancelled = 6,
+    rsNotListed = 6,
     rsConflict = 7,
     rsLaterShowing = 8,
     rsRepeat = 9,
     rsInactive = 10,
-    rsLowDiskSpace = 11,
-    rsTunerBusy = 12
+    rsNeverRecord = 11
+};
+
+enum AvailableStatusType {
+    asAvailable = 0,
+    asPendingDelete,
+    asFileNotFound
 };
 
 class ScheduledRecording;
@@ -83,133 +95,152 @@ class QGridLayout;
 class ProgramInfo
 {
   public:
-    ProgramInfo();
+    // Constructors and bulk set methods.
+    ProgramInfo(void);
     ProgramInfo(const ProgramInfo &other);
-    
-    ~ProgramInfo();
-
-    ProgramInfo& operator=(const ProgramInfo &other);
-    ProgramInfo& clone(const ProgramInfo &other);
-
-    bool IsFindApplicable(void) const;
-    
-    // returns 0 for one-time, 1 for weekdaily, 2 for weekly
-    int IsProgramRecurring(void);
-
-    // checks for duplicates according to dupmethod
-    bool IsSameProgram(const ProgramInfo& other) const;
-    // checks chanid, start/end times, sourceid, cardid, inputid.
-    bool IsSameTimeslot(const ProgramInfo& other) const;
-    // checks chanid, start/end times, sourceid
-    bool IsSameProgramTimeslot(const ProgramInfo& other) const;
-
-    void Save();
-
-    RecordingType GetProgramRecordingStatus();
-    QString GetProgramRecordingProfile();
-
-    int GetChannelRecPriority(const QString &chanid);
-    int GetRecordingTypeRecPriority(RecordingType type);
-
-    void ApplyRecordStateChange(RecordingType newstate);
-    void ApplyRecordTimeChange(const QDateTime &newstartts,
-                               const QDateTime &newendts);
-    void ApplyRecordRecPriorityChange(int);
-    void ApplyRecordRecGroupChange(const QString &newrecgroup);
-    void ToggleRecord();
-
-    ScheduledRecording* GetScheduledRecording();
-
-    int getRecordID();
-
-    void StartedRecording();
-    void FinishedRecording(bool prematurestop);
-
-    QGridLayout* DisplayWidget(QWidget *parent = NULL,
-                               QString searchtitle = "");
-
-    void showDetails();
-
-    QString GetRecordBasename(void);
-    QString GetRecordFilename(const QString &prefix);
-    QString GetPlaybackURL(QString playbackHost = "");
-
-    QString MakeUniqueKey(void) const;
-
-    int CalculateLength(void);
-
-    void ToStringList(QStringList &list);
-    bool FromStringList(QStringList &list, int offset);
-    bool FromStringList(QStringList &list, QStringList::iterator &it);
-    void ToMap(QMap<QString, QString> &progMap);
-
-    void SetFilesize(long long fsize);
-    long long GetFilesize();
-    void SetBookmark(long long pos);
-    long long GetBookmark();
-    bool IsEditing();
-    void SetEditing(bool edit);
-    bool IsCommFlagged();
-    void SetDeleteFlag(bool deleteFlag);
-    // 1 = flagged, 2 = processing
-    void SetCommFlagged(int flag);
-    bool IsCommProcessing();
-    void SetAutoExpire(bool autoExpire);
-    void SetPreserveEpisode(bool preserveEpisode);
-    bool GetAutoExpireFromRecorded();
-    bool GetPreserveEpisodeFromRecorded();
-
-    bool UsesMaxEpisodes();
-
-    int GetAutoRunJobs();
-
-    void GetCutList(QMap<long long, int> &delMap);
-    void SetCutList(QMap<long long, int> &delMap);
-
-    void SetBlankFrameList(QMap<long long, int> &frames,
-                           long long min_frame = -1, long long max_frame = -1);
-    void GetBlankFrameList(QMap<long long, int> &frames);
-
-    void SetCommBreakList(QMap<long long, int> &frames);
-    void GetCommBreakList(QMap<long long, int> &frames);
-
-    void ClearMarkupMap(int type = -100,
-                      long long min_frame = -1, long long max_frame = -1);
-    void SetMarkupMap(QMap<long long, int> &marks,
-                      int type = -100,
-                      long long min_frame = -1, long long max_frame = -1);
-    void GetMarkupMap(QMap<long long, int> &marks,
-                      int type, bool mergeIntoMap = false);
-    bool CheckMarkupFlag(int type);
-    void SetMarkupFlag(int type, bool processing);
-    void GetPositionMap(QMap<long long, long long> &posMap, int type);
-    void ClearPositionMap(int type);
-    void SetPositionMap(QMap<long long, long long> &posMap, int type,
-                        long long min_frame = -1, long long max_frame = -1);
-    void SetPositionMapDelta(QMap<long long, long long> &posMap, int type);
-
-    void DeleteHistory();
-    void setIgnoreBookmark(bool ignore) { ignoreBookmark = ignore; }
-    QString RecTypeChar(void);
-    QString RecTypeText(void);
-    QString RecStatusChar(void);
-    QString RecStatusText(void);
-    QString RecStatusDesc(void);
-    void FillInRecordInfo(vector<ProgramInfo *> &reclist);
-    void EditScheduled();
-    void EditRecording();
-    QString ChannelText(QString);
-
-    int getProgramFlags();
-
     static ProgramInfo *GetProgramAtDateTime(const QString &channel, 
-                                             QDateTime &dtime);
+                                             const QDateTime &dtime, 
+                                             bool genUnknown = false);
     static ProgramInfo *GetProgramFromRecorded(const QString &channel, 
                                                const QString &starttime);
     static ProgramInfo *GetProgramFromRecorded(const QString &channel, 
-                                               QDateTime &dtime);
-    int SecsTillStart() const { return QDateTime::currentDateTime().secsTo(startts); }
+                                               const QDateTime &dtime);
 
+    ProgramInfo& operator=(const ProgramInfo &other);
+    ProgramInfo& clone(const ProgramInfo &other);
+    bool FromStringList(QStringList &list, int offset);
+    bool FromStringList(QStringList &list, QStringList::iterator &it);
+    bool FillInRecordInfo(const vector<ProgramInfo *> &reclist);
+    
+    // Destructor
+    ~ProgramInfo();
+
+    // Serializers
+    void Save() const;
+    void ToStringList(QStringList &list) const;
+    void ToMap(QMap<QString, QString> &progMap, 
+               bool showrerecord = false) const;
+
+    // Used for scheduling recordings
+    int IsProgramRecurring(void) const;
+    bool IsSameProgram(const ProgramInfo& other) const;
+    bool IsSameTimeslot(const ProgramInfo& other) const;
+    bool IsSameProgramTimeslot(const ProgramInfo& other) const;
+    static int GetChannelRecPriority(const QString &channel);
+    static int GetRecordingTypeRecPriority(RecordingType type);
+
+    // Used to query and set ScheduledRecording info
+    ScheduledRecording* GetScheduledRecording(void);
+    int getRecordID(void);
+    int GetAutoRunJobs(void) const;
+    RecordingType GetProgramRecordingStatus(void);
+    QString GetProgramRecordingProfile(void);
+    void ApplyRecordStateChange(RecordingType newstate);
+    void ApplyRecordRecPriorityChange(int);
+    void ToggleRecord(void);
+    void ReactivateRecording(void);
+    void AddHistory(bool resched = true);
+    void DeleteHistory(void);
+    void ForgetHistory(void);
+    void SetDupHistory(void);
+
+    // Used to update database with recording info
+    void StartedRecording(QString prefix, QString ext);
+    void FinishedRecording(bool prematurestop);
+    void UpdateRecordingEnd(void);
+    void ApplyRecordRecID(void);
+    void ApplyRecordRecGroupChange(const QString &newrecgroup);
+    void ApplyRecordPlayGroupChange(const QString &newrecgroup);
+    void ApplyRecordRecTitleChange(const QString &newTitle,
+                                   const QString &newSubtitle);
+
+    // Quick gets
+    bool SetRecordBasename(QString basename);
+    QString GetRecordBasename(void) const;
+    QString GetRecordFilename(const QString &prefix) const;
+    QString GetPlaybackURL(QString playbackHost = "") const;
+    QString MakeUniqueKey(void) const;
+    int CalculateLength(void) const;
+    int SecsTillStart() const;
+    QString ChannelText(const QString&) const;
+    QString RecTypeChar(void) const;
+    QString RecTypeText(void) const;
+    QString RecStatusChar(void) const;
+    QString RecStatusText(void) const;
+    QString RecStatusDesc(void) const;
+    void UpdateInUseMark(bool force = false);
+
+    // Quick sets
+    /// \brief If "ignore" is true GetBookmark() will return 0, otherwise
+    ///        GetBookmark() will return the bookmark position if it exists.
+    void setIgnoreBookmark(bool ignore) { ignoreBookmark = ignore; }
+
+    // DB gets
+    long long GetFilesize(void);
+    long long GetBookmark(void) const;
+    bool IsEditing(void) const;
+    bool IsCommFlagged(void) const;
+    bool IsInUse(QString &byWho) const;
+    int GetAutoExpireFromRecorded(void) const;
+    bool GetPreserveEpisodeFromRecorded(void) const;
+    bool UsesMaxEpisodes(void) const;
+    int getProgramFlags(void) const;
+    bool GetChannel(QString &channum, QString &input) const;
+    QString GetFileName(void) const { return pathname; }
+    QString toString(void) const;
+
+    // DB sets
+    void SetFilesize(long long fsize);
+    void SetBookmark(long long pos) const;
+    void SetEditing(bool edit) const;
+    void SetDeleteFlag(bool deleteFlag) const;
+    void SetCommFlagged(int flag) const; // 1 = flagged, 2 = processing
+    void SetAutoExpire(int autoExpire) const;
+    void SetPreserveEpisode(bool preserveEpisode) const;
+
+    // Commercial/Edit flagging maps
+    void GetCutList(frm_dir_map_t &) const;
+    void GetCommBreakList(frm_dir_map_t &) const;
+
+    void SetCutList(frm_dir_map_t &) const;
+    void SetCommBreakList(frm_dir_map_t &) const;
+
+    // Flagging map support methods
+    bool CheckMarkupFlag(int type) const;
+    void GetMarkupMap(frm_dir_map_t&, int type, bool merge = false) const;
+    void SetMarkupFlag(int type, bool processing) const;
+    void SetMarkupMap(frm_dir_map_t &, int type = -100,
+                      long long min_frm = -1, long long max_frm = -1) const;
+    void ClearMarkupMap(int type = -100,
+                        long long min_frm = -1, long long max_frm = -1) const;
+
+    // Keyframe positions Map
+    void GetPositionMap(frm_pos_map_t &, int type) const;
+    void ClearPositionMap(int type) const;
+    void SetPositionMap(frm_pos_map_t &, int type,
+                        long long min_frm = -1, long long max_frm = -1) const;
+    void SetPositionMapDelta(frm_pos_map_t &, int type) const;
+
+
+    // GUI stuff
+    void showDetails(void) const;
+    void EditRecording(void);
+    void EditScheduled(void);
+
+    // In-use, autodeletion prevention stuff
+    void MarkAsInUse(bool inuse, QString usedFor = "");
+
+  private:
+    // GUI helper functions
+    bool IsFindApplicable(void) const;
+    void ShowRecordingDialog(void);
+    void ShowNotRecordingDialog(void);
+
+    // Creates a basename from the start and end times
+    QString CreateRecordBasename(const QString &ext) const;
+
+  public:
+    // data
     QString title;
     QString subtitle;
     QString description;
@@ -223,6 +254,7 @@ class ProgramInfo
     
     int recpriority;
     QString recgroup;
+    QString playgroup;
     int chancommfree;
 
     QString pathname;
@@ -234,6 +266,7 @@ class ProgramInfo
     QDateTime recstartts;
     QDateTime recendts;
 
+    AvailableStatusType availableStatus;
     
     bool isVideo;
     int lenMins;
@@ -243,6 +276,7 @@ class ProgramInfo
 
     QDate originalAirDate;
     QDateTime lastmodified;
+    QDateTime lastInUseTime;
     
     bool hasAirDate;
     bool repeat;
@@ -251,13 +285,11 @@ class ProgramInfo
     int startCol;
 
     RecStatusType recstatus;
+    RecStatusType oldrecstatus;
     RecStatusType savedrecstatus;
-    int numconflicts;
-    int conflictpriority;
-    int reactivate;             // 0 = not requested
-                                // 1 = requested, pending
-                                // 2 = requested, replaced
-                                // -1 = reactivated
+    int recpriority2;
+    int reactivate;
+
     int recordid;
     int parentid;
     RecordingType rectype;
@@ -268,12 +300,13 @@ class ProgramInfo
     int inputid;
     int cardid;
     bool shareable;
-    bool conflictfixed;
+    bool duplicate;
 
     QString schedulerid;
     int findid;
 
     int programflags;
+    int transcoder;
     QString chanOutputFilters;
     
     QString seriesid;
@@ -282,14 +315,16 @@ class ProgramInfo
 
     QString sortTitle;
 
-private:
+  private:
     bool ignoreBookmark;
-    void handleRecording();
-    void handleNotRecording();
+    mutable class ScheduledRecording* record;
 
-    class ScheduledRecording* record;
+    QString inUseForWhat;
 };
 
+/** \class ProgramList
+ *  \brief QPtrList of ProgramInfo instances, with helper functions.
+ */
 class ProgramList: public QPtrList<ProgramInfo> {
  public:
     ProgramList(bool autoDelete = true) {
@@ -302,29 +337,20 @@ class ProgramList: public QPtrList<ProgramInfo> {
         return at(index);
     };
 
-    bool FromScheduler(bool &hasConflicts);
+    bool FromScheduler(bool &hasConflicts, QString altTable = "", int recordid=-1);
     bool FromScheduler(void) {
         bool dummyConflicts;
         return FromScheduler(dummyConflicts);
     };
 
-    bool FromProgram(const QString sql,
+    bool FromProgram(const QString &sql, MSqlBindings &bindings,
                      ProgramList &schedList);
-    bool FromProgram(const QString sql) {
+    bool FromProgram(const QString &sql, MSqlBindings &bindings) {
         ProgramList dummySched;
-        return FromProgram(sql, dummySched);
+        return FromProgram(sql, bindings, dummySched);
     }
 
-    bool FromOldRecorded(const QString sql);
-
-    bool FromRecorded(const QString sql,
-                      ProgramList &schedList);
-    bool FromRecorded(const QString sql) {
-        ProgramList dummySched;
-        return FromRecorded(sql, dummySched);
-    }
-
-    bool FromRecord(const QString sql);
+    bool FromOldRecorded(const QString &sql, MSqlBindings &bindings);
 
     typedef int (*CompareFunc)(ProgramInfo *p1, ProgramInfo *p2);
     void Sort(CompareFunc func) {

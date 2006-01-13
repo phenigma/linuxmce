@@ -3,6 +3,7 @@
 
 #include <qstring.h>
 #include <qmutex.h>
+#include <cassert>
 
 #include "videooutbase.h"
 
@@ -30,7 +31,7 @@ class VideoOutputIvtv: public VideoOutput
                       FilterChain *filterList,
                       NuppelVideoPlayer *pipPlayer);
 
-    int WriteBuffer(unsigned char *buf, int count);
+    uint WriteBuffer(unsigned char *buf, int count);
     int Poll(int delay);
     void Pause(void);
     void Start(int skip, int mute);
@@ -49,14 +50,26 @@ class VideoOutputIvtv: public VideoOutput
         { last_speed = speed; last_normal = normal; last_mask = mask; };
     void Flush(void);
     void Step(void);
-    int GetFramesPlayed(void);
+    long long GetFramesPlayed(void);
 
+    VideoFrame *GetNextFreeFrame(bool with_lock = false,
+                                 bool allow_unsafe = false)
+    {
+        return NULL;
+    }
   private:
-    typedef enum { kAlpha_Solid, kAlpha_Local, kAlpha_Clear, kAlpha_Embedded } eAlphaState;
+    typedef enum
+    {
+        kAlpha_Solid,
+        kAlpha_Local,
+        kAlpha_Clear,
+        kAlpha_Embedded
+    } eAlphaState;
 
     void ShowPip(VideoFrame *frame, NuppelVideoPlayer *pipplayer);
     void SetAlpha(eAlphaState newAlpha);
- 
+    long long GetFirmwareFramesPlayed(void);
+
     int videofd;
     int fbfd;
 
@@ -77,10 +90,13 @@ class VideoOutputIvtv: public VideoOutput
 
     char *osdbuffer;
     char *osdbuf_aligned;
-
-    int osdbufsize;
+    int   osdbufsize;
+    int   osdbuf_revision;
 
     float last_speed;
+    int   internal_offset;
+    int   frame_at_speed_change;
+
     bool last_normal;
     int last_mask;
     eAlphaState alphaState;

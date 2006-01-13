@@ -21,26 +21,43 @@
 
 #define FIREWIRE_CHANNEL_BROADCAST	63
 
+/** \class FirewireRecorder
+ *  \brief This is a specialization of DTVRecorder used to
+ *         handle DVB and ATSC streams from a firewire input.
+ *
+ *  \sa DTVRecorder
+ */
 class FirewireRecorder : public DTVRecorder
 {
   public:
-
-    FirewireRecorder();
-    ~FirewireRecorder();
+    FirewireRecorder(TVRec *rec) :
+        DTVRecorder(rec, "FirewireRecorder"),
+        fwport(-1),     fwchannel(-1), fwspeed(-1),   fwbandwidth(-1),
+        fwfd(-1),       fwconnection(FIREWIRE_CONNECTION_P2P),
+        fwoplug(-1),    fwiplug(-1),   fwmodel(""),   fwnode(0),
+        fwhandle(NULL), fwmpeg(NULL),  isopen(false), lastpacket(0) {;}
+        
+    ~FirewireRecorder() { Close(); }
 
     void StartRecording(void);
     bool Open(void); 
-    void ProcessTSPacket(unsigned char *tspacket, int len);
-    void FirewireRecorder::SetOptionsFromProfile(RecordingProfile *profile,
-                                         const QString &videodev,
-                                         const QString &audiodev,
-                                         const QString &vbidev, int ispip);
+    void ProcessTSPacket(const TSPacket &tspacket);
+    void SetOptionsFromProfile(RecordingProfile *profile,
+                               const QString &videodev,
+                               const QString &audiodev,
+                               const QString &vbidev);
 
     void SetOption(const QString &name, const QString &value);
     void SetOption(const QString &name, int value);
     QString FirewireSpeedString(int speed);
 
+    bool PauseAndWait(int timeout = 100);
+
+  public slots:
+    void deleteLater(void);
+        
   private:
+    void Close(void);
     int fwport, fwchannel, fwspeed, fwbandwidth, fwfd, fwconnection;
     int fwoplug, fwiplug;
     QString fwmodel;
@@ -49,7 +66,6 @@ class FirewireRecorder : public DTVRecorder
     iec61883_mpeg2_t fwmpeg;
     bool isopen;
     time_t lastpacket;
-    TSPacket tpkt;
 };
 
 #endif

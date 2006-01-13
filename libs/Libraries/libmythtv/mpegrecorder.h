@@ -9,8 +9,9 @@ struct AVPacket;
 class MpegRecorder : public RecorderBase
 {
   public:
-    MpegRecorder();
+    MpegRecorder(TVRec*);
    ~MpegRecorder();
+    void TeardownAll(void);
 
     void SetOption(const QString &opt, int value);
     void SetOption(const QString &name, const QString &value);
@@ -19,7 +20,7 @@ class MpegRecorder : public RecorderBase
     void SetOptionsFromProfile(RecordingProfile *profile,
                                const QString &videodev, 
                                const QString &audiodev,
-                               const QString &vbidev, int ispip);
+                               const QString &vbidev);
 
     void Initialize(void);
     void StartRecording(void);
@@ -27,9 +28,7 @@ class MpegRecorder : public RecorderBase
     void Reset(void);
 
     void Pause(bool clear = true);
-    void Unpause(void);
-    bool GetPause(void);
-    void WaitForPause(void);
+
     bool IsRecording(void);
     bool IsErrored(void) { return errored; }
 
@@ -39,17 +38,24 @@ class MpegRecorder : public RecorderBase
     int GetVideoFd(void);
 
     long long GetKeyframePosition(long long desired);
-    void GetBlankFrameMap(QMap<long long, int> &blank_frame_map);
+
+    void SetNextRecording(const ProgramInfo*, RingBuffer*);
+
+  public slots:
+    void deleteLater(void);
 
   private:
     bool SetupRecording();
     void FinishRecording();
+    void HandleKeyframe(void);
+    void SavePositionMap(bool force);
 
-    bool PacketHasHeader(unsigned char *buf, int len, unsigned int startcode);
     void ProcessData(unsigned char *buffer, int len);
 
     bool OpenMpegFileAsInput(void);
     bool OpenV4L2DeviceAsInput(void);
+
+    void ResetForNewFile(void);
 
     bool errored;
     bool deviceIsMpegFile;
@@ -72,11 +78,10 @@ class MpegRecorder : public RecorderBase
     int chanfd;
     int readfd;
 
-    AVFormatContext *ic;
-
     int keyframedist;
     bool gopset;
 
+    QMutex                     positionMapLock;
     QMap<long long, long long> positionMap;
     QMap<long long, long long> positionMapDelta;
 
@@ -84,5 +89,13 @@ class MpegRecorder : public RecorderBase
     static const int audRateL2[];
     static const char* streamType[];
     static const char* aspectRatio[];
+
+    unsigned int leftovers;
+    long long lastpackheaderpos;
+    long long lastseqstart;
+    long long numgops;
+
+    unsigned char *buildbuffer;
+    unsigned int buildbuffersize;
 };
 #endif

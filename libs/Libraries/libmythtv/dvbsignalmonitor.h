@@ -1,54 +1,63 @@
+// -*- Mode: c++ -*-
+
 #ifndef DVBSIGNALMONITOR_H
 #define DVBSIGNALMONITOR_H
 
-#include <pthread.h>
-#include <qobject.h>
+#include "dtvsignalmonitor.h"
+#include "qstringlist.h"
 
-#include "dvbtypes.h"
+class DVBChannel;
 
-class DVBSignalMonitor: public QObject
+typedef QMap<uint,int> FilterMap;
+
+class DVBSignalMonitor: public DTVSignalMonitor
 {
     Q_OBJECT
+  public:
+    DVBSignalMonitor(int db_cardnum, DVBChannel* _channel, uint _flags = 0,
+                     const char *_name = "DVBSignalMonitor");
+    virtual ~DVBSignalMonitor();
 
-public:
-    DVBSignalMonitor(int cardnum, int fd_frontend);
-    ~DVBSignalMonitor();
-    
-    void Start();
-    void Stop();
+    virtual QStringList GetStatusList(bool kick);
+    void Stop(void);
 
-signals:
-    void Status(dvb_stats_t &stats);
-    void Status(const QString &val);
+    bool UpdateFiltersFromStreamData(void);
 
-    void StatusSignalToNoise(int);
-    void StatusSignalStrength(int);
-    void StatusBitErrorRate(int);
-    void StatusUncorrectedBlocks(int);
+  public slots:
+    void deleteLater(void);
 
-private:
-    void MonitorLoop();
-    static void* SpawnMonitorLoop(void*);
-    bool FillFrontendStats(dvb_stats_t &stats);
+  signals:
+    void StatusSignalToNoise(const SignalMonitorValue&);
+    void StatusBitErrorRate(const SignalMonitorValue&);
+    void StatusUncorrectedBlocks(const SignalMonitorValue&);
 
-    //int GetIDForCardNumber(int cardnum);
-    //void* QualityMonitorThread();
-    //void QualityMonitorSample(int cardnum, dvb_stats_t& sample);
-    //void ExpireQualityData();
+  protected:
+    DVBSignalMonitor(void);
+    DVBSignalMonitor(const DVBSignalMonitor&);
 
-    static const QString TIMEOUT;
-    static const QString LOCKED;
-    static const QString NOTLOCKED;
+    virtual void UpdateValues(void);
+    void EmitDVBSignals(void);
 
-    //int     signal_monitor_interval;
-    //int     expire_data_days;
+    static void *TableMonitorThread(void *param);
+    void RunTableMonitor(void);
+    void RunTableMonitorTS(void);
+    void RunTableMonitorSR(void);
+    bool AddPIDFilter(uint pid);
+    bool RemovePIDFilter(uint pid);
 
+    int GetDVBCardNum(void) const;
 
-    pthread_t   monitor_thread;
-    int         cardnum;
-    int         fd_frontend;
-    bool        running;
-    bool        exit;
+    bool SupportsTSMonitoring(void);
+  protected:
+    SignalMonitorValue signalToNoise;
+    SignalMonitorValue bitErrorRate;
+    SignalMonitorValue uncorrectedBlocks;
+
+    bool               useSectionReader;
+    bool               dtvMonitorRunning;
+    pthread_t          table_monitor_thread;
+
+    FilterMap          filters; ///< PID filters for table monitoring
 };
 
 #endif // DVBSIGNALMONITOR_H

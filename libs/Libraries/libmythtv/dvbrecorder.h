@@ -1,3 +1,4 @@
+// -*- Mode: c++ -*-
 /*
  *  Copyright (C) Kenneth Aafloy 2003
  *  
@@ -7,22 +8,56 @@
 #ifndef DVBRECORDER_H
 #define DVBRECORDER_H
 
+// C++ includes
 #include <vector>
-#include <map>
 using namespace std;
 
+// Qt includes
+#include <qmutex.h>
+
 #include "dtvrecorder.h"
+#include "tspacket.h"
 #include "transform.h"
+#include "DeviceReadBuffer.h"
 
 #include "dvbtypes.h"
 #include "dvbchannel.h"
 #include "dvbsiparser.h"
 
-class DVBRecorder: public QObject, public DTVRecorder
+class ProgramAssociationTable;
+class ProgramMapTable;
+class TSPacket;
+
+class PIDInfo
+{
+  public:
+    PIDInfo() :
+        filter_fd(-1),  continuityCount(0xFF), ip(NULL),
+        isVideo(false), isEncrypted(false),    payloadStartSeen(false) {;}
+
+    int    filter_fd;         ///< Input filter file descriptor
+    uint   continuityCount;   ///< last Continuity Count (sentinel 0xFF)
+    ipack *ip;                ///< TS->PES converter
+    bool   isVideo;
+    bool   isEncrypted;       ///< true if PID is marked as encrypted
+    bool   payloadStartSeen;  ///< true if payload start packet seen on PID
+
+    inline void Close(void);
+    inline bool CheckCC(uint cc);
+};
+typedef QMap<uint,PIDInfo*> PIDInfoMap;
+
+/** \class DVBRecorder
+ *  \brief This is a specialization of DTVRecorder used to
+ *         handle streams from DVB drivers.
+ *
+ *  \sa DTVRecorder, HDTVRecorder
+ */
+class DVBRecorder: public DTVRecorder, private ReaderPausedCB
 {
     Q_OBJECT
-public:
-    DVBRecorder(DVBChannel* dvbchannel);
+  public:
+    DVBRecorder(TVRec *rec, DVBChannel* dvbchannel);
    ~DVBRecorder();
 
     void SetOption(const QString &name, int value);
@@ -30,72 +65,128 @@ public:
     void SetOptionsFromProfile(RecordingProfile *profile,
                                const QString &videodev,
                                const QString &audiodev,
-                               const QString &vbidev, int ispip);
+                               const QString &vbidev);
 
     void StartRecording(void);
     void Reset(void);
+    void StopRecording(void);
 
-public slots:
-    void ChannelChanged(dvb_channel_t& chan);
+    bool Open(void);
+    bool IsOpen(void) const { return _stream_fd >= 0; }
+    void Close(void);
 
-private:
-    bool Open();
-    void Close();
+    bool RecordsTransportStream(void) const
+        { return _record_transport_stream_option; }
 
-    void ReadFromDMX();
-    static void ProcessDataPS(unsigned char *buffer, int len, void *priv);
-    void LocalProcessDataPS(unsigned char *buffer, int len);
-    void LocalProcessDataTS(unsigned char *buffer, int len);
+    bool RecordsProgramStream(void) const
+        { return !_record_transport_stream_option; }
 
-    void CloseFilters();
-    void OpenFilters(uint16_t pid, ES_Type type, dmx_pes_type_t pes_type);
-    void SetDemuxFilters();
-    void AutoPID();
+  public slots:
+    void SetPMTObject(const PMTObject*);
+    void deleteLater(void);
 
-    void CreatePAT(uint8_t *ts_packet);
-    void CreatePMT(uint8_t *ts_packet);
+  private:
+    void TeardownAll(void);
 
+    bool Poll(void) const;
+
+    uint ProcessDataTS(unsigned char *buffer, uint len);
+    bool ProcessTSPacket(const TSPacket& tspacket);
+
+    void AutoPID(void);
+    bool OpenFilters(void);
+    void CloseFilters(void);
+    void OpenFilter(uint pid, ES_Type type, dmx_pes_type_t pes_type,
+                    uint mpeg_stream_type);
+
+    void SetPAT(ProgramAssociationTable*);
+    void SetPMT(ProgramMapTable*);
+
+    void CreatePAT(void);
+    void CreatePMT(void);
+    void WritePATPMT(void);
+
+    void DebugTSHeader(unsigned char* buffer, int len);
+
+    void ReaderPaused(int fd);
+    bool PauseAndWait(int timeout = 100);
+
+    // TS->PS Transform
+    ipack *CreateIPack(ES_Type type);
+    void ProcessDataPS(unsigned char *buffer, uint len);
+    static void process_data_ps_cb(unsigned char*,int,void*);
+
+    DeviceReadBuffer *_drb;
+
+  private:
     // Options set in SetOption()
-    int  _card_number_option;
-    bool _record_transport_stream_option;
-    bool _dvb_on_demand_option;
-    bool _hw_decoder_option;
+    int             _card_number_option;
+    bool            _record_transport_stream_option;
+    bool            _hw_decoder_option;
 
     // DVB stuff
     DVBChannel*     dvbchannel;
-    pid_ipack_t     pid_ipack;
-    PMTObject       m_pmt;
-    unsigned char   prvpkt[3];
-    vector<int>     _pid_filters;
-    bool            _reset_pid_filters; // set when we want to generate a new filter set
 
-    // Stream IDs for the PS recorder
-    uint8_t audioid;
-    uint8_t videoid;
+    // general recorder stuff
+    /// Set when we want to generate a new filter set
+    bool            _reset_pid_filters;
+    QMutex          _pid_lock;
+    PIDInfoMap      _pid_infos;
 
-    uint8_t *pat_pkt;
-    uint8_t *pmt_pkt;
+    // PS recorder stuff
+    int             _ps_rec_audio_id;
+    int             _ps_rec_video_id;
+    unsigned char   _ps_rec_buf[3];
+
+    // TS recorder stuff
+    ProgramAssociationTable *_pat;
+    ProgramMapTable         *_pmt;
+    uint            _next_pmt_version;
+    int             _ts_packets_until_psip_sync;
+
+    // Input Misc
+    /// PMT on input side
+    PMTObject       _input_pmt;
+
+    // Statistics
+    mutable uint        _continuity_error_count;
+    mutable uint        _stream_overflow_count;
+    mutable uint        _bad_packet_count;
+    mutable MythTimer   _poll_timer;
+
+    // Constants
     static const int PMT_PID;
-    int pat_cc;
-    int pmt_cc;
-    uint8_t pmt_version;
-    int pkts_until_pat_pmt;
-
-    // statistics
-    unsigned int _continuity_error_count;
-    unsigned int _stream_overflow_count;
-    unsigned int _bad_packet_count;
-    map<uint16_t,uint8_t> _continuity_count;
-    map<uint16_t,bool> pusi_seen;
-    map<uint16_t,bool> isVideo;
-
-    // for debugging
-    void DebugTSHeader(unsigned char* buffer, int len);
-    bool data_found; // debugging variable used by transform.c
-    bool keyframe_found;
-
-    // to see when CAM starts working
-    map<uint16_t,bool> scrambled;
+    static const int TSPACKETS_BETWEEN_PSIP_SYNC;
+    static const int POLL_INTERVAL;
+    static const int POLL_WARNING_TIMEOUT;
 };
+
+inline void PIDInfo::Close(void)
+{
+    if (filter_fd >= 0)
+        close(filter_fd);
+
+    if (ip)
+    {
+        free_ipack(ip);
+        free(ip);
+    }
+}
+
+inline bool PIDInfo::CheckCC(uint new_cnt)
+{
+    if (continuityCount == 0xFF)
+    {
+        continuityCount = new_cnt;
+        return true;
+    }
+
+    continuityCount = (continuityCount+1) & 0xf;
+    if (continuityCount == new_cnt)
+        return true;
+    
+    continuityCount = new_cnt;
+    return false;
+}
 
 #endif

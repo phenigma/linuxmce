@@ -25,6 +25,8 @@ class OSDSet : public QObject
     OSDSet(const OSDSet &other);
    ~OSDSet();
 
+    void Clear();
+
     void SetCache(bool cache) { m_cache = cache; }
     bool GetCache() { return m_cache; }
 
@@ -130,6 +132,8 @@ class OSDType : public QObject
     virtual ~OSDType();
 
     void SetParent(OSDSet *parent) { m_parent = parent; }
+    void Hide(bool hidden = true) { m_hidden = hidden; }
+    bool isHidden(void) { return m_hidden; }
 
     QString Name() { return m_name; }
 
@@ -137,6 +141,7 @@ class OSDType : public QObject
                       int yoff) = 0;
 
   protected:
+    bool m_hidden;
     QString m_name;
     OSDSet *m_parent;
 };
@@ -226,7 +231,7 @@ class OSDTypeImage : public OSDType
     virtual ~OSDTypeImage();
 
     void SetName(const QString &name);
-    void Reinit(float wmult, float hmult);
+    void Reinit(float wchange, float hchange, float wmult, float hmult);
 
     void LoadImage(const QString &filename, float wmult, float hmult, 
                    int scalew = -1, int scaleh = -1);
@@ -262,7 +267,6 @@ class OSDTypeImage : public OSDType
     unsigned char *m_alpha;
 
     int m_scalew, m_scaleh;
-    float m_wmult, m_hmult;
 
     int m_drawwidth;
     bool m_onlyusefirst;

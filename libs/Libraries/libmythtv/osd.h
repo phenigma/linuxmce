@@ -21,8 +21,18 @@ enum OSDFunctionalType
     kOSDFunctionalType_PictureAdjust,
     kOSDFunctionalType_RecPictureAdjust,
     kOSDFunctionalType_SmartForward,
-    kOSDFunctionalType_TimeStretchAdjust
+    kOSDFunctionalType_TimeStretchAdjust,
+    kOSDFunctionalType_AudioSyncAdjust
 };
+
+struct StatusPosInfo
+{
+    QString desc;
+    int position;
+    bool progBefore;
+    bool progAfter;
+};
+
 
 class QImage;
 class TTFFont;
@@ -41,12 +51,13 @@ class OSD : public QObject
 {
     Q_OBJECT
  public:
-    OSD(int width, int height, int framerate,
-        int dispx, int dispy, int dispw, int disph);
+    OSD(const QRect &totalBounds,   int   frameRate,
+        const QRect &visibleBounds, float visibleAspect, float fontScaling);
    ~OSD(void);
 
     OSDSurface *Display(void);
 
+    void ClearAll(const QString &name);
     void ClearAllText(const QString &name);
     void SetText(const QString &name, QMap<QString, QString> &infoMap,
                          int length);
@@ -66,7 +77,7 @@ class OSD : public QObject
     void SetSettingsText(const QString &text, int length);
 
     void NewDialogBox(const QString &name, const QString &message, 
-                      QStringList &options, int length);
+                      QStringList &options, int length, int sel = 0);
     void DialogUp(const QString &name);
     void DialogDown(const QString &name);
     bool DialogShowing(const QString &name);
@@ -77,11 +88,14 @@ class OSD : public QObject
     void SetUpOSDClosedHandler(TV *tv);
 
     // position is 0 - 1000 
-    void StartPause(int position, bool fill, QString msgtext,
-                    QString slidertext, int displaytime,
+    void ShowStatus(int pos, bool fill, QString msgtext, QString desc,
+                    int displaytime,
                     int osdFunctionalType = kOSDFunctionalType_Default);
-    void UpdatePause(int position, QString slidertext);
-    void EndPause(void);
+    void ShowStatus(struct StatusPosInfo posInfo,
+                      bool fill, QString msgtext, int displaytime,
+                      int osdFunctionalType = kOSDFunctionalType_Default);
+    void UpdateStatus(struct StatusPosInfo posInfo);
+    void EndStatus(void);
 
     bool Visible(void);
 
@@ -106,8 +120,9 @@ class OSD : public QObject
 
     int getTimeType(void) { return timeType; }
 
-    void Reinit(int width, int height, int frint, int dispx, int dispy, 
-                int dispw, int disph);
+    void Reinit(const QRect &totalBounds,   int   frameRate,
+                const QRect &visibleBounds,
+                float visibleAspect, float fontScaling);
 
     void SetFrameInterval(int frint);
 
@@ -120,6 +135,9 @@ class OSD : public QObject
                                   OSDGenericTree *treeToShow);
 
     void DisableFade(void);
+    bool IsSetDisplaying(const QString &name);
+    bool HasSet(const QString &name);
+    QRect GetSubtitleBounds();
 
  private:
     void SetDefaults();
@@ -148,12 +166,13 @@ class OSD : public QObject
     void parsePositionImage(OSDSet *container, QDomElement &element);
     void parseListTree(OSDSet *container, QDomElement &element);
 
-    int vid_width;
-    int vid_height;
-    int frameint;
+    QRect osdBounds;
+    int   frameint;
+    bool  needPillarBox;
 
     QString themepath;
 
+    float wscale, fscale;
     float hmult, wmult;
     int xoffset, yoffset, displaywidth, displayheight;
 

@@ -9,113 +9,120 @@
 class RemoteFile;
 class RemoteEncoder;
 class ThreadedFileWriter;
+class DVDRingBufferPriv;
+class LiveTVChain;
 
 class RingBuffer
 {
   public:
-    // can explicitly disable the readahead thread here, or just by not
-    // calling Start()
-    RingBuffer(const QString &lfilename, bool write, bool usereadahead = true);
-    RingBuffer(const QString &lfilename, long long size, long long smudge,
-               RemoteEncoder *enc = NULL);
-    
+    RingBuffer(const QString &lfilename, bool write,
+               bool usereadahead = true, uint read_retries = 6);
    ~RingBuffer();
 
-    bool IsOpen(void) { return (tfw || fd2 > -1 || remotefile); }
-    
-    int Read(void *buf, int count);
-    int Write(const void *buf, int count);
-    void Sync(void);
-
-    long long Seek(long long pos, int whence);
-    long long WriterSeek(long long pos, int whence);
-
+    // Sets
     void SetWriteBufferSize(int newSize);
     void SetWriteBufferMinWriteSize(int newMinSize);
+    void CalcReadAheadThresh(uint estbitrate);
 
-    long long GetReadPosition(void);
-    long long GetTotalReadPosition(void);
-    long long GetWritePosition(void);
-    long long GetTotalWritePosition(void);
-    long long GetFileSize(void) { return filesize; }
-    long long GetSmudgeSize(void) { return smudgeamount; }
+    // Gets
+    /// Returns name of file used by this RingBuffer
+    QString   GetFilename(void)      const { return filename; }
+    /// Returns ReadBufAvail(void)
+    int       DataInReadAhead(void)  const { return ReadBufAvail(); }
+    /// Returns value of stopreads
+    /// \sa StartReads(void), StopReads(void)
+    bool      GetStopReads(void)     const { return stopreads; }
+    /// Returns false iff read-ahead is not
+    /// running and read-ahead is not paused.
+    bool      isPaused(void)         const
+        { return (!readaheadrunning) ? true : readaheadpaused; }
+    long long GetReadPosition(void)  const;
+    long long GetWritePosition(void) const;
+    long long GetRealFileSize(void)  const;
+    bool      IsOpen(void)           const;
 
-    long long GetFileWritePosition(void);
-    
-    long long GetFreeSpace(void);
+    // General Commands
+    void OpenFile(const QString &lfilename, uint retryCount = 4);
+    int  Read(void *buf, int count);
+    void Reset(bool full = false, bool toAdjust = false);
 
-    long long GetFreeSpaceWithReadChange(long long readchange);
+    // Seeks
+    long long Seek(long long pos, int whence);
 
-    void Reset(void);
-
-    void StopReads(void);
-    void StartReads(void);
-    bool GetStopReads(void) { return stopreads; }
-
-    bool LiveMode(void) { return !normalfile; }
-
-    const QString GetFilename(void) { return filename; }
-
-    bool IsIOBound(void);
-
-    void Start(void);
-
+    // Pause commands
     void Pause(void);
     void Unpause(void);
-    bool isPaused(void);
     void WaitForPause(void);
+    
+    // Start/Stop commands
+    void Start(void);
+    void StopReads(void);
+    void StartReads(void);
 
-    void CalcReadAheadThresh(int estbitrate);
+    // LiveTVChain support
+    bool LiveMode(void) const;
+    void SetLiveMode(LiveTVChain *chain);
+    /// Tells RingBuffer whether to igonre the end-of-file
+    void IgnoreLiveEOF(bool ignore) { ignoreliveeof = ignore; }
 
-    long long GetRealFileSize(void);
+    // ThreadedFileWriter proxies
+    int  Write(const void *buf, uint count);
+    bool IsIOBound(void) const;
+    void WriterFlush(void);
+    void Sync(void);
+    long long WriterSeek(long long pos, int whence);
 
+    // DVDRingBuffer proxies
+    /// Returns true if this is a DVD backed RingBuffer.
+    bool isDVD(void) const { return dvdPriv; }
+    void getPartAndTitle(int &title, int &part);
+    void getDescForPos(QString &desc);
+    bool nextTrack(void);
+    void prevTrack(void);
+    uint GetTotalTimeOfTitle(void);
+    uint GetCellStart(void);
+    long long GetTotalReadPosition(void);
+
+    long long SetAdjustFilesize(void);
+    
   protected:
-    static void *startReader(void *type);
+    static void *StartReader(void *type);
     void ReadAheadThread(void);
 
   private:
-    void Init(void);
-
-    int safe_read(int fd, void *data, unsigned sz);
-    int safe_read(RemoteFile *rf, void *data, unsigned sz);
-
-    QString filename;
-
-    ThreadedFileWriter *tfw;
-    int fd2;
- 
-    bool normalfile;
-    bool writemode;
-    
-    long long writepos;
-    long long totalwritepos;
-
-    long long readpos;
-    long long totalreadpos;
-
-    long long filesize;
-    long long smudgeamount;
-
-    long long wrapcount;
-
-    bool stopreads;
-
-    pthread_rwlock_t rwlock;
-
-    int recorder_num;
-    RemoteEncoder *remoteencoder;
-    RemoteFile *remotefile;
+    int safe_read_dvd(void *data, uint sz);
+    int safe_read(int fd, void *data, uint sz);
+    int safe_read(RemoteFile *rf, void *data, uint sz);
 
     int ReadFromBuf(void *buf, int count);
 
-    inline int ReadBufFree(void);
-    inline int ReadBufAvail(void);
+    int ReadBufFree(void) const;
+    int ReadBufAvail(void) const;
 
     void StartupReadAheadThread(void);
     void ResetReadAhead(long long newinternal);
     void KillReadAheadThread(void);
 
-    QMutex readAheadLock;
+  private:
+    QString filename;
+
+    ThreadedFileWriter *tfw;
+    int fd2;
+
+    bool writemode;
+ 
+    long long readpos;
+    long long writepos;
+
+    bool stopreads;
+
+    mutable pthread_rwlock_t rwlock;
+
+    int recorder_num;
+    RemoteEncoder *remoteencoder;
+    RemoteFile *remotefile;
+
+    mutable QMutex readAheadLock;
     pthread_t reader;
 
     bool startreadahead;
@@ -146,7 +153,18 @@ class RingBuffer
 
     bool commserror;
 
+    DVDRingBufferPriv *dvdPriv;
+
     bool oldfile;
+
+    LiveTVChain *livetvchain;
+    bool ignoreliveeof;
+
+    long long readAdjust;
+
+    // constants
+    static const uint kBufferSize;
+    static const uint kReadTestSize;
 };
 
 #endif
