@@ -34,7 +34,7 @@ int SerialConnection::connect(const char *port)
 		serialPort = new CSerialPort(port, 115200, epbsN81);
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
-		int stat = pthread_create(&write_thread, NULL, &receiveFunction, (void*)this);
+		int stat = pthread_create(&write_thread, NULL, receiveFunction, (void*)this);
 		if( stat != 0)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
@@ -54,7 +54,6 @@ int SerialConnection::connect(const char *port)
 		{
 			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
 		}
-		usleep(1000000);
 	}
 	catch(...)
 	{
