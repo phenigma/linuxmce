@@ -54,6 +54,7 @@ int SerialConnection::connect(const char *port)
 		{
 			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
 		}
+		usleep(1000000);
 	}
 	catch(...)
 	{
@@ -263,6 +264,7 @@ char SerialConnection::checkSum(char *b, int len)
 void *SerialConnection::receiveFunction(void *)
 {
 	g_pPlutoLogger->Write(LV_WARNING, "entry point receiveFUnction");
+	g_pPlutoLogger->Flush();
 	//printf("entry point receiveFUnction");
 	if(instance->isConnected())
 	{
