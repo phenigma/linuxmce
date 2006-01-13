@@ -54,6 +54,13 @@ int SerialConnection::connect(const char *port)
 		{
 			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
 		}
+
+#ifdef _WIN32 	
+			Sleep(READ_DELAY); 
+#else 	
+			usleep(READ_DELAY); 
+#endif //_WIN32
+
 	}
 	catch(...)
 	{
@@ -113,10 +120,15 @@ int SerialConnection::send(char *buffer, size_t len)
 				char *paddedBuffer = NULL;
 				len += 3;
 				paddedBuffer = new char((int)len);
+				if(paddedBuffer == NULL)
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "unable to allocate memory!!!");
+					return -1;
+				}
 				paddedBuffer[0] = SERIAL_SOF; 
 				paddedBuffer[1] = (char)len - 2;
 				memcpy(&(paddedBuffer[2]), buffer, len - 3);
-				paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, len - 2);
+				paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, (int)len - 2);
 				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(paddedBuffer, len);
 				pthread_mutex_unlock( &mutex_serial );
