@@ -1,7 +1,7 @@
 #include "SerialConnection.h"
 #include "main.h"
 
-#define DEBUG_EUGEN 1
+//#define DEBUG_EUGEN 1
 
 SerialConnection* SerialConnection::instance = NULL;
 
@@ -23,7 +23,7 @@ int SerialConnection::connect(const char *port)
 {
 	try
 	{
-		serialPort = new CSerialPort(port, 9600, epbsN81);
+		serialPort = new CSerialPort(port, 115200, epbsN81);
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 
@@ -31,6 +31,7 @@ int SerialConnection::connect(const char *port)
 	}
 	catch(...)
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "exeception from serial port");
 		return -1;
 	}
 	return 0;
@@ -59,6 +60,16 @@ int SerialConnection::send(char *buffer, size_t len)
 	{
 			g_pPlutoLogger->Write(LV_WARNING, "0x%02x ", buffer[i]);
 	}
+	char *paddedBuffer = NULL;
+	len += 3;
+	paddedBuffer = new char((int)len);
+	paddedBuffer[0] = SERIAL_SOF; 
+	paddedBuffer[1] = (char)len - 2;
+	memcpy(&(paddedBuffer[2]), buffer, len - 3);
+	paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, len - 2);
+
+	delete paddedBuffer;
+	paddedBuffer = NULL;
 	g_pPlutoLogger->Write(LV_WARNING, "--------------");
 	g_pPlutoLogger->Flush();
 	pthread_mutex_unlock( &instance->mutex_buffer );
@@ -75,11 +86,11 @@ int SerialConnection::send(char *buffer, size_t len)
 			{
 				char *paddedBuffer = NULL;
 				len += 3;
-				paddedBuffer = new char(len);
-				paddedBuffer[0] = SOF; 
-				paddedBuffer[1] = len - 2;
-				paddedBuffer[len - 1] = checkSum(buffer, len - 3);
+				paddedBuffer = new char((int)len);
+				paddedBuffer[0] = SERIAL_SOF; 
+				paddedBuffer[1] = (char)len - 2;
 				memcpy(&(paddedBuffer[2]), buffer, len - 3);
+				paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, len - 2);
 				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(paddedBuffer, len);
 				pthread_mutex_unlock( &mutex_serial );
@@ -89,6 +100,7 @@ int SerialConnection::send(char *buffer, size_t len)
 			catch(...)
 			{
 				returnValue = -1;
+				g_pPlutoLogger->Write(LV_WARNING, "exeception from serial port");
 			}
 		}
 		else returnValue = -1;
@@ -184,7 +196,7 @@ int SerialConnection::hasCommand()
 			if(tmpSum == checkSum)
 			{
 				returnValue = 1;
-				//char ack = SERIAL_ACK;
+				char ack = SERIAL_ACK;
 				pthread_mutex_lock( &mutex_serial );
 #ifdef DEBUG_EUGEN
 				g_pPlutoLogger->Write(LV_WARNING, "Send ACK");
@@ -216,7 +228,9 @@ char SerialConnection::checkSum(char *b, int len)
 	for(int i=0; i< len; i++)
 	{
 		returnValue ^= b[i]; 
+		g_pPlutoLogger->Write(LV_WARNING, "b[%d]=%x", i, b[i]);
 	}
+	g_pPlutoLogger->Write(LV_WARNING, "check = %x", i, returnValue);
 	return returnValue;
 }
 
