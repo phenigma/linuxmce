@@ -3342,7 +3342,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
     if(  pObj->m_iPK_Datagrid  )
     {
         bool bResponse;
-        int iPK_Variable=pObj->m_iPK_Variable;
+        int iPK_Variable=0;
         string sValue_To_Assign;
 		WaitForMessageQueue();  // There might still be some messages in the queue which will affect this grid
 		pObj->m_iPopulatedWidth=pObj->m_MaxCol;  // Pass in the grid's on screen width/height -- we'll get back the total populated size
