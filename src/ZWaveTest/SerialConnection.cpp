@@ -2,6 +2,14 @@
 #include "main.h"
 
 //#define DEBUG_EUGEN 1
+#ifdef _WIN32 
+#include <windows.h> 
+#include <winbase.h> 
+#define READ_DELAY 200 
+#else 
+#include <unistd.h> 
+#define READ_DELAY 200000 
+#endif
 
 SerialConnection* SerialConnection::instance = NULL;
 
@@ -26,8 +34,26 @@ int SerialConnection::connect(const char *port)
 		serialPort = new CSerialPort(port, 115200, epbsN81);
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
-
-		pthread_create(&write_thread, NULL, &receiveFunction, NULL);
+		int stat = pthread_create(&write_thread, NULL, &receiveFunction, (void*)this);
+		if( stat != 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
+			switch(stat)
+			{
+			case EAGAIN:
+				g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
+				break;
+			case EINVAL:
+				g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
+				break;
+			default:
+				g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
+		}
 	}
 	catch(...)
 	{
@@ -236,6 +262,8 @@ char SerialConnection::checkSum(char *b, int len)
 
 void *SerialConnection::receiveFunction(void *)
 {
+	g_pPlutoLogger->Write(LV_WARNING, "entry point receiveFUnction");
+	//printf("entry point receiveFUnction");
 	if(instance->isConnected())
 	{
 		char mybuf[1024];
@@ -269,7 +297,9 @@ void *SerialConnection::receiveFunction(void *)
 		{
 			len = 100;
 			pthread_mutex_lock( &instance->mutex_serial );
+			g_pPlutoLogger->Write(LV_WARNING, "before read");
 			len = instance->serialPort->Read(mybuf, 100);
+			g_pPlutoLogger->Write(LV_WARNING, "after read");
 			pthread_mutex_unlock( &instance->mutex_serial );
 
 			pthread_mutex_lock( &instance->mutex_buffer );
@@ -277,9 +307,14 @@ void *SerialConnection::receiveFunction(void *)
 				instance->buffer.push_back(mybuf[len]);
 			pthread_mutex_unlock( &instance->mutex_buffer );
 			
+#ifdef _WIN32 	
+			Sleep(READ_DELAY); 
+#else 	
+			usleep(READ_DELAY); 
+#endif //_WIN32
 			//TODO delay
 		}
-#endif
+#endif // DEBUG_EUGEN
 	}
 	return NULL;
 }
