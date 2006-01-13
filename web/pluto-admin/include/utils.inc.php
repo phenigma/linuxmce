@@ -1150,7 +1150,7 @@ function builtTopMenu($website,$dbADO)
 	writeFile($cachedIDs,$IDs,'w');
 
 	if(file_exists($cachedTopMenu)){
-		writeFile($GLOBALS['ErrorLog'],date('d-m-Y H:i:s').' ERROR: The cached menu cannot be written to '.$cachedTopMenu."\n\n");
+		writeFile($GLOBALS['ErrorLog'],date('d-m-Y H:i:s').' ERROR: The cached menu cannot be written to '.$cachedTopMenu."\n\n",'a+');
 		return join('',file($cachedTopMenu));
 	}else{
 		return $menuPages;
@@ -2885,7 +2885,8 @@ function displayRemotes($mdID,$dbADO,$section)
 	foreach ($remotes AS $rid=>$description){
 		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
 	}
-	$out.=substr($delLinks,0,-2).' <input type="button" class="button" name="button" value="Add Remote" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
+	$note=($delLinks!='')?' Click to remove':'';
+	$out.=substr($delLinks,0,-2).$note.' <input type="button" class="button" name="button" value="Add Remote" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
 	
 	return $out;
 }
@@ -3009,6 +3010,20 @@ function processAudioSettings($deviceID,$dbADO)
 	$audioSettings=($_POST['audioSettings_'.$deviceID]=='0')?'':$_POST['audioSettings_'.$deviceID];
 	$newAS=$audioSettings.@$_POST['ac3_'.$deviceID];
 	$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
+	
+	$xinePlayerData=getFieldsAsArray('Device Xine','Xine.PK_Device AS PK_Device',$dbADO,'
+		INNER JOIN Device Orbiter ON Xine.FK_Device_ControlledVia=Orbiter.PK_Device
+		INNER JOIN Device MD ON Orbiter.FK_Device_ControlledVia=MD.PK_Device
+		WHERE MD.PK_Device='.$deviceID.' AND Xine.FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
+	
+	$ac3DD=(isset($_POST['ac3_'.$deviceID]))?'Pass Through':'Stereo 2.0';
+	if(isset($xinePlayerData['PK_Device'][0]) && $xinePlayerData['PK_Device'][0]!=0){
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($ac3DD,$xinePlayerData['PK_Device'][0],$GLOBALS['OutputSpeakerArrangement']));
+	}else{
+		$error=" ERROR: cannot find xine player device for device #$deviceID";
+		writeFile($GLOBALS['ErrorLog'],date('d-m-Y H:i:s')."$error\n\n",'a+');
+	}
+	return @$error;	
 }
 
 function processVideoSettings($deviceID,$dbADO)

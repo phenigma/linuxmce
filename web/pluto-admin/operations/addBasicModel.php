@@ -80,6 +80,7 @@
 			case 2:
 				$implementDCE=1;
 				$commandLine='Generic_Serial_Device';
+				$fk_package=307;
 				$addInstance=1;
 				$addCommandGroup=1;
 				if($from=='genericSerialDevices'){
@@ -102,6 +103,7 @@
 			case 3:
 				$implementDCE=0;
 				$commandLine=NULL;
+				$fk_package=NULL;
 				$redirectJS='
 				<script>
 					opener.location=\'index.php?section=editMasterDevice&model=\';
@@ -113,7 +115,7 @@
 		}
 		
 		if($dcID!=0 && $mID!=0 && $description!=''){
-			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user,ImplementsDCE,CommandLine) values(?,?,?,?,?,?)',array($description,$dcID,$mID,$userID,$implementDCE,$commandLine));
+			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user,ImplementsDCE,CommandLine,FK_Package) values(?,?,?,?,?,?,?)',array($description,$dcID,$mID,$userID,$implementDCE,$commandLine,$fk_package));
 			$dtID=$publicADO->Insert_ID();
 			
 			if($dtID>0 && isset($addInstance)){

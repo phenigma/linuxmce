@@ -170,6 +170,7 @@
 	$GLOBALS['SupportIframes']=122;				// Support iframes
 	$GLOBALS['RefreshInterval']=123;			// Refresh Interval
 	$GLOBALS['AvailableSerialPorts']=133;		// Available Serial Ports
+	$GLOBALS['OutputSpeakerArrangement']=71;	// Output Speaker arrangement
 	
 	// PK_FloorplanType from table FloorplanType 
 

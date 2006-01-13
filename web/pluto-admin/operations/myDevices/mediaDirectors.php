@@ -87,7 +87,7 @@ function mediaDirectors($output,$dbADO) {
 				window.open(locationA,\'\',attributes);
 			}
 	</script>
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div class="confirm" align="center"><B>'.strip_tags(@$_GET['msg']).'</B></div>
 	<form action="index.php" method="POST" name="mediaDirectors">
 	<input type="hidden" name="section" value="mediaDirectors">
@@ -482,7 +482,7 @@ function mediaDirectors($output,$dbADO) {
 					}
 
 					processReceiver($value,$dbADO);
-					processAudioSettings($value,$dbADO);
+					$err=processAudioSettings($value,$dbADO);
 				}
 			}
 			
@@ -504,7 +504,7 @@ function mediaDirectors($output,$dbADO) {
 		}
 		
 		
-		header("Location: index.php?section=mediaDirectors&msg=$TEXT_MD_UPDATED_CONST".@$anchor);		
+		header("Location: index.php?section=mediaDirectors&msg=$TEXT_MD_UPDATED_CONST&error=".@$err.@$anchor);		
 	}
 
 	$output->setScriptCalendar('null');

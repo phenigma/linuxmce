@@ -63,13 +63,15 @@
 				$parentCategory=$GLOBALS['InfraredInterface'];
 				$implementDCE=0;
 				$commandLine=NULL;
+				$fk_package=NULL;
 			}else{
 				$parentCategory=$GLOBALS['rootComputerID'];
 				$implementDCE=1;
 				$commandLine='Generic_Serial_Device';
+				$fk_package=307;
 			}
 			
-			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user,ImplementsDCE,CommandLine) values(?,?,?,?,?,?)',array($description,$dcID,$mID,$userID,$implementDCE,$commandLine));
+			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user,ImplementsDCE,CommandLine,FK_Package) values(?,?,?,?,?,?,?)',array($description,$dcID,$mID,$userID,$implementDCE,$commandLine,$fk_package));
 			$dtID=$publicADO->Insert_ID();
 			
 			// add record to DeviceTemplate_AV
