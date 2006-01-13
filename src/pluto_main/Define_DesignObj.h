@@ -710,6 +710,7 @@
 #define DESIGNOBJ_go_to_pictures_CONST 3188
 #define DESIGNOBJ_go_to_home_video_CONST 3189
 #define DESIGNOBJ_go_to_burning_CONST 3190
+#define DESIGNOBJ_mnuAppletTest_CONST 3192
 #define DESIGNOBJ_more_CONST 3193
 #define DESIGNOBJ_go_to_computing_CONST 3194
 #define DESIGNOBJ_go_to_playlists_CONST 3195
@@ -1761,7 +1762,7 @@
 #define DESIGNOBJ_butRecessedlighting_CONST 4611
 #define DESIGNOBJ_butStartUsingMonster_CONST 4612
 #define DESIGNOBJ_roomsapplet_CONST 4616
-#define DESIGNOBJ_butRoomswizard_CONST 4617
+#define DESIGNOBJ_butApplet_CONST 4617
 #define DESIGNOBJ_butGreetings_CONST 4618
 #define DESIGNOBJ_butTVManufNotListed_CONST 4623
 #define DESIGNOBJ_AlarmDetect_CONST 4624
