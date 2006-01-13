@@ -99,7 +99,7 @@ Utils::ParseParty(const std::string party, std::string* extension, std::string *
 		pos = party.find('|',oldpos);
 	}
 	if(pos < 0) {
-		pos = party.find('|',oldpos);
+		pos = party.find('/',oldpos);
 	}
 	if(pos < 0) {
 		return -1;

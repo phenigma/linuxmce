@@ -18,6 +18,7 @@
 #include "runtimeconfig.h"
 #include "utils.h"
 
+#define MARK_DIALING " DIAL/"
 
 using namespace std;
 using namespace DCE;
@@ -49,10 +50,31 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		{
 			string rest=party;
 			string extension;
-			if(!Utils::ParseParty(party, &extension,&rest)) {	
-				string channel = ptoken->getKey(TOKEN_CHANNEL);
-				map_ringext[extension] += string(" ")+channel;
-				g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
+			if(!Utils::ParseParty(party, &extension,&rest)) {
+				if(atoi(extension.c_str())>0)
+				{
+					string channel = ptoken->getKey(TOKEN_CHANNEL);
+					map_ringext[extension] += string(" ")+channel;
+					g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
+				}
+				else
+				{
+					string channel = ptoken->getKey(TOKEN_CHANNEL);
+					string ringphoneid;
+					if(!Utils::ParseChannel(channel, &ringphoneid))
+					{
+						if(map_ringext.find(ringphoneid) != map_ringext.end())
+						{
+							int pos = party.rfind('/');
+							if(pos>=0)
+							{
+								string number = party.substr(pos+1,party.length());
+								map_ringext[ringphoneid] += string(MARK_DIALING)+number+string("/ ");
+								g_pPlutoLogger->Write(LV_STATUS, "Will mark channel %s as dialing to %s", channel.c_str(),number.c_str());								
+							}
+						}
+					}
+				}
 			} else {
 				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
 				return 0;
@@ -60,16 +82,11 @@ RingDetectHandler::handleToken(Token* ptoken) {
 			party = rest;
 		}
 	}
-//////////////// IMPLEMENT THIS
-///Event: Newexten
-///Channel: IAX2/222@222/4
-///Context: from-internal
-///Extension: 918777588648
-
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_HANGUP)
 	{
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 		bool success=false;
+		list<map<string,string>::iterator> delete_list;
 		for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
 		{
 			string exten=(*it).first;
@@ -81,17 +98,42 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				newchan = newchan.substr(0,pos)+newchan.substr(pos+channel.length(),newchan.length());
 				g_pPlutoLogger->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
 				(*it).second = newchan;
+				
 				if ((*it).second.find_first_not_of(' ')<0)
 				{
-					map_ringext.erase(it);
+					delete_list.push_back(it);
 					g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty");
 				}
+				else
+				{
+					pos=newchan.find(MARK_DIALING);
+					if(pos>=0)
+					{
+						int newpos = newchan.find(' ',pos+1);
+						newchan=newchan.substr(0,pos)+newchan.substr(newpos,newchan.length());
+						if((newpos=newchan.find_first_not_of(' '))<0)
+						{
+							delete_list.push_back(it);
+							g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
+						}
+						else
+						{
+							g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+						}
+					}
+				}
+				
 				success=true;
 			}
 			AsteriskManager* manager = AsteriskManager::getInstance();
 			g_pPlutoLogger->Write(LV_STATUS, "Will notify hangup on %s",exten.c_str());
 			manager->NotifyHangup(exten);
 		}
+		for(list<map<string,string>::iterator>::iterator it=delete_list.begin();it!=delete_list.end();it++)
+		{
+			map_ringext.erase(*it);
+		}
+		
 		if(!success)
 		{
 			if(channel.find("Local")<0)
@@ -102,7 +144,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		}
 	}
 
-	if(ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL && (ptoken->getKey(TOKEN_STATE) == STATE_RINGING || ptoken->getKey(TOKEN_STATE) == STATE_RING)) 
+	if((ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL || ptoken->getKey(TOKEN_EVENT) == EVENT_NEWSTATE ) && (ptoken->getKey(TOKEN_STATE) == STATE_RINGING || ptoken->getKey(TOKEN_STATE) == STATE_RING)) 
 	{
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 

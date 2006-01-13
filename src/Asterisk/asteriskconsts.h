@@ -23,6 +23,7 @@
 #define EVENT_NEWEXTEN 		"Newexten"
 #define EVENT_HANGUP 		"Hangup"
 #define EVENT_LINK			"Link"
+#define EVENT_NEWSTATE		"Newstate"
 
 /* states */
 #define STATE_RING 			"Ring"
