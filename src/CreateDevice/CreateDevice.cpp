@@ -32,8 +32,11 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "DCEConfig.h"
 
 #define  VERSION "<=version=>"
+
+extern DCEConfig dceConfig;
 
 using namespace std;
 using namespace DCE;
@@ -115,32 +118,6 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d installation: %d configure: %d",
 		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
-
-	if( iPK_Package && !m_bDontInstallPackages )
-	{
-		SQL = "SELECT Name FROM Package_Source JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource WHERE FK_RepositoryType=1 and FK_Package=" + StringUtils::itos(iPK_Package);
-		PlutoSqlResult result;
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-		{
-			if( m_bInstallPackagesInBackground )
-			{
-				ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallNewDevice.sh",
-					StringUtils::itos(PK_Device) + "\t" + (row[0] ? row[0] : "") + "\t","newdevice");
-				g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
-					PK_Device,(row[0] ? row[0] : ""));
-			}
-			else
-			{
-				string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
-				g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
-				system(sCmd.c_str());
-			}
-		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
-	}
-	else
-		g_pPlutoLogger->Write(LV_STATUS,"Not installing package %d",iPK_Package);
 
 	bool bIsOrbiter=false;
 	// Loop through all the categories
@@ -281,11 +258,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 	// Do this last since the controlled via may be something we added above
 	if( !PK_Device_ControlledVia )
 	{
-		int iPK_Device_ControlledVia_New=FindControlledViaCandidate(PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo);
-		g_pPlutoLogger->Write(LV_STATUS,"Searching for controlled via returned %d",iPK_Device_ControlledVia_New);
-		if( iPK_Device_ControlledVia_New )
+		PK_Device_ControlledVia=FindControlledViaCandidate(PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo);
+		g_pPlutoLogger->Write(LV_STATUS,"Searching for controlled via returned %d",PK_Device_ControlledVia);
+		if( PK_Device_ControlledVia)
 		{
-			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
+			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_ControlledVia) +
 				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
 			if( threaded_mysql_query(SQL)<0 )
 			{
@@ -294,6 +271,39 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			}
 		}
 	}
+
+	if( iPK_Package && !m_bDontInstallPackages )
+	{
+		int PK_Device_TopMost=DatabaseUtils::GetTopMostDevice(this,PK_Device);
+		if( PK_Device_TopMost==dceConfig.m_iPK_Device_Computer )
+		{
+			SQL = "SELECT Name FROM Package_Source JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource WHERE FK_RepositoryType=1 and FK_Package=" + StringUtils::itos(iPK_Package);
+			PlutoSqlResult result;
+			if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+			{
+				if( m_bInstallPackagesInBackground )
+				{
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallNewDevice.sh",
+						StringUtils::itos(PK_Device) + "\t" + (row[0] ? row[0] : "") + "\t","newdevice");
+					g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
+						PK_Device,(row[0] ? row[0] : ""));
+				}
+				else
+				{
+					string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
+					g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+					system(sCmd.c_str());
+				}
+			}
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Not installing package %d because %d top most is not %d",iPK_Package,PK_Device_TopMost,dceConfig.m_iPK_Device_Computer);
+	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Not installing package %d",iPK_Package);
+
 
 	return PK_Device;
 }
