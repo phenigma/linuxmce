@@ -146,7 +146,7 @@ bool Telecom_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ActiveCallsGrid))
-		,DATAGRID_All_Calls_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_Floorplan_Telecom_Streams_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
@@ -1013,6 +1013,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 				}
 				else
 				{
+					ext_txt+= "UNKNOWN ";
 					g_pPlutoLogger->Write(LV_STATUS,"   chan skip");
 				}
 			}
