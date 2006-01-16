@@ -120,11 +120,11 @@ FindComputerRoot()
 
 if [[ -z "$1" ]]; then
 	Device="$PK_Device"
+	compRoot=/
 else
 	Device="$1"
+	compRoot="$(FindComputerRoot "$Device")"
 fi
-
-compRoot="$(FindComputerRoot "$Device")"
 
 [[ ! -d "$compRoot" ]] && echo "Can not find directory "$compRoot"" && exit
 
