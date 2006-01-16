@@ -1913,13 +1913,13 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			m_listNewPnpDevicesWaitingForARoom.push_back(*iPK_Device);
 			if( iPK_Orbiter )
 			{
-				DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,StringUtils::itos(*iPK_Device),
+				DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,*iPK_Device,
 					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
 				SendCommand(SCREEN_NewPlugAndPlayDevice);
 			}
 			else
 			{
-				DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,StringUtils::itos(*iPK_Device),
+				DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,*iPK_Device,
 					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
 				SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
 			}
@@ -2163,7 +2163,7 @@ bool General_Info_Plugin::OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,i
 #endif
 
 	DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
-		StringUtils::itos(iPK_DeviceTemplate),sMac_address, sIP_Address,StringUtils::itos(iPK_DHCPDevice));
+		iPK_DeviceTemplate,sMac_address, sIP_Address,iPK_DHCPDevice);
 	SendCommand(SCREEN_NAS_Options);
 	return false;
 }
@@ -2190,7 +2190,7 @@ void General_Info_Plugin::PostCreateDevice_Cameras(int iPK_Device,int iPK_Device
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count && pOH_Orbiter )
 	{
 		DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-			StringUtils::itos(iPK_Device));
+			iPK_Device);
 		SendCommand(SCREEN_Sensors_Viewed_By_Camera);
 	}
 }

@@ -10,6 +10,8 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Screen.h"
 #include "pluto_main/Table_Screen_CommandParameter.h"
+#include "pluto_main/Table_CommandParameter.h"
+#include "pluto_main/Define_ParameterType.h"
 
 //uncomment next line to see if AllScreens.h is compilable
 //#include "Gen_Devices/AllScreens.h"
@@ -36,6 +38,9 @@ class ScreenGenerator
 	string GetClassOrMethod(Row_Screen *pRow_Screen);
 	string GetParamName(Row_Screen_CommandParameter *pCommandParameter);
 	string GetParamPair(Row_Screen_CommandParameter *pCommandParameter);
+
+	string GetPrefix(int PK_ParameterType);
+	string GetType(int PK_ParameterType);
 
 public:
 	ScreenGenerator(Database_pluto_main *pDatabase_pluto_main, string sOutputPath);
@@ -209,7 +214,20 @@ string ScreenGenerator::GenerateClasses()
 			itp != vectRow_Screen_CommandParameter.end(); itp++)
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
-			sConstructorParams += "string " + GetParamName(pCommandParameter);
+			if(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get() == PARAMETERTYPE_Data_CONST)
+			{
+				sConstructorParams += 
+					GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+					GetParamName(pCommandParameter) + ", " +
+					"int i" + FileUtils::ValidCPPName(pCommandParameter->FK_CommandParameter_getrow()->Description_get()) + "_Size";
+			}
+			else
+			{
+				sConstructorParams += 
+					GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+					GetParamName(pCommandParameter);
+			}
+
 			sParams += GetParamPair(pCommandParameter);
 
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
@@ -326,7 +344,9 @@ string ScreenGenerator::GenerateMethods()
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
 
-			sParams += "string " + GetParamName(pCommandParameter);
+			sParams += 
+				GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+				GetParamName(pCommandParameter);
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 				sParams += ", ";
 
@@ -374,10 +394,51 @@ string ScreenGenerator::GenerateSwitchBlock()
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
 
-			sParams += GetParamName(pCommandParameter);
-			sMessageParamsLines += "\t\t\t\t\tstring " + GetParamName(pCommandParameter) + 
-				" = pMessage->m_mapParameters[" +
-				StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "];\r\n";
+			if(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get() == PARAMETERTYPE_Data_CONST)
+				sParams += GetParamName(pCommandParameter) + ", " + "i" + FileUtils::ValidCPPName(pCommandParameter->FK_CommandParameter_getrow()->Description_get()) + "_Size";
+			else
+				sParams += GetParamName(pCommandParameter);
+
+			switch(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get())
+			{
+				case PARAMETERTYPE_Data_CONST:
+					{
+						sMessageParamsLines += "\t\t\t\t\tchar *" + GetParamName(pCommandParameter) + 
+							" = pMessage->m_mapData_Parameters[" + StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "];\r\n";
+						sMessageParamsLines += "\t\t\t\t\tint i" + FileUtils::ValidCPPName(pCommandParameter->FK_CommandParameter_getrow()->Description_get()) + "_Size" + 
+							" = pMessage->m_mapData_Lengths[" + StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "];\r\n";
+					}
+				break;
+
+				case PARAMETERTYPE_int_CONST:
+				case PARAMETERTYPE_double_CONST:
+					{
+						sMessageParamsLines += "\t\t\t\t\t" + 
+							GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+							GetParamName(pCommandParameter) + 
+							" = atoi(pMessage->m_mapParameters[" +
+							StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "].c_str());\r\n";
+					}
+				break;
+
+				case PARAMETERTYPE_bool_CONST:
+					{
+						sMessageParamsLines += "\t\t\t\t\t" + 
+							GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+							GetParamName(pCommandParameter) + 
+							" = pMessage->m_mapParameters[" +
+							StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "] == \"1\";\r\n";
+					}
+					break;
+
+				default:
+					sMessageParamsLines += "\t\t\t\t\t" + 
+						GetType(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + " " + 
+						GetParamName(pCommandParameter) + 
+						" = pMessage->m_mapParameters[" +
+						StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "];\r\n";
+			}
+
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 				sParams += ", ";
 
@@ -400,24 +461,70 @@ string ScreenGenerator::GenerateSwitchBlock()
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GetClassOrMethod(Row_Screen *pRow_Screen)
 {
-	string sClassName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
-	sClassName = StringUtils::Replace(sClassName, "-", "");
-	sClassName = StringUtils::Replace(sClassName, "/", "_");
+	string sClassName = "SCREEN_" + FileUtils::ValidCPPName(pRow_Screen->Description_get());
 
 	return sClassName;
 }
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GetParamName(Row_Screen_CommandParameter *pCommandParameter)
 {
-	return "s" + StringUtils::Replace(pCommandParameter->Description_get(), " ", "");
+	return GetPrefix(pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get()) + 
+		FileUtils::ValidCPPName(pCommandParameter->FK_CommandParameter_getrow()->Description_get());
 }
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GetParamPair(Row_Screen_CommandParameter *pCommandParameter)
 {
-	string sParamPair = 
-		StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
-		" /* " + pCommandParameter->Description_get() + " */, " + GetParamName(pCommandParameter) + ".c_str()";
+	string sParamPair;
+	long nType = pCommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get();
+
+	if(nType == PARAMETERTYPE_Data_CONST)
+	{
+		sParamPair = 
+			StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
+				" /* " + pCommandParameter->Description_get() + " */, " + 
+				GetParamName(pCommandParameter) + ", " + 
+				"i" + FileUtils::ValidCPPName(pCommandParameter->FK_CommandParameter_getrow()->Description_get()) + "_Size";
+	}
+	else
+	{
+		string sTransform;
+		if(nType != PARAMETERTYPE_int_CONST && nType != PARAMETERTYPE_double_CONST && nType != PARAMETERTYPE_bool_CONST)
+			sTransform = ".c_str()";
+
+		sParamPair = 
+			StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
+			" /* " + pCommandParameter->Description_get() + " */, " + 
+			GetParamName(pCommandParameter) + sTransform;
+	}
 
 	return sParamPair;
+}
+//-----------------------------------------------------------------------------------------------------
+string ScreenGenerator::GetPrefix(int PK_ParameterType)
+{
+	if( PK_ParameterType == PARAMETERTYPE_Data_CONST )
+		return "p";
+	if( PK_ParameterType == PARAMETERTYPE_int_CONST )
+		return "i";
+	if( PK_ParameterType == PARAMETERTYPE_double_CONST )
+		return "f";
+	if( PK_ParameterType == PARAMETERTYPE_bool_CONST )
+		return "b";
+
+	return "s";
+}
+//-----------------------------------------------------------------------------------------------------
+string ScreenGenerator::GetType(int PK_ParameterType)
+{
+	if( PK_ParameterType == PARAMETERTYPE_Data_CONST )
+		return "char *";
+	if( PK_ParameterType == PARAMETERTYPE_int_CONST )
+		return "int";
+	if( PK_ParameterType == PARAMETERTYPE_double_CONST )
+		return "float";
+	if( PK_ParameterType == PARAMETERTYPE_bool_CONST )
+		return "bool";
+
+	return "string";
 }
 //-----------------------------------------------------------------------------------------------------

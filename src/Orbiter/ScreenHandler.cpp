@@ -81,10 +81,10 @@ void ScreenHandler::SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, str
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddress, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers) 
+void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users) 
 { 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPKUsers);
-	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, sPKUsers);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
+	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate, 
@@ -111,13 +111,13 @@ void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAdd
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, sMacAddress);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, string sPK_Device, 
+void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device, 
 												   string sDescription, string sComments)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sComments);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPK_Device);
-	GotoScreen(SCREEN_NewPlugAndPlayDevice_CONST,sPK_Device,true,true);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, StringUtils::ltos(iPK_Device));
+	GotoScreen(SCREEN_NewPlugAndPlayDevice_CONST,StringUtils::ltos(iPK_Device),true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_SensorsNotReady(long PK_Screen, string sDescription)
@@ -407,16 +407,16 @@ void ScreenHandler::SCREEN_popSecurity(long PK_Screen, string sLocation)
 		sLocation, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice)
+void ScreenHandler::SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_CONST, sPKDevice);
-	ScreenHandlerBase::SCREEN_SingleCameraViewOnly(PK_Screen, sPKDevice);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_CONST, StringUtils::ltos(iPK_Device));
+	ScreenHandlerBase::SCREEN_SingleCameraViewOnly(PK_Screen, iPK_Device);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList)
+void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sPK_Device_List)
 {
 	vector<string> vectDevices;
-	StringUtils::Tokenize(sPKDevicesList, ",", vectDevices);
+	StringUtils::Tokenize(sPK_Device_List, ",", vectDevices);
 
 	if(vectDevices.size() == 4)
 	{
@@ -424,31 +424,31 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, vectDevices[1]);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_3_CONST, vectDevices[2]);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_4_CONST, vectDevices[3]);
-		ScreenHandlerBase::SCREEN_SingleCameraViewOnly(PK_Screen, sPKDevicesList);
+		ScreenHandlerBase::SCREEN_QuadViewCameras(PK_Screen, sPK_Device_List);
 	}
 	else
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "The list of devices for SCREEN_QuadViewCameras is wrong: %s", 
-			sPKDevicesList.c_str());
+			sPK_Device_List.c_str());
 	}
 }
 //----------------------------------------------------------------------------------------------------- 
-void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, 
+void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_DeviceTemplate, string sMacAddres, 
 	string sIPAddress, string sPK_DHCPDevice)
 { 
 	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddres;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIPAddress);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPK_DHCPDevice);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, sPK_DeviceTemplate);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_DeviceTemplate));
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), "", "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPK_Device, string sPhoneName)
+void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName)
 { 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Device));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
 
-	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,sPK_Device,true,true);
+	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,StringUtils::ltos(iPK_Device),true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device)
@@ -461,5 +461,5 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 {
 	g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::BadGotoScreen %d",PK_Screen);
 }
-
+//-----------------------------------------------------------------------------------------------------
 

@@ -47,12 +47,12 @@ public:
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress);
-	virtual void SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers); 
+	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
 	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
 		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress);
-	virtual void SCREEN_NewPlugAndPlayDevice(long PK_Screen, string sPK_Device, string sDescription, 
+	virtual void SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device, string sDescription, 
 		string sComments);
 	virtual void SCREEN_SensorsNotReady(long PK_Screen, string sDescription);
 	virtual void SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, string sHouseModeTime, 
@@ -94,15 +94,15 @@ public:
 	virtual void SCREEN_popTelecom(long PK_Screen, string sLocation);
 	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
-	virtual void SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, 
+	virtual void SCREEN_NAS_Options(long PK_Screen, int iPK_DeviceTemplate, string sMacAddres, 
 		string sIPAddress, string sPK_DHCPDevice);
 
 	//cameras
-	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice);
-	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList);
+	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device);
+	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPK_Device_List);
 	virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device);
 
-	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPK_Device, string sPhoneName);
+	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

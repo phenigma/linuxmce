@@ -1196,7 +1196,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		bDontSendInstructions = true;
 
 		SCREEN_New_Phone_Enter_Number SCREEN_New_Phone_Enter_Number_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
-			StringUtils::ltos(pRow_Device->PK_Device_get()), pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
+			pRow_Device->PK_Device_get(), pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
 		SendCommand(SCREEN_New_Phone_Enter_Number_);
     }
 
