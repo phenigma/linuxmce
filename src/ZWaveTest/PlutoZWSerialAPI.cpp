@@ -88,7 +88,7 @@ PlutoZWSerialAPI::Private::~Private()
 		node = NULL;
 	}
 	
-	delete connection;
+	SerialConnection::forceClose();
 	connection = NULL;
 }
 
@@ -141,8 +141,12 @@ bool PlutoZWSerialAPI::stop()
 {
 	if( d->state != PlutoZWSerialAPI::STOPPED )
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 3");
+		g_pPlutoLogger->Flush();
 		d->connection->disconnect();
 		d->state = PlutoZWSerialAPI::STOPPED;
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 4");
+		g_pPlutoLogger->Flush();
 	}
 	
 	return true;
@@ -176,6 +180,7 @@ bool PlutoZWSerialAPI::listen()
 					// check if the job has finished
 					if( ZWaveJob::STOPPED == d->currentJob->state() )
 					{
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 1");
 						delete d->currentJob;
 						d->currentJob = NULL;
 						if( d->jobsQueue.size() )
@@ -193,7 +198,9 @@ bool PlutoZWSerialAPI::listen()
 						}
 						else
 						{
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 2");
 							stop();
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 2-1");
 						}
 					}
 				}
@@ -213,6 +220,7 @@ bool PlutoZWSerialAPI::listen()
 		}
 	}
 	
+		g_pPlutoLogger->Write(LV_WARNING, "-------- 6");
 	return true;
 }
 

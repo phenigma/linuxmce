@@ -13,6 +13,10 @@
 
 SerialConnection* SerialConnection::instance = NULL;
 
+pthread_mutex_t SerialConnection::mutex_serial;
+pthread_mutex_t SerialConnection::mutex_buffer;
+pthread_t SerialConnection::write_thread;
+
 SerialConnection::SerialConnection():serialPort(NULL)
 {
 	
@@ -27,6 +31,14 @@ SerialConnection *SerialConnection::getInstance()
 	return instance;
 }
 
+void SerialConnection::forceClose()
+{
+	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 3");
+	delete instance;
+	instance = NULL;
+	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 4");
+}
+
 int SerialConnection::connect(const char *port)
 {
 	try
@@ -35,25 +47,26 @@ int SerialConnection::connect(const char *port)
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 		int stat = pthread_create(&write_thread, NULL, receiveFunction, (void*)this);
-		if( stat != 0)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
-			switch(stat)
-			{
-			case EAGAIN:
-				g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
-				break;
-			case EINVAL:
-				g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
-				break;
-			default:
-				g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
-		}
+//		Sleep(2000);
+		//if( stat != 0)
+		//{
+		//	g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
+		//	switch(stat)
+		//	{
+		//	case EAGAIN:
+		//		g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
+		//		break;
+		//	case EINVAL:
+		//		g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
+		//		break;
+		//	default:
+		//		g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
+		//	}
+		//}
+		//else
+		//{
+		//	g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
+		//}
 
 #ifdef _WIN32 	
 			Sleep(READ_DELAY); 
@@ -72,8 +85,33 @@ int SerialConnection::connect(const char *port)
 
 int SerialConnection::disconnect()
 {
-	delete serialPort;
-	serialPort = NULL;
+	if( serialPort != NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 1");
+		pthread_mutex_lock( &instance->mutex_serial );
+		delete serialPort;
+		serialPort = NULL;
+		pthread_mutex_unlock( &instance->mutex_serial );
+		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 2");
+		g_pPlutoLogger->Flush();
+		
+// wait a bit so that the write_thread will finish his task
+#ifdef _WIN32 	
+			Sleep(READ_DELAY);
+#else 	
+			usleep(READ_DELAY); 
+#endif //_WIN32
+		
+// Edgar: do we need it ?
+//		pthread_exit(&write_thread);
+
+		pthread_mutex_destroy(&mutex_serial);
+		pthread_mutex_destroy(&mutex_buffer);
+		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 3");
+	}
+	
+		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 4");
+		g_pPlutoLogger->Flush();
 	return 0;
 }
 
@@ -86,6 +124,11 @@ bool SerialConnection::isConnected()
 // TODO: use 'const char * buffer'
 int SerialConnection::send(char *b, size_t len)
 {
+	if( !isConnected() )
+	{
+		return -1;
+	}
+	
 #ifdef DEBUG_EUGEN
 	pthread_mutex_lock( &instance->mutex_buffer );
 	g_pPlutoLogger->Write(LV_WARNING, "Send:");
@@ -93,16 +136,14 @@ int SerialConnection::send(char *b, size_t len)
 	{
 			g_pPlutoLogger->Write(LV_WARNING, "0x%02x ", buffer[i]);
 	}
-	char *paddedBuffer = NULL;
+	
 	len += 3;
-	paddedBuffer = new char((int)len);
+	char paddedBuffer[256];
 	paddedBuffer[0] = SERIAL_SOF; 
 	paddedBuffer[1] = (char)len - 2;
 	memcpy(&(paddedBuffer[2]), buffer, len - 3);
 	paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, len - 2);
 
-	delete paddedBuffer;
-	paddedBuffer = NULL;
 	g_pPlutoLogger->Write(LV_WARNING, "--------------");
 	g_pPlutoLogger->Flush();
 	pthread_mutex_unlock( &instance->mutex_buffer );
@@ -117,23 +158,17 @@ int SerialConnection::send(char *b, size_t len)
 		{
 			try
 			{
-				char *paddedBuffer = NULL;
 				len += 3;
-				paddedBuffer = new char[(int)len];
-				if(paddedBuffer == NULL)
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "unable to allocate memory!!!");
-					return -1;
-				}
+				// 256 should be enough, the length is one byte
+				char paddedBuffer[256];
 				paddedBuffer[0] = SERIAL_SOF; 
 				paddedBuffer[1] = (char)len - 2;
 				memcpy(&(paddedBuffer[2]), b, len - 3);
 				paddedBuffer[(int)len - 1] = checkSum(&(paddedBuffer[1]), (int)len - 2);
+				
 				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(paddedBuffer, len);
 				pthread_mutex_unlock( &mutex_serial );
-				delete paddedBuffer;
-				paddedBuffer = NULL;
 			}
 			catch(...)
 			{
@@ -150,7 +185,7 @@ int SerialConnection::send(char *b, size_t len)
 
 int SerialConnection::receiveCommand(char *b, size_t *len)
 {
-	if(b == NULL)
+	if(b == NULL || !isConnected())
 	{
 		*len = 0;
 		return -1;
@@ -209,6 +244,11 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
  */
 int SerialConnection::hasCommand()
 {
+	if( !isConnected() )
+	{
+		return -1;
+	}
+	
 	pthread_mutex_lock( &instance->mutex_buffer );
 	int returnValue = 1;
 	if(buffer.size() < 4)
@@ -307,30 +347,31 @@ void *SerialConnection::receiveFunction(void *)
 		}
 		pthread_mutex_unlock( &instance->mutex_buffer );
 #else
-		while(true)
+		while( instance != NULL && instance->isConnected() )
 		{
-			len = 100;
+			len = 256;
+			
 			pthread_mutex_lock( &instance->mutex_serial );
-			len = instance->serialPort->Read(mybuf, 100);
-			if(len > 100)
+			len = instance->serialPort->Read(mybuf, 256);
+			if(len > 256)
 				len = 0;
 			pthread_mutex_unlock( &instance->mutex_serial );
-
+			
 			if(len != 0)
 			{
 				pthread_mutex_lock( &instance->mutex_buffer );
-			
-				while(--len >= 0)
-					instance->buffer.push_back(mybuf[len]);
+				for(size_t i=0; i<len; i++)
+				{
+					instance->buffer.push_back(mybuf[i]);
+				}
+				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
-			pthread_mutex_unlock( &instance->mutex_buffer );
 			
 #ifdef _WIN32 	
-			Sleep(READ_DELAY); 
+			Sleep(READ_DELAY);
 #else 	
 			usleep(READ_DELAY); 
 #endif //_WIN32
-			//TODO delay
 		}
 #endif // DEBUG_EUGEN
 	}
@@ -339,10 +380,10 @@ void *SerialConnection::receiveFunction(void *)
 
 SerialConnection::~SerialConnection()
 {
-	pthread_exit(&write_thread);
-	pthread_mutex_destroy(&mutex_serial);
-	pthread_mutex_destroy(&mutex_buffer);
-	delete serialPort;
-	serialPort = NULL;
-	instance = NULL;
+	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 1");
+	if( serialPort != NULL )
+	{
+		disconnect();
+	}
+	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 2");
 }

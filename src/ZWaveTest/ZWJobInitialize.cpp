@@ -35,6 +35,7 @@ ZWJobInitialize::Private::Private()
 
 ZWJobInitialize::Private::~Private()
 {
+		g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 1");
 	delete currentJob;
 	currentJob = NULL;
 	
@@ -45,6 +46,7 @@ ZWJobInitialize::Private::~Private()
 		delete job;
 		job = NULL;
 	}
+		g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 2");
 }
 
 // ----------------------------------
@@ -162,6 +164,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 		}
 		else
 		{
+			g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 3");
 			setState(ZWaveJob::STOPPED);
 			return true;
 		}

@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
 			// process the commands
 			zwAPI->start(argv[1]);
 			zwAPI->listen();
+			g_pPlutoLogger->Write(LV_WARNING, "******** END **********");
 		}
 		else
 			g_pPlutoLogger->Write(LV_WARNING, "unable to open commands.txt");

@@ -19,6 +19,8 @@ public:
 	/**gets an instance of this class
 	* @return the instance of this class*/
 	static SerialConnection* getInstance();
+	
+	static void forceClose();
 
 	/**send a buffer to the serial port
 	*@param buffer the buffer to be sent
@@ -50,6 +52,13 @@ public:
 	
 	virtual ~SerialConnection();
 
+	static pthread_mutex_t mutex_serial;
+	static pthread_mutex_t mutex_buffer;
+	static pthread_t write_thread;
+
+	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
+	static void* receiveFunction(void *);
+	
 private:
 	/**static instance of this class*/
 	static SerialConnection* instance;
@@ -64,12 +73,6 @@ private:
 	std::deque<char> buffer;
 
 
-	pthread_mutex_t mutex_serial;
-	pthread_mutex_t mutex_buffer;
-	pthread_t write_thread;
-
-	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
-	static void* receiveFunction(void *);
 	
 	char SerialConnection::checkSum(char *b, int len);
 };
