@@ -59,7 +59,9 @@
 #define DATAGRID_Installed_AV_Devices_CONST 57
 #define DATAGRID_Sensor_Type_CONST 58
 #define DATAGRID_Devices_Of_Category_CONST 59
-#define DATAGRID_All_Calls_CONST 60
+#define DATAGRID_Floorplan_Telecom_Streams_CONST 60
+#define DATAGRID_Recent_Calls_CONST 61
+#define DATAGRID_Speed_Dial_CONST 62
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
