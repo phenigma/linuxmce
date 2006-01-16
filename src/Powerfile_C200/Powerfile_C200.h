@@ -54,6 +54,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Defective_Units();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);

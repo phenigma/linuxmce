@@ -318,6 +318,22 @@ bool Powerfile_C200::GetConfig()
 			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i].first, i);
 	}
 	
+	string sDefective = DATA_Get_Defective_Units();
+	vector<string> vect_sDefective;
+	Tokenize(sDefective, ",", vect_sDefective);
+	const int iDrive_Number_Max = m_vectDriveStatus.size() - 1;
+	for (size_t i = 0; i < vect_sDefective.size(); i++)
+	{
+		int iDrive_Number = atoi(vect_sDefective[i].c_str());
+		if (iDrive_Number < 0 || iDrive_Number > iDrive_Number_Max)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Defective unit %d out of range (0-%d)", iDrive_Number, iDrive_Number_Max);
+			continue;
+		}
+		g_pPlutoLogger->Write(LV_WARNING, "Marking user-marked-as-defective drive %d as OFFLINE", iDrive_Number);
+		m_vectDriveStatus[iDrive_Number].second = false;
+	}
+	
 	PurgeInterceptors();
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
