@@ -187,8 +187,6 @@ function mediaDirectors($output,$dbADO) {
 				$oldAudioDD=null;
 				$oldVideoDD=null;
 				while($rowD=$resDevice->FetchRow()){
-					if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
-						$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
 					$displayedDevices[$rowD['PK_Device']]=$rowD['Description'];
 					
 					if($rowD['PK_Device']!=$firstDevice){
@@ -200,8 +198,8 @@ function mediaDirectors($output,$dbADO) {
 					
 					$oldAudioDD=($rowD['FK_DeviceData']==$GLOBALS['AudioSettings'])?$rowD['IK_DeviceData']:$oldAudioDD;
 					if(!is_null($oldAudioDD)){
-						$oldAudioSettings=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
-						$oldAC3=(substr($oldAudioDD,-1)=='3')?'checked':'';
+						$oldAudioSettings[$rowD['PK_Device']]=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
+						$oldAC3[$rowD['PK_Device']]=(substr($oldAudioDD,-1)=='3')?'checked':'';
 					}
 					$oldVideoDD=($rowD['FK_DeviceData']==$GLOBALS['VideoSettings'])?$rowD['IK_DeviceData']:$oldVideoDD;
 					if(!is_null($oldVideoDD)){
@@ -211,28 +209,9 @@ function mediaDirectors($output,$dbADO) {
 					}
 					
 				}
+
 				$joinArray=array_keys($displayedDevices);	// used only for query when there are no Devices in selected category
-				if(count($joinArray)==0)
-					$joinArray[]=0;
-				$queryDeviceDeviceData='
-					SELECT 
-						DISTINCT DeviceData.PK_DeviceData,DeviceData.Description, ParameterType.Description AS paramName
-					FROM DeviceData
-						INNER JOIN ParameterType ON 
-							FK_ParameterType = PK_ParameterType 
-						INNER JOIN Device_DeviceData ON 
-							FK_DeviceData=PK_DeviceData
-					WHERE
-						FK_Device IN ('.join(',',$joinArray).')
-					ORDER BY Description ASC';
-				$resDDD=$dbADO->Execute($queryDeviceDeviceData);
-				while($rowDDD=$resDDD->FetchRow()){
-					if($rowDDD['Description']!='Floorplan Info'){
-						$GLOBALS['DeviceDataToDisplay'][]=$rowDDD['PK_DeviceData'];
-						$DDTypesToDisplay[]=$rowDDD['paramName'];
-						$DeviceDataDescriptionToDisplay[]=$rowDDD['Description'];
-					}
-				}	
+
 			$resDevice->MoveFirst();
 			$pos=0;
 			$embededRows=array();
@@ -242,7 +221,7 @@ function mediaDirectors($output,$dbADO) {
 					$deviceDisplayed=$rowD['PK_Device'];
 					$pos++;
 					
-					$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
+					$deviceName='<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">';
 					$deviceName.=' # '.$rowD['PK_Device'];
 					$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
 							<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
@@ -261,8 +240,7 @@ function mediaDirectors($output,$dbADO) {
 					
 					$controlledByPulldown='&nbsp;';
 						
-					if(@$childOf[$rowD['PK_Device']]==''){	
-						$out.='
+					$out.='
 					<tr>
 						<td align="center" bgcolor="#F0F3F8"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 						<td  align="right">'.$roomPulldown.'</td>
@@ -280,30 +258,6 @@ function mediaDirectors($output,$dbADO) {
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
-						if(isset($embededRows[$rowD['PK_Device']])){
-							foreach($embededRows[$rowD['PK_Device']] as $tuner){
-								$out.=$tuner;
-							}
-						}
-					}else{
-						$embededRows[$rowD['FK_Device_ControlledVia']][]='
-					<tr>
-						<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-						<td>- Embeded device -</td>
-						<td>A: '.$audioOutputPulldown.'</td>
-						<td>'.$audioConnectToPulldown.'</td>
-						<td>'.$audioInputPulldown.'</td>
-						<td valign="top" align="right">- embedded device -</td>
-						<td align="center" rowspan="2" valign="top">&nbsp;</td>
-					</tr>
-					<tr>			
-						<td align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].'</td>
-						<td>&nbsp;</td>
-						<td>V: '.$videoOutputPulldown.'</td>
-						<td>'.$videoConnectToPulldown.'</td>
-						<td>'.$videoInputPulldown.'</td>
-					</tr>';
-					}
 
 					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
 					if($orbiterMDChild){
@@ -321,8 +275,8 @@ function mediaDirectors($output,$dbADO) {
 											<td valign="top">'.$TEXT_PVR_CAPTURE_CARD_CONST.'</td>
 											<td valign="top">'.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').'</td>
 											<td align="right">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
-											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings).'<br>
-											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3.'></td>
+											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']]).'<br>
+											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'></td>
 											<td align="right" valign="top">'.$TEXT_VIDEO_CARD_CONST.' '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
 											<input type="button" class="button" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
