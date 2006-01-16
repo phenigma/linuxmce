@@ -24,7 +24,7 @@
 #include "telegrammessage.h"
 
 #include <list>
-
+#include "Serial/SerialPort.h"
 namespace EIBBUS {
 
 class BusConnector;
@@ -44,8 +44,10 @@ public:
     ~MessagePool();
 	
 public:
-	inline void setSerialPort(const char* serport) {
+	inline void setSerialPort(const char* serport, int serbps, enum eParityBitStop serparity) {
 		serport_ = serport;
+		serbps_ = serbps;
+		serparity_ = serparity;				
 	}
 	inline const char* getSerialPort() {
 		return serport_.c_str();
@@ -67,6 +69,8 @@ protected:
 
 private:
 	std::string serport_;
+	int serbps_;
+	eParityBitStop serparity_;
 	BusConnector* pbusconn_;
 
 private:

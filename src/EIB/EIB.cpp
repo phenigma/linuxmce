@@ -20,8 +20,11 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "PlutoUtils/LinuxSerialUSB.h"
+#include "Serial/SerialPort.h"
 
 #define MAX_TEMPSTR_LENGTH	15
+#define DEFAULT_EIB_BPS 			19200
+#define DEFAULT_EIB_PARITY 			epbsN81
 
 using namespace EIBBUS;
 
@@ -78,7 +81,28 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 	
 	if(sPort.length() > 0) {
 		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
-		m_msgPool.setSerialPort(sPort.c_str());
+		string bps = DATA_Get_COM_Port_BaudRate();
+		int ibps = DEFAULT_EIB_BPS;
+		if(!bps.empty() && bps[0] == 'B') {
+			int ibps = atoi(bps.substr(1, bps.length() -1).c_str());
+    		if(ibps == 0) {
+        		ibps = DEFAULT_EIB_BPS;
+    		}
+		}
+		string pbs = DATA_Get_COM_Port_ParityBitStop();
+		enum eParityBitStop ipbs = DEFAULT_EIB_PARITY;
+		if(!pbs.empty()) {
+    		if(pbs == "N81") {
+        		ipbs = epbsN81;
+			} else
+    		if(pbs == "E81") {
+        		ipbs = epbsE81;
+    		} else
+    		if(pbs == "O81") {
+	    		ipbs = epbsO81;
+    		}
+		}		
+		m_msgPool.setSerialPort(sPort.c_str(),ibps,ipbs);
 	}
 	
 	m_msgPool.Run(false);

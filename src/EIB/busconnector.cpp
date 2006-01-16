@@ -23,8 +23,6 @@
 
 #include "DCE/Logger.h"
 
-#define EIB_BPS 			19200
-
 #define FOO_BUFF_SIZE		256
 #define SKIP_WAIT_TIME		100
 
@@ -59,9 +57,9 @@ BusConnector::getInstance() {
 }
 
 int 
-BusConnector::Open(const char* serport) {
+BusConnector::Open(const char* serport,int serbps, eParityBitStop serparity) {
 	try {
-		psp_ = new ExtendedSerialPort(serport, EIB_BPS, epbsN81);
+		psp_ = new ExtendedSerialPort(serport, serbps, serparity);
 		int hserial = psp_->getHandle();
 
 		struct termios terminal;
@@ -78,11 +76,31 @@ BusConnector::Open(const char* serport) {
    
 		terminal.c_oflag = 0;
 		terminal.c_lflag = 0;
-   
-		if ( -1 == cfsetospeed(&terminal,B19200) ) {
+		
+		int termios_speed=0;
+		switch(serbps)
+		{
+			case 0    : termios_speed = B0;break;
+			case 50   : termios_speed = B50;break;
+			case 75   : termios_speed = B75;break;
+			case 110  : termios_speed = B110;break;
+			case 134  : termios_speed = B134;break;
+			case 150  : termios_speed = B150;break;
+			case 200  : termios_speed = B200;break;
+			case 300  : termios_speed = B300;break;
+			case 600  : termios_speed = B600;break;
+			case 1200 : termios_speed = B1200;break;
+			case 1800 : termios_speed = B1800;break;
+			case 2400 : termios_speed = B2400;break;
+			case 4800 : termios_speed = B4800;break;
+			case 9600 : termios_speed = B9600;break;
+			case 19200: termios_speed = B19200;break;
+			case 38400: termios_speed = B38400;break;
+		}
+		if ( -1 == cfsetospeed(&terminal,termios_speed) ) {
 			return -1;
 		}
-		if ( -1 == cfsetispeed(&terminal,B19200) ) {
+		if ( -1 == cfsetispeed(&terminal,termios_speed) ) {
 			return -1;
 		}
 		terminal.c_cc[VMIN]=0;

@@ -67,6 +67,7 @@ MessagePool::MessagePool(bool monitormode)
 		readystate_(this)
 {
 	serport_ = DEFAULT_EIB_SER_PORT;
+	
 	pbusconn_ = BusConnector::getInstance();
 }
 
@@ -102,7 +103,7 @@ MessagePool::_Run() {
 	while(!isStopRequested()) {
 		/*check if we are connected*/
 		if(!pbusconn_->isOpened()) {
-			if(pbusconn_->Open(serport_.c_str())) {
+			if(pbusconn_->Open(serport_.c_str(),serbps_,serparity_)) {
 				g_pPlutoLogger->Write(LV_STATUS, "Could not connect to EIB Bus. Sleeping for %d second...", SLEEP_IO_ERROR);
 				sleep(SLEEP_IO_ERROR / 1000);
 				continue;

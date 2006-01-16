@@ -19,7 +19,7 @@
 
 #include "mutex.h"
 #include "extendedserialport.h"
-
+#include "Serial/SerialPort.h"
 namespace EIBBUS {
 
 /**
@@ -32,7 +32,7 @@ public:
 
 public:
 	/*connection methods*/
-	int Open(const char* serport);
+	int Open(const char* serport,int serbps, enum eParityBitStop serparity);
 	void Close();
 	bool isOpened();
 
