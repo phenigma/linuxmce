@@ -138,6 +138,7 @@ CreateTunnels()
 
 	CreateTunnel "SSH" 22 $PortBase
 	CreateTunnel "Web" 80 $((PortBase+1))
+	CreateTunnel "Web" 80 $((PortBase+1)) "" pf2.plutohome.com
 	CreateTunnels_Special
 }
 
