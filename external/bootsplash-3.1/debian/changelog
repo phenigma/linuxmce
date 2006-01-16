@@ -1,0 +1,10 @@
+bootsplash (3.1-1) unstable; urgency=low
+
+  * Initial Release.
+  * Ajusted the Makefile to install the binaries in the desired location
+  * Imported the init.d script from www.bootsplash.de debian packages
+  * Imported templated ftom www.bootsplash.de debian packages
+  * Update grub's menu.lst to append 'splash=silent' to kopt
+  * Changed splash.sh and bootanim bash scripts to work with Debian/Pluto
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu,  5 Jan 2006 12:12:28 +0200

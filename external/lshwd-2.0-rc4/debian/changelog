@@ -1,0 +1,9 @@
+lshwd (2.0-rc4-1) unstable; urgency=low
+
+  * Initial Release.
+  * Makefile tweak for make install and $DESTDIR
+  * Init script for cold pluging at boot time
+  * Written man page for lshwd command
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri,  6 Jan 2006 10:48:30 +0200
+

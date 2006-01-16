@@ -1,0 +1,28 @@
+Template: shared/bootsplash-bootloader-info
+Type: note
+Description: You need to configure your bootloader.
+ In order to complete the bootsplash installation you need adjust your
+ grub configuration file file (menu.lst).
+  - Check for correct "initrd=" line.
+  - Append "splash=silent" to your kernel's boot parameters.
+  - Add the correct "video=???" line to your menu.lst depending on what
+    resolution you want to use.
+ .
+ Note that bootsplash needs a kernel patched with the bootsplash 
+ patch that can be found on http://www.bootsplash.de/ and you also need
+ a VESA 2.0 compatibile video card that is supported by the kernel.
+
+Template: shared/bootsplash-initrd
+Type: select
+Choices: ${initrd-list}
+Description: Select an initrd image.
+ If you are currently using an initrd image bootsplash can append your
+ splash images to it, if not one will be created for you.  Please select
+ your initrd image, select none if you want bootsplash to create one,
+ select custom if you do not see your image or want to manually enter the
+ path.
+
+Template: shared/bootsplash-custom-initrd
+Type: string
+Description: Enter the path to your initrd image.
+ The image should be in the /boot directory but it could be anywhere.
