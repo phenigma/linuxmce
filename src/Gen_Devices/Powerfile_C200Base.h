@@ -39,6 +39,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1737; } ;
 	virtual const char *GetDeviceDescription() { return "Powerfile_C200"; } ;
+	string Get_Defective_Units() { return m_mapParameters[137];}
 };
 
 
@@ -95,7 +96,7 @@ public:
 			m_pData = new Powerfile_C200_Data();
 			return true;
 		}
-		if( (m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None && m_pEvent->m_pClientSocket->m_eLastError!=cs_err_NeedReload) || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
@@ -128,6 +129,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Defective_Units() { return GetData()->Get_Defective_Units(); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number) { GetEvents()->Ripping_Progress(sText.c_str(),iResult,sValue.c_str(),sName.c_str(),iEK_Disc,sDrive_Number.c_str()); }
