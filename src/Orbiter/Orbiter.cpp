@@ -2628,7 +2628,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
             return;
 
 		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+		{
+			pGrid->m_iHighlightedRow = 1;
 			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+		}
 
         DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
 		if( !pCell )
@@ -2976,7 +2979,62 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		nd.Release();
 
 		if( !bScrolledOutsideGrid )
+		{
+			//if we have hidden columns/rows, skip them
+			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+
+			DataGridCell *pCell = NULL;
+			while(!pCell)
+			{
+				int nHColumn = pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol;
+				int nHRow = pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+
+				if(!pDesignObj_DataGrid->m_pDataGridTable)
+					break;
+
+				pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
+				if(pCell)
+					break; //all ok, we got it
+
+				bool bGiveUp = false;
+				switch(PK_Direction)
+				{
+					case DIRECTION_Up_CONST:
+						if(nHRow == 0)
+							bGiveUp = true;
+						else
+							pDesignObj_DataGrid->m_iHighlightedRow--;
+						break;
+
+					case DIRECTION_Down_CONST:
+
+						if(nHRow >= pDesignObj_DataGrid->m_pDataGridTable->m_RowCount)
+							bGiveUp = true;
+						else
+							pDesignObj_DataGrid->m_iHighlightedRow--;
+						break;
+
+					case DIRECTION_Left_CONST:
+						if(nHColumn == 0)
+							bGiveUp = true;
+						else
+							pDesignObj_DataGrid->m_iHighlightedColumn--;
+						break;
+
+					case DIRECTION_Right_CONST:
+						if(nHColumn >= pDesignObj_DataGrid->m_pDataGridTable->m_ColumnCount)
+							bGiveUp = true;
+						else
+							pDesignObj_DataGrid->m_iHighlightedColumn++;
+						break;
+					}
+
+				if(bGiveUp)
+					break;
+			}
+
 			return; // We just moved around within the grid
+		}
     }
 
     DesignObj_Orbiter *pDesignObj_Orbiter_OriginallyHighlight=m_pObj_Highlighted;
