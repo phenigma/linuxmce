@@ -721,11 +721,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_QuadViewCameras(long DeviceIDFrom, long DeviceIDTo,
-			string sPK_Device_List)
+			string sList_PK_Device)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "17" /* screen ID */,
-				103 /* PK Devices List */, sPK_Device_List.c_str());
+				103 /* PK Devices List */, sList_PK_Device.c_str());
 		}
 	};
 
@@ -733,11 +733,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_QuadViewCameras_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sPK_Device_List)
+			string sList_PK_Device)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "17" /* screen ID */,
-				103 /* PK Devices List */, sPK_Device_List.c_str());
+				103 /* PK Devices List */, sList_PK_Device.c_str());
 		}
 	};
 
@@ -745,11 +745,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_QuadViewCameras_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sPK_Device_List)
+			string sList_PK_Device)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "17" /* screen ID */,
-				103 /* PK Devices List */, sPK_Device_List.c_str());
+				103 /* PK Devices List */, sList_PK_Device.c_str());
 		}
 	};
 
@@ -757,11 +757,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_QuadViewCameras_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sPK_Device_List)
+			string sList_PK_Device)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "17" /* screen ID */,
-				103 /* PK Devices List */, sPK_Device_List.c_str());
+				103 /* PK Devices List */, sList_PK_Device.c_str());
 		}
 	};
 
@@ -8493,7 +8493,7 @@ namespace DCE
 		virtual void SCREEN_SecurityStatusReport(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Intercom(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPK_Device_List){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VideoCallInProgress(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_FileSave(long PK_Screen, string sText, string sPrivate, string sPublic, string sCaption){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ManagePlaylist(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -8776,8 +8776,8 @@ namespace DCE
 				}
 				case 17:
 				{
-					string sPK_Device_List = pMessage->m_mapParameters[103];
-					SCREEN_QuadViewCameras(nPK_Screen, sPK_Device_List);
+					string sList_PK_Device = pMessage->m_mapParameters[103];
+					SCREEN_QuadViewCameras(nPK_Screen, sList_PK_Device);
 					break;
 				}
 				case 18:

@@ -2197,13 +2197,13 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 		/** @param #103 sPK_Device_List */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
 	//TODO: remove me
 
 	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
-	DisplayMessageOnOrbiter(ssPK_Device_List,sText,false,iTime,true);
+	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->
@@ -2217,7 +2217,7 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 		/** @param #103 sPK_Device_List */
 			/** A comma delimited list of orbiters, or all orbiters if empty */
 
-void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c686-e->
 {
 	//TODO: removed me
@@ -2232,7 +2232,7 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
     while(vectOptions.size() < 8)
         vectOptions.push_back("");
 
-    DisplayMessageOnOrbiter(ssPK_Device_List, sText, false, 0, true,
+    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, true,
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }

@@ -124,7 +124,7 @@ void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device
 		if( pCommandGroup )
 			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,iOrder++,2,
 				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_QuadViewCameras_CONST).c_str(),
-				COMMANDPARAMETER_PK_Device_List_CONST,sDevices.c_str());
+				COMMANDPARAMETER_List_PK_Device_CONST, sDevices.c_str());
 	}
 }
 

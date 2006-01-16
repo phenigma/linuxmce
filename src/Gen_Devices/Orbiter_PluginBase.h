@@ -54,8 +54,8 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 12; } ;
 	virtual const char *GetDeviceDescription() { return "Orbiter_Plugin"; } ;
-	int Get_ThreshHold() { return atoi(m_mapParameters[61].c_str());}
-	string Get_Ignore_State() { return m_mapParameters[87];}
+	int Get_ThreshHold() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,61).c_str()); else return atoi(m_mapParameters[61].c_str());}
+	string Get_Ignore_State() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,87); else return m_mapParameters[87];}
 };
 
 
@@ -121,6 +121,11 @@ public:
 		m_pData = new Orbiter_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -166,8 +171,8 @@ public:
 	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sList_PK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -534,8 +539,8 @@ public:
 					string sType=pMessage->m_mapParameters[14];
 					string sName=pMessage->m_mapParameters[50];
 					string sTime=pMessage->m_mapParameters[102];
-					string ssPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+					string sList_PK_Device=pMessage->m_mapParameters[103];
+						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -552,7 +557,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -562,8 +567,8 @@ public:
 						string sCMD_Result="OK";
 					string sText=pMessage->m_mapParameters[9];
 					string sOptions=pMessage->m_mapParameters[39];
-					string ssPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+					string sList_PK_Device=pMessage->m_mapParameters[103];
+						CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -580,7 +585,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

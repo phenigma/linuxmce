@@ -438,11 +438,11 @@ public:
 			/** you can give the message a name, such as "status", "error", etc */
 		/** @param #102 Time */
 			/** Number of seconds to display the message for */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #686 - Display Dialog Box On Orbiter */
@@ -451,11 +451,11 @@ public:
 			/** The message to display */
 		/** @param #39 Options */
 			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** A comma delimited list of orbiters, or all orbiters if empty */
 
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sList_PK_Device) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #693 - Send File To Phone */
