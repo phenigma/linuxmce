@@ -57,11 +57,14 @@ int main(int argc, char* argv[])
 					unsigned char nodeID = 0x00;
 					if(line.find("on") < line.size())
 					{
-						level = 0xFF;
+						level = 0x63;
+						g_pPlutoLogger->Write(LV_WARNING, "main: light on");
+
 					}
 					else if(line.find("off") < line.size())
 					{
 						level = 0x00;
+						g_pPlutoLogger->Write(LV_WARNING, "main: light off");
 					}
 					else
 					{
@@ -77,7 +80,7 @@ int main(int argc, char* argv[])
 						g_pPlutoLogger->Write(LV_WARNING, "usage: `light on <node id>` or `light off <node id>` ");
 						continue;
 					}
-					ZWJobLightLevel *lightJob = new ZWJobLightLevel(zwAPI, 0xff, nodeID);
+					ZWJobLightLevel *lightJob = new ZWJobLightLevel(zwAPI, level, nodeID);
 					if(lightJob != NULL)
 					{
 						zwAPI->insertJob( lightJob );

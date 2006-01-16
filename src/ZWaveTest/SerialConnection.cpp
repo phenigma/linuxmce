@@ -102,8 +102,6 @@ int SerialConnection::disconnect()
 			usleep(READ_DELAY); 
 #endif //_WIN32
 		
-// Edgar: do we need it ?
-//		pthread_exit(&write_thread);
 
 		pthread_mutex_destroy(&mutex_serial);
 		pthread_mutex_destroy(&mutex_buffer);
@@ -373,6 +371,7 @@ void *SerialConnection::receiveFunction(void *)
 			usleep(READ_DELAY); 
 #endif //_WIN32
 		}
+
 #endif // DEBUG_EUGEN
 	}
 	return NULL;

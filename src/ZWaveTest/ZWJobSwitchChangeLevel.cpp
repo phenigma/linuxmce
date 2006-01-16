@@ -11,6 +11,7 @@
 class ZWJobSwitchChangeLevel::Private
 {
 public:
+	/**it is possible to change the level for a list of nodes*/
 	Private(unsigned char level, unsigned short nodeID);
 	unsigned char level;
 	unsigned short nodeID;
