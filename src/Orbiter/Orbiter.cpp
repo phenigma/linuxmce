@@ -2627,6 +2627,9 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
         if(!pGrid->m_pDataGridTable)
             return;
 
+		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+
         DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
 		if( !pCell )
 		{
