@@ -73,6 +73,8 @@ static const string sURL_Base = "http://plutohome.com/getRegisteredDevices.php";
 static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDevices.php";
 #endif
 
+#include "DCEConfig.h"
+DCEConfig dceConfig; // Needed by CreateDevice
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
