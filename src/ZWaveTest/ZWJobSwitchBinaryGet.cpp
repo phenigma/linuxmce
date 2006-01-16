@@ -65,24 +65,25 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small");
 				break;
 			}
-			if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
-			{
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
-				break;				
-			}
+
 			if(buffer[0] == RESPONSE)
 			{
+				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
+				{
+					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
+					break;				
+				}
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the response is here");
 				return true;				
 			}
 			else if(d->txStatusCount == 0)//buffer[0] == REQUEST
 			{
-				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
-				d->txStatusCount ++;
-				return true;				
-			}
-			else//buffer[0] == REQUEST
-			{
+				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
+				{
+					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
+					break;				
+				}
+
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
 				switch(buffer[3])
 				{
@@ -98,6 +99,25 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 					default:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
 				}
+				d->txStatusCount ++;
+				return true;				
+			}
+			else//buffer[0] == REQUEST
+			{
+				if(FUNC_ID_APPLICATION_COMMAND_HANDLER == buffer[1] &&
+					COMMAND_CLASS_SWITCH_MULTILEVEL == buffer[5] && 
+					(char)d->nodeID == buffer[3] &&
+					BASIC_REPORT == buffer[6])
+				{
+					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is here");
+					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic report = 0x%x", buffer[7]);
+				}
+				else
+				{
+					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is NOT here");
+					break;
+				}
+
 				setState(ZWaveJob::STOPPED);
 				return true;				
 			}
