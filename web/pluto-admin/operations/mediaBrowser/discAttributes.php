@@ -17,7 +17,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 	$resSlot=$mediadbADO->Execute('SELECT * FROM Disc WHERE Slot=? AND EK_Device=?',array($slot,$powerFileID));
 	if($resSlot->RecordCount()==0){
 		$disc_id='Not identified';
-		$media_type=4;
+		$media_type=2;
 		$mediadbADO->Execute('INSERT INTO Disc (ID,Slot,EK_MediaType,EK_Device) VALUES (?,?,?,?)',array($disc_id,$slot,$media_type,$powerFileID));
 		$disc=$mediadbADO->Insert_ID();
 	}else{
