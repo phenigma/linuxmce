@@ -10,9 +10,19 @@ function firewall($output,$dbADO) {
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
+	$accessFile=$GLOBALS['pluto.conf'];
 
+	// check if firewall is disabled
+	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
+	foreach ($retArray as $comf){
+		parse_str($comf);
+	}		
+	if(count($retArray)==0){
+		$_GET['error'].='Insuffient rights: pluto.conf file cannot be opened.';
+	}
 	
 	if ($action == 'form') {
+
 		$out.='
 	<script>
 	function enableDestination()
@@ -25,6 +35,19 @@ function firewall($output,$dbADO) {
 			document.firewall.DestinationIP.disabled=true;
 		}
 	}
+		
+	function confirmDisableFirewall()
+	{
+		if(document.firewall.change_firewall_status.checked){
+			if(confirm("'.$TEXT_DISABLE_FIREWALL_CONFIRMATION_CONST.'")){
+				document.firewall.submit();
+			}else{
+				document.firewall.change_firewall_status.checked=false;
+			}
+		}else{
+			document.firewall.submit();
+		}
+	}
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<form action="index.php" method="POST" name="firewall">
@@ -34,7 +57,13 @@ function firewall($output,$dbADO) {
 		
 	<table border="0" align="center">
 		<tr>
-			<td colspan="7" align="center"><b>'.$TEXT_FIREWALL_RULES_CONST.'</b></td>
+			<td colspan="7" align="center"><h3>'.$TEXT_FIREWALL_RULES_CONST.'</h3></td>
+		</tr>
+		<tr>
+			<td colspan="7" align="center">'.((@$DisableFirewall!=1)?'':'<h3 class="err">'.$TEXT_FIREWALL_DISABLED_WARNING_CONST.'</h3>').'</td>
+		</tr>
+		<tr>
+			<td colspan="7" align="center"><input type="checkbox" name="change_firewall_status" value="1" '.((@$DisableFirewall!=1)?'':'checked').' onClick="confirmDisableFirewall();"> '.$TEXT_FIREWALL_DISABLED_CONST.'</td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>'.$TEXT_PROTOCOL_CONST.'</B></td>
@@ -126,6 +155,11 @@ function firewall($output,$dbADO) {
 			$delid=$_REQUEST['delid'];
 			$dbADO->Execute('DELETE FROM Firewall WHERE PK_Firewall=?',$delid);
 		}
+		if(@$_REQUEST['change_firewall_status']==1){
+			writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,1);
+		}else{
+			writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,0);
+		}
 		
 		exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
 		
@@ -136,5 +170,36 @@ function firewall($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FIREWALL_RULES_CONST);
 	$output->output();
+}
+
+function writeConf($accessFile, $variable,$oldValue,$newValue)
+{
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/firewall.lang.php');
+	
+	$oldFileArray=@file($accessFile);	
+	if(!$oldFileArray){
+		header("Location: index.php?section=firewall&error=$TEXT_ERROR_CANNOT_OPEN_FILE_FOR_READING_CONST $accessFile");
+		exit();
+	}
+	$oldFile=implode('',$oldFileArray);
+	$stringToReplace=$variable.'='.$oldValue;
+	if(ereg($stringToReplace,$oldFile)){
+		$newFile=str_replace($stringToReplace,$variable.'='.$newValue,$oldFile);
+	}
+	else
+		$newFile=$oldFile.$variable.'='.$newValue."\n";
+	if(!is_writable($accessFile)){
+		header("Location: index.php?section=firewall&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
+		exit();
+	}
+	$handle = fopen($accessFile, 'w');
+
+	if (!fwrite($handle, $newFile)) {
+		header("Location: index.php?section=firewall&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
+		exit();
+	}
+	fclose($handle);
 }
 ?>
