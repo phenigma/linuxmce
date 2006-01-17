@@ -256,32 +256,42 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					<< "rotate 0" <<  endl
 					<< "width 320" <<  endl
 					<< "height 240" <<  endl
-					<< "framerate 2" <<  endl
+					<< "framerate 10" <<  endl
 					<< "auto_brightness on" <<  endl
-					<< "brightness 0" <<  endl
-					<< "contrast 0" <<  endl
-					<< "saturation 0" <<  endl
-					<< "hue 0" <<  endl
-					/* filters*/ << endl
+					<< "brightness 128" <<  endl
+					<< "contrast 128" <<  endl
+					<< "saturation 128" <<  endl
+					<< "hue 128" <<  endl
+
+					/* filters */ << endl
 					<< "despeckle EedDl" << endl
 					<< "lightswitch 50" << endl
 					<< "minimum_motion_frames 5" << endl
-					<< "night_compensate on" << endl
+					<< "night_compensate on" << endl 
+
+					/* detection */ << endl
 					<< "noise_tune on" << endl
+					<< "threshold_tune on" << endl
 					<< "smart_mask_speed 5" << endl
-					/* output */ << endl
-					<< "always_changes on" << endl
-					<< "locate on" << endl
+					<< "gap 5" << endl
 					<< "post_capture 5" << endl
-					<< "webcam_quality 50" << endl
+					<< "pre_capture 3" << endl
+
+
+					/* output */ << endl
+					<< "locate on" << endl
+					<< "text_double on" << endl
+					<< "webcam_quality 70" << endl
 					<< "webcam_maxrate 5" << endl
 					<< "text_changes on" << endl
 					<< "text_right %d-%m-%Y\\n%T" << endl
+
 //					/* movies */ << endl
 					<< "ffmpeg_cap_new on" << endl
 					<< "ffmpeg_timelapse 60" << endl
 					<< "ffmpeg_timelapse_mode daily" << endl
 					<< "ffmpeg_video_codec msmpeg4" << endl
+
 					/* snapshot config */ << endl
 					<< "snapshot_interval 60" << endl
 					<< "snapshot_filename %Y/%m/%d/%H/%M_%S" << endl
@@ -437,24 +447,19 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 		return false;
 	}
 	
+	//noise level
 	string sNoiseLevel = pDeviceData->mapParameters_Find(DEVICEDATA_Noise_CONST);
 	if(!sNoiseLevel.empty()) {
 		conffile	<< "noise_level " << sNoiseLevel << endl;
 	}
-
 	
+
 	//input port
 	string sDescription =  pDeviceData->m_sDescription ;
 	if(!sDescription.empty()) {
 
 ///////    RoomName should be replaced with name of room, where the camera is ....
 		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
-	}
-
-	//web port (+8000) and child number
-	string sPortNumber = StringUtils::itos(i+8000);
-	if(!sPortNumber.empty()) {
-		conffile	<< "webcam_port " << sPortNumber << endl;
 	}
 
 					
@@ -469,6 +474,33 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	}
 		
 	conffile 	<< "target_dir " << sPath << endl;
+
+	//web port (+8000) and child number
+	string sPortNumber = StringUtils::itos(i+8000);
+	if(!sPortNumber.empty()) {
+		conffile	<< "\n# webcam server settings" << endl;
+		conffile	<< "webcam_port " << sPortNumber << endl;
+		conffile	<< "webcam_localhost off " << endl;
+		conffile	<< "webcam_motion  on " << endl;
+	}
+
+	//sending pluto tripped on/off events on motion start/end
+	string sID = StringUtils::itos(PK_Device);
+		conffile	<< "\n# sending pluto tripped on/off events on motion start/end" << endl;
+		conffile	<< "on_event_start /usr/pluto/bin/MessageSend 127.0.0.1 " << sID << " -1001 2 9 25 1 "<< endl;
+		conffile	<< "on_event_end /usr/pluto/bin/MessageSend 127.0.0.1 " << sID << " -1001 2 9 25 0 "<< endl;
+
+/*
+	Adding text from #59 Configuration parameter string as 
+	custom entries in threadX.conf.
+*/
+	string sConfiguration = pDeviceData->mapParameters_Find(DEVICEDATA_Configuration_CONST);
+	g_pPlutoLogger->Write(LV_STATUS, "Got custom #59 configuration string %s", sConfiguration.c_str());
+	if(!sConfiguration.empty()) {
+		conffile	<< "\n# custom settings from Pluto's device parameter #59 Configuration" << endl;
+		conffile	 << sConfiguration << endl;
+	}
+
 	return true;
 }
 
