@@ -1,25 +1,50 @@
-ROOT = ../
-CXXFLAGS = -Wall -g -static
-CPPFLAGS = -I$(ROOT) -I.. -I$(ROOT)/DCE
-LDFLAGS = -L$(ROOT)lib
-LDLIBS = -lpthread -lmysqlclient_r -lDCECommon -lSerializeClass -lPlutoUtils 
+ROOT = ..
+CXXFLAGS = -Wall -g -static -pipe
+LDFLAGS = -L$(ROOT)/lib
+LDLIBS = -lpthread -lmysqlclient_r -lhttp_fetcher
 
 APPNAME = MessageSend
 VERSION = 2.0.0
 
-sources = MessageSend.cpp ParamGet.cpp
+#sources = MessageSend.cpp ParamGet.cpp
+BaseCPP = -I$(ROOT) -I.. -I$(ROOT)/DCE
+BaseSources = MessageSend.cpp
+
+SerClsCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID
+SerClsPfx = $(ROOT)/SerializeClass/
+SerClsSrc = SerializeClass.cpp
+
+DCECPP = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID -D_GNU_SOURCE
+DCEPfx = $(ROOT)/DCE/
+DCESrc = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message.cpp \
+	Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp \
+	AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp \
+	HandleRequestSocket.cpp \
+	DeviceData_Impl.cpp DeviceData_Base.cpp \
+	DCEConfig.cpp DCEMySqlConfig.cpp \
+	Virtual_Device_Translator.cpp arp-cache.cpp
+
+PUCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID -D_DEVEL_DEFINES
+PUPfx = $(ROOT)/PlutoUtils/
+PUSrc = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp \
+	StringUtils.cpp DatabaseUtils.cpp getch.cpp md5c.cpp minilzo.cpp uuencode.cpp LinuxSerialUSB.cpp
+
+sources = $(addprefix $(SerClsPfx),$(SerClsSrc)) $(addprefix $(DCEPfx),$(DCESrc)) $(addprefix $(PUPfx),$(PUSrc)) $(BaseSources)
+CPPFLAGS = $(BaseCPP) $(SerClsCPP) $(DCECPP) $(PUCPP)
 
 all: MessageSend 
 	cp $+ $(ROOT)bin
 
-MessageSend: MessageSend.o
+MessageSend: $(sources:.cpp=.o)
 	$(CXX) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
 
 clean: clean-recursive
-	rm -f *.o *.d MessageSend >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) MessageSend >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif
