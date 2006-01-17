@@ -898,6 +898,22 @@ string StringUtils::SecondsAsTime(int iSeconds)
 	return Format( ":%02d", iSeconds );
 }
 
+int StringUtils::TimeAsSeconds(string Time)
+{
+	int hours=0, minutes=0, seconds=0;
+	vector<string> Parts;
+	
+	Tokenize(Time, ":", Parts);
+	vector<string>::size_type cur = Parts.size();
+	if (cur > 0)
+		seconds = atoi(Parts[--cur].c_str());
+	if (cur > 0)
+		minutes = atoi(Parts[--cur].c_str());
+	if (cur > 0)
+		hours = atoi(Parts[--cur].c_str());
+
+	return (hours * 3600) + (minutes * 60) + seconds;
+}
 
 string StringUtils::PrecisionTime()
 {

@@ -197,6 +197,8 @@ namespace StringUtils
 	string UpperAZ09Only(string sInput);
 
 	string SecondsAsTime(int iSeconds);
+	int TimeAsSeconds(string Time);
+
 	string PrecisionTime();
 	time_t MakeTime( int Year, int Month, int Day, int Hour=0, int Minute=0, int Second=0 );
 
