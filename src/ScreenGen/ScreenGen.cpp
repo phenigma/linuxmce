@@ -489,12 +489,15 @@ string ScreenGenerator::GetParamPair(Row_Screen_CommandParameter *pCommandParame
 	{
 		string sTransform;
 		if(nType != PARAMETERTYPE_int_CONST && nType != PARAMETERTYPE_double_CONST && nType != PARAMETERTYPE_bool_CONST)
-			sTransform = ".c_str()";
-
-		sParamPair = 
-			StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
-			" /* " + pCommandParameter->Description_get() + " */, " + 
-			GetParamName(pCommandParameter) + sTransform;
+			sParamPair = 
+				StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
+				" /* " + pCommandParameter->Description_get() + " */, " + 
+				GetParamName(pCommandParameter) + ".c_str()";
+		else
+			sParamPair = 
+				StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
+				" /* " + pCommandParameter->Description_get() + " */, " + 
+				"StringUtils::ltos(" + GetParamName(pCommandParameter) + ").c_str()";
 	}
 
 	return sParamPair;

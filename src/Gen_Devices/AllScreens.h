@@ -637,7 +637,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "15" /* screen ID */,
-				2 /* PK Device */, iPK_Device);
+				2 /* PK Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -649,7 +649,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "15" /* screen ID */,
-				2 /* PK Device */, iPK_Device);
+				2 /* PK Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -661,7 +661,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "15" /* screen ID */,
-				2 /* PK Device */, iPK_Device);
+				2 /* PK Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -673,7 +673,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "15" /* screen ID */,
-				2 /* PK Device */, iPK_Device);
+				2 /* PK Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -1061,7 +1061,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, iPK_Users);
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str());
 		}
 	};
 
@@ -1073,7 +1073,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, iPK_Users);
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str());
 		}
 	};
 
@@ -1085,7 +1085,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, iPK_Users);
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str());
 		}
 	};
 
@@ -1097,7 +1097,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, iPK_Users);
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str());
 		}
 	};
 
@@ -3093,7 +3093,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3105,7 +3105,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3117,7 +3117,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3129,7 +3129,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -8237,7 +8237,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "202" /* screen ID */,
-				44 /* PK_DeviceTemplate */, iPK_DeviceTemplate, 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, iPK_DHCPDevice);
+				44 /* PK_DeviceTemplate */, StringUtils::ltos(iPK_DeviceTemplate).c_str(), 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, StringUtils::ltos(iPK_DHCPDevice).c_str());
 		}
 	};
 
@@ -8249,7 +8249,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "202" /* screen ID */,
-				44 /* PK_DeviceTemplate */, iPK_DeviceTemplate, 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, iPK_DHCPDevice);
+				44 /* PK_DeviceTemplate */, StringUtils::ltos(iPK_DeviceTemplate).c_str(), 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, StringUtils::ltos(iPK_DHCPDevice).c_str());
 		}
 	};
 
@@ -8261,7 +8261,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "202" /* screen ID */,
-				44 /* PK_DeviceTemplate */, iPK_DeviceTemplate, 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, iPK_DHCPDevice);
+				44 /* PK_DeviceTemplate */, StringUtils::ltos(iPK_DeviceTemplate).c_str(), 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, StringUtils::ltos(iPK_DHCPDevice).c_str());
 		}
 	};
 
@@ -8273,7 +8273,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "202" /* screen ID */,
-				44 /* PK_DeviceTemplate */, iPK_DeviceTemplate, 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, iPK_DHCPDevice);
+				44 /* PK_DeviceTemplate */, StringUtils::ltos(iPK_DeviceTemplate).c_str(), 47 /* Mac Addres */, sMac_address.c_str(), 58 /* IP Address */, sIP_Address.c_str(), 150 /* PK_DHCPDevice */, StringUtils::ltos(iPK_DHCPDevice).c_str());
 		}
 	};
 
@@ -8285,7 +8285,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 191 /* Phone Name */, sPhoneName.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8297,7 +8297,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 191 /* Phone Name */, sPhoneName.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8309,7 +8309,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 191 /* Phone Name */, sPhoneName.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8321,7 +8321,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, iPK_Device, 191 /* Phone Name */, sPhoneName.c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
 		}
 	};
 
@@ -8413,7 +8413,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, iPK_Device);
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -8425,7 +8425,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, iPK_Device);
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -8437,7 +8437,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, iPK_Device);
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -8449,7 +8449,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, iPK_Device);
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
