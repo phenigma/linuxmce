@@ -540,32 +540,15 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
     g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
 
-//     class MythTvStream *pMediaStream =
-//         (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
-//
-//     if( !pMediaStream )
-//         return;  /** Can't do anything */
+     MythTvMediaStream *pMediaStream =
+         (MythTvMediaStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
 
-	vector<string> vectData;
-	StringUtils::Tokenize(sValue_To_Assign, "|", vectData);
+	 if( !pMediaStream )
+         return;  
 
-	if ( vectData.size() != 2 )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Invalid format in CMD_Jump_Position_In_Playlist: if you are telling it to jump for an external device call it with 2 params connid|channelNumber");
-		return;
-	}
+	int m_dwTargetDevice = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
-	int connectionID = atoi(vectData[0].c_str());
-	int targetChannelID = atoi(vectData[1].c_str());
-
-	if ( m_mapMythInputsToDevices.find(connectionID) == m_mapMythInputsToDevices.end() )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "No Pluto device is connected to this myth TV according to the pluto database.");
-		return;
-	}
-
-	// the player knows the internal mythtv mappings. There is no need to hit the database here for the xmltv id.
-	DCE::CMD_Tune_to_channel tuneCommand(m_dwPK_Device, m_mapMythInputsToDevices[connectionID], "", StringUtils::itos(targetChannelID));
+	DCE::CMD_Jump_Position_In_Playlist tuneCommand(m_dwPK_Device, m_dwTargetDevice, sValue_To_Assign);
 	SendCommand(tuneCommand);
 }
 
