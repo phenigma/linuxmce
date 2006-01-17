@@ -744,17 +744,29 @@ void gc100::Start_seriald()
 	{
 		if (serial_iter->second.type == "SERIAL")
 		{
-			// TODO: add new ports to Core's DeviceData parameters
 			global_slot = serial_iter->second.global_slot;
 
 			string sDevName(string("ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_" + StringUtils::ltos(global_slot - 1));
 			string sDevice(string("/dev/") + sDevName);
+
+			symlink("/dev/null", sDevice.c_str());	// make sure the link exists, to avoid race condition
+													// when gc100-serial-bridge is delayed, for UpdatedAvailableSerialPorts to work
+													// and also avoid introducing a busy loop like the one currently commented out below
 
 //			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
 			snprintf(command, 512, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
+
+#if 0
+			struct stat Stat;
+			while (lstat(sDevice.c_str(), &Stat) == -1)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Waiting for %s symlink to be created", sDevice.c_str());
+				Sleep(1000);
+			}
+#endif
 		}
 	}
 	snprintf(command, 512, "/usr/pluto/bin/UpdateAvailableSerialPorts.sh");
