@@ -3,11 +3,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 # One time also update the thumbnails and search tokens
-/usr/pluto/bin/UpdateMedia -t -s -d /home/public/data/documents
-/usr/pluto/bin/UpdateMedia -d /home/public/data/movies
-/usr/pluto/bin/UpdateMedia -d /home/public/data/music
-/usr/pluto/bin/UpdateMedia -d /home/public/data/pictures
-/usr/pluto/bin/UpdateMedia -d /home/public/data/videos
+/usr/pluto/bin/UpdateMedia -t -s
 
 Q="SELECT PK_Users FROM Users"
 R="$(RunSQL "$Q")"

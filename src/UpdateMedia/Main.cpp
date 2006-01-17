@@ -210,7 +210,8 @@ int main(int argc, char *argv[])
 	if(!bRunAsDaemon)
 	{
 		UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_iDBPort,sDirectory);
-		UpdateMedia.DoIt();
+		if( sDirectory.size() )
+			UpdateMedia.DoIt();
 
 		if( bUpdateSearchTokens )
 			UpdateMedia.UpdateSearchTokens();
