@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -Wall -g -static -pipe
+CXXFLAGS = -Wall -g -pipe
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lpthread -lmysqlclient_r -lhttp_fetcher
 
@@ -36,7 +36,7 @@ all: MessageSend
 	cp $+ $(ROOT)bin
 
 MessageSend: $(sources:.cpp=.o)
-	$(CXX) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
 
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) MessageSend >/dev/null
