@@ -57,6 +57,9 @@ using namespace DCE;
 #include "callmanager.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 
+#include "DCE/DCEConfig.h"
+#include "PlutoUtils/MySQLHelper.h"
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -1068,11 +1071,46 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	}
 	return pDataGrid;
 }
+static char* sec2str(int sec)
+{
+	static char buff[32];
+	int s=sec%60;
+	int m=(sec/60)%60;
+	int h=(sec/3600);
+	if(h>0)
+		sprintf(buff,"%d:%02d:%02d",h,m,s);
+	else
+		sprintf(buff,"%02d:%02d",m,s);
+	return buff;
+}
 
 class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	//TODO: implement me!
-	return new DataGridTable();
+	g_pPlutoLogger->Write(LV_STATUS, "RecentCalls request received for GridID: %s",GridID.c_str());
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	int Row = 0;
+
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, "asteriskcdrdb" ,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT src, dst, calldate, billsec FROM cdr ORDER BY calldate DESC LIMIT 0,20")) == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED");
+		return pDataGrid;
+	}	
+	while((row = mysql_fetch_row(result_set.r)))
+	{
+		string text = string("Call from ")+string(row[0])+string(" to ")+string(row[1])+string(" at ")+string(row[2])+string(" duration ")+string(sec2str(atoi(row[3])));
+		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());		
+		pCell = new DataGridCell(text,"");
+		pCell->m_pMessage=NULL;
+		pDataGrid->SetData(0,Row,pCell);
+		Row++;
+	}
+
+	return pDataGrid;
 }
 
 class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
