@@ -2732,13 +2732,19 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
 		if( p->IsHidden() || !p->m_bOnScreen )
 			continue;
+		int OldPositionGrid = PositionGrid;
 		int ThisPosition = p->m_rPosition.X + p->m_rPosition.Y;
 		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
 			if( ThisPosition<PositionGrid || PositionGrid==-1 )
 			{
-				PositionGrid=ThisPosition;
-				pObjGrid=p;
+				if(!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount)
+					PositionGrid = OldPositionGrid;
+				else
+				{
+					PositionGrid=ThisPosition;
+					pObjGrid=p;
+				}
 			}
 		}
 		else
@@ -2780,6 +2786,9 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	{
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
 		if( p==pObjCurrent || p->IsHidden() || !p->m_bOnScreen )
+			continue;
+
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
 			continue;
 
 		bool bSkip=false;
@@ -5322,7 +5331,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             }
             else
             {
-                g_pPlutoLogger->Write( LV_WARNING,  "Error loading grid ID: %d",  m_dwIDataGridRequestCounter );
+                g_pPlutoLogger->Write( LV_CRITICAL,  "Error loading grid ID: %d (not implemented?)",  m_dwIDataGridRequestCounter );
             }
         }
     }
