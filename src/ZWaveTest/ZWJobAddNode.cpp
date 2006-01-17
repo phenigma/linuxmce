@@ -155,7 +155,14 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 		{
 			d->currentJob = d->jobsQueue.front();
 			d->jobsQueue.pop_front();
-			return d->currentJob->run();
+			
+			if( !d->currentJob->run() )
+			{
+				setState(ZWaveJob::STOPPED);
+				return false;
+			}
+			
+			return true;
 		}
 		else
 		{

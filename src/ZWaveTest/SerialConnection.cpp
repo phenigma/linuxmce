@@ -47,26 +47,25 @@ int SerialConnection::connect(const char *port)
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 		int stat = pthread_create(&write_thread, NULL, receiveFunction, (void*)this);
-//		Sleep(2000);
-		//if( stat != 0)
-		//{
-		//	g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
-		//	switch(stat)
-		//	{
-		//	case EAGAIN:
-		//		g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
-		//		break;
-		//	case EINVAL:
-		//		g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
-		//		break;
-		//	default:
-		//		g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
-		//	}
-		//}
-		//else
-		//{
-		//	g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
-		//}
+		if( stat != 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "receive thread not created");
+			switch(stat)
+			{
+			case EAGAIN:
+				g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
+				break;
+			case EINVAL:
+				g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
+				break;
+			default:
+				g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
+		}
 
 #ifdef _WIN32 	
 			Sleep(READ_DELAY); 

@@ -100,10 +100,15 @@ int main(int argc, char* argv[])
 				}
 			}
 			fclose(fstream);
+			fstream = NULL;
 			
 			// process the commands
 			zwAPI->start(argv[1]);
 			zwAPI->listen();
+			
+			delete zwAPI;
+			zwAPI = NULL;
+			
 			g_pPlutoLogger->Write(LV_WARNING, "******** END **********");
 		}
 		else
