@@ -616,7 +616,12 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 
 bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	if( !pDeviceFrom || (pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST) )
+	if( !pDeviceFrom || 
+		(pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && 
+		pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST &&
+		pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Surveillance_Cameras_CONST
+		) 
+	)
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
 		return false;
