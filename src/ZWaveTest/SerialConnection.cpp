@@ -97,9 +97,9 @@ int SerialConnection::disconnect()
 		
 // wait a bit so that the write_thread will finish his task
 #ifdef _WIN32 	
-			Sleep(READ_DELAY);
+			Sleep(2 * READ_DELAY);
 #else 	
-			usleep(READ_DELAY); 
+			usleep(2 * READ_DELAY); 
 #endif //_WIN32
 		
 

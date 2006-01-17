@@ -86,6 +86,14 @@ int main(int argc, char* argv[])
 						zwAPI->insertJob( lightJob );
 					}
 				}
+				else if(line.find("sleep") == 0)
+				{ //take a moment to relax
+#if _WIN32
+					Sleep(500);
+#else
+					usleep(500000);
+#endif
+				}
 				else
 				{
 					g_pPlutoLogger->Write(LV_WARNING, "unkown  command %s", line.c_str());

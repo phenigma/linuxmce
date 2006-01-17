@@ -53,6 +53,11 @@ bool ZWJobSwitchBinaryGet::run()
 
 bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 {
+	char log_buf[1024 * 5];
+	memset(log_buf, 0, sizeof(log_buf));
+	for(unsigned int ww = 0; ww < length && ww < sizeof(log_buf); ww++)
+		sprintf(&(log_buf[ww*5]), "0x%02x ", buffer[ww]);
+	g_pPlutoLogger->Write(LV_DEBUG, "%s", log_buf);
 	switch(state())
 	{
 		default:
@@ -78,12 +83,17 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 			}
 			else if(d->txStatusCount == 0)//buffer[0] == REQUEST
 			{
+entry:
 				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
 				{
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
 					break;				
 				}
-
+				if(length < 3)
+				{
+					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small %d", length);
+					break;
+				}
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
 				switch(buffer[3])
 				{
@@ -104,6 +114,12 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 			}
 			else//buffer[0] == REQUEST
 			{
+				if(length < 8)
+				{
+					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small %d", length);
+					goto entry;
+				}
+
 				if(FUNC_ID_APPLICATION_COMMAND_HANDLER == buffer[1] &&
 					COMMAND_CLASS_SWITCH_MULTILEVEL == buffer[5] && 
 					(char)d->nodeID == buffer[3] &&
@@ -115,7 +131,9 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 				else
 				{
 					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is NOT here");
-					break;
+					//break;
+					//sorry (mailto: edgar.g@plutohome.com)
+					goto entry;
 				}
 
 				setState(ZWaveJob::STOPPED);

@@ -100,5 +100,6 @@ bool ZWJobSwitchChangeLevel::processData(const char * buffer, size_t length)
 			
 			}
 	}
+	setState(ZWaveJob::STOPPED);
 	return false;
 }

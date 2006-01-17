@@ -72,13 +72,13 @@ bool ZWJobLightLevel::run()
 		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobLightLevel allocation error!");
 		return false;
 	}
-	
+	g_pPlutoLogger->Write(LV_DEBUG, "Current job = ZWJobLightLevel");
 	// add jobs
 	//d->currentJob = d->jobsQueue.front();
 	//d->jobsQueue.pop_front();
 	
 	setState( ZWaveJob::RUNNING );
-	
+	g_pPlutoLogger->Write(LV_DEBUG, "ZWJobLightLevel running");
 	return d->currentJob->run();
 }
 
@@ -94,7 +94,8 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: .");
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: current job is returning false");
+			setState(ZWaveJob::STOPPED);
 			return false;
 		}
 	}
@@ -128,7 +129,10 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 		{
 			d->currentJob = d->jobsQueue.front();
 			d->jobsQueue.pop_front();
-			return d->currentJob->run();
+			bool returnValue = d->currentJob->run();
+			if(!returnValue)
+				setState(ZWaveJob::STOPPED);
+			return true;
 		}
 		else
 		{
@@ -136,6 +140,5 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 			return true;
 		}
 	}
-	
 	return true;
 }
