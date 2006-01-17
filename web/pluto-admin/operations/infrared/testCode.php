@@ -7,9 +7,32 @@ function testCode($output,$publicADO)
 	$userID=(int)@$_SESSION['userID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$sender=$_REQUEST['sender'];
+	$code=$_REQUEST['irData'];
 	
-	$irgcID=(int)$_REQUEST['irgcID'];
+	if(isset($_REQUEST['deviceID']) && (int)$_REQUEST['deviceID']!=0){
+		if($code==''){
+			$alert='ERROR: Specified command had empty content.';
+		}else{
+			$deviceID=$_REQUEST['deviceID'];
+			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$publicADO,'WHERE PK_Device='.$deviceID);
+			if((int)@$deviceInfo['FK_Device_ControlledVia'][0]>0 || $sender=='rubyCodes'){
+				$parentDevice=(int)@$deviceInfo['FK_Device_ControlledVia'][0];
+					
+				$deviceToReceive=($sender=='rubyCodes')?$deviceID:$parentDevice;
+				$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceToReceive.' 1 191 9 "'.$code.'"';
 
+				exec($commandToTest);
+				$alert='The command was sent to device #'.$deviceToReceive;		
+			}else{
+				$alert='ERROR: the device it\'s not controlled via infrared interface.';
+			}
+		}
+	}else{
+		$alert='ERROR: No device specified;';
+	}
+	
+	/*
+	// old section who test the code stored in database
 	if($irgcID==0){
 		$alert='Invalid code specified.<br>';
 	}else{
@@ -37,7 +60,8 @@ function testCode($output,$publicADO)
 			$alert='ERROR: No device specified;';
 		}
 	}
-
+	*/
+	
 	$out='
 	<script>
 		alert(\''.addslashes($alert).'\');

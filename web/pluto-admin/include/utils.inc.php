@@ -4201,7 +4201,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	}
 	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">':'';
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button" name="viewParams" value="View parameters" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
-	$testButton=((int)$deviceID!=0)?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
+	$testButton=((int)$deviceID!=0)?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.irCodes.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
 		<table width="100%">
