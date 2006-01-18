@@ -17,9 +17,10 @@ pthread_mutex_t SerialConnection::mutex_serial;
 pthread_mutex_t SerialConnection::mutex_buffer;
 pthread_t SerialConnection::write_thread;
 
-SerialConnection::SerialConnection():serialPort(NULL)
+SerialConnection::SerialConnection()
+	: serialPort(NULL)
 {
-	
+	buffer.resize(1025);
 }
 
 SerialConnection *SerialConnection::getInstance()
