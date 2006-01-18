@@ -59,6 +59,7 @@ public:
 	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
 	static void* receiveFunction(void *);
 	
+	static void printDataBuffer(const char *buffer, const size_t length);
 private:
 	/**static instance of this class*/
 	static SerialConnection* instance;

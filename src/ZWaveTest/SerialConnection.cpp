@@ -376,6 +376,15 @@ void *SerialConnection::receiveFunction(void *)
 	return NULL;
 }
 
+void SerialConnection::printDataBuffer(const char *buffer, const size_t length)
+{
+	char log_buf[1024 * 5];
+	memset(log_buf, 0, sizeof(log_buf));
+	for(unsigned int ww = 0; ww < length && ww < sizeof(log_buf); ww++)
+		sprintf(&(log_buf[ww*5]), "0x%02x ", buffer[ww]);
+	g_pPlutoLogger->Write(LV_DEBUG, "%s", log_buf);
+}
+
 SerialConnection::~SerialConnection()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 1");
