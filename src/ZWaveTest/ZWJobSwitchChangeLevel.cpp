@@ -5,6 +5,7 @@
 #include "ZW_classcmd.h"
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
+#include "SerialConnection.h"
 
 #define DATA_LEN 3
 
@@ -60,11 +61,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~4" );
 
 bool ZWJobSwitchChangeLevel::processData(const char * buffer, size_t length)
 {
-	char log_buf[1024 * 5];
-	memset(log_buf, 0, sizeof(log_buf));
-	for(unsigned int ww = 0; ww < length && ww< sizeof(log_buf); ww++)
-		sprintf(&(log_buf[ww*5]), "0x%02x ", buffer[ww]);
-	g_pPlutoLogger->Write(LV_DEBUG, "%s", log_buf);
+	SerialConnection::printDataBuffer(buffer, length);
 	switch(state())
 	{
 		default:
