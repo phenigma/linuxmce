@@ -36,6 +36,9 @@ namespace DCE
         string sNoMediaSoftKeysXml;
         string sAllSoftKeysXml;
 
+		bool m_bProcessingRequest;
+		string m_sServerAddress;
+
 	public:
 		xxProxy_Orbiter(int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);

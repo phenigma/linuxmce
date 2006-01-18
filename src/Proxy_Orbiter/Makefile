@@ -19,7 +19,7 @@ sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DPROXY_ORBITER
 LDFLAGS +=
-XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
+XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl
 
 sources += \
 	../Orbiter/OrbiterFileBrowser.cpp \
@@ -40,7 +40,8 @@ sources += \
 	../Orbiter/CallBackData.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
-	../OrbiterGen/Renderer.cpp 
+	../OrbiterGen/Renderer.cpp \
+	../PlutoUtils/HttpUtils.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
