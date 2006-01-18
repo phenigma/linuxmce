@@ -20,7 +20,9 @@ ZWJobSwitchBinaryGet::Private::Private(unsigned short nID)
 	: nodeID(nID),
 	txStatusCount(0)
 {
-g_pPlutoLogger->Write(LV_DEBUG, "*******************1" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************1" );
+#endif
 }
 
 ZWJobSwitchBinaryGet::ZWJobSwitchBinaryGet(PlutoZWSerialAPI * zwAPI, unsigned short nodeID)
@@ -28,19 +30,25 @@ ZWJobSwitchBinaryGet::ZWJobSwitchBinaryGet(PlutoZWSerialAPI * zwAPI, unsigned sh
 {
 	d = new Private(nodeID);
 	setType(ZWaveJob::GET_SWITCH_BINARY);
-g_pPlutoLogger->Write(LV_DEBUG, "*******************2" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************2" );
+#endif
 }
 
 ZWJobSwitchBinaryGet::~ZWJobSwitchBinaryGet()
 {
 	delete d;
 	d = NULL;
-g_pPlutoLogger->Write(LV_DEBUG, "*******************3" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************3" );
+#endif
 }
 
 bool ZWJobSwitchBinaryGet::run()
 {
-g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
+#endif
 	setState(ZWaveJob::RUNNING);
 	size_t len = 8;
 	char data[8];
@@ -58,20 +66,28 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
 bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 {
 	SerialConnection::printDataBuffer(buffer, length, "ZWJobSwitchBinaryGet");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************5" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************5" );
+#endif
 	switch(state())
 	{
 		default:
 		case ZWaveJob::IDLE:
 		case ZWaveJob::STOPPED:
-g_pPlutoLogger->Write(LV_DEBUG, "*******************6" );
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_DEBUG, "*******************6" );
+#endif
 			break;
 		case ZWaveJob::RUNNING:
-g_pPlutoLogger->Write(LV_DEBUG, "*******************7" );
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_DEBUG, "*******************7" );
+#endif
 			if(length < 2)
 			{
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************8" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "*******************8" );
+#endif
 				break;
 			}
 
@@ -80,11 +96,15 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************8" );
 				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
 				{
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************9" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************9" );
+#endif
 					break;				
 				}
+#ifdef PLUTO_DEBUG
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the response is here");
 g_pPlutoLogger->Write(LV_DEBUG, "*******************10" );
+#endif
 				return true;				
 			}
 			else if(d->txStatusCount == 0)//buffer[0] == REQUEST
@@ -92,13 +112,17 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************10" );
 entry:
 				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
 				{
-g_pPlutoLogger->Write(LV_DEBUG, "*******************11" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************11" );
+#endif
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
 					break;				
 				}
 				if(length < 3)
 				{
-g_pPlutoLogger->Write(LV_DEBUG, "*******************12" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************12" );
+#endif
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, len too small %d", length);
 					break;
 				}
@@ -108,28 +132,41 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************12" );
 					setState(ZWaveJob::STOPPED);
 					return false;			
 				}
+#ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
+
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
+#endif
 				switch(buffer[3])
 				{
 					case TRANSMIT_COMPLETE_OK:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command completed OK");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************14" );
+#ifdef PLUTO_DEBUG
+						g_pPlutoLogger->Write(LV_DEBUG, "*******************14" );
+#endif
 						break;
 					case TRANSMIT_COMPLETE_NO_ACK:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************15" );
+#ifdef PLUTO_DEBUG
+						g_pPlutoLogger->Write(LV_DEBUG, "*******************15" );
+#endif
 						break;
 					case TRANSMIT_COMPLETE_FAIL:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "failed to transmit command");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************16" );
+#ifdef PLUTO_DEBUG
+						g_pPlutoLogger->Write(LV_DEBUG, "*******************16" );
+#endif
 						break;
 					default:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
-g_pPlutoLogger->Write(LV_DEBUG, "*******************17" );
+#ifdef PLUTO_DEBUG
+						g_pPlutoLogger->Write(LV_DEBUG, "*******************17" );
+#endif
 				}
 				d->txStatusCount ++;
-g_pPlutoLogger->Write(LV_DEBUG, "*******************18" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "*******************18" );
+#endif
 				return true;				
 			}
 			else//buffer[0] == REQUEST
@@ -137,7 +174,9 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************18" );
 				if(length < 8)
 				{
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, length too small %d", length);
-g_pPlutoLogger->Write(LV_DEBUG, "*******************19" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************19" );
+#endif
 					goto entry;
 				}
 
@@ -146,24 +185,34 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************19" );
 					(char)d->nodeID == buffer[3] &&
 					BASIC_REPORT == buffer[6])
 				{
+#ifdef PLUTO_DEBUG
 					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is here");
+#endif
 					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic report = 0x%x", buffer[7]);
-g_pPlutoLogger->Write(LV_DEBUG, "*******************20" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************20" );
+#endif
 				}
 				else
 				{
 					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is NOT here");
 					//break;
 					//sorry (mailto: edgar.g@plutohome.com)
-g_pPlutoLogger->Write(LV_DEBUG, "*******************21" );
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************21" );
+#endif
 					goto entry;
 				}
 
 				setState(ZWaveJob::STOPPED);
+#ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "*******************22" );
+#endif
 				return true;				
 			}
 	}
-g_pPlutoLogger->Write(LV_DEBUG, "*******************23" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "*******************23" );
+#endif
 	return false;
 }
