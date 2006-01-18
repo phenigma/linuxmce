@@ -62,8 +62,8 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
-    m_sServerAddress = "192.168.80.1";
-    m_sBaseUrl = "http://" + ServerAddress + "/pluto-admin/";
+    m_sInternalServerAddress = "192.168.80.1";
+    m_sBaseUrl = "http://" + m_sInternalServerAddress + "/pluto-admin/";
 
     pthread_cond_init( &m_ActionCond, NULL );
     m_ActionMutex.Init(NULL, &m_ActionCond);
@@ -75,6 +75,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
         return false;
 
     m_ImageQuality = DATA_Get_ImageQuality();
+	m_sRemotePhoneIP = DATA_Get_Remote_Phone_IP();
 
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
@@ -82,6 +83,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     m_iListenPort = DATA_Get_Listen_Port();
     if( !m_iListenPort )
         m_iListenPort = 3451;
+
 
     return true;
 }
@@ -91,7 +93,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     m_sRequestUrl = m_sBaseUrl + 
         "index.php?"
         "section=proxySocket&amp;"
-        "address=" + m_sServerAddress + "&amp;"
+        "address=" + m_sInternalServerAddress + "&amp;"
         "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
         "command=XML&amp;"
 		"deviceID=" + StringUtils::ltos(m_dwPK_Device) + "&amp;";
@@ -209,9 +211,10 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
 			"</CiscoIPPhoneExecute>";
 		mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
 
-		string Response = HttpPost("http://" + m_sServerAddress + "/CGI/Execute", vectHeaders, mapParams, 
+		string Response = HttpPost("http://" + m_sRemotePhoneIP + "/CGI/Execute", vectHeaders, mapParams, 
 			"user", "pluto");
 
+		g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
 		g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
 	}
 }

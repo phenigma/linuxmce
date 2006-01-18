@@ -37,7 +37,8 @@ namespace DCE
         string sAllSoftKeysXml;
 
 		bool m_bProcessingRequest;
-		string m_sServerAddress;
+		string m_sInternalServerAddress;
+		string m_sRemotePhoneIP;
 
 	public:
 		xxProxy_Orbiter(int DeviceID, 
