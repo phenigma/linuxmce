@@ -1,18 +1,18 @@
 /*
  Telecom_Plugin
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 //<-dceag-d-b->
@@ -99,7 +99,7 @@ bool Telecom_Plugin::GetConfig()
 	for(size_t s=0;s<vectDevices.size();s++)
 	{
 		map_orbiter2embedphone[vectDevices[s]->FK_Device_ControlledVia_get()] = vectDevices[s]->PK_Device_get();
-		map_embedphone2orbiter[vectDevices[s]->PK_Device_get()] = vectDevices[s]->FK_Device_ControlledVia_get();		
+		map_embedphone2orbiter[vectDevices[s]->PK_Device_get()] = vectDevices[s]->FK_Device_ControlledVia_get();
 	}
 	vector<class Row_Device_DeviceData*> vectDeviceData;
 	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD+string("=") + StringUtils::itos(DEVICEDATA_PhoneNumber_CONST), &vectDeviceData);
@@ -119,7 +119,7 @@ Telecom_Plugin::~Telecom_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
-	
+
 }
 
 //<-dceag-reg-b->
@@ -138,7 +138,7 @@ bool Telecom_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::TelecomScenariosGrid))
 		,DATAGRID_Telecom_Scenarios_CONST,PK_DeviceTemplate_get());
-		
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::PhoneBookAutoCompl))
 		,DATAGRID_Phone_Book_Auto_Compl_CONST,PK_DeviceTemplate_get());
@@ -161,18 +161,18 @@ bool Telecom_Plugin::Register()
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
-	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );	
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::Hangup) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_PBX_Hangup_CONST);
-	return Connect(PK_DeviceTemplate_get()); 
+	return Connect(PK_DeviceTemplate_get());
 }
 
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
+	created for the child that will get the message.  If the child does not, then you will
+	get all	commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
@@ -184,7 +184,7 @@ void Telecom_Plugin::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -200,7 +200,7 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 	DataGridCell *pCell;
 
 	vector<Row_CommandGroup *> vectRowCommandGroup;
-	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Scenarios_CONST) + " AND " 
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Scenarios_CONST) + " AND "
 			+ COMMANDGROUP_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pRouter->iPK_Installation_get()),&vectRowCommandGroup );
 	for(size_t s=0;s<vectRowCommandGroup.size();++s)
 	{
@@ -214,13 +214,13 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.", 
+	g_pPlutoLogger->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.",
 																					GridID.c_str(), Parms.c_str());
-																				
+
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	// get uid and filter text 
+	// get uid and filter text
 	string::size_type pos=0;
 	string sPK_Users = StringUtils::Tokenize(Parms,"|",pos);
 	string sFind = StringUtils::Tokenize(Parms,"|",pos);
@@ -246,7 +246,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 		}
 		if( pRow_Contact->Company_get().size() )
 			sDescription += pRow_Contact->Company_get() + "\n";
-		
+
 		if( sPK.size() )
 			sPK += "," + StringUtils::itos(pRow_Contact->PK_Contact_get());
 		else
@@ -256,7 +256,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 		pDataGrid->SetData(0, FirstBatch, pCell);
 	}
 
-	sWhere = (sPK.size() ? "PK_Contact NOT IN("+sPK+") AND " : "") + 
+	sWhere = (sPK.size() ? "PK_Contact NOT IN("+sPK+") AND " : "") +
 		"(Name like '% " + StringUtils::SQLEscape(sFind) + "%' OR Company like '% " + StringUtils::SQLEscape(sFind) + "%') "
 		"AND (EK_Users IS NULL OR EK_Users=" + sPK_Users + ")";
 	vectRow_Contact.clear();
@@ -274,7 +274,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 		}
 		if( pRow_Contact->Company_get().size() )
 			sDescription += pRow_Contact->Company_get() + "\n";
-		
+
 		pCell = new DataGridCell(sDescription, StringUtils::itos(pRow_Contact->PK_Contact_get()));
 		pDataGrid->SetData(0, FirstBatch + s, pCell);
 	}
@@ -284,9 +284,9 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 
 class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.", 
+	g_pPlutoLogger->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.",
 																					GridID.c_str(), Parms.c_str());
-	
+
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
@@ -338,10 +338,10 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 }
 
 
-bool 
+bool
 Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
 		                                class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-		
+
 	g_pPlutoLogger->Write(LV_STATUS, "Command Result received from PBX.");
 	int iCommandID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_CommandID_CONST].c_str());
 	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
@@ -351,7 +351,7 @@ Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
 	return true;
 }
 
-void 
+void
 Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage) {
 	CallManager *pCallManager = CallManager::getInstance();
 	CallData *pCallData	= pCallManager->findCallByPendingCmdID(iCommandID);
@@ -359,7 +359,7 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 		g_pPlutoLogger->Write(LV_CRITICAL, "Obsolete command reply received.");
 		return;
 	}
-	
+
 	DeviceData_Router* pDeviceData = find_Device(pCallData->getOwnerDevID());
 	if(!pDeviceData) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Device %d is no more Available. Destroying call.", pCallData->getOwnerDevID());
@@ -372,17 +372,17 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 			if(!iResult) {
 				pCallData->setState(CallData::STATE_OPENED);
 				pCallData->setID(sMessage);
-				
+
 				/*switch orbiter screen*/
 				if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST) {
-					CMD_Goto_DesignObj cmd_CMD_Goto_DesignObj(m_dwPK_Device, pDeviceData->m_dwPK_Device, 
+					CMD_Goto_DesignObj cmd_CMD_Goto_DesignObj(m_dwPK_Device, pDeviceData->m_dwPK_Device,
 										m_dwPK_Device, "1281", pCallData->getID(), "", false, false);
 					SendCommand(cmd_CMD_Goto_DesignObj);
 				}
 			} else {
 				/*switch orbiter screen*/
 				pCallManager->removeCall(pCallData);
-				
+
 			}
 			break;
 		case CallData::STATE_TRANSFERING:
@@ -394,11 +394,11 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 	}
 }
 
-bool 
-Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, 
+bool
+Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ring event received from PBX.");
-	
+
 	string sPhoneExtension = pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST];
 	string sPhoneCallID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallID_CONST];
 	string sPhoneCallerID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallerID_CONST];
@@ -407,7 +407,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 	return true;
 }
 
-void 
+void
 Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
 {
 	int phoneID=map_ext2device[atoi(sPhoneExtension.c_str())];
@@ -421,15 +421,15 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 			pCallData->setID(sPhoneCallID);
 			pCallData->setCallerID(sPhoneCallerID);
 			CallManager::getInstance()->addCall(pCallData);
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());			
+
+			g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());
 			pCallData->setState(CallData::STATE_NOTDEFINED);
 		}
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
 			pCallData->setID(sPhoneCallID);
-			pCallData->setState(CallData::STATE_NOTDEFINED);			
+			pCallData->setState(CallData::STATE_NOTDEFINED);
 		}
 	}
 }
@@ -444,8 +444,8 @@ Telecom_Plugin::find_Device(int iPK_Device) {
 DeviceData_Router*
 Telecom_Plugin::find_AsteriskDevice() {
 	DeviceData_Router *pDeviceData = NULL;
-			
-	ListDeviceData_Router* pListDeviceData = 
+
+	ListDeviceData_Router* pListDeviceData =
 								m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Asterisk_CONST);
 	if(pListDeviceData) {
 		if(pListDeviceData->size() > 1) {
@@ -458,7 +458,7 @@ Telecom_Plugin::find_AsteriskDevice() {
 			g_pPlutoLogger->Write(LV_CRITICAL, errStr.c_str());
 			//return -1;
 		}
-		
+
 		pDeviceData = pListDeviceData->front();
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Asterisk Handler not found...");
@@ -501,7 +501,7 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
 		return;
 	}
-	
+
     /*search device by id*/
     DeviceData_Router *pDeviceData = find_Device(iPK_Device);
  	if(!pDeviceData) {
@@ -524,13 +524,13 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
 	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!", 
+	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
 													sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
-				
+
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
-	
+
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 		if(!pCallData) {
 			/*create new call data*/
@@ -538,7 +538,7 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 			pCallData->setOwnerDevID(pMessage->m_dwPK_Device_From);
 			CallManager::getInstance()->addCall(pCallData);
 		}
-		
+
 		pCallData->setState(CallData::STATE_ORIGINATING);
 
 		/*send originate command to PBX*/
@@ -613,17 +613,17 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		g_pPlutoLogger->Write(LV_CRITICAL, "Nowhere to transfer !!!");
 		return;
 	}
-	
+
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
 		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
-	
+
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
 		if(!pCallData) {
 			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
 			return;
 		}
-	}	
+	}
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
@@ -639,7 +639,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 			SendCommand(cmd_PBX_Transfer);
 			Sleep(2000);
 			DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"pluto",room);
-			SendCommand(cmd_invite);			
+			SendCommand(cmd_invite);
 		}
 		else
 		{
@@ -647,10 +647,10 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 			SendCommand(cmd_PBX_Transfer);
 		}
-		
+
 	}
 }
-	
+
 //<-dceag-c236-b->
 
 	/** @brief COMMAND: #236 - PL_Hangup */
@@ -660,23 +660,23 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 //<-dceag-c236-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup command called.");
-	
+
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
 		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
-	
+
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
 		if(!pCallData) {
 			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
 			return;
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());	
+	g_pPlutoLogger->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
 		/*send transfer command to PBX*/
-		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
 								0, pCallData->getID());
 		SendCommand(cmd_PBX_Hangup);
 		CallManager::getInstance()->removeCall(pCallData);
@@ -711,7 +711,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 
     string sSrcPhoneType = "Local";
 
-    g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!", 
+    g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!",
         sSrcPhoneType.c_str(), sPhoneNumber.c_str());
 
 	sPhoneNumber+="@trusted";
@@ -752,17 +752,17 @@ string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
 		sDial += pRow_PhoneNumber->AreaCode_get();
 
 	sDial += pRow_PhoneNumber->PhoneNumber_get();
-	
+
 	return sDial;
 }
 
 
 
-bool 
-Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
+bool
+Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
-	SendCommand(SCREEN_DevIncomingCall_);								
+	SendCommand(SCREEN_DevIncomingCall_);
 	return true;
 }
 //<-dceag-c28-b->
@@ -809,7 +809,7 @@ void Telecom_Plugin::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Resu
 		}
 		pCallData->setState(CallData::STATE_ORIGINATING);
 	}
-	
+
 	sCMD_Result="OK";
 }
 //<-dceag-c335-b->
@@ -852,7 +852,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(pCallData) {
-			CallManager::getInstance()->removeCall(pCallData);	
+			CallManager::getInstance()->removeCall(pCallData);
 		}
 		else
 		{
@@ -876,7 +876,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 	if( !iPK_Users )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From); 
+		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From);
 #endif
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_iPK_Users )
@@ -921,7 +921,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 //<-dceag-c751-e->
 {
 	string cmdline = "";
-	
+
 	if(sName == "broadvoice")
 	{
 		cmdline += "/usr/pluto/bin/create_amp_broadvoice.pl";
@@ -946,7 +946,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	{
 		cmdline += "/usr/pluto/bin/create_amp_nufone.pl";
 	}
-	
+
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
 	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
 	system(cmdline.c_str());
@@ -1016,7 +1016,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], calllerid [%s]",chan.c_str(),(*it)->getCallerID().c_str()); 
+				g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], calllerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
 				if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"   chan add");
@@ -1060,7 +1060,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());			
+				g_pPlutoLogger->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());
 			}
 		}
 		else
@@ -1099,11 +1099,11 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
-	}	
+	}
 	while((row = mysql_fetch_row(result_set.r)))
 	{
 		string text = string("Call from ")+string(row[0])+string(" to ")+string(row[1])+string(" at ")+string(row[2])+string(" duration ")+string(sec2str(atoi(row[3])));
-		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());		
+		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
 		pCell = new DataGridCell(text,"");
 		pCell->m_pMessage=NULL;
 		pDataGrid->SetData(0,Row,pCell);
@@ -1115,44 +1115,104 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 
 class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	//TODO: implement me!
-	return new DataGridTable();
+    ///select CommandGroup.Description, CommandGroup_Command_CommandParameter.FK_CommandParameter, CommandGroup_Command_CommandParameter.IK_CommandParameter from CommandGroup, CommandGroup_Command, CommandGroup_Command_CommandParameter where CommandGroup.FK_Array=4 and CommandGroup.PK_CommandGroup=CommandGroup_Command.FK_CommandGroup and CommandGroup_Command.PK_CommandGroup_Command=CommandGroup_Command_CommandParameter.FK_CommandGroup_Command and CommandGroup.AutoGenerated=0 order by CommandGroup.PK_CommandGroup, CommandGroup_Command_CommandParameter.FK_CommandParameter;
+	string sql_buff = "SELECT CommandGroup.Description, , CommandGroup_Command_CommandParameter.IK_CommandParameter";
+	sql_buff += " FROM CommandGroup, CommandGroup_Command, CommandGroup_Command_CommandParameter";
+	sql_buff += " WHERE CommandGroup.FK_Array="+StringUtils::itos(ARRAY_Communication_Scenarios_CONST);
+	sql_buff += " AND CommandGroup.PK_CommandGroup=CommandGroup_Command.FK_CommandGroup";
+	sql_buff += " AND CommandGroup_Command.PK_CommandGroup_Command=CommandGroup_Command_CommandParameter.FK_CommandGroup_Command";
+	sql_buff += " AND CommandGroup.AutoGenerated=0 ORDER BY CommandGroup.PK_CommandGroup, CommandGroup_Command_CommandParameter.FK_CommandParameter ;";
+
+	g_pPlutoLogger->Write(LV_STATUS, "RecentCalls request received for GridID: %s",GridID.c_str());
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	int Row = 0;
+
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName ,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED");
+		return pDataGrid;
+	}
+	char desc[256];
+	while((row = mysql_fetch_row(result_set.r)))
+	{
+		int device=0;
+		char *number=NULL;
+		if(atoi(row[1])==COMMANDPARAMETER_PK_Device_CONST)
+		{
+			device=atoi(row[2]);
+			strncpy(desc,row[0],sizeof(desc)-1);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (1st row not PK_Device)");
+			break;
+		}
+		if((row = mysql_fetch_row(result_set.r))==NULL)
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (no 2nd row for '%s')",desc);
+			break;
+		}
+		if(atoi(row[1])!=COMMANDPARAMETER_PhoneExtension_CONST)
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (2nd row not PhoneExtension)");
+			break;
+		}
+		if(strcmp(row[0],desc))
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
+			break;
+		}
+
+		string text = string(row[0])+string(" (")+string(row[2])+string(")");
+		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
+		pCell = new DataGridCell(text,"");
+		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device,row[2],"");
+		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;
+		pDataGrid->SetData(0,Row,pCell);
+		Row++;
+	}
+	return pDataGrid;
 }
 
-bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, 
+bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d($%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
 	if(pCallData) {
 		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
-		CallManager::getInstance()->removeCall(pCallData);		
+		CallManager::getInstance()->removeCall(pCallData);
 	}
 	return true;
 }
 
-int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension) 
+int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension)
 {
 	int pos, oldpos = 0;
-	
+
 	pos = channel.find('/');
 	if(pos < 0) {
 		return -1;
 	}
-	
+
 	oldpos = pos + 1;
-	pos = channel.find('@',oldpos);	
+	pos = channel.find('@',oldpos);
 	if(pos < 0) {
-		pos = channel.find('-',oldpos);	
+		pos = channel.find('-',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('/',oldpos);	
+		pos = channel.find('/',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('&',oldpos);	
+		pos = channel.find('&',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find(',',oldpos);	
+		pos = channel.find(',',oldpos);
 	}
 	if(pos < 0) {
 		pos = channel.find('|',oldpos);
@@ -1163,7 +1223,7 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 	if(pos < 0) {
 		return -1;
 	}
-	
+
 	if(iextension && sextension) {
 		*sextension = channel.substr(oldpos, pos - oldpos);
 		if(sscanf(sextension->c_str(),"%d",iextension)!=1)
