@@ -2,7 +2,6 @@
 //
 
 #include "../HttpUtils.h"
-#include "conio.h"
 
 string URLEncode(string sInput)
 {
@@ -53,8 +52,7 @@ int main(int argc, char* argv[])
 	map<string, string> mapParams;
 	mapParams["XML"] = URLEncode("<CiscoIPPhoneExecute><ExecuteItem URL=\"http://192.168.80.1/pluto-admin/ServicesMenu.php\"/></CiscoIPPhoneExecute>");
 
-	string Response = HttpPost("http://localhost/CGI/Execute", vectHeaders, mapParams, "a", "a", 9999);
-	getch();
+	string Response = HttpPost("http://192.168.80.253/CGI/Execute", vectHeaders, mapParams, "a", "a");
 
 	return 0;
 }

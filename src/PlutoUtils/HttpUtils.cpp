@@ -38,11 +38,11 @@ string HttpPost(string sURL, const vector<string>& vectHeaders, const map<string
 	if(curl) 
 	{
 		curl_easy_setopt(curl, CURLOPT_URL, sURL.c_str());
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);// allow redirects 
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);// allow redirects 
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, sParams.c_str());
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, sParams.length());
-		curl_easy_setopt(curl, CURLOPT_POST, TRUE); // set POST method 
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, TRUE); 
+		curl_easy_setopt(curl, CURLOPT_POST, 1); // set POST method 
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1); 
 		curl_easy_setopt(curl, CURLOPT_PORT, 9999); 
 
 		if(sUser != "")
