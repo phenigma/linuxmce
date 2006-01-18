@@ -20,8 +20,9 @@ namespace DCE
 int main(int argc, char* argv[])
 {
 	g_pPlutoLogger = new FileLogger("ZWaveText.log");
+#ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "------- BEGIN --------");
-	
+#endif
 	if(argc != 2)
 	{
 		printf("usage: %s <port name>\n", argv[0]);
@@ -59,7 +60,6 @@ int main(int argc, char* argv[])
 					{
 						level = 0x63;
 						g_pPlutoLogger->Write(LV_WARNING, "main: light on");
-
 					}
 					else if(line.find("off") < line.size())
 					{

@@ -36,7 +36,9 @@ ZWJobInitialize::Private::Private()
 
 ZWJobInitialize::Private::~Private()
 {
+#ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 1");
+#endif
 	delete currentJob;
 	currentJob = NULL;
 	
@@ -47,7 +49,9 @@ ZWJobInitialize::Private::~Private()
 		delete job;
 		job = NULL;
 	}
-		g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 2");
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 2");
+#endif
 }
 
 // ----------------------------------
@@ -98,7 +102,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: .");
+			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize: current job returned an error");
 			return false;
 		}
 	}
@@ -174,7 +178,9 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 		}
 		else
 		{
+#ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 3");
+#endif
 			setState(ZWaveJob::STOPPED);
 			return true;
 		}

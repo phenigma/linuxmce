@@ -141,12 +141,16 @@ bool PlutoZWSerialAPI::stop()
 {
 	if( d->state != PlutoZWSerialAPI::STOPPED )
 	{
+#ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 3");
 		g_pPlutoLogger->Flush();
+#endif
 		d->connection->disconnect();
 		d->state = PlutoZWSerialAPI::STOPPED;
+#ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 4");
 		g_pPlutoLogger->Flush();
+#endif
 	}
 	
 	return true;
@@ -182,7 +186,9 @@ bool PlutoZWSerialAPI::listen()
 					// check if the job has finished
 					if( ZWaveJob::STOPPED == d->currentJob->state() )
 					{
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 1");
+#ifdef PLUTO_DEBUG
+						g_pPlutoLogger->Write(LV_WARNING, "-------- 1");
+#endif
 						delete d->currentJob;
 						d->currentJob = NULL;
 						if( d->jobsQueue.size() )
@@ -200,9 +206,13 @@ bool PlutoZWSerialAPI::listen()
 						}
 						else
 						{
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 2");
+#ifdef PLUTO_DEBUG
+							g_pPlutoLogger->Write(LV_WARNING, "-------- 2");
+#endif
 							stop();
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 2-1");
+#ifdef PLUTO_DEBUG
+							g_pPlutoLogger->Write(LV_WARNING, "-------- 2-1");
+#endif
 						}
 					}
 				}
@@ -215,9 +225,13 @@ bool PlutoZWSerialAPI::listen()
 			}
 			else
 			{
+#ifdef PLUTO_DEBUG
 				g_pPlutoLogger->Write(LV_DEBUG, " commandRet = %d ", commandRet);
+#endif
 			}
+#ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "PlutoZWSerialAPI::listen() sleeping");		
+#endif
 #ifdef _WIN32
 	Sleep(READ_DELAY);
 #else
@@ -225,8 +239,9 @@ bool PlutoZWSerialAPI::listen()
 #endif
 		}
 	}
-	
+#ifdef PLUTO_DEBUG	
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 6");
+#endif
 	return true;
 }
 

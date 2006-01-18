@@ -33,14 +33,18 @@ ZWJobLightLevel::Private::Private(unsigned char l, unsigned char nID)
 	level(l),
 	nodeID(nID)
 {
-g_pPlutoLogger->Write(LV_DEBUG, "==============1" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============1" );
+#endif
 }
 
 ZWJobLightLevel::Private::~Private()
 {
 	delete currentJob;
 	currentJob = NULL;
-g_pPlutoLogger->Write(LV_DEBUG, "==============2" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============2" );
+#endif
 	
 	ZWaveJob * job = NULL;
 	for(JobsDequeIterator it=jobsQueue.begin(); it!=jobsQueue.end(); ++it)
@@ -49,7 +53,9 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============2" );
 		delete job;
 		job = NULL;
 	}
-g_pPlutoLogger->Write(LV_DEBUG, "==============3" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============3" );
+#endif
 }
 
 // ----------------------------------
@@ -59,35 +65,49 @@ ZWJobLightLevel::ZWJobLightLevel(PlutoZWSerialAPI * zwAPI, unsigned char level, 
 {
 	d = new Private(level, nodeID);
 	setType(ZWaveJob::LIGHT_LEVEL);
-g_pPlutoLogger->Write(LV_DEBUG, "==============4" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============4" );
+#endif
 }
 
 ZWJobLightLevel::~ZWJobLightLevel()
 {
 	delete d;
 	d = NULL;
-g_pPlutoLogger->Write(LV_DEBUG, "==============5" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============5" );
+#endif
 }
 
 bool ZWJobLightLevel::run()
 {
-g_pPlutoLogger->Write(LV_DEBUG, "==============6" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============6" );
+#endif
 	// start the initialization with ZWave API version
 	d->currentJob = new ZWJobSwitchChangeLevel(handler(), d->level, d->nodeID) ;
 	if( d->currentJob == NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobLightLevel allocation error!");
-g_pPlutoLogger->Write(LV_DEBUG, "==============7" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============7" );
+#endif
 		return false;
 	}
+#ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "Current job = ZWJobLightLevel");
+#endif
 	// add jobs
 	//d->currentJob = d->jobsQueue.front();
 	//d->jobsQueue.pop_front();
-g_pPlutoLogger->Write(LV_DEBUG, "==============8" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============8" );
+#endif
 	
 	setState( ZWaveJob::RUNNING );
+#ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "ZWJobLightLevel running");
+#endif
 	return d->currentJob->run();
 }
 
@@ -95,18 +115,26 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 {
 	SerialConnection::printDataBuffer(buffer, length, "ZWJobLightLevel");
 
-g_pPlutoLogger->Write(LV_DEBUG, "==============9" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============9" );
+#endif
 	if( ZWaveJob::RUNNING != state() )
 	{
-g_pPlutoLogger->Write(LV_DEBUG, "==============10" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============10" );
+#endif
 		g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: wrong job state.");
 		return false;
 	}
 	
-g_pPlutoLogger->Write(LV_DEBUG, "==============11" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============11" );
+#endif
 	if( d->currentJob != NULL )
 	{
-g_pPlutoLogger->Write(LV_DEBUG, "==============12" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============12" );
+#endif
 		if( !d->currentJob->processData(buffer, length) )
 		{
 g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
@@ -115,12 +143,16 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
 			return false;
 		}
 	}
-g_pPlutoLogger->Write(LV_DEBUG, "==============14" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============14" );
+#endif
 	
 	// check if the job has finished
 	if( ZWaveJob::STOPPED == d->currentJob->state() )
 	{
-g_pPlutoLogger->Write(LV_DEBUG, "==============15" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============15" );
+#endif
 		// next step
 		switch( d->currentJob->type() )
 		{
@@ -130,45 +162,65 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============15" );
 //				break;
 				
 			case ZWaveJob::SET_SWITCH_LEVEL :
-g_pPlutoLogger->Write(LV_DEBUG, "==============16" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "==============16" );
+#endif
 				d->jobsQueue.push_back( new ZWJobSwitchBinaryGet(handler(), d->nodeID) );
 				break;
 			case ZWaveJob::GET_SWITCH_BINARY:
-g_pPlutoLogger->Write(LV_DEBUG, "==============17" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "==============17" );
+#endif
 				//nothing
 				break;
 			default:
-g_pPlutoLogger->Write(LV_DEBUG, "==============18" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "==============18" );
+#endif
 				g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: wrong job type.");
 				break;
 		}
-g_pPlutoLogger->Write(LV_DEBUG, "==============19" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============19" );
+#endif
 		
 		// next job
 		delete d->currentJob;
 		d->currentJob = NULL;
-g_pPlutoLogger->Write(LV_DEBUG, "==============20" );
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "==============20" );
+#endif
 		if( d->jobsQueue.size() > 0 )
 		{
 			d->currentJob = d->jobsQueue.front();
 			d->jobsQueue.pop_front();
-g_pPlutoLogger->Write(LV_DEBUG, "==============21" );
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_DEBUG, "==============21" );
+#endif
 			bool returnValue = d->currentJob->run();
 			if(!returnValue)
 			{
-g_pPlutoLogger->Write(LV_DEBUG, "==============22" );
+#ifdef PLUTO_DEBUG
+				g_pPlutoLogger->Write(LV_DEBUG, "==============22" );
+#endif
 				setState(ZWaveJob::STOPPED);
 			}
-g_pPlutoLogger->Write(LV_DEBUG, "==============23" );
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_DEBUG, "==============23" );
+#endif
 			return true;
 		}
 		else
 		{
 			setState(ZWaveJob::STOPPED);
-g_pPlutoLogger->Write(LV_DEBUG, "==============24" );
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_DEBUG, "==============24" );
+#endif
 			return true;
 		}
 	}
-g_pPlutoLogger->Write(LV_DEBUG, "==============25" );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "==============25" );
+#endif
 	return true;
 }
