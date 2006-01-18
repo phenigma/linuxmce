@@ -95,12 +95,11 @@ int SerialConnection::disconnect()
 		g_pPlutoLogger->Flush();
 		
 // wait a bit so that the write_thread will finish his task
-#ifdef _WIN32 	
-			Sleep(2 * READ_DELAY);
-#else 	
-			usleep(2 * READ_DELAY); 
-#endif //_WIN32
-		
+		g_pPlutoLogger->Write(LV_DEBUG, "waiting for thread to finish");
+		g_pPlutoLogger->Flush();
+		pthread_join(write_thread, NULL);		
+		g_pPlutoLogger->Write(LV_DEBUG, "thread to finished");
+		g_pPlutoLogger->Flush();
 
 		pthread_mutex_destroy(&mutex_serial);
 		pthread_mutex_destroy(&mutex_buffer);
@@ -113,7 +112,7 @@ int SerialConnection::disconnect()
 }
 
 
-bool SerialConnection::isConnected()
+inline bool SerialConnection::isConnected()
 {
 	return serialPort != NULL;
 }
@@ -312,10 +311,10 @@ char SerialConnection::checkSum(char *b, int len)
 
 void *SerialConnection::receiveFunction(void *)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "entry point receiveFUnction");
-	g_pPlutoLogger->Flush();
+	//g_pPlutoLogger->Write(LV_WARNING, "entry point receiveFUnction");
+	//g_pPlutoLogger->Flush();
 	//printf("entry point receiveFUnction");
-	if(instance->isConnected())
+	if(instance->serialPort != NULL)
 	{
 		char mybuf[1024];
 		size_t len = 1024;
@@ -372,6 +371,7 @@ void *SerialConnection::receiveFunction(void *)
 		}
 
 #endif // DEBUG_EUGEN
+		pthread_exit(NULL);
 	}
 	return NULL;
 }
