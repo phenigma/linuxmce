@@ -225,12 +225,17 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 		*len = buffered_len - 1;
 		while(i < *len)
 		{
+			if( i == 0 )
+				g_pPlutoLogger->Write(LV_DEBUG, "receiveCommand::consuma");
+			
 			b[i++] = buffer.front();
 			buffer.pop_front();
 		}
 		
 		// CHECKSUM
 		buffer.pop_front();
+		
+		printDataBuffer(b, *len, "SerialConnection consuma");
 	}
 	else
 	{
@@ -377,6 +382,7 @@ void *SerialConnection::receiveFunction(void *)
 				{
 					instance->buffer.push_back(mybuf[i]);
 				}
+				SerialConnection::printDataBuffer(mybuf, len, "Thread Read");
 				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
 			pthread_mutex_unlock( &instance->mutex_serial );
