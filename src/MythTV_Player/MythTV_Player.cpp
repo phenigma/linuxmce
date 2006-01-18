@@ -39,6 +39,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Button.h"
 #include "DCE/PlainClientSocket.h"
 #include "PlutoUtils/ProcessUtils.h"
 
@@ -115,14 +116,12 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 	m_MythMutex.Init(NULL);
 	g_pMythPlayer = this;
 	m_pDevice_MythTV_Plugin=NULL;
-	m_MythWaitPoll=0;
-
 #ifndef WIN32 
 	m_pRatWrapper = NULL;
 #endif
     m_iMythFrontendWindowId = 0;
     m_bExiting = false;
-    m_bPlaying = false;
+    m_mythStatus = MYTHSTATUS_DISCONNECTED;
     pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
     
 }
@@ -184,13 +183,13 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 	do
 	{
 	        Sleep(100);
-		sendMythCommand("jump livetv", sResult);
+		sResult = sendMythCommand("jump livetv");
 		g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
 	} while(time(NULL) < timeout && sResult != "OK");
 	m_CurrentMode.clear();
 	m_CurrentProgram.clear();
-	m_bPlaying = true;
-    return true;
+	m_mythStatus = MYTHSTATUS_LIVETV;
+	return true;
 }
 
 //<-dceag-reg-b->
@@ -266,43 +265,66 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 void MythTV_Player::pollMythStatus()
 {
-	if (m_MythWaitPoll && time(NULL) < m_MythWaitPoll )
-		return;
-	
-	m_MythWaitPoll = 0;
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	if (m_bPlaying)
+	if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
 	{
-		string sResult;
+		string sResult = sendMythCommand("query location");
 
-		if(sendMythCommand("query location", sResult))
+		if(sResult.length())
 		{
 			vector<string> vectResults;
 			StringUtils::Tokenize(sResult, " ", vectResults);
 
 			if (vectResults[0]=="Playback")
 			{
-           		DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, 0, vectResults[2], vectResults[4], (vectResults[5]=="1x") ? string("") : vectResults[5], "", ""); 
+				DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, 0, vectResults[2], vectResults[4], (vectResults[5]=="1x") ? string("") : vectResults[5], "", ""); 
 				SendCommand(CMD_Update_Time_Code_);                
 			}
 			string SetMode = vectResults[0];
 			if (SetMode == "Playback")
 			{
+				m_mythStatus = MYTHSTATUS_PLAYBACK;
 				if (vectResults[1]=="LiveTV")
-					SetMode="live";
+				{
+					int CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
+					int EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
+					
+					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
+					// flapping.
+					
+					if (m_CurrentMode == "live")
+					{
+						if (CurTime < EndTime - 15)
+							SetMode = "nonlive";
+						else
+							SetMode = "live";
+					} 
+					else
+					{
+						if (CurTime < EndTime - 12)
+							SetMode = "nonlive";
+						else
+							SetMode = "live";
+					}
+				}
 				else
 					SetMode="nonlive";
 			}
-			if (SetMode!=m_CurrentMode)
+			else
 			{
-				
+				if (SetMode == "GuideGrid")
+					m_mythStatus = MYTHSTATUS_GUIDEGRID;
+				else
+					m_mythStatus = MYTHSTATUS_MENU;
+			}
+			if (SetMode!=m_CurrentMode)
+			{				
 				m_CurrentMode = SetMode;
-				string SetMode = m_CurrentMode;
+				g_pPlutoLogger->Write(LV_WARNING,"Changing mode: %s",SetMode.c_str());
 				DCE::CMD_Set_Active_Menu CMD_Set_Active_Menu_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, SetMode);
 				SendCommand(CMD_Set_Active_Menu_);
 			}
-			g_pPlutoLogger->Write(LV_WARNING,"Status: %s",sResult.c_str());
 		}
 	}
 }
@@ -340,11 +362,11 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 
     XFlush(m_pRatWrapper->getDisplay());
 #endif
-    m_MythWaitPoll=time(NULL)+MYTH_WAITPOLLTIME;
 }
 
-bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
+string MythTV_Player::sendMythCommand(const char *Cmd)
 {
+	string sResponse;
 	char ch=0;
 
 	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",Cmd);
@@ -352,7 +374,7 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 	if( !_PlainClientSocket.Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
-		return false;
+		return "";
 	}
 
 	// Wait for Myth's console prompt.
@@ -362,19 +384,19 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 		if ( !_PlainClientSocket.ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
-			return false;
+			return "";
 		}
 	} while(ch!='#');
 	if( !_PlainClientSocket.SendString(Cmd) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
-		return false;
+		return "";
 	}
 	// Receive the response
 	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Didn't get reply.");
-		return false;
+		return "";
 	}
 	sResponse = StringUtils::TrimSpaces(sResponse);
 	g_pPlutoLogger->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
@@ -382,16 +404,10 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 	if( !_PlainClientSocket.SendString("QUIT") )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send QUIT string");
-		return false;
+		return sResponse;
 	}
 	_PlainClientSocket.Close();
-	if (strcmp(Cmd, "query location")!=0)
-	{
-		m_MythWaitPoll=time(NULL)+MYTH_WAITPOLLTIME;
-		
-	}
-		
-	return true;
+	return sResponse;
 }
 
 bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
@@ -460,46 +476,15 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 		return;
 
 	vector<string> numbers;
-    StringUtils::Tokenize( sProgramID, "|", numbers );
+	StringUtils::Tokenize( sProgramID, "|", numbers );
 
-	if ( numbers.size() == 0 )
-	{
+	if ( numbers.size() == 0 )	{
 		g_pPlutoLogger->Write(LV_STATUS, "Invalid channel specification: \"%d\"", sProgramID.c_str());
 		return;
 	}
 
-	string sResult, sTuneCMD = string("play channel ")+numbers[0];
-	if (!sendMythCommand(sTuneCMD.c_str(), sResult))
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Failed to send myth channel request");
-		return;
-	}
-	if (sResult!="OK")
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Reply to channel change request was %s", sResult.c_str());
-	}
-
-/*    string channelNumber = numbers[0];
-    for( unsigned int i = 0; i < channelNumber.size(); i++ )
-    {
-        switch ( channelNumber[i] )
-        {
-            case '0': processKeyBoardInputRequest(XK_0); break;
-            case '1': processKeyBoardInputRequest(XK_1); break;
-            case '2': processKeyBoardInputRequest(XK_2); break;
-            case '3': processKeyBoardInputRequest(XK_3); break;
-            case '4': processKeyBoardInputRequest(XK_4); break;
-            case '5': processKeyBoardInputRequest(XK_5); break;
-            case '6': processKeyBoardInputRequest(XK_6); break;
-            case '7': processKeyBoardInputRequest(XK_7); break;
-            case '8': processKeyBoardInputRequest(XK_8); break;
-            case '9': processKeyBoardInputRequest(XK_9); break;
-            default:
-                g_pPlutoLogger->Write(LV_STATUS, "Invalid character %c in channel identifier %s", channelNumber[i], channelNumber.c_str());
-        }
-    }
-
-	processKeyBoardInputRequest(XK_Return); */
+	string sTuneCMD = string("play channel ")+numbers[0];
+	sendMythCommand(sTuneCMD.c_str());
 }
 
 void MythTV_Player::KillSpawnedDevices()
@@ -532,7 +517,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
-	m_bPlaying=false;
+	m_mythStatus = MYTHSTATUS_DISCONNECTED;
 #endif
 }
 
@@ -846,7 +831,7 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 #ifndef WIN32
-	processKeyBoardInputRequest(XK_Escape);
+	sendMythCommand("key escape");
 #endif
 }
 //<-dceag-createinst-b->!
@@ -896,8 +881,9 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 //<-dceag-c38-e->
 {
 #ifndef WIN32
-	m_bPlaying = false;
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	m_mythStatus = MYTHSTATUS_DISCONNECTED;
+
 	if ( ! checkXServerConnection())
 		return;
 
@@ -917,11 +903,8 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-	// We treat the middle button (pause) as enter -- what a nasty hack!
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	string sResult;
-	sendMythCommand("play speed pause", sResult);
-	//	processKeyBoardInputRequest(XK_Return);
+	sendMythCommand("play speed pause");
 }
 
 //<-dceag-c40-b->
@@ -936,8 +919,7 @@ void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message 
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
-	sendMythCommand("play speed normal", sResult);
+	sendMythCommand("play speed normal");
 }
 
 //<-dceag-c41-b->
@@ -954,46 +936,45 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 {
 	// We send left/right for this
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	string sResult;
 
 	switch(iMediaPlaybackSpeed)
 	{
 	case 0:
-		sendMythCommand("play speed pause", sResult);
+		sendMythCommand("play speed pause");
 		break;
 	case 1:
 	case 1000:
-		sendMythCommand("play speed normal", sResult);
+		sendMythCommand("play speed normal");
 		break;
 	case 2:
 	case 2000:
-		sendMythCommand("play speed 2x", sResult);
+		sendMythCommand("play speed 2x");
 		break;
 	case -1:
 	case -1000:
-		sendMythCommand("play speed -1x", sResult);
+		sendMythCommand("play speed -1x");
 		break;
 	case -2:
 	case -2000:
-		sendMythCommand("play speed -2x", sResult);
+		sendMythCommand("play speed -2x");
 		break;
 	case 4000:
-		sendMythCommand("play speed 4x", sResult);
+		sendMythCommand("play speed 4x");
 		break;
 	case 8000:
-		sendMythCommand("play speed 8x", sResult);
+		sendMythCommand("play speed 8x");
 		break;
 	case 16000:
-		sendMythCommand("play speed 16x", sResult);
+		sendMythCommand("play speed 16x");
 		break;
 	case -4000:
-		sendMythCommand("play speed -4x", sResult);
+		sendMythCommand("play speed -4x");
 		break;
 	case -8000:
-		sendMythCommand("play speed -8x", sResult);
+		sendMythCommand("play speed -8x");
 		break;
 	case -16000:
-		sendMythCommand("play speed -16x", sResult);
+		sendMythCommand("play speed -16x");
 		break;
 	default:
 		g_pPlutoLogger->Write(LV_STATUS, "Don't know how to handle playback speed: \"%d\"", iMediaPlaybackSpeed);
@@ -1017,7 +998,12 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 
 void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+	
 {
+	if (atoi(sValue_To_Assign.c_str()) < 0) 
+		sendMythCommand("play seek backward");
+	else
+		sendMythCommand("play seek forward");
 }
 
 //<-dceag-c65-b->
@@ -1033,10 +1019,10 @@ void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+' )
-		processKeyBoardInputRequest(XK_Down);
+	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+')
+		sendMythCommand("play channel up");
 	else
-		processKeyBoardInputRequest(XK_Up);
+		sendMythCommand("play channel down");
 #endif
 }
 
@@ -1056,12 +1042,9 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
+	*sText = sendMythCommand("query location");
 
-	sendMythCommand("play status position", sResult);
-	*sText = sResult;
-
-	g_pPlutoLogger->Write(LV_STATUS, "Status position: \"%s\"", sResult.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Status position: \"%s\"", sText->c_str());
 }
 
 //<-dceag-c412-b->
@@ -1090,6 +1073,25 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
+	switch(atoi(sPK_Button.c_str()))
+	{
+	case BUTTON_Up_Arrow_CONST:
+		sendMythCommand("key up");
+		break;		
+	case BUTTON_Down_Arrow_CONST:
+		sendMythCommand("key down");
+		break;	
+	case BUTTON_Left_Arrow_CONST:
+		sendMythCommand("key left");
+		break;	
+	case BUTTON_Right_Arrow_CONST:
+		sendMythCommand("key right");
+		break;	
+	case BUTTON_Enter_CONST:
+		sendMythCommand("key enter");
+		break;	
+		
+	}
 }
 
 //<-dceag-c29-b->
@@ -1156,7 +1158,7 @@ void MythTV_Player::CMD_Info(string sText,string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 #ifndef WIN32
-	processKeyBoardInputRequest(XK_I);
+	sendMythCommand("key I");
 #endif
 }
 //<-dceag-c126-b->
@@ -1169,9 +1171,10 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
-	
-	sendMythCommand("jump guidegrid", sResult);
+	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+		sendMythCommand("key S");
+	else
+		sendMythCommand("jump guidegrid");	
 }
 //<-dceag-c367-b->
 
@@ -1194,14 +1197,12 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
-
 	if( sText=="old_recordings" )
-		sendMythCommand("jump playbackrecordings", sResult);
+		sendMythCommand("jump playbackrecordings");
 	else if( sText=="future_recordings" )
-		sendMythCommand("jump manage_recordings", sResult);
+		sendMythCommand("jump manage_recordings");
 	else
-		sendMythCommand("jump mainmenu", sResult);
+		sendMythCommand("jump mainmenu");
 }
 //<-dceag-c761-b->
 
@@ -1213,10 +1214,7 @@ void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
-
-	sendMythCommand("jump playbackrecordings", sResult);
-
+	sendMythCommand("jump playbackrecordings");
 }
 
 //<-dceag-c762-b->
@@ -1229,9 +1227,7 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	string sResult;
-
-	sendMythCommand("jump livetv", sResult);
+	sendMythCommand("jump livetv");
 }
 //<-dceag-c763-b->
 
@@ -1243,7 +1239,6 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 #ifndef WIN32
-	processKeyBoardInputRequest(XK_Escape);
+	sendMythCommand("key escape");
 #endif
-
 }

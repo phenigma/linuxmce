@@ -16,6 +16,7 @@
 //<-dceag-d-e->
 
 class RatPoisonWrapper;
+typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -31,13 +32,10 @@ namespace DCE
 	DeviceData_Base *m_pDevice_MythTV_Plugin;
 
 	pthread_t		     m_threadMonitorMyth;
-	bool			     m_bPlaying;
+	eMythState		     m_mythStatus;	
         int                          m_iControllingDevice;
-	// This is a temporary hack until Chris P fixes myth deadlock problem
-	#define MYTH_WAITPOLLTIME 2 
-	time_t			     m_MythWaitPoll;
         pthread_t                    m_qApplicationThreadId;
-		string m_CurrentMode, m_CurrentProgram;
+	string m_CurrentMode, m_CurrentProgram;
 #ifndef WIN32
 		RatPoisonWrapper            *m_pRatWrapper;
 #endif
@@ -48,7 +46,7 @@ namespace DCE
         bool LaunchMythFrontend(bool bSelectWindow=true);
 
         void processKeyBoardInputRequest(int iXKeySym);
-		bool sendMythCommand(const char *Cmd, string &sResult);
+	string sendMythCommand(const char *Cmd);
 
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
         bool locateMythTvFrontendWindow(long unsigned int window);
