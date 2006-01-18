@@ -191,10 +191,11 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 		*len = 0;
 		return -1;
 	}
-
+	
 	pthread_mutex_lock( &instance->mutex_buffer );
 	if(buffer.size() > 0)
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "buffer.size()= ", buffer.size());
 		//for(std::deque<char>::iterator it = buffer.begin(); it != buffer.end(); ++it)
 		//{
 		//	g_pPlutoLogger->Write(LV_WARNING, "HMM: 0x%02x ", (int)(*it));
@@ -258,7 +259,7 @@ int SerialConnection::hasCommand()
 	}
 	
 	pthread_mutex_lock( &instance->mutex_buffer );
-	int returnValue = 1;
+	int returnValue = 0;
 	
 	while( 0 < buffer.size() && buffer.front() == SERIAL_ACK )
 		buffer.pop_front();
@@ -296,11 +297,7 @@ int SerialConnection::hasCommand()
 #endif
 				pthread_mutex_unlock( &mutex_serial );
 			}
-			else
-				returnValue = 0;
 		}
-		else
-			returnValue = 0;
 	}
 	else 
 		returnValue = -1;
