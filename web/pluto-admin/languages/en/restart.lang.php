@@ -1,2 +1,13 @@
 <?
+$TEXT_RESTART_CONST='Restart';
+$TEXT_QUICK_RELOAD_ROUTER_CONST='Quick Reload Router';
+$TEXT_RESTART_CORE_CONST='Core (reset everything)';
+$TEXT_HALT_CONST='Halt';
+$TEXT_SUSPEND_CONST='Suspend';
+$TEXT_REBOOT_CONST='Reboot';
+$TEXT_MEDIA_DIRECTORS_CONST='Media Directors';
+$TEXT_BOOT_FROM_CONST='Boot from';
+$TEXT_HDD_CONST='Hdd';
+$TEXT_NET_CONST='Net';
+$TEXT_COMMAND_SENT_CONST='Command sent:';
 ?>

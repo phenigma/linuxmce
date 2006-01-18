@@ -1,5 +1,9 @@
 <?
 function securityStatus($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/securityStatus.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -40,34 +44,35 @@ function securityStatus($output,$dbADO) {
 		$out.='
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-	<div align="center"><h3>Security status</h3></div>
+		
+	<div align="center"><h3>'.$TEXT_SECURITY_STATUS_CONST.'</h3></div>
 	<form action="index.php" method="POST" name="securityStatus">
 	<input type="hidden" name="section" value="securityStatus">
 	<input type="hidden" name="action" value="update">		
 	
 	<table align="center" cellpading="3" cellspacing="3">
 			<tr>
-				<td align="right"> <B>Alarm:</B></td>
+				<td align="right"> <B>'.$TEXT_ALARM_CONST.':</B></td>
 				<td align="right"><select name="globalAlarmMode">
-					<option value="0">- Select Mode -</option>';
+					<option value="0">- '.$TEXT_SELECT_MODE_CONST.' -</option>';
 	foreach($alarmModesArray AS $alarmMode){
 		$out.='<option value="'.$alarmMode.'">'.$alarmMode.'</option>';
 	}
 	$out.='
 				</select></td>
-				<td colspan="4"><input type="submit" class="button" name="setAlarm" value="Set mode"></td>
+				<td colspan="4"><input type="submit" class="button" name="setAlarm" value="'.$TEXT_SET_MODE_CONST.'"></td>
 			</tr>
 			<tr>
 				<td align="center" colspan="7">&nbsp;</td>
 			</tr>
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Device</B></td>
-				<td align="center"><B>Device Template</B></td>
-				<td align="center"><B>Alarm Mode</B></td>
-				<td align="center"><B>Bypass</B></td>
-				<td align="center"><B>Delay</B></td>
-				<td align="center"><B>Tripped</B></td>
-				<td align="center"><B>FloorplanObjectType</B></td>
+				<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ALARM_MODE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_BYPASS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DELAY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TRIPPED_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_FLOORPLANOBJECTTYPE_CONST.'</B></td>
 			</tr>';
 		foreach($roomArray as $roomID=>$roomName){
 			$out.='
@@ -87,7 +92,7 @@ function securityStatus($output,$dbADO) {
 			if($resDevice->RecordCount()==0){
 				$out.='
 						<tr>
-							<td colspan="7" align="center">No devices</td>
+							<td colspan="7" align="center">'.$TEXT_NO_DEVICES_CONST.'</td>
 						</tr>
 					';
 			}
@@ -120,7 +125,7 @@ function securityStatus($output,$dbADO) {
 		}
 		$out.='
 				<tr>
-					<td colspan="7" align="center" bgcolor="#EEEEEE"><B>Not asigned</B></td>
+					<td colspan="7" align="center" bgcolor="#EEEEEE"><B>'.$TEXT_NOT_ASIGNED_CONST.'</B></td>
 				</tr>
 			';
 			$queryDevice='
@@ -136,7 +141,7 @@ function securityStatus($output,$dbADO) {
 		if($resDevice->RecordCount()==0){
 			$out.='
 					<tr>
-						<td colspan="7" align="center">No devices</td>
+						<td colspan="7" align="center">'.$TEXT_NO_DEVICES_CONST.'</td>
 					</tr>
 				';
 		}
@@ -170,7 +175,7 @@ function securityStatus($output,$dbADO) {
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td align="center" colspan="7"><input type="submit" class="button" name="update" value="Update"></td>
+				<td align="center" colspan="7"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 			</tr>';
 	}
 
@@ -183,7 +188,7 @@ function securityStatus($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=securityStatus&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=securityStatus&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -199,14 +204,14 @@ function securityStatus($output,$dbADO) {
 						
 			$dbADO->Execute('UPDATE Device SET State=? WHERE PK_Device=?',array($newState,$deviceID));
 			
-			header("Location: index.php?section=securityStatus&msg=The devices was updated.");
+			header("Location: index.php?section=securityStatus&msg=$TEXT_SECURITY_STATUS_UPDATED_CONST");
 		}
 	}
 	
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Security status');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SECURITY_STATUS_CONST);
 	$output->output();
 }
 ?>

@@ -82,7 +82,7 @@ function proxySocket($output,$dbADO){
 		socket_close($socket);
 		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML&deviceID=$deviceID";
 		
-		Header("Refresh: 5; url=$refreshURL");
+		//Header("Refresh: 5; url=$refreshURL");
 		Header("Content-type: text/xml"); 
 		write_log( "Redirecting to $refreshURL\n");
 		die($XML);

@@ -1,5 +1,9 @@
 <?
 function editPhoneNumber($output,$telecomADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID = (int)@$_SESSION['userID'];
@@ -31,7 +35,7 @@ function editPhoneNumber($output,$telecomADO) {
 			$DialAs=cleanString($_POST['DialAs']);
 			
 			if($DialAs=='' && $PhoneNumber==''){
-				header('Location: index.php?section=editPhoneNumber&error=You must provide either "phone number" or "dial as" fields.');
+				header('Location: index.php?section=editPhoneNumber&error='.$TEXT_ERROR_PHONE_NUMBER_REQUIRED_CONST);
 				exit();
 			}
 			
@@ -46,28 +50,32 @@ function editPhoneNumber($output,$telecomADO) {
 					`DialAs`=?
 				WHERE PK_PhoneNumber=?',
 			array($contact,$PhoneType,$CountryCode,$AreaCode,$PhoneNumber,$Extension,$DialAs,$id));
-			$msg='The phone number was changed.';
+			$msg=$TEXT_PHONE_NUMBER_UPDATED_CONST;
 		}
 		
 		header("Location: index.php?section=phoneBook&msg=".@$msg);
 	}
 
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array("Phone Book"=>'index.php?section=phoneBook',"Edit phone number"=>'index.php?section=editPhoneNumber&id='.$id));
+	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook',$TEXT_EDIT_PHONE_NUMBER_CONST=>'index.php?section=editPhoneNumber&id='.$id));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Phone book');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PHONE_NUMBER_CONST);
 	$output->output();
 }
 
 // multipage display for phone numbers
 function phoneNumberForm($telecomADO,$userID){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
 	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO);
 	$PhoneTypes=getAssocArray('PhoneType','PK_PhoneType','Description',$telecomADO);
 	$id=(int)@$_REQUEST['id'];
 	if($id<=0){
-		return 'Phone number not found.';
+		return $TEXT_PHONE_NUMBER_NOT_FOUND_CONST;
 	}
 	
 	$pnData=getFieldsAsArray('PhoneNumber','FK_Contact,FK_PhoneType,CountryCode,AreaCode,PhoneNumber,Extension,DialAs',$telecomADO,'WHERE PK_PhoneNumber='.$id);
@@ -85,44 +93,44 @@ function phoneNumberForm($telecomADO,$userID){
 	<input type="hidden" name="id" value="'.$id.'">
 	<table celspacing="0" cellpadding="3" align="center">
 		<tr>
-			<td colspan="2"><h3>Edit number</h3></td>
+			<td colspan="2"><h3>'.$TEXT_EDIT_PHONE_NUMBER_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>Contact</B></td>
+			<td><B>'.$TEXT_CONTACT_CONST.'</B></td>
 			<td>'.pulldownFromArray($contacts,'contact',$pnData['FK_Contact'][0]).'</td>
 		</tr>	
 		<tr>
-			<td><B>PhoneType</B></td>
+			<td><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>
 			<td>'.pulldownFromArray($PhoneTypes,'PhoneType',$pnData['FK_PhoneType'][0]).'</td>
 		</tr>	
 		<tr>
-			<td><B>Country Code</B></td>
+			<td><B>'.$TEXT_COUNTRY_CODE_CONST.'</B></td>
 			<td><input type="text" name="CountryCode" value="'.$pnData['CountryCode'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Area Code</B></td>
+			<td><B>'.$TEXT_AREA_CODE_CONST.'</B></td>
 			<td><input type="text" name="AreaCode" value="'.$pnData['AreaCode'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Phone Number</B></td>
+			<td><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
 			<td><input type="text" name="PhoneNumber" value="'.$pnData['PhoneNumber'][0].'" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Extension</B></td>
+			<td><B>'.$TEXT_EXTENSION_CONST.'</B></td>
 			<td><input type="text" name="Extension" value="'.$pnData['Extension'][0].'"></td>
 		</tr>	
 		<tr>
-			<td><B>Dial As</B></td>
+			<td><B>'.$TEXT_DIAL_AS_CONST.'</B></td>
 			<td><input type="text" name="DialAs" value="'.$pnData['DialAs'][0].'"></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="editPhoneNumber" value="Save changes"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="editPhoneNumber" value="'.$TEXT_SAVE_CONST.'"></td>
 		</tr>	
 	</table>
 	<script>
 	 	var frmvalidator = new formValidator("editPhoneNumber");
-		frmvalidator.addValidation("contact","dontselect=0","Please select contact.");
-		frmvalidator.addValidation("PhoneType","dontselect=0","Please select phone type.");
+		frmvalidator.addValidation("contact","dontselect=0","'.$TEXT_CONTACT_REQUIRED_CONST.'");
+		frmvalidator.addValidation("PhoneType","dontselect=0","'.$TEXT_PHONE_TYPE_REQUIRED_CONST.'");
 	</script>
 	';
 			

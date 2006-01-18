@@ -1,5 +1,9 @@
 <?php
 function deleteParameterFromMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteParameterFromMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -13,7 +17,7 @@ function deleteParameterFromMasterDevice($output,$dbADO) {
 			
 			$out.="
 			<script>
-				alert('Parameter deleted from master device!');
+				alert('$TEXT_PARAMETER_DELETED_FROM_DT_CONST');
 			    opener.document.forms.{$from}.action.value='update';
 				opener.document.forms.{$from}.lastAction.value='newDeviceData';
 				opener.document.forms.{$from}.submit();
@@ -21,7 +25,7 @@ function deleteParameterFromMasterDevice($output,$dbADO) {
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = $TEXT_NOTHING_TO_DELETE_CONST.'&nbsp;<a href="javascript:window.close();">Close</a>';
 		}			
 	
 	$output->setBody($out);

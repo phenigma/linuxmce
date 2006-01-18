@@ -1,5 +1,9 @@
 <?
 function modeChangesLog($output,$securitydbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/modeChangesLog.lang.php');
+	
 	/* @var $securitydbADO ADOConnection */
 	/* @var $res ADORecordSet */
 	
@@ -11,7 +15,7 @@ function modeChangesLog($output,$securitydbADO,$dbADO) {
 	}
 		$installationID = cleanInteger($_SESSION['installationID']);
 	
-	$out.='<div align="center"><h3>Mode changes log</h3></div>';
+	$out.='<div align="center"><h3>'.$TEXT_MODE_CHANGES_LOG_CONST.'</h3></div>';
 	
 	if ($action=='form') {
 		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
@@ -31,17 +35,21 @@ function modeChangesLog($output,$securitydbADO,$dbADO) {
 	} else {
 		// no processing 
 				
-		header("Location: index.php?section=modeChangesLog&msg=Alerts types updated.");
+		header("Location: index.php?section=modeChangesLog");
 	}
 	
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MODE_CHANGES_LOG_CONST);			
 	$output->output();  		
 }
 
 function multipagemodeChangesLogs($query, $url, $page_no, $art_pagina,$securitydbADO,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/modeChangesLog.lang.php');
+	
 	$res=$securitydbADO->Execute($query);
 	$total=$res->RecordCount();
 	$max_pages = $total/$art_pagina;
@@ -58,7 +66,7 @@ function multipagemodeChangesLogs($query, $url, $page_no, $art_pagina,$securityd
 		$output.='</div>';
 	}
 	if($total==0){
-		$output.='No records';
+		$output.=$TEXT_NO_RECORDS_CONST;
 	}
 	else{
 		$output.=headerModeChangeLog();
@@ -75,18 +83,22 @@ function multipagemodeChangesLogs($query, $url, $page_no, $art_pagina,$securityd
 	}
 	$output.='<div align="center">Found: '.$total.'. ';
 	if($total!=0)
-		$output.= 'Page '.($page_no+1).' from '.$max_pages.'.</div><br>';
+		$output.= $TEXT_PAGE_CONST.' '.($page_no+1).' '.$TEXT_TOTAL_PAGES_CONST.' '.$max_pages.'.</div><br>';
 	return $output;
 }
 
 function headerModeChangeLog()
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/modeChangesLog.lang.php');
+	
 	$output='<table border="0" align="center">
 				<tr bgcolor="lightblue">
-					<td align="center"><B>Change Time</B></td>
-					<td align="center"><B>House mode</B></td>
-					<td align="center"><B>Zone</B></td>
-					<td align="center"><B>User</B></td>
+					<td align="center"><B>'.$TEXT_CHANGE_TIME_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_HOUSE_MODE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ZONE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_USER_CONST.'</B></td>
 				</tr>';
 	return $output;
 }

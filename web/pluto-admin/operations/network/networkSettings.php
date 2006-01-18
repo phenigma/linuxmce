@@ -1,5 +1,9 @@
 <?
 function networkSettings($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/networkSettings.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -45,7 +49,7 @@ function networkSettings($output,$dbADO) {
 			$coreNetMaskArray=explode('.',$externalInterfaceArray[2]);
 			$coreGWArray=explode('.',$externalInterfaceArray[3]);
 			$coreDNS1Array=explode('.',$externalInterfaceArray[4]);
-			$coreDNS2Array=explode('.',$externalInterfaceArray[5]);
+			$coreDNS2Array=explode('.',@$externalInterfaceArray[5]);
 			$ipFromDHCP=0;
 		}else{
 			$ipFromDHCP=1;

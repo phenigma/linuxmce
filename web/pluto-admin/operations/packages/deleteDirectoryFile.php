@@ -1,5 +1,9 @@
 <?php
 function deleteDirectoryFile($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteDirectoryFile.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -14,7 +18,7 @@ function deleteDirectoryFile($output,$dbADO) {
 			
 	$out.="
 				<script>
-					alert('File deleted!');					
+					alert('$TEXT_FILE_DELETED_CONST');					
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();

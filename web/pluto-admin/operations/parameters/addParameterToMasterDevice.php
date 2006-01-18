@@ -1,5 +1,7 @@
 <?php
 function addParameterToMasterDevice($output,$dbADO) {
+	// obsolete function
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';

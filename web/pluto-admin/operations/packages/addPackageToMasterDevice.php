@@ -1,6 +1,10 @@
 <?php
 function addPackageToMasterDevice($output,$dbADO) {
-//	$dbADO->debug=true;
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addPackageToMasterDevice.lang.php');
+	
+
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	/* @var $output Template */
@@ -77,6 +81,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="PK_Package" value="'.$PK_Package.'">
+		
 			<table>			
 				<tr>
 					<td colspan="2">
@@ -90,28 +95,28 @@ function addPackageToMasterDevice($output,$dbADO) {
 
 				$rowPackage = $rs->FetchRow(); 
 				$out.='<tr>
-								<td align="right">Description: </td>
+								<td align="right">'.$TEXT_DESCRIPTION_CONST.': </td>
 								<td><input type="text" name="Description" value="'.$rowPackage['Description'].'"> (#'.$PK_Package.')</td>
 						   </tr>
 						   <tr>
-								<td align="right">This package contain source code.</td>
+								<td align="right">'.$TEXT_PACKAGE_CONTAIN_SOURCE_CODE_CONST.'</td>
 								<td align="left"><input name="isSourceCode" type="checkbox" value="1" '.(($rowPackage['IsSource']==1)?'checked':'').' '.(($PK_Package!=0)?'onClick="javascript:this.form.submit();"':'OnClick="javascript:disableSource();"').'></td>
 						  </tr>
 						   <tr>
-								<td align="right">The source code for this package is:</td>
+								<td align="right">'.$TEXT_SOURCE_CODE_FOR_PACKAGE_CONST.'</td>
 								<td><select name="SourceCode" '.(($rowPackage['IsSource']==1)?'disabled':'').'>
-										<option value="0">- Please select -</option>';
+										<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 				$querySourceCode='SELECT * FROM Package WHERE IsSource=1 ORDER BY Description ASC';
 				$resSourceCode=$dbADO->execute($querySourceCode);
 				while($rowSourceCode=$resSourceCode->FetchRow()){
 					$out.='<option value="'.$rowSourceCode['PK_Package'].'" '.(($rowSourceCode['PK_Package']==$rowPackage['FK_Package_Sourcecode'])?'selected':'').'>'.$rowSourceCode['Description'].' (#'.$rowSourceCode['PK_Package'].')'.'</option>';
 				}
-				$out.='</select><input type="submit" class="button" name="submitX" value="Select"></td>
+				$out.='</select><input type="submit" class="button" name="submitX" value="'.$TEXT_SELECT_CONST.'"></td>
 						 </tr>
 						<tr>
-							<td align="right">Package Type</td>
+							<td align="right">'.$TEXT_PACKAGE_TYPE_CONST.'</td>
 							<td><select name="PackageType">
-										<option value="0">-Please select</option>';
+										<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 				$queryPackageType='SELECT * FROM PackageType ORDER BY Description ASC';
 				$resPackageType=$dbADO->execute($queryPackageType);
 				while($rowPackageType=$resPackageType->FetchRow()){
@@ -120,18 +125,18 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$out.='</select></td>
 						</tr>
 						<tr>
-							<td align="right">Manufacturer</td>
+							<td align="right">'.$TEXT_MANUFACTURER_CONST.'</td>
 							<td align="left">'.generatePullDown('manufacturer','Manufacturer','PK_Manufacturer','Description',$rowPackage['FK_Manufacturer'],$dbADO).'</td>
 						</tr>
 				';
 				if($PK_Package!=0){
 					$out.='	<tr>
 								<td colspan="2">
-								<fieldset><legend> Package Compatibility </legend>
+								<fieldset><legend> '.$TEXT_PACKAGE_COMPATIBILITY_CONST.' </legend>
 								<table>
 									<tr bgcolor="#F0F3F8">
-										<td align="center">Operating system</td>
-										<td align="center">Distribution</td>
+										<td align="center">'.$TEXT_OPERATING_SYSTEM_CONST.'</td>
+										<td align="center">'.$TEXT_DISTRIBUTION_CONST.'</td>
 										<td align="center">&nbsp;</td>
 									</tr>';
 					$PackageCompatArray=array();
@@ -142,31 +147,31 @@ function addPackageToMasterDevice($output,$dbADO) {
 						
 						$out.='<tr>
 									<td><select name="osPackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'">
-										<option value="0">-Any-</option>';
+										<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 							foreach($arrayDescriptionOperatingSystem as $key => $value){
 								$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$rowPackageCompat['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
 							}
 							$out.='	</select></td>
 									<td><select name="distroPackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'">
-										<option value="0">-Any-</option>';
+										<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 							foreach($arrayDescriptionDistro as $key => $value){
 								$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowPackageCompat['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 							}
 							$out.='	</select></td>
-									<td><input type="submit" class="button" name="deletePackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'" value="Delete compat"></td>
+									<td><input type="submit" class="button" name="deletePackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'" value="'.$TEXT_DELETE_COMPATIBILITY_CONST.'"></td>
 								</tr>';
 					}
 						$out.='
 								<input type="hidden" name="PackageCompatArray" value="'.join(',',$PackageCompatArray).'">
 									<tr>
-										<td colspan="2"><input type="submit" class="button" name="addPackageCompatibility" value="Add compatibility"></td>
+										<td colspan="2"><input type="submit" class="button" name="addPackageCompatibility" value="'.$TEXT_ADD_COMPATIBILITY_CONST.'"></td>
 									</tr>
 								</table>
 								</fieldset>
 							</tr> 
 							<tr>
 								<td colspan="2">
-								<fieldset><legend> Packages this depends on </legend>';
+								<fieldset><legend> '.$TEXT_PACKAGES_THIS_DEPENDS_ON_CONST.' </legend>';
 					$out.='		<table>';
 					$queryPackagesDependsOn='
 						SELECT * FROM Package
@@ -182,13 +187,13 @@ function addPackageToMasterDevice($output,$dbADO) {
 						$out.='<tr>
 									<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$rowPackagesDependsOn['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1\');">'.$rowPackagesDependsOn['Description'].'</a>
 <!--									<td>'.$rowPackagesDependsOn['Description'].'</td> -->
-									<td><input type="checkbox" name="OnlyToBuild_'.$rowPackagesDependsOn['PK_Package'].'" '.(($rowPackagesDependsOn['OnlyToBuild']==1)?'checked':'').' onClick="javascript:this.form.submit();" value="1"> Building from source</td>
-									<td><input type="submit" class="button" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="Delete"></td>
+									<td><input type="checkbox" name="OnlyToBuild_'.$rowPackagesDependsOn['PK_Package'].'" '.(($rowPackagesDependsOn['OnlyToBuild']==1)?'checked':'').' onClick="javascript:this.form.submit();" value="1"> '.$TEXT_BUILDING_FROM_SOURCE_CONST.'</td>
+									<td><input type="submit" class="button" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="'.$TEXT_DELETE_CONST.'"></td>
 						    	</tr>';
 					}
 					$out.='</table> 
-					Add new package that this depends on: <select name="newPackageDependsOn">
-						<option value="0">-Please select-</option>';
+					'.$TEXT_ADD_NEW_PACKAGE_THAT_THIS_DEPENDS_ON_CONST.' <select name="newPackageDependsOn">
+						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 					$filterRemainingPackages=(count($displayedPackages)>0)?' WHERE PK_Package NOT IN ('.join(',',$displayedPackages).')':'';
 					$queryRemainingPackages='
 						SELECT * 
@@ -200,14 +205,14 @@ function addPackageToMasterDevice($output,$dbADO) {
 						$out.='<option value="'.$rowRemainingPackages['PK_Package'].'">'.$rowRemainingPackages['Description'].'</option>';
 					}
 					$out.='</select>
-						<input type="submit" class="button" name="submitX" value="Add">
+						<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">
 						</fieldset>
 						<input type="hidden" name="displayedPackages" value="'.join(",",$displayedPackages).'">
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2">
-						<fieldset><legend>Sources for package</legend>
+						<fieldset><legend>'.$TEXT_SOURCES_FOR_PACKAGE_CONST.'</legend>
 						<table>';
 					$compatArray=array();
 					$querySources='SELECT * FROM Package_Source WHERE FK_Package=?';
@@ -220,17 +225,17 @@ function addPackageToMasterDevice($output,$dbADO) {
 	
 						$out.='
 							<tr bgcolor="#F0F3F8">
-								<td>Name</td>
-								<td>Repository Source</td>
-								<td>Repository</td>
-								<td>Version</td>
-								<td>Parms</td>
+								<td>'.$TEXT_NAME_CONST.'</td>
+								<td>'.$TEXT_REPOSITORY_SOURCE_CONST.'</td>
+								<td>'.$TEXT_REPOSITORY_CONST.'</td>
+								<td>'.$TEXT_VERSION_CONST.'</td>
+								<td>'.$TEXT_PARAMETERS_CONST.'</td>
 								<td>&nbsp;</td>
 							</tr>
 							<tr bgcolor="#F0F3F8">
 								<td><input type="text" name="source_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Name'].'"></td>
 								<td><select name="repositorySource_'.$rowSource['PK_Package_Source'].'">
-								<option value="0">-Any-</option>';
+								<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayRepository as $key => $value){
 							$out.='<option value="'.$arrayRepositoryID[$key].'" '.(($arrayRepositoryID[$key]==$rowSource['FK_RepositorySource'])?'selected':'').'>'.$value.'</option>';
 						}
@@ -239,7 +244,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 								<td><input type="text" name="repository_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Repository'].'"></td>
 								<td><input type="text" name="version_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Version'].'"></td>
 								<td><input type="text" name="parms_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Parms'].'"></td>
-								<td><input type="submit" class="button" name="deleteSource_'.$rowSource['PK_Package_Source'].'" value="Delete source"></td>
+								<td><input type="submit" class="button" name="deleteSource_'.$rowSource['PK_Package_Source'].'" value="'.$TEXT_DELETE_SOURCE_CONST.'"></td>
 							</tr>
 						<input type="hidden" name="displayedSources" value="'.join(",",$displayedSources).'">
 						';
@@ -251,29 +256,29 @@ function addPackageToMasterDevice($output,$dbADO) {
 							<tr>
 								<td>&nbsp;</td>
 								<td><select name="OperatingSystem_'.$rowCompatibility['PK_Package_Source_Compat'].'">
-									<option value="0">-Any-</option>';
+									<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionOperatingSystem as $key => $value){
 							$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$rowCompatibility['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='	</select></td>
 								<td><select name="distro_'.$rowCompatibility['PK_Package_Source_Compat'].'">
-									<option value="0">-Any-</option>';
+									<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionDistro as $key => $value){
 							$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowCompatibility['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 						}
 
 						$out.='	</select></td>
-								<td><input type="checkbox" name="mustBuild_'.$rowCompatibility['PK_Package_Source_Compat'].'" '.(($rowCompatibility['MustBuildFromSource']==1)?'checked':'').' value="1">Must build from source</td>
+								<td><input type="checkbox" name="mustBuild_'.$rowCompatibility['PK_Package_Source_Compat'].'" '.(($rowCompatibility['MustBuildFromSource']==1)?'checked':'').' value="1">'.$TEXT_MUST_BUILD_FROM_SOURCE_CONST.'</td>
 								<td colspan="2"><textarea name="comments_'.$rowCompatibility['PK_Package_Source_Compat'].'">'.$rowCompatibility['Comments'].'</textarea></td>
-								<td><input type="submit" class="button" name="deleteCompatibility_'.$rowCompatibility['PK_Package_Source_Compat'].'" value="Delete compat"></td>
+								<td><input type="submit" class="button" name="deleteCompatibility_'.$rowCompatibility['PK_Package_Source_Compat'].'" value="'.$TEXT_DELETE_COMPATIBILITY_CONST.'"></td>
 							</tr>
 						';
 					}
 					$out.='<tr>
 								<td>
-									<input type="submit" class="button" name="addCompatibility_'.$rowSource['PK_Package_Source'].'" value="Add other compatibility"><br>
+									<input type="submit" class="button" name="addCompatibility_'.$rowSource['PK_Package_Source'].'" value="'.$TEXT_ADD_OTHER_COMPATIBILITY_CONST.'"><br>
 								</td>
-								<td colspan="6" align="center"><input type="submit" class="button" name="save" value="Save"></td>
+								<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"></td>
 						   </tr>
 					';
 					
@@ -281,7 +286,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 	
 				$out.='		<tr>
 								<td colspan="7">
-									<input type="submit" class="button" name="addSource" value="Add other source">
+									<input type="submit" class="button" name="addSource" value="'.$TEXT_ADD_OTHER_SOURCE_CONST.'">
 								</td>
 							</tr>
 						</table>
@@ -290,7 +295,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 					</tr>
 		
 					<tr>
-						<td colspan="2"><fieldset><legend>Requested directories and files</legend>';
+						<td colspan="2"><fieldset><legend>'.$TEXT_REQUESTED_DIRECTORIES_AND_FILES_CONST.'</legend>';
 				$queryDirectoryPackage='
 					SELECT * FROM Package_Directory
 						INNER JOIN Directory ON FK_Directory=PK_Directory
@@ -306,21 +311,21 @@ function addPackageToMasterDevice($output,$dbADO) {
 					$displayedDirectory[]=$row['PK_Directory'];
 					$displayedPackageDirectory[]=$row['PK_Package_Directory'];
 					$out.='<fieldset><legend>'.generatePullDown('pd_'.$row['PK_Package_Directory'],'Directory','PK_Directory','Description',$row['PK_Directory'],$dbADO,'','style="background:lightyellow;"').' <select name="packageDirectoryOS_'.$row['PK_Package_Directory'].'">
-									<option value="0">-Any-</option>';
+									<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionOperatingSystem as $key => $value){
 							$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$row['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='	</select>
 						<select name="packageDirectoryDistro_'.$row['PK_Package_Directory'].'">
-									<option value="0">-Any-</option>';
+									<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionDistro as $key => $value){
 							$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$row['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 						}
-						$out.='	</select> Path:
+						$out.='	</select> '.$TEXT_PATH_CONST.':
 						<input type="text" name="packageDirectoryPath_'.$row['PK_Package_Directory'].'" value="'.$row['Path'].'">
-						Alternate input path: <input type="text" name="packageDirectoryInputPath_'.$row['PK_Package_Directory'].'" value="'.$row['InputPath'].'">
-						Flip source <input type="checkbox" name="packageDirectoryFlipSource_'.$row['PK_Package_Directory'].'" value="1" '.(($row['FlipSource']=='1')?'checked':'').'>
-						<input type="submit" class="button" name=da value="Save"> <input type="submit" class="button" name="delPD_'.$row['PK_Package_Directory'].'" value="Delete" onClick="if(confirm(\'Are you sure you want to delete this directory? The files from it will be also deleted.\'))return true; else return false;">
+						'.$TEXT_ALTERNATE_INPUT_PATH_CONST.': <input type="text" name="packageDirectoryInputPath_'.$row['PK_Package_Directory'].'" value="'.$row['InputPath'].'">
+						'.$TEXT_FLIP_SOURCE_CONST.' <input type="checkbox" name="packageDirectoryFlipSource_'.$row['PK_Package_Directory'].'" value="1" '.(($row['FlipSource']=='1')?'checked':'').'>
+						<input type="submit" class="button" name="da" value="'.$TEXT_SAVE_CONST.'"> <input type="submit" class="button" name="delPD_'.$row['PK_Package_Directory'].'" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_DIRECTORY_CONFIRMATION_CONST.'\'))return true; else return false;">
 						</legend>';
 					
 					$queryDirectoryFiles='SELECT * FROM Package_Directory_File WHERE FK_Package_Directory=?';
@@ -328,7 +333,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 					$out.='<table width="550">';
 					if($resDirectoryFiles->RecordCount()==0)
 						$out.='<tr>
-									<td colspan="4">No files selected.</td>
+									<td colspan="4">'.$TEXT_NO_FILES_SELECTED_CONST.'</td>
 								</tr>';
 					while ($rowDirectoryFiles = $resDirectoryFiles->FetchRow()){
 						$displayedPackageDirectoryFiles[]=$rowDirectoryFiles['PK_Package_Directory_File'];
@@ -336,25 +341,25 @@ function addPackageToMasterDevice($output,$dbADO) {
 						<tr bgcolor="#F0F3F8">
 							<td><input type="text" name="pdfFile_'.$rowDirectoryFiles['PK_Package_Directory_File'].'" value="'.$rowDirectoryFiles['File'].'"></td>
 							<td><select name="pdfOS_'.$rowDirectoryFiles['PK_Package_Directory_File'].'">
-									<option value="0">-Any-</option>';
+									<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionOperatingSystem as $key => $value){
 							$out.='<option value="'.$arrayIdOperatingSystem[$key].'" '.(($arrayIdOperatingSystem[$key]==$rowDirectoryFiles['FK_OperatingSystem'])?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='	</select></td>
 						<td><select name="pdfDistro_'.$rowDirectoryFiles['PK_Package_Directory_File'].'">
-								<option value="0">-Any-</option>';
+								<option value="0">-'.$TEXT_ANY_CONST.'-</option>';
 						foreach($arrayDescriptionDistro as $key => $value){
 							$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowDirectoryFiles['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='	</select></td>
 							<td><textarea name="pdfMakeCommand_'.$rowDirectoryFiles['PK_Package_Directory_File'].'" rows="1">'.$rowDirectoryFiles['MakeCommand'].'</textarea></td>
-							<td align="right" bgcolor="#F0F3F8"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory_File='.$rowDirectoryFiles['PK_Package_Directory_File'].'\',\'status=0,resizable=1,width=400,height=350,toolbars=true\');">Edit</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbars=true\');">Delete</a></td>		
+							<td align="right" bgcolor="#F0F3F8"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory_File='.$rowDirectoryFiles['PK_Package_Directory_File'].'\',\'status=0,resizable=1,width=400,height=350,toolbars=true\');">'.$TEXT_EDIT_CONST.'</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbars=true\');">'.$TEXT_DELETE_CONST.'</a></td>		
 						</tr>';
 					}
 	
 					$out.='
 						<tr>
-							<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">Add file</a></td>
+							<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">'.$TEXT_ADD_FILE_CONST.'</a></td>
 						</tr>
 					</table>';
 					$out.='</fieldset>';
@@ -362,7 +367,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 							
 						$out.='
 							<select name="FK_Directory">
-							<option value="0">-please select-</option>
+							<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 							';
 							$queryDirectory = "
 								SELECT  Directory.* FROM Directory ORDER BY Directory.Description ASC";
@@ -372,7 +377,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 							}
 							$rs->Close();
 						$out.='
-							</select> <input type="submit" class="button" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
+							</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_SELECT_CONST.'"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_ADD_DIRECTORY_CONST.'</a>';
 						$out.='</fieldset></td>
 					</tr>
 					<input type="hidden" name="displayedPackageDirectory" value="'.join(",",$displayedPackageDirectory).'">
@@ -380,12 +385,12 @@ function addPackageToMasterDevice($output,$dbADO) {
 					<input type="hidden" name="compatArray" value="'.join(",",$compatArray).'">';
 				}
 				$out.='<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="saveClose" value="Save & Close"> <input type="button" class="button" name="cancelClose" value="Cancel & Close" onClick="javascript:self.close()"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="saveClose" value="'.$TEXT_SAVE_CLOSE_CONST.'"> <input type="button" class="button" name="cancelClose" value="'.$TEXT_CANCEL_CLOSE_CONST.'" onClick="javascript:self.close()"></td>
 				</tr>
 			</table>
 		<script>
 		 	var frmvalidator = new formValidator("addPackageToMasterDevice");
- 			frmvalidator.addValidation("Description","req","Please enter a description");
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_PACKAGE_DESCRIPTION_REQUIRED_CONST.'");
 			'.$DataFormValidation.'
 		</script>
 	
@@ -589,7 +594,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(@$rowPackage['Description'].' - '.APPLICATION_NAME.' :: Edit package');
+	$output->setTitle(@$rowPackage['Description'].' - '.APPLICATION_NAME.' :: '.$TEXT_EDIT_PACKAGE_CONST);
 	$output->output();
 }
 ?>

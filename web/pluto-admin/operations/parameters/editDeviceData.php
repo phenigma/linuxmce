@@ -1,5 +1,9 @@
 <?php
 function editDeviceData($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceData.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -33,13 +37,15 @@ function editDeviceData($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="deviceDataID" value="'.$deviceDataID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
+		<h3>'.$TEXT_EDIT_DEVICE_DATA_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>Parameter Name:</td>
+					<td>'.$TEXT_PARAMETER_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="ParameterName" value="'.$ddDescription.'"></td>
 				</tr>
 				<tr>
-					<td>Parameter Type:</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
 					<td>
 						<select name="ParameterType" >
 						'.$paramsSelect.'
@@ -47,14 +53,14 @@ function editDeviceData($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editDeviceData"); 			
-			frmvalidator.addValidation("ParameterName","req","Please enter a parameter name!");
-			frmvalidator.addValidation("ParameterType","dontselect=0","Please select a parameter type!");
+			frmvalidator.addValidation("ParameterName","req","'.$TEXT_PARAMETER_NAME_REQUIRED_CONST.'");
+			frmvalidator.addValidation("ParameterType","dontselect=0","'.$TEXT_PARAMETER_TYPE__REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -73,7 +79,7 @@ function editDeviceData($output,$dbADO) {
 			if($from=='editMasterDevice'){
 				$out.="
 				<script>
-					alert('Parameter modified!');
+					alert('$TEXT_PARAMETER_MODIFIED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.lastAction.value='Data_Description_$deviceDataID';
 					opener.document.forms.{$from}.submit();
@@ -83,7 +89,7 @@ function editDeviceData($output,$dbADO) {
 			}else{
 				$out.="
 				<script>
-					alert('Parameter modified!');
+					alert('$TEXT_PARAMETER_MODIFIED_CONST');
 				    opener.location.reload();
 					self.close();
 				</script>
@@ -96,7 +102,7 @@ function editDeviceData($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DEVICE_DATA_CONST);			
 	$output->output();
 }
 ?>

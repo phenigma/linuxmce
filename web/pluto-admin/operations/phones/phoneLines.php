@@ -1,5 +1,9 @@
 <?
 function phoneLines($output,$astADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
+	
 	/* @var $astADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -39,7 +43,7 @@ function phoneLines($output,$astADO) {
 		$userBox='
 		<table align="center">
 			<tr>
-				<td>Url: </td>
+				<td>'.$TEXT_URL_CONST.': </td>
 				<td><a href="'.$providerUrl.'" target="_blank">'.$providerUrl.'</a></td>
 			</tr>
 			<tr>
@@ -47,26 +51,26 @@ function phoneLines($output,$astADO) {
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td>Username </td>
+				<td>'.$TEXT_USERNAME_CONST.' </td>
 				<td><input type="text" name="username" value=""></td>
 			</tr>
 			<tr>
-				<td>Password </td>
+				<td>'.$TEXT_PASSWORD_CONST.' </td>
 				<td><input type="text" name="password" value=""></td>
 			</tr>
 			<tr>
-				<td>Phone number </td>
+				<td>'.$TEXT_PHONE_NUMBER_CONST.' </td>
 				<td><input type="text" name="phone" value=""></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="Add" value="Submit"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="'.$TEXT_ADD_CONST.'" value="Submit"></td>
 			</tr>
 		
 		</table>
 		<script>
 		 	var frmvalidator = new formValidator("phoneLines");
- 			frmvalidator.addValidation("username","req","Please provide an username");			
-			frmvalidator.addValidation("password","req","Please provide a password");			
+ 			frmvalidator.addValidation("username","req","'.$TEXT_USERNAME_REQUIRED_CONST.'");			
+			frmvalidator.addValidation("password","req","'.$TEXT_PASSWORD_REQUIRED_CONST.'");			
 		</script>		
 		';
 	}
@@ -76,16 +80,17 @@ function phoneLines($output,$astADO) {
 		$out.='
 		<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 		<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
-		<h3 align="center">Phone Lines</h3>
+		
+		<h3 align="center">'.$TEXT_PHONE_LINES_CONST.'</h3>
 		<form action="index.php" method="POST" name="phoneLines">
 			<input type="hidden" name="section" value="phoneLines">
 			<input type="hidden" name="action" value="update">
 			'.phoneLinesTable($astADO).'
 			<table align="center">
 				<tr>
-					<td>Choose provider</td>
+					<td>'.$TEXT_CHOOSE_PROVIDER_CONST.'</td>
 					<td><select name="provider" onChange="document.phoneLines.action.value=\'form\';document.phoneLines.submit();">
-						<option value=""> - Please select -</option>
+						<option value=""> - '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 						'.$pulldownOptions.'
 					</select></td>
 				</tr>
@@ -107,9 +112,9 @@ function phoneLines($output,$astADO) {
 			system($cmd,$cmdStatus);
 			
 			if($cmdStatus!=0){
-				$suffix='&err=An error has occured.';
+				$suffix='&err='.$TEXT_ADD_PHONE_LINE_ERROR_CONST;
 			}else{
-				$suffix='&msg=The command was sent.';
+				$suffix='&msg='.$TEXT_ADD_PHONE_LINE_CMD_SENT_CONST;
 			}
 
 			header('Location: index.php?section=phoneLines'.@$suffix);
@@ -124,7 +129,7 @@ function phoneLines($output,$astADO) {
 			
 			$answer=queryExternalServer($url.'?'.$params);
 			
-			header('Location: index.php?section=phoneLines&msg=The phone line was deleted.');
+			header('Location: index.php?section=phoneLines&msg='.$TEXT_PHONE_LINE_DELETED_CONST);
 			exit();
 		}
 		
@@ -133,11 +138,15 @@ function phoneLines($output,$astADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PHONE_LINES_CONST);
 	$output->output();
 }
 
 function phoneLinesTable($astADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
+	
 	$count=0;
 	$res=$astADO->Execute("
 		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata 
@@ -148,11 +157,11 @@ function phoneLinesTable($astADO){
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
 		<tr bgcolor="lightblue">
-			<td align="center"><B>Type</B></td>
-			<td align="center"><B>Data</B></td>
-			<td align="center"><B>Password</B></td>
-			<td align="center"><B>Username</B></td>
-			<td align="center"><B>Actions</B></td>
+			<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_DATA_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_PASSWORD_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_USERNAME_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>	';
 	while($row=$res->FetchRow()){
 		$count++;
@@ -163,7 +172,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">Settings</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+			<td align="center"><a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> <a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 		</tr>';
 	}
 
@@ -182,7 +191,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">Settings</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+			<td align="center"><a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> <a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 		</tr>';
 	}
 	

@@ -1,5 +1,6 @@
 <?php
 function removeUserFromInstallation($output,$dbADO) {
+	// obsolete file
 	//$dbADO->debug=true;
 	$out='';
 	

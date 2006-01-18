@@ -1,5 +1,9 @@
 <?
 function alertsLog($output,$securitydbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
+	
 	/* @var $securitydbADO ADOConnection */
 	/* @var $res ADORecordSet */
 	
@@ -11,7 +15,7 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 	}
 		$installationID = cleanInteger($_SESSION['installationID']);
 	
-	$out.='<div align="center"><h3>Alerts log</h3></div>';
+	$out.='<div align="center"><h3>'.$TEXT_ALERTS_LOG_CONST.'</h3></div>';
 	
 	if ($action=='form') {
 		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
@@ -47,12 +51,16 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 	
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERTS_LOG_CONST);			
 	$output->output();  		
 }
 
 function multipageAlertsLogs($query, $url, $page_no, $art_pagina,$securitydbADO,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
+	
 	$res=$securitydbADO->Execute($query);
 	$total=$res->RecordCount();
 	$max_pages = $total/$art_pagina;
@@ -69,7 +77,7 @@ function multipageAlertsLogs($query, $url, $page_no, $art_pagina,$securitydbADO,
 		$output.='</div>';
 	}
 	if($total==0){
-		$output.='No records';
+		$output.=$TEXT_NO_RECORDS_CONST;
 	}
 	else{
 		$output.=headerAlertLog();
@@ -84,9 +92,9 @@ function multipageAlertsLogs($query, $url, $page_no, $art_pagina,$securitydbADO,
 		}
 		$output.=footerAlertLog();
 	}
-	$output.='<div align="center">Found: '.$total.'. ';
+	$output.='<div align="center">'.$TEXT_FOUND_CONST.': '.$total.'. ';
 	if($total!=0)
-		$output.= 'Page '.($page_no+1).' from '.$max_pages.'.</div><br>';
+		$output.= $TEXT_PAGE_CONST.' '.($page_no+1).' '.$TEXT_TOTAL_PAGES_CONST.' '.$max_pages.'.</div><br>';
 	return $output;
 }
 
@@ -94,13 +102,13 @@ function headerAlertLog()
 {
 	$output='<table border="0" align="center">
 				<tr bgcolor="lightblue">
-					<td align="center"><B>Alert type</B></td>
-					<td align="center"><B>Detection time</B></td>
-					<td align="center"><B>Expiration time</B></td>
-					<td align="center"><B>Reset before expiration</B></td>
-					<td align="center"><B>Benign</B></td>
-					<td align="center"><B>Reset time</B></td>
-					<td align="center"><B>User</B></td>
+					<td align="center"><B>'.$TEXT_ALERT_TYPE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DETECTION_TIME_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_EXPIRATION_TIME_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_RESET_BEFORE_EXPIRATION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_BENIGN_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_RESET_TIME_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_USER_CONST.'</B></td>
 				</tr>';
 	return $output;
 }

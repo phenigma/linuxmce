@@ -1,5 +1,9 @@
 <?php
 function deleteRoomFromInstallation($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteRoomFromInstallation.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -15,14 +19,14 @@ function deleteRoomFromInstallation($output,$dbADO) {
 			
 			$out.="
 			<script>
-				alert('Room deleted!');
+				alert('$TEXT_ROOM_DELETED_CONST');
 			    	opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 				self.close();
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete(or your are not an owner).&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = '<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 
 	

@@ -13,10 +13,10 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 
 	$stepsArray=array(
-		'ring'=>'Ring extension(s)',
-		'user'=>'Transfer to another user',
-		'voicemail'=>'Go to voicemail',
-		'transfer'=>'Transfer to an outside number');
+		'ring'=>$TEXT_RING_EXTENSION_CONST,
+		'user'=>$TEXT_TRANSFER_TO_ANOTHER_USER_CONST,
+		'voicemail'=>$TEXT_GOTO_VOICEMAIL_CONST,
+		'transfer'=>$TEXT_TRANSFER_TO_AN_OUTSIDE_NUMBER_CONST);
 	
 	$scriptInHead='
 	<script>
@@ -72,6 +72,10 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 
 
 function getUsersRoutingTable($dbADO,$telecomADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/callRouting.lang.php');
+	
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
@@ -87,8 +91,8 @@ function getUsersRoutingTable($dbADO,$telecomADO){
 			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$userName.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
-			<td><B>User Mode</B></td>
-			<td><B>Caller type</B></td>
+			<td><B>'.$TEXT_USER_MODE_CONST.'</B></td>
+			<td><B>'.$TEXT_CALLER_TYPE_CONST.'</B></td>
 		</tr>';
 		$pos=0;
 		foreach ($userModes AS $mode=>$modeName){
@@ -203,10 +207,10 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 		return 	$TEXT_NO_RECORDS_CONST;
 	}
 	$stepsArray=array(
-		'ring'=>'Ring extension(s)',
-		'user'=>'Transfer to another user',
-		'voicemail'=>'Go to voicemail',
-		'transfer'=>'Transfer to an outside number');
+		'ring'=>$TEXT_RING_EXTENSION_CONST,
+		'user'=>$TEXT_TRANSFER_TO_ANOTHER_USER_CONST,
+		'voicemail'=>$TEXT_GOTO_VOICEMAIL_CONST,
+		'transfer'=>$TEXT_TRANSFER_TO_AN_OUTSIDE_NUMBER_CONST);
 
 		
 	$pos=0;
@@ -275,8 +279,7 @@ function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
 			case 'voicemail':
 				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);
 				$div_voicemail=pulldownFromArray($users,'voicemail_'.$suffix,(int)@$oldValues,'','key','');
-				$out.='<div id="div_voicemail_'.$suffix.'" '.$styleHidden.'>'.$div_voicemail.'<br>For more datails about your voicemail please dial "*98" followed by your user extension and your voicemail password, then follow voice menu.<br>
-There you can record your greetings, check for voicemail and so on.</div>';
+				$out.='<div id="div_voicemail_'.$suffix.'" '.$styleHidden.'>'.$div_voicemail.'<br>'.$TEXT_VOICEMAIL_INFO_CONST.'</div>';
 			break;		
 			case 'transfer':
 				$div_transfer='<input type="text" name="transfer_phone_'.$suffix.'" value="'.@$oldValues.'">';

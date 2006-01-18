@@ -1,5 +1,9 @@
 <?php
 function packagesList($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/packagesList.lang.php');
+	
 	//$dbADO->debug=true;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -18,7 +22,7 @@ function packagesList($output,$dbADO) {
 			}
 		</script>
 	';
-	$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a><br><br>";
+	$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a><br><br>";
 	$out.='
 	<form action="index.php" method="get" name="packagesList">
 	<input type="hidden" name="section" value="packagesList">
@@ -26,12 +30,12 @@ function packagesList($output,$dbADO) {
 	<table>
 		<tr>
 			<td><input type="radio" name="packageOrder" value="0" onChange="document.packagesList.submit();" '.(($packageOrder==0)?'checked':'').'></td>
-			<td><B>Group by manufacturer</B></td>
-			<td><input type="checkbox" name="showDependancy" value="1" onChange="document.packagesList.submit();" '.(($showDependancy==1)?'checked':'').'> <B>Show dependancy</B></td>
+			<td><B>'.$TEXT_GROUP_BY_MANUFACTURER_CONST.'</B></td>
+			<td><input type="checkbox" name="showDependancy" value="1" onChange="document.packagesList.submit();" '.(($showDependancy==1)?'checked':'').'> <B>'.$TEXT_SHOW_DEPENDANCY_CONST.'</B></td>
 		</tr>
 		<tr>
 			<td><input type="radio" name="packageOrder" value="1" onChange="document.packagesList.submit();" '.(($packageOrder==1)?'checked':'').'></td>
-			<td><B>Alphabetical order</B></td>
+			<td><B>'.$TEXT_ALPHABETICAL_ORDER_CONST.'</B></td>
 			<td>&nbsp;</td>
 		</tr>
 
@@ -39,7 +43,7 @@ function packagesList($output,$dbADO) {
 	</form>
 	';
 	// order by manufacturer
-	$firstManufacturer='No manufacturer';
+	$firstManufacturer=$TEXT_NO_MANUFACTURER_CONST;
 	if($packageOrder==0){
 		$querySelectPackages = "
 			SELECT 
@@ -60,7 +64,7 @@ function packagesList($output,$dbADO) {
 			if($firstManufacturer!=$row['ManufacturerName']){
 				$out.='
 					<tr>
-						<td colspan="2"><b>'.(($row['ManufacturerName']!='')?$row['ManufacturerName']:'No manufacturer').'</b></td>
+						<td colspan="2"><b>'.(($row['ManufacturerName']!='')?$row['ManufacturerName']:$TEXT_NO_MANUFACTURER_CONST).'</b></td>
 					</tr>
 				';
 				$firstManufacturer=$row['ManufacturerName'];
@@ -99,9 +103,9 @@ function packagesList($output,$dbADO) {
 	}
 	$rs->Close();
 	$out.='</table>';
-	$out.="<br><br>&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
+	$out.="<br><br>&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a>";
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PACKAGES_CONST);			
 	$output->output();
 }
 ?>

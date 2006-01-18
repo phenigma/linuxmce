@@ -1,5 +1,9 @@
 <?php
 function addDirectoryFile($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addDirectoryFile.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -21,23 +25,24 @@ function addDirectoryFile($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="Package_Directory" value="'.$FK_Package_Directory.'">
+			<h3>'.$TEXT_ADD_FILE_TO_DIRECTORY_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>File:</td>
+					<td>'.$TEXT_FILE_CONST.':</td>
 					<td><input type="text" size="15" name="File" value=""></td>
 				</tr>
 				<tr>
-					<td>Search:</td>
+					<td>'.$TEXT_SEARCH_CONST.':</td>
 					<td><textarea name="Search" rows="10" colls="30"></textarea></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addDirectoryFile");
- 			frmvalidator.addValidation("File","req","Please enter a file name");
+ 			frmvalidator.addValidation("File","req","'.$TEXT_FILENAME_REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -54,7 +59,7 @@ function addDirectoryFile($output,$dbADO) {
 			
 			$out.="
 				<script>
-					alert('File added!');					
+					alert('$TEXT_FILE_ADDED_CONST');					
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();
@@ -67,7 +72,7 @@ function addDirectoryFile($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_FILE_TO_DIRECTORY_CONST);			
 	$output->output();
 }
 ?>

@@ -85,8 +85,8 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$username.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
-			<td align="center"><B>Phone number</B></td>
-			<td align="center"><B>Action</B></td>
+			<td align="center"><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';
 
 		foreach ($phoneNumbers[$userID] AS $id=>$number){

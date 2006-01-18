@@ -1,5 +1,9 @@
 <?
 function addPhoneNumber($output,$telecomADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID = (int)@$_SESSION['userID'];
@@ -31,7 +35,7 @@ function addPhoneNumber($output,$telecomADO) {
 			$Extension=cleanString($_POST['Extension']);
 			$DialAs=cleanString($_POST['DialAs']);
 			if($DialAs=='' && $PhoneNumber==''){
-				header('Location: index.php?section=addPhoneNumber&error=You must provide either "phone number" or "dial as" fields.');
+				header('Location: index.php?section=addPhoneNumber&error='.$TEXT_ERROR_PHONE_NUMBER_REQUIRED_CONST);
 				exit();
 			}
 			
@@ -41,7 +45,7 @@ function addPhoneNumber($output,$telecomADO) {
 				VALUES
 					(?,?,?,?,?,?,?)',
 			array($contact,$PhoneType,$CountryCode,$AreaCode,$PhoneNumber,$Extension,$DialAs));
-			$msg='The phone number was added.';
+			$msg=$TEXT_PHONE_NUMBER_ADDED_CONST;
 			header("Location: index.php?section=phoneBook&msg=".@$msg);
 			exit();
 		}
@@ -58,20 +62,24 @@ function addPhoneNumber($output,$telecomADO) {
 				VALUES
 					(?,?,?,?)',
 			array($Name,$Company,$Title,$EK_Users));
-			$msg='The contact was added.';
+			$msg=$TEXT_CONTACT_WAS_ADDED_CONST;
 		}	
 		header("Location: index.php?section=addPhoneNumber&msg=".@$msg);
 	}
-
+	$title=($addContact==0)?$TEXT_ADD_PHONE_NUMBER_CONST:$TEXT_ADD_CONTACT_CONST;
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array("Phone Book"=>'index.php?section=phoneBook',(($addContact==0)?"Add phone number":'Add contact')=>'index.php?section=addPhoneNumber&addContact='.$addContact));
+	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook',$title=>'index.php?section=addPhoneNumber&addContact='.$addContact));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Phone book');
+	$output->setTitle(APPLICATION_NAME.' :: '.$title);
 	$output->output();
 }
 
 // multipage display for phone numbers
 function phoneNumberForm($telecomADO,$userID,$addContact){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
 	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO);
@@ -90,43 +98,43 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 	</script>
 	<table celspacing="0" cellpadding="3" align="center">
 		<tr>
-			<td colspan="2"><h3>Add phone number</h3></td>
+			<td colspan="2"><h3>'.$TEXT_ADD_PHONE_NUMBER_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>Contact</B></td>
+			<td><B>'.$TEXT_CONTACT_CONST.'</B></td>
 			<td>'.pulldownFromArray($contacts,'contact',0).'</td>
 		</tr>	
 		<tr>
-			<td><B>PhoneType</B></td>
+			<td><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>
 			<td>'.pulldownFromArray($PhoneTypes,'PhoneType',0).'</td>
 		</tr>	
 		<tr>
-			<td><B>Country Code</B></td>
+			<td><B>'.$TEXT_COUNTRY_CODE_CONST.'</B></td>
 			<td><input type="text" name="CountryCode" value="1" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Area Code</B></td>
+			<td><B>'.$TEXT_AREA_CODE_CONST.'</B></td>
 			<td><input type="text" name="AreaCode" value="" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Phone Number</B></td>
+			<td><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
 			<td><input type="text" name="PhoneNumber" value="" onkeyup="setDialAs();"></td>
 		</tr>	
 		<tr>
-			<td><B>Extension</B></td>
+			<td><B>'.$TEXT_EXTENSION_CONST.'</B></td>
 			<td><input type="text" name="Extension" value=""></td>
 		</tr>	
 		<tr>
-			<td><B>Dial As</B></td>
+			<td><B>'.$TEXT_DIAL_AS_CONST.'</B></td>
 			<td><input type="text" name="DialAs" value=""></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="addPhoneNumber" value="Add phone number"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="addPhoneNumber" value="'.$TEXT_ADD_PHONE_NUMBER_CONST.'"></td>
 		</tr>	
 	<script>
 		 	var frmvalidator = new formValidator("addPhoneNumber");
-			frmvalidator.addValidation("contact","dontselect=0","Please select contact.");
- 			frmvalidator.addValidation("PhoneType","dontselect=0","Please select phone type.");
+			frmvalidator.addValidation("contact","dontselect=0","'.$TEXT_CONTACT_REQUIRED_CONST.'");
+ 			frmvalidator.addValidation("PhoneType","dontselect=0","'.$TEXT_PHONE_TYPE_REQUIRED_CONST.'");
 	</script>';
 	}else{
 		$out='
@@ -135,31 +143,31 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 	
 	<table celspacing="0" cellpadding="3" align="center">		
 		<tr>
-			<td colspan="2"><h3>Add contact</h3></td>
+			<td colspan="2"><h3>'.$TEXT_ADD_CONTACT_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>Name</B></td>
+			<td><B>'.$TEXT_NAME_CONST.'</B></td>
 			<td><input type="text" name="Name" value=""></td>
 		</tr>	
 		<tr>
-			<td><B>Company</B></td>
+			<td><B>'.$TEXT_COMPANY_CONST.'</B></td>
 			<td><input type="text" name="Company" value=""></td>
 		</tr>	
 		<tr>
-			<td><B>Title</B></td>
+			<td><B>'.$TEXT_TITLE_CONST.'</B></td>
 			<td><input type="text" name="Title" value=""></td>
 		</tr>	
 		<tr>
-			<td><B>Public contact</B></td>
+			<td><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'"></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="addContact" value="Add contact"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="addContact" value="'.$TEXT_ADD_CONTACT_CONST.'"></td>
 		</tr>
 	</table>
 		<script>
 		 	var frmvalidator = new formValidator("addPhoneNumber");
- 			frmvalidator.addValidation("Name","req","Please type contact name.");
+ 			frmvalidator.addValidation("Name","req","'.$TEXT_CONTACT_NAME_REQUIRED_CONST.'");
 		</script>			
 		';
 	}

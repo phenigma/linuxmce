@@ -1,5 +1,9 @@
 <?php
 function addParameter($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addParameter.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -9,7 +13,7 @@ function addParameter($output,$dbADO) {
 		
 	$queryParams = "select * from ParameterType order by Description";
 	$resParams = $dbADO->_Execute($queryParams);
-	$paramsSelect = '<option value="0">-please select-</option>';
+	$paramsSelect = '<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 	if ($resParams) {
 		while ($rowParams = $resParams->FetchRow()) {
 			$paramsSelect.='<option value="'.$rowParams['PK_ParameterType'].'">'.$rowParams['Description'].'</option>';
@@ -23,13 +27,14 @@ function addParameter($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+			<h3>'.$TEXT_ADD_PARAMETER_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>Parameter Name:</td>
+					<td>'.$TEXT_PARAMETER_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="ParameterName" value=""></td>
 				</tr>
 				<tr>
-					<td>Parameter Type:</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
 					<td>
 						<select name="ParameterType" >
 						'.$paramsSelect.'
@@ -37,14 +42,14 @@ function addParameter($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addParameter"); 			
-			frmvalidator.addValidation("ParameterName","req","Please enter a parameter name!");
-			frmvalidator.addValidation("ParameterType","dontselect=0","Please select a parameter type!");
+			frmvalidator.addValidation("ParameterName","req","'.$TEXT_PARAMETER_NAME_REQUIRED_CONST.'");
+			frmvalidator.addValidation("ParameterType","dontselect=0","'.$TEXT_PARAMETER_TYPE__REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -63,7 +68,7 @@ function addParameter($output,$dbADO) {
 			
 				$out.="
 				<script>
-					alert('Parameter added!');
+					alert('$TEXT_PARAMETER_ADDED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.lastAction.value='newDeviceData';				
 					opener.document.forms.{$from}.submit();
@@ -78,7 +83,7 @@ function addParameter($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_PARAMETER_CONST);			
 	$output->output();
 }
 ?>

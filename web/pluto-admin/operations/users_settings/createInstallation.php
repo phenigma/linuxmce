@@ -1,5 +1,7 @@
 <?php
 function createInstallation($output,$dbADO) {
+	// obsolete page
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';

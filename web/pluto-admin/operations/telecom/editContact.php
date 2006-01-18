@@ -1,5 +1,9 @@
 <?
 function editContact($output,$telecomADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID = (int)@$_SESSION['userID'];
@@ -42,18 +46,22 @@ function editContact($output,$telecomADO) {
 	}
 
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array("Phone Book"=>'index.php?section=phoneBook',"Edit contact"=>'index.php?section=editContact&cid='.$cid));
+	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook',$TEXT_EDIT_CONTACT_CONST=>'index.php?section=editContact&cid='.$cid));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Phone book');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_CONTACT_CONST);
 	$output->output();
 }
 
 // multipage display for phone numbers
 function phoneNumberForm($telecomADO,$userID,$cid){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
 	if($cid<=0){
-		return 'Contact not found.';
+		return $TEXT_CONTACT_NOT_FOUND_CONST;
 	}	
 
 	$cData=getFieldsAsArray('Contact','Name,Company,Title,EK_Users',$telecomADO,'WHERE PK_Contact='.$cid);
@@ -62,31 +70,31 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 	<input type="hidden" name="cid" value="'.$cid.'">	
 	<table celspacing="0" cellpadding="3" align="center">
 		<tr>
-			<td colspan="2"><h3>Edit contact</h3></td>
+			<td colspan="2"><h3>'.$TEXT_EDIT_CONTACT_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>Name</B></td>
+			<td><B>'.$TEXT_NAME_CONST.'</B></td>
 			<td><input type="text" name="Name" value="'.$cData['Name'][0].'"></td>
 		</tr>	
 		<tr>
-			<td><B>Company</B></td>
+			<td><B>'.$TEXT_COMPANY_CONST.'</B></td>
 			<td><input type="text" name="Company" value="'.$cData['Company'][0].'"></td>
 		</tr>	
 		<tr>
-			<td><B>Title</B></td>
+			<td><B>'.$TEXT_TITLE_CONST.'</B></td>
 			<td><input type="text" name="Title" value="'.$cData['Title'][0].'"></td>
 		</tr>	
 		<tr>
-			<td><B>Public contact</B></td>
+			<td><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'" '.((!is_null($cData['EK_Users'][0]))?'checked':'').'></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="editContact" value="Save changes"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="editContact" value="'.$TEXT_SAVE_CONST.'"></td>
 		</tr>
 	</table>
 		<script>
 		 	var frmvalidator = new formValidator("editContact");
- 			frmvalidator.addValidation("Name","req","Please type contact name.");
+ 			frmvalidator.addValidation("Name","req","'.$TEXT_CONTACT_NAME_REQUIRED_CONST.'");
 		</script>			
 	';
 			

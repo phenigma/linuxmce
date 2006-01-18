@@ -1,5 +1,9 @@
 <?
 function wapSettings($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wapSettings.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
 
@@ -20,7 +24,7 @@ function wapSettings($output,$dbADO) {
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
 	
-	$out.='<div align="left"><h3>WAP/GPRS settings</h3></div>';
+	$out.='<div align="left"><h3>'.$TEXT_WAP_GPRS_SETTINGS_CONST.'</h3></div>';
 	
 	if ($action=='form') {
 		if(!isset($wapURL) || $wapURL==''){
@@ -35,10 +39,10 @@ function wapSettings($output,$dbADO) {
 	<form action="index.php" method="post" name="wapSettings" onSubmit="return validateInput();">
 	<input type="hidden" name="section" value="wapSettings">
 	<input type="hidden" name="action" value="add">
-	<p><B>Instructions:</B>	
-	<p>1. You can add to your core a routable ip. When open your browser from the phone and go to <B>http://[ your_ip_address ]/pluto-admin/check.wml</B>.
-
-	<p>2. If you don\'t want to add a routable ip to the core, you will need to use another linux machine which has one. There, you\'ll have to create a file "check.wml" which uses \'curl\' to access the wap page from the core:';
+		
+	<p><B>'.$TEXT_INSTRUCTIONS_CONST.':</B>	
+	'.$TEXT_INSTRUCTIONS_DETAILS_CONST;
+		
 $code='
 <?php
 Header( "Content-type: text/vnd.wap.wml");
@@ -66,15 +70,15 @@ return $result;
 }
 ?>';
 $out.='<br>'.highlight_string($code,true).'<br>';
-$out.='
-<p>There, you will be able to access the wap site from your phone\'s browser like this: <B>http://[ your_routable_ip_address ]/[ the_path_to_wml_page ]/check.wml</B>.
+$out.=
+$TEXT_WAP_NOTES_CONST.'
 	<table>
 		<tr>
-			<td>Please enter WAP/GPRS URL</td>
+			<td>'.$TEXT_ENTER_WAP_GPRS_URL_CONST.'</td>
 			<td><input type="text" name="url" value="'.@$wapURL.'" size="50"></td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="Update"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
 		</tr>
 	</table>
 	</form>
@@ -82,7 +86,7 @@ $out.='
 	} else {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=wapSettings&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=wapSettings&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		
@@ -92,12 +96,12 @@ $out.='
 			$handle = @fopen($settingsFile, 'w');
 
 			if (!@fwrite($handle, $url)) {
-				header("Location: index.php?section=wapSettings&error=Cannot write to ".$settingsFile);
+				header("Location: index.php?section=wapSettings&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$settingsFile);
 				exit();
 			}
 			fclose($handle);
 
-			header("Location: index.php?section=wapSettings&msg=WAP/GPRS url was updated.");
+			header("Location: index.php?section=wapSettings&msg=$TEXT_WAP_GPRS_SETTINGS_UPDATED_CONST");
 			exit();
 		}
 
@@ -106,7 +110,7 @@ $out.='
 	
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: WAP/GPRS settings');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_WAP_GPRS_SETTINGS_CONST);
 	$output->output();  		
 }
 ?>

@@ -1,5 +1,9 @@
 <?
 function alertTypes($output,$securitydbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertTypes.lang.php');
+	
 	/* @var $securitydbADO ADOConnection */
 	/* @var $res ADORecordSet */
 	
@@ -13,7 +17,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 	$deviceNames=getDeviceNames($dbADO);
 	$securityPlugIn=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
 	
-	$out.='<div align="center"><h3>Alert types</h3></div>';
+	$out.='<div align="center"><h3>'.$TEXT_ALERT_TYPES_CONST.'</h3></div>';
 	
 	if ($action=='form') {
 		$out.=setLeftMenu($dbADO).'<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
@@ -24,11 +28,11 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 			<input type="hidden" name="deviceToRemove" value="">
 			<table border="0" align="center">
 				<tr bgcolor="lightblue">
-					<td align="center"><B>Description</B></td>
-					<td align="center"><B>Delay Before Alarm</B></td>
-					<td align="center"><B>Exit Delay</B></td>
-					<td align="center"><B>Alarm Duration</B></td>
-					<td align="center"><B>Pool Alerts</B></td>
+					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DELAY_BEFORE_ALARM_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_EXIT_DELAY_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ALARM_DURATION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_POOL_ALERTS_CONST.'</B></td>
 				</tr>
 			';
 		$displayedAlertTypes=array();
@@ -48,7 +52,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 		}
 		$devicesList=explode(',',getDeviceData($securityPlugIn,$GLOBALS['PK_Device'],$dbADO));
 		if(count($devicesList)==0 || (count($devicesList)==1 && $devicesList[0]=='')){
-			$deviceNamesList='No device selected';
+			$deviceNamesList=$TEXT_NO_DEVICE_SELECTED_CONST;
 			$devicesList=array(0);
 		}
 		else{
@@ -62,15 +66,15 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 		
 		$out.='
 				<tr>
-					<td align="right"><B>Announcement device(s): *</B></td>
+					<td align="right"><B>'.$TEXT_ANNOUNCEMENT_DEVICES_CONST.': *</B></td>
 					<td colspan="2">'.$deviceNamesList.'</td>
 					<td colspan="2" align="left">'.devicesTree('device','',$dbADO,' AND PK_Device NOT IN ('.join(',',$devicesList).')').'</td>
 				</tr>
 				<tr>
-					<td align="left" colspan="5">* Choose the device from the pulldown to add it to list. Click on device name to remove it.</td>
+					<td align="left" colspan="5">* '.$TEXT_PICK_DEVICE_INFO_CONST.'</td>
 				</tr>		
 				<tr>
-					<td align="center" colspan="5"><input type="submit" class="button" name="update" value="Update"></td>
+					<td align="center" colspan="5"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 				</tr>		
 			</table>
 			<input type="hidden" name="oldDevices" value="'.join(',',$devicesList).'">
@@ -101,12 +105,12 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newDD,$securityPlugIn,$GLOBALS['PK_Device']));
 		}
 		
-		header("Location: index.php?section=alertTypes&msg=Alerts types updated.");
+		header("Location: index.php?section=alertTypes&msg=$TEXT_ALERTS_TYPES_UPDATED_CONST");
 	}
 	
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERT_TYPES_CONST);
 	$output->output();  		
 }
 ?>

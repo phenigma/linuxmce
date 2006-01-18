@@ -1,5 +1,9 @@
 <?
 function phoneBook($output,$telecomADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID = (int)@$_SESSION['userID'];
@@ -17,7 +21,7 @@ function phoneBook($output,$telecomADO) {
 	<form action="index.php" method="POST" name="phoneBook">
 	<input type="hidden" name="section" value="phoneBook">
 	<input type="hidden" name="action" value="form">	
-	<h3>Phone Book</h3>
+	<h3 align="center">'.$TEXT_PHONE_BOOK_CONST.'</h3>
 		'.phonesTable($telecomADO,$userID,$page).'
 	</form>
 	';
@@ -27,21 +31,25 @@ function phoneBook($output,$telecomADO) {
 		$did=(int)@$_REQUEST['did'];
 		if($did>0){
 			$telecomADO->Execute('DELETE FROM PhoneNumber WHERE PK_PhoneNumber=?',$did);
-			$msg='The phone number was deleted.';
+			$msg=$TEXT_PHONE_NUMBER_DELETED_CONST;
 		}
 			
 		header("Location: index.php?section=phoneBook&msg=".@$msg);
 	}
 
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array("Phone Book"=>'index.php?section=phoneBook'));
+	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Phone book');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PHONE_BOOK_CONST);
 	$output->output();
 }
 
 // multipage display for phone numbers
 function phonesTable($telecomADO,$userID,$page){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
 	$records_per_page=10;
@@ -86,7 +94,7 @@ function phonesTable($telecomADO,$userID,$page){
 	$end=$page*$records_per_page;
 	$end=($end>$totalRecords)?$totalRecords:$end;
 
-	$pageLinks='Pages: ';
+	$pageLinks=$TEXT_PAGES_CONST.': ';
 	for($i=1;$i<=$noPages;$i++){
 		$pageLinks.=($i==$page)?' '.$i:' <a href="index.php?section=phoneBook&page='.$i.'">'.$i.'</a>';
 	}
@@ -95,14 +103,14 @@ function phonesTable($telecomADO,$userID,$page){
 	$out='
 		<table celspacing="0" cellpadding="3" align="center">
 			<tr>
-				<td colspan="11" align="center"><fieldset><legend><B>Search phone book</B></legend>
-					<input type="checkbox" name="byContact" value="1" '.@$byContactChecked.'>Contact name 
-					<input type="checkbox" name="byCompany" value="1" '.@$byCompanyChecked.'>Company name 
-					<input type="checkbox" name="byNumber" value="1" '.@$byNumberChecked.'>Phone number 
+				<td colspan="11" align="center"><fieldset><legend><B>'.$TEXT_SEARCH_PHONE_BOOK_CONST.'</B></legend>
+					<input type="checkbox" name="byContact" value="1" '.@$byContactChecked.'>'.$TEXT_CONTACT_NAME_CONST.' 
+					<input type="checkbox" name="byCompany" value="1" '.@$byCompanyChecked.'>'.$TEXT_COMPANY_NAME_CONST.' 
+					<input type="checkbox" name="byNumber" value="1" '.@$byNumberChecked.'>'.$TEXT_PHONE_NUMBER_CONST.' 
 					'.pulldownFromArray($PhoneTypes,'byPhoneType',(int)@$_REQUEST['byPhoneType'],'','key','All').' 
 					<input type="text" name="search" value="'.@$_REQUEST['search'].'"> 
-					<input type="submit" class="button" name="seatch_btn" value="Search">
-					<input type="button" class="button" name="show_all" value="Show all" onClick="self.location=\'index.php?section=phoneBook\'">
+					<input type="submit" class="button" name="seatch_btn" value="'.$TEXT_SEARCH_CONST.'">
+					<input type="button" class="button" name="show_all" value="'.$TEXT_SHOW_ALL_CONST.'" onClick="self.location=\'index.php?section=phoneBook\'">
 				</fieldset></td>
 			</tr>	
 			<tr>
@@ -110,22 +118,22 @@ function phonesTable($telecomADO,$userID,$page){
 				<td colspan="9" align="right">'.$pageLinks.'</td>
 			</tr>
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Contact name</B></td>
-				<td align="center"><B>Company</B></td>
-				<td align="center"><B>Title</B></td>
-				<td align="center"><B>Phone type</B></td>	
+				<td align="center"><B>'.$TEXT_CONTACT_NAME_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_COMPANY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TITLE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>	
 				<td align="center"><B>CC*</B></td>	
 				<td align="center"><B>AC**</B></td>
-				<td align="center"><B>Number</B></td>
-				<td align="center"><B>Extension</B></td>
-				<td align="center"><B>Dial As</B></td>	
-				<td align="center"><B>Public</B></td>	
-				<td align="center"><B>Function</B></td>	
+				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_EXTENSION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DIAL_AS_CONST.'</B></td>	
+				<td align="center"><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>	
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>	
 			</tr>';
 	if($totalRecords==0){
 		$out.='
 		<tr>
-			<td colspan="11">No phone numbers available.</td>
+			<td colspan="11">'.$TEXT_NO_PHONE_NUMBERS_AVAILABLE_CONST.'</td>
 		</tr>';
 	}else{	
 		$pos=0;
@@ -148,25 +156,25 @@ function phonesTable($telecomADO,$userID,$page){
 					<td align="center">'.$row['DialAs'].'</td>	
 					<td align="center">'.((is_null($row['EK_Users']))?'Y':'N').'</td>	
 					<td align="center">
-						<input type="button" class="button" name="edit" value="Edit" onClick="self.location=\'index.php?section=editPhoneNumber&id='.$row['PK_PhoneNumber'].'\'"> 
-						<input type="button" class="button" name="delete" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this number?\'))self.location=\'index.php?section=phoneBook&action=del&did='.$row['PK_PhoneNumber'].'\'"></td>	
+						<input type="button" class="button" name="edit" value="'.$TEXT_EDIT_CONST.'" onClick="self.location=\'index.php?section=editPhoneNumber&id='.$row['PK_PhoneNumber'].'\'"> 
+						<input type="button" class="button" name="delete" value="'.$TEXT_DELETE_CONST.'" onclick="if(confirm(\''.$TEXT_DELETE_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneBook&action=del&did='.$row['PK_PhoneNumber'].'\'"></td>	
 				</tr>';
 			}
 	
 		}
 	$out.='
 		<tr>
-			<td colspan="2">Records '.$start.'-'.$end.' of '.$totalRecords.'</td>
+			<td colspan="2">'.$TEXT_RECORDS_CONST.' '.$start.'-'.$end.': '.$totalRecords.'</td>
 			<td colspan="9" align="right">'.$pageLinks.'</td>
 		</tr>';
 	}
 	$out.='	
 		<tr>
-			<td colspan="11" align="center"><input type="button" class="button" name="add" value="Add phone number" onClick="self.location=\'index.php?section=addPhoneNumber\'"> <input type="button" class="button" name="add" value="Add contact" onClick="self.location=\'index.php?section=addPhoneNumber&addContact=1\'"></td>
+			<td colspan="11" align="center"><input type="button" class="button" name="add" value="'.$TEXT_ADD_PHONE_NUMBER_CONST.'" onClick="self.location=\'index.php?section=addPhoneNumber\'"> <input type="button" class="button" name="add" value="'.$TEXT_ADD_CONTACT_CONST.'" onClick="self.location=\'index.php?section=addPhoneNumber&addContact=1\'"></td>
 		</tr>	
 		<tr>
-			<td colspan="11" align="left">	* CC=Country code<br>
-	** AC=Area code</em></td>
+			<td colspan="11" align="left">	* CC='.$TEXT_COUNTRY_CODE_CONST.'<br>
+	** AC='.$TEXT_AREA_CODE_CONST.'</em></td>
 		</tr>	
 	</table>
 	<em>';

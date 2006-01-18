@@ -1,5 +1,9 @@
 <?php
 function addDirectory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addDirectory.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -19,19 +23,20 @@ function addDirectory($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Directory description:</td>
+					<td>'.$TEXT_DIRECTORY_DESCRIPTION_CONST.':</td>
 					<td><input type="text" size="15" name="Description" value=""></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addDirectory");
- 			frmvalidator.addValidation("Description","req","Please enter a package description");
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_DIRECTORY_DESCRIPTION_REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -54,13 +59,13 @@ function addDirectory($output,$dbADO) {
 				</script>
 				";		
 		} else {
-			header("Location: index.php?section=addPackage&from=$from&deviceID=$deviceID");
+			header("Location: index.php?section=addDirectory");
 		}
 				
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_DIRECTORY_CONST);			
 	$output->output();
 }
 ?>

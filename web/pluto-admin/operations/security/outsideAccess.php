@@ -1,5 +1,9 @@
 <?
 function outsideAccess($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/outsideAccess.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
 
@@ -36,13 +40,13 @@ function outsideAccess($output,$dbADO) {
 	$rowAccessOnPort=$resAllowPort->FetchRow();
 	$port=$rowAccessOnPort['SourcePort'];
 	
-	$out.='<div align="left"><h3>Outside Access</h3></div>';
+	$out.='<div align="left"><h3>'.$TEXT_OUTSIDE_ACCESS_CONST.'</h3></div>';
 	
 	if ($action=='form') {
 		
 
 		if(count($retArray)==0){
-			$out.='<div class="err">Insuffient rights: pluto.conf file cannot be opened.</div>';
+			$out.='<div class="err">'.$TEXT_ERROR_OPENING_PLUTO_CONF_CONST.'</div>';
 		}
 		$out.=setLeftMenu($dbADO).'<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
@@ -77,48 +81,48 @@ function outsideAccess($output,$dbADO) {
 	<table width="600">
 		<tr>
 			<td><input type="checkbox" name="allow80" value="1" '.(($allowAccessOn80==1)?'checked':'').'></td>
-			<td>Allow outside access to the website on port 80</td>
+			<td>'.$TEXT_ALLOW_OUTSIDE_ACCESS_80_CONST.'</td>
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>
 			<td><input type="checkbox" name="allowOnPort" value="1" '.(($allowAccessOnPort==1)?'checked':'').'></td>
-			<td>Allow outside access to the website on port</td>
+			<td>'.$TEXT_ALLOW_OUTSIDE_ACCESS_OTHER_CONST.'</td>
 			<td><input type="text" name="port" value="'.@$port.'"></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').' onClick="setAntiHanging();"></td>
-			<td>Allow Pluto tech support temporary access using this password</td>
+			<td>'.$TEXT_ALLOW_PLUTO_ACCESS_CONST.'</td>
 			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td>Confirm password</td>
+			<td>'.$TEXT_CONFIRM_PASSWORD_CONST.'</td>
 			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="RAport" value="1" '.(((int)@$RAport==22)?'checked':'').'></td>
-			<td>Use port 22 for remote assistance</td>
+			<td>'.$TEXT_USE_PORT_22_FOR_REMOTE_ASSISTANCE_CONST.'</td>
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>
 			<td><input type="checkbox" name="RA_CheckRemotePort" value="1" '.(((int)@$RA_CheckRemotePort==1)?'checked':'').'></td>
-			<td>Enable anti-hanging measure for Remote Assistance</td>
+			<td>'.$TEXT_ENABLE_ANTI_HANGING_MEASURE_CONST.'</td>
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="3">You will need to provide your support rep the password and the following installation number: <b>'.$_SESSION['installationID'].'</b></td>
+			<td colspan="3">'.$TEXT_PROVIDE_PASSWORD_AND_INSTALLATION_CONST.' <b>'.$_SESSION['installationID'].'</b></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="sendErrorsToPluto" value="1" '.((@$sendErrorsToPluto==1)?'checked':'').'></td>
-			<td>Send errors to pluto</td>
+			<td>'.$TEXT_SEND_ERRORS_TO_PLUTO_CONST.'</td>
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="2">Pluto monitors itself and prepares reports if there are any software bugs or crashes. There is no confidential information in these reports--just technical stuff about the cause of the crash (core dumps). By sharing this information Pluto can make the product any better. Also, if your system has a problem that we have fixed we will send you an email and let you know.</td>
+			<td colspan="2">'.$TEXT_OUTSIDE_ACCESS_NOTES_CONST.'</td>
 		</tr>		
 		<tr>
-			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="Update"></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
 		</tr>
 	</table>
 		<input type="hidden" name="oldAllow80" value="'.$allowAccessOn80.'">
@@ -129,7 +133,7 @@ function outsideAccess($output,$dbADO) {
 	} else {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=outsideAcces&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=outsideAcces&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		
@@ -220,7 +224,7 @@ function outsideAccess($output,$dbADO) {
 			$cmd='sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh'.@$suffix;
 			exec($cmd);
 			
-			header("Location: index.php?section=outsideAccess&msg=Remote access was updated.");
+			header("Location: index.php?section=outsideAccess&msg=$TEXT_REMOTE_ACCESS_UPDATED_CONST");
 			exit();
 		}
 
@@ -229,15 +233,19 @@ function outsideAccess($output,$dbADO) {
 	
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Outside Access');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_OUTSIDE_ACCESS_CONST);			
 	$output->output();  		
 }
 
 function writeToFile($accessFile, $variable,$oldValue,$newValue)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/outsideAccess.lang.php');
+	
 	$oldFileArray=@file($accessFile);	
 	if(!$oldFileArray){
-		header("Location: index.php?section=outsideAccess&error=Cannot open ".$accessFile." for reading.");
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_OPEN_FILE_FOR_READING_CONST ".$accessFile." ");
 		exit();
 	}
 	$oldFile=implode('',$oldFileArray);
@@ -248,13 +256,13 @@ function writeToFile($accessFile, $variable,$oldValue,$newValue)
 	else
 		$newFile=$oldFile.$variable.'='.$newValue."\n";
 	if(!is_writable($accessFile)){
-		header("Location: index.php?section=outsideAccess&error=Cannot write to ".$accessFile);
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
 		exit();
 	}
 	$handle = fopen($accessFile, 'w');
 
 	if (!fwrite($handle, $newFile)) {
-		header("Location: index.php?section=outsideAccess&error=Cannot write to ".$accessFile);
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
 		exit();
 	}
 	fclose($handle);
@@ -262,9 +270,13 @@ function writeToFile($accessFile, $variable,$oldValue,$newValue)
 
 function removeFromFile($variable,$accessFile)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/outsideAccess.lang.php');
+	
 	$oldFileArray=@file($accessFile);	
 	if(!$oldFileArray){
-		header("Location: index.php?section=outsideAccess&error=Cannot open ".$accessFile." for reading.");
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_OPEN_FILE_FOR_READING_CONST ".$accessFile);
 		exit();
 	}
 	$oldFile='';
@@ -272,13 +284,13 @@ function removeFromFile($variable,$accessFile)
 		if(!ereg($variable,$line))
 			$oldFile.=$line;
 	if(!is_writable($accessFile)){
-		header("Location: index.php?section=outsideAccess&error=Cannot write to ".$accessFile);
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
 		exit();
 	}
 	$handle = fopen($accessFile, 'w');
 
 	if (!fwrite($handle, $oldFile)) {
-		header("Location: index.php?section=outsideAccess&error=Cannot write to ".$accessFile);
+		header("Location: index.php?section=outsideAccess&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$accessFile);
 		exit();
 	}
 	fclose($handle);

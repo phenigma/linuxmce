@@ -1,5 +1,9 @@
 <?
 function sqlcvs_checkin($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/sqlcvs.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -35,23 +39,23 @@ function sqlcvs_checkin($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_checkin">
 		<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h3>sqlCVS CheckIn</h3></div>
+	<div align="center"><h3>'.$TEXT_SQLCVS_CHECKIN_CONST.'</h3></div>
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
-			<td colspan="3"><B>sqlCVS Host:</B></td>
+			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
 			<td><input type="text" name="host" value=""></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>Username:</B></td>
+			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value=""></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>Password:</B></td>
+			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.':</B></td>
 			<td><input type="text" name="password" value=""></td>
 		</tr>
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="Next"></td>
+			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 		';
 	
@@ -81,7 +85,7 @@ function sqlcvs_checkin($output,$dbADO) {
 	$out.='	
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="Next"></td>
+			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 	</table>
 	</form>
@@ -90,7 +94,7 @@ function sqlcvs_checkin($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=sqlcvs_checkin&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=sqlcvs_checkin&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -140,7 +144,7 @@ function sqlcvs_checkin($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: sqlCVS CheckIn');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_CHECKIN_CONST);
 	$output->output();
 }
 ?>

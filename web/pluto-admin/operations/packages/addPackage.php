@@ -1,5 +1,7 @@
 <?php
 function addPackage($output,$dbADO) {
+	// absolete file
+	
 	//$dbADO->debug=true;
 	$out='
 		<script>

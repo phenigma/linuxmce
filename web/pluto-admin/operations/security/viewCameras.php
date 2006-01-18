@@ -1,5 +1,9 @@
 <?
 function viewCameras($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/viewCameras.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -45,7 +49,8 @@ function viewCameras($output,$dbADO) {
 		
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-	<div align="center"><h3>View Cameras</h3></div>
+		
+	<div align="center"><h3>'.$TEXT_VIEW_CAMERAS_CONST.'</h3></div>
 	<form action="index.php" method="POST" name="viewCameras">
 	<input type="hidden" name="section" value="viewCameras">
 	<input type="hidden" name="action" value="update">		
@@ -67,7 +72,7 @@ function viewCameras($output,$dbADO) {
 	if($resDevice->RecordCount()==0){
 		$out.='
 			<tr>
-				<td align="center">No devices</td>
+				<td align="center">'.$TEXT_NO_CAMERA_DEVICES_CONST.'</td>
 			</tr>
 			';
 	}
@@ -94,7 +99,7 @@ function viewCameras($output,$dbADO) {
 				<td><input type="checkbox" name="setAll" onClick="selAllCheckboxes()" '.((isset($_POST['setAll']))?'checked':'').'> <B>Check/Uncheck all</B></td>
 			</tr>
 			<tr>
-				<td><input type="button" class="button" name="preview" onClick="document.viewCameras.action.value=\'form\';document.viewCameras.submit();" Value="Preview checked cameras"></td>
+				<td><input type="button" class="button" name="preview" onClick="document.viewCameras.action.value=\'form\';document.viewCameras.submit();" Value="'.$TEXT_PREVIEW_CHECKED_CAMERAS_CONST.'"></td>
 			</tr>';
 	}
 	$out.='
@@ -103,9 +108,9 @@ function viewCameras($output,$dbADO) {
 	</td>
 	<td align="center">';
 	if(!isset($_POST['devicesArray']) || @$_POST['devicesArray']==''){
-		$out.='No camera selected.';
+		$out.=$TEXT_NO_CAMERA_SELECTED_CONST;
 	}else{
-		$out.='<B>Selected cameras:</B>
+		$out.='<B>'.$TEXT_SELECTED_CAMERAS_CONST.':</B>
 		<table>';
 		$cameras=explode(',',$_POST['devicesArray']);
 		foreach ($cameras AS $cameraid){
@@ -128,7 +133,7 @@ function viewCameras($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=viewCameras&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=viewCameras&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -137,22 +142,25 @@ function viewCameras($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: View Cameras');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_VIEW_CAMERAS_CONST);
 	$output->output();
 }
 
 function get_video_frame($cameraid,$installationID,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/viewCameras.lang.php');
 
 	$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
 	$securityPluginDD=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.(int)@$securityDevicePlugin['PK_Device'][0].' AND FK_DeviceData='.$GLOBALS['Path']);
 
 	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o -p "/var/www/pluto-admin/security_images" 0 '.$cameraid.' 1 84 19 0 20 "jpg" 23 0 31 0 60 100 61 100';
 	exec($cmd,$retArray);
-	$msg='Camera screenshot not available.';
+	$msg=$TEXT_ERROR_CAMERA_SCREENSHOT_NOT_AVAILABLE_CONST;
 	foreach ($retArray as $line) {
 		if(ereg(':OK',$line)){
 			exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
-			$msg='<img src="security_images/'.$cameraid.'.jpg" alt="Loading ..."/>';
+			$msg='<img src="security_images/'.$cameraid.'.jpg" alt="'.$TEXT_LOADING_CONST.'"/>';
 		}
 	}
 

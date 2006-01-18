@@ -1,5 +1,7 @@
 <?php
 function addDistro($output,$dbADO) {
+	// absolete file
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';

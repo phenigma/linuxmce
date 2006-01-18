@@ -1,5 +1,9 @@
 <?
 function sqlcvs_diff($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/sqlcvs.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -41,23 +45,23 @@ function sqlcvs_diff($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_diff">
 		<input type="hidden" name="action" value="choose">	
 		
-	<div align="center"><h3>sqlCVS Diff</h3></div>
+	<div align="center"><h3>'.$TEXT_SQLCVS_DIFF_CONST.'</h3></div>
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
-			<td colspan="3"><B>sqlCVS Host:</B></td>
+			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
 			<td><input type="text" name="host" value=""></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>Username:</B></td>
+			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value=""></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>Password:</B></td>
+			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.':</B></td>
 			<td><input type="text" name="password" value=""></td>
 		</tr>
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="Next"></td>
+			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 		';
 	
@@ -87,7 +91,7 @@ function sqlcvs_diff($output,$dbADO) {
 	$out.='	
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="Next"></td>
+			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 	</table>
 	</form>
@@ -133,20 +137,20 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		<table>
 		<tr>
-			<td><B>sqlCVS Host:</B></td>
+			<td><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
 			<td><input type="text" name="host" value="'.$host.'"></td>
 		</tr>
 		<tr>
-			<td><B>Username:</B></td>
+			<td><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value="'.$username.'"></td>
 		</tr>
 		<tr>
-			<td><B>Password:</B></td>
+			<td><B>'.$TEXT_PASSWORD_CONST.':</B></td>
 			<td><input type="text" name="password" value="'.$password.'"></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="Next"></td>
+			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>
 		</table>
 		<table width="600" cellpadding="3" cellspacing="0">';
@@ -211,12 +215,12 @@ function sqlcvs_diff($output,$dbADO) {
 		if(count($resultArray)>0){
 			$out.='
 				<tr>
-					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="Revert"> <input type="submit" class="button" name="checkin" value="CheckIn"></td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
 				</tr>';
 		}else{
 			$out.='
 				<tr>
-					<td colspan="5" align="center">No changes.</td>
+					<td colspan="5" align="center">'.$TEXT_NO_CHANGES_CONST.'</td>
 				</tr>';
 		}
 			$out.='
@@ -227,7 +231,7 @@ function sqlcvs_diff($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=sqlcvs_diff&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=sqlcvs_diff&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -268,7 +272,7 @@ function sqlcvs_diff($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: sqlCVS Diff');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_DIFF_CONST);
 	$output->output();
 }
 

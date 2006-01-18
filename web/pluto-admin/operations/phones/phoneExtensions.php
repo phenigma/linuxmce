@@ -1,5 +1,7 @@
 <?
 function phoneExtensions($output,$dbADO) {
+	// obsolete file
+		
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -16,6 +18,7 @@ function phoneExtensions($output,$dbADO) {
 		</script>		
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+		
 		<h3 align="center">Phone Extensions</h3>
 		<p align="center">Pluto compatible telephones are normally plug-and-play.  Just plug them into any jack--and they will be added to this page automatically.</p>
 		<form action="index.php" method="POST" name="phoneExtensions">

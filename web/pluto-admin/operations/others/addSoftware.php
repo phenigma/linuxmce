@@ -1,5 +1,9 @@
 <?
 function addSoftware($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addSoftware.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -29,9 +33,10 @@ function addSoftware($output,$dbADO) {
 			<form action="index.php" method="POST" name="addSoftware">
 			<input type="hidden" name="section" value="addSoftware">
 			<input type="hidden" name="action" value="add">
+		
 		<table>
 			<tr>
-				<td><B>Add software on which computer?</B></td>
+				<td><B>'.$TEXT_ADD_SOFTWARE_ON_WHICH_COMPUTER_CONST.'</B></td>
 				<td><select name="deviceIP">';
 		$deviceCategory=$GLOBALS['rootComputerID'];
 
@@ -51,26 +56,26 @@ function addSoftware($output,$dbADO) {
 				</td>
 			</tr>
 			<tr>
-				<td><B>What is the name of the software package?</B></td>
+				<td><B>'.$TEXT_SOFTWARE_PACKAGE_NAME_CONST.'</B></td>
 				<td><input type="text" name="packageName" value="'.@$_SESSION['packageName'].'"></td>
 			</tr>
 			<tr>
-				<td colspan="2"><br><br>If the software package is not maintained by Pluto, please provide the following:</td>
+				<td colspan="2"><br><br>'.$TEXT_NONPLUTO_MANTAINED_CONST.'</td>
 			</tr>
 			<tr>
-				<td><B>Repository URL</B></td>
+				<td><B>'.$TEXT_REPOSITORY_URL_CONST.'</B></td>
 				<td><input type="text" name="url" value="'.@$_SESSION['url'].'" size="50"></td>
 			</tr>
 			<tr>
-				<td><B>Debian Repository</B></td>
+				<td><B>'.$TEXT_DEBIAN_REPOSITORY_CONST.'</B></td>
 				<td><input type="checkbox" name="debianRepository" value="1" '.((@$_SESSION['debianRepository']==1)?'checked':'').' onClick="enableRepName();"> </td>
 			</tr>		
 			<tr>
-				<td><B>Repository Name</B></td>
+				<td><B>'.$TEXT_REPOSITORY_NAME_CONST.'</B></td>
 				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'" '.((@$_SESSION['debianRepository']!=1)?'disabled':'').'></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add software"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SOFTWARE_CONST.'"></td>
 			</tr>
 		</table>
 		</form>';
@@ -79,7 +84,7 @@ function addSoftware($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=addSoftware&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=addSoftware&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}	
 
@@ -103,7 +108,7 @@ function addSoftware($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_SOFTWARE_CONST);
 	$output->output();
 }
 ?>
