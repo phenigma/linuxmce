@@ -371,7 +371,6 @@ void *SerialConnection::receiveFunction(void *)
 			if(len > sizeof(mybuf))
 				break;
 			
-			pthread_mutex_lock( &instance->mutex_serial );
 			if(len != 0 && instance != NULL)
 			{
 				pthread_mutex_lock( &instance->mutex_buffer );
@@ -382,7 +381,6 @@ void *SerialConnection::receiveFunction(void *)
 				SerialConnection::printDataBuffer(mybuf, len, "Thread Read");
 				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
-			pthread_mutex_unlock( &instance->mutex_serial );
 			
 #ifdef _WIN32 	
 			Sleep(READ_DELAY);
