@@ -150,6 +150,8 @@ int SerialConnection::send(char *b, size_t len)
 
 	int returnValue = 0;
 	if(b != NULL)
+	{
+		pthread_mutex_lock( &mutex_serial );
 		if(instance->serialPort!= NULL)
 		{
 			try
@@ -162,9 +164,7 @@ int SerialConnection::send(char *b, size_t len)
 				memcpy(&(paddedBuffer[2]), b, len - 3);
 				paddedBuffer[(int)len - 1] = checkSum(&(paddedBuffer[1]), (int)len - 2);
 				
-				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(paddedBuffer, len);
-				pthread_mutex_unlock( &mutex_serial );
 			}
 			catch(...)
 			{
@@ -173,6 +173,8 @@ int SerialConnection::send(char *b, size_t len)
 			}
 		}
 		else returnValue = -1;
+		pthread_mutex_unlock( &mutex_serial );
+	}
 	else returnValue = -1;
 
 	return returnValue ;
@@ -181,6 +183,8 @@ int SerialConnection::send(char *b, size_t len)
 
 int SerialConnection::receiveCommand(char *b, size_t *len)
 {
+	g_pPlutoLogger->Write(LV_DEBUG, "receiveCommand::begin");
+	
 	if(b == NULL || !isConnected())
 	{
 		*len = 0;
@@ -199,12 +203,14 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 			buffer.pop_front();
 		if( buffer.front() != 0x01 )
 		{
+			pthread_mutex_unlock( &instance->mutex_buffer );
 			*len = 0;
 			return -1;
 		}
 		unsigned int buffered_len = *(buffer.begin() + 1);
 		if(buffer.size() < buffered_len + 2 || *len < buffered_len + 2)
 		{
+			pthread_mutex_unlock( &instance->mutex_buffer );
 			*len = 0;
 			return -1;
 		}
@@ -247,14 +253,17 @@ int SerialConnection::hasCommand()
 	
 	pthread_mutex_lock( &instance->mutex_buffer );
 	int returnValue = 1;
+	
+	while( 0 < buffer.size() && buffer.front() == SERIAL_ACK )
+		buffer.pop_front();
+	
 	if(buffer.size() < 4)
 	{
 		g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
 		pthread_mutex_unlock( &instance->mutex_buffer );
 		return 0;
 	}
-	while( buffer.front() == SERIAL_ACK )
-		buffer.pop_front();
+	
 	if( buffer.front() == SERIAL_SOF )
 	{
 		std::deque<char>::iterator i = buffer.begin();
@@ -276,7 +285,8 @@ int SerialConnection::hasCommand()
 #ifdef DEBUG_EUGEN
 				g_pPlutoLogger->Write(LV_WARNING, "Send ACK");
 #else
-				serialPort->Write(&ack, 1);
+				if( serialPort != NULL )
+					serialPort->Write(&ack, 1);
 #endif
 				pthread_mutex_unlock( &mutex_serial );
 			}
@@ -317,7 +327,7 @@ void *SerialConnection::receiveFunction(void *)
 	if(instance->serialPort != NULL)
 	{
 		char mybuf[1024];
-		size_t len = 1024;
+		size_t len = sizeof(mybuf);
 #ifdef DEBUG_EUGEN
 		pthread_mutex_lock( &instance->mutex_buffer );
 		FILE * serialData = fopen("serial.txt", "r");
@@ -343,17 +353,23 @@ void *SerialConnection::receiveFunction(void *)
 		}
 		pthread_mutex_unlock( &instance->mutex_buffer );
 #else
-		while( instance != NULL && instance->isConnected() )
+		while( true )
 		{
-			len = 256;
+			len = sizeof(mybuf) + 1;
 			
 			pthread_mutex_lock( &instance->mutex_serial );
-			len = instance->serialPort->Read(mybuf, 256);
-			if(len > 256)
-				len = 0;
+			if( instance != NULL && instance->isConnected() )
+			{
+				len = instance->serialPort->Read(mybuf, sizeof(mybuf));
+			}
 			pthread_mutex_unlock( &instance->mutex_serial );
 			
-			if(len != 0)
+			// something wrong or disconnected
+			if(len > sizeof(mybuf))
+				break;
+			
+			pthread_mutex_lock( &instance->mutex_serial );
+			if(len != 0 && instance != NULL)
 			{
 				pthread_mutex_lock( &instance->mutex_buffer );
 				for(size_t i=0; i<len; i++)
@@ -362,6 +378,7 @@ void *SerialConnection::receiveFunction(void *)
 				}
 				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
+			pthread_mutex_unlock( &instance->mutex_serial );
 			
 #ifdef _WIN32 	
 			Sleep(READ_DELAY);
