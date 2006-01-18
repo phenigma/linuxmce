@@ -159,7 +159,8 @@ bool PlutoZWSerialAPI::listen()
 		d->state = PlutoZWSerialAPI::WAITTING;
 		while( d->connection->isConnected() )
 		{
-			if( d->connection->hasCommand() == 1)
+			int commandRet = d->connection->hasCommand();
+			if( commandRet == 1)
 			{
 				d->commandLength = sizeof(d->command);
 				memset(d->command, 0, d->commandLength);
@@ -212,7 +213,11 @@ bool PlutoZWSerialAPI::listen()
 					return false;
 				}
 			}
-			
+			else
+			{
+				g_pPlutoLogger->Write(LV_DEBUG, " commandRet = %d ", commandRet);
+			}
+			g_pPlutoLogger->Write(LV_DEBUG, "PlutoZWSerialAPI::listen() sleeping");		
 #ifdef _WIN32
 	Sleep(READ_DELAY);
 #else

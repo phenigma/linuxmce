@@ -20,7 +20,6 @@ pthread_t SerialConnection::write_thread;
 SerialConnection::SerialConnection()
 	: serialPort(NULL)
 {
-	buffer.resize(1025);
 }
 
 SerialConnection *SerialConnection::getInstance()
@@ -45,6 +44,7 @@ int SerialConnection::connect(const char *port)
 	try
 	{
 		serialPort = new CSerialPort(port, 115200, epbsN81);
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::connect init serial mutex");
 		pthread_mutex_init(&mutex_serial, NULL);
 		pthread_mutex_init(&mutex_buffer, NULL);
 		int stat = pthread_create(&write_thread, NULL, receiveFunction, (void*)this);
@@ -88,10 +88,12 @@ int SerialConnection::disconnect()
 	if( serialPort != NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 1");
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::disconnect lock serial mutex");
 		pthread_mutex_lock( &instance->mutex_serial );
 		delete serialPort;
 		serialPort = NULL;
 		pthread_mutex_unlock( &instance->mutex_serial );
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::disconnect unlock serial mutex");
 		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 2");
 		g_pPlutoLogger->Flush();
 		
@@ -101,7 +103,8 @@ int SerialConnection::disconnect()
 		pthread_join(write_thread, NULL);		
 		g_pPlutoLogger->Write(LV_DEBUG, "thread to finished");
 		g_pPlutoLogger->Flush();
-
+		
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::disconnect destroy serial mutex");
 		pthread_mutex_destroy(&mutex_serial);
 		pthread_mutex_destroy(&mutex_buffer);
 		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 3");
@@ -152,6 +155,7 @@ int SerialConnection::send(char *b, size_t len)
 	int returnValue = 0;
 	if(b != NULL)
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::send lock serial mutex");
 		pthread_mutex_lock( &mutex_serial );
 		if(instance->serialPort!= NULL)
 		{
@@ -175,6 +179,7 @@ int SerialConnection::send(char *b, size_t len)
 		}
 		else returnValue = -1;
 		pthread_mutex_unlock( &mutex_serial );
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::send unlock serial mutex");
 	}
 	else returnValue = -1;
 
@@ -195,15 +200,15 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 	pthread_mutex_lock( &instance->mutex_buffer );
 	if(buffer.size() > 0)
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "buffer.size()= ", buffer.size());
+		g_pPlutoLogger->Write(LV_DEBUG, "buffer.size()= %d", buffer.size());
 		//for(std::deque<char>::iterator it = buffer.begin(); it != buffer.end(); ++it)
 		//{
 		//	g_pPlutoLogger->Write(LV_WARNING, "HMM: 0x%02x ", (int)(*it));
 		//}
 		
-		if( buffer.front() == 0x06 )
+		if( buffer.front() == SERIAL_ACK )
 			buffer.pop_front();
-		if( buffer.front() != 0x01 )
+		if( buffer.front() != SERIAL_SOF )
 		{
 			pthread_mutex_unlock( &instance->mutex_buffer );
 			*len = 0;
@@ -253,18 +258,23 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
  */
 int SerialConnection::hasCommand()
 {
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() entry point");
 	if( !isConnected() )
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() is not connected");
 		return -1;
 	}
 	
-	pthread_mutex_lock( &instance->mutex_buffer );
 	int returnValue = 0;
-	
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() lock mutex_buffer");
+	pthread_mutex_lock( &instance->mutex_buffer );
 	while( 0 < buffer.size() && buffer.front() == SERIAL_ACK )
+	{
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() popping ACK");
 		buffer.pop_front();
+	}
 	
-	if(buffer.size() < 4)
+	if(buffer.size() < 3)
 	{
 		g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
 		pthread_mutex_unlock( &instance->mutex_buffer );
@@ -273,6 +283,7 @@ int SerialConnection::hasCommand()
 	
 	if( buffer.front() == SERIAL_SOF )
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() front is SOF");
 		std::deque<char>::iterator i = buffer.begin();
 		unsigned int len = *(++i) ;
 		if(buffer.size() >= len + 2) //SOF+LEN+CHECK
@@ -288,14 +299,16 @@ int SerialConnection::hasCommand()
 			{
 				returnValue = 1;
 				char ack = SERIAL_ACK;
+				g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand lock serial mutex");
 				pthread_mutex_lock( &mutex_serial );
-#ifdef DEBUG_EUGEN
-				g_pPlutoLogger->Write(LV_WARNING, "Send ACK");
-#else
+
 				if( serialPort != NULL )
+				{
 					serialPort->Write(&ack, 1);
-#endif
+					g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand wrote ack");
+				}
 				pthread_mutex_unlock( &mutex_serial );
+				g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand lock serial mutex");
 			}
 		}
 	}
@@ -359,14 +372,14 @@ void *SerialConnection::receiveFunction(void *)
 		while( true )
 		{
 			len = sizeof(mybuf) + 1;
-			
+			g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::receiveFunction lock serial mutex");
 			pthread_mutex_lock( &instance->mutex_serial );
 			if( instance != NULL && instance->isConnected() )
 			{
 				len = instance->serialPort->Read(mybuf, sizeof(mybuf));
 			}
 			pthread_mutex_unlock( &instance->mutex_serial );
-			
+			g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::receiveFunction unlock serial mutex");
 			// something wrong or disconnected
 			if(len > sizeof(mybuf))
 				break;
@@ -378,7 +391,7 @@ void *SerialConnection::receiveFunction(void *)
 				{
 					instance->buffer.push_back(mybuf[i]);
 				}
-				SerialConnection::printDataBuffer(mybuf, len, "Thread Read");
+				//SerialConnection::printDataBuffer(mybuf, len, "Thread Read");
 				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
 			
@@ -401,7 +414,7 @@ void SerialConnection::printDataBuffer(const char *buffer, const size_t length, 
 	memset(log_buf, 0, sizeof(log_buf));
 	for(unsigned int ww = 0; ww < length && ww < sizeof(log_buf); ww++)
 		sprintf(&(log_buf[ww*5]), "0x%02x ", buffer[ww]);
-	g_pPlutoLogger->Write(LV_DEBUG, "%s %s", classID, log_buf);
+	g_pPlutoLogger->Write(LV_DEBUG, "%s len = %d buf = %s", classID, length, log_buf);
 }
 
 SerialConnection::~SerialConnection()
