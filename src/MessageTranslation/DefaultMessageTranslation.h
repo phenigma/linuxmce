@@ -30,9 +30,9 @@ protected:
 	virtual bool Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls);
 
 protected:
-
-private:
 	std::map<int,int> map_PowerDelay;
+private:
+
 };
 
 /*****************************************************************

@@ -41,6 +41,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	int TogglePower = 0;
 	int ToggleInput = 0;
 	int DigitDelay = 0;
+	int IR_PowerDelay = 0;
 	string sNumDigits;
 	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
 	int retransmit = 0;
@@ -84,6 +85,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		ToggleInput = map_ToggleInput[devtemplid];
 		DigitDelay = map_DigitDelay[devtemplid];
 		sNumDigits = map_NumericEntry[devtemplid];
+		IR_PowerDelay=map_PowerDelay[devtemplid];		
 	}
 	if (input_commands_.empty())
 	{
@@ -134,7 +136,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		{
 			MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0));
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0),1,0,IR_PowerDelay);
 			outrepls.push_back(msgrepl);
 			if(!retransmit)
 			{
@@ -154,7 +156,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		
 		MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0));
+								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0),1,0,IR_PowerDelay);
 		outrepls.push_back(msgrepl);
 		if(!retransmit)
 		{

@@ -201,13 +201,18 @@ MessageTranslationManager::_QueueProc() {
 			msgqueue_.erase(it);
 			msgqueue_.unlock();
 			sleep_delay = replmsg.getPreDelay();
+			if(sleep_delay)
+				Sleep(sleep_delay);			
 			assert(pdispatcher_);
 			if(pdispatcher_) {
 				pdispatcher_->DispatchMessage(replmsg);
 			}
+			sleep_delay = replmsg.getPostDelay();			
+			if(sleep_delay)
+				Sleep(sleep_delay);			
 		} else {
 			msgqueue_.unlock();
-			usleep((sleep_delay>0?sleep_delay:POOL_IDLE_SLEEP )* 1000);
+			usleep(POOL_IDLE_SLEEP* 1000);
 		}
 	}
 	handleStop();
