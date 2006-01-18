@@ -31,8 +31,6 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-DCEConfig dceConfig;
-
 namespace DCE
 {
 	Logger *g_pPlutoLogger;
