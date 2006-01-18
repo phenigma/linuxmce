@@ -1,6 +1,7 @@
 #include "ZWJobGetInitData.h"
 #include "PlutoZWSerialAPI.h"
 #include "ZW_SerialAPI.h"
+#include "SerialConnection.h"
 
 //this number is hard coded into docs, so I will use it as it is
 #define MAGIC_LEN 29 
@@ -27,6 +28,8 @@ bool ZWJobGetInitData::run()
 /** It is called to process the protocol data flow.*/
 bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobGetInitData");
+
 	switch(state())
 	{
 		default:

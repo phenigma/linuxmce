@@ -61,7 +61,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~4" );
 
 bool ZWJobSwitchChangeLevel::processData(const char * buffer, size_t length)
 {
-	SerialConnection::printDataBuffer(buffer, length);
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobSwitchChangeLevel");
 	switch(state())
 	{
 		default:

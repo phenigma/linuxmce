@@ -15,6 +15,7 @@
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
 #include "ZW_classcmd.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -62,6 +63,8 @@ ZWJobSetLearnNodeState::~ZWJobSetLearnNodeState()
 
 bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobSetLearnNodeState");
+
 	switch( state() )
 	{
 		default :

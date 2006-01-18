@@ -9,6 +9,7 @@
 #include "ZWJobGetInitData.h"
 #include "ZWJobGetSUC.h"
 #include "ZWJobGetNodeProtocolInfo.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 
@@ -85,6 +86,8 @@ bool ZWJobInitialize::run()
 
 bool ZWJobInitialize::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobInitialize");
+
 	if( ZWaveJob::RUNNING != state() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job state.");

@@ -2,6 +2,7 @@
 #include "ZW_SerialAPI.h"
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -64,6 +65,8 @@ bool ZWJobGetNodeProtocolInfo::run()
 
 bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobGetNodeProtocolInfo");
+
 	switch( state() )
 	{
 		default :

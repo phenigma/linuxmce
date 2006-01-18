@@ -57,7 +57,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
 
 bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 {
-	SerialConnection::printDataBuffer(buffer, length);
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobSwitchBinaryGet");
 g_pPlutoLogger->Write(LV_DEBUG, "*******************5" );
 	switch(state())
 	{

@@ -2,6 +2,7 @@
 #include "PlutoZWSerialAPI.h"
 #include "ZW_SerialAPI.h"
 #include "main.h"
+#include "SerialConnection.h"
 
 #include <string>
 
@@ -26,6 +27,8 @@ bool ZWJobGetVersion::run()
 
 bool ZWJobGetVersion::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobGetVersion");
+
 	switch(state())
 	{
 		default:

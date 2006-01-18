@@ -4,6 +4,7 @@
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
 #include "ZW_classcmd.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -70,6 +71,8 @@ bool ZWJobReset::run()
 
 bool ZWJobReset::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobReset");
+
 	switch( state() )
 	{
 		default :

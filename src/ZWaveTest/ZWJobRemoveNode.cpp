@@ -17,6 +17,7 @@
 
 #include "ZWJobSetLearnNodeState.h"
 #include "ZWJobGetNodeProtocolInfo.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -72,6 +73,8 @@ ZWJobRemoveNode::~ZWJobRemoveNode()
 
 bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobRemoveNode");
+
 	if( ZWaveJob::RUNNING != state() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: wrong job state.");

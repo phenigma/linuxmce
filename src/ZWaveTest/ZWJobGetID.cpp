@@ -3,6 +3,7 @@
 #include "ZW_SerialAPI.h"
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -64,6 +65,7 @@ bool ZWJobGetID::run()
 
 bool ZWJobGetID::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobGetID");
 	switch( state() )
 	{
 		default :

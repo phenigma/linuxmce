@@ -6,6 +6,7 @@
 // jobs
 #include "ZWJobSwitchBinaryGet.h"
 #include "ZWJobSwitchChangeLevel.h"
+#include "SerialConnection.h"
 
 #include <stdio.h>
 
@@ -92,6 +93,8 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============8" );
 
 bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 {
+	SerialConnection::printDataBuffer(buffer, length, "ZWJobLightLevel");
+
 g_pPlutoLogger->Write(LV_DEBUG, "==============9" );
 	if( ZWaveJob::RUNNING != state() )
 	{
