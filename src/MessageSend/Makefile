@@ -33,7 +33,7 @@ sources = $(addprefix $(SerClsPfx),$(SerClsSrc)) $(addprefix $(DCEPfx),$(DCESrc)
 CPPFLAGS = $(BaseCPP) $(SerClsCPP) $(DCECPP) $(PUCPP)
 
 all: MessageSend 
-	cp $+ $(ROOT)bin
+	cp $+ $(ROOT)/bin
 
 MessageSend: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
