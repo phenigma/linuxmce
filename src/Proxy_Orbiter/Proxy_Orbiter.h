@@ -17,6 +17,11 @@ namespace DCE
 {
 	class xxProxy_Orbiter : public OrbiterSDL, public SocketListener
 	{
+
+		bool IsProcessingRequest();
+		void StartProcessingRequest();
+		void EndProcessingRequest();
+		
 		int	  m_iListenPort;
 		int   m_ImageQuality;
 		int	  m_iImageCounter;  // We will increment this each time we have a new image so we can keep track of whether a connected device has the lateest
@@ -44,6 +49,8 @@ namespace DCE
 		xxProxy_Orbiter(int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
 		virtual ~xxProxy_Orbiter();
+
+		void StopProcessingRequest();
 
 		// Public virtual methods
 		virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);

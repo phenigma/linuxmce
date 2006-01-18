@@ -160,6 +160,14 @@ void xxProxy_Orbiter::RedrawObjects()
 	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&xxProxy_Orbiter::RealRedraw, NULL, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
+void *EndProcessing(void *p)
+{
+	xxProxy_Orbiter *pProxy = (xxProxy_Orbiter *)p;
+	pProxy->StopProcessingRequest();
+
+	return NULL;
+}
+//-----------------------------------------------------------------------------------------------------
 string xxProxy_Orbiter::GetDevicePngFileName()
 {
 	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_IMAGE;
@@ -198,7 +206,7 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
         m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     pthread_cond_broadcast(&m_ActionCond);
 
-	if(!m_bProcessingRequest && m_iListenPort >= 3451 && m_iListenPort <= 3460) //only cisco orbiters
+	if(!IsProcessingRequest() && m_iListenPort >= 3451 && m_iListenPort <= 3460) //only cisco orbiters
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
@@ -217,6 +225,30 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
 		g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
 		g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool xxProxy_Orbiter::IsProcessingRequest()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Is processing request? R: %s", m_bProcessingRequest ? "YES" : "NO");
+	return m_bProcessingRequest;
+}
+//-----------------------------------------------------------------------------------------------------
+void xxProxy_Orbiter::StartProcessingRequest()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Starting processing request...");
+	m_bProcessingRequest = true;
+}
+//-----------------------------------------------------------------------------------------------------
+void xxProxy_Orbiter::EndProcessingRequest()
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in 500 ms...");
+	CallMaintenanceInMiliseconds( 500, (OrbiterCallBack)&xxProxy_Orbiter::StopProcessingRequest, this, pe_ALL );
+}
+//-----------------------------------------------------------------------------------------------------
+void xxProxy_Orbiter::StopProcessingRequest()
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Stopped processing request...");
+	m_bProcessingRequest = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
@@ -431,9 +463,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
     g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
 
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
-
-	m_bProcessingRequest = true;
-
+	//ProcessRequest processRequest(this);
+	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
         if(m_iLastImageSent == m_iImageCounter)
@@ -446,7 +477,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
             {
                 g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
                 pSocket->SendString("ERROR"); // Shouldn't happen
-				m_bProcessingRequest = false;
                 return true;
             }
 
@@ -457,7 +487,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 
             m_iLastImageSent = m_iImageCounter;
         }
-		m_bProcessingRequest = false;
 		return true;
 	}
     else if( sLine.substr(0,3)=="XML" )
@@ -468,7 +497,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
         {
             g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
             pSocket->SendString("ERROR"); // Shouldn't happen
-			m_bProcessingRequest = false;
             return true;
         }
 
@@ -476,7 +504,9 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
         pSocket->SendString("XML " + StringUtils::itos(size));
         pSocket->SendData(size,pBuffer);
         delete[] pBuffer;
-		m_bProcessingRequest = false;
+
+		EndProcessingRequest();
+		
         return true;
     }
 	else if( sLine.substr(0,9)=="PLUTO_KEY" && sLine.size()>10 )
@@ -486,6 +516,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		{
             if(BUTTON_F4_CONST != Key)
             {
+				StartProcessingRequest();
+				
 			    ButtonDown(Key);
 			    ButtonUp(Key);
 
@@ -508,11 +540,12 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
             g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");        
 			pSocket->SendString("ERROR"); // Shouldn't happen
         }
-		m_bProcessingRequest = false;
 		return true;
 	}
 	else if( sLine.substr(0,5)=="TOUCH" && sLine.size()>6 )
 	{
+		StartProcessingRequest();
+		
 		int X = atoi(sLine.substr(6).c_str()),Y = 0;
 		string::size_type pos_y = sLine.find('x');
 		if( pos_y!=string::npos )
@@ -527,10 +560,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 
         g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
-		m_bProcessingRequest = false;
 		return true;
 	}
-	m_bProcessingRequest = false;
 	return false;
 }
 
