@@ -5689,8 +5689,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
     if(  pScreenHistory  )
 	{
 		// If we stored variables, be sure to restore them
-		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
-			CMD_Set_Variable((*it).first, (*it).second);
+		//for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
+		//	CMD_Set_Variable((*it).first, (*it).second);
 
 		vm.Release();
 
