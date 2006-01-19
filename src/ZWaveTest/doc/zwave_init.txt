@@ -1,0 +1,271 @@
+______Initialize steps used by ThinkControl______
+
+Z-Wave protocol
+
+First command: /** Get the controler's Z-Wave API version.*/
+
+01 03 00 15 E9
+
+01 = SOF (Start Of Frame)
+03 = 3 bytes length for this frame
+00 = request
+15 = FUNC_ID_ZW_GET_VERSION (NODE_TYPE)
+E9 = Checksum(03 00 15)
+
+Answer:
+
+06 01 10 01 15 5A 2D 57 61 76 65 20 31 2E 32 31 00 01 94
+
+06 = ACK
+01 = SOF
+10 = 16 bytes length
+01 = callback
+15 = FUNC_ID_ZW_GET_VERSION
+5A 2D 57 61 76 65 20 31 2E 32 31 00 = Z-Wave 1.21 + '\0' (12 bytes)
+01 = ?
+94 = Checksum(10 01 ... 00 01)
+
+_______________________________________________________________
+
+Second command: /** Get the controler's Z-Wave_ID (HOME_ID and NODE_ID)*/
+
+06 01 03 00 20 DC
+
+06 = ACK
+01 = SOF
+03 = 3 bytes length
+00 = request
+20 = FUNC_ID_MEMORY_GET_ID (get the controler Z-Wave-ID = HOME_ID + NODE_ID)
+DC = Checksum(03 00 20)
+
+Answer:
+
+06 01 08 01 20 00 7A 47 C4 1A 35
+06 = ACK
+01 = SOF
+08 = 8 bytes length
+01 = callback
+20 = FUNC_ID_MEMORY_GET_ID
+00 7A 47 C4 = HOME_ID (4 bytes)
+1A = 26 (NODE_ID 1-233)
+35 = Checksum
+
+________________________________________________________________
+
+Third command: /** Get the controler's capabilities.*/
+
+06 01 03 00 02 FE
+06 = ACK
+01 = SOF
+03 = 3 bytes length
+00 = request
+02 = FUNC_ID_SERIAL_API_GET_INIT_DATA
+FE = Checksum
+
+Answer:
+06 01 23 01 02 02 04 1D D7 FF 6F 06 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 85
+
+06 = ACK
+01 = SOF
+23 = 35 bytes length
+01 = callback
+02 = FUNC_ID_SERIAL_API_GET_INIT_DATA
+02 = version
+04 = capabilities (Controler API + No Timer support + Secondary Controler)
+1D = 29 (all the time, length for node bitmask)
+D7 FF 6F 06 00..00 = node bitmask using 29 bytes
+85 = Checksum
+
+NOTES: each bit flags the availability of the NODE_ID
+________________________________________________________________
+
+Fourth command: /** Ask if there is available a SUC.*/
+
+06 01 03 00 56 AA
+
+06 = ACK
+01 = SOF
+03 = 3 bytes length
+00 = request
+56 = FUNC_ID_ZW_GET_SUC_NODE_ID (SUC = Static Unit Controler)
+AA = Checksum
+
+Answer:
+
+06 01 04 01 56 00 AC
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+01 = callback
+56 = FUNC_ID_ZW_GET_SUC_NODE_ID
+00 = No SUC available
+AC = Checksum
+
+NOTES: what's up if there is available a SUC ?
+May be we should try to get the latest configuration from SUC instead of using
+our last configuration. See: 'recv' command.
+
+________________________________________________________________
+
+Fifth command: /** Get the node information for NODE_ID = 1*/
+
+06 01 04 00 41 01 BB
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+00 = request
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+01 = 1 NODE_ID (it can be 1-233)
+BB = Checksum
+
+Answer:
+
+06 01 09 01 41 C9 04 00 03 11 00 69
+
+06 = ACK
+01 = SOF
+09 = 9 bytes length
+01 = callback
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+C9 04 00 03 11 00 = NODE_INFO (node capabilities, node security, node type)
+   * C9 = 11001001 capabilities 
+   	(NODEINFO_LISTENING_SUPPORT + NODEINFO_ROUTING_SUPPORT + ?)
+   * 04 = security ()
+   * 00 = reserved
+   * 03 11 00 = NODE_TYPE (basic, generic, specific)
+   	(ZW_LIB_SLAVE_ENHANCED, GENERIC_TYPE_SWITCH_MULTILEVEL, nothing)
+69 = Checksum
+________________________________________________________________
+
+Sixth command: /** Get the node information for NODE_ID = 2*/
+
+06 01 04 00 41 02 B8
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+00 = request
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+02 = 2 NODE_ID (it can be 1-233)
+B8 = Checksum
+
+Answer:
+
+06 01 09 01 41 C9 04 00 03 11 00 69
+06 = ACK
+01 = SOF
+09 = 9 bytes length
+01 = callback
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+C9 04 00 03 11 00 = NODE_INFO (node capabilities, node security, node type)
+   * C9 = 11001001 capabilities 
+   	(NODEINFO_LISTENING_SUPPORT + NODEINFO_ROUTING_SUPPORT + ?)
+   * 04 = security ()
+   * 00 = reserved
+   * 03 11 00 = NODE_TYPE (basic, generic, specific)
+   	(ZW_LIB_SLAVE_ENHANCED, GENERIC_TYPE_SWITCH_MULTILEVEL, nothing)
+69 = Checksum
+
+________________________________________________________________
+
+........... THE SAME for many NODES ............................
+________________________________________________________________
+
+Seventh command: /** Get the node information for NODE_ID = 21*/
+
+06 01 04 00 41 16 AC
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+00 = request
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+16 = 21 NODE_ID
+AC = Checksum
+
+Answer:
+
+06 01 09 01 41 09 06 00 01 01 00 B9
+
+06 = ACK
+01 = SOF
+09 = 9 bytes length
+01 = callback
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+09 06 00 01 01 00 =
+   * 09 = 11001001 capabilities 
+   	(??)
+   * 06 = security ()
+   * 00 = reserved
+   * 01 01 00 = NODE_TYPE (basic, generic, specific)
+   	(ZW_LIB_CONTROLLER_STATIC, GENERIC_TYPE_GENERIC_CONTROLLER, nothing)
+B9 = Checksum
+
+________________________________________________________________
+
+Eighth command: /** Get the node information for NODE_ID = 26*/
+
+06 01 04 00 41 1A A0
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+00 = request
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+1A = 26 NODE_ID
+A0 = Checksum
+
+Answer:
+
+06 01 09 01 41 89 06 00 02 02 00 39
+
+06 = ACK
+01 = SOF
+09 = 9 bytes length
+01 = callback
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+89 06 00 02 02 00 =
+   * 89 = 11001001 capabilities 
+   	(NODEINFO_LISTENING_SUPPORT + 9 ??)
+   * 06 = security ()
+   * 00 = reserved
+   * 02 02 00 = NODE_TYPE (basic, generic, specific)
+   	(ZW_LIB_CONTROLLER, GENERIC_TYPE_STATIC_CONTROLLER, nothing)
+39 = Checksum
+
+________________________________________________________________
+
+Nineth command: /** Get the node information for NODE_ID = 27*/
+
+06 01 04 00 41 1B A1
+
+06 = ACK
+01 = SOF
+04 = 4 bytes length
+00 = request
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+1B = 27 NODE_ID
+A1 = Checksum
+
+Answer:
+
+06 01 09 01 41 C9 04 00 03 10 00 68
+
+06 = ACK
+01 = SOF
+09 = 9 bytes length
+01 = callback
+41 = FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO
+C9 04 00 03 10 00 =
+   * C9 = 11001001 capabilities 
+   	(NODEINFO_LISTENING_SUPPORT + 9 ??)
+   * 04 = security ()
+   * 00 = reserved
+   * 03 10 00 = NODE_TYPE (basic, generic, specific)
+   	(ZW_LIB_SLAVE_ENHANCED, GENERIC_TYPE_SWITCH_BINARY, nothing)
+68 = Checksum
+________________________________________________________________
+

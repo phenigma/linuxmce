@@ -164,12 +164,11 @@ bool PlutoZWSerialAPI::listen()
 		while( d->connection->isConnected() )
 		{
 			int commandRet = d->connection->hasCommand();
-			if( commandRet == 1)
+			if( commandRet == 1 )
 			{
 				d->commandLength = sizeof(d->command);
 				memset(d->command, 0, d->commandLength);
-				int iReceive = d->connection->receiveCommand(d->command, &d->commandLength);
-				if( iReceive == 0 && d->commandLength > 0 )
+				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
 				{
 					if( d->currentJob != NULL )
 					{

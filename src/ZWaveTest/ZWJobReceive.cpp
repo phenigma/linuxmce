@@ -1,5 +1,6 @@
 #include "ZWJobReceive.h"
 #include "ZW_SerialAPI.h"
+#include "ZW_classcmd.h"
 #include "PlutoZWSerialAPI.h"
 #include "main.h"
 #include "SerialConnection.h"
@@ -52,7 +53,7 @@ bool ZWJobReceive::run()
 	
 	// ZWave implementation is doing this
 	// but ThinkControl not
-	// What to do ?
+	// What to do ? To send 00 03 01 02 01 01 21 ?
 #if 0
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_SERIAL_API_APPL_NODE_INFORMATION;
@@ -92,13 +93,16 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 			
 		case ZWaveJob::RUNNING :
 			if( length >= 6 && 
-				buffer[0] == RESPONSE &&
+				buffer[0] == REQUEST &&
 				buffer[1] == FUNC_ID_ZW_NEW_CONTROLLER &&
 				buffer[2] == 1 )
 			{
 				if( ZWJobReceive::STOP == d->state )
 				{
 					setState( ZWaveJob::STOPPED );
+					
+					// TODO : well, it's stopped but was it a good receiving ?? yes/not
+					
 					// TODO as in ZWave sources dec_ctrl.c
 					// check if the sender controller is SUC
 					// if it is, then set it as your SUC
@@ -139,6 +143,23 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				}
 				
 				return true;
+			}
+			else if( length >= 6 &&
+					 buffer[0] == REQUEST &&
+					 buffer[1] == FUNC_ID_APPLICATION_COMMAND_HANDLER &&
+					 buffer[2] == NEW_CONTROLLER_LEARNED &&
+					 buffer[3] == 239 && // hardcoded in protocol too
+					 buffer[5] == COMMAND_CLASS_CONTROLLER_REPLICATION )
+			{
+				// the receiving it's done, change the controller state
+				// back to normal state (stop == not receiving)
+				char buf[10];
+				buf[0] = REQUEST;
+				buf[1] = FUNC_ID_ZW_REPLICATION_COMMAND_COMPLETE;
+				buf[2] = 0;
+				
+				d->state = ZWJobReceive::STOP;
+				handler()->sendData(buf, 2);
 			}
 			break;
 	}

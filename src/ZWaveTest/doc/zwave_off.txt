@@ -1,0 +1,80 @@
+-------------------------------------------------------------------------------------------------------
+Request: ZW_SendData /*Transmit data buffer to a single ZW-node or all ZW-nodes (broadcast).*/
+
+01 0A 00 13 11 03 26 01 00 05 03 D5
+
+01 = SOF
+0A = Length
+00 = Request
+13 = FUNC_ID_ZW_SEND_DATA
+11 = nodeID (0xFF for broadcast)
+03 = dataLength
+26 = data command class (COMMAND_CLASS_SWITCH_MULTILEVEL)
+01 = data command (SWITCH_MULTILEVEL_SET) 
+00 = data  SWITCHED_OFF (if FF -- SWITCHED_On)
+05 = txOptions 
+/* Transmit frame option flags */
+//#define TRANSMIT_OPTION_ACK         0x01   /* request acknowledge from destination node */
+//#define TRANSMIT_OPTION_LOW_POWER   0x02   /* transmit at low output power level (1/3 of normal RF range)*/
+//#ifdef ZW_SLAVE
+//#define TRANSMIT_OPTION_RETURN_ROUTE  0x04   /* request transmission via return route */
+//#endif
+//#ifdef ZW_CONTROLLER
+//#define TRANSMIT_OPTION_AUTO_ROUTE  0x04   /* request retransmission via repeater nodes */
+//#endif
+
+	TRANSMIT_OPTION_ACK - Request the destination node to return a transfer acknowledge
+            that ensure proper transmission. The transmitting node will retry the transmission
+            if no acknowledge received.
+	TRANSMIT_OPTION_AUTO_ROUTE - The Controller nodes can add this flag to the txOptions.
+            The Controller will then try transmitting the frame via repeater nodes if the direct transmission failed.
+	TRANSMIT_OPTION_RETURN_ROUTE - Routing Slave and Enhanced Slave nodes can add this
+            flag to the txOptions. This flag informs the Enhanced/Routing Slave protocol that
+            the frame to transmit should use the assigned return routes for the concerned
+            nodeID. The node will then try to use one of the return routes assigned,
+            if no routes are valid then the transmit will try direct (no route) to nodeID. If
+            the nodeID = NODE_BROADCAST then the frame will be transmitted to all assigned
+            return route destinations. If nodeID != NODE_BROADCAST then the frame will be
+            transmitted to nodeID using the assigned return routes for nodeID.
+03 = funcID ??
+D5 = checksum
+
+Answer:
+
+06 01 04 01 13 01 E8
+
+06 = ACK
+01 = SOF
+04 = Length (4)
+01 = Immediate response
+13 = FUNC_ID_ZW_SEND_DATA
+01 = return value
+E8 = checksum
+
+-------------------------------------------------------------------------------------------------------
+
+Request:
+
+06
+
+06 = ACK
+
+Answer:
+
+01 05 00 13 03 00 EA
+
+01 = SOF
+05 = Length (5)
+00 = Request
+13 = FUNC_ID_ZW_SEND_DATA
+03 = function ID
+00 = txStatus
+EA = checksum
+
+-------------------------------------------------------------------------------------------------------
+
+Request:
+
+06 
+
+06 = ACK

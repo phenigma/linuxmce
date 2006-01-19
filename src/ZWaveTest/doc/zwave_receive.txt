@@ -1,0 +1,140 @@
+____RECEIVE_COMMAND____
+
+Z-Wave protocol
+
+As described by Zensys serial log.
+
+May be the First command: /** */
+
+01 08 00 03 01 02 01 01 21 D6
+
+01 = SOF (Start Of Frame)
+08 = 8 bytes length for this frame
+00 = request
+03 = FUNC_ID_SERIAL_API_APPL_NODE_INFORMATION
+01 = listening /** not moving */
+02 = node generic type, GENERIC_TYPE_STATIC_CONTROLLER
+01 = node specific type, SPECIFIC_TYPE_PORTABLE_REMOTE_CONTROLLER
+01 = param length
+21 = COMMAND_CLASS_CONTROLLER_REPLICATION
+D6 = Checksum
+
+Answer:
+
+06
+
+06 = ACK
+
+________________________________________________________________
+
+
+/* ZW_NewController parameter */
+#define NEW_CTRL_STATE_SEND           0x01
+#define NEW_CTRL_STATE_RECEIVE        0x02
+#define NEW_CTRL_STATE_STOP_OK        0x03
+#define NEW_CTRL_STATE_STOP_FAIL      0x04
+#define NEW_CTRL_STATE_ABORT          0x05
+#define NEW_CTRL_STATE_CHANGE         0x06
+#define NEW_CTRL_STATE_DELETE         0x07
+#define NEW_CTRL_STATE_MAKE_NEW       0x08
+
+/* ZW_NewController callback status */
+#define NEW_CONTROLLER_FAILED         0x00
+#define NEW_CONTROLLER_DONE           0x01
+#define NEW_CONTROLLER_LEARNED        0x02
+#define NEW_CONTROLLER_CHANGE_DONE    0x03
+#define NEW_CONTROLLER_DELETED        0x04
+#define NEW_CONTROLLER_MAKE_NEW_DONE  0x05
+
+First command: /** */
+
+01 05 00 43 02 01 BA
+
+OR
+
+01 05 00 43 02 02 B9
+
+01 = SOF (Start Of Frame)
+05 = 5 bytes length for this frame
+00 = request
+43 = FUNC_ID_ZW_NEW_CONTROLLER
+02 = NEW_CTRL_STATE_RECEIVE
+	// Receive information from another controller.
+	// This option is always selected on one of the controllers taking part in the replication.
+	// It is the Transmitting controller that decides what kind of replication is carried out.
+01 OR 02 = Callback FunctionID
+BA = Checksum(05 00 43 02 01)
+
+Answer:
+
+06 01 07 00 43 02 02 EF 00 54
+
+OR
+
+06 01 07 00 43 01 02 EF 00 54
+
+06 = ACK
+01 = SOF 
+07 = Length
+00 = Request
+43 = FUNC_ID_ZW_NEW_CONTROLLER
+01 OR 02 = function ID
+02 = NEW_CONTROLLER_LEARNED (Status)
+EF = 239 NodeID ( not a valid node, > 232 )
+00 = 0 Param Length (just nothing more)
+54 = checksum 
+
+________________________________________________________________
+
+
+06
+06 = ACK
+
+Answer:
+
+01 0C 00 04 02 EF 06 21 33 07 01 01 3D 34
+
+06 = ACK is missing because there isn't a command request (see the ACK above) 
+01 = SOF 
+0C = 12 Length
+00 = Request
+04 = FUNC_ID_APPLICATION_COMMAND_HANDLER
+02 = NEW_CONTROLLER_LEARNED
+EF = 239 NodeID ( not a valid node, > 232 )
+06 = Param Length
+21 = COMMAND_CLASS_CONTROLLER_REPLICATION - Param1
+33 = CTRL_REPLICATION_TRANSFER_SCENE - Param2
+07 = First param for CTRL_REPLICATION_TRANSFER_SCENE - Param3
+01 = Scene CTRL_REPLICATION_TRANSFER_SCENE - Param4
+01 = NodeID CTRL_REPLICATION_TRANSFER_SCENE - Param5
+3D = 61 - Level CTRL_REPLICATION_TRANSFER_SCENE - Param6
+34 = checksum
+________________________________________________________________
+
+
+06 01 03 00 44 B8
+
+06 = ACK
+01 = SOF 
+03 = Length
+00 = Request
+44 = FUNC_ID_ZW_REPLICATION_COMMAND_COMPLETE
+B8 = checksum
+
+Answer:
+
+06 01 07 00 43 02 01 EF 00 57
+
+06 = ACK
+01 = SOF 
+07 = 7 Length
+00 = Request
+43 = FUNC_ID_ZW_NEW_CONTROLLER
+01 OR 02 = function ID
+02 = NEW_CONTROLLER_LEARNED (Status)
+EF = 239 NodeID ( not a valid node, > 232 )
+00 = 0 Param Length (just nothing )
+57 = checksum
+________________________________________________________________
+
+INITIALIZE JOB

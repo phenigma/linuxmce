@@ -1,0 +1,49 @@
+___RESET_COMMAND___
+
+Z-Wave protocol
+
+First command: /** */
+
+01 08 00 03 01 02 01 01 21 D6
+
+01 = SOF (Start Of Frame)
+08 = 8 bytes length for this frame
+00 = request
+03 = FUNC_ID_SERIAL_API_APPL_NODE_INFORMATION
+01 = listening /** not moving */
+02 = node generic type, GENERIC_TYPE_STATIC_CONTROLLER
+01 = node specific type, SPECIFIC_TYPE_PORTABLE_REMOTE_CONTROLLER
+01 = param length
+21 = COMMAND_CLASS_CONTROLLER_REPLICATION
+D6 = Checksum
+
+Answer:
+
+06
+
+06 = ACK
+
+________________________________________________________________
+
+Second command: /** Reset to factory default. */
+
+01 04 00 42 01 B8
+
+01 = SOF (Start Of Frame)
+04 = 4 bytes length for this frame
+00 = request
+42 = FUNC_ID_ZW_SET_DEFAULT
+01 = Callback FunctionID
+B8 = Checksum
+
+Answer:
+
+06 01 04 00 42 01 B8
+
+06 = ACK
+01 = SOF 
+04 = Length
+00 = Request
+42 = FUNC_ID_ZW_SET_DEFAULT
+01 = Callback FunctionID
+B8 = checksum 

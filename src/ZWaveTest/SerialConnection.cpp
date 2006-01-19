@@ -164,7 +164,7 @@ int SerialConnection::send(char *b, size_t len)
 	}
 	
 	len += 3;
-	char paddedBuffer[256];
+	char paddedBuffer[512];
 	paddedBuffer[0] = SERIAL_SOF; 
 	paddedBuffer[1] = (char)len - 2;
 	memcpy(&(paddedBuffer[2]), buffer, len - 3);
@@ -190,8 +190,8 @@ int SerialConnection::send(char *b, size_t len)
 			try
 			{
 				len += 3;
-				// 256 should be enough, the length is one byte
-				char paddedBuffer[256];
+				// 256 + 2 should be enough, the length is one byte
+				char paddedBuffer[512];
 				paddedBuffer[0] = SERIAL_SOF; 
 				paddedBuffer[1] = (char)len - 2;
 				memcpy(&(paddedBuffer[2]), b, len - 3);
@@ -267,7 +267,7 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 		{
 #ifdef PLUTO_DEBUG
 			if( i == 0 )
-				g_pPlutoLogger->Write(LV_DEBUG, "receiveCommand::consuma");
+				g_pPlutoLogger->Write(LV_DEBUG, "receiveCommand: eat another command");
 #endif			
 			b[i++] = buffer.front();
 			buffer.pop_front();
@@ -276,7 +276,9 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
 		// CHECKSUM
 		buffer.pop_front();
 		
-		printDataBuffer(b, *len, "SerialConnection consuma");
+#ifdef PLUTO_DEBUG
+		printDataBuffer(b, *len, "SerialConnection : received command");
+#endif			
 	}
 	else
 	{
