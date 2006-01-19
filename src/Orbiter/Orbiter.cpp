@@ -5672,6 +5672,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 			if(pScreenHistory->HistoryEmpty())
 				m_listScreenHistory.pop_back();
 
+			if(!pScreenHistory->m_bCantGoBack)
+				continue;
+
 			//TODO : ask: is this needed ?
 			/*
 			if( m_pScreenHistory_Current && pScreenHistory->m_pObj == m_pScreenHistory_Current->m_pObj 
@@ -5689,8 +5692,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
     if(  pScreenHistory  )
 	{
 		// If we stored variables, be sure to restore them
-		//for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
-		//	CMD_Set_Variable((*it).first, (*it).second);
+		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
+			CMD_Set_Variable((*it).first, (*it).second);
 
 		vm.Release();
 
