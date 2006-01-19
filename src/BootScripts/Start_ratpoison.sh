@@ -1,4 +1,5 @@
 #!/bin/bash
+exit
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 

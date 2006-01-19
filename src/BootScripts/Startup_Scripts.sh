@@ -14,7 +14,7 @@ setterm -blank >/dev/console             # disable console blanking
 chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
 /usr/pluto/bin/Report_Machine_Status.sh
 rm /var/log/pluto/running.pids
-rm -rf /tmp/*                            # I doubt that this is safe to do here (mee too :)
+echo /tmp/* | xargs -n 100 rm -rf        # I doubt that this is safe to do here (mee too :)
 chmod 777 /var/log/pluto
 rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
 mkdir -p /usr/pluto/locks                # clean up locks
