@@ -1,4 +1,4 @@
-bootsplash (3.1-1) unstable; urgency=low
+bootsplash (3.1-2) unstable; urgency=low
 
   * Initial Release.
   * Ajusted the Makefile to install the binaries in the desired location
