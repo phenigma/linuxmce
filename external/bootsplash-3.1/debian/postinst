@@ -120,24 +120,6 @@ if [ -f /boot/grub/menu.lst ] ;then
 
 fi
 
-# This is i damn hack so we can have the progressbar working. Replacement of
-# of /etc/init.d/rc and /etc/init.d/rcS is wrong since if the sysvinit package 
-# is upgraded, out changes will be lost :( . Any solution here ?
-if [ ! -e /etc/init.d/.rc.boosplash-save ] ;then
-    cp /etc/init.d/rc  /etc/init.d/.rc.boosplash-save
-    
-fi
-if [ ! -e /etc/init.d/.rcS.boosplash-save ] ;then
-    cp /etc/init.d/rcS /etc/init.d/.rcS.bootsplash-save
-fi
-
-if [ -f /tmp/.rc.bootsplash-replacement ] ;then
-    cp /tmp/.rc.bootsplash-replacement /etc/init.d/rc
-fi
-if [ -f /tmp/.rcS.bootsplash-replacement ] ;then
-    cp /tmp/.rcS.bootsplash-replacement /etc/init.d/rcS || true
-fi
-
 db_stop
 
 # dh_installdeb will replace this with shell code automatically
