@@ -749,9 +749,11 @@ void gc100::Start_seriald()
 			string sDevName(string("ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_" + StringUtils::ltos(global_slot - 1));
 			string sDevice(string("/dev/") + sDevName);
 
+#ifndef WIN32
 			symlink("/dev/null", sDevice.c_str());	// make sure the link exists, to avoid race condition
 													// when gc100-serial-bridge is delayed, for UpdatedAvailableSerialPorts to work
 													// and also avoid introducing a busy loop like the one currently commented out below
+#endif
 
 //			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
