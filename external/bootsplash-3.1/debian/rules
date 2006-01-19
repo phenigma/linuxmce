@@ -68,8 +68,6 @@ install: build
 	# Add here commands to install the package into debian/bootsplash.
 	$(MAKE) -C Utilities install DESTDIR=$(CURDIR)/debian/bootsplash
 	$(INSTALL_NOSTRIP) Scripts/splash.sh Scripts/bootanim "$(CURDIR)/debian/bootsplash/sbin/"
-	$(INSTALL_NOSTRIP) debian/rc-replacement "$(CURDIR)/debian/bootsplash/tmp/.rc.bootsplash-replacement"
-	$(INSTALL_NOSTRIP) debian/rcS-replacement "$(CURDIR)/debian/bootsplash/tmp/.rcS.bootsplash-replacement"
 
 
 # Build architecture-independent files here.
