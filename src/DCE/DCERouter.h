@@ -373,6 +373,8 @@ namespace DCE
 #ifdef LL_DEBUG_FILE
 		void ShowSockets();
 #endif
+
+		bool IsPlugin(int iPK_Device);
         // Public
         void Die(const char *Why);
         void CrashWithinPlugin(int iPK_Device)

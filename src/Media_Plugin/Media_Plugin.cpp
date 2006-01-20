@@ -5134,7 +5134,7 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
-		/** @param #160 URL */
+		/** @param #193 URL */
 			/** The URL for the picture */
 
 void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)

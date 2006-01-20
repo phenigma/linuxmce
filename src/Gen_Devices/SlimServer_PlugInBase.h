@@ -13,7 +13,7 @@ namespace DCE
 class SlimServer_PlugIn_Event : public Event_Impl
 {
 public:
-	SlimServer_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1695, ServerAddress, bConnectEventHandler) {};
+	SlimServer_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1695, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	SlimServer_PlugIn_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -29,7 +29,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1695; } ;
 	virtual const char *GetDeviceDescription() { return "SlimServer_PlugIn"; } ;
-	int Get_Priority() { return atoi(m_mapParameters[85].c_str());}
+	int Get_Priority() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,85).c_str()); else return atoi(m_mapParameters[85].c_str());}
 };
 
 
@@ -45,7 +45,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new SlimServer_PlugIn_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -96,6 +95,11 @@ public:
 		m_pData = new SlimServer_PlugIn_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

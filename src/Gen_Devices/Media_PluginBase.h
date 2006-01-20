@@ -13,7 +13,7 @@ namespace DCE
 class Media_Plugin_Event : public Event_Impl
 {
 public:
-	Media_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,2, ServerAddress, bConnectEventHandler) {};
+	Media_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,2, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	Media_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -49,7 +49,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 2; } ;
 	virtual const char *GetDeviceDescription() { return "Media_Plugin"; } ;
-	string Get_Type() { return m_mapParameters[47];}
+	string Get_Type() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,47); else return m_mapParameters[47];}
 };
 
 
@@ -115,6 +115,11 @@ public:
 		m_pData = new Media_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

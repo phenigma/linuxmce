@@ -2194,16 +2194,16 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 			/** you can give the message a name, such as "status", "error", etc */
 		/** @param #102 Time */
 			/** Number of seconds to display the message for */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
 	//TODO: remove me
 
 	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
-	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,iTime,true);
+	DisplayMessageOnOrbiter(sList_PK_Device,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->
@@ -2214,10 +2214,10 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 			/** The message to display */
 		/** @param #39 Options */
 			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** A comma delimited list of orbiters, or all orbiters if empty */
 
-void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c686-e->
 {
 	//TODO: removed me
@@ -2232,7 +2232,7 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
     while(vectOptions.size() < 8)
         vectOptions.push_back("");
 
-    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, true,
+    DisplayMessageOnOrbiter(sList_PK_Device, sText, false, 0, true,
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }

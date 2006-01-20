@@ -360,13 +360,13 @@ public:
 	/** Set which devices are related to which */
 		/** @param #2 PK_Device */
 			/** The device */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** The devices it relates to */
-		/** @param #204 Reverse */
+		/** @param #205 Reverse */
 			/** If true, the device list are the source devices and the PK_Device is the relation */
 
-	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,bool bReverse) { string sCMD_Result; CMD_Set_Device_Relations(iPK_Device,ssPK_Device_List.c_str(),bReverse,sCMD_Result,NULL);};
-	virtual void CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,bool bReverse,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Device_Relations(int iPK_Device,string sList_PK_Device,bool bReverse) { string sCMD_Result; CMD_Set_Device_Relations(iPK_Device,sList_PK_Device.c_str(),bReverse,sCMD_Result,NULL);};
+	virtual void CMD_Set_Device_Relations(int iPK_Device,string sList_PK_Device,bool bReverse,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

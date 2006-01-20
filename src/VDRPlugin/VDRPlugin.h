@@ -139,6 +139,16 @@ public:
 	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #764 - Set Active Menu */
+	/** Indicate which menu is active, options are:
+live, nonlive, osd */
+		/** @param #9 Text */
+			/** The menu currently active */
+
+	virtual void CMD_Set_Active_Menu(string sText) { string sCMD_Result; CMD_Set_Active_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

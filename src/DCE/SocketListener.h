@@ -173,6 +173,11 @@ namespace DCE
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate ) { return true; }  // Something else needs to implement this }
 
 		/**
+		* @brief Returns 0 if the device doesn't exist, 1 if it does but isn't of the device template, 2 if it's a good match, 3 if it's a new device and the router needs to be reloaded
+		*/
+		virtual bool IsPlugin(int iPK_Device) { return false; }  //should be overriden in the derived class
+
+		/**
 		 * @brief Close any open sockets
 		 */
 		void DropAllSockets();

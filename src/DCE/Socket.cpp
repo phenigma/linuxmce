@@ -1215,3 +1215,12 @@ void Socket::Close()
 	}
 	m_Socket = INVALID_SOCKET;
 }
+
+void Socket::SetReceiveTimeout( int TimeoutSeconds ) 
+{
+	m_iReceiveTimeout = TimeoutSeconds;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
+#endif
+};

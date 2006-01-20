@@ -292,6 +292,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	else
 		Name = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
+	bool bIsPlugin = p_Row_DeviceTemplate->IsPlugIn_get();
 	DeviceInfo deviceInfo(p_Row_DeviceTemplate);
 
 	// First build some CommandInfo instances that list all our commmands
@@ -339,7 +340,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "class "  << Name <<  "_Event : public Event_Impl" << endl;
 	fstr_DeviceCommand << "{" << endl;
 	fstr_DeviceCommand << "public:" << endl;
-	fstr_DeviceCommand << "\t" << Name << "_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID," << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ", ServerAddress, bConnectEventHandler) {};" << endl;
+	fstr_DeviceCommand << "\t" << Name << "_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID," << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ", ServerAddress, bConnectEventHandler, " << (bIsPlugin ? "SOCKET_TIMEOUT_PLUGIN" : "SOCKET_TIMEOUT") << ") {};" << endl;
 	fstr_DeviceCommand << "\t" << Name << "_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};" << endl;
 
 	fstr_DeviceCommand << "\t//Events" << endl;

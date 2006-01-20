@@ -22,9 +22,9 @@
 
 using namespace DCE;
 
-void DummySignalHandler(int) {
-g_pPlutoLogger->Write(LV_CRITICAL, "Need to cancel bd comm");
-}
+//void DummySignalHandler(int) {
+//g_pPlutoLogger->Write(LV_CRITICAL, "Need to cancel bd comm");
+//}
 
 BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sMacAddressPhone,string sMacAddressDongle,class PhoneDevice *pDevice)
 : BDCommandProcessor(sMacAddressPhone)
@@ -102,8 +102,8 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 	if (m_CommHandle)
 	{
 		m_bQuit = true;
-		signal(SIGUSR1, DummySignalHandler);
-		raise(SIGUSR1);
+		//signal(SIGUSR1, DummySignalHandler);
+		//raise(SIGUSR1);
 		
 		time_t start = time(NULL);
         	g_pPlutoLogger->Write(LV_WARNING, "Waiting any operation with the socket to finish...");

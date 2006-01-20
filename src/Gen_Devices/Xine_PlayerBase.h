@@ -13,7 +13,7 @@ namespace DCE
 class Xine_Player_Event : public Event_Impl
 {
 public:
-	Xine_Player_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,5, ServerAddress, bConnectEventHandler) {};
+	Xine_Player_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,5, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
 	Xine_Player_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -44,15 +44,15 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 5; } ;
 	virtual const char *GetDeviceDescription() { return "Xine_Player"; } ;
-	string Get_Output_Speaker_arrangement() { return m_mapParameters[71];}
-	string Get_Alsa_Output_Device() { return m_mapParameters[74];}
-	string Get_Subtitles() { return m_mapParameters[92];}
+	string Get_Output_Speaker_arrangement() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,71); else return m_mapParameters[71];}
+	string Get_Alsa_Output_Device() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,74); else return m_mapParameters[74];}
+	string Get_Subtitles() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,92); else return m_mapParameters[92];}
 	void Set_Subtitles(string Value) { SetParm(92,Value.c_str()); }
-	string Get_Audio_Tracks() { return m_mapParameters[93];}
+	string Get_Audio_Tracks() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,93); else return m_mapParameters[93];}
 	void Set_Audio_Tracks(string Value) { SetParm(93,Value.c_str()); }
-	string Get_Angles() { return m_mapParameters[94];}
+	string Get_Angles() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,94); else return m_mapParameters[94];}
 	void Set_Angles(string Value) { SetParm(94,Value.c_str()); }
-	int Get_Time_Code_Report_Frequency() { return atoi(m_mapParameters[113].c_str());}
+	int Get_Time_Code_Report_Frequency() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,113).c_str()); else return atoi(m_mapParameters[113].c_str());}
 };
 
 
@@ -68,7 +68,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Xine_Player_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -119,6 +118,11 @@ public:
 		m_pData = new Xine_Player_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -157,6 +161,7 @@ public:
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
 	void EVENT_Playback_Completed(int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(iStream_ID,bWith_Errors); }
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
@@ -172,7 +177,7 @@ public:
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Pause(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Stop(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Stop(bool bEject,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -210,6 +215,33 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
+				case 28:
+					{
+						string sCMD_Result="OK";
+					string sPK_Button=pMessage->m_mapParameters[26];
+					string sName=pMessage->m_mapParameters[50];
+						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case 29:
 					{
 						string sCMD_Result="OK";
@@ -617,7 +649,8 @@ public:
 				case 95:
 					{
 						string sCMD_Result="OK";
-						CMD_Stop(sCMD_Result,pMessage);
+					bool bEject=(pMessage->m_mapParameters[203]=="1" ? true : false);
+						CMD_Stop(bEject,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -634,7 +667,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Stop(sCMD_Result,pMessage);
+								CMD_Stop(bEject,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

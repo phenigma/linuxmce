@@ -2792,3 +2792,7 @@ void Router::ShowSockets()
 }
 #endif
 
+bool Router::IsPlugin(int iPK_Device)
+{
+	return NULL != m_mapPlugIn_Find(iPK_Device);
+}

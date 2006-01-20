@@ -2266,26 +2266,26 @@ void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRo
 	/** Set which devices are related to which */
 		/** @param #2 PK_Device */
 			/** The device */
-		/** @param #103 sPK_Device_List */
+		/** @param #103 List PK Device */
 			/** The devices it relates to */
-		/** @param #204 Reverse */
+		/** @param #205 Reverse */
 			/** If true, the device list are the source devices and the PK_Device is the relation */
 
-void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string ssPK_Device_List,bool bReverse,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string sList_PK_Device,bool bReverse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c765-e->
 {
 	string::size_type pos=0;
-	while(pos<ssPK_Device_List.size())
+	while(pos<sList_PK_Device.size())
 	{
 		int PK_Device,PK_Device_Related;
 		if( bReverse )
 		{
-			PK_Device = atoi(StringUtils::Tokenize(ssPK_Device_List,"|",pos).c_str());
+			PK_Device = atoi(StringUtils::Tokenize(sList_PK_Device,"|",pos).c_str());
 			PK_Device_Related = iPK_Device;
 		}
 		else
 		{
-			PK_Device_Related = atoi(StringUtils::Tokenize(ssPK_Device_List,"|",pos).c_str());
+			PK_Device_Related = atoi(StringUtils::Tokenize(sList_PK_Device,"|",pos).c_str());
 			PK_Device = iPK_Device;
 		}
 		if( !PK_Device || !PK_Device_Related )

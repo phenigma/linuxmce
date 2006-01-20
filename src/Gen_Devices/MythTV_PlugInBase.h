@@ -13,7 +13,7 @@ namespace DCE
 class MythTV_PlugIn_Event : public Event_Impl
 {
 public:
-	MythTV_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,36, ServerAddress, bConnectEventHandler) {};
+	MythTV_PlugIn_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,36, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	MythTV_PlugIn_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );

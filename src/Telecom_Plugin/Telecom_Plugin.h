@@ -186,6 +186,7 @@ public:
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers) { string sCMD_Result; CMD_PL_Add_VOIP_Account(sName.c_str(),sPhoneNumber.c_str(),sPassword.c_str(),sUsers.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 
 private:

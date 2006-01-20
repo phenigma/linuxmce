@@ -389,6 +389,8 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
         Sleep(500);
     }
 
+	//TODO : pthread_join scanning loop thread
+
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_BTMutex.mutex);
     pthread_mutex_destroy(&m_ScreenMutex.mutex);

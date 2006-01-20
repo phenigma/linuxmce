@@ -13,7 +13,7 @@ namespace DCE
 class Event_Plugin_Event : public Event_Impl
 {
 public:
-	Event_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,52, ServerAddress, bConnectEventHandler) {};
+	Event_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,52, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	Event_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -39,9 +39,9 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 52; } ;
 	virtual const char *GetDeviceDescription() { return "Event_Plugin"; } ;
-	int Get_PK_City() { return atoi(m_mapParameters[107].c_str());}
-	double Get_Longitude() { return atof(m_mapParameters[108].c_str());}
-	double Get_Latitude() { return atof(m_mapParameters[109].c_str());}
+	int Get_PK_City() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,107).c_str()); else return atoi(m_mapParameters[107].c_str());}
+	double Get_Longitude() { if( m_bRunningWithoutDeviceData )  return atof(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,108).c_str()); else return atof(m_mapParameters[108].c_str());}
+	double Get_Latitude() { if( m_bRunningWithoutDeviceData )  return atof(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,109).c_str()); else return atof(m_mapParameters[109].c_str());}
 };
 
 
@@ -57,7 +57,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Event_Plugin_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -108,6 +107,11 @@ public:
 		m_pData = new Event_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

@@ -13,7 +13,7 @@ namespace DCE
 class Security_Plugin_Event : public Event_Impl
 {
 public:
-	Security_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,33, ServerAddress, bConnectEventHandler) {};
+	Security_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,33, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	Security_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -64,14 +64,14 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 33; } ;
 	virtual const char *GetDeviceDescription() { return "Security_Plugin"; } ;
-	string Get_Path() { return m_mapParameters[2];}
-	string Get_Mobile_Orbiter_Notification() { return m_mapParameters[34];}
-	string Get_Other_Phone_Notifications() { return m_mapParameters[35];}
-	string Get_Neighbors_to_Call() { return m_mapParameters[36];}
-	int Get_PK_HouseMode() { return atoi(m_mapParameters[38].c_str());}
+	string Get_Path() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,2); else return m_mapParameters[2];}
+	string Get_Mobile_Orbiter_Notification() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,34); else return m_mapParameters[34];}
+	string Get_Other_Phone_Notifications() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,35); else return m_mapParameters[35];}
+	string Get_Neighbors_to_Call() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,36); else return m_mapParameters[36];}
+	int Get_PK_HouseMode() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,38).c_str()); else return atoi(m_mapParameters[38].c_str());}
 	void Set_PK_HouseMode(int Value) { SetParm(38,StringUtils::itos(Value).c_str()); }
-	string Get_PK_Device() { return m_mapParameters[77];}
-	string Get_Emergency_Calls() { return m_mapParameters[96];}
+	string Get_PK_Device() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,77); else return m_mapParameters[77];}
+	string Get_Emergency_Calls() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,96); else return m_mapParameters[96];}
 };
 
 
@@ -87,7 +87,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Security_Plugin_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -138,6 +137,11 @@ public:
 		m_pData = new Security_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

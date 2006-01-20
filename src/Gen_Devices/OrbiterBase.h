@@ -13,7 +13,7 @@ namespace DCE
 class Orbiter_Event : public Event_Impl
 {
 public:
-	Orbiter_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,8, ServerAddress, bConnectEventHandler) {};
+	Orbiter_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,8, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
 	Orbiter_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );

@@ -838,3 +838,13 @@ void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,strin
 	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,pMessage->m_dwPK_Device_From,"*");
 	SendCommand(CMD_Refresh);
 }
+//<-dceag-c764-b->
+
+	/** @brief COMMAND: #764 - Set Active Menu */
+	/** Indicate which menu is active, options are:
+live, nonlive, osd */
+		/** @param #9 Text */
+			/** The menu currently active */
+
+void VDRPlugin::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c764-e->

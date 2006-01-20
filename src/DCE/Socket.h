@@ -15,7 +15,8 @@
 
 #define INSOCKBUFFER_SIZE 8192
 
-#define SOCKET_TIMEOUT		30
+#define SOCKET_TIMEOUT			20
+#define SOCKET_TIMEOUT_PLUGIN	30
 
 #define PING_TIMEOUT		5
 
@@ -30,7 +31,9 @@ namespace DCE
 	 */
 	class Socket
 	{
-		
+	private:
+		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
+
 	public:
 		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
 
@@ -60,7 +63,6 @@ namespace DCE
 		char *m_pcCurInsockBuffer; /** < input buffer current position @todo ask */
 		
 		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
-		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
 		bool m_bQuit; /** < set when the socket should terminate */
         bool m_bCancelSocketOp; /** < cancel any operations with the socket right away */
 
@@ -84,7 +86,7 @@ namespace DCE
 		/**
 		 * @brief use to set the member
 		 */
-		void SetReceiveTimeout( int TimeoutSeconds ) { m_iReceiveTimeout = TimeoutSeconds; };
+		void SetReceiveTimeout( int TimeoutSeconds );
 		
 		/**
 		 * @brief sends the message data imediatlly and deletes the message object if required

@@ -81,7 +81,7 @@ void *WatchDogThread( void *pData )
 		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
 #endif
 
-		if ( sResponse != "BUBU" )
+		if ( sResponse != "PONG" )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Before Disconnect.");
 			pCommand_Impl->Disconnect();
