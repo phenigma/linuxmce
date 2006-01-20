@@ -26,6 +26,11 @@ echo -n > /tmp/available.srv
 for rcFile in /etc/rc$runlevel.d/S* 
 do
     initFile=$( readlink -f $rcFile )
+    [ "$(basename $initFile)" == "Pluto_Start_DCERouter.sh" ] && continue
+    [ "$(basename $initFile)" == "Pluto_Start_LocalDevices.sh" ] && continue
+    [ "$(basename $initFile)" == "Pluto_Start_X.sh" ] && continue
+    [ "$(basename $initFile)" == "mysql" ] && continue
+    
     if [[ -x "$initFile" ]]; then
 	echo "$(basename $initFile)" >> /tmp/available.srv
     fi
@@ -45,7 +50,7 @@ cat /etc/init.d/fastboot/depend/$runlevel-$job.mk.template | \
 grep -vx -f /tmp/available.srv /tmp/posible.srv | \
  sed -e 's/^\(.*\)/s|\\<\1\\>||g;/g;'             > /tmp/fixup.sed
 echo 's|^[ \t]*:.*||g;'                        >> /tmp/fixup.sed
-echo 's|:[ \t]*|:|g;'                          >> /tmp/fixup.sed
+echo '/:[ \t]*$/d;'                            >> /tmp/fixup.sed
 echo '/^#/d;'                                  >> /tmp/fixup.sed
 echo '/^[ \t]*$/d;'                            >> /tmp/fixup.sed
 
