@@ -69,11 +69,11 @@ namespace DCE
         deque<MediaFile *>  m_dequeMediaFile;        /** The filenames we're playing */
         deque<MediaTitle *>  m_dequeMediaTitle;      /** The titles, if this is something like a DVD */
         deque<MediaSection *>  m_dequeMediaSection;      /** The titles, if this is something like a DVD */
-        int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
-        int		m_iDequeMediaTitle_Pos;  /** The play position in the m_dequeMediaTitle deque. */
-        int		m_iDequeMediaSection_Pos;/** The play position in the m_dequeMediaSection deque. */
-        int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
-        string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
+        unsigned int m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
+        int m_iDequeMediaTitle_Pos;  /** The play position in the m_dequeMediaTitle deque. */
+        int m_iDequeMediaSection_Pos;/** The play position in the m_dequeMediaSection deque. */
+        int m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
+        string m_sPlaylistName;      /** the name of the playlist which was loaded from the database. */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another

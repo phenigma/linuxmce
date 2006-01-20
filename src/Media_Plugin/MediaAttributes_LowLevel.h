@@ -112,7 +112,7 @@ public:
     Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName); 
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 
-	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,int Section) 
+	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,unsigned int Section) 
 	{
 		while( Section>p_dequeMediaSection->size() )
 			p_dequeMediaSection->push_back(new MediaSection());

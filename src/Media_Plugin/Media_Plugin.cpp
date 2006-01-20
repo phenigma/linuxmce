@@ -939,7 +939,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 	else if( pMediaStream->m_sStartPosition.size() && (queue_pos = pMediaStream->m_sStartPosition.find(" QUEUE_POS:"))!=string::npos )
 	{
-		int pos = atoi( pMediaStream->m_sStartPosition.substr(queue_pos+11).c_str() );
+		unsigned int pos = atoi( pMediaStream->m_sStartPosition.substr(queue_pos+11).c_str() );
 		if( pos>=0 && pos<pMediaStream->m_dequeMediaFile.size() )
 			pMediaStream->m_iDequeMediaFile_Pos=pos;
 	}
@@ -2046,7 +2046,7 @@ class DataGridTable *Media_Plugin::DevicesPipes( string GridID, string Parms, vo
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
-    DataGridCell *pCell;
+    //DataGridCell *pCell;
 
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaDevice_ActiveDest )
@@ -2134,7 +2134,7 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
-    DataGridCell *pCell;
+    //DataGridCell *pCell;
 
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
