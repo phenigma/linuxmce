@@ -1899,6 +1899,7 @@
 #define DESIGNOBJ_dgVisibleSensors_CONST 4784
 #define DESIGNOBJ_butSetVisibleSensors_CONST 4785
 #define DESIGNOBJ_dgAllCalls_CONST 4787
+#define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 4790
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
