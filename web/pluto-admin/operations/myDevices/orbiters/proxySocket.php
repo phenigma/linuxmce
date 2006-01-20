@@ -34,7 +34,7 @@ function proxySocket($output,$dbADO){
 		
 	/* Create a TCP/IP socket. */
 
-	write_log("\n".date('d-m-Y H:i:s')."\nAttempting to create socket on host $address port $port ... ");
+	write_log("\n".miliseconds_date()."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	if ($socket === false) {
 		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Failed to connect');
@@ -48,10 +48,10 @@ function proxySocket($output,$dbADO){
 		@socket_close($socket);
 		xml_die($deviceID,$address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",'Failed to connect');
 	} else {
-		write_log("Connected on socket ... OK.\n");
+		write_log(miliseconds_date()."Connected on socket ... OK.\n");
 	}
 
-	write_log("Received parameters ".$_SERVER['QUERY_STRING']."\n");
+	write_log(miliseconds_date()."Received parameters ".$_SERVER['QUERY_STRING']."\n");
 	
 	// get image
 	if($command=='IMAGE'){
@@ -84,12 +84,12 @@ function proxySocket($output,$dbADO){
 		
 		//Header("Refresh: 5; url=$refreshURL");
 		Header("Content-type: text/xml"); 
-		write_log( "Redirecting to $refreshURL\n");
+		write_log( miliseconds_date()."Redirecting to $refreshURL\n");
 		die($XML);
 	}	
 	
 	
-	write_log("Closing socket ... ");
+	write_log(miliseconds_date()."Closing socket ... ");
 	@socket_close($socket);
 	write_log( "OK.\n");
 	
@@ -103,17 +103,17 @@ function getImage($deviceID,$socket,$refresh=''){
 	$in = "IMAGE ".$deviceID."\n";
 	$out='';
 
-	write_log("Sending to device $deviceID the command $in");
+	write_log(miliseconds_date()."Sending to device $deviceID the command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
-		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
+		write_log(miliseconds_date()."Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
 	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+		write_log(miliseconds_date()."Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
 	}else{
-		write_log("Read: ".$outResponse."\n");
+		write_log(miliseconds_date()."Read: ".$outResponse."\n");
 	}
 
 	$imageSize=(int)trim(str_replace('IMAGE ','',$outResponse));
@@ -130,7 +130,7 @@ function getImage($deviceID,$socket,$refresh=''){
 		
 		if(isset($outImage)){
 			$isSaved=writeFile(getcwd().'/security_images/'.$deviceID.'_cisco.png',$outImage);
-			write_log("Received image size $imageSize \n");
+			write_log(miliseconds_date()."Received image size $imageSize \n");
 			
 		}
 	}
@@ -145,15 +145,15 @@ function getXML($deviceID,$socket){
 	$in = "XML $deviceID\n";
 	$out='';
 	
-	write_log("Sending to device $deviceID the command $in");
+	write_log(miliseconds_date()."Sending to device $deviceID the command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
-		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
+		write_log(miliseconds_date()."Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
 	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+		write_log(miliseconds_date()."Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
 	$xmlSize=(int)trim(str_replace('XML ','',$outResponse));
@@ -169,7 +169,7 @@ function getXML($deviceID,$socket){
 		}
 		
 		if(isset($outXML)){
-			write_log("Received xml size $xmlSize \n");
+			write_log(miliseconds_date()."Received xml size $xmlSize \n");
 		}
 	}
 	$out.=@$outXML;
@@ -185,7 +185,7 @@ function sendCommand($deviceID,$socket,$command,$refresh){
 
 	$out='';
 
-	write_log("Sending command to device $deviceID $in");
+	write_log(miliseconds_date()."Sending command to device $deviceID $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
@@ -264,5 +264,12 @@ function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage
 	Header("Content-type: text/xml"); 
 	write_log("\nRedirecting to $refreshURL\n");
 	die($xml);	
+}
+
+function miliseconds_date($format='d-m-Y H:i:s'){
+	list($usec, $sec) = explode(" ", microtime()); 
+    
+	$unix_time=(float)$sec;
+	return date($format,$unix_time).'.'.substr((float)($usec),2).' ';
 }
 ?>

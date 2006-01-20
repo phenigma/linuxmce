@@ -1,5 +1,8 @@
 <?
 function usersRooms($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/usersRooms.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	// WARNING: the checkboxes behavior is reversed, checked = Room_User doesn't exist
@@ -34,8 +37,8 @@ function usersRooms($output,$dbADO) {
 		$checkedArray[$rowUsersRooms['FK_Users']][]=$rowUsersRooms['FK_Room'];
 	}
 	
-	$out.='<h3>Privacy Settings</h3>
-	<p>Normally any user can choose to control any room in the house.  If you want to prevent some userse from being able to control certain rooms, uncheck the box.</p>';
+	$out.='<h3>'.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST.'</h3>
+	<p>'.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_NOTE_CONST.'</p>';
 
 	if ($action=='form') {
 		$out.='
@@ -49,10 +52,10 @@ function usersRooms($output,$dbADO) {
 		<form action="index.php" method="post" name="usersRooms">
 		<input type="hidden" name="section" value="usersRooms">
 		<input type="hidden" name="action" value="add">
-		<p><B>Rooms</B>
+		<p><B>'.$TEXT_ROOMS_CONST.'</B>
 		<table cellpadding="3" cellspacing="0">
 			<tr bgcolor="#EEEEEE">
-				<td><B>User/Room</B></td>';
+				<td><B>'.$TEXT_USER_ROOM_CONST.'</B></td>';
 		foreach($roomsArray AS $roomName){
 			$out.='<td align="center"><B>'.$roomName.'</B></td>';
 		}
@@ -78,7 +81,7 @@ function usersRooms($output,$dbADO) {
 		//check if current user canModifyInstallation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=usersRooms&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=usersRooms&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		foreach($usersArray AS $userID=>$username){
@@ -93,7 +96,7 @@ function usersRooms($output,$dbADO) {
 				}
 			}
 		}
-		header("Location: index.php?section=usersRooms&msg=User/Room updated.");
+		header("Location: index.php?section=usersRooms&msg=$TEXT_USER_ROOM_UPDATED_CONST");
 
 	}
 
@@ -101,7 +104,7 @@ function usersRooms($output,$dbADO) {
 
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Privacy Settings');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST);			
 	$output->output();  		
 }
 ?>

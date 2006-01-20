@@ -1,5 +1,9 @@
 <?php
 function userChangePIN($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/userChangePIN.lang.php');
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -21,24 +25,25 @@ function userChangePIN($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="userID" value="'.$userID.'">
-		<h3>Change PIN Code</h3>
+		
+		<h3>'.$TEXT_CHANGE_PIN_CODE_CONST.'</h3>
 		<table>	
 		';
 			$out.='
 					<tr valign="top">
-						<td>Old password or PIN</td>
+						<td>'.$TEXT_OLD_PASSWORD_OR_PIN_CONST.'</td>
 						<td>
 							<input type="password" name="passOrPIN" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>New PIN</td>
+						<td>'.$TEXT_NEW_PIN_CONST.'</td>
 						<td>
 							<input type="text" name="newPIN" value="">
 						</td>
 					</tr>					
 					<tr>
-						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 					</tr>
 			</table>
 			</form>
@@ -47,9 +52,9 @@ function userChangePIN($output,$dbADO) {
 			$out.='
 				<script>
 		 			var frmvalidator = new formValidator("userChangePIN"); 		
-					frmvalidator.addValidation("passOrPIN","req","Please enter old password or PIN");
-					frmvalidator.addValidation("newPIN","req","Please enter a number for PIN code.");
-			 		frmvalidator.addValidation("newPIN","numeric","PIN code must be a number.");
+					frmvalidator.addValidation("passOrPIN","req","'.$TEXT_ENTER_OLD_PASSWORD_OR_PIN_CONST.'");
+					frmvalidator.addValidation("newPIN","req","'.$TEXT_PINCODE_REQUIRED_CONST.'");
+			 		frmvalidator.addValidation("newPIN","numeric","'.$TEXT_PINCODE_REQUIRED_NUMERICAL_CONST.'");
 				</script>
 			';
 		
@@ -61,14 +66,14 @@ function userChangePIN($output,$dbADO) {
 		$newPIN=$_POST['newPIN'];
 		
 		if (!$canModifyInstallation) {		
-			header("Location: index.php?section=userChangePIN&userID=$userID&from=$from&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=userChangePIN&userID=$userID&from=$from&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		
 		$selectUserInst = 'SELECT * FROM Users WHERE PK_Users=?';
 		$queryUserInst = $dbADO->Execute($selectUserInst,array($userID));
 		if($queryUserInst->RecordCount()==0){
-			header("Location: index.php?section=userChangePIN&error=Invalid user specified.&userID=$userID&from=$from");
+			header("Location: index.php?section=userChangePIN&error=$TEXT_ERROR_INVALID_USER_SPECIFIED_CONST&userID=$userID&from=$from");
 			exit();
 		}
 		$row=$queryUserInst->FetchRow();
@@ -83,13 +88,13 @@ function userChangePIN($output,$dbADO) {
 				</script>
 				";			
 		}else{
-			header("Location: index.php?section=userChangePIN&error=Neither password or PIN code match.&userID=$userID&from=$from");
+			header("Location: index.php?section=userChangePIN&error=$TEXT_ERROR_NO_MATCH_PIN_OR_PASSWORD_CONST&userID=$userID&from=$from");
 			exit();
 		}
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Change password');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CHANGE_PIN_CODE_CONST);
 	$output->output();
 }
 ?>

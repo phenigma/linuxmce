@@ -1,5 +1,8 @@
 <?
 function usersOrbiters($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/usersOrbiters.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	$out='';
@@ -42,8 +45,8 @@ function usersOrbiters($output,$dbADO) {
 		$checkedArray[$rowUsersOrbiters['FK_Users']][]=$rowUsersOrbiters['FK_Device'];
 	}
 	
-	$out.='<h3>Privacy Settings</h3>
-	<p>Normally any user can use any Orbiter.  If you check the box for the user/Orbiter, then the user\'s Pin code will need to be provided for that user to use that Orbiter.  If you put checks in all the users for a given Orbiter, then nobody will be able to use the Orbiter without a PIN code.</p>';
+	$out.='<h3>'.$TEXT_PRIVACY_SETTINGS_CONST.'</h3>
+	<p>'.$TEXT_PRIVACY_SETTINGS_INFO_CONST.'</p>';
 
 	if ($action=='form') {
 		$out.='
@@ -57,10 +60,11 @@ function usersOrbiters($output,$dbADO) {
 		<form action="index.php" method="post" name="usersOrbiters">
 		<input type="hidden" name="section" value="usersOrbiters">
 		<input type="hidden" name="action" value="add">
-		<p><B>Orbiters</B>
+		
+		<p><B>'.$TEXT_ORBITERS_CONST.'</B>
 		<table cellpadding="3" cellspacing="0">
 			<tr bgcolor="#EEEEEE">
-				<td><B>User/Orbiter</B></td>';
+				<td><B>'.$TEXT_USER_ORBITER_CONST.'</B></td>';
 		foreach($orbitersArray AS $orbiterName){
 			$out.='<td align="center"><B>'.stripslashes($orbiterName).'</B></td>';
 		}
@@ -86,7 +90,7 @@ function usersOrbiters($output,$dbADO) {
 		//check if current user canModifyInstallation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=usersOrbiters&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=usersOrbiters&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -101,14 +105,14 @@ function usersOrbiters($output,$dbADO) {
 				}
 			}
 		}
-		header("Location: index.php?section=usersOrbiters&msg=User/Orbiter updated.");
+		header("Location: index.php?section=usersOrbiters&msg=$TEXT_USER_ORBITER_UPDATED_CONST");
 	}
 
 	
 
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Privacy Settings');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_CONST);			
 	$output->output();  		
 }
 ?>

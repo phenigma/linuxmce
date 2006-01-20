@@ -1,5 +1,8 @@
 <?
 function restrictAccess($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/restrictAccess.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	// WARNING: the checkboxes behavior is reversed, checked = Room_User doesn't exist
@@ -22,12 +25,8 @@ function restrictAccess($output,$dbADO) {
 	$orbitersArray=getDevicesArrayFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
 	$addToRoom=(int)@$_REQUEST['addToRoom'];
 	
-	$out.='<h3>Restrict access</h3>
-	<p>Normally anybody can control any room by switching to it, and anybody can switch to being another on the orbiter and access that users private media.  You can restrict these by 
-	<ul>
-		<li>1) limiting who can control a room and/or which orbiters can be used to control it, and </li>
-		<li>2) requiring a pin number to switch to a particular user</li>
-	</ul></p>';
+	$out.='<h3'.$TEXT_RESTRICT_ACCESS_CONST.'</h3>
+	<p>'.$TEXT_RESTRICT_ACCESS_INFO_CONST.'</p>';
 
 	if ($action=='form') {
 		$out.='
@@ -44,7 +43,7 @@ function restrictAccess($output,$dbADO) {
 		<input type="hidden" name="addToRoom" value="'.@$_REQUEST['addToRoom'].'">
 		<input type="hidden" name="delR" value="">
 		
-		<p><B>Rooms</B>
+		<p><B>'.$TEXT_ROOMS_CONST.'</B>
 		<table cellpadding="3" cellspacing="0">
 			<tr>
 				<td colspan="2" bgcolor="#F0F3F8" align="center"><h3>-- Restrict access to rooms --</h3></td>
@@ -53,16 +52,16 @@ function restrictAccess($output,$dbADO) {
 			$rs=$dbADO->Execute('SELECT * FROM Room_Users WHERE FK_Room=?',$roomID);
 			$restrictions='';
 			if($rs->RecordCount()==0){
-				$roomLabel='Full access to everyone.';
-				$roomButton='<input type="button" class="button" name="addRestrict" value="Restrict access to" onClick="document.restrictAccess.action.value=\'form\';document.restrictAccess.addToRoom.value='.$roomID.';document.restrictAccess.submit();">';
+				$roomLabel=$TEXT_FULL_ACCESS_TO_EVERYONE_CONST;
+				$roomButton='<input type="button" class="button" name="addRestrict" value="'.$TEXT_RESTRICT_ACCESS_TO_CONST.'" onClick="document.restrictAccess.action.value=\'form\';document.restrictAccess.addToRoom.value='.$roomID.';document.restrictAccess.submit();">';
 			}else{
 				$roomLabel='Only allow access to';
-				$roomButton='<input type="button" class="button" name="addRestrict" value="Add access" onClick="document.restrictAccess.action.value=\'form\';document.restrictAccess.addToRoom.value='.$roomID.';document.restrictAccess.submit();">';
+				$roomButton='<input type="button" class="button" name="addRestrict" value="'.$TEXT_ADD_ACCESS_CONST.'" onClick="document.restrictAccess.action.value=\'form\';document.restrictAccess.addToRoom.value='.$roomID.';document.restrictAccess.submit();">';
 				while($rowR=$rs->FetchRow()){
 					$restrictions.='
 				<tr>
-					<td>User: '.pulldownFromArray($usersAssocArray,'user',$rowR['FK_Users'],'','key','-- Any --').'</td>
-					<td>using orbiter '.pulldownFromArray($orbitersArray,'orbiter',$rowR['FK_Orbiter'],'','key','-- Any --').' <input type="button" class="button" name="del" value="Delete" onClick="if(confirm(\'Are you sure you want to delete this restriction?\')){document.restrictAccess.delR.value='.$rowR['PK_Room_Users'].';document.restrictAccess.submit();}"></td>
+					<td>User: '.pulldownFromArray($usersAssocArray,'user',$rowR['FK_Users'],'','key','-- '.$TEXT_ANY_CONST.' --').'</td>
+					<td>using orbiter '.pulldownFromArray($orbitersArray,'orbiter',$rowR['FK_Orbiter'],'','key','-- '.$TEXT_ANY_CONST.' --').' <input type="button" class="button" name="del" value="Delete" onClick="if(confirm(\'Are you sure you want to delete this restriction?\')){document.restrictAccess.delR.value='.$rowR['PK_Room_Users'].';document.restrictAccess.submit();}"></td>
 				</tr>';
 				}
 			}
@@ -80,8 +79,8 @@ function restrictAccess($output,$dbADO) {
 			if($addToRoom==$roomID){
 				$out.='
 				<tr bgcolor="lightyellow">
-					<td>User: '.pulldownFromArray($usersAssocArray,'user',0,'','key','-- Any --').'</td>
-					<td>using orbiter '.pulldownFromArray($orbitersArray,'orbiter',0,'','key','-- Any --').' <input type="submit" class="button" name="submit" value="Save"></td>
+					<td>User: '.pulldownFromArray($usersAssocArray,'user',0,'','key','-- '.$TEXT_ANY_CONST.' --').'</td>
+					<td>using orbiter '.pulldownFromArray($orbitersArray,'orbiter',0,'','key','-- '.$TEXT_ANY_CONST.' --').' <input type="submit" class="button" name="submit" value="Save"></td>
 				</tr>';
 			}
 			$out.='
@@ -92,11 +91,11 @@ function restrictAccess($output,$dbADO) {
 		}
 		$out.='
 			<tr>
-				<td colspan="2" bgcolor="#F0F3F8" align="center"><h3>-- Restrict access to users --</h3></td>
+				<td colspan="2" bgcolor="#F0F3F8" align="center"><h3>-- '.$TEXT_RESTRICT_ACCESS_TO_USERS_CONST.' --</h3></td>
 			</tr>
 			<tr bgcolor="#EFEFEF">
-				<td align="center"><B>User</B></td>
-				<td align="center"><B>Require a pin code to select this user</B></td>
+				<td align="center"><B>'.$TEXT_USER_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_REQUIRE_PIN_CODE_CONST.'</B></td>
 			</tr>';
 		
 		for($i=0;$i<count($usersArray['PK_Users']);$i++){
@@ -119,7 +118,7 @@ function restrictAccess($output,$dbADO) {
 				}				
 				$out.='
 				<tr bgcolor="'.$color.'">
-					<td colspan="2"><fieldset><legend>Don’t require a pin code with orbiters</legend>'.$orbiters.'</fieldset></td>
+					<td colspan="2"><fieldset><legend>'.$TEXT_DONT_REQUIRE_PIN_CODE_WITH_ORBITERS_CONST.'</legend>'.$orbiters.'</fieldset></td>
 				</tr>';
 				
 			}
@@ -132,7 +131,7 @@ function restrictAccess($output,$dbADO) {
 		//check if current user canModifyInstallation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=restrictAccess&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=restrictAccess&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -169,15 +168,15 @@ function restrictAccess($output,$dbADO) {
 			}
 		}
 		
-		header("Location: index.php?section=restrictAccess&msg=Restrictions updated.");
+		header("Location: index.php?section=restrictAccess&msg=$TEXT_RESTRICTIONS_UPDATED_CONST");
 
 	}
 
 	
 
-	$output->setNavigationMenu(array("Restrict Access"=>'index.php?section=restrictAccess'));
+	$output->setNavigationMenu(array($TEXT_RESTRICT_ACCESS_CONST=>'index.php?section=restrictAccess'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Restrict access');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESTRICT_ACCESS_CONST);
 	$output->output();  		
 }
 ?>

@@ -1,10 +1,15 @@
 <?php
 function createUser($output,$dbADO) {
-	$out='<h3>Add new user/family member</h3>Pick a username.  If you specify a "Nickname", that name will appear on all the screens instead of the username.  The nickname can be anything and does not need to be unique.';
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createUser.lang.php');
+	
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
-	
 	$installationID = cleanInteger(@$_SESSION['installationID']);
+
+	$out='<h3>'.$TEXT_ADD_NEW_USER_CONST.'</h3>
+	'.$TEXT_ADD_USER_INFO_CONST;
 	
 	if ($action=='form') {
 		$lastExtensionArr=array_values(getAssocArray('Users','PK_Users','Extension',$dbADO,'','ORDER BY Extension DESC LIMIT 0,1'));
@@ -43,35 +48,35 @@ function createUser($output,$dbADO) {
 						<td colspan="2"><h3 class="err">'.(isset($_GET['error'])?$_GET['error']:'').'</h3></td>
 					</tr>
 					<tr valign="top" bgcolor="#EEEEEE">
-						<td><B>Username</B>*</td>
+						<td><B>'.$TEXT_USERNAME_CONST.'</B>*</td>
 						<td>
 							<input type="text" name="userUserName" value="'.@$_SESSION['createUser']['userUserName'].'">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td><B>Password</B>*</td>
+						<td><B>'.$TEXT_PASSWORD_CONST.'</B>*</td>
 						<td>
 							<input type="password" name="userPassword" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td><B>Re-Type password</B>*</td>
+						<td><B>'.$TEXT_CONFIRM_PASSWORD_CONST.'</B>*</td>
 						<td>
 							<input type="password" name="userPassword2" value="">
 						</td>
 					</tr>
 					<tr valign="top" bgcolor="#EEEEEE">
-						<td><B>PIN Code</B>* (numeric only)</td>
+						<td><B>'.$TEXT_PINN_CODE_CONST.'</B>* ('.$TEXT_NUMERIC_ONLY_CONST.')</td>
 						<td>
 							<input type="text" name="pinCode" value="">
 						</td>
 					</tr>			
 					<tr valign="top">
-						<td><B>Create a voicemail box and an email account for the user?</B><br>This allows the user to check his messages/email on the Orbiters.</td>
+						<td><B>'.$TEXT_CREATE_VOICEMAIL_INQUIRY_CONST.'</B><br>'.$TEXT_CREATE_VOICEMAIL_INFO_CONST.'</td>
 						<td><input type="checkbox" name="userHasMailbox" value="1" '.@($_SESSION['createUser']['userHasMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
-						<td><B>Access General Mailbox?</B><br>This allows the user to review messages left in the family\'s general mailbox.  Otherwise the user can only access his own private messages.</td>
+						<td><B>'.$TEXT_ACCESS_GENERAL_MAILBOX_INQUIRY_CONST.'</B><br>'.$TEXT_ACCESS_GENERAL_MAILBOX_INFO_CONST.'</td>
 						<td><input type="checkbox" name="userAccessGeneralMailbox" value="1" '.@($_SESSION['createUser']['userAccessGeneralMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
@@ -79,15 +84,15 @@ function createUser($output,$dbADO) {
 						<td><input type="text" name="userExtension" value="'.@$_SESSION['createUser']['userExtension'].'"></td>
 					</tr>
 					<tr valign="top">
-						<td><B>Name</B></td>
+						<td><B>'.$TEXT_NAME_CONST.'</B></td>
 						<td>
-							<B>FirstName:</B><input type="text" name="userFirstName" value="'.@$_SESSION['createUser']['userFirstName'].'"><br />
-							<B>LastName:</B> <input type="text" name="userLastName" value="'.@$_SESSION['createUser']['userLastName'].'"><br />
-							<B>NickName:</B> <input type="text" name="userNickname" value="'.@$_SESSION['createUser']['userNickname'].'">
+							<B>'.$TEXT_FIRSTNAME_CONST.':</B><input type="text" name="userFirstName" value="'.@$_SESSION['createUser']['userFirstName'].'"><br />
+							<B>'.$TEXT_LASTNAME_CONST.':</B> <input type="text" name="userLastName" value="'.@$_SESSION['createUser']['userLastName'].'"><br />
+							<B>'.$TEXT_NICKNAME_CONST.':</B> <input type="text" name="userNickname" value="'.@$_SESSION['createUser']['userNickname'].'">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td><B>Can modify configuration</B><br>If checked, the user will be able to access this Pluto Admin site and change the configuration of Pluto</td>
+						<td><B>'.$TEXT_CAN_MODIFY_CONFIGURATION_CONST.'</B><br>'.$TEXT_CAN_MODIFY_CONFIGURATION_INFO_CONST.'</td>
 						<td><input type="checkbox" name="userCanModifyInstallation" value="1" '.(@$_SESSION['createUser']['userCanModifyInstallation']==1?" checked='checked'":'').'></td>
 					</tr>
 					
@@ -103,7 +108,7 @@ function createUser($output,$dbADO) {
 			$out.='
 						<tr>
 							<td>
-								<B>Language</B>
+								<B>'.$TEXT_LANGUAGE_CONST.'</B>
 							</td>
 							<td>
 								<select name="userLanguage">
@@ -121,10 +126,10 @@ function createUser($output,$dbADO) {
 					}
 			}
 			$out.='<tr>
-						<td><B>Main Installation</B><br>If you have multiple homes, or installations joined, which is this user\'s primary residence?</td>
+						<td><B>'.$TEXT_MAIN_INSTALLATION_CONST.'</B><br>'.$TEXT_MAIN_INSTALLATION_INFO_CONST.'</td>
 						<td>
 							<select name="userMainInstallation">
-							<option value="0">-please select-</option>
+							<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 							'.$hisInstallationsTxt.'
 							</select>
 						</td>
@@ -147,13 +152,13 @@ function createUser($output,$dbADO) {
 			$out.='
 				<script>
 		 			var frmvalidator = new formValidator("createUser"); 		
-					frmvalidator.addValidation("userUserName","req","Please enter a user name");
-					frmvalidator.addValidation("userPassword","req","Please enter a password");
-					frmvalidator.addValidation("userPassword2","req","Please retype the password");
-					//frmvalidator.addValidation("userFirstName","req","Please enter a user first name");
-					//frmvalidator.addValidation("userLastName","req","Please enter a user last name");
-					frmvalidator.addValidation("pinCode","req","Please enter a number for PIN code.");
-			 		frmvalidator.addValidation("pinCode","numeric","PIN code must be a number.");
+					frmvalidator.addValidation("userUserName","req","'.$TEXT_USERNAME_REQUIRED_CONST.'");
+					frmvalidator.addValidation("userPassword","req","'.$TEXT_PASSWORD_REQUIRED_CONST.'");
+					frmvalidator.addValidation("userPassword2","req","'.$TEXT_RETYPE_PASSWORD_REQUIRED_CONST.'");
+					//frmvalidator.addValidation("userFirstName","req","'.$TEXT_FIRSTNAME_REQUIRED_CONST.'");
+					//frmvalidator.addValidation("userLastName","req","'.$TEXT_LASTNAME_REQUIRED_CONST.'");
+					frmvalidator.addValidation("pinCode","req","'.$TEXT_PINN_CODE_REQUIRED_CONST.'");
+			 		frmvalidator.addValidation("pinCode","numeric","'.$TEXT_PINN_CODE_NUMERIC_REQUIRED_CONST.'");
 				</script>
 			';
 		
@@ -192,14 +197,14 @@ function createUser($output,$dbADO) {
 		$pinCodeMd5=md5($pinCode);
 		
 		if ($userPassword!=$userPassword2) {
-			header("Location: index.php?section=createUser&error=Passwords do not match!&from=$from");
+			header("Location: index.php?section=createUser&error=$TEXT_ERROR_PASSWORD_NO_MATCH_CONST&from=$from");
 			exit();
 		}	
 
 		$selectUsername = "SELECT UserName from Users where UserName = ?";
 		$resUsername = $dbADO->Execute($selectUsername,array($username));
 		if ($resUsername && $resUsername->RecordCount()>0) {
-			header("Location: index.php?section=createUser&error=Username already taken!&from=$from");
+			header("Location: index.php?section=createUser&error=$TEXT_ERROR_USERNAME_TAKEN_CONST&from=$from");
 			exit();
 		}
 
@@ -247,7 +252,7 @@ function createUser($output,$dbADO) {
             			
 				$out.="
 				<script>
-					alert('User created!');
+					alert('$TEXT_USER_CREATED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();
@@ -263,13 +268,13 @@ function createUser($output,$dbADO) {
 		}		
 		
 	} else {
-			header("Location: index.php?section=createUser&error=You are not allowed to modify installation.");
+			header("Location: index.php?section=createUser&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 	}
 	
 }
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_NEW_USER_CONST);
 	$output->output();
 }
 ?>

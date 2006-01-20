@@ -1,0 +1,33 @@
+<?
+$TEXT_EDIT_IR_CODES_CONST='Edit IR codes';
+$TEXT_EDIT_GSD_CODES_CONST='Edit Ruby codes';
+$TEXT_WARNING_CHANGES_AFFECT_ALL_CONST='WARNING: the changes will afect all devices created from device template';
+$TEXT_DELAYS_CONST='Delays';
+$TEXT_POWER_CONST='Power';
+$TEXT_SECONDS_CONST='seconds';
+$TEXT_MODE_CONST='Mode';
+$TEXT_OTHER_CONST='Other';
+$TEXT_CHANGE_EXPLAIN_CONST='change/explain';
+$TEXT_TUNING_CONST='Tuning';
+$TEXT_NO_FIXED_DIGITS_CONST='No fixed digits';
+$TEXT_FIXED_DIGITS_CONST='Fixed Digits';
+$TEXT_TERMINATE_WITH_ENTER_CONST='terminate with enter';
+$TEXT_DISCRETE_CONST='Discrete';
+$TEXT_TOGGLE_CONST='Toggle';
+$TEXT_DSP_MODES_CONST='DSP Modes';
+$TEXT_THIS_DEVICE_IS_CONTROLLED_VIA_CONST='This device is controlled via';
+$TEXT_USES_GROUP_CODESET_CONST='Uses Group/Codeset';
+$TEXT_IMPLEMENT_COMMAND_GROUPS_CONST='Implement Command Groups';
+$TEXT_ADD_REMOVE_COMMANDS_CONST='Add/Remove commands';
+$TEXT_LEGEND_CONST='Legend';
+$TEXT_STANDARD_CODES_CONST='Standard codes';
+$TEXT_MY_CUSTOM_CODES_CONST='My custom codes';
+$TEXT_OTHER_USERS_CUSTOM_CODES_CONST='Other users custom codes';
+$TEXT_IR_CONTACT_US_CONST='If you have question or comments, please contact us by email';
+$TEXT_EDIT_BY_OWNER_NOTE='Add/Edit options are available only for your own device templates.';
+$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST='IR Group changed for selected device template.';
+$TEXT_TEST_IR_COMMAND_SENT_CONST='The command was sent.';
+$TEXT_CUSTOM_CODE_DELETED_CONST='Custom code deleted.';
+$TEXT_IR_CODES_UPDATED_CONST='IR codes updated.';
+$TEXT_PAGE_GENERATED_IN_CONST='Page generated in';
+?>

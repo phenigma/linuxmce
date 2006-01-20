@@ -1,30 +1,34 @@
 <?
 function editMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMasterDevice.lang.php');
+
 	//$dbADO->debug=true;
-$out='';
+	$out='';
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	/* @var $output Template */
-	
 
-//get _POST	
+
+	//get _POST
 	$deviceID = (int)$_REQUEST['model'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 	$dtRelatedValues=array('1'=>'Sister device', '2'=>'Install on core', '3'=>'Plugin for the router', '4'=>'Anywhere on same PC', '5'=>'My Child');
-	
-//the form	
+
+	//the form
 	if ($action=='form') {
 		$queryGetMasterDeviceDetails = "
 			SELECT DeviceTemplate.*,FK_DeviceTemplate
 			FROM  DeviceTemplate 				
 			LEFT JOIN DeviceTemplate_AV ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE PK_DeviceTemplate=?";
-		$rs = $dbADO->Execute($queryGetMasterDeviceDetails,array($deviceID));	
+		$rs = $dbADO->Execute($queryGetMasterDeviceDetails,array($deviceID));
 		if($rs->RecordCount()==0){
 			die('Device template # '.$deviceID.' was not found');
 		}
-		
+
 		$row = $rs->FetchRow();
 		$description = stripslashes($row['Description']);
 		$deviceCategID = $row['FK_DeviceCategory'];
@@ -42,9 +46,9 @@ $out='';
 		$isIPBased=$row['IsIPBased'];
 		$ConfigureScript=$row['ConfigureScript'];
 		$comments=$row['Comments'];
-		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;	
+		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;
 		$rs->Close();
-		
+
 		$out='
 		<script>
 			function windowOpen(locationA,attributes) {
@@ -59,74 +63,75 @@ $out='';
 			<input type="hidden" name="lastAction" value="">
 			<input type="hidden" name="model" value="'.$deviceID.'">
 			<input type="hidden" name="toDel" value="">
+		<h3>'.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.'</h3>
 			<table>
 				<tr>
-					<td>Description:</td><td><input type="text" name="description" value="'.$description.'" size="40"> #'.$deviceID.'</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="description" value="'.$description.'" size="40"> #'.$deviceID.'</td>
 				</tr>
 				<tr>
 					<td>
-						<input type="checkbox" name="ImplementsDCE" value="1" '.($implementsDCE==1?" checked ":"").'  onClick="javascript:this.form.submit();">Implements DCE
+						<input type="checkbox" name="ImplementsDCE" value="1" '.($implementsDCE==1?" checked ":"").'  onClick="javascript:this.form.submit();">'.$TEXT_IMPLEMENTS_DCE_CONST.'
 					</td>
 					<td>
-						Command line <input type="text" name="CommandLine" value="'.$commandLine.'">
+						'.$TEXT_COMMAND_LINE_CONST.' <input type="text" name="CommandLine" value="'.$commandLine.'">
 					</td>
 				</tr>
 				<tr>
-					<td>Category:</td><td>
+					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td><td>
 						<select name="MasterDeviceCategory">
-						<option value="0">-please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 		';
 		$GLOBALS['categoriesArray']=array();
 		$queryMasterDeviceCategories_parents = 'select PK_DeviceCategory,Description from DeviceCategory where FK_Devicecategory_Parent is null order by Description asc';
 		$rs = $dbADO->_Execute($queryMasterDeviceCategories_parents);
-							while ($row = $rs->FetchRow()) {
-								$GLOBALS['categoriesArray'][$row['PK_DeviceCategory']]=$row['Description'];
-								$out.='<option '.($row['PK_DeviceCategory']==$deviceCategID?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.stripslashes($row['Description']).' #'.$row['PK_DeviceCategory'].'</option>';
-								$out.=getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],stripslashes($row['Description']),$deviceCategID,'',$dbADO);
-							}
+		while ($row = $rs->FetchRow()) {
+			$GLOBALS['categoriesArray'][$row['PK_DeviceCategory']]=$row['Description'];
+			$out.='<option '.($row['PK_DeviceCategory']==$deviceCategID?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.stripslashes($row['Description']).' #'.$row['PK_DeviceCategory'].'</option>';
+			$out.=getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],stripslashes($row['Description']),$deviceCategID,'',$dbADO);
+		}
 		$out.='			</select>
 					</td>
 				</tr>
 			<tr>
-				<td>Manufacturer:</td><td>
+				<td>'.$TEXT_MANUFACTURER_CONST.':</td><td>
 					<select name="Manufacturer">
-						<option value="0">-please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 		';
-				$manufacturersArray=array();
+		$manufacturersArray=array();
 		$queryManufacturers = 'select Description, PK_Manufacturer from Manufacturer order by Description asc';
 		$rs = $dbADO->_Execute($queryManufacturers);
-							while ($row = $rs->FetchRow()) {								
-								$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
-								$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
-							}
+		while ($row = $rs->FetchRow()) {
+			$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
+			$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
+		}
 		$out.='		</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbars=true\');">Create Manufacturer</a>
 				</td>
 			</tr>
 			<tr>
-				<td>Manufacturer URL:</td>
+				<td>'.$TEXT_MANUFACTURER_URL_CONST.':</td>
 				<td><input type="text" name="manufacturerURL" value="'.$manufacturerURL.'"> Internal URL sufix: <input type="text" name="internalURLsufix" value="'.$internalURLsufix.'"></td>
 			</tr>
 			<tr>
-				<td valign="top">Design Objects to use as remotes:</td>
+				<td valign="top">'.$TEXT_DESIGN_OBJECTS_TO_USE_AS_REMOTES_CONST.':</td>
 				<td>
 		';
 		$selectObjects = 'select PK_DesignObj,Description from DesignObj inner join DeviceTemplate_DesignObj on FK_DesignObj = PK_DesignObj where FK_DeviceTemplate = ? order by Description asc';
 		$rs = $dbADO->Execute($selectObjects,array($deviceID));
-			while ($row = $rs->FetchRow()) {
-				$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbars=true');\">Delete</a> <br />";
-			}
-			if ($rs->RecordCount()===0) {
-				$out.="No objects";
-			}
-		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addObjectToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=300,height=200,toolbars=true');\">Add a new object to device</a>";
-		
+		while ($row = $rs->FetchRow()) {
+			$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbars=true');\">'.$TEXT_DELETE_CONST.'</a> <br />";
+		}
+		if ($rs->RecordCount()===0) {
+			$out.=$TEXT_NO_OBJECTS_CONST;
+		}
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addObjectToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=300,height=200,toolbars=true');\">".$TEXT_ADD_A_NEW_OBJECT_TO_DEVICE_CONST."</a>";
+
 		$out.='		</td>
 				</tr>
 				<tr>
-					<td valign="top">This device is controlled via:</td>
+					<td valign="top">'.$TEXT_THIS_DEVICE_IS_CONTROLLED_VIA_CONST.':</td>
 					<td>
 					';
-					$selectControlled = 'select MDL1.Description as d1,MDL1.PK_DeviceTemplate as pk1,
+		$selectControlled = 'select MDL1.Description as d1,MDL1.PK_DeviceTemplate as pk1,
 												MDL2.Description as d2,MDL2.PK_DeviceTemplate as pk2,
 												DC.Description as d3,
 												MDL_CV.RerouteMessagesToParent,MDL_CV.AutoCreateChildren,
@@ -136,26 +141,26 @@ $out='';
 								INNER JOIN DeviceTemplate MDL2 on FK_DeviceTemplate_ControlledVia  = MDL2.PK_DeviceTemplate
 								LEFT JOIN DeviceCategory DC on MDL2.FK_DeviceCategory = DC.PK_DeviceCategory								
 								WHERE MDL_CV.FK_DeviceTemplate = ? order by DC.Description asc';
-					$rs = $dbADO->Execute($selectControlled,array($deviceID));
-						while ($row = $rs->FetchRow()) {
-							$out.='Device:'.stripslashes($row['d2']) .'&nbsp; Category: '. stripslashes($row['d3']) . "&nbsp; &nbsp; 
-							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=600');\">Edit</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbars=true');\">Delete</a>
+		$rs = $dbADO->Execute($selectControlled,array($deviceID));
+		while ($row = $rs->FetchRow()) {
+			$out.=$TEXT_DEVICE_CONST.':'.stripslashes($row['d2']) .'&nbsp; Category: '. stripslashes($row['d3']) . "&nbsp; &nbsp;
+							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=600');\">'.$TEXT_EDIT_CONST.'</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbars=true');\">'.$TEXT_DELETE_CONST.'</a>
 							<br />";
-						}
-						if ($rs->RecordCount()===0) {
-							$out.="No records";
-						}
-					$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=500,height=250,toolbars=true');\">Add a new controlled via device</a>";
-					
-					$out.='		
+		}
+		if ($rs->RecordCount()===0) {
+			$out.=$TEXT_NO_RECORDS_CONST;
+		}
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=500,height=250,toolbars=true');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_DEVICE_CONST."</a>";
+
+		$out.='
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">This device is controlled via category:</td>
+					<td valign="top">'.$TEXT_THIS_DEVICE_IS_CONTROLLED_VIA_CATEGORY_CONST.':</td>
 					<td>
 					';
-					$selectControlled = 'select MDL1.Description as d1,MDL1.PK_DeviceTemplate as pk1,												
+		$selectControlled = 'select MDL1.Description as d1,MDL1.PK_DeviceTemplate as pk1,
 												DC.Description as d3,
 												MDL_CV.RerouteMessagesToParent,MDL_CV.AutoCreateChildren,
 												MDL_CV.PK_DeviceTemplate_DeviceCategory_ControlledVia as pk
@@ -163,83 +168,83 @@ $out='';
 								INNER JOIN  DeviceTemplate MDL1 on FK_DeviceTemplate  = MDL1.PK_DeviceTemplate 								
 								INNER JOIN DeviceCategory DC on MDL_CV.FK_DeviceCategory = DC.PK_DeviceCategory
 								WHERE MDL_CV.FK_DeviceTemplate = ? order by DC.Description asc';
-					$rs = $dbADO->Execute($selectControlled,array($deviceID));
-						while ($row = $rs->FetchRow()) {
-							$out.='Category: '. stripslashes($row['d3']) . "&nbsp; &nbsp; 
-							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=500');\">Edit</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbars=yes,scrollbars=1');\">Delete</a>
+		$rs = $dbADO->Execute($selectControlled,array($deviceID));
+		while ($row = $rs->FetchRow()) {
+			$out.=$TEXT_DEVICE_CATEGORY_CONST.': '. stripslashes($row['d3']) . "&nbsp; &nbsp;
+							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=500');\">'.$TEXT_EDIT_CONST.'</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbars=yes,scrollbars=1');\">'.$TEXT_DELETE_CONST.'</a>
 							<br />";
-						}
-						if ($rs->RecordCount()===0) {
-							$out.="No records";
-						}
-					$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\">Add a new controlled via category device</a>";
-					
-					$out.='		
+		}
+		if ($rs->RecordCount()===0) {
+			$out.=$TEXT_NO_RECORDS_CONST;
+		}
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_CATEGORY_DEVICE_CONST."</a>";
+
+		$out.='
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">Packages:</td><input type="hidden" name="packagesCtrl" value="0">
+					<td valign="top">'.$TEXT_PACKAGES_CONST.':</td><input type="hidden" name="packagesCtrl" value="0">
 					<td><select name="package">
-						<option value="0">-Please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 					';
-				$querySelectPackages = "SELECT * FROM Package ORDER BY Description ASC";
-				$rs = $dbADO->Execute($querySelectPackages);
-				if($rs->RecordCount()==0)
-					$out.='No records.<br>';
-				while ($row = $rs->FetchRow()) {
-					$out.='<option value="'.$row['PK_Package'].'" '.(($row['PK_Package']==$package)?'selected':'').'>'.$row['Description'].'</option>';
-				}
-				$rs->Close();
-				$out.='</select>&nbsp;<input type="submit" class="button" name="submitX" value="Add">';
-				if($package!=0)
-					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1,fullscreen=yes');\">Edit package</a>";
-				$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
-				$out.='	
+		$querySelectPackages = "SELECT * FROM Package ORDER BY Description ASC";
+		$rs = $dbADO->Execute($querySelectPackages);
+		if($rs->RecordCount()==0)
+		$out.=$TEXT_NO_RECORDS_CONST.'<br>';
+		while ($row = $rs->FetchRow()) {
+			$out.='<option value="'.$row['PK_Package'].'" '.(($row['PK_Package']==$package)?'selected':'').'>'.$row['Description'].'</option>';
+		}
+		$rs->Close();
+		$out.='</select>&nbsp;<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">';
+		if($package!=0)
+		$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1,fullscreen=yes');\">Edit package</a>";
+		$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
+		$out.='
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><a name="isAVDevice_link"></a>Audio/Video Device</td>
+					<td valign="top"><a name="isAVDevice_link"></a>'.$TEXT_AUDIO_VIDEO_DEVICE_CONST.'</td>
 					<td>
-						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=irCodes&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1');\"").'>
+						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="'.$TEXT_IS_NOT_AUDIO_VIDEO_CONST.'" disabled="disabled" ':" value=\"".$TEXT_EDIT_AUDIO_VIDEO_PROPERTIES_CONST."\" onClick=\"windowOpen('index.php?section=irCodes&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1');\"").'>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">Is PlugIn</td>
+					<td valign="top">'.$TEXT_IS_PLUGIN_CONST.'</td>
 					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsPlugIn" value="'.(($isPlugIn==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
-					<td valign="top">Is Embedded</td>
+					<td valign="top">'.$TEXT_IS_EMBEDDED_CONST.'</td>
 					<td><input type="checkbox" name="isEmbedded" value="1" '.(($isEmbedded==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsEmbedded" value="'.(($isEmbedded==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
-					<td valign="top">Inherits MAC From PC</td>
+					<td valign="top">'.$TEXT_INHERITS_MAC_FROM_PC_CONST.'</td>
 					<td><input type="checkbox" name="inheritsMacFromPC" value="1" '.(($inheritsMacFromPC==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldInheritsMacFromPC" value="'.(($inheritsMacFromPC==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
-					<td valign="top">Is IP Based</td>
+					<td valign="top">'.$TEXT_IS_IP_BASED_CONST.'</td>
 					<td><input type="checkbox" name="isIPBased" value="1" '.(($isIPBased==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsIPBased" value="'.(($isIPBased==1)?'1':'0').'"></td>
 				</tr>	
 				<tr>
-					<td valign="top">Configuration script</td>
+					<td valign="top">'.$TEXT_CONFIGURATION_SCRIPT_CONST.'</td>
 					<td><input type="text" name="ConfigureScript" value="'.$ConfigureScript.'">
 				</tr>	
 				
 				<tr>
-					<td valign="top">Comments</td>
+					<td valign="top">'.$TEXT_COMMENTS_CONST.'</td>
 					<td><textarea name="comments" rows="2" style="width:500;">'.$comments.'</textarea></td>
 				</tr>	
 				<tr>
 					<td valign="top" colspan="2"><a name="deviceData_link"></a>				
 						<fieldset>
-		            		<legend>Device Data</legend>
+		            		<legend>'.$TEXT_DEVICE_DATA_CONST.'</legend>
 								<table>';
-					
-				$deviceData="SELECT DeviceTemplate_DeviceData.*,
+
+		$deviceData="SELECT DeviceTemplate_DeviceData.*,
 							DeviceData.Description as DD_desc,PK_DeviceData,
 							ParameterType.Description as PT_Desc FROM 
 							DeviceTemplate_DeviceData 
@@ -247,21 +252,30 @@ $out='';
 								INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
 							WHERE (FK_DeviceTemplate='$deviceID')
 							";
-				
-				$resDeviceData = $dbADO->_Execute($deviceData);
-				$usedParams = array();
-				$usedParams[] = 0;
-				$deviceDataFormValidation='';
-					if ($resDeviceData) {
-						if ($resDeviceData->RecordCount()>0) {
-							$out.='<tr>									
+
+		$resDeviceData = $dbADO->_Execute($deviceData);
+		$usedParams = array();
+		$usedParams[] = 0;
+		$deviceDataFormValidation='';
+		if ($resDeviceData) {
+			if ($resDeviceData->RecordCount()>0) {
+				$out.='<tr>
 										<td colspan="2">
 											<table border="1">
-												<tr><td>Current Data</td><td>Comments</td><td>Default Value</td><td>Required</td><td>Allowed to modify</td><td>User Master Device List Defaults</td><td>Set by device</td><td>Operation</td></tr>
+												<tr>
+													<td><B>'.$TEXT_CURRENT_DATA_CONST.'</B></td>
+													<td><B>'.$TEXT_COMMENTS_CONST.'</B></td>
+													<td><B>'.$TEXT_DEFAULT_VALUE_CONST.'</B></td>
+													<td><B>'.$TEXT_REQUIRED_CONST.'</B></td>
+													<td><B>'.$TEXT_ALLOWED_TO_MODIFY_CONST.'</B></td>
+													<td><B>'.$TEXT_USER_MASTER_DEVICE_LIST_DEFAULTS_CONST.'</B></td>
+													<td><B>'.$TEXT_SET_BY_DEVICE_CONST.'</B></td>
+													<td><B>'.$TEXT_ACTION_CONST.'</B></td>
+												</tr>
 											';
-						}
-						while ($row=$resDeviceData->FetchRow()) {
-							$out.="
+			}
+			while ($row=$resDeviceData->FetchRow()) {
+				$out.="
 												<tr ".((trim($row['Description'])=='')?(' bgColor = "lightgreen"'):('')).">
 													<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']}) 
 													<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\">Edit</a></td>
@@ -274,46 +288,46 @@ $out='';
 													<td><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteParameterFromMasterDevice&from=editMasterDevice&deviceData={$row['FK_DeviceData']}&deviceID={$deviceID}','status=1,resizable=1,width=500,height=250,toolbars=true');\">Delete</a></td>
 												</tr>							
 							";	
-							$usedParams[]=$row['FK_DeviceData'];
-							$deviceDataFormValidation.= '
-								frmvalidator.addValidation("Data_Description_'.$row['FK_DeviceData'].'","req","Please enter a description!");
-								//frmvalidator.addValidation("Data_DefaultValue_'.$row['FK_DeviceData'].'","req","Please enter a default value!");
+				$usedParams[]=$row['FK_DeviceData'];
+				$deviceDataFormValidation.= '
+								frmvalidator.addValidation("Data_Description_'.$row['FK_DeviceData'].'","req","'.$TEXT_DESCRIPTION_REQUIRED_CONST.'");
+								//frmvalidator.addValidation("Data_DefaultValue_'.$row['FK_DeviceData'].'","req","'.$TEXT_DEFAULT_VALUE_REQUIRED_CONST.'");
 							';
-						}
-						if ($resDeviceData->RecordCount()>0) {
-							$out.='	
+			}
+			if ($resDeviceData->RecordCount()>0) {
+				$out.='
 											 <input type=\'hidden\' name="usedData" value="'.(join(",",$usedParams)).'">
 											</table>
 										</td>
 								   </tr>	
 							';
-						} else {
-							$out.='<tr><td colspan="2">No data for this device!</td></tr>';
-						}
-						
-					}
-					
-				$resDeviceData->close();
-				
-				$remainingData='<option value="0">-please select-</option>';
-				$querySelectRemainingParameterForDevice = "
+			} else {
+				$out.='<tr><td colspan="2">'.$TEXT_NO_DEVICE_DATA_FOR_THIS_DEVICE_CONST.'</td></tr>';
+			}
+
+		}
+
+		$resDeviceData->close();
+
+		$remainingData='<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
+		$querySelectRemainingParameterForDevice = "
 					select  * from DeviceData
 					where PK_DeviceData NOT IN (".join(",",$usedParams).")
 					order by Description asc";
-				$rs = $dbADO->_Execute($querySelectRemainingParameterForDevice);
-				while ($row = $rs->FetchRow()) {
-						$remainingData.='<option value="'.$row['PK_DeviceData'].'">'.$row['Description'].'</option>';
-				}
-				$rs->Close();
-				
-				$out.='<tr>
+		$rs = $dbADO->_Execute($querySelectRemainingParameterForDevice);
+		while ($row = $rs->FetchRow()) {
+			$remainingData.='<option value="'.$row['PK_DeviceData'].'">'.$row['Description'].'</option>';
+		}
+		$rs->Close();
+
+		$out.='<tr>
 					
 				</tr>
 				
 				<tr>
-					<td colspan="2"><a name="deviceData_link"></a>Add a new parameter: <select name="newDeviceData">'.$remainingData.'</select>&nbsp;&nbsp;
-					<input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
-				<br /> If the parameter you wish to add is not in the list, <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a>
+					<td colspan="2"><a name="deviceData_link"></a>'.$TEXT_ADD_A_NEW_PARAMETER_CONST.': <select name="newDeviceData">'.$remainingData.'</select>&nbsp;&nbsp;
+					<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+				<br /> '.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a>
 					</td>
 				</tr>
 				</table>
@@ -327,41 +341,41 @@ $out='';
 				<tr>
 					<td valign="top" colspan="2"><a name="commands_link"></a>				
 						<fieldset>
-		            		<legend>Commands</legend>
+		            		<legend>'.$TEXT_COMMANDS_CONST.'</legend>
 								<table>				
 				';
-				
-				$querySelCheckedCommandGroups = 'select FK_DeviceCommandGroup from DeviceTemplate_DeviceCommandGroup where  FK_DeviceTemplate = ?';
-				$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceID);
-				$selCheckedCommandsGroups = array();
-				if ($resSelCheckedCommandGroups) {
-					while ($rowSelCheckedCommandGroups = $resSelCheckedCommandGroups->FetchRow()) {
-						$selCheckedCommandsGroups[]=$rowSelCheckedCommandGroups['FK_DeviceCommandGroup'];
-					}
-				}
-				
-				if (!is_array($selCheckedCommandsGroups)) {
-					$selCheckedCommandsGroups=array();
-					$selCheckedCommandsGroups[]=0;
-				}
-				if (count($selCheckedCommandsGroups)==0) {
-					$selCheckedCommandsGroups[]=0;
-				}
-				
-				$query = "select  ".$dbADO->IfNull('FK_DeviceCategory_Parent','0')." as a from DeviceCategory 				
+
+		$querySelCheckedCommandGroups = 'select FK_DeviceCommandGroup from DeviceTemplate_DeviceCommandGroup where  FK_DeviceTemplate = ?';
+		$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceID);
+		$selCheckedCommandsGroups = array();
+		if ($resSelCheckedCommandGroups) {
+			while ($rowSelCheckedCommandGroups = $resSelCheckedCommandGroups->FetchRow()) {
+				$selCheckedCommandsGroups[]=$rowSelCheckedCommandGroups['FK_DeviceCommandGroup'];
+			}
+		}
+
+		if (!is_array($selCheckedCommandsGroups)) {
+			$selCheckedCommandsGroups=array();
+			$selCheckedCommandsGroups[]=0;
+		}
+		if (count($selCheckedCommandsGroups)==0) {
+			$selCheckedCommandsGroups[]=0;
+		}
+
+		$query = "select  ".$dbADO->IfNull('FK_DeviceCategory_Parent','0')." as a from DeviceCategory
 							WHERE 
 								PK_DeviceCategory = ?
 				";
-				$deviceParent=0;
-				$res = $dbADO->Execute($query,array($deviceCategID));
-				if ($res) {
-					while ($row = $res->FetchRow()) {
-						$deviceParent=$row['a'];												
-					}
-				}
-				$deviceParent=(int)$deviceParent;
-				$deviceCG = array();
-				$query = "select DeviceCommandGroup.* FROM
+		$deviceParent=0;
+		$res = $dbADO->Execute($query,array($deviceCategID));
+		if ($res) {
+			while ($row = $res->FetchRow()) {
+				$deviceParent=$row['a'];
+			}
+		}
+		$deviceParent=(int)$deviceParent;
+		$deviceCG = array();
+		$query = "select DeviceCommandGroup.* FROM
 							 DeviceCommandGroup
 								INNER JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
 							WHERE 
@@ -369,44 +383,44 @@ $out='';
 								PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).")
 							ORDER BY DeviceCommandGroup.Description Asc
 				";
-				$resCommands = $dbADO->_Execute($query);
-				
-				$commandsDisplayed = array();
-				if ($resCommands) {
-					while ($row = $resCommands->FetchRow()) {
-						$out.='<tr><td><input '.(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups)?" checked='checked' ": '').' type="checkbox" name="DeviceCommandGroup_'.$row['PK_DeviceCommandGroup'].'" value="1">'.stripslashes($row['Description']).'</td><td> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Commands</a></td></tr>';
-						$commandsDisplayed[]=$row['PK_DeviceCommandGroup'];
-					}					
-				}
-				if (count($commandsDisplayed)==0) {
-					$commandsDisplayed[]=0;
-				}
-				$out.='
+		$resCommands = $dbADO->_Execute($query);
+
+		$commandsDisplayed = array();
+		if ($resCommands) {
+			while ($row = $resCommands->FetchRow()) {
+				$out.='<tr><td><input '.(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups)?" checked='checked' ": '').' type="checkbox" name="DeviceCommandGroup_'.$row['PK_DeviceCommandGroup'].'" value="1">'.stripslashes($row['Description']).'</td><td> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Commands</a></td></tr>';
+				$commandsDisplayed[]=$row['PK_DeviceCommandGroup'];
+			}
+		}
+		if (count($commandsDisplayed)==0) {
+			$commandsDisplayed[]=0;
+		}
+		$out.='
 						<input type="hidden" name="DeviceCommandGroupDisplayed" value="'.(join(",",$commandsDisplayed)).'">
 						
-						<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true,scrollbars=1,resizable=1\');">Create Command Group</a>&nbsp;&nbsp;&nbsp;&nbsp;
-						Manually add command group 
+						<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_CREATE_COMMAND_GROUP_CONST.'</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						'.$TEXT_MANUALLY_ADD_COMMAND_GROUP_CONST.' 
 						<select name="addNewCommandGroupToMasterDevice">
 							';
-						$query = "select PK_DeviceCommandGroup, Description FROM DeviceCommandGroup where PK_DeviceCommandGroup NOT IN (".join(",",$commandsDisplayed).") Order By Description ASC";
-						$res = $dbADO->Execute($query);
-						$out.= '<option value="0">-please select-</option>';
-						if ($res) {
-							while ($row=$res->FetchRow()) {
-								$out.='<option value="'.$row['PK_DeviceCommandGroup'].'">'.$row['Description'].'</option>';	
-							}							
-						}
-						$res->Close();
-				$out.='	</select> <input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td></tr>
+		$query = "select PK_DeviceCommandGroup, Description FROM DeviceCommandGroup where PK_DeviceCommandGroup NOT IN (".join(",",$commandsDisplayed).") Order By Description ASC";
+		$res = $dbADO->Execute($query);
+		$out.= '<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
+		if ($res) {
+			while ($row=$res->FetchRow()) {
+				$out.='<option value="'.$row['PK_DeviceCommandGroup'].'">'.$row['Description'].'</option>';
+			}
+		}
+		$res->Close();
+		$out.='	</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td></tr>
 					</table>
 					</fieldset>
 				</td>
 			</tr>
 			';
-				
-				
-		
-		$out.='		
+
+
+
+		$out.='
 				<tr>
 					<td valign="top" colspan="2"><hr /></td>
 				</tr>
@@ -414,10 +428,10 @@ $out='';
 						<td valign="top" colspan="2"><a name="eventsList_link"></a>
 				
 				<fieldset>
-            		<legend>Events</legend>
+            		<legend>'.$TEXT_EVENTS_CONST.'</legend>
 						<table>
 					';
-					$queryEventsSelected = 'SELECT EL.Description as EL_Desc,MDL_EL.Description as MDL_EL_Desc,PK_Event
+		$queryEventsSelected = 'SELECT EL.Description as EL_Desc,MDL_EL.Description as MDL_EL_Desc,PK_Event
 						FROM DeviceTemplate_Event MDL_EL
 							INNER JOIN DeviceTemplate MDL on FK_DeviceTemplate = PK_DeviceTemplate
 							INNER JOIN Event EL on PK_Event = MDL_EL.FK_Event 						
@@ -425,54 +439,55 @@ $out='';
 							FK_DeviceTemplate = ?
 						Order By EL_Desc asc
 					';
-					//INNER JOIN Event_EventParameter EL_EP  on EL_EP.FK_Event = EL.PK_Event
-					//INNER JOIN EventParameter EP  on EP.PK_EventParameter = EL_EP.FK_EventParameter
-					//INNER JOIN ParameterType PT  on PT.PK_ParameterType = EP.FK_ParameterType					
-					
-					$resEventsSelected = $dbADO->Execute($queryEventsSelected,array($deviceID));
-					$eventsSelectedArray=array();
-					$eventsSelectedArray[]=0;
-					if ($resEventsSelected) {
-						while ($rowEventsSelected = $resEventsSelected->FetchRow()) {
-							$out.="<tr><td>".$rowEventsSelected['EL_Desc'].'
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=editMasterDevice&EventID='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">Edit</a>
+		//INNER JOIN Event_EventParameter EL_EP  on EL_EP.FK_Event = EL.PK_Event
+		//INNER JOIN EventParameter EP  on EP.PK_EventParameter = EL_EP.FK_EventParameter
+		//INNER JOIN ParameterType PT  on PT.PK_ParameterType = EP.FK_ParameterType
+
+		$resEventsSelected = $dbADO->Execute($queryEventsSelected,array($deviceID));
+		$eventsSelectedArray=array();
+		$eventsSelectedArray[]=0;
+		if ($resEventsSelected) {
+			while ($rowEventsSelected = $resEventsSelected->FetchRow()) {
+				$out.="<tr><td>".$rowEventsSelected['EL_Desc'].'
+							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=editMasterDevice&EventID='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">'.$TEXT_EDIT_CONST.'</a>
 							<br />#'.$rowEventsSelected['PK_Event'].
-							"</td><td><textarea cols='40' rows='5' name='EventDesc_{$rowEventsSelected['PK_Event']}'>".$rowEventsSelected['MDL_EL_Desc']."</textarea></td><td>".'
+				"</td><td><textarea cols='40' rows='5' name='EventDesc_{$rowEventsSelected['PK_Event']}'>".$rowEventsSelected['MDL_EL_Desc']."</textarea></td><td>".'
 							 
-							&nbsp; &nbsp; <a href="javascript:void(0);" onClick="if (confirm(\'Ar you sure you want to delete this event?\')) windowOpen(\'index.php?section=deleteEventFromMasterDevice&from=editMasterDevice&Event='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Delete</a></td></tr>							
+							&nbsp; &nbsp; <a href="javascript:void(0);" onClick="if (confirm(\'Ar you sure you want to delete this event?\')) windowOpen(\'index.php?section=deleteEventFromMasterDevice&from=editMasterDevice&Event='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_DELETE_CONST.'</a></td></tr>							
 							';
-							$eventsSelectedArray[]=$rowEventsSelected['PK_Event'];
-						}
-					}
-					$resEventsSelected->Close();
-					
-					$queryEventsList = 'SELECT Description,PK_Event
+				$eventsSelectedArray[]=$rowEventsSelected['PK_Event'];
+			}
+		}
+		$resEventsSelected->Close();
+
+		$queryEventsList = 'SELECT Description,PK_Event
 							FROM Event
 							WHERE PK_Event NOT IN ('.join(",",$eventsSelectedArray).')
 							ORDER BY Description ASC
 					';
-					
-					$resEventsList = $dbADO->_Execute($queryEventsList);
-					if ($resEventsList) {					
-						if ($resEventsList->RecordCount()>0) {
-							$eventsTxt = '<option value=\'0\'>-please select-</option>';
-						}else{
-							$eventsTxt = '<option value="0">No Events Lists available</option>';
-						}
-						while ($rowEventsList = $resEventsList->FetchRow()) {
-							$eventsTxt.= '<option value="'.$rowEventsList['PK_Event'].'">'.$rowEventsList['Description'].'</option>';
-						}
-					}
-					$out.='
+
+		$resEventsList = $dbADO->_Execute($queryEventsList);
+		if ($resEventsList) {
+			if ($resEventsList->RecordCount()>0) {
+				$eventsTxt = '<option value=\'0\'>-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
+			}else{
+				$eventsTxt = '<option value="0">'.$TEXT_NO_EVENTS_LISTS_AVAILABLE_CONST.'</option>';
+			}
+			while ($rowEventsList = $resEventsList->FetchRow()) {
+				$eventsTxt.= '<option value="'.$rowEventsList['PK_Event'].'">'.$rowEventsList['Description'].'</option>';
+			}
+		}
+		$out.='
 							
 							<tr>
-									<td>Add new event: <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td><td><input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+									<td>'.$TEXT_ADD_NEW_EVENT_CONST.': <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td>
+									<td><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
 										<input type="hidden" name="eventsListDisplayed" value="'.join(",",$eventsSelectedArray).'">
 									</td>
 							</tr>
 							<tr>
 								<td colspan="2">
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">Create an Event</a>
+									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_CREATE_AN_EVENT_CONST.'</a>
 								</td>
 							</tr>
 						</table>
@@ -483,179 +498,179 @@ $out='';
 						<td valign="top" colspan="2"><a name="plugAndPlay"></a>
 				
 				<fieldset>
-            		<legend>Plug & Play</legend>
+            		<legend>'.$TEXT_PLUG_AND_PLAY_CONST.'</legend>
 						<table>';
-					$dhcpArray=array();
-					$resDHCP=$dbADO->Execute('SELECT * FROM DHCPDevice WHERE FK_DeviceTemplate=?',$deviceID);
-					$out.='
+		$dhcpArray=array();
+		$resDHCP=$dbADO->Execute('SELECT * FROM DHCPDevice WHERE FK_DeviceTemplate=?',$deviceID);
+		$out.='
 							<tr>
-								<td colspan="3">'.(($resDHCP->RecordCount()==0)?'No records.':'Range of MAC').'</td>
+								<td colspan="3">'.(($resDHCP->RecordCount()==0)?$TEXT_NO_RECORDS_CONST:$TEXT_RANGE_OF_MAC_CONST).'</td>
 							</tr>
 						';
-					while($rowDHCP=$resDHCP->FetchRow()){
-						$dhcpArray[]=$rowDHCP['PK_DHCPDevice'];
-						$out.='
+		while($rowDHCP=$resDHCP->FetchRow()){
+			$dhcpArray[]=$rowDHCP['PK_DHCPDevice'];
+			$out.='
 							<tr>
-								<td>From: <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
-								<td>To: <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
-								<td>Manufacturer: '.pulldownFromArray($manufacturersArray,'manufacturerPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_Manufacturer']).'</td>
+								<td>'.$TEXT_FROM_CONST.': <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
+								<td>'.$TEXT_TO_CONST.': <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
+								<td>'.$TEXT_MANUFACTURER_CONST.': '.pulldownFromArray($manufacturersArray,'manufacturerPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_Manufacturer']).'</td>
 							</tr>
 							<tr>
-								<td align="right">Category: </td>
+								<td align="right">'.$TEXT_DEVICE_CATEGORY_CONST.': </td>
 								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_DeviceCategory']).'</td>
 							</tr>
 							<tr>
-								<td align="right">Comment: </td>
-								<td colspan="2"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" cols="50">'.$rowDHCP['Description'].'</textarea> <input type="button" class="button" name="editDHCP" value="Edit" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
+								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
+								<td colspan="2"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" cols="50">'.$rowDHCP['Description'].'</textarea> <input type="button" class="button" name="editDHCP" value="Edit" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="'.$TEXT_DELETE_CONST.'" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
 							</tr>';
-					}
-					$out.='
+		}
+		$out.='
 							<tr>
 								<td colspan="3"><hr></td>
 							</tr>
 							<tr bgcolor="#EEEEEE">
-								<td>From: <input type="text" name="mac_from" value=""></td>
-								<td>To: <input type="text" name="mac_to" value=""></td>
-								<td>Manufacturer: '.pulldownFromArray($manufacturersArray,'manufacturerPnp','').'</td>
+								<td>'.$TEXT_FROM_CONST.': <input type="text" name="mac_from" value=""></td>
+								<td>'.$TEXT_TO_CONST.': <input type="text" name="mac_to" value=""></td>
+								<td>'.$TEXT_MANUFACTURER_CONST.': '.pulldownFromArray($manufacturersArray,'manufacturerPnp','').'</td>
 							</tr>
 							<tr bgcolor="#EEEEEE">
-								<td align="right">Category: </td>
+								<td align="right">'.$TEXT_DEVICE_CATEGORY_CONST.': </td>
 								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp','').'</td>
 							</tr>
 							<tr bgcolor="#EEEEEE">
-								<td align="right">Comment: </td>
-								<td colspan="2"><textarea name="commentPnp" rows="2" cols="50"></textarea> <input type="submit" class="button" name="addDHCP" value="Add"></td>
+								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
+								<td colspan="2"><textarea name="commentPnp" rows="2" cols="50"></textarea> <input type="submit" class="button" name="addDHCP" value="'.$TEXT_ADD_CONST.'"></td>
 							</tr>
 							<input type="hidden" name="dhcpArray" value="'.((join(',',$dhcpArray))).'">	
 						</table>
 					</fieldset>
 					</td>
 				</tr>';
-			
-			$resRel=$dbADO->Execute('
+
+		$resRel=$dbADO->Execute('
 				SELECT DeviceTemplate_DeviceTemplate_Related.*, D1.Description
 				FROM DeviceTemplate_DeviceTemplate_Related 
 				INNER JOIN DeviceTemplate D1 ON FK_DeviceTemplate_Related=PK_DeviceTemplate
 				WHERE FK_DeviceTemplate=?',$deviceID);				
-			$dtRelatedRows='';
-			while($rowRel=$resRel->FetchRow()){
-				$pipePos=strpos($rowRel['Value'],'|');
-				$relValue=($pipePos!==false)?substr($rowRel['Value'],0,$pipePos):$rowRel['Value'];
-				$dtRelatedRows.='
+		$dtRelatedRows='';
+		while($rowRel=$resRel->FetchRow()){
+			$pipePos=strpos($rowRel['Value'],'|');
+			$relValue=($pipePos!==false)?substr($rowRel['Value'],0,$pipePos):$rowRel['Value'];
+			$dtRelatedRows.='
 					<tr>
 						<td>&nbsp;</td>
 						<td bgcolor="#EEEEEE">'.$rowRel['Description'].'</td>
 						<td bgcolor="#EEEEEE">'.$dtRelatedValues[$relValue].'</td>
-						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\'Are you sure you want to delete this relation?\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
+						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\''.$TEXT_DELETE_RELATION_CONFIRMATION_CONST.'\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
 					</tr>';
-			}
-			$out.='		
+		}
+		$out.='
 				<tr>
 						<td valign="top" colspan="2"><a name="dtRelated"></a>
 				
 				<fieldset>
-            		<legend>Device Template Related</legend>
+            		<legend>'.$TEXT_DEVICE_TEMPLATE_RELATED_CONST.'</legend>
 						<input type="hidden" name="delRelated" value="">
 						<span class="err">'.@$_REQUEST['errRelated'].'</span>
 						<table>'.$dtRelatedRows.'
 							<tr>
-								<td>Add device template related #ID</td>
+								<td>'.$TEXT_ADD_DEVICE_TEMPLATE_RELATED_CONST.' #ID</td>
 								<td><input type="text" name="addRelated" value=""></td>
 								<td>'.pulldownFromArray($dtRelatedValues,'valueRelated','','','key','').'</td>
-								<td><input type="submit" class="button" name="add" value="Add"></td>
+								<td><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 							</tr>
 						</table>
 					</fieldset>
 					</td>
 				</tr>';
-					
-			$queryDT_DO='
+
+		$queryDT_DO='
 				SELECT DesignObj.Description, PK_DesignObj 
 				FROM DeviceTemplate_DesignObj 
 				INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj
 				WHERE FK_DeviceTemplate=? ORDER BY Description ASC';
-			$resDT_DO=$dbADO->Execute($queryDT_DO,$deviceID);
-			$linksArray=array();
-			while($rowDT_DO=$resDT_DO->FetchRow()){
-				$linksArray[]='<a href="index.php?section=editMasterDevice&model='.$deviceID.'&action=removescreen&doID='.$rowDT_DO['PK_DesignObj'].'" title="Click to remove screen">'.$rowDT_DO['Description'].'</a>';
-			}
-			$out.='		
+		$resDT_DO=$dbADO->Execute($queryDT_DO,$deviceID);
+		$linksArray=array();
+		while($rowDT_DO=$resDT_DO->FetchRow()){
+			$linksArray[]='<a href="index.php?section=editMasterDevice&model='.$deviceID.'&action=removescreen&doID='.$rowDT_DO['PK_DesignObj'].'" title="Click to remove screen">'.$rowDT_DO['Description'].'</a>';
+		}
+		$out.='
 				<tr>
-					<td valign="top" colspan="2">This device requries the following screens: '.join(', ',$linksArray).'</td>
+					<td valign="top" colspan="2">'.$TEXT_THIS_DEVICE_REQURIES_THE_FOLLOWING_SCREENS_CONST.' '.join(', ',$linksArray).'</td>
 				</tr>
 				<tr>
-					<td valign="top" colspan="2"><input type="text" name="newScreen" value=""> <input type="submit" class="button" name="addScreen" value="Add screen"></td>
+					<td valign="top" colspan="2"><input type="text" name="newScreen" value=""> <input type="submit" class="button" name="addScreen" value="'.$TEXT_ADD_SCREEN_CONST.'"></td>
 				</tr>
 				<tr>
 					<td valign="top" colspan="2"><hr /></td>
 				</tr>
 					';
-					
-				$querySelectCustomPages = '
+
+		$querySelectCustomPages = '
 					SELECT PageSetup.* 
 						FROM DeviceTemplate_PageSetup 
 							INNER JOIN DeviceTemplate ON PK_DeviceTemplate = FK_DeviceTemplate
 							INNER JOIN PageSetup ON PK_PageSetup = FK_PageSetup
 						WHERE FK_DeviceTemplate = ?
 					';
-				$resSelectCustomPages = $dbADO->Execute($querySelectCustomPages,array($deviceID));
-				
-				if ($resSelectCustomPages->RecordCount()) {
-					$out.='<tr>
+		$resSelectCustomPages = $dbADO->Execute($querySelectCustomPages,array($deviceID));
+
+		if ($resSelectCustomPages->RecordCount()) {
+			$out.='<tr>
 						<td valign="top" colspan="2">
 				
 				<fieldset>
-            		<legend>Config Pages</legend>
+            		<legend>'.$TEXT_CONFIG_PAGES_CONST.'</legend>
 						<table>
 					';
-					
-					while ($rowCustomPage = $resSelectCustomPages->FetchRow()) {
-						$URL = str_replace("::ID::",$deviceID,$rowCustomPage['pageURL']);
-						$out.='
+
+			while ($rowCustomPage = $resSelectCustomPages->FetchRow()) {
+				$URL = str_replace("::ID::",$deviceID,$rowCustomPage['pageURL']);
+				$out.='
 						<tr>
 							<td>
 								<a href="javascript:void(0);" onClick="windowOpen(\''.$URL.'\',\'status=1,resizable=1,width=800,height=600,toolbars=true\');">'.$rowCustomPage['Description'].'</a>
 							</td>
 						</tr>';
-					}
-					$out.='
+			}
+			$out.='
 						</table>
 					</fieldset>
 					</td>
 				</tr>';
-					
-				}
-				
-				$out.='
+
+		}
+
+		$out.='
 				<tr>
-					<td valign="top" colspan="2"><input type="submit" class="button" name="submitX" value="Save" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td>
+					<td valign="top" colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td>
 				</tr>
 					
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editMasterDevice");
- 			frmvalidator.addValidation("description","req","Please enter a description");
-			frmvalidator.addValidation("MasterDeviceCategory","dontselect=0","Please select a category");
-			frmvalidator.addValidation("Manufacturer","dontselect=0","Please select a manufacturer");			
+ 			frmvalidator.addValidation("description","req","'.$TEXT_DESCRIPTION_REQUIRED_CONST.'");
+			frmvalidator.addValidation("MasterDeviceCategory","dontselect=0","'.$TEXT_DEVICE_CATEGORY_REQUIRED_CONST.'");
+			frmvalidator.addValidation("Manufacturer","dontselect=0","'.$TEXT_MANUFACTURER_REQUIRED_CONST.'");			
 			'.$deviceDataFormValidation.'
 		</script>
 		';
 	} else {
 		if(!isset($_SESSION['userID'])){
-			header("Location: index.php?section=editMasterDevice&model=".$deviceID.'&error=You must be logged in in order to modify device templates.');
+			header("Location: index.php?section=editMasterDevice&model=".$deviceID.'&error='.$TEXT_LOGIN_TO_EDIT_REQUIRED_CONST);
 			exit();
 		}
-		
+
 		if(isset($_REQUEST['doID'])){
 			$doID=(int)$_REQUEST['doID'];
 			$dbADO->Execute('DELETE FROM DeviceTemplate_DesignObj WHERE FK_DeviceTemplate=? AND FK_DesignObj=?',array($deviceID,$doID));
-			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Screen removed from device template.");
-			exit();			
+			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=".$TEXT_SCREEN_REMOVED_FROM_DEVICE_TEMPLATE_CONST);
+			exit();
 		}
-		
+
 		$description=cleanString($_POST['description'],30);
-		
+
 		$commandLine = cleanString($_POST['CommandLine'],100);
 		$ImplementsDCE = @cleanInteger($_POST['ImplementsDCE']);
 		$category = cleanInteger($_POST['MasterDeviceCategory']);
@@ -683,12 +698,12 @@ $out='';
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 
-		
+
 		if($newMacFrom!='' && $newMacTo!=''){
 			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,FK_Manufacturer,FK_DeviceCategory,Description) VALUES (?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newManufacturer,$newCategory,$newComment));
 			$locationGoTo='plugAndPlay';
 		}
-		
+
 		foreach ($dhcpArray AS $dhcpID){
 			$macFrom=@$_POST['mac_from_'.$dhcpID];
 			$macTo=@$_POST['mac_to_'.$dhcpID];
@@ -697,14 +712,14 @@ $out='';
 			$newComment=@$_POST['commentPnp_'.$dhcpID];
 			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,FK_Manufacturer=?,FK_DeviceCategory=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newManufacturer,$newCategory,$newComment,$dhcpID));
 		}
-		
+
 		if($_REQUEST['toDel']!=''){
 			$dhcpID=(int)$_REQUEST['toDel'];
 			if($dhcpID!=0){
 				$dbADO->Execute('DELETE FROM DHCPDevice WHERE PK_DHCPDevice=?',$dhcpID);
 			}
 		}
-		
+
 		if($newScreen!=0){
 			$newScreenExist=$dbADO->Execute('SELECT * FROM DesignObj WHERE PK_DesignObj=?',$newScreen);
 			if($newScreenExist->RecordCount()>0){
@@ -716,16 +731,16 @@ $out='';
 					$dbADO->Execute('INSERT INTO DeviceTemplate_DesignObj (FK_DeviceTemplate,FK_DesignObj) VALUES (?,?)',array($deviceID,$newScreen));
 				}
 			}else{
-				header("Location: index.php?section=editMasterDevice&model=$deviceID&error=Screen does not exist!");
-				exit();			
+				header("Location: index.php?section=editMasterDevice&model=$deviceID&error=".$TEXT_ERROR_SCREEN_DOES_NOT_EXIST_CONST);
+				exit();
 			}
 		}
-		
-		$locationGoTo=''; 
 
-		
+		$locationGoTo='';
+
+
 		$usedParams = @cleanString($_POST['usedData']);
-		
+
 		$usedParamsArray = explode(",",$usedParams);
 		foreach ($usedParamsArray as $param) {
 			$param=(int)$param;
@@ -736,7 +751,7 @@ $out='';
 			$useDeviceTemplateDefaultParam = cleanInteger(@$_POST['Data_UseDeviceTemplateDefault_'.$param]);
 			$setByDeviceParam = cleanInteger(@$_POST['Data_SetByDevice_'.$param]);
 			if ($descriptionParam!='') {
-				
+
 				$getOldValues = "select IK_DeviceData,Description,Required,
 										AllowedToModify,UseDeviceTemplateDefault,SetByDevice
 								 FROM DeviceTemplate_DeviceData WHERE FK_DeviceData = $param AND FK_DeviceTemplate = $deviceID";
@@ -774,43 +789,43 @@ $out='';
 							WHERE FK_DeviceData = ? AND FK_DeviceTemplate = ?
 						";			
 				$dbADO->Execute($query,array($defaultValueParam,$descriptionParam,$requiredParam,
-											$allowedToModifyParam,$useDeviceTemplateDefaultParam,
-											$setByDeviceParam,$param,$deviceID));
+				$allowedToModifyParam,$useDeviceTemplateDefaultParam,
+				$setByDeviceParam,$param,$deviceID));
 			}
 		}
 		//commands process
-		$usedCommands = cleanString($_POST['DeviceCommandGroupDisplayed']);		
+		$usedCommands = cleanString($_POST['DeviceCommandGroupDisplayed']);
 		$usedCommandsArray = explode(",",$usedCommands);
-		
-		
+
+
 		foreach ($usedCommandsArray as $param) {
 			$queryForCommandGroup='';
 			$param=(int)$param;
 			$deviceCommandGroup = cleanInteger(@$_POST['DeviceCommandGroup_'.$param]);
-				
-				$getOldValues = "select FK_DeviceTemplate  
+
+			$getOldValues = "select FK_DeviceTemplate
 								 FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate = $deviceID and FK_DeviceCommandGroup = $param";
-				
-				$resOldValuesData = $dbADO->Execute($getOldValues);
-				
-				if ($resOldValuesData && $resOldValuesData->RecordCount()==1) {					
-					if ($deviceCommandGroup==0) {
-						$queryForCommandGroup = "delete from DeviceTemplate_DeviceCommandGroup where FK_DeviceTemplate = $deviceID and FK_DeviceCommandGroup = $param";
-						$dbADO->Execute($queryForCommandGroup);
-						$locationGoTo = "#commands_link";
-						//$locationGoTo = "DeviceCommandGroup_".$param;
-					} else {
-						//nothing: is in database, and it comes selected
-					}
+
+			$resOldValuesData = $dbADO->Execute($getOldValues);
+
+			if ($resOldValuesData && $resOldValuesData->RecordCount()==1) {
+				if ($deviceCommandGroup==0) {
+					$queryForCommandGroup = "delete from DeviceTemplate_DeviceCommandGroup where FK_DeviceTemplate = $deviceID and FK_DeviceCommandGroup = $param";
+					$dbADO->Execute($queryForCommandGroup);
+					$locationGoTo = "#commands_link";
+					//$locationGoTo = "DeviceCommandGroup_".$param;
 				} else {
-					//insert record in database
-						if ($deviceCommandGroup==1) {
-								$queryForCommandGroup = "insert into DeviceTemplate_DeviceCommandGroup(FK_DeviceCommandGroup,FK_DeviceTemplate) values(?,?)";
-								$dbADO->Execute($queryForCommandGroup,array($param,$deviceID));
-								//$locationGoTo = "DeviceCommandGroup_".$param;
-								$locationGoTo = "#commands_link";								
-						}
-				}				
+					//nothing: is in database, and it comes selected
+				}
+			} else {
+				//insert record in database
+				if ($deviceCommandGroup==1) {
+					$queryForCommandGroup = "insert into DeviceTemplate_DeviceCommandGroup(FK_DeviceCommandGroup,FK_DeviceTemplate) values(?,?)";
+					$dbADO->Execute($queryForCommandGroup,array($param,$deviceID));
+					//$locationGoTo = "DeviceCommandGroup_".$param;
+					$locationGoTo = "#commands_link";
+				}
+			}
 		}
 
 		//new command group added: addNewCommandGroupToMasterDevice
@@ -821,7 +836,7 @@ $out='';
 			$dbADO->Execute($query);
 		}
 
-		
+
 		//newEventToMasterDevice
 		$newEventToMasterDevice = (int)$_POST['newEventToMasterDevice'];
 		if ($newEventToMasterDevice!=0) {
@@ -829,36 +844,36 @@ $out='';
 			$dbADO->Execute($query,array($deviceID,$newEventToMasterDevice));
 			$locationGoTo = "EventDesc_{$newEventToMasterDevice}";
 		}
-		
+
 		//EventDisplayed
 		$usedEvents = cleanString($_POST['eventsListDisplayed']);
 		$usedEventsArray = explode(",",$usedEvents);
-		 foreach ($usedEventsArray as $elem) {
-		 	$desc = cleanString(@$_POST['EventDesc_'.$elem]);
-		 	$selectOldValue = 'select Description from DeviceTemplate_Event where FK_DeviceTemplate = ? and FK_Event = ?';
-		 	$resOldValue = $dbADO->Execute($selectOldValue,array($deviceID,$elem));
-		 	$oldDescForEvent='';
-		 		if ($resOldValue) {
-		 			$row=$resOldValue->FetchRow();
-		 			$oldDescForEvent = $row['Description'];
-		 		}
-		 	if ($desc!='' && $desc!=$oldDescForEvent) {		 		
-		 		$query = 'update DeviceTemplate_Event set Description = ? where FK_DeviceTemplate = ? and FK_Event = ?';
-		 		$dbADO->Execute($query,array($desc,$deviceID,$elem));
-		 		$locationGoTo = "EventDesc_".$elem;
-		 	}
-		 }
-		
+		foreach ($usedEventsArray as $elem) {
+			$desc = cleanString(@$_POST['EventDesc_'.$elem]);
+			$selectOldValue = 'select Description from DeviceTemplate_Event where FK_DeviceTemplate = ? and FK_Event = ?';
+			$resOldValue = $dbADO->Execute($selectOldValue,array($deviceID,$elem));
+			$oldDescForEvent='';
+			if ($resOldValue) {
+				$row=$resOldValue->FetchRow();
+				$oldDescForEvent = $row['Description'];
+			}
+			if ($desc!='' && $desc!=$oldDescForEvent) {
+				$query = 'update DeviceTemplate_Event set Description = ? where FK_DeviceTemplate = ? and FK_Event = ?';
+				$dbADO->Execute($query,array($desc,$deviceID,$elem));
+				$locationGoTo = "EventDesc_".$elem;
+			}
+		}
+
 		$newDeviceData = (int)$_POST['newDeviceData'];
 		if ($newDeviceData!=0 && $deviceID!=0) {
 			$query = "insert into DeviceTemplate_DeviceData( FK_DeviceTemplate , FK_DeviceData) values(?,?)";
 			$dbADO->Execute($query,array($deviceID,$newDeviceData));
-			
+
 			$locationGoTo = "Data_Description_{$newDeviceData}";
 
 		}
 
-		if ($isAVDevice!=$old_isAVDevice) {			
+		if ($isAVDevice!=$old_isAVDevice) {
 			if($isAVDevice==1){
 				$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES(?)";
 				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID));
@@ -871,9 +886,9 @@ $out='';
 			}
 		}
 
-		
+
 		if ($deviceID!=0 && $description!='' && $category!=0 && $manufacturer!=0) {
-			$updateQuery = "UPDATE DeviceTemplate SET 
+			$updateQuery = "UPDATE DeviceTemplate SET
 							Description = ?, 
 							ImplementsDCE = ?,							
 							CommandLine = ?, 
@@ -897,8 +912,8 @@ $out='';
 						(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia) 
 					VALUES(?,?)';
 				$query = $dbADO->Execute($insertControlledVia,array($deviceID,$GLOBALS['rootDCERouter']));
-			
-			}	
+
+			}
 			$addRelated=(int)@$_POST['addRelated'];
 			$valueRelated=(int)@$_POST['valueRelated'];
 			if($addRelated!=0){
@@ -917,34 +932,34 @@ $out='';
 					}
 				}
 			}
-			
+
 			if((int)@$_POST['delRelated']>0){
 				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=? AND FK_DeviceTemplate_Related=?',array($deviceID,(int)$_POST['delRelated']));
 				$locationGoTo='#dtRelated';
 			}
-			
+
 			if (strstr($locationGoTo,"#")) {
-				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Saved!".$locationGoTo);
+				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=$TEXT_SAVED_CONST".$locationGoTo);
 			} else {
-				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Saved!&lastAction=".$locationGoTo);
+				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=$TEXT_SAVED_CONST!&lastAction=".$locationGoTo);
 			}
 		} else {
-			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Missed parrameters!");
+			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=".$TEXT_ERROR_MISSING_PARRAMETERS_CONST);
 		}
-		
-		
+
+
 	}
 	$onLoad='';
 	if ($lastAction!=''?$onLoad.="if (document.forms.editMasterDevice.{$lastAction}) {document.forms.editMasterDevice.{$lastAction}.focus();} ":$onLoad.="")
 	if (strlen($onLoad)>2) {
 		$output->setScriptInBody("onLoad=\"javascript:eval('$onLoad');\"");
 	}
-	
-	$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates',$description=>'index.php?section=editMasterDevice&model='.$deviceID));
-	
+
+	$output->setNavigationMenu(array($TEXT_DEVICE_TEMPLATES_CONST=>'index.php?section=deviceTemplates',$description=>'index.php?section=editMasterDevice&model='.$deviceID));
+
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit Device Template');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.' :: '.$description);
 	$output->output();
-	
+
 }
 ?>

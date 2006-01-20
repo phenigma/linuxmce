@@ -1,5 +1,8 @@
 <?
 function deviceTemplates($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID= (int)@$_SESSION['userID'];
@@ -16,7 +19,7 @@ function deviceTemplates($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Device Templates');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DEVICE_TEMPLATES_CONST);			
 	$output->output();  		
 }
 ?>

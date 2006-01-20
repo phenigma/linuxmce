@@ -1,5 +1,8 @@
 <?
 function deviceTemplatePicker($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$userID= (int)@$_SESSION['userID'];
@@ -19,7 +22,7 @@ function deviceTemplatePicker($output,$dbADO) {
 	$out.=pickDeviceTemplate($_SESSION['categoryID'],1,0,$allowAddDT,1,1,'deviceTemplatePicker','',$dbADO,0);
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Pick Device Template');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PICK_DEVICE_TEMPLATE_CONST);			
 	$output->output();  		
 }
 ?>

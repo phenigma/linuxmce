@@ -1,5 +1,9 @@
 <?php
 function userChangePassword($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/userChangePassword.lang.php');
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -24,33 +28,29 @@ function userChangePassword($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="userID" value="'.$userID.'">
-		<table>	
-				
 		
-		';
-		
-		
-			$out.='
+		<h3>'.$TEXT_CHANGE_PASSWORD_CONST.'</h3>
+			<table>	
 					<tr valign="top">
-						<td>Your Password</td>
+						<td>'.$TEXT_YOUR_PASSWORD_CONST.'</td>
 						<td>
 							<input type="password" name="oldPassword" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Password</td>
+						<td>'.$TEXT_PASSWORD_CONST.'</td>
 						<td>
 							<input type="password" name="userPassword" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Re-Type Password</td>
+						<td>'.$TEXT_USER_CONFIRM_PASSWORD_CONST.'</td>
 						<td>
 							<input type="password" name="userPassword2" value="">
 						</td>
 					</tr>					
 					<tr>
-						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 					</tr>
 			</table>
 			</form>
@@ -59,8 +59,8 @@ function userChangePassword($output,$dbADO) {
 			$out.='
 				<script>
 		 			var frmvalidator = new formValidator("userChangePassword"); 		
-					frmvalidator.addValidation("userPassword","req","Please enter a password");
-					frmvalidator.addValidation("userPassword2","req","Please retype the password");';
+					frmvalidator.addValidation("userPassword","req","'.$TEXT_PASSWORD_REQUIRED_CONST.'");
+					frmvalidator.addValidation("userPassword2","req","'.$TEXT_CONFIRMED_PASSWORD_REQUIRED_CONST.'");';
 			$out.='
 				</script>
 			';
@@ -71,7 +71,7 @@ function userChangePassword($output,$dbADO) {
 	
 		if ($canModifyInstallation) {		
 			if($_REQUEST['oldPassword']!=$_SESSION['password']){
-				header('Location: index.php?section=userChangePassword&from=users&userID='.$userID.'&error=Your password does not match');
+				header('Location: index.php?section=userChangePassword&from=users&userID='.$userID.'&error='.$TEXT_ERROR_PASSWORD_DO_NOT_MATCH_CONST);
 				exit();
 			}
 			
@@ -79,7 +79,7 @@ function userChangePassword($output,$dbADO) {
 			$userPassword2 = $_SESSION['userChangePassword']['userPassword2'] = cleanString($_POST['userPassword2']);
 	
 			if ($userPassword!=$userPassword2) {
-				header("Location: index.php?section=userChangePassword&error=Passwords do not match.&userID=$userID&from=$from");
+				header("Location: index.php?section=userChangePassword&error=$TEXT_ERROR_PASSWORD_DO_NOT_MATCH_CONST&userID=$userID&from=$from");
 				exit();
 			}	
 
@@ -108,7 +108,7 @@ function userChangePassword($output,$dbADO) {
 				
 				$out.="
 				<script>
-					alert('User\'s password changed!');
+					alert('$TEXT_PASSWORD_CHANGED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					//opener.document.forms.{$from}.lastAction.value='xxx';
 					opener.document.forms.{$from}.submit();
@@ -120,13 +120,13 @@ function userChangePassword($output,$dbADO) {
 				exit();
 			}		
 		} else {
-			header("Location: index.php?section=userChangePassword&userID=$userID&from=$from&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=userChangePassword&userID=$userID&from=$from&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Change password');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CHANGE_PASSWORD_CONST);			
 	$output->output();
 }
 ?>

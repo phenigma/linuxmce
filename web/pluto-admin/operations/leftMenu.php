@@ -1,5 +1,9 @@
 <?
 function leftMenu($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/leftMenu.lang.php');
+	
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
@@ -19,13 +23,13 @@ function leftMenu($output,$dbADO) {
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
 				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >Logout</a></td>					
+					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
 				</tr>
 		';
 	} else {
 		$out.='
 				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">Login</a></td>
+					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a></td>
 				</tr>
 		';
 	}
@@ -33,7 +37,7 @@ function leftMenu($output,$dbADO) {
 	$out.= '
 	
 				<tr>
-					<td valign="top" nowrap>'.($currentSection=='deviceTemplates'?'&raquo;':'').'<a href="index.php?section=deviceTemplates" target="basefrm">Device Templates</a></td>
+					<td valign="top" nowrap>'.($currentSection=='deviceTemplates'?'&raquo;':'').'<a href="index.php?section=deviceTemplates" target="basefrm">'.$TEXT_DEVICE_TEMPLATES_CONST.'</a></td>
 				</tr>
 			
 	';	
@@ -93,7 +97,7 @@ function leftMenu($output,$dbADO) {
 			
 				$installationTxt.='
 					
-					Change Installation:
+					'.$TEXT_CHANGE_INSTALLATION_CONST.':
 					<input type="hidden" name="section" value="leftMenu">
 					<input type="hidden" name="rightSection" value="'.$currentSection.'">
 					<select name="installationNo" onChange="parent.frames[1].location.href=\'index.php?section=userHome&reloadTree=true\';this.form.submit();">';
@@ -102,7 +106,7 @@ function leftMenu($output,$dbADO) {
 						$installationTxt.="<option ".($selectedInstallation==$elem?" selected ":'')." value='".$elem."'>$elem</option>";
 					}
 
-					$installationTxt.='</select> <input type="submit" class="button" name="submitX" value="Go">
+					$installationTxt.='</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_GO_CONST.'">
 				
 				';
 			ksort($devicesArray,SORT_NUMERIC);
@@ -117,9 +121,9 @@ function leftMenu($output,$dbADO) {
 				</td>
 			</tr>
 			<tr>
-				<td><fieldset><legend>Go to device</legend>
+				<td><fieldset><legend>'.$TEXT_GO_TO_DEVICE_CONST.'</legend>
 				<div align="right">
-					'.pulldownFromArray($devicesArray,'quickJump',0,'').' <input type="button" class="button" value="Quick jump" onClick="showDevice();">
+					'.pulldownFromArray($devicesArray,'quickJump',0,'').' <input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();">
 				</div></fieldset>
 				</td>
 			</tr>
@@ -157,7 +161,7 @@ function leftMenu($output,$dbADO) {
 			$jsTree
 			
 			".($treeType=='devices'?"
-								auxS = insFld(foldersTree, gFld(\"Add top level device\", \"index.php?section=addMyDevice&parentID=0\"));
+								auxS = insFld(foldersTree, gFld(\"$TEXT_ADD_TOP_LEVEL_DEVICE_CONST\", \"index.php?section=addMyDevice&parentID=0\"));
 								auxS.xID = 0;
 								auxS.iconSrc = ICONPATH + \"diffFolder.gif\"
 			  					auxS.iconSrcClosed = ICONPATH + \"diffFolder.gif\" 
@@ -247,21 +251,9 @@ function leftMenu($output,$dbADO) {
 				</tr>
 			<tr>
 				<td>
-					<br /><a href="index.php?section=leftMenu&treeType='.($treeType=='scenarios'?'devices':'scenarios').'">'.($treeType=='scenarios'?'My Devices':'My Scenarios').'</a>
+					<br /><a href="index.php?section=leftMenu&treeType='.($treeType=='scenarios'?'devices':'scenarios').'">'.($treeType=='scenarios'?$TEXT_MY_DEVICES_CONST:$TEXT_MY_SCENARIOS_CONST).'</a>
 				</td>
 			</tr>
-			<!--
-			<tr>
-				<td>
-					<br /><a href="index.php?section=settings" target="basefrm">Use wizard</a>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<a href="index.php?section=relatedInstallations" target="basefrm">Related Installations</a>
-				</td>
-			</tr>
-			-->
 			';
 
 

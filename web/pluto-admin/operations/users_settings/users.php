@@ -1,36 +1,39 @@
 <?
 function users($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/users.lang.php');
 
-/* @var $dbADO ADOConnection */
-/* @var $rs ADORecordSet */
-/* @var $resUserTypes ADORecordSet */
-$out='';
-$locationGoTo='';
-$dbADO->debug=false;
-$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+	/* @var $resUserTypes ADORecordSet */
+	$out='';
+	$locationGoTo='';
+	$dbADO->debug=false;
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
+	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 
-if (@$_SESSION['userLoggedIn']!=true) {
-	header("Location: index.php?section=login&from=users");
-}
+	if (@$_SESSION['userLoggedIn']!=true) {
+		header("Location: index.php?section=login&from=users");
+	}
 
-$installationID = cleanInteger($_SESSION['installationID']);
+	$installationID = cleanInteger($_SESSION['installationID']);
 
-$out.='<h3>Users</h3>';
+	$out.='<h3>'.$TEXT_USERS_CONST.'</h3>';
 
-$out.='<p>Add all the users, or family members, who will be using Pluto.</p>';
+	$out.='<p>'.$TEXT_USERS_NOTE_CONST.'</p>';
 
 
-if ($action=='form') {
-$queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation,userCanChangeHouseMode 
+	if ($action=='form') {
+		$queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation,userCanChangeHouseMode
 		FROM Users 
 		INNER JOIN Installation_Users on FK_Users = PK_Users
 		WHERE FK_Installation = ?';
-$resUsers = $dbADO->Execute($queryUsers,array($installationID));
+		$resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 
-	if ($resUsers) {
-		$out.=setLeftMenu($dbADO)."
+		if ($resUsers) {
+			$out.=setLeftMenu($dbADO)."
 		<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,'',attributes);
@@ -43,45 +46,45 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			<input type='hidden' name='action' value='add'>
 			<input type='hidden' name='lastAction' value=''>
 		";
-		
-		$usersFormValidation='';
-		$out.='<tr bgcolor="#DFDFDF">
-				<td align="center"><B>Username</B></td>
-				<td align="center" colspan="5"><B>Details</b></td>
-				</tr>';
-		$displayedUsers=array();
-		$i=0;
 
-		$languagesTxt = '';
-		$selectLanguages = 'SELECT * FROM Language ORDER BY Description ASC';
-		$resLanguages = $dbADO->_Execute($selectLanguages);
-		
-		$queryHisInstallations = 'SELECT * FROM Installation 
+			$usersFormValidation='';
+			$out.='<tr bgcolor="#DFDFDF">
+				<td align="center"><B>'.$TEXT_USERNAME_CONST.'</B></td>
+				<td align="center" colspan="5"><B>'.$TEXT_DETAILS_CONST.'</b></td>
+				</tr>';
+			$displayedUsers=array();
+			$i=0;
+
+			$languagesTxt = '';
+			$selectLanguages = 'SELECT * FROM Language ORDER BY Description ASC';
+			$resLanguages = $dbADO->_Execute($selectLanguages);
+
+			$queryHisInstallations = 'SELECT * FROM Installation
 		INNER JOIN Installation_Users on FK_Installation = PK_Installation
 		WHERE FK_Users = ?';
-		
-		$resHisInstallations = $dbADO->Execute($queryHisInstallations,array($_SESSION['userID']));
-		
-		while ($rowUser = $resUsers->FetchRow()) {
-			if ($resLanguages) {
-				$resLanguages->MoveFirst();
-				$languagesTxt='';
-				while ($rowLanguages=$resLanguages->fetchRow()) {
-					$languagesTxt.='<option value="'.$rowLanguages['PK_Language'].'" '.($rowUser['FK_Language']==$rowLanguages['PK_Language']?"selected = 'selected'":"").'>'.$rowLanguages['Description'].'</option>';
+
+			$resHisInstallations = $dbADO->Execute($queryHisInstallations,array($_SESSION['userID']));
+
+			while ($rowUser = $resUsers->FetchRow()) {
+				if ($resLanguages) {
+					$resLanguages->MoveFirst();
+					$languagesTxt='';
+					while ($rowLanguages=$resLanguages->fetchRow()) {
+						$languagesTxt.='<option value="'.$rowLanguages['PK_Language'].'" '.($rowUser['FK_Language']==$rowLanguages['PK_Language']?"selected = 'selected'":"").'>'.$rowLanguages['Description'].'</option>';
+					}
 				}
-			}
-			
-			$filePath=$GLOBALS['usersPicsPath'].$rowUser['PK_Users'].'.png';
-			if(file_exists($filePath)){
-				$randNumber=rand(0,99999);
-				$userImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
-			}else{
-				$userImage='';
-			}			
-			
-			$displayedUsers[]=$rowUser['PK_Users'];
-			$color=($i%2==1?"F0F3F8":"EEEEEE");
-			$out.='<tr valign="top" bgcolor="#'.$color.'">
+
+				$filePath=$GLOBALS['usersPicsPath'].$rowUser['PK_Users'].'.png';
+				if(file_exists($filePath)){
+					$randNumber=rand(0,99999);
+					$userImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
+				}else{
+					$userImage='';
+				}
+
+				$displayedUsers[]=$rowUser['PK_Users'];
+				$color=($i%2==1?"F0F3F8":"EEEEEE");
+				$out.='<tr valign="top" bgcolor="#'.$color.'">
 						<td>
 							<table width="100%">
 								<tr bgcolor="lightblue">
@@ -89,9 +92,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 								</tr>
 								<tr>
 									<td align="center">
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a><br>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">Upload picture</a>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PASSWORD_CONST.'</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PIN_CONST.'</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_UPLOAD_PICTURE_CONST.'</a>
 									</td>
 								</tr>			
 							</table>			
@@ -99,19 +102,19 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td align="center">
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Voicemail<br>+Email</B></td>
+									<td align="center"><B>'.$TEXT_VOICEMAIL_CONST.'<br>+'.$TEXT_EMAIL_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="checkbox" name="userHasMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['HasMailbox']?" checked='checked' ":'').'></td>
 								</tr>			
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Access general<br>mailbox</B></td>
+									<td align="center"><B>'.$TEXT_ACCESS_GENERAL_MAILBOX_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="checkbox" name="userAccessGeneralMailbox_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['AccessGeneralMailbox']?" checked='checked' ":'').'></td>
 								</tr>	
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Extension<br>for intercom</B></td>
+									<td align="center"><B>'.$TEXT_EXTENSION_FOR_INTERCOM_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="text" name="userExtension_'.$rowUser['PK_Users'].'" value="'.$rowUser['Extension'].'"></td>
@@ -121,19 +124,19 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td>
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>FirstName</B></td>
+									<td align="center"><B>'.$TEXT_FIRSTNAME_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="text" name="userFirstName_'.$rowUser['PK_Users'].'" value="'.$rowUser['FirstName'].'"></td>
 								</tr>			
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>LastName</B></td>
+									<td align="center"><B>'.$TEXT_LASTNAME_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="text" name="userLastName_'.$rowUser['PK_Users'].'" value="'.$rowUser['LastName'].'"></td>
 								</tr>	
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>NickName</B></td>
+									<td align="center"><B>'.$TEXT_NICKNAME_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="text" name="userNickname_'.$rowUser['PK_Users'].'" value="'.$rowUser['Nickname'].'"></td>
@@ -145,7 +148,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td>
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Language</B></td>
+									<td align="center"><B>'.$TEXT_LANGUAGE_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><select name="userLanguage_'.$rowUser['PK_Users'].'">
@@ -154,7 +157,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									</td>
 								</tr>	
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Hide From Orbiter</B></td>
+									<td align="center"><B>'.$TEXT_HIDE_FROM_ORBITER_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="checkbox" name="HideFromOrbiter_'.$rowUser['PK_Users'].'" value="1" '.(($rowUser['HideFromOrbiter']==1)?" checked='checked' ":'').'></td>
@@ -164,13 +167,13 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td align="center">
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Can modify configuration?</B></td>
+									<td align="center"><B>'.$TEXT_CAN_MODIFY_CONFIGURATION_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
 								</tr>			
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Can set house/security mode</B></td>
+									<td align="center"><B>'.$TEXT_CAN_SET_HOUSE_SECURITY_MODE_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center"><input type="checkbox" name="userCanChangeHouseMode_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['userCanChangeHouseMode']?" checked='checked' ":'').'></td>
@@ -180,7 +183,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td align="center">
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Picture</B></td>
+									<td align="center"><B>'.$TEXT_PICTURE_CONST.'</B></td>
 								</tr>
 								<tr>
 									<td align="center">'.@$userImage.'</td>
@@ -189,20 +192,20 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						</td>			
 			</tr>
 			';
-			$i++;
-		}
-		
-		
-		
-		$out.='
+				$i++;
+			}
+
+
+
+			$out.='
 			<tr>
 				<td colspan="9"><span class="err">'.stripslashes(@$_REQUEST['error']).'</span></td>
 			</tr>
 			<tr>
-				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">Create a new user/family member</a><p>
+				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">'.$TEXT_CREATE_NEW_USER_CONST.'</a><p>
 				</td>
 			</tr>
-			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
+			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
 				<input type="hidden" name="displayedUsers" value="'.join(",",$displayedUsers).'">
 			</form>
 
@@ -214,23 +217,23 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		</table>
 		<br />
 		';
-	}
-} else {
-	//check if current user canModifyInstallation
-	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
-	
-	if ($canModifyInstallation) {	
-			//process			
-			$displayedUsers = cleanString($_POST['displayedUsers']);	
+		}
+	} else {
+		//check if current user canModifyInstallation
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+
+		if ($canModifyInstallation) {
+			//process
+			$displayedUsers = cleanString($_POST['displayedUsers']);
 			$displayedUsersArray = explode(",",$displayedUsers);
-			
+
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();
 			}
 
 			foreach ($displayedUsersArray as $user) {
-				
-				
+
+
 				$hasMailbox =   cleanInteger(@$_POST['userHasMailbox_'.$user]);
 				$userAccessGeneralMailbox = cleanInteger(@$_POST['userAccessGeneralMailbox_'.$user]);
 
@@ -243,10 +246,10 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				$userCanModifyInstallation = cleanInteger(@$_POST['userCanModifyInstallation_'.$user]);
 				$userCanChangeHouseMode= cleanInteger(@$_POST['userCanChangeHouseMode_'.$user]);
-				
+
 				$userLanguage = cleanInteger(@$_POST['userLanguage_'.$user]);
 				$HideFromOrbiter = cleanInteger(@$_POST['HideFromOrbiter_'.$user]);
-				
+
 
 				$query = 'UPDATE Users set
 									HasMailbox =?,
@@ -274,32 +277,32 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$dbADO->Execute($updateInstallationUserCanModify,array($user,$installationID));
 				$locationGoTo = "userDesc_".$user;
 
-				
+
 			}
 			$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
 			exec($commandToSend);
-			
+
 			if (strstr($locationGoTo,"#")) {
-				header("Location: index.php?section=users&msg=Saved!".$locationGoTo);
+				header("Location: index.php?section=users&msg=$TEXT_USERS_PAGE_SAVED_CONST".$locationGoTo);
 			} else {
-				header("Location: index.php?section=users&msg=Saved!&lastAction=".$locationGoTo);
+				header("Location: index.php?section=users&msg=$TEXT_USERS_PAGE_SAVED_CONST&lastAction=".$locationGoTo);
 			}
-	} else {
-			header("Location: index.php?section=users&msg=Not allowed!&lastAction=".$locationGoTo);
+		} else {
+			header("Location: index.php?section=users&msg=$TEXT_NOT_ALLOWED_CONST&lastAction=".$locationGoTo);
+		}
+
 	}
-	
-}
 
 	$onLoad='';
 	if ($lastAction!=''?$onLoad.="if (document.forms.users.{$lastAction}) {document.forms.users.{$lastAction}.focus();} ":$onLoad.="")
 	if (strlen($onLoad)>2) {
 		$output->setScriptInBody("onLoad=\"javascript:eval('$onLoad');\"");
 	}
-	
-	$output->setNavigationMenu(array("Settings"=>'index.php?section=installationSettings',"Users"=>'index.php?section=users'));
+
+	$output->setNavigationMenu(array($TEXT_SETTINGS_CONST=>'index.php?section=installationSettings',$TEXT_USERS_CONST=>'index.php?section=users'));
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Users');			
-	$output->output();  		
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_USERS_CONST);
+	$output->output();
 }
 ?>

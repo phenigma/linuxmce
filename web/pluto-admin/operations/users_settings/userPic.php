@@ -1,5 +1,9 @@
 <?php
 function userPic($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/userPic.lang.php');
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -29,35 +33,29 @@ function userPic($output,$dbADO) {
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="from" value="'.$from.'">
 			<input type="hidden" name="userID" value="'.$userID.'">
-		<h3>Update user\'s picture</h3>
+		
+		<h3>'.$TEXT_UPDATE_USER_PICTURE_CONST.'</h3>
 		<table>	
 			<tr>
 				<td align="center">'.@$userImage.'</td>
 			</tr>
 			<tr>
-				<td align="center">Choose picture * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="Upload picture"></td>
+				<td align="center">'.$TEXT_CHOOSE_PICTURE_CONST.' * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="'.$TEXT_UPLOAD_PICTURE_CONST.'"></td>
 			</tr>
 			<tr>
-				<td align="left">* Allowed file type is JPG or PNG. <br>
-		&nbsp;&nbsp;&nbsp;Please use a file with a ratio width/height=1. <br>
-		&nbsp;&nbsp;&nbsp;For best results, the picture should have 160px x 160px.</td>
+				<td align="left">* '.$TEXT_ALLOWED_FILE_TYPE_CONST.' <br>
+		&nbsp;&nbsp;&nbsp;'.$TEXT_RATIO_NOTE_CONST.' <br>
+		&nbsp;&nbsp;&nbsp;'.$TEXT_PIC_NOTE_CONST.'</td>
 			</tr>		
 		</table>
 		</form>
-			';
-			
-			$out.='
-				<script>
-		 			var frmvalidator = new formValidator("userPic"); 		
-					frmvalidator.addValidation("passOrPIN","req","Please enter old password or PIN");
-				</script>
 			';
 		
 	} else {
 		
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=userPic&from=$from&userID=$userID&error=You are not allowed to modify installation.");
+			header("Location: index.php?section=userPic&from=$from&userID=$userID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		
@@ -75,12 +73,12 @@ function userPic($output,$dbADO) {
 			}
 			
 			if($invalidType===true){
-				header("Location: index.php?section=userPic&from=$from&userID=$userID&error=Invalid file type. Please upload a JPG file.");
+				header("Location: index.php?section=userPic&from=$from&userID=$userID&error=$TEXT_ERROR_USER_PIC_INVALID_FILE_TYPE_CONST");
 				exit();
 			}
 			
 			if(!move_uploaded_file($_FILES['pic']['tmp_name'],$filePath)){
-				header("Location: index.php?section=userPic&from=$from&userID=$userID&error=Check the rights for $filePath.");
+				header("Location: index.php?section=userPic&from=$from&userID=$userID&error=$TEXT_ERROR_USER_PIC_UPLOAD_FAILED_CONST $filePath.");
 				exit();
 			}else{
 				exec('chmod 777 -R '.$filePath);
@@ -97,7 +95,7 @@ function userPic($output,$dbADO) {
 	}
 		
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Update picture');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_UPDATE_USER_PICTURE_CONST);			
 	$output->output();
 }
 ?>
