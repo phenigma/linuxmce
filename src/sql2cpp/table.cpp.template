@@ -184,7 +184,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 		{
 			@ifdef_have_primary_keys@
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			/*long int id = (long int)*/ mysql_insert_id(database->m_pMySQL);
 		
 			@primary_autoinc_key_init@	
 			
