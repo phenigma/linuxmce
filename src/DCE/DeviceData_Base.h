@@ -220,7 +220,7 @@ namespace DCE
 		unsigned long m_dwPK_DeviceCategory; /** < the device category */
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
 
-		unsigned long m_dwPK_Device_MD,m_dwPK_Device_Core; /** < the ID of the MD and Core, if there is one */
+		long m_dwPK_Device_MD,m_dwPK_Device_Core; /** < the ID of the MD and Core, if there is one */
 
 		/** flags */
 
