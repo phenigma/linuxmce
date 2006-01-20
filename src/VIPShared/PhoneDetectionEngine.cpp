@@ -172,6 +172,9 @@ void PhoneDetectionEngine::StartScanning()
 g_pPlutoLogger->Write(LV_STATUS,"Start scanning size m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	m_bAbortScanLoop=false;
 	int ret = pthread_create(&m_ThreadID, NULL, HandleDetectionThread, (void*)this);
+	if (ret == 0)
+		pthread_detach(m_ThreadID);
+
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 
@@ -205,6 +208,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Dete
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	int ret = pthread_create(&t, NULL, NewDeviceThread, (void*)pED);
+	if (ret == 0)
+		pthread_detach(t);
 
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
@@ -215,6 +220,8 @@ g_pPlutoLogger->Write(LV_STATUS,"lost dev 1 m_mapPhoneDevice_Detected size: %d",
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	int ret = pthread_create(&t, NULL, LostDeviceThread, (void*)pED);
+	if (ret == 0)
+		pthread_detach(t);
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 g_pPlutoLogger->Write(LV_STATUS,"lost dev 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
@@ -229,6 +236,8 @@ g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) 
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	int ret = pthread_create(&t, NULL, SignalStrengthThread, (void*)pED);
+	if (ret == 0)
+		pthread_detach(t);
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 g_pPlutoLogger->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
