@@ -122,7 +122,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 5");
 
 	if(	SecondsToRedisplay=DisplayStatusMessages() )
 		return SecondsToRedisplay;
-g_pPlutoLogger->Write(LV_CRITICAL,"DispDate");
+	g_pPlutoLogger->Write(LV_CRITICAL,"DispDate");
 	DisplayDate();
 	return 60;
 }
