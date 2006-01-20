@@ -28,6 +28,8 @@ namespace DCE
 		virtual void Home();
 
 		virtual void Rerender();
+
+		virtual ~MenuNode() {}
 	};
 }
 
