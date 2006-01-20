@@ -7,32 +7,15 @@ Message() {
     # Update boot splash progress bar    
     progress=$(( $progress + 1 ))
     if [ -x /sbin/splash.sh ]; then
-        /sbin/splash.sh "dummy"
+        /sbin/splash.sh "dummy_service"
     fi
 }
 
 InitBootsplash() {
-    local RUNLEVEL="2" #FIXME: Make this depend on inittab
-    local PREVLEVEL="N"
-    local runrc=/etc/rc${RUNLEVEL}.d
-
     progress=0
     kscripts=0
-
-    SSC=($runrc/S*)
-    case "$SSC" in
-        *\*) sscripts=0 ;;
-        *)   sscripts=${#SSC[*]}
-    esac
-    sscripts=$(( $sscripts + 12 ))
-
+    sscripts=18
     export progress kscripts sscripts
-}
-
-FinishBootsplash() {
-    echo $progress > /tmp/bootsplash_progress
-    echo $sscripts > /tmp/bootsplash_sscripts
-    echo $kscripts > /tmp/bootsplash_kscripts
 }
 
 ## Some defaults
@@ -99,7 +82,7 @@ rm -f /fastboot /forcefsck
 
 ## Clean up the /etc/mtab
 Message "Cleaning up /etc/mtab"
-/bin/rm -rf /etc/mtab*
+/bin/rm -rf /etc/mtab* 2>/dev/null
 /bin/mount -w -o remount /
 if [ -d /proc/sys ] ;then
 	/bin/mount -f proc /proc -t proc
@@ -167,13 +150,44 @@ fi
 ## Start up the networking
 Message "Start up networking"
 /etc/init.d/ifupdown-clean start 1> /dev/null
-/etc/init.d/ifupdown   start 1> /dev/null # Remove when droping the 
-/etc/init.d/networking start 1> /dev/null # Uptate_Packages script ?
-/etc/init.d/inetd      start 1> /dev/null # Starts tftp on core, on MD should no run :(
-/etc/init.d/portmap    start 1> /dev/null # Search me ! :/
+/etc/init.d/ifupdown   start     1> /dev/null # Remove when droping the 
+/etc/init.d/networking start     1> /dev/null # Uptate_Packages script ?
+/etc/init.d/inetd      start     1> /dev/null # Starts tftp on Core and Hybrid
+/etc/init.d/portmap    start     1> /dev/null # Search me ! :/
 
 ## Now we can safely mount remoute filesystems (in background ?)
 Message "Mounting remote filesystems"
 /etc/init.d/mountnfs.sh start 1> /dev/null &
 
-FinishBootsplash
+# A hack ?
+
+if [ -x /etc/init.d/mysql ] ;then
+    Message "Starting mysql server"
+    /etc/init.d/mysql start 2>/dev/null
+fi
+
+if [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
+    Message "Checking for pdates"
+    /etc/init.d/Pluto_Update_Packages.sh
+fi
+
+if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
+    Message "Starting DCE Router"
+    /etc/init.d/Pluto_Start_DCERouter.sh
+fi
+
+if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
+    Message "Starting OrbiterGen"
+    /etc/init.d/Pluto_Start_OrbiterGen.sh
+fi
+
+
+if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
+    Message "Starting X Server"
+    /etc/init.d/Pluto_Start_X.sh
+fi
+
+if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
+    Message "Starting Local Devices"
+    /etc/init.d/Pluto_Start_LocalDevices.sh
+fi

@@ -9,6 +9,15 @@
 AddService() {
     local rcFile="$1"
     local initFile=$( readlink -f $rcFile )
+    
+    # If service is started by rcS now
+    [ "$(basename $initFile)" == "Pluto_Start_DCERouter.sh" ] && return
+    [ "$(basename $initFile)" == "Pluto_Start_OrbiterGen.sh" ] && return
+    [ "$(basename $initFile)" == "Pluto_Start_LocalDevices.sh" ] && return
+    [ "$(basename $initFile)" == "Pluto_Start_X.sh" ] && return
+    [ "$(basename $initFile)" == "mysql" ] && return
+    
+    # Else queue it to run
     if [[ -x "$initFile" ]]; then
 	echo "$(basename $initFile) \\" >> /etc/init.d/fastboot/services.mk
     fi
@@ -28,40 +37,31 @@ NewServices() {
 
 }
 
+## Used only on 0 and 6 now
 InitBootSplash() {
+    #/etc/init.d/bootsplash stop 2>/dev/null
+
+    # Forget about the progressbar for now
+    return 
+
     local RUNLEVEL=$1
-    local PREVLEVEL=$2
     local runrc=/etc/rc${RUNLEVEL}.d
 
-    if [ -f /tmp/bootsplash_progress -a -f /tmp/bootsplash_sscripts -a -f /tmp/bootsplash_kscripts ] ;then
-        progress=`cat /tmp/bootsplash_progress`	
-	rm -f /tmp/bootsplash_progress
-        sscripts=`cat /tmp/bootsplash_sscripts`
-        rm -f /tmp/bootsplash_sscripts
-	kscripts=`cat /tmp/bootsplash_kscripts`
-	rm -f /tmp/bootsplash_kscripts
-    else
-        progress=0
+    progress=0
 
-        SSC=($runrc/S*)
-        case "$SSC" in
-            *\*) sscripts=0 ;;
-            *) sscripts=${#SSC[*]}
-        esac
+    SSC=($runrc/S*)
+    case "$SSC" in
+        *\*) sscripts=0 ;;
+        *) sscripts=${#SSC[*]}
+    esac
 
-	if [ "$PREVLEVEL" != "N" ]; then
-	    KSC=($runrc/K*)
-	    case "$KSC" in
-        	*\*) kscripts=0 ;;
-        	*) kscripts=${#KSC[*]}
-	    esac
-	else
-	    kscripts=0
-	fi
-    fi
+    KSC=($runrc/K*)
+    case "$KSC" in
+        *\*) kscripts=0 ;;
+        *) kscripts=${#KSC[*]}
+    esac
 
     export progress kscripts sscripts
-    export progressOffset=$progress
 }
 
 
@@ -71,6 +71,9 @@ stty onlcr 0>&1                      # Set onlcr to avoid staircase effect.
 mkdir /var/lock/subsys 2>/dev/null   # make needs this for locks
 rm -rf /var/run/plutoboot
 mkdir /var/run/plutoboot 2>/dev/null # make does some logging here (important for rc.display.sh too)
+
+
+
 
 ## Now find out what the current and what the previous runlevel are.
 runlevel=$RUNLEVEL
@@ -86,11 +89,10 @@ previous=$PREVLEVEL
 export runlevel previous
 
 
-## Init the bootsplash parameters
-InitBootSplash $runlevel $previous
-/etc/init.d/fastboot/rc.display.sh &
-pidDisplay=$!
-
+## Show a progress bar when shuting down or rebooting
+if [[ "$runlevel" == "0" || "$runlevel" == "6" ]] ;then
+    InitBootSplash $runlevel
+fi
 
 ## Run the stop scripts for this runlevel
 if [ $previous != N ] ;then
@@ -106,6 +108,7 @@ if [ $previous != N ] ;then
 fi
 
 
+
 ## Run the start scripts for this runlevel
 NewServices
 for rcFile in /etc/rc$runlevel.d/S*
@@ -113,10 +116,12 @@ do
     AddService "$rcFile"
 done
 /etc/init.d/fastboot/depend/generateDep.sh $runlevel start
-make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start &
-pidMakeStart=$!
-wait $pidMakeStart
 
-sleep 0.5
-kill -9 $pidDisplay 2>/dev/null 1>/dev/null
 
+if [[ "$runlevel" == "0" || "$runlevel" == "6" ]] ;then
+    make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start
+else
+    echo "1"
+    screen -d -m -S "BkgSS-MakeRunlevel-$runlevel" make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start
+    echo "2"
+fi
