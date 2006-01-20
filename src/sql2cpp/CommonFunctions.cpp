@@ -52,9 +52,12 @@ string getTableFromForeignKey(string sField,map<string,class TableInfo_Generator
 	}
 
 	// No, see if it has a trailing _
-	size_t last_underscore=string::npos, s=-1;  // s is a temporary value, start with -1 since we always search for the last pos +1 
-	while( ( s = table.find('_',s+1)) != string::npos )
+	size_t last_underscore = string::npos, s = 0;  // s is a temporary value
+	while ((s = table.find('_', s)) != string::npos)
+	{
 		last_underscore = s;
+		s++;
+	}
 
 	if( last_underscore != string::npos )
 	{

@@ -53,6 +53,8 @@ public:
 	 */
 	string get_table_name();
 
+
+	virtual ~TableInfo() {}
 };
 
 #endif
