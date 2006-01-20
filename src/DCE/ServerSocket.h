@@ -30,7 +30,7 @@ namespace DCE
 		int m_iReferencesOutstanding; /** < How many references to this are outstanding, we can only delete it when this is 0 */
 
 	public:
-		unsigned long m_dwPK_Device; /** < the device ID */
+		long m_dwPK_Device; /** < the device ID */
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
 		pthread_t m_ClientThreadID; /** < the thread running the main loop */

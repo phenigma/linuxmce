@@ -33,8 +33,8 @@ namespace DCE
 
 	public:
 
-		unsigned long m_dwPK_DeviceCategory; /** < an identifier for the device category */
-		unsigned long m_dwPK_DeviceCategory_Parent; /** < an identifier for the parent category for this device category */
+		long m_dwPK_DeviceCategory; /** < an identifier for the device category */
+		long m_dwPK_DeviceCategory_Parent; /** < an identifier for the parent category for this device category */
 		string m_sDescription; /** < a short description of the device category */
 
 		class DeviceCategory *m_pDeviceCategory_Parent; /** < pointer to the parent category */
@@ -112,7 +112,7 @@ namespace DCE
 		/**
 		 * @brief finds the DeviceData_Base item associated with the specified device
 		 */
-		DeviceData_Base *m_mapDeviceData_Base_FindFirstOfTemplate( unsigned long dwPK_DeviceTemplate );
+		DeviceData_Base *m_mapDeviceData_Base_FindFirstOfTemplate( long dwPK_DeviceTemplate );
 
 		/**
 		 * @brief finds the DeviceCategory item associated with the specified device category id
@@ -213,10 +213,10 @@ namespace DCE
 
 		/** fields that corespond to primary keys */
 
-		unsigned long m_dwPK_Device; /** < the ID of the device */
+		long m_dwPK_Device; /** < the ID of the device */
 		unsigned long m_dwPK_Installation; /** < the installation associated with the device @todo ask*/
-		unsigned long m_dwPK_DeviceTemplate; /** < the identifier for the template used to build the device */
-		unsigned long m_dwPK_Device_ControlledVia; /** < the specifies how the device is controlled @todo ask */
+		long m_dwPK_DeviceTemplate; /** < the identifier for the template used to build the device */
+		long m_dwPK_Device_ControlledVia; /** < the specifies how the device is controlled @todo ask */
 		unsigned long m_dwPK_DeviceCategory; /** < the device category */
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
 
@@ -332,7 +332,7 @@ namespace DCE
 		 * @brief searches to see if the device belongs to the specified category
 		 * if it isn't the device exact category it goes up to the device parents
 		 */
-		bool WithinCategory( unsigned long dwPK_DeviceCategory, DeviceCategory *pStarting=NULL )
+		bool WithinCategory( long dwPK_DeviceCategory, DeviceCategory *pStarting=NULL )
 		{
 			if ( !pStarting ) // no device category to start with supplied
 				pStarting = m_pDeviceCategory;
@@ -423,7 +423,7 @@ namespace DCE
 
 		// This will return the first device of the given template that is in any way
 		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
-		DeviceData_Base *FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate,bool bScanParent=true,int PK_Device_ExcludeChild=0)
+		DeviceData_Base *FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate, bool bScanParent=true, int PK_Device_ExcludeChild = 0)
 		{
 			if( m_bDeviceData_Impl )
 			{

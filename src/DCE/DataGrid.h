@@ -63,7 +63,7 @@ namespace DCE
 	{
 	public:
 		ColRowType m_ColRow;
-		int m_Size;
+		unsigned int m_Size;
 	};
 
 	class DataGridTableSerializableData

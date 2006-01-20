@@ -695,7 +695,7 @@ void Command_Impl::ProcessMessageQueue()
 		list<Message *>::iterator itMessageQueue;
 		for( itMessageQueue=m_listMessageQueue.begin(); itMessageQueue != m_listMessageQueue.end(); ++itMessageQueue )
 		{
-			Message *pMessage = *itMessageQueue;
+			//Message *pMessage = *itMessageQueue;
 			copyMessageQueue.push_back( *itMessageQueue );
 		}
 
@@ -705,7 +705,7 @@ void Command_Impl::ProcessMessageQueue()
 
 		for( itMessageQueue = copyMessageQueue.begin(); itMessageQueue != copyMessageQueue.end(); ++itMessageQueue )
 		{
-			Message *pMessage = *itMessageQueue;
+			//Message *pMessage = *itMessageQueue;
 			if( !m_pEvent->SendMessage( *itMessageQueue ) )
 			{
 				// If the connection between this device and dcerouter is still ok, we will have always gotten a true,

@@ -204,7 +204,7 @@ DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfCategory( unsigned 
 	return NULL;
 }
 
-DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfTemplate( unsigned long dwPK_DeviceTemplate ) 
+DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfTemplate( long dwPK_DeviceTemplate ) 
 {
 	for(map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.begin();it != m_mapDeviceData_Base.end();++it)
 		if( (*it).second->m_dwPK_DeviceTemplate==dwPK_DeviceTemplate )

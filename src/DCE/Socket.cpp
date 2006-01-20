@@ -1208,9 +1208,11 @@ void Socket::Close()
 
 	if ( m_Socket != INVALID_SOCKET )
  	{
-		int iResult2=closesocket( m_Socket );
 #ifdef DEBUG
+		int iResult2=closesocket( m_Socket );
 		g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d closesocket: %d", m_Socket, iResult2 );
+#else
+		closesocket(m_Socket);
 #endif
 	}
 	m_Socket = INVALID_SOCKET;
@@ -1223,4 +1225,4 @@ void Socket::SetReceiveTimeout( int TimeoutSeconds )
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
 #endif
-};
+}

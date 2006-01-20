@@ -34,7 +34,7 @@
 
 using namespace DCE;
 
-Event_Impl::Event_Impl( unsigned long dwDevice, unsigned long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler, int nSocketTimeout )
+Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler, int nSocketTimeout )
 {
 	m_dwPK_Device = dwDevice;
 	m_pClientSocket = new ClientSocket( dwDevice, sServerAddress, string( "Event Dev #" ) + StringUtils::itos( dwDevice ) );
@@ -59,7 +59,7 @@ Event_Impl::Event_Impl( unsigned long dwDevice, unsigned long dwDeviceTemplate, 
 	*/
 }
 
-Event_Impl::Event_Impl( ClientSocket *pClientSocket, unsigned long dwDevice)
+Event_Impl::Event_Impl( ClientSocket *pClientSocket, long dwDevice)
 {
 	m_pClientSocket = pClientSocket;
 	m_dwPK_Device = dwDevice;

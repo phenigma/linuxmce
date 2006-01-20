@@ -25,7 +25,7 @@ namespace DCE
 	
 	public:
 	
-		unsigned long m_dwPK_Device; /** < the id for the device the event is asociated with */
+		long m_dwPK_Device; /** < the id for the device the event is asociated with */
 
 		ClientSocket *m_pClientSocket; /** < pointer to the client socket the event came from @todo ask*/
 
@@ -33,12 +33,12 @@ namespace DCE
 		 * @brief If this is the master device's event, create a connection to the server
 		 * @param bConnectEventHandler specifies if we should connect the client socket after creating it
 		 */
-		Event_Impl( unsigned long dwDevice, unsigned long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler=true, int nSocketTimeout = -1 );
+		Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler=true, int nSocketTimeout = -1 );
 		
 		/**
 		 * @brief If this is a sub-device's event, just use pointer to the connection
 		 */
-		Event_Impl( ClientSocket *pClientSocket, unsigned long dwDevice );
+		Event_Impl( ClientSocket *pClientSocket, long dwDevice );
 		
 		/**
 		 * @brief destructor, just frees memory pointed by m_pClientSocket (if this is a master's device event)

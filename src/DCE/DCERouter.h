@@ -426,7 +426,7 @@ namespace DCE
 		}
 
         // declared inline since i use it from some plugins.
-        int FindClosestRelative(unsigned int MasterDeviceType, int CurrentDevice)
+        int FindClosestRelative(int MasterDeviceType, int CurrentDevice)
         {
             DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(CurrentDevice);
             if( pDevice )
