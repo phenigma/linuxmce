@@ -67,7 +67,7 @@ default: $(ALL) create_final_output_file
 $(ALL)	: $(SUBSYS_FILE_DIR)/$@
 #	@$(ECHO) -e "\033[1m# Begin $(JOB) $@ ..."
 #	@$(TPUT) sgr0
-	@$(ECHO) "Begin \"$(JOB) $@\" at `$(DATE)`"  >  $(TMP_FILE)
+	@$(ECHO) "Begin \"$(JOB) $@\" at `$(DATE)`"  > $(TMP_FILE)
 	@$(INITD_DIR)/$@ $(JOB)                      >> $(TMP_FILE) 2>&1
 	@$(ECHO) "End \"$(JOB) $@\" at `$(DATE)`"    >> $(TMP_FILE)
 #	@$(ECHO) -e "\033[1m# Finished $(JOB) $@ ..."

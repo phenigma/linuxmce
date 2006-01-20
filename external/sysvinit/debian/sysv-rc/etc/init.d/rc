@@ -16,7 +16,12 @@
 # Version:	@(#)rc  2.78  07-Nov-1999  miquels@cistron.nl
 #
 
-grep -q "fastboot" /proc/cmdline && /etc/init.d/fastboot/rc && exit
+fastBoot=`grep "sysvinit" /proc/cmdline | wc -l`
+echo $fastBoot
+if [ $fastBoot -gt 0 ] ;then
+ /etc/init.d/fastboot/rc
+ exit
+fi
 
 # Un-comment the following for debugging.
 # debug=echo

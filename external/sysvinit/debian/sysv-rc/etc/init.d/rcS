@@ -8,7 +8,12 @@
 
 # Tweak so we can check /proc/cmdline here
 /bin/mount -v proc /proc -n -t proc
-grep -q "fastboot" /proc/cmdline && /etc/init.d/fastboot/rcS && exit
+fastBoot=`grep "sysvinit" /proc/cmdline | wc -l`
+echo $fastBoot
+if [ $fastBoot -gt 0 ] ;then
+ /etc/init.d/fastboot/rcS
+ exit
+fi
 /bin/umount /proc
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
