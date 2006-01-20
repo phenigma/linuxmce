@@ -16,9 +16,8 @@
 # Version:	@(#)rc  2.78  07-Nov-1999  miquels@cistron.nl
 #
 
-fastBoot=`grep "sysvinit" /proc/cmdline | wc -l`
-echo $fastBoot
-if [ $fastBoot -gt 0 ] ;then
+oldBoot=`grep "sysvinit" /proc/cmdline | wc -l`
+if [ $oldBoot -eq 0 ] ;then
  /etc/init.d/fastboot/rc
  exit
 fi
