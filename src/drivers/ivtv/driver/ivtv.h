@@ -97,6 +97,7 @@ struct ivtv_driver_info {
 #define IVTV_HW_WM8775   (1 << 5)
 #define IVTV_HW_CS53132A (1 << 6)
 #define IVTV_HW_TVEEPROM (1 << 7)
+#define IVTV_HW_SAA7114  (1 << 8)
 
 // Version info
 // Note: never use the _INTERNAL versions of these macros
@@ -360,13 +361,9 @@ struct ivtv_ioctl_event {
 	struct ivtv_ioctl_fwapi api;
 };
 
-struct ivtv_saa71xx_reg {
-	uint32_t reg;
-	uint32_t val;
-};
-
-struct ivtv_itvc_reg {
-	uint32_t reg;
+struct ivtv_ioctl_register {
+	uint32_t i2c_id; /* I2C ID of the I2C chip. 0 for the I2C adapter. */
+	unsigned long reg;
 	uint32_t val;
 };
 
@@ -417,16 +414,14 @@ struct ivtv_msp_matrix {
 #define IVTV_IOC_ZCOUNT            _IO  ('@', 203)
 #define IVTV_IOC_FWAPI             _IOWR('@', 204, struct ivtv_ioctl_fwapi)
 #define IVTV_IOC_EVENT_SETUP       _IOWR('@', 205, struct ivtv_ioctl_event)
-#define IVTV_IOC_G_SAA7115_REG     _IOWR('@', 206, struct ivtv_saa71xx_reg)
-#define IVTV_IOC_S_SAA7115_REG     _IOW ('@', 207, struct ivtv_saa71xx_reg)
-#define IVTV_IOC_G_SAA7127_REG     _IOWR('@', 208, struct ivtv_saa71xx_reg)
-#define IVTV_IOC_S_SAA7127_REG     _IOW ('@', 209, struct ivtv_saa71xx_reg)
+#define IVTV_IOC_G_DECODER_REG     _IOWR('@', 206, struct ivtv_ioctl_register)
+#define IVTV_IOC_S_DECODER_REG     _IOW ('@', 207, struct ivtv_ioctl_register)
+#define IVTV_IOC_G_ENCODER_REG     _IOWR('@', 208, struct ivtv_ioctl_register)
+#define IVTV_IOC_S_ENCODER_REG     _IOW ('@', 209, struct ivtv_ioctl_register)
 #define IVTV_IOC_S_MSP_MATRIX      _IOW ('@', 210, struct ivtv_msp_matrix)
-#define IVTV_IOC_G_ITVC_REG        _IOWR('@', 211, struct ivtv_itvc_reg)
-#define IVTV_IOC_S_ITVC_REG        _IOW ('@', 212, struct ivtv_itvc_reg)
-#define IVTV_IOC_G_VIDEO_STATUS    _IOR ('@', 213, int *)
-#define IVTV_IOC_RESET_IR          _IO  ('@', 214)
-#define IVTV_IOC_LOG_BOARD_STATUS  _IO  ('@', 215)
+#define IVTV_IOC_G_ITVC_REG        _IOWR('@', 211, struct ivtv_ioctl_register)
+#define IVTV_IOC_S_ITVC_REG        _IOW ('@', 212, struct ivtv_ioctl_register)
+#define IVTV_IOC_RESET_IR          _IO  ('@', 213)
 
 #endif /* IVTV_INTERNAL */
 

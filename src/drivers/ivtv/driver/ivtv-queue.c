@@ -2,7 +2,7 @@
     buffer queues.
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
 
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #include "ivtv-driver.h"
 #include "ivtv-streams.h"
 #include "ivtv-queue.h"
-#include "ivtv-dma.h"
 #include "ivtv-mailbox.h"
 
 typedef unsigned long uintptr_t;
@@ -1041,69 +1040,39 @@ int dec_gather_free_buffers(struct ivtv *itv, int streamtype,
 
 	/* Not allocated */
 	if (!test_bit(IVTV_F_S_IN_USE, &st->s_flags)) {
-		IVTV_DEBUG_WARN(
-			   "DEC: Gather buffers on stream %d not in use!!!\n",
-				st->type);
+		IVTV_DEBUG_WARN("DEC: Gather buffers on stream %d not in use!\n", st->type);
 		return 0;
 	}	
 
 	/* gather the needed buffers first, so we don't have to bail
 	 * in mid-air. put them on a list on the stack */
 	for (x = 0; bytes_received < bytes_needed; x++) {
-		/* Check free_q or allocate a new buffer */
+		/* Check full_q for a buffer */
 		buf = ivtv_deq_buf_nolock(itv, &st->full_q, streamtype);
-		if (buf) {
-			bytes_received += buf->buffer.length;
-
-			IVTV_DEBUG_DMA(
-				   "DEC: Got FULL Buff with %d bytes.\n",
-				   buf->buffer.bytesused);
-		} else {
-			/* Not enough? */
+		if (buf == NULL)
 			break;
-		}
+		bytes_received += buf->buffer.length;
 		list_add_tail(&buf->list, free_list);
 	}
 
+	if (bytes_received >= bytes_needed)
+		return bytes_received;
+
 	/* damn, failed */
-	if (bytes_received < bytes_needed) {
-		IVTV_DEBUG_WARN(
-			   "needed %d bufs for stream %d, received %d "
-			   "differ by (%d) bufs\n",
-			   bytes_needed, streamtype, bytes_received,
-			   (bytes_needed - bytes_received));
+	IVTV_DEBUG_WARN("Needed %d bufs for %s stream, received %d (buffers free %d, dma %d, full %d)\n",
+		   bytes_needed, ivtv_stream_name(streamtype), bytes_received,
+		   atomic_read(&st->free_q.elements),
+		   atomic_read(&st->dma_q.elements),
+		   atomic_read(&st->full_q.elements));
 
-		IVTV_DEBUG_INFO(
-			   "SCHED: allocated_buffers: (%d)\n",
-			   atomic_read(&st->allocated_buffers));
-
-		IVTV_DEBUG_WARN(
-			   "SCHED: free_q: %d elements\n",
-			   atomic_read(&st->free_q.elements));
-		IVTV_DEBUG_WARN(
-			   "SCHED: dma_q: %d elements\n",
-			   atomic_read(&st->dma_q.elements));
-		IVTV_DEBUG_WARN(
-			   "SCHED: full_q: %d elements\n",
-			   atomic_read(&st->full_q.elements));
-
-		/* Either requeue or free */
-		while (!list_empty(free_list)) {
-			buf = list_entry(free_list->next,
-					 struct ivtv_buffer, list);
-			list_del_init(&buf->list);
-
-			//if (st->buf_total <= st->buf_min) {
-				ivtv_enq_buf_nolock(&st->full_q, buf);
-			/*} else {
-				ivtv_free_buffer(itv, buf, st);
-				buf = NULL;
-			}*/
-		}
-
-		return 0;
+	/* Requeue */
+	while (!list_empty(free_list)) {
+		buf = list_entry(free_list->next, struct ivtv_buffer, list);
+		list_del_init(&buf->list);
+		ivtv_enq_buf_nolock(&st->full_q, buf);
 	}
-	return bytes_received;
+
+	return 0;
 }
 
 int enc_gather_free_buffers(struct ivtv *itv, int streamtype,
@@ -1112,138 +1081,77 @@ int enc_gather_free_buffers(struct ivtv *itv, int streamtype,
 	struct ivtv_stream *st = &itv->streams[streamtype];
 	struct ivtv_buffer *buf;
 	int bytes_received = 0;
+	int stolen_bufs = 0;  /* keep track if we had to steal buffers */
 	int x;
 
         /* Not allocated */
         if (!test_bit(IVTV_F_S_IN_USE, &st->s_flags)) {
-		IVTV_DEBUG_WARN(
-			   "ENC: Gather buffers on stream %d not in use!!!\n",
-				st->type);
+		IVTV_DEBUG_WARN("ENC: Gather buffers on stream %d not in use!\n", st->type);
                 return 0;
 	}
 
 	/* gather the needed buffers first, so we don't have to bail
 	 * in mid-air. put them on a list on the stack */
 	for (x = 0; bytes_received < bytes_needed; x++) {
-		/* Check free_q or allocate a new buffer */
+		/* If possible use a buffer from free_q */
 		buf = ivtv_deq_buf_nolock(itv, &st->free_q, streamtype);
 		if (buf) {
-			buf->buffer.bytesused = 0;
-			buf->readpos = 0;
-			buf->ts = 0;
-			buf->b_flags = 0;
-
 			bytes_received += buf->buffer.length;
-
-			IVTV_DEBUG_DMA(
-				   "ENC: Got FREE Buff with %d bytes.\n",
-				   buf->buffer.bytesused);
-
-			atomic_set(&st->stolen_bufs, 0);
-		} else {
-			/* Too many allocated? */
-			if (st->buf_total >= st->buf_max) {
-				/* Drop Buffers to allow things
-				   to continue to work */
-				buf =
-				    ivtv_deq_buf_nolock(itv, &st->full_q,
-							streamtype);
-				if (!buf) {
-					IVTV_DEBUG_WARN(
-						   "ENC IRQ OVERFLOW: Allocating a Buffer. (%d)\n",
-						   atomic_read(&st->
-							       allocated_buffers));
-
-					buf = ivtv_init_buffer(itv, st);
-					/* Failed to even allocate */
-					if (!buf)
-						break;
-				}
-				IVTV_DEBUG_WARN(
-					   "ENC Stream %d OVERFLOW #%d: Stealing a Buffer, %d currently allocated\n",
-					   st->type, atomic_read(&st->stolen_bufs), 
-						atomic_read(&st->allocated_buffers));
-				atomic_inc(&st->stolen_bufs);
-
-				/* Subtract buffer we stole */
-				ivtv_buf_fill_nolock(st, buf->buffer.bytesused,
-						     BUF_SUB);
-				bytes_received += buf->buffer.length;
-			} else {
-				buf = ivtv_init_buffer(itv, st);
-				if (buf) {
-					bytes_received += buf->buffer.length;
-
-					IVTV_DEBUG_DMA(
-						   "ENC IRQ: Allocating a Buffer. (%d)\n",
-						   atomic_read(&st->
-							       allocated_buffers));
-				} else {
-					buf =
-				    		ivtv_deq_buf_nolock(itv, &st->full_q,
-							streamtype);
-					if (!buf) 
-						break;
-
-					IVTV_DEBUG_WARN(
-					   "ENC Stream %d #%d: "
-					   "Stealing a Buffer, "
-					   "%d currently allocated\n",
-					   	st->type, 
-						atomic_read(&st->stolen_bufs), 
-						atomic_read(&st->allocated_buffers));
-					atomic_inc(&st->stolen_bufs);
-
-					/* Subtract buffer we stole */
-					ivtv_buf_fill_nolock(st, 
-							buf->buffer.bytesused,
-						     	BUF_SUB);
-					bytes_received += buf->buffer.length;
-				}
-			}
+			list_add_tail(&buf->list, free_list);
+			continue;
 		}
+			
+		/* allocate a new buffer unless the maximum has already been allocated */
+		if (st->buf_total < st->buf_max) {
+			buf = ivtv_init_buffer(itv, st);
+			/* Out of memory? Then break off */
+			if (buf == NULL)
+				break;
+			bytes_received += buf->buffer.length;
+			list_add_tail(&buf->list, free_list);
+			continue;
+		}
+
+		/* Drop Buffers to allow things to continue to work */
+		buf = ivtv_deq_buf_nolock(itv, &st->full_q, streamtype);
+		if (!buf)
+			break;
+		stolen_bufs = 1;  /* mark that we had to steal a buffer */
+
+		/* Subtract buffer we stole */
+		ivtv_buf_fill_nolock(st, buf->buffer.bytesused, BUF_SUB);
+		bytes_received += buf->buffer.length;
 		list_add_tail(&buf->list, free_list);
 	}
 
-	/* damn, failed */
-	if (bytes_received < bytes_needed) {
-		IVTV_DEBUG_WARN(
-			   "needed %d bufs for stream %d, received %d "
-			   "differ by (%d) bufs\n",
-			   bytes_needed, streamtype, bytes_received,
-			   (bytes_needed - bytes_received));
-
-		IVTV_DEBUG_INFO(
-			   "SCHED: allocated_buffers: (%d)\n",
-			   atomic_read(&st->allocated_buffers));
-
-		IVTV_DEBUG_WARN(
-			   "SCHED: free_q: %d elements\n",
-			   atomic_read(&st->free_q.elements));
-		IVTV_DEBUG_WARN(
-			   "SCHED: dma_q: %d elements\n",
-			   atomic_read(&st->dma_q.elements));
-		IVTV_DEBUG_WARN(
-			   "SCHED: full_q: %d elements\n",
-			   atomic_read(&st->full_q.elements));
-
-		/* Either requeue or free */
-		while (!list_empty(free_list)) {
-			buf = list_entry(free_list->next,
-					 struct ivtv_buffer, list);
-			list_del_init(&buf->list);
-
-			//if (st->buf_total <= st->buf_min) {
-				ivtv_enq_buf_nolock(&st->free_q, buf);
-			/*} else {
-				ivtv_free_buffer(itv, buf, st);
-				buf = NULL;
-			}*/
-		}
-
-		return 0;
+	/* print a warning the first time we have to steal buffers */
+	if (st->stolen_bufs == 0 && stolen_bufs) {
+		IVTV_WARN("All %s stream buffers are full. Dropping data.\n",
+				 ivtv_stream_name(streamtype));
+		IVTV_WARN("Cause: the application is not reading fast enough.\n");
 	}
-	return bytes_received;
+	st->stolen_bufs = stolen_bufs;
+
+	/* Got all buffers? */
+	if (bytes_received >= bytes_needed) {
+		return bytes_received;
+	}
+
+	/* Failed to get all buffers */
+	IVTV_DEBUG_WARN("Needed %d bufs for %s stream, received %d (buffers free %d, dma %d, full %d)\n",
+		   bytes_needed, ivtv_stream_name(streamtype), bytes_received,
+		   atomic_read(&st->free_q.elements),
+		   atomic_read(&st->dma_q.elements),
+		   atomic_read(&st->full_q.elements));
+
+	/* Requeue */
+	while (!list_empty(free_list)) {
+		buf = list_entry(free_list->next, struct ivtv_buffer, list);
+		list_del_init(&buf->list);
+		ivtv_enq_buf_nolock(&st->free_q, buf);
+	}
+
+	return 0;
 }
 
 int dec_dma_wait(struct ivtv *itv, struct ivtv_stream *stream)
@@ -1256,9 +1164,9 @@ int dec_dma_wait(struct ivtv *itv, struct ivtv_stream *stream)
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		/* Lock Decoder */
-		if ((ivtv_read_reg((unsigned char *)itv->reg_mem +
+		if ((readl((unsigned char *)itv->reg_mem +
 				   IVTV_REG_DMASTATUS)
-		     & 0x01) && !(ivtv_read_reg((unsigned char *)
+		     & 0x01) && !(readl((unsigned char *)
 						itv->reg_mem +
 						IVTV_REG_DMASTATUS) & 0x14)
 		    && !test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags)) {
@@ -1348,7 +1256,7 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 	int ret = 0;
 	/* wait for DMA complete status */
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x03)) {
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x03)) {
 		ivtv_sleep_timeout(HZ / 100, 1);
 		if ((jiffies - then) > (HZ * 3)) {
 			IVTV_DEBUG_WARN(
@@ -1359,7 +1267,7 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 
 	/* wait for DMA register clear */
 	then = jiffies;
-	while ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) & 0x03)) {
+	while ((readl(itv->reg_mem + IVTV_REG_DMAXFER) & 0x03)) {
 		ivtv_sleep_timeout(HZ / 100, 1);
 		if ((jiffies - then) > (HZ * 3)) {
 			IVTV_DEBUG_WARN(
@@ -1381,20 +1289,20 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 	/* put SG Handle into register 0x0c */
 	ivtv_write_reg(SG_handle, itv->reg_mem + IVTV_REG_DECDMAADDR);
 	/* If didn't write, try again */
-	if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DECDMAADDR) != SG_handle)
+	if (readl(itv->reg_mem + IVTV_REG_DECDMAADDR) != SG_handle)
 		ivtv_write_reg(st->SG_handle,
 			       itv->reg_mem + IVTV_REG_DECDMAADDR);
 	/* Send DMA with register 0x00, using the enc DMA bit */
-	if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DECDMAADDR) == SG_handle)
-		ivtv_write_reg(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) |
+	if (readl(itv->reg_mem + IVTV_REG_DECDMAADDR) == SG_handle)
+		ivtv_write_reg(readl(itv->reg_mem + IVTV_REG_DMAXFER) |
 			       0x01, itv->reg_mem + IVTV_REG_DMAXFER);
 	spin_unlock_irqrestore(&itv->DMA_slock, flags);
 
 	/* wait for DMA to start */
 	then = jiffies;
-	while ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) & 0x01)) {
+	while ((readl(itv->reg_mem + IVTV_REG_DMAXFER) & 0x01)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) {
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) {
 			break;
 		}
 
@@ -1407,9 +1315,9 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 	}
 
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DECSG1LEN) & 0x80000000)) {
+	while (!(readl(itv->reg_mem + IVTV_REG_DECSG1LEN) & 0x80000000)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15)
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15)
 			break;
 
 		ivtv_sleep_timeout(HZ / 100, 1);
@@ -1420,11 +1328,11 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 		}
 	}
 	/* Wait for Read Interrupt */
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) &&
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) &&
 	       wait_event_interruptible(itv->r_intr_wq,
 					atomic_read(&itv->r_intr))) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15)
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15)
 			break;
 
 		if (atomic_read(&itv->r_intr))
@@ -1433,9 +1341,9 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 	atomic_set(&itv->r_intr, 0);
 	/* wait for DMA complete status */
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x01)) {
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x01)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) {
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x15) {
 			break;
 		}
 
@@ -1448,16 +1356,16 @@ int dma_to_device(struct ivtv *itv, struct ivtv_stream *st,
 	}
 
 	/* DMA Error */
-	if ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x14)) {
+	if ((readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x14)) {
 		IVTV_DEBUG_DMA(
 			   "DMA_TO: (%d) DMA Error 0x%08x\n",
-			   redo_dma, ivtv_read_reg(itv->reg_mem +
+			   redo_dma, readl(itv->reg_mem +
 						   IVTV_REG_DMASTATUS));
 
 		/* Reset DMA Error, cancel last DMA? */
 		spin_lock_irqsave(&itv->DMA_slock, flags);
 		ivtv_write_reg(0x00, itv->reg_mem + IVTV_REG_DMAXFER);
-		ivtv_write_reg(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS)
+		ivtv_write_reg(readl(itv->reg_mem + IVTV_REG_DMASTATUS)
 			       & 0x03, itv->reg_mem + IVTV_REG_DMASTATUS);
 		spin_unlock_irqrestore(&itv->DMA_slock, flags);
 		if (redo_dma < 3) {
@@ -1587,7 +1495,7 @@ int unlock_TO_dma(struct ivtv *itv, int stream_type)
 	struct ivtv_stream *osd_stream = NULL;
 
 	/* IF we have OSD/DEC Streams to unlock */
-	if (itv->has_itvc15) {
+	if (itv->has_cx23415) {
 		osd_stream = &itv->streams[IVTV_DEC_STREAM_TYPE_OSD];
 		dec_stream = &itv->streams[IVTV_DEC_STREAM_TYPE_MPG];
 
@@ -1607,7 +1515,7 @@ int unlock_TO_dma(struct ivtv *itv, int stream_type)
 	}
 
         /* Wake up waitq's for DMA */
-        if (itv->has_itvc15 &&
+        if (itv->has_cx23415 &&
 		!test_bit(IVTV_F_S_NEEDS_DATA, &stream->s_flags)) 
 	{
 		/* Wake up OSD streams, maybe DEC if no OSD needed */
@@ -1626,7 +1534,7 @@ int unlock_TO_dma(struct ivtv *itv, int stream_type)
                 	wake_up(&stream->udma.waitq);
                 	wake_up(&stream->waitq);
 		}
-	} else if (itv->has_itvc15) {/* Wake up next DEC DMA in wait */
+	} else if (itv->has_cx23415) {/* Wake up next DEC DMA in wait */
                	wake_up(&dec_stream->waitq);
                	wake_up(&dec_stream->udma.waitq);
 

@@ -1,7 +1,7 @@
 /*
     ivtv firmware functions.
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,13 +18,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* Main Driver file for the ivtv project:
- * Driver for the iTVC15 chip.
- * Author: Kevin Thayer (nufan_wfk at yahoo.com)
- * License: GPL
- * http://www.sourceforge.net/projects/ivtv/
- */
-
 #include "ivtv-driver.h"
 #include "ivtv-fileops.h"
 #include "ivtv-gpio.h"
@@ -33,9 +26,11 @@
 #include "ivtv-cards.h"
 #include "ivtv-firmware.h"
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,23)
-#include <linux/firmware.h>
-#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,23) */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+#define FWDEV(x) &((x)->dev)
+#else
+#define FWDEV(x) itv->name
+#endif
 
 static u32 ivtv_firm_search_id[] =
     { 0x12345678, 0x34567812, 0x56781234, 0x78123456 };
@@ -88,7 +83,7 @@ int ivtv_check_firmware(struct ivtv *itv)
 	enc_error = ivtv_check_enc_firmware(itv);
 
 	/* decoder */
-	if (itv->has_itvc15)
+	if (itv->has_cx23415)
 		dec_error = ivtv_check_dec_firmware(itv);
 	else
 		dec_error = 0;
@@ -103,54 +98,57 @@ int ivtv_check_firmware(struct ivtv *itv)
 	return 0;
 }
 
-#if defined(IVTV_FW_LOADER)
+#if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
+/* Use hotplug support */
 static int load_fw_direct(const char *fn, char *mem, struct ivtv *itv, long size)
 {
 	const struct firmware *fw = NULL;
 	struct pci_dev *pdev = itv->dev;
 	int retval = -ENOMEM;
 
-	IVTV_INFO("requesting %s from hotplug\n", fn);
-	if (request_firmware(&fw, fn, &(pdev->dev)) == 0) {
+	if (request_firmware(&fw, fn, FWDEV(pdev)) == 0) {
 		if (fw->size >= size) {
-            retval = size;
-			memcpy(mem, fw->data, size);
+			retval = size;
+			memcpy_toio(mem, fw->data, size);
 		} else {
 			retval = fw->size;
-			memcpy(mem, fw->data, fw->size);
+			memcpy_toio(mem, fw->data, fw->size);
 		}
 		release_firmware(fw);
+		IVTV_INFO("loaded %s firmware (%d bytes)\n", fn, retval);
 	} else {
-		IVTV_WARN("unable to open firmware\n");
+		IVTV_INFO("unable to open firmware %s\n", fn);
+		IVTV_INFO("did you put the firmware in the hotplug firmware directory?\n");
 	}
 
 	return retval;
 }
 #else
-static int load_fw_direct(const char *fn, char *mem, struct ivtv *itv, long size)
-{
-	kernel_filep filep;
-	loff_t file_offset = 0;
-	int retval = -EINVAL;
-	mm_segment_t fs = get_fs();
+/* do it ourselves (for older 2.4 kernels) */
+static int load_fw_direct(const char *fn, char *mem, struct ivtv *itv, long size) 
+{ 
+	kernel_filep filep; 
+	loff_t file_offset = 0; 
+	int retval = -EINVAL; 
+	mm_segment_t fs = get_fs(); 
 
-	set_fs(get_ds());
+	set_fs(get_ds()); 
 
-	IVTV_INFO("loading %s\n", fn);
-	filep = kernel_file_open(fn, 0, 0);
+	filep = kernel_file_open(fn, 0, 0); 
 
-	if (kernel_file_is_err(filep)) {
-		IVTV_INFO("unable to open firmware\n");
-	} else {
-		retval = kernel_file_read(filep, mem, size, &file_offset);
-		kernel_file_close(filep);
-	}
+	if (kernel_file_is_err(filep)) { 
+		IVTV_INFO("unable to open firmware\n"); 
+	} else { 
+		retval = kernel_file_read(filep, mem, size, &file_offset); 
+		kernel_file_close(filep); 
+		IVTV_INFO("loaded %s firmware (%d bytes)\n", fn, retval);
+	} 
 
-	set_fs(fs);
+	set_fs(fs); 
 
-	return retval;
-}
-#endif /* defined(IVTV_FW_LOADER) */
+	return retval; 
+} 
+#endif
 
 static int ivtv_enc_firmware_copy(struct ivtv *itv)
 {
@@ -187,7 +185,7 @@ static int ivtv_stop_firmware_dec(struct ivtv *itv)
 
 	if (NULL != itv->dec_mbox) {
 		/*halt dec firmware */
-		if (itv->has_itvc15) {
+		if (itv->has_cx23415) {
 			x = ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
 				     IVTV_API_DEC_HALT_FW, &result, 0,
 				     &data[0]);
@@ -233,7 +231,7 @@ void ivtv_halt_firmware(struct ivtv *itv, int mode)
 	/*  mailboxes. */
 
 	IVTV_DEBUG_INFO("Preparing for firmware halt.\n");
-	if (itv->has_itvc15 && (mode == 2 || mode == 3))
+	if (itv->has_cx23415 && (mode == 2 || mode == 3))
 		x = ivtv_stop_firmware_dec(itv);
 	if (mode == 1 || mode == 3)
 		x += ivtv_stop_firmware_enc(itv);
@@ -255,7 +253,7 @@ void ivtv_halt_firmware(struct ivtv *itv, int mode)
 	/* FIXME need to experiment and see if firmware 
 	   can be halted separately */
 	IVTV_DEBUG_INFO("Stopping VPU\n");
-	if (!itv->has_itvc15) {
+	if (!itv->has_cx23415) {
 		writel(IVTV_CMD_VPU_STOP16, (IVTV_REG_VPU + itv->reg_mem));
 	} else {
 		writel(IVTV_CMD_VPU_STOP15, (IVTV_REG_VPU + itv->reg_mem));
@@ -278,7 +276,7 @@ void ivtv_halt_firmware(struct ivtv *itv, int mode)
 	writel(IVTV_CMD_SDRAM_REFRESH_INIT,
 	       (IVTV_REG_ENC_SDRAM_REFRESH + itv->reg_mem));
 
-	if (itv->has_itvc15) {
+	if (itv->has_cx23415) {
 		IVTV_DEBUG_INFO("init Decoder SDRAM pre-charge\n");
 		writel(IVTV_CMD_SDRAM_PRECHARGE_INIT,
 		       (IVTV_REG_DEC_SDRAM_PRECHARGE + itv->reg_mem));
@@ -303,7 +301,7 @@ void ivtv_start_firmware(struct ivtv *itv)
 	IVTV_DEBUG_WARN("Sleeping for 100 ms\n");
 	ivtv_sleep_timeout(HZ / 10, 0);
 
-	if (!itv->has_itvc15) {
+	if (!itv->has_cx23415) {
 		writel((readl(itv->reg_mem + IVTV_REG_VPU) &
 			IVTV_MASK_VPU_ENABLE16), (IVTV_REG_VPU + itv->reg_mem));
 	} else {
@@ -369,7 +367,7 @@ int ivtv_find_dec_firmware_mailbox(struct ivtv *itv)
 	searchptr = NULL;
 	result = NULL;
 
-	if (!itv->has_itvc15) {
+	if (!itv->has_cx23415) {
 		return 0;
 	}
 
@@ -430,7 +428,7 @@ int ivtv_firmware_versions(struct ivtv *itv)
 	if (data[0] != 0x02040011 && data[0] != 0x02050032)
 		IVTV_DEBUG_WARN("Encoder Firmware can be buggy, use version 0x02040011 or 0x02050032.\n");
 
-	if (!itv->has_itvc15)
+	if (!itv->has_cx23415)
 		return 0;
 
 	/* Decoder */
@@ -453,7 +451,7 @@ int ivtv_firmware_copy(struct ivtv *itv)
 	if (ret)
 		return ret;
 
-	if (itv->has_itvc15) {
+	if (itv->has_cx23415) {
 		ret = ivtv_dec_firmware_copy(itv);
 		if (ret)
 			return ret;
@@ -495,7 +493,7 @@ int ivtv_stop_firmware(struct ivtv *itv)
 	ivtv_sleep_timeout(HZ / 100, 0);
 
 	/*halt dec firmware */
-	if (itv->has_itvc15) {
+	if (itv->has_cx23415) {
 		x = ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
 			     IVTV_API_DEC_HALT_FW, &result, 0, &data[0]);
 		if (x)
@@ -527,7 +525,7 @@ int ivtv_firmware_init(struct ivtv *itv)
 	writel(IVTV_CMD_APU_PING, (IVTV_REG_APU + itv->reg_mem));
 
 	IVTV_DEBUG_INFO("Stopping VPU\n");
-	if (!itv->has_itvc15) {
+	if (!itv->has_cx23415) {
 		writel(IVTV_CMD_VPU_STOP16, (IVTV_REG_VPU + itv->reg_mem));
 	} else {
 		writel(IVTV_CMD_VPU_STOP15, (IVTV_REG_VPU + itv->reg_mem));
@@ -577,7 +575,7 @@ int ivtv_firmware_init(struct ivtv *itv)
 	ivtv_sleep_timeout(HZ / 10, 0);
 
 	/*I guess this is read-modify-write :) */
-	if (!itv->has_itvc15) {
+	if (!itv->has_cx23415) {
 		writel((readl(itv->reg_mem + IVTV_REG_VPU) &
 			IVTV_MASK_VPU_ENABLE16), (IVTV_REG_VPU + itv->reg_mem));
 	} else {

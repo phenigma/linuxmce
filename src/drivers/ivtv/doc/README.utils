@@ -17,7 +17,7 @@ options. Consider it the Swiss army knife of ivtv.
 ivtvfbctl
 ---------
 This utility lets you set the alpha/transparency of the OSD.
-It also has other functions (FIXME)
+See README.ivtvfb for more details
 
 radio
 -----

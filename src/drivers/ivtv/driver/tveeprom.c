@@ -47,10 +47,9 @@
 #include <asm/pgtable.h>
 #include <asm/page.h>
 #include <linux/sched.h>
-#include <asm/segment.h>
 #include <linux/types.h>
 
-#include "compat.h"
+#include "ivtv-compat.h"
 
 #ifndef LINUX26
 #include <linux/wrapper.h>
@@ -241,7 +240,7 @@ static struct HAUPPAUGE_TUNER {
 	{ TUNER_LG_PAL_NEW_TAPC, "TCL 2002MI 3"},
 	{ TUNER_TCL_2002N,     "TCL 2002N 6A"},
 	{ TUNER_ABSENT,        "Philips FQ1236 MK3"},
-	{ TUNER_ABSENT,        "Samsung TCPN 2121P30A"},
+	{ TUNER_SAMSUNG_TCPN_2121P30A,  "Samsung TCPN 2121P30A"},
 	{ TUNER_ABSENT,        "Samsung TCPE 4121P30A"},
 	{ TUNER_PHILIPS_FM1216ME_MK3, "TCL MFPE05 2"},
 	/* 90-99 */

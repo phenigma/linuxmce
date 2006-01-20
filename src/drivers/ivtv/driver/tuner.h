@@ -91,6 +91,7 @@
 
 #define TUNER_LG_NTSC_TALN_MINI 66
 #define TUNER_PHILIPS_TD1316            67
+#define TUNER_SAMSUNG_TCPN_2121P30A     68
 
 #define NOTUNER 0
 #define PAL     1		/* PAL_BG */
@@ -152,6 +153,7 @@ struct tuner_setup {
 # define TDA9887_INTERCARRIER        (1<<4)
 # define TDA9887_PORT1_ACTIVE        (1<<5)
 # define TDA9887_PORT2_ACTIVE        (1<<6)
+# define TDA9887_INTERCARRIER_NTSC   (1<<7)
 /* config options */
 # define TDA9887_DEEMPHASIS_MASK     (3<<16)
 # define TDA9887_DEEMPHASIS_NONE     (1<<16)

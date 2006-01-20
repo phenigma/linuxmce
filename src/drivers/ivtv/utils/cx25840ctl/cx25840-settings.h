@@ -10,6 +10,7 @@
  */
 #ifndef __CX25840_SETTINGS_H
 #define __CX25840_SETTINGS_H
+
 typedef enum {
 	SLEEP,
 	DIGITAL_PWR_DN,
@@ -674,4 +675,5 @@ typedef enum {
 	number_of_settings, special_tag_setting, special_end_setting,
 	special_execute_setting, special_WI2C_setting, special_delay_setting
 } cx25840_setting;
+
 #endif /* __CX25840_SETTINGS_H */

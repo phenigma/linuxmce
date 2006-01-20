@@ -1,7 +1,7 @@
 /*
-    On Screen Display iTVC15 Framebuffer driver
+    On Screen Display cx23415 Framebuffer driver
  
-    This module presents the iTVC15 OSD (onscreen display) framebuffer memory 
+    This module presents the cx23415 OSD (onscreen display) framebuffer memory 
     as a standard Linux /dev/fb style framebuffer device. The framebuffer has
     a 32 bpp packed pixel format with full alpha channel support. Depending
     on the TV standard configured in the ivtv module at load time, resolution
@@ -15,7 +15,7 @@
     2.6 kernel port:
     Copyright (C) 2004 Matthias Badaire
 
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ EndSection
 #EndSection
 
 Section "Device"
-    Identifier  "Hauppauge PVR 350 iTVC15 Framebuffer"
+    Identifier  "Hauppauge PVR 350 cx23415 Framebuffer"
     Driver      "fbdev"
     Option      "fbdev" "/dev/fb1"      # <-- modify if using another device
     BusID "0:10:0"
@@ -78,7 +78,7 @@ EndSection
 
 Section "Screen"
   Identifier  "TV Screen"
-  Device      "Hauppauge PVR 350 iTVC15 Framebuffer"
+  Device      "Hauppauge PVR 350 cx23415 Framebuffer"
   Monitor     "NTSC Monitor"            # <-- select for NTSC
 #  Monitor     "PAL Monitor"            # <-- select for PAL
   DefaultDepth 24
@@ -174,7 +174,6 @@ console hijacks, and allow you to unload the driver.
 #endif /* CONFIG_MTRR */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-queue.h"
 #include "ivtv-fileops.h"
 #include "ivtv-mailbox.h"
@@ -184,11 +183,11 @@ console hijacks, and allow you to unload the driver.
 #include <video/fbcon.h>
 #include <video/fbcon-cfb32.h>
 #endif /* LINUX26 */
+#include "ivtv-osd.h"
 
 typedef unsigned long uintptr_t;
 
-int ivtvfb_setup(void);
-int ivtvfb_sleep_timeout(int timeout, int intr);
+static int ivtvfb_setup(struct ivtv *itv);
 
 /*
  * card parameters
@@ -197,25 +196,9 @@ int ivtvfb_sleep_timeout(int timeout, int intr);
 static int ivtv_fb_card_id;
 static int osd_init;
 
-/* Card selected as framebuffer for this module instance: */
-static struct ivtv *itv;
-
-/* card */
-static unsigned long video_base;	/* physical addr */
-static unsigned long video_rel_base;	/* address relative to base of decoder memory */
-static int video_size;
-static char *video_vbase;	/* mapped */
-
-/* mode */
-static int video_width;
-static int video_height;
-static int video_height_virtual;
-static int video_linelength;
-static unsigned long shadow_framebuf_offset;
-static unsigned long shadow_framebuf_size;
 
 /* Generic utility functions */
-int ivtvfb_sleep_timeout(int timeout, int intr)
+static int ivtvfb_sleep_timeout(int timeout, int intr)
 {
 	int sleep = timeout;
 	int ret = 0;
@@ -330,8 +313,8 @@ static int ivtv_api_fb_get_osd_coords(struct ivtv *itv,
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_OSD_COORDS,
 		 &result, 0, &data[0]);
 
-	osd->offset = data[0] - video_rel_base;
-	osd->max_offset = video_width * video_height * 4;
+	osd->offset = data[0] - itv->osd_info->video_rbase;
+	osd->max_offset = itv->osd_info->display_width * itv->osd_info->display_height * 4;
 	osd->pixel_stride = data[1];
 	osd->lines = data[2];
 	osd->x = data[3];
@@ -345,7 +328,7 @@ static int ivtv_api_fb_set_osd_coords(struct ivtv *itv, const struct ivtv_osd_co
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 
-	data[0] = osd->offset + video_rel_base;
+	data[0] = osd->offset + itv->osd_info->video_rbase;
 	data[1] = osd->pixel_stride;
 	data[2] = osd->lines;
 	data[3] = osd->x;
@@ -404,9 +387,9 @@ static int ivtv_api_fb_set_global_alpha(struct ivtv *itv,
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 
 	/* Save settings if Firmware reload */
-	itv->global_alpha = alpha;
-	itv->local_alpha_state = enable_local;
-	itv->global_alpha_state = enable_global;
+	itv->osd_info->global_alpha = alpha;
+	itv->osd_info->local_alpha_state = enable_local;
+	itv->osd_info->global_alpha_state = enable_global;
 
 	data[0] = enable_global;
 	data[1] = alpha;
@@ -421,8 +404,8 @@ static void  ivtv_api_fb_set_colorKey(struct ivtv *itv,int state,  uint32_t colo
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 
-        itv->color_key_state = state;
-        itv->color_key = color;
+        itv->osd_info->color_key_state = state;
+        itv->osd_info->color_key = color;
 	data[0] = state;
 	data[1] = color;
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
@@ -473,6 +456,7 @@ static int ivtv_api_fb_blt_fill(struct ivtv *itv, int rasterop,
 	return result;
 }
 
+#ifdef UNUSED
 static int ivtv_api_fb_blt_copy(struct ivtv *itv, int rasterop,
 				int alpha_mode, int alpha_mask_mode,
 				int width, int height, int destmask,
@@ -501,6 +485,7 @@ static int ivtv_api_fb_blt_copy(struct ivtv *itv, int rasterop,
 		     &result, 10, &data[0]);
 	return result;
 }
+#endif
 
 MODULE_PARM(ivtv_fb_card_id, "i");
 MODULE_PARM_DESC(ivtv_fb_card_id,
@@ -512,6 +497,7 @@ MODULE_PARM_DESC(osd_init,
                  "\t\t\t1=uninitialised\n"
                  "\t\t\tdefault black");
 
+MODULE_AUTHOR("Kevin Thayer, Chris Kennedy, Hans Verkuil, John Harvey");
 MODULE_LICENSE("GPL");
 
 /* --------------------------------------------------------------------- */
@@ -556,15 +542,14 @@ static unsigned long fb_end_aligned_physaddr;	/* video_base rounded up as requir
 #endif /* CONFIG_MTRR */
 
 /* --------------------------------------------------------------------- */
-static int _ivtvfb_set_var(struct fb_var_screeninfo *var)
+static int _ivtvfb_set_var(struct ivtv *itv, struct fb_var_screeninfo *var)
 {
 	IVTV_OSD_DEBUG_INFO("_ivtvfb_set_var\n");
 
 	if (var->xres != ivtvfb_defined.xres ||
 	    var->yres != ivtvfb_defined.yres ||
 	    var->xres_virtual != ivtvfb_defined.xres_virtual ||
-	    var->yres_virtual > video_height_virtual ||
-	    var->yres_virtual < video_height ||
+	    var->yres_virtual != ivtvfb_defined.yres_virtual ||
 	    var->xoffset ||
 	    var->bits_per_pixel != ivtvfb_defined.bits_per_pixel ||
 	    var->nonstd) {
@@ -573,18 +558,18 @@ static int _ivtvfb_set_var(struct fb_var_screeninfo *var)
 	return 0;
 
 }
-static int _ivtvfb_get_fix(struct fb_fix_screeninfo *fix)
+static int _ivtvfb_get_fix(struct ivtv *itv, struct fb_fix_screeninfo *fix)
 {
 	memset(fix, 0, sizeof(struct fb_fix_screeninfo));
-	strcpy(fix->id, "iTVC15 TV out");
-	fix->smem_start = video_base;
-	fix->smem_len = video_width * video_width * 4;
+	strcpy(fix->id, "cx23415 TV out");
+	fix->smem_start = itv->osd_info->video_pbase;
+	fix->smem_len = itv->osd_info->video_buffer_size;
 	fix->type = FB_TYPE_PACKED_PIXELS;
 	fix->visual = FB_VISUAL_TRUECOLOR;
 	fix->xpanstep = 0;
 	fix->ypanstep = 0;
 	fix->ywrapstep = 0;
-	fix->line_length = video_linelength;
+	fix->line_length = itv->osd_info->display_byte_stride;
 	return 0;
 }
 
@@ -628,7 +613,7 @@ static void ivtvfb_set_disp(int con)
 	ivtvfb_get_fix(&fix, con, 0);
 
 	memset(display, 0, sizeof(struct display));
-	display->screen_base = video_vbase;
+	display->screen_base = itv->osd_info->video_vbase;
 	display->visual = fix.visual;
 	display->type = fix.type;
 	display->type_aux = fix.type_aux;
@@ -691,11 +676,15 @@ static int ivtvfb_set_cmap(struct fb_cmap *cmap, int kspc, int con,
 #else
 static int ivtvfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 {
-	return (_ivtvfb_set_var(&info->var));
+	struct ivtv *itv = (struct ivtv *) info->par;
+	IVTV_OSD_DEBUG_WARN ("ivtvfb_check_var\n");
+	return (_ivtvfb_set_var(itv, &info->var));
 }
 static int ivtvfb_set_par(struct fb_info *info)
 {
-	return (_ivtvfb_set_var(&info->var));
+	struct ivtv *itv = (struct ivtv *) info->par;
+	IVTV_OSD_DEBUG_WARN ("ivtvfb_set_par\n");
+	return (_ivtvfb_set_var(itv, &info->var));
 }
 static int ivtvfb_setcolreg(unsigned regno, unsigned red, unsigned green,
 			    unsigned blue, unsigned transp,
@@ -733,15 +722,18 @@ static int ivtv_fb_sync(struct fb_info *info)
 static int ivtv_fb_blt_copy(struct ivtv *itv, int x, int y, int width,
 			    int height, int source_offset, int source_stride)
 {
+	return -EINVAL;
+#ifdef UNUSED
 	int rc;
-	unsigned long destaddr = ((y * video_width) + x) * 4;
+	unsigned long destaddr = ((y * itv->osd_info->display_width) + x) * 4;
 
 	source_offset += shadow_framebuf_offset;
 
 	rc = ivtv_api_fb_blt_copy(itv, 0xa, 0x1, 0x0, width, height,
-				  0xffffffff, destaddr, video_width,
+				  0xffffffff, destaddr, itv->osd_info->display_width,
 				  source_stride, source_offset);
 	return rc;
+#endif
 }
 
 static int ivtv_fb_blt_fill(struct ivtv *itv,
@@ -749,8 +741,8 @@ static int ivtv_fb_blt_fill(struct ivtv *itv,
 {
 	int rc;
 	unsigned long destaddr =
-	    IVTV_DEC_MEM_START + video_rel_base +
-	    (((args->y * video_width) + args->x) * 4);
+	    IVTV_DEC_MEM_START + itv->osd_info->video_rbase +
+	    (((args->y * itv->osd_info->display_width) + args->x) * 4);
 
 	IVTV_OSD_DEBUG_INFO(
 		       "ivtv_fb_blt_fill op %d mode %d mask %d width %d hight %d\n",
@@ -759,12 +751,12 @@ static int ivtv_fb_blt_fill(struct ivtv *itv,
 
 	IVTV_OSD_DEBUG_INFO(
 		       "ivtv_fb_blt_fill destMask %x, destAddr %lx stride %d color %x\n",
-		       args->destPixelMask, destaddr, video_width,
+		       args->destPixelMask, destaddr, itv->osd_info->display_width,
 		       args->colour);
 
 	rc = ivtv_api_fb_blt_fill(itv, args->rasterop, args->alpha_mode,
 				  args->alpha_mask, args->width, args->height,
-				  args->destPixelMask, destaddr, video_width,
+				  args->destPixelMask, destaddr, itv->osd_info->display_width,
 				  args->colour);
 	return rc;
 }
@@ -951,7 +943,7 @@ static int ivtv_fb_prep_frame_buf(struct ivtv *itv,
 
 	/* If needing to re-setup the OSD */
 	if (test_and_clear_bit(OSD_RESET_NEEDED, &itv->r_flags))
-		ivtvfb_setup();
+		ivtvfb_setup(itv);
 
 	then = jiffies;
 	add_wait_queue(&stream->waitq, &wait);
@@ -960,10 +952,10 @@ static int ivtv_fb_prep_frame_buf(struct ivtv *itv,
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		/* Lock Decoder */
-		if ((ivtv_read_reg((unsigned char *)itv->reg_mem +
+		if ((readl((unsigned char *)itv->reg_mem +
 				   IVTV_REG_DMASTATUS) & 0x01)
 		    &&
-		    !(ivtv_read_reg
+		    !(readl
 		      ((unsigned char *)itv->reg_mem +
 		       IVTV_REG_DMASTATUS) & 0x14)
 		    && !test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags)) {
@@ -971,9 +963,9 @@ static int ivtv_fb_prep_frame_buf(struct ivtv *itv,
 		}
 		IVTV_OSD_DEBUG_DEC(
 			   "DMA Reg Status: 0x%08x needs 0x%08x has 0x%08x.\n",
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY),
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED),
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_FILL));
+			   readl(itv->dec_mem + IVTV_REG_DEC_READY),
+			   readl(itv->dec_mem + IVTV_REG_DEC_NEEDED),
+			   readl(itv->dec_mem + IVTV_REG_DEC_FILL));
 
 		if (ivtvfb_sleep_timeout(HZ / 100, 1)) {
                         rc = -ERESTARTSYS;
@@ -994,7 +986,7 @@ static int ivtv_fb_prep_frame_buf(struct ivtv *itv,
 		return rc;
 
 	/* OSD Address to send DMA to */
-	destaddr = IVTV_DEC_MEM_START + video_rel_base + destaddr;
+	destaddr = IVTV_DEC_MEM_START + itv->osd_info->video_rbase + destaddr;
 	/* Fill Buffers */
 	if (0 != (rc = ivtvfb_prep_osd_dma_to_device(itv,
 						     destaddr, (char *)srcaddr,
@@ -1020,7 +1012,7 @@ static int ivtv_fb_prep_frame(struct ivtv *itv,
 
 	/* If needing to re-setup the OSD */
 	if (test_and_clear_bit(OSD_RESET_NEEDED, &itv->r_flags)) {
-		ivtvfb_setup();
+		ivtvfb_setup(itv);
 		unlock_TO_dma(itv, stream->type);
 	}
 
@@ -1031,10 +1023,10 @@ static int ivtv_fb_prep_frame(struct ivtv *itv,
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		/* Lock Decoder */
-		if ((ivtv_read_reg((unsigned char *)itv->reg_mem +
+		if ((readl((unsigned char *)itv->reg_mem +
 				   IVTV_REG_DMASTATUS) & 0x01)
 		    &&
-		    !(ivtv_read_reg
+		    !(readl
 		      ((unsigned char *)itv->reg_mem +
 		       IVTV_REG_DMASTATUS) & 0x14)
 		    && !test_bit(DMA_IN_USE, &stream->udma.u_flags)
@@ -1047,9 +1039,9 @@ static int ivtv_fb_prep_frame(struct ivtv *itv,
 		}
 		IVTV_OSD_DEBUG_DEC(
 			   "DMA Reg Status: 0x%08x needs 0x%08x has 0x%08x.\n",
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY),
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED),
-			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_FILL));
+			   readl(itv->dec_mem + IVTV_REG_DEC_READY),
+			   readl(itv->dec_mem + IVTV_REG_DEC_NEEDED),
+			   readl(itv->dec_mem + IVTV_REG_DEC_FILL));
 
 		if (ivtvfb_sleep_timeout(HZ / 100, 1)) {
                         rc = -ERESTARTSYS;
@@ -1070,7 +1062,7 @@ static int ivtv_fb_prep_frame(struct ivtv *itv,
 		return rc;
 
 	/* OSD Address to send DMA to */
-	destaddr = IVTV_DEC_MEM_START + video_rel_base + destaddr;
+	destaddr = IVTV_DEC_MEM_START + itv->osd_info->video_rbase + destaddr;
 
 	/* Fill Buffers */
 	if (0 != (rc = ivtvfb_prep_dec_dma_to_device(itv,
@@ -1084,7 +1076,7 @@ static int ivtv_fb_prep_frame(struct ivtv *itv,
 	return rc;
 }
 
-static int ivtv_prep_frame(int cmd, void *source, unsigned long dest_offset, int count)
+static int ivtv_prep_frame(struct ivtv *itv, int cmd, void *source, unsigned long dest_offset, int count)
 {
 	int ret = 0;
 
@@ -1110,15 +1102,15 @@ static int ivtv_prep_frame(int cmd, void *source, unsigned long dest_offset, int
         /* Bad Offset */
         if ((unsigned int)dest_offset < 0)
                 dest_offset = 0;
-        else if (dest_offset >= video_size) {
+        else if (dest_offset >= itv->osd_info->video_buffer_size) {
                 IVTV_OSD_DEBUG_WARN(
                                "Offset %ld is greater than buffer!!!\n",
                                dest_offset);
-                if (video_size > count)
-                        dest_offset = video_size - count;
+                if (itv->osd_info->video_buffer_size > count)
+                        dest_offset = itv->osd_info->video_buffer_size - count;
                 if (dest_offset < 0)
                         dest_offset = 0;
-                else if (dest_offset >= video_size) {
+                else if (dest_offset >= itv->osd_info->video_buffer_size) {
                         IVTV_OSD_DEBUG_WARN(
                                 "Count %d Offset %ld is greater than buffer\n",
                                 count, dest_offset);
@@ -1127,11 +1119,11 @@ static int ivtv_prep_frame(int cmd, void *source, unsigned long dest_offset, int
         }
 
         /* Check Total FB Size */
-        if (((dest_offset + count) > video_size) || (count > video_size)) {
+        if (((dest_offset + count) > itv->osd_info->video_buffer_size) || (count > itv->osd_info->video_buffer_size)) {
                 IVTV_OSD_DEBUG_WARN(
                         "Size is overflowing the framebuffer %ld, "
                         "only %d available\n",
-                        (dest_offset + count), video_size);
+                        (dest_offset + count), itv->osd_info->video_buffer_size);
 
                 return -E2BIG;
         }
@@ -1199,6 +1191,8 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 
 	int rc;
 
+	struct ivtv *itv = (struct ivtv *) info->par;
+
 	switch (cmd) {
 #ifndef LINUX26
 	case 0x7777: {
@@ -1258,7 +1252,7 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 		if (copy_from_user(&args, (void *)arg, sizeof(args)))
 			return -EFAULT;
 
-                return ivtv_prep_frame(cmd, args.source, args.dest_offset, args.count);
+                return ivtv_prep_frame(itv, cmd, args.source, args.dest_offset, args.count);
 	}
 
 	case IVTVFB_IOCTL_BLT_COPY: {
@@ -1316,8 +1310,8 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
                 struct ivtvfb_ioctl_colorkey getColorKey;
 
                 IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_GET_COLORKEY\n");
-                getColorKey.state = itv->color_key_state;
-                getColorKey.colorKey  = itv->color_key;
+                getColorKey.state = itv->osd_info->color_key_state;
+                getColorKey.colorKey  = itv->osd_info->color_key;
                 return copy_to_user((void *)arg, &getColorKey, sizeof(getColorKey));
         }
 
@@ -1334,10 +1328,10 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 		struct ivtvfb_ioctl_get_frame_buffer getfb;
 
 		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_GET_FRAME_BUFFER\n");
-		getfb.mem = (void *)video_vbase;
-		getfb.size = video_size;
-		getfb.sizex = video_width;
-		getfb.sizey = video_height;
+		getfb.mem = (void *)itv->osd_info->video_vbase;
+		getfb.size = itv->osd_info->video_buffer_size;
+		getfb.sizex = itv->osd_info->display_width;
+		getfb.sizey = itv->osd_info->display_height;
 
 		return copy_to_user((void *)arg, &getfb, sizeof(getfb));
 	}
@@ -1351,6 +1345,9 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 static ssize_t
 ivtv_fb_write(struct file *file, const char *ubuf, size_t count, loff_t * ppos)
 {
+	printk(KERN_INFO "ivtv ERROR: ivtv_fb_write - unsupported function\n");
+	return -EINVAL;
+#ifdef UNSUPPORTED
 	unsigned long p = *ppos;
 	int err = 0;
 	unsigned long flags;
@@ -1362,20 +1359,20 @@ ivtv_fb_write(struct file *file, const char *ubuf, size_t count, loff_t * ppos)
 
 	IVTV_OSD_DEBUG_INFO(
 		       "count=%zd, size=%d itv->osd.pos = %lu\n",
-		       count, video_size, (unsigned long)ppos);
+		       count, itv->osd_info->video_buffer_size, (unsigned long)ppos);
 
-	if (p > video_size)
+	if (p > itv->osd_info->video_buffer_size)
 		return -ENOSPC;
-	if (count >= video_size)
-		count = video_size;
-	if (count + p > video_size) {
-		count = video_size - p;
+	if (count >= itv->osd_info->video_buffer_size)
+		count = itv->osd_info->video_buffer_size;
+	if (count + p > itv->osd_info->video_buffer_size) {
+		count = itv->osd_info->video_buffer_size - p;
 		err = -ENOSPC;
 	}
 	if (count) {
 		char *base_addr;
 
-		base_addr = video_vbase;
+		base_addr = itv->osd_info->video_vbase;
 
 		spin_lock_irqsave(&itv->DMA_slock, flags);
 		memcpy_toio(base_addr + p, (char *)ubuf, count);
@@ -1387,12 +1384,14 @@ ivtv_fb_write(struct file *file, const char *ubuf, size_t count, loff_t * ppos)
 	if (count)
 		return count;
 	return err;
+#endif
 }
 
 static int
 ivtv_fb_mmap(struct fb_info *info,
 	     struct file *file, struct vm_area_struct *vma)
 {
+	struct ivtv *itv = (struct ivtv *) info->par;
 	IVTV_OSD_DEBUG_WARN( "MMAP is not safe for ivtv usage\n");
 	return -EINVAL;
 }
@@ -1431,11 +1430,9 @@ static void ivtvfb_blank(int blank, struct fb_info *info)
 }
 #endif /* LINUX26 */
 
-int ivtvfb_setup(void)
+static int ivtvfb_setup(struct ivtv *itv)
 {
 	int rc;
-	u32 fbbase;
-	u32 fblength;
 	struct ivtv_osd_coords osd;
 	struct rectangle rect;
 
@@ -1444,21 +1441,17 @@ int ivtvfb_setup(void)
 	IVTV_OSD_DEBUG_INFO("Current pixel format = %d\n",
 		       ivtv_api_fb_get_pixel_format(itv));
 
-	video_width = 720;
+	itv->osd_info->display_width = 720;
 	if (itv->std & V4L2_STD_625_50) {
-		video_height = 576;
+		itv->osd_info->display_height = 576;
 	} else {
-		video_height = 480;
+		itv->osd_info->display_height = 480;
 	}
 
 	/* set number of internal decoder buffers */
 	ivtv_vapi(itv,
 		  IVTV_API_DEC_DISPLAY_BUFFERS, 1, itv->dec_options.decbuffers);
 
-	rc = ivtv_api_fb_get_framebuffer(itv, &fbbase, &fblength);
-	IVTV_OSD_DEBUG_WARN(
-		       "Framebuffer is at decoder-relative address 0x%08x and has %d bytes.\n",
-		       fbbase, fblength);
 
 	rc = ivtv_api_fb_get_osd_coords(itv, &osd);
 	IVTV_OSD_DEBUG_INFO(
@@ -1513,49 +1506,22 @@ int ivtvfb_setup(void)
 	IVTV_OSD_INFO("original global alpha = %d\n",
 			   ivtv_api_fb_get_global_alpha(itv));
 
-	/*
-	 * Normally a 32-bit RGBA framebuffer would be fine, however XFree86's fbdev
-	 * driver doesn't understand the concept of alpha channel and always sets
-	 * bits 24-31 to zero when using a 24bpp-on-32bpp framebuffer device. We fix
-	 * this behavior by enabling the iTVC15's global alpha feature, which causes     * the chip to ignore the per-pixel alpha data and instead use one value (e.g.,
-	 * full brightness = 255) for the entire framebuffer. The local alpha is also
-	 * disabled in this step.
-	 *
-	 *++MTY Need to update http://ivtv.sourceforge.net/ivtv/firmware-api.html
-	 *      call 0x4b: param[2] says 1 = enable local alpha, when in reality
-	 *      it means *disable* local alpha...
-	 *
-	 */
 	rc = ivtv_api_fb_set_state(itv, 1);	// 1 = enabled
 	IVTV_OSD_INFO("current OSD state = %d\n",
 			   ivtv_api_fb_get_state(itv));
 
 	ivtv_api_fb_set_global_alpha(itv,
-				     itv->global_alpha_state,
-				     itv->global_alpha, itv->local_alpha_state);
+				     itv->osd_info->global_alpha_state,
+				     itv->osd_info->global_alpha, itv->osd_info->local_alpha_state);
         ivtv_api_fb_set_colorKey(itv,0,0);
 	IVTV_OSD_INFO("new global alpha = %d (%d %d %d)\n",
 			   ivtv_api_fb_get_global_alpha(itv),
-			   itv->global_alpha_state, itv->global_alpha,
-			   itv->local_alpha_state);
+			   itv->osd_info->global_alpha_state, itv->osd_info->global_alpha,
+			   itv->osd_info->local_alpha_state);
 
-	video_rel_base = fbbase;
-	video_base = itv->base_addr + IVTV_DECODER_OFFSET + video_rel_base;
-	video_linelength = 4 * osd.pixel_stride;
+	itv->osd_info->display_byte_stride = 4 * osd.pixel_stride;
 
-	/* If set then framebuffer is small, else about 2 worth */
-	video_size = video_width * video_height * 4;
 
-	/* Make sure it really fits */
-	if (video_size > fblength) {
-		IVTV_OSD_ERR
-		    ("ERROR: OSD size = 0x%08x too big, fb = 0x%08x\n",
-		     video_size, fblength);
-		video_size = fblength;
-	}
-
-	shadow_framebuf_size = video_size;
-	shadow_framebuf_offset = (video_size - shadow_framebuf_size) & ~3;
 
 	return 0;
 }
@@ -1566,10 +1532,11 @@ int __init ivtvfb_init(void)
 	struct fb_fix_screeninfo fix;
 #endif /* LINUX26 */
 	int i;
+        
+        struct ivtv *itv;
 
 	if ((ivtv_fb_card_id < 0) || (ivtv_fb_card_id >= ivtv_cards_active)) {
-		IVTV_OSD_ERR
-		    ("ivtv_fb_card_id parameter is out of range (valid range: 0-%d)\n",
+		printk(KERN_ERR "ivtv-osd:  ivtv_fb_card_id parameter is out of range (valid range: 0-%d)\n",
 		     ivtv_cards_active - 1);
 		return -1;
 	}
@@ -1589,45 +1556,85 @@ int __init ivtvfb_init(void)
 
 	itv = ivtv_cards[ivtv_fb_card_id];
 	if (!itv || !(itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT)) {
-		IVTV_OSD_ERR
-		    ("Specified card (id %d) is either not present or does not support TV out\n",
+		printk(KERN_ERR "ivtv-osd:  Specified card (id %d) is either not present or does not support TV out\n",
 		     ivtv_fb_card_id);
 		return -1;
 	}
 
+        if (itv->osd_info)
+        {
+		printk(KERN_ERR "ivtv-osd:  Card %d already initialised\n",
+		     ivtv_fb_card_id);
+                return -1;
+        }
+
 	IVTV_OSD_INFO
 	    ("Framebuffer module loaded (attached to ivtv card id %d)\n",
 	     ivtv_fb_card_id);
+	itv->osd_info = kmalloc(sizeof(struct osd_info), GFP_ATOMIC);
+	if (itv->osd_info == 0) {
+            printk(KERN_ERR "ivtv-osd:  Failed to allocate memory for osd_info\n");
+                return -1;
+        }
+            
+	// Set the startup video information
+	
+        /*
+	 * Normally a 32-bit RGBA framebuffer would be fine, however XFree86's fbdev
+	 * driver doesn't understand the concept of alpha channel and always sets
+	 * bits 24-31 to zero when using a 24bpp-on-32bpp framebuffer device. We fix
+	 * this behavior by enabling the iTVC15's global alpha feature, which causes     
+	 * the chip to ignore the per-pixel alpha data and instead use one value (e.g.,
+	 * full brightness = 255) for the entire framebuffer. The local alpha is also
+	 * disabled in this step.
+	 *
+	 *++MTY Need to update http://ivtv.sourceforge.net/ivtv/firmware-api.html
+	 *      call 0x4b: param[2] says 1 = enable local alpha, when in reality
+	 *      it means *disable* local alpha...
+	 *
+	 */
 
-	/* Setup OSD */
-	ivtvfb_setup();
+	// Reset the Alpha status
+	itv->osd_info->global_alpha = 255;
+	itv->osd_info->global_alpha_state = 1;
+	itv->osd_info->local_alpha_state = 0;
+        
 
-	video_vbase = itv->dec_mem + video_rel_base;
-	if (!video_vbase) {
+        /* Setup OSD */
+	ivtvfb_setup(itv);
+
+	ivtv_api_fb_get_framebuffer(itv, &(itv->osd_info->video_rbase), &itv->osd_info->video_buffer_size);
+	
+	itv->osd_info->video_pbase = itv->base_addr + IVTV_DECODER_OFFSET + itv->osd_info->video_rbase;
+	itv->osd_info->video_vbase = itv->dec_mem + itv->osd_info->video_rbase;
+
+	if (!itv->osd_info->video_vbase) {
 		IVTV_OSD_ERR
 		    ("abort, video memory 0x%x @ 0x%lx isn't mapped!!!\n",
-		     video_size, video_base);
+		     itv->osd_info->video_buffer_size, itv->osd_info->video_pbase);
 		return -EIO;
 	}
-	IVTV_OSD_INFO("framebuffer at 0x%lx, mapped to 0x%p, size %dk\n",
-			   video_base, video_vbase, video_size / 1024);
-	IVTV_OSD_INFO("mode is %dx%dx%d, linelength=%d\n",
-			   video_width, video_height, 32, video_linelength);
 
-	ivtvfb_defined.xres = video_width;
-	ivtvfb_defined.yres = video_height;
-	ivtvfb_defined.xres_virtual = video_width;
-	ivtvfb_defined.yres_virtual = video_height;
+
+
+	IVTV_OSD_INFO("framebuffer at 0x%lx, mapped to 0x%p, size %dk\n",
+			   itv->osd_info->video_pbase, itv->osd_info->video_vbase, itv->osd_info->video_buffer_size / 1024);
+	IVTV_OSD_INFO("mode is %dx%dx%d, linelength=%d\n",
+			   itv->osd_info->display_width, itv->osd_info->display_height, 32, itv->osd_info->display_byte_stride);
+
+	ivtvfb_defined.xres = itv->osd_info->display_width;
+	ivtvfb_defined.yres = itv->osd_info->display_height;
+	ivtvfb_defined.xres_virtual = itv->osd_info->display_width;
+	ivtvfb_defined.yres_virtual = itv->osd_info->display_height;
 	ivtvfb_defined.bits_per_pixel = 32;
-	video_height_virtual = ivtvfb_defined.yres_virtual;
 
 	/* some dummy values for timing to make fbset happy */
-	ivtvfb_defined.pixclock = 10000000 / video_width * 1000 / video_height;
-	ivtvfb_defined.left_margin = (video_width / 8) & 0xf8;
+	ivtvfb_defined.pixclock = 10000000 / itv->osd_info->display_width * 1000 / itv->osd_info->display_height;
+	ivtvfb_defined.left_margin = (itv->osd_info->display_width / 8) & 0xf8;
 	ivtvfb_defined.right_margin = 32;
 	ivtvfb_defined.upper_margin = 16;
 	ivtvfb_defined.lower_margin = 4;
-	ivtvfb_defined.hsync_len = (video_width / 8) & 0xf8;
+	ivtvfb_defined.hsync_len = (itv->osd_info->display_width / 8) & 0xf8;
 	ivtvfb_defined.vsync_len = 4;
 
 	ivtvfb_defined.red.offset = 0;
@@ -1643,15 +1650,15 @@ int __init ivtvfb_init(void)
 	if (mtrr) {
 		/* Find the largest power of two that maps the whole buffer */
 		int size_shift = 31;
-		while (!(video_size & (1 << size_shift))) {
+		while (!(itv->osd_info->video_buffer_size & (1 << size_shift))) {
 			size_shift--;
 		}
 		size_shift++;
 		fb_start_aligned_physaddr =
-		    video_base & ~((1 << size_shift) - 1);
+		    itv->osd_info->video_pbase & ~((1 << size_shift) - 1);
                 //		fb_end_aligned_physaddr =
-                //(video_base + (1 << size_shift) - 1) & ~((1 << size_shift) -
-		fb_end_aligned_physaddr = (video_base+video_size + (1 << size_shift) - 1) & ~((1 << size_shift) -1);
+                //(itv->osd_info->video_pbase + (1 << size_shift) - 1) & ~((1 << size_shift) -
+		fb_end_aligned_physaddr = (itv->osd_info->video_pbase+itv->osd_info->video_buffer_size + (1 << size_shift) - 1) & ~((1 << size_shift) -1);
 		if (mtrr_add
 		    (fb_start_aligned_physaddr,
 		     (fb_end_aligned_physaddr - fb_start_aligned_physaddr),
@@ -1667,10 +1674,12 @@ int __init ivtvfb_init(void)
 	fb_info.node = -1;
 	fb_info.flags = FBINFO_FLAG_DEFAULT;
 	fb_info.fbops = &ivtvfb_ops;
+        fb_info.par = itv;
+
         if (osd_init == 0)
-            memset(video_vbase, 0, video_width * video_height*4);
+            memset(itv->osd_info->video_vbase, 0, itv->osd_info->display_width * itv->osd_info->display_height*4);
 #ifndef LINUX26
-	strcpy(fb_info.modename, "iTVC15 TV out");
+	strcpy(fb_info.modename, "cx23415 TV out");
 	fb_info.fontname[0] = '\0';
 	fb_info.changevar = NULL;
 	fb_info.disp = &disp;
@@ -1679,10 +1688,10 @@ int __init ivtvfb_init(void)
 	fb_info.blank = &ivtvfb_blank;
 	ivtvfb_set_disp(-1);
 #else
-	_ivtvfb_get_fix(&fix);
+	_ivtvfb_get_fix(itv,&fix);
 	fb_info.var = ivtvfb_defined;
 	fb_info.fix = fix;
-	fb_info.screen_base = video_vbase;
+	fb_info.screen_base = itv->osd_info->video_vbase;
 	fb_info.fbops = &ivtvfb_ops;
 	fb_alloc_cmap(&fb_info.cmap, 0, 0);
 #endif /* LINUX26 */
@@ -1723,19 +1732,52 @@ int __init ivtvfb_init(void)
 
 static void ivtvfb_cleanup(void)
 {
-	IVTV_OSD_DEBUG_INFO("Unloading framebuffer module\n");
+	struct ivtv *itv;
+	int i;
+		
+	printk(KERN_INFO "ivtv-osd: Unloading framebuffer module\n");
+
+	for ( i = 0; i < ivtv_cards_active; i++) {
+		itv = ivtv_cards[i];
+		if (itv && (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT)) {
+                    if (itv->osd_info)
+                    {
+				IVTV_OSD_DEBUG_WARN ("Unregister framebuffer %d\n",i);
+#ifdef JOHN
+				unregister_framebuffer(&itv->osd_info.ivtvfb_info);
+#endif
+				// Switch off the OSD
+				ivtv_api_fb_set_state(itv, 0);
+
+#ifdef JOHN
+				if (itv->osd_info.ivtvfb_info.pseudo_palette)
+					kfree(itv->osd_info.ivtvfb_info.pseudo_palette);
+
+#ifdef CONFIG_MTRR
+				mtrr_del(-1, itv->osd_info.fb_start_aligned_physaddr,
+		  			(itv->osd_info.fb_end_aligned_physaddr - itv->osd_info.fb_start_aligned_physaddr));
+#endif /* CONFIG_MTRR */
+#endif
+				
+                                kfree(itv->osd_info);
+                                itv->osd_info = NULL;
+
+				/* Free DMA */
+				if (&itv->streams[IVTV_DEC_STREAM_TYPE_OSD].udma)
+					ivtv_free_user_dma(itv, &itv->streams[IVTV_DEC_STREAM_TYPE_OSD].udma);
+
+				ivtv_stream_free(itv, IVTV_DEC_STREAM_TYPE_OSD);
+                    }
+                }
+                itv->fb_id = -1;
+        }
+
 	unregister_framebuffer(&fb_info);
 #ifdef CONFIG_MTRR
 	mtrr_del(-1, fb_start_aligned_physaddr,
 		 (fb_end_aligned_physaddr - fb_start_aligned_physaddr));
 #endif /* CONFIG_MTRR */
 
-	/* Free DMA */
-	ivtv_free_user_dma(itv, &itv->streams[IVTV_DEC_STREAM_TYPE_OSD].udma);
-
-	ivtv_stream_free(itv, IVTV_DEC_STREAM_TYPE_OSD);
-
-	itv->fb_id = -1;
 }
 
 module_init(ivtvfb_init);

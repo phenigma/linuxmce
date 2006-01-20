@@ -35,6 +35,7 @@
 #include <sys/time.h>
 #include <math.h>
 #include <linux/types.h>
+#include <sys/klog.h>
 
 #define __user
 #include "videodev2.h"
@@ -61,14 +62,14 @@ enum Option {
 	OptGetDebugLevel = 'e',
 	OptGetFormat = 'F',
 	OptSetFormat = 'f',
-	OptListRegisters = 'G',
-	OptSetRegister = 'g',
+	OptListDecRegisters = 'G',
+	OptSetDecRegister = 'g',
 	OptReloadFW = 'H',
 	OptHelp = 'h',
 	OptSetGPIO = 'i',
 	OptInputDetect = 'I',
-	OptListDecRegisters = 'J',
-	OptSetDecRegister = 'j',
+	OptListEncRegisters = 'J',
+	OptSetEncRegister = 'j',
 	OptPassThrough = 'K',
 	OptFrameSync = 'k',
 	OptGetOutput = 'L',
@@ -148,16 +149,16 @@ static struct option long_options[] = {
 	{"get-debug", no_argument, 0, OptGetDebugLevel},
 	{"get-format", no_argument, 0, OptGetFormat},
 	{"set-format", required_argument, 0, OptSetFormat},
-	{"list-registers", no_argument, 0, OptListRegisters},
-	{"set-registers", required_argument, 0, OptSetRegister},
+	{"list-dec-registers", no_argument, 0, OptListDecRegisters},
+	{"set-dec-registers", required_argument, 0, OptSetDecRegister},
 	{"list-itvc-registers", required_argument, 0, OptListITVCRegisters},
 	{"set-itvc-registers", required_argument, 0, OptSetITVCRegister},
 	{"reload", no_argument, 0, OptReloadFW},
 	{"help", no_argument, 0, OptHelp},
 	{"set-gpio", required_argument, 0, OptSetGPIO},
 	{"input-detect", no_argument, 0, OptInputDetect},
-	{"list-dec-registers", no_argument, 0, OptListDecRegisters},
-	{"set-dec-registers", required_argument, 0, OptSetDecRegister},
+	{"list-enc-registers", no_argument, 0, OptListEncRegisters},
+	{"set-enc-registers", required_argument, 0, OptSetEncRegister},
 	{"passthrough", required_argument, 0, OptPassThrough},
 	{"sync", no_argument, 0, OptFrameSync},
 	{"get-output", no_argument, 0, OptGetOutput},
@@ -300,19 +301,19 @@ void usage(void)
 	printf("                     set the module ivtv_debug variable [IVTV_IOC_S_DEBUG_LEVEL]\n");
 	printf("  -E, --end-gop      capture last GOP [IVTV_IOC_S_GOP_END]\n");
 	printf("  -e, --get-debug    query the module ivtv_debug variable [IVTV_IOC_G_DEBUG_LEVEL]\n");
-	printf("  -G, --list-registers\n");
-	printf("                     dump SAA7115 registers [SAA7115_GET_REG]\n");
-	printf("  -g, --set-register=reg=<reg>,val=<val>\n");
-	printf("                     set SAA7115 registers [SAA7115_SET_REG]\n");
+	printf("  -G, --list-dec-registers\n");
+	printf("                     dump decoder registers [DECODER_GET_REG]\n");
+	printf("  -g, --set-dec-register=reg=<reg>,val=<val>\n");
+	printf("                     set decoder registers [DECODER_SET_REG]\n");
 	printf("  -H, --reload       forces reload on cards firmware [IVTV_IOC_RELOAD_FW]\n");
 	printf("  -I, --input-detect\n");
 	printf("                     detect input video signal\n");
 	printf("  -i, --set-gpio=<mode>\n");
 	printf("                     set GPIO output to <mode> for debugging [0x0000-0xffff]\n");
-	printf("  -J, --list-dec-registers\n");
-	printf("                     dump SAA7127 registers [SAA7127_GET_REG]\n");
-	printf("  -j, --set-dec-register=reg=<reg>,val=<val>\n");
-	printf("                     set SAA7127 registers [SAA7127_SET_REG]\n");
+	printf("  -J, --list-enc-registers\n");
+	printf("                     dump encoder registers [ENCODER_GET_REG]\n");
+	printf("  -j, --set-enc-register=reg=<reg>,val=<val>\n");
+	printf("                     set encoder registers [ENCODER_SET_REG]\n");
 	printf("  -k, --sync         test vsync's capabilities [IVTV_IOC_FRAMESYNC]\n");
 	printf("  -O, --list-itvc-registers=min=<val>,max=<val>\n");
 	printf("                     dump ITVC registers [ITVC_GET_REG]\n");
@@ -444,14 +445,14 @@ static int doioctl(int fd, int request, void *parm, const char *name)
 
 static void printregs(int fd, int start, int length)
 {
-	struct ivtv_saa71xx_reg saa7115_reg;
+	struct ivtv_ioctl_register saa7115_reg;
         int i;
 
 	printf("\n      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
         for (i = start; i < start + length; i++) {
                 saa7115_reg.reg = i;
-                if (ioctl(fd, IVTV_IOC_G_SAA7115_REG, &saa7115_reg) < 0)
-                        fprintf(stderr, "ioctl: IVTV_IOC_G_SAA7115_REG failed\n");
+                if (ioctl(fd, IVTV_IOC_G_DECODER_REG, &saa7115_reg) < 0)
+                        fprintf(stderr, "ioctl: IVTV_IOC_G_DECODER_REG failed\n");
                 else {
                         if ((i & 0xf) == 0)
                                 printf("\n%04x: ", i);
@@ -555,8 +556,8 @@ int main(int argc, char **argv)
 	struct v4l2_format vfmt;	/* set_format/get_format */
 	struct v4l2_format vbi_fmt;	/* set_format/get_format for sliced VBI */
 	struct v4l2_control ctrl;	/* set_ctrl/get_ctrls */
-	struct ivtv_saa71xx_reg saa7115_reg;
-	struct ivtv_itvc_reg itvc_reg;
+	struct ivtv_ioctl_register saa7115_reg;
+	struct ivtv_ioctl_register itvc_reg;
 	struct v4l2_capability vcap;	/* list_cap */
 	struct v4l2_input vin;	/* list_inputs */
 	struct v4l2_output vout;	/* list_outputs */
@@ -580,7 +581,7 @@ int main(int argc, char **argv)
 	double timestamp;
 	char ptsstr[64];
 	char scrstr[64];
-	char short_options[26 * 2 + 1];
+	char short_options[26 * 2 * 2 + 1];
 
 	if (argc == 1) {
 		usage();
@@ -977,7 +978,7 @@ int main(int argc, char **argv)
 				}
 			}
 			break;
-		case OptSetRegister:
+		case OptSetDecRegister:
 			subs = optarg;
 			while (*subs != '\0') {
 				switch (getsubopt(&subs, subopts, &value)) {
@@ -1009,7 +1010,7 @@ int main(int argc, char **argv)
 				}
 			}
 			break;
-		case OptSetDecRegister:
+		case OptSetEncRegister:
 			subs = optarg;
 			while (*subs != '\0') {
 				switch (getsubopt(&subs, subopts, &value)) {
@@ -1277,21 +1278,21 @@ int main(int argc, char **argv)
 	if (options[OptSetITVCRegister]) {
 		if (doioctl(fd, IVTV_IOC_S_ITVC_REG, &itvc_reg,
 			"IVTV_IOC_S_ITVC_REG") == 0)
-			printf("ITVC register 0x%08x set to 0x%08x\n",
+			printf("ITVC register 0x%08lx set to 0x%08x\n",
 		       		itvc_reg.reg, itvc_reg.val);
 	}
 
-	if (options[OptSetRegister]) {
-		if (doioctl(fd, IVTV_IOC_S_SAA7115_REG, &saa7115_reg,
-			"IVTV_IOC_S_SAA7115_REG") == 0)
-			printf("SAA7115 register 0x%04X set to 0x%02X\n",
+	if (options[OptSetDecRegister]) {
+		if (doioctl(fd, IVTV_IOC_S_DECODER_REG, &saa7115_reg,
+			"IVTV_IOC_S_DECODER_REG") == 0)
+			printf("decoder register 0x%04lx set to 0x%02x\n",
 		       		saa7115_reg.reg, saa7115_reg.val);
 	}
 
-	if (options[OptSetDecRegister]) {
-		if (doioctl(fd, IVTV_IOC_S_SAA7127_REG, &saa7115_reg,
-			"IVTV_IOC_S_SAA7127_REG") == 0)
-			printf("set SAA7127 register 0x%04X to 0x%02X\n",
+	if (options[OptSetEncRegister]) {
+		if (doioctl(fd, IVTV_IOC_S_ENCODER_REG, &saa7115_reg,
+			"IVTV_IOC_S_ENCODER_REG") == 0)
+			printf("set encoder register 0x%04lx to 0x%02x\n",
 		       		saa7115_reg.reg, saa7115_reg.val);
 	}
 
@@ -1368,14 +1369,14 @@ int main(int argc, char **argv)
 	}
 	if (options[OptListITVCRegisters]) {
 		printf("ioctl: IVTV_IOC_G_ITVC_REG\n");
-		printf("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
+		printf("                00       04       08       0C       10       14       18       1C");
 		for (i = min_reg; i <= max_reg; i += 4) {
 			itvc_reg.reg = (unsigned long)i;
 			if (ioctl(fd, IVTV_IOC_G_ITVC_REG, &itvc_reg) < 0) {
 				fprintf(stderr,
 					"ioctl: "
 					"IVTV_IOC_G_ITVC_REG "
-					"failed for 0x%08x\n", itvc_reg.reg);
+					"failed for 0x%08lx\n", itvc_reg.reg);
 			} else {
 				/*if ((i&0xf)==0) 
 				   printf("\n%08x: ",i); */
@@ -1387,9 +1388,9 @@ int main(int argc, char **argv)
 		}
 		printf("\n");
 	}
-	if (options[OptListRegisters]) {
-                if (info.hw_flags & IVTV_HW_SAA7115) {
-		        printf("      SAA7115 registers\n");
+	if (options[OptListDecRegisters]) {
+                if (info.hw_flags & (IVTV_HW_SAA7114|IVTV_HW_SAA7115)) {
+		        printf("      SAA711x registers\n");
                         printregs(fd, 0, 0x100);
                 }
                 else {
@@ -1402,14 +1403,14 @@ int main(int argc, char **argv)
                 }
 	}
 
-	if (options[OptListDecRegisters]) {
-		printf("ioctl: IVTV_IOC_G_SAA7127_REG\n");
+	if (options[OptListEncRegisters]) {
+		printf("ioctl: IVTV_IOC_G_ENCODER_REG\n");
 		printf("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
 		for (i = 0; i < 128; i++) {
 			saa7115_reg.reg = (unsigned char)i;
-			if (ioctl(fd, IVTV_IOC_G_SAA7127_REG, &saa7115_reg) < 0)
+			if (ioctl(fd, IVTV_IOC_G_ENCODER_REG, &saa7115_reg) < 0)
 				fprintf(stderr,
-					"ioctl: IVTV_IOC_G_SAA7127_REG failed\n");
+					"ioctl: IVTV_IOC_G_ENCODER_REG failed\n");
 			else {
 				if ((i & 0xf) == 0)
 					printf("\n%04x: ", i);
@@ -1522,6 +1523,7 @@ int main(int argc, char **argv)
 	}
 
 	if (options[OptListAudioInputs]) {
+		struct v4l2_audio vaudio;	/* list audio inputs */
 		vaudio.index = 0;
 		printf("ioctl: VIDIOC_ENUMAUDIO\n");
 		while (ioctl(fd, VIDIOC_ENUMAUDIO, &vaudio) >= 0) {
@@ -1611,10 +1613,11 @@ int main(int argc, char **argv)
 
 	if (options[OptListCtrls]) {
 		struct v4l2_queryctrl queryctrl;
+		int id;
 
 		printf("ioctl: VIDIOC_QUERYCTRL\n");
-		for (queryctrl.id = V4L2_CID_BASE;
-		     queryctrl.id < V4L2_CID_LASTP1; queryctrl.id++) {
+		for (id = V4L2_CID_BASE; id < V4L2_CID_LASTP1; id++) {
+			queryctrl.id = id;
 			if (ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl) == 0) {
 				if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
 					continue;
@@ -1641,33 +1644,40 @@ int main(int argc, char **argv)
 			printf("GPIO output set to 0x%04X\n", gpio_out);
 	}
 
-	if (options[OptInputDetect]) {
+	if (options[OptInputDetect] && !(info.hw_flags & (IVTV_HW_SAA7114|IVTV_HW_SAA7115))) {
+		puts("Option --input-detect is only valid for SAA7114/SAA7115 based cards\n");
+	}
+	else if (options[OptInputDetect]) {
 		int reg1e, reg1f;
+		int err = 0;
+
 		puts("check SAA7115 input signal");
 		// Reading SAA7115 status regs and decode them
 		saa7115_reg.reg = (unsigned char)0x1e;
-		if (ioctl(fd, IVTV_IOC_G_SAA7115_REG, &saa7115_reg) < 0) {
+		if (ioctl(fd, IVTV_IOC_G_DECODER_REG, &saa7115_reg) < 0) {
 			fprintf(stderr,
 				"ioctl: Input detect failed (cannot read SAA regs)\n");
+			err = 1;
 		}
 		reg1e = saa7115_reg.val;
 		saa7115_reg.reg = (unsigned char)0x1f;
-		if (ioctl(fd, IVTV_IOC_G_SAA7115_REG, &saa7115_reg) < 0) {
+		if (ioctl(fd, IVTV_IOC_G_DECODER_REG, &saa7115_reg) < 0) {
 			fprintf(stderr,
 				"ioctl: Input detect failed (cannot read SAA regs)\n");
+			err = 1;
 		}
 		reg1f = saa7115_reg.val;
 
-		{
+		if (err == 0) {
 			int horizFreq = !(reg1e & 0x40),
 			    fieldLength = (reg1e & 0x80),
 			    readyForCapture = (reg1f & 0x01),
 			    hvLoops = !(reg1f & 0x40),
 			    interlace = (reg1f & 0x80),
 			    signalOk = horizFreq &&
-			    fieldLength &&
-			    readyForCapture &&
-			    hvLoops && interlace, vcr = !(reg1f & 0x10);
+				    fieldLength &&
+				    readyForCapture &&
+				    hvLoops && interlace, vcr = !(reg1f & 0x10);
 
 			printf("ioctl: VIDEO_STATUS = ");
 			if (signalOk) {
@@ -1675,56 +1685,56 @@ int main(int argc, char **argv)
 			} else {
 				printf("Bad\n");
 			}
+
+			printf("\nSAA7115 reg[STATUS#1 - 0x1E] = %02x\n", reg1e);
+
+			switch (reg1e & 0x03) {
+				case 1:
+					printf(" Color Standard (D0-D1): NTSC\n");
+					break;
+				case 2:
+					printf(" Color Standard (D0-D1): PAL\n");
+					break;
+				case 3:
+					printf(" Color Standard (D0-D1): SECAM\n");
+					break;
+				default:
+					printf(" Color Standard (D0-D1): BW/No color\n");
+			}
+
+			printf(" White peak loop (D2): %s\n",
+					(reg1e & 0x04) ? "Activated" : "Not activated");
+			printf(" Gain value for act.lum. (min) (D3): %s\n",
+					(reg1e & 0x08) ? "Limited" : "Not limited");
+			printf(" Gain value for act.lum. (max) (D4): %s\n",
+					(reg1e & 0x10) ? "Limited" : "Not limited");
+			printf(" WIPA-mode slow-time constant (D5): %s\n",
+					(reg1e & 0x20) ? "Activated" : "Not activated");
+			printf(" Horizontal frequency (D6): %s\n",
+					(reg1e & 0x40) ? "Unlocked" : "Locked");
+			printf(" Field length (D7): %s\n",
+					(reg1e & 0x80) ? "Standard" : "Non-standard");
+
+			printf("\nSAA7115 reg[STATUS#2 - 0x1F] = %02x\n", reg1f);
+
+			printf(" Ready for capture (D0): %s\n",
+					(reg1f & 0x01) ? "Yes" : "No");
+			printf(" Macrovision 7.01 (D1): %s\n",
+					(reg1f & 0x02) ? "Yes" : "No");
+			printf(" MV Colorstripe burst (D2): %s\n",
+					(reg1f & 0x04) ? "Yes" : "No");
+			printf(" MV Colorstripe burst type 3 (D3): %s\n",
+					(reg1f & 0x08) ? "Yes" : "No");
+			printf(" Input signal timebase (D4): %s\n",
+					(reg1f & 0x10) ? "Stable (broadcast/DVD)" :
+					"Non-stable (VCR)");
+			printf(" Field frequency (D5): %s\n",
+					(reg1f & 0x20) ? "60Hz" : "50Hz");
+			printf(" H & V loops (D6): %s\n",
+					(reg1f & 0x40) ? "Unlocked" : "Locked");
+			printf(" Interlace (D7): %s\n",
+					(reg1f & 0x80) ? "Detected" : "Not detected");
 		}
-
-		printf("\nSAA7115 reg[STATUS#1 - 0x1E] = %02x\n", reg1e);
-
-		switch (reg1e & 0x03) {
-		case 1:
-			printf(" Color Standard (D0-D1): NTSC\n");
-			break;
-		case 2:
-			printf(" Color Standard (D0-D1): PAL\n");
-			break;
-		case 3:
-			printf(" Color Standard (D0-D1): SECAM\n");
-			break;
-		default:
-			printf(" Color Standard (D0-D1): BW/No color\n");
-		}
-
-		printf(" White peak loop (D2): %s\n",
-		       (reg1e & 0x04) ? "Activated" : "Not activated");
-		printf(" Gain value for act.lum. (min) (D3): %s\n",
-		       (reg1e & 0x08) ? "Limited" : "Not limited");
-		printf(" Gain value for act.lum. (max) (D4): %s\n",
-		       (reg1e & 0x10) ? "Limited" : "Not limited");
-		printf(" WIPA-mode slow-time constant (D5): %s\n",
-		       (reg1e & 0x20) ? "Activated" : "Not activated");
-		printf(" Horizontal frequency (D6): %s\n",
-		       (reg1e & 0x40) ? "Unlocked" : "Locked");
-		printf(" Field length (D7): %s\n",
-		       (reg1e & 0x80) ? "Standard" : "Non-standard");
-
-		printf("\nSAA7115 reg[STATUS#2 - 0x1F] = %02x\n", reg1f);
-
-		printf(" Ready for capture (D0): %s\n",
-		       (reg1f & 0x01) ? "Yes" : "No");
-		printf(" Macrovision 7.01 (D1): %s\n",
-		       (reg1f & 0x02) ? "Yes" : "No");
-		printf(" MV Colorstripe burst (D2): %s\n",
-		       (reg1f & 0x04) ? "Yes" : "No");
-		printf(" MV Colorstripe burst type 3 (D3): %s\n",
-		       (reg1f & 0x08) ? "Yes" : "No");
-		printf(" Input signal timebase (D4): %s\n",
-		       (reg1f & 0x10) ? "Stable (broadcast/DVD)" :
-		       "Non-stable (VCR)");
-		printf(" Field frequency (D5): %s\n",
-		       (reg1f & 0x20) ? "60Hz" : "50Hz");
-		printf(" H & V loops (D6): %s\n",
-		       (reg1f & 0x40) ? "Unlocked" : "Locked");
-		printf(" Interlace (D7): %s\n",
-		       (reg1f & 0x80) ? "Detected" : "Not detected");
 	}
 
 	if (options[OptSetDebugLevel]) {
@@ -1788,8 +1798,28 @@ int main(int argc, char **argv)
 	}
 
 	if (option_log_status) {
-		if (doioctl(fd, IVTV_IOC_LOG_BOARD_STATUS, NULL, "IVTV_IOC_LOG_BOARD_STATUS") == 0) {
-                        printf("Note: board status is written to the kernel log\n");
+		static char buf[40960];
+		int len;
+
+		if (doioctl(fd, VIDIOC_LOG_STATUS, NULL, "VIDIOC_LOG_STATUS") == 0) {
+			len = klogctl(3, buf, sizeof(buf) - 1);
+			if (len >= 0) {
+				char *p = buf;
+				char *q;
+
+				buf[len] = 0;
+				while ((q = strstr(p, "START STATUS CARD #"))) {
+					p = q + 1;
+				}
+				if (p) {
+					while (p > buf && *p != '<') p--;
+					q = p;
+					while ((q = strstr(q, "<6>"))) {
+						memcpy(q, "   ", 3);
+					}
+					printf("%s", p);
+				}
+			}
                 }
 	}
 

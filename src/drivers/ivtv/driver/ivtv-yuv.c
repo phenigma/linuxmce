@@ -17,7 +17,6 @@
  */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-queue.h"
 
 static int ivtvyuv_prep_user_dma(struct ivtv *itv, struct ivtv_user_dma *dma,
@@ -493,18 +492,18 @@ int ivtv_yuv_prep_frame(struct ivtv *itv,
 		IVTV_OSD_DEBUG_WARN( "Need to adjust to width %d src_w %d dst_w %d src_x %d dst_x %d\n",
 				     args->srcBuf_width, args->src_w, args->dst_w,args->src_x, args->dst_x);
 		if (itv->yuv_info.yuv_src_w == 0) {
-			itv->yuv_info.reg_2834 = ivtv_read_reg( itv->reg_mem + 0x02834);
-			itv->yuv_info.reg_2838 = ivtv_read_reg( itv->reg_mem + 0x02838);
-			itv->yuv_info.reg_283c = ivtv_read_reg( itv->reg_mem + 0x0283c);
-			itv->yuv_info.reg_2840 = ivtv_read_reg( itv->reg_mem + 0x02840);
-			itv->yuv_info.reg_2844 = ivtv_read_reg( itv->reg_mem + 0x02844);
-			itv->yuv_info.reg_2848 = ivtv_read_reg( itv->reg_mem + 0x02848);
-			itv->yuv_info.reg_2854 = ivtv_read_reg( itv->reg_mem + 0x02854);
-			itv->yuv_info.reg_285c = ivtv_read_reg( itv->reg_mem + 0x0285c);
-			itv->yuv_info.reg_2864 = ivtv_read_reg( itv->reg_mem + 0x02864);
-			itv->yuv_info.reg_2870 = ivtv_read_reg( itv->reg_mem + 0x02870);
-			itv->yuv_info.reg_2874 = ivtv_read_reg( itv->reg_mem + 0x02874);
-			itv->yuv_info.reg_2890 = ivtv_read_reg( itv->reg_mem + 0x02890);
+			itv->yuv_info.reg_2834 = readl( itv->reg_mem + 0x02834);
+			itv->yuv_info.reg_2838 = readl( itv->reg_mem + 0x02838);
+			itv->yuv_info.reg_283c = readl( itv->reg_mem + 0x0283c);
+			itv->yuv_info.reg_2840 = readl( itv->reg_mem + 0x02840);
+			itv->yuv_info.reg_2844 = readl( itv->reg_mem + 0x02844);
+			itv->yuv_info.reg_2848 = readl( itv->reg_mem + 0x02848);
+			itv->yuv_info.reg_2854 = readl( itv->reg_mem + 0x02854);
+			itv->yuv_info.reg_285c = readl( itv->reg_mem + 0x0285c);
+			itv->yuv_info.reg_2864 = readl( itv->reg_mem + 0x02864);
+			itv->yuv_info.reg_2870 = readl( itv->reg_mem + 0x02870);
+			itv->yuv_info.reg_2874 = readl( itv->reg_mem + 0x02874);
+			itv->yuv_info.reg_2890 = readl( itv->reg_mem + 0x02890);
 		}
 
 		tmp_x = args->dst_x;
@@ -717,31 +716,31 @@ int ivtv_yuv_prep_frame(struct ivtv *itv,
 		}
 
 		if (itv->yuv_info.yuv_src_h == 0) {
-			itv->yuv_info.reg_289c = ivtv_read_reg( itv->reg_mem + 0x0289c);
-			itv->yuv_info.reg_2918 = ivtv_read_reg( itv->reg_mem + 0x02918);
-			itv->yuv_info.reg_291c = ivtv_read_reg( itv->reg_mem + 0x0291c);
-			itv->yuv_info.reg_2920 = ivtv_read_reg( itv->reg_mem + 0x02920);
-			itv->yuv_info.reg_2924 = ivtv_read_reg( itv->reg_mem + 0x02924);
-			itv->yuv_info.reg_2928 = ivtv_read_reg( itv->reg_mem + 0x02928);
-			itv->yuv_info.reg_292c = ivtv_read_reg( itv->reg_mem + 0x0292c);
-			itv->yuv_info.reg_2930 = ivtv_read_reg( itv->reg_mem + 0x02930);
-			itv->yuv_info.reg_2934 = ivtv_read_reg( itv->reg_mem + 0x02934);
-			itv->yuv_info.reg_2938 = ivtv_read_reg( itv->reg_mem + 0x02938);
-			itv->yuv_info.reg_293c = ivtv_read_reg( itv->reg_mem + 0x0293c);
-			itv->yuv_info.reg_2940 = ivtv_read_reg( itv->reg_mem + 0x02940);
-			itv->yuv_info.reg_2944 = ivtv_read_reg( itv->reg_mem + 0x02944);
-			itv->yuv_info.reg_2948 = ivtv_read_reg( itv->reg_mem + 0x02948);
-			itv->yuv_info.reg_294c = ivtv_read_reg( itv->reg_mem + 0x0294c);
+			itv->yuv_info.reg_289c = readl( itv->reg_mem + 0x0289c);
+			itv->yuv_info.reg_2918 = readl( itv->reg_mem + 0x02918);
+			itv->yuv_info.reg_291c = readl( itv->reg_mem + 0x0291c);
+			itv->yuv_info.reg_2920 = readl( itv->reg_mem + 0x02920);
+			itv->yuv_info.reg_2924 = readl( itv->reg_mem + 0x02924);
+			itv->yuv_info.reg_2928 = readl( itv->reg_mem + 0x02928);
+			itv->yuv_info.reg_292c = readl( itv->reg_mem + 0x0292c);
+			itv->yuv_info.reg_2930 = readl( itv->reg_mem + 0x02930);
+			itv->yuv_info.reg_2934 = readl( itv->reg_mem + 0x02934);
+			itv->yuv_info.reg_2938 = readl( itv->reg_mem + 0x02938);
+			itv->yuv_info.reg_293c = readl( itv->reg_mem + 0x0293c);
+			itv->yuv_info.reg_2940 = readl( itv->reg_mem + 0x02940);
+			itv->yuv_info.reg_2944 = readl( itv->reg_mem + 0x02944);
+			itv->yuv_info.reg_2948 = readl( itv->reg_mem + 0x02948);
+			itv->yuv_info.reg_294c = readl( itv->reg_mem + 0x0294c);
 
-			itv->yuv_info.reg_2950 = ivtv_read_reg( itv->reg_mem + 0x02950);
-			itv->yuv_info.reg_2954 = ivtv_read_reg( itv->reg_mem + 0x02954);
-			itv->yuv_info.reg_2958 = ivtv_read_reg( itv->reg_mem + 0x02958);
-			itv->yuv_info.reg_295c = ivtv_read_reg( itv->reg_mem + 0x0295c);
-			itv->yuv_info.reg_2960 = ivtv_read_reg( itv->reg_mem + 0x02960);
-			itv->yuv_info.reg_2964 = ivtv_read_reg( itv->reg_mem + 0x02964);
-			itv->yuv_info.reg_2968 = ivtv_read_reg( itv->reg_mem + 0x02968);
-			itv->yuv_info.reg_296c = ivtv_read_reg( itv->reg_mem + 0x0296c);
-			itv->yuv_info.reg_2970 = ivtv_read_reg( itv->reg_mem + 0x02970);
+			itv->yuv_info.reg_2950 = readl( itv->reg_mem + 0x02950);
+			itv->yuv_info.reg_2954 = readl( itv->reg_mem + 0x02954);
+			itv->yuv_info.reg_2958 = readl( itv->reg_mem + 0x02958);
+			itv->yuv_info.reg_295c = readl( itv->reg_mem + 0x0295c);
+			itv->yuv_info.reg_2960 = readl( itv->reg_mem + 0x02960);
+			itv->yuv_info.reg_2964 = readl( itv->reg_mem + 0x02964);
+			itv->yuv_info.reg_2968 = readl( itv->reg_mem + 0x02968);
+			itv->yuv_info.reg_296c = readl( itv->reg_mem + 0x0296c);
+			itv->yuv_info.reg_2970 = readl( itv->reg_mem + 0x02970);
 		}
 
 		tmp_y = args->dst_y;

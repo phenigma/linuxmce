@@ -1,7 +1,7 @@
 /* interrupt handling
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
 
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-firmware.h"
 #include "ivtv-fileops.h"
 #include "ivtv-queue.h"
@@ -173,7 +172,7 @@ IRQRETURN_T ivtv_irq_handler(int irq, void *dev_id, struct pt_regs *regs)
                  */
 		unsigned int thisVsyncFrame = 0;
                 
-                thisVsyncFrame =  ivtv_read_reg((unsigned char *)itv->reg_mem +0x28c0) & 1;
+                thisVsyncFrame =  readl((unsigned char *)itv->reg_mem +0x28c0) & 1;
                 if ((thisVsyncFrame == 0 && itv->lastVsyncFrame == 1) ||
 		     ((thisVsyncFrame != itv->lastVsyncFrame) && !itv->yuv_info.frame_interlaced))
                 { 
@@ -426,9 +425,9 @@ void ivtv_sched_DMA(struct ivtv *itv)
 		}
 
 		/* Lock Encoder */
-		if ((ivtv_read_reg((unsigned char *)
+		if ((readl((unsigned char *)
 				   itv->reg_mem + IVTV_REG_DMASTATUS) & 0x02) &&
-		    !(ivtv_read_reg((unsigned char *)
+		    !(readl((unsigned char *)
 				    itv->reg_mem + IVTV_REG_DMASTATUS) & 0x18)
 		    && !test_and_set_bit(IVTV_F_S_DMAP, &st->s_flags)) {
 			break;
@@ -483,20 +482,11 @@ void ivtv_sched_DMA(struct ivtv *itv)
 
 	down(&st->mlock);
 	bytes_received =
-	    enc_gather_free_buffers(itv, streamtype, &free_list, bytes_needed);
+		enc_gather_free_buffers(itv, streamtype, &free_list, bytes_needed);
 	up(&st->mlock);
 
 	if (bytes_received == 0) {
-		IVTV_DEBUG_WARN(
-			   "ENC: ENC got (%d) needed %d bytes for stream %d, "
-			   "only %d differ by (%d) bytes\n",
-			   bytes_received,
-			   bytes_needed, streamtype,
-			   (st->buf_total - st->buf_fill),
-			   (bytes_needed - (st->buf_total - st->buf_fill)));
-
 		set_bit(IVTV_F_S_OVERFLOW, &st->s_flags);
-
 		clear_bit(IVTV_F_S_DMAP, &st->s_flags);
 		wake_up(&st->waitq);
 		return;
@@ -508,18 +498,11 @@ void ivtv_sched_DMA(struct ivtv *itv)
 	st->ubytes = size;
 
 	for (x = 0; bytes_read < bytes_needed; x++) {
-		if (list_empty(&free_list)) {
-			IVTV_DEBUG_WARN(
-				   "ENC: Error, No more Buffers!!!.\n");
-			break;
-		}
-
 		/* extract the buffers we procured earlier */
 		buf = list_entry(free_list.next, struct ivtv_buffer, list);
 		list_del_init(&buf->list);
 
 		buf->readpos = 0;
-
 		buf->b_flags = 0;
 		buf->buffer.index = x;
 		buf->buffer.sequence = sequence;
@@ -633,7 +616,7 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 
 	/* wait for DMA complete status */
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x03)) {
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x03)) {
 		ivtv_sleep_timeout(HZ / 100, 1);
 		if ((jiffies - then) > (HZ * 3)) {
 			IVTV_DEBUG_WARN(
@@ -644,7 +627,7 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 
 	/* wait for DMA to finish */
 	then = jiffies;
-	while ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) & 0x03)) {
+	while ((readl(itv->reg_mem + IVTV_REG_DMAXFER) & 0x03)) {
 		ivtv_sleep_timeout(HZ / 100, 1);
 		if ((jiffies - then) > (HZ * 3)) {
 			IVTV_DEBUG_WARN(
@@ -658,21 +641,21 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 	spin_lock_irqsave(&itv->DMA_slock, flags);
 	/* put SG Handle into register 0x0c */
 	ivtv_write_reg(st->SG_handle, itv->reg_mem + IVTV_REG_ENCDMAADDR);
-	if (ivtv_read_reg(itv->reg_mem + IVTV_REG_ENCDMAADDR) != st->SG_handle)
+	if (readl(itv->reg_mem + IVTV_REG_ENCDMAADDR) != st->SG_handle)
 		ivtv_write_reg(st->SG_handle,
 			       itv->reg_mem + IVTV_REG_ENCDMAADDR);
 
 	/* Send DMA with register 0x00, using the enc DMA bit */
-	if (ivtv_read_reg(itv->reg_mem + IVTV_REG_ENCDMAADDR) == st->SG_handle)
-		ivtv_write_reg(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) |
+	if (readl(itv->reg_mem + IVTV_REG_ENCDMAADDR) == st->SG_handle)
+		ivtv_write_reg(readl(itv->reg_mem + IVTV_REG_DMAXFER) |
 			       0x02, itv->reg_mem + IVTV_REG_DMAXFER);
 	spin_unlock_irqrestore(&itv->DMA_slock, flags);
 
 	/* wait for DMA to start */
 	then = jiffies;
-	while ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMAXFER) & 0x02)) {
+	while ((readl(itv->reg_mem + IVTV_REG_DMAXFER) & 0x02)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) {
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) {
 			break;
 		}
 
@@ -691,10 +674,10 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 		sg_offset = ((12 * (st->SG_length % 8)) - 4);
 	}
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem +
+	while (!(readl(itv->reg_mem +
 			       IVTV_REG_ENCSG1SRC + sg_offset) & 0x80000000)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A)
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A)
 			break;
 
 		ivtv_sleep_timeout(HZ / 100, 1);
@@ -706,11 +689,11 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 	}
 
 	/* Wait for Write Interrupt */
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) &&
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) &&
 	       wait_event_interruptible(itv->w_intr_wq,
 					atomic_read(&itv->w_intr))) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A)
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A)
 			break;
 
 		if (atomic_read(&itv->w_intr))
@@ -721,9 +704,9 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 
 	/* wait for DMA complete status */
 	then = jiffies;
-	while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x02)) {
+	while (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x02)) {
 		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) {
+		if (readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x1A) {
 			break;
 		}
 
@@ -736,16 +719,16 @@ static int dma_from_device(struct ivtv *itv, struct ivtv_stream *st)
 	}
 
 	/* DMA Error */
-	if ((ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x18)) {
-		IVTV_DEBUG_DMA(
+	if ((readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x18)) {
+		IVTV_DEBUG_WARN(
 			   "ENC: (%d) DMA Error 0x%08x\n",
-			   redo_dma, ivtv_read_reg(itv->reg_mem +
+			   redo_dma, readl(itv->reg_mem +
 						   IVTV_REG_DMASTATUS));
 
 		/* Reset DMA Error, cancel last DMA? */
 		spin_lock_irqsave(&itv->DMA_slock, flags);
 		ivtv_write_reg(0x00, itv->reg_mem + IVTV_REG_DMAXFER);
-		ivtv_write_reg(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS)
+		ivtv_write_reg(readl(itv->reg_mem + IVTV_REG_DMASTATUS)
 			       & 0x03, itv->reg_mem + IVTV_REG_DMASTATUS);
 		spin_unlock_irqrestore(&itv->DMA_slock, flags);
 		if (redo_dma < 3) {
@@ -783,14 +766,14 @@ void ivtv_sched_VBI(struct ivtv *itv, int streamtype)
 
 	if (streamtype == IVTV_ENC_STREAM_TYPE_VBI) {
 		u32 bufptr = 
-			ivtv_read_reg(itv->enc_mem + (itv->vbi_enc_start-4))+12;	
+			readl(itv->enc_mem + (itv->vbi_enc_start-4))+12;	
 		if (!test_bit(IVTV_F_T_ENC_VBI_STARTED, &itv->t_flags)) {
 			IVTV_DEBUG_INFO(
 				"VBI: Capture not started\n");
 			return;
 		}
 
-                if (itv->vbi_insert_mpeg && !itv->vbi_in.raw)
+                if (itv->vbi_insert_mpeg && itv->vbi_sliced_in->service_set)
                         pio_mode = 1;
 
 		itv->vbi_frame += itv->vbi_fpi;
@@ -815,9 +798,9 @@ void ivtv_sched_VBI(struct ivtv *itv, int streamtype)
 		if (!test_bit(IVTV_F_T_DEC_STARTED, &itv->t_flags))
 			return;
 		pio_mode = 1; /* Seems DMA mode has errors */
-		offset = ivtv_read_reg(itv->dec_mem + itv->vbi_dec_start);
+		offset = readl(itv->dec_mem + itv->vbi_dec_start);
 		offset += itv->vbi_dec_start;
-		size = ivtv_read_reg(itv->dec_mem + itv->vbi_dec_start + 4);
+		size = readl(itv->dec_mem + itv->vbi_dec_start + 4);
 		size += 8;
 		pts_stamp = 0;
 		IVTV_DEBUG_DMA(
@@ -844,9 +827,9 @@ void ivtv_sched_VBI(struct ivtv *itv, int streamtype)
                 }
 
                 /* Lock Encoder */
-       		if ((ivtv_read_reg((unsigned char *)
+       		if ((readl((unsigned char *)
                            itv->reg_mem + IVTV_REG_DMASTATUS) & 0x02) &&
-              			!(ivtv_read_reg((unsigned char *)
+              			!(readl((unsigned char *)
                            itv->reg_mem + IVTV_REG_DMASTATUS) & 0x18)
               		&& !test_and_set_bit(IVTV_F_S_DMAP, &st->s_flags)) 
 		{
@@ -900,21 +883,11 @@ skip_vbi_wait:
 
 	down(&st->mlock);
 	bytes_received =
-   	 	enc_gather_free_buffers(itv, 
-			streamtype, &free_list, bytes_needed);
+   	 	enc_gather_free_buffers(itv, streamtype, &free_list, bytes_needed);
 	up(&st->mlock);
 
 	if (bytes_received == 0) {
-		IVTV_DEBUG_WARN(
-			   "ENC: VBI got (%d) needed %d bytes for stream %d, "
-			   "only %d differ by (%d) bytes\n",
-			   bytes_received,
-			   bytes_needed, streamtype,
-			   (st->buf_total - st->buf_fill),
-			   (bytes_needed - (st->buf_total - st->buf_fill)));
-
 		set_bit(IVTV_F_S_OVERFLOW, &st->s_flags);
-
 		clear_bit(IVTV_F_S_DMAP, &st->s_flags);
 		wake_up(&st->waitq);
 		return;
@@ -926,18 +899,10 @@ skip_vbi_wait:
 	st->ubytes = bytes_received;
 
 	for (x = 0; bytes_read < bytes_received; x++) {
-		if (list_empty(&free_list)) {
-			IVTV_DEBUG_WARN(
-				   "VBI: Error, No more Buffers!!!.\n");
-			break;
-		}
-
 		/* extract the buffers we procured earlier */
 		buf = list_entry(free_list.next, struct ivtv_buffer, list);
 		list_del_init(&buf->list);
-
 		buf->readpos = 0;
-
 		buf->b_flags = 0;
 		buf->buffer.index = x;
 		buf->buffer.sequence = sequence;

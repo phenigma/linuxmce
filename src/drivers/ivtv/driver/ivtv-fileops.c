@@ -1,7 +1,7 @@
 /*
     file operation functions
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,22 +18,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* Main Driver file for the ivtv project:
- * Driver for the iTVC15 chip.
- * Author: Kevin Thayer (nufan_wfk at yahoo.com)
- * License: GPL
- * http://www.sourceforge.net/projects/ivtv/
- * 
- * -----
- * MPG600/MPG160 support by  T.Adachi <tadachi@tadachi-net.com>
- *                      and Takeru KOMORIYA<komoriya@paken.org>
- *
- * AVerMedia M179 GPIO info by Chris Pinkham <cpinkham@bc2va.org>
- *                using information provided by Jiun-Kuei Jung @ AVerMedia.
- */
-
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-fileops.h"
 #include "ivtv-i2c.h"
 #include "ivtv-queue.h"
@@ -110,7 +95,7 @@ int ivtv_claim_stream(struct ivtv_open_id *id, int type)
 	if (type == IVTV_DEC_STREAM_TYPE_MPG) {
                 vbi_type = IVTV_DEC_STREAM_TYPE_VBI;
         } else if (type == IVTV_ENC_STREAM_TYPE_MPG &&
-                   itv->vbi_insert_mpeg && !itv->vbi_in.raw) {
+                   itv->vbi_insert_mpeg && itv->vbi_sliced_in->service_set) {
                 vbi_type = IVTV_ENC_STREAM_TYPE_VBI;
         } else {
                 return 0;
@@ -192,17 +177,13 @@ void ivtv_release_stream(struct ivtv *itv, int type)
 
 static int ivtv_check_digitizer_sync(struct ivtv *itv)
 {
-	int sig = 0, ret = 0;
+	struct v4l2_tuner vt;
 
 	IVTV_DEBUG_INFO("Checking digitizer\n");
 
-	ret = itv->card->video_dec_func(itv, DECODER_GET_STATUS, &sig);
+	itv->card->video_dec_func(itv, VIDIOC_G_TUNER, &vt);
 
-	if (ret) {
-		IVTV_ERR("DECODER_GET_STATUS call failed. Is decoder loaded?\n");
-                return 0;
-	}
-	if (sig & DECODER_STATUS_GOOD) {
+	if (vt.signal) {
 		IVTV_DEBUG_INFO("Digitizer sync GOOD\n");
                 return 0;
         }
@@ -215,19 +196,12 @@ static int ivtv_reset_digitizer(struct ivtv *itv)
 	int x = 0, ret = 0;
 	unsigned int reset = 1;
 
-	if (itv->card->type == IVTV_CARD_PVR_150 ||
-                    itv->card->type == IVTV_CARD_PG600) {
-		ivtv_cx25840(itv, DECODER_GET_VIDEO_STATUS, &reset);
-		if (!reset)	
-			IVTV_DEBUG_WARN("Digitizer video is bad\n");
-	}
-
 	/* If video is bad or not new cx25840 digitizer */
 	if (reset) {
 		/* x is just a placeholder. It's unused */
 		/* this just resets the scaler.. 
 			shouldn't need to re-do any settings */
-		ret = itv->card->video_dec_func(itv, DECODER_RESET, &x);
+		ret = itv->card->video_dec_func(itv, VIDIOC_INT_RESET, &x);
 	}
 
 	/* Re-Init Digitizer */
@@ -1315,20 +1289,21 @@ int ivtv_v4l2_close(struct inode *inode, struct file *filp)
 
 	/* Stop radio */
 	if (id->type == IVTV_ENC_STREAM_TYPE_RAD) {
-		struct video_channel vc = { 0 };
+		struct v4l2_frequency vf;
 
 		/* We're going to pause, change inputs and frequencies, and
 		   resume, so make sure no one else is doing similar things. */
 		down(&stream->mlock);
 		// Closing radio device, return to TV mode
-		vc.norm = std2norm(itv->std);
 		mute_and_pause(itv);
 		/* Switch tuner to TV */
-		ivtv_tv_tuner(itv, VIDIOCSCHAN, &vc);
+		ivtv_tv_tuner(itv, VIDIOC_S_STD, &itv->std);
 		/* Mark that the radio is no longer in use */
 		clear_bit(IVTV_F_I_RADIO_USER, &itv->i_flags);
 		/* Select TV frequency */
-		ivtv_tv_tuner(itv, VIDIOCSFREQ, &itv->freq_tv);
+		vf.frequency = itv->freq_tv;
+		vf.type = V4L2_TUNER_ANALOG_TV;
+		ivtv_tv_tuner(itv, VIDIOC_S_FREQUENCY, &vf);
 		/* Make sure IF demodulator is updated properly, or we'll get static */
 		if (itv->options.tda9887 >= 0) ivtv_tda9887(itv, VIDIOC_S_STD, &itv->std);
 		/* Select correct audio input (i.e. TV tuner or Line in) */
@@ -1452,7 +1427,10 @@ int ivtv_v4l2_close(struct inode *inode, struct file *filp)
 		writel(0, itv->reg_mem + 0x0282c);
 		writel(0, itv->reg_mem + 0x02904);
 		writel(0, itv->reg_mem + 0x02910);
-            clear_bit(IVTV_F_S_DECODING_YUV, &stream->s_flags);
+		
+		// Set the display to black
+		ivtv_write_reg(0x01008080, itv->reg_mem + 0x2898);
+		clear_bit(IVTV_F_S_DECODING_YUV, &stream->s_flags);
         }
 
 
@@ -1470,16 +1448,12 @@ int ivtv_v4l2_open(struct inode *inode, struct file *filp)
 	struct ivtv_stream *stream = NULL;
 	int minor = MINOR(inode->i_rdev);
 
-	IVTV_DEBUG_INFO("v4l2 open on minor %d\n", minor);
-
 	/* Find which card this open was on */
 	spin_lock(&ivtv_cards_lock);
 	for (x = 0; itv == NULL && x < ivtv_cards_active; x++) {
 		/* find out which stream this open was on */
 		for (y = 0; y < ivtv_cards[x]->streamcount; y++) {
 			stream = &ivtv_cards[x]->streams[y];
-			IVTV_DEBUG_INFO("current minor %d\n",
-				   stream->v4l2dev->minor);
 			if (stream->v4l2dev->minor == minor) {
 				itv = ivtv_cards[x];
 				break;
@@ -1491,13 +1465,13 @@ int ivtv_v4l2_open(struct inode *inode, struct file *filp)
 	if (itv == NULL) {
 		/* Couldn't find a device registered 
 		   on that minor, shouldn't happen! */
-		IVTV_ERR("No ivtv device found on minor %d!\n", minor);
+		printk(KERN_WARNING "ivtv:  no ivtv device found on minor %d\n", minor);
 		return -ENXIO;
 	}
 
 	if (y == IVTV_DEC_STREAM_TYPE_YUV) {
 		atomic_set(&itv->yuv_info.next_dma_frame,0);
-		if (ivtv_read_reg(itv->reg_mem + 0x82c) == 0) {
+		if (readl(itv->reg_mem + 0x82c) == 0) {
 			IVTV_ERR
 			    ("Tried to open YUV output device but need to send data to mpeg decoder before it can be used\n");
                         //			return -ENODEV;
@@ -1521,6 +1495,8 @@ int ivtv_v4l2_open(struct inode *inode, struct file *filp)
 	filp->private_data = item;
 
 	if (item->type == IVTV_ENC_STREAM_TYPE_RAD) {
+		struct v4l2_frequency vf;
+
 		/* Try to claim this stream */
 		if (ivtv_claim_stream(item, item->type)) {
 			/* No, it's already in use */
@@ -1540,7 +1516,9 @@ int ivtv_v4l2_open(struct inode *inode, struct file *filp)
 		/* Mark that the radio is being used. */
 		set_bit(IVTV_F_I_RADIO_USER, &itv->i_flags);
 		/* Select radio frequency */
-		ivtv_radio_tuner(itv, VIDIOCSFREQ, &itv->freq_radio);
+		vf.type = V4L2_TUNER_RADIO;
+		vf.frequency = itv->freq_radio;
+		ivtv_radio_tuner(itv, VIDIOC_S_FREQUENCY, &vf);
 		/* Select the correct audio input (i.e. radio tuner) */
 		ivtv_audio_set_io(itv);
 		/* Start automatic sound detection (if supported) */
@@ -1561,12 +1539,12 @@ int ivtv_v4l2_open(struct inode *inode, struct file *filp)
 		itv->yuv_info.v_filter_1 = -1;
 		itv->yuv_info.v_filter_2 = -1;
 		itv->yuv_info.h_filter = -1;
-		itv->yuv_info.osd_x_offset = ivtv_read_reg ( itv->reg_mem + 0x02a04 ) & 0x00000FFF;
-		itv->yuv_info.osd_y_offset = (ivtv_read_reg ( itv->reg_mem + 0x02a04 ) >> 16) & 0x00000FFF;
+		itv->yuv_info.osd_x_offset = readl ( itv->reg_mem + 0x02a04 ) & 0x00000FFF;
+		itv->yuv_info.osd_y_offset = (readl ( itv->reg_mem + 0x02a04 ) >> 16) & 0x00000FFF;
 		
 		// Bit 2 of reg 2878 indicates current decoder output format
 		// 0 : NTSC    1 : PAL
-		if (ivtv_read_reg (itv->reg_mem + 0x2878) & 4)
+		if (readl (itv->reg_mem + 0x2878) & 4)
 			itv->yuv_info.decode_height = 576;
 		else
 			itv->yuv_info.decode_height = 480;
@@ -1602,7 +1580,7 @@ static u32 ivtv_pause_encoder(struct ivtv *itv, int cmd)
 
 void mute_and_pause(struct ivtv *itv)
 {
-	int dig;
+	int dummy;
 
 	/* Mute sound to avoid pop */
 	ivtv_audio_set_mute(itv, 1);
@@ -1611,13 +1589,12 @@ void mute_and_pause(struct ivtv *itv)
 		IVTV_DEBUG_WARN("Mute: Error pausing stream\n");
 
 	IVTV_DEBUG_INFO("Disabling digitizer\n");
-	dig = 0;
-	itv->card->video_dec_func(itv, DECODER_ENABLE_OUTPUT, &dig);
+	itv->card->video_dec_func(itv, VIDIOC_STREAMOFF, &dummy);
 }
 
 void unmute_and_resume(struct ivtv *itv, int sleep)
 {
-	int x, dig;
+	int x;
 
 	/* this seems to be needed when in mid encode, instead of init
 	   refresh input (no args) */
@@ -1627,8 +1604,7 @@ void unmute_and_resume(struct ivtv *itv, int sleep)
 			   "Error refreshing input. Code %d\n\n", x);
 
 	IVTV_DEBUG_INFO("Enabling digitizer\n");
-	dig = 1;
-	itv->card->video_dec_func(itv, DECODER_ENABLE_OUTPUT, &dig);
+	itv->card->video_dec_func(itv, VIDIOC_STREAMON, &x);
 
 	if (0 != ivtv_pause_encoder(itv, 1))
 		IVTV_DEBUG_WARN("Unmute: Error unpausing stream\n");

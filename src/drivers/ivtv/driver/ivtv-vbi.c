@@ -22,10 +22,10 @@
 #include "ivtv-video.h"
 #include "ivtv-i2c.h"
 #include "ivtv-vbi.h"
+#include "ivtv-ioctl.h"
+#include "v4l2-common.h"
 
 typedef unsigned long uintptr_t;
-
-int service2vbi(int type);
 
 static int odd_parity(u8 c)
 {
@@ -36,46 +36,45 @@ static int odd_parity(u8 c)
 	return c & 1;
 }
 
-void vbi_setup_lcr(struct ivtv *itv, int set, int is_pal, struct decoder_lcr *lcr)
+void vbi_setup_lcr(struct ivtv *itv, int set, int is_pal, struct v4l2_sliced_vbi_format *fmt)
 {
         int i;
 
-        for (i = 0; i <= 23; i++)
-                lcr->lcr[i] = 0;
+	memset(fmt, 0, sizeof(*fmt));
         if (set == 0) {
-                lcr->raw = 1;
                 return;
         }
-        lcr->raw = 0;
         if (set & V4L2_SLICED_TELETEXT_B) {
                 if (is_pal)
-                        for (i = 6; i <= 22; i++)
-                                lcr->lcr[i] = (IVTV_SLICED_TYPE_TELETEXT_B << 4) | IVTV_SLICED_TYPE_TELETEXT_B;
+                        for (i = 6; i <= 22; i++) {
+				fmt->service_lines[0][i] = V4L2_SLICED_TELETEXT_B;
+				fmt->service_lines[1][i] = V4L2_SLICED_TELETEXT_B;
+			}
                 else
                         IVTV_ERR("Teletext not supported for NTSC\n");
         }
         if (set & V4L2_SLICED_CAPTION_525) {
                 if (!is_pal) {
-                        lcr->lcr[21] = (IVTV_SLICED_TYPE_CAPTION_525 << 4) | IVTV_SLICED_TYPE_CAPTION_525;
+			fmt->service_lines[0][22] = V4L2_SLICED_CAPTION_525;
+			fmt->service_lines[1][22] = V4L2_SLICED_CAPTION_525;
                 } else
                         IVTV_ERR("NTSC Closed Caption not supported for PAL\n");
         }
         if (set & V4L2_SLICED_WSS_625) {
                 if (is_pal) {
-                        lcr->lcr[23] &= 0xf;
-                        lcr->lcr[23] |= IVTV_SLICED_TYPE_WSS_625 << 4;
+			fmt->service_lines[0][23] = V4L2_SLICED_WSS_625;
                 }
                 else
                         IVTV_ERR("WSS not supported for NTSC\n");
         }
         if (set & V4L2_SLICED_VPS) {
                 if (is_pal) {
-                        lcr->lcr[16] &= 0xf;
-                        lcr->lcr[16] |= IVTV_SLICED_TYPE_VPS << 4;
+			fmt->service_lines[0][16] = V4L2_SLICED_VPS;
                 }
                 else
                         IVTV_ERR("VPS not supported for NTSC\n");
         }
+	fmt->service_set = get_service_set(fmt);
 }
 
 void vbi_schedule_work(struct ivtv *itv)
@@ -166,7 +165,7 @@ static void passthrough_vbi_data(struct ivtv *itv, u8 *p, int cnt)
 		p += 43;
 	}
 
-        //IVTV_INFO("WSS %d %x\n", found_wss, itv->vbi_wss &7);
+        //IVTV_INFO("WSS %d %x\n", found_wss, itv->vbi_wss & 0xf);
         if (itv->vbi_wss_found != found_wss || itv->vbi_wss != wss) {
                 itv->vbi_wss_found = found_wss;
                 itv->vbi_wss = wss;
@@ -441,7 +440,7 @@ static u32 compress_sliced_buf(struct ivtv *itv, u32 line, u8 *buf, u32 size)
         u32 line_size = itv->vbi_sliced_decoder_line_size;
         u8 sav1 = itv->vbi_sliced_decoder_sav_odd_field;
         u8 sav2 = itv->vbi_sliced_decoder_sav_even_field;
-        struct decode_vbi_line vbi;
+        struct v4l2_decode_vbi_line vbi;
         u8 *p;
         int i;
 
@@ -459,10 +458,10 @@ static u32 compress_sliced_buf(struct ivtv *itv, u32 line, u8 *buf, u32 size)
                         break;
                 }
                 vbi.p = p + 4;
-		itv->card->video_dec_func(itv, DECODER_DECODE_VBI_LINE, &vbi);
+		itv->card->video_dec_func(itv, VIDIOC_INT_DECODE_VBI_LINE, &vbi);
                 if (vbi.type) {
                         itv->vbi_sliced_data[line].id = vbi.type;
-                        itv->vbi_sliced_data[line].field = vbi.is_even_field;
+                        itv->vbi_sliced_data[line].field = vbi.is_second_field;
                         itv->vbi_sliced_data[line].line = vbi.line;
                         memcpy(itv->vbi_sliced_data[line].data, vbi.p, 42);
                         line++;
@@ -479,7 +478,7 @@ void ivtv_process_vbi_data(struct ivtv *itv, struct ivtv_buffer *buf,
         int y;
 
         // Raw VBI data
-	if (streamtype == IVTV_ENC_STREAM_TYPE_VBI && itv->vbi_in.raw) {
+	if (streamtype == IVTV_ENC_STREAM_TYPE_VBI && itv->vbi_sliced_in->service_set == 0) {
                 u8 type;
 
                 /* Swap Buffer */
@@ -597,6 +596,7 @@ void ivtv_set_vbi(unsigned long arg)
 void vbi_work_handler(void *arg)
 {
 	struct ivtv *itv = arg;
+	struct v4l2_sliced_vbi_data data;
 	int count = 0;
 
 	/* Lock */
@@ -607,36 +607,37 @@ void vbi_work_handler(void *arg)
                 atomic_read(&itv->vbi_vsync));
 
 	if (test_bit(IVTV_F_I_PASSTHROUGH, &itv->i_flags)) {
+		/* Note: currently only the saa7115 is used in a PVR350,
+		   so these commands are for now saa7115 specific. */
 		if (itv->vbi_passthrough & V4L2_SLICED_WSS_625) {
-			int wss;
+			data.id = V4L2_SLICED_WSS_625;
+			data.field = 0;
 
-			itv->card->video_dec_func(itv, DECODER_GET_WSS, &wss);
-
-			if (wss >= 0) {
-				ivtv_set_wss(itv, 1, wss & 7);
+			if (itv->card->video_dec_func(itv, VIDIOC_INT_G_VBI_DATA, &data) == 0) {
+				ivtv_set_wss(itv, 1, data.data[0] & 0xf);
 				itv->vbi_wss_no_update = 0;
 			} else if (itv->vbi_wss_no_update == 4) {
-				ivtv_set_wss(itv, 1, 0);
+				ivtv_set_wss(itv, 1, 0x8);  /* 4x3 full format */
 			} else {
 				itv->vbi_wss_no_update++;
 			}
 		}
 		if (itv->vbi_passthrough & V4L2_SLICED_CAPTION_525) {
 			u8 c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-			int mode = 0, cc;
+			int mode = 0;
 
-			itv->card->video_dec_func(itv, DECODER_GET_CC_ODD, &cc);
-
-			if (cc >= 0) {
+			data.id = V4L2_SLICED_CAPTION_525;
+			data.field = 0;
+			if (itv->card->video_dec_func(itv, VIDIOC_INT_G_VBI_DATA, &data) == 0) {
 				mode |= 1;
-				c1 = cc & 0xff;
-				c2 = cc >> 8;
+				c1 = data.data[0];
+				c2 = data.data[1];
 			}
-			itv->card->video_dec_func(itv, DECODER_GET_CC_EVEN, &cc);
-			if (cc >= 0) {
+			data.field = 1;
+			if (itv->card->video_dec_func(itv, VIDIOC_INT_G_VBI_DATA, &data) == 0) {
 				mode |= 2;
-				c3 = cc & 0xff;
-				c4 = cc >> 8;
+				c3 = data.data[0];
+				c4 = data.data[1];
 			}
 			if (mode) {
 				itv->vbi_cc_no_update = 0;
@@ -653,7 +654,7 @@ void vbi_work_handler(void *arg)
 
 	if (itv->vbi_passthrough & V4L2_SLICED_WSS_625) {
 		/* Lock */
-		ivtv_set_wss(itv, itv->vbi_wss_found, itv->vbi_wss & 7);
+		ivtv_set_wss(itv, itv->vbi_wss_found, itv->vbi_wss & 0xf);
 	}
 
 	while (itv->vbi_cc_pos) {

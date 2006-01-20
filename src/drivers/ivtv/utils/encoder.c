@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include <ctype.h>
 #include <linux/types.h>
 
+#define __user
 #include "videodev2.h"
 
 #include "ivtv.h"

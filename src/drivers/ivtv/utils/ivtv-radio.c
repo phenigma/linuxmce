@@ -37,6 +37,7 @@
 #include <sys/ioctl.h>
 #include <asm/types.h>
 
+#define __user
 #include "videodev2.h"
 #include "ivtv.h"
 
@@ -92,6 +93,20 @@ void print_usage(void)
 		cfg.play_cmd_tmpl);
 }
 
+static int get_cardnr(int fd)
+{
+        struct ivtv_driver_info info;
+	int res;
+
+	memset(&info, 0, sizeof(info));
+	info.size = sizeof(info);
+	res = ioctl(fd, IVTV_IOC_G_DRIVER_INFO, &info);
+	if (res == 0 && info.size >= IVTV_DRIVER_INFO_V2_SIZE) {
+		return info.cardnr;
+	}
+	return -1;
+}
+
 int scan_channels(int allfreqs)
 {
 	int i;
@@ -116,7 +131,8 @@ int scan_channels(int allfreqs)
 	int rangelow;
 	double freqs[5][2];
 	double printedfreq;
-	if(allfreqs == 1) {
+
+	if (allfreqs == 1) {
 		rangelow = cfg.tuner.rangelow;
 		rangehigh = cfg.tuner.rangehigh;
 	} else {
@@ -258,25 +274,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-        /* Oddly enough I'm no longer able to reproduce this.
-           Commented out for now. */
-        /* There is still something weird when tuning the radio. If the
-           radio is started as the first thing after loading ivtv, then
-           we have to open the radio, set the frequency and close it again
-           once, otherwise frequency changes do not work.
-           I don't know if this is a tuner issue or an ivtv issue (or both),
-           but until someone gets to the bottom of this, this trick will suffice. 
-	cfg.fh = open(cfg.radio_dev, O_RDWR);
-	if (cfg.fh == -1) {
-		perror("radio");
-		fprintf(stderr, "cannot open %s\n", cfg.radio_dev);
-		exit(1);
-	}
-	cfg.freq.tuner = 0;
-	ioctl(cfg.fh, VIDIOC_S_FREQUENCY, &cfg.freq);
-        close(cfg.fh);
-*/
-
 	cfg.fh = open(cfg.radio_dev, O_RDWR);
 	if (cfg.fh == -1) {
 		perror("radio");
@@ -286,7 +283,6 @@ int main(int argc, char **argv)
 
 	cfg.freq.tuner = 0;
 	printf("set to freq %3.2f\n", cfg.freq.frequency / 16.0);
-	ioctl(cfg.fh, VIDIOC_S_FREQUENCY, &cfg.freq);
 	ioctl(cfg.fh, VIDIOC_S_FREQUENCY, &cfg.freq);
 
 	if (cfg.passthrough) {
@@ -321,6 +317,23 @@ int main(int argc, char **argv)
 			pause();
 		}
 	} else {
+		int radio_cardnr = get_cardnr(cfg.fh);
+		int audio_cardnr = -1;
+		int fd;
+		
+		fd = open(cfg.audio_in, O_RDONLY);
+		if (fd != -1) {
+			audio_cardnr = get_cardnr(fd);
+			close(fd);
+		}
+		if (radio_cardnr != audio_cardnr) {
+			fprintf(stderr, "%s belongs to a different ivtv driver then %s.\n",
+					cfg.audio_in, cfg.radio_dev);
+			fprintf(stderr,
+				"Run ivtv-detect to discover the correct radio/PCM out combination.\n");
+			exit(1);
+		}
+
 		snprintf(cfg.play_cmd, sizeof(cfg.play_cmd), cfg.play_cmd_tmpl,
 			 cfg.audio_in);
 		printf("Running: %s\n", cfg.play_cmd);

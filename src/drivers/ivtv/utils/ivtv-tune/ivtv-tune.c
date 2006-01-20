@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <asm/types.h>
 
+#define __user
 #include "videodev2.h"
 
 #include <malloc.h>
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 
 	cmdline_parser(argc, argv, &opt);
-	cmdline_parser_configfile(config, &opt, 0);
+	cmdline_parser_configfile(config, &opt, 0, 0, 0);
 	free(config);
 
 	if (opt.device_given)
@@ -190,10 +191,17 @@ int getxawvalue(char *xawchannel)
 {
 	char *homedir = getenv("HOME");
 	char *xawtv = (char*)malloc(strlen(homedir) + strlen("/.xawtv") + 1);
+	char *channel, *freqtable;
 
 	sprintf(xawtv, "%s/.xawtv", homedir);
 	cfg_parse_file(xawtv);
 	free(xawtv);
+
+	channel = cfg_get_str(xawchannel, "channel");
+	if (channel) {
+		freqtable = cfg_get_str("global", "freqtab");
+		return getfreqvalue(freqtable, channel);
+	}
 
 	return cfg_get_float(xawchannel, "freq") * 1000;
 }

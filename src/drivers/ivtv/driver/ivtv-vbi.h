@@ -21,11 +21,10 @@ int ivtv_DEC_VBI_fixup(struct ivtv *itv, u8 * p, int cnt);
 ssize_t ivtv_write_vbi(struct ivtv *itv, const char *ubuf, size_t count);
 void ivtv_process_vbi_data(struct ivtv *itv, struct ivtv_buffer *buf,
 			   u32 pts_stamp, int streamtype);
-int ivtv_calc_sliced_lines(struct decoder_lcr *lcr);
 int ivtv_used_line(struct ivtv *itv, int line, int field);
 void ivtv_start_vbi_timer(struct ivtv *itv);
 void ivtv_disable_vbi(struct ivtv *itv);
 void ivtv_set_vbi(unsigned long arg);
-void vbi_setup_lcr(struct ivtv *itv, int set, int is_pal, struct decoder_lcr *lcr);
+void vbi_setup_lcr(struct ivtv *itv, int set, int is_pal, struct v4l2_sliced_vbi_format *fmt);
 void vbi_work_handler(void *arg);
 void vbi_schedule_work(struct ivtv *itv);

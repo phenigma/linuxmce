@@ -29,5 +29,5 @@ void ivtv_set_gpio_audio(struct ivtv *itv, int command);
 int ivtv_get_gpio_audio(struct ivtv *itv, int command);
 void ivtv_set_gpio_audiomode(struct ivtv *itv, int audio_mode);
 int ivtv_get_gpio_audiomode(struct ivtv *itv);
-void ivtv_set_gpio_audiosamplerate(struct ivtv *itv, int samplerate);
+void ivtv_set_gpio_audio_clock_freq(struct ivtv *itv, u8 freq);
 void ivtv_reset_ir_gpio(struct ivtv *itv);

@@ -1,98 +1,135 @@
-/*
-    cx25840 firmware functions
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/* cx25840 firmware functions
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include "ivtv-compat.h"
+
+#include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+#include <linux/slab.h>
 #include <linux/mm.h>
 #include <asm/uaccess.h>
-
-#include "compat.h"
+#include "v4l2-common.h"
 
 #include "cx25840.h"
-#include "cx25840-firmware.h"
-#include "cx25840-driver.h"
-#include "cx25840-registers.h"
 
-static inline void cx25840_i2c_set_delay(struct i2c_client *client, int delay)
+#define FWSEND 1024
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+#define FWDEV(x) &((x)->adapter->dev)
+#else
+#define FWDEV(x) (x)->name
+#endif
+
+static int fastfw = 1;
+static char *firmware = FWFILE;
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+module_param(fastfw, bool, 0444);
+module_param(firmware, charp, 0444);
+#else
+MODULE_PARM(fastfw, "i");
+MODULE_PARM(firmware, "s");
+#endif
+
+MODULE_PARM_DESC(fastfw, "Load firmware fast [0=100MHz 1=333MHz (default)]");
+MODULE_PARM_DESC(firmware, "Firmware image [default: " FWFILE "]");
+
+static inline void set_i2c_delay(struct i2c_client *client, int delay)
 {
 	struct i2c_algo_bit_data *algod = client->adapter->algo_data;
-	algod->udelay = delay;
+
+	/* We aren't guaranteed to be using algo_bit,
+	 * so avoid the null pointer dereference
+	 * and disable the 'fast firmware load' */
+	if (algod) {
+		algod->udelay = delay;
+	} else {
+		fastfw = 0;
+	}
 }
 
 static inline void start_fw_load(struct i2c_client *client)
 {
-	struct cx25840_info *info = i2c_get_clientdata(client);
+	/* DL_ADDR_LB=0 DL_ADDR_HB=0 */
+	cx25840_write(client, 0x800, 0x00);
+	cx25840_write(client, 0x801, 0x00);
+	// DL_MAP=3 DL_AUTO_INC=0 DL_ENABLE=1
+	cx25840_write(client, 0x803, 0x0b);
+	/* AUTO_INC_DIS=1 */
+	cx25840_write(client, 0x000, 0x20);
 
-	CX25840_SET_DL_ADDR_LB(0x00);   // 0x800
-	CX25840_SET_DL_ADDR_HB(0x00);   // 0x801
-	CX25840_SET_DL_MAP(0x03);       // 0x803
-	CX25840_SET_DL_AUTO_INC(0x00);  // 0x803
-	CX25840_SET_DL_ENABLE(0x01);    // 0x803
-	CX25840_SET_AUTO_INC_DIS(0x01); // 0x000
-
-	if (info->fastfw)
-		cx25840_i2c_set_delay(client, 3);
+	if (fastfw)
+		set_i2c_delay(client, 3);
 }
 
 static inline void end_fw_load(struct i2c_client *client)
 {
-	struct cx25840_info *info = i2c_get_clientdata(client);
-	
-	if (info->fastfw)
-		cx25840_i2c_set_delay(client, 10);
+	if (fastfw)
+		set_i2c_delay(client, 10);
 
-	CX25840_SET_AUTO_INC_DIS(0x00); // 0x000
-	CX25840_SET_DL_ENABLE(0x00);    // 0x803
+	/* AUTO_INC_DIS=0 */
+	cx25840_write(client, 0x000, 0x00);
+	/* DL_ENABLE=0 */
+	cx25840_write(client, 0x803, 0x03);
 }
 
-static inline int check_fw_load(struct i2c_client *client, int size, const char *file)
+static inline int check_fw_load(struct i2c_client *client, int size)
 {
-	int s;
+	/* DL_ADDR_HB DL_ADDR_LB */
+	int s = cx25840_read(client, 0x801) << 8;
+	s |= cx25840_read(client, 0x800);
 
-	s = cx25840_read_setting(client, DL_ADDR_HB) << 8;  // 0x801
-	s += cx25840_read_setting(client, DL_ADDR_LB);       // 0x800
 	if (size != s) {
-		CX25840_ERR("firmware %s load failed\n", file);
+		cx25840_err("firmware %s load failed\n", firmware);
 		return -EINVAL;
 	}
-	CX25840_INFO("loaded %s firmware (%d bytes)\n", file, size);
 
+	cx25840_info("loaded %s firmware (%d bytes)\n", firmware, size);
 	return 0;
 }
 
-static inline int fw_write(struct i2c_client *client, u8 *data, int size)
+static inline int fw_write(struct i2c_client *client, u8 * data, int size)
 {
-	struct cx25840_info *info = i2c_get_clientdata(client);
+	int sent;
 	
-	if (i2c_master_send(client, data, size) < 0) {
+	if ((sent = i2c_master_send(client, data, size)) < size) {
 
-		if (info->fastfw) {
-			CX25840_ERR("333MHz i2c firmware load failed\n");
-			info->fastfw = 0;
-			cx25840_i2c_set_delay(client, 10);
+		if (fastfw) {
+			cx25840_err("333MHz i2c firmware load failed\n");
+			fastfw = 0;
+			set_i2c_delay(client, 10);
 
-			if (i2c_master_send(client, data, size) < 0) {
-				CX25840_ERR("100MHz i2c firmware load failed\n");
+			if (sent > 2) {
+				u16 dl_addr = cx25840_read(client, 0x801) << 8;
+				dl_addr |= cx25840_read(client, 0x800);
+				dl_addr -= sent - 2;
+				cx25840_write(client, 0x801, dl_addr >> 8);
+				cx25840_write(client, 0x800, dl_addr & 0xff);
+			}
+
+			if (i2c_master_send(client, data, size) < size) {
+				cx25840_err
+				    ("100MHz i2c firmware load failed\n");
 				return -ENOSYS;
 			}
 
 		} else {
-			CX25840_ERR("firmware load i2c failure\n");
+			cx25840_err("firmware load i2c failure\n");
 			return -ENOSYS;
 		}
 
@@ -101,16 +138,14 @@ static inline int fw_write(struct i2c_client *client, u8 *data, int size)
 	return 0;
 }
 
-int cx25840_load_fw_hp(struct i2c_client *client)
+int cx25840_loadfw_hp(struct i2c_client *client)
 {
-	struct cx25840_info *info = i2c_get_clientdata(client);
 	const struct firmware *fw = NULL;
-	const char *file = info->firmware ? info->firmware : FWFILE;
 	u8 buffer[4], *ptr;
-	int size, retval;
+	int size, send, retval;
 
-	if (request_firmware(&fw, file, FWDEV(client)) != 0) {
-		CX25840_ERR("unable to open firmware %s\n", file);
+	if (request_firmware(&fw, firmware, FWDEV(client)) != 0) {
+		cx25840_err("unable to open firmware %s\n", firmware);
 		return -EINVAL;
 	}
 
@@ -132,9 +167,8 @@ int cx25840_load_fw_hp(struct i2c_client *client)
 	while (size > 0) {
 		ptr[0] = 0x08;
 		ptr[1] = 0x02;
-		retval =
-		    fw_write(client, ptr,
-			     size > (FWSEND - 2) ? FWSEND : size + 2);
+		send = size > (FWSEND - 2) ? FWSEND : size + 2;
+		retval = fw_write(client, ptr, send);
 
 		if (retval < 0) {
 			release_firmware(fw);
@@ -150,13 +184,11 @@ int cx25840_load_fw_hp(struct i2c_client *client)
 	size = fw->size;
 	release_firmware(fw);
 
-	return check_fw_load(client, size, file);
+	return check_fw_load(client, size);
 }
 
-int cx25840_load_fw_nohp(struct i2c_client *client)
+int cx25840_loadfw_nohp(struct i2c_client *client)
 {
-	struct cx25840_info *info = i2c_get_clientdata(client);
-	const char *file = info->firmware ? info->firmware : FWFILE;
 	loff_t file_offset = 0;
 	mm_segment_t fs;
 	kernel_filep filep;
@@ -165,7 +197,7 @@ int cx25840_load_fw_nohp(struct i2c_client *client)
 
 	buffer = kmalloc(FWSEND, GFP_KERNEL);
 	if (buffer == 0) {
-		CX25840_ERR("firmware load failed (out of memory)\n");
+		cx25840_err("firmware load failed (out of memory)\n");
 		return -ENOMEM;
 	}
 
@@ -175,9 +207,9 @@ int cx25840_load_fw_nohp(struct i2c_client *client)
 	fs = get_fs();
 	set_fs(get_ds());
 
-	filep = kernel_file_open(file, 0, 0);
+	filep = kernel_file_open(firmware, 0, 0);
 	if (kernel_file_is_err(filep)) {
-		CX25840_ERR("unable to open firmware %s\n", file);
+		cx25840_err("unable to open firmware %s\n", firmware);
 		kfree(buffer);
 		set_fs(fs);
 		return -EINVAL;
@@ -189,9 +221,9 @@ int cx25840_load_fw_nohp(struct i2c_client *client)
 	do {
 		size =
 		    kernel_file_read(filep, &buffer[2], FWSEND - 2,
-				     &file_offset);
+ 				     &file_offset);
 		if (size < 0) {
-			CX25840_ERR("firmware %s read failed\n", file);
+			cx25840_err("firmware %s read failed\n", firmware);
 			kfree(buffer);
 			kernel_file_close(filep);
 			set_fs(fs);
@@ -219,5 +251,5 @@ int cx25840_load_fw_nohp(struct i2c_client *client)
 	kernel_file_close(filep);
 	set_fs(fs);
 
-	return check_fw_load(client, tsize, file);
+	return check_fw_load(client, tsize);
 }

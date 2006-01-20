@@ -1,7 +1,7 @@
 /*
     mailbox functions
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #include <stdarg.h>
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-reset.h"
 #include "ivtv-fileops.h"
 #include "ivtv-mailbox.h"
@@ -40,9 +39,9 @@ static int ivtv_get_free_mailbox(struct ivtv *itv, int cmd, struct ivtv_mailbox 
 	for (y = 0; y < retries; y++) {
 		for (i = 0; i <= maxnum; i++) {
 			/* Mailbox is uninitialized, lock mailbox */
-			if (ivtv_read_reg((unsigned char *)&mbox[i].flags) ==
+			if (readl((unsigned char *)&mbox[i].flags) ==
 			    0x00
-			    || ivtv_read_reg((unsigned char *)&mbox[i].flags) ==
+			    || readl((unsigned char *)&mbox[i].flags) ==
 			    0x01) {
                                 if (y)
         				IVTV_DEBUG_API(
@@ -53,7 +52,7 @@ static int ivtv_get_free_mailbox(struct ivtv *itv, int cmd, struct ivtv_mailbox 
 				return i;
 			}
 
-			if (ivtv_read_reg((unsigned char *)&mbox[i].flags) & 4) {
+			if (readl((unsigned char *)&mbox[i].flags) & 4) {
                                 if (y)
         				IVTV_DEBUG_API(
 					   "got free mailbox: %d after %d tries\n",
@@ -96,7 +95,7 @@ int ivtv_api_getresult_nosleep(struct ivtv *itv, struct ivtv_mailbox *mbox, u32 
 
 	for (count = 0; count < 7; count++) {
 		data[count] =
-		    ivtv_read_reg((unsigned char *)&mbox->data[count]);
+		    readl((unsigned char *)&mbox->data[count]);
 	}
 	return 0;
 }
@@ -112,7 +111,7 @@ static int ivtv_api_getresult(struct ivtv *itv, struct ivtv_mailbox *mbox, u32 *
 		return -ENODEV;
 	}
 
-	readdata = ivtv_read_reg((unsigned char *)&mbox->flags);
+	readdata = readl((unsigned char *)&mbox->flags);
 
 	while (!(readdata & IVTV_MBOX_FIRMWARE_DONE)) {
                 if (count)
@@ -131,18 +130,18 @@ static int ivtv_api_getresult(struct ivtv *itv, struct ivtv_mailbox *mbox, u32 *
 		set_current_state(TASK_UNINTERRUPTIBLE);
 		schedule_timeout(HZ / 100);
 
-		readdata = ivtv_read_reg((unsigned char *)&mbox->flags);
+		readdata = readl((unsigned char *)&mbox->flags);
 	}
 
-	*result = ivtv_read_reg((unsigned char *)&mbox->retval);
+	*result = readl((unsigned char *)&mbox->retval);
 
 	/* Failed, data must be bad */
-	if (ivtv_read_reg((unsigned char *)&mbox->retval) != 0x00)
+	if (readl((unsigned char *)&mbox->retval) != 0x00)
 		return -EBUSY;
 
 	for (count = 0; count < IVTV_MBOX_MAX_DATA; count++)
 		data[count] =
-		    ivtv_read_reg((unsigned char *)&mbox->data[count]);
+		    readl((unsigned char *)&mbox->data[count]);
 
 	return 0;
 }
@@ -153,83 +152,97 @@ static const struct {
         int cmd;
         const char *name;
 } cmd_names[] = {
-        API_ENTRY(IVTV_API_ENC_PING_FW)
-        API_ENTRY(IVTV_API_DEC_PING_FW)
-        API_ENTRY(IVTV_API_ENC_GETVER)
-        API_ENTRY(IVTV_API_DEC_GETVER)
-        API_ENTRY(IVTV_API_ENC_HALT_FW)
-        API_ENTRY(IVTV_API_DEC_HALT_FW)
-        API_ENTRY(IVTV_API_DEC_START_PLAYBACK)
-        API_ENTRY(IVTV_API_DEC_STOP_PLAYBACK)
-        API_ENTRY(IVTV_API_DEC_PLAYBACK_SPEED)
-        API_ENTRY(IVTV_API_DEC_STEP_VIDEO)
-        API_ENTRY(IVTV_API_DEC_PAUSE_PLAYBACK)
-        API_ENTRY(IVTV_API_DEC_DMA_BLOCKSIZE)
-        API_ENTRY(IVTV_API_DEC_DMA_FROM_HOST)
-        API_ENTRY(IVTV_API_DEC_DISP_STANDARD)
-        API_ENTRY(IVTV_API_DEC_STREAM_INPUT)
-        API_ENTRY(IVTV_API_DEC_TIMING_INFO)
-        API_ENTRY(IVTV_API_DEC_SELECT_AUDIO)
-        API_ENTRY(IVTV_API_DEC_EVENT_NOTIFICATION)
-        API_ENTRY(IVTV_API_DEC_DISPLAY_BUFFERS)
-        API_ENTRY(IVTV_API_DEC_EXTRACT_VBI)
-        API_ENTRY(IVTV_API_DEC_DECODE_SOURCE)
-        API_ENTRY(IVTV_API_DEC_AUDIO_OUTPUT)
-        API_ENTRY(IVTV_API_DEC_SET_AV_DELAY)
-        API_ENTRY(IVTV_API_DEC_BUFFER)
-        API_ENTRY(IVTV_API_DEC_DMA_STATUS)
-        API_ENTRY(IVTV_API_DEC_XFER_INFO)
-        API_ENTRY(IVTV_API_ASSIGN_DMA_BLOCKLEN)
-        API_ENTRY(IVTV_API_ASSIGN_PGM_INDEX_INFO)
-        API_ENTRY(IVTV_API_ASSIGN_STREAM_TYPE)
-        API_ENTRY(IVTV_API_ASSIGN_OUTPUT_PORT)
-        API_ENTRY(IVTV_API_ASSIGN_FRAMERATE)
-        API_ENTRY(IVTV_API_ASSIGN_FRAME_SIZE)
-        API_ENTRY(IVTV_API_ASSIGN_ASPECT_RATIO)
-        API_ENTRY(IVTV_API_ASSIGN_BITRATES)
-        API_ENTRY(IVTV_API_ASSIGN_GOP_PROPERTIES)
-        API_ENTRY(IVTV_API_ASSIGN_3_2_PULLDOWN)
-        API_ENTRY(IVTV_API_ASSIGN_GOP_CLOSURE)
-        API_ENTRY(IVTV_API_ASSIGN_AUDIO_PROPERTIES)
-        API_ENTRY(IVTV_API_ASSIGN_DNR_FILTER_MODE)
-        API_ENTRY(IVTV_API_ASSIGN_DNR_FILTER_PROPS)
-        API_ENTRY(IVTV_API_ASSIGN_CORING_LEVELS)
-        API_ENTRY(IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE)
-        API_ENTRY(IVTV_API_ASSIGN_FRAME_DROP_RATE)
-        API_ENTRY(IVTV_API_ASSIGN_PLACEHOLDER)
-        API_ENTRY(IVTV_API_MUTE_VIDEO)
-        API_ENTRY(IVTV_API_MUTE_AUDIO)
-        API_ENTRY(IVTV_API_CONFIG_VBI)
-        API_ENTRY(IVTV_API_SELECT_VBI_LINE)
-        API_ENTRY(IVTV_API_INITIALIZE_INPUT)
-        API_ENTRY(IVTV_API_REFRESH_INPUT)
-        API_ENTRY(IVTV_API_ASSIGN_NUM_VSYNC_LINES)
-        API_ENTRY(IVTV_API_BEGIN_CAPTURE)
-        API_ENTRY(IVTV_API_PAUSE_ENCODER)
-        API_ENTRY(IVTV_API_EVENT_NOTIFICATION)
-        API_ENTRY(IVTV_API_END_CAPTURE)
-        API_ENTRY(IVTV_API_SCHED_DMA_TO_HOST)
-        API_ENTRY(IVTV_API_FB_GET_FRAMEBUFFER)
-        API_ENTRY(IVTV_API_FB_GET_PIXEL_FORMAT)
-        API_ENTRY(IVTV_API_FB_SET_PIXEL_FORMAT)
-        API_ENTRY(IVTV_API_FB_GET_STATE)
-        API_ENTRY(IVTV_API_FB_SET_STATE)
-        API_ENTRY(IVTV_API_FB_GET_OSD_COORDS)
-        API_ENTRY(IVTV_API_FB_SET_OSD_COORDS)
-        API_ENTRY(IVTV_API_FB_GET_SCREEN_COORDS)
-        API_ENTRY(IVTV_API_FB_SET_SCREEN_COORDS)
-        API_ENTRY(IVTV_API_FB_GET_GLOBAL_ALPHA)
-        API_ENTRY(IVTV_API_FB_SET_GLOBAL_ALPHA)
-        API_ENTRY(IVTV_API_FB_SET_BLEND_COORDS)
-        API_ENTRY(IVTV_API_FB_GET_FLICKER_STATE)
-        API_ENTRY(IVTV_API_FB_SET_FLICKER_STATE)
-        API_ENTRY(IVTV_API_FB_BLT_COPY)
-        API_ENTRY(IVTV_API_FB_BLT_FILL)
-        API_ENTRY(IVTV_API_FB_BLT_TEXT)
-        API_ENTRY(IVTV_API_FB_SET_FRAMEBUFFER_WINDOW)
-        API_ENTRY(IVTV_API_FB_SET_CHROMA_KEY)
-        API_ENTRY(IVTV_API_FB_GET_ALPHA_CONTENT_INDEX)
-        API_ENTRY(IVTV_API_FB_SET_ALPHA_CONTENT_INDEX)
+	/* MPEG decoder API */
+	API_ENTRY(IVTV_API_DEC_PING_FW)
+	API_ENTRY(IVTV_API_DEC_START_PLAYBACK)
+	API_ENTRY(IVTV_API_DEC_STOP_PLAYBACK)
+	API_ENTRY(IVTV_API_DEC_PLAYBACK_SPEED)
+	API_ENTRY(IVTV_API_DEC_STEP_VIDEO)
+	API_ENTRY(IVTV_API_DEC_DMA_BLOCKSIZE)
+	API_ENTRY(IVTV_API_DEC_XFER_INFO)
+	API_ENTRY(IVTV_API_DEC_DMA_STATUS)
+	API_ENTRY(IVTV_API_DEC_DMA_FROM_HOST)
+	API_ENTRY(IVTV_API_DEC_PAUSE_PLAYBACK)
+	API_ENTRY(IVTV_API_DEC_HALT_FW)
+	API_ENTRY(IVTV_API_DEC_DISP_STANDARD)
+	API_ENTRY(IVTV_API_DEC_GETVER)
+	API_ENTRY(IVTV_API_DEC_STREAM_INPUT)
+	API_ENTRY(IVTV_API_DEC_TIMING_INFO)
+	API_ENTRY(IVTV_API_DEC_SELECT_AUDIO)
+	API_ENTRY(IVTV_API_DEC_EVENT_NOTIFICATION)
+	API_ENTRY(IVTV_API_DEC_DISPLAY_BUFFERS)
+	API_ENTRY(IVTV_API_DEC_EXTRACT_VBI)
+	API_ENTRY(IVTV_API_DEC_DECODE_SOURCE)
+	API_ENTRY(IVTV_API_DEC_AUDIO_OUTPUT)
+	API_ENTRY(IVTV_API_DEC_SET_AV_DELAY)
+	API_ENTRY(IVTV_API_DEC_BUFFER)
+
+	/* MPEG encoder API */
+	API_ENTRY(IVTV_API_ENC_PING_FW)
+	API_ENTRY(IVTV_API_BEGIN_CAPTURE)
+	API_ENTRY(IVTV_API_END_CAPTURE)
+	API_ENTRY(IVTV_API_ASSIGN_AUDIO_ID)
+	API_ENTRY(IVTV_API_ASSIGN_VIDEO_ID)
+	API_ENTRY(IVTV_API_ASSIGN_PCR_ID)
+	API_ENTRY(IVTV_API_ASSIGN_FRAMERATE)
+	API_ENTRY(IVTV_API_ASSIGN_FRAME_SIZE)
+	API_ENTRY(IVTV_API_ASSIGN_BITRATES)
+	API_ENTRY(IVTV_API_ASSIGN_GOP_PROPERTIES)
+	API_ENTRY(IVTV_API_ASSIGN_ASPECT_RATIO)
+	API_ENTRY(IVTV_API_ASSIGN_DNR_FILTER_MODE)
+	API_ENTRY(IVTV_API_ASSIGN_DNR_FILTER_PROPS)
+	API_ENTRY(IVTV_API_ASSIGN_CORING_LEVELS)
+	API_ENTRY(IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE)
+	API_ENTRY(IVTV_API_ASSIGN_3_2_PULLDOWN)
+	API_ENTRY(IVTV_API_SELECT_VBI_LINE)
+	API_ENTRY(IVTV_API_ASSIGN_STREAM_TYPE)
+	API_ENTRY(IVTV_API_ASSIGN_OUTPUT_PORT)
+	API_ENTRY(IVTV_API_ASSIGN_AUDIO_PROPERTIES)
+	API_ENTRY(IVTV_API_ENC_HALT_FW)
+	API_ENTRY(IVTV_API_ENC_GETVER)
+	API_ENTRY(IVTV_API_ASSIGN_GOP_CLOSURE)
+	API_ENTRY(IVTV_API_ENC_GET_SEQ_END)
+	API_ENTRY(IVTV_API_ASSIGN_PGM_INDEX_INFO)
+	API_ENTRY(IVTV_API_CONFIG_VBI)
+	API_ENTRY(IVTV_API_ASSIGN_DMA_BLOCKLEN)
+	API_ENTRY(IVTV_API_PREV_DMA_INFO_MB_10)
+	API_ENTRY(IVTV_API_PREV_DMA_INFO_MB_9)
+	API_ENTRY(IVTV_API_SCHED_DMA_TO_HOST)
+	API_ENTRY(IVTV_API_INITIALIZE_INPUT)
+	API_ENTRY(IVTV_API_ASSIGN_FRAME_DROP_RATE)
+	API_ENTRY(IVTV_API_PAUSE_ENCODER)
+	API_ENTRY(IVTV_API_REFRESH_INPUT)
+	API_ENTRY(IVTV_API_ASSIGN_COPYRIGHT)
+	API_ENTRY(IVTV_API_EVENT_NOTIFICATION)
+	API_ENTRY(IVTV_API_ASSIGN_NUM_VSYNC_LINES)
+	API_ENTRY(IVTV_API_ASSIGN_PLACEHOLDER)
+	API_ENTRY(IVTV_API_MUTE_VIDEO)
+	API_ENTRY(IVTV_API_MUTE_AUDIO)
+	API_ENTRY(IVTV_API_ENC_UNKNOWN)
+	API_ENTRY(IVTV_API_ENC_MISC)
+
+	/* OSD API */
+	API_ENTRY(IVTV_API_FB_GET_FRAMEBUFFER)
+	API_ENTRY(IVTV_API_FB_GET_PIXEL_FORMAT)
+	API_ENTRY(IVTV_API_FB_SET_PIXEL_FORMAT)
+	API_ENTRY(IVTV_API_FB_GET_STATE)
+	API_ENTRY(IVTV_API_FB_SET_STATE)
+	API_ENTRY(IVTV_API_FB_GET_OSD_COORDS)
+	API_ENTRY(IVTV_API_FB_SET_OSD_COORDS)
+	API_ENTRY(IVTV_API_FB_GET_SCREEN_COORDS)
+	API_ENTRY(IVTV_API_FB_SET_SCREEN_COORDS)
+	API_ENTRY(IVTV_API_FB_GET_GLOBAL_ALPHA)
+	API_ENTRY(IVTV_API_FB_SET_GLOBAL_ALPHA)
+	API_ENTRY(IVTV_API_FB_SET_BLEND_COORDS)
+	API_ENTRY(IVTV_API_FB_GET_FLICKER_STATE)
+	API_ENTRY(IVTV_API_FB_SET_FLICKER_STATE)
+	API_ENTRY(IVTV_API_FB_BLT_COPY)
+	API_ENTRY(IVTV_API_FB_BLT_FILL)
+	API_ENTRY(IVTV_API_FB_BLT_TEXT)
+	API_ENTRY(IVTV_API_FB_SET_FRAMEBUFFER_WINDOW)
+	API_ENTRY(IVTV_API_FB_SET_CHROMA_KEY)
+	API_ENTRY(IVTV_API_FB_GET_ALPHA_CONTENT_INDEX)
+	API_ENTRY(IVTV_API_FB_SET_ALPHA_CONTENT_INDEX)
 };
 
 static const char *get_cmd_name(int cmd)
@@ -365,8 +378,8 @@ int ivtv_api(struct ivtv *itv, struct ivtv_mailbox *mbox, struct semaphore *sem,
 		break;
 		/* These commands are not stored */
 		/* These don't need a result */
-	case 0xdb:
-	case 0xdc:
+	case IVTV_API_ENC_UNKNOWN:
+	case IVTV_API_ENC_MISC:
 	case IVTV_API_FB_BLT_COPY:
 	case IVTV_API_FB_BLT_FILL:
 	case IVTV_API_FB_BLT_TEXT:
@@ -611,7 +624,7 @@ int ivtv_api(struct ivtv *itv, struct ivtv_mailbox *mbox, struct semaphore *sem,
 				itv->api[cmd].r_data[count] = data[count];
 		}
 
-                before = ivtv_read_reg((unsigned char *)&local_box->flags);
+                before = readl((unsigned char *)&local_box->flags);
 
 		/* reinit results and flags */
 		ivtv_write_reg(0x00, (unsigned char *)&local_box->retval);
@@ -619,7 +632,7 @@ int ivtv_api(struct ivtv *itv, struct ivtv_mailbox *mbox, struct semaphore *sem,
 
 		IVTV_DEBUG_API(
 			   "Releasing mailbox (before 0x%08x, after 0x%08x)\n",
-			   before, ivtv_read_reg((unsigned char *)&local_box->flags));
+			   before, readl((unsigned char *)&local_box->flags));
 	} else {
 		x = 0;
 	}

@@ -40,6 +40,7 @@
 #include <assert.h>
 #include <linux/types.h>
 
+#define __user
 #include "videodev2.h"
 #define IVTV_INTERNAL
 #include "ivtv.h"

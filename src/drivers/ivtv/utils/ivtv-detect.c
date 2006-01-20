@@ -5,10 +5,12 @@
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
 #include <inttypes.h>
-#include <linux/videodev.h>
+#include <linux/types.h>
+#define __user
 #include "videodev2.h"
+#include "videodev.h"
 #define IVTV_INTERNAL
-#include <ivtv.h>
+#include "ivtv.h"
 
 static char *devnames[] = {
         "video",
@@ -32,7 +34,8 @@ static char *streams[] = {
 
 // device -1 is a special code for the device names without a number
 #define MINDEV -1
-#define MAXDEV 15
+#define MAXDEV 100
+#define MAXCARD 15
 
 struct stream_info {
         char name[100];
@@ -47,7 +50,7 @@ struct card_info {
         int hw_flags;
         int maxstream;
         struct stream_info streams[10];
-} cards[MAXDEV + 1];
+} cards[MAXCARD + 1];
 
 int maxcard = 0;
 
@@ -104,7 +107,7 @@ int main(int argc, char **argv)
         int maxdev = 0;
         int i;
 
-        for (i = -1; i < 100; i++) {
+        for (i = MINDEV; i < MAXDEV; i++) {
                 char num[10] = "";
                 int j;
 
@@ -140,6 +143,8 @@ int main(int argc, char **argv)
                 int hw_flags = 0;
 
                 fd = open(devices[i], O_RDONLY);
+		if (fd == -1)
+			continue;
                 res = ioctl(fd, VIDIOC_QUERYCAP, &cap);
                 if (res < 0) {
                         struct video_capability vcap;
@@ -234,6 +239,7 @@ int main(int argc, char **argv)
                                 " wm8775",
                                 " cs53132a",
                                 " tveeprom",
+                                " saa7114",
                                 NULL
                         };
                         int i;

@@ -33,7 +33,8 @@
 #include <math.h>
 #include <linux/types.h>
 
-#include "videodev2.h"
+#define __user
+#include "../utils/videodev2.h"
 
 #include "ivtv.h"
 

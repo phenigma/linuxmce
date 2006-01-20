@@ -1,9 +1,7 @@
 /*
     gpio functions.
-    Copyright (C) 2004  <name of author>
-
     Merging GPIO support into driver:
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -302,14 +300,14 @@ int ivtv_get_gpio_audio(struct ivtv *itv, int command)
 
 /* Set tuner audio sample rate. Only the M179 uses this, it
    is ignored by the others. */
-void ivtv_set_gpio_audiosamplerate(struct ivtv *itv, int samplerate)
+void ivtv_set_gpio_audio_clock_freq(struct ivtv *itv, u8 freq)
 {
 	const struct ivtv_gpio_data_st *gpio_data = ivtv_get_gpio_data(itv);
 
 	if (gpio_data == NULL)
 		return;
 
-	switch (samplerate) {
+	switch (freq) {
 	case IVTV_AUDIO_32000:
 		ivtv_chg_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
 			      gpio_data->audio_freq_mask,

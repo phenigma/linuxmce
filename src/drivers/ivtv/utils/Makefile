@@ -2,27 +2,29 @@ PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 HDRDIR = /usr/include/linux
 
-EXES := ivtvctl ivtvfbctl ivtvplay cx25840ctl ivtv-detect \
-        ivtv-radio ivtv-tune/ivtv-tune ivtv-mpegindex ivtv-encoder 
+EXES := ivtvctl ivtv-detect ivtv-radio 
+EXES := $(shell if echo - | $(CC) -E -dM - | grep __powerpc__ > /dev/null; \
+	then echo $(EXES); else \
+	echo $(EXES) ivtvfbctl ivtvplay ivtv-mpegindex ivtv-encoder; fi)
+BIN := $(EXES) ivtv-tune/ivtv-tune cx25840ctl/cx25840ctl
+
 
 HEADERS := ../driver/ivtv.h
 
-CFLAGS = -I../driver -D_GNU_SOURCE -O2 -Wall
+CFLAGS = -I$(CURDIR) -I$(CURDIR)/../driver -D_GNU_SOURCE -O2 -Wall
 CXXFLAGS = $(CFLAGS)
-export CFLAGS CXXFLAGS
 
 all: $(EXES)
+	$(MAKE) CFLAGS="$(CFLAGS)" -C ivtv-tune
+	$(MAKE) CFLAGS="$(CFLAGS)" -C cx25840ctl
 
 ivtvctl: ivtvctl.o
 	$(CC) -lm -o $@ $^
 
-ivtvctl.o: ../driver/ivtv-svnversion.h
+ivtvctl.c: ../driver/ivtv-svnversion.h
 
 ivtvplay: ivtvplay.cc
 	$(CXX) $(CXXFLAGS) -lm -lpthread -o $@ $^
-
-ivtv-tune/ivtv-tune:
-	$(MAKE) -C ivtv-tune
 
 encoder.o: encoder.c
 	$(CC) $(CFLAGS) -DVIDEO_PORT=0 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -c $^
@@ -30,20 +32,16 @@ encoder.o: encoder.c
 ivtv-encoder: enc_mindex.o enc_chann.o encoder.o
 	$(CC) -lpthread -o $@ $^
 
-cx25840-registers.o: ../driver/cx25840-registers.c
-	$(CC) $(CFLAGS) -DCX25840_STRINGS -c $^
-
-cx25840ctl: cx25840ctl.o cx25840-registers.o
-
-install: $(EXES)
+install: all
 	install -d $(DESTDIR)/$(HDRDIR)
 	install -m 0644 $(HEADERS) $(DESTDIR)/$(HDRDIR)
 	install -d $(DESTDIR)/$(BINDIR)
-	install -m 0755 $(EXES) $(DESTDIR)/$(BINDIR)
+	install -m 0755 $(BIN) $(DESTDIR)/$(BINDIR)
 
 clean: 
 	rm -f *.o $(EXES)
 	$(MAKE) -C ivtv-tune clean
+	$(MAKE) -C cx25840ctl clean
 	
 ../driver/ivtv-svnversion.h:
 	$(MAKE) -C ../driver ivtv-svnversion.h

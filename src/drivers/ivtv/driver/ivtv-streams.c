@@ -2,7 +2,7 @@
     init/start/stop/exit stream functions
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
 
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@
  */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-reset.h"
 #include "ivtv-fileops.h"
 #include "ivtv-i2c.h"
@@ -75,15 +74,14 @@ static struct file_operations ivtv_v4l2_dec_fops = {
 };
 
 static struct video_device ivtv_v4l2dev_template = {
-	.owner = THIS_MODULE,
-	.name = "Vanilla iTVC15 card",
+	.name = "cx2341x",
 	.type = VID_TYPE_CAPTURE | VID_TYPE_TUNER | VID_TYPE_TELETEXT |
 	    VID_TYPE_CLIPPING | VID_TYPE_SCALES | VID_TYPE_MPEG_ENCODER,
 	.fops = &ivtv_v4l2_enc_fops,
 	.minor = -1,
 };
 
-int ivtv_stream_init(struct ivtv *itv, int streamtype,
+static int ivtv_stream_init(struct ivtv *itv, int streamtype,
 		     int buffers, int bufsize, int dma)
 {
 	struct ivtv_stream *s = &itv->streams[streamtype];
@@ -179,7 +177,7 @@ int ivtv_stream_init(struct ivtv *itv, int streamtype,
 	return 0;
 }
 
-int ivtv_reg_dev(struct ivtv *itv, int streamtype, int minor, int reg_type)
+static int ivtv_reg_dev(struct ivtv *itv, int streamtype, int minor, int reg_type)
 {
 	struct ivtv_stream *s = &itv->streams[streamtype];
 
@@ -193,12 +191,17 @@ int ivtv_reg_dev(struct ivtv *itv, int streamtype, int minor, int reg_type)
 		return -ENOMEM;
 	}
 	memcpy(s->v4l2dev, &ivtv_v4l2dev_template, sizeof(struct video_device));
-	s->v4l2dev->priv = itv;
+	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
+		s->v4l2dev->type |= VID_TYPE_MPEG_DECODER;
+	}
+	snprintf(s->v4l2dev->name, sizeof(s->v4l2dev->name), "ivtv%d %s",
+			itv->num, ivtv_stream_name(streamtype));
+
 	s->v4l2dev->minor = minor;
 #ifdef LINUX26
 	s->v4l2dev->dev = &itv->dev->dev;
-	s->v4l2dev->release = video_device_release;
 #endif /* LINUX26 */
+	s->v4l2dev->release = video_device_release;
 
 	/* We're done if this is a 'hidden' stream (OSD) */
 	if (minor < 0)
@@ -224,68 +227,54 @@ int ivtv_reg_dev(struct ivtv *itv, int streamtype, int minor, int reg_type)
 	return 0;
 }
 
-int ivtv_dev_setup(struct ivtv *itv, int x)
+static int ivtv_dev_setup(struct ivtv *itv, int s)
 {
-	int ret = 0;
-	if (x == IVTV_ENC_STREAM_TYPE_MPG) {
-		if (ivtv_reg_dev(itv, x, itv->num, VFL_TYPE_GRABBER))
-			return -ENOMEM;
-	} else if (x == IVTV_ENC_STREAM_TYPE_YUV) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_ENC_YUV_OFFSET,
+	switch (s) {
+		case IVTV_ENC_STREAM_TYPE_MPG:
+			return ivtv_reg_dev(itv, s, itv->num, VFL_TYPE_GRABBER);
+		case IVTV_ENC_STREAM_TYPE_YUV:
+			return ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_ENC_YUV_OFFSET,
+				 VFL_TYPE_GRABBER);
+		case IVTV_ENC_STREAM_TYPE_VBI:
+			return ivtv_reg_dev(itv, s, itv->num, VFL_TYPE_VBI);
+		case IVTV_ENC_STREAM_TYPE_PCM:
+			return ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_ENC_PCM_OFFSET,
+				 VFL_TYPE_GRABBER);
+		case IVTV_ENC_STREAM_TYPE_RAD:
+			if (!(itv->v4l2_cap & V4L2_CAP_RADIO))
+				return 0;
+			return ivtv_reg_dev(itv, s, itv->num, VFL_TYPE_RADIO);
+		case IVTV_DEC_STREAM_TYPE_MPG:
+			if (ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_DEC_MPG_OFFSET,
 				 VFL_TYPE_GRABBER)) {
-			return -ENOMEM;
-		}
-	} else if (x == IVTV_ENC_STREAM_TYPE_VBI) {
-		if (ivtv_reg_dev(itv, x, itv->num, VFL_TYPE_VBI)) {
-			return -ENOMEM;
-		}
-	} else if (x == IVTV_ENC_STREAM_TYPE_PCM) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_ENC_PCM_OFFSET,
-				 VFL_TYPE_GRABBER)) {
-			return -ENOMEM;
-		}
-	} else if ((itv->v4l2_cap & V4L2_CAP_RADIO) &&
-		   (x == IVTV_ENC_STREAM_TYPE_RAD)) {
-		if (ivtv_reg_dev(itv, x, itv->num, VFL_TYPE_RADIO)) {
-			return -ENOMEM;
-		}
-	} else if (x == IVTV_DEC_STREAM_TYPE_MPG) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_DEC_MPG_OFFSET,
-				 VFL_TYPE_GRABBER)) {
-			return -ENOMEM;
-		}
-		itv->streams[x].v4l2dev->fops = &ivtv_v4l2_dec_fops;
-	} else if (x == IVTV_DEC_STREAM_TYPE_VBI) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_DEC_VBI_OFFSET,
+				return -ENOMEM;
+			}
+			itv->streams[s].v4l2dev->fops = &ivtv_v4l2_dec_fops;
+			break;
+		case IVTV_DEC_STREAM_TYPE_VBI:
+			return ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_DEC_VBI_OFFSET,
+				 VFL_TYPE_VBI);
+		case IVTV_DEC_STREAM_TYPE_VOUT:
+			if (ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_DEC_VOUT_OFFSET,
 				 VFL_TYPE_VBI)) {
-			return -ENOMEM;
-		}
-	} else if (x == IVTV_DEC_STREAM_TYPE_VOUT) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_DEC_VOUT_OFFSET,
-				 VFL_TYPE_VBI)) {
-			return -ENOMEM;
-		}
-		itv->streams[x].v4l2dev->fops = &ivtv_v4l2_dec_fops;
-	} else if (x == IVTV_DEC_STREAM_TYPE_YUV) {
-		if (ivtv_reg_dev(itv, x,
-				 itv->num + IVTV_V4L2_DEC_YUV_OFFSET,
+				return -ENOMEM;
+			}
+			itv->streams[s].v4l2dev->fops = &ivtv_v4l2_dec_fops;
+			break;
+		case IVTV_DEC_STREAM_TYPE_YUV:
+			if (ivtv_reg_dev(itv, s, itv->num + IVTV_V4L2_DEC_YUV_OFFSET,
 				 VFL_TYPE_GRABBER)) {
-			return -ENOMEM;
-		}
-		itv->streams[x].v4l2dev->fops = &ivtv_v4l2_dec_fops;
-	} else if (x == IVTV_DEC_STREAM_TYPE_OSD) {
-		if (ivtv_reg_dev(itv, x, -1, 0))
-			return -ENOMEM;
+				return -ENOMEM;
+			}
+			itv->streams[s].v4l2dev->fops = &ivtv_v4l2_dec_fops;
+			break;
+		case IVTV_DEC_STREAM_TYPE_OSD:
+			return ivtv_reg_dev(itv, s, -1, 0);
 	}
-	return ret;
+	return 0;
 }
 
-int ivtv_stream_setup(struct ivtv *itv, int x)
+static int ivtv_stream_setup(struct ivtv *itv, int x)
 {
 	int ret = 0;
 	if (x == IVTV_ENC_STREAM_TYPE_MPG) {
@@ -422,7 +411,7 @@ static struct ivtv_stream *ivtv_stream_safeget(const char *desc,
 	return &itv->streams[type];
 }
 
-void ivtv_unreg_dev(struct ivtv *itv, int stream)
+static void ivtv_unreg_dev(struct ivtv *itv, int stream)
 {
 	struct ivtv_stream *s = ivtv_stream_safeget(
 		"ivtv_unreg_dev", itv, stream);
@@ -557,7 +546,7 @@ int ivtv_passthrough_mode(struct ivtv *itv, int enable)
 	/* Prevent others from starting/stopping streams while we
 	   initiate/terminate passthrough mode */
 	if (enable) {
-                struct decoder_lcr lcr;
+                struct v4l2_format fmt;
 
 		if (test_bit(IVTV_F_I_PASSTHROUGH, &itv->i_flags)) {
 			return 0;
@@ -590,8 +579,9 @@ int ivtv_passthrough_mode(struct ivtv *itv, int enable)
 		}
 
                 /* Setup the sliced VBI registers */
-                vbi_setup_lcr(itv, itv->vbi_passthrough, !(itv->std & V4L2_STD_NTSC), &lcr);
-                itv->card->video_dec_func(itv, DECODER_SET_VBI, &lcr);
+		fmt.type = V4L2_BUF_TYPE_SLICED_VBI_CAPTURE;
+                vbi_setup_lcr(itv, itv->vbi_passthrough, !(itv->std & V4L2_STD_NTSC), &fmt.fmt.sliced);
+                itv->card->video_dec_func(itv, VIDIOC_S_FMT, &fmt);
 
                 /* Start Passthrough Mode */
 		x = ivtv_vapi(itv, IVTV_API_BEGIN_CAPTURE, 2, 2, 11);
@@ -629,7 +619,7 @@ int ivtv_passthrough_mode(struct ivtv *itv, int enable)
 
 void ivtv_vbi_setup(struct ivtv *itv, int mode)
 {
-	int raw = itv->vbi_in.raw;
+	int raw = itv->vbi_sliced_in->service_set == 0;
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 	int lines;
 	int x;
@@ -652,10 +642,7 @@ void ivtv_vbi_setup(struct ivtv *itv, int mode)
 
 	/* Don't use VBI if scaling */
 	if (raw && itv->height != h) {
-                struct decoder_lcr lcr = { 0 };
-
-		itv->card->video_dec_func(itv, DECODER_SET_VBI, &lcr);
-
+		itv->card->video_dec_func(itv, VIDIOC_S_FMT, &itv->vbi_in);
 		return;
 	}
 
@@ -670,7 +657,7 @@ void ivtv_vbi_setup(struct ivtv *itv, int mode)
         }
 
 	// setup VBI registers
-	itv->card->video_dec_func(itv, DECODER_SET_VBI, &itv->vbi_in);
+	itv->card->video_dec_func(itv, VIDIOC_S_FMT, &itv->vbi_in);
 
 	itv->vbi_search_ba = 0;
 
@@ -789,20 +776,20 @@ void ivtv_vbi_setup(struct ivtv *itv, int mode)
 
 static void unknown_setup_api(struct ivtv *itv)
 {
-	ivtv_vapi(itv, 0xdb, 1, 0);
-	ivtv_vapi(itv, 0xdc, 2, 7, 0);
-	ivtv_vapi(itv, 0xdc, 2, 8, 0);
-	ivtv_vapi(itv, 0xdc, 2, 4, 1);
-	ivtv_vapi(itv, 0xdc, 2, 12, 0);
+	ivtv_vapi(itv, IVTV_API_ENC_UNKNOWN, 1, 0);
+	ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 7, 0);
+	ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 8, 0);
+	ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 4, 1);
+	ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 12, 0);
 }
 
 int ivtv_init_digitizer(struct ivtv *itv)
 {
-	unsigned int dig = 0;
+	int dummy;
 
         /* Disable digitizer */
         IVTV_DEBUG_INFO("Disabling digitizer\n");
-	itv->card->video_dec_func(itv, DECODER_ENABLE_OUTPUT, &dig);
+	itv->card->video_dec_func(itv, VIDIOC_STREAMOFF, &dummy);
 
         /* initialize or refresh input */
         if (atomic_read(&itv->capturing) == 0)
@@ -812,8 +799,7 @@ int ivtv_init_digitizer(struct ivtv *itv)
 
         /* enable digitizer (saa7115) */
         IVTV_DEBUG_INFO("Enabling digitizer\n");
-        dig = 1;
-	itv->card->video_dec_func(itv, DECODER_ENABLE_OUTPUT, &dig);
+	itv->card->video_dec_func(itv, VIDIOC_STREAMON, &dummy);
 
 	return 0;
 }
@@ -901,6 +887,7 @@ int ivtv_start_v4l2_encode_stream(struct ivtv *itv, int type)
 	st->subtype = subtype;
 	st->first_read = 1;
 	st->trans_id = 0;
+	st->stolen_bufs = 0;
 
 	/* mute/unmute video */
 	ivtv_vapi(itv, IVTV_API_MUTE_VIDEO, 1,
@@ -909,7 +896,6 @@ int ivtv_start_v4l2_encode_stream(struct ivtv *itv, int type)
 	/* Clear Streamoff flags in case left from last capture */
 	clear_bit(IVTV_F_S_STREAMOFF, &st->s_flags);
 	clear_bit(IVTV_F_S_OVERFLOW, &st->s_flags);
-	atomic_set(&st->stolen_bufs, 0);
 
         if (atomic_read(&itv->capturing) == 0) {
 		/*assign dma block len */
@@ -933,7 +919,7 @@ int ivtv_start_v4l2_encode_stream(struct ivtv *itv, int type)
                 	int pkt_type = 0x02;
 
                 	/* Raw mode, no private packet */
-                	if (itv->vbi_in.raw)
+                	if (itv->vbi_sliced_in->service_set == 0)
                         	pkt_type = 0x00;
 
                 	if (test_bit(IVTV_F_T_ENC_VBI_STARTED, &itv->t_flags) &&
@@ -968,26 +954,15 @@ int ivtv_start_v4l2_encode_stream(struct ivtv *itv, int type)
 		ivtv_setup_v4l2_encode_stream(itv, type);
 	}
 
+	if (atomic_read(&itv->capturing) == 0)
+		ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 3, itv->has_cx25840);
+
 	/* Vsync Setup */
-	if (itv->has_itvc15) {
-//		if (atomic_read(&itv->capturing) == 0)
-//			ivtv_vapi(itv, 0xdc, 2, 3, 0);
-
-		/* Turn On Event Notification */
-		if (!test_and_set_bit(IVTV_F_I_DIG_RST, &itv->i_flags)) 
-		{
-			/* event notification (on) */
-			ivtv_vapi(itv, IVTV_API_EVENT_NOTIFICATION,
-		  		4, 0, 1, 0x10000000, -1);
-			ivtv_clear_irq_mask(itv, IVTV_IRQ_ENC_VIM_RST);
-		}
-	} else {
-		/* iTVC16 */
-
-// This seems to cause jitter. Needs to be examined further. Hauppauge sets
-// to 1 in their driver. For now disable it.
-//		if (atomic_read(&itv->capturing) == 0)
-//			ivtv_vapi(itv, 0xdc, 2, 3, 1);
+	if (itv->has_cx23415 && !test_and_set_bit(IVTV_F_I_DIG_RST, &itv->i_flags)) {
+		/* event notification (on) */
+		ivtv_vapi(itv, IVTV_API_EVENT_NOTIFICATION,
+	  		4, 0, 1, 0x10000000, -1);
+		ivtv_clear_irq_mask(itv, IVTV_IRQ_ENC_VIM_RST);
 	}
 
 	/* Check if capturing already and trying VBI capture */
@@ -1339,7 +1314,7 @@ int ivtv_stop_capture(struct ivtv *itv, int type)
 					   "event notification %d\n", x);
 			ivtv_set_irq_mask(itv, IVTV_IRQ_ENC_VIM_RST);
 		}
-                ivtv_vapi(itv, 0xdc, 2, 3, 0);
+                ivtv_vapi(itv, IVTV_API_ENC_MISC, 2, 3, 0);
 
 	}
 
@@ -1401,7 +1376,7 @@ int ivtv_stop_capture(struct ivtv *itv, int type)
 		do {
 			/* check if DMA is pending */
 			if ((type == IVTV_ENC_STREAM_TYPE_MPG) &&	/* MPG Only */
-			    (ivtv_read_reg
+			    (readl
 			     ((unsigned char *)itv->reg_mem +
 			      IVTV_REG_DMASTATUS) & 0x02)
 			    && !test_bit(IVTV_F_T_ENC_DMA_NEEDED, &itv->t_flags)
@@ -1419,7 +1394,7 @@ int ivtv_stop_capture(struct ivtv *itv, int type)
 					break;
 				}
 			} else if (!test_bit(IVTV_F_S_DMAP, &st->s_flags) &&	/* VBI and other streams */
-				   (ivtv_read_reg
+				   (readl
 				    ((unsigned char *)itv->reg_mem +
 				     IVTV_REG_DMASTATUS) & 0x02)) {
 				break;
@@ -1531,7 +1506,7 @@ int ivtv_stop_v4l2_decode_stream(struct ivtv *itv, int type)
 			ivtv_sleep_timeout(HZ/10, 0);
 		}
 
-		if (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x14)&&
+		if (!(readl(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x14)&&
                		(!test_bit(IVTV_F_S_DMAP, &st->s_flags)||
                         wait_event_interruptible(itv->r_intr_wq,
                                         atomic_read(&itv->r_intr)))) 

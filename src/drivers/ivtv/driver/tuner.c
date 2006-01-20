@@ -11,9 +11,13 @@
 #include <linux/types.h>
 #include <linux/init.h>
 
-#include "compat.h"
+#include "ivtv-compat.h"
 #include "tuner.h"
-#include <media/audiochip.h>
+#include "audiochip.h"
+
+#if !defined(I2C_ALGO_SAA7134)
+#define I2C_ALGO_SAA7134 I2C_HW_B_BT848
+#endif
 
 /* Addresses to scan */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
@@ -311,7 +315,7 @@ static struct tunertype tuners[] = {
 	{ "Ymec TVision TVF-5533MF", Philips, NTSC,
 	  16*160.00,16*454.00,0x01,0x02,0x04,0x8e,732},
 
-        /* 60 - 67 */
+        /* 60 - 68 */
 	{ "Thomson DDT 7611 (ATSC/NTSC)", THOMSON, ATSC,
 	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
 	{ "Tena TNF9533-D/IF/TNF9533-B/DF", Philips, PAL,
@@ -328,6 +332,8 @@ static struct tunertype tuners[] = {
 	  16*150.00,16*425.00,0x01,0x02,0x08,0x8e,732 },
         { "Philips TD1316 Hybrid Tuner", Philips, PAL,
           16*160.00,16*442.00,0xa1,0xa2,0xa4,0xc8,623 },
+	{ "Samsung TCPN 2121P30A", Samsung, NTSC,
+	  16 * 175.75, 16 * 410.25, 0x01, 0x02, 0x08, 0xce, 732},
 };
 
 #define TUNERS ARRAY_SIZE(tuners)
@@ -1588,7 +1594,11 @@ static int tuner_fixup_std(struct tuner *t)
 
 /* ---------------------------------------------------------------------- */
 
-static int tuner_attach(struct i2c_adapter *adap, int addr, int kind)
+static int tuner_attach(struct i2c_adapter *adap, int addr,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+				 unsigned short flags,
+#endif
+				 int kind)
 {
 	struct tuner *t;
 	struct i2c_client *client;
@@ -1841,7 +1851,9 @@ static int tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
 /* ----------------------------------------------------------------------- */
 
 static struct i2c_driver driver = {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 	.owner = THIS_MODULE,
+#endif
 	.name = "i2c TV tuner driver",
 	.id = I2C_DRIVERID_TUNER,
 	.flags = I2C_DF_NOTIFY,

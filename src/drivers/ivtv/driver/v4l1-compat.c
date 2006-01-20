@@ -45,7 +45,7 @@
 #include <asm/system.h>
 #include <asm/pgtable.h>
 
-#include "compat.h"
+#include "ivtv-compat.h"
 
 static unsigned int debug = 0;
 

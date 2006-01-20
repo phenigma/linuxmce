@@ -1,16 +1,20 @@
+/*
+ * $Id: msp3400.h,v 1.3 2005/06/12 04:19:19 mchehab Exp $
+ */
+
 #ifndef MSP3400_H
 #define MSP3400_H
 
 /* ---------------------------------------------------------------------- */
 
 struct msp_dfpreg {
-	int reg;
-	int value;
+    int reg;
+    int value;
 };
 
 struct msp_matrix {
-	int input;
-	int output;
+  int input;
+  int output;
 };
 
 #define MSP_SET_DFPREG     _IOW('m',15,struct msp_dfpreg)
@@ -33,4 +37,4 @@ struct msp_matrix {
 #define SCART1_OUT    1
 #define SCART2_OUT    2
 
-#endif				/* MSP3400_H */
+#endif /* MSP3400_H */

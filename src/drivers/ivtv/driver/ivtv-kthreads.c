@@ -5,7 +5,7 @@
     Copyright (C) 2004  Stephane Zermatten
 
     Decoder thread:
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
  */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-queue.h"
 #include "ivtv-streams.h"
 #include "ivtv-reset.h"
@@ -32,7 +31,7 @@
 #include "ivtv-kthreads.h"
 #include "ivtv-irq.h"
 #include "ivtv-video.h"
-#include "compat.h"
+#include "ivtv-compat.h"
 
 #include <linux/smp_lock.h>
 #include <linux/wait.h>
@@ -42,6 +41,16 @@ static void ivtv_dualwatch_stop_kthread(struct ivtv *ivtv);
 static void ivtv_dualwatch_init_kthread(struct ivtv *ivtv);
 static void ivtv_dualwatch_exit_kthread(struct ivtv *ivtv);
 static void ivtv_dualwatch_set_dual(struct ivtv *itv);
+
+static u32 ivtv_round_dma(u32 data)
+{
+	if (data >= (64 * 1024))
+		data = (64 * 1024);
+	else if (data >= (32 * 1024))
+		data = (32 * 1024);
+
+	return data;
+}
 
 /**
  * Change the DUAL flag 
@@ -483,11 +492,11 @@ void dec_work_handler(void *arg)
 
 		/* Lock Decoder */
 		if (ivtv_buf_fill_lock(stream, 0, BUF_USED) >= data[2] &&
-		    (ivtv_read_reg
+		    (readl
 		     ((unsigned char *)itv->reg_mem +
 		      IVTV_REG_DMASTATUS) & 0x01)
 		    &&
-		    !(ivtv_read_reg
+		    !(readl
 		      ((unsigned char *)itv->reg_mem +
 		       IVTV_REG_DMASTATUS) & 0x14)
 		    && !test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags)) {

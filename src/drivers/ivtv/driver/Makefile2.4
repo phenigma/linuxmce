@@ -1,49 +1,29 @@
-KERNVER = $(shell uname -r)
-KERNELDIR= /lib/modules/$(KERNVER)/build
-MODDIR = /lib/modules/$(KERNVER)/kernel/drivers/media/video
-MODULESDIR = /lib/modules
-INSTALL_INIT_FILES = ../ivtv_init_mpeg.bin
-CROSS_COMPILE =
-LD	= $(CROSS_COMPILE)ld
-CC	= $(CROSS_COMPILE)gcc
-AR	= $(CROSS_COMPILE)ar
-IVTVOBJS	= ivtv-driver.o ivtv-fileops.o ivtv-i2c.o ivtv-streams.o \
-			   ivtv-firmware.o ivtv-reset.o ivtv-gpio.o ivtv-queue.o \
-			   ivtv-irq.o ivtv-mailbox.o ivtv-vbi.o ivtv-kthreads.o \
-			   ivtv-audio.o ivtv-ioctl.o ivtv-controls.o ivtv-video.o \
-			   ivtv-cards.o v4l1-compat.o ivtv-dma.o ivtv-yuv.o
-CX2584OBJS	= cx25840-driver.o cx25840-registers.o cx25840-audio.o \
-			   cx25840-firmware.o
-OBJS	= msp3400.o saa7115.o cx25840.o wm8775.o tveeprom.o ivtv.o saa7127.o cs53l32a.o
+ifneq ($(KERNELRELEASE),)
+include $(CURDIR)/Kbuild
 
-include $(KERNELDIR)/.config
+export-objs := ivtv-driver.o tveeprom.o
+list-multi := ivtv.o ivtv-fb.o cx25840.o
 
-CFLAGS = -D__KERNEL__ -D__KERNEL_SYSCALLS__ -DMODULE -DMODVERSIONS -DEXPORT_SYMTAB -I$(KERNELDIR)/include -O2 -fomit-frame-pointer -march=i586 -mcpu=i586 -fno-strict-aliasing -Wno-unused -include $(KERNELDIR)/include/linux/modversions.h
+ivtv.o: $(ivtv-objs)
+	$(LD) $(LDFLAGS) -r -o $@ $(ivtv-objs) 
 
-# if the kernel .config has fb enabled, it's safe to build ivtv-fb.o
-OBJS    += $(shell grep -q '^CONFIG_FB' $(KERNELDIR)/.config && echo "ivtv-fb.o")
-# if the I2C version is 2.8, then we need to use the new_i2c stuff
-CFLAGS  += $(shell grep -q I2C_VERSION.*2\.8  $(KERNELDIR)/include/linux/i2c.h && echo "-DNEW_I2C")
+ivtv-fb.o: $(ivtv-fb-objs)
+	$(LD) $(LDFLAGS) -r -o $@ $(ivtv-fb-objs) 
 
-ifdef HP_FWLOAD
-CFLAGS += -DIVTV_FW_LOADER
-endif
+cx25840.o: $(cx25840-objs)
+	$(LD) $(LDFLAGS) -r -o $@ $(cx25840-objs) 
 
-all: ivtv-svnversion.h $(OBJS)
+include $(KDIR)/Rules.make
+else
 
-ivtv.o: $(IVTVOBJS)
-	$(LD) -r -o $@ $^
+all::
+	$(MAKE) SUBDIRS=$(CURDIR) -C $(KDIR) modules
 
-cx25840.o: $(CX2584OBJS)
-	$(LD) -r -o $@ $^
-
-ivtv-fb.o: ivtv-osd.o ivtv-queue.o
-	$(LD) -r -o $@ $^
+install:: all
+	install -d $(DESTDIR)/lib/modules/$(KVER)/kernel/$(MDIR)
+	install -m 0644 $(obj-m) $(DESTDIR)/lib/modules/$(KVER)/kernel/$(MDIR)
 
 clean::
-	rm -f *.o videodev2.h
+	rm -f *.o .*.o.flags
 
-install: all
-	install -d $(DESTDIR)/$(MODDIR)
-	install -m 0644 $(OBJS) $(DESTDIR)/$(MODDIR)
-	install -m 0644 $(INSTALL_INIT_FILES) $(DESTDIR)/$(MODULESDIR)
+endif

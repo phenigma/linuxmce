@@ -1,7 +1,7 @@
 /*
     ivtv driver internal defines and structures
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
-    Copyright (C) 2004  Chris Kennedy <ckennedy at kmos.org>
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 #define IVTV_DRIVER_H
 
 /* Internal header for ivtv project:
- * Driver for the iTVC15 chip.
+ * Driver for the cx23415/6 chip.
  * Author: Kevin Thayer (nufan_wfk at yahoo.com)
  * License: GPL
- * http://www.sourceforge.net/projects/ivtv/
+ * http://www.ivtvdriver.org
  * 
  * -----
  * MPG600/MPG160 support by  T.Adachi <tadachi@tadachi-net.com>
@@ -38,7 +38,7 @@
 #define MODULE
 #endif /* MODULE */
 
-#include "compat.h"
+#include "ivtv-compat.h"
 
 #include <linux/module.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
@@ -52,8 +52,6 @@
 #include <linux/pci.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
-#include <linux/video_decoder.h>
-#include <linux/video_encoder.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 #include <linux/list.h>
@@ -66,8 +64,6 @@
 
 #define IVTV_INTERNAL
 #include "ivtv.h"
-
-#include "decoder.h"
 
 #include "tuner.h"
 #ifdef LINUX26
@@ -113,7 +109,7 @@ extern u32 yuv_offset[4];
 #define IVTV_CARD_M179    2	/* AVerMedia M179 (encoder only) */
 #define IVTV_CARD_MPG600  3	/* Kuroutoshikou ITVC16-STVLP/YUAN MPG600, encoder only */
 #define IVTV_CARD_MPG160  4	/* Kuroutoshikou ITVC15-STVLP/YUAN MPG160
-				   iTVC15 based, but does not have tv-out */
+				   cx23415 based, but does not have tv-out */
 #define IVTV_CARD_PVR_150 5	/* wintv pvr 150 */
 #define IVTV_CARD_PG600 6	/* YUAN PG600/DIAMONDMM PVR-550 based on the CX Falcon 2 */
 #define IVTV_CARD_AVC2410 7	/* Adaptec AVC-2410 */
@@ -139,13 +135,17 @@ extern u32 yuv_offset[4];
 
 #define IVTV_ENC_MEM_START 0x00000000
 #define IVTV_DEC_MEM_START 0x01000000
+
 #define PCI_VENDOR_ID_ICOMP  0x4444
 #define PCI_DEVICE_ID_IVTV15 0x0803
+#define PCI_DEVICE_ID_IVTV16 0x0016
 #define IVTV_PCI_ID_HAUPPAUGE 0x0070	/* subsystem vendor id */
 #define IVTV_PCI_ID_ADAPTEC 0x9005	/* subsystem vendor id */
 #define IVTV_PCI_ID_AVERMEDIA 0x1461
 #define IVTV_PCI_ID_YUAN 0x12ab
-#define PCI_DEVICE_ID_IVTV16 0x0016
+#define IVTV_PCI_ID_DIAMONDMM 0xff92
+#define IVTV_PCI_ID_XTREME550 0x0070
+
 #define IVTV_MBOX_MAX_BOXES 20
 #define IVTV_MBOX_API_BOXES 6
 #define IVTV_MBOX_DMA_START 6
@@ -155,9 +155,6 @@ extern u32 yuv_offset[4];
 #define IVTV_MBOX_FIELD_DISPLAYED 8
 #define IVTV_MBOX_SIZE 80
 
-#define IVTV_PCI_ID_DIAMONDMM 0xff92
-#define IVTV_PCI_ID_XTREME550 0x0070
-
 /* Decoder Buffer hardware size on Chip */
 #define IVTV_DEC_MAX_BUF        0x00100000	/* max bytes in decoder buffer */
 #define IVTV_DEC_MIN_BUF        0x00010000	/* min bytes in dec buffer */
@@ -165,8 +162,11 @@ extern u32 yuv_offset[4];
 /* ======================================================================== */
 /* ========================== START USER SETTABLE DMA VARIABLES =========== */
 /* ======================================================================== */
-
+#ifdef __powerpc__
+#define DYNAMIC_MEMORY_ALLOC	0 /* PowerPC doesn't work with DMA currently */
+#else
 #define DYNAMIC_MEMORY_ALLOC 	1 /* Allocate memory each stream use */
+#endif
 
 /* DMA Buffers Sizes */
 #define IVTV_DMA_ENC_BUF_SIZE     0x00008000
@@ -190,16 +190,23 @@ extern u32 yuv_offset[4];
 #define IVTV_DMA_SG_OSD_ENT	(2883584/PAGE_SIZE)	/* sg entities */
 
 /* Decoder DMA or PIO, 1=PIO, 0=DMA */
+/* PowerPC does not work with DMA currently */
+#ifdef __powerpc__
+#define IVTV_VBI_PIO		1
+#define IVTV_ENC_PIO		1
+#define IVTV_DEC_PIO		1
+#else
 #define IVTV_VBI_PIO		0
 #define IVTV_ENC_PIO		0
 #define IVTV_DEC_PIO		0
+#endif
 /* This sometimes times out, seems to  kill
 					   encoding sometimes */
 
 /* What we tell the firmware to expect or return, 131072 is best so far */
 #define FW_DEC_DMA_XFER 65536	/* 524288, 262144, 131072, 65536 */
 #define FW_ENC_DMA_XFER 131072	/* 524288, 262144, 131072 */
-#define FW_ENC_DMA_TYPE	0	/* 1-XX = frame based, 0 = bytes (see above) */
+#define FW_ENC_DMA_TYPE	1	/* 1-XX = frame based, 0 = bytes (see above) */
 
 /* DMA Buffers, Default size in MEGS allocated */
 #define IVTV_DEFAULT_MPG_BUFFERS 4
@@ -315,9 +322,6 @@ struct ivtv_dec_dma {
 
 #define ITVC_GET_REG		0x1
 #define ITVC_SET_REG		0x2
-
-/* Encoder Timeouts */
-#define ENC_DMA_TIMEOUT (HZ*5)	/* Encoding max timeout for data */
 
 /* video related */
 #define IVTV_MAX_INPUTS 9
@@ -440,15 +444,16 @@ struct ivtv_dec_dma {
 #define IVTV_SDRAM_SLEEPTIME (60 * HZ / 100)	/* 600ms */
 
 /*Used for locating the firmware mailboxes*/
-#if defined(IVTV_FW_LOADER)
-#define IVTV_FIRM_ENC_FILENAME "ivtv-fw-enc.bin"
-#define IVTV_FIRM_DEC_FILENAME "ivtv-fw-dec.bin"
-#define IVTV_DECODE_INIT_MPEG_FILENAME "ivtv_init_mpeg.bin"
+#if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
+#include <linux/firmware.h>
+#define IVTV_FIRM_ENC_FILENAME "v4l-cx2341x-enc.fw"
+#define IVTV_FIRM_DEC_FILENAME "v4l-cx2341x-dec.fw"
+#define IVTV_DECODE_INIT_MPEG_FILENAME "v4l-cx2341x-init.mpg"
 #else
-#define IVTV_FIRM_ENC_FILENAME "/lib/modules/ivtv-fw-enc.bin"
-#define IVTV_FIRM_DEC_FILENAME "/lib/modules/ivtv-fw-dec.bin"
-#define IVTV_DECODE_INIT_MPEG_FILENAME "/lib/modules/ivtv_init_mpeg.bin"
-#endif /* defined(IVTV_FW_LOADER)  */
+#define IVTV_FIRM_ENC_FILENAME "/lib/modules/v4l-cx2341x-enc.fw"
+#define IVTV_FIRM_DEC_FILENAME "/lib/modules/v4l-cx2341x-dec.fw"
+#define IVTV_DECODE_INIT_MPEG_FILENAME "/lib/modules/v4l-cx2341x-init.mpg"
+#endif
 
 #define IVTV_FIRM_IMAGE_SIZE 256*1024
 #define IVTV_FIRM_SEARCH_ENCODER_START 0x00000000
@@ -471,89 +476,99 @@ struct ivtv_dec_dma {
 #define IVTV_CMD_SOFT_RESET  1	/* quick + find mboxes */
 #define IVTV_CMD_FULL_RESET  2	/* full stop/upload/start/find mboxes */
 
-/*Firmware API commands*/
-#define IVTV_API_ENC_PING_FW 0x00000080
-#define IVTV_API_DEC_PING_FW 0x00000000
-#define IVTV_API_ENC_GETVER 0x000000C4
-#define IVTV_API_DEC_GETVER 0x00000011
-#define IVTV_API_ENC_HALT_FW 0x000000C3
-#define IVTV_API_DEC_HALT_FW 0x0000000E
-#define IVTV_API_DEC_START_PLAYBACK 0x00000001
-#define IVTV_API_DEC_STOP_PLAYBACK 0x00000002
-#define IVTV_API_DEC_PLAYBACK_SPEED 0x00000003
-#define IVTV_API_DEC_STEP_VIDEO 0x00000005
-#define IVTV_API_DEC_PAUSE_PLAYBACK 0x0000000d
-#define IVTV_API_DEC_DMA_BLOCKSIZE 0x00000008
-#define IVTV_API_DEC_DMA_FROM_HOST 0x00000000b
-#define IVTV_API_DEC_DISP_STANDARD 0x00000010
-#define IVTV_API_DEC_STREAM_INPUT 0x00000014
-#define IVTV_API_DEC_TIMING_INFO 0x00000015
-#define IVTV_API_DEC_SELECT_AUDIO 0x00000016
-#define IVTV_API_DEC_EVENT_NOTIFICATION 0x00000017
-#define IVTV_API_DEC_DISPLAY_BUFFERS 0x00000018
-#define IVTV_API_DEC_EXTRACT_VBI 0x00000019
-#define IVTV_API_DEC_DECODE_SOURCE 0x0000001a
-#define IVTV_API_DEC_AUDIO_OUTPUT 0x0000001b
-#define IVTV_API_DEC_SET_AV_DELAY 0x0000001c
-#define IVTV_API_DEC_BUFFER 0x0000001e
-#define IVTV_API_DEC_DMA_STATUS 0x0000000a
-#define IVTV_API_DEC_XFER_INFO 0x00000009
-#define IVTV_API_ASSIGN_DMA_BLOCKLEN 0x000000c9
-#define IVTV_API_ASSIGN_PGM_INDEX_INFO 0x000000c7
-#define IVTV_API_ASSIGN_STREAM_TYPE 0x000000b9
-#define IVTV_API_ASSIGN_OUTPUT_PORT 0x000000bb
-#define IVTV_API_ASSIGN_FRAMERATE 0x0000008f
-#define IVTV_API_ASSIGN_FRAME_SIZE 0x00000091
-#define IVTV_API_ASSIGN_ASPECT_RATIO 0x00000099
-#define IVTV_API_ASSIGN_BITRATES 0x00000095
-#define IVTV_API_ASSIGN_GOP_PROPERTIES 0x00000097
-#define IVTV_API_ASSIGN_3_2_PULLDOWN 0x000000b1
-#define IVTV_API_ASSIGN_GOP_CLOSURE 0x000000c5
-#define IVTV_API_ASSIGN_AUDIO_PROPERTIES 0x000000bd
-#define IVTV_API_ASSIGN_DNR_FILTER_MODE 0x0000009b
-#define IVTV_API_ASSIGN_DNR_FILTER_PROPS 0x0000009d
-#define IVTV_API_ASSIGN_CORING_LEVELS 0x0000009f
-#define IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE 0x000000a1
-#define IVTV_API_ASSIGN_FRAME_DROP_RATE 0x000000d0
-#define IVTV_API_ASSIGN_PLACEHOLDER 0x000000d8
-#define IVTV_API_MUTE_VIDEO 0x000000d9
-#define IVTV_API_MUTE_AUDIO 0x000000da
-#define IVTV_API_CONFIG_VBI 0x000000c8
-#define IVTV_API_SELECT_VBI_LINE 0x000000b7
-#define IVTV_API_INITIALIZE_INPUT 0x000000cd
-#define IVTV_API_REFRESH_INPUT 0x000000d3
-#define IVTV_API_ASSIGN_NUM_VSYNC_LINES 0x000000d6
-#define IVTV_API_BEGIN_CAPTURE 0x00000081
-#define IVTV_API_PAUSE_ENCODER 0x000000d2
-#define IVTV_API_EVENT_NOTIFICATION 0x000000d5
-#define IVTV_API_END_CAPTURE 0x00000082
-#define IVTV_API_SCHED_DMA_TO_HOST 0x000000cc
-#define IVTV_API_FB_GET_FRAMEBUFFER 0x00000041
-#define IVTV_API_FB_GET_PIXEL_FORMAT 0x00000042
-#define IVTV_API_FB_SET_PIXEL_FORMAT 0x00000043
-#define IVTV_API_FB_GET_STATE 0x00000044
-#define IVTV_API_FB_SET_STATE 0x00000045
-#define IVTV_API_FB_GET_OSD_COORDS 0x00000046
-#define IVTV_API_FB_SET_OSD_COORDS 0x00000047
-#define IVTV_API_FB_GET_SCREEN_COORDS 0x00000048
-#define IVTV_API_FB_SET_SCREEN_COORDS 0x00000049
-#define IVTV_API_FB_GET_GLOBAL_ALPHA 0x0000004a
-#define IVTV_API_FB_SET_GLOBAL_ALPHA 0x0000004b
-#define IVTV_API_FB_SET_BLEND_COORDS 0x0000004c
-// 0x4d unknown
-// 0x4e unknown
-#define IVTV_API_FB_GET_FLICKER_STATE 0x0000004f
-#define IVTV_API_FB_SET_FLICKER_STATE 0x00000050
-// 0x51 unknown
-#define IVTV_API_FB_BLT_COPY 0x00000052
-#define IVTV_API_FB_BLT_FILL 0x00000053
-#define IVTV_API_FB_BLT_TEXT 0x00000054
-// 0x55 unknown
-#define IVTV_API_FB_SET_FRAMEBUFFER_WINDOW 0x00000056
-// 0x57 - 0x5f unknown
-#define IVTV_API_FB_SET_CHROMA_KEY 0x00000060
-#define IVTV_API_FB_GET_ALPHA_CONTENT_INDEX 0x00000061
-#define IVTV_API_FB_SET_ALPHA_CONTENT_INDEX 0x00000062
+/* Firmware API commands */
+
+/* MPEG decoder API */
+#define IVTV_API_DEC_PING_FW 			0x00000000
+#define IVTV_API_DEC_START_PLAYBACK 		0x00000001
+#define IVTV_API_DEC_STOP_PLAYBACK 		0x00000002
+#define IVTV_API_DEC_PLAYBACK_SPEED 		0x00000003
+#define IVTV_API_DEC_STEP_VIDEO 		0x00000005
+#define IVTV_API_DEC_DMA_BLOCKSIZE 		0x00000008
+#define IVTV_API_DEC_XFER_INFO 			0x00000009
+#define IVTV_API_DEC_DMA_STATUS 		0x0000000a
+#define IVTV_API_DEC_DMA_FROM_HOST 		0x0000000b
+#define IVTV_API_DEC_PAUSE_PLAYBACK 		0x0000000d
+#define IVTV_API_DEC_HALT_FW 			0x0000000e
+#define IVTV_API_DEC_DISP_STANDARD 		0x00000010
+#define IVTV_API_DEC_GETVER 			0x00000011
+#define IVTV_API_DEC_STREAM_INPUT 		0x00000014
+#define IVTV_API_DEC_TIMING_INFO 		0x00000015
+#define IVTV_API_DEC_SELECT_AUDIO 		0x00000016
+#define IVTV_API_DEC_EVENT_NOTIFICATION 	0x00000017
+#define IVTV_API_DEC_DISPLAY_BUFFERS 		0x00000018
+#define IVTV_API_DEC_EXTRACT_VBI 		0x00000019
+#define IVTV_API_DEC_DECODE_SOURCE 		0x0000001a
+#define IVTV_API_DEC_AUDIO_OUTPUT 		0x0000001b
+#define IVTV_API_DEC_SET_AV_DELAY 		0x0000001c
+#define IVTV_API_DEC_BUFFER 			0x0000001e
+
+/* MPEG encoder API */
+#define IVTV_API_ENC_PING_FW 			0x00000080
+#define IVTV_API_BEGIN_CAPTURE 			0x00000081
+#define IVTV_API_END_CAPTURE 			0x00000082
+#define IVTV_API_ASSIGN_AUDIO_ID 		0x00000089
+#define IVTV_API_ASSIGN_VIDEO_ID 		0x0000008b
+#define IVTV_API_ASSIGN_PCR_ID 			0x0000008d
+#define IVTV_API_ASSIGN_FRAMERATE 		0x0000008f
+#define IVTV_API_ASSIGN_FRAME_SIZE 		0x00000091
+#define IVTV_API_ASSIGN_BITRATES 		0x00000095
+#define IVTV_API_ASSIGN_GOP_PROPERTIES 		0x00000097
+#define IVTV_API_ASSIGN_ASPECT_RATIO 		0x00000099
+#define IVTV_API_ASSIGN_DNR_FILTER_MODE 	0x0000009b
+#define IVTV_API_ASSIGN_DNR_FILTER_PROPS 	0x0000009d
+#define IVTV_API_ASSIGN_CORING_LEVELS 		0x0000009f
+#define IVTV_API_ASSIGN_SPATIAL_FILTER_TYPE 	0x000000a1
+#define IVTV_API_ASSIGN_3_2_PULLDOWN 		0x000000b1
+#define IVTV_API_SELECT_VBI_LINE 		0x000000b7
+#define IVTV_API_ASSIGN_STREAM_TYPE 		0x000000b9
+#define IVTV_API_ASSIGN_OUTPUT_PORT 		0x000000bb
+#define IVTV_API_ASSIGN_AUDIO_PROPERTIES 	0x000000bd
+#define IVTV_API_ENC_HALT_FW 			0x000000c3
+#define IVTV_API_ENC_GETVER 			0x000000c4
+#define IVTV_API_ASSIGN_GOP_CLOSURE 		0x000000c5
+#define IVTV_API_ENC_GET_SEQ_END 		0x000000c6
+#define IVTV_API_ASSIGN_PGM_INDEX_INFO 		0x000000c7
+#define IVTV_API_CONFIG_VBI 			0x000000c8
+#define IVTV_API_ASSIGN_DMA_BLOCKLEN 		0x000000c9
+#define IVTV_API_PREV_DMA_INFO_MB_10		0x000000ca
+#define IVTV_API_PREV_DMA_INFO_MB_9		0x000000cb
+#define IVTV_API_SCHED_DMA_TO_HOST 		0x000000cc
+#define IVTV_API_INITIALIZE_INPUT 		0x000000cd
+#define IVTV_API_ASSIGN_FRAME_DROP_RATE 	0x000000d0
+#define IVTV_API_PAUSE_ENCODER 			0x000000d2
+#define IVTV_API_REFRESH_INPUT 			0x000000d3
+#define IVTV_API_ASSIGN_COPYRIGHT		0x000000d4
+#define IVTV_API_EVENT_NOTIFICATION 		0x000000d5
+#define IVTV_API_ASSIGN_NUM_VSYNC_LINES 	0x000000d6
+#define IVTV_API_ASSIGN_PLACEHOLDER 		0x000000d7
+#define IVTV_API_MUTE_VIDEO 			0x000000d9
+#define IVTV_API_MUTE_AUDIO 			0x000000da
+#define IVTV_API_ENC_UNKNOWN			0x000000db
+#define IVTV_API_ENC_MISC 			0x000000dc
+
+/* OSD API */
+#define IVTV_API_FB_GET_FRAMEBUFFER 		0x00000041
+#define IVTV_API_FB_GET_PIXEL_FORMAT 		0x00000042
+#define IVTV_API_FB_SET_PIXEL_FORMAT 		0x00000043
+#define IVTV_API_FB_GET_STATE 			0x00000044
+#define IVTV_API_FB_SET_STATE 			0x00000045
+#define IVTV_API_FB_GET_OSD_COORDS 		0x00000046
+#define IVTV_API_FB_SET_OSD_COORDS 		0x00000047
+#define IVTV_API_FB_GET_SCREEN_COORDS 		0x00000048
+#define IVTV_API_FB_SET_SCREEN_COORDS 		0x00000049
+#define IVTV_API_FB_GET_GLOBAL_ALPHA 		0x0000004a
+#define IVTV_API_FB_SET_GLOBAL_ALPHA 		0x0000004b
+#define IVTV_API_FB_SET_BLEND_COORDS 		0x0000004c
+#define IVTV_API_FB_GET_FLICKER_STATE 		0x0000004f
+#define IVTV_API_FB_SET_FLICKER_STATE 		0x00000050
+#define IVTV_API_FB_BLT_COPY 			0x00000052
+#define IVTV_API_FB_BLT_FILL 			0x00000053
+#define IVTV_API_FB_BLT_TEXT 			0x00000054
+#define IVTV_API_FB_SET_FRAMEBUFFER_WINDOW 	0x00000056
+#define IVTV_API_FB_SET_CHROMA_KEY 		0x00000060
+#define IVTV_API_FB_GET_ALPHA_CONTENT_INDEX 	0x00000061
+#define IVTV_API_FB_SET_ALPHA_CONTENT_INDEX 	0x00000062
 
 /* i2c stuff */
 #define I2C_CLIENTS_MAX 16
@@ -598,6 +613,7 @@ struct ivtv_dec_dma {
 
 /* Standard kernel messages */
 #define IVTV_ERR(fmt, args...)      printk(KERN_ERR  "ivtv%d: " fmt, itv->num , ## args)
+#define IVTV_WARN(fmt, args...)     printk(KERN_WARNING "ivtv%d: " fmt, itv->num , ## args)
 #define IVTV_INFO(fmt, args...)     printk(KERN_INFO "ivtv%d: " fmt, itv->num , ## args)
 #define IVTV_OSD_ERR(fmt, args...)  printk(KERN_ERR  "ivtv%d-osd: " fmt, itv->num , ## args)
 #define IVTV_OSD_INFO(fmt, args...) printk(KERN_INFO "ivtv%d-osd: " fmt, itv->num , ## args)
@@ -633,6 +649,7 @@ struct ivtv_options {
 	int radio;		/* enable/disable radio */
         int tda9887;
 	int dynbuf;		/* Enable/Disable dynamic buffers */
+	int newi2c;		/* New I2C algorithm */
 };
 
 struct ivtv_dec_options {
@@ -750,7 +767,7 @@ struct ivtv_user_dma {
 
 	unsigned long u_flags;	/* status flags */
 
-	/* Base Dev SG Array for iTVC15/16 */
+	/* Base Dev SG Array for cx23415/6 */
 	struct ivtv_SG_element *SGarray;
 	dma_addr_t SG_handle;
 	int SG_length;
@@ -789,6 +806,7 @@ struct ivtv_stream {
 	int bufsize;
 	u32 buf_total;
 	u32 buf_fill;
+	int stolen_bufs;
 
 	/* Buffer Queues */
 	struct ivtv_buffer_list free_q;	/* unused buffers */
@@ -797,7 +815,7 @@ struct ivtv_stream {
 	/* only updated in interrupt time! */
 	struct ivtv_buffer_list io_q;
 
-	/* Base Dev SG Array for iTVC15/16 */
+	/* Base Dev SG Array for cx23415/6 */
 	struct ivtv_SG_element *SGarray;
 	dma_addr_t SG_handle;
 	int SG_length;
@@ -815,7 +833,6 @@ struct ivtv_stream {
 
 	/* Redo DMA? */
 	atomic_t redo_dma;
-	atomic_t stolen_bufs;
 
 	int first_read;		/* used to clean up stream */
 };
@@ -828,7 +845,7 @@ struct ivtv_open_id {
 
 /* dualwatch thread and flags */
 /* audio_bitmask: 
- * bits 0-15 follow iso11172, mostly, see http://ivtv.sourceforge.net/firmware-api.html. 
+ * bits 0-15 follow iso11172, mostly, see doc/fw-encoder-api.txt. 
  */
 #define IVTV_CODEC_AUDIO_MPEG_STEREO_MASK        (0x03 << 8)
 #define IVTV_CODEC_AUDIO_MPEG_STEREO_STEREO      (0x00 << 8)
@@ -945,8 +962,9 @@ struct ivtv_card;
 struct ivtv {
 	const struct ivtv_card *card;	/* card information */
         const char *card_name;
-	int has_itvc15;		/* 1 if it is an iTVC15 based card, 0 for iTVC16 */
+	int has_cx23415;		/* 1 if it is a cx23415 based card, 0 for cx23416 */
         u8 has_cx25840; 
+        u8 has_saa7114; 
         u8 has_saa7115; 
         u8 has_tda9887; 
         u8 is_50hz; 
@@ -955,6 +973,7 @@ struct ivtv {
         u32 i2c_tv_tuner_addr;
         u32 i2c_radio_tuner_addr;
         u32 hw_flags;
+	u8 pvr150_workaround;
 
 	struct pci_dev *dev;
 	struct ivtv_options options;
@@ -1008,7 +1027,9 @@ struct ivtv {
         u32 vbi_sliced_decoder_line_size;
         u8 vbi_sliced_decoder_sav_odd_field;
         u8 vbi_sliced_decoder_sav_even_field;
-        struct decoder_lcr vbi_in;
+        struct v4l2_format vbi_in;
+       	/* convenience pointer to sliced struct in vbi_in union */
+        struct v4l2_sliced_vbi_format *vbi_sliced_in;
 	u32 vbi_service_set_in;
 	u32 vbi_service_set_out;
 	int vbi_insert_mpeg;
@@ -1060,6 +1081,7 @@ struct ivtv {
 	struct i2c_adapter i2c_adap;
 	struct i2c_algo_bit_data i2c_algo;
 	struct i2c_client i2c_client;
+	struct semaphore i2c_bus_lock;
 	int i2c_state;
 	struct i2c_client *i2c_clients[I2C_CLIENTS_MAX];
 
@@ -1073,6 +1095,7 @@ struct ivtv {
 	unsigned long freq_radio;
 	u32 audio_input_tv;
 	u32 audio_input_radio;
+	u32 msp34xx_tuner_input;
 	u32 msp34xx_audio_output;
 	u32 active_input;
 	u32 active_output;
@@ -1098,13 +1121,6 @@ struct ivtv {
 	/* Digitizer type */
 	int digitizer;		/* 0x00EF = saa7114 0x00FO = saa7115 0x0106 = mic */
 
-	/* alpha value for osd firmware resets */
-	int global_alpha;
-	int global_alpha_state;
-	int local_alpha_state;
-
-        int color_key_state;
-        uint32_t color_key;
 	/* API Commands */
 	struct api_cmd api[256];
 
@@ -1161,6 +1177,7 @@ struct ivtv {
 	unsigned int lastVsyncFrame;
 
 	struct yuv_playback_info yuv_info;
+	struct osd_info *osd_info;
 };
 
 /* Globals */
@@ -1204,15 +1221,21 @@ int ivtv_sleep_timeout(int timeout, int intr);
 
 #define IVTV_ASSERT(x)	WARN_ON(!(x))
 
+/* This is a PCI post thing, where if the pci register is not read, then
+   the write doesn't always take effect right away. It also seems to add
+   in a little latency with that.
+   Basically without this writel/readl construct some motherboards seem
+   to kill the firmware and get into the broken state until computer is
+   rebooted. */
+static inline void ivtv_write_reg(u32 val, void *reg)
+{
+	writel(val, reg);
+	readl(reg);
+}
+
 static inline int ivtv_sem_count(struct semaphore *sem)
 {
 	return atomic_read(&sem->count);
-}
-
-static inline int std2norm(v4l2_std_id std)
-{
-	return (std & V4L2_STD_PAL) ? VIDEO_MODE_PAL :
-	    ((std & V4L2_STD_SECAM) ? VIDEO_MODE_SECAM : VIDEO_MODE_NTSC);
 }
 
 #endif /* IVTV_DRIVER_H */

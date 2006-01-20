@@ -112,24 +112,16 @@ static struct v4l2_input ivtv_pvr_inputs[] = {
 };
 
 static struct v4l2_input ivtv_pvr150_inputs[] = {
-        {
-                .index = 0,
-                .name = "S-Video 0",
-                .type = V4L2_INPUT_TYPE_CAMERA,
+	{
+		.index = 0,
+		.name = "Tuner",
+                .type = V4L2_INPUT_TYPE_TUNER,
                 .audioset = 3,
                 .tuner = 0,
                 .status = 0,
                 .std = V4L2_STD_ALL,
         }, {
                 .index = 1,
-                .name = "S-Video 1",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 2,
                 .name = "Composite 0",
                 .type = V4L2_INPUT_TYPE_CAMERA,
                 .audioset = 3,
@@ -137,7 +129,7 @@ static struct v4l2_input ivtv_pvr150_inputs[] = {
                 .status = 0,
                 .std = V4L2_STD_ALL,
         }, {
-                .index = 3,
+                .index = 2,
                 .name = "Composite 1",
                 .type = V4L2_INPUT_TYPE_CAMERA,
                 .audioset = 3,
@@ -145,33 +137,17 @@ static struct v4l2_input ivtv_pvr150_inputs[] = {
                 .status = 0,
                 .std = V4L2_STD_ALL,
         }, {
+                .index = 3,
+                .name = "S-Video 0",
+                .type = V4L2_INPUT_TYPE_CAMERA,
+                .audioset = 3,
+                .tuner = 0,
+                .status = 0,
+                .std = V4L2_STD_ALL,
+        }, {
                 .index = 4,
-                .name = "Composite 2",
+                .name = "S-Video 1",
                 .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 5,
-                .name = "Composite 3",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 6,
-                .name = "Tuner 0",
-                .type = V4L2_INPUT_TYPE_TUNER,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 7,
-                .name = "Tuner 1",
-                .type = V4L2_INPUT_TYPE_TUNER,
                 .audioset = 3,
                 .tuner = 0,
                 .status = 0,
@@ -183,53 +159,6 @@ static const int ivtv_pvr_inputs_size =
     sizeof(ivtv_pvr_inputs) / sizeof(ivtv_pvr_inputs[0]);
 static const int ivtv_pvr150_inputs_size =
     sizeof(ivtv_pvr150_inputs) / sizeof(ivtv_pvr150_inputs[0]);
-
-static struct v4l2_input ivtv_pg600_inputs[] = {
-        {
-                .index = 0,
-                .name = "S-Video 0",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 1,
-                .name = "Tuner",
-                .type = V4L2_INPUT_TYPE_TUNER,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 2,
-                .name = "Composite",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 3,
-                .name = "Audio tuner in",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }, {
-                .index = 4,
-                .name = "Audio line in",
-                .type = V4L2_INPUT_TYPE_CAMERA,
-                .audioset = 3,
-                .tuner = 0,
-                .status = 0,
-                .std = V4L2_STD_ALL,
-        }
-};
-
-static const int ivtv_pg600_inputs_size =
-    sizeof(ivtv_pg600_inputs) / sizeof(ivtv_pg600_inputs[0]);
 
 /* Inputs for MPG600/MPG160/M179 cards */
 static struct v4l2_input ivtv_mpg_inputs[] = {
@@ -303,14 +232,11 @@ const struct v4l2_input *ivtv_get_input(struct ivtv *itv, u16 index)
 		if (index >= ivtv_mpg_inputs_size)
 			return NULL;
 		return &ivtv_mpg_inputs[index];
+	case IVTV_CARD_PG600:
 	case IVTV_CARD_PVR_150:
 		if (index >= ivtv_pvr150_inputs_size)
 			return NULL;
 		return &ivtv_pvr150_inputs[index];
-	case IVTV_CARD_PG600:
-		if (index >= ivtv_pg600_inputs_size)
-			return NULL;
-		return &ivtv_pg600_inputs[index];
 	default:
 		if (index >= ivtv_pvr_inputs_size)
 			return NULL;
@@ -421,7 +347,7 @@ const struct v4l2_audio *ivtv_get_audio_input(struct ivtv *itv, u16 index)
 		if (index >= ivtv_pvr150_audio_inputs_size)
 			return NULL;
 		return &ivtv_pvr150_audio_inputs[index];
-		break;
+
 	default:
 		if (index >= ivtv_pvr_audio_inputs_size)
 			return NULL;
@@ -447,8 +373,6 @@ const struct v4l2_audioout *ivtv_get_audio_output(struct ivtv *itv, u16 index)
 }
 
 #define V4L2_CAP_ENCODER (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER | \
-		          V4L2_CAP_AUDIO | V4L2_CAP_READWRITE | V4L2_CAP_VBI_CAPTURE)
-#define V4L2_CAP_ENCODER_SLICED (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER | \
 		          V4L2_CAP_AUDIO | V4L2_CAP_READWRITE | V4L2_CAP_VBI_CAPTURE | \
                           V4L2_CAP_SLICED_VBI_CAPTURE)
 #define V4L2_CAP_DECODER (V4L2_CAP_VBI_OUTPUT | V4L2_CAP_VIDEO_OUTPUT | \
@@ -462,6 +386,10 @@ const struct v4l2_audioout *ivtv_get_audio_output(struct ivtv *itv, u16 index)
 #define IVTV_PG600_TUNER_I2C_ADDR 	0x61
 #define IVTV_AVC2410_TUNER_I2C_ADDR	0x60
 
+/* Please add new PCI IDs to: http://pci-ids.ucw.cz/iii
+   This keeps the PCI ID database up to date. Note that the entries
+    must be added under vendor 0x4444 (Conexant) as subsystem IDs.
+    New vendor IDs should still be added to the vendor ID list. */
 static const struct ivtv_card_pci_info ivtv_pci_pvr150[] = {
 	{PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x8801},
 	{PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x8003},
@@ -471,8 +399,9 @@ static const struct ivtv_card_pci_info ivtv_pci_pvr150[] = {
 	{PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0xc801},
 	{PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x0801},
 	{PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x0009},
-        // New Hauppauge vendor ID? 
+        // Alternate Hauppauge vendor IDs 
 	{PCI_DEVICE_ID_IVTV16, 0x0270,                0x0801},
+	{PCI_DEVICE_ID_IVTV16, 0x4070,                0x8801},
 	{0, 0, 0}
 };
 
@@ -529,7 +458,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         {
                 .type = IVTV_CARD_PVR_250,
                 .name = "WinTV PVR 250",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_MSP34XX,
 
                 .video_dec_func = ivtv_saa7115,
@@ -541,7 +470,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_PVR_350,
                 .name = "WinTV PVR 350",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED | V4L2_CAP_DECODER,
+                .v4l2_capabilities = V4L2_CAP_ENCODER | V4L2_CAP_DECODER,
                 .audio_selector = USE_MSP34XX,
 
                 .video_dec_func = ivtv_saa7115,
@@ -553,7 +482,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_M179,
                 .name = "AVerMedia M179",
-                .v4l2_capabilities = V4L2_CAP_ENCODER & ~V4L2_CAP_VBI_CAPTURE,	// No VBI (yet)
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_GPIO,
 
                 .video_dec_func = ivtv_saa7115,
@@ -565,7 +494,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_MPG600,
                 .name = "YUAN MPG600/Kuroutoshikou ITVC16-STVLP",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_GPIO,
 
                 .video_dec_func = ivtv_saa7115,
@@ -577,7 +506,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_MPG160,
                 .name = "YUAN MPG160/Kuroutoshikou ITVC15-STVLP",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_GPIO,
 
                 .video_dec_func = ivtv_saa7115,
@@ -589,7 +518,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_PVR_150,
                 .name = "WinTV PVR 150",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_PVR150,
 
                 .video_dec_func = ivtv_cx25840,
@@ -601,7 +530,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
                 .type = IVTV_CARD_PG600,
                 .name = "YUAN PG600/DIAMOND PVR-550 (CX FALCON2)",
-                .v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+                .v4l2_capabilities = V4L2_CAP_ENCODER,
                 .audio_selector = USE_CX25840,
 
                 .video_dec_func = ivtv_cx25840,
@@ -613,7 +542,7 @@ static const struct ivtv_card ivtv_card_list[] = {
         }, {
 		.type = IVTV_CARD_AVC2410,
 		.name = "Adaptec VIDEOH! AVC-2410",
-		.v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+		.v4l2_capabilities = V4L2_CAP_ENCODER,
 		.audio_selector = USE_MSP34XX,
 
 		.video_dec_func = ivtv_saa7115,
@@ -624,7 +553,7 @@ static const struct ivtv_card ivtv_card_list[] = {
 	}, {
 		.type = IVTV_CARD_AVC2010,
 		.name = "Adaptec VIDEOH! AVC-2010",
-		.v4l2_capabilities = V4L2_CAP_ENCODER_SLICED,
+		.v4l2_capabilities = V4L2_CAP_ENCODER,
 		.audio_selector = USE_CS53L32A,
 
 		.video_dec_func = ivtv_saa7115,

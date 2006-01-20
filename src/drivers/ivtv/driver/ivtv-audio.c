@@ -25,8 +25,8 @@
 #include "ivtv-audio.h"
 #include "ivtv-kthreads.h"
 #include "msp3400.h"
-#include "wm8775.h"
-#include "cs53l32a.h"
+#include "v4l2-common.h"
+#include "audiochip.h"
 
 /* Switching audio input for WIN-PVR250/350 and MSP34XX based card */
 /* Note that this will always override any changes to the audio input made
@@ -37,38 +37,26 @@ static int ivtv_set_audio_for_msp34xx(struct ivtv *itv, u32 input, u32 output)
 	struct msp_matrix mspm;
 	struct video_audio va;
 
-	if (input >= 0 && input <= 2) {
-		IVTV_DEBUG_INFO("Setting audio to input %d\n", input);
-		mspm.output = output;
-		switch (input) {
-		case 0:	/* Tuner Audio */
-			mspm.input = 3;
-			break;
-		case 1:	/* Audio-In (Line-in) */
-			mspm.input = 1;
-			break;
-		case 2:	/* Radio-In */
-			mspm.input = 2;
-			break;
-		default:
-			mspm.input = 3;
-			break;
-		}
-		IVTV_DEBUG_INFO(
-			   "Setting audio matrix to input %d, output %d\n",
-			   mspm.input, mspm.output);
-		ivtv_msp34xx(itv, MSP_SET_MATRIX, &mspm);
-
-		memset(&va, 0, sizeof(struct video_audio));
-		ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
-		va.flags &= ~VIDEO_AUDIO_MUTE;
-		ivtv_msp34xx(itv, VIDIOCSAUDIO, &va);
-		return 0;
+	/* input: 0 = tuner audio, 1 = line-in, 2 = radio */
+	if (input > 2) {
+		IVTV_ERR("Invalid audio input, shouldn't happen!\n");
+		return -EINVAL;
 	}
 
-	IVTV_ERR("Invalid audio input, shouldn't happen!\n");
+	IVTV_DEBUG_INFO("Setting audio to input %d\n", input);
+	mspm.output = output;
+	if (input == 0)	/* Tuner Audio */
+		input = itv->msp34xx_tuner_input;
+	mspm.input = input;
+	IVTV_DEBUG_INFO("Setting audio matrix to input %d, output %d\n",
+		   mspm.input, mspm.output);
+	ivtv_msp34xx(itv, MSP_SET_MATRIX, &mspm);
 
-	return -EINVAL;
+	memset(&va, 0, sizeof(struct video_audio));
+	ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
+	va.flags &= ~VIDEO_AUDIO_MUTE;
+	ivtv_msp34xx(itv, VIDIOCSAUDIO, &va);
+	return 0;
 }
 
 /* switching audio input for MPG600/MPG160/M179 (controlled by GPIO) */
@@ -96,54 +84,41 @@ static int ivtv_set_audio_for_gpio(struct ivtv *itv, u32 audio_input)
 
 static int ivtv_set_audio_for_cx25840(struct ivtv *itv, u32 audio_input)
 {
-	if (audio_input <= 4) {
-		int cx_input = (int)audio_input;
+	int cx_input;
 
-		IVTV_DEBUG_INFO(
-			"Setting audio to input %d\n", audio_input);
-
-		ivtv_cx25840(itv, DECODER_SET_AUDIO_INPUT, &cx_input);
-
-		return 0;
+	switch (audio_input) {
+	case 0: cx_input = AUDIO_TUNER; break;
+	case 1: cx_input = AUDIO_EXTERN_1; break;
+	case 2: cx_input = AUDIO_EXTERN_2; break;
+	case 3: cx_input = AUDIO_INTERN; break;
+	case 4: cx_input = AUDIO_RADIO; break;
+	default:
+		IVTV_ERR("Invalid audio input, shouldn't happen!\n");
+		return -EINVAL;
 	}
 
-	IVTV_ERR("Invalid audio input, shouldn't happen!\n");
-
-	return -EINVAL;
+	IVTV_DEBUG_INFO("Setting audio to input %d\n", audio_input);
+	ivtv_cx25840(itv, AUDC_SET_INPUT, &cx_input);
+	return 0;
 }
 
 
 /* switching audio input on PVR-150/500, only tested on 150 thus far */
 static int ivtv_set_audio_for_pvr150(struct ivtv *itv, u32 audio_input)
 {
-        int wm_input = 0;
+	int wm_input;
 
-        switch (audio_input) {
-                case 0: // TV
-                        wm_input = 0; // TV audio bypasses wm8775
-                        break;
+	switch (audio_input) {
+	case 0: wm_input = AUDIO_TUNER; break;
+	case 1: wm_input = AUDIO_EXTERN_1; break;
+	case 2: wm_input = AUDIO_EXTERN_2; break;
+	case 3: wm_input = AUDIO_INTERN; break;
+	case 4: wm_input = AUDIO_RADIO; break;
+	default: return -EINVAL;
+	}
 
-                case 1: // external line in 1 (???)
-                        wm_input = 0x01;
-                        break;
-
-                case 2: // external line in 2 (back panel)
-                        wm_input = 0x02;
-                        break;
-                case 3: // external line in 3 (internal connector)
-                        wm_input = 0x04;
-                        break;
-
-                case 4: // external line in 4 FM Radio
-                        wm_input = 0x08;
-                        break;
-
-                default:
-                        return -EINVAL;
-        }
-
-        ivtv_wm8775(itv, WM8775_SET_INPUT, &wm_input);
-        return 0;
+	ivtv_wm8775(itv, AUDC_SET_INPUT, &wm_input);
+	return 0;
 }
 
 static int ivtv_set_audio_for_adaptec(struct ivtv *itv, u32 audio_input)
@@ -152,18 +127,18 @@ static int ivtv_set_audio_for_adaptec(struct ivtv *itv, u32 audio_input)
 
 	switch (audio_input) {
 		case 0: // TV
-			cs_input = 0x01;
+			cs_input = AUDIO_TUNER;
 			break;
 			
 		case 1: // external line in
-			cs_input = 0x21;
+			cs_input = AUDIO_EXTERN;
 			break;
 			
 		default:
 			return -EINVAL;
 	}
 
-	ivtv_cs53l32a(itv, CS53L32A_SET_INPUT, &cs_input);
+	ivtv_cs53l32a(itv, AUDC_SET_INPUT, &cs_input);
 	return 0;
 }
 
@@ -209,6 +184,7 @@ int ivtv_audio_set_io(struct ivtv *itv)
 void ivtv_audio_set_volume(struct ivtv *itv, int volume)
 {
 	struct video_audio va;
+	struct v4l2_control ctrl;
 	memset(&va, 0, sizeof(struct video_audio));
 
 	switch (itv->card->audio_selector) {
@@ -222,9 +198,9 @@ void ivtv_audio_set_volume(struct ivtv *itv, int volume)
 		break;		/* Need volume control adjust here */
         case USE_PVR150:
 	case USE_CX25840:
-		ivtv_cx25840(itv, VIDIOCGAUDIO, &va);
-		va.volume = volume;
-		ivtv_cx25840(itv, VIDIOCSAUDIO, &va);
+		ctrl.id = V4L2_CID_AUDIO_VOLUME;
+		ctrl.value = volume;
+		ivtv_cx25840(itv, VIDIOC_S_CTRL, &ctrl);
 		break;
 	case USE_GPIO:
 		/* do nothing, there's no volume control */
@@ -235,6 +211,7 @@ void ivtv_audio_set_volume(struct ivtv *itv, int volume)
 int ivtv_audio_get_volume(struct ivtv *itv)
 {
 	struct video_audio va;
+	struct v4l2_control ctrl;
 	memset(&va, 0, sizeof(struct video_audio));
 
 	switch (itv->card->audio_selector) {
@@ -245,8 +222,9 @@ int ivtv_audio_get_volume(struct ivtv *itv)
 		break;
         case USE_PVR150:
 	case USE_CX25840:
-		ivtv_cx25840(itv, VIDIOCGAUDIO, &va);
-		break;
+		ctrl.id = V4L2_CID_AUDIO_VOLUME;
+		ivtv_cx25840(itv, VIDIOC_G_CTRL, &ctrl);
+		return ctrl.value;
 	case USE_GPIO:
 		/* do nothing, there's no volume control */
 		va.volume = 65535;	/* dummy code */
@@ -258,6 +236,7 @@ int ivtv_audio_get_volume(struct ivtv *itv)
 void ivtv_audio_set_mute(struct ivtv *itv, int mute)
 {
 	struct video_audio va;
+	struct v4l2_control ctrl;
 
 	switch (itv->card->audio_selector) {
 	case USE_MSP34XX:
@@ -274,13 +253,9 @@ void ivtv_audio_set_mute(struct ivtv *itv, int mute)
                 break;
         case USE_PVR150:
 	case USE_CX25840:
-		memset(&va, 0, sizeof(struct video_audio));
-		ivtv_cx25840(itv, VIDIOCGAUDIO, &va);
-		if (mute)
-			va.flags |= VIDEO_AUDIO_MUTE;
-		else
-			va.flags &= ~VIDEO_AUDIO_MUTE;
-		ivtv_cx25840(itv, VIDIOCSAUDIO, &va);
+		ctrl.id = V4L2_CID_AUDIO_MUTE;
+		ctrl.value = mute;
+		ivtv_cx25840(itv, VIDIOC_S_CTRL, &ctrl);
 		break;
 	case USE_GPIO:
 		if (mute)
@@ -294,6 +269,7 @@ void ivtv_audio_set_mute(struct ivtv *itv, int mute)
 int ivtv_audio_get_mute(struct ivtv *itv)
 {
 	struct video_audio va;
+	struct v4l2_control ctrl;
 
 	memset(&va, 0, sizeof(struct video_audio));
 	switch (itv->card->audio_selector) {
@@ -304,8 +280,9 @@ int ivtv_audio_get_mute(struct ivtv *itv)
 		break;
         case USE_PVR150:
 	case USE_CX25840:
-		ivtv_cx25840(itv, VIDIOCGAUDIO, &va);
-		break;
+		ctrl.id = V4L2_CID_AUDIO_MUTE;
+		ivtv_cx25840(itv, VIDIOC_G_CTRL, &ctrl);
+		return ctrl.value;
 	case USE_GPIO:
 		if (ivtv_get_gpio_audio(itv, IVTV_GPIO_AUDIO_MUTE))
 			va.flags = VIDEO_AUDIO_MUTE;
@@ -314,17 +291,17 @@ int ivtv_audio_get_mute(struct ivtv *itv)
 	return va.flags & VIDEO_AUDIO_MUTE;
 }
 
-void ivtv_audio_set_norm(struct ivtv *itv, struct video_channel *v)
+void ivtv_audio_set_std(struct ivtv *itv)
 {
 	switch (itv->card->audio_selector) {
 	case USE_MSP34XX:
-		ivtv_msp34xx(itv, VIDIOCSCHAN, v);
+		ivtv_msp34xx(itv, VIDIOC_S_STD, &itv->std);
 		break;
 	case USE_CS53L32A:
 		break;
         case USE_PVR150:
 	case USE_CX25840:
-                // Already handled by DECODER_SET_NORM
+                // Already handled by VIDIOC_S_STD
 		break;
 	case USE_GPIO:
 		ivtv_set_gpio_audio(itv, IVTV_GPIO_AUDIO_TUNER);
@@ -401,19 +378,19 @@ u32 ivtv_audio_get_rxsubchans(struct ivtv *itv, struct v4l2_tuner *vt)
    mono/stereo/multilang. */
 void ivtv_audio_freq_changed(struct ivtv *itv)
 {
-	unsigned long freq = 0;		/* Value is ignored by msp34xx */
+	struct v4l2_frequency vf = { 0, 0 }; /* Value is ignored by msp34xx */
 
 	switch (itv->card->audio_selector) {
 	case USE_MSP34XX:
-		ivtv_msp34xx(itv, VIDIOCSFREQ, &freq);
+		ivtv_msp34xx(itv, VIDIOC_S_FREQUENCY, &vf);
 		break;
 	case USE_CS53L32A:
 		break;
         case USE_PVR150:
-		ivtv_wm8775(itv, VIDIOCSFREQ, &freq);
-                /* fall through */
+		ivtv_wm8775(itv, VIDIOC_S_FREQUENCY, &vf);
+		/* fall through */
 	case USE_CX25840:
-		ivtv_cx25840(itv, VIDIOCSFREQ, &freq);
+		ivtv_cx25840(itv, VIDIOC_S_FREQUENCY, &vf);
                 break;
 	case USE_GPIO:
 		break;
@@ -450,20 +427,22 @@ int ivtv_audio_set_matrix(struct ivtv *itv, struct ivtv_msp_matrix *matrix)
 	return 0;
 }
 
-void ivtv_audio_set_samplerate(struct ivtv *itv, int samplerate)
+void ivtv_audio_set_audio_clock_freq(struct ivtv *itv, u8 freq)
 {
-        switch (itv->card->audio_selector) {
-        case USE_MSP34XX:
-                break;
-	case USE_CS53L32A:
-		break;
-        case USE_PVR150:
-        case USE_CX25840:
-                ivtv_cx25840(itv, DECODER_SET_AUDIO, &samplerate);
-                break;
-        case USE_GPIO:
-                ivtv_set_gpio_audiosamplerate(itv, samplerate);
-                break;
+	static enum v4l2_audio_clock_freq freqs[3] = {
+		V4L2_AUDCLK_441_KHZ,
+		V4L2_AUDCLK_48_KHZ,
+		V4L2_AUDCLK_32_KHZ,
+	};
+
+	/* Also upgrade the digitizer setting. The audio clock of the
+	   digitizer must match the codec sample rate otherwise you get
+	   some very strange effects. */
+	if (freq > 2)
+		return;
+	itv->card->video_dec_func(itv, VIDIOC_INT_AUDIO_CLOCK_FREQ, &freqs[freq]);
+        if (itv->card->audio_selector == USE_GPIO) {
+                ivtv_set_gpio_audio_clock_freq(itv, freq);
         }
 }
 

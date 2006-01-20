@@ -1,6 +1,6 @@
 /*
     Reset firmware function
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
  */
 
 #include "ivtv-driver.h"
-#include "ivtv-dma.h"
 #include "ivtv-firmware.h"
 #include "ivtv-fileops.h"
 #include "ivtv-i2c.h"

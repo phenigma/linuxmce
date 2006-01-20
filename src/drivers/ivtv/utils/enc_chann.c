@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <linux/types.h>
+#define __user
 #include "videodev2.h"
 
 #define VIDIOC_S_FREQUENCY2 0x402c5639

@@ -163,6 +163,7 @@ static int ivtv_queryctrl(struct ivtv *itv, struct v4l2_queryctrl *qctrl)
 {
 	const char *name;
 
+	IVTV_DEBUG_IOCTL("VIDIOC_QUERYCTRL(%d)\n", qctrl->id);
 	switch (qctrl->id) {
 		/* Audio controls */
 	case V4L2_CID_IVTV_FREQ:
@@ -268,9 +269,9 @@ static int ivtv_queryctrl(struct ivtv *itv, struct v4l2_queryctrl *qctrl)
 
 static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 {
-	struct decoder_state pic;
 	s32 v = vctrl->value;
 
+	IVTV_DEBUG_IOCTL("VIDIOC_S_CTRL(%d, %x)\n", vctrl->id, v);
 	switch (vctrl->id) {
 		/* Audio controls */
 	case V4L2_CID_IVTV_FREQ:
@@ -278,10 +279,7 @@ static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 			return -ERANGE;
 		itv->codec.audio_bitmask &= ~3;
 		itv->codec.audio_bitmask |= v;
-		/* Also upgrade the digitizer setting */
-		/* FIXME not obvious how this works
-		 *  (see ivtv_ctrl_query_freq[]) */
-		itv->card->video_dec_func(itv, DECODER_SET_AUDIO, &v);
+		ivtv_audio_set_audio_clock_freq(itv, v);
 		break;
 	case V4L2_CID_IVTV_ENC:
 		if ((v < 0) || (v > 2))
@@ -371,33 +369,10 @@ static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 
 		/* Standard V4L2 controls */
 	case V4L2_CID_BRIGHTNESS:
-		if (v < 0 || v > 255)
-			return -ERANGE;
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		pic.bright = v;
-		itv->card->video_dec_func(itv, DECODER_SET_STATE, &pic);
-		break;
 	case V4L2_CID_HUE:
-		if (v < -128 || v > 127)
-			return -ERANGE;
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		pic.hue = v;
-		itv->card->video_dec_func(itv, DECODER_SET_STATE, &pic);
-		break;
 	case V4L2_CID_SATURATION:
-		if (v < 0 || v > 127)
-			return -ERANGE;
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		pic.sat = v;
-		itv->card->video_dec_func(itv, DECODER_SET_STATE, &pic);
-		break;
 	case V4L2_CID_CONTRAST:
-		if (v < 0 || v > 127)
-			return -ERANGE;
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		pic.contrast = v;
-		itv->card->video_dec_func(itv, DECODER_SET_STATE, &pic);
-		break;
+		return itv->card->video_dec_func(itv, VIDIOC_S_CTRL, vctrl);
 	case V4L2_CID_AUDIO_VOLUME:
 		if (v > 65535 || v < 0)
 			return -ERANGE;
@@ -417,7 +392,7 @@ static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 
 static int ivtv_g_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 {
-	struct decoder_state pic;
+	IVTV_DEBUG_IOCTL("VIDIOC_G_CTRL(%d)\n", vctrl->id);
 
 	switch (vctrl->id) {
 		/* Audio controls */
@@ -474,21 +449,10 @@ static int ivtv_g_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 
 		/* Standard V4L2 controls */
 	case V4L2_CID_BRIGHTNESS:
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		vctrl->value = pic.bright;
-		break;
 	case V4L2_CID_HUE:
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		vctrl->value = pic.hue;
-		break;
 	case V4L2_CID_SATURATION:
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		vctrl->value = pic.sat;
-		break;
 	case V4L2_CID_CONTRAST:
-		itv->card->video_dec_func(itv, DECODER_GET_STATE, &pic);
-		vctrl->value = pic.contrast;
-		break;
+		return itv->card->video_dec_func(itv, VIDIOC_G_CTRL, vctrl);
 	case V4L2_CID_AUDIO_VOLUME:
 		vctrl->value = ivtv_audio_get_volume(itv);
 		break;
@@ -510,15 +474,12 @@ int ivtv_control_ioctls(struct ivtv *itv, unsigned int cmd, void *arg)
 		return ivtv_querymenu(itv, arg);
 
 	case VIDIOC_QUERYCTRL:
-	        IVTV_DEBUG_IOCTL("VIDIOC_QUERYCTRL\n");
 		return ivtv_queryctrl(itv, arg);
 
 	case VIDIOC_S_CTRL:
-	        IVTV_DEBUG_IOCTL("VIDIOC_S_CTRL\n");
 		return ivtv_s_ctrl(itv, arg);
 
 	case VIDIOC_G_CTRL:
-	        IVTV_DEBUG_IOCTL("VIDIOC_G_CTRL\n");
 		return ivtv_g_ctrl(itv, arg);
 
 	default:

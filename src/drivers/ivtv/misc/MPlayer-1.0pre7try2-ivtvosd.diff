@@ -767,7 +767,7 @@ diff -Nur MPlayer-1.0pre7try2/libvo/vo_ivtvosd.c MPlayer-1.0pre7try2-ivtvosd/lib
 +{
 +	"IVTV OSD",
 +	"ivtvosd",
-+	"Chris Kennedy (ckennedy@kmos.org)",
++	"Chris Kennedy (c@groovy.org)",
 +	""
 +};
 +

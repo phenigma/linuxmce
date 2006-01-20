@@ -1,91 +1,5 @@
-Instructions for making ivtv-fb work with XFree86:
-Add the following sections and parts thereof to /etc/X11/XF86Config:
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-# NOTE: The monitor section is obtainable by running:
-# fbset -fb /dev/fb1 -x
-# (or /dev/fbX for whatever framebuffer ivtv-fb is on
-#  as discussed in install.txt)
-#
-Section "Monitor"
-    Identifier  "NTSC Monitor"
-    HorizSync  30-68
-    VertRefresh 50-120
-    Mode "720x480"
-      # D: 34.563 MHz, H: 37.244 kHz, V: 73.897 Hz
-      DotClock 34.564
-      HTimings 720 752 840 928
-      VTimings 480 484 488 504
-      Flags    "-HSync" "-VSync"
-    EndMode
-EndSection
-
-# Uncomment the following for PAL
-#Section "Monitor"
-#    Identifier  "PAL Monitor"
-#    HorizSync  30-68
-#    VertRefresh 50-120
-#    Mode "720x576"
-#    # D: 41.475 MHz, H: 44.693 kHz, V: 74.488 Hz
-#      DotClock 41.476
-#      HTimings 720 752 840 928
-#      VTimings 576 580 584 600
-#      Flags    "-HSync" "-VSync"
-#    EndMode
-#EndSection
-
-Section "Device"
-    Identifier  "Hauppauge PVR 350 iTVC15 Framebuffer"
-    Driver      "fbdev"
-    Option      "fbdev" "/dev/fb1"      # <-- modify if using another device
-    BusID "0:10:0"                      # <-- obtain from lspci (see later)
-EndSection
-
-Section "Screen"
-  Identifier  "TV Screen"
-  Device      "Hauppauge PVR 350 iTVC15 Framebuffer"
-  Monitor     "NTSC Monitor"            # <-- select for NTSC
-#  Monitor     "PAL Monitor"            # <-- select for PAL
-  DefaultDepth 24
-  DefaultFbbpp 32
-  Subsection "Display"
-    Depth 24
-    FbBpp 32
-    Modes "720x480"                     # <-- select for NTSC
-#    Modes "720x576"                    # <-- select for PAL
-  EndSubsection
-EndSection
-
-Section "ServerLayout"
-  ...
-
-  Screen 0 "Screen 1"                      # << (your computer monitor)
-
-  # (add the following line)
-  Screen 1 "TV Screen" RightOf "Screen 1"  # << (TV screen)
-
-  ...
-EndSection
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-Then start X as usual; both your normal (computer) monitor and the
-NTSC or PAL TV monitor should display the default X background.
-
-Note the "RightOf" clause above: if you move the mouse off the right
-side of the computer screen, the pointer should appear on your TV
-screen. Keyboard events will go to windows in either screen.
-
-To start a program (e.g., xterm) on the TV only:
-
- export DISPLAY=:0.1         (i.e., X server #0, screen #1 = TV)
- xterm&
-
-There is also a way to join both the computer monitor and TV into
-one giant virtual screen using the Xinerama extension, but I haven't 
-tried it. Doing so may not be such a good idea anyway, as you obviously
-wouldn't want random X windows getting moved over the TV picture.
-
-
-A note on unloading the fb driver:
+Unloading ivtv-fb
+=================
 
 If you want to be able to unload the framebuffer driver (and you aren't
 already using fbcon),  add this to your lilo config:
@@ -124,17 +38,17 @@ ivtvfbctl /dev/fbX
     [-localalpha|-nolocalalpha]
     [-flicker|-noflicker]
     [-alpha<alpha>]
-
+    [--set-yuv-mode=<param>]
 
 [-on|-off] 
 enables/disables the framebuffer
 This is [FIX]
 
 [-globalalpha|-noglobalalpha]
-[FIX no idea] 
+Enables or disables the global alpha (as set by -alpha)
 
 [-localalpha|-nolocalalpha]
-[FIX no idea]
+enables or disables local alpha (value stored in each pixel value in the frame buffer)
 
 [-flicker|-noflicker]
 If flicker is on then updates are done at any time and may flicker.
@@ -142,10 +56,20 @@ If noflicker is set then updates are done at vertical refreshes.
 [FIX - blind guess, maybe double buffering?]
 
 [-alpha<alpha>]
-Sets the transparency level for the framebuffer.
+Sets the global transparency level for the framebuffer.
 
-If this is set to 0 the framebuffer is completely transparent.
-If it's set to 255 it's completely opaque. [FIX check not inverted meaning]
-Note that even if it set to 0 it will still produce a slight 'haze'
-and should be turned off in this case.
+
+Setting the Alpha values for the framebuffer
+============================================
+
+The Framebuffer is overlayed on top of the mpeg decoder and the alpha values define how 
+the two displays are merged. If the alpha value is set to 255 then the framebuffer completely blocks 
+the mpeg decoder display. If the alpha value is set to 0 then mpeg decoder is displayed and no 
+framebuffer is displayed. Values in between allow the two displays to be merged so they can both be seen.
+Turning off the alpha (-noglobalalpha -nolocalalpha) means no merging is done and the framebuffer is displayed.
+The alpha value can be set in 2 ways. 
+globalalpha is a single setting that uses the value set with the -alpha 
+option to define the value used for the complete frame buffer.
+localalpha allows the value to be defined per pixel using the lower 8 bits of each pixel to define the 
+alpha value used for that pixel.
 

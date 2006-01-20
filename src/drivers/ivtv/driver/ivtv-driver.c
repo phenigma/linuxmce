@@ -5,7 +5,7 @@
     Card autodetect:
     Copyright (C) 2004  Hans Verkuil <hverkuil@xs4all.nl>
 
-    Copyright (C) 2004  Chris Kennedy ckennedy@kmos.org
+    Copyright (C) 2004  Chris Kennedy <c@groovy.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@
  */
 
 /* Main Driver file for the ivtv project:
- * Driver for the iTVC15 chip.
+ * Driver for the Conexant CX23415/CX23416 chip.
  * Author: Kevin Thayer (nufan_wfk at yahoo.com)
  * License: GPL
- * http://www.sourceforge.net/projects/ivtv/
+ * http://www.ivtvdriver.org
  * 
  * -----
  * MPG600/MPG160 support by  T.Adachi <tadachi@tadachi-net.com>
@@ -51,9 +51,8 @@
 #include "ivtv-cards.h"
 #include "ivtv-vbi.h"
 #include "ivtv-audio.h"
-#include "ivtv-dma.h"
-#include "cx25840.h"
 #include "ivtv-gpio.h"
+#include "v4l2-common.h"
 
 #ifdef LINUX26
 #include <linux/vermagic.h>
@@ -168,6 +167,8 @@ int ivtv_debug = IVTV_DBGFLG_WARN;
 
 int errno;
 
+int newi2c = 1;
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
 module_param(yuv_fixup, int, 0644);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 10)
@@ -208,6 +209,7 @@ module_param(max_dec_mpg_buffers, int, 0644);
 module_param(max_dec_yuv_buffers, int, 0644);
 module_param(max_dec_vbi_buffers, int, 0644);
 module_param(max_dec_osd_buffers, int, 0644);
+module_param(newi2c, int, 0644);
 #else
 MODULE_PARM(yuv_fixup, "i");
 MODULE_PARM(tuner, "1-" __stringify(IVTV_MAX_CARDS) "i");
@@ -241,7 +243,7 @@ MODULE_PARM(max_dec_mpg_buffers, "i");
 MODULE_PARM(max_dec_yuv_buffers, "i");
 MODULE_PARM(max_dec_vbi_buffers, "i");
 MODULE_PARM(max_dec_osd_buffers, "i");
-
+MODULE_PARM(newi2c, "i");
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0) */
 
 MODULE_PARM_DESC(yuv_fixup,
@@ -343,12 +345,16 @@ MODULE_PARM_DESC(max_dec_osd_buffers,
 		 "Max Dec OSD Buffers (in megs)\n"
 		 "\t\t\tDefault: " IVTV_MAX_DEC_OSD_BUFFERS_CNT);
 
+MODULE_PARM_DESC(newi2c,
+		 "Use new I2C implementation\n"
+		 "\t\t\t default is 1 (yes)");
+
 MODULE_PARM_DESC(ivtv_first_minor, "Set minor assigned to first card");
 
-MODULE_AUTHOR("Kevin Thayer");
-MODULE_DESCRIPTION("iTVC15_16 driver");
+MODULE_AUTHOR("Kevin Thayer, Chris Kennedy, Hans Verkuil");
+MODULE_DESCRIPTION("CX23415/CX23416 driver");
 MODULE_SUPPORTED_DEVICE
-    ("iTVC15_16 mpg2 encoder (WinTV PVR-150/250/350/500,\n"
+    ("CX23415/CX23416 MPEG2 encoder (WinTV PVR-150/250/350/500,\n"
 		"\t\t\t Yuan MPG series and similar)");
 MODULE_LICENSE("GPL");
 
@@ -457,6 +463,7 @@ static void ivtv_iounmap(struct ivtv *itv)
 /* Hauppauge card? get values from tveeprom */
 static int ivtv_read_eeprom(struct ivtv *itv)
 {
+	const struct ivtv_card *card = itv->card;
 	u32 eepromdata[5];
 	int ret;
 
@@ -490,23 +497,35 @@ static int ivtv_read_eeprom(struct ivtv *itv)
                 }
         }
 
-#if 0
-        // not yet...
         switch (eepromdata[2]) {
-                // There is one confirmed case where this card
-                // uses the PCI subsystem IDs of the PVR250, thus
-                // being misidentified. Correct this based on the
-                // more reliable eeprom model number.
+                // In a few cases the PCI subsystem IDs do not correctly
+		// identify the card. A better method is to check the
+		// model number from the eeprom instead.
                 case 26034:
                         itv->card = ivtv_get_card(IVTV_CARD_PVR_150);
                         break;
+		case 32032:
+		case 32034:
+		case 32062:
+                        itv->card = ivtv_get_card(IVTV_CARD_PVR_250);
+			break;
+		/* Old style PVR350 (with an saa7114) uses this input for
+		   the tuner. */
+		case 48254:
+			itv->msp34xx_tuner_input = 7;
+			break;
                 default:
                         break;
         }
-#endif
+	if (card != itv->card) {
+        	itv->card_name = itv->card->name;
+		IVTV_INFO("Corrected autodetection from %s to %s\n",
+				card->name, itv->card_name);
+	}
 
 	if (itv->options.tuner == -1)
 		itv->options.tuner = eepromdata[0];
+	itv->pvr150_workaround = itv->options.tuner == TUNER_TCL_2002N;
 	if (itv->options.radio == -1)
 		itv->options.radio = (eepromdata[4] != 0);
 	if (itv->std != 0) {
@@ -570,9 +589,10 @@ static void ivtv_process_options(struct ivtv *itv)
 	itv->options.radio = radio[itv->num];
 	itv->options.tda9887 = tda9887[itv->num];
 	itv->options.dynbuf = ivtv_dynbuf;
+	itv->options.newi2c = newi2c;
 
-        itv->has_itvc15 = (itv->dev->device == PCI_DEVICE_ID_IVTV15);
-        chipname = itv->has_itvc15 ? "iTVC15" : "iTVC16";
+        itv->has_cx23415 = (itv->dev->device == PCI_DEVICE_ID_IVTV15);
+        chipname = itv->has_cx23415 ? "cx23415" : "cx23416";
 	if ((itv->card = ivtv_get_card(itv->options.cardtype - 1))) {
 		IVTV_INFO("User specified %s card (detected %s based chip)\n",
                                 itv->card->name, chipname);
@@ -607,7 +627,7 @@ static void ivtv_process_options(struct ivtv *itv)
                         IVTV_ERR("              %s based\n", chipname);
 			IVTV_ERR("Defaulting to %s card\n", itv->card->name);
 			IVTV_ERR("Please mail the vendor/device and subsystem vendor/device IDs and what kind of\n");
-			IVTV_ERR("card you have to the ivtv-devel mailinglist: http://sourceforge.net/projects/ivtv\n");
+			IVTV_ERR("card you have to the ivtv-devel mailinglist (www.ivtvdriver.org)\n");
 			IVTV_ERR("Prefix your subject line with [UNKNOWN CARD].\n");
 		}
 	}
@@ -654,6 +674,7 @@ static int __devinit ivtv_init_struct1(struct ivtv *itv)
 	init_MUTEX(&itv->i2c_lock);
 	init_MUTEX(&itv->DMA_lock);
 	init_MUTEX(&itv->vbi_dec_lock);
+	init_MUTEX(&itv->i2c_bus_lock);
 
 	itv->DMA_slock = SPIN_LOCK_UNLOCKED;
 
@@ -763,13 +784,12 @@ static int __devinit ivtv_init_struct1(struct ivtv *itv)
 	itv->dec_options.no_stop = 0;
 	itv->dec_options.fast_stop = 1;
 
-	/* OSD */
-	itv->global_alpha = 255;
-	itv->global_alpha_state = 1;
-	itv->local_alpha_state = 0;
+        itv->osd_info = NULL;
 
 	// vbi
-	itv->vbi_in.raw = 1;
+	itv->vbi_in.type = V4L2_BUF_TYPE_SLICED_VBI_CAPTURE;
+	itv->vbi_sliced_in = &itv->vbi_in.fmt.sliced;
+	itv->vbi_sliced_in->service_set = 0;	// marks raw VBI
 	itv->vbi_service_set_out = 0;
 	itv->vbi_frame = 0;
 	itv->vbi_inserted_frame = 0;
@@ -783,6 +803,7 @@ static int __devinit ivtv_init_struct1(struct ivtv *itv)
 	itv->vbi_passthrough_timer.function = ivtv_set_vbi;
 	itv->vbi_passthrough_timer.data = (unsigned long)itv;
 
+	itv->msp34xx_tuner_input = 3;   /* tuner input for msp34xx based cards */
 	itv->msp34xx_audio_output = 1;	/* SCART1 output for msp34xx based cards */
 	itv->audio_input_tv = 0;	/* TV tuner */
 	itv->audmode_tv = itv->audmode_radio = V4L2_TUNER_MODE_STEREO;
@@ -866,7 +887,6 @@ static int ivtv_setup_pci(struct ivtv *itv, struct pci_dev *dev,
 			      itv->num);
 		return -EIO;
 	}
-	snprintf(itv->name, sizeof(itv->name) - 1, "ivtv%d", itv->num);
 	if (!request_mem_region(pci_resource_start(dev, 0),
 				IVTV_IOREMAP_SIZE, itv->name)) {
 		IVTV_ERR("Cannot request memory region on card %d.\n",
@@ -922,7 +942,6 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 	int retval = 0;
 	struct ivtv *itv;
         struct v4l2_frequency vf;
-	int norm;
 
 	spin_lock(&ivtv_cards_lock);
 
@@ -943,6 +962,7 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 	memset(itv, 0, sizeof(*itv));
 	itv->dev = dev;
 	itv->num = ivtv_cards_active++;
+	snprintf(itv->name, sizeof(itv->name) - 1, "ivtv%d", itv->num);
         if (itv->num) {
                 printk(KERN_INFO "ivtv:  ======================  NEXT CARD  ======================\n");
         }
@@ -1074,10 +1094,18 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 #endif /* CONFIG_VIDEO_TUNER */
 		if (itv->card->type == IVTV_CARD_PVR_150 ||
 		    itv->card->type == IVTV_CARD_PG600) {
-                        int cardtype = (itv->card->type == IVTV_CARD_PG600);
+			struct v4l2_control ctrl;
 
+			ctrl.id = V4L2_CID_PRIVATE_BASE; /* CX25840_CID_CARDTYPE */
+			if (itv->card->type == IVTV_CARD_PG600)
+				ctrl.value = 1;
+			else
+				ctrl.value = itv->pvr150_workaround ? 2 : 0;
+
+#ifndef CONFIG_VIDEO_DECODER
 			ivtv_request_module(itv, "cx25840");
-		        itv->card->video_dec_func(itv, DECODER_SET_CARD_TYPE, &cardtype);
+#endif /* CONFIG_VIDEO_DECODER */
+		        itv->card->video_dec_func(itv, VIDIOC_S_CTRL, &ctrl);
                         itv->has_cx25840 = 1;
                         itv->hw_flags |= IVTV_HW_CX25840;
                         itv->vbi_raw_decoder_line_size = 1444;
@@ -1087,13 +1115,26 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
                         itv->vbi_sliced_decoder_sav_odd_field = 0xB0;
                         itv->vbi_sliced_decoder_sav_even_field = 0xF0;
 			if (itv->card->type == IVTV_CARD_PVR_150) {
+#ifndef CONFIG_VIDEO_AUDIO_DECODER
 				ivtv_request_module(itv, "wm8775");
+#endif /* CONFIG_VIDEO_AUDIO_DECODER */
                                 itv->hw_flags |= IVTV_HW_WM8775;
 			}
 		} else {
+			enum v4l2_chip_ident v;
+
+#ifndef CONFIG_VIDEO_DECODER
 			ivtv_request_module(itv, "saa7115");
-                        itv->has_saa7115 = 1;
-                        itv->hw_flags |= IVTV_HW_SAA7115;
+#endif /* CONFIG_VIDEO_DECODER */
+			ivtv_saa7115(itv, VIDIOC_INT_G_CHIP_IDENT, &v);
+			if (v == V4L2_IDENT_SAA7114) {
+                        	itv->has_saa7114 = 1;
+	                        itv->hw_flags |= IVTV_HW_SAA7114;
+			}
+			else {
+                        	itv->has_saa7115 = 1;
+	                        itv->hw_flags |= IVTV_HW_SAA7115;
+			}
                         itv->vbi_raw_decoder_line_size = 1443;
                         itv->vbi_raw_decoder_sav_odd_field = 0x25;
                         itv->vbi_raw_decoder_sav_even_field = 0x62;
@@ -1102,7 +1143,9 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
                         itv->vbi_sliced_decoder_sav_even_field = 0xEC;
                 }
 		if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
+#ifndef CONFIG_VIDEO_DECODER
 			ivtv_request_module(itv, "saa7127");
+#endif /* CONFIG_VIDEO_DECODER */
                         itv->hw_flags |= IVTV_HW_SAA7127;
 		}
 		if (itv->card->audio_selector == USE_MSP34XX) {
@@ -1113,7 +1156,9 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 		}
                 if (itv->card->audio_selector == USE_CS53L32A ||
                     itv->card->type == IVTV_CARD_AVC2410) {
+#ifndef CONFIG_VIDEO_AUDIO_DECODER
 			ivtv_request_module(itv, "cs53l32a");
+#endif /* CONFIG_VIDEO_AUDIO_DECODER */
                         itv->hw_flags |= IVTV_HW_CS53132A;
 		}
                 // -2 == autodetect, -1 == no tda9887
@@ -1138,6 +1183,11 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 		ivtv_std = 1;
 	}
 
+	if (itv->has_saa7114) {
+		/* Sliced VBI is not supported by the saa7114 hardware. */
+		/* Raw VBI is not yet supported by the saa7114 driver. */
+                itv->v4l2_cap &= ~(V4L2_CAP_SLICED_VBI_CAPTURE|V4L2_CAP_VBI_CAPTURE);
+	}
         if (itv->std & V4L2_STD_525_60) {
                 itv->is_60hz = 1;
                 if (itv->has_cx25840) {
@@ -1250,7 +1300,6 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 	ivtv_set_irq_mask(itv, 0xffffffff);
 
 	/* Register IRQ */
-	snprintf(itv->name, sizeof(itv->name) - 1, "ivtv%d", itv->num);
 	retval = request_irq(itv->dev->irq, ivtv_irq_handler,
 			     SA_SHIRQ | SA_INTERRUPT, itv->name, (void *)itv);
 	if (retval) {
@@ -1258,14 +1307,14 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 		goto free_i2c;
 	}
 
-	/* On an itvc16 this seems to be able to enable DMA to the chip? */
-	if (!itv->has_itvc15)
+	/* On a cx23416 this seems to be able to enable DMA to the chip? */
+	if (!itv->has_cx23415)
 		ivtv_write_reg(0x03, itv->reg_mem + 0x10);
 
 	/* Default interrupts enabled. For the PVR350 this includes the
            decoder VSYNC interrupt, which is always on. It is not only used
            during decoding but also by the OSD.
-           Some old PVR250 cards had an iTVC15, so testing for that is too
+           Some old PVR250 cards had a cx23415, so testing for that is too
            general. Instead test if the card has video output capability. */
 	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) 
 		ivtv_clear_irq_mask(itv,
@@ -1292,22 +1341,20 @@ static int __devinit ivtv_probe(struct pci_dev *dev,
 
         vf.tuner = 0;
         vf.frequency = 6400; /* the tuner 'baseline' frequency */
-	if (itv->std & V4L2_STD_NTSC) {
+	if (itv->std & V4L2_STD_NTSC_M) {
 		/* Why on earth? */
 		vf.frequency = 1076;	/* ch. 4 67250*16/1000 */
 	}
 
-	/* The tuner is fixed to the norm. The other inputs (e.g. S-Video)
+	/* The tuner is fixed to the standard. The other inputs (e.g. S-Video)
 	   are not. */
 	itv->tuner_std = itv->std;
 
-	norm = std2norm(itv->std);
-
         /* Digitizer */
-	itv->card->video_dec_func(itv, DECODER_SET_NORM, &norm);
+	itv->card->video_dec_func(itv, VIDIOC_S_STD, &itv->std);
 
 	/* Change Input to active, 150 needs this, seems right */
-	itv->card->video_dec_func(itv, DECODER_SET_INPUT, &itv->active_input);
+	itv->card->video_dec_func(itv, VIDIOC_S_INPUT, &itv->active_input);
 
 	/* Init new audio input/output */
 	ivtv_audio_set_io(itv);
@@ -1452,10 +1499,10 @@ static void ivtv_remove(struct pci_dev *pci_dev)
 
 /* define a pci_driver for card detection */
 static struct pci_driver ivtv_pci_driver = {
-      name:"ivtv-iTVC15_16_mpg2_encoder_card",
-      id_table:ivtv_pci_tbl,
-      probe:ivtv_probe,
-      remove:ivtv_remove,
+      name: 	"ivtv",
+      id_table: ivtv_pci_tbl,
+      probe:    ivtv_probe,
+      remove:   ivtv_remove,
 };
 
 static int module_start(void)
@@ -1469,9 +1516,9 @@ static int module_start(void)
 #else
 	printk(KERN_INFO "ivtv:  Linux version: " UTS_RELEASE "\n");
 #endif /* LINUX26 */
-	printk(KERN_INFO "ivtv:  In case of problems please include the debug info\n");
-	printk(KERN_INFO "ivtv:  between the START INIT IVTV and END INIT IVTV lines when\n");
-	printk(KERN_INFO "ivtv:  mailing the ivtv-devel mailinglist.\n");
+	printk(KERN_INFO "ivtv:  In case of problems please include the debug info between\n");
+	printk(KERN_INFO "ivtv:  the START INIT IVTV and END INIT IVTV lines, along with\n");
+	printk(KERN_INFO "ivtv:  any module options, when mailing the ivtv-users mailinglist.\n");
 
 	memset(ivtv_cards, 0, sizeof(ivtv_cards));
 
