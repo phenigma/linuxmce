@@ -1,3 +1,12 @@
+sysvinit (2.86.ds1-1.2pluto) unstable; urgency=low
+
+  * Fastbooting by default, pass sysvinit to kernel for old booting
+  * Some dependencies modified
+  * DCERouters should start faster now
+  * The rc script is fastbooting totaly in background
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 20 Jan 2006 17:37:40 +0200
+
 sysvinit (2.86.ds1-1.1pluto) unstable; urgency=low
 
   * Intial support for fastboot added
