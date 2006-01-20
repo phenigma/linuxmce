@@ -367,6 +367,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
         m_ScreenMutex.Init( &m_MutexAttr );
 
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
+	pthread_detach(m_MaintThreadID);
 
 	srand( (unsigned)time( NULL ) );  // For the screen saver
 }

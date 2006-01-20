@@ -726,6 +726,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 
         g_pPlutoLogger->Write( LV_WARNING, "Connected to PlutoMO." );
 	    int ret = pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
+		pthread_detach(pProcessor->m_BDSockThreadID);
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 	}
     else
@@ -914,6 +915,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 
     pthread_t pthread_id;
     int ret = pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
+	pthread_detach(pthread_id);
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 //<-dceag-createinst-b->! I don't need it.

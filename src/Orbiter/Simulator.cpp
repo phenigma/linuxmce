@@ -441,6 +441,7 @@ void Simulator::StartRandomEventGenerator(long dwDelay/* = 0*/)
 	m_bStopGeneratorThread = false;
 
 	pthread_create(&m_GeneratorThreadID, NULL, GeneratorThread, (void*)this);
+	pthread_detach(m_GeneratorThreadID);
 }
 //------------------------------------------------------------------------------------------------------
 void Simulator::StopRandomEventGenerator()
