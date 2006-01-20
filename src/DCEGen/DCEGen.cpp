@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	string TemplateInput="../DCEGen",TemplateOutput="",GeneratedOutput="../Gen_Devices";
 	int DBPort=3306,PK_DeviceTemplate=0;
 
-	bool bLocalMode=false,bError=false; // An error parsing the command line
+	bool /*bLocalMode=false,*/bError=false; // An error parsing the command line
 	bool bListAllDevices=false,bTemplates=true;
 	string sSearchDeviceByName="";
 	char c;
@@ -620,10 +620,10 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		for(it=deviceInfo.m_mapCommandInfo.begin();it!=deviceInfo.m_mapCommandInfo.end();++it)
 		{
 			class CommandInfo *pCommandInfo = (*it).second;
-if( pCommandInfo->m_pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
-{
-int k=2;
-}
+//if( pCommandInfo->m_pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
+//{
+//int k=2;
+//}
 			fstr_DeviceCommand << "\t\t\t\tcase " << pCommandInfo->m_pRow_Command->PK_Command_get() << ":" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\tstring sCMD_Result=\"OK\";" << endl;
@@ -999,7 +999,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 		throw "Output file exists";
 	}
 
-	long total_size=0;
+	size_t total_size = 0;
 	file = fopen(InputFile.c_str(),"rb");
 	if( !file )
 	{
@@ -1128,7 +1128,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			map<int,string>::iterator itEventDeclarations;
 			for(itEventDeclarations=pDeviceInfo->m_mapEventDeclarations.begin();itEventDeclarations!=pDeviceInfo->m_mapEventDeclarations.end();++itEventDeclarations)
 			{
-				Row_Event *pRow_Event = m_dce.Event_get()->GetRow( (*itEventDeclarations).first );
+				//Row_Event *pRow_Event = m_dce.Event_get()->GetRow( (*itEventDeclarations).first );
 				fputs(("\tvoid EVENT_" + (*itEventDeclarations).second + ";\n").c_str(),file);
 			}
 
@@ -1571,10 +1571,10 @@ void DCEGen::WriteGlobals()
 		if( commandInfo.m_sParmsWithTypePointers_Out.length()>0 )
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
-if( pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
-{
-int k=2;
-}
+//if( pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
+//{
+//int k=2;
+//}
 		fstr_DeviceCommand << ") {";
 		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
