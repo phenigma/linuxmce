@@ -1,9 +1,9 @@
 #ifndef __TableRow_H_
 #define __TableRow_H_
 
-#pragma warning (disable : 4251)
-
 #ifdef WIN32
+	#pragma warning (disable : 4251)
+
     #ifdef EXPORT_DLL
     #ifndef DECLSPECIFIER
     #define DECLSPECIFIER __declspec(dllexport)
