@@ -194,7 +194,7 @@ void SocketListener::Run()
 #endif
 					/** @todo check comment */
 					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
-					/*Socket *has =*/ CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(newsock) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
+					/*Socket *has =*/ CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(int(newsock)) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
 				}
 			}
 			else

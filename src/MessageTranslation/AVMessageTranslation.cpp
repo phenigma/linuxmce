@@ -445,7 +445,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter. Sending as is with an enter.\n", devid);
 		}
 		
-		long TotalDigits = StringUtils::ltos(ChannelNumber).length();
+		long TotalDigits = long(StringUtils::ltos(ChannelNumber).length());
 		if (NumDigits < TotalDigits) {
 			if (NumDigits > 0) {
 				g_pPlutoLogger->Write(LV_WARNING, "Warning, number of digits specified as %d but channel is %d!", NumDigits, ChannelNumber);
@@ -453,7 +453,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			NumDigits = TotalDigits;
 		}
 		for(long i = NumDigits; i>0; i--) {
-			unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
+			unsigned char digit = (unsigned char)((ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1)));
 			g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...", digit);
 
 			MessageReplicator msgrepl(

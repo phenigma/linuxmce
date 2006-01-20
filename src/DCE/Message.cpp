@@ -249,7 +249,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		}
 		else if( eType==ptUU )
 		{
-			int iUUSize = strlen(pParmValue);
+			int iUUSize = int(strlen(pParmValue));
 			unsigned char *pBinaryValue = new unsigned char[MaxDecodedSize(iUUSize)];
 			tSizeParmValue = Ns_HtuuDecode((unsigned char *) pParmValue, pBinaryValue, iUUSize);
 			pParmValue=(char *) pBinaryValue;
@@ -275,7 +275,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		if( eType==ptData || eType==ptBinary || eType==ptUU )
 		{
 			m_mapData_Parameters[ParamNum] = pParmValue;
-			m_mapData_Lengths[ParamNum] = tSizeParmValue;
+			m_mapData_Lengths[ParamNum] = (unsigned long)tSizeParmValue;
 		}
 		else
 			m_mapParameters[ParamNum] = pParmValue;

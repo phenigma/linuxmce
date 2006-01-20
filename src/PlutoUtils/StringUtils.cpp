@@ -189,7 +189,7 @@ string StringUtils::ltos( long lNum )
 void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_strings)
 {
 	const char *pTokens = Tokens.c_str();
-	int Size=Tokens.size();
+	int Size = int(Tokens.size());
 	if( Size<1 || Size>3 )
 		return; // Not supported no tokens or more than 3
 
@@ -408,13 +408,13 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
         {
             if( lastSpace != string::npos)
             {
-				if(lastSpace - ( i + 1 - iNumCharsSoFar ) > iNumChars)
+				if(int(lastSpace) - ( i + 1 - iNumCharsSoFar ) > iNumChars)
 				{
 					lastSpace = iNumChars + i + 1 - iNumCharsSoFar;
 				}
 
 				vectStrings->push_back( sInput.substr( i + 1 - iNumCharsSoFar, lastSpace - ( i + 1 - iNumCharsSoFar ) ) );
-				iCurrentIndex = lastSpace;
+				iCurrentIndex = int(lastSpace);
 				iNumCharsSoFar = (int)( i - lastSpace );
 				while( iNumCharsSoFar > 0 && sInput[ i + 1 - iNumCharsSoFar ] == ' ' )
 					--iNumCharsSoFar;
@@ -817,7 +817,7 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosN
 		if( sInput[pos_start]=='\n' )  // There's another set of args that follows
 		{
 			if( p_iPosNext )
-				*p_iPosNext = pos_start+1;
+				*p_iPosNext = int(pos_start) + 1;
 			return pArgs;
 		}
 
@@ -875,7 +875,7 @@ string StringUtils::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
 string StringUtils::UpperAZ09Only(string sInput)
 {
 	string sOutput;
-	for(int i=0;i<sInput.size();++i)
+	for(size_t i=0;i < sInput.size();++i)
 	{
 		if( (sInput[i]>='0' && sInput[i]<='9') || (sInput[i]>='A' && sInput[i]<='Z') )
 			sOutput+=sInput[i];

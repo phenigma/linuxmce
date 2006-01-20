@@ -592,7 +592,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     break;
             }
 
-			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
+			if ( iMaxFileCount && iMaxFileCount < int(listFiles.size()) )
 				return true; // max depth hit
         }
         else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
@@ -724,7 +724,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 			else
 	            listDirectories.push_back(PrependedPath + finddata.name);
 
-			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
+			if ( iMaxFileCount && iMaxFileCount < int(listDirectories.size()) )
 				return true; // max depth hit
 			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
 					return true; // if one recursive call hit the maximum depth then return now.

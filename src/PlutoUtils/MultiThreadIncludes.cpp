@@ -132,9 +132,9 @@ PlutoLock::~PlutoLock()
 		}
 		else
 		{
-int size1 = (*g_pmapLocks).size();
+int size1 = int((*g_pmapLocks).size());
 			(*g_pmapLocks).erase(itMapLock);	
-int size2 = (*g_pmapLocks).size();
+int size2 = int((*g_pmapLocks).size());
             pthread_mutex_unlock(&g_mapLockMutex->mutex);
 
 #ifdef THREAD_LOG

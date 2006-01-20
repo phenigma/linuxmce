@@ -278,7 +278,7 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 	while ( itPidsToData != mapPidsToData.end() )
 	{
 		PidData *pPidData = itPidsToData->second;
-		write(pPidData->in, sKeys.c_str(), sKeys.length());
+		write(pPidData->in, sKeys.c_str(), (unsigned int)(sKeys.length()));
 		itPidsToData++;
 	}
 

@@ -114,7 +114,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 	while(true)
 	{
-		ts_NextPing.tv_sec=time(NULL)+5;
+		ts_NextPing.tv_sec = long(time(NULL)) + 5;
 		sSM.TimedCondWait(ts_NextPing);
 
 		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET || pSocket->m_bQuit )
