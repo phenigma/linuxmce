@@ -507,7 +507,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			

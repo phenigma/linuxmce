@@ -431,7 +431,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DHCPDevice_
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			

@@ -1631,7 +1631,7 @@
 #define DESIGNOBJ_butAdvancedOptions2_CONST 4441
 #define DESIGNOBJ_mapMedia_CONST 4444
 #define DESIGNOBJ_butArrayMediaFloorplan_CONST 4445
-#define DESIGNOBJ_mnuFilelist_movies_video_music_CONST 4447
+#define DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST 4447
 #define DESIGNOBJ_butDVDfilelist_CONST 4448
 #define DESIGNOBJ_mnuDVDmenu_CONST 4449
 #define DESIGNOBJ_butDVDoptions_CONST 4452
@@ -1900,6 +1900,7 @@
 #define DESIGNOBJ_butSetVisibleSensors_CONST 4785
 #define DESIGNOBJ_dgAllCalls_CONST 4787
 #define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 4790
+#define DESIGNOBJ_mnuSearchMediaAttributes_CONST 4805
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

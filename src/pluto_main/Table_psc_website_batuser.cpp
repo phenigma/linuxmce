@@ -298,7 +298,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_website
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_website_batuser=id;
