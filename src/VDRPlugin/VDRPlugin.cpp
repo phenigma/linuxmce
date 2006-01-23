@@ -848,3 +848,5 @@ live, nonlive, osd */
 
 void VDRPlugin::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c764-e->
+{
+}
