@@ -78,8 +78,14 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 		return false;
 	}
 	
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 1");
+#endif
 	if( d->currentJob != NULL )
 	{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 2");
+#endif
 		if( !d->currentJob->processData(buffer, length) )
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: .");
@@ -87,6 +93,9 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 		}
 	}
 	
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 3");
+#endif
 	// check if the job has finished
 	if( ZWaveJob::STOPPED == d->currentJob->state() )
 	{
@@ -95,6 +104,9 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 		{
 			case ZWaveJob::SET_LEARN_NODE_STATE :
 			{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 4");
+#endif
 				if( LEARN_NODE_STATE_NEW == ((ZWJobSetLearnNodeState*)(d->currentJob))->mode() )
 				{
 					char learnInfo[LEARN_INFO_MAX];
@@ -102,6 +114,9 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 					if( !((ZWJobSetLearnNodeState*)(d->currentJob))->learnInfo(learnInfo, &learnInfoLength) &&
 						learnInfoLength )
 					{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 5");
+#endif
 						// LEARN_INFO = Status Byte, NodeID Byte, Param Length Byte, Param[0]...Param[Length-1]
 						// ZWJobSetLearnNodeState was running well
 						// Just ask info about the node
@@ -110,6 +125,9 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 						ZWJobSetLearnNodeState * learnOff = new ZWJobSetLearnNodeState(handler());
 						if( nodeInfo != NULL && learnOff != NULL )
 						{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 5 - NodeID = %d", (int)learnInfo[1]);
+#endif
 							nodeInfo->setNodeID( learnInfo[1] );
 							d->jobsQueue.push_back( nodeInfo );
 							
@@ -134,12 +152,18 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 				}
 				else
 				{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 6");
+#endif
 					// just nothing to do
 				}
 				break;
 			}
 				
 			case ZWaveJob::GET_NODE_PROTOCOL_INFO :
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 7");
+#endif
 				// just nothing to do
 				break;
 				
@@ -156,6 +180,9 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 			d->currentJob = d->jobsQueue.front();
 			d->jobsQueue.pop_front();
 			
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- ADD_NODE ---- 8");
+#endif
 			if( !d->currentJob->run() )
 			{
 				setState(ZWaveJob::STOPPED);

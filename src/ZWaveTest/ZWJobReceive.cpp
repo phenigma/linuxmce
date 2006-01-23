@@ -97,8 +97,14 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				buffer[1] == FUNC_ID_ZW_NEW_CONTROLLER &&
 				buffer[2] == 1 )
 			{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 1");
+#endif
 				if( ZWJobReceive::STOP == d->state )
 				{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 2");
+#endif
 					setState( ZWaveJob::STOPPED );
 					
 					// TODO : well, it's stopped but was it a good receiving ?? yes/not
@@ -109,11 +115,17 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				}
 				else
 				{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 3");
+#endif
 					// buffer[3]... buffer[6] etc = LEARN_NODE
 					// Node Status
 					switch( buffer[3] )
 					{
 						case NEW_CONTROLLER_LEARNED:
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 4");
+#endif
 							// what to do here ?
 							d->state = ZWJobReceive::RECEIVING;
 							break;
@@ -121,6 +133,9 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 						case NEW_CONTROLLER_CHANGE_DONE :
 						case NEW_CONTROLLER_DONE :
 						{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 5");
+#endif
 							// the receiving it's done, change the controller state
 							// back to normal state (stop == not receiving)
 							char buf[10];
@@ -131,12 +146,18 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 							buf[4] = 0;
 							
 							d->state = ZWJobReceive::STOP;
-							handler()->sendData(buf, 4);
+							
+							if( handler()->sendData(buf, 4) )
+								return true;
+							
 							break;
 						}
 						
 						case NEW_CONTROLLER_FAILED :
 						default:
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 6");
+#endif
 							setState( ZWaveJob::STOPPED );
 							break;
 					}
@@ -151,6 +172,9 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 					 buffer[3] == 239 && // hardcoded in protocol too
 					 buffer[5] == COMMAND_CLASS_CONTROLLER_REPLICATION )
 			{
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 7");
+#endif
 				// the receiving it's done, change the controller state
 				// back to normal state (stop == not receiving)
 				char buf[10];
@@ -159,10 +183,14 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				buf[2] = 0;
 				
 				d->state = ZWJobReceive::STOP;
-				handler()->sendData(buf, 2);
+				if( handler()->sendData(buf, 2) )
+					return true;
 			}
 			break;
 	}
 	
+#ifdef PLUTO_DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 8");
+#endif
 	return false;
 }

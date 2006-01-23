@@ -8,6 +8,11 @@
 #include "PlutoZWSerialAPI.h"
 #include "ZWJobInitialize.h"
 #include "ZWJobLightLevel.h"
+#include "ZWJobReceive.h"
+#include "ZWJobReset.h"
+#include "ZWJobAddNode.h"
+#include "ZWJobRemoveNode.h"
+
 #include <string>
 
 using namespace DCE;
@@ -50,6 +55,48 @@ int main(int argc, char* argv[])
 					if( initJob != NULL )
 					{
 						zwAPI->insertJob(initJob);
+					}
+				}
+				else if(line.find("receive") == 0)
+				{
+					ZWJobReceive * receiveJob = new ZWJobReceive(zwAPI);
+					if( receiveJob != NULL )
+					{
+						zwAPI->insertJob(receiveJob);
+					}
+					ZWJobInitialize * initJob = new ZWJobInitialize(zwAPI);
+					if( initJob != NULL )
+					{
+						zwAPI->insertJob(initJob);
+					}
+				}
+				else if(line.find("reset") == 0)
+				{
+					ZWJobReset * resetJob = new ZWJobReset(zwAPI);
+					if( resetJob != NULL )
+					{
+						zwAPI->insertJob(resetJob);
+					}
+					ZWJobInitialize * initJob = new ZWJobInitialize(zwAPI);
+					if( initJob != NULL )
+					{
+						zwAPI->insertJob(initJob);
+					}
+				}
+				else if(line.find("add_node") == 0)
+				{
+					ZWJobAddNode * addJob = new ZWJobAddNode(zwAPI);
+					if( addJob != NULL )
+					{
+						zwAPI->insertJob(addJob);
+					}
+				}
+				else if(line.find("remove_node") == 0)
+				{
+					ZWJobRemoveNode * removeJob = new ZWJobRemoveNode(zwAPI);
+					if( removeJob != NULL )
+					{
+						zwAPI->insertJob(removeJob);
 					}
 				}
 				else if(line.find("light") == 0)

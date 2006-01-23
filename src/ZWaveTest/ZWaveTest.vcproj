@@ -131,6 +131,9 @@
 				RelativePath=".\ZWaveTest.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWJobAddNode.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWJobGetID.cpp">
 			</File>
 			<File
@@ -197,6 +200,9 @@
 			</File>
 			<File
 				RelativePath=".\ZWaveNode.h">
+			</File>
+			<File
+				RelativePath=".\ZWJobAddNode.h">
 			</File>
 			<File
 				RelativePath=".\ZWJobGetID.h">

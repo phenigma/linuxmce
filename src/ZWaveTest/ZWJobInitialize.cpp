@@ -157,6 +157,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 				
 			default:
 				g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job type.");
+				return false;
 				break;
 		}
 		
