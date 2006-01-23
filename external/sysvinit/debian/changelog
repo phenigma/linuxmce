@@ -1,4 +1,10 @@
-sysvinit (2.86.ds1-1.2pluto) unstable; urgency=low
+sysvinit (2.86.ds1-1.1pluto2) unstable; urgency=low
+
+  * Loading modules from /etc/modules on fastboot
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 23 Jan 2006 14:31:57 +0200
+
+sysvinit (2.86.ds1-1.1pluto1) unstable; urgency=low
 
   * Fastbooting by default, pass sysvinit to kernel for old booting
   * Some dependencies modified

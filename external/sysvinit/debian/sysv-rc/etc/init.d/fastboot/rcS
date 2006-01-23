@@ -14,7 +14,7 @@ Message() {
 InitBootsplash() {
     progress=0
     kscripts=0
-    sscripts=18
+    sscripts=19
     export progress kscripts sscripts
 }
 
@@ -43,6 +43,17 @@ fi
 ## Initalize udev
 Message "Initializing udev"
 /etc/init.d/udev start 1>/dev/null
+
+## Loading modules
+Message "Loading modules"
+(cat /etc/modules; echo) | # make sure there is a LF at the end
+while read module args
+do
+        case "$module" in
+                \#*|"") continue ;;
+        esac
+        modprobe $module $args
+done
 
 ## Initializing coldplug system (lshwd or hotplug)
 Message "Loading coldplug modules"
