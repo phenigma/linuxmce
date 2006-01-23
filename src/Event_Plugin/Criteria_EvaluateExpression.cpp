@@ -58,10 +58,10 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	case CRITERIAPARMLIST_PK_Device_CONST:
 		if( iRValue==0 )
 			return true;
-		iLValue = &pEventInfo->m_pDevice->m_dwPK_Device;
+		iLValue = (unsigned long *)&pEventInfo->m_pDevice->m_dwPK_Device;
 		break;
 	case CRITERIAPARMLIST_PK_DeviceTemplate_CONST:
-		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
+		iLValue = (unsigned long *)&pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
 		break;
 	case CRITERIAPARMLIST_Time_of_day_CONST:
 		return EvaluateTimeOfDay(StringUtils::ToUpper(pCriteriaParm->m_sValue),pExtraInfo);
