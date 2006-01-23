@@ -207,24 +207,29 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
     pthread_cond_broadcast(&m_ActionCond);
 
 	if(!IsProcessingRequest() && m_iListenPort >= 3451 && m_iListenPort <= 3460) //only cisco orbiters
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
+		PushRefreshEvent();
+}
+//-----------------------------------------------------------------------------------------------------
+bool xxProxy_Orbiter::PushRefreshEvent()
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
-		vector<string> vectHeaders;
-		map<string, string> mapParams;
-		string sRequestUrl = 
-			string() + 
-			"<CiscoIPPhoneExecute>"
-				"<ExecuteItem URL=\"" + m_sRequestUrl + "\"/>"
-			"</CiscoIPPhoneExecute>";
-		mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
+    vector<string> vectHeaders;
+    map<string, string> mapParams;
+    string sRequestUrl = 
+            string() + 
+            "<CiscoIPPhoneExecute>"
+                "<ExecuteItem URL=\"" + m_sRequestUrl + "\"/>"
+            "</CiscoIPPhoneExecute>";
+    mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
 
-		string Response = HttpPost("http://" + m_sRemotePhoneIP + "/CGI/Execute", vectHeaders, mapParams, 
-			"user", "pluto");
+    string Response = HttpPost("http://" + m_sRemotePhoneIP + "/CGI/Execute", vectHeaders, mapParams, 
+            "user", "pluto");
 
-		g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
-		g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
-	}
+    g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
+    g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
+
+	return Response == "Success";
 }
 //-----------------------------------------------------------------------------------------------------
 bool xxProxy_Orbiter::IsProcessingRequest()
@@ -460,6 +465,9 @@ void xxProxy_Orbiter::RenderScreen()
 
 bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
+	if(m_bQuit || m_bReload)
+		return false;
+
     g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
 
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
@@ -467,9 +475,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
-        if(m_iLastImageSent == m_iImageCounter)
-            pSocket->SendString("IMAGE 0");
-        else
         {
             size_t size;
             char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDevicePngFileName(),size);
@@ -484,8 +489,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
             pSocket->SendString("IMAGE " + StringUtils::itos(size));
             pSocket->SendData(size,pBuffer);
             delete[] pBuffer;
-
-            m_iLastImageSent = m_iImageCounter;
         }
 		return true;
 	}
@@ -563,6 +566,11 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		return true;
 	}
 	return false;
+}
+
+void xxProxy_Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
+{
+	PushRefreshEvent();
 }
 
 void LoadUI_From_ConfigurationData()

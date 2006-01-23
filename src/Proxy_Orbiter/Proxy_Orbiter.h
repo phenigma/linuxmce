@@ -80,6 +80,9 @@ namespace DCE
 
 		inline string GetDevicePngFileName();
 		inline string GetDeviceXmlFileName();
+
+		virtual void CMD_Quit(string &sCMD_Result,Message *pMessage);
+		bool PushRefreshEvent();
 	};
 }
 //-----------------------------------------------------------------------------------------------------
