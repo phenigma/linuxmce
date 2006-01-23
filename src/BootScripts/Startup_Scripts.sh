@@ -1,8 +1,4 @@
 #!/bin/bash
-. /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/pluto.func
-. /usr/pluto/bin/SQL_Ops.sh
-
 Parameter="$1"; shift
 
 if [[ "$Parameter" != "start" && "$Parameter" != "stop" ]]; then
@@ -14,11 +10,15 @@ setterm -blank >/dev/console             # disable console blanking
 chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
 /usr/pluto/bin/Report_Machine_Status.sh
 rm /var/log/pluto/running.pids
-echo /tmp/* | xargs -n 100 rm -rf        # I doubt that this is safe to do here (mee too :)
 chmod 777 /var/log/pluto
 rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
 mkdir -p /usr/pluto/locks                # clean up locks
 rm -f /usr/pluto/locks/*                 # clean up locks
+
+# Note to self: load these here instead of the top so cleanup takes place
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/SQL_Ops.sh
 
 # assure some settings
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
