@@ -54,6 +54,7 @@ ln -sf asterisk-[0-9]* asterisk
 cd ${SRCFOLDER}/zaptel-*/
 sed -r -i "s/^ROOT_PREFIX=//" Makefile
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
+patch < ${ADDFOLDER}/zaptel_2.6.15.patch
 touch ${PKGFOLDER}/etc/conf.modules
 make clean
 make
@@ -100,6 +101,7 @@ make INSTALL_PREFIX=${PKGFOLDER} install
 
 cd  ${SRCFOLDER}/chan_sccp-*/
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
+patch < ${ADDFOLDER}/chan_sccp_noask.patch
 make clean
 make INSTALL_PREFIX=${PKGFOLDER}
 make INSTALL_PREFIX=${PKGFOLDER} install
@@ -156,12 +158,8 @@ cp -R ${ADDFOLDER}/amp_pluto.conf ${PKGFOLDER}/etc/amportal.conf
 cp -R ${ADDFOLDER}/ext_pluto.conf ${PKGFOLDER}/etc/asterisk/extensions_custom.conf
 cp -R ${ADDFOLDER}/sccp_pluto.conf ${PKGFOLDER}/etc/asterisk/sccp.conf
 
-#patch amportal script
-sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ${PKGFOLDER}/usr/sbin/amportal
-sed -r -i "s/chmod u[+]x/chmod ug+x/" ${PKGFOLDER}/usr/sbin/amportal
-sed -r -i "s/&& export LD_LIBRARY_PATH=\/usr\/local\/lib/ /" ${PKGFOLDER}/usr/sbin/amportal
-sed -r -i "s/\t\trun_fop/#\t\trun_fop/" pkg/root/usr/sbin/amportal
-sed -r -i "s/\techo Permissions OK/\tchmod 666 \/dev\/dsp\n\techo Permissions OK/" ${PKGFOLDER}/usr/sbin/amportal
+#copy new amportal
+cp ${ADDFOLDER}/amportal ${PKGFOLDER}/usr/sbin/amportal
 
 #copy AGI scripts
 cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/

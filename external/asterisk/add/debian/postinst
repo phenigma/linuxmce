@@ -35,9 +35,6 @@ case "$1" in
 			#enable oss module to speak in the house
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf			
-			rm -f /etc/init.d/asterisk || /bin/true
-			ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
-			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk || /bin/true; done; 
 			if (getent passwd asterisk >/dev/null);then
 				if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
 					usermod -d /var/lib/asterisk asterisk || /bin/true
@@ -55,11 +52,11 @@ case "$1" in
 			sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
-			
-			rm -f /etc/init.d/asterisk || /bin/true
-			ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
-			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk || /bin/true; done; 
 		fi
+		rm -f /etc/init.d/asterisk || /bin/true
+		rm -f /etc/rc?.d/*asterisk || /bin/true
+		ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
+		ln -sf /etc/init.d/asterisk /etc/rc2.d/S92asterisk || /bin/true
 
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
