@@ -3870,7 +3870,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ',' );
             else if( PK_Button == BUTTON_dash_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '-' );
-            else if( PK_Button == BUTTON_plus_CONST )
+            else if( PK_Button == BUTTON_equals_sign_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
             else if( PK_Button == BUTTON_semicolumn_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ';' );
