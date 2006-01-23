@@ -3,4 +3,3 @@
 
 echo "Enabling Wake-on-LAN (WOL) for eth0"
 ethtool -s eth0 wol g
-

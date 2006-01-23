@@ -17,11 +17,18 @@ Lock()
 	[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device)"
 
 	[[ -z "$Lock" ]] && return 1
+	
 	if ln -s "/proc/$$-$Device" "$Dir/$Lock" 2>/dev/null; then
-		[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device) fail"
+		[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device) success"
 		return 0
 	else
-		[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device) success"
+		[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device) fail"
+		local Link=$(readlink "$Dir/$Lock") # /proc/PID-extra
+		local Target=${Link%%-*} # /proc/PID
+		if [[ -n "$Target" && ! -d "$Target" ]]; then
+			echo "$$ $(date) Lock '$Lock' ($Device) stale. Removing $Dir/$Lock ($Link)"
+			rm -f "$Dir/$Lock"
+		fi
 		return 1
 	fi
 }
