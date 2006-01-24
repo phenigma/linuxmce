@@ -28,8 +28,7 @@ Description: Standard boot mechanism using symlinks in /etc/rc?.d
  This package provides support for the System-V like system of booting,
  shutting down and changing runlevels configured through symbolic
  links in the /etc/rc?.d directories.
- Also passing 'fastboot' as a kernel parameter will enable smart paralel
- loading of the init scripts.
+ Passing 'sysvinig' enable old debian style booting.
 
 Package: initscripts
 Architecture: any

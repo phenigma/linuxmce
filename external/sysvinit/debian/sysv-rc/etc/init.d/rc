@@ -16,8 +16,8 @@
 # Version:	@(#)rc  2.78  07-Nov-1999  miquels@cistron.nl
 #
 
-oldBoot=`grep "sysvinit" /proc/cmdline | wc -l`
-if [ $oldBoot -eq 0 ] ;then
+cmdline="$(</proc/cmdline)"
+if [[ "$cmdline" != *sysvinit* ]]; then    
  /etc/init.d/fastboot/rc
  exit
 fi
