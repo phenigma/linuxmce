@@ -36,7 +36,8 @@ namespace DCE
         string m_sBaseUrl;
 
         pluto_pthread_mutex_t m_ActionMutex; 
-        pthread_cond_t m_ActionCond;
+        pluto_pthread_mutex_t m_ResourcesMutex;
+		pthread_cond_t m_ActionCond;
 
         string sNoMediaSoftKeysXml;
         string sAllSoftKeysXml;

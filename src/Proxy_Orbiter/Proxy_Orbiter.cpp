@@ -54,7 +54,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 //-----------------------------------------------------------------------------------------------------
 xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
 : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
-    0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex( "action" )
+    0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex("action"), m_ResourcesMutex("resources")
 {
 	m_iImageCounter = 1;
     m_iLastImageSent = -1;
@@ -67,6 +67,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
 
     pthread_cond_init( &m_ActionCond, NULL );
     m_ActionMutex.Init(NULL, &m_ActionCond);
+	m_ResourcesMutex.Init(NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool xxProxy_Orbiter::GetConfig()
@@ -193,6 +194,7 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
 	string sDevicePng = GetDevicePngFileName();
 	string sDeviceXml = GetDeviceXmlFileName();
 
+	PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
 	//generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
         SaveImageToFile(pScreenImage, sDevicePng);
@@ -200,8 +202,9 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
         SDL_SaveJPG(pScreenImage, sDevicePng.c_str(), m_ImageQuality);
 
     SaveXML(sDeviceXml);
-	m_iImageCounter++;
+	rm.Release();
     
+	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
         m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     pthread_cond_broadcast(&m_ActionCond);
@@ -475,25 +478,28 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
+		PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
+        
+		size_t size;
+        char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDevicePngFileName(),size);
+        if( !pBuffer )
         {
-            size_t size;
-            char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDevicePngFileName(),size);
-            if( !pBuffer )
-            {
-                g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
-                pSocket->SendString("ERROR"); // Shouldn't happen
-                return true;
-            }
+			g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+			pSocket->SendString("ERROR"); // Shouldn't happen
+			return true;
+		}
 
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
-            pSocket->SendString("IMAGE " + StringUtils::itos(size));
-            pSocket->SendData(size,pBuffer);
-            delete[] pBuffer;
-        }
+        g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
+        pSocket->SendString("IMAGE " + StringUtils::itos(size));
+        pSocket->SendData(size,pBuffer);
+        delete[] pBuffer;
+		
 		return true;
 	}
     else if( sLine.substr(0,3)=="XML" )
     {
+		PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
+		
         size_t size;
         char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDeviceXmlFileName(),size);
         if( !pBuffer )
