@@ -180,6 +180,13 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 		case SDLK_PLUS:		case SDLK_KP_PLUS:		orbiterEvent->data.button.m_iPK_Button = BUTTON_plus_CONST;  break;
 		case SDLK_EQUALS:	case SDLK_KP_EQUALS:   orbiterEvent->data.button.m_iPK_Button = BUTTON_equals_sign_CONST;  break;
 
+		case SDLK_PERIOD:	case SDLK_KP_PERIOD:	orbiterEvent->data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
+		case SDLK_COMMA:	orbiterEvent->data.button.m_iPK_Button = BUTTON_comma_CONST; break;
+		case SDLK_COLON:	 orbiterEvent->data.button.m_iPK_Button = BUTTON_colon_CONST; break;
+		case SDLK_SEMICOLON:	orbiterEvent->data.button.m_iPK_Button = BUTTON_semicolumn_CONST; break;
+        case SDLK_QUOTE:     orbiterEvent->data.button.m_iPK_Button = BUTTON_single_quote_CONST; break;
+		case SDLK_QUOTEDBL:    orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
+
         default:
           orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
           g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
@@ -208,7 +215,10 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
       	case SDLK_7: case SDLK_KP7:   orbiterEvent->data.button.m_iPK_Button = BUTTON_ampersand_CONST; break;
       	case SDLK_8: case SDLK_KP8:   orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
       	case SDLK_9: case SDLK_KP9:   orbiterEvent->data.button.m_iPK_Button = BUTTON_left_parenthesis_CONST; break;
-      
+
+		case SDLK_SEMICOLON:    orbiterEvent->data.button.m_iPK_Button = BUTTON_colon_CONST; break;
+		case SDLK_QUOTE:     orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
+									  
         default:
           orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
         };

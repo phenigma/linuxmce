@@ -3874,7 +3874,9 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ';' );
             else if( PK_Button == BUTTON_single_quote_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '\'' );
-            else if( PK_Button == BUTTON_dot_CONST )
+			else if( PK_Button == BUTTON_double_quote_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '"' );
+			else if( PK_Button == BUTTON_dot_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '.' );
             if( PK_Button == BUTTON_Asterisk_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '*' );
@@ -3900,8 +3902,8 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '_' );
 			if( PK_Button == BUTTON_plus_CONST )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
-				
-
+			if( PK_Button == BUTTON_colon_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( ':' );
             else if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
