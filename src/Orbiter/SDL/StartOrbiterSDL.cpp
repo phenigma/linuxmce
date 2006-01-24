@@ -189,9 +189,18 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
         case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Down_Arrow_CONST; break;
         case SDLK_LEFT:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Left_Arrow_CONST; break;
         case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Shift_Right_Arrow_CONST; break;
-        case SDLK_3: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Pound_CONST; break;
-        case SDLK_8: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
-
+	    
+		case SDLK_0: case SDLK_KP0:   orbiterEvent->data.button.m_iPK_Button = BUTTON_right_parenthesis_CONST; break;
+    	case SDLK_1: case SDLK_KP1:   orbiterEvent->data.button.m_iPK_Button = BUTTON_exclamation_point_CONST; break;
+      	case SDLK_2: case SDLK_KP2:   orbiterEvent->data.button.m_iPK_Button = BUTTON_at_sign_CONST; break;
+      	case SDLK_3: case SDLK_KP3:   orbiterEvent->data.button.m_iPK_Button = BUTTON_Pound_CONST; break;
+      	case SDLK_4: case SDLK_KP4:   orbiterEvent->data.button.m_iPK_Button = BUTTON_dollar_CONST; break;
+      	case SDLK_5: case SDLK_KP5:   orbiterEvent->data.button.m_iPK_Button = BUTTON_percent_CONST; break;
+      	case SDLK_6: case SDLK_KP6:   orbiterEvent->data.button.m_iPK_Button = BUTTON_caret_CONST; break;
+      	case SDLK_7: case SDLK_KP7:   orbiterEvent->data.button.m_iPK_Button = BUTTON_ampersand_CONST; break;
+      	case SDLK_8: case SDLK_KP8:   orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
+      	case SDLK_9: case SDLK_KP9:   orbiterEvent->data.button.m_iPK_Button = BUTTON_left_parenthesis_CONST; break;
+      
         default:
           orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
         };
