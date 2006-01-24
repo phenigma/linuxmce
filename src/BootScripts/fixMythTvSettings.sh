@@ -26,7 +26,7 @@ function addEntries
 }
 
 hasSchema=`echo show tables | $mysql_command | grep settings | wc -l`;
-if [ "$hasSchema" != "1" ]; then
+if [ $hasSchema == 0 ]; then
 	echo "There is no schema in the mythconverg database. Exiting";
 	exit 1;
 fi
@@ -44,12 +44,7 @@ if [ "$isSetup" != 0  ]; then
 fi;
 
 addEntries MasterServerIP       $routerip;
-
-if ["$hostip" != "$routerip"]; then
-	addEntries MasterServerPort     6543;
-else
-	addEntries MasterServerPort     6143;
-fi;
+addEntries MasterServerPort     6143;
 
 addEntries BackendServerIP 		$hostip $hostname;
 addEntries BackendServerPort 	6143 	$hostname;
@@ -61,10 +56,16 @@ addEntries HorizScanPercentage	1	$hostname;
 addEntries NetworkControlEnabled	1	$hostname;
 addEntries NetworkControlPort	10001	$hostname;
 addEntries UseXVMC	1 	$hostname;
+addEntries UseChromaKeyOSD 1    $hostname;
 addEntries UseMPEG2Dec	0	$hostname;
 addEntries UseOpenGLVSync	0	$hostname;
 addEntries Deinterlace	1	$hostname;
 addEntries DeinterlaceFilter bobdeint	$hostname;
+addEntries FFRewSpeed0	1	$hostname;
+addEntries FFRewSpeed1  2 	$hostname;
+addEntries FFRewSpeed2	4	$hostname;
+addEntries FFRewSpeed3	8	$hostname;
+addEntries FFRewSpeed4  16 	$hostname;
 
 echo -n Creating and/or setting the cache and recorded folder paths ...
 mkdir -p 		/home/mythtv/shows/$hostip
