@@ -169,7 +169,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 					 buffer[0] == REQUEST &&
 					 buffer[1] == FUNC_ID_APPLICATION_COMMAND_HANDLER &&
 					 buffer[2] == NEW_CONTROLLER_LEARNED &&
-					 buffer[3] == 239 && // hardcoded in protocol too
+					 (unsigned char)buffer[3] == 239 && // hardcoded in protocol too
 					 buffer[5] == COMMAND_CLASS_CONTROLLER_REPLICATION )
 			{
 #ifdef PLUTO_DEBUG
