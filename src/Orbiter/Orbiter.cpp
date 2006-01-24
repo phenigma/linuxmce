@@ -3333,8 +3333,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		if( !SendCommand( CMD_Orbiter_Registered ) )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
-			//PromptUser("Something went very wrong. Cannot register with router!");
-			//OnQuit();
 
 			//when this happens, it's because someone did a reload router while orbiter was reloading
 			OnUnexpectedDisconnect();
@@ -9210,7 +9208,10 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 			return 2; // Retry
 		}
         else
-            m_bQuit = true;
+		{
+            OnQuit();
+			exit(0);
+		}
 
 		return 0; // Quit
 	}
@@ -9218,6 +9219,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	{
 		PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
 		OnQuit();
+		exit(0);
 		return 0;
 	}
 	else if( sStatus=="D" || sStatus=="U" )
@@ -9239,6 +9241,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 			Simulator::GetInstance()->SaveConfigurationFile();
 		}
 		OnQuit();
+		exit(0);
 		return 0;
 	}
 
@@ -9277,6 +9280,7 @@ int Orbiter::DeviceIdInvalid()
 	{
 		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
 		OnQuit();
+		exit(0);
 		return 0;
 	}
 
@@ -9289,6 +9293,7 @@ int Orbiter::DeviceIdInvalid()
 	if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
     {
         OnQuit();
+		exit(0);
         return 0;
     }
 	int PK_Device;
@@ -9300,11 +9305,15 @@ int Orbiter::DeviceIdInvalid()
         if(PROMPT_CANCEL == PK_Device)
         {
             OnQuit();
+			exit(0);
             return 0;
         }
     }
 	if( !PK_Device )
+	{
 		OnQuit();
+		exit(0);
+	}
 
 	return PK_Device;
 }
