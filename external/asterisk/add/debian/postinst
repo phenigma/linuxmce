@@ -52,6 +52,8 @@ case "$1" in
 			sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
+			/etc/init.d/asterisk stop || /bin/true
+			
 		fi
 		rm -f /etc/init.d/asterisk || /bin/true
 		rm -f /etc/rc?.d/*asterisk || /bin/true
@@ -65,6 +67,8 @@ case "$1" in
 		chmod -R ug+rw /etc/asterisk/
 		chmod 777 /var /var/lib/ /var/lib/asterisk/ /var/lib/asterisk/sounds/
 		chmod -R ug+rw /var/lib/asterisk/sounds/
+		/etc/init.d/asterisk start || /bin/true
+		
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
