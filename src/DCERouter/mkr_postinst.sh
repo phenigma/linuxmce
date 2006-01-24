@@ -22,7 +22,7 @@ code="$Activation_Code"
 
 echo "setting up dce router2"
 hasRecords=$(RunSQL "SELECT count(PK_Installation) FROM Installation")
-if [ $hasRecords -ne 0 ]; then
+if [[ $hasRecords -ne 0 ]]; then
 	echo "Database already setup";
 	SkipDatabase="yes"
 fi
@@ -34,25 +34,31 @@ mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
 
 # Changed from 2.0.0.10 to 2.0.0.11: diskless filesystems were moved to /home
-if [ ! -L /usr/pluto/diskless -a -d /usr/pluto/diskless ]; then
+if [[ ! -L /usr/pluto/diskless && -d /usr/pluto/diskless ]]; then
 	mv /usr/pluto/diskless /home
+else
+	mkdir -p /home/diskless
 fi
-mkdir -p /home/diskless
-ln -sf /home/diskless /usr/pluto/diskless
+rm -f /usr/pluto/diskless
+ln -s /home/diskless /usr/pluto/diskless
 
 # Changed from 2.0.0.24 to 2.0.0.25: pluto logs and core dumps were moved to /home
-if [ ! -L /usr/pluto/coredump -a -d /usr/pluto/coredump ]; then
+if [[ ! -L /usr/pluto/coredump && -d /usr/pluto/coredump ]]; then
 	mv /usr/pluto/coredump /home
+else
+	mkdir -p /home/coredump
 fi
-mkdir -p /home/coredump
-ln -sf /home/coredump /usr/pluto/coredump
+rm -f /usr/pluto/coredump
+ln -s /home/coredump /usr/pluto/coredump
 
-if [ ! -L /var/log/pluto -a -d /var/log/pluto ]; then
+if [[ ! -L /var/log/pluto && -d /var/log/pluto ]]; then
 	mkdir -p /home/logs
 	mv /var/log/pluto /home/logs
+else
+	mkdir -p /home/logs/pluto
 fi
-mkdir -p /home/logs/pluto
-ln -sf /home/logs/pluto /var/log/pluto
+rm -f /var/log/pluto
+ln -s /home/logs/pluto /var/log/pluto
 
 # update atftp entry in inet.d
 update-inetd --remove tftp
@@ -97,7 +103,7 @@ echo "RUN_DAEMON=yes" >/etc/default/frox
 
 bash_flag="# Pluto - bash root prompt"
 bash_prompt="$bash_flag
-if [ -f /usr/pluto/bin/Config_Ops.sh ]; then
+if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	. /usr/pluto/bin/Config_Ops.sh
 fi
 
