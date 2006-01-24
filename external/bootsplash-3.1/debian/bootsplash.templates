@@ -15,6 +15,7 @@ Description: You need to configure your bootloader.
 Template: shared/bootsplash-initrd
 Type: select
 Choices: ${initrd-list}
+Default: all
 Description: Select an initrd image.
  If you are currently using an initrd image bootsplash can append your
  splash images to it, if not one will be created for you.  Please select

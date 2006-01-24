@@ -41,12 +41,10 @@ esac
 db_get shared/bootsplash-initrd
 INITRD="$RET"
 
-if [ "$INITRD" = "custom" ]
-then
+if [ "$INITRD" = "custom" ] ;then
     db_get shared/bootsplash-custom-initrd
     SPLASH_INITRD="$RET"
-elif [ "$INITRD" = "none" ]
-then
+elif [ "$INITRD" = "none" ] ;then
     SPLASH_INITRD="/boot/initrd.splash"
 else
     SPLASH_INITRD="$INITRD"
@@ -54,7 +52,7 @@ fi
 
 if [ "$SPLASH_INITRD" = "" ]
 then
-    SPLASH_INITRD="/boot/initrd.splash"
+    SPLASH_INITRD="all"
 fi
 
 
@@ -71,18 +69,33 @@ then
     db_get $NEW_THEME/resolutions
     RESOLUTIONS=`echo "$RET" | sed -e 's/, / /g;'`
     
-    if [ "$SPLASH_INITRD" = "/boot/initrd.splash" ]
-    then
-	rm -f /boot/initrd.splash || true
-    else
-	cp "$SPLASH_INITRD.orig" "$SPLASH_INITRD" || \
-	cp "$SPLASH_INITRD" "$SPLASH_INITRD.orig"
-    fi
+    if [ "$SPLASH_INITRD" = "all" ] ;then
+	for ird in `ls /boot/initrd* | grep -v ".orig"` ;do
+	    if [ "$ird" = "/boot/initrd.splash" ] ;then
+		rm -f /boot/initrd.splash || true
+	    else
+		cp "$ird.orig" "$ird" || \
+		cp "$ird" "$ird.orig"
+	    fi
     
-    for i in $RESOLUTIONS
-    do
-	splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$SPLASH_INITRD"
-    done
+	    for i in $RESOLUTIONS ;do
+		splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$ird"
+	    done
+	done
+    else
+	if [ "$SPLASH_INITRD" = "/boot/initrd.splash" ]
+	then
+	    rm -f /boot/initrd.splash || true
+	else
+	    cp "$SPLASH_INITRD.orig" "$SPLASH_INITRD" || \
+	    cp "$SPLASH_INITRD" "$SPLASH_INITRD.orig"
+	fi
+    
+	for i in $RESOLUTIONS
+	do
+	    splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$SPLASH_INITRD"
+	done
+    fi
     
     # Update lilo if is used
     if [ -f /sbin/lilo ]

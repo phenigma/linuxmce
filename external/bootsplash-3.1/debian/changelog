@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto1) unstable; urgency=low
+
+  * Added default option to patch all the initrd images by default
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 24 Jan 2006 15:16:17 +0200
+
 bootsplash (3.1-2) unstable; urgency=low
 
   * Initial Release.
