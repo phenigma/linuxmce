@@ -1,4 +1,4 @@
-sysvinit (2.86.ds1-1.1pluto2) unstable; urgency=low
+sysvinit (2.86.ds1-1.1pluto3) unstable; urgency=low
 
   * Updated rcS to run hotplug for input
   * Not using grep anymore to test if sysvinit is passed as a kernel parameter
