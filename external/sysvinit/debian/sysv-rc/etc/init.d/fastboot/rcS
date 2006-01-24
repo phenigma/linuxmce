@@ -14,7 +14,7 @@ Message() {
 InitBootsplash() {
     progress=0
     kscripts=0
-    sscripts=19
+    sscripts=20
     export progress kscripts sscripts
 }
 
@@ -181,6 +181,7 @@ fi
 
 . /usr/pluto/bin/Config_Ops.sh
 if [[ "$FirstBoot" != "false" ]] ;then
+	Message "Generating pluto bootscripts for the first time"
 	/usr/pluto/bin/generateRcScripts.sh
 	ConfSet "FirstBoot" "false"
 fi
