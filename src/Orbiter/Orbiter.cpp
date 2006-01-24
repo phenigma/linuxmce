@@ -3869,7 +3869,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
             else if( PK_Button == BUTTON_dash_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '-' );
             else if( PK_Button == BUTTON_equals_sign_CONST )
-                bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '=' );
             else if( PK_Button == BUTTON_semicolumn_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ';' );
             else if( PK_Button == BUTTON_single_quote_CONST )
@@ -3896,6 +3896,12 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '^' );
 			if( PK_Button == BUTTON_ampersand_CONST )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '&' );
+			if( PK_Button == BUTTON_underscore_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '_' );
+			if( PK_Button == BUTTON_plus_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
+				
+
             else if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
@@ -5687,8 +5693,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 			if(pScreenHistory->HistoryEmpty())
 				m_listScreenHistory.pop_back();
 
-			if(!pScreenHistory->m_bCantGoBack)
-				continue;
+			//if(!pScreenHistory->m_bCantGoBack)
+			//	continue;
 
 			//TODO : ask: is this needed ?
 			/*
