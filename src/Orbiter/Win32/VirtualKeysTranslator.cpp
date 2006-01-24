@@ -1,6 +1,15 @@
 #include "VirtualKeysTranslator.h"
 #include "../pluto_main/Define_Button.h"
 //-----------------------------------------------------------------------------------------------------
+#ifdef WINCE
+#define VK_OEM_1		0xBA
+#define VK_OEM_PLUS		0xBB
+#define VK_OEM_COMMA    0xBC
+#define VK_OEM_MINUS	0xBD
+#define VK_OEM_PERIOD	0xBE
+#define VK_OEM_7		0xDE
+#endif
+//-----------------------------------------------------------------------------------------------------
 bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
                                int& iPK_Button, bool& bShiftDown, bool& bAltDown, 
                                bool& bControlDown, bool& bCapsLock)
@@ -78,18 +87,40 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_RETURN: iPK_Button = BUTTON_Enter_CONST;         break;
 		case VK_BACK:   iPK_Button = BUTTON_Back_CONST;          break;
         case VK_SHIFT:  iPK_Button = BUTTON_left_shift_CONST;    break;
+
+		case VK_OEM_MINUS:  iPK_Button = BUTTON_dash_CONST;    break;
+		case VK_OEM_PLUS:  iPK_Button = BUTTON_plus_CONST;    break;
+
+		case VK_OEM_PERIOD:  iPK_Button = BUTTON_dot_CONST;    break;
+		case VK_OEM_COMMA:  iPK_Button = BUTTON_comma_CONST;    break;
+		case VK_OEM_1:  iPK_Button = BUTTON_semicolumn_CONST;    break;
+		case VK_OEM_7:  iPK_Button = BUTTON_single_quote_CONST;    break;
     }
 
     if( bShiftDown && !bControlDown && !bAltDown )
     {
         switch (wParam)
         {
-            case VK_UP:     iPK_Button = BUTTON_Shift_Up_Arrow_CONST;    break;
-            case VK_DOWN:   iPK_Button = BUTTON_Shift_Down_Arrow_CONST;  break;
-            case VK_LEFT:   iPK_Button = BUTTON_Shift_Left_Arrow_CONST;  break;
-            case VK_RIGHT:  iPK_Button = BUTTON_Shift_Right_Arrow_CONST; break;
-            case '3':       iPK_Button = BUTTON_Pound_CONST;             break;
-            case '8':       iPK_Button = BUTTON_Asterisk_CONST;          break;
+            case VK_UP:     iPK_Button = BUTTON_Shift_Up_Arrow_CONST;				break;
+            case VK_DOWN:   iPK_Button = BUTTON_Shift_Down_Arrow_CONST;				break;
+            case VK_LEFT:   iPK_Button = BUTTON_Shift_Left_Arrow_CONST;				break;
+            case VK_RIGHT:  iPK_Button = BUTTON_Shift_Right_Arrow_CONST;			break;
+
+			case VK_OEM_MINUS:		iPK_Button = BUTTON_underscore_CONST;					break;
+			case VK_OEM_PLUS:		iPK_Button = BUTTON_plus_CONST;							break;
+			case VK_OEM_1:       iPK_Button = BUTTON_colon_CONST;						break;
+			case VK_OEM_7:       iPK_Button = BUTTON_double_quote_CONST;					break;
+
+			case '0':       iPK_Button = BUTTON_right_parenthesis_CONST;            break;
+			case '1':       iPK_Button = BUTTON_exclamation_point_CONST;            break;
+			case '2':       iPK_Button = BUTTON_at_sign_CONST;						break;
+            case '3':       iPK_Button = BUTTON_Pound_CONST;						break;
+            case '4':       iPK_Button = BUTTON_dollar_CONST;						break;
+            case '5':       iPK_Button = BUTTON_percent_CONST;						break;
+            case '6':       iPK_Button = BUTTON_caret_CONST;						break;
+            case '7':       iPK_Button = BUTTON_ampersand_CONST;					break;
+            case '8':       iPK_Button = BUTTON_Asterisk_CONST;						break;
+            case '9':       iPK_Button = BUTTON_left_parenthesis_CONST;             break;
         }
     }
 
