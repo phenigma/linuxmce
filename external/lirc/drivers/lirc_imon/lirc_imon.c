@@ -1,7 +1,7 @@
 /*
  *   lirc_imon.c:  LIRC plugin/VFD driver for Ahanix/Soundgraph IMON IR/VFD
  *
- *   $Id: lirc_imon.c,v 1.7 2005/08/10 19:22:20 lirc Exp $
+ *   $Id: lirc_imon.c,v 1.9 2005/12/03 15:18:07 lirc Exp $
  *
  *   Version 0.3 
  *   		Supports newer iMON models that send decoded IR signals.
@@ -72,7 +72,7 @@
 
 #define VFD_MINOR_BASE	144	/* Same as LCD */
 #define DEVFS_MODE	S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH
-#define DEVFS_NAME	"usb/lcd%d"
+#define DEVFS_NAME	LIRC_DEVFS_PREFIX "lcd%d"
 
 #define BUF_CHUNK_SIZE	4
 #define BUF_SIZE	128
@@ -216,7 +216,9 @@ static struct usb_driver imon_driver = {
 static struct usb_class_driver imon_class = {
 	.name 		= DEVFS_NAME,
 	.fops		= &vfd_fops,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 15)
 	.mode		= DEVFS_MODE,
+#endif
 	.minor_base	= VFD_MINOR_BASE,
 };
 #endif
@@ -616,7 +618,7 @@ static void ir_close (void *data)
 
 	LOCK_CONTEXT;
 
-	usb_unlink_urb (context ->rx_urb);
+	usb_kill_urb(context->rx_urb);
 	context ->ir_isopen = FALSE;
 	MOD_DEC_USE_COUNT;
 	info ("IR port closed");
@@ -1125,12 +1127,12 @@ static void imon_disconnect (struct usb_device *dev, void *data)
 	context ->dev_present = FALSE;
 
 	/* Stop reception */
-	usb_unlink_urb (context ->rx_urb);
+	usb_kill_urb(context->rx_urb);
 
 	/* Abort ongoing write */
 	if (atomic_read (&context ->tx.busy)) {
 
-		usb_unlink_urb (context ->tx_urb);
+		usb_kill_urb(context->tx_urb);
 		wait_for_completion (&context ->tx.finished);
 	}
 

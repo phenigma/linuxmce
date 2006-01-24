@@ -108,13 +108,15 @@
 
 #define TEKRAM_PW 0x10 /* Pulse select bit */
 
-/* 10bit * 1s/115200bit in milli seconds = 87ms*/
+/* 10bit * 1s/115200bit in miliseconds = 87ms*/
 #define TIME_CONST (10000000ul/115200ul)
 
 #endif
 
 #ifdef LIRC_SIR_ACTISYS_ACT200L
 static void init_act200(void);
+#elif defined(LIRC_SIR_ACTISYS_ACT220L)
+static void init_act220(void);
 #endif
 
 /******************************* SA1100 ********************************/
@@ -152,9 +154,9 @@ static unsigned int duty_cycle = 50;   /* duty cycle of 50% */
 
 #define LIRC_DRIVER_NAME "lirc_sir"
 
-#ifndef LIRC_SIR_TEKRAM
 #define PULSE '['
 
+#ifndef LIRC_SIR_TEKRAM
 /* 9bit * 1s/115200bit in milli seconds = 78.125ms*/
 #define TIME_CONST (9000000ul/115200ul)
 #endif
@@ -190,10 +192,9 @@ static DECLARE_WAIT_QUEUE_HEAD(lirc_read_queue);
 static spinlock_t hardware_lock = SPIN_LOCK_UNLOCKED;
 static spinlock_t dev_lock = SPIN_LOCK_UNLOCKED;
 
-static lirc_t rx_buf[RBUF_LEN]; unsigned int rx_tail = 0, rx_head = 0;
-#ifndef LIRC_SIR_TEKRAM
+static lirc_t rx_buf[RBUF_LEN]; 
+static unsigned int rx_tail = 0, rx_head = 0;
 static lirc_t tx_buf[WBUF_LEN];
-#endif
 
 static int debug = 0;
 #define dprintk(fmt, args...)                                     \
@@ -221,10 +222,8 @@ static void drop_chrdev(void);
 	/* Hardware */
 static irqreturn_t sir_interrupt(int irq, void * dev_id,
 				 struct pt_regs * regs);
-#ifndef LIRC_SIR_TEKRAM
 static void send_space(unsigned long len);
 static void send_pulse(unsigned long len);
-#endif
 static int init_hardware(void);
 static void drop_hardware(void);
 	/* Initialisation */
@@ -314,14 +313,13 @@ static ssize_t lirc_read(struct file * file, char * buf, size_t count,
 	{
 		if(rx_head!=rx_tail)
 		{
-			retval=verify_area(VERIFY_WRITE,
-					   (void *) buf+n,sizeof(lirc_t));
-			if (retval)
+			if(copy_to_user((void *) buf+n,
+					(void *) (rx_buf+rx_head),
+					sizeof(lirc_t)))
 			{
-				return retval;
+				retval=-EFAULT;
+				break;
 			}
-			copy_to_user((void *) buf+n,(void *) (rx_buf+rx_head),
-				     sizeof(lirc_t));
 			rx_head=(rx_head+1)&(RBUF_LEN-1);
 			n+=sizeof(lirc_t);
 		}
@@ -348,18 +346,11 @@ static ssize_t lirc_read(struct file * file, char * buf, size_t count,
 static ssize_t lirc_write(struct file * file, const char * buf, size_t n, loff_t * pos)
 {
 	unsigned long flags;
-#ifdef LIRC_SIR_TEKRAM
-	return(-EBADF);
-#else
 	int i;
-	int retval;
 
         if(n%sizeof(lirc_t) || (n/sizeof(lirc_t)) > WBUF_LEN)
 		return(-EINVAL);
-	retval = verify_area(VERIFY_READ, buf, n);
-	if (retval)
-		return retval;
-	copy_from_user(tx_buf, buf, n);
+	if(copy_from_user(tx_buf, buf, n)) return -EFAULT;
 	i = 0;
 	n/=sizeof(lirc_t);
 #ifdef LIRC_ON_SA1100
@@ -390,7 +381,6 @@ static ssize_t lirc_write(struct file * file, const char * buf, size_t n, loff_t
 	Ser2UTCR3=UTCR3_RXE|UTCR3_RIE;
 #endif
 	return n;
-#endif
 }
 
 static int lirc_ioctl(struct inode *node,struct file *filep,unsigned int cmd,
@@ -400,16 +390,7 @@ static int lirc_ioctl(struct inode *node,struct file *filep,unsigned int cmd,
 	unsigned long value = 0;
 #ifdef LIRC_ON_SA1100
 	unsigned int ivalue;
-#endif
 
-#ifdef LIRC_SIR_TEKRAM
-	if (cmd == LIRC_GET_FEATURES)
-		value = LIRC_CAN_REC_MODE2;
-	else if (cmd == LIRC_GET_SEND_MODE)
-		value = 0;
-	else if (cmd == LIRC_GET_REC_MODE)
-		value = LIRC_MODE_MODE2;
-#elif defined(LIRC_ON_SA1100)
 	if (cmd == LIRC_GET_FEATURES)
 		value = LIRC_CAN_SEND_PULSE |
 			LIRC_CAN_SET_SEND_DUTY_CYCLE |
@@ -473,15 +454,6 @@ static int lirc_ioctl(struct inode *node,struct file *filep,unsigned int cmd,
 	
 	if (retval)
 		return retval;
-	
-#ifdef LIRC_SIR_TEKRAM
-	if (cmd == LIRC_SET_REC_MODE) {
-		if (value != LIRC_MODE_MODE2)
-			retval = -ENOSYS;
-	} else if (cmd == LIRC_SET_SEND_MODE) {
-		retval = -ENOSYS;
-	}
-#else
 	if (cmd == LIRC_SET_REC_MODE) {
 		if (value != LIRC_MODE_MODE2)
 			retval = -ENOSYS;
@@ -489,7 +461,7 @@ static int lirc_ioctl(struct inode *node,struct file *filep,unsigned int cmd,
 		if (value != LIRC_MODE_PULSE)
 			retval = -ENOSYS;
 	}
-#endif
+
 	return retval;
 }
 
@@ -820,7 +792,6 @@ static void send_space(unsigned long length)
 	off();
 	safe_udelay(length);
 }
-#elif defined(LIRC_SIR_TEKRAM)
 #else
 static void send_space(unsigned long len)
 {
@@ -832,10 +803,14 @@ static void send_pulse(unsigned long len)
 	long bytes_out = len / TIME_CONST;
 	long time_left;
 
-	if (!bytes_out)
-		bytes_out++;
 	time_left = (long)len - (long)bytes_out * (long)TIME_CONST;
-	while (--bytes_out) {
+	if (bytes_out == 0)
+	{
+		bytes_out++;
+		time_left = 0;
+	}
+	while (bytes_out--)
+       	{
 		outb(PULSE, io + UART_TX);
 		/* FIXME treba seriozne cakanie z drivers/char/serial.c */
 		while (!(inb(io + UART_LSR) & UART_LSR_THRE));
@@ -1013,6 +988,8 @@ static int init_hardware(void)
 	outb(UART_MCR_DTR|UART_MCR_RTS|UART_MCR_OUT2, io + UART_MCR);
 #ifdef LIRC_SIR_ACTISYS_ACT200L
 	init_act200();
+#elif defined(LIRC_SIR_ACTISYS_ACT220L)
+	init_act220();
 #endif
 #endif
 	spin_unlock_irqrestore(&hardware_lock, flags);
@@ -1068,6 +1045,9 @@ static int init_port(void)
 	retval = request_irq(irq, sir_interrupt, SA_INTERRUPT,
 			     LIRC_DRIVER_NAME, NULL);
 	if (retval < 0) {
+#               ifndef LIRC_ON_SA1100
+		release_region(io, 8);
+#               endif
 		printk(KERN_ERR LIRC_DRIVER_NAME
 			": IRQ %d already in use.\n",
 			irq);
@@ -1241,6 +1221,62 @@ static void init_act200(void)
 }
 #endif
 
+#ifdef LIRC_SIR_ACTISYS_ACT220L
+/* Derived from linux IrDA driver (drivers/net/irda/actisys.c) 
+ * Drop me a mail for any kind of comment: maxx@spaceboyz.net */
+
+void init_act220(void) {
+	int i;
+
+	/* DLAB 1 */
+	soutp(UART_LCR, UART_LCR_DLAB|UART_LCR_WLEN7);
+
+	/* 9600 baud */
+	soutp(UART_DLM, 0);
+	soutp(UART_DLL, 12);
+
+	/* DLAB 0 */
+	soutp(UART_LCR, UART_LCR_WLEN7);
+
+	/* reset the dongle, set DTR low for 10us */
+	soutp(UART_MCR, UART_MCR_RTS|UART_MCR_OUT2);
+	udelay(10);
+
+	/* back to normal (still 9600) */
+	soutp(UART_MCR, UART_MCR_DTR|UART_MCR_RTS|UART_MCR_OUT2);
+
+	/* send RTS pulses until we reach 115200
+	 * i hope this is really the same for act220l/act220l+ */
+	for(i = 0; i < 3; i++)
+	{
+		udelay(10);
+		/* set RTS low for 10 us */
+		soutp(UART_MCR, UART_MCR_DTR|UART_MCR_OUT2);
+		udelay(10);
+		/* set RTS high for 10 us */
+		soutp(UART_MCR, UART_MCR_RTS|UART_MCR_DTR|UART_MCR_OUT2);
+	}
+	
+	/* back to normal operation */
+	udelay(1500); /* better safe than sorry ;) */
+
+	/* Set DLAB 1. */
+	soutp(UART_LCR, UART_LCR_DLAB | UART_LCR_WLEN7);
+
+	/* Set divisor to 1 => 115200 Baud */
+	soutp(UART_DLM,0);
+	soutp(UART_DLL,1);
+
+	/* Set DLAB 0, 7 Bit */
+	/* The dongle doesn't seem to have any problems with operation
+	   at 7N1 */
+	soutp(UART_LCR, UART_LCR_WLEN7);
+
+	/* enable interrupts */
+	soutp(UART_IER, UART_IER_RDI);
+}
+#endif
+
 static int init_lirc_sir(void)
 {
 	int retval;
@@ -1289,6 +1325,9 @@ MODULE_AUTHOR("Christoph Bartelmus");
 #elif defined(LIRC_SIR_ACTISYS_ACT200L)
 MODULE_DESCRIPTION("LIRC driver for Actisys Act200L");
 MODULE_AUTHOR("Karl Bongers");
+#elif defined(LIRC_SIR_ACTISYS_ACT220L)
+MODULE_DESCRIPTION("LIRC driver for Actisys Act220L(+)");
+MODULE_AUTHOR("Jan Roemisch");
 #else
 MODULE_DESCRIPTION("Infrared receiver driver for SIR type serial ports");
 MODULE_AUTHOR("Milan Pikula");

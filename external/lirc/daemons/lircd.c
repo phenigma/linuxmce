@@ -1,4 +1,4 @@
-/*      $Id: lircd.c,v 5.57 2005/07/10 08:34:12 lirc Exp $      */
+/*      $Id: lircd.c,v 5.61 2005/10/30 11:11:46 lirc Exp $      */
 
 /****************************************************************************
  ** lircd.c *****************************************************************
@@ -87,7 +87,7 @@ static char *repeat_message=NULL;
 
 extern struct hardware hw;
 
-char *progname="lircd " VERSION;
+char *progname="lircd";
 char *configfile=LIRCDCFGFILE;
 #ifndef USE_SYSLOG
 char *logfile=LOGFILE;
@@ -202,7 +202,14 @@ inline int write_socket(int fd, char *buf, int len)
 
 	while(todo)
 	{
+#ifdef SIM_REC
+		do{
+			done=write(fd,buf,todo);
+		}
+		while(done<0 && errno == EAGAIN);
+#else
 		done=write(fd,buf,todo);
+#endif
 		if(done<=0) return(done);
 		buf+=done;
 		todo-=done;
@@ -1102,7 +1109,7 @@ int send_remote_list(int fd,char *message)
 	while(all)
 	{
 		len=snprintf(buffer,PACKET_SIZE+1,"%s\n",all->name);
-		if(len==PACKET_SIZE+1)
+		if(len>=PACKET_SIZE+1)
 		{
 			len=sprintf(buffer,"name_too_long\n");
 		}
@@ -1155,7 +1162,7 @@ int send_remote(int fd,char *message,struct ir_remote *remote)
 			     codes->code,
 			     codes->name);
 #endif
-		if(len==PACKET_SIZE+1)
+		if(len>=PACKET_SIZE+1)
 		{
 			len=sprintf(buffer,"code_too_long\n");
 		}
@@ -1186,7 +1193,7 @@ int send_name(int fd,char *message,struct ir_ncode *code)
 		     code->code,
 		     code->name);
 #endif
-	if(len==PACKET_SIZE+1)
+	if(len>=PACKET_SIZE+1)
 	{
 		len=sprintf(buffer,"1\ncode_too_long\n");
 	}
@@ -1878,7 +1885,7 @@ int main(int argc,char **argv)
 #                       endif
 			return(EXIT_SUCCESS);
 		case 'v':
-			printf("%s\n",progname);
+			printf("%s %s\n",progname,VERSION);
 			return(EXIT_SUCCESS);
 		case 'n':
 			nodaemon=1;
@@ -1974,7 +1981,7 @@ int main(int argc,char **argv)
 			"no peers are specified\n",progname);
 		return(EXIT_FAILURE);
 	}
-	if(strcmp(hw.device, lircdfile)==0)
+	if(hw.device!=NULL && strcmp(hw.device, lircdfile)==0)
 	{
 		fprintf(stderr, "%s: refusing to connect to myself\n",
 			progname);

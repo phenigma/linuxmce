@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 5.152 2005/08/14 10:23:48 lirc Exp $
+dnl $Id: configure.in,v 5.161 2006/01/21 09:01:44 lirc Exp $
 
 dnl Process this file with autoconf to produce a configure script.
 dnl configure.in, (c)1999 Tom Wheeley <tw104@york.ac.uk>
@@ -14,7 +14,7 @@ if test "$#" = "0"; then
   exit 0
 fi
 
-AM_INIT_AUTOMAKE(lirc, 0.7.2)
+AM_INIT_AUTOMAKE(lirc, 0.8.0)
 AM_CONFIG_HEADER(config.h)
 
 CFLAGS="-O2 -g -Wall"
@@ -137,6 +137,7 @@ AC_MSG_CHECKING([for which drivers can be installed on this system])
 AC_MSG_RESULT()
 
 possible_drivers="(none) \
+	(userspace)
 	(bte) \
 	(bw6130) \
 	(creative) \
@@ -164,7 +165,7 @@ possible_drivers="(none) \
 
 if test x${no_kernel} != xyes; then
   possible_drivers="${possible_drivers} \
-	(any) \
+	(all) \
 	(lirc_dev) \
 	(lirc_dev lirc_atiusb) \
 	(lirc_dev lirc_bt829) \
@@ -255,21 +256,22 @@ dnl here we see what driver the user wants.
 
 AC_ARG_WITH(driver,
 [  --with-driver=X         specify the driver to use, where X is one of:
-                          none, any, act200l, adaptec, alsa_usb, animax,
-                          atilibusb, atiusb, audio, avermedia,
-                          avermedia_vdomate, avermedia98, bestbuy,
-                          bestbuy2, breakoutbox, bte, bw6130, caraca,
-                          chronos, cmdir, comX, cph06x, creative,
-                          creative_infracd, devinput, digimatrix, dsp,
-                          dvico, ea65, exaudio, flyvideo, gvbctv5pci,
-                          hauppauge, hauppauge_dvb,
-                          hercules_smarttv_stereo, igorplugusb, imon,
-                          imon_pad, imon_rsc, irdeo, irdeo_remote,
-                          irman, irreal, it87, knc_one, kworld,
-                          leadtek_0007, leadtek_0010, leadtek_pvr2000,
-                          livedrive_midi, livedrive_seq, logitech,
-                          lptX, mceusb, mceusb2, mediafocusI,
-                          mouseremote,mouseremote_ps2, mp3anywhere,
+                          all, none, userspace, act200l, act220l,
+                          adaptec, alsa_usb, animax, atilibusb,
+                          atiusb, audio, avermedia, avermedia_vdomate,
+                          avermedia98, bestbuy, bestbuy2, breakoutbox,
+                          bte, bw6130, caraca, chronos, cmdir, comX,
+                          cph06x, creative, creative_infracd,
+                          devinput, digimatrix, dsp, dvico, ea65,
+                          exaudio, flyvideo, gvbctv5pci, hauppauge,
+                          hauppauge_dvb, hercules_smarttv_stereo,
+                          igorplugusb, imon, imon_pad, imon_rsc,
+                          irdeo, irdeo_remote, irman, irreal, it87,
+                          knc_one, kworld, leadtek_0007, leadtek_0010,
+                          leadtek_pvr2000, livedrive_midi,
+                          livedrive_seq, logitech, lptX, mceusb,
+                          mceusb2, mediafocusI, mouseremote,
+                          mouseremote_ps2, mp3anywhere, nslu2,
                           packard_bell, parallel, pcmak, pcmak_usb,
                           pctv, pixelview_bt878, pixelview_pak,
                           pixelview_pro, provideo, realmagic,
@@ -301,9 +303,9 @@ if test "$driver" = "none"; then
   HW_DEFAULT="hw_null"
 fi
 
-if test "$driver" = "any"; then
+if test "$driver" = "userspace" -o "$driver" = "all"; then
   AC_DEFINE(LIRC_DRIVER_ANY)
-  lirc_driver="any"
+  lirc_driver=$driver
   
   any_possible_drivers=`echo ${possible_drivers} | sed -e's/ /-/g' \
 			  -e's/)-(/ /g'  -e's/(//g' -e's/)//g' \
@@ -316,8 +318,8 @@ if test "$driver" = "any"; then
 		;;
 	atilibusb)
 		hw_module="${hw_module} hw_atilibusb.o receive.o"
-		atilibusb_lib=`libusb-config --libs`
-		CFLAGS="$CFLAGS `libusb-config --cflags`"
+		atilibusb_lib=`${LIBUSB_CONFIG} --libs`
+		CFLAGS="$CFLAGS `${LIBUSB_CONFIG} --cflags`"
 		;;
 	audio)
 		hw_module="${hw_module} hw_audio.o receive.o"
@@ -475,6 +477,11 @@ if test "$driver" = "act200l"; then
   AC_DEFINE(LIRC_SIR_ACTISYS_ACT200L)
 fi
 
+if test "$driver" = "act220l"; then
+  lirc_driver="lirc_dev lirc_sir"
+  AC_DEFINE(LIRC_SIR_ACTISYS_ACT220L)
+fi
+    
 if test "$driver" = "adaptec"; then
   lirc_driver="lirc_dev lirc_i2c"
   lircd_conf="adaptec/lircd.conf.AVC-2410"
@@ -865,6 +872,11 @@ if test "$driver" = "mp3anywhere"; then
   lircd_conf="x10/lircd.conf.mp3anywhere"
 fi
 
+if test "$driver" = "nslu2"; then
+  lirc_driver="lirc_dev lirc_serial"
+  AC_DEFINE(LIRC_SERIAL_NSLU2)
+fi
+
 if test "$driver" = "packard_bell"; then
   lirc_driver="lirc_dev lirc_serial"
   lircd_conf="packard_bell/lircd.conf.packard_bell"
@@ -1039,7 +1051,7 @@ else
     AC_MSG_ERROR([*** you need to first install the caraca package
 	before you can use this driver])
     ;;
-  lirc_*)
+  all|lirc_*)
     AC_MSG_ERROR([*** you need to have the Linux kernel source installed
 	for this driver])
     ;;
@@ -1078,6 +1090,7 @@ dnl now we've checked, we can rename things for the drivers/Makefile
 
 if test "$lirc_driver" = "none" || \
 	test "$lirc_driver" = "alsa_usb" || \
+	test "$lirc_driver" = "userspace" || \
 	test "$lirc_driver" = "atilibusb" || \
 	test "$lirc_driver" = "audio" || \
 	test "$lirc_driver" = "audio_alsa" || \
@@ -1085,7 +1098,7 @@ if test "$lirc_driver" = "none" || \
 	test "$lirc_driver" = "irman" || \
 	test "$lirc_driver" = "irman_sw"; then
   lirc_driver=
-elif test "$lirc_driver" = "any"; then
+elif test "$lirc_driver" = "all"; then
   lirc_driver="lirc_dev \
 	lirc_atiusb \
 	lirc_bt829 \
@@ -1316,8 +1329,8 @@ AC_OUTPUT([
 ])
 
 echo
-if test "$driver" = "any"; then
-  echo "All kernel mdoules will be built."
+if test "$driver" = "all"; then
+  echo "All kernel modules will be built."
 elif test "$driver" = "mediafocusI"; then
   echo "You will have to use the MediaFocus driver from:"
   echo "http://people.freenet.de/mediafocus/"

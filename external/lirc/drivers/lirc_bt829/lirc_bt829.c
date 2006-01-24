@@ -65,7 +65,8 @@ static int debug = 0;
 	}while(0)
 
 static int atir_minor;
-static unsigned long pci_addr_phys, pci_addr_lin;
+static unsigned long pci_addr_phys;
+static unsigned char *pci_addr_lin;
 
 static struct lirc_plugin atir_plugin;
 
@@ -81,7 +82,7 @@ static int do_pci_probe(void)
 	my_dev = (struct pci_dev *)pci_find_device(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_264VT,NULL);
 	if ( my_dev ) {
 		printk(KERN_ERR "ATIR: Using device: %s\n",
-		       pci_pretty_name(my_dev));
+		       pci_name(my_dev));
 		pci_addr_phys = 0;
 		if ( my_dev->resource[0].flags & IORESOURCE_MEM ) {
 			pci_addr_phys = my_dev->resource[0].start;
@@ -161,7 +162,7 @@ void cleanup_module(void)
 
 static int atir_init_start(void)
 {
-	pci_addr_lin = (unsigned long)ioremap(pci_addr_phys + DATA_PCI_OFF,0x400);
+	pci_addr_lin = ioremap(pci_addr_phys + DATA_PCI_OFF,0x400);
 	if ( pci_addr_lin == 0 ) {
 		printk(KERN_INFO "atir: pci mem must be mapped\n");
 		return 0;
@@ -363,7 +364,8 @@ static unsigned char do_get_bits(void)
 
 static unsigned int read_index(unsigned char index)
 {
-	unsigned int addr, value;
+	unsigned char *addr;
+	unsigned int value;
 	//  addr = pci_addr_lin + DATA_PCI_OFF + ((index & 0xFF) << 2);
 	addr = pci_addr_lin + ((index & 0xFF) << 2);
 	value = readl(addr);
@@ -372,7 +374,7 @@ static unsigned int read_index(unsigned char index)
 
 static void write_index(unsigned char index,unsigned int reg_val)
 {
-	unsigned int addr;
+	unsigned char *addr;
 	addr = pci_addr_lin + ((index & 0xFF) << 2);
 	writel(reg_val,addr);
 }

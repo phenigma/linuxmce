@@ -110,7 +110,7 @@ vga_progs = @vga_progs@
 x_progs = @x_progs@
 
 man_MANS = irexec.1 ircat.1 irpty.1 irrecord.1 irw.1 irxevent.1 \
-	lircd.8 lircmd.8 mode2.1 smode2.1 xmode2.1 irsend.1
+	lircd.8 lircmd.8 lircrcd.1 mode2.1 smode2.1 xmode2.1 irsend.1
 
 
 EXTRA_DIST = $(man_MANS)

@@ -31,6 +31,7 @@ hw_menu_entry: @hw-other-serial
 	irdeo: "IRdeo"
 	irdeo_remote: "IRdeo Remote"
 	irman: "Irman / UIR"
+	nslu2: "Linksys NSLU2 (CTS2+GreenLED)"
 	logitech: "Logitech/AST"
 	pcmak: "PCMAK serial receiver"
 	pctv: "Miro PCTV receiver"
@@ -73,6 +74,7 @@ hw_menu_entry: @hw-tv-card
 	pixelview_pak: "Lenco MXTV-9578 CP (card=50)"
 	pctv: "Miro PCTV serial port receiver"
 	cph06x: "Phoebe Tv Master + FM (card=22)"
+	pixelview_pro: "Pixelview PlayTV MPEG2"
 	pixelview_pak: "PixelView PlayTV PAK (card=50)"
 	pixelview_pro: "Pixelview PlayTV pro (card=37)"
 	pixelview_bt878: "Pixelview PlayTV (bt878) \
@@ -97,6 +99,7 @@ hw_menu_entry: @hw-irda
 	it87: "ITE IT8712/IT8705 CIR port"
 	digimatrix: "Asus Digimatrix IT87xx CIR port"
 	act200l: "Actisys Act200L SIR driver support"
+	act220l: "Actisys Act220L(+) SIR driver support"
 
 hw_menu_entry: @hw-pda
 	sa1100: "HP iPAQ"
@@ -124,6 +127,7 @@ hw_menu_entry: @hw-usb
 
 param_type: \
 	act200l \
+	act220l \
 	animax \
 	irdeo \
 	irdeo_remote \
@@ -206,6 +210,7 @@ param_type: \
 	mediafocusI \
 	mouseremote_ps2 \
 	none \
+	nslu2 \
 	pixelview_bt878 \
 	pixelview_pak \
 	pixelview_pro \
@@ -265,6 +270,7 @@ default_param: \
 	mediafocusI \
 	mouseremote_ps2 \
 	none \
+	nslu2 \
 	pixelview_bt878 \
 	pixelview_pak \
 	pixelview_pro \
@@ -304,6 +310,7 @@ default_param: parallel
 
 default_param: \
 	act200l \
+	act220l \
 	animax \
 	irdeo \
 	irdeo_remote \

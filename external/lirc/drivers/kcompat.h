@@ -1,4 +1,4 @@
-/*      $Id: kcompat.h,v 5.13 2005/08/01 20:34:27 lirc Exp $      */
+/*      $Id: kcompat.h,v 5.24 2006/01/07 20:51:31 lirc Exp $      */
 
 #ifndef _KCOMPAT_H
 #define _KCOMPAT_H
@@ -14,6 +14,7 @@
 #define LIRC_HAVE_SYSFS
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
+
 typedef struct class_simple lirc_class_t;
 
 static inline lirc_class_t *class_create(struct module *owner, char *name)
@@ -26,19 +27,39 @@ static inline void class_destroy(lirc_class_t *cls)
 	class_simple_destroy(cls);
 }
 
-#define class_device_create class_simple_device_add
+#define lirc_class_device_create(cs, parent, dev, device, fmt, args...) \
+	class_simple_device_add(cs, dev, device, fmt, ## args)
 
 static inline void class_device_destroy(lirc_class_t *cls, dev_t devt)
 {
 	class_simple_device_remove(devt);
 }
-#else
+
+#else /* >= 2.6.13 */
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
+
+#define lirc_class_device_create(cs, parent, dev, device, fmt, args...) \
+	class_device_create(cs, dev, device, fmt, ## args)
+
+#else /* >= 2.6.15 */
+
+#define lirc_class_device_create class_device_create
+#define LIRC_DEVFS_PREFIX
+
+#endif
+
 typedef struct class lirc_class_t;
+
 #endif
 
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
 #define LIRC_HAVE_DEVFS
 #define LIRC_HAVE_DEVFS_24
+#endif
+
+#ifndef LIRC_DEVFS_PREFIX
+#define LIRC_DEVFS_PREFIX "usb/"
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 3, 0)
@@ -99,7 +120,7 @@ static inline void del_timer_sync(struct timer_list * timerlist)
 #define class_destroy(x) do { } while(0)
 #define class_create(x,y) NULL
 #define class_device_destroy(x,y) do { } while(0)
-#define class_device_create(x, y, z, xx, yy) 0
+#define lirc_class_device_create(x, y, z, xx, yy, zz) 0
 #define IS_ERR(x) 0
 typedef struct class_simple 
 {
@@ -162,6 +183,7 @@ static inline void module_put(struct module *module)
 #define MODULE_DEVICE_TABLE(x,y)
 #endif
 
+#include <linux/interrupt.h>
 #ifndef IRQ_RETVAL
 typedef void irqreturn_t;
 #define IRQ_NONE
@@ -186,9 +208,13 @@ typedef void irqreturn_t;
 #define local_irq_restore(flags) do{ restore_flags(flags); } while(0)
 #endif
 
-#if !defined(pci_pretty_name)
-#define pci_pretty_name(dev) ((dev)->name)
-#endif
+#if KERNEL_VERSION(2, 4, 0) <= LINUX_VERSION_CODE && LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 22)
+#include <linux/pci.h>
+static inline char *pci_name(struct pci_dev *pdev)
+{
+	return pdev->slot_name;
+}
+#endif // 2.4.0 <= kernel < 2.4.22
 
 /*************************** I2C specific *****************************/
 #include <linux/i2c.h>
@@ -202,18 +228,6 @@ typedef void irqreturn_t;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
 
-#undef i2c_use_client
-#define i2c_use_client(client_ptr) do { \
-	if ((client_ptr)->adapter->inc_use) \
-		(client_ptr)->adapter->inc_use((client_ptr)->adapter); \
-} while (0)
-
-#undef i2c_release_client
-#define i2c_release_client(client_ptr) do { \
-	if ((client_ptr)->adapter->dec_use) \
-		(client_ptr)->adapter->dec_use((client_ptr)->adapter); \
-} while (0)
-
 #undef i2c_get_clientdata
 #define i2c_get_clientdata(client) ((client)->data)
 
@@ -225,5 +239,64 @@ typedef void irqreturn_t;
 
 
 #endif
+
+/* removed in 2.6.14 */
+#ifndef I2C_ALGO_BIT
+#   define I2C_ALGO_BIT 0
+#endif
+
+/*************************** USB specific *****************************/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
+#include <linux/usb.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 8)
+static inline int usb_kill_urb(struct urb *urb)
+{
+	return usb_unlink_urb(urb);
+}
+#endif
+
+/* removed in 2.6.14 */
+#ifndef URB_ASYNC_UNLINK
+#define URB_ASYNC_UNLINK 0  
+#endif
+#endif
+
+/*************************** bttv specific ****************************/
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 15) /* BTTV_* -> BTTV_BOARD_* */
+#define BTTV_BOARD_UNKNOWN         BTTV_UNKNOWN
+#define BTTV_BOARD_PXELVWPLTVPAK   BTTV_PXELVWPLTVPAK
+#define BTTV_BOARD_PXELVWPLTVPRO   BTTV_PXELVWPLTVPRO
+#define BTTV_BOARD_PV_BT878P_9B    BTTV_PV_BT878P_9B
+#define BTTV_BOARD_PV_BT878P_PLUS  BTTV_PV_BT878P_PLUS
+#define BTTV_BOARD_AVERMEDIA       BTTV_AVERMEDIA
+#define BTTV_BOARD_AVPHONE98       BTTV_AVPHONE98
+#define BTTV_BOARD_AVERMEDIA98     BTTV_AVERMEDIA98
+#define BTTV_BOARD_CHRONOS_VS2     BTTV_CHRONOS_VS2
+#define BTTV_BOARD_MIRO            BTTV_MIRO
+#define BTTV_BOARD_DYNALINK        BTTV_DYNALINK
+#define BTTV_BOARD_WINVIEW_601     BTTV_WINVIEW_601
+#ifdef BTTV_KWORLD
+#define BTTV_BOARD_KWORLD          BTTV_KWORLD
+#endif
+#define BTTV_BOARD_MAGICTVIEW061   BTTV_MAGICTVIEW061
+#define BTTV_BOARD_MAGICTVIEW063   BTTV_MAGICTVIEW063
+#define BTTV_BOARD_PHOEBE_TVMAS    BTTV_PHOEBE_TVMAS
+#ifdef BTTV_BESTBUY_EASYTV2
+#define BTTV_BOARD_BESTBUY_EASYTV  BTTV_BESTBUY_EASYTV
+#define BTTV_BOARD_BESTBUY_EASYTV2 BTTV_BESTBUY_EASYTV2
+#endif
+#define BTTV_BOARD_FLYVIDEO        BTTV_FLYVIDEO
+#define BTTV_BOARD_FLYVIDEO_98     BTTV_FLYVIDEO_98
+#define BTTV_BOARD_TYPHOON_TVIEW   BTTV_TYPHOON_TVIEW
+#ifdef BTTV_FLYVIDEO_98FM
+#define BTTV_BOARD_FLYVIDEO_98FM   BTTV_FLYVIDEO_98FM
+#endif
+#define BTTV_BOARD_WINFAST2000     BTTV_WINFAST2000
+#ifdef BTTV_GVBCTV5PCI
+#define BTTV_BOARD_GVBCTV5PCI      BTTV_GVBCTV5PCI
+#endif
+#endif  /* end BTTV_* -> BTTV_BOARD_* */
 
 #endif /* _KCOMPAT_H */

@@ -1,4 +1,4 @@
-/*      $Id: acconfig.h,v 5.33 2005/06/05 15:43:28 lirc Exp $      */
+/*      $Id: acconfig.h,v 5.35 2005/12/26 09:51:57 lirc Exp $      */
 
 /*
  *  are you editing the correct file?
@@ -138,6 +138,9 @@
 /* Define if you have an Igor Cesko receiver */
 #undef LIRC_SERIAL_IGOR
 
+/* Define if you have a Linksys NSLU2 and use CTS2+GreenLED */
+#undef LIRC_SERIAL_NSLU2
+
 /* Define if you want to cross-compile for the SA1100 */
 #undef LIRC_ON_SA1100
 
@@ -146,6 +149,9 @@
 
 /* Define if you want to use a Actisys Act200L */
 #undef LIRC_SIR_ACTISYS_ACT200L
+
+/* Define if you want to use a Actisys Act220L */
+#undef LIRC_SIR_ACTISYS_ACT220L
 
 /* Define if devfs support is present in current kernel */
 #undef LIRC_HAVE_DEVFS

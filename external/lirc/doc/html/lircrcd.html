@@ -31,49 +31,67 @@
 
 <!-- Text ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-<H1>XMODE2</H1>
+<H1>LIRCRCD</H1>
 <HR>
 
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 
-mode2, smode2, xmode2 - shows the pulse/space length of infrared signals
+lircrc daemon - handle consistent .lircrc state among client applications
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS</H2>
 
-<B>xmode2</B>
+<B>lircrcd</B>
 
-[<I>options</I>]
+[<I>options</I>] <I>config-file</I>
 <A NAME="lbAD">&nbsp;</A>
 <H2>DESCRIPTION</H2>
 
-The main purpose of these programs is to check operation of your
-home-brew LIRC receiver hardware and to see the IR waveform of the
-remote controller without an expensive oscilloscope. Very useful for
-debugging. Of course this program won't work with hardware that decodes
-the signals itself like e.g. TV cards or the Irman.
 <P>
-<P>
-xmode2 is based on smode2 by Sinkovics Zoltan. It is just a conversion
-from svga to X with some basic support for resizing. The only
-differences are that the --mode option enables an alternative display
-mode and that xmode2 can read and visualise mode2 output from stdin.
+<B>lircrcd</B>
+
+reads the given .lircrc config file and synchronises the mode
+that the LIRC clients using this config file (<B>irexec</B>(1),
+<B>irxevent</B>(1) , etc.) are in. Using 
+<B>lircrcd</B>
+
+has to be explicitly
+enabled in the config file by adding the following line at the
+beginning of the file:
+<BR>
+
+#! lircrcd
 <DL COMPACT>
 <DT><B>-h</B> <B>--help</B><DD>
-display usage summary
+display this message
 <DT><B>-v</B> <B>--version</B><DD>
 display version
-<DT><B>-d</B> <B>--device</B>=<I>device</I><DD>
-read from given device
-<DT>
-
-<B>-g</B> <B>--geometry</B>=<I>geometry</I> window geometry
-<DT><B>-t</B> <B>--timediv</B>=<I>value</I><DD>
-<DD>ms per unit
-<DT><B>-m</B> <B>--mode</B><DD>
-enable alternative display mode
+<DT><B>-p</B> <B>--permission</B>=<I>mode</I><DD>
+file permissions for socket
+<DT><B>-o</B> <B>--output</B>=<I>socket</I><DD>
+output socket filename
 </DL>
 <A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-p,&nbsp;--premission=</B><I>mode</I>
+
+<DD>
+The --permission option gives the file permission of the Unix domain
+socket lircrcd creates on startup in octal representation. Read the
+documentation for chmod for further details. If no --permission option
+is given when the socket is created the default is to give only the
+user owning the file read and write permissions (0600 in octal
+representation).
+<DT><B>-o,&nbsp;--output=</B><I>socket</I>
+
+<DD>
+With the --output option you can select the Unix domain socket, which
+lircrcd will create. The default is to append a &quot;d&quot; character to the
+config filename given.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 

@@ -1,4 +1,4 @@
-/*      $Id: lirc_client.h,v 5.5 2003/08/15 09:37:30 lirc Exp $      */
+/*      $Id: lirc_client.h,v 5.9 2005/12/27 12:05:27 lirc Exp $      */
 
 /****************************************************************************
  ** lirc_client.h ***********************************************************
@@ -14,9 +14,14 @@
 #ifndef LIRC_CLIENT_H
 #define LIRC_CLIENT_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LIRC_RET_SUCCESS  (0)
+#define LIRC_RET_ERROR   (-1)
 
 #define LIRC_ALL ((char *) (-1))
 
@@ -46,6 +51,8 @@ struct lirc_config
 	char *current_mode;
 	struct lirc_config_entry *next;
 	struct lirc_config_entry *first;
+	
+	int sockfd;
 };
 
 struct lirc_config_entry
@@ -79,6 +86,14 @@ char *lirc_ir2char(struct lirc_config *config,char *code);
 
 int lirc_nextcode(char **code);
 int lirc_code2char(struct lirc_config *config,char *code,char **string);
+
+/* new interface for client daemon */
+int lirc_readconfig_only(char *file,struct lirc_config **config,
+			 int (check)(char *s));
+int lirc_code2charprog(struct lirc_config *config,char *code,char **string,
+		       char **prog);
+size_t lirc_getsocketname(const char *filename, char *buf, size_t size);
+const char *lirc_getmode(struct lirc_config *config);
 
 #ifdef __cplusplus
 }

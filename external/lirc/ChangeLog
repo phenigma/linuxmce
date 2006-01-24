@@ -1,4 +1,327 @@
+2006-01-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	0.8.0 release
+
+2006-01-19  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	Medion USB Remote Control X10, model no. 40009936
+
+2006-01-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.8.0pre4 snapshot release
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	enabled transmit code for Tekram 210
+
+2006-01-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	corrections for Medion MD1 remote
+
+2006-01-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	working again: try to open /etc/lircrc if default file does not exit
+
+	* /cvsroot/lirc/lirc/tools/lircrcd.c: remove socket file on exit
+
+2006-01-07  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h: added include of linux/pci.h
+
+2006-01-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	fixed race condition with usb interrupt in timer handler which would lead to a lockup
+
+2006-01-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/TODO: list not becoming shorter
+
+2006-01-02  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/mode2.c:
+	fixed check for wrong argument count
+
+2006-01-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_gpio/lirc_gpio.c:
+	2.6.15: BTTV_* renamed to BTTV_BOARD_*
+
+2005-12-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h: compatibility for 2.2.x kernels
+
+2005-12-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/.cvsignore: added stamp-h1
+
+	* /cvsroot/lirc/lirc/doc/man/.cvsignore: added lircrcd.1
+
+	* /cvsroot/lirc/lirc/drivers/Makefile.common:
+	corrected include path settings,
+	fixes compile problems with gcc 4
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.8.0pre3 snapshot release
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	lirc_send_command() not part of official interface yet
+
+2005-12-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	another remote config
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Actisys Act220L(+) (Jan Roemisch)
+
+2005-12-17  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	pulses were too short or even were not sent at all
+
+	* /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c:
+	removed questionable type field
+
+	* /cvsroot/lirc/lirc/acconfig.h, /cvsroot/lirc/lirc/AUTHORS, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.data:
+	added support for Linksys NSLU2 (Matthias Goebl)
+
+2005-12-10  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.8.0pre2 snapshot release
+
+	* /cvsroot/lirc/lirc/doc/html-source/configure.html, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/doc/html-source/technical.html, /cvsroot/lirc/lirc/doc/man/Makefile.am, /cvsroot/lirc/lirc/doc/man-source/lircrcd.inc, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/release-man.sh, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/tools/.cvsignore, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_clientd.c, /cvsroot/lirc/lirc/tools/lircrcd.c, /cvsroot/lirc/lirc/tools/Makefile.am:
+	renamed lirc_clientd to lircrcd,
+	documented lircrcd
+
+	* /cvsroot/lirc/lirc/remotes/pixelview/lircd.conf.playtv_pro, /cvsroot/lirc/lirc/setup.data:
+	PixelView PlayTV MPEG2
+
+2005-12-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: always use LIBUSB_CONFIG
+
+2005-12-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h: fixed typo
+
+2005-12-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_dev/lirc_dev.c, /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c:
+	changes for 2.6.15
+
+2005-11-28  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/contrib/lirc.m4: proper quoting
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c:
+	need one more for terminating 0
+
+2005-11-27  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_clientd.c: log messages using syslog
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	use pci_name() instead of obsolete pci_pretty_name()
+
+2005-11-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb: MEDION X10 RF
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_clientd.c, /cvsroot/lirc/lirc/tools/lirc_client.h:
+	added function to retrieve current mode
+
+2005-11-12  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/html-source/alsa-usb.html, /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/table.sh:
+	added dedicated alsa_usb documentation
+
+	* /cvsroot/lirc/lirc/doc/html-source/install.html, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/NEWS:
+	replaced "any" with "all" and "userspace"
+
+2005-11-09  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/lirc_clientd.c:
+	remove version string from usage and error messages
+
+2005-11-08  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_bt829/lirc_bt829.c:
+	fixed compiler warnings
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h:
+	pci_pretty_name disappeared in 2.6.14
+
+	* /cvsroot/lirc/lirc/tools/lirc_client.h: add stddef.h for size_t
+
+2005-11-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.8.0pre1 snapshot release
+
+	* /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/setup.sh, /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/NEWS:
+	next version will be 0.8.0
+
+	* /cvsroot/lirc/lirc/remotes/generic/RCMM-32.conf:
+	added RCMM-32 template
+
+2005-11-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/.cvsignore, /cvsroot/lirc/lirc/tools/lirc_client.c, /cvsroot/lirc/lirc/tools/lirc_clientd.c, /cvsroot/lirc/lirc/tools/lirc_client.h, /cvsroot/lirc/lirc/tools/Makefile.am:
+	initial support for lirc client daemon that syncronises mode between clients
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	changed obviously wrong code
+
+2005-10-30  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/lircmd.c:
+	remove version string from usage and error messages
+
+2005-10-29  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/bestbuy/lircd.conf.bestbuy2:
+	corrected code for 9 button
+
+	* /cvsroot/lirc/lirc/doc/release-html.sh, /cvsroot/lirc/lirc/doc/table.sh:
+	generation of driver overview table
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h, /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c, /cvsroot/lirc/lirc/drivers/lirc_imon/lirc_imon.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb2/lirc_mceusb2.c, /cvsroot/lirc/lirc/drivers/lirc_mceusb/lirc_mceusb.c, /cvsroot/lirc/lirc/drivers/lirc_sasem/lirc_sasem.c, /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	USB changes for 2.6.14
+
+2005-10-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c, /cvsroot/lirc/lirc/daemons/ir_remote.c:
+	fixed potential information leaks (thanks to Rik Bobbaers for pointing out the problem)
+
+2005-10-21  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	lirc-0.7.3pre1 snapshot release
+
+	* /cvsroot/lirc/lirc/NEWS: changes since last release
+
+2005-10-20  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	more robust write for receive simulation
+
+	* /cvsroot/lirc/lirc/daemons/receive.c: added debug traces
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h: removed redundant defines
+
+	* /cvsroot/lirc/lirc/drivers/lirc_i2c/lirc_i2c.c:
+	check return value of i2c_use_client(),
+	call i2c_use_client() only if really necessary
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h:
+	added include of interrupt.h to prevent redefinitions
+
+	* /cvsroot/lirc/lirc/drivers/kcompat.h:
+	I2C_ALGO_BIT disappeared in 2.6.14
+
+2005-10-16  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/doc/man-source/xmode2.inc:
+	added reading from stdin to support visualisation of captured mode2 signals
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c: added X geometry support
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c: changed indentation to 8
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c:
+	added reading from stdin to support visualisation of captured mode2 signals
+
+2005-10-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/transmit.c:
+	fixed misbehaviour if transmitting small gap value while a space is pending (affected configs: FURBY and Toshiba TDP-S2)
+
+2005-10-05  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/hauppauge/lircd.conf.hauppauge:
+	config for WinTV Nexus-S
+
+2005-10-04  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c:
+	call release_region() if request_irq() fails
+
+2005-09-25  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_cmdir/lirc_cmdir.c, /cvsroot/lirc/lirc/drivers/lirc_cmdir/lirc_cmdir.h:
+	support for packet queueing and timing in the hardware driver to eliminate udelay()s that cause stuttering
+
+2005-09-22  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_cmdir/lirc_cmdir.c, /cvsroot/lirc/lirc/drivers/lirc_it87/lirc_it87.c, /cvsroot/lirc/lirc/drivers/lirc_parallel/lirc_parallel.c, /cvsroot/lirc/lirc/drivers/lirc_serial/lirc_serial.c, /cvsroot/lirc/lirc/drivers/lirc_sir/lirc_sir.c:
+	get rid of verify_area
+
+2005-09-13  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/mceusb/lircd.conf.mceusb:
+	updated for MCE 2005 remote
+
+2005-09-10  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/irxevent.c:
+	don't try to send events to non-existing window
+
+2005-09-06  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/asus/lircd.conf.digimatrix:
+	alternative version of remote control bundled with DigiMatrix
+
+2005-09-03  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/transmit.c:
+	consider NO_HEAD_REP when doing low gap concatenation
+
+2005-09-01  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/remotes/dvico/lircd.conf.fusionHDTV: new version
+
+2005-08-31  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/hw_hiddev.c: corrected code length
+
+2005-08-26  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/daemons/irrecord.c:
+	fix bug when recording with -f option using udp driver
+
+	* /cvsroot/lirc/lirc/remotes/atiusb/lircd.conf.atiusb:
+	Medion MD95700 remote
+
+2005-08-24  pmiller9  <pmiller9@k7>
+
+	* /cvsroot/lirc/lirc/drivers/lirc_atiusb/lirc_atiusb.c:
+	do not do async unlinking when decrementing mod count
+
+2005-08-15  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/tools/xmode2.c:
+	rewritten event handling to make this tool remotely usable
+
+	* /cvsroot/lirc/lirc/daemons/lircd.c:
+	fixed potential crash when starting without -d option
+
 2005-08-14  lirc  <lirc@k7>
+
+	* /cvsroot/lirc/lirc/configure.in: give correct error message
+
+	* /cvsroot/lirc/lirc/configure.in: fixed typo
+
+	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
+	started development for 0.7.3
+
+	* /cvsroot/lirc/lirc/drivers/lirc_streamzap/lirc_streamzap.c:
+	make data delivery independent of HZ value (better 2.6 support)
 
 	* /cvsroot/lirc/lirc/ANNOUNCE, /cvsroot/lirc/lirc/configure.in, /cvsroot/lirc/lirc/doc/html-source/index.html, /cvsroot/lirc/lirc/NEWS, /cvsroot/lirc/lirc/setup.sh:
 	lirc-0.7.2 release

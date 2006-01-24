@@ -1,3 +1,17 @@
+0.8.0: 01/21/06
+  * added support for Actisys Act220L(+) (Jan Roemisch)
+  * added support for Linksys NSLU2 (Matthias Goebl)
+  * added new program lircrcd:
+    lircrcd reads the .lircrc config file and synchronises the mode
+    that the LIRC clients using this config file (irexec, irxevent,
+    etc.) are in. Using lircrcd has to be explicitly enabled in the
+    config file by adding the following line at the beginning of the
+    file: "#! lircrcd"
+  * the special driver option "any" has been replaced by two new
+    options: "all" and "userspace"
+  * bug fixes when transmitting codes with small gap values:
+    NO_HEAD_REP and RC5 work correctly again 
+
 0.7.2: 08/14/05
   * added support for new version of Windows Media Center Remotes
    (Martin Blatter, Eric Moors)

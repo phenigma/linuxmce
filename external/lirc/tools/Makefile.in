@@ -110,7 +110,10 @@ vga_progs = @vga_progs@
 x_progs = @x_progs@
 
 EXTRA_PROGRAMS = smode2 xmode2 irxevent
-bin_PROGRAMS = irw irpty irexec ircat mode2 irsend @vga_progs@ @x_progs@
+bin_PROGRAMS = irw irpty irexec ircat mode2 irsend \
+	lircrcd \
+	@vga_progs@ @x_progs@
+
 
 AM_CPPFLAGS = @X_CFLAGS@
 
@@ -136,11 +139,15 @@ irxevent_DEPENDENCIES = liblirc_client.la
 xmode2_SOURCES = xmode2.c
 xmode2_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 
+lircrcd_SOURCES = lircrcd.c
+lircrcd_DEPENDENCIES = liblirc_client.la
+lircrcd_LDADD = liblirc_client.la
+
 lircincludedir = $(includedir)/lirc
 
 lib_LTLIBRARIES = liblirc_client.la
 liblirc_client_la_SOURCES = lirc_client.c lirc_client.h
-liblirc_client_la_LDFLAGS = -version-info 0:0:0
+liblirc_client_la_LDFLAGS = -version-info 1:0:1
 
 lircinclude_HEADERS = lirc_client.h
 
@@ -156,8 +163,8 @@ am_liblirc_client_la_OBJECTS = lirc_client.lo
 liblirc_client_la_OBJECTS = $(am_liblirc_client_la_OBJECTS)
 EXTRA_PROGRAMS = smode2$(EXEEXT) xmode2$(EXEEXT) irxevent$(EXEEXT)
 bin_PROGRAMS = irw$(EXEEXT) irpty$(EXEEXT) irexec$(EXEEXT) \
-	ircat$(EXEEXT) mode2$(EXEEXT) irsend$(EXEEXT) @vga_progs@ \
-	@x_progs@
+	ircat$(EXEEXT) mode2$(EXEEXT) irsend$(EXEEXT) lircrcd$(EXEEXT) \
+	@vga_progs@ @x_progs@
 PROGRAMS = $(bin_PROGRAMS)
 
 am_ircat_OBJECTS = ircat.$(OBJEXT)
@@ -182,6 +189,9 @@ irw_LDFLAGS =
 am_irxevent_OBJECTS = irxevent.$(OBJEXT)
 irxevent_OBJECTS = $(am_irxevent_OBJECTS)
 irxevent_LDFLAGS =
+am_lircrcd_OBJECTS = lircrcd.$(OBJEXT)
+lircrcd_OBJECTS = $(am_lircrcd_OBJECTS)
+lircrcd_LDFLAGS =
 am_mode2_OBJECTS = mode2.$(OBJEXT)
 mode2_OBJECTS = $(am_mode2_OBJECTS)
 mode2_LDADD = $(LDADD)
@@ -205,8 +215,9 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 @AMDEP_TRUE@DEP_FILES = $(DEPDIR)/ircat.Po $(DEPDIR)/irexec.Po \
 @AMDEP_TRUE@	$(DEPDIR)/irpty.Po $(DEPDIR)/irsend.Po \
 @AMDEP_TRUE@	$(DEPDIR)/irw.Po $(DEPDIR)/irxevent.Po \
-@AMDEP_TRUE@	$(DEPDIR)/lirc_client.Plo $(DEPDIR)/mode2.Po \
-@AMDEP_TRUE@	$(DEPDIR)/smode2.Po $(DEPDIR)/xmode2.Po
+@AMDEP_TRUE@	$(DEPDIR)/lirc_client.Plo $(DEPDIR)/lircrcd.Po \
+@AMDEP_TRUE@	$(DEPDIR)/mode2.Po $(DEPDIR)/smode2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xmode2.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -217,12 +228,12 @@ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 CFLAGS = @CFLAGS@
 DIST_SOURCES = $(liblirc_client_la_SOURCES) $(ircat_SOURCES) \
 	$(irexec_SOURCES) $(irpty_SOURCES) $(irsend_SOURCES) \
-	$(irw_SOURCES) $(irxevent_SOURCES) $(mode2_SOURCES) \
-	$(smode2_SOURCES) $(xmode2_SOURCES)
+	$(irw_SOURCES) $(irxevent_SOURCES) $(lircrcd_SOURCES) \
+	$(mode2_SOURCES) $(smode2_SOURCES) $(xmode2_SOURCES)
 HEADERS = $(lircinclude_HEADERS)
 
 DIST_COMMON = $(lircinclude_HEADERS) Makefile.am Makefile.in
-SOURCES = $(liblirc_client_la_SOURCES) $(ircat_SOURCES) $(irexec_SOURCES) $(irpty_SOURCES) $(irsend_SOURCES) $(irw_SOURCES) $(irxevent_SOURCES) $(mode2_SOURCES) $(smode2_SOURCES) $(xmode2_SOURCES)
+SOURCES = $(liblirc_client_la_SOURCES) $(ircat_SOURCES) $(irexec_SOURCES) $(irpty_SOURCES) $(irsend_SOURCES) $(irw_SOURCES) $(irxevent_SOURCES) $(lircrcd_SOURCES) $(mode2_SOURCES) $(smode2_SOURCES) $(xmode2_SOURCES)
 
 all: all-am
 
@@ -307,6 +318,9 @@ irw$(EXEEXT): $(irw_OBJECTS) $(irw_DEPENDENCIES)
 irxevent$(EXEEXT): $(irxevent_OBJECTS) $(irxevent_DEPENDENCIES) 
 	@rm -f irxevent$(EXEEXT)
 	$(LINK) $(irxevent_LDFLAGS) $(irxevent_OBJECTS) $(irxevent_LDADD) $(LIBS)
+lircrcd$(EXEEXT): $(lircrcd_OBJECTS) $(lircrcd_DEPENDENCIES) 
+	@rm -f lircrcd$(EXEEXT)
+	$(LINK) $(lircrcd_LDFLAGS) $(lircrcd_OBJECTS) $(lircrcd_LDADD) $(LIBS)
 mode2$(EXEEXT): $(mode2_OBJECTS) $(mode2_DEPENDENCIES) 
 	@rm -f mode2$(EXEEXT)
 	$(LINK) $(mode2_LDFLAGS) $(mode2_OBJECTS) $(mode2_LDADD) $(LIBS)
@@ -330,6 +344,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/irw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/irxevent.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/lirc_client.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/lircrcd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mode2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/smode2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xmode2.Po@am__quote@
