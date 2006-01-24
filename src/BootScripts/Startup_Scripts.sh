@@ -34,20 +34,6 @@ if [[ "$Parameter" == "stop" ]]; then
 	rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 fi
 
-# If this is the first boot then we need to generate and run pluto rc scripts
-if [[ "$Parameter" == "start" ]]; then
-	ConfGet "FirstBoot"
-	if [[ "$FirstBoot" != "false" ]] ;then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating and running Pluto rc startup scripts for the first time"
-		/usr/pluto/bin/generateRcScripts.sh
-		for i in /etc/rc2.d/S22-*-Pluto_* ;do
-			[[ ! -f $i ]] && continue
-			$i start
-		done	
-		ConfSet "FirstBoot" "false"
-	fi	    					
-fi
-
 # These is left here only for logging
 if [[ -e /usr/pluto/install/.notdone ]]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
