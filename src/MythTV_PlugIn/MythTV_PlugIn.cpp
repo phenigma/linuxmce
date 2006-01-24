@@ -29,8 +29,8 @@ using namespace DCE;
 #include "DataGrid.h"
 #include "MythTvMediaStream.h"
 #ifndef WIN32
-#include "MythTvWrapper.h"
-#include <libmythtv/frame.h>
+//#include "MythTvWrapper.h"
+//#include <libmythtv/frame.h>
 #endif
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
@@ -43,7 +43,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 {
     m_pMythBackend_ProxyDevice = NULL;
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
-	m_pMythWrapper = NULL;
+//	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
 }
 
@@ -54,7 +54,7 @@ bool MythTV_PlugIn::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 #ifndef WIN32
-	m_pMythWrapper = new MythTvWrapper(this);
+//	m_pMythWrapper = new MythTvWrapper(this);
 	m_pMySqlHelper_Myth = new MySqlHelper("localhost","root","","pluto_myth");
 #else
 	m_pMySqlHelper_Myth = new MySqlHelper("192.168.80.1","root","","pluto_myth");
@@ -69,7 +69,7 @@ MythTV_PlugIn::~MythTV_PlugIn()
 //<-dceag-dest-e->
 {
 #ifndef WIN32
-	delete m_pMythWrapper;
+//	delete m_pMythWrapper;
 #endif
 
 }
@@ -220,7 +220,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-
+/*
 	if ( pMythTvMediaStream->ShouldTuneToNewChannel() )
 	{
 		if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest( pMythTvMediaStream->m_iNextProgramChannelID,
@@ -239,22 +239,22 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 		else
 		{
-/* AB - 2005-07-04 I don't think this was ever working??
+ AB - 2005-07-04 I don't think this was ever working??
 			DCE::CMD_Goto_DesignObj cmdGotoDesignObj(
                     m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
                     0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
                     "", "", false, false);
 			SendCommand(cmdGotoDesignObj);
-*/
+
 			return true;
 		}
 	}
 	else
-	{
+	{*/
 		// if there is no next channel to tune then just start it.
 		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",MEDIATYPE_pluto_LiveTV_CONST,0,"");
 		SendCommand(cmd);
-	}
+//	}
 #endif
     return true;
 }
@@ -412,29 +412,10 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
                         , Message *pMessage)
 {
-#ifndef WIN32
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
-
-    if ( ! m_pMythWrapper )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
-
-        return NULL;
-    }
-
-    QDateTime currentTime = QDateTime::currentDateTime();
-
-    currentTime.setTime(
-                QTime(
-                    currentTime.time().hour(),
-                    currentTime.time().minute() >= 30 ? 30 : 0,
-                    0));
-
-    return m_pMythWrapper->createShowsDataGrid(GridID, currentTime, currentTime.addDays(14));
-#else
-	return new DataGridTable();
-#endif
+    
+    return new DataGridTable();
 }
 
 class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
@@ -443,15 +424,7 @@ class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Par
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Getting all shows");
-    if ( ! m_pMythWrapper )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
-        return new DataGridTable();
-    }
-
-    return m_pMythWrapper->createShowsForMobiles(GridID, QDateTime::currentDateTime());
-#else
-	return new DataGridTable();
+    return new DataGridTable();
 #endif
 }
 
@@ -459,25 +432,12 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-	MythTvMediaStream *pMythTvMediaStream = NULL;
+    MythTvMediaStream *pMythTvMediaStream = NULL;
 
-	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
-		return new DataGridTable();
+    if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
+	    return new DataGridTable();
 
     DataGridTable *pDataGrid = new DataGridTable();
-
-	/** @brief Find out where is this function used!! */
-//     DataGridCell *pCell;
-
-//     for(size_t s=0;s < pMythTvMediaStream->m_vectRow_Listing.size();++s)
-//     {
-/** @test
-//         Row_Listing *pListing = pMythTvStream->m_vectRow_Listing[s];
-//         pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " +                     pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
-*/
-//         pCell = new DataGridCell(StringUtils::itos(1) + " " + "ChannelName" + " - " + "ShowName",StringUtils::itos(1));
-//         pDataGrid->SetData(0,s,pCell);
-//     }
 
     return pDataGrid;
 }
@@ -485,7 +445,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 #ifndef WIN32
-	MythTvMediaStream *pMythTvStream;
+    MythTvMediaStream *pMythTvStream;
 
     if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Backend_Proxy_CONST )
     {
@@ -502,7 +462,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 			g_pPlutoLogger->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
 			return false;
 		}
-
+/*
 		if ( m_pMythWrapper->GetCurrentChannelProgram(tunedChannel,
 															pMythTvStream->m_sMediaDescription,
 															pMythTvStream->m_sSectionDescription,
@@ -512,6 +472,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 			pMythTvStream->m_sSectionDescription = "Show info not available";
 			pMythTvStream->m_sMediaSynopsis = "Other info not available";
 		}
+		*/
 
 		pMythTvStream->m_iNextProgramChannelID = pMythTvStream->m_iCurrentProgramChannelID = tunedChannel;
 		m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
@@ -573,7 +534,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
     if( !pMediaStream )
         return;  /** Can't do anything */
 
-    switch( m_pMythWrapper->ProcessAddRecordingRequest(sProgramID) )
+/*    switch( m_pMythWrapper->ProcessAddRecordingRequest(sProgramID) )
     {
         case ScheduleRecordTVResult_Failed:
             EVENT_Error_Occured("The Recording of the event failed");
@@ -585,7 +546,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
             break;
         default:
             break;
-    }
+    } */
 #endif
 }
 //<-dceag-createinst-b->!
