@@ -3880,6 +3880,22 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '*' );
             if( PK_Button == BUTTON_Pound_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '#' );
+			if( PK_Button == BUTTON_right_parenthesis_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( ')' );
+			if( PK_Button == BUTTON_left_parenthesis_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '(' );
+			if( PK_Button == BUTTON_exclamation_point_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '!' );
+			if( PK_Button == BUTTON_at_sign_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '@' );
+			if( PK_Button == BUTTON_dollar_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '$' );
+			if( PK_Button == BUTTON_percent_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '%' );
+			if( PK_Button == BUTTON_caret_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '^' );
+			if( PK_Button == BUTTON_ampersand_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '&' );
             else if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
