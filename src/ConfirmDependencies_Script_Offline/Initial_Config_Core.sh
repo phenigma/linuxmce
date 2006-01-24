@@ -35,7 +35,6 @@ echo ""
 echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 echo "directors."
 DHCP=$(Ask "Run a DHCP server? [Y/n]")
-exec 1>&3 3>&-
 
 RestoreCoreConf()
 {
@@ -240,9 +239,11 @@ if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
 	mysql < /home/backup/entire_database.sql
 fi
 
+/usr/pluto/bin/Network_Setup.sh
+/usr/pluto/bin/DHCP_config.sh
+
 clear
 # XXX: No error checking
-exec 3>&1 1>/dev/tty
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
