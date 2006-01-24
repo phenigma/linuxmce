@@ -3,6 +3,9 @@
 . /usr/pluto/install/Common.sh
 DIR="/usr/pluto/install"
 
+mkdir -p /home/pluto/logs
+mkdir -p /home/public/data
+
 exec 3>&1 1>/dev/tty
 clear
 echo "** Initial config script"
