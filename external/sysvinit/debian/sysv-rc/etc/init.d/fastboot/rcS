@@ -179,6 +179,12 @@ if [ -x /etc/init.d/mysql ] ;then
     /etc/init.d/mysql start 2>/dev/null
 fi
 
+. /usr/pluto/bin/Config_Ops.sh
+if [[ "$FirstBoot" != "false" ]] ;then
+	/usr/pluto/bin/generateRcScripts.sh
+	ConfSet "FirstBoot" "false"
+fi
+
 if [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
     Message "Checking for pdates"
     /etc/init.d/Pluto_Update_Packages.sh

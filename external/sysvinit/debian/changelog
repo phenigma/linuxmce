@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto4) unstable; urgency=low
+
+  * Fastboot is started at first boot, fixed some stuff too with this
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 24 Jan 2006 16:23:22 +0200
+
 sysvinit (2.86.ds1-1.1pluto3) unstable; urgency=low
 
   * Updated rcS to run hotplug for input
