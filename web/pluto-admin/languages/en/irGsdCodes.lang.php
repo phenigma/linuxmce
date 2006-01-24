@@ -25,9 +25,11 @@ $TEXT_MY_CUSTOM_CODES_CONST='My custom codes';
 $TEXT_OTHER_USERS_CUSTOM_CODES_CONST='Other users custom codes';
 $TEXT_IR_CONTACT_US_CONST='If you have question or comments, please contact us by email';
 $TEXT_EDIT_BY_OWNER_NOTE='Add/Edit options are available only for your own device templates.';
-$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST='IR Group changed for selected device template.';
+$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST=' Group changed for selected device template.';
 $TEXT_TEST_IR_COMMAND_SENT_CONST='The command was sent.';
 $TEXT_CUSTOM_CODE_DELETED_CONST='Custom code deleted.';
 $TEXT_IR_CODES_UPDATED_CONST='IR codes updated.';
+$TEXT_RUBY_CODES_UPDATED_CONST='Ruby codes updated.';
+$TEXT_RUBY_CODE_ADDED_CONST='Ruby code added.';
 $TEXT_PAGE_GENERATED_IN_CONST='Page generated in';
 ?>

@@ -68,7 +68,6 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 		</form>';
 	}else{
 		$did=(int)$_REQUEST['did'];
-		print_array($_REQUEST);
 		if($did>0){
 			$mediadbADO->Execute('DELETE FROM Bookmark WHERE PK_Bookmark=?',array($did));
 			$msg='The bookmark was deleted.';

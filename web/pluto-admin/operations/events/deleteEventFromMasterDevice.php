@@ -1,5 +1,9 @@
 <?php
 function deleteEventFromMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteEventFromMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -12,7 +16,7 @@ function deleteEventFromMasterDevice($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($deviceID,$objID));
 			$out.="
 			<script>
-				alert('Event list deleted from master device!');
+				alert('$TEXT_EVENT_DELETED_FROM_DEVICE_TEMPLATE_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.lastAction.value='newEventToMasterDevice';
 				opener.document.forms.{$from}.submit();
@@ -20,7 +24,7 @@ function deleteEventFromMasterDevice($output,$dbADO) {
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}			
 	
 	$output->setBody($out);

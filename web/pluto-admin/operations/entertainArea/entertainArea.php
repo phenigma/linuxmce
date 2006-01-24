@@ -1,5 +1,7 @@
 <?
 function entertainArea($output,$dbADO) {
+	// obsolete file
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 /* @var $resRoomTypes ADORecordSet */

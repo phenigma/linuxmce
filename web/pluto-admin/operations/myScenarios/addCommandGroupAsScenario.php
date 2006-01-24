@@ -1,5 +1,8 @@
 <?php
 function addCommandGroupAsScenario($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addCommandGroupAsScenario.lang.php');
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -30,11 +33,11 @@ function addCommandGroupAsScenario($output,$dbADO) {
 				<input type="hidden" name="action" value="add">	
 				<input type="hidden" name="from" value="'.$from.'">	
 				<input type="hidden" name="arrayID" value="'.$arrayID.'">
-				<h2>Add My Scenario</t2>
+				<h2>'.$TEXT_ADD_MY_SCENARIO_CONST.'</t2>
 				<table>
-						<tr><td>Description</td>
+						<tr><td>'.$TEXT_DESCRIPTION_CONST.'</td>
 						<td><input type="text" size="20" name="description" value="'.@$_SESSION['addCommandGroupAsScenario']['Description'].'"></td></tr>
-						<tr><td>Scenario Type</td><td>
+						<tr><td>'.$TEXT_SCENARIO_TYPE_CONST.'</td><td>
 								<select name="arrayType">';
 			
 			$queryArrays = "SELECT * FROM Array Where CommandGroup = 1 order by Description Asc";
@@ -48,7 +51,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 								</select>
 						</td></tr>
 						<tr>
-					<td>Design Obj:</td>
+					<td>'.$TEXT_DESIGN_OBJ_CONST.':</td>
 					<td>
 						'.(@(int)$_SESSION['addCommandGroupAsScenario']['designObjID']!=0
 								?'You have selected : <b>'.$_SESSION['addCommandGroupAsScenario']['designObjName'].'</b>&nbsp;&nbsp;<br />'
@@ -62,7 +65,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>Template</td><td>
+					<td>'.$TEXT_TEMPLATE_CONST.'</td><td>
 						<select name="template">
 							<option value="0"></option>';
 	
@@ -77,7 +80,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>'.(($arrayID==$GLOBALS['ArrayIDForMedia'])?'Entertainment area':'Rooms').'</td>
+					<td>'.(($arrayID==$GLOBALS['ArrayIDForMedia'])?$TEXT_ENTERTAINMENT_AREA_CONST:$TEXT_ROOMS_CONST).'</td>
 					<td>';
 					if($arrayID==$GLOBALS['ArrayIDForMedia']){
 						$queryEntArea='
@@ -106,7 +109,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 				$out.='</td>
 				</tr>
 				<tr>
-					<td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 				';
 						
@@ -115,8 +118,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("addCommandGroupAsScenario");
- 				frmvalidator.addValidation("description","req","Please enter a description for scenario");			
-				//frmvalidator.addValidation("designObjID","req","Please enter a design obj number!");			
+ 				frmvalidator.addValidation("description","req","'.$TEXT_SCENARIO_DESCRIPTION_REQUIRED_CONST.'");			
 			</script>
 			';
 		
@@ -148,7 +150,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 				header("Location: index.php?section=addCommandGroupAsScenario&from=$from&arrayID=$arrayID");
 				exit();
 			} else {
-				header("Location: index.php?section=addCommandGroupAsScenario&from=$from&arrayID=$arrayID&msg=Invalid+ID");
+				header("Location: index.php?section=addCommandGroupAsScenario&from=$from&arrayID=$arrayID&msg=$TEXT_INVALID_ID_CONST");
 				exit();				
 			}
 		}
@@ -204,7 +206,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			
 			$out.="
 			<script>
-				alert('My Scenario Added!');
+				alert('$TEXT_SCENARIO_ADDED_CONST');
 			    //opener.document.forms.{$from}.action.value='form';
 				//opener.document.forms.{$from}.submit();
 				opener.location.reload();
@@ -221,7 +223,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 	}
 		
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_MY_SCENARIO_CONST);			
 $output->output();
 }
 ?>

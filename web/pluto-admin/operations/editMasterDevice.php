@@ -388,7 +388,7 @@ function editMasterDevice($output,$dbADO) {
 		$commandsDisplayed = array();
 		if ($resCommands) {
 			while ($row = $resCommands->FetchRow()) {
-				$out.='<tr><td><input '.(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups)?" checked='checked' ": '').' type="checkbox" name="DeviceCommandGroup_'.$row['PK_DeviceCommandGroup'].'" value="1">'.stripslashes($row['Description']).'</td><td> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Commands</a></td></tr>';
+				$out.='<tr><td><input '.(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups)?" checked='checked' ": '').' type="checkbox" name="DeviceCommandGroup_'.$row['PK_DeviceCommandGroup'].'" value="1">'.stripslashes($row['Description']).'</td><td> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">'.$TEXT_EDIT_COMMANDS_CONST.'</a></td></tr>';
 				$commandsDisplayed[]=$row['PK_DeviceCommandGroup'];
 			}
 		}

@@ -1,5 +1,10 @@
 <?php
 function wizardScenarios($output,$dbADO) {
+	// obsolete file
+	
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardScenarios.lang.php');
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */

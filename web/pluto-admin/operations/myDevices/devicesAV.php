@@ -1,5 +1,7 @@
 <?
 function devicesAV($output,$dbADO) {
+	// obsolete file
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;

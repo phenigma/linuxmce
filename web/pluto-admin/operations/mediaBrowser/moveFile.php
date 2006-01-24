@@ -1,5 +1,9 @@
 <?
 function moveFile($output,$mediadbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/moveFile.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -32,30 +36,30 @@ function moveFile($output,$mediadbADO) {
 			$dirLinks.='
 				<tr>
 					<td><a href="index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&dirToShow='.$dirPath.'">'.$dirName.'</a></td>
-					<td align="right"><input type="submit" class="button" name="choose" value="Chose destination" onclick="document.moveFile.newPath.value=\''.urlencode($dirPath).'\';document.moveFile.submit();"></td>
+					<td align="right"><input type="submit" class="button" name="choose" value="'.$TEXT_CHOSE_DESTINATION_CONST.'" onclick="document.moveFile.newPath.value=\''.urlencode($dirPath).'\';document.moveFile.submit();"></td>
 				</tr>';
 		}
 		$dirLinks.='</table>';
 		
 		$out.='
-		<h4>Move Media file</h4>
+		<h3>'.$TEXT_MOVE_MEDIA_FILE_CONST.'</h3>
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
-				<td><B>File:</B></td>
+				<td><B>'.$TEXT_FILE_CONST.':</B></td>
 				<td colspan="2">'.$fileName.'</td>
 			</tr>
 			<tr bgColor="#DDDDDD">
-				<td><B>From directory:</B></td>
+				<td><B>'.$TEXT_FROM_DIRECTORY_CONST.':</B></td>
 				<td colspan="2">'.$oldDir.'</td>
 			</tr>
 			<tr>
-				<td><B>To directory:</B></td>
+				<td><B>'.$TEXT_TO_DIRECTORY_CONST.':</B></td>
 				<td><B>'.$dirToShow.'</B></td>
-				<td align="right"><input type="submit" class="button" name="choose" value="Chose destination" onclick="document.moveFile.newPath.value=\''.urlencode($dirToShow).'\';document.moveFile.submit();"></td>
+				<td align="right"><input type="submit" class="button" name="choose" value="'.$TEXT_CHOSE_DESTINATION_CONST.'" onclick="document.moveFile.newPath.value=\''.urlencode($dirToShow).'\';document.moveFile.submit();"></td>
 			</tr>		
 			<tr>
-				<td>Subdirectories</td>
-				<td align="right" colspan="2" style="padding:0;">'.$dirLinks.' <a href="index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&dirToShow='.getUpperLevel($dirToShow).'">[ Up one level ]</a></td>
+				<td>'.$TEXT_SUBDIRECTORIES_CONST.'</td>
+				<td align="right" colspan="2" style="padding:0;">'.$dirLinks.' <a href="index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&dirToShow='.getUpperLevel($dirToShow).'">[ '.$TEXT_UP_ONE_LEVEL_CONST.' ]</a></td>
 			</tr>
 		</table>';
 		$out.='
@@ -71,11 +75,11 @@ function moveFile($output,$mediadbADO) {
 			if($copied){
 				$deleted=@unlink($filePath);
 				if(!$deleted){
-					header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error=The file was copied in the new location but it wasn\'t deleted from '.urlencode($filePath).'.');			
+					header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error='.$TEXT_ERROR_FILE_NOT_DELETED_CONST.' '.urlencode($filePath).'.');			
 					exit();
 				}
 			}else{
-				header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error=Unable to write file in '.urlencode($newFilePath).'.');			
+				header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error='.$TEXT_ERROR_UNABLE_TO_WRITE_FILE_CONST.' '.urlencode($newFilePath).'.');
 				exit();
 			}
 			
@@ -91,7 +95,7 @@ function moveFile($output,$mediadbADO) {
 			<script>
 				opener.document.forms[0].action.value=\'form\';
 				opener.document.forms[0].submit();
-				self.location=\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode($newFilePath).'&msg=Media file was moved.\';
+				self.location=\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode($newFilePath).'&msg='.$TEXT_MEDIA_FILE_MOVED_CONST.'\';
 			</script>
 		';
 		//header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$newFilePath.'&msg=Media file was moved.');			
@@ -99,7 +103,7 @@ function moveFile($output,$mediadbADO) {
 	$output->setReloadLeftFrame(false);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MOVE_MEDIA_FILE_CONST);
 	$output->output();
 }
 

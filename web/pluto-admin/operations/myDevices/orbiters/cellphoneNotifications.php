@@ -1,5 +1,9 @@
 <?
 function cellphoneNotifications($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/cellphoneNotifications.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -12,7 +16,7 @@ function cellphoneNotifications($output,$dbADO) {
 	// using dummy device for testing
 	$deviceID=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
 	if(is_null($deviceID)){
-		$_GET['error']='Cannot find Security plugin.';
+		$_GET['error']=$TEXT_ERROR_CANNOT_FIND_SECURITY_PLUGIN_CONST;
 	}
 
 	if ($action == 'form') {
@@ -22,10 +26,11 @@ function cellphoneNotifications($output,$dbADO) {
 	<form action="index.php" method="POST" name="cellphoneNotifications">
 	<input type="hidden" name="section" value="cellphoneNotifications">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h2>Cellphone Notifications</h2>
-	<p>How should Pluto try to contact you when there is a security alert?</p>
-			<h3>Mobile Orbiter Notifications</h3>
-			<p>List the phone numbers for any mobile orbiters (ie mobile phones running Pluto\'s software) that you want to be notified.  The phone will beep, show you a live video, and let you control the house.</p>
+		
+	<div align="center"><h2>'.$TEXT_CELLPHONE_NOTIFICATIONS_CONST.'</h2>
+	<p>'.$TEXT_CELLPHONE_NOTIFICATION_INFO_CONST.'</p>
+			<h3>'.$TEXT_MOBILE_ORBITER_NOTIFICATIONS_CONST.'</h3>
+			<p>'.$TEXT_MOBILE_ORBITER_NOTIFICATIONS_INFO_CONST.'</p>
 			';
 			$monArray=array();
 			if(!is_null($deviceID)){
@@ -39,10 +44,10 @@ function cellphoneNotifications($output,$dbADO) {
 			
 			$phonesPulldown=getAssocArray('Device_DeviceData','IK_DeviceData','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'].' AND FK_Installation='.$installationID,'ORDER BY Description ASC');
 		$out.='
-			Call Order: 
+			'.$TEXT_CALL_ORDER_CONST.': 
 			<select name="mon_sequence" onchange="form_change()">
-				<option value="0" '.(((int)@$monArray[0]==0)?'selected':'').'>Orbiters all at once</option>
-				<option value="1" '.(((int)@$monArray[0]>0)?'selected':'').'>Orbiters one at a time</option>
+				<option value="0" '.(((int)@$monArray[0]==0)?'selected':'').'>'.$TEXT_ORBITERS_ALL_AT_ONCE_CONST.'</option>
+				<option value="1" '.(((int)@$monArray[0]>0)?'selected':'').'>'.$TEXT_ORBITERS_ONE_AT_A_TIME_CONST.'</option>
 			</select>
 			<span id="span_mon_seconds" style="display:none">
 				<input type="text" size="2" maxlength="2" name="mon_seconds" value="'.(((int)@$monArray[0]>0)?(int)@$monArray[0]:'10').'" /> seconds each
@@ -50,18 +55,18 @@ function cellphoneNotifications($output,$dbADO) {
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Orbiter Phone #</B></td>
-				<td align="center"><B>Monitor Mode</B></td>
-				<td align="center"><B>Security</B></td>
-				<td align="center"><B>Fire</B></td>
-				<td align="center"><B>Air Quality Alerts</B></td>
-				<td align="center"><B>Door Intercom</B></td>
+				<td align="center"><B>'.$TEXT_ORBITER_PHONE_CONST.' #</B></td>
+				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_SECURITY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_FIRE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_AIR_QUALITY_ALERTS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DOOR_INTERCOM_CONST.'</B></td>
 			</tr>
 			<input type="hidden" name="oldMon" value="'.@join(',',$monArray).'">';
 			for($i=0;$i<5;$i++){
 				$out.='
 				<tr>
-					<td align="center">'.pulldownFromArray($phonesPulldown,'tel_'.(6*$i+1),((!isset($monArray[6*$i+1]))?0:$monArray[6*$i+1]),'','key','- Please select -','').'</td>
+					<td align="center">'.pulldownFromArray($phonesPulldown,'tel_'.(6*$i+1),((!isset($monArray[6*$i+1]))?0:$monArray[6*$i+1]),'','key','- '.$TEXT_PLEASE_SELECT_CONST.' -','').'</td>
 					<td align="center"><input type="checkbox" name="monitor_mode_'.(6*$i+2).'" value="1" '.(((int)@$monArray[6*$i+2]>0)?'checked':'').'/></td>
 					<td align="center"><input type="checkbox" name="security_'.(6*$i+3).'" value="1" '.(((int)@$monArray[6*$i+3]>0)?'checked':'').'/></td>
 					<td align="center"><input type="checkbox" name="fire_'.(6*$i+4).'" value="1" '.(((int)@$monArray[6*$i+4]>0)?'checked':'').'/></td>
@@ -71,13 +76,13 @@ function cellphoneNotifications($output,$dbADO) {
 			}
 		$out.='
 			<tr>
-				<td colspan="6">* Highlighted Orbiter Phones doesn\'t have a phone number yet.</td>
+				<td colspan="6">* '.$TEXT_WARNING_ORBITER_NO_PHONE_NUMBER_CONST.'</td>
 			</tr>
 		</table>
 		
 		<div align="center">
-		<h3>Other Phone Notifications</h3>
-		<p>Here you can specify any phone number you want Pluto to call in the event of a security alert.  Pluto will call the number and play a recorded message.</p>
+		<h3>'.$TEXT_OTHER_PHONE_NOTIFICATIONS_CONST.'</h3>
+		<p>'.$TEXT_OTHER_PHONE_NOTIFICATIONS_INFO_CONST.'</p>
 		';
 			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['OtherPhoneNotifications']));
@@ -89,27 +94,27 @@ function cellphoneNotifications($output,$dbADO) {
 			
 			$out.='
 			<select name="opn_order">
-				<option value="0" '.(((int)@$opnArray[1]==0)?'selected':'').'>Orbiters then Other</option>
-				<option value="1" '.(((int)@$opnArray[1]==1)?'selected':'').'>Other then Orbiters</option>
-				<option value="2" '.(((int)@$opnArray[1]==2)?'selected':'').'>Orbiters and Other at the same time</option>
+				<option value="0" '.(((int)@$opnArray[1]==0)?'selected':'').'>'.$TEXT_ORBITERS_THEN_OTHER_CONST.'</option>
+				<option value="1" '.(((int)@$opnArray[1]==1)?'selected':'').'>'.$TEXT_OTHER_THEN_ORBITERS_CONST.'</option>
+				<option value="2" '.(((int)@$opnArray[1]==2)?'selected':'').'>'.$TEXT_ORBITERS_AND_OTHER_CONST.'</option>
 			</select>
 			<select name="opn_sequence" onchange="form_change()">
-				<option value="0" '.(((int)@$opnArray[0]==0)?'selected':'').'>Other all at once</option>
-				<option value="1" '.(((int)@$opnArray[1]>0)?'selected':'').'>Other one at a time</option>
+				<option value="0" '.(((int)@$opnArray[0]==0)?'selected':'').'>'.$TEXT_OTHER_ALL_AT_ONCE_CONST.'</option>
+				<option value="1" '.(((int)@$opnArray[1]>0)?'selected':'').'>'.$TEXT_OTHER_ONE_AT_A_TIME_CONST.'</option>
 			</select>
 			<span id="span_opn_seconds" style="display:none">
-				<input type="text" size="2" maxlength="2" name="opn_seconds" value="'.(((int)@$opnArray[0]>0)?@$opnArray[0]:'10').'" /> seconds each
+				<input type="text" size="2" maxlength="2" name="opn_seconds" value="'.(((int)@$opnArray[0]>0)?@$opnArray[0]:'10').'" /> '.$TEXT_SECONDS_EACH_CONST.'
 			</span>
 		</div>
 		<input type="hidden" name="oldOpn" value="'.@join(',',$opnArray).'">
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Orbiter Phone #</B></td>
-				<td align="center"><B>Monitor Mode</B></td>
-				<td align="center"><B>Security</B></td>
-				<td align="center"><B>Fire</B></td>
-				<td align="center"><B>Air Quality Alerts</B></td>
-				<td align="center"><B>Door Intercom</B></td>
+				<td align="center"><B>'.$TEXT_ORBITER_PHONE_CONST.' #</B></td>
+				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_SECURITY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_FIRE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_AIR_QUALITY_ALERTS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DOOR_INTERCOM_CONST.'</B></td>
 			</tr>';
 			for($i=0;$i<5;$i++){
 				$out.='
@@ -125,14 +130,13 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		</table>
 		<div align="center">
-			<h3>Neighbours to Call</h3>
-			<p>List your neighbours and their phone numbers here.  If there is a problem at your house, you can hit the "notify neighbours" option and Pluto
-			will make a call to all these neighbors simultaneously, alert them of the problem, and patch everyone together so you can talk to them.</p>
+			<h3>'.$TEXT_NEIGHBOURS_TO_CALL_CONST.'</h3>
+			<p>'.$TEXT_NEIGHBOURS_TO_CALL_INFO_CONST.'</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Name</B></td>
-				<td align="center"><B>Number</B></td>
+				<td align="center"><B>'.$TEXT_NAME_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 			</tr>';
 			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['NeighborstoCall']));
@@ -155,13 +159,13 @@ function cellphoneNotifications($output,$dbADO) {
 
 		$out.='
 		<div align="center">
-			<h3>Emergency calls</h3>
-			<p>Put emergency phone numbers here (Police, fire department, medical).</p>
+			<h3>'.$TEXT_EMERGENCY_CALLS_CONST.'</h3>
+			<p>'.$TEXT_EMERGENCY_CALLS_INFO_CONST.'</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Name</B></td>
-				<td align="center"><B>Number</B></td>
+				<td align="center"><B>'.$TEXT_NAME_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 			</tr>';
 			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['EmergencyCalls']));
@@ -183,7 +187,7 @@ function cellphoneNotifications($output,$dbADO) {
 		</table>';
 		
 		if(!is_null($deviceID)){
-			$out.='<div align="center"><input type="submit" class="button" name="update" value="Update"  ></div>';
+			$out.='<div align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></div>';
 		}
 	$out.='</form>';
 	$scriptInHead='
@@ -203,7 +207,7 @@ function cellphoneNotifications($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=cellphoneNotifications&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=cellphoneNotifications&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -268,16 +272,16 @@ function cellphoneNotifications($output,$dbADO) {
 		$ECDeviceData=join(',',$ECDeviceDataArray);
 		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($ECDeviceData,$deviceID,$GLOBALS['EmergencyCalls']));
 		
-		header("Location: index.php?section=cellphoneNotifications&msg=Cellphone notifications was updated");	
+		header("Location: index.php?section=cellphoneNotifications&msg=$TEXT_CELLPHONE_NOTIFICATION_UPDATED_CONST");	
 		exit();	
 	}
 
 	$output->setScriptInHead($scriptInHead);
 	$output->setScriptInBody('onLoad="form_change()"');
-	$output->setNavigationMenu(array("Cellphone Notifications"=>'index.php?section=cellphoneNotifications'));
+	$output->setNavigationMenu(array($TEXT_CELLPHONE_NOTIFICATIONS_CONST=>'index.php?section=cellphoneNotifications'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Cellphone notifications');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CELLPHONE_NOTIFICATIONS_CONST);
 	$output->output();
 }
 ?>

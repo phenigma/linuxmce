@@ -1,5 +1,9 @@
 <?php
 function editCommandGroupFromMasterDevice($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCommandGroupFromMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
@@ -35,12 +39,17 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="commandGroupID" value="'.$commandGroupID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+			<h3>'.$TEXT_EDIT_COMMAND_GROUP_CONST.' #'.$commandGroupID.'</h3>
+
+			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
+			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+		
 			<table>			
 				<tr>
-					<td>Device Category:</td>
+					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td>
 					<td>
 						<select name="deviceCategory">
-						<option value="0">-please select-</option>
+						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 						';
 		
 						$queryMasterDeviceCategories_parents = 'select PK_DeviceCategory,Description from DeviceCategory where FK_DeviceCategory_Parent is null order by Description asc';
@@ -55,15 +64,15 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>Description:</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td>
 					<td>
-						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
+						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_FOR_CG_CONST.'" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
 					</td>
 				</tr>		
 				<tr>
 					<td colspan="2">		
 						<fieldset>
-							<legend>Commands:</legend>							
+							<legend>'.$TEXT_COMMANDS_CONST.':</legend>							
 							<table>
 							';
 							$query = "SELECT DeviceCommandGroup_Command.*, Command.Description as C_Description						
@@ -83,10 +92,10 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 									}
 								}
 							$queryGetCommands = "select PK_Command,Description from Command where PK_Command NOT IN (".join(",",$commandsDisplayed).") order by Description asc";
-							$otherCommands = '<option value="0">-please select-</option>';
+							$otherCommands = '<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 							$res = $dbADO->Execute($queryGetCommands);
 							if ($res->RecordCount()==0) {
-								$otherCommands = '<option value="0">No commands left</option>';
+								$otherCommands = '<option value="0">'.$TEXT_NO_COMMANDS_LEFT_CONST.'</option>';
 							}
 								if ($res) {
 									while ($row=$res->FetchRow()) {
@@ -96,21 +105,21 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 							
 					$out.='
 							</table>
-						<br />Add this command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" class="button" name="submitX" value="Add">';
-						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editCommandGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Create new command</a>';
+						<br />'.$TEXT_ADD_COMMAND_TO_GROUP_CONST.': <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">';
+						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editCommandGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_CREATE_NEW_COMMAND_CONST.'</a>';
 						$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 						</fieldset>
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editCommandGroupFromMasterDevice");
- 			frmvalidator.addValidation("deviceCategory","dontselect=0","Please select a category"); 			
-			frmvalidator.addValidation("Description","req","Please enter a description");
+ 			frmvalidator.addValidation("deviceCategory","dontselect=0","'.$TEXT_CATEGORY_REQUIRED_CONST.'"); 			
+			frmvalidator.addValidation("Description","req","'.$TEXT_DESCRIPTION_REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -156,7 +165,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					';			
 			$query = $dbADO->Execute($insertObjToDevice,array($deviceCategory,stripslashes($description),$commandGroupID));
 			$out.="";
-			header("Location: index.php?section=editCommandGroupFromMasterDevice&from=$from&deviceID=$deviceID&commandGroupID=$commandGroupID&lastAction=$lastAction");
+			header("Location: index.php?section=editCommandGroupFromMasterDevice&from=$from&deviceID=$deviceID&commandGroupID=$commandGroupID&lastAction=$lastAction&msg=$TEXT_COMMAND_GROUP_UPDATED_CONST");
 		}		
 	}
 	
@@ -168,7 +177,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit Command Group');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_COMMAND_GROUP_CONST);			
 	$output->output();
 }
 ?>

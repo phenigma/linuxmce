@@ -1,5 +1,9 @@
 <?php
 function respondToEvents($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/respondToEvents.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -47,12 +51,13 @@ function respondToEvents($output,$dbADO) {
 		<form action="index.php" method="post" name="respondToEvents">
 		<input type="hidden" name="section" value="respondToEvents">
 		<input type="hidden" name="action" value="add">
-		<div align="center"><h3>Respond to Events</h3></div>
+		
+		<div align="center"><h3>'.$TEXT_RESPOND_TO_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Description</B></td>
-				<td align="center"><B>Event</B></td>
-				<td align="center">&nbsp;</td>
+				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_EVENT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
 		';
 		$queryEvents='
@@ -65,7 +70,7 @@ function respondToEvents($output,$dbADO) {
 		if($resEvents->RecordCount()==0){
 			$out.='
 				<tr>
-					<td colspan="3">No records.</td>
+					<td colspan="3">'.$TEXT_NO_RECORDS_CONST.'</td>
 				</tr>';
 		}
 		$lineCount=0;
@@ -76,9 +81,9 @@ function respondToEvents($output,$dbADO) {
 					<td>'.$rowEvents['Description'].'</td>
 					<td>'.$rowEvents['CannedEvent'].'</td>
 					<td align="center">
-						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">Advanced</a> 
-						<a href="index.php?section=editRespondToEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> 
-						<a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=respondToEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">'.$TEXT_ADVANCED_CONST.'</a> 
+						<a href="index.php?section=editRespondToEvent&ehID='.$rowEvents['PK_EventHandler'].'">'.$TEXT_EDIT_CONST.'</a> 
+						<a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_EVENT_CONST.'\'))self.location=\'index.php?section=respondToEvents&dID='.$rowEvents['PK_EventHandler'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>';
 		}
 		$queryCannedEvents='SELECT * FROM CannedEvents ORDER By Description ASC';
@@ -88,13 +93,13 @@ function respondToEvents($output,$dbADO) {
 				<td colspan="3">&nbsp;</td>
 			</tr>
 			<tr>
-				<td><B>Description</B>:</td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B>:</td>
 				<td colspan="2"><input type="text" name="Description" value=""></td>
 			</tr>		
 			<tr>
-				<td><B>New event</B>: </td>
+				<td><B>'.$TEXT_NEW_EVENT_CONST.'</B>: </td>
 				<td colspan="2"><select name="cannedEvent">
-					<option value="0">- Please select an event -</option>';
+					<option value="0">- '.$TEXT_PLEASE_SELECT_AN_EVENT_CONST.' -</option>';
 
 		while($rowCE=$resCannedEvents->FetchRow()){
 			$out.='<option value="'.$rowCE['PK_CannedEvents'].'">'.$rowCE['Description'].'</option>';
@@ -103,22 +108,22 @@ function respondToEvents($output,$dbADO) {
 			</select></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_ADD_CONST.'"></td>
 			</tr>';
 		$out.='
 		</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("respondToEvents");			
- 			frmvalidator.addValidation("Description","req","Please enter the description!");
-			frmvalidator.addValidation("cannedEvent","dontselect=0","Please select an event!");
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_EVENT_DESCRIPTION_REQUIRED_CONST.'");
+			frmvalidator.addValidation("cannedEvent","dontselect=0","'.$TEXT_EVENTTYPE_REQUIRED_CONST.'");
 		</script>		
 		';
 		
 	} else {
 		// processing area
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=eventHandler&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=eventHandler&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 
@@ -150,7 +155,7 @@ function respondToEvents($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Respond to Events');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESPOND_TO_EVENTS_CONST);			
 	$output->output();
 }
 ?>

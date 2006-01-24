@@ -1,5 +1,7 @@
 <?php
 function confirmDevicePackages($output,$dbADO) {
+	// obsolete file
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';

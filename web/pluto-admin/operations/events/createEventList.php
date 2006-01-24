@@ -1,5 +1,7 @@
 <?php
 function createEvent($output,$dbADO) {
+	// obsolete file
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';

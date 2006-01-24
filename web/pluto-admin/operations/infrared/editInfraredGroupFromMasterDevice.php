@@ -1,5 +1,6 @@
 <?php
 function editInfraredGroupFromMasterDevice($output,$dbADO) {
+	// obsolete file
 //	$dbADO->debug=true;
 	$out='';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';

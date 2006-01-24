@@ -1,5 +1,9 @@
 <?
 function commandsPicker($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/commandsPicker.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -18,7 +22,8 @@ function commandsPicker($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Commands</h3>
+		
+			<h3 align="center">'.$TEXT_COMMANDS_CONST.'</h3>
 			<form action="index.php" method="POST" name="commandsPicker">
 			<input type="hidden" name="section" value="commandsPicker">
 			<input type="hidden" name="action" value="update">
@@ -27,9 +32,9 @@ function commandsPicker($output,$dbADO) {
 		
 		<table cellpadding="3" align="center">
 			<tr bgcolor="lightblue">
-				<td align="center" width="120"><B>Command category</B></td>
-				<td align="center"><B>Command description</b></td>
-				<td align="center"><B>Action</b></td>
+				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</b></td>
 			</tr>
 		';
 		$GLOBALS['displayedCommands']=array();
@@ -43,10 +48,10 @@ function commandsPicker($output,$dbADO) {
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="Save"></td>
+				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"></td>
 			</tr>		
 			<tr>
-				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=commandsPicker\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Add Command Category</a></td>
+				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=commandsPicker\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
 			</tr>
 		</table>
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
@@ -78,7 +83,7 @@ function commandsPicker($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PICK_COMMANDS_CONST);
 	$output->output();
 }
 

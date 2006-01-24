@@ -1,5 +1,9 @@
 <?
 function wizardOrbiters($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardOrbiters.lang.php');
+	
 	global $dbPlutoMainDatabase,$excludedData;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -32,13 +36,14 @@ function wizardOrbiters($output,$dbADO) {
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
-	<h3  align="left">Orbiters</h3>
-	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a><br>
-	Privacy settings: <a href="index.php?section=usersOrbiters">restrict acces to users</a>
+		
+	<h3  align="left">'.$TEXT_ORBITES_CONST.'</h3>
+	'.$TEXT_DOWNLOAD_CONST.' <a href="index.php?section=orbitersWin">'.$TEXT_ORBITER_WIN_INSTALLER_CONST.'</a><br>
+	'.$TEXT_PRIVACY_SETTINGS_CONST.': <a href="index.php?section=usersOrbiters">'.$TEXT_RESTRICT_ACCES_TO_USERS_CONST.'</a>
 		<div id="preloader" style="display:;">
 			<table width="100%">
 				<tr>
-					<td align="center">Loading, please wait ...</td>
+					<td align="center">'.$TEXT_ORBITERS_PAGE_LOADING_CONST.'</td>
 				</tr>
 			</table>
 		</div>
@@ -47,9 +52,9 @@ function wizardOrbiters($output,$dbADO) {
 		<table border="0" align="center">
 			<tr>
 				<td colspan="2" align="center">
-					<input type="submit" class="button" name="QuickRegenAll" value="Quick Regen All"> 
-					<input type="submit" class="button" name="FullRegenAll" value="Full Regen All"> 
-					<input type="checkbox" name="reset_all" value="1"> Reset Router when done regenerating</td>
+					<input type="submit" class="button" name="QuickRegenAll" value="'.$TEXT_QUICK_REGEN_ALL_CONST.'"> 
+					<input type="submit" class="button" name="FullRegenAll" value="'.$TEXT_FULL_REGEN_ALL_CONST.'"> 
+					<input type="checkbox" name="reset_all" value="1"> '.$TEXT_RESET_ROUTER_WHEN_DONE_REGENERATING_CONST.'</td>
 			</tr>';
 		
 		
@@ -142,8 +147,8 @@ function wizardOrbiters($output,$dbADO) {
 				if(!in_array('dt',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dt']='
 							<tr>
-								<td align="right"><B>DeviceTemplate</B></td>
-								<td align="left" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
+								<td align="right"><B'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+								<td align="left" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 							</tr>
 							';
 				}
@@ -151,7 +156,7 @@ function wizardOrbiters($output,$dbADO) {
 				if(!in_array('state',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['state']='
 							<tr>
-								<td align="right"><B>State</B></td>
+								<td align="right"><B>'.$TEXT_STATE_CONST.'</B></td>
 								<td>'.getStateFormElement($rowD['PK_Device'],'State_'.$rowD['PK_Device'],$rowD['State'],$dbADO).'</td>
 							</tr>
 							';
@@ -160,7 +165,7 @@ function wizardOrbiters($output,$dbADO) {
 				if(!in_array('description',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['description']='
 							<tr>
-								<td align="right"><B>Description</B></td>
+								<td align="right"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 								<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"> # '.$rowD['PK_Device'].'</td>
 							</tr>';
 				}
@@ -168,11 +173,11 @@ function wizardOrbiters($output,$dbADO) {
 				if($rowD['IsIPBased']==1 && !in_array('ip_mac',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['ip_mac']='
 								<tr>
-									<td align="right"><B>IP</B></td>
+									<td align="right"><B>'.$TEXT_IP_ADDRESS_CONST.'</B></td>
 									<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
 								</tr>
 								<tr>
-									<td align="right"><B>MAC</B></td>
+									<td align="right"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
 									<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
 								</tr>';
 				}
@@ -180,7 +185,7 @@ function wizardOrbiters($output,$dbADO) {
 				if(!in_array('room',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['room']='
 							<tr>
-								<td align="right"><B>Room</B></td>
+								<td align="right"><B>'.$TEXT_ROOM_CONST.'</B></td>
 								<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
 							</tr>
 							';
@@ -202,19 +207,19 @@ function wizardOrbiters($output,$dbADO) {
 			$content['on_screen_orbiters']=(@$content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
 			$out.='
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>Mobile phone orbiters</B></td>
+					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_MOBILE_PHONE_ORBITERS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['mobile_orbiters'],'mobile_orbiters',$properties).'</td>
 				</tr>
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>Standard roaming orbiters</B></td>
+					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_STANDARD_ROAMING_ORBITERS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
 				</tr>
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>On-screen displays for media directors</B></td>
+					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_ON_SCREEN_DISPLAYS_FOR_MEDIA_DIRECTORS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['on_screen_orbiters'],'on_screen_orbiters',$properties).'</td>
@@ -235,17 +240,10 @@ function wizardOrbiters($output,$dbADO) {
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.pulldownFromArray($orbitersDTArray,'deviceTemplate',0).'
-					<input type="submit" class="button" name="add" value="Add orbiter"  ></td>
+					<input type="submit" class="button" name="add" value="'.$TEXT_ADD_ORBITER_CONST.'"  ></td>
 				</tr>
 			</table>
 			</div>
-		</form>
-		<script>
-		 	var frmvalidator = new formValidator("devices");
- //			frmvalidator.addValidation("Description","req","Please enter a device description");			
-//	 		frmvalidator.addValidation("masterDevice","dontselect=0","Please select a Device Template!");			
-		</script>
-	
 	</form>
 	';
 		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');			
@@ -253,7 +251,7 @@ function wizardOrbiters($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=devices&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=devices&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -394,13 +392,13 @@ function wizardOrbiters($output,$dbADO) {
 			}
 		}
 		
-		$commandMessage=(isset($commandToSend))?'<br>Command sent: '.$commandToSend:'';
-		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.$commandMessage&regen=$regen".@$suffix);		
+		$commandMessage=(isset($commandToSend))?'<br>'.$TEXT_ORBITER_COMMAND_SENT_CONST.': '.$commandToSend:'';
+		header("Location: index.php?section=wizardOrbiters&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=$regen".@$suffix);		
 	}
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Orbiters');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ORBITES_CONST);
 	$output->output();
 }
 
@@ -408,6 +406,10 @@ function wizardOrbiters($output,$dbADO) {
 // format and return device data rows
 function formatDDRows($rowD,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardOrbiters.lang.php');
+	
 	$ddHTML='';
 	$selectedMenu=0;
 	$ddValue=$rowD['IK_DeviceData'];
@@ -448,11 +450,11 @@ function formatDDRows($rowD,$dbADO)
 			$parts=explode(',',$ddValue);
 			$ddHTML.='
 					<tr>
-						<td align="right"><B>Seconds before screen saver</B></td>
+						<td align="right"><B>'.$TEXT_SECONDS_BEFORE_SCREEN_SAVER_CONST.'</B></td>
 						<td><input type="text" name="timeoutSS_'.$rowD['PK_Device'].'" value="'.@$parts[0].'"></td>
 					</tr>
 						<tr>
-						<td align="right"><B>Seconds before power off</B></td>
+						<td align="right"><B>'.$TEXT_SECONDS_BEFORE_POWER_OFF_CONST.'</B></td>
 						<td><input type="text" name="timeoutPO_'.$rowD['PK_Device'].'" value="'.@$parts[1].'"></td>
 					</tr>							';			
 		}
@@ -466,12 +468,16 @@ function formatDDRows($rowD,$dbADO)
 }
 
 function displayButtons($orbiter,$RegenInProgress){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardOrbiters.lang.php');
+	
 	$out='';
 			
 	$out.='
 		<tr>
 			<td align="right"><input type="checkbox" name="reset_'.$orbiter.'" value="1"></td>
-			<td>Reset Router when done regenerating</td>
+			<td>'.$TEXT_RESET_ROUTER_WHEN_DONE_REGENERATING_CONST.'</td>
 		</tr>';
 	if(@$RegenInProgress==1){
 		$out.='
@@ -484,12 +490,12 @@ function displayButtons($orbiter,$RegenInProgress){
 	$out.='
 			<tr>
 				<td align="center" colspan="2">
-					<input type="submit" class="button" name="quickRegen_'.$orbiter.'" value="Quick regen"  >&nbsp;&nbsp;
-					<input type="submit" class="button" name="fullRegen_'.$orbiter.'" value="Full regen"  >&nbsp;&nbsp;
-					<input type="button" class="button" name="customBg" value="Custom Bg"  onclick="windowOpen(\'index.php?section=customBackground&oID='.$orbiter.'\',\'width=600,height=400,scrollbars=1,resizable=1\');">&nbsp;&nbsp;
-					<input type="submit" class="button" name="update" value="Update"  >&nbsp;&nbsp;
-					<input type="button" class="button" name="edit_'.$orbiter.'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$orbiter.'\';">&nbsp;&nbsp;
-					<input type="submit" class="button" name="delete_'.$orbiter.'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
+					<input type="submit" class="button" name="quickRegen_'.$orbiter.'" value="'.$TEXT_QUICK_REGEN_CONST.'"  >&nbsp;&nbsp;
+					<input type="submit" class="button" name="fullRegen_'.$orbiter.'" value="'.$TEXT_FULL_REGEN_CONST.'"  >&nbsp;&nbsp;
+					<input type="button" class="button" name="customBg" value="'.$TEXT_CUSTOM_BACKGROUND_CONST.'"  onclick="windowOpen(\'index.php?section=customBackground&oID='.$orbiter.'\',\'width=600,height=400,scrollbars=1,resizable=1\');">&nbsp;&nbsp;
+					<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  >&nbsp;&nbsp;
+					<input type="button" class="button" name="edit_'.$orbiter.'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$orbiter.'\';">&nbsp;&nbsp;
+					<input type="submit" class="button" name="delete_'.$orbiter.'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(!confirm(\''.$TEXT_CONFIRM_DELETE_ORBITER_CONST.'\'))return false;">
 				</td>
 			</tr>	
 	';
@@ -497,12 +503,16 @@ function displayButtons($orbiter,$RegenInProgress){
 }
 
 function displayWiFiRow($orbiter,$isOSD,$PingTest){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardOrbiters.lang.php');
+	
 	$out='';
 	
 	if($isOSD==0){
 		$out.='
 		<tr>
-			<td align="right"><B>This device uses a Wi-Fi connection</B></td>
+			<td align="right"><B>'.$TEXT_WIFI_CONNECTION_CONST.'</B></td>
 			<td><input type="checkbox" name="PingTest_'.$orbiter.'" value="1" '.(($PingTest==1)?'checked':'').'></td>
 		</tr>';			
 	}

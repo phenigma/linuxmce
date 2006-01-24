@@ -1,5 +1,7 @@
 <?php
 function scenarios($output,$dbADO) {
+	// obsolete file
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 

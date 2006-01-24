@@ -1,5 +1,9 @@
 <?
 function mythSettings($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mythSettings.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $mythADO ADOConnection */
 /* @var $rs ADORecordSet */
@@ -24,15 +28,15 @@ function mythSettings($output,$dbADO) {
 	
 	<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>
 	<div class="confirm"><B>'.(isset($_GET['msg'])?stripslashes($_GET['msg']):'').'</B></div>
-	<h3>Myth Settings</h3>
+	<h3>'.$TEXT_MYTH_SETTINGS_CONST.'</h3>
 		
 <form method="post" action="index.php" name="mythSettings">
 	<input type="hidden" name="section" value="mythSettings">
 	<input type="hidden" name="action" value="update">
 <table cellspacing="0" cellpadding="3">
 	<tr bgcolor="lightblue">
-		<td align="center"><B>Input</B></td>
-		<td align="center"><B>Pick the tuning device</B></td>
+		<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
+		<td align="center"><B>'.$TEXT_PICK_THE_TUNING_DEVICE_CONST.'</B></td>
 	</tr>';
 
 	$tunningDevices=getDevices(array($GLOBALS['rootAVEquipment'],$GLOBALS['TVdevices'],$GLOBALS['SatelliteBoxes'],$GLOBALS['CableBoxes']),$dbADO);
@@ -48,7 +52,7 @@ function mythSettings($output,$dbADO) {
 	}
 $out.='	
 	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="update" value="Update"></td>
+		<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 	</tr>
 </table>
 </form>';
@@ -59,7 +63,7 @@ $out.='
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		
 		if (!$canModifyInstallation) {
-			Header('Location: index.php?section=mythSettings&error=You are not allowed to modify installation.');
+			Header('Location: index.php?section=mythSettings&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST);
 			exit();
 		}
 		
@@ -70,12 +74,12 @@ $out.='
 		}
 		// end process update
 
-		Header('Location: index.php?section=mythSettings&msg=Myth settings updated.');
+		Header('Location: index.php?section=mythSettings&msg='.$TEXT_MYTH_SETTINGS_UPDATED_CONST);
 	}
 	
-	$output->setNavigationMenu(array("My Devices"=>'index.php?section=myDevices',"Myth settings"=>"index.php?section=mythSettings"));
+	$output->setNavigationMenu(array($TEXT_MY_DEVICES_CONST=>'index.php?section=myDevices',$TEXT_MYTH_SETTINGS_CONST=>"index.php?section=mythSettings"));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MYTH_SETTINGS_CONST);			
 	$output->output();  		
 }
 

@@ -1,5 +1,9 @@
 <?php
 function editCriteria($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCriteria.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -32,13 +36,13 @@ function editCriteria($output,$dbADO) {
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		<input type="hidden" name="changedCP" value="">
 		
-		<div align="center"><h3>Edit Criteria</h3></div>
+		<div align="center"><h3>'.$TEXT_EDIT_CRITERIA_CONST.'</h3></div>
 		<table border="0" align="center">';
 		$out.='
 			<tr>
-				<td align="right"><B>Criteria</B></td>
+				<td align="right"><B>'.$TEXT_CRITERIA_CONST.'</B></td>
 				<td><input type="text" name="criteriaDescription" value="'.$rowEH['CriteriaDescription'].'"></td>
-				<td><B>Template</B></td>
+				<td><B>'.$TEXT_TEMPLATE_CONST.'</B></td>
 				<td>'.$rowEH['CriteriaListDescription'].'</td>
 			</tr>
 			<tr>
@@ -48,7 +52,7 @@ function editCriteria($output,$dbADO) {
 		$out.='</td>
 			</tr>
 			<tr>
-				<td colspan="6" align="center"><input type="submit" class="button" name="update" value="update"></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 			</tr>
 		
 		</table>
@@ -59,7 +63,7 @@ function editCriteria($output,$dbADO) {
 		// processing area
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editCriteria&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editCriteria&ehID=".$eventHandlerID."&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 
@@ -107,11 +111,11 @@ function editCriteria($output,$dbADO) {
 		if(isset($_REQUEST['delCPN'])){
 			$cpnID=$_REQUEST['delCPN'];
 			if($cpnID==$FK_CriteriaParmNesting){
-				header("Location: index.php?section=editCriteria&ehID=".$eventHandlerID."&error=You cannot delete root level nesting.");
+				header("Location: index.php?section=editCriteria&ehID=".$eventHandlerID."&error=$TEXT_ERROR_CANNOT_DELETE_ROOT_LEVEL_NESTING_CONST");
 				exit();
 			}
 			deleteCriteriaParmNesting($cpnID,$dbADO);
-			header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg=The nesting was deleted');
+			header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg='.$TEXT_THE_NESTING_DELETED_CONST);
 		}
 		
 		
@@ -120,12 +124,12 @@ function editCriteria($output,$dbADO) {
 			$dbADO->Execute('INSERT INTO CriteriaParmNesting (FK_CriteriaParmNesting_Parent,IsAnd,IsNot) VALUES (?,0,0)',$parentCPN);
 		}
 		
-		header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg=The criteria was updated');
+		header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg='.$TEXT_CRITERIA_UPDATED_CONST);
 	}
 	
-	$output->setNavigationMenu(array("Advanced Events"=>'index.php?section=advancedEvents'));
+	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_CONST=>'index.php?section=advancedEvents'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_CRITERIA_CONST);	
 	$output->output();
 }
 ?>

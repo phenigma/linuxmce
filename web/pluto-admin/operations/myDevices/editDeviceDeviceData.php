@@ -1,5 +1,9 @@
 <?php
 function editDeviceDeviceData($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceDeviceData.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -86,7 +90,7 @@ function editDeviceDeviceData($output,$dbADO) {
 		<input type="hidden" name="dd" value="'.$dd.'">
 		<input type="hidden" name="from" value="'.$from.'">
 		
-		<h2>Pipes Used by device #'.$deviceID.'</h2>
+		<h2>'.$TEXT_DEVICE_DATA_FOR_DEVICE_CONST.' '.$deviceID.'</h2>
 		'.$deviceDataBox.'										
 		</form>
 		';
@@ -94,7 +98,7 @@ function editDeviceDeviceData($output,$dbADO) {
 	} else {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=editDeviceDeviceData&deviceID=$deviceID&dd=$dd&from=$from&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=editDeviceDeviceData&deviceID=$deviceID&dd=$dd&from=$from&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -112,7 +116,7 @@ function editDeviceDeviceData($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit pipes');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DEVICE_DEVICE_DATA_CONST);			
 	$output->output();
 }
 ?>

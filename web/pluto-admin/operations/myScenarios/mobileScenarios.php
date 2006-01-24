@@ -72,7 +72,7 @@ if($action=='form') {
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td>
-					<a href="#" onclick="document.mobileScenarios.action.value=\'testScenario\';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">$TEXT_TEST_CONST</a>
+					<a href="#" onclick="document.mobileScenarios.action.value=\'testScenario\';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">'.$TEXT_TEST_CONST.'</a>
 					<a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">'.$TEXT_EDIT_CONST.'</a> 
 					<a href="#" onClick="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_MOBILE_SCENARIO_CONST.'\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">'.$TEXT_DELETE_CONST.'</a>
 				</td>

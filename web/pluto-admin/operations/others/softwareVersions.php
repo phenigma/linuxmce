@@ -1,5 +1,9 @@
 <?
 function softwareVersions($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/softwareVersions.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -11,13 +15,14 @@ function softwareVersions($output,$dbADO) {
 		$out.='
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="left">Software versions</h3>
+			
+			<h3 align="left">'.$TEXT_SOFTWARE_VERSIONS_CONST.'</h3>
 			<form action="index.php" method="POST" name="softwareVersions">
 			<input type="hidden" name="section" value="softwareVersions">
 			<input type="hidden" name="action" value="form">
 		<table>
 			<tr>
-				<td><B>Which computer?</B></td>
+				<td><B>'.$TEXT_WHICH_COMPUTER_CONST.'</B></td>
 				<td><select name="computer">';
 		$deviceCategory=$GLOBALS['rootComputerID'];
 
@@ -37,7 +42,7 @@ function softwareVersions($output,$dbADO) {
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="display" value="Display"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="display" value="'.$TEXT_DISPLAY_CONST.'"></td>
 			</tr>
 		</table>
 		</form>';
@@ -50,7 +55,7 @@ function softwareVersions($output,$dbADO) {
 			elseif($parts[1]!=''){
 				$command='/usr/pluto/bin/ListSoftware.sh install '.$parts[1];	
 			}else {
-				header('Location: index.php?section=softwareVersions&error=No IP for media director selected.');
+				header('Location: index.php?section=softwareVersions&error='.$TEXT_ERROR_NO_IP_FOR_MD_CONST);
 				exit();
 			}
 			exec($command,$retArray);
@@ -60,7 +65,7 @@ function softwareVersions($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=softwareVersions&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=softwareVersions&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}	
 		
@@ -69,7 +74,7 @@ function softwareVersions($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SOFTWARE_VERSIONS_CONST);
 	$output->output();
 }
 ?>

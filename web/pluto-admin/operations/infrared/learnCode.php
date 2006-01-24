@@ -1,5 +1,9 @@
 <?php
 function learnCode($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/learnCode.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -31,7 +35,7 @@ function learnCode($output,$dbADO) {
 				}
 				$out='
 				<script>
-					alert(\'Infrared code learned!\');
+					alert(\''.$TEXT_IR_CODE_LEARNED_CONST.'\');
 					opener.location.reload();
 					self.close();
 				</script>';
@@ -72,17 +76,18 @@ function learnCode($output,$dbADO) {
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandID" value="'.$commandID.'">
 			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
+				
 			<table width="100%">
 				<tr>
-					<td align="center" colspan="2" height="60">Device <B>'.$rowDevice['Description'].'</B>, device template <B>'.$rowDevice['Template'].'</B>, category <B>'.$rowDevice['Category'].'</B>, manufacturer <B>'.$rowDevice['Manufacturer'].'</B></td>
+					<td align="center" colspan="2" height="60">'.$TEXT_DEVICE_CONST.' <B>'.$rowDevice['Description'].'</B>, '.strtolower($TEXT_DEVICE_TEMPLATE_CONST).' <B>'.$rowDevice['Template'].'</B>, '.strtolower($TEXT_DEVICE_CATEGORY_CONST).' <B>'.$rowDevice['Category'].'</B>, '.strtolower($TEXT_MANUFACTURER_CONST).' <B>'.$rowDevice['Manufacturer'].'</B></td>
 				</tr>
 				<tr>
 					<td align="center"><input type="radio" name="newCodeType" value="0" '.(($noRefresh==0)?'checked':'').' onClick="disableManually(true);"></td>
-					<td align="left"><B>Learn code</B> (your interface module must support learning)</td>
+					<td align="left"><B>'.$TEXT_LEARN_CODE_CONST.'</B> ('.$TEXT_LEARN_CODE_COND_CONST.')</td>
 				</tr>
 				<tr>
 					<td align="center"><input type="radio" name="newCodeType" value="1" '.(($noRefresh==1)?'checked':'').' onClick="disableManually(false);"></td>
-					<td align="left"><B>Type code manually</B> (in Pronto format)</td>
+					<td align="left"><B>'.$TEXT_TYPE_CODE_MANNUALY_CONST.'</B> ('.$TEXT_IN_PRONTO_FORMAT_CONST.')</td>
 				</tr>
 				<tr>
 					<td align="center">&nbsp;</td>
@@ -91,7 +96,10 @@ function learnCode($output,$dbADO) {
 				
 				<tr>
 					<td align="center">&nbsp;</td>
-					<td align="center"><input type="submit" class="button" name="add" value="Add code" '.(($noRefresh==0)?'disabled':'').'> <input type="submit" class="button" name="cancel" value="Cancel"></td>
+					<td align="center">
+						<input type="submit" class="button" name="add" value="'.$TEXT_ADD_CODE_CONST.'" '.(($noRefresh==0)?'disabled':'').'> 
+						<input type="submit" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'">
+					</td>
 				</tr>
 			</table>			
 			</form>';
@@ -171,7 +179,7 @@ function learnCode($output,$dbADO) {
 				
 					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
 				}else{
-					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&error=IR interface is not set as parent of this device.&noRefresh=1');
+					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&error='.$TEXT_ERROR_IR_INTERFACE_NOT_PARENT_CONST.'&noRefresh=1');
 				}
 			}else{
 				header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&noRefresh=1');
@@ -181,7 +189,7 @@ function learnCode($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Learn IR Code');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_LEARN_CODE_CONST);			
 	$output->output();
 }
 ?>

@@ -1,5 +1,9 @@
 <?
 function customBackground($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/customBackground.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -23,30 +27,30 @@ function customBackground($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="oID" value="'.$oID.'">	
 		
-	<h2>Custom background for orbiter #'.$oID.', '.$orbiterData['Description'][0].'</h2>
+	<h2>'.$TEXT_CUSTOM_BACKGROUND_FOR_ORBITER_CONST.' '.$oID.', '.$orbiterData['Description'][0].'</h2>
 	
-	Add a custom main menu background:<br>
-	<input type="file" name="pic" value=""> '.pulldownFromArray($roomsArray,'room',0,'','key','- Any room -').'	<input type="submit" class="button" name="add" value="Add picture">
+	'.$TEXT_ADD_CUSTOM_MAIN_MENU_BACKGROUND_CONST.':<br>
+	<input type="file" name="pic" value=""> '.pulldownFromArray($roomsArray,'room',0,'','key','- '.$TEXT_ANY_ROOM_CONST.' -').'	<input type="submit" class="button" name="add" value="'.$TEXT_ADD_PICTURE_CONST.'">
 	<br><br>';
 	if(count($existingPics)>0){
 		$out.='	
-		Existing backgrounds:
+		'.$TEXT_EXISTING_BACKGROUNDS_CONST.':
 		<table>
 			<tr bgcolor="lightblue">
-				<td><B>Room</B></td>
-				<td><B>Picture</B></td>
-				<td><B>Action</B></td>
+				<td><B>'.$TEXT_ROOM_CONST.'</B></td>
+				<td><B>'.$TEXT_PICTURE_CONST.'</B></td>
+				<td><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>';
 		$pos=0;
 		foreach ($existingPics AS $pic){
 			$pos++;
 			$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
-			$roomName=(strpos($pic,'_')!==false)?$roomsArray[(int)str_replace(array($oID.'_','.png'),array('',''),$pic)]:'Any';
+			$roomName=(strpos($pic,'_')!==false)?@$roomsArray[(int)str_replace(array($oID.'_','.png'),array('',''),$pic)]:'Any';
 			$out.='
 			<tr bgcolor="'.$color.'">
 				<td>'.$roomName.'</td>
-				<td><a href="orbiter_bg/'.$pic.'" target="_blank"><img src="orbiter_bg/'.$pic.'" width="100" height="100" title="Click for larger view" border="0"></a></td>
-				<td><a href="javascript:if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=customBackground&oID='.$oID.'&action=del&dpic='.$pic.'\'">Delete</a></td>
+				<td><a href="orbiter_bg/'.str_replace($GLOBALS['orbiterBackgroundPath'],'',$pic).'" target="_blank"><img src="orbiter_bg/'.str_replace($GLOBALS['orbiterBackgroundPath'],'',$pic).'" width="100" height="100" title="Click for larger view" border="0"></a></td>
+				<td><a href="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=customBackground&oID='.$oID.'&action=del&dpic='.$pic.'\'">'.$TEXT_DELETE_CONST.'</a></td>
 			</tr>';
 		}
 		$out.='
@@ -59,7 +63,7 @@ function customBackground($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=customBackground&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=customBackground&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -77,23 +81,23 @@ function customBackground($output,$dbADO) {
 				}
 			}else{
 				//upload fail, prompt error message
-				$error='Upload fail, check the rights for '.$GLOBALS['orbiterBackgroundPath'].' directory.';
+				$error=$TEXT_ERROR_PICTURE_UPLOAD_FAILED_CONST.' '.$GLOBALS['orbiterBackgroundPath'].'.';
 			}
 		}
 		
 		if(isset($_REQUEST['dpic'])){
 			if(!@unlink($GLOBALS['orbiterBackgroundPath'].$_REQUEST['dpic']))
-				$error='The picture cannot be deleted, please check the rights for '.$GLOBALS['orbiterBackgroundPath'].$_REQUEST['dpic'];
+				$error=$TEXT_ERROR_DELETE_PICTURE_FAILED_CONST.' '.$GLOBALS['orbiterBackgroundPath'].$_REQUEST['dpic'];
 		}
 		
-		$sufix=(isset($error)?'&err='.$error:'&msg=Orbiter background was updated.');
+		$sufix=(isset($error)?'&err='.$error:'&msg='.$TEXT_ORBITER_BACKGROUND_UPDATED_CONST);
 		header("Location: index.php?section=customBackground&oID=$oID".$sufix);	
 		exit();	
 	}
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Custom background');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CUSTOM_BACKGROUND_FOR_ORBITER_CONST.' '.$oID);
 	$output->output();
 }
 ?>

@@ -50,4 +50,5 @@ $TEXT_ERROR_SCREEN_DOES_NOT_EXIST_CONST='Screen does not exist!';
 $TEXT_ERROR_MISSING_PARRAMETERS_CONST='Missing parrameters!';
 $TEXT_SAVED_CONST='Saved!';
 $TEXT_EDIT_DEVICE_TEMPLATE_CONST='Edit Device Template';
+$TEXT_EDIT_COMMANDS_CONST='Edit Commands';
 ?>

@@ -1,5 +1,9 @@
 <?php
 function newRubyCode($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/newRubyCode.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -29,13 +33,14 @@ function newRubyCode($output,$dbADO) {
 		<input type="hidden" name="dtID" value="'.$dtID.'">
 		<input type="hidden" name="commandID" value="'.$commandID.'">
 		<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
+		
 		<table width="100%">
 			<tr>
 				<td align="center" colspan="2" height="60">Device <B>'.$rowDevice['Description'].'</B>, device template <B>'.$rowDevice['Template'].'</B>, category <B>'.$rowDevice['Category'].'</B>, manufacturer <B>'.$rowDevice['Manufacturer'].'</B></td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
-				<td align="left"><B>Type Ruby code </B></td>
+				<td align="left"><B>'.$TEXT_TYPE_RUBY_CODE_CONST.' </B></td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
@@ -44,7 +49,7 @@ function newRubyCode($output,$dbADO) {
 			
 			<tr>
 				<td align="center">&nbsp;</td>
-				<td align="center"><input type="submit" class="button" name="add" value="Add code"> <input type="button" class="button" name="cancel" value="Cancel" onclick="self.close();"></td>
+				<td align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_RUBY_CODE_CONST.'"> <input type="button" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'" onclick="self.close();"></td>
 			</tr>
 		</table>			
 		</form>';
@@ -91,7 +96,7 @@ function newRubyCode($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: New Ruby Code');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_NEW_RUBY_CODE_CONST);			
 	$output->output();
 }
 ?>

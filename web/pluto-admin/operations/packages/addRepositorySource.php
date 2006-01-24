@@ -1,5 +1,7 @@
 <?php
 function addRepositorySource($output,$dbADO) {
+	// obsolete file
+	
 	//$dbADO->debug=true;
 
 	/* @var $dbADO ADOConnection */

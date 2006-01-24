@@ -1,5 +1,7 @@
 <?
 function editComputingApplications($output,$dbADO,$mediadbADO) {
+	// obsolete file
+	
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editComputingApplications.lang.php');

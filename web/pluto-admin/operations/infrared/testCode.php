@@ -1,6 +1,9 @@
 <?
 function testCode($output,$publicADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/testCode.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	global $PlutoHomeHost;
@@ -11,7 +14,7 @@ function testCode($output,$publicADO)
 	
 	if(isset($_REQUEST['deviceID']) && (int)$_REQUEST['deviceID']!=0){
 		if($code==''){
-			$alert='ERROR: Specified command had empty content.';
+			$alert=$TEXT_ERROR_EMPTY_CONTENT_CONST;
 		}else{
 			$deviceID=$_REQUEST['deviceID'];
 			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$publicADO,'WHERE PK_Device='.$deviceID);
@@ -22,13 +25,13 @@ function testCode($output,$publicADO)
 				$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceToReceive.' 1 191 9 "'.$code.'"';
 
 				exec($commandToTest);
-				$alert='The command was sent to device #'.$deviceToReceive;		
+				$alert=$TEXT_COMMAND_SENT_CONFIRMATION_CONST.' #'.$deviceToReceive;		
 			}else{
-				$alert='ERROR: the device it\'s not controlled via infrared interface.';
+				$alert=$TEXT_ERROR_NOT_CONTROLLED_BY_IR_INTERFACE_CONST;
 			}
 		}
 	}else{
-		$alert='ERROR: No device specified;';
+		$alert=$TEXT_ERROR_NO_DEVICE_SPECIFIED_CONST;
 	}
 	
 	/*

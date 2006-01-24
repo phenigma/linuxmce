@@ -1,5 +1,9 @@
 <?
 function playlists($output,$mediadbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/playlists.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -11,7 +15,8 @@ function playlists($output,$mediadbADO) {
 		$out.='
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3>Playlists</h3>
+			
+			<h3>'.$TEXT_PLAYLISTS_CONST.'</h3>
 			<form action="index.php" method="POST" name="playlists">
 			<input type="hidden" name="section" value="playlists">
 			<input type="hidden" name="action" value="update">
@@ -19,7 +24,7 @@ function playlists($output,$mediadbADO) {
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>#</B></td>
-					<td align="center"><B>Playlist</B></td>
+					<td align="center"><B>'.$TEXT_PLAYLIST_CONST.'</B></td>
 					<td>&nbsp;</td>
 				</tr>
 		';
@@ -27,7 +32,7 @@ function playlists($output,$mediadbADO) {
 		if($resPlaylist->RecordCount()==0){
 			$out.='				
 				<tr>
-					<td align="center" colspan="3">No records</td>
+					<td align="center" colspan="3">'.$TEXT_NO_RECORDS_CONST.'</td>
 				</tr>
 			';
 		}
@@ -38,7 +43,7 @@ function playlists($output,$mediadbADO) {
 				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
 					<td align="center">'.$pos.'</td>
 					<td align="center">'.$rowPlaylist['Name'].'</td>
-					<td align="center"><a href="index.php?section=editPlaylist&plID='.$rowPlaylist['PK_Playlist'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete this playlist?\'))self.location=\'index.php?section=playlists&action=delete&plID='.$rowPlaylist['PK_Playlist'].'\'">Delete</a></td>
+					<td align="center"><a href="index.php?section=editPlaylist&plID='.$rowPlaylist['PK_Playlist'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PLAYLIST_CONST.'\'))self.location=\'index.php?section=playlists&action=delete&plID='.$rowPlaylist['PK_Playlist'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>
 			';
 		}
@@ -48,8 +53,8 @@ function playlists($output,$mediadbADO) {
 				</tr>
 				<tr>
 					<td align="center">&nbsp;</td>
-					<td align="center"><B>Add playlist</B></td>
-					<td align="center"><input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="Add"></td>
+					<td align="center"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B></td>
+					<td align="center"><input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>
 			</table>
 		</form>';
@@ -59,19 +64,19 @@ function playlists($output,$mediadbADO) {
 			$newPlaylist=cleanString($_POST['newPlaylist']);
 			$mediadbADO->Execute('INSERT INTO Playlist (EK_User, Name) VALUES (?,?)',array($userID,$newPlaylist));
 			
-			header('Location: index.php?section=playlists&msg=New playlist added.');
+			header('Location: index.php?section=playlists&msg='.$TEXT_NEW_PLAYLIST_ADDED_CONST);
 		}
 	
 		if(isset($_REQUEST['plID'])){
 			$plID=$_REQUEST['plID'];
 			$mediadbADO->Execute('DELETE FROM Playlist WHERE PK_Playlist=?',$plID);
 			
-			header('Location: index.php?section=playlists&msg=The playlist was deleted.');
+			header('Location: index.php?section=playlists&msg='.$TEXT_PLAYLIST_DELETED_CONST);
 		}
 	}
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PLAYLISTS_CONST);
 	$output->output();
 }

@@ -1,5 +1,9 @@
 <?
 function steps($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/steps.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 
 	$out='';
@@ -68,7 +72,7 @@ function steps($output,$dbADO) {
 			</tr>
 			<tr>
 				<td colspan="3" align="center">
-					<h3>Wizard</h3>
+					<h3>'.$TEXT_WIZARD_CONST.'</h3>
 				</td>
 			</tr>
 	';
@@ -82,7 +86,7 @@ function steps($output,$dbADO) {
 		if($GLOBALS['isSync'][$pos]==1)
 			$wizardLink.='<img src="include/images/sync.gif" align="middle">';
 
-		$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">Next</a>':'&nbsp;';
+		$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a>':'&nbsp;';
 		
 		$out.='
 			<tr bgcolor="'.(($currentItem==$GLOBALS['pagesArray'][$pos])?'#CCCCCC':'').'">

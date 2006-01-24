@@ -1,5 +1,9 @@
 <?
 function mediaProviders($output,$mediadbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mediaProviders.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -24,7 +28,7 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 		if(count(@$mpArray['PK_MediaProvider'][0])==0){
 			$mpRows.='
 			<tr>
-				<td colspan="3" align="center">No media providers.</td>
+				<td colspan="3" align="center">'.$TEXT_NO_MEDIA_PROVIDERS_CONST.'</td>
 			</tr>		
 			';
 		}
@@ -33,19 +37,19 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 
-		<h3 align="center">Media Providers</h3>
+		<h3 align="center">'.$TEXT_MEDIA_PROVIDERS_CONST.'</h3>
 		<form action="index.php" method="POST" name="mediaProviders">
 			<input type="hidden" name="section" value="mediaProviders">
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="3" cellspacing="0" align="center">
 			<tr bgcolor="lightblue">
-				<td colspan="3" align="center"><B>Media Providers</B></td>
+				<td colspan="3" align="center"><B>'.$TEXT_MEDIA_PROVIDERS_CONST.'</B></td>
 			</tr>		
 			<tr bgcolor="#F0F3F8">
-				<td align="center"><B>Description</B></td>
-				<td align="center"><B>Media type</B></td>
-				<td align="center"><B>Action</B></td>
+				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_MEDIA_TYPE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>		
 			'.$mpRows.'
 			<tr>
@@ -53,18 +57,18 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 			</tr>		
 
 			<tr bgcolor="lightblue">
-				<td colspan="3" align="center"><B>Add Media Provider</B></td>
+				<td colspan="3" align="center"><B>'.$TEXT_ADD_MEDIA_PROVIDER_CONST.'</B></td>
 			</tr>		
 			<tr>
-				<td><B>Description</B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td colspan="2"><input type="text" name="description" value=""></td>
 			</tr>		
 			<tr>
-				<td><B>Media Type</B></td>
+				<td><B>'.$TEXT_MEDIA_TYPE_CONST.'</B></td>
 				<td colspan="2">'.pulldownFromArray($mtArray,'type',0).'</td>
 			</tr>		
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="add" value="Add Media Provider"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_MEDIA_PROVIDER_CONST.'"></td>
 			</tr>		
 		</table>
 		
@@ -72,7 +76,7 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 	}else{
 		if((int)@$_REQUEST['dmp']>0){
 			$mediadbADO->Execute('DELETE FROM MediaProvider WHERE PK_MediaProvider=?',(int)$_REQUEST['dmp']);
-			header('Location: index.php?section=mediaProviders&msg=Media provider was deleted.');
+			header('Location: index.php?section=mediaProviders&msg='.$TEXT_MEDIA_PROVIDER_WAS_DELETED_CONST);
 			exit();
 		}
 		
@@ -81,17 +85,17 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 		if($description!='' && $type>0){
 			$mediadbADO->Execute('INSERT INTO MediaProvider (Description,EK_MediaType) VALUES (?,?)',array($description,$type));
 			if($mediadbADO->Affected_Rows()>0)
-				$msg='The media provider was added';
+				$msg=$TEXT_THE_MEDIA_PROVIDER_WAS_ADDED_CONST;
 		}
 		
 		$suffix=(isset($error))?'&error='.$error:'&msg='.@$msg;
 		header('Location: index.php?section=mediaProviders'.$suffix);
 	}
 	
-	$output->setNavigationMenu(array("Media providers"=>'index.php?section=mediaProviders'));
+	$output->setNavigationMenu(array($TEXT_MEDIA_PROVIDERS_CONST=>'index.php?section=mediaProviders'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MEDIA_PROVIDERS_CONST);
 	$output->output();
 }
 ?>

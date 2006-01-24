@@ -1,5 +1,8 @@
 <?
 function orbiterRegenInProgress($output,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/orbiterRegenInProgress.lang.php');
 	
 	$orbiterID=(int)$_REQUEST['orbiterID'];
 	
@@ -18,10 +21,10 @@ function orbiterRegenInProgress($output,$dbADO){
 				<td colspan="2" align="center">'.percentBox($row['RegenPercent']).'</td>
 			</tr>		
 			<tr>
-				<td align="center" colspan="2">Regen status: '.$row['RegenStatus'].'</td>
+				<td align="center" colspan="2">'.$TEXT_REGEN_STATUS_CONST.': '.$row['RegenStatus'].'</td>
 			</tr>		
 			<tr>
-				<td colspan="2" align="center"><B><font color="red">Orbiter Generation in process</font></B></td>
+				<td colspan="2" align="center"><B><font color="red">'.$TEXT_ORBITER_GENERATION_IN_PROCESS_CONST.'</font></B></td>
 			</tr>	
 		</table>
 		<script>
@@ -36,7 +39,7 @@ function orbiterRegenInProgress($output,$dbADO){
 		$out='
 		<table width="100%">
 			<tr>
-				<td colspan="2" align="center"><B>Orbiter Generation finished</B></td>
+				<td colspan="2" align="center"><B>'.$TEXT_ORBITER_GENERATION_FINISHED_CONST.'</B></td>
 			</tr>	
 		</table>
 		<script>
@@ -56,10 +59,13 @@ function orbiterRegenInProgress($output,$dbADO){
 }
 
 function percentBox($percent){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/orbiterRegenInProgress.lang.php');
+	
 	$out='
 	<table width="250" cellpadding="0" cellspacing="0">
 		<tr>
-			<td width="50">Percent</td>
+			<td width="50">'.$TEXT_PERCENT_CONST.'</td>
 			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>
 			<td bgcolor="lightblue" width="'.(200-2*$percent).'">&nbsp;</td>
 		</tr>

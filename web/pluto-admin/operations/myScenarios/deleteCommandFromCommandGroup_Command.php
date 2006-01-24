@@ -1,5 +1,9 @@
 <?php
 function deleteCommandFromCommandGroup_Command($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteCommandFromCommandGroup_Command.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -15,19 +19,19 @@ function deleteCommandFromCommandGroup_Command($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($objID));
 			//delete saved values
 			if ($dbADO->Affected_Rows()>0) {
-				$commandsDeleted = "Command removed from this command group!";
+				$commandsDeleted = $TEXT_COMMAND_REMOVED_FROM_COMMAND_GROUP_CONST;
 				$deleteParamValues = 'delete from CommandGroup_Command_CommandParameter where 
 					FK_CommandGroup_Command = ?
 				';
 				$query = $dbADO->Execute($deleteParamValues,array($objID));
 				if ($dbADO->Affected_Rows()>0) {
-					$parametersDeleted = 'Parameter values also deleted!';
+					$parametersDeleted = $TEXT_PARAMETERS_DELETED_FROM_COMMAND_COMMAND_GROUP_CONST;
 				} else {
-					$parametersDeleted = 'No parameter values deleted!';
+					$parametersDeleted = $TEXT_NO_PARAMETER_VALUES_DELETED_CONST;
 				}
 			
 			} else {
-				$commandsDeleted = "Command not removed from this command group!";
+				$commandsDeleted = $TEXT_COMMAND_NOT_REMOVED_FROM_COMMAND_GROUP_CONST;
 			}
 			
 			
@@ -43,7 +47,7 @@ function deleteCommandFromCommandGroup_Command($output,$dbADO) {
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 		
 	$output->setBody($out);

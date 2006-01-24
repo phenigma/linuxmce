@@ -1,5 +1,6 @@
 <?
 function proxySocket($output,$dbADO){
+	global $port,$address;
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
 		$phoneIPAddress=$_SERVER['REMOTE_ADDR'];
 		$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.PK_Device AS DeviceID, FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$phoneIPAddress.'\' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
@@ -100,6 +101,7 @@ function proxySocket($output,$dbADO){
 }
 
 function getImage($deviceID,$socket,$refresh=''){
+	global $port,$address;
 	$in = "IMAGE ".$deviceID."\n";
 	$out='';
 
@@ -111,7 +113,11 @@ function getImage($deviceID,$socket,$refresh=''){
 
 	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		write_log(miliseconds_date()."Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+		$last_error=socket_strerror(socket_last_error($socket));
+		write_log(miliseconds_date()."Failed reading socket: ".$last_error."\n");
+		if($last_error=='Connection reset by peer'){
+			xml_die($deviceID,$address,$port,'IMAGE',"\n\nConnection reset by peer\n",'Not connected ');
+		}
 	}else{
 		write_log(miliseconds_date()."Read: ".$outResponse."\n");
 	}
@@ -191,7 +197,7 @@ function sendCommand($deviceID,$socket,$command,$refresh){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 	
-	$outResponse= socket_read($socket, 2048,PHP_NORMAL_READ);
+	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
 		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
 	}else{
@@ -261,6 +267,7 @@ function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage
 
 	$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=$command&deviceID=$deviceID";
 	Header("Refresh: 5; url=$refreshURL");
+	writeFile(getcwd().'/security_images/urls.txt',$refreshURL."\n\n",'a+');
 	Header("Content-type: text/xml"); 
 	write_log("\nRedirecting to $refreshURL\n");
 	die($xml);	

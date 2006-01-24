@@ -319,7 +319,7 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
 						}
 						setOrbitersNeedConfigure($installationID,$dbADO);
-						$msg=$TEXT_MEDIA_SCENARIO_ADDED;
+						$msg=$TEXT_MEDIA_SCENARIO_ADDED_CONST;
 					}
 
 					if(isset($_POST['optionEntArea']) && $_POST['optionEntArea']!=''){

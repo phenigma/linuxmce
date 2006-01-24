@@ -1,6 +1,6 @@
 <?php
 function addDistro($output,$dbADO) {
-	// absolete file
+	// obsolete file
 	
 	//$dbADO->debug=true;
 	$out='';

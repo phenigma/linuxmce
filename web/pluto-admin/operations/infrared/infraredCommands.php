@@ -1,5 +1,8 @@
 <?
 function infraredCommands($output,$publicADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/infraredCommands.lang.php');
 	
 	/* @var $publicADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -23,7 +26,8 @@ function infraredCommands($output,$publicADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Commands</h3>
+		
+			<h3 align="center">'.$TEXT_COMMANDS_CONST.'</h3>
 			<form action="index.php" method="POST" name="infraredCommands">
 			<input type="hidden" name="section" value="infraredCommands">
 			<input type="hidden" name="action" value="update">
@@ -33,10 +37,10 @@ function infraredCommands($output,$publicADO) {
 		
 		<table cellpadding="3" align="center" class="normaltext">
 			<tr bgcolor="lightblue">
-				<td align="center" width="120"><B>Command category</B></td>
+				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
 				<td><B>#</B></td>
-				<td align="center"><B>Command description</b></td>
-				<td align="center"><B>Action</b></td>
+				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</b></td>
 			</tr>
 		';
 		$GLOBALS['oldCheckedCommands']=array();
@@ -85,7 +89,7 @@ function infraredCommands($output,$publicADO) {
 
 		$out.='
 			<tr>
-				<td colspan="4" align="center"><input type="submit" name="submit" class="button" value="Save"></td>
+				<td colspan="4" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"></td>
 			</tr>		
 		</table>
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
@@ -121,7 +125,7 @@ function infraredCommands($output,$publicADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_COMMANDS_CONST);
 	$output->output();
 }
 ?>

@@ -1,5 +1,9 @@
 <?
 function rubyCodes($output,$dbADO,$mediaADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/irGsdCodes.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -108,31 +112,32 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 		$out.='
 		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
-		<h3>Edit '.$label.' codes</h3>
+		
+		<h3>'.$TEXT_EDIT_GSD_CODES_CONST.'</h3>
 		<table border="0" width="100%" class="normaltext">
 			<tr>
-				<td class="err" colspan="2">WARNING: the changes will afect all devices created from <B>'.$rowDTData['Template'].'</B> template.</td>
+				<td class="err" colspan="2">'.$TEXT_WARNING_CHANGES_AFFECT_ALL_CONST.' <B>'.$rowDTData['Template'].'</B>.</td>
 			</tr>
 			<tr>
-				<td valign="top" colspan="2">Device template <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
+				<td valign="top" colspan="2">'.$TEXT_DEVICE_TEMPLATE_CONST.' <B>'.$rowDTData['Template'].'</B>, '.strtolower($TEXT_DEVICE_CATEGORY_CONST).' <B>'.$rowDTData['Category'].'</B>, '.strtolower($TEXT_MANUFACTURER_CONST).' <B>'.$rowDTData['Manufacturer'].'</B>.<td>
 			</tr>
 		';
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
-				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','I don\'t know the group').'</td>
+				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','I don\'t know the group').'</td>
 		</tr>';
 			
 		$out.='
 			<tr>
-				<td valign="top" width="250">Implement Command Groups </td>
+				<td valign="top" width="250">'.$TEXT_IMPLEMENT_COMMAND_GROUPS_CONST.' </td>
 				<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO).'</td>
 		</tr>
 		';
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
@@ -145,18 +150,18 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			<tr>
 				<td colspan="3" align="center"><table>
 					<tr>
-						<td><B>Legend:</B> </td>
+						<td><B>'.$TEXT_LEGEND_CONST.':</B> </td>
 						<td width="20" bgcolor="lightblue">&nbsp;</td>
-						<td>Standard codes</td>
+						<td>'.$TEXT_STANDARD_CODES_CONST.'</td>
 						<td width="20" bgcolor="yellow">&nbsp;</td>
-						<td>My custom codes</td>
+						<td>'.$TEXT_MY_CUSTOM_CODES_CONST.'</td>
 						<td width="20" bgcolor="lightyellow">&nbsp;</td>
-						<td>Other users custom codes</td>
+						<td>'.$TEXT_OTHER_USERS_CUSTOM_CODES_CONST.'</td>
 					</tr>
 				</table></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 			</tr>
 	';
 		$out.='
@@ -165,10 +170,9 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 		</form>
-		<iframe name="codeTester" src="" style="display:none;"></iframe>
-	<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">email</a>.</span><br><br>		
+		<iframe name="codeTester" src="" style="display:none;"></iframe><br>		
 	';	
-		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
+		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE.'</em></span>':'');		
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
@@ -182,7 +186,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			}
 			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 9 "'.$irCode.'"';
 			exec($commandToTest);
-			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.&label=".$GLOBALS['label'].'#test_'.$ig_c);
+			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_TEST_IR_COMMAND_SENT_CONST&label=".$GLOBALS['label'].'#test_'.$ig_c);
 			exit();
 		}		
 		
@@ -193,7 +197,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
 			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL AND psc_user=?',array($newIRGroup,$dtID,$userID));
 
-			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
+			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();
 		}
 		
@@ -202,12 +206,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			if($action!='delete'){
 				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.','.$dtID.',IRData,'.$_SESSION['userID'].','.$_SESSION['userID'].' FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
-				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
 				exit();
 			}else{
 				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 				
-				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.&label=".$GLOBALS['label']);
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
 			}
 		}
@@ -270,17 +274,17 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 			
-			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=Ruby codes updated.&label=".$GLOBALS['label']);
+			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODES_UPDATED_CONST&label=".$GLOBALS['label']);
 			exit();
 		}
 
 		header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
 	}
 	$time_end = getmicrotime();
-	$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
+	//$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Ruby Codes');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_GSD_CODES_CONST);
 	$output->output();
 }
 ?>

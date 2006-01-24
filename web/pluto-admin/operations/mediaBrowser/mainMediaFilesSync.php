@@ -1,5 +1,9 @@
 <?
 function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -30,7 +34,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			
 			function requestName(oldDir)
 			{
-				var newDir=prompt("Please type the new name for the directory: ",oldDir);
+				var newDir=prompt("'.$TEXT_REQUEST_DIRECTORY_NAME_CONST.' ",oldDir);
 				if(newDir!=oldDir && newDir!=""){
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=renDir&newDir="+newDir;
 				}
@@ -38,14 +42,14 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			
 			function confirmDel()
 			{
-				if(confirm("Are you sure you want to delete this directory? All files from it will be also deleted.")){
+				if(confirm("'.$TEXT_CONFIRM_DELETE_DIRECTORY_CONST.'")){
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=delDir";
 				}
 			}
 			
 			function createSubdir()
 			{
-				var subDir=prompt("Please type the new name for the subdirectory: ","");
+				var subDir=prompt("'.$TEXT_REQUEST_SUBDIRECTORY_NAME_CONST.' ","");
 				if(subDir!=""){
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=newDir&subDir="+subDir;
 				}
@@ -61,11 +65,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<a href="javascript:syncPath(\''.substr($path,0,strrpos($path,'/')).'\')">Up one level</a>
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
-					<td><B>Directory: '.$path.'</B></td>
-					<td><input type="button" class="button" name="resyncDir" value="Resynchronize" onClick="windowOpen(\'operations/logs/executeLog.php?script=3&path='.urlencode($path).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');self.location=\'index.php?section=mainMediaFilesSync&action=resync&path='.$path.'\';"></td>
-					<td><input type="button" class="button" name="renameDir" value="Rename" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
-					<td><input type="button" class="button" name="subDir" value="Create subdirectory" onClick="createSubdir()"></td>
-					<td><input type="button" class="button" name="delDir" value="Delete" onClick="confirmDel();"></td>
+					<td><B>'.$TEXT_DIRECTORY_CONST.': '.$path.'</B></td>
+					<td><input type="button" class="button" name="resyncDir" value="'.$TEXT_RESYNCHRONIZE_CONST.'" onClick="windowOpen(\'operations/logs/executeLog.php?script=3&path='.urlencode($path).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');self.location=\'index.php?section=mainMediaFilesSync&action=resync&path='.$path.'\';"></td>
+					<td><input type="button" class="button" name="renameDir" value="'.$TEXT_RENAME_CONST.'" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
+					<td><input type="button" class="button" name="subDir" value="'.$TEXT_CREATE_SUBDIRECTORY_CONST.'" onClick="createSubdir()"></td>
+					<td><input type="button" class="button" name="delDir" value="'.$TEXT_DELETE_CONST.'" onClick="confirmDel();"></td>
 				</tr>
 			</table>
 			
@@ -78,11 +82,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			
 			';
 			if(isset($_REQUEST['filename']) && $_REQUEST['filename']!='')
-				$out.='<a href="index.php?section=leftMediaFilesSync" target="treeframe"><img src="scripts/treeview/diffDoc.gif" border="0" align="middle">Show directory structure</a>';
+				$out.='<a href="index.php?section=leftMediaFilesSync" target="treeframe"><img src="scripts/treeview/diffDoc.gif" border="0" align="middle">'.$TEXT_SHOW_DIRECTORY_STRUCTURE_CONST.'</a>';
 			$out.='
 				<table cellpading="0" cellspacing="0">
 					<tr>
-						<td colspan="2"><B>Files on disk</B></td>
+						<td colspan="2"><B>'.$TEXT_FILES_ON_DISK_CONST.'</B></td>
 					</tr>';
 			$queryDBFiles='SELECT * FROM File WHERE Path=?';
 			$rs=$mediadbADO->Execute($queryDBFiles,$path);
@@ -94,7 +98,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			}
 			if(count($physicalFiles)==0)
 				$out.='	<tr>
-							<td colspan="2">No files in physical directory</td>
+							<td colspan="2">'.$TEXT_NO_FILES_IN_PHYSICAL_DIRECTORY_CONST.'</td>
 						</tr>';
 			else{
 				foreach($physicalFiles as $physicalkey => $filename){
@@ -105,12 +109,12 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 						$notInDBArray[]=$physicalkey; 
 						$inDB=0;
 						if(!is_dir($path.'/'.$filename)){
-							$addToDB='<td align="right"> Type: <select name="type_'.$physicalkey.'">
-								<option value="">- Please select -</option>';
+							$addToDB='<td align="right"> '.$TEXT_TYPE_CONST.': <select name="type_'.$physicalkey.'">
+								<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 							foreach ($typeArray AS $typeID=>$typeDescription){
 								$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
 							}
-							$addToDB.='</select> <input type="submit" class="button" name="add" value="Add to database">
+							$addToDB.='</select> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_FILE_TO_DATABASE_CONST.'">
 							<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
 							</td>';
 						}else{
@@ -144,12 +148,12 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			if($_SESSION['missing']==1){
 				$out.='
 					<tr>
-						<td colspan="2"><B>Files in database only</B></td>
+						<td colspan="2"><B>'.$TEXT_FILES_IN_DATABASE_ONLY_CONST.'</B></td>
 					</tr>';
 				$dbonlyFiles=array_diff($dbFiles,$physicalFiles);
 				if(count($dbonlyFiles)==0)
 					$out.='	<tr>
-								<td colspan="2">No other files in database</td>
+								<td colspan="2">'.$TEXT_NO_OTHER_FILES_IN_DATABASE_CONST.'</td>
 							</tr>';
 				foreach($dbonlyFiles as $dbkey => $filename){
 					$queryAttributes='
@@ -167,7 +171,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		
 					$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
 								<td><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
-								<td align="right"><input type="button" class="button" name="del" value="Delete from database" onClick="if(confirm(\'Are you sure you want to delete this file from database?\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
+								<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_FILE_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_FILE_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
 							</tr>
 							<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
 								<td colspan="2">'.@$attributes.'</td>
@@ -179,11 +183,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					<td colspan="2">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="2"><B>LEGEND FOR FILES</B><br>
-					<img src=include/images/disk.gif align=middle border=0>	Exist only on disk<br>
-					'.(($_SESSION['missing']==1)?'<img src=include/images/db.gif align=middle border=0> Exist only in database<br>':'').'
-					<img src=include/images/sync.gif align=middle border=0>	Exist both on disk and in database<br>
-					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> Show files who are missing from disk
+					<td colspan="2"><B>'.strtoupper($TEXT_LEGEND_FOR_FILES_CONST).'</B><br>
+					<img src=include/images/disk.gif align=middle border=0>	'.$TEXT_EXIST_ONLY_ON_DISK_CONST.'<br>
+					'.(($_SESSION['missing']==1)?'<img src=include/images/db.gif align=middle border=0> '.$TEXT_EXIST_ONLY_IN_DATABASE_CONST.'<br>':'').'
+					<img src=include/images/sync.gif align=middle border=0>	'.$TEXT_EXIST_BOTH_ON_DISK_AND_IN_DATABASE_CONST.'<br>
+					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> '.$TEXT_SHOW_FILES_WHO_ARE_MISSING_FROM_DISK_CONST.'
 				</tr>
 			</table>';
 		}
@@ -198,13 +202,13 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		if($action=='renDir'){
 			$newDir=stripslashes($_REQUEST['newDir']);
 			if(ereg('/',$newDir)){
-				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid directory name.');
+				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error='.$TEXT_ERROR_INVALID_DIRECTORY_NAME_CONST);
 			}else{
 				$newPath=str_replace($oldDir,$newDir,$path);
 				exec('sudo -u root mv "'.$oldDir.'" "'.$newDir.'"');
 				$out.='
 				<script>
-					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The directory was renamed.";
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg='.$TEXT_DIRECTORY_RENAMED_CONST.'";
 					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
 				</script>';				
 			}
@@ -222,7 +226,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				delete_directory_from_db($fileInfo['Path'][0],$mediadbADO);
 			}
 
-			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File was deleted from database.');
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_FILE_WAS_DELETED_FROM_DATABASE_CONST);
 			exit();
 		}
 		
@@ -231,7 +235,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			exec('sudo -u root rm -rf "'.$path.'"');
 			$out.='
 				<script>
-					self.location="index.php?section=mainMediaFilesSync&msg=The directory was deleted.";
+					self.location="index.php?section=mainMediaFilesSync&msg='.$TEXT_DIRECTORY_DELETED_CONST.'";
 					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
 				</script>';	
 		}
@@ -239,13 +243,13 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		if($action=='newDir'){
 			$subDir=stripslashes($_REQUEST['subDir']);
 			if(ereg('/',$subDir)){
-				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid subdirectory name.');
+				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error='.$TEXT_ERROR_INVALID_SUBDIRECTORY_NAME_CONST);
 			}else{
 				$newPath=$path.'/'.$subDir;
 				exec('sudo -u root mkdir "'.$newPath.'"');
 				$out.='
 				<script>
-					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The subdirectory was created.";
+					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg='.$TEXT_SUBDIRECTORY_WAS_CREATED_CONST.'";
 					top.treeframe.location="index.php?section=leftMediaFilesSync&startPath='.urlencode($newPath).'";
 				</script>';				
 			}
@@ -253,7 +257,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		}
 		
 		if($action=='resync'){
-			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=The command to resynchronize directory was sent.');			
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_SYNCHRONIZE_COMMAND_SENT_CONST);			
 			exit();
 		}
 		
@@ -267,7 +271,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					$mediadbADO->Execute('INSERT INTO File (EK_MediaType, Path, Filename,IsDirectory) VALUES (?,?,?,?)',array($type,stripslashes($path),$filename,$isDir));
 				}
 			}
-			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File added to database.');
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_FILE_ADDED_TO_DATABASE_CONST);
 		}
 	}
 	
