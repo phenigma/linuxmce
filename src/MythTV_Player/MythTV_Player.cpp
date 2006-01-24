@@ -40,7 +40,6 @@ using namespace DCE;
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Button.h"
-#include "DCE/PlainClientSocket.h"
 #include "PlutoUtils/ProcessUtils.h"
 
 #include <sstream>
@@ -53,7 +52,7 @@ using namespace DCE;
 #include <pthread.h>
 // #include "MythMainWindowResizable.h"
 MythTV_Player *g_pMythPlayer = NULL;
-#define MYTH_SOCKET_TIMEOUT	3  // SECONDS
+#define MYTH_SOCKET_TIMEOUT	5  // SECONDS
 
 #ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
@@ -118,6 +117,7 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 	m_pDevice_MythTV_Plugin=NULL;
 #ifndef WIN32 
 	m_pRatWrapper = NULL;
+	m_pMythSocket = NULL;
 #endif
     m_iMythFrontendWindowId = 0;
     m_bExiting = false;
@@ -161,6 +161,7 @@ MythTV_Player::~MythTV_Player()
 #endif
 	m_bExiting = true;
 	pthread_join(m_threadMonitorMyth, NULL);
+	delete m_pMythSocket;
 }
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
@@ -176,21 +177,9 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 		selectWindow();
 		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
 	}
-#endif
-	string sResult;
-	time_t timeout=20+time(NULL);
-
-	do
-	{
-	        Sleep(100);
-		sResult = sendMythCommand("jump livetv");
-		g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
-	} while(time(NULL) < timeout && sResult != "OK");
-	m_CurrentMode.clear();
-	m_CurrentProgram.clear();
-	m_mythStatus = MYTHSTATUS_LIVETV;
-	return true;
-}
+#endif	
+ 	return true;
+ }
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
@@ -263,6 +252,18 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
     sCMD_Result = "UNKNOWN DEVICE";
 }
 
+
+void MythTV_Player::updateMode(string toMode)
+{
+	if (toMode!=m_CurrentMode)
+	{				
+		m_CurrentMode = toMode;
+		g_pPlutoLogger->Write(LV_WARNING,"Changing mode: %s",toMode.c_str());
+		DCE::CMD_Set_Active_Menu CMD_Set_Active_Menu_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, toMode);
+		SendCommand(CMD_Set_Active_Menu_);
+	}
+}
+
 void MythTV_Player::pollMythStatus()
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
@@ -291,18 +292,19 @@ void MythTV_Player::pollMythStatus()
 					int EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
-					// flapping.
+					// flapping.    Unfortunately it takes live TV so long to start up at times that we need
+					// to show up to 8 seconds or so as live. 
 					
 					if (m_CurrentMode == "live")
 					{
-						if (CurTime < EndTime - 15)
+						if (CurTime < EndTime - 10)
 							SetMode = "nonlive";
 						else
 							SetMode = "live";
 					} 
 					else
 					{
-						if (CurTime < EndTime - 12)
+						if (CurTime < EndTime - 8)
 							SetMode = "nonlive";
 						else
 							SetMode = "live";
@@ -318,13 +320,7 @@ void MythTV_Player::pollMythStatus()
 				else
 					m_mythStatus = MYTHSTATUS_MENU;
 			}
-			if (SetMode!=m_CurrentMode)
-			{				
-				m_CurrentMode = SetMode;
-				g_pPlutoLogger->Write(LV_WARNING,"Changing mode: %s",SetMode.c_str());
-				DCE::CMD_Set_Active_Menu CMD_Set_Active_Menu_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, SetMode);
-				SendCommand(CMD_Set_Active_Menu_);
-			}
+			updateMode(SetMode);	
 		}
 	}
 }
@@ -370,43 +366,62 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	char ch=0;
 
 	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",Cmd);
-	PlainClientSocket _PlainClientSocket("localhost:10001");
-	if( !_PlainClientSocket.Connect() )
+	
+	if (m_pMythSocket == NULL)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
-		return "";
+		m_pMythSocket = new PlainClientSocket("localhost:10001");
+		if( !m_pMythSocket->Connect() )
+		{
+			delete m_pMythSocket;
+			m_pMythSocket = NULL;
+			g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
+			return "";
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Connected");
 	}
+	
 
 	// Wait for Myth's console prompt.
-	g_pPlutoLogger->Write(LV_STATUS,"connected");
 	do
 	{
-		if ( !_PlainClientSocket.ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
+		if ( !m_pMythSocket->ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
 		{
+			delete m_pMythSocket;
+			m_pMythSocket = NULL;
 			g_pPlutoLogger->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
 			return "";
 		}
 	} while(ch!='#');
-	if( !_PlainClientSocket.SendString(Cmd) )
+	if( !m_pMythSocket->SendString(Cmd) )
 	{
+		delete m_pMythSocket;
+		m_pMythSocket = NULL;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
 		return "";
 	}
 	// Receive the response
-	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
+	do
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Didn't get reply.");
-		return "";
-	}
+		if( !m_pMythSocket->ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
+		{
+			delete m_pMythSocket;
+			m_pMythSocket = NULL;
+			g_pPlutoLogger->Write(LV_CRITICAL,"Didn't get reply.");
+			return "";
+		}
+	// FIXIT: In Myth's networkcontrol.cpp, it's possible that Myth replies to a previous command with a "lost" query location.  If we get "OK" when asking for status,
+	// we're off kilter.  Receive one more line.
+	} while (!strcmp(Cmd, "query location") && sResponse=="OK");
+		
 	sResponse = StringUtils::TrimSpaces(sResponse);
 	g_pPlutoLogger->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
 	
-	if( !_PlainClientSocket.SendString("QUIT") )
+/*	if( !m_pMythSocket->SendString("QUIT") )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send QUIT string");
 		return sResponse;
 	}
-	_PlainClientSocket.Close();
+	m_pMythSocket->Close(); */
 	return sResponse;
 }
 
@@ -620,9 +635,8 @@ void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
+//	sendMythCommand("key enter");
 	processKeyBoardInputRequest(XK_Return);
-#endif
 }
 
 //<-dceag-c200-b->
@@ -634,9 +648,9 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
+	// sendMythCommand("key up");
 	processKeyBoardInputRequest(XK_Up);
-#endif
+	
 }
 
 //<-dceag-c201-b->
@@ -648,9 +662,8 @@ void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
+//	sendMythCommand("key down");
 	processKeyBoardInputRequest(XK_Down);
-#endif
 }
 
 //<-dceag-c202-b->
@@ -662,9 +675,9 @@ void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
+//	sendMythCommand("key left");
 	processKeyBoardInputRequest(XK_Left);
-#endif
+
 }
 
 //<-dceag-c203-b->
@@ -676,9 +689,8 @@ void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
+//	sendMythCommand("key right");
 	processKeyBoardInputRequest(XK_Right);
-#endif
 }
 
 //<-dceag-c204-b->
@@ -690,9 +702,7 @@ void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_0);
-#endif
+	sendMythCommand("key 0");
 }
 
 //<-dceag-c205-b->
@@ -857,14 +867,29 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
-
+	
 	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
-    {
-            LaunchMythFrontend();
-            locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-    }
+	{
+	    LaunchMythFrontend();
+	    locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+	}
+	m_CurrentMode.clear();
+	m_CurrentProgram.clear();
+	m_mythStatus = MYTHSTATUS_LIVETV;
+	
+	// TODO: The controllers don't get updated if I set this there. Why?
+	// updateMode("live");
 
-    selectWindow();
+	string sResult;
+	time_t timeout=20+time(NULL);
+	
+	do
+	{
+	    Sleep(100);
+	    sResult = sendMythCommand("jump livetv");
+	    g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
+	} while(time(NULL) < timeout && sResult != "OK");
+	selectWindow();
 #endif
 }
 
@@ -1170,11 +1195,12 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	updateMode("GuideGrid");	
 
 	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
 		sendMythCommand("key S");
 	else
-		sendMythCommand("jump guidegrid");	
+		sendMythCommand("jump guidegrid");
 }
 //<-dceag-c367-b->
 
@@ -1198,11 +1224,20 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	if( sText=="old_recordings" )
+	{
+		updateMode("PlaybackBox");
 		sendMythCommand("jump playbackrecordings");
+	}
 	else if( sText=="future_recordings" )
-		sendMythCommand("jump manage_recordings");
+	{
+		updateMode("PlaybackBox");
+		sendMythCommand("jump managerecordings");
+	}
 	else
+	{
+		updateMode("PlaybackBox");
 		sendMythCommand("jump mainmenu");
+	}
 }
 //<-dceag-c761-b->
 
@@ -1214,6 +1249,7 @@ void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
+	updateMode("PlaybackBox");
 	sendMythCommand("jump playbackrecordings");
 }
 
@@ -1227,6 +1263,7 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
+	updateMode("live");
 	sendMythCommand("jump livetv");
 }
 //<-dceag-c763-b->

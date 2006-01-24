@@ -15,6 +15,7 @@
 #include "Gen_Devices/MythTV_PlayerBase.h"
 //<-dceag-d-e->
 
+#include "DCE/PlainClientSocket.h"
 class RatPoisonWrapper;
 typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
 
@@ -30,7 +31,8 @@ namespace DCE
 
         /** Private member variables */
 	DeviceData_Base *m_pDevice_MythTV_Plugin;
-
+	PlainClientSocket *m_pMythSocket; 
+	
 	pthread_t		     m_threadMonitorMyth;
 	eMythState		     m_mythStatus;	
         int                          m_iControllingDevice;
@@ -67,6 +69,7 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+		void updateMode(string toMode);
 		void pollMythStatus();
 
 		virtual void KillSpawnedDevices();
