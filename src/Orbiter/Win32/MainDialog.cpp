@@ -1032,7 +1032,8 @@ void ShowSDLWindow()
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
 #endif
 
-	::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
+	if(!IsIconic(hSDLWindow))
+		::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordAction(const char* sAction)

@@ -57,6 +57,8 @@ public:
     virtual bool GameInit();
     virtual void GameEnd();
     virtual void GameLoop();
+	virtual void ShowWindowCustom();
+
     virtual void StylusDown( Point stylus );
     virtual void StylusUp( Point stylus );
     virtual void StylusMove( Point stylus );

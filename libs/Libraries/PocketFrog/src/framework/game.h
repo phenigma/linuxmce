@@ -99,6 +99,9 @@ protected:
 	// Report a fatal error
 	void FatalError( LPCTSTR msg );
 
+	//Show window - custom
+	virtual void ShowWindowCustom();
+
 
 protected:
     

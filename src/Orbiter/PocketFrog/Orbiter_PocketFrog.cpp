@@ -190,6 +190,16 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::ShowWindowCustom()
+{
+	HWND hMainWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+
+	if(!::IsIconic(hMainWindow)) //if main window is minimized, create minimized
+		ShowWindow(SW_SHOWNORMAL);
+	else
+		ShowWindow(SW_MINIMIZE);
+}
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::GameEnd()
 {
 	

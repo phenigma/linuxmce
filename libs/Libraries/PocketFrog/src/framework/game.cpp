@@ -159,7 +159,7 @@ bool Game::Init()
 
 
 #if defined(FROG_PC)
-    ShowWindow( SW_SHOWNORMAL );
+	ShowWindowCustom();
 #endif
 
 
@@ -174,7 +174,10 @@ bool Game::Init()
     return true;
 }
 
-
+void Game::ShowWindowCustom()
+{
+	ShowWindow( SW_SHOWNORMAL );
+}
 
 bool Game::Run()
 {
