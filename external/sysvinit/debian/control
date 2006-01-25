@@ -22,8 +22,8 @@ Description: System-V like init
 Package: sysv-rc
 Architecture: all
 Conflicts: file-rc
-Replaces: dpkg (<< 1.9.17), sysvinit (<< 2.85-1), file-rc (>> 0.7.0)
-Suggests: sysv-rc-conf, make
+Replaces: dpkg (<< 1.9.17), sysvinit (<< 2.85-1), file-rc (>> 0.7.0), make
+Suggests: sysv-rc-conf
 Description: Standard boot mechanism using symlinks in /etc/rc?.d
  This package provides support for the System-V like system of booting,
  shutting down and changing runlevels configured through symbolic
