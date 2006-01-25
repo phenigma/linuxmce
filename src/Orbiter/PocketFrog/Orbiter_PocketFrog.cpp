@@ -192,7 +192,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::ShowWindowCustom()
 {
-	HWND hMainWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+	HWND hMainWindow = ::FindWindow(TEXT("ORBITER"), NULL);
 
 	if(!::IsIconic(hMainWindow)) //if main window is minimized, create minimized
 		ShowWindow(SW_SHOWNORMAL);
@@ -670,11 +670,17 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
+	if(rect.Width <= 0)
+		rect.Width = 1;
+	
+	if(rect.Height <= 0)
+		rect.Height = 1;
+
 	//clipping
-	if(rect.X + rect.Width >= m_iImageWidth)
+	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
 		rect.Width = m_iImageWidth - rect.X - 1;
 
-	if(rect.Y + rect.Height >= m_iImageHeight)
+	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
 		rect.Height = m_iImageHeight - rect.Y - 1;
 
 	Rect srcRect;
@@ -808,6 +814,9 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
     PlutoRectangle localrect = rect;
     localrect.X += point.X;
     localrect.Y += point.Y;
+
+	if(localrect.Width <= 0 || localrect.Height <= 0)
+		return;
 
 	//clipping the rectangle 
 	if(localrect.X < 0)

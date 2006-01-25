@@ -377,13 +377,9 @@ BOOL InitInstancePopup(HINSTANCE hInstance, int nCmdShow)
     AdjustWindowSize();
 	SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE);
 
-#ifdef POCKETFROG
-	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
-#else
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
-#endif
+	HWND hMainWindow = ::FindWindow(TEXT("ORBITER"), NULL);
 
-	if(!IsIconic(hSDLWindow)) //if main window is minimezed, create minimized
+	if(!IsIconic(hMainWindow)) //if main window is minimezed, create minimized
 		ShowWindow(hWnd, nCmdShow);
 	else
 		ShowWindow(hWnd, SW_MINIMIZE);
