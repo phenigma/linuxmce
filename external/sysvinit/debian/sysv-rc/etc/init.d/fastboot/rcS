@@ -95,8 +95,12 @@ rm -f /fastboot /forcefsck
 
 ## Clean up the /etc/mtab
 Message "Cleaning up /etc/mtab"
-/bin/rm -rf /etc/mtab* 2>/dev/null
 /bin/mount -w -o remount /
+/bin/rm -rf /etc/mtab* 2>/dev/null
+
+# Do a remount one again so it will show up in mtab
+/bin/mount -w -o remount /
+
 if [ -d /proc/sys ] ;then
 	/bin/mount -f proc /proc -t proc
 fi
