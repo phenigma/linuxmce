@@ -17,7 +17,7 @@
 
 #include "DCE/PlainClientSocket.h"
 class RatPoisonWrapper;
-typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
+typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_STARTUP, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -34,7 +34,6 @@ namespace DCE
 	PlainClientSocket *m_pMythSocket; 
 	
 	pthread_t		     m_threadMonitorMyth;
-	eMythState		     m_mythStatus;	
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
 	string m_CurrentMode, m_CurrentProgram;
@@ -58,6 +57,7 @@ namespace DCE
     public:
         /** Public member variables */
 	bool m_bExiting;
+	eMythState		     m_mythStatus;	
 
 //<-dceag-const-b->
 public:

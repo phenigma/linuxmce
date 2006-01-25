@@ -97,7 +97,9 @@ void* monitorMythThread(void* param)
 {
 	while(g_pMythPlayer->m_bExiting==false)
 	{
-		Sleep(900);
+		// If we're disconnected, check more frequently for the signal to start up Myth.
+		
+		Sleep((g_pMythPlayer->m_mythStatus == MYTHSTATUS_DISCONNECTED) ? 10 : 900);
 		g_pMythPlayer->pollMythStatus();
 	}
 	return NULL;
@@ -122,7 +124,6 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_iMythFrontendWindowId = 0;
     m_bExiting = false;
     m_mythStatus = MYTHSTATUS_DISCONNECTED;
-    pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
     
 }
 
@@ -138,11 +139,15 @@ bool MythTV_Player::GetConfig()
 		g_pPlutoLogger->Write(LV_CRITICAL,"I need a myth plugin to function");
 		return false;
 	}
-
-#ifndef WIN32
-    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
-    signal(SIGCHLD, sh); /* install handler */
-#endif
+	// Kill any existing myth front ends.   The application spawner / window focus isn't happy
+	// if we didn't create it ourselves.
+	
+ 	system("killall mythfrontend");
+	Sleep(500);
+	m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+	signal(SIGCHLD, sh); /* install handler */
+ 	pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
+ 
 	return true;
 }
 
@@ -171,7 +176,7 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 		m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
 	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
-
+	
 	if( bSelectWindow )
 	{
 		selectWindow();
@@ -266,10 +271,42 @@ void MythTV_Player::updateMode(string toMode)
 
 void MythTV_Player::pollMythStatus()
 {
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-
-	if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
+	if (m_mythStatus == MYTHSTATUS_STARTUP)
 	{
+		PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+
+		LaunchMythFrontend();
+		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+		m_CurrentMode.clear();
+		m_CurrentProgram.clear();
+		m_mythStatus = MYTHSTATUS_LIVETV;
+		
+		// TODO: The controllers don't get updated if I set this there. Why?
+		// updateMode("live");
+	
+		string sResult;
+		time_t timeout=20+time(NULL);
+		
+		do
+		{
+		    mm.Release();
+		    Sleep(100);
+		    mm.Relock();
+		    sResult = sendMythCommand("jump livetv");
+		    g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
+		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus == MYTHSTATUS_LIVETV);
+		if (time(NULL) >= timeout)
+		{
+			m_mythStatus = MYTHSTATUS_DISCONNECTED;
+			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
+			vector<void *> data;
+			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
+		}		
+	} 
+	else if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
+	{
+		PLUTO_SAFETY_LOCK(mm2,m_MythMutex);
+		
 		string sResult = sendMythCommand("query location");
 
 		if(sResult.length())
@@ -342,10 +379,10 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 		return;
 
 	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
-    {
+	{
             LaunchMythFrontend();
             locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-    }
+	}
 
 	selectWindow();
 
@@ -516,7 +553,6 @@ void MythTV_Player::KillSpawnedDevices()
 void MythTV_Player::ProcessExited(int pid, int status)
 {
 #ifndef WIN32
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
 
 	void *data;
@@ -870,25 +906,15 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 	
 	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
 	{
-	    LaunchMythFrontend();
-	    locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+		m_mythStatus = MYTHSTATUS_STARTUP;
 	}
-	m_CurrentMode.clear();
-	m_CurrentProgram.clear();
-	m_mythStatus = MYTHSTATUS_LIVETV;
-	
-	// TODO: The controllers don't get updated if I set this there. Why?
-	// updateMode("live");
-
-	string sResult;
-	time_t timeout=20+time(NULL);
-	
-	do
+	else
 	{
-	    Sleep(100);
-	    sResult = sendMythCommand("jump livetv");
-	    g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
-	} while(time(NULL) < timeout && sResult != "OK");
+		if (m_mythStatus == MYTHSTATUS_LIVETV || m_mythStatus == MYTHSTATUS_PLAYBACK)
+			sendMythCommand("play speed normal");
+		else
+			sendMythCommand("key P");
+	}
 	selectWindow();
 #endif
 }
