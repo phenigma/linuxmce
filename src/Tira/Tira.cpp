@@ -281,8 +281,8 @@ void Tira::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Comman
 void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
 {
-	cout << "Need to implement command #687 - Set Screen Type" << endl;
-	cout << "Parm #48 - Value=" << iValue << endl;
+	m_cCurrentScreen=(char) iValue;
+	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }
 
 
