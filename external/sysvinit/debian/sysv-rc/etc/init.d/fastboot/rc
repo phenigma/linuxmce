@@ -15,6 +15,7 @@ AddService() {
     [ "$(basename $initFile)" == "Pluto_Start_OrbiterGen.sh" ] && return
     [ "$(basename $initFile)" == "Pluto_Start_LocalDevices.sh" ] && return
     [ "$(basename $initFile)" == "Pluto_Start_X.sh" ] && return
+    [ "$(basename $initFile)" == "Pluto_ConfirmInstallation.sh" ] && return
     [ "$(basename $initFile)" == "mysql" ] && return
     
     # Else queue it to run

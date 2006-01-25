@@ -190,8 +190,13 @@ if [[ "$FirstBoot" != "false" ]] ;then
 	ConfSet "FirstBoot" "false"
 fi
 
+if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
+    Message "Confirm Instalation"
+    /etc/init.d/Pluto_ConfirmInstallation.sh
+fi
+
 if [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
-    Message "Checking for pdates"
+    Message "Checking for Updates"
     /etc/init.d/Pluto_Update_Packages.sh
 fi
 
