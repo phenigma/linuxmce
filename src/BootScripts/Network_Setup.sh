@@ -19,7 +19,7 @@ if [[ "$NetIfConf" == 0 || "$NPflagReconfNetwork" == yes ]]; then
 	NetSettings=$(ParseInterfaces)
 	ExtData=$(echo "$NetSettings" | head -1)
 	ExtractData "$ExtData"
-	if [ -z "$DHCPsetting" ]; then
+	if [[ -z "$DHCPsetting" ]]; then
 		echo "No DHCP Setting found. Not storing internal interface data"
 		if [ "$ExtIP" == "dhcp" ]; then
 			NetIfConf="$ExtIf,dhcp|"
@@ -31,13 +31,13 @@ if [[ "$NetIfConf" == 0 || "$NPflagReconfNetwork" == yes ]]; then
 		echo "Found $NCards network cards"
 		IntNetmask="255.255.255.0"
 		IntIP="$(echo "$DHCPsetting" | cut -d. -f-3).1"
-		if [ "$NCards" -eq 1 ]; then
+		if [[ "$NCards" -eq 1 ]]; then
 			IntIf="eth0:0"
-#		elif [ "$NCards" -eq 2 ]; then
+#		elif [[ "$NCards" -eq 2 ]]; then
 		else
-			[ "$ExtIf" == "eth0" ] && IntIf="eth1" || IntIf="eth0"
+			[[ "$ExtIf" == "eth0" ]] && IntIf="eth1" || IntIf="eth0"
 		fi
-		if [ "$ExtIP" == "dhcp" ]; then
+		if [[ "$ExtIP" == "dhcp" ]]; then
 			NetIfConf="$ExtIf,dhcp|$IntIf,$IntIP,$IntNetmask"
 		else
 			NetIfConf="$ExtIf,$ExtIP,$ExtNetmask,$Gateway,$DNS|$IntIf,$IntIP,$IntNetmask"
@@ -60,13 +60,13 @@ iface lo inet loopback
 "
 echo "$IfConf" >"$File"
 
-[ "$ExtIP" == "dhcp" ] && Setting="dhcp" || Setting="static"
-if [ "$Setting" == "static" ]; then
+[[ "$ExtIP" == "dhcp" ]] && Setting="dhcp" || Setting="static"
+if [[ "$Setting" == "static" ]]; then
 	IfConf="auto $ExtIf
-	iface $ExtIf inet static
-		address $ExtIP
-		netmask $ExtNetmask
-		gateway $Gateway"
+iface $ExtIf inet static
+	address $ExtIP
+	netmask $ExtNetmask
+	gateway $Gateway"
 	echo "$IfConf" >>"$File"
 
 	DNSservers=$(echo "$DNS,"; echo "$NetSettings" | tail -1)
@@ -83,13 +83,15 @@ else
 	DNSservers=$(grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g' | tr '\n' ' ')
 fi
 
-if [ -n "$IntIf" ]; then
-	IfConf="auto $IntIf
-	iface $IntIf inet static
-		address $IntIP
-		netmask $IntNetmask"
-	echo "$IfConf" >>"$File"
+if [[ -z "$IntIf" ]]; then
+	IntIf="$ExtIf:0"
 fi
+
+IfConf="auto $IntIf
+iface $IntIf inet static
+	address $IntIP
+	netmask $IntNetmask"
+echo "$IfConf" >>"$File"
 
 if [[ -n "$DHCPcard" ]]; then
 	echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
@@ -168,10 +170,10 @@ Allow SSH connections? [y/N]?"
 
 RealExtIP="$ExtIP"
 dcerouterIP="$IntIP"
-if [ "$ExtIP" == "dhcp" ]; then
+if [[ "$ExtIP" == "dhcp" ]]; then
 	RealExtIP=$(ip addr ls "$ExtIf" | grep "inet .*$ExtIf\$" | awk '{print $2}' | cut -d/ -f1)
 fi
-if [ -z "$dcerouterIP" ]; then
+if [[ -z "$dcerouterIP" ]]; then
 	dcerouterIP="$RealExtIP" #dcerouterIP="127.0.0.1"
 fi
 Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
