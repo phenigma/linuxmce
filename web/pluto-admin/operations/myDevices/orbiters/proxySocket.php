@@ -96,7 +96,7 @@ function proxySocket($output,$dbADO){
 				$out.=sendCommand($deviceID,$socket,$dbADO,'PLUTO_KEY '.$key,$refresh);
 			}
 		}
-		$XML=getXML($deviceID,$socket);
+		$XML=getXML($deviceID,$dbADO,$socket);
 		socket_close($socket);
 		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML&deviceID=$deviceID";
 		
@@ -128,23 +128,7 @@ function getImage($deviceID,$socket,$dbADO,$refresh=''){
 		write_log(miliseconds_date()."Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
-	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
-	if($outResponse===false){
-		$last_error=socket_strerror(socket_last_error($socket));
-		write_log(miliseconds_date()."Failed reading socket: ".$last_error."\n");
-		if($last_error=='Connection reset by peer'){
-			// if the orbiter is regenerating, query Orbiter table to check status
-			$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
-			if(count($orbiterFields)>0){
-				$err_msg=($orbiterFields[0]['RegenInProgress']==1)?'Regeneration '.$orbiterFields[0]['RegenPercent']:'Loading ... ';
-			}else{
-				$err_msg='Loading ... ';
-			}
-			xml_die($deviceID,$address,$port,'XML',"\n\nConnection reset by peer\n",$err_msg);
-		}
-	}else{
-		write_log(miliseconds_date()."Read: ".$outResponse."\n");
-	}
+	$outResponse=web_socket_read($deviceID,$dbADO,$socket,2048,PHP_NORMAL_READ);
 
 	$imageSize=(int)trim(str_replace('IMAGE ','',$outResponse));
 	if($imageSize>0){
@@ -171,7 +155,7 @@ function getImage($deviceID,$socket,$dbADO,$refresh=''){
 	return $out;
 }
 
-function getXML($deviceID,$socket){
+function getXML($deviceID,$dbADO,$socket){
 	$in = "XML $deviceID\n";
 	$out='';
 	
@@ -181,10 +165,7 @@ function getXML($deviceID,$socket){
 		write_log(miliseconds_date()."Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
-	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
-	if($outResponse===false){
-		write_log(miliseconds_date()."Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
-	}
+	$outResponse=web_socket_read($deviceID,$dbADO,$socket,2048,PHP_NORMAL_READ);
 
 	$xmlSize=(int)trim(str_replace('XML ','',$outResponse));
 	if($xmlSize>0){
@@ -221,12 +202,8 @@ function sendCommand($deviceID,$socket,$dbADO,$command,$refresh){
 		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 	
-	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
-	if($outResponse===false){
-		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
-	}else{
-		write_log($outResponse);
-	}
+
+	$outResponse=web_socket_read($deviceID,$dbADO,$socket,2048,PHP_NORMAL_READ);
 	$out.=$outResponse;
 
 	$out.=getImage($deviceID,$socket,$dbADO,$refresh);
@@ -303,4 +280,27 @@ function miliseconds_date($format='d-m-Y H:i:s'){
 	$unix_time=(float)$sec;
 	return date($format,$unix_time).'.'.substr((float)($usec),2).' ';
 }
+
+function web_socket_read($deviceID,$dbADO,$socket,$length,$type=PHP_BINARY_READ){
+	global $port,$address;
+	$outResponse= @socket_read($socket, $length,$type);
+
+	if($outResponse===false || trim($outResponse)==='NOT_CONNECTED'){
+		$last_error=socket_strerror(socket_last_error($socket));
+		write_log(miliseconds_date()."Failed reading socket: ".$last_error."\n");
+		// if the orbiter is regenerating, query Orbiter table to check status
+		$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
+		if(count($orbiterFields)>0){
+			$err_msg=($orbiterFields[0]['RegenInProgress']==1)?'Regeneration '.$orbiterFields[0]['RegenPercent']:'Loading ... ';
+		}else{
+			$err_msg='Loading ... ';
+		}
+		xml_die($deviceID,$address,$port,'XML',"\n\nConnection reset by peer\n",$err_msg);
+	}else{
+		write_log(miliseconds_date()."Read: ".$outResponse."\n");
+	}
+	
+	return $outResponse;
+}
+
 ?>
