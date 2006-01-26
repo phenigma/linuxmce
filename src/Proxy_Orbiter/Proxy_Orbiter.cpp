@@ -221,7 +221,7 @@ bool Proxy_Orbiter::PushRefreshEvent()
     string sRequestUrl = 
             string() + 
             "<CiscoIPPhoneExecute>"
-                "<ExecuteItem URL=\"" + m_sRequestUrl + "\"/>"
+                "<ExecuteItem Priority=\"1\" URL=\"" + m_sRequestUrl + "\"/>"
             "</CiscoIPPhoneExecute>";
     mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
 

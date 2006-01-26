@@ -97,7 +97,7 @@ void *GeneratorThread( void *p)
 #ifdef BLUETOOTH_DONGLE
 	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #elif defined(PROXY_ORBITER)
-	xxProxy_Orbiter *pOrbiter = (xxProxy_Orbiter *)pSimulator->m_pOrbiter;
+	Proxy_Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
 #else
 	#ifdef WIN32
 		#ifdef WINCE

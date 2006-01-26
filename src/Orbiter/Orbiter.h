@@ -1009,6 +1009,8 @@ public:
 	// Wait for related devices to startup before we let the user go
 	virtual bool WaitForRelativesIfOSD();
 
+	bool PendingCallbackScheduled(OrbiterCallBack fnCallBack);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

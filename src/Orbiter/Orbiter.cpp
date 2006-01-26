@@ -9932,4 +9932,17 @@ bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message 
 
 	return false;
 }
+//-----------------------------------------------------------------------------------------------------
+bool Orbiter::PendingCallbackScheduled(OrbiterCallBack fnCallBack)
+{
+	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
+	for(map<int, CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+	{
+		CallBackInfo *pCallBackInfo = (*it).second;
+		if(pCallBackInfo->m_fnCallBack == fnCallBack)
+			return true;
+	}
 
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
