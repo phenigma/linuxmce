@@ -1,8 +1,15 @@
+sysvinit (2.86.ds1-1.1pluto7) unstable; urgency=low
+
+  * Take the functionality of StartupScripts.sh into fastboot/rcS
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 26 Jan 2006 17:06:35 +0200
+
 sysvinit (2.86.ds1-1.1pluto6) unstable; urgency=low
 
   * Confirm instalation before the DCE Router is running
 
  -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 25 Jan 2006 17:08:59 +0200
+
 sysvinit (2.86.ds1-1.1pluto5) unstable; urgency=low
 
   * Fixed cleaning up mtab on readonly file system
