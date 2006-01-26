@@ -109,29 +109,40 @@ fi
 
 # Update grub's menu.lst so it can show the splash when booting
 if [ -f /boot/grub/menu.lst ] ;then
-    # Add 'splash=silent'
-    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
-    if [ "$(echo $koptOld | grep 'splash=')" == "" ] ;then
-	koptNew="$koptOld splash=silent"  
-        koptNew=${koptNew//=/\\=}
-	koptOld=${koptOld//=/\\=} 
-	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
-	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
+    if ! grep -q "altoptions=(bootsplash)" /boot/grub/menu.lst ;then
+	insertTo=$(grep -n "## e.g. altopt" /boot/grub/menu.lst | cut -d':' -f1)
+	insertTo=$(($insertTo + 1))
+	awk "{print} NR == $insertTo {print \"# altoptions=(bootsplash) splash=silent vga=0x311\"}
+	" /boot/grub/menu.lst > /boot/grub/menu.lst.awk
+	mv /boot/grub/menu.lst.awk /boot/grub/menu.lst
 	update-grub
     fi
-
-    # Add vga=
-    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
-    if [ "$(echo $koptOld | grep 'vga=')" == "" ] ;then
-	koptNew="$koptOld vga=0x311"
-        koptNew=${koptNew//=/\\=}
-	koptOld=${koptOld//=/\\=} 
-	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
-	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
-	update-grub
-    fi
-
 fi
+
+### INFO:Bootplash is not a default for pluto right now, so we comment this
+#
+#    # Add 'splash=silent'
+#    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
+#    if [ "$(echo $koptOld | grep 'splash=')" == "" ] ;then
+#	koptNew="$koptOld splash=silent"  
+#        koptNew=${koptNew//=/\\=}
+#	koptOld=${koptOld//=/\\=} 
+#	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
+#	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
+#	update-grub
+#    fi
+#
+#    # Add vga=
+#    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
+#    if [ "$(echo $koptOld | grep 'vga=')" == "" ] ;then
+#	koptNew="$koptOld vga=0x311"
+#        koptNew=${koptNew//=/\\=}
+#	koptOld=${koptOld//=/\\=} 
+#	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
+#	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
+#	update-grub
+#    fi
+#
 
 db_stop
 

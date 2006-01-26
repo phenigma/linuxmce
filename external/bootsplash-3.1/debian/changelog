@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto2) unstable; urgency=low
+
+  * Removed bootsplash from kopt and made an altoption until good test results
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 26 Jan 2006 16:43:44 +0200
+  
 bootsplash (3.1-1pluto1) unstable; urgency=low
 
   * Added default option to patch all the initrd images by default
