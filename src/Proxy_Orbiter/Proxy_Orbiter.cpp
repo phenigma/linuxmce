@@ -1,5 +1,5 @@
 /*
- xxProxy_Orbiter
+ Proxy_Orbiter
  
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
  
@@ -52,7 +52,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 #define IMAGE_QUALITY_SCREEN    "1274"
 
 //-----------------------------------------------------------------------------------------------------
-xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
+Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
 : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
     0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex("action"), m_ResourcesMutex("resources")
 {
@@ -70,7 +70,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
 	m_ResourcesMutex.Init(NULL);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool xxProxy_Orbiter::GetConfig()
+/*virtual*/ bool Proxy_Orbiter::GetConfig()
 {
     if(!OrbiterSDL::GetConfig())
         return false;
@@ -89,7 +89,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     return true;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::Run()
+/*virtual*/ void Proxy_Orbiter::Run()
 {
     m_sRequestUrl = m_sBaseUrl + 
         "index.php?"
@@ -104,8 +104,9 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     StartListening(m_iListenPort);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ xxProxy_Orbiter::~xxProxy_Orbiter()
+/*virtual*/ Proxy_Orbiter::~Proxy_Orbiter()
 {
+	PushRefreshEvent();
     pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -144,7 +145,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     fclose(File);
 }
 //-----------------------------------------------------------------------------------------------------
-void xxProxy_Orbiter::RealRedraw( void *data )
+void Proxy_Orbiter::RealRedraw( void *data )
 {
 	m_dequeCellXMLItems.clear();
 	m_bRerenderScreen = true; //force full redraw
@@ -152,34 +153,26 @@ void xxProxy_Orbiter::RealRedraw( void *data )
 	Orbiter::RealRedraw(data);
 }
 //-----------------------------------------------------------------------------------------------------
-void xxProxy_Orbiter::RedrawObjects()
+void Proxy_Orbiter::RedrawObjects()
 {
 	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
 		return; // Nothing to do anyway
 
-	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&xxProxy_Orbiter::RealRedraw, NULL, pe_ALL );
+	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&Proxy_Orbiter::RealRedraw, NULL, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
-void *EndProcessing(void *p)
-{
-	xxProxy_Orbiter *pProxy = (xxProxy_Orbiter *)p;
-	pProxy->StopProcessingRequest();
-
-	return NULL;
-}
-//-----------------------------------------------------------------------------------------------------
-string xxProxy_Orbiter::GetDevicePngFileName()
+string Proxy_Orbiter::GetDevicePngFileName()
 {
 	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_IMAGE;
 }
 //-----------------------------------------------------------------------------------------------------
-string xxProxy_Orbiter::GetDeviceXmlFileName()
+string Proxy_Orbiter::GetDeviceXmlFileName()
 {
 	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_XML;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
+/*virtual*/ void Proxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
 
@@ -210,10 +203,16 @@ string xxProxy_Orbiter::GetDeviceXmlFileName()
     pthread_cond_broadcast(&m_ActionCond);
 
 	if(!IsProcessingRequest() && m_iListenPort >= 3451 && m_iListenPort <= 3460) //only cisco orbiters
-		PushRefreshEvent();
+	{
+		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
+			CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
-bool xxProxy_Orbiter::PushRefreshEvent()
+bool Proxy_Orbiter::PushRefreshEvent()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
@@ -235,31 +234,31 @@ bool xxProxy_Orbiter::PushRefreshEvent()
 	return Response == "Success";
 }
 //-----------------------------------------------------------------------------------------------------
-bool xxProxy_Orbiter::IsProcessingRequest()
+bool Proxy_Orbiter::IsProcessingRequest()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Is processing request? R: %s", m_bProcessingRequest ? "YES" : "NO");
 	return m_bProcessingRequest;
 }
 //-----------------------------------------------------------------------------------------------------
-void xxProxy_Orbiter::StartProcessingRequest()
+void Proxy_Orbiter::StartProcessingRequest()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Starting processing request...");
 	m_bProcessingRequest = true;
 }
 //-----------------------------------------------------------------------------------------------------
-void xxProxy_Orbiter::EndProcessingRequest()
+void Proxy_Orbiter::EndProcessingRequest()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in 500 ms...");
-	CallMaintenanceInMiliseconds( 500, (OrbiterCallBack)&xxProxy_Orbiter::StopProcessingRequest, this, pe_ALL );
+    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in 400 ms...");
+	CallMaintenanceInMiliseconds( 400, (OrbiterCallBack)&Proxy_Orbiter::StopProcessingRequest, this, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
-void xxProxy_Orbiter::StopProcessingRequest()
+void Proxy_Orbiter::StopProcessingRequest()
 {
     g_pPlutoLogger->Write(LV_STATUS, "Stopped processing request...");
 	m_bProcessingRequest = false;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
+/*virtual*/ void Proxy_Orbiter::SaveXML(string sFileName)
 {
     m_dequeXMLItems.clear();
     GenerateXMLItems(m_pScreenHistory_Current->GetObj());
@@ -295,8 +294,6 @@ void xxProxy_Orbiter::StopProcessingRequest()
     }
 
     string sPrompt;
-		//= "DEBUG: Areas available: " + StringUtils::ltos(nCount - 1) + "/" + 
-        //StringUtils::ltos(m_dequeXMLItems.size() + m_dequeCellXMLItems.size());
     string sXMLString = 
         "<CiscoIPPhoneGraphicFileMenu>\r\n"
         "<Title>Pluto Orbiter</Title>\r\n"
@@ -311,7 +308,7 @@ void xxProxy_Orbiter::StopProcessingRequest()
     FileUtils::WriteBufferIntoFile(GetDeviceXmlFileName(), sXMLString.c_str(), sXMLString.size());
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
+/*virtual*/ void Proxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
 {
     bool bTouchArea = false;
     DesignObjZoneList::iterator iZone;
@@ -351,7 +348,7 @@ void xxProxy_Orbiter::StopProcessingRequest()
         GenerateXMLItems((DesignObj_Orbiter *)*it);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ string xxProxy_Orbiter::GenerateSoftKeys(DesignObj_Orbiter *pObj)
+/*virtual*/ string Proxy_Orbiter::GenerateSoftKeys(DesignObj_Orbiter *pObj)
 {
     if(m_sNowPlaying.length() > 0)
         return sAllSoftKeysXml;
@@ -359,7 +356,7 @@ void xxProxy_Orbiter::StopProcessingRequest()
     return sNoMediaSoftKeysXml;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::ParseHardKeys()
+/*virtual*/ void Proxy_Orbiter::ParseHardKeys()
 {
     string::size_type pos = 0;
     string::size_type posTemp = 0;
@@ -414,17 +411,17 @@ void xxProxy_Orbiter::StopProcessingRequest()
     }
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::BeginPaint()
+/*virtual*/ void Proxy_Orbiter::BeginPaint()
 {
 	m_dequeCellXMLItems.clear();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::EndPaint()
+/*virtual*/ void Proxy_Orbiter::EndPaint()
 {
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::SetImageQuality(unsigned long nImageQuality)
+/*virtual*/ void Proxy_Orbiter::SetImageQuality(unsigned long nImageQuality)
 {
     m_ImageQuality = nImageQuality;
     DATA_Set_ImageQuality(nImageQuality, true);
@@ -434,7 +431,7 @@ void xxProxy_Orbiter::StopProcessingRequest()
 }
 //-----------------------------------------------------------------------------------------------------
 
-bool xxProxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
+bool Proxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
 {
     bool bRetValue = OrbiterSDL::RenderCell(pObj, pT, pCell, j, i, GraphicToDisplay, point);
 
@@ -460,13 +457,13 @@ bool xxProxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGri
     return bRetValue;
 }
 
-void xxProxy_Orbiter::RenderScreen()
+void Proxy_Orbiter::RenderScreen()
 {
     m_dequeCellXMLItems.clear();
     return OrbiterSDL::RenderScreen();
 }
 
-bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
+bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
 	if(m_bQuit || m_bReload)
 		return false;
@@ -490,8 +487,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		}
 
         g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
-        pSocket->SendString("IMAGE " + StringUtils::itos(size));
-        pSocket->SendData(size,pBuffer);
+        pSocket->SendString("IMAGE " + StringUtils::itos(int(size)));
+        pSocket->SendData(int(size),pBuffer);
         delete[] pBuffer;
 		
 		return true;
@@ -510,8 +507,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
         }
 
         g_pPlutoLogger->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
-        pSocket->SendString("XML " + StringUtils::itos(size));
-        pSocket->SendData(size,pBuffer);
+        pSocket->SendString("XML " + StringUtils::itos(int(size)));
+        pSocket->SendData(int(size), pBuffer);
         delete[] pBuffer;
 
 		EndProcessingRequest();
@@ -574,9 +571,45 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	return false;
 }
 
-void xxProxy_Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
+void *Proxy_Orbiter::PushRefreshEventTask(void *)
 {
 	PushRefreshEvent();
+	return NULL;
+}
+
+void Proxy_Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
+{
+	m_bQuit = true;
+
+	if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
+		CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+	}
+}
+
+void Proxy_Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
+{
+	m_bQuit = true;
+		
+	if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
+		CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+	}	
+}
+
+void Proxy_Orbiter::OnReload()
+{
+	m_bReload = true;
+	m_bQuit = true;
+	
+	Orbiter_Command::OnReload(); 
+    if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
+        CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+    }
 }
 
 void LoadUI_From_ConfigurationData()
@@ -592,7 +625,7 @@ void SocketCrashHandler(Socket *pSocket);
 bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress)
 {
-	xxProxy_Orbiter *pProxy_Orbiter = new xxProxy_Orbiter(DeviceID, 0, ServerAddress);
+	Proxy_Orbiter *pProxy_Orbiter = new Proxy_Orbiter(DeviceID, 0, ServerAddress);
 	if ( pProxy_Orbiter->GetConfig() && pProxy_Orbiter->Connect(pProxy_Orbiter->PK_DeviceTemplate_get()) ) 
 	{
         pProxy_Orbiter->Run();

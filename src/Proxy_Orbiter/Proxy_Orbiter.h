@@ -1,5 +1,5 @@
-#ifndef __xxProxy_Orbiter_H__
-#define __xxProxy_Orbiter_H__
+#ifndef __Proxy_Orbiter_H__
+#define __Proxy_Orbiter_H__
 
 //-----------------------------------------------------------------------------------------------------
 #include <iostream> 
@@ -15,7 +15,7 @@ using namespace std;
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
-	class xxProxy_Orbiter : public OrbiterSDL, public SocketListener
+	class Proxy_Orbiter : public OrbiterSDL, public SocketListener
 	{
 
 		bool IsProcessingRequest();
@@ -47,9 +47,9 @@ namespace DCE
 		string m_sRemotePhoneIP;
 
 	public:
-		xxProxy_Orbiter(int DeviceID, 
+		Proxy_Orbiter(int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
-		virtual ~xxProxy_Orbiter();
+		virtual ~Proxy_Orbiter();
 
 		void StopProcessingRequest();
 
@@ -83,8 +83,12 @@ namespace DCE
 		inline string GetDeviceXmlFileName();
 
 		virtual void CMD_Quit(string &sCMD_Result,Message *pMessage);
+		virtual void CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage);
+		virtual void OnReload();
+		
 		bool PushRefreshEvent();
+		void *PushRefreshEventTask(void *p);
 	};
 }
 //-----------------------------------------------------------------------------------------------------
-#endif //__xxProxy_Orbiter_H__ 
+#endif //__Proxy_Orbiter_H__ 
