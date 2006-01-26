@@ -105,8 +105,9 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Proxy_Orbiter::~Proxy_Orbiter()
-{
-	PushRefreshEvent();
+{	
+	Sleep(1500);
+	PushRefreshEvent(true);
     pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -212,16 +213,20 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-bool Proxy_Orbiter::PushRefreshEvent()
+bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
 {
+	static int nRequestId = 0;
+	
 	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
     vector<string> vectHeaders;
     map<string, string> mapParams;
+	string sPriorityLevel = bForce ? "0" : "1";
     string sRequestUrl = 
             string() + 
             "<CiscoIPPhoneExecute>"
-                "<ExecuteItem Priority=\"1\" URL=\"" + m_sRequestUrl + "\"/>"
+                "<ExecuteItem Priority=\"" + sPriorityLevel + "\" URL=\"" + m_sRequestUrl + "req_id=" + 
+					StringUtils::ltos(nRequestId++) + "\"/>"
             "</CiscoIPPhoneExecute>";
     mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
 
@@ -466,7 +471,10 @@ void Proxy_Orbiter::RenderScreen()
 bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
 	if(m_bQuit || m_bReload)
+	{
+		pSocket->SendString("NOT_CONNECTED");
 		return false;
+	}
 
     g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
 
@@ -533,6 +541,12 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
                 abstime.tv_nsec = 0;
                 am.TimedCondWait(abstime);
 
+		        if(m_bQuit || m_bReload)
+        		{
+            		pSocket->SendString("NOT_CONNECTED");
+            		return false;
+        		}
+
                 g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");
 			    pSocket->SendString("OK");
             }
@@ -564,6 +578,12 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         abstime.tv_nsec = 0;
         am.TimedCondWait(abstime);
 
+		if(m_bQuit || m_bReload)
+		{
+			pSocket->SendString("NOT_CONNECTED");
+			return false;
+		}
+
         g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;
@@ -573,43 +593,36 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 
 void *Proxy_Orbiter::PushRefreshEventTask(void *)
 {
-	PushRefreshEvent();
+	PushRefreshEvent(false);
 	return NULL;
 }
 
 void Proxy_Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 {
 	m_bQuit = true;
-
-	if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
-		CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
-	}
+	pthread_cond_broadcast(&m_ActionCond);
 }
 
 void Proxy_Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 {
 	m_bQuit = true;
-		
-	if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
-		CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
-	}	
+	pthread_cond_broadcast(&m_ActionCond);
 }
 
+void Proxy_Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
+{
+	Orbiter::CMD_Regen_Screen(sCMD_Result, pMessage);
+	m_bQuit = true;
+	pthread_cond_broadcast(&m_ActionCond);
+}
+	
 void Proxy_Orbiter::OnReload()
 {
 	m_bReload = true;
 	m_bQuit = true;
 	
 	Orbiter_Command::OnReload(); 
-    if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
-        CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
-    }
+	pthread_cond_broadcast(&m_ActionCond);
 }
 
 void LoadUI_From_ConfigurationData()

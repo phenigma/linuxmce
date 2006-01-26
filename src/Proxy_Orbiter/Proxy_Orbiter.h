@@ -85,8 +85,9 @@ namespace DCE
 		virtual void CMD_Quit(string &sCMD_Result,Message *pMessage);
 		virtual void CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage);
 		virtual void OnReload();
+		virtual void CMD_Regen_Screen(string &sCMD_Result,Message *pMessage);
 		
-		bool PushRefreshEvent();
+		bool PushRefreshEvent(bool bForce);
 		void *PushRefreshEventTask(void *p);
 	};
 }
