@@ -22,7 +22,9 @@
 
 #ifdef _WIN32_WCE
    #include "foreign/imgdecmp/imgdecmp.h"
-   //#pragma comment( lib, "imgdecmp.lib" )
+	#ifdef ARMV4
+		#pragma comment( lib, "imgdecmp.lib" )
+	#endif
 #else
    #include <olectl.h>
    #pragma comment( lib, "ole32.lib" )
