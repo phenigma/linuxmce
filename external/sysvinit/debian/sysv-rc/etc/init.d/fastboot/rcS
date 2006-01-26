@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 Message() {
     echo -e "\033[1m# $*"
     tput sgr0
@@ -118,6 +119,26 @@ else
 	/sbin/hwclock --localtime --hctosys > /dev/null
 fi
 
+## Do some pluto specific cleanup
+setterm -blank >/dev/console             # disable console blanking
+chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
+/usr/pluto/bin/Report_Machine_Status.sh &
+rm /var/log/pluto/running.pids
+chmod 777 /var/log/pluto
+rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
+mkdir -p /usr/pluto/locks                # clean up locks
+rm -f /usr/pluto/locks/*                 # clean up locks
+rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
+dmesg -n 1
+
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/SQL_Ops.sh
+
+if [[ -e /usr/pluto/install/.notdone ]]; then
+    Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
+fi
+
 ## Configure runtime kernel parameters
 Message "Configuring runtime kernel parameters"
 if [ -x /sbin/sysctl -a -r /etc/sysclt.conf ] ;then 
@@ -182,6 +203,16 @@ if [ -x /etc/init.d/mysql ] ;then
     Message "Starting mysql server"
     /etc/init.d/mysql start 2>/dev/null
 fi
+
+
+# assure some settings
+Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
+R="$(RunSQL "$Q")"
+ConfSet PK_Installation "$R"
+Q="SELECT PK_Users FROM Users LIMIT 1"
+R="$(RunSQL "$Q")"
+ConfSet PK_Users "$R"
+
 
 . /usr/pluto/bin/Config_Ops.sh
 if [[ "$FirstBoot" != "false" ]] ;then

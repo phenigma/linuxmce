@@ -1,8 +1,7 @@
 # GNU Makefile listing dependencies between services when services are started.
 
 ## Example runing abc_service first.
-
-#$(filter-out $<,$(ALL))         : abc_service
+$(filter-out $<,$(ALL))         : Pluto_Process_Logs.sh
 
 ## Running a_service after b_service and c_service
 #a_service : b_service c_service
