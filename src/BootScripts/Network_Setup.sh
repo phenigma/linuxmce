@@ -85,6 +85,8 @@ fi
 
 if [[ -z "$IntIf" ]]; then
 	IntIf="$ExtIf:0"
+	IntIP=192.168.80.1
+	IntNetmask=255.255.255.0
 fi
 
 IfConf="auto $IntIf
