@@ -298,12 +298,16 @@ BOOL InitInstanceDialog(HINSTANCE hInstance, int nCmdShow)
     AdjustWindowSize();
 	SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE);
 
+#ifdef WINCE
+	ShowWindow(hWnd, nCmdShow);
+#else
 	HWND hMainWindow = ::FindWindow(TEXT("ORBITER"), NULL);
 
 	if(!IsIconic(hMainWindow)) //if main window is minimezed, create minimized
 		ShowWindow(hWnd, nCmdShow);
 	else
 		ShowWindow(hWnd, SW_MINIMIZE);
+#endif
 
 	UpdateWindow(hWnd);
 

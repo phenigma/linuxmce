@@ -1032,7 +1032,9 @@ void ShowSDLWindow()
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
 #endif
 
+#ifndef WINCE
 	if(!IsIconic(hSDLWindow))
+#endif
 		::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
 }
 //-----------------------------------------------------------------------------------------------------
