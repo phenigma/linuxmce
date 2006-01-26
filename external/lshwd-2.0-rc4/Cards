@@ -1,4 +1,4 @@
-# $Id: Cards+,v 1.75 2004/12/02 18:09:39 tvignaud Exp $
+# $Id: Cards+,v 1.82 2005/09/14 19:40:41 oblin Exp $
 # This is the database of card definitions used by XFdrake
 #
 
@@ -948,6 +948,7 @@ SEE S3 Savage4 (generic)
 
 NAME S3 UniChrome
 DRIVER via
+DRI_GLX
 
 # ET4000/ET6000
 
@@ -1246,7 +1247,7 @@ NAME ATI Rage XL AGP
 SEE ATI Rage XL
 
 NAME ATI Rage 128
-DRIVER r128
+DRIVER ati
 DRI_GLX
 # DRI_GLX: 16 and 32 bits, prefer 16bit as no DMA.
 
@@ -1267,18 +1268,18 @@ NAME ATI XPERT 99 AGP
 SEE ATI Rage 128
 
 NAME ATI Radeon
-DRIVER radeon
+DRIVER ati
 DRI_GLX
 # DRI_GLX: 16bits preferable ?
 
 NAME ATI Radeon 8500
-DRIVER radeon
+DRIVER ati
 # no DRI_GLX for now (XF 4.2)
 # but XF 4.3 add DRI
 DRI_GLX
 
 NAME ATI Radeon (fglrx)
-DRIVER radeon
+DRIVER ati
 DRI_GLX
 DRIVER2 fglrx
 
@@ -1813,9 +1814,13 @@ NAME RIVA TNT
 DRIVER nv
 BAD_FB_RESTORE
 
-NAME RIVA TNT2
+NAME NVIDIA Legacy
 DRIVER nv
 DRIVER2 nvidia
+NVIDIA_LEGACY
+
+NAME RIVA TNT2
+SEE NVIDIA Legacy
 
 NAME NVIDIA GeForce
 DRIVER nv
@@ -1913,20 +1918,25 @@ DRIVER fbdev
 DRIVER2 nvidia
 
 NAME NVIDIA GeForce 256 (generic)
-SEE NVIDIA GeForce
+SEE NVIDIA Legacy
 
 NAME NVIDIA GeForce DDR (generic)
 CHIPSET GeForce DDR
-SEE NVIDIA GeForce
+SEE NVIDIA Legacy
 
 NAME NVIDIA GeForce2 DDR (generic)
 SEE NVIDIA GeForce DDR (generic)
 
 NAME NVIDIA GeForce2 Integrated (generic)
-SEE NVIDIA GeForce
+SEE NVIDIA Legacy
 
 NAME NVIDIA GeForce3 (generic)
 SEE NVIDIA GeForce
+
+NAME NVIDIA GeForce3 (xbox)
+DRIVER nvxbox
+LINE Option "UseFBDev" "1"
+LINE Option "HWCursor" "0"
 
 NAME NVIDIA GeForce4 (generic)
 SEE NVIDIA GeForce
@@ -2031,6 +2041,7 @@ SEE AT3D
 
 NAME NeoMagic MagicGraph (laptop/notebook)
 DRIVER neomagic
+LINE	  Option     "overrideValidateMode"
 LINE #    Chipset    "NM2160"
 LINE #    IOBase     0xfea00000
 LINE #    MemBase    0xfd000000
@@ -2277,6 +2288,10 @@ DRIVER i810
 DRI_GLX
 
 NAME Intel 915
+DRIVER i810
+DRI_GLX
+
+NAME Intel 945
 DRIVER i810
 DRI_GLX
 
