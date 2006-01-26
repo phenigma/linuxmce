@@ -1,5 +1,10 @@
 <?
 function proxySocket($output,$dbADO){
+	// debug stuff
+	//Header("Content-type: text/xml"); 
+	//die(join("\n",file(getcwd().'/security_images/37_screen.xml')));
+
+	
 	global $port,$address;
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
 		$phoneIPAddress=$_SERVER['REMOTE_ADDR'];
@@ -38,7 +43,7 @@ function proxySocket($output,$dbADO){
 	write_log("\n".miliseconds_date()."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	if ($socket === false) {
-		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Failed to connect');
+		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Loading ... ');
 	} else {
 		write_log("OK.\n");
 	}
@@ -47,7 +52,19 @@ function proxySocket($output,$dbADO){
 
 	if ($result !==true) {
 		@socket_close($socket);
-		xml_die($deviceID,$address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",'Failed to connect');
+		// if the orbiter is regenerating, query Orbiter table to check status
+
+		$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
+		if(count($orbiterFields)>0){
+			$orb_status='Regenerating '.trim(strtolower(substr($orbiterFields['RegenStatus'][0],0,strpos($orbiterFields['RegenStatus'][0],'-'))));
+			$orb_status.=': '.$orbiterFields['RegenPercent'][0].'%';
+			
+			$err_msg=($orbiterFields['RegenInProgress'][0]==1)?$orb_status:'Loading ... ';
+		}else{
+			$err_msg='Loading ... ';
+		}
+		
+		xml_die($deviceID,$address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",$err_msg);
 	} else {
 		write_log(miliseconds_date()."Connected on socket ... OK.\n");
 	}
@@ -56,12 +73,12 @@ function proxySocket($output,$dbADO){
 	
 	// get image
 	if($command=='IMAGE'){
-		$out.=getImage($deviceID,$socket,$refresh);
+		$out.=getImage($deviceID,$socket,$dbADO,$refresh);
 	}
 	
 	// send touch command
 	if(strpos($command,'TOUCH')!==false){
-		$out.=sendCommand($deviceID,$socket,$command,$refresh);
+		$out.=sendCommand($deviceID,$socket,$dbADO,$command,$refresh);
 	}
 	
 	// send XML command
@@ -70,13 +87,13 @@ function proxySocket($output,$dbADO){
 		$x=(int)@$_REQUEST['x'];
 		$y=(int)@$_REQUEST['y'];
 		if($x!=0 && $y!=0){
-			$out.=sendCommand($deviceID,$socket,'TOUCH '.$x.'x'.$y,$refresh);
+			$out.=sendCommand($deviceID,$socket,$dbADO,'TOUCH '.$x.'x'.$y,$refresh);
 		}else{
 			$key=@$_REQUEST['key'];
 			if($key==''){
-				getImage($deviceID,$socket);
+				getImage($deviceID,$socket,$dbADO);
 			}else{
-				$out.=sendCommand($deviceID,$socket,'PLUTO_KEY '.$key,$refresh);
+				$out.=sendCommand($deviceID,$socket,$dbADO,'PLUTO_KEY '.$key,$refresh);
 			}
 		}
 		$XML=getXML($deviceID,$socket);
@@ -94,13 +111,13 @@ function proxySocket($output,$dbADO){
 	@socket_close($socket);
 	write_log( "OK.\n");
 	
-
+	writeFile(getcwd().'/security_images/bubu.htm',$out);
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  
 }
 
-function getImage($deviceID,$socket,$refresh=''){
+function getImage($deviceID,$socket,$dbADO,$refresh=''){
 	global $port,$address;
 	$in = "IMAGE ".$deviceID."\n";
 	$out='';
@@ -116,7 +133,14 @@ function getImage($deviceID,$socket,$refresh=''){
 		$last_error=socket_strerror(socket_last_error($socket));
 		write_log(miliseconds_date()."Failed reading socket: ".$last_error."\n");
 		if($last_error=='Connection reset by peer'){
-			xml_die($deviceID,$address,$port,'IMAGE',"\n\nConnection reset by peer\n",'Not connected ');
+			// if the orbiter is regenerating, query Orbiter table to check status
+			$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
+			if(count($orbiterFields)>0){
+				$err_msg=($orbiterFields[0]['RegenInProgress']==1)?'Regeneration '.$orbiterFields[0]['RegenPercent']:'Loading ... ';
+			}else{
+				$err_msg='Loading ... ';
+			}
+			xml_die($deviceID,$address,$port,'XML',"\n\nConnection reset by peer\n",$err_msg);
 		}
 	}else{
 		write_log(miliseconds_date()."Read: ".$outResponse."\n");
@@ -186,7 +210,7 @@ function getXML($deviceID,$socket){
 
 
 
-function sendCommand($deviceID,$socket,$command,$refresh){
+function sendCommand($deviceID,$socket,$dbADO,$command,$refresh){
 	$in = $command."\n";
 
 	$out='';
@@ -205,7 +229,7 @@ function sendCommand($deviceID,$socket,$command,$refresh){
 	}
 	$out.=$outResponse;
 
-	$out.=getImage($deviceID,$socket,$refresh);
+	$out.=getImage($deviceID,$socket,$dbADO,$refresh);
 	
 	return $out;
 }
@@ -267,7 +291,7 @@ function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage
 
 	$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=$command&deviceID=$deviceID";
 	Header("Refresh: 5; url=$refreshURL");
-	writeFile(getcwd().'/security_images/urls.txt',$refreshURL."\n\n",'a+');
+	//writeFile(getcwd().'/security_images/urls.txt',$refreshURL."\n\n",'a+');
 	Header("Content-type: text/xml"); 
 	write_log("\nRedirecting to $refreshURL\n");
 	die($xml);	
