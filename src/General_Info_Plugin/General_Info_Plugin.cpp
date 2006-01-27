@@ -635,14 +635,20 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		}
 
 		string sMessage;
+
+		//TODO: replace this with GotoScreen's
 		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )  // We chose this from an OSD -- just goto the app screen
 			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
 				" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
 				StringUtils::itos(PK_DesignObj_OSD);
 		else  // We chose this from a remote--the remote goes to a remote control screen, and the osd to the app
 			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
-				" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
-				StringUtils::itos(PK_DesignObj_Remote) + " & " +
+				/*" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
+				StringUtils::itos(PK_DesignObj_Remote)
+				*/
+				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + 
+					StringUtils::ltos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::ltos(SCREEN_GenericAppController_CONST) + 
+				+ " & " +
 				StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) +
 				" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
 				StringUtils::itos(PK_DesignObj_OSD);
@@ -1408,9 +1414,12 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 		" & 0 " + StringUtils::itos(m_dwPK_Device) + " 1 " + StringUtils::itos(COMMAND_Set_Active_Application_CONST) +
 		" " + StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " \"\" " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " +
 		StringUtils::itos(pDevice_MD->m_dwPK_Device);
+
 	if( pDevice_OrbiterRequesting && pDevice_Orbiter_OSD->m_dwPK_Device!=pDevice_OrbiterRequesting->m_dwPK_Device )
 		sMessage += " & 0 " + StringUtils::itos(pDevice_OrbiterRequesting->m_dwPK_Device ) + 
-		" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
+		//" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
+		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + 
+		StringUtils::ltos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::ltos(SCREEN_GenericAppController_CONST);
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 		sBinary,"generic_app",sArguments,
@@ -1447,9 +1456,11 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 		// Do this on the controlling orbiter
 		if( pDevice_OrbiterRequesting )
 		{
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
-				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
-			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj2.m_pMessage);
+			//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
+			//	StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
+			SCREEN_GenericAppController SCREEN_GenericAppController(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device);
+			//CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj2.m_pMessage);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(SCREEN_GenericAppController.m_pMessage);
 		}
 	}
 
