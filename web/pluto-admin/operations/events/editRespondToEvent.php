@@ -1,5 +1,9 @@
 <?php
 function editRespondToEvent($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editRespondToEvent.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -49,19 +53,19 @@ function editRespondToEvent($output,$dbADO) {
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		<input type="hidden" name="oldWizard" value="'.$wizard.'">
 		
-		<div align="center"><h3>Edit Respond to Event</h3></div>
+		<div align="center"><h3>'.$TEXT_EDIT_RESPOND_TO_EVENT_CONST.'</h3></div>
 		<table border="0" align="center" width="800">
 		';
 		$out.='
 			<tr bgcolor="#E7E7E7">
-				<td>Description:</td>
+				<td>'.$TEXT_DESCRIPTION_CONST.':</td>
 				<td><input type="text" name="description" value="'.$rowEH['Description'].'"></td>
 			</tr>';
 		$queryCannedEvents='SELECT * FROM CannedEvents ORDER By Description ASC';
 		$resCannedEvents=$dbADO->Execute($queryCannedEvents);
 		$out.='
 			<tr>
-				<td>Event:</td>
+				<td>'.$TEXT_EVENT_CONST.':</td>
 				<td colspan="2"><select name="cannedEvent" onChange="document.editRespondToEvent.action.value=\'form\'; document.editRespondToEvent.submit();">';
 
 		while($rowCE=$resCannedEvents->FetchRow()){
@@ -165,7 +169,7 @@ function editRespondToEvent($output,$dbADO) {
 						$out.='<input type="text" name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" value="'.$oldValue.'">';
 					}
 				}
-				$out.=($rowCriteria['ExtraInfo']!='')?' Extra info: '.$rowCriteria['ExtraInfo']:'';
+				$out.=($rowCriteria['ExtraInfo']!='')?' '.$TEXT_EXTRA_INFO_CONST.': '.$rowCriteria['ExtraInfo']:'';
 				$out.='
 					</td>
 				</tr>				
@@ -174,10 +178,10 @@ function editRespondToEvent($output,$dbADO) {
 			$out.='
 			<input type="hidden" name="displayedCE_CP" value="'.join(',',$displayedCE_CP).'">
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_UPDATE_CONST.'"></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center">Specify above what event you want Pluto to wait for.  Specify below what Pluto should do when the event occurs by choosing the device you want to respond, and what commands you want to send it.</td>
+				<td colspan="3" align="center">'.$TEXT_RESPOND_TO_EVENT_NOTES_CONST.'</td>
 			</tr>
 			';
 		$out.='
@@ -186,10 +190,10 @@ function editRespondToEvent($output,$dbADO) {
 		$out.='
 			<table align="center">
 			<tr bgcolor="#D1D9EA">
-				<td><B>Add commands using Wizard:</B> <select name="wizard" onChange="document.editRespondToEvent.submit();">
-					<option value="0" '.(($wizard==0)?'selected':'').'>Lighting wizard</option>
-					<option value="1" '.(($wizard==1)?'selected':'').'>Climate wizard</option>
-					<option value="2" '.(($wizard==2)?'selected':'').'>Advanced wizard</option>
+				<td><B>'.$TEXT_ADD_COMMANDS_USING_WIZARD_CONST.':</B> <select name="wizard" onChange="document.editRespondToEvent.submit();">
+					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>
+					<option value="1" '.(($wizard==1)?'selected':'').'>'.$TEXT_CLIMATE_WIZARD_CONST.'</option>
+					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_ADVANCED_WIZARD_CONST.'</option>
 				</select>
 				</td>
 			</tr>
@@ -218,7 +222,7 @@ function editRespondToEvent($output,$dbADO) {
 		// processing area
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editRespondToEvent&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editRespondToEvent&ehID=".$eventHandlerID."&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		$description=$_POST['description'];
@@ -269,17 +273,17 @@ function editRespondToEvent($output,$dbADO) {
 		switch($oldWizard){
 			case 0:
 				processLightingScenario($commandGroupID,$dbADO);
-				$msg='The event handler was updated';
+				$msg=$TEXT_THE_EVENT_HANDLER_WAS_UPDATED_CONST;
 			break;
 			case 1:
 				processClimateScenario($commandGroupID,$dbADO);
-				$msg='The event handler was updated';
+				$msg=$TEXT_THE_EVENT_HANDLER_WAS_UPDATED_CONST;
 			break;
 			case 2:
 				processAdvancedScenarios($commandGroupID,$section,$dbADO);
 				$isModified=$GLOBALS['isModified'];
 				$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
-				$msg="Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert";
+				$msg=($isModified?$TEXT_COMMAND_GROUP_UPDATED_CONST:$TEXT_COMMAND_GROUP_NOT_UPDATED_CONST)." $parametersUpdatedAlert";
 			break;	
 		}
 	
@@ -290,7 +294,7 @@ function editRespondToEvent($output,$dbADO) {
 		exit();
 	}
 	
-	$output->setNavigationMenu(array("Respond to Events"=>'index.php?section=respondToEvents'));
+	$output->setNavigationMenu(array($TEXT_RESPOND_TO_EVENTS_CONST=>'index.php?section=respondToEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();

@@ -118,7 +118,7 @@ function editMasterDevice($output,$dbADO) {
 		$selectObjects = 'select PK_DesignObj,Description from DesignObj inner join DeviceTemplate_DesignObj on FK_DesignObj = PK_DesignObj where FK_DeviceTemplate = ? order by Description asc';
 		$rs = $dbADO->Execute($selectObjects,array($deviceID));
 		while ($row = $rs->FetchRow()) {
-			$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbars=true');\">'.$TEXT_DELETE_CONST.'</a> <br />";
+			$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbars=true');\">$TEXT_DELETE_CONST</a> <br />";
 		}
 		if ($rs->RecordCount()===0) {
 			$out.=$TEXT_NO_OBJECTS_CONST;
@@ -144,8 +144,8 @@ function editMasterDevice($output,$dbADO) {
 		$rs = $dbADO->Execute($selectControlled,array($deviceID));
 		while ($row = $rs->FetchRow()) {
 			$out.=$TEXT_DEVICE_CONST.':'.stripslashes($row['d2']) .'&nbsp; Category: '. stripslashes($row['d3']) . "&nbsp; &nbsp;
-							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=600');\">'.$TEXT_EDIT_CONST.'</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbars=true');\">'.$TEXT_DELETE_CONST.'</a>
+							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=600');\">$TEXT_EDIT_CONST</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbars=true');\">$TEXT_DELETE_CONST</a>
 							<br />";
 		}
 		if ($rs->RecordCount()===0) {
@@ -171,8 +171,8 @@ function editMasterDevice($output,$dbADO) {
 		$rs = $dbADO->Execute($selectControlled,array($deviceID));
 		while ($row = $rs->FetchRow()) {
 			$out.=$TEXT_DEVICE_CATEGORY_CONST.': '. stripslashes($row['d3']) . "&nbsp; &nbsp;
-							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=500');\">'.$TEXT_EDIT_CONST.'</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbars=yes,scrollbars=1');\">'.$TEXT_DELETE_CONST.'</a>
+							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=500');\">$TEXT_EDIT_CONST</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbars=yes,scrollbars=1');\">$TEXT_DELETE_CONST</a>
 							<br />";
 		}
 		if ($rs->RecordCount()===0) {

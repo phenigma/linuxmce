@@ -51,7 +51,8 @@ if($action=='form') {
 				<td>Using Wizard: <select name="wizard" onChange="document.scenarioWizard.submit();">
 					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>
 					<option value="1" '.(($wizard==1)?'selected':'').'>'.$TEXT_CLIMATE_WIZARD_CONST.'</option>
-					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_ADVANCED_WIZARD_CONST.'</option>
+					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_IRRIGATION_WIZARD_CONST.'</option>
+					<option value="3" '.(($wizard==3)?'selected':'').'>'.$TEXT_ADVANCED_WIZARD_CONST.'</option>
 				</select>
 				</td>
 			</tr>
@@ -68,6 +69,9 @@ if($action=='form') {
 			$out.=climateDevicesTable($cgID,$dbADO);
 		break;
 		case 2:
+			$out.=irrigationCommandGroupCommandsTable($cgID,$section,$dbADO);
+		break;
+		case 3:
 			$out.=advancedCommandGroupCommandsTable($cgID,$section,$dbADO);
 		break;
 	}
@@ -95,8 +99,12 @@ if($action=='form') {
 			processClimateScenario($cgID,$dbADO);
 			$msg=$TEXT_SCENARIO_UPDATED_CONST;
 		break;
-		case -1:
 		case 2:
+			processIrrigationScenario($cgID,$section,$dbADO);
+			$msg=$TEXT_SCENARIO_UPDATED_CONST;
+		break;			
+		case -1:
+		case 3:
 			$returnHook=processAdvancedScenarios($cgID,$section,$dbADO);
 			$isModified=$GLOBALS['isModified'];
 			$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];

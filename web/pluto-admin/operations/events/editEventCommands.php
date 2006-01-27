@@ -1,5 +1,9 @@
 <?php
 function editEventCommands($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editEventCommands.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -47,12 +51,12 @@ function editEventCommands($output,$dbADO) {
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		
-		<div align="center"><h3>Edit Event Commands</h3></div>
+		<div align="center"><h3>'.$TEXT_EDIT_EVENT_COMMANDS_CONST.'</h3></div>
 		<table border="0" align="center">
 		';
 		$out.='
 			<tr bgcolor="#E7E7E7">
-				<td>Description:</td>
+				<td>'.$TEXT_DESCRIPTION_CONST.':</td>
 				<td>'.$rowEH['Description'].'</td>
 			</tr>';
 
@@ -71,7 +75,7 @@ function editEventCommands($output,$dbADO) {
 				$out.='<tr>
 					<td colspan="2">
 							<fieldset>
-								<legend>Commands</legend>
+								<legend>'.$TEXT_COMMANDS_CONST.'</legend>
 								<table border="0">
 									';
 
@@ -79,7 +83,7 @@ function editEventCommands($output,$dbADO) {
 					$out.='
 						<tr><td valign="top">
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>
+								<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 						';
 
 					$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
@@ -141,7 +145,7 @@ function editEventCommands($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" class="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" class="button" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
@@ -159,9 +163,9 @@ function editEventCommands($output,$dbADO) {
 			
 			$out.='
 				<tr>
-					<td><B>Device</B>:</td>
+					<td><B>'.$TEXT_DEVICE_CONST.'</B>:</td>
 					<td colspan="2"><select name="device" onChange="document.editEventCommands.action.value=\'form\';document.editEventCommands.submit()">
-							<option value="">Select a device</option>';
+							<option value="">'.$TEXT_SELECT_A_DEVICE_CONST.'</option>';
 				$queryDevice='
 					SELECT Device.*,DeviceTemplate.Description AS Template FROM Device
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
@@ -186,16 +190,16 @@ function editEventCommands($output,$dbADO) {
 				if ($resNewCommand) {
 					$out.='
 				<tr>
-					<td>Command: </td>
+					<td>'.$TEXT_COMMAND_CONST.': </td>
 					<td><select name="addNewDeviceCommand" onChange="document.editEventCommands.submit()">
-						<option value="0">-please select-</option>';
+						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 							while ($rowNewCommand = $resNewCommand->FetchRow()) {
 								$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
 							}
 							if ($resNewCommand->RecordCount()==0) {
-								$out.='<option value="0">-no command-</option>';
+								$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
 							}
-					$out.='</select> <input type="submit" class="button" name="submitX" value="Add">
+					$out.='</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">
 					</td>
 				</tr>';
 				}
@@ -210,7 +214,7 @@ function editEventCommands($output,$dbADO) {
 		// processing area
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editEventCommands&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editEventCommands&ehID=".$eventHandlerID."&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 
@@ -233,7 +237,7 @@ function editEventCommands($output,$dbADO) {
 				";								
 		$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID));
 
-		$parametersUpdatedAlert = 'Parameters not updated!';
+		$parametersUpdatedAlert = $TEXT_PARAMETERS_NOT_UPDATED_CONST;
 
 		if ($resCommandAssigned) {
 			while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
@@ -292,7 +296,7 @@ function editEventCommands($output,$dbADO) {
 							$dbADO->Execute($insert,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
 						}
 						if ($dbADO->Affected_Rows()==1) {
-							$parametersUpdatedAlert='Parameters updated!';
+							$parametersUpdatedAlert=$TEXT_PARAMETERS_UPDATED_CONST;
 						}
 
 					}
@@ -302,12 +306,12 @@ function editEventCommands($output,$dbADO) {
 
 		
 		
-		header('Location: index.php?section=editEventCommands&ehID='.$eventHandlerID.'&msg=The event handler was updated');
+		header('Location: index.php?section=editEventCommands&ehID='.$eventHandlerID.'&msg='.$TEXT_EVENT_HANDLER_UPDATED_CONST);
 	}
 	
-	$output->setNavigationMenu(array("Advanced Events"=>'index.php?section=advancedEvents'));
+	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_DEVICE_CONST=>'index.php?section=advancedEvents'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_EVENT_COMMANDS_CONST);
 	$output->output();
 }
 ?>

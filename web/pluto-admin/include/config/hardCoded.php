@@ -32,6 +32,7 @@
 	$GLOBALS['VideoCards']=125;					// Video Cards
 	$GLOBALS['InfraredReceivers']=132;			// Infrared receivers
 	$GLOBALS['DigitalTVCards']=143;				// Digital TV Cards
+	$GLOBALS['IrrigationDevices']=153;			// Irrigation Devices
 	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
@@ -76,6 +77,7 @@
 	$GLOBALS['SecurityViewCamerasTemplate']=15;		// Security - View Cameras
 	$GLOBALS['SecurityViewOneCameraTemplate']=16;	// Security - View Camera
 	$GLOBALS['TelecomScenariosTemplate']=17;		// Telecom Scenarios
+	$GLOBALS['IrrigationScenariosTemplate']=42;		// Irrigation Scenarios Template
 	
 	// PK_Array from table Array
 	
@@ -87,6 +89,7 @@
 	$GLOBALS['EventsHandlerArray']=20;				// Events Handler
 	$GLOBALS['ArrayIDForMobileOrbiterScenarios']=23;// Mobile Orbiter Scenarios	
 	$GLOBALS['ArrayIDSleepingScenarios']=21;		// Sleeping Scenarios
+	$GLOBALS['ArrayIDForIrrigation']=27;			// Irrigation Scenarios
 	
 	// PK_Command from Command table
 	
@@ -113,6 +116,7 @@
 	$GLOBALS['FM_Command']=170;						// FM
 	$GLOBALS['SW_Command']=328;						// SW
 	$GLOBALS['WB_Command']=327;						// WB
+	$GLOBALS['DelayCommand']=257;					// delay
 	
 	// PK_CommandParameters from table CommandParameters
 	
@@ -131,6 +135,7 @@
 	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
 	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
 	$GLOBALS['commandPhoneExtension']=83;			// PhoneExtension
+	$GLOBALS['delayTime']=102;						// Delay time
 	
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	

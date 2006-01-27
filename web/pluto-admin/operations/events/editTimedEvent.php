@@ -186,31 +186,7 @@ function editTimedEvent($output,$dbADO) {
 		$out.='
 		<tr>
 			<td colspan="2">';
-		$out.='
-			<table align="center">
-			<tr bgcolor="#D1D9EA">
-				<td><B>Add commands using Wizard:</B> <select name="wizard" onChange="document.editTimedEvent.submit();">
-					<option value="0" '.(($wizard==0)?'selected':'').'>Lighting wizard</option>
-					<option value="1" '.(($wizard==1)?'selected':'').'>Climate wizard</option>
-					<option value="2" '.(($wizard==2)?'selected':'').'>Advanced wizard</option>
-				</select>
-				</td>
-			</tr>
-		</table>
-		<center>';
-	switch ($wizard){
-		case 0:
-			$out.=lightingDevicesTable($commandGroupID,$dbADO);
-		break;
-		case 1:
-			$out.=climateDevicesTable($commandGroupID,$dbADO);
-		break;
-		case 2:
-			$out.=advancedCommandGroupCommandsTable($commandGroupID,$section,$dbADO);
-		break;
-	}
-		
-		$out.='</center>
+		$out.=editCommandsByWizard($wizard,$section,$commandGroupID,$dbADO).'
 			</td>
 		</tr>
 		</table>
@@ -337,6 +313,11 @@ function editTimedEvent($output,$dbADO) {
 				$msg='The event handler was updated';
 			break;
 			case 2:
+				processIrrigationScenario($commandGroupID,$section,$dbADO);
+				$msg='The event handler was updated';
+			break;	
+			
+			case 3:
 				processAdvancedScenarios($commandGroupID,$section,$dbADO);
 				$isModified=$GLOBALS['isModified'];
 				$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];

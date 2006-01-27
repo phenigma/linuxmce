@@ -1,5 +1,8 @@
 <?
 function remoteOrbiter($output,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/remoteOrbiter.lang.php');
 	
 	$orbiterID=(int)@$_REQUEST['orbiterID'];
 	$out='';
@@ -84,28 +87,29 @@ function remoteOrbiter($output,$dbADO){
 		<form action="index.php" method="POST" name="remoteOrbiter">
 			<input type="hidden" name="section" value="remoteOrbiter">
 			<input type="hidden" name="action" value="form">
+		
 		<table cellpadding="3" cellspacing="0">
 			<tr>
-				<td>Choose orbiter: </td>
+				<td>'.$TEXT_CHOOSE_ORBITER_CONST.': </td>
 				<td>'.pulldownFromArray($orbiters,'orbiterID',$orbiterID).'</td>
 			</tr>
 			<tr>
-				<td>IP address: </td>
+				<td>'.$TEXT_IP_ADDRESS_CONST.': </td>
 				<td><input type="text" name="host" value="'.$serverIP.'"></td>
 			</tr>
 			<tr>
-				<td>Port: </td>
+				<td>'.$TEXT_PORT_CONST.': </td>
 				<td><input type="text" name="port" value="'.$port.'"></td>
 			</tr>
 			<tr>
-				<td>Refresh (s): </td>
+				<td>'.$TEXT_REFRESH_S_CONST.': </td>
 				<td><input type="text" name="refresh" value="5"></td>
 			</tr>
 			<tr>
 				<td colspan="2">
 					<input type="submit" class="button" name="go" value="Submit"> 
-					<input type="button" class="button" name="go" value="Home" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=10\';"> 
-					<input type="button" class="button" name="go" value="Back" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=11\';">
+					<input type="button" class="button" name="go" value="'.$TEXT_HOME_CONST.'" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=10\';"> 
+					<input type="button" class="button" name="go" value="'.$TEXT_BACK_CONST.'" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=11\';">
 				</td>
 			</tr>
 		</table>

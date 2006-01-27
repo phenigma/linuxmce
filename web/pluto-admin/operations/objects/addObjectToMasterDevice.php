@@ -1,5 +1,9 @@
 <?php
 function addObjectToMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addObjectToMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -26,12 +30,13 @@ function addObjectToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		<h3>'.$TEXT_ADD_DESIGN_OBJECTS_TO_USE_AS_REMOTES_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>Objects:</td>
+					<td>'.$TEXT_OBJECTS_CONST.':</td>
 					<td>
 						<select name="objID">
-						<option value="0">-please select-</option>
+						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 						';
 						$querySelectRemainingObjectForDevice = "select PK_DesignObj,Description from DesignObj where PK_DesignObj NOT IN (".join(",",$alreadySelectedObjects).")";
 						$rs = $dbADO->_Execute($querySelectRemainingObjectForDevice);
@@ -44,13 +49,13 @@ function addObjectToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addObjectToMasterDevice");
- 			frmvalidator.addValidation("objID","dontselect=0","Please select a object"); 			
+ 			frmvalidator.addValidation("objID","dontselect=0","'.$TEXT_OBJECT_REQUIRED_CONST.'"); 			
 		</script>
 		';
 		
@@ -64,7 +69,7 @@ function addObjectToMasterDevice($output,$dbADO) {
 			$query = $dbADO->Execute($insertObjToDevice,array($deviceID,$objID));
 			$out.="
 			<script>
-				alert('Object added to device!');
+				alert('$TEXT_OBJECT_ADDED_TO_DEVICE_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
 				self.close();
@@ -76,7 +81,7 @@ function addObjectToMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_DESIGN_OBJECTS_TO_USE_AS_REMOTES_CONST);			
 	$output->output();
 }
 ?>

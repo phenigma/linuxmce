@@ -1,5 +1,9 @@
 <?php
 function editPipes($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editPipes.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -162,28 +166,28 @@ function editPipes($output,$dbADO) {
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="cmd" value="0">
 		
-		<h2>Pipes Used by device #'.$deviceID.'</h2>
+		<h3>'.$TEXT_PIPES_USED_CONST.' '.$deviceID.'</h3>
 		<table>
 			<tr>
-				<td align="center"><B>Pipe</B></td>
-				<td align="center"><B>Output</B></td>
-				<td align="center"><B>Connected to</B></td>
-				<td align="center"><B>Input</B></td>
+				<td align="center"><B>'.$TEXT_PIPE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_CONNECTED_TO_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
 			</tr>
 			<tr>
-				<td><B>Audio</B></td>
+				<td><B>'.$TEXT_AUDIO_CONST.'</B></td>
 				<td>'.$audioOutputPulldown.'</td>
 				<td>'.$audioConnectToPulldown.'</td>
 				<td>'.$audioInputPulldown.'</td>
 			</tr>
 			<tr>			
-				<td><B>Video</B></td>
+				<td><B>'.$TEXT_VIDEO_CONST.'</B></td>
 				<td>'.$videoOutputPulldown.'</td>
 				<td>'.$videoConnectToPulldown.'</td>
 				<td>'.$videoInputPulldown.'</td>
 			</tr>
 			<tr>			
-				<td colspan="4" align="center"><input type="submit" class="button" name="update" value="Update"> <input type="button" class="button" name="close" value="Close" onClick="self.close();"></td>
+				<td colspan="4" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>		
 		</table>										
 		</form>
@@ -265,7 +269,7 @@ function editPipes($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit pipes');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PIPES_CONST);			
 	$output->output();
 }
 ?>

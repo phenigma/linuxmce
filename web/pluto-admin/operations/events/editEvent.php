@@ -25,7 +25,7 @@ function editEvent($output,$dbADO) {
 		$querySelectEventCategory = "select Description,PK_EventCategory from EventCategory where  FK_EventCategory_Parent IS NULL order by Description asc";
 		$resSelectEventCategory = $dbADO->_Execute($querySelectEventCategory);
 		
-		$EventCategoryTxt = '<option value="0">-please select-</option>';
+		$EventCategoryTxt = '<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 		if ($resSelectEventCategory) {
 			while ($rowSelectEventCategory=$resSelectEventCategory->FetchRow()) {
 				$EventCategoryTxt.= '<option '.($EventEventCategory==$rowSelectEventCategory['PK_EventCategory']?' selected="selected" ':'').' value="'.$rowSelectEventCategory['PK_EventCategory'].'">'.$rowSelectEventCategory['Description'].'</option>';
@@ -86,7 +86,7 @@ function editEvent($output,$dbADO) {
 		$querySelRemainingEventParams = 'SELECT * FROM EventParameter WHERE PK_EventParameter NOT IN ('.join(",",$displayedEventParams).') order by Description Asc';
 		$resSelRemainingEventParams = $dbADO->Execute($querySelRemainingEventParams);
 		
-		$eventParametersTxt = "<option value='0'>-'.$TEXT_PLEASE_SELECT_CONST.'-</option>";
+		$eventParametersTxt = "<option value='0'>-$TEXT_PLEASE_SELECT_CONST-</option>";
 			if ($resSelRemainingEventParams)  {
 				while ($row = $resSelRemainingEventParams->FetchRow()) {
 					$eventParametersTxt.='<option value="'.$row['PK_EventParameter'].'">'.$row['Description'].'</option>';
@@ -95,7 +95,7 @@ function editEvent($output,$dbADO) {
 				$eventParametersTxt = "<option value='0'>-'.$TEXT_NOTHING_TO_SELECT_CONST.'-</option>";
 			}
 		
-		$out.="<tr><td colspan='3'>'.$TEXT_ADD_NEW_PARAMETER_CONST.' <select name='addEventParameterToEvent'>{$eventParametersTxt}</select> &nbsp; <input type='submit' name='submitX' value='$TEXT_ADD_CONST'></td></tr>";
+		$out.="<tr><td colspan='3'>$TEXT_ADD_NEW_PARAMETER_CONST <select name='addEventParameterToEvent'>{$eventParametersTxt}</select> &nbsp; <input type='submit' name='submitX' value='$TEXT_ADD_CONST' class=\"button\"></td></tr>";
 		$out.='<tr><td colspan="3">'.$TEXT_CREATE_NEW_PARAM_TEXT_CONST.': <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventParameter&from=editEvent\',\'width=500,height=400,toolbars=true\');">'.$TEXT_CLICK_HERE_CONST.'</a></td></tr>';
 		$out.='
 								</table>

@@ -1,75 +1,79 @@
 <?
 function manageCategories($output,$dbADO) {
-/* @var $dbADO ADOConnection */
-/* @var $rs ADORecordSet */
-$out='';
-$dbADO->debug=false;
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/manageCategories.lang.php');
 
-$selectedCateg= (int)@$_REQUEST['categSelected'];
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+	$out='';
+	$dbADO->debug=false;
 
-$action = (isset($_REQUEST['action']) && cleanString($_REQUEST['action'])!='null')?cleanString($_REQUEST['action']):'form';
-$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
+	$selectedCateg= (int)@$_REQUEST['categSelected'];
 
-if ($action=='commands') {
-	$label = "Commands Categories";
-	$tableName = 'CommandCategory';		
-	$columnNamePK = 'PK_CommandCategory';
-	$columnNameFK = 'FK_CommandCategory_Parent';
-	$tableName_Sec = 'Command';
-	$columnName_FK = 'FK_CommandCategory';
-	$columnName_PK = 'PK_Command';
-	$actionToGoForEdit = 'editCommand';
-	$fieldNameToGoForEdit = 'commandID';
-} elseif ($action=='events') {
-	$label = "Events Categories";
-	$tableName = 'EventCategory';
-	$columnNamePK = 'PK_EventCategory';
-	$columnNameFK = 'FK_EventCategory_Parent';
-	$tableName_Sec = 'Event';
-	$columnName_FK = 'FK_EventCategory';
-	$columnName_PK = 'PK_Event';
-	$actionToGoForEdit = 'editEvent';
-	$fieldNameToGoForEdit = 'EventID';
-}
+	$action = (isset($_REQUEST['action']) && cleanString($_REQUEST['action'])!='null')?cleanString($_REQUEST['action']):'form';
+	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
 
-if ($actionX=='form') {
+	if ($action=='commands') {
+		$label = $TEXT_COMMANDS_CATEGORIES_CONST;
+		$tableName = 'CommandCategory';
+		$columnNamePK = 'PK_CommandCategory';
+		$columnNameFK = 'FK_CommandCategory_Parent';
+		$tableName_Sec = 'Command';
+		$columnName_FK = 'FK_CommandCategory';
+		$columnName_PK = 'PK_Command';
+		$actionToGoForEdit = 'editCommand';
+		$fieldNameToGoForEdit = 'commandID';
+	} elseif ($action=='events') {
+		$label = $TEXT_EVENT_CATEGORIES_CONST;
+		$tableName = 'EventCategory';
+		$columnNamePK = 'PK_EventCategory';
+		$columnNameFK = 'FK_EventCategory_Parent';
+		$tableName_Sec = 'Event';
+		$columnName_FK = 'FK_EventCategory';
+		$columnName_PK = 'PK_Event';
+		$actionToGoForEdit = 'editEvent';
+		$fieldNameToGoForEdit = 'EventID';
+	}
 
-$jsTree = '';
+	if ($actionX=='form') {
 
-$selectCategories = "SELECT * FROM {$tableName} WHERE {$columnNameFK} IS NULL ORDER BY Description";
-$rs = $dbADO->_Execute($selectCategories);
-	while ($row = $rs->FetchRow()) {		
-		$jsTree.='
+		$jsTree = '';
+
+		$selectCategories = "SELECT * FROM {$tableName} WHERE {$columnNameFK} IS NULL ORDER BY Description";
+		$rs = $dbADO->_Execute($selectCategories);
+		while ($row = $rs->FetchRow()) {
+			$jsTree.='
 		auxS'.$row[$columnNamePK].' = insFld(foldersTree, gFld("'.$row['Description'].'", "javascript:manageCategories.categSelected.value='.$row[$columnNamePK].';manageCategories.actionX.value=null;manageCategories.submit();"));
 		auxS'.$row[$columnNamePK].'.xID = '.$row[$columnNamePK].';
 		';
-		$jsTree.=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$row[$columnNamePK],$dbADO);
-	}
-$rs->Close();
-
-
-$selectModels = '<option value="0">none</option>';
-if ($selectedCateg!=0)	{
-	
-	$GLOBALS['childsFromAnyCategory'] = array();
-	$x=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$selectedCateg,$dbADO);
-	$childsToSearchInto = cleanArray($GLOBALS['childsFromAnyCategory']);
-	$childsToSearchInto[]=$selectedCateg;
-	
-	$selectModels='';
-	$queryModels = "SELECT $columnName_PK,Description FROM $tableName_Sec WHERE $columnName_FK IN (".join(",",$childsToSearchInto).") Order By Description ASC";	
-	$rs = $dbADO->_Execute($queryModels);
-	
-		while ($row = $rs->FetchRow()) {
-			$selectModels.="<option ".($selectedCateg==$row[$columnName_PK]?" selected ":"")." value='{$row[$columnName_PK]}'>{$row['Description']}</option>";
+			$jsTree.=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$row[$columnNamePK],$dbADO);
 		}
-			
-	$rs->Close();
-}
+		$rs->Close();
 
-	
 
-$scriptInHead = "
+		$selectModels = '<option value="0">'.$TEXT_NONE_CONST.'</option>';
+		if ($selectedCateg!=0)	{
+
+			$GLOBALS['childsFromAnyCategory'] = array();
+			$x=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$selectedCateg,$dbADO);
+			$childsToSearchInto = cleanArray($GLOBALS['childsFromAnyCategory']);
+			$childsToSearchInto[]=$selectedCateg;
+
+			$selectModels='';
+			$queryModels = "SELECT $columnName_PK,Description FROM $tableName_Sec WHERE $columnName_FK IN (".join(",",$childsToSearchInto).") Order By Description ASC";
+			$rs = $dbADO->_Execute($queryModels);
+
+			while ($row = $rs->FetchRow()) {
+				$selectModels.="<option ".($selectedCateg==$row[$columnName_PK]?" selected ":"")." value='{$row[$columnName_PK]}'>{$row['Description']}</option>";
+			}
+
+			$rs->Close();
+		}
+
+
+
+		$scriptInHead = "
 
 <script>
 function windowOpen(locationA,attributes) {
@@ -154,10 +158,10 @@ function getObj(obj) {
 
 </script>
 ";
-$output->setScriptInHead($scriptInHead);
+		$output->setScriptInHead($scriptInHead);
 
 
-$out.='
+		$out.='
 <form action="'.$_SERVER['PHP_SELF'].'" method="POST" name="manageCategories">
 <input type="hidden" name="section" value="manageCategories">
 <input type="hidden" name="actionX" value="add">
@@ -183,15 +187,15 @@ $out.='
 					</span>
 					<br /><br />
 					<input type="text" name="Category_Description" size="15" />
-					<input type="submit" class="button" name="addCategory" value="Add '.($selectedCateg==0?' Top Level Child':' Child').'"  />
-					'.($selectedCateg!=0?'<input type="button" class="button" name="editCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editCategory&action='.$action.'&from=manageCategories&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input type="submit" class="button" name="editCategory" value="Edit" disabled="disabled"  />').'';
+					<input type="submit" class="button" name="addCategory" value="'.($selectedCateg==0?$TEXT_ADD_TOP_LEVEL_CHILD_CONST:$TEXT_ADD_CHILD_CONST).'"  />
+					'.($selectedCateg!=0?'<input type="button" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" onClick="javascript: windowOpen(\'index.php?section=editCategory&action='.$action.'&from=manageCategories&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input type="submit" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" disabled="disabled"  />').'';
 
-					//getDeviceCategoryChildsNo($selectedDevice,$dbADO);	
-					$GLOBALS['childsFromAnyCategory'] = array();
-					$x=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$selectedCateg,$dbADO);
-					$childsToDelete = count(cleanArray($GLOBALS['childsFromAnyCategory']));
+		//getDeviceCategoryChildsNo($selectedDevice,$dbADO);
+		$GLOBALS['childsFromAnyCategory'] = array();
+		$x=getChildsForCategory($tableName,$columnNamePK,$columnNameFK,$selectedCateg,$dbADO);
+		$childsToDelete = count(cleanArray($GLOBALS['childsFromAnyCategory']));
 
-					$out.='
+		$out.='
 					&nbsp;&nbsp;'.($selectedCateg!=0?'<input type="button" class="button" name="deletCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteCategory&from=manageCategories&action='.$action.'&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=100,height=100,toolbars=0\');" />':'<input type="submit" class="button" name="deleteCategory" value="Delete" disabled="disabled"  />').'
 				</td>
 				<td width="25%" align="center"  valign="top">
@@ -204,53 +208,51 @@ $out.='
 					<select name="model" id="model" size="10">					
 							'.$selectModels.'	
 					</select>
-					<input type="button" class="button" name="edit_Category" value="Edit" onClick="javascript:checkEdit(this.form);" />
+					<input type="button" class="button" name="edit_Category" value="'.$TEXT_EDIT_CONST	.'" onClick="javascript:checkEdit(this.form);" />
 				</td>
 			</tr>
 		</table>					
 </form>
 ';
-} else {
-	
-	 $addCategory = @cleanString($_POST['addCategory']);	 
-	 $category_Desc = @cleanString($_POST['Category_Description']);
-	 $categSelected = cleanInteger($_POST['categSelected']);
-	 	 
-	 /*$deviceCategSelected = (int)$_POST['deviceCategSelected'];
-	 $deviceSelected = (int)$_POST['deviceSelected'];
-	 $manufacturerSelected = (int)$_POST['manufacturers'];*/
-	 
-	 $justAddedNode = 0;
-	 if (strstr($addCategory,'Add')) {
-	 	if ($category_Desc!='') {
-	 		if ($categSelected==0) {
-	 			$queryInsertCategory = "insert into $tableName($columnNameFK,Description)
+	} else {
+
+		$addCategory = @cleanString($_POST['addCategory']);
+		$category_Desc = @cleanString($_POST['Category_Description']);
+		$categSelected = cleanInteger($_POST['categSelected']);
+
+		/*$deviceCategSelected = (int)$_POST['deviceCategSelected'];
+		$deviceSelected = (int)$_POST['deviceSelected'];
+		$manufacturerSelected = (int)$_POST['manufacturers'];*/
+
+		$justAddedNode = 0;
+		if (strstr($addCategory,'Add')) {
+			if ($category_Desc!='') {
+				if ($categSelected==0) {
+					$queryInsertCategory = "insert into $tableName($columnNameFK,Description)
 	 				values(NULL,?)";
-	 			$dbADO->Execute($queryInsertCategory,array($category_Desc));	 			
-	 		} else {
-	 			$queryInsertCategoryDesc = "insert into $tableName($columnNameFK,Description)
+					$dbADO->Execute($queryInsertCategory,array($category_Desc));
+				} else {
+					$queryInsertCategoryDesc = "insert into $tableName($columnNameFK,Description)
 	 				values(?,?)";
-	 			$dbADO->Execute($queryInsertCategoryDesc,array($categSelected,$category_Desc));
-	 			$justAddedNode = $categSelected;
-	 		}	 			 		
-	 	}
-	 }
-	 $out="
+					$dbADO->Execute($queryInsertCategoryDesc,array($categSelected,$category_Desc));
+					$justAddedNode = $categSelected;
+				}
+			}
+		}
+		$out="
 				<script>
 				    opener.location.reload();				
 					self.location='index.php?section=manageCategories&categSelected=$categSelected&justAddedNode=$justAddedNode&action=$action';
 				</script>
 				";	
+	}
+
+	$output->setNavigationMenu(array($TEXT_DEVICE_TEMPLATES_CONST=>'index.php?section=deviceTemplates',$label=>'index.php?section=manageCategories&action='.$action));
+
+	$output->setScriptInBody("");
+	$output->setScriptCalendar('null');
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MANAGE_CATEGORIES_CONST);
+	$output->output();
 }
-
-$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates',$label=>'index.php?section=manageCategories&action='.$action));
-
-$output->setScriptInBody("");
-$output->setScriptCalendar('null');
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME.' :: Manage categories');			
-$output->output();  		
-}
-
-
 ?>

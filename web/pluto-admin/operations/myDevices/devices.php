@@ -49,6 +49,9 @@ function devices($output,$dbADO) {
 			$deviceCategory=$GLOBALS['rootPhones'];
 			$specificFloorplanType=$GLOBALS['PhonesFoorplanType'];
 		break;		
+		case 'irrigation':
+			$deviceCategory=$GLOBALS['IrrigationDevices'];
+		break;			
 		default:
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
 	}
@@ -122,7 +125,7 @@ function devices($output,$dbADO) {
 		
 		<div id="content" style="display:none;">
 		<table align="center" cellpadding="3" cellspacing="0">
-				<tr>
+				<tr bgcolor="lightblue">
 					<td align="center"><B>'.$TEXT_Type_of_Device_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ROOM_CONST.'</B></td>
@@ -147,6 +150,7 @@ function devices($output,$dbADO) {
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
 				}
+
 				$joinArray=$displayedDevices;	// used only for query when there are no Devices in selected category
 				if(count($joinArray)==0)
 					$joinArray[]=0;
@@ -172,7 +176,13 @@ function devices($output,$dbADO) {
 				}	
 				
 				$out.='<td align="center">&nbsp;</td>
-				</tr>';				
+				</tr>';	
+			if($resDevice->RecordCount()==0){
+				$out.='
+				<tr>
+					<td colspan="5" align="center">'.$TEXT_NO_RECORDS_CONST.'</td>
+				</tr>';
+			}							
 			$resDevice->MoveFirst();
 			$pos=0;
 			while($rowD=$resDevice->FetchRow()){

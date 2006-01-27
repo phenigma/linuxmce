@@ -1,5 +1,9 @@
 <?php
 function editDirectoryFile($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDirectoryFile.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -25,23 +29,25 @@ function editDirectoryFile($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="Package_Directory_File" value="'.$PK_Package_Directory_File.'">
+		
+			<h3>'.$TEXT_EDIT_DIRECTORY_FILE_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>File:</td>
+					<td>'.$TEXT_FILE_CONST.':</td>
 					<td><input type="text" size="15" name="File" value="'.$rowPackage_Directory_File['File'].'"></td>
 				</tr>
 				<tr>
-					<td>Search:</td>
+					<td>'.$TEXT_SEARCH_CONST.':</td>
 					<td><textarea name="Search" rows="10" colls="30">'.$rowPackage_Directory_File['Search'].'</textarea></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editDirectoryFile");
- 			frmvalidator.addValidation("File","req","Please enter a file name");
+ 			frmvalidator.addValidation("File","req","'.$TEXT_FILENAME_REQUIRED_CONST.'");
 		</script>
 		';
 		
@@ -58,7 +64,7 @@ function editDirectoryFile($output,$dbADO) {
 			
 			$out.="
 				<script>
-					alert('File updated!');					
+					alert('$TEXT_FILE_UPDATED_CONST');					
 				    opener.document.forms.{$from}.action.value='form';
 						opener.document.forms.{$from}.submit();
 					self.close();
@@ -71,7 +77,7 @@ function editDirectoryFile($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DIRECTORY_FILE_CONST);			
 	$output->output();
 }
 ?>

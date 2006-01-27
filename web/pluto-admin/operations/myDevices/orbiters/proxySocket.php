@@ -1,5 +1,9 @@
 <?
 function proxySocket($output,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/proxySocket.lang.php');
+	
 	// debug stuff
 	//Header("Content-type: text/xml"); 
 	//die(join("\n",file(getcwd().'/security_images/37_screen.xml')));
@@ -16,7 +20,7 @@ function proxySocket($output,$dbADO){
 				$address=getCoreIP($dbADO);
 				if(is_null($address)){
 					$address='192.168.80.1';
-					write_log("\n\nOrbiter proxy and his ancestors does not have IP address\n");
+					write_log("\n\n$TEXT_ERROR_MISSING_IP_ADDRESS_CONST\n");
 				}
 			}
 			$port=$ProxyOrbiterInfo['Port'][0];
@@ -25,7 +29,7 @@ function proxySocket($output,$dbADO){
 			$address=@$_REQUEST['address'];
 			$port=@$_REQUEST['port'];
 			$deviceID=(int)$_REQUEST['deviceID'];
-			xml_die($deviceID,$address,$port,$command,"\n\nOrbiter proxy not found for phone IP ".$phoneIPAddress."\n",'Invalid phone IP '.$phoneIPAddress);
+			xml_die($deviceID,$address,$port,$command,"\n\n$TEXT_ERROR_ORBITER_PROXY_NOT_FOUND_FOR_IP_CONST ".$phoneIPAddress."\n",$TEXT_ERROR_INVALID_PHONE_IP_CONST.' '.$phoneIPAddress);
 		}
 
 	}else{
@@ -43,7 +47,7 @@ function proxySocket($output,$dbADO){
 	write_log("\n".miliseconds_date()."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	if ($socket === false) {
-		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Loading ... ');
+		xml_die($deviceID,$address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",$TEXT_LOADING_CONST);
 	} else {
 		write_log("OK.\n");
 	}
@@ -59,9 +63,9 @@ function proxySocket($output,$dbADO){
 			$orb_status='Regenerating '.trim(strtolower(substr($orbiterFields['RegenStatus'][0],0,strpos($orbiterFields['RegenStatus'][0],'-'))));
 			$orb_status.=': '.$orbiterFields['RegenPercent'][0].'%';
 			
-			$err_msg=($orbiterFields['RegenInProgress'][0]==1)?$orb_status:'Loading ... ';
+			$err_msg=($orbiterFields['RegenInProgress'][0]==1)?$orb_status:$TEXT_LOADING_CONST;
 		}else{
-			$err_msg='Loading ... ';
+			$err_msg=$TEXT_LOADING_CONST;
 		}
 		
 		xml_die($deviceID,$address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",$err_msg);
@@ -111,7 +115,7 @@ function proxySocket($output,$dbADO){
 	@socket_close($socket);
 	write_log( "OK.\n");
 	
-	writeFile(getcwd().'/security_images/bubu.htm',$out);
+	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  
@@ -291,9 +295,9 @@ function web_socket_read($deviceID,$dbADO,$socket,$length,$type=PHP_BINARY_READ)
 		// if the orbiter is regenerating, query Orbiter table to check status
 		$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
 		if(count($orbiterFields)>0){
-			$err_msg=($orbiterFields[0]['RegenInProgress']==1)?'Regeneration '.$orbiterFields[0]['RegenPercent']:'Loading ... ';
+			$err_msg=($orbiterFields[0]['RegenInProgress']==1)?'Regeneration '.$orbiterFields[0]['RegenPercent']:$TEXT_LOADING_CONST;
 		}else{
-			$err_msg='Loading ... ';
+			$err_msg=$TEXT_LOADING_CONST;
 		}
 		xml_die($deviceID,$address,$port,'XML',"\n\nConnection reset by peer\n",$err_msg);
 	}else{

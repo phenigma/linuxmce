@@ -1,5 +1,9 @@
 <?php
 function deletePipeFromDeviceTemplateControlledViaCategory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deletePipeFromDeviceTemplateControlledViaCategory.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -12,16 +16,16 @@ function deletePipeFromDeviceTemplateControlledViaCategory($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($objID,$pipe));
 			$out.="
 			<script>
-				alert('Pipe - controlled via device category - ".($dbADO->Affected_Rows()==1?"":"not")." deleted from master device!');
+				alert('$TEXT_PIPE_DELETED_FROM_DC_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();				
 				self.close();
 				window.close();
 			</script>
 			";			
-			$out .= '<a href="javascript:window.close();">Close</a>';
+			$out .= '<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 	
 	

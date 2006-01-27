@@ -554,6 +554,25 @@ switch ($section) {
 	    include_once('operations/myScenarios/climateScenarios.php');
 	    climateScenarios($output,$dbADO);
 	break;	
+	case 'irrigationScenarios':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/irrigationScenarios.php');
+	    irrigationScenarios($output,$dbADO);
+	break;	
+	case 'addIrrigationScenario':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/addIrrigationScenario.php');
+	    addIrrigationScenario($output,$dbADO);
+	break;	
+	case 'editIrrigationScenario':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/editIrrigationScenario.php');
+	    editIrrigationScenario($output,$dbADO);
+	break;	
+	
 	case 'wizardScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

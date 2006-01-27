@@ -1,5 +1,9 @@
 <?php
 function deleteCategory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteCategory.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -10,12 +14,12 @@ function deleteCategory($output,$dbADO) {
 
 		
 	if ($action=='commands') {
-		$label = "Commands Category";
+		$label = $TEXT_COMMANDS_CATEGORIES_CONST;
 		$tableName = 'CommandCategory';		
 		$columnNamePK = 'PK_CommandCategory';	
 		$columnNameFK = 'FK_CommandCategory_Parent';
 	} elseif ($action=='events') {
-		$label = "Events Category";
+		$label = $TEXT_EVENT_CATEGORIES_CONST;
 		$tableName = 'EventCategory';
 		$columnNamePK = 'PK_EventCategory';	
 		$columnNameFK = 'FK_EventCategory_Parent';
@@ -34,14 +38,14 @@ function deleteCategory($output,$dbADO) {
 			$query = $dbADO->_Execute($deleteObjFromCateg);
 			$out.="
 			<script>
-				alert('$label deleted!');
+				alert('$TEXT_RECORD_DELETED_CONST');
 			    opener.document.forms.{$from}.actionX.value='form';				
 				opener.document.forms.{$from}.submit();
 				self.close();
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			

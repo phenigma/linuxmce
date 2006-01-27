@@ -6,6 +6,6 @@ $TEXT_RESTRICT_ACCESS_TO_CONST='Restrict access to';
 $TEXT_ADD_ACCESS_CONST='Add access';
 $TEXT_RESTRICT_ACCESS_TO_USERS_CONST='Restrict access to users';
 $TEXT_REQUIRE_PIN_CODE_CONST='Require a pin code to select this user';
-$TEXT_DONT_REQUIRE_PIN_CODE_WITH_ORBITERS_CONST='Don’t require a pin code with orbiters';
+$TEXT_DONT_REQUIRE_PIN_CODE_WITH_ORBITERS_CONST='Don\'t require a pin code with orbiters';
 $TEXT_RESTRICTIONS_UPDATED_CONST='Restrictions updated.';
 ?>
