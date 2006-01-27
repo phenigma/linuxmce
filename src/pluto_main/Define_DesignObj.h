@@ -1697,6 +1697,7 @@
 #define DESIGNOBJ_mnuCdRemote_CONST 4534
 #define DESIGNOBJ_mnuSingleCameraView_CONST 4541
 #define DESIGNOBJ_butViewBookmarks_CONST 4544
+#define DESIGNOBJ_mnuSecurityPanelSmallUI_CONST 4546
 #define DESIGNOBJ_mnuNewPhoneDeected_CONST 4548
 #define DESIGNOBJ_Greetings_CONST 4549
 #define DESIGNOBJ_YourName_CONST 4550
