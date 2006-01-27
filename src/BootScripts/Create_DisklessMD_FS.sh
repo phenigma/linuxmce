@@ -134,8 +134,8 @@ set +x
 # Make sure the right kernel version is installed
 InstallKernel $KERNEL_VERSION || exit 1
 mkdir -p "/tftpboot/$IP"
-[ -e "/tftpboot/$IP/initrd.img-$KERNEL_VERSION" ] || cp "boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP"
-[ -e "/tftpboot/$IP/vmlinuz-$KERNEL_VERSION" ] || cp "boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP"
+ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
+ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
 cd -
 

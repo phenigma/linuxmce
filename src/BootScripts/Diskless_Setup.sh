@@ -15,9 +15,10 @@ DlDir="/usr/pluto/diskless"
 # KERNEL_VERSION
 # MOON_HOSTS
 # NOBOOT_ENTRIES
+# ENABLE_SPLASH
 
 KERNEL_VERSION="$(uname -r)"
-Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES"
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH"
 
 CORE_INTERNAL_INTERFACE="$IntIf"
 
@@ -51,6 +52,10 @@ MOON_HOSTS=""
 
 cp /usr/pluto/templates/exports.tmpl /etc/exports.$$
 mkdir -p /tftpboot/pxelinux.cfg
+
+if [[ "$(</proc/cmdline)" == *splash=* ]]; then
+	ENABLE_SPLASH="vga=0x311 splash=silent"
+fi
 
 for Client in $R; do
 	PK_Device=$(Field 1 "$Client")
