@@ -23,7 +23,14 @@ fi
 
 # Generate 'available.srv' that contains the available services
 echo -n > /tmp/available.srv
-for rcFile in /etc/rc$runlevel.d/S* 
+
+if [[ "$job" == "stop" ]]; then
+    rcFiles="/etc/rc$runlevel.d/K*"
+else
+    rcFiles="/etc/rc$runlevel.d/S*"
+fi
+
+for rcFile in  $rcFiles
 do
     initFile=$( readlink -f $rcFile )
     [ "$(basename $initFile)" == "Pluto_Start_DCERouter.sh" ] && continue
