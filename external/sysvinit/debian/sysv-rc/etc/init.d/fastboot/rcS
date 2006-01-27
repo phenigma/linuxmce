@@ -1,14 +1,21 @@
 #!/bin/bash
 
+function box() { true; }
+test -f "/etc/bootsplash/themes/current/config/bootsplash-`/sbin/fbresolution`.cfg" && . /etc/bootsplash/themes/current/config/bootsplash-`/sbin/fbresolution`.cfg
 
 Message() {
     echo -e "\033[1m# $*"
     tput sgr0
 
-    # Update boot splash progress bar    
+    # Update boot splash progress bar
     progress=$(( $progress + 1 ))
-    if [ -x /sbin/splash.sh ]; then
-        /sbin/splash.sh "dummy_service"
+    if grep -e "silent" /proc/splash ;then
+        echo "show $(( 65534 * ( $progress + 1 ) / 20 ))" > /proc/splash
+        if [ "$text_x" != "" -a "$text_y" != "" -a "$text_color" != "" -a "$text_size" != "" ] ;then
+            text_font="/etc/bootsplash/fonts/VeraBd.ttf"
+            /sbin/fbtruetype -x$(($text_x + 1)) -y$(($text_y + 1)) -t000000 -s$text_size -f$text_font "$*"
+            /sbin/fbtruetype -x$text_x -y$text_y -t$text_color -s$text_size -f$text_font "$*"
+        fi
     fi
 }
 
