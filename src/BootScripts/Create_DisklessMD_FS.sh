@@ -136,6 +136,7 @@ InstallKernel $KERNEL_VERSION || exit 1
 mkdir -p "/tftpboot/$IP"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
+cp /etc/modules "$DlPath"/etc/modules
 
 cd -
 
