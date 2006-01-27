@@ -1,4 +1,4 @@
-lirc-pluto (0.8.0r+1modules2.6.15-1) unstable; urgency=low
+lirc-pluto (0.8.0r+1modules2.6.15-2) unstable; urgency=low
 
   * lirc 0.8.0 from upstream
   * modules for kernel 2.6.15-pluto-1-686
