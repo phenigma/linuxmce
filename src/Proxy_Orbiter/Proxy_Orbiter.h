@@ -22,6 +22,8 @@ namespace DCE
 		void StartProcessingRequest();
 		void EndProcessingRequest();
 		void *PushRefreshEventWatchdog(void *);
+
+		int m_nCurrentScreenId;
 		
 		int	  m_iListenPort;
 		int   m_ImageQuality;

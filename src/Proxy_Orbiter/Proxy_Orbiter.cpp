@@ -61,6 +61,7 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 {
 	m_iImageCounter = 1;
     m_iLastImageSent = -1;
+	m_nCurrentScreenId = 0;
 
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
@@ -200,26 +201,17 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
     SaveXML(sDeviceXml);
 	rm.Release();
 
+	m_nCurrentScreenId = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+	g_pPlutoLogger->Write(LV_STATUS, "Current screen generated: %d", m_nCurrentScreenId);
+	
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
         m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     pthread_cond_broadcast(&m_ActionCond);
 
-	static bool bFirstTime = true;
-	static timespec tLastImageGenerated;
-	timespec tCurrentImageGenerated;
-	gettimeofday(&tCurrentImageGenerated, NULL);
-	timespec tInterval = tLastImageGenerated - tCurrentImageGenerated;
-	long tMilisecondsPassed = tInterval.tv_sec * 1000 + tInterval.tv_nsec / 1000000;
-
-	if(
-			m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10 && //only cisco orbiters
-			(
-				!IsProcessingRequest() 
-				//|| //external event
-				//(!bFirstTime && tMilisecondsPassed < RELEVANT_SCREEN_INTERVAL) //two consecutive screens generated
-			)
-	  )
+	if(m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10 && //only cisco orbiters
+		!IsProcessingRequest() 
+	)
 	{
 		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
 		{
@@ -227,17 +219,31 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
 			CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
 		}
 	}
-
-	bFirstTime = false;
-	tLastImageGenerated = tCurrentImageGenerated;
 }
 //-----------------------------------------------------------------------------------------------------
 bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
 {
+    static bool bFirstTime = true;
+    static timespec tLastImageGenerated;
+    timespec tCurrentImageGenerated;
+    gettimeofday(&tCurrentImageGenerated, NULL);
+    timespec tInterval = tCurrentImageGenerated - tLastImageGenerated;
+	long nMilisecondsPassed = tInterval.tv_sec * 1000 + tInterval.tv_nsec / 1000000;
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed); 
+	
+	if(!bFirstTime && nMilisecondsPassed < 3000 && !bForce)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Ignoring push event request...");
+		return false;
+	}
+
+	tLastImageGenerated = tCurrentImageGenerated;	
+    bFirstTime = false;
+
 	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
 	m_bPhoneRespondedToPush = false;
-	
     vector<string> vectHeaders;
     map<string, string> mapParams;
 	string sPriorityLevel = bForce ? "1" : "0";
@@ -521,10 +527,12 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
-		//hack - fix me
-		int nCurrentScreenID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-		if(nCurrentScreenID == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || nCurrentScreenID == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST)
+		g_pPlutoLogger->Write(LV_STATUS, "Current screen to analyze: %d", m_nCurrentScreenId);
+		if(m_nCurrentScreenId == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || m_nCurrentScreenId == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "One of those screens. Sleeping 500 ms...");
 			Sleep(500);
+		}
 		
 		PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
         
