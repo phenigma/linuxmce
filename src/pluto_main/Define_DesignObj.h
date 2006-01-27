@@ -1641,6 +1641,7 @@
 #define DESIGNOBJ_butPlaylist_CONST 4457
 #define DESIGNOBJ_butCreateBookmarks_CONST 4458
 #define DESIGNOBJ_mnuCreateBookmarks_CONST 4459
+#define DESIGNOBJ_mnuFileSaveSmallUI_CONST 4460
 #define DESIGNOBJ_butCopyDisc_CONST 4461
 #define DESIGNOBJ_mapLights_CONST 4463
 #define DESIGNOBJ_butArrayLightsFloorplan_CONST 4465
@@ -1698,7 +1699,6 @@
 #define DESIGNOBJ_mnuSingleCameraView_CONST 4541
 #define DESIGNOBJ_butViewBookmarks_CONST 4544
 #define DESIGNOBJ_mnuSecurityPanelSmallUI_CONST 4546
-#define DESIGNOBJ_mnuNewPhoneDeected_CONST 4548
 #define DESIGNOBJ_Greetings_CONST 4549
 #define DESIGNOBJ_YourName_CONST 4550
 #define DESIGNOBJ_FamilyMembers_CONST 4551
