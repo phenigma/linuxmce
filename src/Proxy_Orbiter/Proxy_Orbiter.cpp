@@ -31,6 +31,7 @@
 #include "SerializeClass/ShapesColors.h"
 #include "pluto_main/Define_Button.h"
 #include "Orbiter/SDL/JpegWrapper.h"
+#include "pluto_main/Define_DesignObj.h"
 
 #include "DataGrid.h"
 #include <SDL_ttf.h>
@@ -48,8 +49,10 @@ using namespace DCE;
 void WriteStatusOutput(const char *) {} //do nothing
 #endif
 
-#define ADVANCED_OPTIONS_SCREEN "2022"
-#define IMAGE_QUALITY_SCREEN    "1274"
+#define RELEVANT_SCREEN_INTERVAL 800
+#define CISCO_LISTEN_PORT_START 3451
+#define REQUEST_INTERVAL_TIMEOUT 400
+#define CISCO_FAILURE_WATCHDOG_INTERVAL 1000
 
 //-----------------------------------------------------------------------------------------------------
 Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
@@ -83,8 +86,7 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 	m_iTimeoutScreenSaver=0; // disable it
     m_iListenPort = DATA_Get_Listen_Port();
     if( !m_iListenPort )
-        m_iListenPort = 3451;
-
+        m_iListenPort = CISCO_LISTEN_PORT_START;
 
     return true;
 }
@@ -197,13 +199,27 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
 
     SaveXML(sDeviceXml);
 	rm.Release();
-    
+
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
         m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     pthread_cond_broadcast(&m_ActionCond);
 
-	if(!IsProcessingRequest() && m_iListenPort >= 3451 && m_iListenPort <= 3460) //only cisco orbiters
+	static bool bFirstTime = true;
+	static timespec tLastImageGenerated;
+	timespec tCurrentImageGenerated;
+	gettimeofday(&tCurrentImageGenerated, NULL);
+	timespec tInterval = tLastImageGenerated - tCurrentImageGenerated;
+	long tMilisecondsPassed = tInterval.tv_sec * 1000 + tInterval.tv_nsec / 1000000;
+
+	if(
+			m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10 && //only cisco orbiters
+			(
+				!IsProcessingRequest() 
+				//|| //external event
+				//(!bFirstTime && tMilisecondsPassed < RELEVANT_SCREEN_INTERVAL) //two consecutive screens generated
+			)
+	  )
 	{
 		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
 		{
@@ -211,22 +227,24 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
 			CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
 		}
 	}
+
+	bFirstTime = false;
+	tLastImageGenerated = tCurrentImageGenerated;
 }
 //-----------------------------------------------------------------------------------------------------
 bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
 {
-	static int nRequestId = 0;
-	
 	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
 
+	m_bPhoneRespondedToPush = false;
+	
     vector<string> vectHeaders;
     map<string, string> mapParams;
-	string sPriorityLevel = bForce ? "0" : "1";
+	string sPriorityLevel = bForce ? "1" : "0";
     string sRequestUrl = 
             string() + 
             "<CiscoIPPhoneExecute>"
-                "<ExecuteItem Priority=\"" + sPriorityLevel + "\" URL=\"" + m_sRequestUrl + "req_id=" + 
-					StringUtils::ltos(nRequestId++) + "\"/>"
+                "<ExecuteItem Priority=\"" + sPriorityLevel + "\" URL=\"" + m_sRequestUrl + "\"/>"
             "</CiscoIPPhoneExecute>";
     mapParams["XML"] = StringUtils::URLEncode(sRequestUrl);
 
@@ -236,7 +254,27 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
     g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
     g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
 
+	if(!bForce)
+	{
+		//we have to be sure the cisco phone refreshed; we'll start a watchdog
+		CallMaintenanceInMiliseconds(CISCO_FAILURE_WATCHDOG_INTERVAL, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventWatchdog, NULL, pe_ALL);
+	}
+
 	return Response == "Success";
+}
+//-----------------------------------------------------------------------------------------------------
+void *Proxy_Orbiter::PushRefreshEventWatchdog(void *)
+{
+	if(!m_bPhoneRespondedToPush)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Cisco phone failed to execute request! Forcing a push...");
+		//I sent a push event 1 second ago with priority 1; the phone ignored me
+		//It should queue my url request and execute it when to phone goes idle
+		//geeeeez, cisco, fix your phone! :(
+		PushRefreshEvent(true);
+	}
+
+	return NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 bool Proxy_Orbiter::IsProcessingRequest()
@@ -253,8 +291,8 @@ void Proxy_Orbiter::StartProcessingRequest()
 //-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::EndProcessingRequest()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in 400 ms...");
-	CallMaintenanceInMiliseconds( 400, (OrbiterCallBack)&Proxy_Orbiter::StopProcessingRequest, this, pe_ALL );
+    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in few ms...");
+	CallMaintenanceInMiliseconds(REQUEST_INTERVAL_TIMEOUT, (OrbiterCallBack)&Proxy_Orbiter::StopProcessingRequest, this, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::StopProcessingRequest()
@@ -477,12 +515,17 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 	}
 
     g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
+	m_bPhoneRespondedToPush = true;
 
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
-	//ProcessRequest processRequest(this);
 	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
+		//hack - fix me
+		int nCurrentScreenID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+		if(nCurrentScreenID == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || nCurrentScreenID == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST)
+			Sleep(500);
+		
 		PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
         
 		size_t size;
@@ -498,7 +541,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         pSocket->SendString("IMAGE " + StringUtils::itos(int(size)));
         pSocket->SendData(int(size),pBuffer);
         delete[] pBuffer;
-		
+
 		return true;
 	}
     else if( sLine.substr(0,3)=="XML" )

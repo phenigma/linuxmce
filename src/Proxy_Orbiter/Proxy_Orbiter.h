@@ -21,6 +21,7 @@ namespace DCE
 		bool IsProcessingRequest();
 		void StartProcessingRequest();
 		void EndProcessingRequest();
+		void *PushRefreshEventWatchdog(void *);
 		
 		int	  m_iListenPort;
 		int   m_ImageQuality;
@@ -42,6 +43,7 @@ namespace DCE
         string sNoMediaSoftKeysXml;
         string sAllSoftKeysXml;
 
+		bool m_bPhoneRespondedToPush;
 		bool m_bProcessingRequest;
 		string m_sInternalServerAddress;
 		string m_sRemotePhoneIP;
