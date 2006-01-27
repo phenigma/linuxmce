@@ -23,6 +23,7 @@ Section "Module"
 	Load  "xtrap"
 	Load  "speedo"
 	Load  "type1"
+	Load  "glx"
 EndSection
 
 Section "InputDevice"
