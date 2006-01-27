@@ -1,7 +1,7 @@
 #!/bin/bash
 
 update-rc.d -f Startup_Scripts.sh remove || /bin/true
-update-rc.d Startup_Scripts.sh defaults 22 10
+#update-rc.d Startup_Scripts.sh defaults 22 10
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
