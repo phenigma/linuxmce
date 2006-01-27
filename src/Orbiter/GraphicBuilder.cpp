@@ -40,10 +40,6 @@ bool IsPFG(string sFileName)
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
 						 eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
 {
-	size_t iFileSize = 0;
-	char *pFileData = NULL;
-
-	//TODO: set the right graphic format, instead of GR_UNKNOWN for non-MNG graphic files
 	eGraphicFormat eGF = GR_UNKNOWN;
 
 	if(IsMNG(Filename))
@@ -52,9 +48,6 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 		eGF = GR_PNG;
 	else if(IsOCG(Filename))
 		eGF = GR_OCG;
-	//else if(IsPFG(Filename))
-	//	eGF = GR_PFG;
-
 
 #ifdef POCKETFROG
 	PocketFrogGraphic *pGraphic = new PocketFrogGraphic(pOrbiter);

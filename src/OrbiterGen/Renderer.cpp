@@ -27,10 +27,10 @@ using namespace std;
 #include "Orbiter/TextStyle.h"
 #include <math.h>
 
-#include "Orbiter/SDL/PlutoSDLDefs.h"
 #include "Splitter/TextWrapper.h"
 
 #ifndef ORBITER
+#include "Orbiter/SDL/PlutoSDLDefs.h"
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
 #endif //#ifndef ORBITER

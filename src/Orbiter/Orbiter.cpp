@@ -297,15 +297,16 @@ Constructors/Destructor
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
     bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex/*=NULL*/)
-: m_dwPK_DeviceTemplate(PK_DeviceTemplate), Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
-    m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-    m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
+: Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
+    m_NeedRedrawVarMutex( "need redraw variables" ), m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ), 
+	m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" )
 //<-dceag-const-e->
 {
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
 
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
 	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
@@ -476,7 +477,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	list < ScreenHistory * >::iterator itScreenHistory;
 	for(itScreenHistory = m_listScreenHistory.begin(); itScreenHistory != m_listScreenHistory.end(); itScreenHistory++)
 	{
-        ScreenHistory * psh = *itScreenHistory;
+        //ScreenHistory * psh = *itScreenHistory;
 		if( *itScreenHistory==m_pScreenHistory_Current )
 			m_pScreenHistory_Current=NULL;
 		delete *itScreenHistory;
@@ -2202,7 +2203,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     //handle multi select
     if(pDesignObj_DataGrid->m_bIsMultiSelect)
     {
-        DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
+        //DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
 
         PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
         string delSelections = "|"+m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable]+"|";
@@ -2920,7 +2921,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                 // See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
                 if(pDesignObj_DataGrid->m_iHighlightedRow >= pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
                 {
-                    int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
+                    //int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
                     CMD_Scroll_Grid( "", "", PK_Direction );
                     pDesignObj_DataGrid->m_iHighlightedRow = 1; /*iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow + 1*/;
@@ -4762,12 +4763,7 @@ int k=2;
                     g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
                 else if(iPK_Variable)
 					CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
-
-if(!iPK_Variable)
-{
-	int bubu  = 3;
-}
-
+				
 				if( m_vectObjs_GridsOnScreen.size() )
 				{
 					DesignObj_DataGrid *pObj = m_vectObjs_GridsOnScreen[0];
@@ -5308,8 +5304,6 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 }
 bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
 {
-    bool bLoadedSomething = false;
-
 	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
     {
 // 25-july-2005		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;  This means the highlighted row is lost on paging????
@@ -5520,7 +5514,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_O
     }
     else
     {
-        int foo=2;
+		//int foo=2;
     }
 }
 
@@ -7729,7 +7723,7 @@ int k=2;
 
 			case GR_MNG:
 				{
-					eGraphicFormat eGF = pPlutoGraphic->m_GraphicFormat;
+					//eGraphicFormat eGF = pPlutoGraphic->m_GraphicFormat;
 					eGraphicManagement eGM = pPlutoGraphic->m_GraphicManagement;
 					string sMNGFileName = pPlutoGraphic->m_Filename;
 
@@ -7764,6 +7758,8 @@ int k=2;
 					pInMemoryMNG = NULL;
 				}
 				break;
+
+			default:;
 
 		}
 	}

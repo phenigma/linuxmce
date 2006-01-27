@@ -56,7 +56,7 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 	m_HighlightedBGColor = pRow_StyleVariation->;
 	m_sAltBGColor = pRow_StyleVariation->;
 */
-#endif ORBITER
+#endif //ORBITER
 }
 
 TextStyle::~TextStyle()
@@ -130,3 +130,4 @@ bool TextStyle::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwA
 	pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
 	return true;
 }
+

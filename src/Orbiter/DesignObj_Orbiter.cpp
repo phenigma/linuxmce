@@ -202,7 +202,7 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	VectorDesignObjText::iterator iT;
 	for(iT=m_vectDesignObjText.begin(); iT != m_vectDesignObjText.end(); ++iT)
 	{
-		DesignObjText *pDummy = *iT;
+		//DesignObjText *pDummy = *iT;
 		delete *iT; 
 	}
 
