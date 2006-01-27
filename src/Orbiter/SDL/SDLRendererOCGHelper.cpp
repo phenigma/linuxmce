@@ -35,7 +35,7 @@ SDL_Surface* SDL_LoadOCG(char *pOCGData, size_t iOCGDataSize)
 	{
 		pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, iWidth, iHeigth, 32, rmask, gmask, bmask, amask);
 
-		delete pSurface->pixels;
+		delete (char *)pSurface->pixels;
 		pSurface->pixels = new char[iPixelsDataSize];
 		memcpy((char *)pSurface->pixels, pPixelsData, iPixelsDataSize);
 
@@ -86,7 +86,6 @@ bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket)
 	else
 	{
 		char *pPixelsDataTemp = pPixelsData;
-		SDL_PixelFormat * PF = pSurface->format;
 
 		for(int y = 0; y < iHeight; y++)
 			for(int x = 0; x < iWidth; x++)
