@@ -1,3 +1,9 @@
+bootsplash-theme-pluto (0.1-1pluto1) unstable; urgency=low
+
+  * Added support for displaying text messages
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 27 Jan 2006 15:08:15 +0200
+
 bootsplash-theme-pluto (0.1-1) unstable; urgency=low
 
   * Initial Release.

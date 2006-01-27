@@ -35,6 +35,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	cp -a $(THEME_DIRS) "$(CURDIR)/debian/bootsplash-theme-$(THEME_SUFFIX)/etc/bootsplash/themes/$(THEME_SUFFIX)/"
+	cp -a fonts "$(CURDIR)/debian/bootsplash-theme-$(THEME_SUFFIX)/etc/bootsplash/fonts/"
 
 binary-indep: build install
 	#Nothing to do here
