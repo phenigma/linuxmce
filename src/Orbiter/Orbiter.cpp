@@ -923,10 +923,12 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
 		return;
 
+/*
 if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
+*/
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );
@@ -1015,10 +1017,12 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
 		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
 
+/*
 if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
+*/
 		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
         pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
@@ -1029,10 +1033,12 @@ int k=2;
     }
     else if(  pObj->m_pvectCurrentGraphic  )
     {
+/*
 if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
+*/
         RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
     }
 
@@ -2543,10 +2549,12 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
         if(  !bFoundHandler && bResult  )
             bFoundHandler=true;
     }
+/*
 if( pObj->m_ObjectID.find("1255.2.0.3407")!=string::npos )
 {
 int k=2;
 }
+*/
     if( 
 		pObj->m_iPK_Button == PK_Button || 
 		pObj->m_iPK_Button == BUTTON_Any_key_CONST || 
@@ -3416,11 +3424,12 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
 		WaitForMessageQueue();  // There might still be some messages in the queue which will affect this grid
 		pObj->m_iPopulatedWidth=pObj->m_MaxCol;  // Pass in the grid's on screen width/height -- we'll get back the total populated size
 		pObj->m_iPopulatedHeight=pObj->m_MaxRow;
+/*
 if( pObj->m_iPopulatedWidth<0 )
 {
 int k=2;
 }
-
+*/
 		string sParams = SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 );
         DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
             pObj->m_iPK_Datagrid, sParams, pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
@@ -3620,6 +3629,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
+/*
     if(  pObj->m_ObjectID.find( "4666" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
@@ -3628,7 +3638,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     {
         int k=2;
     }
-
+*/
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
 
@@ -4732,10 +4742,12 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 int iPK_Variable=atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());;
                 string sValue_To_Assign=pCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST];
 				int iWidth=pObj->m_MaxCol,iHeight=pObj->m_MaxRow;
+/*
 if( iWidth<0 )
 {
 int k=2;
 }
+*/
 
 				string sParams; 
 				if(pDesignObj_DataGrid_OnScreen)
@@ -5763,8 +5775,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 #endif
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
+/*
 if( sID.size() )
 int k=2;
+*/
 	bool bIsRemote=false;
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" )
@@ -7600,6 +7614,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	int iCurrentFrame = pObj->m_iCurrentFrame;
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
+/*
 if( pObj->m_ObjectID.find(".3351")!=string::npos )
 {
 	if( rectTotal.X!=13 )
@@ -7608,6 +7623,7 @@ if( pObj->m_ObjectID.find(".3351")!=string::npos )
 	}
 int k=2;
 }
+*/
 
     //hack: if a button doesn't have a mng as selected state (see bDisableEffects), then the png
     //used in normal state will be rendered for selected state + a blue rectangle to show the selection
@@ -7787,11 +7803,13 @@ int k=2;
 		pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
 		CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 	}
+/*
 if( pObj->m_ObjectID.find(".2355")!=string::npos )
 {
 	// x=163
 int k=2;
 }
+*/
 
 	if(!pPlutoGraphic->IsEmpty())
 		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
@@ -8443,11 +8461,12 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	pPopup->m_bDontAutohide = bDont_Auto_Hide;
 
 	CMD_Refresh("");
+/*
 if( sName=="remote" )
 {
 int k=2;
 }
-
+*/
 }
 
 //<-dceag-c398-b->
@@ -8462,10 +8481,12 @@ int k=2;
 void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c398-e->
 {
+/*
 if( sName=="remote" )
 {
 int k=2;
 }
+*/
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	if( m_pObj_Highlighted )

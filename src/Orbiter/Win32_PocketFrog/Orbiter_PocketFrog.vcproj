@@ -43,7 +43,7 @@
 				GenerateMapFile="TRUE"
 				MapFileName="OrbiterMapFile"
 				MapExports="TRUE"
-				MapLines="TRUE"
+				MapLines="FALSE"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool

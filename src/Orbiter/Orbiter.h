@@ -128,11 +128,6 @@ public:
         m_Position = Position;    
 		m_bDontAutohide = false;
     }
-
-	~PlutoPopup()
-	{
-int k=2;
-	}
 };
 
 //<-dceag-decl-b->! custom

@@ -297,7 +297,6 @@ size_t InMemoryMNG::GetFrame(int iIndex, char *&pData)
 	FILE * File;
 	int RealW, RealH;
 	MNGHeader *pHeader = new MNGHeader;
-	int kounter = 0;
 
 	File = fopen(sFileName.c_str(), "rb");
 	if (! File)
