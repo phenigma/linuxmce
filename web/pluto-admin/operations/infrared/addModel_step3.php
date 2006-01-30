@@ -25,9 +25,9 @@
 	
 	if($return==0){
 		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
-		$submitLabel='Next';
+		$submitLabel=$TEXT_NEXT_CONST;
 	}else{
-		$submitLabel='Save';
+		$submitLabel=$TEXT_SAVE_CONST;
 	}
 		
 	if(@$_SESSION['selectedCommMethod']!=1){
@@ -41,20 +41,20 @@
 		$Content='
 		<table class="normaltext">
 			<tr>
-				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s correct, or if there are no number buttons on the remote for this device, click next.  Otherwise:</td>
+				<td>'.$TEXT_Q3_COMM_METHOD_1_NOTE_CONST.'</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 			</tr>		
 			<tr>
-				<td>Is there an Enter button on the remote you can hit after typing in numbers to make it tune right away? <input type="radio" name="enterButton" value="E" '.(($isEnter==1)?'checked':'').'> Yes <input type="radio" name="enterButton" value="" '.(($isEnter==0)?'checked':'').'> No</td>
+				<td>'.$TEXT_Q3_COMM_METHOD_1_ENTER_BUTTON_CONST.' <input type="radio" name="enterButton" value="E" '.(($isEnter==1)?'checked':'').'> '.$TEXT_YES_CONST.' <input type="radio" name="enterButton" value="" '.(($isEnter==0)?'checked':'').'> '.$TEXT_NO_CONST.'</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 			</tr>		
 		
 			<tr>
-				<td>Does the number of digits need to be padded to a fixed length in order to tune right away?  Leave blank if ‘no’.  Enter 3 for example if you always enter 3 digits, such as 012 to tune to ‘12’ and 005 to tune to ‘5’. Number of digits: <input type="text" name="digits" value="'.$digits.'" size="2"></td>
+				<td>'.$TEXT_Q3_COMM_METHOD_1_NUMBER_OF_DIGITS_CONST.' <input type="text" name="digits" value="'.$digits.'" size="2"></td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
@@ -72,7 +72,7 @@
 	if($action=='form'){
 		$out='<br>
 		'.@$navigationButtons.'
-		<B>Question 3 of 6 - How to tune?</B><br><br>
+		<B>'.$TEXT_Q3_TITLE_CONST.'</B><br><br>
 		'.$cdContent.'
 		
 		<form action="index.php" method="POST" name="addModel">

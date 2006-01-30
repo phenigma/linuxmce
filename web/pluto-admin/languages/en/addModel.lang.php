@@ -1,35 +1,60 @@
 <?
-function addModel($output,$dbADO,$mediadbADO)
-{
-
-	/* @var $dbADO ADOConnection */
-	global $PlutoHomeHost,$PlutoSupportHost;
-	
-	$deviceID=(int)@$_REQUEST['deviceID'];
-	$userID=(int)@$_SESSION['userID'];
-	$from=@$_REQUEST['from'];
-	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$step=$_REQUEST['step'];
-	
-	$publicADO=$dbADO;
-
-	$mID=@$_REQUEST['mID'];
-	$dcID=@$_REQUEST['dcID'];
-
-	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
-	$avDeviceCategories=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-
-	if(isset($_REQUEST['dcID']) && !in_array($dcID,$avDeviceCategories)){
-		include('operations/addBasicModel.php');
-	}else{
-		if(file_exists('operations/infrared/addModel_step'.$step.'.php'))
-			include('operations/infrared/addModel_step'.$step.'.php');
-		else
-			Header('Location: index.php');
-	}		
-	
-	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
-	$output->output();
-}
+$TEXT_ADD_DEVICE_TEMPLATE_CONST='Add device template';
+$TEXT_ADD_MODEL_CONST='Add model';
+$TEXT_QUESTION_1_TITLE_CONST='Question 1 of 6 - How to control?';
+$TEXT_Q1_INFO_CONST='We need to ask a few basic questions about this device, which allows you to control it much more intuitively without having to write macros!';
+$TEXT_Q1_NOTE_CONST='This should only take a minute or two and we\'ll try to fill in default answers for you whenever possible.';
+$TEXT_Q1_MODEL_NAME_CONST='What is the name or model #';
+$TEXT_Q1_CONTROL_CONST='How do you control this model';
+$TEXT_DEVICE_TEMPLATE_NAME_REQUIRED_CONST='Please type the name of the model.';
+$TEXT_Q2_TITLE_CONST='Question 2 - What Delays?';
+$TEXT_Q2_INFO_CONST='Most devices need some delays between commands.  We filled in the most common values for you.  Change them if necessary; you can also make changes later if these values do not work:';
+$TEXT_Q2_POWER_DELAY_TEXT_CONST='Number of seconds to wait for the device to warm up after sending a code to turn the power on';
+$TEXT_Q2_MODE_DELAY_DELAY_TEXT_CONST='Number of seconds to wait before sending other codes after changing inputs or modes on this device';
+$TEXT_Q2_DIGIT_DELAY_DELAY_TEXT_CONST='Number of seconds* between commands (up to 3 decimal places) when sending a series of codes, such as a sequence of digits to tune to a channel';
+$TEXT_Q2_NOTE_CONST='The smaller the number the faster the device will be controlled. But if the number is too small codes may be sent faster than the device can recognize them. For example, you try to tune to channel 125. That means three codes, or buttons, are sent: 1, 2 and 5. But if your device goes to channel 15, then codes are probably coming in too fast and the device lost one of the codes so you\'ll need to come back and increase this.';
+$TEXT_Q3_COMM_METHOD_1_NOTE_CONST='By default when it\'s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit \'enter\'.  If that\'s correct, or if there are no number buttons on the remote for this device, click next.  Otherwise';
+$TEXT_Q3_COMM_METHOD_1_ENTER_BUTTON_CONST='Is there an Enter button on the remote you can hit after typing in numbers to make it tune right away?';
+$TEXT_Q3_COMM_METHOD_1_NUMBER_OF_DIGITS_CONST='Does the number of digits need to be padded to a fixed length in order to tune right away?  Leave blank if \'no\'.  Enter 3 for example if you always enter 3 digits, such as 012 to tune to \'12\' and 005 to tune to \'5\'. Number of digits:';
+$TEXT_Q3_TITLE_CONST='Question 3 of 6 - How to tune?';
+$TEXT_Q4_TITLE_CONST='Question 4 of 6 - Toggle power or discrete?';
+$TEXT_Q4_DISCRETE_INFO_CONST='Discrete power means there are separate on and off commands or buttons.  So you can send the \'on\' command and even if the device is already on, it won\'t turn off.  This makes it easy to control the device.';
+$TEXT_Q4_TOGGLE_INFO_CONST='Toggle means there is only 1 button which toggles between on and off, called \'Toggle Power\'.  You hit it once and it\'s on, hit it again and it\'s off.  Whenever possible avoid devices with toggle because then it\'s possible to get out of sync, where the system sends a Toggle Power to turn it on, but in fact it really turned it off.';
+$TEXT_Q4_DISCRETE_COMMANDS_CONST='My device has discrete, separate on/off commands';
+$TEXT_Q4_TOGGLE_COMMANDS_CONST='My device only has a single toggle power button';
+$TEXT_Q5_AMPS_RECEIVERS_INFO_CONST='<B>Amps/Preamps/Receivers/Tuners</B><br>Normally "Amps/Preamps/Receivers/Tuners" do have multiple inputs.  So normally you will leave #2 selected below, and then below that you will check off all the inputs this device has: "Video 1", "DVD", etc.  If this has a built-in tuner, like most do, then when you check off the inputs the tuner uses (like Tuner, AM, FM, etc.) be sure to also select the type of media on that input, such as "over the air radio".  All the other inputs which do not have built-in sources, in other words which you hook extra devices up to like a DVD player, leave at "external device".';
+$TEXT_Q5_AUDIO_ZONE_INFO_CONST='Audio Zone';
+$TEXT_Q5_CABLE_BOXES_INFO_CONST='<B>Cable Boxes</B><br>Normally "cable boxes" and "satellite boxes" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+$TEXT_Q5_CASSETTE_DECKS_INFO_CONST='Cassette Decks';
+$TEXT_Q5_CDPLAYERS_RECORDERS_INFO_CONST='<B>CD Players/Recorders</B><br>Normally "CD Players/Recorders" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+$TEXT_Q5_COMBO_UNITS_INFO_CONST='<B>Combo Units</B><br>If this is a combo unit that includes a VCR or DVD player, then for those inputs which have an internal device, select the corresponding media type ("VideoTape", "DVD").  And for those inputs which you connect an external device to, leave "External Device".';
+$TEXT_Q5_DVD_PLAYERS_RECORDERS_INFO_CONST='<B>DVD Players/Recorders</B><br>Normally "DVD Players/Recorders" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+$TEXT_Q5_LASER_DISC_INFO_CONST='<B>Laser Disc</B><br>Normally "Laser Discs" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+$TEXT_Q5_OTHER_MISC_INFO_CONST='Other/Misc';
+$TEXT_Q5_PVR_CAPTURE_CARDS_INFO_CONST='PVR Capture Cards';
+$TEXT_Q5_RADIOS_INFO_CONST='<B>Radios</B><br>If this "Radio" only has one frequency, then that means there is only one tuner or one source and you would leave #1 selected.  However, if the radio has multiple inputs, such as AM, FM, WB, etc., then you would select #2 if the remote control has separate buttons for each of the inputs, or #3 if there is only a single button that toggles between the inputs.';
+$TEXT_Q5_SATELLITE_BOXES_INFO_CONST='Satellite Boxes';
+$TEXT_Q5_SWITCHES_INFO_CONST='<B>Switches</B><br>Normally "Switches" do have multiple inputs.  So normally you will leave #2 selected below, and then below that you will check off all the inputs this device has: "Video 1", "DVD", etc.  Since this is just a Switch, and not a receiver, it probably does not have any built in sources on any of the inputs, so you can leave all the inputs as "external device".';
+$TEXT_Q5_TVS_INFO_CONST_CONST='<B>TVs</B><br>Normally TV\'s and Projectors do have multiple inputs, so you will probably select #2 or #3 below.  Hopefully it will have discrete buttons to select the various inputs.  Some TVs, like Sony, may only have a single toggle input button on the remote, but there exists separate, discrete buttons for all of the inputs.  On most TVs one or more inputs has a built-in source, for example "Tuner" may be a built-in source for live TV, while "Video 1" is an input for connecting an external device.  Some TVs have multiple tuners, ie "Tuner 1", "Tuner 2".  Off all the inputs this TV has, and select "Live TV" for each input that has a built-in tuner, and leave "external device" for the inputs you connect extra devices to.';
+$TEXT_Q5_TV_VCR_COMBO_INFO_CONST='<B>TV/VCR Combo</B><br>"Combo units" will have several built-in devices on various inputs, and perhaps also inputs for plugging in extra devices.  Check off all the inputs below, and if there is a built-in device on that input, choose the type of media it serves.  For example.  If there is a built-in DVD player, which you select with the "DVD" input, and a built-in VCR, which you select with the "video" input, and also an "Aux" input to plug in an external device, you would check off three inputs below: DVD, video, aux.  Select for the media type: "Dvd", "Video Tape" and "External Device".';
+$TEXT_Q5_VCR_INFO_CONST='VCR';
+$TEXT_Q5_INPUTS_NOTE_CONST='Please select all the inputs this device has.  If your device has an input that is not on the list, but there is a close match, choose that.  It\'s not important that the wording be exactly the same.  Only add a new input if your device\'s input is totally unlike anything on this list.  Connector is optional.';
+$TEXT_SOURCE_CONST='Source';
+$TEXT_CONNECTOR_CONST='Connector';
+$TEXT_Q5_TITLE_CONST='Question 5 of 6 - What Inputs?';
+$TEXT_Q5_NOTE_CONST='If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or if the input is for connecting an external device to.';
+$TEXT_Q5_OPT1_CONST='My device does not have multiple input sources, it only provides this 1 type of media:';
+$TEXT_Q5_OPT2_CONST='My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (this type of device works well).';
+$TEXT_Q5_OPT3_CONST='My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs discretely.  Regardless of how you hook it up, please specify the inputs this device has.';
+$TEXT_Q5_BUILT_IN_NOTE_CONST='<B> REMEMBER:</B> <em>If the device has a built-in source of media on that input, be sure you choose it from the \'source\' list.  For example, if you have a receiver, normally the \'am\' and \'fm\' inputs have a built in source (over the air radio), but the \'cd\' input is for an external device.  If you have a TV, normally the \'tuner\' input is a built-in source (live tv) and video 1, 2, etc. are external.  For VCR\'s there are normally only 2 inputs, tuner and VHS, and both have built-in sources (Live tv and videotape).  You may have a combo unit that has lots of built-in sources, like a built-in radio, vcr, dvd.  In that case be sure to indicate which inputs have built-in sources vs. external.  You don\'t need to specify the connector type if you don\'t know it; it\'s only used when displaying a visual diagram of your equipment\'s connections.</em>';
+$TEXT_Q6_TITLE_CONST='Last Question, 6 - DSP mode?';
+$TEXT_Q6_MULTI_DSP_CONST='If this device has multiple DSP Modes, like "Church", "Concert hall", "Dolby Digital", please check off all the modes. .  If your device has a dspmode that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new dsp mode if your device’s input is totally unlike anything on this list.';
+$TEXT_Q6_OPT1_CONST='My device doesn\'t have DSP Modes';
+$TEXT_Q6_OPT2_CONST='My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)';
+$TEXT_Q6_OPT3_CONST='My device does have DSP Modes, but unfortunately there\'s just 1 button that toggles through all the modes so it will be difficult to control';
+$TEXT_Q5_CHANGE_ORDER_CONST=='Change order';
+$TEXT_Q5_CONFIRM_TOGGLE_INPUTS_CONST='Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.';
+$TEXT_Q5_ORDER_TITLE_CONST='Question 5b - What Order?';
+$TEXT_Q6_ORDER_TITLE='Last Question, 6 - DSP mode order?';
+$TEXT_Q6_ORDER_INFO_CONST='Since this device uses 1 button to <b>toggle</b> DSP Modes, we need to know what order they are in so we can cycle through them.  Please confirm the order and click next.';
 ?>

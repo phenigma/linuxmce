@@ -1,6 +1,9 @@
 <?
 function addModel($output,$dbADO,$mediadbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addModel.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	global $PlutoHomeHost,$PlutoSupportHost;
@@ -29,7 +32,7 @@ function addModel($output,$dbADO,$mediadbADO)
 	}		
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_DEVICE_TEMPLATE_CONST);
 	$output->output();
 }
 ?>

@@ -11,10 +11,10 @@
 	}
 	if($return==0){
 		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=5&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=6&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
-		$submitLabel='Next';
+		$submitLabel=$TEXT_NEXT_CONST;
 	}else{
-		$submitLabel='Save';
-	}
+		$submitLabel=$TEXT_SAVE_CONST;
+	}	
 		
 	$whereClause='
 		INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
@@ -77,7 +77,7 @@
 		
 		<br>
 		'.@$navigationButtons.'
-		<B>Question 5b - What Order?</B><br><br>
+		<B>'.$TEXT_Q5_ORDER_TITLE_CONST.'</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -90,10 +90,10 @@
 		
 			<table align="center">
 				<tr>
-					<td colspan="2" class="normaltext"><B>Change order</B></td>
+					<td colspan="2" class="normaltext"><B>'.$TEXT_Q5_CHANGE_ORDER_CONST.'</B></td>
 				</tr>
 				<tr>
-					<td colspan="2" class="normaltext">Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.</td>
+					<td colspan="2" class="normaltext">'.$TEXT_Q5_CONFIRM_TOGGLE_INPUTS_CONST.'</td>
 				</tr>
 				<tr>				
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>

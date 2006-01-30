@@ -15,10 +15,10 @@
 	
 	if($action=='form'){
 		$out='
-		<h3 align="center">Add model</h3><br>
-		<B>Question 1 of 6 - How to control?</B><br>
-		<p class="normaltext">We need to ask a few basic questions about this device, which allows you to control it much more intuitively <a href="http://plutohome.com/support/index.php?section=document&docID=216">without having to write macros!</a> 
-		 This should only take a minute or two and we’ll try to fill in default answers for you whenever possible.
+		<h3 align="center">'.$TEXT_ADD_MODEL_CONST.'</h3><br>
+		<B>'.$TEXT_QUESTION_1_TITLE_CONST.'</B><br>
+		<p class="normaltext">'.$TEXT_Q1_INFO_CONST.' <a href="http://plutohome.com/support/index.php?section=document&docID=216">('.strtolower($TEXT_DETAILS_CONST).')</a> 
+		 '.$TEXT_Q1_NOTE_CONST.'
 		
 		<form action="index.php" method="POST" name="addModel">
 			<input type="hidden" name="section" value="addModel">
@@ -29,28 +29,28 @@
 		
 		<table class="normaltext" align="center">
 			<tr>
-				<td align="right"><B>Manufacturer</B></td>
+				<td align="right"><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
 				<td>'.$manufArray[$mID].'</td>
-				<td><B>Device Category</B></td>
+				<td><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 				<td>'.$categArray[$dcID].'</td>
 			</tr>
 			<tr>
-				<td><B>What is the name or model #:</B></td>
+				<td><B>'.$TEXT_Q1_MODEL_NAME_CONST.':</B></td>
 				<td colspan="3"><input type="text" name="description" value=""></td>
 			</tr>
 			<tr>
-				<td><B>How do you control this model:</B></td>
+				<td><B>'.$TEXT_Q1_CONTROL_CONST.':</B></td>
 				<td colspan="3">'.$commMethodRadioButtons.'</td>
 			</tr>
 			<tr>
-				<td colspan="4" align="center"><input type="submit" class="button" name="add" value="next"></td>
+				<td colspan="4" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_NEXT_CONST.'"></td>
 			</tr>
 		</table><br>
 		</form>
 		
 		<script>
 			var frmvalidator = new formValidator("addModel");
- 			frmvalidator.addValidation("description","req","Please type the name of the model.");
+ 			frmvalidator.addValidation("description","req","'.$TEXT_DEVICE_TEMPLATE_NAME_REQUIRED_CONST.'");
 		</script>		
 		';
 	}else{

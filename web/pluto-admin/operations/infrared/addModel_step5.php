@@ -23,67 +23,67 @@
 		switch((int)@$dtDataArray['FK_DeviceCategory'][0]){
 			// Amps/Preamps/Receivers/Tuners
 			case 103:
-				$categoryInfo='<B>Amps/Preamps/Receivers/Tuners</B><br>Normally "Amps/Preamps/Receivers/Tuners" do have multiple inputs.  So normally you will leave #2 selected below, and then below that you will check off all the inputs this device has: "Video 1", "DVD", etc.  If this has a built-in tuner, like most do, then when you check off the inputs the tuner uses (like Tuner, AM, FM, etc.) be sure to also select the type of media on that input, such as "over the air radio".  All the other inputs which do not have built-in sources, in other words which you hook extra devices up to like a DVD player, leave at "external device".';
+				$categoryInfo=$TEXT_Q5_AMPS_RECEIVERS_INFO_CONST;
 			break;
 			// Audio Zone
 			case 95:
-				$categoryInfo='Audio Zone';
+				$categoryInfo=$TEXT_Q5_AUDIO_ZONE_INFO_CONST;
 			break;
 			// 	Cable Boxes
 			case 105:
-				$categoryInfo='<B>Cable Boxes</B><br>Normally "cable boxes" and "satellite boxes" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+				$categoryInfo=$TEXT_Q5_CABLE_BOXES_INFO_CONST;
 			break;
 			// 	Cassette Decks
 			case 104:
-				$categoryInfo='Cassette Decks';
+				$categoryInfo=$TEXT_Q5_CASSETTE_DECKS_INFO_CONST;
 			break;
 			// CD Players/Recorders
 			case 106:
-				$categoryInfo='<B>CD Players/Recorders</B><br>Normally "CD Players/Recorders" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+				$categoryInfo=$TEXT_Q5_CDPLAYERS_RECORDERS_INFO_CONST;
 			break;
 			// Combo Units
 			case 129:
-				$categoryInfo='<B>Combo Units</B><br>If this is a combo unit that includes a VCR or DVD player, then for those inputs which have an internal device, select the corresponding media type ("VideoTape", "DVD").  And for those inputs which you connect an external device to, leave "External Device".';
+				$categoryInfo=$TEXT_Q5_COMBO_UNITS_INFO_CONST;
 			break;
 			// DVD Players/Recorders
 			case 107:
-				$categoryInfo='<B>DVD Players/Recorders</B><br>Normally "DVD Players/Recorders" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+				$categoryInfo=$TEXT_Q5_DVD_PLAYERS_RECORDERS_INFO_CONST;
 			break;
 			// Laser Disc
 			case 135:
-				$categoryInfo='<B>Laser Disc</B><br>Normally "Laser Discs" do not have inputs; that is you do not plug other devices into them and they do not have multiple sources.  So we selected #1 below for you, and you probably do not need to make any changes unless your model is nonstandard.';
+				$categoryInfo=$TEXT_Q5_LASER_DISC_INFO_CONST;
 			break;
 			// Other/Misc
 			case 136:
-				$categoryInfo='Other/Misc';
+				$categoryInfo=$TEXT_Q5_OTHER_MISC_INFO_CONST;
 			break;
 			// PVR Capture Cards
 			case 75:
-				$categoryInfo='PVR Capture Cards';
+				$categoryInfo=$TEXT_Q5_PVR_CAPTURE_CARDS_INFO_CONST;
 			break;
 			// Radios
 			case 134:
-				$categoryInfo='<B>Radios</B><br>If this "Radio" only has one frequency, then that means there is only one tuner or one source and you would leave #1 selected.  However, if the radio has multiple inputs, such as AM, FM, WB, etc., then you would select #2 if the remote control has separate buttons for each of the inputs, or #3 if there is only a single button that toggles between the inputs.';
+				$categoryInfo=$TEXT_Q5_RADIOS_INFO_CONST;
 			break;
 			// Satellite Boxes
 			case 108:
-				$categoryInfo='Satellite Boxes';
+				$categoryInfo=$TEXT_Q5_SATELLITE_BOXES_INFO_CONST;
 			break;
 			// Switches
 			case 126:
-				$categoryInfo='<B>Switches</B><br>Normally "Switches" do have multiple inputs.  So normally you will leave #2 selected below, and then below that you will check off all the inputs this device has: "Video 1", "DVD", etc.  Since this is just a Switch, and not a receiver, it probably does not have any built in sources on any of the inputs, so you can leave all the inputs as "external device".';
+				$categoryInfo=$TEXT_Q5_SWITCHES_INFO_CONST;
 			break;
 			// TVs
 			case 77:
-				$categoryInfo='<B>TVs</B><br>Normally TV\'s and Projectors do have multiple inputs, so you will probably select #2 or #3 below.  Hopefully it will have discrete buttons to select the various inputs.  Some TVs, like Sony, may only have a single toggle input button on the remote, but there exists separate, discrete buttons for all of the inputs.  On most TVs one or more inputs has a built-in source, for example "Tuner" may be a built-in source for live TV, while "Video 1" is an input for connecting an external device.  Some TVs have multiple tuners, ie "Tuner 1", "Tuner 2".  Off all the inputs this TV has, and select "Live TV" for each input that has a built-in tuner, and leave "external device" for the inputs you connect extra devices to.';
+				$categoryInfo=$TEXT_Q5_TVS_INFO_CONST_CONST;
 			break;
 			// TV/VCR Combo
 			case 109:
-				$categoryInfo='<B>TV/VCR Combo</B><br>"Combo units" will have several built-in devices on various inputs, and perhaps also inputs for plugging in extra devices.  Check off all the inputs below, and if there is a built-in device on that input, choose the type of media it serves.  For example.  If there is a built-in DVD player, which you select with the "DVD" input, and a built-in VCR, which you select with the "video" input, and also an "Aux" input to plug in an external device, you would check off three inputs below: DVD, video, aux.  Select for the media type: "Dvd", "Video Tape" and "External Device".';
+				$categoryInfo=$TEXT_Q5_TV_VCR_COMBO_INFO_CONST;
 			break;
 			// VCR
 			case 98:
-				$categoryInfo='VCR';
+				$categoryInfo=$TEXT_Q5_VCR_INFO_CONST;
 			break;
 			
 			default:
@@ -95,12 +95,12 @@
 		$mediaTypesArray=getAssocArray('MediaType','PK_MediaType','Description',$publicADO,'WHERE DCEAware=0','ORDER BY Description ASC');
 
 		$inputSelectedTxt='
-			<p class="normaltext"> Please select all the inputs this device has.  If your device has an input that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new input if your device’s input is totally unlike anything on this list.  Connector is optional.
+			<p class="normaltext"> '.$TEXT_Q5_INPUTS_NOTE_CONST.'
 			<table border="0" class="normaltext" align="center" cellpadding="3" cellspacing="0">
 				<tr bgcolor="lightblue">
-					<td align="center"><B>Inputs</b><br> (check all that apply)</td>
-					<td align="center"><B>Source</B></td>
-					<td align="center"><B>Connector</B></td>
+					<td align="center"><B>'.$TEXT_INPUTS_CONST.'</b><br> (check all that apply)</td>
+					<td align="center"><B>'.$TEXT_SOURCE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_CONNECTOR_CONST.'</B></td>
 				</tr>			
 			';
 
@@ -170,10 +170,10 @@
 		
 	if($return==0){
 		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
-		$submitLabel='Next';
+		$submitLabel=$TEXT_NEXT_CONST;
 	}else{
-		$submitLabel='Save';
-	}		
+		$submitLabel=$TEXT_SAVE_CONST;
+	}	
 		$out='
 		<script>
 		function enableObjects(val)
@@ -190,9 +190,9 @@
 		
 		<br>
 		'.@$navigationButtons.'
-		<B>Question 5 of 6 - What Inputs?</B><br><br>';
+		<B>'.$TEXT_Q5_TITLE_CONST.'</B><br><br>';
 		$out.='
-		<p class="normaltext">If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or if the input is for connecting an external device to.
+		<p class="normaltext">'.$TEXT_Q5_NOTE_CONST.'
 		<p class="normaltext">'.$categoryInfo.'
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -208,17 +208,17 @@
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1&deviceID='.$deviceID.'&return='.$return.'\'"> #1 - My device does not have multiple input sources, it only provides this 1 type of media: '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0],($is!=1)?'disabled':'').'
+					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1&deviceID='.$deviceID.'&return='.$return.'\'"> #1 - '.$TEXT_Q5_OPT1_CONST.' '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0],($is!=1)?'disabled':'').'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2&deviceID='.$deviceID.'&return='.$return.'\'"> #2 - My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (this type of device works well).
+					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2&deviceID='.$deviceID.'&return='.$return.'\'"> #2 - '.$TEXT_Q5_OPT2_CONST.'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'&return='.$return.'\'"> #3 - My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs discretely.  Regardless of how you hook it up, please specify the inputs this device has.		
+					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'&return='.$return.'\'"> #3 - '.$TEXT_Q5_OPT3_CONST.'		
 				</td>
 			</tr>';
 		if($is>1){
@@ -232,7 +232,7 @@
 			</tr>
 			<input type="hidden" name="commandsArray" value="'.urlencode(serialize($commandsArray)).'">
 			<tr>
-				<td class="normaltext"><B> REMEMBER:</B> <em>If the device has a built-in source of media on that input, be sure you choose it from the ‘source’ list.  For example, if you have a receiver, normally the ‘am’ and ‘fm’ inputs have a built in source (over the air radio), but the ‘cd’ input is for an external device.  If you have a TV, normally the ‘tuner’ input is a built-in source (live tv) and video 1, 2, etc. are external.  For VCR’s there are normally only 2 inputs, tuner and VHS, and both have built-in sources (Live tv and videotape).  You may have a combo unit that has lots of built-in sources, like a built-in radio, vcr, dvd.  In that case be sure to indicate which inputs have built-in sources vs. external.  You don’t need to specify the connector type if you don’t know it; it’s only used when displaying a visual diagram of your equipment’s connections.</em></td>
+				<td class="normaltext">'.$TEXT_Q5_BUILT_IN_NOTE_CONST.'</td>
 			</tr>
 			';
 		}else{

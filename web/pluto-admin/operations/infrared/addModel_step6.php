@@ -63,10 +63,10 @@
 		
 		if($return==0){
 			$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
-			$submitLabel='Next';
+			$submitLabel=$TEXT_NEXT_CONST;
 		}else{
-			$submitLabel='Save';
-		}		
+			$submitLabel=$TEXT_SAVE_CONST;
+		}	
 		
 		$out='
 		<script>
@@ -99,7 +99,7 @@
 		
 		<br>
 		'.@$navigationButtons.'
-		<B>Last Question, 6 - DSP mode?</B><br><br>
+		<B>'.$TEXT_Q6_TITLE_CONST.'</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -112,26 +112,26 @@
 		
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$ampReceivers)){
-			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don’t have multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, etc.  You can probably ignore this step and click next.<br><br>';
+			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don\'t have multiple DSP Modes, like "Church", "Concert hall", "Dolby Digital", etc.  You can probably ignore this step and click next.<br><br>';
 		}else{
-			$out.='<p class="normaltext">If this device has multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, please check off all the modes. .  If your device has a dspmode that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new dsp mode if your device’s input is totally unlike anything on this list.';
+			$out.='<p class="normaltext">'.$TEXT_Q6_MULTI_DSP_CONST;
 		}
 		
 		$out.='
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1&deviceID='.$deviceID.'&return='.$return.'\'"> My device doesn’t have DSP Modes
+					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1&deviceID='.$deviceID.'&return='.$return.'\'"> '.$TEXT_Q6_OPT1_CONST.'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2&deviceID='.$deviceID.'&return='.$return.'\'"> My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)
+					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2&deviceID='.$deviceID.'&return='.$return.'\'"> '.$TEXT_Q6_OPT2_CONST.'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3&deviceID='.$deviceID.'&return='.$return.'\'"> My device does have DSP Modes, but unfortunately there’s just 1 button that toggles through all the modes so it will be difficult to control		
+					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3&deviceID='.$deviceID.'&return='.$return.'\'"> '.$TEXT_Q6_OPT3_CONST.'		
 				</td>
 			</tr>';
 		if($dsp>1){

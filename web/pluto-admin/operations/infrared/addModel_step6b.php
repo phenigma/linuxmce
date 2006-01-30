@@ -25,9 +25,9 @@
 	
 	if($return==0){
 		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=6&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=7&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
-		$submitLabel='Next';
+		$submitLabel=$TEXT_NEXT_CONST;
 	}else{
-		$submitLabel='Save';
+		$submitLabel=$TEXT_SAVE_CONST;
 	}	
 	if($action=='form'){
 		
@@ -76,7 +76,7 @@
 		
 		<br>
 		'.@$navigationButtons.'
-		<B>Last Question, 6 - DSP mode order?</B><br><br>
+		<B>'.$TEXT_Q6_ORDER_TITLE.'</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -89,10 +89,10 @@
 			
 			<table align="center">
 				<tr>
-					<td colspan="2"><B>Change order</B></td>
+					<td colspan="2"><B>'.$TEXT_Q5_CHANGE_ORDER_CONST.'</B></td>
 				</tr>
 				<tr>
-					<td colspan="2">Since this device uses 1 button to <b>toggle</b> DSP Modes, we need to know what order they are in so we can cycle through them.  Please confirm the order and click next.</td>
+					<td colspan="2">'.$TEXT_Q6_ORDER_INFO_CONST.'</td>
 				</tr>
 				<tr>				
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>
