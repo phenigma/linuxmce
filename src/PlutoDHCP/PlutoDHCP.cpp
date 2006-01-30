@@ -109,44 +109,55 @@ Row_Device *PlutoDHCP::DetermineCore()
 	return vectRow_Device[0];
 }
 
-void PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddressDhcpStop,IPAddress &ipAddressPlutoStart,IPAddress &ipAddressPlutoStop)
+bool PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddressDhcpStop,IPAddress &ipAddressPlutoStart,IPAddress &ipAddressPlutoStop)
 {
 	Row_Device *pRow_Device = DetermineCore();
 	if( !pRow_Device )
-		return;
+		return false;
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_DHCP_CONST);
 	if (!pRow_Device_DeviceData)
 	{
 		cerr << "ERROR: Cannot find dhcp data" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find dhcp data");
-		return;
+		return false;
 	}
 
-	// This format: 192.168.80.3-192.168.80.128,192.168.80.129-192.168.80.254
+	// This format: 192.168.80.2-192.168.80.128[,192.168.80.129-192.168.80.254]
+	// <Pluto Start IP>-<Pluto End IP>[,<Generic Start IP>-<Generic End IP>]
 	string sData = pRow_Device_DeviceData->IK_DeviceData_get();
 	string::size_type posComma = sData.find(",");
 	string::size_type posDash = sData.find("-");
 	string::size_type pos2ndDash = posComma==string::npos ? string::npos : sData.find("-",posComma);
 
-	if( posComma==string::npos || posDash==string::npos || pos2ndDash==string::npos )
+	bool bGenericExists = (posComma != string::npos);
+	
+	// first dash always exists; second dash must exist if comma exists
+	if (posDash == string::npos || (bGenericExists && pos2ndDash == string::npos))
 	{
 		cerr << "ERROR: dhcp data incomplete" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"dhcp data incomplete");
-		return;
+		return false;
 	}
 
 	ipAddressPlutoStart.ParseIP(sData.substr(0, posDash));
 	ipAddressPlutoStop.ParseIP(sData.substr(posDash + 1, posComma - posDash - 1));
-	ipAddressDhcpStart.ParseIP(sData.substr(posComma + 1, pos2ndDash - posComma - 1));
-	ipAddressDhcpStop.ParseIP(sData.substr(pos2ndDash + 1));
 
-	if( ipAddressPlutoStart.BadIP() || ipAddressPlutoStop.BadIP() || 
-		ipAddressDhcpStart.BadIP() || ipAddressDhcpStop.BadIP() )
+	// this code is to be run only if the generic range part exists
+	if (bGenericExists)
+	{
+		ipAddressDhcpStart.ParseIP(sData.substr(posComma + 1, pos2ndDash - posComma - 1));
+		ipAddressDhcpStop.ParseIP(sData.substr(pos2ndDash + 1));
+	}
+
+	if (ipAddressPlutoStart.BadIP() || ipAddressPlutoStop.BadIP() || 
+		(bGenericExists && (ipAddressDhcpStart.BadIP() || ipAddressDhcpStop.BadIP())))
 	{
 		cerr << "ERROR: dhcp data malformed" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"dhcp data malformed");
-		return;
+		return false;
 	}
+
+	return true;
 }
 
 string PlutoDHCP::AssignIP(int PK_Device)
@@ -171,7 +182,12 @@ string PlutoDHCP::AssignIP(int PK_Device)
 
 	// Nope, we're going to have to find an unused IP address
 	IPAddress ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop;
-	DetermineIPRange(ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop);
+	if (!DetermineIPRange(ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop))
+	{
+		cout << "Failed to determine IP Range" << endl;
+		return "";
+	}
+	
 	for(unsigned long ip = ipAddressPlutoStart.AsInt(); ip<=ipAddressPlutoStop.AsInt(); ip++)
 	{
 		if( m_mapIP_Device.find(ip)==m_mapIP_Device.end() )
