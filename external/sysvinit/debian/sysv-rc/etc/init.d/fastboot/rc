@@ -20,7 +20,7 @@ AddService() {
     
     # Else queue it to run
     if [[ -x "$initFile" ]]; then
-	echo "$(basename $initFile) \\" >> /etc/init.d/fastboot/services.mk
+	echo "$(basename `readlink $rcFile`) \\" >> /etc/init.d/fastboot/services.mk
     fi
 }
 

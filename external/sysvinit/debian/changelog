@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto9) unstable; urgency=low
+
+  * Fixed: asterisk does't start because is a symlink to symlink ..
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 30 Jan 2006 12:53:13 +0200
+
 sysvinit (2.86.ds1-1.1pluto8) unstable; urgency=low
 
   * rcS can now show messages on bootsplash too
