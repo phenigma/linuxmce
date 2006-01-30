@@ -1,5 +1,5 @@
 /* -*- Mode: c++ -*-
- * $Id: scanwizardhelpers.h 8292 2005-12-16 19:58:46Z danielk $
+ * $Id: scanwizardhelpers.h 8642 2006-01-18 16:46:14Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -181,7 +181,8 @@ class ScanCountry: public ComboBoxSetting, public TransientStorage
         FI,
         SE,
         UK,
-        DE
+        DE,
+        ES,
     };
 
     ScanCountry();

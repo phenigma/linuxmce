@@ -10,7 +10,7 @@ using namespace std;
 #include "mythdbcon.h"
 
 /// This is the DB schema version expected by the running MythTV instance.
-const QString currentDatabaseVersion = "1121";
+const QString currentDatabaseVersion = "1122";
 
 static bool UpdateDBVersionNumber(const QString &newnumber);
 static bool performActualUpdate(const QString updates[], QString version,
@@ -367,7 +367,7 @@ static bool performActualUpdate(const QString updates[], QString version,
 {
     MSqlQuery query(MSqlQuery::InitCon());
 
-    VERBOSE(VB_ALL, QString("Upgrading to schema version ") + version);
+    VERBOSE(VB_IMPORTANT, QString("Upgrading to schema version ") + version);
 
     int counter = 0;
     QString thequery = updates[counter];
@@ -1980,6 +1980,16 @@ static bool doUpgradeTVDatabaseSchema(void)
             return false;
     }
 
+    if (dbver == "1121")
+    {
+        const QString updates[] = {
+"ALTER TABLE channel CHANGE channum channum VARCHAR(10) NOT NULL DEFAULT '';",
+""
+};
+        if (!performActualUpdate(updates, "1122", dbver))
+            return false;
+    }
+
 // Drop xvmc_buffer_settings table in 0.20
 // Drop dvb_dmx_buf_size and dvb_pkt_buf_size columns of channel in 0.20
 
@@ -2002,11 +2012,11 @@ bool InitializeDatabase(void)
             "If you are sure this is a good mythtv database, verify\n"
             "that the settings table has the DBSchemaVer variable.\n")
             .arg(query.size() - 1);
-        VERBOSE(VB_ALL, msg);
+        VERBOSE(VB_IMPORTANT, msg);
         return false;   
     }
 
-    VERBOSE(VB_ALL, "Inserting MythTV initial database information.");
+    VERBOSE(VB_IMPORTANT, "Inserting MythTV initial database information.");
 
     const QString updates[] = {
 "CREATE TABLE IF NOT EXISTS `callsignnetworkmap` ("

@@ -2076,7 +2076,7 @@ Returning to the previous menu.</source>
     </message>
     <message>
         <source>Your preferred time format.  Choose a format with &quot;AP&quot; in it for an AM/PM display, otherwise your time display will be 24-hour or &quot;military&quot; time.</source>
-        <translation>Su formato de hora preferido.  Elija un formato con &quot;AP&quot; en él para mostrarlo con AM/PM (12h), sino la hora será mostrada en 24h o horario &quot;militar&quot;.</translation>
+        <translation type="obsolete">Su formato de hora preferido.  Elija un formato con &quot;AP&quot; en él para mostrarlo con AM/PM (12h), sino la hora será mostrada en 24h o horario &quot;militar&quot;.</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -6656,11 +6656,11 @@ Myth saldrá ahora.</translation>
     </message>
     <message>
         <source>Specify either the exact frequency in Hertz or a valid channel for your &apos;TV Format&apos;.</source>
-        <translation>Especifique o la frecuencia exacta en Hertzios o un canal válido para su &apos;formato TV&apos;.</translation>
+        <translation type="obsolete">Especifique o la frecuencia exacta en Hertzios o un canal válido para su &apos;formato TV&apos;.</translation>
     </message>
     <message>
         <source>Value to be added to your desired frequency in Hertz, for &apos;fine tuning&apos;.</source>
-        <translation>Valor a añadir su frecuencia deseada en Hertzios, para &apos;sintonía fina&apos;.</translation>
+        <translation type="obsolete">Valor a añadir su frecuencia deseada en Hertzios, para &apos;sintonía fina&apos;.</translation>
     </message>
     <message>
         <source>A</source>
@@ -7562,7 +7562,7 @@ Myth saldrá ahora.</translation>
     </message>
     <message>
         <source>Spain</source>
-        <translation>España</translation>
+        <translation type="unfinished">España</translation>
     </message>
     <message>
         <source>Enter group name or press SELECT to enter text via the On Screen Keyboard</source>
@@ -7675,6 +7675,34 @@ Myth saldrá ahora.</translation>
     <message>
         <source>When set and the transcoder is active, the original files will be renamed to .old once the transcoding is complete.</source>
         <translation>Si está activado y el recodificador está activo, los ficheros originales se renombrarán a .old una vez que el recodificador termine.</translation>
+    </message>
+    <message>
+        <source>Samples are shown using today&apos;s date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples are shown using tomorrow&apos;s date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your preferred time format.  You must choose a format with &quot;AM&quot; or &quot;PM&quot; in it, otherwise your time display will be 24-hour or &quot;military&quot; time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specify either the exact frequency in kHz or a valid channel for your &apos;TV Format&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value to be added to your desired frequency in kHz, for &apos;fine tuning&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preserve Aspect Ratio of Video when resizing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preserve the aspect ratio of the original recording file by ignoring the height setting above, and calculating the new height based on the aspect ratio and width.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7859,6 +7887,10 @@ Sin más detalles</translation>
     <message>
         <source>LiveTV</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>%1 of these are LiveTV and consume %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8611,6 +8643,42 @@ Sin más detalles</translation>
     <message>
         <source>(1)Time (2)Title</source>
         <translation>(1)Hora (2)Título</translation>
+    </message>
+    <message>
+        <source>Program Details:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Welcome to MythTV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MythTV is idle and will shutdown shortly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current Recording(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving Recording Status ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Scheduled Recording(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving Scheduled Recordings ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WARNING: There are conflicting scheduled recordings!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

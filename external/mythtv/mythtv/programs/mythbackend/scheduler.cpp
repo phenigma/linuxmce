@@ -31,6 +31,9 @@ using namespace std;
 #include "libmythtv/programinfo.h"
 #include "libmythtv/scheduledrecording.h"
 
+#define LOC QString("Scheduler: ")
+#define LOC_ERR QString("Scheduler, Error: ")
+
 Scheduler::Scheduler(bool runthread, QMap<int, EncoderLink *> *tvList,
                      QString recordTbl, MSqlQueryInfo *databaseConnection,
                      Scheduler *master_sched)
@@ -410,7 +413,8 @@ void Scheduler::PrintRec(ProgramInfo *p, const char *prefix)
          << p->sourceid << " " << p->cardid << " "
          << p->inputid << "  " << p->RecTypeChar() << " "
          << p->RecStatusChar() << " "
-         << QString::number(p->recpriority).rightJustify(3, ' ')
+         << QString::number(p->recpriority + p->recpriority2)
+                           .rightJustify(3, ' ')
          << endl;
 }
 
@@ -1038,6 +1042,22 @@ void Scheduler::Reschedule(int recordid) {
 void Scheduler::AddRecording(const ProgramInfo &pi)
 {
     QMutexLocker lockit(reclist_lock);
+
+    VERBOSE(VB_GENERAL, LOC + "AddRecording() recid: " << pi.recordid);
+
+    for (RecIter it = reclist.begin(); it != reclist.end(); ++it)
+    {
+        ProgramInfo *p = *it;
+        if (p->recstatus == rsRecording && p->IsSameProgramTimeslot(pi))
+        {
+            VERBOSE(VB_IMPORTANT, LOC + "Not adding recording, " +
+                    QString("'%1' is already in reclist.").arg(pi.title));
+            return;
+        }
+    }
+
+    VERBOSE(VB_SCHEDULE, LOC + 
+            QString("Adding '%1' to reclist.").arg(pi.title));
     reclist.push_back(new ProgramInfo(pi));
 }
 
@@ -1161,7 +1181,7 @@ void Scheduler::RunScheduler(void)
                     ((curtime.secsTo((*startIter)->startts) - prerollseconds)
                         < (idleWaitForRecordingTime * 60)))
                 {
-                    VERBOSE(VB_ALL,
+                    VERBOSE(VB_IMPORTANT,
                             "Recording starts soon, AUTO-Startup assumed");
                     startupParam = "auto";
             
@@ -1171,7 +1191,7 @@ void Scheduler::RunScheduler(void)
                 }
                 else
                 {
-                    VERBOSE(VB_ALL, "Seem to be woken up by USER");
+                    VERBOSE(VB_IMPORTANT, "Seem to be woken up by USER");
                 }
         
                 QString startupCommand = gContext->GetSetting("startupCommand",
@@ -1384,7 +1404,7 @@ void Scheduler::RunScheduler(void)
                                 msg = QString("I\'m idle now... shutdown will "
                                               "occur in %1 seconds.")
                                              .arg(idleTimeoutSecs);
-                                VERBOSE(VB_ALL, msg);
+                                VERBOSE(VB_IMPORTANT, msg);
                                 MythEvent me(QString("SHUTDOWN_COUNTDOWN %1")
                                              .arg(idleTimeoutSecs));
                                 gContext->dispatch(me);
@@ -1394,7 +1414,7 @@ void Scheduler::RunScheduler(void)
                                 msg = QString("%1 secs left to system "
                                               "shutdown!")
                                              .arg(idleTimeoutSecs - itime);
-                                VERBOSE(VB_ALL, msg);
+                                VERBOSE(VB_IMPORTANT, msg);
                                 MythEvent me(QString("SHUTDOWN_COUNTDOWN %1")
                                              .arg(idleTimeoutSecs - itime));
                                 gContext->dispatch(me);

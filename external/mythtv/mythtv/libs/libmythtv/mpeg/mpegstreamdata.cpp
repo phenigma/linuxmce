@@ -24,12 +24,12 @@ MPEGStreamData::MPEGStreamData(int desiredProgram, bool cacheTables)
       _cached_pat(NULL), _desired_program(desiredProgram),
       _pmt_single_program_num_video(1),
       _pmt_single_program_num_audio(0),
-      _pat_single_program(NULL), _pmt_single_program(NULL)
+      _pat_single_program(NULL), _pmt_single_program(NULL),
+      _invalid_pat_seen(false), _invalid_pat_warning(false)
 {
     AddListeningPID(MPEG_PAT_PID);
 
     _pid_video_single_program = _pid_pmt_single_program = 0xffffffff;
-    _unexpected_pat_timeout = QDateTime::currentDateTime().addYears(1);
 }
 
 MPEGStreamData::~MPEGStreamData()
@@ -47,6 +47,7 @@ MPEGStreamData::~MPEGStreamData()
 void MPEGStreamData::Reset(int desiredProgram)
 {
     _desired_program = desiredProgram;
+    _invalid_pat_seen = false;
 
     SetPATSingleProgram(0);
     SetPMTSingleProgram(0);
@@ -170,10 +171,14 @@ PSIPTable* MPEGStreamData::AssemblePSIP(const TSPacket* tspacket,
         return 0;
     }
 
+    // table_id (8 bits) and section_length(12), syntax(1), priv(1), res(2)
+    // pointer_field (+8 bits), since payload start is true if we are here.
+    const int extra_offset = 4;
+
     const unsigned char* pesdata = tspacket->data() + offset;
     const int pes_length = (pesdata[2] & 0x0f) << 8 | pesdata[3];
     const PESPacket pes = PESPacket::View(*tspacket);
-    if ((pes_length + offset)>188)
+    if ((pes_length + offset + extra_offset) > 188)
     {
         SavePartialPES(tspacket->PID(), new PESPacket(*tspacket));
         moreTablePackets = false;
@@ -215,8 +220,7 @@ bool MPEGStreamData::CreatePATSingleProgram(
     VERBOSE(VB_RECORD, QString("desired_program(%1) pid(0x%2)").
             arg(_desired_program).arg(_pid_pmt_single_program, 0, 16));
 
-    QDateTime now = QDateTime::currentDateTime();
-    if (!_pid_pmt_single_program && (_unexpected_pat_timeout < now))
+    if (!_pid_pmt_single_program)
     {
         _pid_pmt_single_program = pat.FindAnyPID();
         if (!_pid_pmt_single_program)
@@ -230,13 +234,6 @@ bool MPEGStreamData::CreatePATSingleProgram(
                         "\n\t\t\tCan Not create single program PAT.")
                 .arg(_desired_program));
         SetPATSingleProgram(NULL);
-        _unexpected_pat_timeout = now.addYears(1);
-        return false;
-    }
-    else if (!_pid_pmt_single_program)
-    {
-        if (_unexpected_pat_timeout > now.addMonths(6))
-            _unexpected_pat_timeout = now.addSecs(2);
         return false;
     }
 
@@ -384,16 +381,12 @@ bool MPEGStreamData::HandleTables(uint pid, const PSIPTable &psip)
                 ProgramAssociationTable *pat =
                     new ProgramAssociationTable(psip);
                 CachePAT(pat);
-                emit UpdatePAT(pat);
-                if ((_desired_program >= 0) && CreatePATSingleProgram(*pat))
-                    emit UpdatePATSingleProgram(PATSingleProgram());
+                ProcessPAT(pat);
             }
             else
             {
                 ProgramAssociationTable pat(psip);
-                emit UpdatePAT(&pat);
-                if ((_desired_program >= 0) && CreatePATSingleProgram(pat))
-                    emit UpdatePATSingleProgram(PATSingleProgram());
+                ProcessPAT(&pat);
             }
             return true;
         }
@@ -404,22 +397,12 @@ bool MPEGStreamData::HandleTables(uint pid, const PSIPTable &psip)
             {
                 ProgramMapTable *pmt = new ProgramMapTable(psip);
                 CachePMT(pmt->ProgramNumber(), pmt);
-                emit UpdatePMT(pmt->ProgramNumber(), pmt);
-                if (pid == _pid_pmt_single_program)
-                {
-                    if (CreatePMTSingleProgram(*pmt))
-                        emit UpdatePMTSingleProgram(PMTSingleProgram());
-                }
+                ProcessPMT(pid, pmt);
             }
             else
             {
                 ProgramMapTable pmt(psip);
-                emit UpdatePMT(pmt.ProgramNumber(), &pmt);
-                if (pid == _pid_pmt_single_program)
-                {
-                    if (CreatePMTSingleProgram(pmt))
-                        emit UpdatePMTSingleProgram(PMTSingleProgram());
-                }
+                ProcessPMT(pid, &pmt);
             }
             return true;
         }
@@ -427,6 +410,59 @@ bool MPEGStreamData::HandleTables(uint pid, const PSIPTable &psip)
     return false;
 }
 
+void MPEGStreamData::ProcessPAT(const ProgramAssociationTable *pat)
+{
+    bool foundProgram = pat->FindPID(_desired_program);
+
+    if (_desired_program < 0)
+    {
+        emit UpdatePAT(pat);
+        return;
+    }
+
+    if (!_invalid_pat_seen && !foundProgram)
+    {
+        _invalid_pat_seen = true;
+        _invalid_pat_warning = false;
+        _invalid_pat_timer.start();
+        VERBOSE(VB_RECORD, "ProcessPAT: "
+                "PAT is missing program, setting timeout");
+    }
+    else if (_invalid_pat_seen && !foundProgram &&
+             (_invalid_pat_timer.elapsed() > 400) && !_invalid_pat_warning)
+    {
+        _invalid_pat_warning = true; // only emit one warning...
+        // After 400ms emit error if we haven't found correct PAT.
+        VERBOSE(VB_IMPORTANT, "ProcessPAT: Program not found in PAT. "
+                "\n\t\t\tRescan your transports.");
+
+        // This will trigger debug PAT print
+        emit UpdatePAT(pat);
+        if (CreatePATSingleProgram(*pat))
+            emit UpdatePATSingleProgram(PATSingleProgram());
+        _invalid_pat_seen = false;
+    }
+    else if (foundProgram)
+    {
+        if (_invalid_pat_seen)
+            VERBOSE(VB_RECORD, "ProcessPAT: Good PAT seen after a bad PAT");
+
+        _invalid_pat_seen = false;
+        emit UpdatePAT(pat);
+        if (CreatePATSingleProgram(*pat))
+            emit UpdatePATSingleProgram(PATSingleProgram());
+    }
+}
+
+void MPEGStreamData::ProcessPMT(const uint pid, const ProgramMapTable *pmt)
+{
+    emit UpdatePMT(pmt->ProgramNumber(), pmt);
+    if (pid == _pid_pmt_single_program)
+    {
+        if (CreatePMTSingleProgram(*pmt))
+            emit UpdatePMTSingleProgram(PMTSingleProgram());
+    }
+}
 
 #define DONE_WITH_PES_PACKET() { if (psip) delete psip; \
     if (morePSIPPackets) goto HAS_ANOTHER_PES; else return; }

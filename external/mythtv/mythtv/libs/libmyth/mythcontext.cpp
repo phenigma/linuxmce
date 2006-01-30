@@ -50,6 +50,8 @@ QMutex MythContext::verbose_mutex(true);
 unsigned int print_verbose_messages = VB_IMPORTANT | VB_GENERAL;
 QString verboseString = QString(" important general");
 
+QMutex avcodeclock(true);
+
 int parse_verbose_arg(QString arg)
 {
     QString option;
@@ -204,6 +206,7 @@ class MythContextPrivate
     QString m_localhostname;
 
     QMutex serverSockLock;
+    bool attemptingToConnect;
 
     MDBManager m_dbmanager;
     
@@ -263,6 +266,7 @@ MythContextPrivate::MythContextPrivate(MythContext *lparent)
       m_baseWidth(800), m_baseHeight(600),
       m_localhostname(QString::null),
       serverSockLock(false),
+      attemptingToConnect(false),
       language(""),
       mainWindow(NULL),
       m_wmult(1.0), m_hmult(1.0),
@@ -304,7 +308,7 @@ MythContextPrivate::MythContextPrivate(MythContext *lparent)
         if (QDir(prefixDir.canonicalPath() + "/share").exists())
             m_installprefix = prefixDir.canonicalPath();
     }
-    VERBOSE(VB_ALL, QString("Using runtime prefix = %1")
+    VERBOSE(VB_IMPORTANT, QString("Using runtime prefix = %1")
             .arg(m_installprefix));
 }
 
@@ -365,7 +369,7 @@ void MythContextPrivate::GetScreenBounds()
         bool inWindow = parent->GetNumSetting("RunFrontendInWindow", 0);
 
         if (inWindow)
-            VERBOSE(VB_ALL, QString("Running in a window"));
+            VERBOSE(VB_IMPORTANT, QString("Running in a window"));
 
         if (inWindow)
             // This doesn't include the area occupied by the
@@ -480,16 +484,16 @@ void MythContextPrivate::StoreGUIsettings()
 
     if (m_screenheight < 160 || m_screenwidth < 160)
     {
-        VERBOSE(VB_ALL, "Somehow, your screen size settings are bad.");
-        VERBOSE(VB_ALL, QString("GuiResolution: %1")
+        VERBOSE(VB_IMPORTANT, "Somehow, your screen size settings are bad.");
+        VERBOSE(VB_IMPORTANT, QString("GuiResolution: %1")
                         .arg(parent->GetSetting("GuiResolution")));
-        VERBOSE(VB_ALL, QString("  old GuiWidth: %1")
+        VERBOSE(VB_IMPORTANT, QString("  old GuiWidth: %1")
                         .arg(parent->GetNumSetting("GuiWidth")));
-        VERBOSE(VB_ALL, QString("  old GuiHeight: %1")
+        VERBOSE(VB_IMPORTANT, QString("  old GuiHeight: %1")
                         .arg(parent->GetNumSetting("GuiHeight")));
-        VERBOSE(VB_ALL, QString("m_width: %1").arg(m_width));
-        VERBOSE(VB_ALL, QString("m_height: %1").arg(m_height));
-        VERBOSE(VB_ALL, "Falling back to 640x480");
+        VERBOSE(VB_IMPORTANT, QString("m_width: %1").arg(m_width));
+        VERBOSE(VB_IMPORTANT, QString("m_height: %1").arg(m_height));
+        VERBOSE(VB_IMPORTANT, "Falling back to 640x480");
 
         m_screenwidth  = 640;
         m_screenheight = 480;
@@ -498,7 +502,7 @@ void MythContextPrivate::StoreGUIsettings()
     m_wmult = m_screenwidth  / (float)m_baseWidth;
     m_hmult = m_screenheight / (float)m_baseHeight;
     
-    //VERBOSE(VB_ALL, QString("GUI multipliers are: width %1, height %2").arg(m_wmult).arg(m_hmult));
+    //VERBOSE(VB_IMPORTANT, QString("GUI multipliers are: width %1, height %2").arg(m_wmult).arg(m_hmult));
 }
 
 
@@ -860,6 +864,10 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
             delete serverSock;
             serverSock = NULL;
         
+            if (d->attemptingToConnect)
+                break;
+            d->attemptingToConnect = true;
+
             // only inform the user of a failure if WOL is disabled 
             if (sleepTime <= 0)
             {
@@ -870,6 +878,12 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
                     "proper IP address.");
                 if (d->m_height && d->m_width)
                 {
+                    bool manageLock = false;
+                    if (!blockingClient && d->serverSockLock.locked())
+                    {
+                        manageLock = true;
+                        d->serverSockLock.unlock();
+                    }
                     MythPopupBox::showOkPopup(d->mainWindow, 
                                               "connection failure",
                                               tr("Could not connect to the "
@@ -877,8 +891,11 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
                                                  "it running?  Is the IP "
                                                  "address set for it in the "
                                                  "setup program correct?"));
+                    if (manageLock)
+                        d->serverSockLock.lock();
                 }
 
+                d->attemptingToConnect = false;
                 return false;
             }
             else
@@ -897,6 +914,7 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
                 sleep(sleepTime);
                 ++cnt;
             }
+            d->attemptingToConnect = false;
         }
         else
             break;
@@ -1085,13 +1103,13 @@ QString MythContext::GetConfDir(void)
     if (tmp_confdir)
     {
         dir = QString(tmp_confdir);
-        //VERBOSE(VB_ALL, QString("Read conf dir = %1").arg(dir));
+        //VERBOSE(VB_IMPORTANT, QString("Read conf dir = %1").arg(dir));
         dir.replace("$HOME", QDir::homeDirPath());
     }
     else
         dir = QDir::homeDirPath() + "/.mythtv";
 
-    //VERBOSE(VB_ALL, QString("Using conf dir = %1").arg(dir));
+    //VERBOSE(VB_IMPORTANT, QString("Using conf dir = %1").arg(dir));
     return dir;
 }
 
@@ -1199,12 +1217,12 @@ void MythContext::LoadQtConfig(void)
     
     if (themename.contains("-wide", false))
     {
-        VERBOSE( VB_ALL, QString("Switching to wide mode (%1)").arg(themename));
+        VERBOSE( VB_IMPORTANT, QString("Switching to wide mode (%1)").arg(themename));
         d->SetWideMode();
     }
     else
     {
-        VERBOSE( VB_ALL, QString("Switching to square mode (%1)").arg(themename));
+        VERBOSE( VB_IMPORTANT, QString("Switching to square mode (%1)").arg(themename));
         d->SetSquareMode();
     }
     
@@ -2273,12 +2291,15 @@ void MythContext::SetSetting(const QString &key, const QString &newValue)
     ClearSettingsCache(key, newValue);
 }
 
-bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout)
+bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout, bool block)
 {
     d->serverSockLock.lock();
     
     if (!d->serverSock)
+    {
         ConnectToMasterServer(false);
+        // should clear popup if it is currently active here. Not sure of the correct way. TBD
+    }
 
     bool ok = false;
     
@@ -2312,16 +2333,21 @@ bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout)
 
         if (!ok)
         {
+            delete d->serverSock;
+            d->serverSock = NULL;
+
             qApp->lock();
-            VERBOSE(VB_ALL, QString("Reconnection to backend server failed"));
+            if (!block)
+                d->serverSockLock.unlock();
+            VERBOSE(VB_IMPORTANT, QString("Reconnection to backend server failed"));
             if (d->m_height && d->m_width)
                 MythPopupBox::showOkPopup(d->mainWindow, "connection failure",
                              tr("The connection to the master backend "
                                 "server has gone away for some reason.. "
                                 "Is it running?"));
 
-            delete d->serverSock;
-            d->serverSock = NULL;
+            if (!block)
+                d->serverSockLock.lock();
             qApp->unlock();
         }
     }    
@@ -2401,7 +2427,7 @@ bool MythContext::CheckProtoVersion(QSocketDevice* socket)
     }
     else if (strlist[0] == "ACCEPT")
     {
-        VERBOSE(VB_ALL, QString("Using protocol version %1")
+        VERBOSE(VB_IMPORTANT, QString("Using protocol version %1")
                                .arg(MYTH_PROTO_VERSION));
         return true;
     }
@@ -2462,6 +2488,18 @@ QFont MythContext::GetSmallFont(void)
  *  \sa iso639_get_language_list()
  */
 QString MythContext::GetLanguage(void)
+{
+    return GetLanguageAndVariant().left(2);
+}
+
+/** \fn MythContext::GetLanguageAndVariant()
+ *  \brief Returns the user-set language and variant.
+ *
+ *   The string has the form ll or ll_vv, where ll is the two character
+ *   ISO-639 language code, and vv (which may not exist) is the variant.
+ *   Examples include en_AU, en_CA, en_GB, en_US, fr_CH, fr_DE, pt_BR, pt_PT.
+ */
+QString MythContext::GetLanguageAndVariant(void)
 {
     if (d->language == QString::null || d->language == "")
         d->language = GetSetting("Language", "EN").lower();
@@ -2655,7 +2693,7 @@ void MythContext::LogEntry(const QString &module, int priority,
         }
 
         if (priority <= d->m_logprintlevel)
-            VERBOSE(VB_ALL, module + ": " + message);
+            VERBOSE(VB_IMPORTANT, module + ": " + message);
     }
 }
 
@@ -2747,3 +2785,33 @@ bool MythContext::SaveDatabaseParams(const DatabaseParams &params)
     }
     return ret;
 }
+
+void MythContext::addCurrentLocation(QString location)
+{
+    QMutexLocker locker(&locationLock);
+    if (currentLocation.last() != location)
+        currentLocation.push_back(location);
+}
+
+QString MythContext::removeCurrentLocation(void)
+{
+    QMutexLocker locker(&locationLock);
+
+    if (currentLocation.isEmpty())
+        return QString("UNKNOWN");
+
+    QString result = currentLocation.last();
+    currentLocation.pop_back();
+    return result;
+}
+
+QString MythContext::getCurrentLocation(void)
+{
+    QMutexLocker locker(&locationLock);
+
+    if (currentLocation.isEmpty())
+        return QString("UNKNOWN");
+
+    return currentLocation.last();
+}
+

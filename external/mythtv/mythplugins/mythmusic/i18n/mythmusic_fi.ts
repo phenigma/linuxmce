@@ -311,6 +311,42 @@
         <source>From CD</source>
         <translation>CD:ltä</translation>
     </message>
+    <message>
+        <source>Change Filter</source>
+        <translation>Vaihda Suodatinta</translation>
+    </message>
+    <message>
+        <source>Update Playlist Options</source>
+        <translation>Päivitä Soittolistan Valinnat</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Korvaa</translation>
+    </message>
+    <message>
+        <source>Insert after current track</source>
+        <translation>Lisää nykyisen kappaleen jälkeen</translation>
+    </message>
+    <message>
+        <source>Append to end</source>
+        <translation>Lisää loppuun</translation>
+    </message>
+    <message>
+        <source>Continue playing current track</source>
+        <translation>Jatka nykyisen kappaleen soittoa</translation>
+    </message>
+    <message>
+        <source>Play first track</source>
+        <translation>Soita 1. kappale</translation>
+    </message>
+    <message>
+        <source>Play first new track</source>
+        <translation>Soita 1. uusi kappale</translation>
+    </message>
+    <message>
+        <source>Remove Duplicates</source>
+        <translation>Poista Kaksoiskappaleet</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -849,6 +885,18 @@
     <message>
         <source>Rebuilding music tree</source>
         <translation>Järjestetään musiikkitietokantaa</translation>
+    </message>
+    <message>
+        <source>Only Import new music.</source>
+        <translation>Tuo vain uutta musiikkia.</translation>
+    </message>
+    <message>
+        <source>Checks the database for duplicates when importing/ripping CDs.</source>
+        <translation>Tarkistaa tietokannan kaksoiskappaleiden varalta tuotaessa musiikkia CD:ltä.</translation>
+    </message>
+    <message>
+        <source>Loading Music</source>
+        <translation>Ladataan Musiikkia</translation>
     </message>
 </context>
 <context>

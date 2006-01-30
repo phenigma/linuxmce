@@ -237,11 +237,11 @@
     </message>
     <message>
         <source>Exclude unidentified episodes (Data Direct)</source>
-        <translation>Älä sisällytä tunnistamattomia jaksoja (Data Direct)</translation>
+        <translation type="obsolete">Älä sisällytä tunnistamattomia jaksoja (Data Direct)</translation>
     </message>
     <message>
         <source>Exclude unidentified episodes (XMLTV)</source>
-        <translation>Älä sisällytä tunnistamattomia jaksoja (XMLTV)</translation>
+        <translation type="obsolete">Älä sisällytä tunnistamattomia jaksoja (XMLTV)</translation>
     </message>
     <message>
         <source>Category type</source>
@@ -378,6 +378,14 @@
     <message>
         <source>Additional Tables</source>
         <translation>Lisävaihtoehdot</translation>
+    </message>
+    <message>
+        <source>Limit by MPAA or VCHIP rating (Data Direct)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exclude unidentified episodes</source>
+        <translation>Poissulje tuntemattomat jaksot</translation>
     </message>
 </context>
 <context>
@@ -766,41 +774,60 @@ Palaa edelliseen valikkoon.</translation>
     </message>
 </context>
 <context>
+    <name>NuppelVideoPlayer</name>
+    <message>
+        <source>Close Edit Recording</source>
+        <translation type="obsolete">Sulje Nauhoituksen Muokkaus</translation>
+    </message>
+    <message>
+        <source>Load commercial skip list</source>
+        <translation type="obsolete">Lataa mainosten sivuutuslista</translation>
+    </message>
+</context>
+<context>
     <name>PlayGroup</name>
     <message>
         <source>Group</source>
-        <translation type="unfinished">Ryhmä</translation>
+        <translation>Ryhmä</translation>
     </message>
 </context>
 <context>
     <name>PlayGroupEditor</name>
     <message>
         <source>Playback Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Toistoryhmät</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Oletus</translation>
+        <translation>Oletus</translation>
     </message>
     <message>
         <source>Create New Playback Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Luo Uusi Toistoryhmä</translation>
     </message>
     <message>
         <source>Using your keyboard or the numbers keys on your remote enter the group name</source>
-        <translation type="unfinished">Uuden ryhmän nimi annetaan joko näppäimistöltä tai kaukosäätimeltä</translation>
+        <translation type="obsolete">Uuden ryhmän nimi annetaan joko näppäimistöltä tai kaukosäätimeltä</translation>
     </message>
     <message>
         <source>Delete playback group:</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista toistoryhmä:</translation>
     </message>
     <message>
         <source>Yes, delete group</source>
-        <translation type="unfinished">Kyllä, poista profiili</translation>
+        <translation>Kyllä, poista ryhmä</translation>
     </message>
     <message>
         <source>No, Don&apos;t delete group</source>
-        <translation type="unfinished">Älä poista</translation>
+        <translation>Älä poista</translation>
+    </message>
+    <message>
+        <source>Enter group name or press SELECT to enter text via the On Screen Keyboard</source>
+        <translation>Anna ryhmän nimi tai paina SELECT antaaksesi sen virtuaalisen näppäimistön kautta</translation>
+    </message>
+    <message>
+        <source>(Create new group)</source>
+        <translation>(Luo uusi ryhmä)</translation>
     </message>
 </context>
 <context>
@@ -871,7 +898,7 @@ Palaa edelliseen valikkoon.</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Peruuta</translation>
+        <translation type="obsolete">Peruuta</translation>
     </message>
     <message>
         <source>Yes, delete it</source>
@@ -1208,35 +1235,39 @@ kun jaksojen lukumäärän rajoitus on päällä.</translation>
     </message>
     <message>
         <source>Recording is in use</source>
-        <translation type="unfinished"></translation>
+        <translation>Nauhoitus on käytössä</translation>
     </message>
     <message>
         <source>LiveTV</source>
-        <translation type="unfinished"></translation>
+        <translation>LiveTV</translation>
     </message>
     <message>
         <source>Change Playback Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaihda Toistoryhmää</translation>
     </message>
     <message>
         <source>Group View</source>
-        <translation type="unfinished"></translation>
+        <translation>Ryhmänäkymä</translation>
     </message>
     <message>
         <source>Recording Group</source>
-        <translation type="unfinished">Nauhoitusryhmä</translation>
+        <translation>Nauhoitusryhmä</translation>
     </message>
     <message>
         <source>Playback Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Toistoryhmä</translation>
     </message>
     <message>
         <source>Recording Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Nauhoituksen Nimike</translation>
     </message>
     <message>
         <source>Group Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Ryhmän Salasana</translation>
+    </message>
+    <message>
+        <source>Show Program Details</source>
+        <translation>Näytä Tietoja Ohjelmasta</translation>
     </message>
 </context>
 <context>
@@ -1286,43 +1317,62 @@ kun jaksojen lukumäärän rajoitus on päällä.</translation>
     <name>PreviousList</name>
     <message>
         <source>Previously Recorded</source>
-        <translation type="unfinished"></translation>
+        <translation>Aikaisemmin Nauhoitetut</translation>
     </message>
     <message>
         <source>Select Sort Order</source>
-        <translation type="unfinished">Järjestämistapa</translation>
+        <translation>Järjestämistapa</translation>
     </message>
     <message>
         <source>Sort by Time</source>
-        <translation type="unfinished">Järjestys Lähetysajalla</translation>
+        <translation>Järjestys Lähetysajalla</translation>
     </message>
     <message>
         <source>Reverse Time</source>
-        <translation type="unfinished">Lähetysajalla Päinvastoin</translation>
+        <translation>Lähetysajalla Päinvastoin</translation>
     </message>
     <message>
         <source>Sort by Title</source>
-        <translation type="unfinished">Järjestys Nimikkeellä</translation>
+        <translation>Järjestys Nimikkeellä</translation>
     </message>
     <message>
         <source>Reverse Title</source>
-        <translation type="unfinished">Nimikkeellä Päinvastoin</translation>
+        <translation>Nimikkeellä Päinvastoin</translation>
     </message>
     <message>
         <source>NOTE: removing items from this list will not delete any recordings.</source>
-        <translation type="unfinished">HUOMIO: nimikkeen poisto ei tuhoa nauhoituksia.</translation>
+        <translation>HUOMIO: nimikkeen poisto ei tuhoa nauhoituksia.</translation>
     </message>
     <message>
         <source>Keep this episode in the list</source>
-        <translation type="unfinished">Pidä jakso jonossa</translation>
+        <translation type="obsolete">Pidä jakso jonossa</translation>
     </message>
     <message>
         <source>Remove this episode from the list</source>
-        <translation type="unfinished">Poista jakso jonosta</translation>
+        <translation>Poista jakso jonosta</translation>
     </message>
     <message>
         <source>Remove all episodes for this title</source>
-        <translation type="unfinished">Poista kaikki tämän nimikkeen jaksot jonosta</translation>
+        <translation>Poista kaikki tämän nimikkeen jaksot jonosta</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Allow this episode to re-record</source>
+        <translation>Salli tämän jakson uudelleennauhoitus</translation>
+    </message>
+    <message>
+        <source>Never record this episode</source>
+        <translation>Älä nauhoita tätä jaksoa</translation>
+    </message>
+</context>
+<context>
+    <name>ProgDetails</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1587,7 +1637,7 @@ kun jaksojen lukumäärän rajoitus on päällä.</translation>
     </message>
     <message>
         <source>Recording %1 of %2</source>
-        <translation>Nauhoitus %1 %2:sta</translation>
+        <translation>Nauhoitus %1 / %2</translation>
     </message>
 </context>
 <context>
@@ -2126,7 +2176,7 @@ kun jaksojen lukumäärän rajoitus on päällä.</translation>
     </message>
     <message>
         <source>Your preferred time format.  Choose a format with &quot;AP&quot; in it for an AM/PM display, otherwise your time display will be 24-hour or &quot;military&quot; time.</source>
-        <translation>Haluttu ajan esitysmuoto.</translation>
+        <translation type="obsolete">Haluttu ajan esitysmuoto.</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -3216,7 +3266,7 @@ Käyttämäsi ohjelmahaku ei tue kanavanumeroita, joten ne on asetettava manuaal
     </message>
     <message>
         <source>Status</source>
-        <translation type="obsolete">Tila</translation>
+        <translation>Tila</translation>
     </message>
     <message>
         <source>LNB LOF Switch</source>
@@ -3364,7 +3414,7 @@ Käyttämäsi ohjelmahaku ei tue kanavanumeroita, joten ne on asetettava manuaal
     </message>
     <message>
         <source>When set and the transcoder is active, the original nuv files will be renamed to nuv.old once the transcoding is complete.</source>
-        <translation>Asetettuna (ja jälkikäsittelyn ollessa päällä) nuv-päätteiset tiedostot tullaan nimeämään nuv.old:ksi jälkikäsittelyn jälkeen.</translation>
+        <translation type="obsolete">Asetettuna (ja jälkikäsittelyn ollessa päällä) nuv-päätteiset tiedostot tullaan nimeämään nuv.old:ksi jälkikäsittelyn jälkeen.</translation>
     </message>
     <message>
         <source>Time offset for XMLTV listings</source>
@@ -3820,7 +3870,7 @@ Käyttämäsi ohjelmahaku ei tue kanavanumeroita, joten ne on asetettava manuaal
     </message>
     <message>
         <source>TXT on</source>
-        <translation>Tekstitys päällä</translation>
+        <translation type="obsolete">Tekstitys päällä</translation>
     </message>
     <message>
         <source>CC</source>
@@ -4237,7 +4287,7 @@ Myth will now exit.</translation>
     </message>
     <message>
         <source>Using your keyboard or the numbers keys on your remote enter the group name</source>
-        <translation>Uuden ryhmän nimi annetaan joko näppäimistöltä tai kaukosäätimeltä</translation>
+        <translation type="obsolete">Uuden ryhmän nimi annetaan joko näppäimistöltä tai kaukosäätimeltä</translation>
     </message>
     <message>
         <source>Store in the &quot;%1&quot; recording group</source>
@@ -5149,15 +5199,15 @@ Myth will now exit.</translation>
     </message>
     <message>
         <source>There is guide data until </source>
-        <translation>Ohjelmatietoja on aina ajalle </translation>
+        <translation>Ohjelmatietoja riittää ajalle </translation>
     </message>
     <message>
         <source>days</source>
-        <translation>päiväksi</translation>
+        <translation>päivää</translation>
     </message>
     <message>
         <source>day</source>
-        <translation>päivälle</translation>
+        <translation>päivä</translation>
     </message>
     <message>
         <source>WARNING: is mythfilldatabase running?</source>
@@ -5361,7 +5411,7 @@ Myth will now exit.</translation>
     </message>
     <message>
         <source>Filesize</source>
-        <translation>Tiedoston Koko</translation>
+        <translation type="obsolete">Tiedoston Koko</translation>
     </message>
     <message>
         <source>Recording Group</source>
@@ -6813,23 +6863,23 @@ Myth lopetetaan.</translation>
     </message>
     <message>
         <source>, using recording profile &apos;%1&apos;</source>
-        <translation>, käyttäen nauhoitusprofiilia &apos;%1&apos;</translation>
+        <translation type="obsolete">, käyttäen nauhoitusprofiilia &apos;%1&apos;</translation>
     </message>
     <message>
         <source>, using your typical recording profile.</source>
-        <translation>, käyttäen oletus nauhoitusprofiilia.</translation>
+        <translation type="obsolete">, käyttäen oletus nauhoitusprofiilia.</translation>
     </message>
     <message>
         <source>%1 hours left %2</source>
-        <translation>%1 tuntia jäljellä %2:sta</translation>
+        <translation type="obsolete">%1 tuntia jäljellä %2:sta</translation>
     </message>
     <message>
         <source>%1 hours and %2 minutes left %3</source>
-        <translation>%1 tuntia ja %2 minuuttia jäljellä %3:sta</translation>
+        <translation type="obsolete">%1 tuntia ja %2 minuuttia jäljellä %3:sta</translation>
     </message>
     <message>
         <source>%1 minutes left %2</source>
-        <translation>%1 minuuttia jäljellä %2:sta</translation>
+        <translation type="obsolete">%1 minuuttia jäljellä %2:sta</translation>
     </message>
     <message>
         <source>Disk usage on %1:</source>
@@ -6922,7 +6972,7 @@ Myth lopetetaan.</translation>
     </message>
     <message>
         <source>Status: </source>
-        <translation>Tila: </translation>
+        <translation type="obsolete">Tila: </translation>
     </message>
     <message>
         <source>Cable-HRC</source>
@@ -6977,10 +7027,6 @@ Myth lopetetaan.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Method used to determine which recorded shows to delete first. Set to &apos;None&apos; to disable Auto Expire (not recommended).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Auto Expire Default</source>
         <translation>Automaattisen Vanhenemisen Metodi (Oletus)</translation>
     </message>
@@ -7015,14 +7061,6 @@ Myth lopetetaan.</translation>
     <message>
         <source>Channel</source>
         <translation>Kanava</translation>
-    </message>
-    <message>
-        <source>Specify either the exact frequency in Hertz or a valid channel for your &apos;TV Format&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Value to be added to your desired frequency in Hertz, for &apos;fine tuning&apos;.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A</source>
@@ -7608,7 +7646,7 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>MythShutdown Script Settings</source>
-        <translation>MythShutdown Komentotiedostoasetukset</translation>
+        <translation type="obsolete">MythShutdown Komentotiedostoasetukset</translation>
     </message>
     <message>
         <source>Perform EIT Scan</source>
@@ -7760,7 +7798,7 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>Tuning Timeout (msec)</source>
-        <translation type="unfinished"></translation>
+        <translation>Virityksen Odotusaika (ms)</translation>
     </message>
     <message>
         <source>Maximum time MythTV waits for a channel lock when scanning for channels. Or, for issuing a warning in LiveTV mode.</source>
@@ -7768,7 +7806,7 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>The Cartesian latitude for your location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Karteesinen koordinaatisto (leveysaste) sijainnille.</translation>
     </message>
     <message>
         <source>Use negative numbers for southern and western coordinates.</source>
@@ -7776,15 +7814,15 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>The Cartesian longitude for your location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Karteesinen koordinaatisto (pituusaste) sijainnille.</translation>
     </message>
     <message>
         <source>DiSEqC Options</source>
-        <translation type="unfinished"></translation>
+        <translation>DiSEqC Valinnat</translation>
     </message>
     <message>
         <source>UDP Notify OSD time-out</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP Ilmoitusten OSD:n aika</translation>
     </message>
     <message>
         <source>How many seconds an on-screen display will be active for UDP Notify events.</source>
@@ -7792,19 +7830,19 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>CC font</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekstitysfontti (closed caption)</translation>
     </message>
     <message>
         <source>Recording Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Nauhoitus Saatavilla</translation>
     </message>
     <message>
         <source>Period</source>
-        <translation type="unfinished"></translation>
+        <translation>Aikaväli</translation>
     </message>
     <message>
         <source>start time</source>
-        <translation type="unfinished"></translation>
+        <translation>aloitusaika</translation>
     </message>
     <message>
         <source>Set both Start &amp; End times to 00:00 to disable.</source>
@@ -7812,47 +7850,48 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>end time</source>
-        <translation type="unfinished"></translation>
+        <translation>lopetusaika</translation>
     </message>
     <message>
         <source>Playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Toistetaan</translation>
     </message>
     <message>
         <source>Commercial Flagging</source>
-        <translation type="unfinished"></translation>
+        <translation>Mainosten Merkkaus</translation>
     </message>
     <message>
         <source>Transcoding</source>
-        <translation type="unfinished">Jälkikäsitellään</translation>
+        <translation>Jälkikäsittely</translation>
     </message>
     <message>
         <source>PIP</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuva Kuvassa</translation>
     </message>
     <message>
         <source>Schedule Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajoituksen Tietoja</translation>
     </message>
     <message>
         <source>List previous episodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Näytä edelliset jaksot</translation>
     </message>
     <message>
         <source>Preview schedule changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Esikatsele ajoituksen muutoksia</translation>
     </message>
     <message>
         <source>This recording is currently in use by:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tätä nauhoitusta käyttää juuri nyt:</translation>
     </message>
     <message>
         <source>The following programs will be recorded instead:</source>
-        <translation type="unfinished"></translation>
+        <translation>Seuraavat ohjelmat tullaan nauhoittamaan tämän sijasta:
+</translation>
     </message>
     <message>
         <source>Title match (regex)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nimikkeen sopivuus (regex)</translation>
     </message>
     <message>
         <source>Automatically set new recording rules to use this group if the title matches this regular expression.  For example, &quot;(News|CNN)&quot; would match any title in which &quot;News&quot; or &quot;CNN&quot; appears.</source>
@@ -7860,15 +7899,15 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>Skip ahead (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelaa eteenpäin (sekuntia)</translation>
     </message>
     <message>
         <source>Skip back (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelaa taaksepäin (sekuntia)</translation>
     </message>
     <message>
         <source>Time stretch (speed x 100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajan säätö (nopeus x 100)</translation>
     </message>
     <message>
         <source>Initial playback speed with adjusted audio.  Use 100 for normal speed, 50 for half speed and 200 for double speed.</source>
@@ -7876,11 +7915,7 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>Playback Group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Store in the &quot;%1&quot; playback group</source>
-        <translation type="unfinished"></translation>
+        <translation>Toistoryhmä</translation>
     </message>
     <message>
         <source>Select Playback Group</source>
@@ -7888,14 +7923,226 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     </message>
     <message>
         <source>Daily Wakeup/ShutDown Period</source>
-        <translation type="unfinished"></translation>
+        <translation>Päivittäinen Herääminen/Sammutus</translation>
     </message>
     <message>
         <source>Use &quot;%1&quot; playback group settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Käytä &quot;%1&quot; toistoryhmän asetuksia</translation>
     </message>
     <message>
         <source>If set, MythTV will automatically rewind this many seconds after performing a commercial skip.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title Pronounce</source>
+        <translation>Nimikkeen Tiedotus</translation>
+    </message>
+    <message>
+        <source>Unidentified Episode</source>
+        <translation>Tuntematon Jakso</translation>
+    </message>
+    <message>
+        <source>Producer</source>
+        <translation>Tuottaja</translation>
+    </message>
+    <message>
+        <source>Executive Producer</source>
+        <translation>Johtava Tuottaja</translation>
+    </message>
+    <message>
+        <source>Writer</source>
+        <translation>Käsikirjoittaja</translation>
+    </message>
+    <message>
+        <source>Host</source>
+        <translation>Isäntä</translation>
+    </message>
+    <message>
+        <source>Adapter</source>
+        <translation>Muokkaaja</translation>
+    </message>
+    <message>
+        <source>Presenter</source>
+        <translation>Esittäjä</translation>
+    </message>
+    <message>
+        <source>Commentator</source>
+        <translation>Kommentaattori</translation>
+    </message>
+    <message>
+        <source>Guest</source>
+        <translation>Vieras</translation>
+    </message>
+    <message>
+        <source>Recording Rule</source>
+        <translation>Nauhoitussääntö</translation>
+    </message>
+    <message>
+        <source>Search Phrase</source>
+        <translation>Hakulause</translation>
+    </message>
+    <message>
+        <source>Recorded File Size</source>
+        <translation>Nauhoituksen Tiedostokoko</translation>
+    </message>
+    <message>
+        <source>Recording Profile</source>
+        <translation>Nauhoitusprofiili</translation>
+    </message>
+    <message>
+        <source>Allows the transcoder to resize the video during transcoding.</source>
+        <translation>Sallitaan jälkikäsittelyn skaalata videon resoluutio.</translation>
+    </message>
+    <message>
+        <source>Lossless transcoding</source>
+        <translation>Häviämätön jälkikäsittely</translation>
+    </message>
+    <message>
+        <source>Only reencode where absolutely needed (normally only around cutpoints).  Otherwise keep audio and video formats identical to the source.  This should result in the highest quality, but won&apos;t save as much space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter group name or press SELECT to enter text via the On Screen Keyboard</source>
+        <translation type="unfinished">Anna ryhmän nimi tai paina SELECT antaaksesi sen virtuaalisen näppäimistön kautta</translation>
+    </message>
+    <message>
+        <source>Display Name (optional)</source>
+        <translation>Näyttönimi (valinnainen)</translation>
+    </message>
+    <message>
+        <source>This name is displayed on screen when live TV begins and when changing the selected input or card. If you use this, make sure the information is unique for each input.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable DTS to SPDIF passthrough</source>
+        <translation>Valitse DTS:n läpimeno SPDIF:iin</translation>
+    </message>
+    <message>
+        <source>Enable sending DTS audio directly to your sound card&apos;s SPDIF output, on sources which contain DTS soundtracks (usually DVDs).  Requires that the audio output device be set to something suitable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show &apos;LiveTV&apos; recordings when using &quot;All Programs&quot; filter</source>
+        <translation>Näyttää &quot;LiveTV&quot;:n nauhoitukset, kun käytössä &quot;Kaikki Ohjelmat&quot;-suodin</translation>
+    </message>
+    <message>
+        <source>If this setting is disabled, LiveTV recordings will only be visible via the special &quot;LiveTV&quot;Recording Group.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Method used to determine which recorded shows to delete first.  LiveTV recordings will always expire before normal recordings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LiveTV recordings Max Age</source>
+        <translation>LiveTV:n nauhoitusten korkein pitoaika</translation>
+    </message>
+    <message>
+        <source>AutoExpire will force expiration of LiveTV recordings when they are this many days old.  LiveTV recordings may also be expired early if necessary to free up disk space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples are shown using today&apos;s date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples are shown using tomorrow&apos;s date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your preferred time format.  You must choose a format with &quot;AM&quot; or &quot;PM&quot; in it, otherwise your time display will be 24-hour or &quot;military&quot; time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run mythfilldatabase at time suggested by the grabber.</source>
+        <translation>Ajetaan mythfilldatabase hakuohjelman suosittamina aikoina.</translation>
+    </message>
+    <message>
+        <source>This setting allows a DataDirect guide data provider to specify the next download time in order to distribute load on their servers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AutoExpire List</source>
+        <translation>Automaattisen Vanhentumisen Näyttö</translation>
+    </message>
+    <message>
+        <source>The AutoExpire List shows all recordings which may be expired and the order of their expiration. Recordings at the top of the list will be expired first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Suggested Next: </source>
+        <translation>Suositellaan Seuraavaksi:</translation>
+    </message>
+    <message>
+        <source>, using your %1 rate of %2 Kb/sec</source>
+        <translation>, käyttäen %1 nopeudella %2 Kb/s</translation>
+    </message>
+    <message>
+        <source>%1 hours left</source>
+        <translation>%1 tuntia jäljellä</translation>
+    </message>
+    <message>
+        <source>%1 hours and %2 minutes left</source>
+        <translation>%1 tuntia ja %2 minuuttia jäljellä</translation>
+    </message>
+    <message>
+        <source>%1 minutes left</source>
+        <translation>%1 minuuttia jäljellä</translation>
+    </message>
+    <message>
+        <source>average</source>
+        <translation>keskimääräinen</translation>
+    </message>
+    <message>
+        <source>maximum</source>
+        <translation>maksimi</translation>
+    </message>
+    <message>
+        <source>Defines a period the master backend should be awake</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shutdown with Master Backend</source>
+        <translation>Sulje Pääpalvelimen Kanssa</translation>
+    </message>
+    <message>
+        <source>Mythwelcome will automatically shutdown this computer when the master backend shuts down. Should only be set on frontend only machines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command to run to start the Frontend</source>
+        <translation>Komento käynnistämiseen</translation>
+    </message>
+    <message>
+        <source>Command to start mythfrontend.</source>
+        <translation>Komento mythfrontendin käynnistämiseksi.</translation>
+    </message>
+    <message>
+        <source>MythShutdown/MythWelcome Settings</source>
+        <translation>MythShutdown/MythWelcome Asetukset</translation>
+    </message>
+    <message>
+        <source>When set and the transcoder is active, the original files will be renamed to .old once the transcoding is complete.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specify either the exact frequency in kHz or a valid channel for your &apos;TV Format&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value to be added to your desired frequency in kHz, for &apos;fine tuning&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preserve Aspect Ratio of Video when resizing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preserve the aspect ratio of the original recording file by ignoring the height setting above, and calculating the new height based on the aspect ratio and width.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spain</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8036,11 +8283,11 @@ Ei vaikuta olemassaoleviin nauhoituksiin.</translation>
     <name>StartingChannel</name>
     <message>
         <source>DB Error, see console</source>
-        <translation type="unfinished"></translation>
+        <translation>TK Virhe, katso konsoli</translation>
     </message>
     <message>
         <source>Please add channels to this source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tarvitaan kanavia tälle lähteelle</translation>
     </message>
 </context>
 <context>
@@ -8094,6 +8341,18 @@ Ei muita tietoja</translation>
         <translation>Käytetty teema sisältää tuntemattoman elementin (%1).
 
 Se ohitetaan</translation>
+    </message>
+    <message>
+        <source>%1 recordings consuming %2 are allowed to expire</source>
+        <translation>%1 nauhoitusta, käyttäen %2 on sallittua vanheta</translation>
+    </message>
+    <message>
+        <source>LiveTV</source>
+        <translation>LiveTV</translation>
+    </message>
+    <message>
+        <source>%1 of these are LiveTV and consume %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8648,11 +8907,11 @@ Se ohitetaan</translation>
     </message>
     <message>
         <source>S/N %1 dB</source>
-        <translation>Signaali/kohina %1 dB</translation>
+        <translation type="obsolete">Signaali/kohina %1 dB</translation>
     </message>
     <message>
         <source>Bit Errors %1</source>
-        <translation>Bitti-virheitä %1</translation>
+        <translation type="obsolete">Bitti-virheitä %1</translation>
     </message>
     <message>
         <source>Seek:</source>
@@ -8672,11 +8931,37 @@ Se ohitetaan</translation>
     </message>
     <message>
         <source>Cancel Record</source>
-        <translation type="unfinished"></translation>
+        <translation>Peruuta Nauhoitus</translation>
     </message>
     <message>
         <source>%1 Settings</source>
+        <translation>%1 Asetukset</translation>
+    </message>
+    <message>
+        <source>TXT:</source>
+        <translation>Tekstitys:</translation>
+    </message>
+    <message>
+        <source>Seek:</source>
+        <comment>seek to location</comment>
+        <translation>Haku:</translation>
+    </message>
+    <message>
+        <source>S/N %1dB</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BE %1</source>
+        <comment>Bit Errors</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close Edit Recording</source>
+        <translation type="obsolete">Sulje Nauhoituksen Muokkaus</translation>
+    </message>
+    <message>
+        <source>Load commercial skip list</source>
+        <translation type="obsolete">Lataa mainosten sivuutuslista</translation>
     </message>
 </context>
 <context>
@@ -8831,15 +9116,70 @@ Se ohitetaan</translation>
     </message>
     <message>
         <source>Preview Schedule Changes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Esikatsele Ajoituksen Muutoksia:</translation>
     </message>
     <message>
         <source>The recording schedule would not be affected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nauhoituksen ajoitukseen ei muutoksia.</translation>
     </message>
     <message>
         <source>(1)Time (2)Title</source>
-        <translation type="unfinished"></translation>
+        <translation>(1) Aika    (2) Nimike</translation>
+    </message>
+    <message>
+        <source>Program Details:</source>
+        <translation>Tietoa Ohjelmasta:</translation>
+    </message>
+    <message>
+        <source>Program Details</source>
+        <translation>Tietoa Ohjelmasta</translation>
+    </message>
+    <message>
+        <source>Welcome to MythTV</source>
+        <translation>Tervetuloa MythTV:oon</translation>
+    </message>
+    <message>
+        <source>MythTV is idle and will shutdown shortly.</source>
+        <translation>MythTV sammuu piakkoin.</translation>
+    </message>
+    <message>
+        <source>Current Recording(s)</source>
+        <translation>Nykyiset Nauhoitukset</translation>
+    </message>
+    <message>
+        <source>Retrieving Recording Status ...</source>
+        <translation>Haetaan Nauhoitusten Tilaa ...</translation>
+    </message>
+    <message>
+        <source>Next Scheduled Recording(s)</source>
+        <translation>Seuraavat Ajoitetut Nauhoitukset</translation>
+    </message>
+    <message>
+        <source>Retrieving Scheduled Recordings ...</source>
+        <translation>Haetaan Ajoitettuja Nauhoituksia ...</translation>
+    </message>
+    <message>
+        <source>WARNING: There are conflicting scheduled recordings!</source>
+        <translation>HUOMIO: Havaittiin ristiriitoja ajoituksissa!</translation>
+    </message>
+</context>
+<context>
+    <name>UIManagedTreeListType</name>
+    <message>
+        <source>Search</source>
+        <translation>Haku</translation>
+    </message>
+    <message>
+        <source>Starts with text</source>
+        <translation>Alkaa tekstillä</translation>
+    </message>
+    <message>
+        <source>Contains text</source>
+        <translation>Sisältää tekstin</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
     </message>
 </context>
 <context>
@@ -8885,7 +9225,15 @@ Se ohitetaan</translation>
     <name>ViewScheduleDiff</name>
     <message>
         <source>All</source>
-        <translation type="unfinished">Kaikki</translation>
+        <translation>Kaikki</translation>
+    </message>
+    <message>
+        <source>The theme you are using does not contain a &apos;schdiff&apos; element. Please contact the theme creator and ask if they could please update it.&lt;br&gt;&lt;br&gt;The next screen will be empty. Escape out of it to return to the menu.</source>
+        <translation>Teema joka on käytössä ei tue &quot;schdiff&quot; elementtiä. Ikkuna voi olla tyhjä, palaa &apos;Esc&apos; näppäimellä.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -9021,7 +9369,7 @@ Se ohitetaan</translation>
     </message>
     <message>
         <source>MythTV is idle and will shutdown in %1 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>MythTV on toimeton ja sulkeutuu %1 sekunnin kuluttua.</translation>
     </message>
 </context>
 </TS>

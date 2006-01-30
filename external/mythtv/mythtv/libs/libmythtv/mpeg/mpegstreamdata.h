@@ -8,6 +8,7 @@ using namespace std;
 
 #include <qmap.h>
 #include "tspacket.h"
+#include "util.h"
 
 class ProgramAssociationTable;
 class ProgramMapTable;
@@ -136,6 +137,8 @@ class MPEGStreamData : public QObject
     void ClearPartialPES(uint pid)
         { _partial_pes_packet_cache.remove(pid); }
     void DeletePartialPES(uint pid);
+    void ProcessPAT(const ProgramAssociationTable *pat);
+    void ProcessPMT(const uint pid, const ProgramMapTable *pmt);
 
     static int ResyncStream(unsigned char *buffer, int curr_pos, int len);
 
@@ -177,7 +180,12 @@ class MPEGStreamData : public QObject
     uint                      _pmt_single_program_num_audio;
     ProgramAssociationTable  *_pat_single_program;
     ProgramMapTable          *_pmt_single_program;
-    QDateTime                 _unexpected_pat_timeout;
+
+  // PAT Timeout handling.
+  private:
+    bool                      _invalid_pat_seen;
+    bool                      _invalid_pat_warning;
+    MythTimer                 _invalid_pat_timer;
 };
 
 #include "mpegtables.h"

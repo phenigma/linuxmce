@@ -1,3 +1,9 @@
+mythtv (0.19-2) unstable; urgency=low
+
+  * Built against SVN Revision 8696
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 30 Jan 2006 19:21:12 +0200
+
 mythtv (0.19-1) unstable; urgency=low
 
   * Built against SVN Revision 8563

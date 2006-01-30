@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
 #include <pthread.h>
@@ -1729,6 +1729,7 @@ static int mpegts_read_header(AVFormatContext *s,
             ts->scanning = 1;
             ts->pat_filter = mpegts_open_section_filter(
                 ts, PAT_PID, pat_cb, ts, 1);
+            url_fseek(pb, pos, SEEK_SET);
             handle_packets(ts, MAX_SCAN_PACKETS);
             ts->scanning = 0;
 

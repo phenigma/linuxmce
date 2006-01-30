@@ -82,15 +82,15 @@ SPACE/Enter valitulla osoitteella poistaa sen.</translation>
     </message>
     <message>
         <source>         Back         </source>
-        <translation>         Takaisin        </translation>
+        <translation type="obsolete">         Takaisin        </translation>
     </message>
     <message>
         <source>       Next Tab       </source>
-        <translation>      Seuraava Välilehti     </translation>
+        <translation type="obsolete">      Seuraava Välilehti     </translation>
     </message>
     <message>
         <source>       Prev Tab       </source>
-        <translation>    Edellinen Välilehti   </translation>
+        <translation type="obsolete">    Edellinen Välilehti   </translation>
     </message>
     <message>
         <source>Save Link in Bookmarks</source>
@@ -110,15 +110,55 @@ SPACE/Enter valitulla osoitteella poistaa sen.</translation>
     </message>
     <message>
         <source>      Remove Tab      </source>
-        <translation>     Poista Välilehti     </translation>
+        <translation type="obsolete">     Poista Välilehti     </translation>
     </message>
     <message>
         <source>       Zoom Out       </source>
-        <translation>       Loitonna       </translation>
+        <translation type="obsolete">       Loitonna       </translation>
     </message>
     <message>
         <source>       Zoom In        </source>
-        <translation>       Lähennä       </translation>
+        <translation type="obsolete">       Lähennä       </translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Takaisin</translation>
+    </message>
+    <message>
+        <source>Next Tab</source>
+        <translation>Seuraava Välilehti</translation>
+    </message>
+    <message>
+        <source>Prev Tab</source>
+        <translation>Edellinen Välilehti</translation>
+    </message>
+    <message>
+        <source>Remove Tab</source>
+        <translation>Poista Välilehti</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Pienennä</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Suurenna</translation>
+    </message>
+    <message>
+        <source>Add New Bookmark</source>
+        <translation>Lisää Uusi Kirjanmerkki</translation>
+    </message>
+    <message>
+        <source>Group:</source>
+        <translation>Ryhmä:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Kuvaus:</translation>
+    </message>
+    <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
     </message>
 </context>
 </TS>

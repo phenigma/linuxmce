@@ -29,6 +29,7 @@ using namespace std;
 #include "globalsettings.h"
 #include "profilegroup.h"
 #include "playgroup.h"
+#include "networkcontrol.h"
 
 #include "exitcodes.h"
 #include "themedmenu.h"
@@ -239,7 +240,7 @@ void startManualSchedule(void)
     qApp->lock();
 }
 
-void startTV(void)
+void startTV(bool startInGuide)
 {
     TV *tv = new TV();
 
@@ -254,7 +255,7 @@ void startTV(void)
     bool quitAll = false;
     bool showDialogs = true;
 
-    if (!tv->LiveTV(showDialogs))
+    if (!tv->LiveTV(showDialogs, startInGuide))
     {
         tv->StopLiveTV();
         quitAll = true;
@@ -285,6 +286,16 @@ void startTV(void)
     delete tv;
 }
 
+void startTVInGuide(void)
+{
+    startTV(true);
+}
+
+void startTVNormal(void)
+{
+    startTV(false);
+}
+
 void showStatus(void)
 {
     StatusBox statusbox(gContext->GetMainWindow(), "status box");
@@ -310,10 +321,15 @@ void TVMenuCallback(void *data, QString &selection)
     QString sel = selection.lower();
 
     if (sel.left(9) == "settings ")
+    {
+        gContext->addCurrentLocation("Setup");
         gContext->ActivateSettingsCache(false);
+    }
 
     if (sel == "tv_watch_live")
-        startTV();
+        startTVNormal();
+    else if (sel == "tv_watch_live_epg")
+        startTVInGuide();
     else if (sel == "tv_watch_recording")
         startPlayback();
     else if (sel == "tv_schedule")
@@ -427,6 +443,8 @@ void TVMenuCallback(void *data, QString &selection)
 
     if (sel.left(9) == "settings ")
     {
+        gContext->removeCurrentLocation();
+
         gContext->ActivateSettingsCache(true);
         RemoteSendMessage("CLEAR_SETTINGS_CACHE");
     }
@@ -614,8 +632,18 @@ int internal_play_media(const char *mrl, const char* plot, const char* title,
     return res;
 }
 
+void gotoMainMenu(void)
+{
+    // If we got to this callback, we're back on the menu.  So, send a CTRL-L
+    // to cause the menu to reload
+    QKeyEvent *event =
+        new QKeyEvent(QEvent::KeyPress, Qt::Key_L, 0, Qt::ControlButton);
+    QApplication::postEvent((QObject*)(gContext->GetMainWindow()), event);
+}
+
 void InitJumpPoints(void)
 {
+    REG_JUMP("Main Menu", "", "", gotoMainMenu);
     REG_JUMP("Program Guide", "", "", startGuide);
     REG_JUMP("Program Finder", "", "", startFinder);
     //REG_JUMP("Search Listings", "", "", startSearch);
@@ -624,8 +652,11 @@ void InitJumpPoints(void)
     REG_JUMP("Channel Recording Priorities", "", "", startChannelRecPriorities);
     REG_JUMP("TV Recording Playback", "", "", startPlayback);
     REG_JUMP("TV Recording Deletion", "", "", startDelete);
-    REG_JUMP("Live TV", "", "", startTV);
+    REG_JUMP("Live TV", "", "", startTVNormal);
+    REG_JUMP("Live TV In Guide", "", "", startTVInGuide);
     REG_JUMP("Manual Record Scheduling", "", "", startManual);
+    REG_JUMP("Status Screen", "", "", showStatus);
+    REG_JUMP("Previously Recorded", "", "", startPrevious);
 
     TV::InitKeys();
 }
@@ -775,7 +806,9 @@ int main(int argc, char **argv)
         }
         else if (!strcmp(a.argv()[argpos],"--version"))
         {
-            cout << MYTH_BINARY_VERSION << endl;
+            extern const char *myth_source_version;
+            cout << "Library API version: " << MYTH_BINARY_VERSION << endl;
+            cout << "Source code version: " << myth_source_version << endl;
 #ifdef MYTH_BUILD_CONFIG
             cout << "Options compiled in:" <<endl;
             cout << MYTH_BUILD_CONFIG << endl;
@@ -924,10 +957,10 @@ int main(int argc, char **argv)
     }
     gContext->ActivateSettingsCache(true);
 
-    VERBOSE(VB_ALL, QString("%1 version: %2 www.mythtv.org")
+    VERBOSE(VB_IMPORTANT, QString("%1 version: %2 www.mythtv.org")
                             .arg(binname).arg(MYTH_BINARY_VERSION));
 
-    VERBOSE(VB_ALL, QString("Enabled verbose msgs: %1").arg(verboseString));
+    VERBOSE(VB_IMPORTANT, QString("Enabled verbose msgs: %1").arg(verboseString));
 
     LCD::SetupLCD ();
     if (class LCD *lcd = LCD::Get ()) {
@@ -1008,10 +1041,23 @@ int main(int argc, char **argv)
     mon = MediaMonitor::getMediaMonitor();
     if (mon)
     {
-        VERBOSE(VB_ALL, QString("Starting media monitor."));
+        VERBOSE(VB_IMPORTANT, QString("Starting media monitor."));
         mon->startMonitoring();
     }
 #endif
+
+    NetworkControl *networkControl = NULL;
+    if (gContext->GetNumSetting("NetworkControlEnabled", 0))
+    {
+        int networkPort = gContext->GetNumSetting("NetworkControlPort", 6545);
+        networkControl = new NetworkControl(networkPort);
+        if (!networkControl->ok())
+            VERBOSE(VB_IMPORTANT,
+                    QString("NetworkControl failed to bind to port %1.")
+                    .arg(networkPort));
+    }
+
+    gContext->addCurrentLocation("MainMenu");
 
     int exitstatus = RunMenu(themedir);
 
@@ -1034,8 +1080,13 @@ int main(int argc, char **argv)
         gContext->addPrivRequest(MythPrivRequest::MythExit, NULL);
         pthread_join(priv_thread, &value);
     }
-    
+
+    if (networkControl)
+        delete networkControl;
+
     delete mainWindow;
     delete gContext;
     return FRONTEND_EXIT_OK;
 }
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

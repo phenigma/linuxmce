@@ -116,6 +116,7 @@ class ThemedMenuPrivate
     
     void parseFont(QDomElement &element);
 
+    void gotoMainMenu(void);
     void setDefaults(void);
 
     void addButton(const QString &type, const QString &text,
@@ -1387,6 +1388,11 @@ void ThemedMenuPrivate::parseThemeButton(QDomElement &element)
                     text = getFirstText(info);
                 }
                 else if (info.attribute("lang","").lower() == 
+                         gContext->GetLanguageAndVariant())
+                {
+                    text = getFirstText(info);
+                }
+                else if (info.attribute("lang","").lower() == 
                          gContext->GetLanguage())
                 {
                     text = getFirstText(info);
@@ -1398,6 +1404,11 @@ void ThemedMenuPrivate::parseThemeButton(QDomElement &element)
                     info.attribute("lang","") == "")
                 {
                     alttext = getFirstText(info);
+                }
+                else if (info.attribute("lang","").lower() == 
+                         gContext->GetLanguageAndVariant())
+                {
+                    text = getFirstText(info);
                 }
                 else if (info.attribute("lang","").lower() ==
                          gContext->GetLanguage())
@@ -2513,7 +2524,7 @@ bool ThemedMenuPrivate::findDepends(const QString &fileList)
     
     for ( QStringList::Iterator it = files.begin(); it != files.end(); ++it ) {
         filename = findMenuFile(*it);
-        if (filename != "")
+        if (filename != "" && filename.endsWith(".xml"))
             return true;
     
         QString newname = gContext->FindPlugin(*it);
@@ -2577,6 +2588,12 @@ bool ThemedMenuPrivate::checkPinCode(const QString &timestamp_setting,
     }
 
     return false;
+}
+
+void ThemedMenuPrivate::gotoMainMenu(void)
+{
+    menulevel = 0;
+    parseMenu("mainmenu.xml");
 }
 
 ThemedMenu::ThemedMenu(const char *cdir, const char *menufile,
@@ -2692,8 +2709,15 @@ void ThemedMenu::keyPressEvent(QKeyEvent *e)
 
     d->ignorekeys = true;
 
-    if (!d->keyPressHandler(e))
+    if ((e->key() == Qt::Key_L) && (e->state() == Qt::ControlButton))
+        gotoMainMenu();
+    else if (!d->keyPressHandler(e))
         MythDialog::keyPressEvent(e);
 
     d->ignorekeys = false;
+}
+
+void ThemedMenu::gotoMainMenu(void)
+{
+    d->gotoMainMenu();
 }

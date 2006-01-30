@@ -139,8 +139,8 @@ $L = array(
     'recstatus: latershowing'      => 'This episode will be recorded at a later time instead.',
     'recstatus: lowdiskspace'      => 'There wasn\'t enough disk space available to record this program.',
     'recstatus: manualoverride'    => 'This showing was manually set to not record',
-    'recstatus: neverrecord'       => '',
-    'recstatus: notlisted'         => '',
+    'recstatus: neverrecord'       => 'This show was marked to never be recorded.',
+    'recstatus: notlisted'         => 'This show does not match the current program listings.',
     'recstatus: previousrecording' => 'This episode was previously recorded according to the duplicate policy chosen for this title.',
     'recstatus: recorded'          => 'This showing was recorded.',
     'recstatus: recording'         => 'This showing is being recorded.',
@@ -182,6 +182,10 @@ $L = array(
 // modules/tv/init.php
     'Special Searches' => '',
     'TV'               => '',
+// modules/tv/recorded.php
+    'No matching programs found.'             => '',
+    'Showing all programs from the $1 group.' => '',
+    'Showing all programs.'                   => '',
 // modules/tv/schedules_custom.php
     'Any Category'     => '',
     'Any Channel'      => '',
@@ -327,6 +331,7 @@ $L = array(
     '$1 episodes'                                         => '',
     '$1 recording'                                        => '',
     '$1 recordings'                                       => '',
+    'All groups'                                          => '',
     'Are you sure you want to delete the following show?' => '',
     'Delete'                                              => '',
     'Delete $1'                                           => '',

@@ -3,8 +3,8 @@
  * Configure MythTV Key Bindings
  *
  * @url         $URL$
- * @date        $Date: 2005-12-15 09:33:52 +0200 (Thu, 15 Dec 2005) $
- * @version     $Revision: 8273 $
+ * @date        $Date: 2006-01-14 21:52:53 +0200 (Sat, 14 Jan 2006) $
+ * @version     $Revision: 8607 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -36,7 +36,7 @@
             }
             elseif (preg_match('/^key:([\\w_\/]+):(\\w+):(\\w+)$/', $key, $matches)) {
                 list($match, $context, $action, $use_host) = $matches;
-                $db->query('UPDATE jumppoints
+                $db->query('UPDATE keybindings
                                SET keylist=?
                              WHERE context=? AND action=? AND hostname=?',
                            $key_list,

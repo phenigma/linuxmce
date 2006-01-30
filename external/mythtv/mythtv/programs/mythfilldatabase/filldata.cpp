@@ -356,8 +356,9 @@ void UpdateSourceIcons(int sourceid)
             QFile localfile(fileprefix + "/" + qfi.fileName());
             if (!localfile.exists())
             {
-                QString icon_get_command = QString("wget --timestamping "
-                        "--directory-prefix=") + fileprefix + " " + icon_url;
+                QString icon_get_command =
+                    QString("wget --timestamping --directory-prefix=%1 '%2'")
+                            .arg(fileprefix).arg(icon_url);
 
                 if ((print_verbose_messages & VB_GENERAL) == 0)
                     icon_get_command += " > /dev/null 2> /dev/null";
@@ -1073,7 +1074,7 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
             VERBOSE(VB_GENERAL, "Grabbing ALL available data.");
             if (!ddprocessor.grabAllData())
             {
-                VERBOSE(VB_ALL, "Encountered error in grabbing data.");
+                VERBOSE(VB_IMPORTANT, "Encountered error in grabbing data.");
                 return false;
             }
         }
@@ -1094,7 +1095,7 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
 
             if (!ddprocessor.grabData(false, fromdatetime, todatetime))
             {
-                VERBOSE(VB_ALL, "Encountered error in grabbing data.");
+                VERBOSE(VB_IMPORTANT, "Encountered error in grabbing data.");
                 return false;
             }
         }
@@ -2275,30 +2276,30 @@ void handlePrograms(int id, QMap<QString, QValueList<ProgInfo> > *proglist)
 
     for (mapiter = proglist->begin(); mapiter != proglist->end(); ++mapiter)
     {
-        MSqlQuery query(MSqlQuery::InitCon());
+        MSqlQuery query(MSqlQuery::InitCon()), chanQuery(MSqlQuery::InitCon());
 
         if (mapiter.key() == "")
             continue;
 
         int chanid = 0;
 
-        query.prepare("SELECT chanid FROM channel WHERE sourceid = :ID AND "
-                      "xmltvid = :XMLTVID;"); 
-        query.bindValue(":ID", id);
-        query.bindValue(":XMLTVID", mapiter.key());
+        chanQuery.prepare("SELECT chanid FROM channel WHERE sourceid = :ID AND "
+                          "xmltvid = :XMLTVID;"); 
+        chanQuery.bindValue(":ID", id);
+        chanQuery.bindValue(":XMLTVID", mapiter.key());
 
-        query.exec();
+        chanQuery.exec();
 
-        if (!query.isActive() || query.size() <= 0)
+        if (!chanQuery.isActive() || chanQuery.size() <= 0)
         {
             cerr << "Unknown xmltv channel identifier: " << mapiter.key()
                  << endl << "Skipping channel.\n";
             continue;
         }
 
-        while (query.next())
+        while (chanQuery.next())
         {
-            chanid = query.value(0).toInt();
+            chanid = chanQuery.value(0).toInt();
 
             if (chanid == 0)
             {
@@ -2598,7 +2599,7 @@ bool grabData(Source source, int offset, QDate *qCurrentDate = 0)
     char tempfilename[] = "/tmp/mythXXXXXX";
     if (mkstemp(tempfilename) == -1)
     {
-        VERBOSE(VB_ALL,
+        VERBOSE(VB_IMPORTANT,
                 QString("Error creating temporary file in /tmp, %1")
                 .arg(strerror(errno)));
         exit(FILLDB_BUGGY_EXIT_ERR_OPEN_TMPFILE);
@@ -3266,7 +3267,7 @@ int fix_end_times(void)
 
     if (!query1.exec(querystr))
     {
-        VERBOSE(VB_ALL,
+        VERBOSE(VB_IMPORTANT,
                 QString("fix_end_times query failed: %1").arg(querystr));
         return -1;
     }
@@ -3286,7 +3287,7 @@ int fix_end_times(void)
 
         if (!query2.exec(querystr))
         {
-            VERBOSE(VB_ALL,
+            VERBOSE(VB_IMPORTANT,
                     QString("fix_end_times query failed: %1").arg(querystr));
             return -1;
         }
@@ -3305,7 +3306,7 @@ int fix_end_times(void)
 
             if (!query2.exec(querystr)) 
             {
-                VERBOSE(VB_ALL,
+                VERBOSE(VB_IMPORTANT,
                        QString("fix_end_times query failed: %1").arg(querystr));
                 return -1;
             }
@@ -3634,7 +3635,7 @@ int main(int argc, char *argv[])
             cout << "   <xawtvrcfile> = file to read\n";
             cout << "\n";
             cout << "--do_channel_updates\n";
-            cout << "   When using data direct, ask mythfilldatabase to\n";
+            cout << "   When using DataDirect, ask mythfilldatabase to\n";
             cout << "   overwrite channel names, frequencies, etc. with the\n";
             cout << "   values available from the data source. This will \n";
             cout << "   override custom channel names, which is why it is\n";
@@ -3652,7 +3653,7 @@ int main(int argc, char *argv[])
             cout << "--refresh-today\n";
             cout << "--refresh-second\n";
             cout << "--refresh-all\n";
-            cout << "   (Only valid for grabbers: na, se_swedb, no, ee, de_tvtoday)\n";
+            cout << "   (Only valid for grabbers: DataDirect, se_swedb, no, ee, de_tvtoday)\n";
             cout << "   Force a refresh today or two days (or every day) from now,\n";
             cout << "   to catch the latest changes\n";
             cout << "--dont-refresh-tomorrow\n";
@@ -3706,7 +3707,7 @@ int main(int argc, char *argv[])
     gContext = new MythContext(MYTH_BINARY_VERSION);
     if (!gContext->Init(false))
     {
-        VERBOSE(VB_ALL, "Failed to init MythContext, exiting.");
+        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
         return FILLDB_EXIT_NO_MYTHCONTEXT;
     }
 
@@ -3825,7 +3826,7 @@ int main(int argc, char *argv[])
              }
              else
              {
-                  VERBOSE(VB_ALL,
+                  VERBOSE(VB_IMPORTANT,
                           "There are no channel sources defined, did you run "
                           "the setup program?");
                   gContext->LogEntry("mythfilldatabase", LP_CRITICAL,
@@ -3844,7 +3845,7 @@ int main(int argc, char *argv[])
     
         if (!fillData(sourcelist))
         {
-             VERBOSE(VB_ALL, "Failed to fetch some program info");
+             VERBOSE(VB_IMPORTANT, "Failed to fetch some program info");
              gContext->LogEntry("mythfilldatabase", LP_WARNING,
                                 "Failed to fetch some program info", "");
              return FILLDB_EXIT_DB_ERROR;
@@ -3886,7 +3887,7 @@ int main(int argc, char *argv[])
         VERBOSE(VB_GENERAL, "Adjusting program database end times.");
         int update_count = fix_end_times();
         if (update_count == -1)
-            VERBOSE(VB_ALL, "fix_end_times failed!");
+            VERBOSE(VB_IMPORTANT, "fix_end_times failed!");
         else if (!quiet)
             VERBOSE(VB_GENERAL,
                     QString("    %1 replacements made").arg(update_count));

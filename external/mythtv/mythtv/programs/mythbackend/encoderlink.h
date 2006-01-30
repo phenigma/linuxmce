@@ -75,6 +75,7 @@ class EncoderLink
     QString GetChainID(void);
     void StopLiveTV(void);
     void PauseRecorder(void);
+    void SetLiveRecording(int);
     void ToggleInputs(void);
     void ToggleChannelFavorite(void);
     void ChangeChannel(int channeldirection);
@@ -85,7 +86,7 @@ class EncoderLink
     int ChangeHue(bool direction);
     bool CheckChannel(const QString &name);
     bool ShouldSwitchToAnotherCard(const QString &channelid);
-    bool CheckChannelPrefix(const QString &name, bool &unique);
+    bool CheckChannelPrefix(const QString&,uint&,bool&,QString&);
     void GetNextProgram(int direction,
                         QString &title, QString &subtitle, QString &desc,
                         QString &category, QString &starttime,

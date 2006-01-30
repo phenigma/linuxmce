@@ -1,5 +1,5 @@
 /* -*- Mode: c++ -*-
- * $Id: scanwizardhelpers.cpp 8292 2005-12-16 19:58:46Z danielk $
+ * $Id: scanwizardhelpers.cpp 8642 2006-01-18 16:46:14Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -326,6 +326,8 @@ ScanCountry::ScanCountry()
         country = SE;
     else if (qtcountry == QLocale::UnitedKingdom)
         country = UK;
+    else if (qtcountry == QLocale::Spain)
+        country = ES;
 #endif
 
     setLabel(tr("Country"));
@@ -334,6 +336,7 @@ ScanCountry::ScanCountry()
     addSelection(QObject::tr("Sweden"),         "se", country == SE);
     addSelection(QObject::tr("United Kingdom"), "uk", country == UK);
     addSelection(QObject::tr("Germany"),        "de", country == DE);
+    addSelection(QObject::tr("Spain"),          "es", country == ES);
 }
 
 ScanOptionalConfig::ScanOptionalConfig(ScanWizard *wizard,

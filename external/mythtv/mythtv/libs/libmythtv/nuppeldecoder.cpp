@@ -28,8 +28,6 @@ using namespace std;
 #define LOC QString("NVD: ")
 #define LOC_ERR QString("NVD Error: ")
 
-pthread_mutex_t avcodeclock = PTHREAD_MUTEX_INITIALIZER;
-
 NuppelDecoder::NuppelDecoder(NuppelVideoPlayer *parent, ProgramInfo *pginfo)
     : DecoderBase(parent, pginfo),
       gf(0), rtjd(0), video_width(0), video_height(0), video_size(0),
@@ -661,9 +659,10 @@ bool NuppelDecoder::InitAVCodec(int codec)
         mpa_ctx->extradata_size = ffmpeg_extradatasize;
     }
 
+    QMutexLocker locker(&avcodeclock);
     if (avcodec_open(mpa_ctx, mpa_codec) < 0)
     {
-        VERBOSE(VB_IMPORTANT, "Couldn't find lavc codec");
+        VERBOSE(VB_IMPORTANT, LOC + "Couldn't find lavc codec");
         return false;
     }
 
@@ -672,14 +671,18 @@ bool NuppelDecoder::InitAVCodec(int codec)
 
 void NuppelDecoder::CloseAVCodec(void)
 {
-    if (!mpa_codec)
-        return;
+    QMutexLocker locker(&avcodeclock);
 
-    avcodec_close(mpa_ctx);
+    if (mpa_codec)
+    {
+        avcodec_close(mpa_ctx);
 
-    if (mpa_ctx)
-        av_free(mpa_ctx);
-    mpa_ctx = NULL;
+        if (mpa_ctx)
+        {
+            av_free(mpa_ctx);
+            mpa_ctx = NULL;
+        }
+    }
 }
 
 bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
@@ -764,23 +767,23 @@ bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
 
         AVFrame mpa_pic;
 
-        int gotpicture = 0;
-        pthread_mutex_lock(&avcodeclock);
-        // if directrendering, writes into buf
-        int ret = avcodec_decode_video(mpa_ctx, &mpa_pic, &gotpicture,
-                                       lstrm, frameheader->packetlength);
-        directframe = NULL;
-        pthread_mutex_unlock(&avcodeclock);
-        if (ret < 0)
         {
-            VERBOSE(VB_PLAYBACK, QString("decoding error: %1 back from avcodec")
-                                 .arg(ret));
-            return false;
-        }
-
-        if (!gotpicture)
-        {
-            return false;
+            QMutexLocker locker(&avcodeclock);
+            // if directrendering, writes into buf
+            int gotpicture = 0;
+            int ret = avcodec_decode_video(mpa_ctx, &mpa_pic, &gotpicture,
+                                           lstrm, frameheader->packetlength);
+            directframe = NULL;
+            if (ret < 0)
+            {
+                VERBOSE(VB_PLAYBACK, LOC_ERR +
+                        "avcodec_decode_video returned: "<<ret);
+                return false;
+            }
+            else if (!gotpicture)
+            {
+                return false;
+            }
         }
 
 /* XXX: Broken

@@ -1,7 +1,7 @@
 <?php
 /*
- *  $Date: 2006-01-01 01:41:13 +0200 (Sun, 01 Jan 2006) $
- *  $Revision: 8458 $
+ *  $Date: 2006-01-17 01:32:30 +0200 (Tue, 17 Jan 2006) $
+ *  $Revision: 8627 $
  *  $Author: xris $
  *
  *  conf.php
@@ -39,9 +39,6 @@
  *  You probably don't need to edit anything below here, but the variables are
  *  provided for your convenience.
 /*/
-
-// The hostname of this machine -- so you can override manually as needed
-    define('hostname', chop(`/bin/hostname`));
 
 // file system encoding, uses music and video file link to local file
     define('fs_encoding', 'ISO-8859-1');

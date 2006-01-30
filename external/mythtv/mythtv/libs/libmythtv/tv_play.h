@@ -6,9 +6,11 @@
 #include <qdatetime.h>
 #include <pthread.h>
 #include <qvaluevector.h>
+#include <qvaluelist.h>
 #include <qptrlist.h>
 #include <qmutex.h>
 #include <qstringlist.h>
+#include <qregexp.h>
 
 #include "mythdeque.h"
 #include "tv.h"
@@ -81,10 +83,11 @@ class TV : public QObject
 
     // User input processing commands
     void ProcessKeypress(QKeyEvent *e);
+    void processNetworkControlCommand(QString command);
     void customEvent(QCustomEvent *e);
 
     // LiveTV commands
-    int  LiveTV(bool showDialogs = true);
+    int  LiveTV(bool showDialogs = true, bool startInGuide = false);
     /// This command is used to exit the player in order to record using
     /// the recording being used by LiveTV.
     void StopLiveTV(void) { exitPlayer = true; }
@@ -215,6 +218,7 @@ class TV : public QObject
     void AddKeyToInputQueue(char key);
     void ClearInputQueues(bool hideosd = false); 
     void CommitQueuedInput(void);
+    bool ProcessSmartChannel(QString&);
 
     // query key queues
     bool HasQueuedInput(void) const
@@ -223,9 +227,8 @@ class TV : public QObject
         { return queuedChanID || !GetQueuedChanNum().isEmpty(); }
 
     // get queued up input
-    QString GetQueuedInput(void)   const { return queuedInput; }
-    int GetQueuedInputAsInt(bool *ok = NULL, int base = 10) const
-        { return queuedInput.toInt(ok, base); }
+    QString GetQueuedInput(void)   const;
+    int     GetQueuedInputAsInt(bool *ok = NULL, int base = 10) const;
     QString GetQueuedChanNum(void) const;
     uint    GetQueuedChanID(void)  const { return queuedChanID; }
 
@@ -415,11 +418,16 @@ class TV : public QObject
 
     // Channel changing state variables
     /// Input key presses queued up so far...
-    QString queuedInput;
+    QString         queuedInput;
     /// Input key presses queued up so far to form a valid ChanNum
     mutable QString queuedChanNum;
     /// Queued ChanID (from EPG channel selector)
-    uint    queuedChanID;
+    uint            queuedChanID;
+    /// Used to strip unwanted characters from queuedChanNum
+    QRegExp         queuedChanNumExpr;
+    /// Lock used so that input QStrings can be used across threads, and so
+    /// that queuedChanNumExpr can be used safely in Qt 3.2 and earlier.
+    mutable QMutex  queuedInputLock;
 
     QTimer *muteTimer;      ///< For temp. audio muting during channel changes
 
@@ -527,6 +535,9 @@ class TV : public QObject
     static const int kInputKeysMax;  ///< When to start discarding early keys
     static const int kInputModeTimeout; ///< Timeout for entry modes in msec
 
+    // Network Control stuff
+    QValueList<QString> networkControlCommands;
+    QMutex ncLock;
 };
 
 #endif

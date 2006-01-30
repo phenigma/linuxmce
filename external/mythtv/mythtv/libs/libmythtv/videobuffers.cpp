@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "mythcontext.h"
 #include "videobuffers.h"
+#include "../libavcodec/avcodec.h"
 
 #ifdef USING_XVMC
 #include "videoout_xv.h" // for xvmc stuff
@@ -1064,15 +1065,22 @@ bool VideoBuffers::CreateBuffers(int width, int height)
     return CreateBuffers(width, height, bufs);
 }
 
-bool VideoBuffers::CreateBuffers(int width, int height, vector<unsigned char*> bufs)
+bool VideoBuffers::CreateBuffers(int width, int height,
+                                 vector<unsigned char*> bufs)
 {
     bool ok = true;
     uint bpp = 12 / 4; /* bits per pixel div common factor */
     uint bpb =  8 / 4; /* bits per byte div common factor */
-    uint buf_size = (width * height * bpp + 4/* to round up */) / bpb;
+
+    // If the buffer sizes are not a multple of 16, adjust.
+    // old versions of MythTV allowed people to set invalid
+    // dimensions for MPEG-4 capture, no need to segfault..
+    uint adj_w = (width  + 15) & ~0xF;
+    uint adj_h = (height + 15) & ~0xF;
+    uint buf_size = (adj_w * adj_h * bpp + 4/* to round up */) / bpb;
     while (bufs.size() < allocSize())
     {
-        unsigned char *data = new unsigned char[buf_size + 64];
+        unsigned char *data = (unsigned char*)av_malloc(buf_size + 64);
 
         // init buffers (y plane to 0, u/v planes to 127),
         // to prevent green screens..
@@ -1202,7 +1210,7 @@ void VideoBuffers::DeleteBuffers()
     allocated_structs.clear();
 
     for (uint i = 0; i < allocated_arrays.size(); i++)
-        delete [] allocated_arrays[i];
+        av_free(allocated_arrays[i]);
     allocated_arrays.clear();
 #ifdef USING_XVMC
     xvmc_surf_to_frame.clear();

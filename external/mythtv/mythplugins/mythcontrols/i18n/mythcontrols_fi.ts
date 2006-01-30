@@ -19,6 +19,17 @@
     </message>
 </context>
 <context>
+    <name>ConfirmMenu</name>
+    <message>
+        <source>Confirm</source>
+        <translation>Vahvista</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
     <name>KeyGrabPopupBox</name>
     <message>
         <source>OK</source>
@@ -35,6 +46,33 @@
     <message>
         <source>Add key &apos;%1&apos;?</source>
         <translation>Lisää näppäin &apos;%1&apos;?</translation>
+    </message>
+</context>
+<context>
+    <name>MythControls</name>
+    <message>
+        <source>Binding comes from %1 context</source>
+        <translation>Komento tulee %1 viitekehyksestä</translation>
+    </message>
+    <message>
+        <source>Delete this key binding from context %1?</source>
+        <translation>Poistetaanko tämä komento viitekehyksestä %1?</translation>
+    </message>
+    <message>
+        <source>Delete this binding?</source>
+        <translation>Poistetaanko tämä komento?</translation>
+    </message>
+    <message>
+        <source>Contexts</source>
+        <translation>Viitekehykset</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>Komennot</translation>
+    </message>
+    <message>
+        <source>Actions</source>
+        <translation>Toiminnot</translation>
     </message>
 </context>
 <context>

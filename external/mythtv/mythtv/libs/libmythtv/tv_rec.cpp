@@ -43,6 +43,7 @@ using namespace std;
 #include "atsctables.h"
 
 #include "livetvchain.h"
+#include "dummychannel.h"
 
 #ifdef USING_V4L
 #include "channel.h"
@@ -67,6 +68,8 @@ using namespace std;
 #include "dbox2recorder.h"
 #include "dbox2channel.h"
 #endif
+
+#define DEBUG_CHANNEL_PREFIX 0 /**< set to 1 to channel prefixing */
 
 #define LOC QString("TVRec(%1): ").arg(cardid)
 #define LOC_ERR QString("TVRec(%1) Error: ").arg(cardid)
@@ -183,7 +186,8 @@ bool TVRec::Init(void)
     else if (genOpt.cardtype == "MPEG" &&
              genOpt.videodev.lower().left(5) == "file:")
     {
-        // No need to initialize channel..
+        channel = new DummyChannel(this);
+        InitChannel(genOpt.defaultinput, startchannel);
         init_run = true;
     }
     else // "V4L" or "MPEG", ie, analog TV, or "HDTV"
@@ -395,6 +399,8 @@ void TVRec::CancelNextRecording(bool cancel)
  */
 RecStatusType TVRec::StartRecording(const ProgramInfo *rcinfo)
 {
+    VERBOSE(VB_RECORD, LOC + QString("StartRecording(%1)").arg(rcinfo->title));
+
     QMutexLocker lock(&stateChangeLock);
     QString msg("");
 
@@ -469,6 +475,9 @@ RecStatusType TVRec::StartRecording(const ProgramInfo *rcinfo)
         curRecording = new ProgramInfo(*rcinfo);
         curRecording->MarkAsInUse(true, "recorder");
         StartedRecording(curRecording);
+
+        // Make sure scheduler is allowed to end this recording
+        ClearFlags(kFlagCancelNextRecording);
 
         ChangeState(kState_RecordingOnly);
 
@@ -628,6 +637,10 @@ void TVRec::FinishedRecording(ProgramInfo *curRec)
         curRec->recendts.addSecs(30).time().hour(),
         curRec->recendts.addSecs(30).time().minute()));
 
+    // Make sure really short recordings have positive run time.
+    if (curRec->recendts <= curRec->recstartts)
+        curRec->recendts = mythCurrentDateTime().addSecs(1);
+
     MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
                  .arg(curRec->cardid)
                  .arg(curRec->chanid)
@@ -698,6 +711,7 @@ void TVRec::HandleStateChange(void)
     }
     else if (TRANSITION(kState_None, kState_RecordingOnly))
     {
+        SetPseudoLiveTVRecording(NULL);
         tuningRequests.enqueue(TuningRequest(kFlagRecording, curRecording));
         SET_NEXT();
     }
@@ -1160,12 +1174,14 @@ void TVRec::RunTV(void)
         {
             ClearFlags(kFlagAskAllowRecording);
 
-            CheckForRecGroupChange();
-            if (pseudoLiveTVRecording)
-                SetFlags(kFlagCancelNextRecording);
-
             if (GetState() == kState_WatchingLiveTV)
             {
+                CheckForRecGroupChange();
+                if (pseudoLiveTVRecording)
+                    SetFlags(kFlagCancelNextRecording);
+                else
+                    ClearFlags(kFlagCancelNextRecording);
+
                 int timeuntil = QDateTime::currentDateTime()
                     .secsTo(recordPendingStart);
 
@@ -1969,77 +1985,163 @@ bool TVRec::CheckChannel(ChannelBase *chan, const QString &channum,
     return ret;
 }
 
-/** \fn TVRec::CheckChannelPrefix(QString name, bool &unique)
- *  \brief Returns true if the numbers in prefix_num match the first digits
- *         of any channel, if it unquely identifies a channel the unique
- *         parameter is set.
- *
- *   If name is a valid channel name and not a valid channel prefix
- *   unique is set to true.
- *
- *   For example, if name == "36" and "36", "360", "361", "362", and "363" are
- *   valid channel names, this function would return true but set *unique to
- *   false.  However if name == "361" it would both return true and set *unique
- *   to true.
- *
- *  \param prefix_num Channel number prefix to check
- *  \param unique     This is set to true if prefix uniquely identifies
- *                    channel, false otherwise.
- *  \return true if the prefix matches any channels.
- *
+/** \fn QString add_spacer(const QString&, const QString&)
+ *  \brief Adds the spacer before the last character in chan.
  */
-bool TVRec::CheckChannelPrefix(QString name, bool &unique)
+static QString add_spacer(const QString &chan, const QString &spacer)
 {
-    if (!channel)
-        return false;
+    if ((chan.length() >= 2) && !spacer.isEmpty())
+        return chan.left(chan.length()-1) + spacer + chan.right(1);
+    return chan;
+}
 
-    bool ret = false;
-    unique = false;
-
-    QString channelinput = channel->GetCurrentInput();
+/** \fn TVRec::CheckChannelPrefix(const QString&,uint&,bool&,QString&)
+ *  \brief Checks a prefix against the channels in the DB.
+ *
+ *   If the prefix matches a channel on any recorder this function returns
+ *   true, otherwise it returns false.
+ *
+ *   If the prefix matches any channel entirely (i.e. prefix == channum),
+ *   then the cardid of the recorder it matches is returned in
+ *   'is_complete_valid_channel_on_rec'; if it matches multiple recorders,
+ *   and one of them is this recorder, this recorder is returned in
+ *   'is_complete_valid_channel_on_rec'; if it isn't complete for any channel
+ *    on any recorder 'is_complete_valid_channel_on_rec' is set to zero.
+ *
+ *   If adding another character could reduce the number of channels the
+ *   prefix matches 'is_extra_char_useful' is set to true, otherwise it
+ *   is set to false.
+ *
+ *   Finally, if in order for the prefix to match a channel, a spacer needs
+ *   to be added, the first matching spacer is returned in needed_spacer.
+ *   If there is more than one spacer that might be employed and one of them
+ *   is used for the current recorder, and others are used for other 
+ *   recorders, then the one for the current recorder is returned. The
+ *   spacer must be inserted before the last character of the prefix for
+ *   anything else returned from the function to be valid.
+ *
+ *  \return true if this is a valid prefix for a channel, false otherwise
+ */
+bool TVRec::CheckChannelPrefix(const QString &prefix,
+                               uint          &is_complete_valid_channel_on_rec,
+                               bool          &is_extra_char_useful,
+                               QString       &needed_spacer)
+{
+    static const uint kSpacerListSize = 5;
+    static const char* spacers[kSpacerListSize] = { "", "_", "-", "#", "." };
 
     MSqlQuery query(MSqlQuery::InitCon());
-  
-    if (!query.isConnected())
-        return true;
-
-    QString querystr = QString(
-        "SELECT channel.chanid "
+    QString basequery = QString(
+        "SELECT channel.chanid, channel.channum, cardinput.cardid "
         "FROM channel, capturecard, cardinput "
-        "WHERE channel.channum LIKE '%1%%'               AND "
-        "      channel.sourceid     = cardinput.sourceid AND "
-        "      cardinput.cardid     = capturecard.cardid AND "
-        "      capturecard.cardid   = '%2'               AND "
-        "      capturecard.hostname = '%3'")
-        .arg(name)
-        .arg(cardid)
-        .arg(gContext->GetHostName());
+        "WHERE channel.channum LIKE '%1%%'           AND "
+        "      channel.sourceid = cardinput.sourceid AND "
+        "      cardinput.cardid = capturecard.cardid");
 
-    query.prepare(querystr);
+    QString cardquery[2] =
+    {
+        QString(" AND capturecard.cardid  = '%1'").arg(cardid),
+        QString(" AND capturecard.cardid != '%1'").arg(cardid),
+    };
 
-    if (!query.exec() || !query.isActive())
+    vector<uint>    fchanid;
+    vector<QString> fchannum;
+    vector<uint>    fcardid;
+    vector<QString> fspacer;
+
+    for (uint i = 0; i < 2; i++)
     {
-        MythContext::DBError("checkchannel", query);
-    }
-    else if (query.size() > 0)
-    {
-        if (query.size() == 1)
+        for (uint j = 0; j < kSpacerListSize; j++)
         {
-            unique = CheckChannel(name);
+            QString qprefix = add_spacer(prefix, spacers[j]);
+            query.prepare(basequery.arg(qprefix) + cardquery[i]);
+
+            if (!query.exec() || !query.isActive())
+            {
+                MythContext::DBError("checkchannel -- locate channum", query);
+            }
+            else if (query.size())
+            {
+                while (query.next())
+                {
+                    fchanid.push_back(query.value(0).toUInt());
+                    fchannum.push_back(query.value(1).toString());
+                    fcardid.push_back(query.value(2).toUInt());
+                    fspacer.push_back(spacers[j]);
+#if DEBUG_CHANNEL_PREFIX
+                    VERBOSE(VB_IMPORTANT, QString("(%1,%2) Adding %3 rec %4")
+                            .arg(i).arg(j).arg(query.value(1).toString(),6)
+                            .arg(query.value(2).toUInt()));
+#endif
+                }
+            }
+
+            if (prefix.length() < 2)
+                break;
         }
+    }
+
+    // Now process the lists for the info we need...
+    is_extra_char_useful = false;
+    is_complete_valid_channel_on_rec = 0;
+    needed_spacer = "";
+
+    if (fchanid.size() == 0)
+        return false;
+
+    if (fchanid.size() == 1) // Unique channel...
+    {
+        needed_spacer = QDeepCopy<QString>(fspacer[0]);
+        bool nc       = (fchannum[0] != add_spacer(prefix, fspacer[0]));
+
+        is_complete_valid_channel_on_rec = (nc) ? 0 : fcardid[0];
+        is_extra_char_useful             = nc;
         return true;
     }
 
-    query.prepare("SELECT NULL FROM channel");
-    query.exec();
+    // If we get this far there is more than one channel
+    // sharing the prefix we were given.
 
-    if (query.size() == 0) 
+    // Is an extra characher useful for disambiguation?
+    for (uint i = 0; i < fchannum.size(); i++)
     {
-        unique = true;
-        ret = true;
+        if (fchannum[i] != add_spacer(prefix, fspacer[0]))
+        {
+            is_extra_char_useful = true;
+            break;
+        }
     }
 
-    return ret;
+    // Are any of the channels complete w/o spacer?
+    // If so set is_complete_valid_channel_on_rec,
+    // with a preference for our cardid.
+    for (uint i = 0; i < fchannum.size(); i++)
+    {
+        if (fchannum[i] == add_spacer(prefix, fspacer[0]))
+        {
+            is_complete_valid_channel_on_rec = fcardid[i];
+            if (fcardid[i] == (uint)cardid)
+                break;
+        }
+    }
+
+    // Add a spacer, if one is needed to select a valid channel.
+    if (!is_complete_valid_channel_on_rec)
+    {
+        bool spacer_needed = true;
+        for (uint i = 0; i < fspacer.size(); i++)
+        {
+            if (fspacer[i].isEmpty())
+            {
+                spacer_needed = false;
+                break;
+            }
+        }
+        if (spacer_needed)
+            needed_spacer = QDeepCopy<QString>(fspacer[0]);
+    }
+
+    return true;
 }
 
 bool TVRec::SetVideoFiltersForChannel(ChannelBase *chan, const QString &channum)
@@ -2514,6 +2616,9 @@ void TVRec::SpawnLiveTV(LiveTVChain *newchain, bool pip)
     ChangeState(kState_WatchingLiveTV);
     // Wait for state change to take effect
     WaitForEventThreadSleep();
+
+    // Make sure StartRecording can't steal our tuner
+    SetFlags(kFlagCancelNextRecording);
 }
 
 /** \fn TVRec::GetChainID()
@@ -2564,6 +2669,27 @@ void TVRec::CheckForRecGroupChange(void)
         delete pi;
 }
 
+static uint get_input_id(uint cardid, const QString &inputname)
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare(
+        "SELECT cardinputid "
+        "FROM cardinput "
+        "WHERE cardid    = :CARDID AND "
+        "      inputname = :INNAME");
+
+    query.bindValue(":CARDID", cardid);
+    query.bindValue(":INNAME", inputname);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("get_input_id", query);
+    else if (query.next())
+        return query.value(0).toUInt();
+
+    return 0;
+}
+
 /** \fn TVRec::NotifySchedulerOfRecording(ProgramInfo*)
  *  \brief Tell scheduler about the recording.
  *
@@ -2580,10 +2706,16 @@ void TVRec::NotifySchedulerOfRecording(ProgramInfo *rec)
 
     // Notify scheduler of the recording.
     // + set up recording so it can be resumed
-    rec->rectype   = kSingleRecord;
     rec->cardid    = cardid;
-    rec->inputid   = channel->GetCurrentInputNum();
-    rec->GetScheduledRecording()->setRecordingType(kSingleRecord);
+    rec->inputid   = get_input_id(cardid, channel->GetCurrentInput());
+
+    rec->rectype = rec->GetScheduledRecording()->getRecordingType();
+
+    if(rec->rectype == kNotRecording)
+    {
+        rec->rectype = kSingleRecord;
+        rec->GetScheduledRecording()->setRecordingType(kSingleRecord);
+    }
 
     // + save rsInactive recstatus to so that a reschedule call
     //   doesn't start recording this on another card before we
@@ -2615,6 +2747,60 @@ void TVRec::NotifySchedulerOfRecording(ProgramInfo *rec)
     // + save record rule,
     //   this time we allow signalChange() to trigger reschedule..
     rec->GetScheduledRecording()->save(true);
+
+    // Allow scheduler to end this recording before post-roll,
+    // if it has another recording for this recorder.
+    ClearFlags(kFlagCancelNextRecording);
+}
+
+/** \fn TVRec::SetLiveRecording(int)
+ *  \brief Tells the Scheduler about changes to the recording status
+ *         of the LiveTV recording.
+ *
+ *   NOTE: Currently the 'recording' parameter is ignored and decisions
+ *         are based on the recording group alone.
+ *
+ *  \param recording Set to 1 to mark as rsRecording, set to 0 to mark as
+ *         rsCancelled, and set to -1 to base the decision of the recording
+ *         group.
+ */
+void TVRec::SetLiveRecording(int recording)
+{
+    VERBOSE(VB_IMPORTANT, LOC + "SetLiveRecording("<<recording<<")");
+    QMutexLocker locker(&stateChangeLock);
+
+    (void) recording;
+
+    RecStatusType recstat = rsCancelled;
+    bool was_rec = pseudoLiveTVRecording;
+    CheckForRecGroupChange();
+    if (was_rec && !pseudoLiveTVRecording)
+    {
+        VERBOSE(VB_IMPORTANT, LOC + "SetLiveRecording() -- cancel");
+        // cancel -- 'recording' should be 0 or -1
+        SetFlags(kFlagCancelNextRecording);
+    }
+    else if (!was_rec && pseudoLiveTVRecording)
+    {
+        VERBOSE(VB_IMPORTANT, LOC + "SetLiveRecording() -- record");
+        // record -- 'recording' should be 1 or -1
+
+        // If the last recording was flagged for keeping
+        // in the frontend, then add the recording rule
+        // so that transcode, commfrag, etc can be run.
+        recordEndTime = GetRecordEndTime(pseudoLiveTVRecording);
+        NotifySchedulerOfRecording(curRecording);
+        recstat = curRecording->recstatus;
+    }
+
+    MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
+                 .arg(curRecording->cardid)
+                 .arg(curRecording->chanid)
+                 .arg(curRecording->startts.toString(Qt::ISODate))
+                 .arg(recstat)
+                 .arg(curRecording->recendts.toString(Qt::ISODate)));
+
+    gContext->dispatch(me);
 }
 
 /** \fn TVRec::StopLiveTV(void)
@@ -3868,6 +4054,7 @@ bool TVRec::SwitchLiveTVRingBuffer(bool discont, bool set_rec)
     ProgramInfo *oldinfo = tvchain->GetProgramAt(-1);
     if (oldinfo)
     {
+        FinishedRecording(oldinfo);
         (new PreviewGenerator(oldinfo, true))->Start();
         delete oldinfo;
     }

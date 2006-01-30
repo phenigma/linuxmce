@@ -3,8 +3,8 @@
  * Routines that allow mythweb to communicate with mythbackend
  *
  * @url         $URL$
- * @date        $Date: 2005-12-22 09:17:32 +0200 (Thu, 22 Dec 2005) $
- * @version     $Revision: 8347 $
+ * @date        $Date: 2006-01-17 23:43:30 +0200 (Tue, 17 Jan 2006) $
+ * @version     $Revision: 8634 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -21,12 +21,12 @@
 
 // MYTH_PROTO_VERSION is defined in libmyth in mythtv/libs/libmyth/mythcontext.h
 // and should be the current MythTV protocol version.
-    define('MYTH_PROTO_VERSION', 22);
+    define('MYTH_PROTO_VERSION', 26);
 
 // NUMPROGRAMLINES is defined in mythtv/libs/libmythtv/programinfo.h and is
 // the number of items in a ProgramInfo QStringList group used by
 // ProgramInfo::ToSringList and ProgramInfo::FromStringList.
-    $NUMPROGRAMLINES = 40;
+    $NUMPROGRAMLINES = 41;
 
 // Keep track of the master backend port/ip
     $Master_Host = get_backend_setting('MasterServerIP');
@@ -35,7 +35,7 @@
         trigger_error("MasterServerIP or MasterServerPort not found! You man need to check your settings.php file or re-run setup mythtv's setup", FATAL);
 
 // Make sure we're connected to mythbackend
-    if (backend_command('ANN Playback '.hostname.' 0') != 'OK')
+    if (backend_command('ANN Monitor '.hostname.' 0') != 'OK')
         trigger_error("Unable to connect to mythbackend, is it running?\n", FATAL);
 
 /*
@@ -272,7 +272,8 @@
                      '0',                           // 37 dummy stars
                      $show->starttime,              // 38 dummy org airdate
                      '',                            // 39 dummy timestretch
-                     '',                            // 40 trailing separator
+                     ' ',                           // 40 recpriority2
+                     '',                            // 41 trailing separator
                     );
         $lastmodified = strtotime(backend_command($cmd));
     // Delete outdated images, but not until the show has finished recording

@@ -7,8 +7,8 @@
  * shared files for the entire program.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-31 02:04:01 +0200 (Sat, 31 Dec 2005) $
- * @version     $Revision: 8439 $
+ * @date        $Date: 2006-01-19 07:29:51 +0200 (Thu, 19 Jan 2006) $
+ * @version     $Revision: 8649 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -49,7 +49,7 @@
     define('root', str_replace('//', '/', dirname($_SERVER['SCRIPT_NAME']).'/'));;
 
 // Several sections of this program require the current hostname
-    define('hostname', trim(`hostname`));
+    define('hostname', empty($_SERVER['hostname']) ? trim(`hostname`) : $_SERVER['hostname']);
 
 // Load the user-defined configuration settings
     require_once 'config/conf.php';
@@ -233,6 +233,12 @@
     define('skin_url', root.skin_dir);
     define('theme_dir', 'themes/'.Theme.'/');
     define('theme_url', root.theme_dir);
+
+// Load the theme config
+    if (file_exists('config/theme_'.Theme.'.php')) {
+        require_once 'config/theme_'.Theme.'.php';
+    }
+
 
 // Make sure the data directory exists and is writable
     if (!is_dir('data') && !mkdir('data', 0755)) {

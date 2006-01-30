@@ -304,6 +304,7 @@ void ProgramInfo::ToStringList(QStringList &list) const
     DATETIME_TO_LIST(QDateTime(originalAirDate))
     INT_TO_LIST(hasAirDate)     
     STR_TO_LIST((playgroup != "") ? playgroup : "Default")
+    INT_TO_LIST(recpriority2)
 }
 
 /** \fn ProgramInfo::FromStringList(QStringList&,int)
@@ -401,6 +402,7 @@ bool ProgramInfo::FromStringList(QStringList &list, QStringList::iterator &it)
     DATE_FROM_LIST(originalAirDate);
     INT_FROM_LIST(hasAirDate);
     STR_FROM_LIST(playgroup)
+    INT_FROM_LIST(recpriority2)
 
     return true;
 }
@@ -515,10 +517,11 @@ void ProgramInfo::ToMap(QMap<QString, QString> &progMap,
         if (recendts > timeNow && recstatus <= rsWillRecord || 
             recstatus == rsConflict || recstatus == rsLaterShowing)
         {
-            if (recpriority >= 0)       
-                progMap["rec_str"] += QString(" +%1 ").arg(recpriority);
+            int totalpri =  recpriority + recpriority2;
+            if (totalpri >= 0)       
+                progMap["rec_str"] += QString(" +%1 ").arg(totalpri);
             else
-                progMap["rec_str"] += QString(" %1 ").arg(recpriority);
+                progMap["rec_str"] += QString(" %1 ").arg(totalpri);
         }
         else
         {
@@ -532,7 +535,7 @@ void ProgramInfo::ToMap(QMap<QString, QString> &progMap,
     progMap["recordingstatus"] = progMap["rec_str"];
     progMap["type"] = progMap["rec_str"];
 
-    progMap["recpriority"] = recpriority;
+    progMap["recpriority"] = recpriority + recpriority2;
     progMap["recgroup"] = recgroup;
     progMap["playgroup"] = playgroup;
     progMap["programflags"] = programflags;
@@ -1017,7 +1020,7 @@ void ProgramInfo::ApplyRecordRecID(void)
     }
 
     query.prepare("UPDATE recorded "
-                  "SET recordid = :RECID"
+                  "SET recordid = :RECID "
                   "WHERE chanid = :CHANID AND starttime = :START");
     query.bindValue(":RECID",  getRecordID());
     query.bindValue(":CHANID", chanid);
@@ -1343,7 +1346,7 @@ QString ProgramInfo::GetRecordBasename(void) const
         if (!query.exec() || !query.isActive())
             MythContext::DBError("GetRecordBasename", query);
         else if (query.size() < 1)
-            VERBOSE(VB_ALL, QString("GetRecordBasename found no entry"));
+            VERBOSE(VB_IMPORTANT, QString("GetRecordBasename found no entry"));
         else
         {
             query.next();
@@ -1737,7 +1740,7 @@ long long ProgramInfo::GetBookmark(void) const
 /** \fn ProgramInfo::IsEditing(void) const
  *  \brief Queries "recorded" table for its "editing" field
  *         and returns true if it is set to true.
- *  \return true iff we have started, but not finished, editing.
+ *  \return true if we have started, but not finished, editing.
  */
 bool ProgramInfo::IsEditing(void) const
 {

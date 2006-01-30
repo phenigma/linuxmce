@@ -186,6 +186,7 @@ class TVRec : public QObject
     void PauseRecorder(void);
     void ToggleChannelFavorite(void);
 
+    void SetLiveRecording(int recording);
     /// Toggles between inputs on current capture card.
     void ToggleInputs(void)     { SetChannel("ToggleInputs"); }
     /// Changes to a channel in the 'dir' channel change direction.
@@ -200,7 +201,7 @@ class TVRec : public QObject
     int ChangeHue(bool direction);
     bool CheckChannel(QString name);
     bool ShouldSwitchToAnotherCard(QString chanid);
-    bool CheckChannelPrefix(QString name, bool &unique);
+    bool CheckChannelPrefix(const QString&,uint&,bool&,QString&);
     void GetNextProgram(int direction,
                         QString &title,       QString &subtitle,
                         QString &desc,        QString &category,

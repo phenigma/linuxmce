@@ -46,6 +46,7 @@ const int TV::kSMExitTimeout  = 2000;
 const int TV::kInputKeysMax   = 6;
 const int TV::kInputModeTimeout=5000;
 
+#define DEBUG_CHANNEL_PREFIX 0 /**< set to 1 to channel prefixing */
 #define DEBUG_ACTIONS 0 /**< set to 1 to debug actions */
 #define LOC QString("TV: ")
 #define LOC_ERR QString("TV Error: ")
@@ -235,6 +236,7 @@ TV::TV(void)
       asInputMode(false), asInputModeExpires(QTime::currentTime()),
       // Channel changing state variables
       queuedChanNum(""),
+      queuedChanNumExpr(QRegExp("([1-9]|\\w)")),
       muteTimer(new QTimer(this)),
       lockTimerOn(false),
       // previous channel functionality state variables
@@ -263,6 +265,8 @@ TV::TV(void)
       // Window info (GUI is optional, transcoding, preview img, etc)
       myWindow(NULL), embedWinID(0), embedBounds(0,0,0,0)
 {
+    queuedChanNumExpr.setMinimal(true); // we don't need greedy matching
+
     for (uint i = 0; i < 2; i++)
     {
         pseudoLiveTVRec[i]   = NULL;
@@ -281,6 +285,7 @@ TV::TV(void)
     sleep_times.push_back(SleepTimerInfo(QObject::tr("2h"),   120*60));
 
     gContext->addListener(this);
+    gContext->addCurrentLocation("Playback");
 
     connect(prevChanTimer,    SIGNAL(timeout()), SLOT(SetPreviousChannel()));
     connect(browseTimer,      SIGNAL(timeout()), SLOT(BrowseEndTimer()));
@@ -419,6 +424,7 @@ TV::~TV(void)
 {
     QMutexLocker locker(&osdlock); // prevent UpdateOSDSignal from continuing.
     gContext->removeListener(this);
+    gContext->removeCurrentLocation();
 
     runMainLoop = false;
     pthread_join(event, NULL);
@@ -486,8 +492,9 @@ void TV::GetPlayGroupSettings(const QString &group)
 /** \fn LiveTV(bool)
  *  \brief Starts LiveTV
  *  \param showDialogs if true error dialogs are shown, if false they are not
+ *  \param startInGuide if true the EPG will be shown upon entering LiveTV
  */
-int TV::LiveTV(bool showDialogs)
+int TV::LiveTV(bool showDialogs, bool startInGuide)
 {
     if (internalState == kState_None && RequestNextRecorder(showDialogs))
     {
@@ -503,6 +510,27 @@ int TV::LiveTV(bool showDialogs)
         switchToRec = NULL;
 
         GetPlayGroupSettings("Default");
+
+        if (startInGuide || gContext->GetNumSetting("WatchTVGuide", 0))
+        {
+            MSqlQuery query(MSqlQuery::InitCon()); 
+            query.prepare("SELECT keylist FROM keybindings WHERE "
+                          "context = 'TV Playback' AND action = 'GUIDE' AND "
+                          "hostname = :HOSTNAME ;");
+            query.bindValue(":HOSTNAME", gContext->GetHostName());
+
+            if (query.exec() && query.isActive() && query.size() > 0)
+            {
+                query.next();
+
+                QKeySequence keyseq(query.value(0).toString());
+
+                int keynum = keyseq[0];
+                keynum &= ~Qt::UNICODE_ACCEL;
+   
+                keyList.prepend(new QKeyEvent(QEvent::KeyPress, keynum, 0, 0));
+            }
+        }
 
         return 1;
     }
@@ -1370,27 +1398,7 @@ void TV::RunTV(void)
 { 
     paused = false;
     QKeyEvent *keypressed;
-
-    if (gContext->GetNumSetting("WatchTVGuide", 0))
-    {
-        MSqlQuery query(MSqlQuery::InitCon()); 
-        query.prepare("SELECT keylist FROM keybindings WHERE "
-                      "context = 'TV Playback' AND action = 'GUIDE' AND "
-                      "hostname = :HOSTNAME ;");
-        query.bindValue(":HOSTNAME", gContext->GetHostName());
-
-        if (query.exec() && query.isActive() && query.size() > 0)
-        {
-            query.next();
-
-            QKeySequence keyseq(query.value(0).toString());
-
-            int keynum = keyseq[0];
-            keynum &= ~Qt::UNICODE_ACCEL;
-   
-            keyList.prepend(new QKeyEvent(QEvent::KeyPress, keynum, 0, 0));
-        }
-    }
+    QString netCmd;
 
     doing_ff_rew = 0;
     ff_rew_index = kInitFFRWSpeed;
@@ -1461,6 +1469,18 @@ void TV::RunTV(void)
             ProcessKeypress(keypressed);
             delete keypressed;
         }
+
+        netCmd = "";
+        ncLock.lock();
+        if (networkControlCommands.size())
+        {
+            netCmd = networkControlCommands.front();
+            networkControlCommands.pop_front();
+        }
+        ncLock.unlock();
+
+        if (netCmd != "")
+            processNetworkControlCommand(netCmd);
 
         if ((recorder && recorder->GetErrorStatus()) || IsErrored())
         {
@@ -2484,6 +2504,217 @@ void TV::ProcessKeypress(QKeyEvent *e)
     }
 }
 
+void TV::processNetworkControlCommand(QString command)
+{
+    QStringList tokens = QStringList::split(" ", command);
+
+    if (tokens[1] != "QUERY")
+        ClearOSD();
+
+    if (tokens.size() == 3 && tokens[1] == "CHANID")
+    {
+        ChangeChannel(tokens[2].toUInt(), "");
+    }
+    else if (tokens.size() == 3 && tokens[1] == "CHANNEL")
+    {
+        if (tokens[2] == "UP")
+            ChangeChannel(CHANNEL_DIRECTION_UP);
+        else if (tokens[2] == "DOWN")
+            ChangeChannel(CHANNEL_DIRECTION_DOWN);
+        else if (tokens[2].contains(QRegExp("^\\d+$")))
+            ChangeChannel(0, tokens[2]);
+    }
+    else if (tokens.size() == 3 && tokens[1] == "SPEED")
+    {
+        if (tokens[2] == "0x")
+        {
+            NormalSpeed();
+            StopFFRew();
+
+            if (!paused)
+                DoPause();
+        }
+        else if (tokens[2].contains(QRegExp("^\\-*\\d+x$")))
+        {
+            QString speed = tokens[2].left(tokens[2].length()-1);
+            bool ok = false;
+            int tmpSpeed = speed.toInt(&ok);
+            int searchSpeed = abs(tmpSpeed);
+            unsigned int index;
+
+            if (paused)
+                DoPause();
+
+            if (tmpSpeed == 1)
+            {
+                StopFFRew();
+                normal_speed = 1.0f;
+                ChangeTimeStretch(0, false);
+
+                return;
+            }
+
+            NormalSpeed();
+
+            for (index = 0; index < ff_rew_speeds.size(); index++)
+                if (ff_rew_speeds[index] == searchSpeed)
+                    break;
+
+            if ((index < ff_rew_speeds.size()) &&
+                (ff_rew_speeds[index] == searchSpeed))
+            {
+                if (tmpSpeed < 0)
+                    doing_ff_rew = -1;
+                else if (tmpSpeed > 1)
+                    doing_ff_rew = 1;
+                else
+                    StopFFRew();
+
+                if (doing_ff_rew)
+                    SetFFRew(index);
+            }
+            else
+            {
+                VERBOSE(VB_IMPORTANT, QString("Couldn't find %1 speed in "
+                    "FFRewSpeed settings array, changing to default speed "
+                    "of 1x").arg(searchSpeed));
+
+                doing_ff_rew = 0;
+                SetFFRew(kInitFFRWSpeed);
+            }
+        }
+        else if (tokens[2].contains(QRegExp("^\\d*\\.\\d+x$")))
+        {
+            QString tmpSpeed = tokens[2].left(tokens[2].length() - 1);
+
+            if (paused)
+                DoPause();
+
+            StopFFRew();
+
+            bool floatRead;
+            float stretch = tmpSpeed.toFloat(&floatRead);
+            if (floatRead &&
+                stretch <= 2.0 &&
+                stretch >= 0.48)
+            {
+                normal_speed = stretch;   // alter speed before display
+                ChangeTimeStretch(0, false);
+            }
+        }
+        else if (tokens[2].contains(QRegExp("^\\d+\\/\\d+x$")))
+        {
+            if (paused)
+                DoPause();
+
+            if (tokens[2] == "16x")
+                ChangeSpeed(5 - speed_index);
+            else if (tokens[2] == "8x")
+                ChangeSpeed(4 - speed_index);
+            else if (tokens[2] == "4x")
+                ChangeSpeed(3 - speed_index);
+            else if (tokens[2] == "3x")
+                ChangeSpeed(2 - speed_index);
+            else if (tokens[2] == "2x")
+                ChangeSpeed(1 - speed_index);
+            else if (tokens[2] == "1x")
+                ChangeSpeed(0 - speed_index);
+            else if (tokens[2] == "1/2x")
+                ChangeSpeed(-1 - speed_index);
+            else if (tokens[2] == "1/3x")
+                ChangeSpeed(-2 - speed_index);
+            else if (tokens[2] == "1/4x")
+                ChangeSpeed(-3 - speed_index);
+            else if (tokens[2] == "1/8x")
+                ChangeSpeed(-4 - speed_index);
+            else if (tokens[2] == "1/16x")
+                ChangeSpeed(-5 - speed_index);
+        }
+        else
+            VERBOSE(VB_IMPORTANT,
+                QString("Found an unknown speed of %1").arg(tokens[2]));
+    }
+    else if (tokens.size() == 2 && tokens[1] == "STOP")
+    {
+        if (internalState != kState_WatchingLiveTV && nvp)
+            nvp->SetBookmark();
+        exitPlayer = true;
+        wantsToQuit = true;
+    }
+    else if (tokens.size() >= 3 && tokens[1] == "SEEK" && activenvp)
+    {
+        if (tokens[2] == "BEGINNING")
+            DoSeek(-activenvp->GetFramesPlayed(), tr("Jump to Beginning"));
+        else if (tokens[2] == "FORWARD")
+            DoSeek(fftime, tr("Skip Ahead"));
+        else if (tokens[2] == "BACKWARD")
+            DoSeek(-rewtime, tr("Skip Back"));
+        else if ((tokens[2] == "POSITION") && (tokens.size() == 4) &&
+                 (tokens[3].contains(QRegExp("^\\d+$"))))
+            DoSeek(tokens[3].toInt() -
+                   (activenvp->GetFramesPlayed() / frameRate), tr("Jump To"));
+    }
+    else if (tokens.size() >= 3 && tokens[1] == "QUERY" && activenvp)
+    {
+        if (tokens[2] == "POSITION")
+        {
+            QString speedStr;
+
+            switch (speed_index)
+            {
+                case  5: speedStr = "16x"; break;
+                case  4: speedStr = "8x";  break;
+                case  3: speedStr = "4x";  break;
+                case  2: speedStr = "3x";  break;
+                case  1: speedStr = "2x";  break;
+                case  0: speedStr = "1x";  break;
+                case -1: speedStr = "1/2x"; break;
+                case -2: speedStr = "1/3x"; break;
+                case -3: speedStr = "1/4x"; break;
+                case -4: speedStr = "1/8x"; break;
+                case -5: speedStr = "1/16x"; break;
+                case -6: speedStr = "0x"; break;
+                default: speedStr = "1x"; break;
+            }
+
+            if (doing_ff_rew == -1)
+                speedStr = QString("-%1").arg(speedStr);
+            else if (normal_speed != 1.0)
+                speedStr = QString("%1X").arg(normal_speed);
+
+            struct StatusPosInfo posInfo;
+            nvp->calcSliderPos(posInfo);
+
+            QDateTime respDate = mythCurrentDateTime();
+            QString infoStr = "";
+
+            pbinfoLock.lock();
+            if (internalState == kState_WatchingLiveTV)
+            {
+                infoStr = "LiveTV";
+                if (playbackinfo)
+                    respDate = playbackinfo->startts;
+            }
+            else
+            {
+                infoStr = "Recorded";
+                if (playbackinfo)
+                    respDate = playbackinfo->recstartts;
+            }
+
+            infoStr += QString(" %1 %2 %3 %4").arg(posInfo.desc).arg(speedStr)
+                               .arg(playbackinfo != NULL ? playbackinfo->chanid : "-1")
+                               .arg(respDate.toString(Qt::ISODate));
+            pbinfoLock.unlock();
+
+            QString message = QString("NETWORK_CONTROL ANSWER %1")
+                                      .arg(infoStr);
+            MythEvent me(message);
+            gContext->dispatch(me);
+        }
+    }
+}
+
 void TV::TogglePIPView(void)
 {
     if (!pipnvp)
@@ -2856,13 +3087,18 @@ void TV::ChangeSpeed(int direction)
 
     switch (speed_index)
     {
+        case  5: speed = 16.0;     mesg = QString(tr("Speed 16X"));   break;
+        case  4: speed = 8.0;      mesg = QString(tr("Speed 8X"));    break;
+        case  3: speed = 4.0;      mesg = QString(tr("Speed 4X"));    break;
         case  2: speed = 3.0;      mesg = QString(tr("Speed 3X"));    break;
         case  1: speed = 2.0;      mesg = QString(tr("Speed 2X"));    break;
         case  0: speed = 1.0;      mesg = PlayMesg();                 break;
-        case -1: speed = 1.0 / 3;  mesg = QString(tr("Speed 1/3X"));  break;
-        case -2: speed = 1.0 / 8;  mesg = QString(tr("Speed 1/8X"));  break;
-        case -3: speed = 1.0 / 16; mesg = QString(tr("Speed 1/16X")); break;
-        case -4: DoPause(); return; break;
+        case -1: speed = 1.0 / 2;  mesg = QString(tr("Speed 1/2X"));  break;
+        case -2: speed = 1.0 / 3;  mesg = QString(tr("Speed 1/3X"));  break;
+        case -3: speed = 1.0 / 4;  mesg = QString(tr("Speed 1/4X"));  break;
+        case -4: speed = 1.0 / 8;  mesg = QString(tr("Speed 1/8X"));  break;
+        case -5: speed = 1.0 / 16; mesg = QString(tr("Speed 1/16X")); break;
+        case -6: DoPause(); return; break;
         default: speed_index = old_speed; return; break;
     }
 
@@ -2940,7 +3176,7 @@ void TV::SetFFRew(int index)
         return;
 
     ff_rew_index = index;
-    float speed;
+    int speed;
 
     QString mesg;
     if (doing_ff_rew > 0)
@@ -2954,7 +3190,7 @@ void TV::SetFFRew(int index)
         speed = -ff_rew_speeds[ff_rew_index];
     }
 
-    activenvp->Play(speed, false);
+    activenvp->Play((float)speed, (speed == 1) && (doing_ff_rew > 0));
     UpdateOSDSeekMessage(mesg, -1);
 }
 
@@ -3040,11 +3276,12 @@ void TV::DoSkipCommercials(int direction)
         muteTimer->start(kMuteTimeout, true);
 }
 
-static int get_cardinputid(uint cardid, const QString &channum)
+static int get_cardinputid(uint cardid, const QString &channum,
+                           QString &inputname)
 {
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare(
-        "SELECT cardinputid "
+        "SELECT cardinputid, inputname "
         "FROM channel, capturecard, cardinput "
         "WHERE channel.channum      = :CHANNUM           AND "
         "      channel.sourceid     = cardinput.sourceid AND "
@@ -3056,7 +3293,10 @@ static int get_cardinputid(uint cardid, const QString &channum)
     if (!query.exec() || !query.isActive())
         MythContext::DBError("get_cardinputid", query);
     else if (query.next())
+    {
+        inputname = query.value(1).toString();
         return query.value(0).toInt();
+    }
 
     return -1;    
 }
@@ -3072,6 +3312,18 @@ static void set_startchan(uint cardinputid, const QString &channum)
     query.exec();
     if (!query.exec())
         MythContext::DBError("set_startchan", query);
+}
+
+static void set_startinput(uint cardid, const QString &inputname)
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare("UPDATE capturecard "
+                  "SET defaultinput = :INNAME "
+                  "WHERE cardid = :CARDID");
+    query.bindValue(":INNAME", inputname);
+    query.bindValue(":CARDID", cardid);
+    if (!query.exec())
+        MythContext::DBError("set_startinput", query);
 }
 
 void TV::SwitchCards(uint chanid, QString channum)
@@ -3093,12 +3345,17 @@ void TV::SwitchCards(uint chanid, QString channum)
         // now we need to set our channel as the starting channel..
         if (testrec && testrec->IsValidRecorder())
         {
+            QString inputname("");
             int cardid = testrec->GetRecorderNumber();
-            int cardinputid = get_cardinputid(cardid, channum);
-            VERBOSE(VB_IMPORTANT, LOC + "setting startchan: " +
+            int cardinputid = get_cardinputid(cardid, channum, inputname);
+            VERBOSE(VB_CHANNEL, LOC + "Setting startchan: " +
                     QString("cardid(%1) cardinputid(%2) channum(%3)")
                     .arg(cardid).arg(cardinputid).arg(channum));
-            set_startchan(cardinputid, channum);
+            if (cardid >= 0 && cardinputid >= 0 && !inputname.isEmpty())
+            {
+                set_startchan(cardinputid, channum);
+                set_startinput(cardid, inputname);
+            }
         }
     }
 
@@ -3258,14 +3515,33 @@ void TV::ChangeChannel(int direction)
     UnpauseLiveTV();
 }
 
+QString TV::GetQueuedInput(void) const
+{
+    QMutexLocker locker(&queuedInputLock);
+    return QDeepCopy<QString>(queuedInput);
+}
+
+int TV::GetQueuedInputAsInt(bool *ok, int base) const
+{
+    QMutexLocker locker(&queuedInputLock);
+    return queuedInput.toInt(ok, base);
+}
+
 QString TV::GetQueuedChanNum(void) const
 {
-    // strip initial zeros.
-    int nzi = queuedChanNum.find(QRegExp("([1-9]|\\w)"));
-    if (nzi > 0)
-        queuedChanNum = queuedChanNum.right(queuedChanNum.length() - nzi);
+    QMutexLocker locker(&queuedInputLock);
 
-    return queuedChanNum.stripWhiteSpace();
+    // avoid regular expression if queue is empty.
+    if (!queuedChanNum.isEmpty())
+    {
+        // strip initial zeros.
+        int nzi = queuedChanNum.find(queuedChanNumExpr);
+        if (nzi > 0)
+            queuedChanNum = queuedChanNum.right(queuedChanNum.length() - nzi);
+        queuedChanNum.stripWhiteSpace();
+    }
+
+    return QDeepCopy<QString>(queuedChanNum);
 }
 
 /** \fn TV::ClearInputQueues(bool)
@@ -3277,6 +3553,7 @@ void TV::ClearInputQueues(bool hideosd)
     if (hideosd && GetOSD()) 
         GetOSD()->HideSet("channel_number");
 
+    QMutexLocker locker(&queuedInputLock);
     queuedInput   = "";
     queuedChanNum = "";
     queuedChanID  = 0;
@@ -3284,45 +3561,26 @@ void TV::ClearInputQueues(bool hideosd)
 
 void TV::AddKeyToInputQueue(char key)
 {
-    static char *spacers[5] = { "_", "-", "#", ".", NULL };
-
     if (key)
     {
+        QMutexLocker locker(&queuedInputLock);
         queuedInput   = queuedInput.append(key).right(kInputKeysMax);
         queuedChanNum = queuedChanNum.append(key).right(kInputKeysMax);
     }
 
-    /* 
-     * Always use smartChannelChange when channel numbers are entered in
-     * browse mode because in browse mode space/enter exit browse mode and
-     * change to the currently browsed channel. This makes smartChannelChange
-     * the only way to enter a channel number to browse without waiting for the
-     * OSD to fadeout after entering numbers.
-     */
-    bool do_smart = StateIsLiveTV(GetState()) &&
-        !ccInputMode && !asInputMode &&
-        (smartChannelChange || browsemode);
-    QString chan = GetQueuedChanNum();
-    if (!chan.isEmpty() && do_smart)
+    bool commitSmart = false;
+    QString inputStr = GetQueuedInput();
+
+    // Always use smartChannelChange when channel numbers are entered
+    // in browse mode because in browse mode space/enter exit browse
+    // mode and change to the currently browsed channel.
+    if (StateIsLiveTV(GetState()) && !ccInputMode && !asInputMode &&
+        (smartChannelChange || browsemode))
     {
-        // Look for channel in line-up
-        bool unique = false;
-        bool ok = activerecorder->CheckChannelPrefix(chan, unique);
-
-        // If pure channel not in line-up, try adding a spacer
-        QString mod = chan;
-        for (uint i=0; (spacers[i] != NULL) && !ok; ++i)
-        {
-            mod = chan.left(chan.length()-1) + spacers[i] + chan.right(1);
-            ok = activerecorder->CheckChannelPrefix(mod, unique);
-        }
-
-        // Use valid channel if it is there, otherwise reset...
-        queuedChanNum = (ok) ? mod : chan.right(1);
-        do_smart &= unique;
+        commitSmart = ProcessSmartChannel(inputStr);
     }
-
-    QString inputStr = (do_smart) ? queuedChanNum : queuedInput;
+ 
+    // Handle OSD...
     inputStr = inputStr.isEmpty() ? "?" : inputStr;
     if (ccInputMode)
     {
@@ -3333,8 +3591,74 @@ void TV::AddKeyToInputQueue(char key)
         inputStr = tr("Seek:", "seek to location") + " " + inputStr;
     UpdateOSDTextEntry(inputStr);
 
-    if (do_smart)
+    // Commit the channel if it is complete and smart changing is enabled.
+    if (commitSmart)
         CommitQueuedInput();
+}
+
+static QString add_spacer(const QString &chan, const QString &spacer)
+{
+    if ((chan.length() >= 2) && !spacer.isEmpty())
+        return chan.left(chan.length()-1) + spacer + chan.right(1);
+    return chan;
+}
+
+bool TV::ProcessSmartChannel(QString &inputStr)
+{
+    QString chan = GetQueuedChanNum();
+
+    if (chan.isEmpty())
+        return false;
+
+    // Check for and remove duplicate separator characters
+    if ((chan.length() > 2) && (chan.right(1) == chan.right(2).left(1)) &&
+        !chan.right(1).toUInt())
+    {
+        chan = chan.left(chan.length()-1);
+
+        QMutexLocker locker(&queuedInputLock);
+        queuedChanNum = QDeepCopy<QString>(chan);
+    }
+
+    // Look for channel in line-up
+    QString needed_spacer;
+    uint    pref_cardid;
+    bool    is_not_complete;
+
+    bool valid_prefix = activerecorder->CheckChannelPrefix(
+        chan, pref_cardid, is_not_complete, needed_spacer);
+
+#if DEBUG_CHANNEL_PREFIX
+    VERBOSE(VB_IMPORTANT, QString("valid_pref(%1) cardid(%2) chan(%3) "
+                                  "pref_cardid(%4) complete(%5) sp(%6)")
+            .arg(valid_prefix).arg(cardid).arg(chan)
+            .arg(pref_cardid).arg(is_not_complete).arg(needed_spacer));
+#endif
+
+    if (!valid_prefix)
+    {
+        // not a valid prefix.. reset...
+        QMutexLocker locker(&queuedInputLock);
+        queuedChanNum = "";
+    }
+    else if (!needed_spacer.isEmpty())
+    {
+        // need a spacer..
+        QMutexLocker locker(&queuedInputLock);
+        queuedChanNum = add_spacer(chan, needed_spacer);
+    }
+
+#if DEBUG_CHANNEL_PREFIX
+    VERBOSE(VB_IMPORTANT, QString(" ValidPref(%1) CardId(%2) Chan(%3) "
+                                  " PrefCardId(%4) Complete(%5) Sp(%6)")
+            .arg(valid_prefix).arg(cardid).arg(GetQueuedChanNum())
+            .arg(pref_cardid).arg(is_not_complete).arg(needed_spacer));
+#endif
+
+    QMutexLocker locker(&queuedInputLock);
+    inputStr = QDeepCopy<QString>(queuedChanNum);
+
+    return !is_not_complete;
 }
 
 void TV::UpdateOSDTextEntry(const QString &message)
@@ -3376,38 +3700,65 @@ void TV::CommitQueuedInput(void)
              !pseudoLiveTVState[(activenvp == nvp) ? 0 : 1])
     {
         QString channum = GetQueuedChanNum();
+        QString chaninput = GetQueuedInput();
         if (browsemode)
         {
             BrowseChannel(channum);
             if (activenvp == nvp && GetOSD())
                 GetOSD()->HideSet("channel_number");
         }
-        else if (GetQueuedChanID() ||
-                 (!channum.isEmpty() && activerecorder->CheckChannel(channum)))
+        else if (GetQueuedChanID() || !channum.isEmpty())
             ChangeChannel(GetQueuedChanID(), channum);
-        else if (!GetQueuedInput().isEmpty())
-            ChangeChannel(GetQueuedChanID(), GetQueuedInput());
     }
 
     ClearInputQueues(true);
 }
 
-void TV::ChangeChannel(uint chanid, const QString &channum)
+void TV::ChangeChannel(uint chanid, const QString &chan)
 {
     VERBOSE(VB_PLAYBACK, LOC + QString("ChangeChannel(%1, '%2') ")
-            .arg(chanid).arg(channum));
+            .arg(chanid).arg(chan));
 
+    if (!chanid && chan.isEmpty())
+        return;
+
+    QString channum = chan;
     QStringList reclist;
     bool muted = false;
 
+    if (channum.isEmpty())
+    {
+        MSqlQuery query(MSqlQuery::InitCon());
+        query.prepare("SELECT channum FROM channel "
+                      "WHERE chanid = :CHANID");
+        query.bindValue(":CHANID", chanid);
+        if (query.exec() && query.isActive() && query.size() > 0 && query.next())
+            channum = query.value(0).toString();
+        else
+            channum = QString::number(chanid);
+    }
+
     if (activerecorder)
     {
-        bool getit = false, unique = false;
+        bool getit = false;
+
         if (chanid)
+        {
             getit = activerecorder->ShouldSwitchToAnotherCard(
                 QString::number(chanid));
+        }
         else
-            getit = !activerecorder->CheckChannelPrefix(channum, unique);
+        {
+            QString needed_spacer;
+            uint pref_cardid, cardid = activerecorder->GetRecorderNumber();
+            bool dummy;
+
+            activerecorder->CheckChannelPrefix(chan,  pref_cardid,
+                                               dummy, needed_spacer);
+
+            channum = add_spacer(chan, needed_spacer);
+            getit = (pref_cardid != cardid);
+        }
 
         if (getit)
             reclist = GetValidRecorderList(chanid, channum);
@@ -3538,8 +3889,9 @@ void TV::SetPreviousChannel()
 
     if (chan_name != prevChan[i])
     {
-        queuedInput   = prevChan[i];
-        queuedChanNum = prevChan[i];
+        QMutexLocker locker(&queuedInputLock);
+        queuedInput   = QDeepCopy<QString>(prevChan[i]);
+        queuedChanNum = QDeepCopy<QString>(prevChan[i]);
         queuedChanID  = 0;
     }
 
@@ -4364,9 +4716,10 @@ void TV::EPGChannelUpdate(uint chanid, QString channum)
 {
     if (chanid && !channum.isEmpty())
     {
+        QMutexLocker locker(&queuedInputLock);
         // we need to use deep copy bcs this can be called from another thread.
         queuedInput   = QDeepCopy<QString>(channum);
-        queuedChanNum = queuedInput;
+        queuedChanNum = QDeepCopy<QString>(channum);
         queuedChanID  = chanid;
     }
 }
@@ -4530,6 +4883,16 @@ void TV::customEvent(QCustomEvent *e)
                     <<stringToLongLong(keyframe[0]));
             bool tc = recorder && (recorder->GetRecorderNumber() == cardnum);
             (void)tc;
+        }
+        else if (message.left(15) == "NETWORK_CONTROL")
+        {
+            QStringList tokens = QStringList::split(" ", message);
+            if ((tokens[1] != "ANSWER") && (tokens[1] != "RESPONSE"))
+            {
+                ncLock.lock();
+                networkControlCommands.push_back(message);
+                ncLock.unlock();
+            }
         }
 
         pbinfoLock.lock();
@@ -4747,6 +5110,7 @@ void TV::ToggleRecord(void)
         playbackinfo->ApplyRecordRecGroupChange("Default");
         cmdmsg = tr("Record");
         SetPseudoLiveTV(s, playbackinfo, kPseudoRecording);
+        activerecorder->SetLiveRecording(true);
         VERBOSE(VB_RECORD, LOC + "Toggling Record on");
     }
     else
@@ -4755,6 +5119,7 @@ void TV::ToggleRecord(void)
         playbackinfo->ApplyRecordRecGroupChange("LiveTV");
         cmdmsg = tr("Cancel Record");
         SetPseudoLiveTV(s, playbackinfo, kPseudoNormalLiveTV);
+        activerecorder->SetLiveRecording(false);
         VERBOSE(VB_RECORD, LOC + "Toggling Record off");
     }
 
@@ -4974,6 +5339,11 @@ void TV::TreeMenuSelected(OSDListTreeType *tree, OSDGenericTree *item)
         {
             normal_speed = stretch;   // alter speed before display
         }
+
+        StopFFRew();
+
+        if (paused)
+            DoPause();
 
         ChangeTimeStretch(0, !floatRead);   // just display
     }
@@ -5707,3 +6077,4 @@ void TV::SetCurrentlyPlaying(ProgramInfo *pginfo)
     pbinfoLock.unlock();
 }
 
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

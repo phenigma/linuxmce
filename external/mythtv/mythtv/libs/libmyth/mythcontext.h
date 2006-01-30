@@ -93,6 +93,8 @@ class MythContextPrivate;
       "VBI related messages")                    \
     F(VB_DATABASE,  0x00010000, "database",  1,  \
       "Display all SQL commands executed")       \
+    F(VB_TIMESTAMP, 0x80000000, "timestamp", 1,  \
+      "Conditional data driven messages")        \
     F(VB_NONE,      0x00000000, "none",      0,  \
       "NO debug output")
 
@@ -151,7 +153,7 @@ struct DatabaseParams
 
 #define VERBOSE(mask,args...) \
 do { \
-    if ((print_verbose_messages & mask) != 0) \
+    if ((print_verbose_messages & (mask)) == (mask)) \
     { \
         QDateTime dtmp = QDateTime::currentDateTime(); \
         QString dtime = dtmp.toString("yyyy-MM-dd hh:mm:ss.zzz"); \
@@ -166,7 +168,7 @@ do { \
 // use a slower non-deadlockable version in release builds
 #define VERBOSE(mask,args...) \
 do { \
-    if ((print_verbose_messages & mask) != 0) \
+    if ((print_verbose_messages & (mask)) == (mask)) \
     { \
         QDateTime dtmp = QDateTime::currentDateTime(); \
         QString dtime = dtmp.toString("yyyy-MM-dd hh:mm:ss.zzz"); \
@@ -214,14 +216,14 @@ class MythPrivRequest
 
 /// Update this whenever the plug-in API changes.
 /// Including changes in the libmythtv class methods used by plug-ins.
-#define MYTH_BINARY_VERSION "0.19.20051208-1"
+#define MYTH_BINARY_VERSION "0.19.20060121-2"
 
 /** \brief Increment this whenever the MythTV network protocol changes.
  *
  *   You must also update this value in
  *   mythplugins/mythweb/includes/mythbackend.php
  */
-#define MYTH_PROTO_VERSION "23"
+#define MYTH_PROTO_VERSION "26"
 
 /** \class MythContext
  *  \brief This class contains the runtime context for MythTV.
@@ -352,6 +354,7 @@ class MythContext : public QObject, public MythObservable
     QFont GetSmallFont();
 
     QString GetLanguage(void);
+    QString GetLanguageAndVariant(void);
 
     void ThemeWidget(QWidget *widget);
 
@@ -359,7 +362,8 @@ class MythContext : public QObject, public MythObservable
     QPixmap *LoadScalePixmap(QString filename, bool fromcache = true); 
     QImage *LoadScaleImage(QString filename, bool fromcache = true);
 
-    bool SendReceiveStringList(QStringList &strlist, bool quickTimeout = false);
+    bool SendReceiveStringList(QStringList &strlist, bool quickTimeout = false, 
+                               bool block = true);
 
     QImage *CacheRemotePixmap(const QString &url, bool reCache = false);
 
@@ -396,6 +400,10 @@ class MythContext : public QObject, public MythObservable
     void waitPrivRequest() const;
     MythPrivRequest popPrivRequest();
 
+    void addCurrentLocation(QString location);
+    QString removeCurrentLocation(void);
+    QString getCurrentLocation(void);
+
     static QMutex verbose_mutex;
 
   private slots:
@@ -419,9 +427,15 @@ class MythContext : public QObject, public MythObservable
     bool useSettingsCache;
     QMutex cacheLock;
     QMap <QString, QString> settingsCache;
+
+    QMutex locationLock;
+    QValueList <QString> currentLocation;
 };
 
 /// This global variable contains the MythContext instance for the application
 extern MythContext *gContext;
+
+/// This global variable is used to makes certain calls to avlib threadsafe.
+extern QMutex avcodeclock;
 
 #endif

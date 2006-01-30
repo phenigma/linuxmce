@@ -80,10 +80,13 @@ StatusBox::StatusBox(MythMainWindow *parent, const char *name)
     min_level = gContext->GetNumSetting("LogDefaultView",1);
     my_parent = parent;
     clicked();
+
+    gContext->addCurrentLocation("StatusBox");
 }
 
 StatusBox::~StatusBox(void)
 {
+    gContext->removeCurrentLocation();
 }
 
 void StatusBox::paintEvent(QPaintEvent *e)
@@ -1062,9 +1065,12 @@ void StatusBox::getActualRecordedBPS(QString hostnames)
 
     query.prepare(querystr.arg(hostnames));
 
-    if (query.exec() && query.isActive() && query.size() > 0 && query.next())
+    if (query.exec() && query.isActive() && query.size() > 0 && query.next() &&
+        query.value(0).toDouble() > 0)
+    {
         recordingProfilesBPS[QObject::tr("average")] =
             (int)(query.value(0).toDouble());
+    }
 
     querystr =
         "SELECT max(filesize * 8 / "
@@ -1075,9 +1081,12 @@ void StatusBox::getActualRecordedBPS(QString hostnames)
 
     query.prepare(querystr.arg(hostnames));
 
-    if (query.exec() && query.isActive() && query.size() > 0 && query.next())
+    if (query.exec() && query.isActive() && query.size() > 0 && query.next() &&
+        query.value(0).toDouble() > 0)
+    {
         recordingProfilesBPS[QObject::tr("maximum")] =
             (int)(query.value(0).toDouble());
+    }
 }
 
 /** \fn StatusBox::doMachineStatus()
@@ -1297,7 +1306,13 @@ void StatusBox::doAutoExpireList()
     }
 
     staticInfo = tr("%1 recordings consuming %2 are allowed to expire")
-                    .arg(expList.size()).arg(sm_str(totalSize / 1024));
+                    .arg(expList.size()).arg(sm_str(totalSize / 1024)) + "\n";
+
+    if (liveTVCount)
+        staticInfo += tr("%1 of these are LiveTV and consume %2")
+                        .arg(liveTVCount).arg(sm_str(liveTVSize / 1024)) + "\n";
+    else
+        staticInfo += "\n";
 
     for (it = expList.begin(); it != expList.end(); it++)
     {
@@ -1305,7 +1320,7 @@ void StatusBox::doAutoExpireList()
         contentLine = pginfo->recstartts.toString(dateFormat) + " - " +
                       pginfo->title + " (" + sm_str(pginfo->filesize / 1024) +
                       ")";
-        detailInfo = staticInfo + "\n\n" + pginfo->title;
+        detailInfo = staticInfo + pginfo->title;
 
         if (pginfo->subtitle != "")
             detailInfo += " - " + pginfo->subtitle + "";

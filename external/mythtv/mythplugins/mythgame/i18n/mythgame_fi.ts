@@ -156,7 +156,7 @@
     <message>
         <source>Rom Information
 </source>
-        <translation>Rom-tiedot
+        <translation type="obsolete">Rom-tiedot
 </translation>
     </message>
     <message>
@@ -222,6 +222,55 @@
     <message>
         <source>Enabling this causes the filenames to be displayed in the game tree rather than the trimmed/looked up gamename</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>19xx</source>
+        <translation>19xx</translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ei</translation>
+    </message>
+    <message>
+        <source>No to all</source>
+        <translation>Ei Kaikkiin</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Kyllä</translation>
+    </message>
+    <message>
+        <source>Yes to all</source>
+        <translation>Kyllä Kaikkiin</translation>
+    </message>
+    <message>
+        <source>File Missing</source>
+        <translation>Tiedosto Puuttuu</translation>
+    </message>
+    <message>
+        <source>%1 appears to be missing.
+Remove it from the database?</source>
+        <translation>Tiedostoa %1 ei ole olemassa.
+Poistetaanko se tietokannasta?</translation>
+    </message>
+    <message>
+        <source>Are you sure?</source>
+        <translation>Oletko varma?</translation>
+    </message>
+    <message>
+        <source>This will clear all Game Meta Data
+from the database. Are you sure you
+want to do this?</source>
+        <translation>Poistetaan kaikki metatiedot
+Pelitietokannasta. Oletko Varma?</translation>
+    </message>
+    <message>
+        <source>SEGA/MASTER SYSYTEM</source>
+        <translation>SEGA/MASTER Systeemi</translation>
     </message>
 </context>
 <context>

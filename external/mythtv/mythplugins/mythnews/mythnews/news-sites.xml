@@ -593,7 +593,6 @@
         <ico>http://rss.topix.net/favicon.ico</ico>
     </item>
 
-
     <item>
         <title>BBC News - Africa</title>
         <url>http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml</url>
@@ -624,10 +623,34 @@
         <url>http://newsrss.bbc.co.uk/rss/newsonline_world_edition/south_asia/rss.xml</url>
     </item>
 
-
     <item>
         <title>BBC News - UK</title>
         <url>http://newsrss.bbc.co.uk/rss/newsonline_world_edition/uk_news/rss.xml</url>
+    </item>
+
+    <item>
+        <title>Helsingin Sanomat (FI)</title>
+        <url>http://siirto.helsinginsanomat.fi/aukio/HS-Tuoreet-RSS.xml</url>
+    </item>
+
+    <item>
+        <title>Aftonbladet (SE)</title>
+        <url>http://www.aftonbladet.se/rss/nyheter.xml</url>
+    </item>
+
+    <item>
+        <title>DN (SE)</title>
+        <url>http://www.dn.se/DNet/jsp/polopoly.jsp?d=1400</url>
+    </item>
+
+    <item>
+        <title>Expressen (SE)</title>
+        <url>http://expressen.se/rss/nyheter</url>
+    </item>
+
+    <item>
+        <title>Sydsvenskan (SE)</title>
+        <url>http://sydsvenskan.se/rss/senastenytt</url>
     </item>
 
 </category>
@@ -986,6 +1009,11 @@
         <title>New York Times - Opinion</title>
         <url>http://www.nytimes.com/services/xml/rss/nyt/Opinion.xml</url>
     </item>
+    
+    <item>
+        <title>Sydsvenskan opinion (SE)</title>
+        <url>http://sydsvenskan.se/rss/opinion</url>
+    </item>
 
 </category>
 
@@ -1063,6 +1091,26 @@
         <title>Topix: World Soccer</title>
         <url>http://rss.topix.net/rss/world-soccer/world-soccer.xml</url>
         <ico>http://rss.topix.net/favicon.ico</ico>
+    </item>
+
+    <item>
+        <title>DN sport (SE)</title>
+        <url>http://www.dn.se/DNet/jsp/polopoly.jsp?d=1402</url>
+    </item>
+
+    <item>
+        <title>Expressen sport (SE)</title>
+        <url>http://expressen.se/rss/sport</url>
+    </item>
+
+    <item>
+        <title>Sportbladet (SE)</title>
+        <url>http://www.aftonbladet.se/rss/sport.xml</url>
+    </item>
+
+    <item>
+        <title>Sydsvenskan sport (SE)</title>
+        <url>http://sydsvenskan.se/rss/sport</url>
     </item>
 
 </category>
@@ -1168,6 +1216,11 @@
     <item>
         <title>CNN - Science &amp; Space</title>
         <url>http://rss.cnn.com/rss/cnn_space.rss</url>
+    </item>
+
+    <item>
+        <title>DN vetenskap (SE)</title>
+        <url>http://www.dn.se/DNet/jsp/polopoly.jsp?d=2241</url>
     </item>
 
 </category>

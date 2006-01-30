@@ -323,7 +323,9 @@ int main(int argc, char **argv)
         } 
         else if (!strcmp(a.argv()[argpos],"--version"))
         {
-            cout << MYTH_BINARY_VERSION << endl;
+            extern const char *myth_source_version;
+            cout << "Library API version: " << MYTH_BINARY_VERSION << endl;
+            cout << "Source code version: " << myth_source_version << endl;
 #ifdef MYTH_BUILD_CONFIG
             cout << "Options compiled in:" <<endl;
             cout << MYTH_BUILD_CONFIG << endl;
@@ -519,10 +521,10 @@ int main(int argc, char **argv)
     else
         jobqueue = new JobQueue(ismaster);
 
-    VERBOSE(VB_ALL, QString("%1 version: %2 www.mythtv.org")
+    VERBOSE(VB_IMPORTANT, QString("%1 version: %2 www.mythtv.org")
                             .arg(binname).arg(MYTH_BINARY_VERSION));
 
-    VERBOSE(VB_ALL, QString("Enabled verbose msgs: %1").arg(verboseString));
+    VERBOSE(VB_IMPORTANT, QString("Enabled verbose msgs: %1").arg(verboseString));
 
     lockfile_location = gContext->GetSetting("RecordFilePrefix") + "/nfslockfile.lock";
 
@@ -553,7 +555,7 @@ int main(int argc, char **argv)
             = gContext->GetSetting("WOLslaveBackendsCommand","");
         if (!WOLslaveBackends.isEmpty())
         {
-            VERBOSE(VB_ALL, "Waking slave Backends now.");
+            VERBOSE(VB_IMPORTANT, "Waking slave Backends now.");
             system(WOLslaveBackends.ascii());
         }
     }
