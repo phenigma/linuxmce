@@ -304,6 +304,8 @@ function networkSettings($output,$dbADO) {
 
 		$cmd='sudo -u root /usr/pluto/bin/Network_Setup.sh';
 		exec($cmd);
+		$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
+		exec($cmd);
 		
 		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
 	}
