@@ -69,7 +69,7 @@ Upgrade_Essential()
 		
 		Name=${Pkg%=*}
 		ReqVer=${Pkg#*=}
-		InstVer=$(dpkg -s $Name 2>/dev/null|grep ^Version|cut -d' ' -f2)
+		InstVer=$(chroot . dpkg -s $Name 2>/dev/null|grep ^Version|cut -d' ' -f2)
 		
 		if [[ -z "$InstVer" ]]; then
 			NeededReq="$NeededReq $Name"
