@@ -4758,57 +4758,62 @@ function editCommandsByWizard($wizard,$section,$commandGroupID,$dbADO){
 function irrigationCommandGroupCommandsTable($cgID,$section,$dbADO){
 	$devicesArray=array();
 
-	$res=$dbADO->Execute('
-		SELECT FK_CommandGroup_Command,PK_Device,IK_CommandParameter,Device.Description,DeviceTemplate.Description AS Template,Room.Description AS Room
-		FROM CommandGroup_Command_CommandParameter
-		INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
-		INNER JOIN Device ON Fk_Device=PK_Device
-		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-		LEFT JOIN Room ON FK_Room=PK_Room
-		INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
-		WHERE PK_CommandGroup=? AND FK_CommandParameter=?
-		ORDER BY OrderNum ASC',array($cgID,$GLOBALS['delayTime']));	
-	
 	$pos=0;	
-	if($res->RecordCount()==0){
-		$irigationDT=getDeviceTemplatesFromCategory($GLOBALS['IrrigationDevices'],$dbADO);
-		if(count($irigationDT)==0){
-			return 'ERROR: No device template for irigation devices.';
-		}
-		$res=$dbADO->Execute('
-			SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template,Room.Description AS Room
-			FROM Device
-			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-			LEFT JOIN Room ON FK_Room=PK_Room
-			WHERE FK_DeviceTemplate IN ('.join(',',$irigationDT).')
-			ORDER BY Device.Description ASC
-			');
-		while($row=$res->FetchRow()){
-			$pos++;
-			$devicesArray[$row['PK_Device']]['Description']=$row['Description'];
-			$devicesArray[$row['PK_Device']]['Template']=$row['Template'];
-			$devicesArray[$row['PK_Device']]['Room']=$row['Room'];
-			$devicesArray[$row['PK_Device']]['Delay']=0;
-			$devicesArray[$row['PK_Device']]['Pos']=$pos;
-			$devicesArray[$row['PK_Device']]['FK_CommandGroup_Command']=0;
-		}
-	}else{
+	$irigationDT=getDeviceTemplatesFromCategory($GLOBALS['IrrigationDevices'],$dbADO);
+	if(count($irigationDT)==0){
+		return 'ERROR: No device template for irigation devices.';
+	}
+	$res=$dbADO->Execute('
+		SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template,Room.Description AS Room
+		FROM Device
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE FK_DeviceTemplate IN ('.join(',',$irigationDT).')
+		ORDER BY Device.Description ASC
+		');
+	while($row=$res->FetchRow()){
+		$pos++;
+		$devicesArray[$row['PK_Device']]['Description']=$row['Description'];
+		$devicesArray[$row['PK_Device']]['Template']=$row['Template'];
+		$devicesArray[$row['PK_Device']]['Room']=$row['Room'];
+		$devicesArray[$row['PK_Device']]['Delay']=0;
+		$devicesArray[$row['PK_Device']]['Commands']=array();
+		$devicesArray[$row['PK_Device']]['Pos']=$pos;
+		$devicesArray[$row['PK_Device']]['PK_CommandGroup_Command']=array();
+	}	
+	
+	$res=$dbADO->Execute('
+		SELECT PK_CommandGroup_Command, PK_Device,FK_Command,IK_CommandParameter,Device.Description,DeviceTemplate.Description AS Template,Room.Description AS Room
+		FROM CommandGroup_Command
+		LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
+		INNER JOIN Device ON FK_Device=PK_Device 
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+		LEFT JOIN Room ON FK_Room=PK_Room 
+		INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup 
+		WHERE PK_CommandGroup=?
+		ORDER BY FK_Device,OrderNum ASC',array($cgID));	
+	$pos=0;	
+	if($res->RecordCount()!=0){
 		while($row=$res->FetchRow()){
 			$pos++;			
 			$devicesArray[$row['PK_Device']]['Description']=$row['Description'];
 			$devicesArray[$row['PK_Device']]['Template']=$row['Template'];
 			$devicesArray[$row['PK_Device']]['Room']=$row['Room'];
-			$devicesArray[$row['PK_Device']]['Delay']=$row['IK_CommandParameter'];
+			if($row['FK_Command']==$GLOBALS['DelayCommand']){
+				$devicesArray[$row['PK_Device']]['Delay']=$row['IK_CommandParameter'];
+			}
+			$devicesArray[$row['PK_Device']]['Commands'][]=$row['FK_Command'];
 			$devicesArray[$row['PK_Device']]['Pos']=$pos;
-			$devicesArray[$row['PK_Device']]['FK_CommandGroup_Command']=$row['FK_CommandGroup_Command'];
+			$devicesArray[$row['PK_Device']]['PK_CommandGroup_Command'][]=$row['PK_CommandGroup_Command'];
 		}
 	}
 	$out=irrigationHTML($devicesArray);
-	
+
 	return $out;
 }
 
 function irrigationHTML($devicesArray){
+	
 	if(count($devicesArray)==0){
 		return 'No irrigation devices. Add some devices first';
 	}
@@ -4817,26 +4822,35 @@ function irrigationHTML($devicesArray){
 		<tr bgcolor="lightblue">
 			<td align="center"><B>Device / Room</B></td>
 			<td align="center"><B>Type</B></td>
-			<td align="center"><B>Delay</B></td>
+			<td align="center"><B>On</B></td>
+			<td align="center"><B>Off</B></td>
+			<td align="center" colspan="2"><B>Delay</B></td>
 			<td align="center"><B>Action</B></td>
 		</tr>';
 	$pos=0;
+
 	foreach ($devicesArray AS $device=>$data){
+		$commands_no=count($data['Commands']);
+		$cgcID=(count($data['PK_CommandGroup_Command'])==1)?$data['PK_CommandGroup_Command'][0]:@$data['PK_CommandGroup_Command'][1];
 		$color=($pos%2!=0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr bgcolor="'.$color.'">
 			<td align="center">'.$data['Description'].' / '.$data['Room'].'</td>
 			<td align="center">'.$data['Template'].'</td>
-			<td align="center"><input type="text" name="delay_'.$device.'" value="'.$data['Delay'].'"></td>
+			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['genericONCommand'].'" '.(($commands_no==1 && $data['Commands'][0]==$GLOBALS['genericONCommand'])?'checked':'').'></td>
+			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['genericOFFCommand'].'" '.(($commands_no==1 && $data['Commands'][0]==$GLOBALS['genericOFFCommand'])?'checked':'').'></td>
+			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['DelayCommand'].'" '.(($commands_no==3)?'checked':'').'></td>
+			<td><input type="text" name="delay_'.$device.'" value="'.@$data['Delay'].'" style="width:30px;" onClick="eval(\'document.scenarioWizard.cmd_'.$device.'[2].checked=true\');"></td>
 			<td align="center"><input type="submit" class="button" name="up_'.$device.'" value="U"> <input type="submit" class="button" name="down_'.$device.'" value="D"></td>
 		</tr>
-		<input type="hidden" name="cgc_'.$device.'" value="'.$data['FK_CommandGroup_Command'].'">
-		<input type="hidden" name="pos_'.$device.'" value="'.$pos.'">';
+		<input type="hidden" name="cgc_'.$device.'" value="'.$cgcID.'">
+		<input type="hidden" name="pos_'.$device.'" value="'.$pos.'">
+		<input type="hidden" name="old_commands_'.$device.'" value="'.join(',',$data['Commands']).'">';
 		$pos++;
 	}
 	$out.='
 		<tr bgcolor="#E7E7E7">
-			<td align="center" colspan="4"><input type="submit" class="button" name="update_irrigation" value="Update"></td>
+			<td align="center" colspan="8"><input type="submit" class="button" name="update_irrigation" value="Update"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="irrigationDevices" value="'.join(',',array_keys($devicesArray)).'">';
@@ -4847,31 +4861,69 @@ function irrigationHTML($devicesArray){
 function processIrrigationScenario($cgID,$section,$dbADO){
 	$irrigationDevices=explode(',',$_POST['irrigationDevices']);
 	$addIrrigationCommands=(int)@$_POST['addIrrigationCommands'];
-	
+
+	$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command,OrderNum) VALUES (?,?,?,?)';		
+	$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+//$dbADO->debug=true;
 	foreach ($irrigationDevices AS $device){
 		$delay=(int)$_POST['delay_'.$device];
-		$FK_CommandGroup_Command=(int)$_POST['cgc_'.$device];
+		$PK_CommandGroup_Command=(int)$_POST['cgc_'.$device];
 		$pos_group=(int)$_POST['pos_'.$device];
 		$pos=3*$pos_group;
-		
-		if($FK_CommandGroup_Command==0){
+		$cmd=(int)@$_POST['cmd_'.$device];
+		$old_commands_array=explode(',',$_POST['old_commands_'.$device]);
+
+		if($PK_CommandGroup_Command==0){
 			// add commands to command group
 			// add commands for selected device
-			$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command,OrderNum) VALUES (?,?,?,?)';
 			
 			// on
-			$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericONCommand'],$pos+1));
-			$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['DelayCommand'],$pos+2));
-			$cgcInsertID=$dbADO->Insert_ID();
+			if($cmd==$GLOBALS['genericONCommand'] || $cmd==$GLOBALS['DelayCommand']){
+				$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericONCommand'],$pos+1));
+			}
+			if($cmd==$GLOBALS['DelayCommand']){
+				$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['DelayCommand'],$pos+2));
+				$cgcInsertID=$dbADO->Insert_ID();
 			
-			// add command parameter the delay for sprinkler
-			$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-			$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['delayTime'],$delay));
+				// add command parameter the delay for sprinkler
+				$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['delayTime'],$delay));
+			}
 			
 			// off
-			$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericOFFCommand'],$pos+3));
+			if($cmd==$GLOBALS['DelayCommand'] || $cmd==$GLOBALS['genericOFFCommand']){
+				$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericOFFCommand'],$pos+3));
+			}
 		}else{
-			$dbADO->Execute('UPDATE CommandGroup_Command_CommandParameter SET IK_CommandParameter=? WHERE FK_CommandGroup_Command=? AND FK_CommandParameter=?',array($delay,$FK_CommandGroup_Command,$GLOBALS['delayTime']));
+			$nc=count($old_commands_array);
+			switch ($cmd){
+				case $GLOBALS['genericONCommand']:
+					if($nc!=1 || ($nc==1 && $old_commands_array[0]!=$GLOBALS['genericONCommand'])){
+						// old command changed, delete command with parameters and add new one
+						delete_command_from_cg($cgID,$device,$old_commands_array,$dbADO);
+						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericONCommand'],$pos+1));
+					}
+				break;
+				case $GLOBALS['DelayCommand']:
+					if($nc!=3){
+						// old command changed, delete command with parameters and add new one
+						delete_command_from_cg($cgID,$device,$old_commands_array,$dbADO);
+						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericONCommand'],$pos+1));
+						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['DelayCommand'],$pos+2));
+						$cgcInsertID=$dbADO->Insert_ID();
+						$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['delayTime'],$delay));
+						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericOFFCommand'],$pos+3));
+					}else{
+						$dbADO->Execute('UPDATE CommandGroup_Command_CommandParameter SET IK_CommandParameter=? WHERE FK_CommandGroup_Command=? AND FK_CommandParameter=?',array($delay,$PK_CommandGroup_Command,$GLOBALS['delayTime']));					
+					}
+				break;
+				case $GLOBALS['genericOFFCommand']:
+					if($nc!=1 || ($nc==1 && $old_commands_array[0]!=$GLOBALS['genericOFFCommand'])){
+						// old command changed, delete command with parameters and add new one
+						delete_command_from_cg($cgID,$device,$old_commands_array,$dbADO);
+						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericOFFCommand'],$pos+3));
+					}
+				break;
+			}
 		}
 		
 		if(isset($_POST['up_'.$device])){
@@ -4900,5 +4952,17 @@ function processIrrigationScenario($cgID,$section,$dbADO){
 		}
 
 	}
+}
+
+function delete_command_from_cg($cgID,$device,$commands,$dbADO){
+	$deleteParameters='
+		DELETE CommandGroup_Command_CommandParameter 
+		FROM CommandGroup_Command_CommandParameter 
+		JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
+		WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command IN ('.join(',',$commands).')';
+	$dbADO->Execute($deleteParameters,array($cgID,$device));
+	
+	$deleteCommandGroup_Command='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command IN ('.join(',',$commands).')';
+	$dbADO->Execute($deleteCommandGroup_Command,array($cgID,$device));
 }
 ?>
