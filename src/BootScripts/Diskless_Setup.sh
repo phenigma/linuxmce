@@ -3,6 +3,9 @@
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+DEVICEDATA_Extra_Parameters=139
+DEVICEDATA_Extra_Parameters_Override=140
+
 DlDir="/usr/pluto/diskless"
 
 # vars:
@@ -16,9 +19,12 @@ DlDir="/usr/pluto/diskless"
 # MOON_HOSTS
 # NOBOOT_ENTRIES
 # ENABLE_SPLASH
+# MOON_BOOTPARAMS
 
 KERNEL_VERSION="$(uname -r)"
-Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH"
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH MOON_BOOTPARAMS"
+
+DefaultBootParams="noirqdebug vga=normal"
 
 CORE_INTERNAL_INTERFACE="$IntIf"
 
@@ -83,18 +89,46 @@ for Client in $R; do
 	ValidMAC=$?
 	
 	Q="SELECT PK_Device
-	FROM Device_DeviceData
-	JOIN Device ON PK_Device=FK_Device
-	JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-	WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IK_DeviceData='1' AND PK_Device='$PK_Device'"
+		FROM Device_DeviceData
+		JOIN Device ON PK_Device=FK_Device
+		JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
+		WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IK_DeviceData='1' AND PK_Device='$PK_Device'"
 	Diskless=$(RunSQL "$Q")
 
-	if [ -n "$Diskless" ]; then
+	if [[ -n "$Diskless" ]]; then
 		echo "* Diskless filesystem"
 		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$PK_Device" "$Activation_Code"
 		
-		if [ "$ValidMAC" -eq 0 ]; then
+		if [[ "$ValidMAC" -eq 0 ]]; then
 			echo "* Setting up /tftpboot/pxelinux.cfg/01-$lcdMAC"
+			
+			OverrideDefaults=0
+			ExtraBootParams=
+			
+			Q="SELECT FK_DeviceData,IK_DeviceData
+				FROM Device_DeviceData
+				WHERE FK_Device='$PK_Device' && FK_DeviceData IN ($DEVICEDATA_Extra_Parameters,$DEVICEDATA_Extra_Parameters_Override)"
+			ExtraParms=$(RunSQL "$Q")
+			
+			for ExtraParm in $(ExtraParms); do
+				FK_DeviceData=$(Field 1 "$ExtraParm")
+				IK_DeviceData=$(Field 2 "$ExtraParm")
+				case "$FK_DeviceData" in
+					"$DEVICEDATA_Extra_Parameters")
+						ExtraBootParams="$IK_DeviceData"
+						;;
+					"$DEVICEDATA_Extra_Parameters_Override")
+						OverrideDefaults="$IK_DeviceData"
+						;;
+				esac
+			done
+
+			if [[ "$OverrideDefaults" == 1 ]]; then
+				MOON_BOOTPARAMS="$ExtraBootParams"
+			else
+				MOON_BOOTPARAMS="$DefaultBootParams $ExtraBootParams"
+			fi
+
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			mv /tftpboot/pxelinux.cfg/01-$lcdMAC.$$ /tftpboot/pxelinux.cfg/01-$lcdMAC
