@@ -1,4 +1,4 @@
-	KVER=2.6.13.2-vanilla-pluto-1-686
+	KVER=2.6.15-pluto-1-686
 	for i in /lib/modules/"$KVER"/extra/*.ko; do 
 		MODULE=`echo $i | sed s#[^/]*/##g`;
 		cd /lib/modules/"$KVER"/;
