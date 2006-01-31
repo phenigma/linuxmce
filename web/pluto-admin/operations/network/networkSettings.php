@@ -302,10 +302,12 @@ function networkSettings($output,$dbADO) {
 			}
 		}
 
-		$cmd='sudo -u root /usr/pluto/bin/Network_Setup.sh';
-		exec($cmd);
-		$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
-		exec($cmd);
+		$commands = array('Network_Setup.sh', 'DHCP_config.sh', 'Network_Firewall.sh');
+		for ($i = 0; $i < count($commands); $i++)
+		{
+			$cmd = "sudo -u root /usr/pluto/bin/{$commands[$i]}";
+			exec($cmd);
+		}
 		
 		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
 	}
