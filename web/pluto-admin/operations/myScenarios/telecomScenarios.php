@@ -245,32 +245,38 @@ function telecomScenarios($output,$dbADO) {
 		}
 		
 		if(isset($_POST['addSpeedDial'])){
-			$description=$_POST['description'];
-			$number=$_POST['number'];
-			$phone=(isset($_POST['phone']) && $_POST['phone']!='0')?$_POST['phone']:NULL;
-			$roomID=$_REQUEST['roomID'];
-			$roomName=@$_REQUEST['roomName'];
-			
-			$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
-			$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,$description,$templateWizard,$roomName));
-			$cgID=$dbADO->Insert_ID();
-					
-			$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
-			$dbADO->Execute($insertCG_R,array($roomID,$cgID,$cgID));
-			
-			$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";								
-			$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandPL_Originate'],$GLOBALS['localOrbiter']));			
-			$CG_C_insertID=$dbADO->Insert_ID();
-								
-			$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-			$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandPhoneExtension'],$number));
-			
-			$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-			$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$phone));
-			
-			setOrbitersNeedConfigure($installationID,$dbADO);	
-			header("Location: index.php?section=telecomScenarios&msg=$TEXT_SPEED_DIAL_ADDED_CONST");
-			exit();
+			$telecomPluginID=getTelecomPlugin($installationID,$dbADO);
+			if($telecomPluginID!==null){
+				$description=$_POST['description'];
+				$number=$_POST['number'];
+				$phone=(isset($_POST['phone']) && $_POST['phone']!='0')?$_POST['phone']:NULL;
+				$roomID=$_REQUEST['roomID'];
+				$roomName=@$_REQUEST['roomName'];
+				
+				$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
+				$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,$description,$templateWizard,$roomName));
+				$cgID=$dbADO->Insert_ID();
+						
+				$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
+				$dbADO->Execute($insertCG_R,array($roomID,$cgID,$cgID));
+				
+				
+				$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";								
+				$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandPL_Originate'],$telecomPluginID));			
+				$CG_C_insertID=$dbADO->Insert_ID();
+									
+				$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+				$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandPhoneExtension'],$number));
+				
+				$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+				$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$phone));
+				
+				setOrbitersNeedConfigure($installationID,$dbADO);	
+				header("Location: index.php?section=telecomScenarios&msg=$TEXT_SPEED_DIAL_ADDED_CONST");
+				exit();
+			}else{
+				// error case
+			}
 		}
 		
 		if(isset($_POST['update']) || $action=='externalSubmit'){

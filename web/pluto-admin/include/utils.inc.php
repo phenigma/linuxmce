@@ -864,7 +864,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	// required to read files larger than 2G
 	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':'"'.$path.'"';
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
-	//echo $cmd;
+	echo $cmd;
 	exec($cmd,$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
@@ -2649,6 +2649,18 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 function getInfraredPlugin($installationID,$dbADO)
 {
 	$res=$dbADO->Execute('SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['InfraredPlugIn'],$installationID));
+	if($res->RecordCount()==0){
+		return null;
+	}else{
+		$row=$res->Fetchrow();
+		return $row['PK_Device'];
+	}
+}
+
+// return the deviceID of the telecom plugin from current installation
+function getTelecomPlugin($installationID,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['TelecomPlugin'],$installationID));
 	if($res->RecordCount()==0){
 		return null;
 	}else{

@@ -63,6 +63,7 @@
 	$GLOBALS['ProxyOrbiter']=1749;				// Generic Web Orbiter
 	$GLOBALS['GenericWebDevice']=1748;			// Generic Web Device
 	$GLOBALS['PowerfileC200']=1737;				// Powerfile C200
+	$GLOBALS['VirtDevTelecomPlugIn']=-107;		// VirtDev - Telecom Plug-in
 	
 	// PK_Template from table Template
 	
