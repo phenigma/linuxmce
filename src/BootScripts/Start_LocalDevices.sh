@@ -24,7 +24,7 @@ export DISPLAY=:0
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "Launching child devices for device: $CurrentDevice"
 
-Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine
+Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine, Device.IgnoreOnOff
 	FROM Device
 	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate
 	LEFT JOIN Device AS Device_Parent on Device.FK_Device_ControlledVia=Device_Parent.PK_Device
@@ -53,6 +53,11 @@ for command in $CommandList; do
 	ChildDeviceID=$(Field 1 "$command")
 	ChildDescription=$(Field 2 "$command")
 	ChildCommand=$(Field 3 "$command")
+	ChildIgnore=$(Field 4 "$command")
+
+	if [[ "$ChildIgnore" -eq 1 ]]; then
+		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID ; $ChildDescription) disabled"
+	fi
 
 	if [[ -z "$ChildCommand" ]]; then
 		ChildCommand="$(echo "$ChildDescription" | perl -n -e "$PerlCommand")"
