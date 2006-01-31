@@ -87,6 +87,13 @@ void VDRPlugin::FetchEPG()
 	ListDeviceData_Router *pListDeviceData_Router = 
 		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
 
+	if(!pListDeviceData_Router)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST) is NULL!!!");
+		return;
+	}
+		
+
 	bool bFirstRun=true;
 	while(!m_bQuit)
 	{
