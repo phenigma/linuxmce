@@ -12,6 +12,8 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#include "./libupnp/upnp/inc/upnp.h"
+
 #include "DCE/Logger.h"
 #include "DCE/ServerLogger.h"
 

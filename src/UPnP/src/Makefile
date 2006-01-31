@@ -1,7 +1,7 @@
 ROOT = ../..
 CXX = g++
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I$(ROOT)/Serial -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I$(ROOT)/Serial -I/libupnp/upnp/inc -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 EXTERNAL_LIBS_NAMES = pthread mysqlclient_r
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon Serial 
@@ -13,9 +13,11 @@ MYDEVTEMPLATEID = 5mplateID
 CXXFLAGS += 
 CPPFLAGS +=
 LDFLAGS += -L$(ROOT)/lib -L/usr/lib/
-EXTERNAL_LIBS_NAMES += SerializeClass DCECommon Serial PlutoUtils
+EXTERNAL_LIBS_NAMES += SerializeClass DCECommon Serial PlutoUtils upnp
 
-sources =  main.cpp
+sources =  main.cpp ControlPoint.cpp ControlPointMediaBrowser.cpp Device.cpp 
+sources += DeviceMediaServer.cpp
+	
 
 LDLIBS_NAMES = $(EXTERNAL_LIBS_NAMES)
 
