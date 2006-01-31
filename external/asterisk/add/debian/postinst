@@ -52,7 +52,7 @@ case "$1" in
 			sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
-			/etc/init.d/asterisk stop || /bin/true
+			killall asterisk safe_asterisk || /bin/true
 			
 		fi
 		rm -f /etc/init.d/asterisk || /bin/true

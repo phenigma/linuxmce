@@ -72,9 +72,7 @@ run_asterisk() {
 	    echo "Asterisk is already running"
 	else
 	    echo -n "Asterisk is starting "
-	    # su - asterisk -c "export PATH=$PATH:/usr/sbin   && /usr/sbin/safe_asterisk"
-	    export LD_LIBRARY_PATH=/usr/local/lib
-	    /usr/sbin/safe_asterisk -U asterisk -G asterisk
+	    /usr/sbin/safe_asterisk -U asterisk -G asterisk &
 
 	    # Wait up to 5 seconds for asterisk to start
 	    local counter=0

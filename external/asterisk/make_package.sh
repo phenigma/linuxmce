@@ -160,6 +160,7 @@ cp -R ${ADDFOLDER}/sccp_pluto.conf ${PKGFOLDER}/etc/asterisk/sccp.conf
 
 #copy new amportal
 cp ${ADDFOLDER}/amportal ${PKGFOLDER}/usr/sbin/amportal
+cp ${ADDFOLDER}/safe_asterisk ${PKGFOLDER}/usr/sbin/safe_asterisk
 
 #copy AGI scripts
 cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
