@@ -246,4 +246,5 @@ if(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 $DB_PL_HANDLE->disconnect();
 
 #A HARD RELOAD FOR ASTERISK
-`killall -9 asterisk`;
+exec("/etc/init.d/asterisk restart");
+
