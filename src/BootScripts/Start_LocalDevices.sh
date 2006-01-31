@@ -30,7 +30,7 @@ QUERY="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.Comma
 	LEFT JOIN DeviceTemplate AS DeviceTemplate_Parent ON Device_Parent.FK_DeviceTemplate=DeviceTemplate_Parent.PK_DeviceTemplate
 	WHERE (Device.FK_Device_ControlledVia=$CurrentDevice 
 	OR (Device_Parent.FK_Device_ControlledVia=$CurrentDevice AND DeviceTemplate_Parent.FK_DeviceCategory IN (6,7,8) ) )
-	AND DeviceTemplate.FK_DeviceCategory <> 1";
+	AND DeviceTemplate.FK_DeviceCategory <> 1"
 
 MySQLCommand="mysql -h $MySqlHost -D $MySqlDBName"
 
@@ -49,28 +49,28 @@ PerlCommand="
 		\$command = \$desc;
 	}
 	print \"\$dev|\$command|\$desc\n\";
-";
+"
 
-CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand" | tr '\n' ' ');
-basename=$(basename $0);
-Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList";
+CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand" | tr '\n' ' ')
+basename=$(basename $0)
+Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList"
 for command in $CommandList; do
-	ChildDeviceID=`echo $command | cut -f 1 -d '|'`;
-	ChildCommand=`echo $command | cut -f 2 -d '|'`;
-	ChildDescription=`echo $command | cut -f 3 -d '|'`;
+	ChildDeviceID=`echo $command | cut -f 1 -d '|'`
+	ChildCommand=`echo $command | cut -f 2 -d '|'`
+	ChildDescription=`echo $command | cut -f 3 -d '|'`
 
 	if [[ ! -f "$Path/usr/pluto/bin/$ChildCommand" ]]; then
-		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin.";
+		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin."
 	elif [[ ! -x "$Path/usr/pluto/bin/$ChildCommand" ]]; then
-		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable.";
+		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable."
 	elif [[ "$basename" = `basename $ChildCommand` ]]; then
 		pushd /usr/pluto/bin >/dev/null
-		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
+		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter
 		popd >/dev/null
 	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Launching device $ChildDeviceID in screen session ($ChildDescription)"
 		pushd /usr/pluto/bin >/dev/null
 		screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter $ChildCommand
 		popd >/dev/null
-	fi;
+	fi
 done
