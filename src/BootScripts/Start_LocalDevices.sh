@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/pluto.func 
 
 function printHelp()
@@ -23,7 +24,7 @@ export DISPLAY=:0
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "Launching child devices for device: $CurrentDevice"
 
-QUERY="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine
+Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine
 	FROM Device
 	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate
 	LEFT JOIN Device AS Device_Parent on Device.FK_Device_ControlledVia=Device_Parent.PK_Device
@@ -31,33 +32,31 @@ QUERY="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.Comma
 	WHERE (Device.FK_Device_ControlledVia=$CurrentDevice 
 	OR (Device_Parent.FK_Device_ControlledVia=$CurrentDevice AND DeviceTemplate_Parent.FK_DeviceCategory IN (6,7,8) ) )
 	AND DeviceTemplate.FK_DeviceCategory <> 1"
+CommandList=$(RunSQL "$Q")
 
-MySQLCommand="mysql -h $MySqlHost -D $MySqlDBName"
 
 PerlCommand="
 	chomp;
-	(\$dev, \$desc, \$command) = split('\t');
+	\$desc = \$_;
 	\$desc =~ s/[ :+=()<]/_/g;
 	\$desc =~ s/[->*?\\$\.%\\/]//g;
 	\$desc =~ s/#/Num/g;
 	\$desc =~ s/__/_/g;
 	\$desc =~ s/^_*//g;
 	\$desc =~ s/_*\$//g;
-
-	if ( ! \$command || \$command eq \"NULL\" )
-	{
-		\$command = \$desc;
-	}
-	print \"\$dev|\$command|\$desc\n\";
+	print \"\$desc\n\";
 "
 
-CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand" | tr '\n' ' ')
-basename=$(basename $0)
+basename=$(basename "$0")
 Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList"
 for command in $CommandList; do
-	ChildDeviceID=`echo $command | cut -f 1 -d '|'`
-	ChildCommand=`echo $command | cut -f 2 -d '|'`
-	ChildDescription=`echo $command | cut -f 3 -d '|'`
+	ChildDeviceID=$(Field 1 "$command")
+	ChildDescription=$(Field 2 "$command")
+	ChildCommand=$(Field 3 "$command")
+
+	if [[ -z "$ChildCommand" ]]; then
+		ChildCommand="$(echo "$ChildDescription" | perl -n -e "$PerlCommand")"
+	fi
 
 	if [[ ! -f "$Path/usr/pluto/bin/$ChildCommand" ]]; then
 		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin."
