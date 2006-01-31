@@ -424,8 +424,8 @@ class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Par
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Getting all shows");
-    return new DataGridTable();
 #endif
+	return new DataGridTable();
 }
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
@@ -641,14 +641,12 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 	if( sText=="live" )
 	{
 		PK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
-		PK_DesignObj_OSD=DESIGNOBJ_PVR_OSD_FS_CONST;
-//		PK_DesignObj_OSD=DESIGNOBJ_PVR_FS_CONST;
+		PK_DesignObj_OSD=DESIGNOBJ_PVR_FS_CONST;
 	}
 	else if( sText=="nonlive" )
 	{
 		PK_DesignObj_Remote=DESIGNOBJ_mnuPVRRecording_CONST;
-		PK_DesignObj_OSD=DESIGNOBJ_PVR_OSD_FS_CONST;
-		//PK_DesignObj_OSD=DESIGNOBJ_PVR_Recordings_FS_CONST;
+		PK_DesignObj_OSD=DESIGNOBJ_PVR_Recordings_FS_CONST;
 	}
 	else
 	{
