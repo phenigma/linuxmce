@@ -18,6 +18,7 @@
 #define TEMPLATE_Telecom_Automatic_CONST 39
 #define TEMPLATE_Security_Events_CONST 40
 #define TEMPLATE_Media_Events_CONST 41
+#define TEMPLATE_Irrigation_Scenarios_CONST 42
 
 #define TEMPLATE_TABLE "Template"
 #define TEMPLATE_PK_TEMPLATE_FIELD "PK_Template"

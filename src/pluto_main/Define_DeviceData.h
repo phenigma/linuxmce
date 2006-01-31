@@ -119,6 +119,7 @@
 #define DEVICEDATA_Zones_CONST 135
 #define DEVICEDATA_Serial_Port_Names_CONST 136
 #define DEVICEDATA_Defective_Units_CONST 137
+#define DEVICEDATA_Number_CONST 138
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
