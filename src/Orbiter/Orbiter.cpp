@@ -9278,6 +9278,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 
 		if( iResponse==prYes )
 		{
+			m_dwPK_Device = 0;
 			Simulator::GetInstance()->m_sDeviceID = "";
 			Simulator::GetInstance()->SaveConfigurationFile();
 		}
