@@ -261,12 +261,6 @@ bool Security_Plugin::Register()
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::SensorTrippedEvent) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
 
-
-    //testing - hack
-    //vector<Row_Alert *> vectRow_Alert;
-    //m_pDatabase_pluto_security->Alert_get()->GetRows("PK_Alert = 12",&vectRow_Alert);
-    //ProcessAlert(vectRow_Alert[0]);
-
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -507,6 +501,31 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		else 
 			it++;
 	}
+
+	//also send the command to the alarm panel
+	vector<Row_Device *> vectAlarmPanelDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_Security_Interface_CONST) + 
+		" AND FK_Installation = " + StringUtils::ltos(m_pRouter->iPK_Installation_get()), &vectAlarmPanelDevices);
+
+	if(vectAlarmPanelDevices.size())
+	{
+		string sDevices;
+		for(vector<Row_Device *>::iterator it = vectAlarmPanelDevices.begin(); it != vectAlarmPanelDevices.end(); ++it)
+		{
+			if(it != vectAlarmPanelDevices.begin())
+				sDevices += ",";
+
+			Row_Device *pRow_Device = *it;
+			sDevices += StringUtils::ltos(pRow_Device->PK_Device_get());
+		}
+
+		DCE::CMD_Set_House_Mode_DL CMD_Set_House_Mode_DL_(m_dwPK_Device, sDevices, sValue_To_Assign,
+			iPK_Users, sPassword, iPK_DeviceGroup, sHandling_Instructions);
+		SendCommand(CMD_Set_House_Mode_DL_);
+	}
+
 	EVENT_Reset_Alarm();
 	EVENT_House_Mode_Changed(iPK_DeviceGroup,PK_HouseMode);
 }
