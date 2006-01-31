@@ -2744,7 +2744,7 @@
 0x10de	0x00a0	"Card:RIVA TNT2"	"nVidia Corp.|Riva TNT2"
 0x10de	0x00c0	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|NV41.0"
 0x10de	0x00c1	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|NV41.1"
-0x10de	0x00c2	"5;3~Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|NV41.2"
+0x10de	0x00c2	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|NV41.2"
 0x10de	0x00c8	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|GeForce Go 6800"
 0x10de	0x00c9	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|GeForce Go 6800 Ultra"
 0x10de	0x00cc	"Card:NVIDIA GeForce FX (generic)"	"nVidia Corp.|Quadro FX Go1400"

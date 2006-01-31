@@ -1,5 +1,11 @@
 lshwd (2.0-rc4-1pluto1) unstable; urgency=low
 
+  * Update pcitable to load the piix module 
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 31 Jan 2006 19:16:55 +0200
+
+lshwd (2.0-rc4-1pluto1) unstable; urgency=low
+
   * Updated pcitable, usbtable and Cards to improve module detection
 
  -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 26 Jan 2006 13:33:56 +0200
