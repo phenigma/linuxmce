@@ -1,3 +1,9 @@
+asterisk-pluto (1.0.9-10) unstable; urgency=low
+
+  * Bump version to force upgrade
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 1 Feb 2006 10:50:07 +0200
+
 asterisk-pluto (1.0.9-9) unstable; urgency=low
 
   * Change rc?.d behavior
