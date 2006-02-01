@@ -111,17 +111,20 @@ if ! cd "$DlPath"; then
 	exit 1
 fi
 
-if [ ! -d "$DlPath" -o ! -f "$DlPath/etc/diskless.conf" ]; then
+if [[ ! -d "$DlPath" || ! -f "$DlPath/etc/diskless.conf" ]]; then
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
 
-	tar -xjvf "/usr/pluto/install/$FSarchive" >/dev/null
+	if ! tar -xjf "/usr/pluto/install/$FSarchive" >/dev/null; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to extract filesystem"
+		exit 1
+	fi
 
 	conf="IP=$IP
 MAC=$MAC
 Device=$Device
 Code=$Code"
 	echo "$conf" >etc/diskless.conf
-	[ -d /home/backup -a -f "/home/backup/pluto.conf-$IP" ] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
+	[[ -d /home/backup && -f "/home/backup/pluto.conf-$IP" ]] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
 	mkdir -p "$DlPath"/usr/pluto/install
 	touch "$DlPath"/usr/pluto/install/.notdone
 fi
