@@ -285,7 +285,7 @@ void MythTV_Player::pollMythStatus()
 		// updateMode("live");
 	
 		string sResult;
-		time_t timeout=20+time(NULL);
+		time_t timeout=40+time(NULL);
 		
 		do
 		{
@@ -297,6 +297,8 @@ void MythTV_Player::pollMythStatus()
 		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus == MYTHSTATUS_LIVETV);
 		if (time(NULL) >= timeout)
 		{
+			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
+			SendCommand(CMD_MH_Stop_Media_Cat);
 			m_mythStatus = MYTHSTATUS_DISCONNECTED;
 			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			vector<void *> data;
@@ -750,9 +752,7 @@ void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_1);
-#endif
+	sendMythCommand("key 1");
 }
 
 //<-dceag-c206-b->
@@ -764,9 +764,7 @@ void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_2);
-#endif
+	sendMythCommand("key 2");
 }
 
 //<-dceag-c207-b->
@@ -778,9 +776,7 @@ void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_3);
-#endif
+	sendMythCommand("key 3");
 }
 
 //<-dceag-c208-b->
@@ -792,9 +788,7 @@ void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_4);
-#endif
+	sendMythCommand("key 4");
 }
 
 //<-dceag-c209-b->
@@ -806,9 +800,7 @@ void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_5);
-#endif
+	sendMythCommand("key 5");
 }
 
 //<-dceag-c210-b->
@@ -820,9 +812,7 @@ void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_6);
-#endif
+	sendMythCommand("key 6");
 }
 
 //<-dceag-c211-b->
@@ -834,9 +824,7 @@ void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_7);
-#endif
+	sendMythCommand("key 7");
 }
 
 //<-dceag-c212-b->
@@ -848,9 +836,7 @@ void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_8);
-#endif
+	sendMythCommand("key 8");
 }
 
 //<-dceag-c213-b->
@@ -862,9 +848,7 @@ void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-#ifndef WIN32
-	processKeyBoardInputRequest(XK_9);
-#endif
+	sendMythCommand("key 9");
 }
 
 //<-dceag-c240-b->
@@ -1052,7 +1036,7 @@ void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int i
 	
 {
 	if (atoi(sValue_To_Assign.c_str()) < 0) 
-		sendMythCommand("play seek backward");
+		sendMythCommand("play seek rewind");
 	else
 		sendMythCommand("play seek forward");
 }
@@ -1265,19 +1249,6 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 		sendMythCommand("jump mainmenu");
 	}
 }
-//<-dceag-c761-b->
-
-	/** @brief COMMAND: #761 - Recorded TV Menu */
-	/** Go to the list of recorded shows */
-
-void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
-//<-dceag-c761-e->
-{
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-
-	updateMode("PlaybackBox");
-	sendMythCommand("jump playbackrecordings");
-}
 
 //<-dceag-c762-b->
 
@@ -1304,14 +1275,4 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 #ifndef WIN32
 	sendMythCommand("key escape");
 #endif
-}
-//<-dceag-c102-b->
-
-	/** @brief COMMAND: #102 - Record */
-	/** Record the current show */
-
-void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
-//<-dceag-c102-e->
-{
-    sendMythCommand("key R");
 }
