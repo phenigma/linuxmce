@@ -921,7 +921,7 @@ void Orbiter::RealRedraw( void *data )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Render object %s", pObj->m_ObjectID.c_str());
+	//g_pPlutoLogger->Write(LV_CRITICAL, "Render object %s", pObj->m_ObjectID.c_str());
 
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
 		return;

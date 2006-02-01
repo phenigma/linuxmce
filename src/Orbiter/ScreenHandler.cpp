@@ -317,8 +317,8 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 	string sYesMessage = 
 		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + sPK_DeviceFrom  + " " + 
 		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
-		StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMacAddress + "'" + " " + 
-		StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommandLine + "'" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " \"" + sMacAddress + "\"" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " \"" + sCommandLine + "\"" + " " + 
 		StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + sPK_Device_AppServer;
 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
