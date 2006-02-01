@@ -1305,3 +1305,13 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 	sendMythCommand("key escape");
 #endif
 }
+//<-dceag-c102-b->
+
+	/** @brief COMMAND: #102 - Record */
+	/** Record the current show */
+
+void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
+//<-dceag-c102-e->
+{
+    sendMythCommand("key R");
+}

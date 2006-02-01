@@ -242,6 +242,13 @@ public:
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #102 - Record */
+	/** Record the current show */
+
+	virtual void CMD_Record() { string sCMD_Result; CMD_Record(sCMD_Result,NULL);};
+	virtual void CMD_Record(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #123 - Info */
 	/** Info about the currently playing program */
 		/** @param #9 Text */
@@ -433,13 +440,6 @@ public:
 
 	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #761 - Recorded TV Menu */
-	/** Go to the list of recorded shows */
-
-	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
-	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #762 - Live TV */

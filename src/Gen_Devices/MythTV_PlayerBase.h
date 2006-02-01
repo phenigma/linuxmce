@@ -461,8 +461,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 82:
-					{
+				case 8
 						string sCMD_Result="OK";
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 						CMD_Navigate_Prev(iStreamID,sCMD_Result,pMessage);
