@@ -30,7 +30,7 @@ TRIES=20;
 SLEEP=0.5;
 while [ $TRIES != 0 ]; do
     RESULT=`echo show tables | $mysql_command | grep settings | wc -l`;
-    if [ "$RESULT" == "1" ]; then
+    if [ "$RESULT" != "0" ]; then
         TRIES=0;
         FOUND=1;
     else
