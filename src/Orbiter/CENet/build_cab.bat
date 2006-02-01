@@ -1,4 +1,5 @@
-del c:\$Installers\$OrbiterCE_SDL\*.* /Q
+del c:\$Installers\$OrbiterCE_SDL\*.dll /Q
+del c:\$Installers\$OrbiterCE_SDL\*.exe /Q
 
 cd
 cd ..\..\bin
@@ -8,7 +9,6 @@ cd "..\Orbiter\CENet\Misc files"
 cd Misc
 copy AYGSHELL.DLL c:\$Installers\$OrbiterCE_SDL\
 copy PthreadsCE.dll c:\$Installers\$OrbiterCE_SDL\
-copy logo.gif c:\$Installers\$OrbiterCE_SDL\
 copy SDL.dll c:\$Installers\$OrbiterCE_SDL\
 cd ..
 

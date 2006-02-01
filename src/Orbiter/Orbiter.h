@@ -1006,6 +1006,9 @@ namespace DCE
 
 		bool PendingCallbackScheduled(OrbiterCallBack fnCallBack);
 
+		//Returns true if Orbiter's config file has preseeded install values.
+		bool IsSelfInstallable();
+
 		//<-dceag-h-b->
 		/*
 		AUTO-GENERATED SECTION

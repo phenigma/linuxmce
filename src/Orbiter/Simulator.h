@@ -65,6 +65,10 @@ public: //methods
 	static bool IsRunning() { return NULL != m_pInstance && m_pInstance->m_bIsRunning; }
 
 	static void SimulateActionDelay(long delay);
+
+	int GetPreseededInstallValue(string Token);
+	bool PreseededInstallValueDefined(string Token);
+
 };
 }
 //------------------------------------------------------------------------------------------------------

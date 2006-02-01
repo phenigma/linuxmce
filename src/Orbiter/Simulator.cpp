@@ -484,3 +484,18 @@ void Simulator::StopRandomEventGenerator()
 	}
 }
 //------------------------------------------------------------------------------------------------------
+int Simulator::GetPreseededInstallValue(string sToken)
+{
+	string sValue = "0";
+
+	if( m_mapParameters_Exists(sToken) )
+		sValue = m_mapParameters_Find(sToken);
+
+	return atoi(sValue.c_str());
+}
+//------------------------------------------------------------------------------------------------------
+bool Simulator::PreseededInstallValueDefined(string sToken)
+{
+	return m_mapParameters_Exists(sToken);
+}
+//------------------------------------------------------------------------------------------------------

@@ -16,6 +16,7 @@ AYGSHELL.DLL = 1
 PthreadsCE.DLL = 1
 logo.gif = 1
 SDL.dll = 1
+Orbiter.txt = 1
  
 [DefaultInstall]                    ; operations to be completed during install
 CopyFiles   = CopyToProgramFiles
@@ -32,6 +33,7 @@ Shortcuts   = 0, "%CE17%"    ; WindowsStart Menu
 "PthreadsCE.dll", PthreadsCE.DLL 
 "logo.gif", logo.gif 
 "SDL.dll", "SDL.dll"
+"Orbiter.txt", Orbiter.txt
  
 [RegData]                           ; registry key list
 HKCU,Software\%AppName%,MajorVersion,0x00010001,2

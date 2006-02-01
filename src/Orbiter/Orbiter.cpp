@@ -9322,31 +9322,40 @@ int Orbiter::DeviceIdInvalid()
 		return 0;
 	}
 
-	map<int,string> mapPrompts;
-	enum PromptsResp {prYes, prNo, prCancel};
-	mapPrompts[prYes]    = "Yes - This is a new Orbiter";
-	mapPrompts[prNo]     = "No - There is already a Device ID for this Orbiter";
-	mapPrompts[prCancel] = "Cancel";
-	int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
-	if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
+	int PK_Device = 0;
+	if(IsSelfInstallable())
 	{
-		OnQuit();
-		exit(0);
-		return 0;
+		//Skip prompt dialogs. Create the orbiter automatically, using preseeded install values
+		PK_Device = SetupNewOrbiter();
 	}
-	int PK_Device;
-	if( iResponse == prYes )
-		PK_Device=SetupNewOrbiter();
 	else
 	{
-		PK_Device=PickOrbiterDeviceID();
-		if(PROMPT_CANCEL == PK_Device)
+		map<int,string> mapPrompts;
+		enum PromptsResp {prYes, prNo, prCancel};
+		mapPrompts[prYes]    = "Yes - This is a new Orbiter";
+		mapPrompts[prNo]     = "No - There is already a Device ID for this Orbiter";
+		mapPrompts[prCancel] = "Cancel";
+		int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
+		if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
 		{
 			OnQuit();
 			exit(0);
 			return 0;
 		}
+		if( iResponse == prYes )
+			PK_Device=SetupNewOrbiter();
+		else
+		{
+			PK_Device=PickOrbiterDeviceID();
+			if(PROMPT_CANCEL == PK_Device)
+			{
+				OnQuit();
+				exit(0);
+				return 0;
+			}
+		}
 	}
+
 	if( !PK_Device )
 	{
 		OnQuit();
@@ -9362,7 +9371,7 @@ int Orbiter::PickOrbiterDeviceID()
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
 	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",0, &mapDevices);
 }
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ int Orbiter::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
 #ifndef WIN32 
@@ -9401,7 +9410,7 @@ int Orbiter::PickOrbiterDeviceID()
 #endif
 	return PROMPT_CANCEL;
 }
-
+//-----------------------------------------------------------------------------------------------------
 int Orbiter::SetupNewOrbiter()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"start SetupNewOrbiter");
@@ -9497,11 +9506,16 @@ int Orbiter::SetupNewOrbiter()
 	g_pPlutoLogger->Write(LV_STATUS,"SetupNewOrbiter new orbiter %d",PK_Device);
 
 	if( MonitorRegen(PK_Device)==0 )  // User hit cancel
+	{
+		OnQuit();
+		exit(1);
 		return 0; // Don't retry to load now
+	}
+		
 
 	return PK_Device;  // Retry loading as the specified device
 }
-
+//-----------------------------------------------------------------------------------------------------
 int Orbiter::MonitorRegen(int PK_Device)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - starting");
@@ -9546,7 +9560,7 @@ int Orbiter::MonitorRegen(int PK_Device)
 	DisplayProgress("",-1);
 	return 2; // Try again
 }
-
+//-----------------------------------------------------------------------------------------------------
 int Orbiter::PromptFor(string sToken)
 {
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
@@ -9583,14 +9597,25 @@ int Orbiter::PromptFor(string sToken)
 		if( Choice && sDescription.size() )
 			mapResponse[Choice]=sDescription;
 	}
+
+	if(Simulator::GetInstance()->PreseededInstallValueDefined(sToken))
+	{
+		int nValue = Simulator::GetInstance()->GetPreseededInstallValue(sToken);
+		
+		if(mapResponse.find(nValue) != mapResponse.end())
+            return nValue;
+		else if(mapResponse.size())
+			return mapResponse.begin()->first;
+	}
+
 	return PromptUser("Please select the " + sToken,0,&mapResponse); 
 }
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter::DisplayProgress(string sMessage, int nProgress)
 {
 	return false;
 }
-
+//-----------------------------------------------------------------------------------------------------
 bool Orbiter::RegenOrbiter()
 {
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
@@ -9954,5 +9979,17 @@ bool Orbiter::PendingCallbackScheduled(OrbiterCallBack fnCallBack)
 	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool Orbiter::IsSelfInstallable()
+{
+	Simulator *pSimulator = Simulator::GetInstance();
+
+	return 
+		pSimulator->PreseededInstallValueDefined("Users")		&&
+		pSimulator->PreseededInstallValueDefined("Room")		&&
+		pSimulator->PreseededInstallValueDefined("Skin")		&&
+		pSimulator->PreseededInstallValueDefined("Language")	&&
+		pSimulator->PreseededInstallValueDefined("Size");
 }
 //-----------------------------------------------------------------------------------------------------
