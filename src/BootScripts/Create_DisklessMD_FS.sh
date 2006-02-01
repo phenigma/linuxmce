@@ -2,7 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 
-if [ "$#" -ne 4 ]; then
+if [[ "$#" -ne 4 ]]; then
 	echo "Syntax: $0 <IP> <MAC> <Device> <Activation Code>"
 	exit 1
 fi
@@ -38,10 +38,10 @@ InstallKernel()
 	
 	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "kernel-image-$KERNEL_VERSION*.deb")"
 	words="$(echo "$kernel" | wc -w)"
-	if [ "$words" -eq 0 ]; then
+	if [[ "$words" -eq 0 ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'kernel-image-$KERNEL_VERSION' was found"
 		exit 1
-	elif [ "$words" -gt 1 ]; then
+	elif [[ "$words" -gt 1 ]]; then
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
@@ -49,7 +49,7 @@ InstallKernel()
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
-	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" &>/dev/null; then
+	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" 2>&1; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
 	fi
 	umount ./proc
