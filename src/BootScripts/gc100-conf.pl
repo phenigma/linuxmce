@@ -46,19 +46,28 @@ if($ARGV[0] eq "") {
 		$newmac = $row_x->{'MACaddress'};
 		$ret = comp_mac($newmac,$mac);
 		if($ret == 1) {
-			loggc("The device allready exist in the database\n");
+			loggc("The device already exist in the database\n");
 			$state->finish();
 			$db->disconnect();
 			exit(2);
 		}
 	}
 	$state->finish();
-	loggc("/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV | grep '^2:' | cut -d: -f2-;\n");
+	$cmd = "/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV";
+	loggc("$cmd\n");
 	loggc("Creating Device...");
-	$Device_ID = `/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV | grep '^2:' | cut -d: -f2-;`;
+	$Device_ID = `$cmd`;
 	@lines = split(/\n/s, $Device_ID);
-	$nlines = $#lines;
-	$Device_ID = $lines[$nlines];
+	foreach $line (@lines)
+	{
+		print "D: $line\n";
+		if ($line =~ /^2:/)
+		{
+			$Device_ID = $line;
+			$Device_ID =~ s/^2://;
+			last;
+		}
+	}
 	chomp($Device_ID);
 	print "$Device_ID\n";	
 	loggc(" [$Device_ID]\n");
