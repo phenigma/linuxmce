@@ -112,8 +112,8 @@ PK_Users = 1"
 echo "$PlutoConf" >/etc/pluto.conf
 
 echo "$Sources" >/etc/apt/sources.list
-aptitude update
-if ! aptitude -y -f install pluto-dcerouter; then
+apt-get update
+if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
 	exit 1
 fi
@@ -254,10 +254,10 @@ while :; do
 		if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
 			ExtraRepositoryPath=$(Ask "Enter repository path")
 			echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
-			aptitude update
+			apt-get update
 		fi
 		ExtraPkgName=$(Ask "Enter package name")
-		aptitude install "$ExtraPkgName"
+		apt-get install "$ExtraPkgName"
 	else
 		break
 	fi
