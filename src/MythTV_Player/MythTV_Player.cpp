@@ -1268,6 +1268,12 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #763 - Exit */
 	/** Exit guide */
 
+void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
+{
+	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
+	sendMythCommand("key R");
+}
+
 void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 //<-dceag-c763-e->
 {
