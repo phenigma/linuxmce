@@ -46,6 +46,7 @@ InstallKernel()
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Installing kernel '$kernel' on '$IP'"
+	Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Please ignore the 'You are attempting to install a kernel version that is the same as the version you are currently running' message below. It is normal as the kernel is being installed in a chroot for the diskless Media Director not on the Core"
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
