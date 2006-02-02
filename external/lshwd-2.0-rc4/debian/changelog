@@ -1,3 +1,9 @@
+lshwd (2.0-rc4-1pluto2) unstable; urgency=low
+
+  * Changed debian/rules so the rc script is not invoked at install
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 02 Feb 2006 14:47:08 +0200
+
 lshwd (2.0-rc4-1pluto1) unstable; urgency=low
 
   * Update pcitable to load the piix module 
