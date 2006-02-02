@@ -1,4 +1,9 @@
-#include "inotify.h"
+#ifndef WIN32
+	#include "inotify.h"
+#else
+	#define __s32 long
+	#define __u32 unsigned long
+#endif
 
 #include <string>
 #include <list>

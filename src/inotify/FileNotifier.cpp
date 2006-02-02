@@ -1,8 +1,9 @@
-#include <sys/ioctl.h>
-#include <errno.h>
-
-#include "inotify/inotify.h"
-#include "inotify/inotify-syscalls.h"
+#ifndef WIN32
+	#include <sys/ioctl.h>
+	#include <errno.h>
+	#include "inotify/inotify.h"
+	#include "inotify/inotify-syscalls.h"
+#endif
 
 #include "FileNotifier.h"
 #include "PlutoUtils/FileUtils.h"
@@ -10,10 +11,17 @@
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
-enum DummyEvents { IN_ALL_EVENTS, IN_CREATE, IN_MOVE_TO, IN_ISDIR }; 
+	#define IN_ALL_EVENTS 0xFFFFFFFF
+	#define IN_CREATE		0x00000100
+	#define IN_MOVED_TO		0x00000080
+	#define IN_MOVED_FROM	0x00000040
+	#define IN_DELETE		0x00000200
+	#define IN_DELETE_SELF	0x00000400
+	#define IN_ISDIR		0x40000000
 #endif
 //-----------------------------------------------------------------------------------------------------
-void *WorkerThread(void *);
+void *INotifyWorkerThread(void *);
+void *BackgroundWorkerThread(void *);
 //-----------------------------------------------------------------------------------------------------
 FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
 {
@@ -24,8 +32,6 @@ FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
 	m_pfOnDelete = NULL;
 
 	m_wdRootFolder = 0;
-
-
     m_WatchedFilesMutex.Init(NULL);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -72,14 +78,19 @@ void FileNotifier::ResetWatches()
 	m_mapWatchedFiles.clear();
 }
 //-----------------------------------------------------------------------------------------------------
-void *WorkerThread(void *p)
+void *BackgroundWorkerThread(void *p)
+{
+	return NULL;
+}
+//-----------------------------------------------------------------------------------------------------
+void *INotifyWorkerThread(void *p)
 {
     FileNotifier *pFileNotifier = (FileNotifier *)p;
 
     while(!pFileNotifier->m_bCancelThread)
     {
 		while(!pFileNotifier->m_inotify.pending_events()) 
-			sleep(1); 
+			Sleep(100); 
 		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
@@ -111,14 +122,8 @@ void *WorkerThread(void *p)
             bool bIsDir = (event.mask & IN_ISDIR) != 0;
 			list<string> listFiles;
 
-            if(bIsDir)
-			{
-				if(bCreateEvent)
-					pFileNotifier->Watch(sFilename);
-
-			    //FileUtils::FindDirectories(listFiles, sFilename,true,false,0,sFilename + "/");
-				//FileUtils::FindFiles(listFiles, sFilename,"",true,false,0,sFilename + "/");
-			}
+            if(bIsDir && bCreateEvent)
+				pFileNotifier->Watch(sFilename);
 			
 			listFiles.push_back(sFilename);
 
@@ -126,7 +131,6 @@ void *WorkerThread(void *p)
 				pFileNotifier->FireOnCreate(listFiles);
 			else
 				pFileNotifier->FireOnDelete(listFiles);
-
         }
     }
         
@@ -142,7 +146,9 @@ void FileNotifier::RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifi
 		m_bCallbacksRegistered = true;
 
 	    m_bCancelThread = false;
-	    pthread_create(&m_WorkerThreadID, NULL, WorkerThread, (void *)this);
+
+	    pthread_create(&m_INotifyWorkerThreadID, NULL, INotifyWorkerThread, (void *)this);
+		pthread_create(&m_BackgroundWorkerThreadID, NULL, BackgroundWorkerThread, (void *)this);
     }
 }
 //-----------------------------------------------------------------------------------------------------
@@ -160,7 +166,8 @@ void FileNotifier::FireOnDelete(list<string> &listFiles)
 //-----------------------------------------------------------------------------------------------------
 void FileNotifier::Run()
 {
-	//let the thread to its work
-	pthread_join(m_WorkerThreadID, NULL);
+	//waiting for threads to finish
+	pthread_join(m_INotifyWorkerThreadID, NULL);
+	pthread_join(m_BackgroundWorkerThreadID, NULL);
 }
 //-----------------------------------------------------------------------------------------------------

@@ -1,6 +1,9 @@
+#include "inotify_class.h"
+
+#ifndef WIN32
+
 #include "inotify.h"
 #include "inotify-syscalls.h"
-#include "inotify_class.h"
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -126,3 +129,16 @@ string cpp_inotify_event::tostring()
 
 	return result;
 }
+
+#else
+
+	//dummy implementation
+	void inotify::convert_buffer(char * buffer, int bytes){}
+	inotify::inotify() {}
+	inotify::~inotify(){}
+	int inotify::watch(string path, __u32 mask) {return 0;}
+	void inotify::unwatch(int watch_id) {}
+	bool inotify::pending_events() {return false;}
+	cpp_inotify_event inotify::get_event() {cpp_inotify_event retval; return retval;}
+
+#endif

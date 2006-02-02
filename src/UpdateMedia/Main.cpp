@@ -23,9 +23,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#else
-#include "inotify/FileNotifier.h"
 #endif
+
+#include "inotify/FileNotifier.h"
 
 #define  VERSION "<=version=>"
 
@@ -250,7 +250,6 @@ int main(int argc, char *argv[])
             return 2;
         }
 
-#ifndef WIN32
 		FileNotifier fileNotifier;
 		fileNotifier.RegisterCallbacks(OnModify, OnModify); //we'll use the same callback for OnCreate and OnDelete events
   		fileNotifier.Watch(sDirectory);
@@ -259,7 +258,6 @@ int main(int argc, char *argv[])
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
 
 		fileNotifier.Run();//it waits for worker thread to exit; the user must press CTRL+C to finish it
-#endif
 
         pthread_mutex_destroy(&g_ConnectionMutex.mutex);
 		pthread_mutex_destroy(&g_FoldersListMutex.mutex);

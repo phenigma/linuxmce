@@ -30,6 +30,7 @@ public:
     string m_sID;
     bool m_bProcessed;
     int m_iPK_DeviceTemplate;
+	bool m_bAppSent;
 
     UnknownDeviceInfos(class DeviceData_Router *pDeviceFrom, int iDeviceIDFrom, string sID)
     {
@@ -38,6 +39,7 @@ public:
         m_sID = sID;
         m_bProcessed = false;
         m_iPK_DeviceTemplate = 0;
+		m_bAppSent = false;
     }
 };
 

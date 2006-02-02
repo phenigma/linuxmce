@@ -126,10 +126,16 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
+				RelativePath="..\inotify\FileNotifier.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File
 				RelativePath=".\id3info\id3info.cpp">
+			</File>
+			<File
+				RelativePath="..\inotify\inotify_class.cpp">
 			</File>
 			<File
 				RelativePath=".\Main.cpp">

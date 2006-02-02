@@ -539,7 +539,6 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
 	if( pMediaType_AttributeType && pMediaType_AttributeType->CombineAsOne_get()==1 )
 	{
-		string::size_type posTab;
 		string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
 	}
@@ -598,7 +597,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			size_t nSize = 0;
 			pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
 			FileUtils::DelFile(sDownloadedFile);
-			iData_Size = nSize;
+			iData_Size = int(nSize);
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
 #endif			
@@ -797,7 +796,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		}
 
 		// Read the info for the tracks.  NumTracks normally should = pMediaStream->m_dequeMediaFile.size()
-		for(size_t s=0;s<NumTracks;++s)
+		for(int s = 0; s < NumTracks; ++s)
 		{
 			string str = StringUtils::Tokenize(sValue,"\t\n",pos);
 			if( str.size() )
@@ -983,7 +982,7 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc);
 	if( pPictureData && sizePicture && pRow_Disc )
 	{
-		Row_Picture *pRow_Picture = AddPicture(pPictureData, sizePicture, "jpg",sURL);
+		Row_Picture *pRow_Picture = AddPicture(pPictureData, int(sizePicture), "jpg",sURL);
 		if( !pRow_Picture )
 			return 0;
 

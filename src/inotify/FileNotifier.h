@@ -7,8 +7,8 @@
 #include <map>
 using namespace std;
 //-----------------------------------------------------------------------------------------------------
-#include "inotify/inotify_class.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "inotify/inotify_class.h"
 //-----------------------------------------------------------------------------------------------------
 typedef void (*FileNotifierCallback)(list<string> &listFiles);
 //-----------------------------------------------------------------------------------------------------
@@ -24,7 +24,8 @@ private:
     FileNotifierCallback m_pfOnDelete;
 
     bool m_bCallbacksRegistered;
-    pthread_t m_WorkerThreadID;
+    pthread_t m_INotifyWorkerThreadID;
+	pthread_t m_BackgroundWorkerThreadID;
     map<int, string> m_mapWatchedFiles;
 
 public:

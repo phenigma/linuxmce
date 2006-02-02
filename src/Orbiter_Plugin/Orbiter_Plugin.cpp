@@ -2280,73 +2280,28 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
     string sParameters, sCommOnFailure, sCommOnSuccess;
     string sName("Phone Install");
 
-	/*
-    sCommOnFailure = 
-        "-targetType category " + 
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 
-        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-        StringUtils::itos(COMMAND_Set_Variable_CONST) + " " +
-        StringUtils::itos(COMMANDPARAMETER_PK_Variable_CONST) + " " + StringUtils::itos(VARIABLE_Misc_Data_3_CONST) + " " +
-        StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST) + " \"" + sDisplayedInfo.c_str() + "\"" + 
-        "," +
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-        StringUtils::itos(COMMAND_Display_Dialog_Box_On_Orbiter_CONST) + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Text_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>\"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Options_CONST) + " " + 
-            "\"Yes|" + 
-            StringUtils::ltos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + 
-            StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
-            StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMac_address + "'" + " " + 
-            StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_LineClone + "'" + " " + 
-            StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID) + " " +
-            "|No|\"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + "\" \"";
+	sCommOnFailure = 
+		"-targetType category " + 
+		StringUtils::itos(m_dwPK_Device) + " " + 
+		StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 	
+		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+		StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_DialogSendFileToPhoneFailed_CONST) + " " + 
+		StringUtils::itos(COMMANDPARAMETER_PhoneName_CONST) + " " + " \"" + sDisplayedInfo + "\"" + " " +
+		StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " " + " \"" + sMac_address + "\"" + " " +
+		StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " " + " \"" + sCommand_LineClone + "\"" + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Device_From_CONST) + " " + StringUtils::ltos(m_dwPK_Device) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Device_AppServer_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID);
 
-    sCommOnSuccess = 
-        "-targetType category " + 
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 
-        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-        StringUtils::itos(COMMAND_Set_Variable_CONST) + " " +
-        StringUtils::itos(COMMANDPARAMETER_PK_Variable_CONST) + " " + StringUtils::itos(VARIABLE_Misc_Data_3_CONST) + " " +
-        StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST) + " \"" + sDisplayedInfo.c_str() + "\"" + 
-        "," + 
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(m_dwPK_Device) + " " + 
-        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-        StringUtils::itos(COMMAND_Display_Message_CONST) + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Text_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>\"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Type_CONST) + " " + "\" \"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " " + "\" \"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_Time_CONST) + " " + "\" \"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + "\" \"";
-		*/
-
-		sCommOnFailure = 
-			"-targetType category " + 
-			StringUtils::itos(m_dwPK_Device) + " " + 
-			StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 	
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-			StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_DialogSendFileToPhoneFailed_CONST) + " " + 
-			StringUtils::itos(COMMANDPARAMETER_PhoneName_CONST) + " " + " \"" + sDisplayedInfo + "\"" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " " + " \"" + sMac_address + "\"" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " " + " \"" + sCommand_LineClone + "\"" + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_Device_From_CONST) + " " + StringUtils::ltos(m_dwPK_Device) + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_Device_AppServer_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID);
-
-		sCommOnSuccess =
-			"-targetType category " + 
-			StringUtils::itos(m_dwPK_Device) + " " + 
-			StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 	
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-			StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_DialogPhoneInstructions_CONST) + " " + 
-			StringUtils::itos(COMMANDPARAMETER_Description_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>\"" + " " + 
-			StringUtils::itos(COMMANDPARAMETER_PhoneName_CONST) + " " + " \"" + sDisplayedInfo + "\"";
+	sCommOnSuccess =
+		"-targetType category " + 
+		StringUtils::itos(m_dwPK_Device) + " " + 
+		StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 	
+		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+		StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_DialogPhoneInstructions_CONST) + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Description_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>\"" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_PhoneName_CONST) + " " + " \"" + sDisplayedInfo + "\"";
 
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
