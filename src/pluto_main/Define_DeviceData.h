@@ -122,6 +122,9 @@
 #define DEVICEDATA_Number_CONST 138
 #define DEVICEDATA_Extra_Parameters_CONST 139
 #define DEVICEDATA_Extra_Parameters_Override_CONST 140
+#define DEVICEDATA_Telecom_Local_Prefix_CONST 141
+#define DEVICEDATA_Telecom_Prepend_Digit_CONST 142
+#define DEVICEDATA_Telecom_Local_Number_Length_CONST 143
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
