@@ -46,6 +46,10 @@ function sqlcvs_update($output,$dbADO) {
 			<td><input type="text" name="host" value=""></td>
 		</tr>
 		<tr>
+			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
+			<td><input type="text" name="port" value="3999"></td>
+		</tr>			
+		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value=""></td>
 		</tr>
@@ -99,6 +103,7 @@ function sqlcvs_update($output,$dbADO) {
 		}
 
 		$host=stripslashes($_POST['host']);
+		$port=(int)$_POST['port'];
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
@@ -123,9 +128,9 @@ function sqlcvs_update($output,$dbADO) {
 			}
 		}
 		
-		$parmList='';
+		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
-			$parmList.=' -r '.$rep.' -t '.join(',',$tParmArray[$rep]);
+			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
 		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';

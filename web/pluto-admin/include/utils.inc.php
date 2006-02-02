@@ -864,7 +864,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	// required to read files larger than 2G
 	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':'"'.$path.'"';
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
-	echo $cmd;
+	//echo $cmd;
 	exec($cmd,$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
@@ -2627,7 +2627,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	$serialPortAsoc=array();
 	foreach($serial_ports AS $key=>$value){
 		$usedBy=array();
-		for($i=0;$i<count($usedPorts['IK_DeviceData']);$i++){
+		for($i=0;$i<count(@$usedPorts['IK_DeviceData']);$i++){
 			if($value==$usedPorts['IK_DeviceData'][$i]){
 				$usedBy[]=$usedPorts['Description'][$i];
 			}

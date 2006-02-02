@@ -69,8 +69,8 @@ function moveFile($output,$mediadbADO) {
 
 		if(isset($_POST['newPath']) && $_POST['newPath']!=''){
 			$newFilePath=urldecode($_POST['newPath'].$fileName);
-			$copied=@copy($filePath,$newFilePath);
-				
+			//$copied=@copy($filePath,$newFilePath);
+			$copied=exec('cp '.$filePath.' '.$newFilePath);	
 			
 			if($copied){
 				$deleted=@unlink($filePath);

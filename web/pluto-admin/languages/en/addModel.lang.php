@@ -52,9 +52,9 @@ $TEXT_Q6_MULTI_DSP_CONST='If this device has multiple DSP Modes, like "Church", 
 $TEXT_Q6_OPT1_CONST='My device doesn\'t have DSP Modes';
 $TEXT_Q6_OPT2_CONST='My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)';
 $TEXT_Q6_OPT3_CONST='My device does have DSP Modes, but unfortunately there\'s just 1 button that toggles through all the modes so it will be difficult to control';
-$TEXT_Q5_CHANGE_ORDER_CONST=='Change order';
+$TEXT_Q5_CHANGE_ORDER_CONST='Change order';
 $TEXT_Q5_CONFIRM_TOGGLE_INPUTS_CONST='Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.';
 $TEXT_Q5_ORDER_TITLE_CONST='Question 5b - What Order?';
-$TEXT_Q6_ORDER_TITLE='Last Question, 6 - DSP mode order?';
+$TEXT_Q6_ORDER_TITLE_CONST='Last Question, 6 - DSP mode order?';
 $TEXT_Q6_ORDER_INFO_CONST='Since this device uses 1 button to <b>toggle</b> DSP Modes, we need to know what order they are in so we can cycle through them.  Please confirm the order and click next.';
 ?>

@@ -1397,7 +1397,24 @@ switch ($section) {
 		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');		
 	    incomingCallsSettings($output,$dbADO,$telecomADO,$asteriskADO);
 	break;
-
+	case 'translationItems':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('translation_tools/translationItems.php');
+	    translationItems($output,$dbADO);	    
+	break;	
+	case 'editTranslationItem':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('translation_tools/editTranslationItem.php');
+	    editTranslationItem($output,$dbADO);	    
+	break;	
+	case 'addTranslationItem':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('translation_tools/addTranslationItem.php');
+	    addTranslationItem($output,$dbADO);	    
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

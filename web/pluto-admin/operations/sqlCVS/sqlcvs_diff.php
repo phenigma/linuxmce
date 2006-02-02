@@ -52,6 +52,10 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="text" name="host" value=""></td>
 		</tr>
 		<tr>
+			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
+			<td><input type="text" name="port" value="3999"></td>
+		</tr>		
+		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value=""></td>
 		</tr>
@@ -98,6 +102,7 @@ function sqlcvs_diff($output,$dbADO) {
 	';
 	} elseif($action=='choose'){
 		$host=stripslashes($_POST['host']);
+		$port=(int)$_POST['port'];
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
@@ -122,12 +127,13 @@ function sqlcvs_diff($output,$dbADO) {
 			}
 		}
 		
-		$parmList='';
+		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
-			$parmList.=' -r '.$rep.' -t '.join(',',$tParmArray[$rep]);
+			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
+		echo $cmd;
 		exec($cmd,$retArray,$retVal);
 		
 		$out.='
@@ -144,6 +150,10 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value="'.$username.'"></td>
 		</tr>
+		<tr>
+			<td><B>'.$TEXT_PORT_CONST.':</B></td>
+			<td><input type="text" name="port" value="'.$port.'"></td>
+		</tr>		
 		<tr>
 			<td><B>'.$TEXT_PASSWORD_CONST.':</B></td>
 			<td><input type="text" name="password" value="'.$password.'"></td>
@@ -212,7 +222,7 @@ function sqlcvs_diff($output,$dbADO) {
 				<input type="hidden" name="parms" value="'.$parmList.'">
 				<input type="hidden" name="fileLines" value="'.$lineNo.'">';
 		}
-		if(count($resultArray)>0){
+		if(@count($resultArray)>0){
 			$out.='
 				<tr>
 					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
@@ -239,6 +249,7 @@ function sqlcvs_diff($output,$dbADO) {
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
 		$parmList=$_POST['parms'];
+		$port=(int)$_POST['port'];
 		
 		$fileLines=$_POST['fileLines'];
 		$fileArray=file('/tmp/tmp_sqlcvs_file');
@@ -253,7 +264,7 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
 //		unlink('/tmp/tmp_sqlcvs_file');
 
 		

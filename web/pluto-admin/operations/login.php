@@ -91,7 +91,7 @@ function login($output,$dbADO) {
 									$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
 									$res_installations = $dbADO->Execute($query_installation,array((int)$rowRemote['PK_Users']));
 									if($res_installations->RecordCount()==0){
-										header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION);
+										header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION_CONST);
 										exit();
 									}
 
@@ -107,7 +107,7 @@ function login($output,$dbADO) {
 									}
 									if ($installations===array()) {
 										//the user has no installation!!!
-										$messages=$TEXT_ERROR_NO_INSTALLATION;
+										$messages=$TEXT_ERROR_NO_INSTALLATION_CONST;
 										header("Location: index.php?section=login&error=urlencode($messages)");
 										exit();
 									} else {
@@ -136,7 +136,7 @@ function login($output,$dbADO) {
 						$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
 						$res_installations = $dbADO->Execute($query_installation,array((int)$row_users['PK_Users']));
 						if($res_installations->RecordCount()==0){
-							header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION);
+							header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION_CONST);
 							exit();
 						}
 
@@ -155,7 +155,7 @@ function login($output,$dbADO) {
 
 						if ($installations===array()) {
 							//the user has no installation!!!
-							$messages=$TEXT_ERROR_NO_INSTALLATION;
+							$messages=$TEXT_ERROR_NO_INSTALLATION_CONST;
 							header("Location: index.php?section=login&error=urlencode($messages)");
 						} else {
 							$_SESSION['installationIDs'] = $installations;

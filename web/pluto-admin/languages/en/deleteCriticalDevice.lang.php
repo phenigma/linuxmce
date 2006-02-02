@@ -7,5 +7,5 @@ $TEXT_CONFIRM_BY_PASSWORD_CONST='Please confirm the operation by typing your pas
 $TEXT_CONFIRMATION_DELETE_CONST='Yes, delete it';
 $TEXT_NO_DELETE_CONST='No way !!!';
 $TEXT_ERROR_PASSWORD_NOMATCH_CONST='Password does not match.';
-$TEXT_CRITICAL_DEVICES_DELETED_CONST='Device(s) deleted!'
+$TEXT_CRITICAL_DEVICES_DELETED_CONST='Device(s) deleted!';
 ?>

@@ -225,7 +225,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		<iframe name="codeTester" src="" style="display:none;"></iframe>
 	<span class="normaltext"><a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">'.$TEXT_IR_CONTACT_US_CONST.'</a>.</span><br><br>		
 	';	
-		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE.'</em></span>':'');		
+		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE_CONST.'</em></span>':'');		
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;

@@ -76,7 +76,7 @@
 		
 		<br>
 		'.@$navigationButtons.'
-		<B>'.$TEXT_Q6_ORDER_TITLE.'</B><br><br>
+		<B>'.$TEXT_Q6_ORDER_TITLE_CONST.'</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">

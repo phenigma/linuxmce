@@ -172,7 +172,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		</form>
 		<iframe name="codeTester" src="" style="display:none;"></iframe><br>		
 	';	
-		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE.'</em></span>':'');		
+		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE_CONST.'</em></span>':'');		
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;

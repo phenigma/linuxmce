@@ -85,7 +85,7 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 			<td><input type="text" name="Title" value="'.$cData['Title'][0].'"></td>
 		</tr>	
 		<tr>
-			<td><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>
+			<td><B>'.$TEXT_PRIVATE_CONTACT_CONST.'</B></td>
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'" '.((!is_null($cData['EK_Users'][0]))?'checked':'').'></td>
 		</tr>	
 		<tr>
