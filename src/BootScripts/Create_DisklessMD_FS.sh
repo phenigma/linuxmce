@@ -24,6 +24,7 @@ InstallKernel()
 {
 	local KERNEL_VERSION="$1"
 	local Module
+	local Kout
 
 	: >etc/mkinitrd/modules
 	for Module in $Modules; do
@@ -46,12 +47,13 @@ InstallKernel()
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Installing kernel '$kernel' on '$IP'"
-	Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Please ignore the 'You are attempting to install a kernel version that is the same as the version you are currently running' message below. It is normal as the kernel is being installed in a chroot for the diskless Media Director not on the Core"
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
-	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" 2>&1; then
+	if ! Kout=$(echo | chroot . dpkg -i "/tmp/${kernel##*/}" 2>&1); then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
+		echo "Kernel package output was:"
+		echo "$Kout"
 	fi
 	umount ./proc
 }
