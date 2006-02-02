@@ -1,7 +1,0 @@
-usr/share/mythtv/*.ttf
-usr/share/mythtv/*.xml
-usr/bin/mythfrontend
-usr/bin/mythtv
-usr/bin/mythtvosd
-usr/lib/mythtv/filters
-usr/share/mythtv/i18n/mythfrontend_*
