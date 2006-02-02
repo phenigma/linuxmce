@@ -5498,7 +5498,6 @@ void Orbiter::DeselectObjects( void *data )
 
 		// Remove it from the list
 		for( vector<class DesignObj_Orbiter *>::iterator it=m_vectObjs_Selected.begin(  );it!=m_vectObjs_Selected.end(  );++it )
-			//      for( size_t s=0;s<m_vectObjs_Selected.size(  );++s )
 		{
 			DesignObj_Orbiter *pObj_Sel = *it;
 			if(  pObj == pObj_Sel  )//m_vectObjs_Selected[s]  )
@@ -5516,19 +5515,17 @@ void Orbiter::DeselectObjects( void *data )
 
 void Orbiter::GetVideoFrame( void *data )
 {
+	//Since this may take a while and we don't want to block the mutex the whole time, make a local copy
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
-
-		vector < class DesignObj_Orbiter * > vectObjs_VideoOnScreen; /** < All the video on screen */
-	// Since this may take a while and we don't want to block the mutex the whole time, make a local copy
-
-	size_t s;
-	for(s=0;s<m_vectObjs_VideoOnScreen.size();++s)
-		vectObjs_VideoOnScreen.push_back(m_vectObjs_VideoOnScreen[s]);
-
+	vector<DesignObj_Orbiter *> vectObjs_VideoOnScreen; /** < All the video on screen */
+	vectObjs_VideoOnScreen.resize(m_vectObjs_VideoOnScreen.size());
+	std::copy(m_vectObjs_VideoOnScreen.begin(), m_vectObjs_VideoOnScreen.end(), vectObjs_VideoOnScreen.begin());
 	vm.Release();
-	for(s=0;s<vectObjs_VideoOnScreen.size();++s)
+
+	vector<DesignObj_Orbiter *>::iterator it;
+	for(it = vectObjs_VideoOnScreen.begin(); it != vectObjs_VideoOnScreen.end(); it++)
 	{
-		DesignObj_Orbiter *pObj = vectObjs_VideoOnScreen[s];
+		DesignObj_Orbiter *pObj = *it;
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
 #endif
@@ -7128,10 +7125,10 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 	if( fpObjVector )
 	{
 		string::size_type pos = 0;
-		for(int i=0;i<(int) fpObjVector->size();++i)
+		FloorplanObjectVector::iterator it;
+		for(it = fpObjVector->begin(); it != fpObjVector->end(); ++it)
 		{
-			FloorplanObject *fpObj = (*fpObjVector)[i];
-			// Color is the color to fill the icon with, Description is the status which
+			FloorplanObject *fpObj = *it;			// Color is the color to fill the icon with, Description is the status which
 			// appears at the bottom of the floorplan when the item is selected, OSD is
 			// the text will be put into any text object within the icon (like the temperature
 			// next to a thermastat, and PK_DesignObj_Toolbar is the toolbar to activate
@@ -7723,9 +7720,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 				eGraphicManagement eGM = pPlutoGraphic->m_GraphicManagement;
 				string sMNGFileName = pPlutoGraphic->m_Filename;
 
-				for(size_t iIndex = 0; iIndex < (*pVectorPlutoGraphic).size(); iIndex++)
-					delete (*pVectorPlutoGraphic)[iIndex];
-				(*pVectorPlutoGraphic).clear();
+				vector<PlutoGraphic *>::iterator itPlutoGraphic;
+				for(itPlutoGraphic = pVectorPlutoGraphic->begin(); itPlutoGraphic != pVectorPlutoGraphic->end(); ++itPlutoGraphic)
+					delete *itPlutoGraphic;
+				pVectorPlutoGraphic->clear();
 
 				InMemoryMNG *pInMemoryMNG = InMemoryMNG::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
 				size_t framesCount = pInMemoryMNG->m_vectMNGframes.size();
@@ -8263,9 +8261,10 @@ void Orbiter::DumpScreenHistory()
 void Orbiter::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
-	for(size_t s=0;s<m_dequeLocation.size();++s)
+	deque<class LocationInfo *>::iterator it;
+	for(it = m_dequeLocation.begin(); it != m_dequeLocation.end(); ++it)
 	{
-		LocationInfo *pLocationInfo = m_dequeLocation[s];
+		LocationInfo *pLocationInfo = *it;
 		if( pLocationInfo->PK_EntertainArea == atoi(sPK_EntertainArea.c_str()) )
 		{
 			CMD_Set_Current_Location(pLocationInfo->iLocation);
@@ -8285,9 +8284,10 @@ void Orbiter::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_R
 void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c77-e->
 {
-	for(size_t s=0;s<m_dequeLocation.size();++s)
+	deque<LocationInfo *>::iterator it;
+	for(it = m_dequeLocation.begin(); it != m_dequeLocation.end(); ++it)
 	{
-		LocationInfo *pLocationInfo = m_dequeLocation[s];
+		LocationInfo *pLocationInfo = *it;
 		if( pLocationInfo->PK_Room == iPK_Room )
 		{
 			CMD_Set_Current_Location(pLocationInfo->iLocation);
@@ -8322,11 +8322,13 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST) )
 			bContainsGoto=true;
 
-		for(size_t s=0;s<pMessageOut->m_vectExtraMessages.size();++s)
+		for(vector<Message *>::iterator it = pMessageOut->m_vectExtraMessages.begin();
+			it != pMessageOut->m_vectExtraMessages.end(); ++it)
 		{
-			if( pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
-				pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To=m_dwPK_Device;
-			if( pMessageOut->m_vectExtraMessages[s]->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_vectExtraMessages[s]->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_vectExtraMessages[s]->m_dwID==COMMAND_Goto_Screen_CONST) )
+			Message *pExtraMessage = *it;
+			if( pExtraMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
+				pExtraMessage->m_dwPK_Device_To=m_dwPK_Device;
+			if( pExtraMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pExtraMessage->m_dwID==COMMAND_Go_back_CONST || pExtraMessage->m_dwID==COMMAND_Goto_Screen_CONST) )
 				bContainsGoto=true;
 		}
 
@@ -8683,19 +8685,19 @@ bool Orbiter::AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPo
 
 void Orbiter::HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter)
 {
-	size_t s;
-	for( s=0;s<pVectDesignObj_Orbiter->size(  );++s )
+	VectDesignObj_Orbiter::iterator it;
+	for(it = pVectDesignObj_Orbiter->begin(); it != pVectDesignObj_Orbiter->end(); ++it)
 	{
-		DesignObj_Orbiter *pDesignObj_Orbiter = (*pVectDesignObj_Orbiter)[s];
+		DesignObj_Orbiter *pDesignObj_Orbiter = *it;
 		if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->GetObj()  )  // We just did the screen itself above
 		{
 			ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, smLoadUnload, 0, 0 );
 		}
 	}
 
-	for( s=0;s<pVectDesignObj_Orbiter->size(  );++s )
+	for(it = pVectDesignObj_Orbiter->begin(); it != pVectDesignObj_Orbiter->end(); ++it)
 	{
-		DesignObj_Orbiter *pDesignObj_Orbiter = (*pVectDesignObj_Orbiter)[s];
+		DesignObj_Orbiter *pDesignObj_Orbiter = *it;
 		if ( pDesignObj_Orbiter->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 		{
 			InitializeGrid( ( DesignObj_DataGrid * )pDesignObj_Orbiter  );
@@ -9588,11 +9590,12 @@ int Orbiter::PromptFor(string sToken)
 	if( sToken=="Size" )
 		mapResponse[0]="Default";
 
-	for(size_t s=0;s<Choices.size();++s)
+	for(vector<string>::iterator it = Choices.begin(); it != Choices.end(); ++it)
 	{
+		string sChoise = *it;
 		string::size_type pos=0;
-		int Choice = atoi(StringUtils::Tokenize(Choices[s],"\t",pos).c_str());
-		string sDescription = StringUtils::Tokenize(Choices[s],"\t",pos);
+		int Choice = atoi(StringUtils::Tokenize(sChoise,"\t",pos).c_str());
+		string sDescription = StringUtils::Tokenize(sChoise,"\t",pos);
 
 		if( Choice && sDescription.size() )
 			mapResponse[Choice]=sDescription;
@@ -9925,9 +9928,10 @@ void Orbiter::GotoMainMenu()
 //-----------------------------------------------------------------------------------------------------
 DesignObj_DataGrid *Orbiter::FindGridOnScreen(string sGridID)
 {
-	for(size_t s = 0; s < m_vectObjs_GridsOnScreen.size(); ++s)
+	for(vector<class DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin(); 
+		it != m_vectObjs_GridsOnScreen.end(); ++it)
 	{
-		DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
+		DesignObj_DataGrid *pDesignObj_DataGrid = *it;
 		if(pDesignObj_DataGrid->m_sGridID == sGridID)
 			return pDesignObj_DataGrid;
 	}

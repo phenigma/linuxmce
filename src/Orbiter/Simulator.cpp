@@ -309,22 +309,23 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	vector<string> vectString;
 	FileUtils::ReadFileIntoVector( sConfigurationFile, vectString );
 
-	for(size_t s=0;s<vectString.size();++s)
+	for(vector<string>::iterator it = vectString.begin(); it != vectString.end(); ++it)
 	{
+		string sItem = *it;
 		string::size_type pos_Equal;
 		// Skip over any lines that start with # or /, or don't have an =
-		if( vectString[s][0]=='#' || vectString[s][0]=='/' || (pos_Equal=vectString[s].find('='))==string::npos )
+		if( sItem[0]=='#' || sItem[0]=='/' || (pos_Equal=sItem.find('='))==string::npos )
 			continue;
 
-		string::size_type pos_Slash = vectString[s].find("//");
+		string::size_type pos_Slash = sItem.find("//");
 
-		string Token=vectString[s].substr(0,pos_Equal);
+		string Token=sItem.substr(0,pos_Equal);
 		StringUtils::TrimSpaces(Token);
 		string Value;
 		if( pos_Slash==string::npos )
-			Value = vectString[s].substr(pos_Equal+1);
+			Value = sItem.substr(pos_Equal+1);
 		else
-			Value = vectString[s].substr(pos_Equal+1,pos_Slash-pos_Equal-1);
+			Value = sItem.substr(pos_Equal+1,pos_Slash-pos_Equal-1);
 
 		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
 	}
@@ -390,24 +391,25 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 	// Make a copy of the parameters.  We'll go through the existing file and modify any changed values
 	map<string,string> mapParameters_Copy = m_mapParameters;
 
-	for(size_t s=0;s<vectString.size();++s)
+	for(vector<string>::iterator it = vectString.begin(); it != vectString.end(); ++it)
 	{
+		string sItem = *it;
 		string::size_type pos_Equal;
         // Skip over any lines that start with # or /, or don't have an =
-		if( vectString[s][0]=='#' || vectString[s][0]=='/' || (pos_Equal=vectString[s].find('='))==string::npos )
+		if( sItem[0]=='#' || sItem[0]=='/' || (pos_Equal=sItem.find('='))==string::npos )
             continue;
 
-		string::size_type pos_Slash = vectString[s].find("//");
+		string::size_type pos_Slash = sItem.find("//");
 
-		string Token = vectString[s].substr(0,pos_Equal);
+		string Token = sItem.substr(0,pos_Equal);
 		StringUtils::TrimSpaces(Token);
 
         string Value;
 
 		if( pos_Slash==string::npos )
-			Value = vectString[s].substr(pos_Equal+1);
+			Value = sItem.substr(pos_Equal+1);
 		else
-			Value = vectString[s].substr(pos_Equal+1,pos_Slash-pos_Equal-1);
+			Value = sItem.substr(pos_Equal+1,pos_Slash-pos_Equal-1);
 
 		if( mapParameters_Copy.find(Token)==mapParameters_Copy.end() )
 			continue; // This token exists in the file but not our map.  We won't touch it
@@ -420,9 +422,9 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 
 		// We need to update what's in the file to reflect this value
 		if( pos_Slash==string::npos )
-			vectString[s].replace(pos_Equal+1, vectString[s].length()-pos_Equal-1, mapParameters_Copy[Token]);
+			sItem.replace(pos_Equal+1, sItem.length()-pos_Equal-1, mapParameters_Copy[Token]);
 		else // Preserve the // and anything after it
-			vectString[s].replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
+			sItem.replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
 
 		mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
     }

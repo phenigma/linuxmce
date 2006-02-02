@@ -31,8 +31,8 @@ CacheImageManager::CacheImageManager(string sCacheFolder, int iCacheSize)
 //----------------------------------------------------------------------------------------
 CacheImageManager::~CacheImageManager()
 {
-	for(size_t i = 0; i < m_vectCacheInfo.size(); i++)
-		delete m_vectCacheInfo[i];
+	for(vector<CacheImageData *>::iterator it = m_vectCacheInfo.begin(); it != m_vectCacheInfo.end(); ++it)
+		delete *it;
 
 	m_vectCacheInfo.clear();
 }
@@ -86,9 +86,9 @@ void CacheImageManager::CacheImage(char *pData, int iSize, string sFileName,
 //----------------------------------------------------------------------------------------
 bool CacheImageManager::IsImageInCache(string sFileName, int iPriority/*=0*/)
 {
-	for(size_t i = 0; i < m_vectCacheInfo.size(); i++)
+	for(vector<CacheImageData *>::iterator it = m_vectCacheInfo.begin(); it != m_vectCacheInfo.end(); ++it)
 	{
-		CacheImageData* pCacheImageData = m_vectCacheInfo[i];
+		CacheImageData* pCacheImageData = *it;
 
 		if(pCacheImageData->m_sFileName == sFileName)
 			return true;
@@ -144,8 +144,8 @@ int CacheImageManager::GetCacheActualSize()
 {
 	int iCacheActualSize = 0;
 
-	for(size_t i = 0; i < m_vectCacheInfo.size(); i++)
-		iCacheActualSize += m_vectCacheInfo[i]->m_iImageSize;
+	for(vector<CacheImageData *>::iterator it = m_vectCacheInfo.begin(); it != m_vectCacheInfo.end(); ++it)
+		iCacheActualSize += (*it)->m_iImageSize;
 
 	return iCacheActualSize;
 }

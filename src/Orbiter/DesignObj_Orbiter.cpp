@@ -160,26 +160,24 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentGraphic = m_pvectCurrentPlayingGraphic = NULL;
 
-	size_t iIndex;
-	for(iIndex = 0; iIndex < m_vectGraphic.size(); iIndex++)
-		delete m_vectGraphic[iIndex];
+	for(VectorPlutoGraphic::iterator itGraphic = m_vectGraphic.begin(); itGraphic != m_vectGraphic.end(); ++itGraphic)
+		delete *itGraphic;
 	m_vectGraphic.clear();
 
-	for(iIndex = 0; iIndex < m_vectSelectedGraphic.size(); iIndex++)
-		delete m_vectSelectedGraphic[iIndex];
+	for(VectorPlutoGraphic::iterator itSelectedGraphic = m_vectSelectedGraphic.begin(); itSelectedGraphic != m_vectSelectedGraphic.end(); ++itSelectedGraphic)
+		delete *itSelectedGraphic;
 	m_vectSelectedGraphic.clear();
 
-	for(iIndex = 0; iIndex < m_vectHighlightedGraphic.size(); iIndex++)
-		delete m_vectHighlightedGraphic[iIndex];
+	for(VectorPlutoGraphic::iterator itHighlightedGraphic = m_vectHighlightedGraphic.begin(); itHighlightedGraphic != m_vectHighlightedGraphic.end(); ++itHighlightedGraphic)
+		delete *itHighlightedGraphic;
 	m_vectHighlightedGraphic.clear();
 
-	for(iIndex = 0; iIndex < m_vectAltGraphics.size(); iIndex++)
+	for(vector<VectorPlutoGraphic>::iterator itVectAltGraphic = m_vectAltGraphics.begin(); itVectAltGraphic != m_vectAltGraphics.end(); ++itVectAltGraphic)
 	{
-		size_t iIndexVect = 0;
-		for(iIndexVect = 0; iIndexVect < m_vectAltGraphics[iIndex].size(); iIndexVect++)
-			delete (m_vectAltGraphics[iIndex])[iIndexVect];
+		for(VectorPlutoGraphic::iterator itAltGraphic = itVectAltGraphic->begin(); itAltGraphic != itVectAltGraphic->end(); ++itAltGraphic)
+			delete *itAltGraphic;
 
-		m_vectAltGraphics[iIndex].clear();
+		itVectAltGraphic->clear();
 	}
 	m_vectAltGraphics.clear();
 

@@ -80,6 +80,13 @@ void FileNotifier::ResetWatches()
 //-----------------------------------------------------------------------------------------------------
 void *BackgroundWorkerThread(void *p)
 {
+	FileNotifier *pFileNotifier = (FileNotifier *)p;
+
+	while(!pFileNotifier->m_bCancelThread)
+	{
+		//
+	}
+
 	return NULL;
 }
 //-----------------------------------------------------------------------------------------------------
