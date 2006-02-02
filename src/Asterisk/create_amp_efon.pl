@@ -7,6 +7,7 @@ use DBI;
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
 my $DECLARED_NUMBER;
+my $DECLARED_HOST = "bs01.e-fon.ch";
 my $DECLARED_PREFIX = "9";
 
 my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
@@ -24,7 +25,7 @@ my $IN_DATA = "";
 #check params
 unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 {
-    print "USAGE :$0 <username> <password> <phone_number> [<prefix_to_use_the_line>]\n";
+    print "USAGE :$0 <username> <password> <phone_number> [<register_host>] [<prefix_to_use_the_line>]\n";
     exit(-1);
 }
 
@@ -34,8 +35,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
 $DECLARED_NUMBER=$ARGV[2];
-$DECLARED_PREFIX=$ARGV[3] if(defined($ARGV[3]));
-
+$DECLARED_HOST=$ARGV[3] if(defined($ARGV[3]));
+$DECLARED_PREFIX=$ARGV[4] if(defined($ARGV[4]));
 
 ### ADD TRUNK
 $TRUNK_VARS{'display'}="6";
@@ -52,7 +53,7 @@ $TRUNK_VARS{'peerdetails'} ="allow=alow\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
 $TRUNK_VARS{'peerdetails'}.="disallow=all\n";
-$TRUNK_VARS{'peerdetails'}.="host=bs01.e-fon.ch\n";
+$TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'peerdetails'}.="callerid=\"$DECLARED_USERNAME\" <$DECLARED_NUMBER>\n";
@@ -62,7 +63,7 @@ $TRUNK_VARS{'peerdetails'}.="type=peer\n";
 $TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
 $TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
 $TRUNK_VARS{'userconfig'}="auth=md5\ncontext=from-pstn\nsecret=$DECLARED_USERPASSWD\ntype=user\nusername=$DECLARED_USERNAME";
-$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@bs01.e-fon.ch";
+$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
 foreach my $var (keys %TRUNK_VARS)
 {
 	my $str = $TRUNK_VARS{$var};

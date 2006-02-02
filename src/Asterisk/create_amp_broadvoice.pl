@@ -7,6 +7,7 @@ use DBI;
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
 my $DECLARED_NUMBER;
+my $DECLARED_HOST = "sip.broadvoice.com";
 my $DECLARED_PREFIX = "9";
 
 my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=SIP';
@@ -24,7 +25,7 @@ my $IN_DATA = "";
 #check params
 unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 {
-    print "USAGE :$0 <username> <password> <phone_number> [<prefix_to_use_the_line>]\n";
+    print "USAGE :$0 <username> <password> <phone_number> [<register_host>] [<prefix_to_use_the_line>]\n";
     exit(-1);
 }
 
@@ -34,8 +35,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
 $DECLARED_NUMBER=$ARGV[2];
-$DECLARED_PREFIX=$ARGV[3] if(defined($ARGV[3]));
-
+$DECLARED_HOST=$ARGV[3] if(defined($ARGV[3]));
+$DECLARED_PREFIX=$ARGV[4] if(defined($ARGV[4]));
 
 ### ADD TRUNK
 $TRUNK_VARS{'display'}="6";
@@ -53,9 +54,9 @@ $TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-pstn\n";
 $TRUNK_VARS{'peerdetails'}.="dtmf=inband\n";
 $TRUNK_VARS{'peerdetails'}.="dtmfmode=inband\n";
-$TRUNK_VARS{'peerdetails'}.="fromdomain=sip.broadvoice.com\n";
+$TRUNK_VARS{'peerdetails'}.="fromdomain=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="fromuser=$DECLARED_USERNAME\n";
-$TRUNK_VARS{'peerdetails'}.="host=sip.broadvoice.com\n";
+$TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="insecure=very\n";
 $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
@@ -63,12 +64,12 @@ $TRUNK_VARS{'peerdetails'}.="type=peer\n";
 $TRUNK_VARS{'peerdetails'}.="user=phone\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 
-$TRUNK_VARS{'usercontext'}="sip.broadvoice.com";
+$TRUNK_VARS{'usercontext'}="$DECLARED_HOST";
 $TRUNK_VARS{'userconfig'} ="context=from-pstn\n";
 $TRUNK_VARS{'userconfig'} .="dtmf=inband\n";
 $TRUNK_VARS{'userconfig'} .="dtmfmode=inband\n";
-$TRUNK_VARS{'userconfig'} .="fromdomain=sip.broadvoice.com\n";
-$TRUNK_VARS{'userconfig'} .="host=sip.broadvoice.com\n";
+$TRUNK_VARS{'userconfig'} .="fromdomain=$DECLARED_HOST\n";
+$TRUNK_VARS{'userconfig'} .="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'userconfig'} .="insecure=very\n";
 $TRUNK_VARS{'userconfig'} .="nat=yes\n";
 $TRUNK_VARS{'userconfig'} .="secret=$DECLARED_USERPASSWD\n";
@@ -76,7 +77,7 @@ $TRUNK_VARS{'userconfig'} .="type=user\n";
 $TRUNK_VARS{'userconfig'} .="user=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'userconfig'} .="username=$DECLARED_USERNAME\n";
 
-$TRUNK_VARS{'register'}="$DECLARED_USERNAME\@sip.broadvoice.com:$DECLARED_USERPASSWD:$DECLARED_USERNAME\@sip.broadvoice.com";
+$TRUNK_VARS{'register'}="$DECLARED_USERNAME\@$DECLARED_HOST:$DECLARED_USERPASSWD:$DECLARED_USERNAME\@$DECLARED_HOST";
 foreach my $var (keys %TRUNK_VARS)
 {
 	my $str = $TRUNK_VARS{$var};

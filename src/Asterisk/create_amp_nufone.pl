@@ -7,6 +7,7 @@ use DBI;
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
 my $DECLARED_NUMBER;
+my $DECLARED_HOST = "switch.nufone.net";
 my $DECLARED_PREFIX = "9";
 
 my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
@@ -24,7 +25,7 @@ my $IN_DATA = "";
 #check params
 unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 {
-    print "USAGE :$0 <username> <password> <phone_number> [<prefix_to_use_the_line>]\n";
+    print "USAGE :$0 <username> <password> <phone_number> [<register_host>] [<prefix_to_use_the_line>]\n";
     exit(-1);
 }
 
@@ -34,8 +35,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
 $DECLARED_NUMBER=$ARGV[2];
-$DECLARED_PREFIX=$ARGV[3] if(defined($ARGV[3]));
-
+$DECLARED_HOST=$ARGV[3] if(defined($ARGV[3]));
+$DECLARED_PREFIX=$ARGV[4] if(defined($ARGV[4]));
 
 ### ADD TRUNK
 $TRUNK_VARS{'display'}="6";
