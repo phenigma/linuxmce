@@ -60,10 +60,11 @@ InstallKernel()
 
 Upgrade_Essential()
 {
+	shopt -s nullglob
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
 	local Requirements="initrd-netboot-tools=0.5.3cvs.20040906-16 e2fsprogs=1.37-2sarge1 e2fslibs=1.37-2sarge1 libc6=2.3.2.ds1-22 sysv-rc=2.86.ds1-1.1pluto7"
 	local NeededReq=""
-	local Pkg Name ReqVer InstVer
+	local Pkg Name ReqVer InstVer InstState
 	
 	for Pkg in $Requirements; do
 		if [[ "$Pkg" != *=* ]]; then
@@ -73,8 +74,9 @@ Upgrade_Essential()
 		Name=${Pkg%=*}
 		ReqVer=${Pkg#*=}
 		InstVer=$(chroot . dpkg -s $Name 2>/dev/null|grep ^Version|cut -d' ' -f2)
+		InstState=$(chroot . dpkg -s $Name 2>/dev/null|grep ^Status|cut -d' ' -f2-)
 		
-		if [[ -z "$InstVer" ]]; then
+		if [[ -z "$InstVer" || "$InstState" != "install ok installed" ]]; then
 			NeededReq="$NeededReq $Name"
 		elif [[ -n "$ReqVer" ]] && dpkg --compare-versions "$InstVer" '<<' "$ReqVer"; then
 			NeededReq="$NeededReq $Name"
@@ -87,6 +89,13 @@ Upgrade_Essential()
 
 		pushd tmp/
 		aptitude download $NeededReq
+		for File in $NeededReq; do
+			Filename=$(echo "$File"*)
+			if [[ -n "$Filename" ]]; then # it was downloaded
+				continue
+			fi
+			cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
+		done
 		popd
 
 		for Pkg in $NeededReq; do
