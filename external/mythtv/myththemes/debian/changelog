@@ -1,0 +1,23 @@
+myththemes (0.19-3) unstable; urgency=low
+
+  * Built against SVN Revision 8818
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 02 Feb 2006 13:10:43 +0200
+
+myththemes (0.19-2) unstable; urgency=low
+
+  * Built against SVN Revision 8696
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 30 Jan 2006 19:21:12 +0200
+
+myththemes (0.19-1) unstable; urgency=low
+
+  * Built against SVN Revision 8563
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 11 Jan 2006 16:23:52 +0200
+
+myththemes (0.18-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Matt Zimmerman <mdz@ubuntu.com>  Mon,  9 May 2005 22:38:29 -0700
