@@ -62,7 +62,7 @@ Upgrade_Essential()
 {
 	shopt -s nullglob
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
-	local Requirements="initrd-netboot-tools=0.5.3cvs.20040906-16 e2fsprogs=1.37-2sarge1 e2fslibs=1.37-2sarge1 libc6=2.3.2.ds1-22 sysv-rc=2.86.ds1-1.1pluto7"
+	local Requirements="initrd-netboot-tools=0.5.3cvs.20040906-16 e2fsprogs=1.37-2sarge1 e2fslibs=1.37-2sarge1 libc6=2.3.2.ds1-22 sysv-rc=2.86.ds1-1.1pluto7 pluto-boot-scripts=2.0.0.36"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
 	
