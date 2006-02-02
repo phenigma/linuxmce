@@ -65,7 +65,7 @@ binary-arch: build install
 #	dh_installemacsen
 #	dh_installpam
 #	dh_installmime
-	dh_installinit -r --update-rcd-params="start 40 S ."
+	dh_installinit -n -r --update-rcd-params="start 40 S ."
 #	dh_installcron
 #	dh_installinfo
 	dh_installman debian/lshwd.1
