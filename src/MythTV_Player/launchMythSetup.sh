@@ -7,6 +7,8 @@ if [ "$MYTH_SETUP_PIDS" != "" ]; then
 	killall mythtv-setup
 fi;
 
+/etc/init.d/mythtv-backend stop
+
 echo -e "\n\n" | mythtv-setup 
 
 /etc/init.d/mythtv-backend force-reload
