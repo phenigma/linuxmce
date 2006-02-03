@@ -1173,9 +1173,9 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 						if( abs(pMediaDevice->m_iLastPlaybackSpeed)>32000 )
 							pMediaDevice->m_iLastPlaybackSpeed = 1000;
 
-						// We're changing directions to reverse, start at -1000
+						// We're changing directions to reverse, start at -2000
 						else if( iValue<0 && pMediaDevice->m_iLastPlaybackSpeed>0 )
-							pMediaDevice->m_iLastPlaybackSpeed=-1000;
+							pMediaDevice->m_iLastPlaybackSpeed=-2000;
 
 						// We're changing directions to forward, start at 1000
 						else if( iValue>0 && pMediaDevice->m_iLastPlaybackSpeed<0 )
