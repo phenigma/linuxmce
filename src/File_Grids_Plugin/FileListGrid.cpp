@@ -38,6 +38,7 @@
 #include "FileListGrid.h"
 #include "Media_Plugin/MediaAttributes.h"
 #include "Media_Plugin/Media_Plugin.h"
+#include "UpdateMedia/PlutoMediaFile.h"
 
 void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
@@ -47,8 +48,6 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 		DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
 		return;
 	}
-
-#ifndef WIN32  // We don't support pictures in Windows
 
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
@@ -70,17 +69,22 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 			if( flInfo->m_bIsBack )
 				continue;
 
-			int n = 79,result;
-			char value[80];
-			memset( value, 0, sizeof( value ) );
-
-			if ( (result=attr_get( flInfo->m_sPath.c_str( ), "PIC", value, &n, 0)) != 0 || (PKID_MED_Picture = atoi(value))==0 )
-{
+			if(0 == (PKID_MED_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(flInfo->m_sPath)))
+			{
+				string sFilePath = FileUtils::BasePath(flInfo->m_sPath);
+				string sFileName = FileUtils::FilenameWithoutPath(flInfo->m_sPath, false);
+				PlutoMediaFile PlutoMediaFile_(m_pMedia_Plugin->m_pDatabase_pluto_media, m_pMedia_Plugin->m_pDatabase_pluto_main, sFilePath, sFileName);
+				int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+				if(!PK_File ||  !(PKID_MED_Picture = PlutoMediaFile_.GetPicAttribute(PK_File)))
+				{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "No PIC attribute for %s result: %d",flInfo->m_sPath.c_str( ),result);
+g_pPlutoLogger->Write(LV_STATUS, "No PIC extended attribute or id3 tag for picture id for %s", flInfo->m_sPath.c_str());
 #endif
-continue;
-}
+
+					continue;
+				}
+			}
+
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ),PKID_MED_Picture);
 #endif
@@ -118,38 +122,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(
 g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 #endif
 
-#endif
 	DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
 }
 
-
-
-/*
-
-
-
-
-
-
-				if( !pIconBuffer )
-				{
-				}
-
-
-*/
-
-/* directories
-			size_t stIconSize;
-			char *pIconBuffer=NULL;
-
-			string ImageFile = Directory + "/cover.jpg";
-			pIconBuffer = FileUtils::ReadFileIntoBuffer(ImageFile,stIconSize);
-			if( pIconBuffer )
-				pCell->SetImage(pIconBuffer,(int) stIconSize,GR_JPG);
-			else
-			{
-				pIconBuffer = FileUtils::ReadFileIntoBuffer("/home/media/miscicons/folder.png",stIconSize);
-				if( pIconBuffer )
-					pCell->SetImage(pIconBuffer,(int) stIconSize,GR_PNG);
-			}
-*/

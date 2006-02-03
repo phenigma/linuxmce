@@ -43,6 +43,7 @@ public:
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
 
+	static int GetPictureIdFromExtendentAttributes(string sFilePath);
 	static bool IsSupported(string sFileName);
 };
 

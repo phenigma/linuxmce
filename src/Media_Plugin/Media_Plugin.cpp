@@ -1324,13 +1324,12 @@ g_pPlutoLogger->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pM
     {
 g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+		int PK_Picture=0;
 
 #ifdef WIN32
 g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
 		if( pMediaFile->m_dwPK_File )
 		{
-			int PK_Picture=0;
-
 	g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
 			vector<Row_Picture_File *> vectRow_Picture_File;
@@ -1359,18 +1358,22 @@ g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaSt
 				}
 			}
 g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
-	        if( PK_Picture )
-		        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
 		}
 #else
-		int n = 79,result;
-		char value[80];
-		memset( value, 0, sizeof( value ) );
-
-		int PK_Picture;
-		if ( (result=attr_get( pMediaFile->FullyQualifiedFile().c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
-			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+		if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pMediaFile->FullyQualifiedFile())))
+		{
+			string sFilePath = FileUtils::BasePath(pMediaFile->FullyQualifiedFile());
+			string sFileName = FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile(), false);
+			PlutoMediaFile PlutoMediaFile_(m_pMedia_Plugin->m_pDatabase_pluto_media, m_pMedia_Plugin->m_pDatabase_pluto_main, sFilePath, sFileName);
+			int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+			if(PK_File)
+				PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File));
+		}
 #endif
+
+		if(PK_Picture)
+			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+
     }
 g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
 
@@ -4443,30 +4446,31 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
                 }
             }
 
-#ifndef WIN32
+			int PK_Picture = 0;
             Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
-            if( pRow_File )
-            {
-                int n = 79,result;
-                char value[80];
-                memset( value, 0, sizeof( value ) );
+			if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get())))
+			{
+				string sFilePath = FileUtils::BasePath(pRow_File->Path_get());
+				string sFileName = FileUtils::FilenameWithoutPath(pRow_File->Path_get(), false);
+				PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
+				int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+				if(PK_File)
+					PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
+			}
 
-                int PK_Picture;
-                if ( (result=attr_get( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
-                {
-                    size_t iSize;
-                    char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
-                    if( pBuffer )
-                    {
-                        pDataGridCell_Cover->m_pGraphicData = pBuffer;
-                        pDataGridCell_Cover->m_GraphicLength = iSize;
-                    }
-                    g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
-                }
-                g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
-
-            }
-#endif
+			if(PK_Picture)
+			{
+				size_t iSize;
+				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
+				if( pBuffer )
+				{
+					pDataGridCell_Cover->m_pGraphicData = pBuffer;
+					pDataGridCell_Cover->m_GraphicLength = iSize;
+				}
+				g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+			}
+			else
+				g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
         }
         else
         {

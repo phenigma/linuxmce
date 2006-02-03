@@ -417,6 +417,22 @@ bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installa
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
+/*static*/ int PlutoMediaFile::GetPictureIdFromExtendentAttributes(string sFilePath)
+{
+	int PK_Picture = 0;
+
+#ifndef WIN32
+	int n = 79, result;
+	char value[80];
+	memset(value, 0, sizeof( value ));
+
+	if ((result = attr_get(sFilePath.c_str(), "PIC", value, &n, 0)) != 0 || (PK_Picture = atoi(value)) == 0)
+		return 0;
+#endif
+
+	return PK_Picture;
+}
+//-----------------------------------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------------------------------

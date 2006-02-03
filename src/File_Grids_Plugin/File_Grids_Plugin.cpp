@@ -146,9 +146,6 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-g_pPlutoLogger->Write(LV_WARNING,"bubu");
-
-
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 #endif

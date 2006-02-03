@@ -71,6 +71,9 @@ public:
     friend class MediaHandlerInfo;
     pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
 
+	Database_pluto_main *m_pDatabase_pluto_main;
+	Database_pluto_media *m_pDatabase_pluto_media;
+
 private:
     // Private member variables
     class Orbiter_Plugin *m_pOrbiter_Plugin;
@@ -95,9 +98,6 @@ private:
 	map< pair<int,int>, class RemoteControlSet *> m_mapDeviceTemplate_MediaType_RemoteControl;
 	map< int, class RemoteControlSet *> m_mapMediaType_RemoteControl;
 
-
-	Database_pluto_main *m_pDatabase_pluto_main;
-    Database_pluto_media *m_pDatabase_pluto_media;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
 
     class DataGridTable *CurrentMedia( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
