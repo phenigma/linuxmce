@@ -513,11 +513,6 @@ function editMasterDevice($output,$dbADO) {
 							<tr>
 								<td>'.$TEXT_FROM_CONST.': <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
 								<td>'.$TEXT_TO_CONST.': <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
-								<td>'.$TEXT_MANUFACTURER_CONST.': '.pulldownFromArray($manufacturersArray,'manufacturerPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_Manufacturer']).'</td>
-							</tr>
-							<tr>
-								<td align="right">'.$TEXT_DEVICE_CATEGORY_CONST.': </td>
-								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_DeviceCategory']).'</td>
 							</tr>
 							<tr>
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
@@ -531,11 +526,6 @@ function editMasterDevice($output,$dbADO) {
 							<tr bgcolor="#EEEEEE">
 								<td>'.$TEXT_FROM_CONST.': <input type="text" name="mac_from" value=""></td>
 								<td>'.$TEXT_TO_CONST.': <input type="text" name="mac_to" value=""></td>
-								<td>'.$TEXT_MANUFACTURER_CONST.': '.pulldownFromArray($manufacturersArray,'manufacturerPnp','').'</td>
-							</tr>
-							<tr bgcolor="#EEEEEE">
-								<td align="right">'.$TEXT_DEVICE_CATEGORY_CONST.': </td>
-								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp','').'</td>
 							</tr>
 							<tr bgcolor="#EEEEEE">
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
@@ -700,17 +690,15 @@ function editMasterDevice($output,$dbADO) {
 
 
 		if($newMacFrom!='' && $newMacTo!=''){
-			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,FK_Manufacturer,FK_DeviceCategory,Description) VALUES (?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newManufacturer,$newCategory,$newComment));
+			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description) VALUES (?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment));
 			$locationGoTo='plugAndPlay';
 		}
 
 		foreach ($dhcpArray AS $dhcpID){
 			$macFrom=@$_POST['mac_from_'.$dhcpID];
 			$macTo=@$_POST['mac_to_'.$dhcpID];
-			$newManufacturer=((int)@$_POST['manufacturerPnp_'.$dhcpID]>0)?(int)$_POST['manufacturerPnp_'.$dhcpID]:NULL;
-			$newCategory=((int)@$_POST['categoryPnp_'.$dhcpID]>0)?(int)$_POST['categoryPnp_'.$dhcpID]:NULL;
 			$newComment=@$_POST['commentPnp_'.$dhcpID];
-			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,FK_Manufacturer=?,FK_DeviceCategory=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newManufacturer,$newCategory,$newComment,$dhcpID));
+			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$dhcpID));
 		}
 
 		if($_REQUEST['toDel']!=''){
