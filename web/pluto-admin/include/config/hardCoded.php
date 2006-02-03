@@ -177,6 +177,9 @@
 	$GLOBALS['RefreshInterval']=123;			// Refresh Interval
 	$GLOBALS['AvailableSerialPorts']=133;		// Available Serial Ports
 	$GLOBALS['OutputSpeakerArrangement']=71;	// Output Speaker arrangement
+	$GLOBALS['TelecomLocalPrefix']=141;			// Telecom Local Prefix
+	$GLOBALS['TelecomPrependDigit']=142;		// Telecom Prepend Digit
+	$GLOBALS['TelecomLocalNumberLength']=143;	// Telecom Local Number Length
 	
 	// PK_FloorplanType from table FloorplanType 
 

@@ -1,5 +1,5 @@
 <?
-function phoneLines($output,$astADO) {
+function phoneLines($output,$astADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
@@ -97,10 +97,13 @@ function phoneLines($output,$astADO) {
 		<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 		<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 		
-		<h3 align="center">'.$TEXT_PHONE_LINES_CONST.'</h3>
+		'.phoneLinesLocalSettings($dbADO).'
+		
 		<form action="index.php" method="POST" name="phoneLines">
 			<input type="hidden" name="section" value="phoneLines">
 			<input type="hidden" name="action" value="update">
+			
+			<h3 align="center">'.$TEXT_PHONE_LINES_CONST.'</h3>
 			'.phoneLinesTable($astADO).'
 			<table align="center">
 				<tr>
@@ -147,6 +150,26 @@ function phoneLines($output,$astADO) {
 			$answer=queryExternalServer($url.'?'.$params);
 			
 			header('Location: index.php?section=phoneLines&msg='.$TEXT_PHONE_LINE_DELETED_CONST);
+			exit();
+		}
+		
+		if(isset($_POST['update_settings'])){
+			$val_141=(isset($_POST['ckb_141']))?$_POST['value_141']:0;
+			$val_142=(isset($_POST['ckb_141']) && isset($_POST['ckb_142']))?$_POST['value_142']:-1;
+			$val_143=$_POST['value_143'];
+			$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
+			if(is_null($telecomPlugin)){
+				header('Location: index.php?section=phoneLines&error='.$TEXT_ERROR_TELECOM_PLUGIN_NOT_FOUND_CONST);
+				exit();
+			}
+			
+			$query='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+			
+			$dbADO->Execute($query,array($val_141,$telecomPlugin,$GLOBALS['TelecomLocalPrefix']));
+			$dbADO->Execute($query,array($val_142,$telecomPlugin,$GLOBALS['TelecomPrependDigit']));
+			$dbADO->Execute($query,array($val_143,$telecomPlugin,$GLOBALS['TelecomLocalNumberLength']));
+			
+			header('Location: index.php?section=phoneLines&msg='.$TEXT_PHONE_SETTINGS_UPDATED_CONST);
 			exit();
 		}
 		
@@ -235,5 +258,44 @@ function queryExternalServer($url){
 	curl_close($ch);
 	
 	return $result;
+}
+
+function phoneLinesLocalSettings($dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
+	
+	$installationID = (int)@$_SESSION['installationID'];	
+	$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
+	if(is_null($telecomPlugin)){
+		return '<span class="err">'.$TEXT_ERROR_TELECOM_PLUGIN_NOT_FOUND_CONST.'</span>';
+	}
+	
+	$ddArray=getAssocArray('Device_DeviceData','FK_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$telecomPlugin);
+
+	$out='
+	<h3 align="center">'.$TEXT_LOCAL_PHONE_LINES_SETTINGS_CONST.'</h3>
+	
+	<form action="index.php" method="POST" name="phoneSettings">
+	<input type="hidden" name="section" value="phoneLines">
+	<input type="hidden" name="action" value="update">
+	
+	<table align="center" cellpadding="3" cellspacing="0" bgcolor="#F0F3F8">
+		<tr>
+			<td colspan="2"><input type="checkbox" name="ckb_141" value="1" '.((@$ddArray['141']!=0 && @$ddArray['141']!='')?'checked':'').'> '.$TEXT_PREPEND_AREA_CODE_CONST.' <input type="text" name="value_141" value="'.$ddArray['141'].'" style="width:25px;"></td>
+		</tr>
+		<tr>
+			<td><input type="checkbox" name="ckb_142" value="1" '.((@$ddArray['142']!=-1)?'checked':'').'> '.$TEXT_PREPEND_DIGIT_CONST.' <input type="text" name="value_142" value="'.(($ddArray['142']==-1)?'':$ddArray['142']).'" style="width:25px;"></td>
+		</tr>
+		<tr>
+			<td>'.$TEXT_LOCAL_NUMBER_LENGTH_CONST.' <input type="text" name="value_143" value="'.$ddArray['143'].'" style="width:25px;"></td>
+		</tr>
+		<tr>
+			<td align="center"><input type="submit" class="button" name="update_settings" value="'.$TEXT_UPDATE_CONST.'"></td>
+		</tr>	
+	</table>
+	</form>';
+	
+	return $out;
 }
 ?>
