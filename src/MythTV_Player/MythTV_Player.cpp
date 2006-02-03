@@ -673,8 +673,8 @@ void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-//	sendMythCommand("key enter");
-	processKeyBoardInputRequest(XK_Return);
+	sendMythCommand("key enter");
+//	processKeyBoardInputRequest(XK_Return);
 }
 
 //<-dceag-c200-b->
@@ -700,8 +700,8 @@ void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-//	sendMythCommand("key down");
-	processKeyBoardInputRequest(XK_Down);
+	sendMythCommand("key down");
+//	processKeyBoardInputRequest(XK_Down);
 }
 
 //<-dceag-c202-b->
@@ -713,8 +713,8 @@ void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-//	sendMythCommand("key left");
-	processKeyBoardInputRequest(XK_Left);
+	sendMythCommand("key left");
+//	processKeyBoardInputRequest(XK_Left);
 
 }
 
@@ -727,8 +727,8 @@ void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-//	sendMythCommand("key right");
-	processKeyBoardInputRequest(XK_Right);
+	sendMythCommand("key right");
+//	processKeyBoardInputRequest(XK_Right);
 }
 
 //<-dceag-c204-b->
@@ -987,7 +987,8 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 		break;
 	case -1:
 	case -1000:
-		sendMythCommand("play speed -1x");
+		// Myth cannot do -1x with hdtv.
+		sendMythCommand("play speed -2x");
 		break;
 	case -2:
 	case -2000:
@@ -1035,6 +1036,8 @@ void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int i
 //<-dceag-c42-e->
 	
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+
 	if (atoi(sValue_To_Assign.c_str()) < 0) 
 		sendMythCommand("play seek rewind");
 	else
@@ -1055,9 +1058,19 @@ void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+')
-		sendMythCommand("play channel up");
+	{
+		if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+			sendMythCommand("play channel up");
+		else
+			sendMythCommand("key pageup");
+	}
 	else
-		sendMythCommand("play channel down");
+	{
+		if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+			sendMythCommand("play channel down");
+		else
+			sendMythCommand("key pagedown");
+	}
 #endif
 }
 
@@ -1108,6 +1121,8 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+
 	switch(atoi(sPK_Button.c_str()))
 	{
 	case BUTTON_Up_Arrow_CONST:
@@ -1122,6 +1137,12 @@ void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string 
 	case BUTTON_Right_Arrow_CONST:
 		sendMythCommand("key right");
 		break;	
+	case BUTTON_Scroll_Up_CONST:
+		sendMythCommand("key pageup");
+		break;
+	case BUTTON_Scroll_Down_CONST:
+		sendMythCommand("key pagedown");
+		break;
 	case BUTTON_Enter_CONST:
 		sendMythCommand("key enter");
 		break;	
@@ -1268,11 +1289,6 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #763 - Exit */
 	/** Exit guide */
 
-void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
-{
-	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
-	sendMythCommand("key R");
-}
 
 void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 //<-dceag-c763-e->
@@ -1282,3 +1298,12 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 	sendMythCommand("key escape");
 #endif
 }
+
+//<-dceag-c102-b->
+void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
+{
+//<-dceag-c102-e->
+	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
+	sendMythCommand("key R");
+}
+
