@@ -68,18 +68,13 @@ function moveFile($output,$mediadbADO) {
 	// process area
 
 		if(isset($_POST['newPath']) && $_POST['newPath']!=''){
-			$newFilePath=urldecode($_POST['newPath'].$fileName);
-			//$copied=@copy($filePath,$newFilePath);
-			$copied=exec('cp '.$filePath.' '.$newFilePath);	
+			$newFilePath=urldecode($_POST['newPath']);
+
+			$cmd='sudo -u root mv \''.$filePath.'\' \''.$newFilePath.'\'';
+			$moved_cmd=exec($cmd,$ret,$moved);	
 			
-			if($copied){
-				$deleted=@unlink($filePath);
-				if(!$deleted){
-					header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error='.$TEXT_ERROR_FILE_NOT_DELETED_CONST.' '.urlencode($filePath).'.');			
-					exit();
-				}
-			}else{
-				header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$filePath.'&error='.$TEXT_ERROR_UNABLE_TO_WRITE_FILE_CONST.' '.urlencode($newFilePath).'.');
+			if($moved==0){
+				header('Location: index.php?section=moveFile&fileID='.$fileID.'&error='.urlencode($moved_cmd).'&filePath='.$filePath);
 				exit();
 			}
 			
