@@ -139,4 +139,5 @@ $TEXT_EVENT_CATEGORIES_CONST='Events Categories';
 $TEXT_IRRIGATION_WIZARD_CONST='Irrigation wizard';
 $TEXT_PORT_CONST='Port';
 $TEXT_HOME_CONST='Home';
+$TEXT_HOST_CONST='Host';
 ?>

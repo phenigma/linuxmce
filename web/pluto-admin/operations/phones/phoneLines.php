@@ -41,7 +41,7 @@ function phoneLines($output,$astADO) {
 		$providerUrl=$providerData[$_REQUEST['provider']]['url'];
 		$providerScript=$providerData[$_REQUEST['provider']]['script'];
 		$userBox='
-		<table align="center">
+		<table align="center" cellpadding="3" cellspacing="0">
 			<tr>
 				<td>'.$TEXT_URL_CONST.': </td>
 				<td><a href="'.$providerUrl.'" target="_blank">'.$providerUrl.'</a></td>
@@ -50,18 +50,34 @@ function phoneLines($output,$astADO) {
 				<td>&nbsp; </td>
 				<td>&nbsp;</td>
 			</tr>
-			<tr>
-				<td>'.$TEXT_USERNAME_CONST.' </td>
+			<tr bgcolor="#F0F3F8">
+				<td><B>'.$TEXT_USERNAME_CONST.'</B> </td>
 				<td><input type="text" name="username" value=""></td>
 			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td colspan="2">'.$TEXT_PHONE_LINE_USERNAME_NOTE_CONST.'</td>
+			</tr>		
 			<tr>
-				<td>'.$TEXT_PASSWORD_CONST.' </td>
+				<td><B>'.$TEXT_PASSWORD_CONST.'</B> </td>
 				<td><input type="text" name="password" value=""></td>
 			</tr>
 			<tr>
-				<td>'.$TEXT_PHONE_NUMBER_CONST.' </td>
+				<td colspan="2">'.$TEXT_PHONE_LINE_PASSWORD_NOTE_CONST.'</td>
+			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td><B>'.$TEXT_PHONE_NUMBER_CONST.'</B> </td>
 				<td><input type="text" name="phone" value=""></td>
 			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td colspan="2">'.$TEXT_PHONE_LINE_NUMBER_NOTE_CONST.'</td>
+			</tr>
+			<tr>
+				<td><B>'.$TEXT_HOST_CONST.'</B> </td>
+				<td><input type="text" name="host" value=""> </td>
+			</tr>		
+			<tr>
+				<td colspan="2">'.$TEXT_PHONE_LINE_HOST_NOTE_CONST.'</td>
+			</tr>		
 			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="'.$TEXT_ADD_CONST.'" value="Submit"></td>
 			</tr>
@@ -107,8 +123,9 @@ function phoneLines($output,$astADO) {
 			$username=cleanString($_POST['username']);
 			$password=cleanString($_POST['password']);
 			$phone=($_POST['phone']=='')?$username:cleanString($_POST['phone']);
+			$host=cleanString($_POST['host']);
 
-			$cmd='sudo -u root /usr/pluto/bin/'.$providerScript.' '.$username.' '.$password.' '.$phone;
+			$cmd='sudo -u root /usr/pluto/bin/'.$providerScript.' '.$username.' '.$password.' '.$phone.' '.$host;
 			system($cmd,$cmdStatus);
 			
 			if($cmdStatus!=0){
