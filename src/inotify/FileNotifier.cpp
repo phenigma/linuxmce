@@ -266,11 +266,11 @@ void FileNotifier::Run()
 string FileNotifier::GetLastModifiedDate(string sFolder)
 {
 	struct stat buf;
-	memset(&buf, 0, sizeof(struct _stat));
+	memset(&buf, 0, sizeof(buf));
 
 	string sItemWithoutTrailingSlash = FileUtils::ExcludeTrailingSlash(sFolder);
 	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
-	if(!result && buf.st_mode & _S_IFDIR)
+	if(!result && (buf.st_mode & S_IFDIR))
 	{
 		struct tm *tm;
 		tm = localtime(&buf.st_mtime);   // Convert time to struct tm form 
