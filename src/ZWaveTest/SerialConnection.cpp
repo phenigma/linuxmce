@@ -8,7 +8,7 @@
 #define READ_DELAY 200 
 #else 
 #include <unistd.h> 
-#define READ_DELAY 200000 
+#define READ_DELAY 200000
 #endif
 
 SerialConnection* SerialConnection::instance = NULL;
@@ -323,6 +323,9 @@ int SerialConnection::hasCommand()
 		g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
 #endif
 		pthread_mutex_unlock( &instance->mutex_buffer );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() unlock mutex_buffer");
+#endif
 		return 0;
 	}
 	
@@ -368,6 +371,9 @@ int SerialConnection::hasCommand()
 	else 
 		returnValue = -1;
 	pthread_mutex_unlock( &instance->mutex_buffer );
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() unlock mutex_buffer");
+#endif
 	return returnValue;
 }
 
@@ -390,7 +396,10 @@ char SerialConnection::checkSum(char *b, int len)
 
 void *SerialConnection::receiveFunction(void *)
 {
-	//g_pPlutoLogger->Write(LV_WARNING, "entry point receiveFUnction");
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "entry point receiveFunction");
+#endif
+
 	//g_pPlutoLogger->Flush();
 	//printf("entry point receiveFUnction");
 	if(instance->serialPort != NULL)
@@ -431,17 +440,15 @@ void *SerialConnection::receiveFunction(void *)
 			pthread_mutex_lock( &instance->mutex_serial );
 			if( instance != NULL && instance->isConnected() )
 			{
-				len = instance->serialPort->Read(mybuf, sizeof(mybuf));
+				len = instance->serialPort->Read(mybuf, sizeof(mybuf), 20);
+				g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::receiveFunction read %d bytes", len);
 			}
 			pthread_mutex_unlock( &instance->mutex_serial );
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::receiveFunction unlock serial mutex");
 #endif
-			// something wrong or disconnected
-			if(len > sizeof(mybuf))
-				break;
 			
-			if(len != 0 && instance != NULL)
+			if(len <= sizeof(mybuf) && len != 0 && instance != NULL)
 			{
 				pthread_mutex_lock( &instance->mutex_buffer );
 				for(size_t i=0; i<len; i++)
@@ -454,7 +461,7 @@ void *SerialConnection::receiveFunction(void *)
 			
 #ifdef _WIN32 	
 			Sleep(READ_DELAY);
-#else 	
+#else 
 			usleep(READ_DELAY); 
 #endif //_WIN32
 		}
