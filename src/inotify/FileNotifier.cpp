@@ -139,7 +139,7 @@ void *BackgroundWorkerThread(void *p)
 			string sSQL;
 			MYSQL_ROW row;
 
-			sSQL = "SELECT psc_mod FROM File WHERE Path = '" + sItem + "' ORDER BY psc_mod DESC LIMIT 1";
+			sSQL = "SELECT psc_mod FROM File WHERE Path = '" + StringUtils::URLEncode(sItem) + "' ORDER BY psc_mod DESC LIMIT 1";
 			PlutoSqlResult result_set;
 			if(
 				NULL != (result_set.r = pFileNotifier->m_pDatabase_pluto_media->mysql_query_result(sSQL)) && 
@@ -154,7 +154,7 @@ void *BackgroundWorkerThread(void *p)
 					sModifiedDate.c_str(), sDBModifiedDate.c_str());
 
 				//touch records in db
-				string sSQL = "UPDATE File SET psc_mod = '" + sModifiedDate + "' WHERE Path = '" + sItem + "'";
+				string sSQL = "UPDATE File SET psc_mod = '" + sModifiedDate + "' WHERE Path = '" + StringUtils::URLEncode(sItem) + "'";
 				pFileNotifier->m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 
 				list<string> listFiles;
