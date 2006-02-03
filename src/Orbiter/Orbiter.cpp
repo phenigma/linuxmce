@@ -9230,7 +9230,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	if( sStatus=="R" || sStatus=="r" )
 		return MonitorRegen(m_dwPK_Device);
 
-	if( sStatus=="N" )
+	if( sStatus=="N" || ((sStatus=="D" || sStatus=="U") && !m_dwPK_Device) )
 	{
 		map<int,string> mapPrompts;
 		enum PromptsResp {prYes, prNo};
