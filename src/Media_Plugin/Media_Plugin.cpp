@@ -1148,11 +1148,21 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
 				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
 			}
-			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )
+			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST && pMediaDevice->m_iLastPlaybackSpeed!=1000 )
 			{
 				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
 			}
+			else if (pMessage->m_dwID==COMMAND_Play_Media_CONST)
+			{
+				// It's the second play in a row.  Change it to a pause
+				// If we need a discrete "play" command, we should create a new constant
+				// for "play/pause" combo buttons.  
+				pMessage->m_dwID=COMMAND_Change_Playback_Speed_CONST;
+				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "0";
+				pMediaDevice->m_iLastPlaybackSpeed = 0;
+				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
+				}
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
 			{
 				string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST];
