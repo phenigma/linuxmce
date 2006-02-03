@@ -1158,7 +1158,6 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	while((row = mysql_fetch_row(result_set.r)))
 	{
 		int device=0;
-		char *number=NULL;
 		if(atoi(row[1])==COMMANDPARAMETER_PK_Device_CONST)
 		{
 			device=atoi(row[2]);
@@ -1249,4 +1248,36 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 		}
 	}
 	return 0;
+}
+int Telecom_Plugin::CreateLocalPrefixes()
+{
+	string fixlocalprefixes=";This file was generateg by pluto\n";
+	fixlocalprefixes += "9+112\n";	
+	fixlocalprefixes += "9+411\n";
+	fixlocalprefixes += "9+911\n";
+	if(DATA_Get_Telecom_Local_Prefix()>0)
+	{
+		fixlocalprefixes += "9";	
+		if(DATA_Get_Telecom_Prepend_Digit()>=0)
+		{
+			fixlocalprefixes += StringUtils::itos(DATA_Get_Telecom_Prepend_Digit());
+		}
+		fixlocalprefixes += StringUtils::itos(DATA_Get_Telecom_Local_Prefix());
+		fixlocalprefixes += "+";
+		for(int i=0;i<DATA_Get_Telecom_Local_Number_Length();i++)
+		{
+			fixlocalprefixes += "X\n";
+		}
+	}
+
+
+////	do not enable this right now	////
+ 
+//	FILE *file = fopen("/etc/asterisk/localprefixes.conf","w");
+//	if(!file)
+//		return -1;
+//	fprintf(file,"%s",fixlocalprefixes.c_str());
+//	fclose(file);
+	return 1;
+
 }
