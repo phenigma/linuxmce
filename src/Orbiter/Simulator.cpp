@@ -430,7 +430,7 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
     }
 
 	// Add the new ones
-	for(map<string,string>::iterator itm = mapParameters_Copy.begin();itm != mapParameters_Copy.end(); ++it)
+	for(map<string,string>::iterator itm = mapParameters_Copy.begin();itm != mapParameters_Copy.end(); ++itm)
 		vectString.push_back((*itm).first + "=" + (*itm).second);
 
 	// Rewrite the config file

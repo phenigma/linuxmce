@@ -5856,6 +5856,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if( sID.size() )
 		pScreenHistory_New->m_sID=sID;
 
+#ifdef DEBUG
+	DumpScreenHistory();
+#endif
+
 	vm.Release(  );
 
 	// See if we need to store the variables on this screen,  so we restore them in case of a go back

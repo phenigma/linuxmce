@@ -669,7 +669,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 					if(sReceiverInputs == "")
 						return true;
 
-					int PK_Device_From = 0;
+					//int PK_Device_From = 0;
 					int PK_Command_Input = atoi(sReceiverInputs.c_str());
 					
 					// Set the input
@@ -832,7 +832,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 // TODO: This is Monster specific
 bool OSDScreenHandler::LightsSetup_OnGotoScreen(CallBackData *pData)
 {
-	GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
+	//GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
 	m_bLightsFlashThreadQuit=true;
 	return false;
 }
