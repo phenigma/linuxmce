@@ -103,6 +103,7 @@ public:
 	virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device);
 
 	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName);
+	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

@@ -293,6 +293,7 @@ bool Orbiter_Plugin::Register()
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::DeviceConfigured),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Device_Configured_CONST);
 
     return Connect(PK_DeviceTemplate_get());
 
@@ -1209,7 +1210,7 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 		SendCommand(SCREEN_DialogPhoneInstructions);
 	}
 
-    ProcessUnknownDevice();
+    //ProcessUnknownDevice();
 }
 //<-dceag-c79-b->
 
@@ -2514,4 +2515,11 @@ void Orbiter_Plugin::CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,str
 		m_sPK_Device_AllOrbiters_AllowingPopups.c_str());
 }
 
+bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	string sName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 
+	g_pPlutoLogger->Write(LV_STATUS,"Device %s configured! Processing next unknown device...", sName.c_str());
+    ProcessUnknownDevice();
+	return true;
+}

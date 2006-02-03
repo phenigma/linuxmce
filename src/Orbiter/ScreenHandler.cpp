@@ -4,6 +4,8 @@
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
 
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
@@ -450,6 +452,30 @@ void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
 
 	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,StringUtils::ltos(iPK_Device),true,true);
+	RegisterCallBack(cbObjectSelected, ScreenHandler::New_Phone_Enter_Number_DeviceConfigured, 
+		new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	if(
+		pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSaveMobileNumber_CONST	||
+		pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objControllerHome_CONST		||
+		pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objControllerBack_CONST
+	)
+	{
+		string sName = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+		m_pOrbiter->m_pEvent->SendMessage(
+			new Message(
+				m_pOrbiter->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, 
+				MESSAGETYPE_EVENT, EVENT_Device_Configured_CONST, 1, EVENTPARAMETER_Name_CONST, sName.c_str()
+			)
+		); 
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device)

@@ -292,7 +292,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	else
 		Name = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
-	bool bIsPlugin = p_Row_DeviceTemplate->IsPlugIn_get();
+	bool bIsPlugin = 1 == p_Row_DeviceTemplate->IsPlugIn_get();
 	DeviceInfo deviceInfo(p_Row_DeviceTemplate);
 
 	// First build some CommandInfo instances that list all our commmands
