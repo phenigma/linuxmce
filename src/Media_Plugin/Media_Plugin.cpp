@@ -1364,10 +1364,10 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 		{
 			string sFilePath = FileUtils::BasePath(pMediaFile->FullyQualifiedFile());
 			string sFileName = FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile(), false);
-			PlutoMediaFile PlutoMediaFile_(m_pMedia_Plugin->m_pDatabase_pluto_media, m_pMedia_Plugin->m_pDatabase_pluto_main, sFilePath, sFileName);
+			PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
 			int PK_File = PlutoMediaFile_.GetFileAttribute(false);
 			if(PK_File)
-				PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File));
+				PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
 		}
 #endif
 
