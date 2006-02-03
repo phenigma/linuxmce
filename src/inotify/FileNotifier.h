@@ -29,7 +29,7 @@ private:
     map<int, string> m_mapWatchedFiles;
 
 public:
-    FileNotifier(void); 
+    FileNotifier(class Database_pluto_media *pDatabase_pluto_media = NULL); 
     ~FileNotifier(void);
 
     void RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifierCallback pfOnDelete);
@@ -38,10 +38,12 @@ public:
 
     bool m_bCancelThread;
     inotify m_inotify;
+	class Database_pluto_media *m_pDatabase_pluto_media;
 	
 	int m_wdRootFolder;
 	string m_sRootFolder;
 	void ResetWatches();
+	string GetLastModifiedDate(string sFolder);
 
     pluto_pthread_mutex_t m_WatchedFilesMutex;
     string m_mapWatchedFiles_Find(int wd)	

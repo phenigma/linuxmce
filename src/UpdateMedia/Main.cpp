@@ -110,28 +110,27 @@ void OnModify(list<string> &listFiles)
 			size_t nPos = sItem.rfind("/");
 			if(nPos != string::npos)
 				sItem = sItem.substr(0, nPos);
+		}
 
-			g_pPlutoLogger->Write(LV_STATUS, "New folder %s...", sItem.c_str());        
+		g_pPlutoLogger->Write(LV_STATUS, "New folder %s to sync...", sItem.c_str());        
+		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 
-			PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
-
-			bool bFound = false;
-			for(vector<string>::iterator it = vectModifiedFolders.begin(); it != vectModifiedFolders.end(); it++)
+		bool bFound = false;
+		for(vector<string>::iterator it = vectModifiedFolders.begin(); it != vectModifiedFolders.end(); it++)
+		{
+			if(*it == sItem)
 			{
-				if(*it == sItem)
-				{
-					bFound = true;
-					break;
-				}
+				bFound = true;
+				break;
 			}
+		}
 
-			if(!bFound)
-			{
-				vectModifiedFolders.push_back(sItem);
-				g_pPlutoLogger->Write(LV_STATUS, "Waking up worker thread...");        
-				pthread_cond_broadcast(&g_ActionCond);
-			}
-		} 
+		if(!bFound)
+		{
+			vectModifiedFolders.push_back(sItem);
+			g_pPlutoLogger->Write(LV_STATUS, "Waking up worker thread...");        
+			pthread_cond_broadcast(&g_ActionCond);
+		}
 	}
 }
 
@@ -250,7 +249,7 @@ int main(int argc, char *argv[])
             return 2;
         }
 
-		FileNotifier fileNotifier;
+		FileNotifier fileNotifier(g_pDatabase_pluto_media);
 		fileNotifier.RegisterCallbacks(OnModify, OnModify); //we'll use the same callback for OnCreate and OnDelete events
   		fileNotifier.Watch(sDirectory);
 

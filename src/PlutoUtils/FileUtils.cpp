@@ -469,7 +469,8 @@ string FileUtils::FilenameWithoutPath( string sFullPath, bool bIncludeExtension 
 
 string FileUtils::IncludeTrailingSlash(string sDirectoryPath)
 {
-    if(sDirectoryPath.size() && sDirectoryPath[sDirectoryPath.size() - 1] != '/')
+	char cLastChar = sDirectoryPath[sDirectoryPath.size() - 1];
+    if(sDirectoryPath.size() && cLastChar != '/' && cLastChar != '\\')
         sDirectoryPath = sDirectoryPath + "/";
 
     return sDirectoryPath;
@@ -477,7 +478,8 @@ string FileUtils::IncludeTrailingSlash(string sDirectoryPath)
 
 string FileUtils::ExcludeTrailingSlash(string sDirectoryPath)
 {
-    if(sDirectoryPath.size() && sDirectoryPath[sDirectoryPath.size() - 1] == '/')
+	char cLastChar = sDirectoryPath[sDirectoryPath.size() - 1];
+    if(sDirectoryPath.size() && (cLastChar == '/' || cLastChar == '\\'))
         sDirectoryPath = sDirectoryPath.substr(0, sDirectoryPath.size() - 1);
 
     return sDirectoryPath;

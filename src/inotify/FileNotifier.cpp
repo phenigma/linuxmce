@@ -3,11 +3,17 @@
 	#include <errno.h>
 	#include "inotify/inotify.h"
 	#include "inotify/inotify-syscalls.h"
+#else
+	#include <sys/types.h> 
+	#include <sys/stat.h>
 #endif
 
 #include "FileNotifier.h"
 #include "PlutoUtils/FileUtils.h"
 #include "DCE/Logger.h"
+#include "PlutoUtils/Other.h"
+#include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_File.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
@@ -23,7 +29,13 @@ using namespace DCE;
 void *INotifyWorkerThread(void *);
 void *BackgroundWorkerThread(void *);
 //-----------------------------------------------------------------------------------------------------
-FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
+bool operator > (string s1, string s2)
+{
+	return s1.compare(0, s1.size(),  s2) > 0;
+}
+//-----------------------------------------------------------------------------------------------------
+FileNotifier::FileNotifier(class Database_pluto_media *pDatabase_pluto_media) : 
+	m_WatchedFilesMutex("watched files")
 {
     m_bCallbacksRegistered = false;
     m_bCancelThread = false;
@@ -33,6 +45,8 @@ FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
 
 	m_wdRootFolder = 0;
     m_WatchedFilesMutex.Init(NULL);
+
+	m_pDatabase_pluto_media = pDatabase_pluto_media;
 }
 //-----------------------------------------------------------------------------------------------------
 FileNotifier::~FileNotifier(void)
@@ -42,6 +56,14 @@ FileNotifier::~FileNotifier(void)
 //-----------------------------------------------------------------------------------------------------
 void FileNotifier::Watch(string sDirectory)
 {
+#ifdef WIN32	
+	if(!m_wdRootFolder)
+	{
+		m_wdRootFolder = 1;
+		m_sRootFolder = sDirectory;
+	}
+#endif
+
     list<string> listFilesOnDisk;
     FileUtils::FindDirectories(listFilesOnDisk,sDirectory,true,false,0,sDirectory + "/");  
 	listFilesOnDisk.push_back(sDirectory);
@@ -84,7 +106,68 @@ void *BackgroundWorkerThread(void *p)
 
 	while(!pFileNotifier->m_bCancelThread)
 	{
-		//
+		if(!pFileNotifier->m_wdRootFolder)
+		{
+			//we don't know yet what is the root folder
+			Sleep(1000);
+			continue;
+		}
+
+		g_pPlutoLogger->Write(LV_WARNING, "Background thread waking up...");
+
+		string sRootFolder = pFileNotifier->m_sRootFolder;
+		sRootFolder = StringUtils::Replace(&sRootFolder,"\\","/");  // Be sure no Windows \'s
+		sRootFolder = FileUtils::ExcludeTrailingSlash(sRootFolder);
+		
+		list<string> listFilesOnDisk;
+		FileUtils::FindDirectories(listFilesOnDisk,sRootFolder,true,false,0,sRootFolder + "/");  
+		listFilesOnDisk.push_back(sRootFolder);
+
+		for(list<string>::iterator it = listFilesOnDisk.begin(); it != listFilesOnDisk.end(); it++)
+		{
+			if(pFileNotifier->m_bCancelThread)
+				return NULL;
+
+			//timestamp on the disk
+			string sItem = *it;
+			sItem = StringUtils::Replace(&sItem,"\\","/");  // Be sure no Windows \'s
+			sItem = FileUtils::ExcludeTrailingSlash(sItem);
+			string sModifiedDate = pFileNotifier->GetLastModifiedDate(sItem);
+
+			//timestamp on db
+			string sDBModifiedDate;
+			string sSQL;
+			MYSQL_ROW row;
+
+			sSQL = "SELECT psc_mod FROM File WHERE Path = '" + sItem + "' ORDER BY psc_mod DESC LIMIT 1";
+			PlutoSqlResult result_set;
+			if(
+				NULL != (result_set.r = pFileNotifier->m_pDatabase_pluto_media->mysql_query_result(sSQL)) && 
+				NULL != (row = mysql_fetch_row(result_set.r))
+			)
+				sDBModifiedDate = row[0];
+
+			//compare timestamps
+			if(sModifiedDate > sDBModifiedDate && sDBModifiedDate != "")
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Need to sync folder %s: on disk %s - on database %s" , sItem.c_str(), 
+					sModifiedDate.c_str(), sDBModifiedDate.c_str());
+
+				//touch records in db
+				string sSQL = "UPDATE File SET psc_mod = '" + sModifiedDate + "' WHERE Path = '" + sItem + "'";
+				pFileNotifier->m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
+				list<string> listFiles;
+				listFiles.push_back(sItem);
+				pFileNotifier->FireOnCreate(listFiles);
+			}
+
+			Sleep(100);
+		}
+
+		g_pPlutoLogger->Write(LV_WARNING, "Background thread going to sleep...");
+
+		Sleep(300 * 1000); //every 5 minutes
 	}
 
 	return NULL;
@@ -155,7 +238,9 @@ void FileNotifier::RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifi
 	    m_bCancelThread = false;
 
 	    pthread_create(&m_INotifyWorkerThreadID, NULL, INotifyWorkerThread, (void *)this);
-		pthread_create(&m_BackgroundWorkerThreadID, NULL, BackgroundWorkerThread, (void *)this);
+
+		if(m_pDatabase_pluto_media)
+			pthread_create(&m_BackgroundWorkerThreadID, NULL, BackgroundWorkerThread, (void *)this);
     }
 }
 //-----------------------------------------------------------------------------------------------------
@@ -178,3 +263,25 @@ void FileNotifier::Run()
 	pthread_join(m_BackgroundWorkerThreadID, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
+string FileNotifier::GetLastModifiedDate(string sFolder)
+{
+	struct stat buf;
+	memset(&buf, 0, sizeof(struct _stat));
+
+	string sItemWithoutTrailingSlash = FileUtils::ExcludeTrailingSlash(sFolder);
+	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
+	if(!result && buf.st_mode & _S_IFDIR)
+	{
+		struct tm *tm;
+		tm = localtime(&buf.st_mtime);   // Convert time to struct tm form 
+		char acDateTime[100];
+		sprintf( acDateTime, "%04d%02d%02d%02d%02d%02d",
+			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
+
+		return acDateTime;
+	}
+
+	return "";
+}
+//-----------------------------------------------------------------------------------------------------
+
