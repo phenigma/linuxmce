@@ -5150,12 +5150,15 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 			{
 				if(it->second)
+				{
 					Output += it->second->m_sDescription + ", ";
+				}
 				else 
 				{
 					//this is a media floorplan object; it doesn't have a device associated
 					FloorplanObject *pfObj = m_mapFloorplanObject_Selected[it->first];
-					Output += pfObj->DeviceDescription + ", ";
+					string sStatus = pfObj->Status == "offline" ? " (" + pfObj->Status + ")" : "";
+					Output += pfObj->DeviceDescription + sStatus + ", ";
 				}
 			}
 		else if(  Variable=="R" && m_pLocationInfo  )
@@ -7132,7 +7135,9 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 		FloorplanObjectVector::iterator it;
 		for(it = fpObjVector->begin(); it != fpObjVector->end(); ++it)
 		{
-			FloorplanObject *fpObj = *it;			// Color is the color to fill the icon with, Description is the status which
+			FloorplanObject *fpObj = *it;			
+			
+			// Color is the color to fill the icon with, Description is the status which
 			// appears at the bottom of the floorplan when the item is selected, OSD is
 			// the text will be put into any text object within the icon (like the temperature
 			// next to a thermastat, and PK_DesignObj_Toolbar is the toolbar to activate

@@ -73,6 +73,7 @@ using namespace DCE;
 #include "BD/PhoneDevice.h"
 #include "Gen_Devices/AllScreens.h"
 #include "pluto_main/Define_Screen.h"
+#include "SerializeClass/ShapesColors.h"
 
 #include "PopulateListsInVMC.h"
 
@@ -1401,6 +1402,12 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 				iColor = pRow_FloorplanObjectType_Color->Color_get();
 			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
 				sDescription = pRow_FloorplanObjectType_Color->Description_get();
+
+			if(!m_pRouter->DeviceIsRegistered(fpObj->PK_Device))
+			{
+				iColor = PlutoColor::Gray().m_Value;
+				sDescription = "offline";
+			}
 
 			(*sValue_To_Assign) += StringUtils::itos(iColor) + "|" + sDescription + "|" + OSD + (PK_DesignObj_Toolbar ? "|" + StringUtils::itos(PK_DesignObj_Toolbar) : "|") + "|";
 		}

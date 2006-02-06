@@ -1540,29 +1540,6 @@ void Router::CleanFileName(string &FileName)
         FileName.replace(s,1,"");
 }
 
-bool Router::DeviceIsRegistered(int PK_Device)
-{
-    PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
-
-    int RouteToDevice = DEVICEID_NULL;
-
-    map<int,int>::iterator iRoute;
-    iRoute = m_Routing_DeviceToController.find(PK_Device);
-    if (iRoute!=m_Routing_DeviceToController.end())
-    {
-        RouteToDevice = (*iRoute).second;
-    }
-    slCore.Release();
-
-    if (!RouteToDevice)
-        return false;
-
-	ServerSocket *pServerSocket;
-	GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
-	return pServerSocket!=NULL;
-}
-
-
 void Router::AddMessageToQueue(Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);

@@ -388,7 +388,29 @@ namespace DCE
         string GetPublicIP();
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
-        bool DeviceIsRegistered(int PK_Device);
+        
+		bool DeviceIsRegistered(int PK_Device)
+		{
+			PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
+
+			int RouteToDevice = DEVICEID_NULL;
+
+			map<int,int>::iterator iRoute;
+			iRoute = m_Routing_DeviceToController.find(PK_Device);
+			if (iRoute!=m_Routing_DeviceToController.end())
+			{
+				RouteToDevice = (*iRoute).second;
+			}
+			slCore.Release();
+
+			if (!RouteToDevice)
+				return false;
+
+			ServerSocket *pServerSocket;
+			GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
+			return pServerSocket!=NULL;
+		}
+
 		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue,bool bOnlyIfNotAlreadyThere=false)
 		{
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);

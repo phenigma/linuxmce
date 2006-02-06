@@ -22,6 +22,7 @@ public:
 	static PlutoColor Green() { return PlutoColor(0,255,0); }
 	static PlutoColor Blue() { return PlutoColor(0,0,255); }
 	static PlutoColor White() { return PlutoColor(255,255,255); }
+	static PlutoColor Gray() { return PlutoColor(128,128,128); }
 	long m_Value;
 	long AsARGB() { return m_Value; };
 	int A() { unsigned char *ucp = (unsigned char *) &m_Value;  return ucp[3]; };
