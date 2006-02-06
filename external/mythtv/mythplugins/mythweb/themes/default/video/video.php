@@ -1,10 +1,10 @@
 <?php
 /**
- * Handy predefined searches
+ * Rudimentary interface to MythVideo data
  *
  * @url         $URL$
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8709 $
+ * @date        $Date: 2006-02-02 09:59:05 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8837 $
  * @author      $Author: xris $
  * @license     GPL
  *

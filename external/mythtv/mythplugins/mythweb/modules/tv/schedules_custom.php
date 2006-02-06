@@ -3,8 +3,8 @@
  * Schedule a custom recording by manually specifying various search options
  *
  * @url         $URL$
- * @date        $Date: 2006-01-30 09:22:21 +0200 (Mon, 30 Jan 2006) $
- * @version     $Revision: 8778 $
+ * @date        $Date: 2006-02-02 06:03:21 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8828 $
  * @author      $Author: xris $
  *
  * @package     MythWeb
@@ -123,7 +123,8 @@
                                                       ));
             // Run a test query
                 $db->disable_fatal_errors();
-                $sh = $db->query('SELECT NULL FROM program, channel'.$schedule->subtitle.' WHERE '.$schedule->description);
+                $sh = $db->query('SELECT NULL FROM program, channel'.str_replace('?', '\\?', $schedule->subtitle)
+                                .' WHERE '.str_replace('?', '\\?', $schedule->description));
                 $db->enable_fatal_errors();
                 if ($db->error) {
                     add_error("There is an error in your custom SQL query:\n\n"

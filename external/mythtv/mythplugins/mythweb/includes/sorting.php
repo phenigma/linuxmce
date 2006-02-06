@@ -1,9 +1,16 @@
 <?php
-/***                                                                        ***\
-    sorting.php                              Last Updated: 2004.11.30 (xris)
-
-    routines for sorting Program objects
-\***                                                                        ***/
+/**
+ * Routines for sorting Program objects
+ *
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
+ * @author      $Author: xris $
+ * @license     GPL
+ *
+ * @package     MythWeb
+ *
+/**/
 
 // A global variable to track the last-used session;
     global $last_sort_session;

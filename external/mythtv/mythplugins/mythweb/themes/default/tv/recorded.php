@@ -3,8 +3,8 @@
  * Show recorded programs.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8709 $
+ * @date        $Date: 2006-02-02 10:21:54 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8838 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -250,8 +250,9 @@ if ($group_field == "") {
         if (show_recorded_pixmaps) {
             echo "\t<td rowspan=\"".($_SESSION['recorded_descunder'] ? 3 : 2).'">';
             if (file_exists(cache_dir.'/'.basename($show->filename).'.png')) {
+                list($width, $height, $type, $attr) = getimagesize(cache_dir.'/'.basename($show->filename).'.png');
                 echo '<a href="'.video_url().'/'.basename($show->filename)."\" name=\"$row\">"
-                    .'<img id="'.$show->filename."\" src=\"".root.cache_dir.'/'.basename($show->filename).'.png" width="'.pixmap_width.'" height="'.pixmap_height.'" border="0">'
+                    .'<img id="'.$show->filename."\" src=\"".root.cache_dir.'/'.basename($show->filename).'.png" '.$attr.' border="0">'
                     .'</a>';
             }
             else

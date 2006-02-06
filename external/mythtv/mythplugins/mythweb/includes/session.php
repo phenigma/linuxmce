@@ -6,9 +6,10 @@
  * *after* the database connection has been established.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-02 10:09:26 +0200 (Mon, 02 Jan 2006) $
- * @version     $Revision: 8469 $
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
  * @author      $Author: xris $
+ * @license     GPL
  *
  * @package     MythWeb
  *

@@ -3,9 +3,10 @@
  * Various routines that deal with figuring out and/or displaying css.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-15 05:37:28 +0200 (Sun, 15 Jan 2006) $
- * @version     $Revision: 8613 $
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
  * @author      $Author: xris $
+ * @license     GPL
  *
  * @package     MythWeb
  *

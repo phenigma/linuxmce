@@ -16,8 +16,8 @@
  * of the RegExp object.
  *
  * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/js/browser.js $
- * @date        $Date: 2006-01-25 05:27:24 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8708 $
+ * @date        $Date: 2006-02-02 05:34:43 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8826 $
  * @author      $Author: xris $
  * @copyright   Silicon Mechanics
  * @license     LGPL
@@ -270,8 +270,8 @@
                            '   If has_plugin = true Then Exit Do'       + '\n' +
                            '   plugin_version = plugin_version - 1'     + '\n' +
                            'Loop'                                       + '\n' +
-                           'browser.v_' + var_name + ' = playerversion' + '\n' +
-                           'browser.'   + var_name + ' = has_plugin'    + '\n' +
+                           'browser.v_' + prop + ' = playerversion'     + '\n' +
+                           'browser.'   + prop + ' = has_plugin'        + '\n' +
                            '<\/sc' + 'ript>'
                           );
         }

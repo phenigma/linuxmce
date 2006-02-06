@@ -1,14 +1,16 @@
 <?php
-
-    //
-    //  This file is part of MythWeb,
-    //  a php-based interface into MythTV.
-    //
-    //  (c) 2002 by Thor Sigvaldason and Isaac Richards
-    //  MythWeb is distributed under the
-    //  GNU GENERAL PUBLIC LICENSE version 2
-    //  (see http://www.gnu.org)
-    //
+/**
+ * Configuration options for the MythWeb WAP theme
+ *
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 10:21:54 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8838 $
+ * @author      $Author: xris $
+ * @license     GPL
+ *
+ * @package     MythWeb
+ *
+/**/
 
 /*
 
@@ -44,10 +46,6 @@
 
 */
     define('show_recorded_pixmaps', false);
-
-// Height and width of generated pixmaps (for now, these are fixed - please do not change these numbers)
-    define('pixmap_width',  160);
-    define('pixmap_height', 120);
 
 // height and width of generated pixmaps for video thumbnails
     define('video_img_width',  94);

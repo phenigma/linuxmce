@@ -1,17 +1,20 @@
 <?php
-/*
- *  $Date: 2006-01-17 01:32:30 +0200 (Tue, 17 Jan 2006) $
- *  $Revision: 8627 $
- *  $Author: xris $
+/**
+ * Global configuration for MythWeb.
  *
- *  conf.php
+ * All end-user customizations (should?) happen here
+ * Most of this should really by in a MySQL table with
+ * a php interface to change it (someday...)
  *
- *    Global configuration for MythWeb.
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 10:21:54 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8838 $
+ * @author      $Author: xris $
+ * @license     GPL
  *
- *    All end-user customizations (should?) happen here
- *    Most of this should really by in a MySQL table with
- *    a php interface to change it (someday...)
-/*/
+ * @package     MythWeb
+ *
+/**/
 
 // The domain of this webserver, for cookie validation and other things.  This
 //  *should* work automatically as-is, but if cookies don't work, you may need
@@ -94,10 +97,6 @@
 
 */
     define('show_recorded_pixmaps', true);
-
-// Height and width of generated pixmaps (for now, these are fixed - please do not change these numbers)
-    define('pixmap_width',  160);
-    define('pixmap_height', 120);
 
 /*
 

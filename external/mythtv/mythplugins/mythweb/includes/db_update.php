@@ -1,13 +1,16 @@
 <?php
-/*
- *  $Date: 2005-07-01 05:34:53 +0300 (Fri, 01 Jul 2005) $
- *  $Revision: 6754 $
- *  $Author: xris $
+/**
+ * Make sure the database is at the most recent version
  *
- *  db_update.php
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
+ * @author      $Author: xris $
+ * @license     GPL
  *
- *  Make sure the database is at the most recent version
-/*/
+ * @package     MythWeb
+ *
+/**/
 
 // What *should* the database version be?
     define('WebDBSchemaVer', 1);
@@ -42,3 +45,4 @@
             #    $db_vers++;
         }
     }
+

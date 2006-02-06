@@ -990,7 +990,7 @@ void TV::HandleStateChange(void)
     {
         if (GetOSD() && (PlayGroup::GetCount() > 0))
             GetOSD()->SetSettingsText(tr("%1 Settings")
-                                      .arg(playbackinfo->playgroup), 3);
+                                      .arg(tr(playbackinfo->playgroup)), 3);
     }
     if (recorder)
         recorder->FrontendReady();
@@ -1358,6 +1358,7 @@ void TV::TeardownPipPlayer(void)
 {
     if (pipnvp)
     {
+        QMutexLocker locker(&osdlock);
         pthread_join(pipdecode, NULL);
         delete pipnvp;
         pipnvp = NULL;
@@ -2216,6 +2217,14 @@ void TV::ProcessKeypress(QKeyEvent *e)
         {
             if ((GetState() == kState_WatchingLiveTV) && activerecorder)
             {
+                uint timeout = lockTimeout[activerecorder->GetRecorderNumber()];
+                if (timeout == 0xffffffff)
+                {
+                    if (GetOSD())
+                        GetOSD()->SetSettingsText("No Signal Monitor", 2);
+                    return;
+                }
+
                 int rate   = sigMonMode ? 0 : 100;
                 int notify = sigMonMode ? 0 : 1;
 
@@ -2777,8 +2786,10 @@ void TV::TogglePIPView(void)
             else
             {
                 VERBOSE(VB_IMPORTANT, LOC_ERR + "PiP player failed to start");
+                osdlock.lock();
                 delete pipnvp;
                 pipnvp = NULL;
+                osdlock.unlock();
                 TeardownPipPlayer();
             }
         }
@@ -4851,17 +4862,29 @@ void TV::customEvent(QCustomEvent *e)
         }
         else if (tvchain && message.left(12) == "LIVETV_CHAIN")
         {
+            // Get osdlock, while intended for the OSD this ensures that
+            // the nvp & pipnvp are not deleted while we are using it..
+            while (!osdlock.tryLock())
+                usleep(2500);
+
             message = message.simplifyWhiteSpace();
             QStringList tokens = QStringList::split(" ", message);
             if (tokens[1] == "UPDATE")
             {
-                if (tokens[2] == tvchain->GetID())
+                if (tvchain && nvp && tokens[2] == tvchain->GetID())
                 {
                     tvchain->ReloadAll();
-                    if (nvp && nvp->GetTVChain())
+                    if (nvp->GetTVChain())
                         nvp->CheckTVChain();
                 }
+                if (piptvchain && pipnvp && tokens[2] == piptvchain->GetID())
+                {
+                    piptvchain->ReloadAll();
+                    if (pipnvp->GetTVChain())
+                        pipnvp->CheckTVChain();
+                }
             }
+            osdlock.unlock();
         }
         else if (nvp && message.left(12) == "EXIT_TO_MENU")
         {

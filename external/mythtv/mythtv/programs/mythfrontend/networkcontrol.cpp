@@ -260,7 +260,9 @@ void NetworkControl::readClient(void)
     while (socket->canReadLine())
     {
         lineIn = socket->readLine();
+        lineIn.replace(QRegExp("[^-a-zA-Z0-9\\s\\.:_#/]"), "");
         lineIn.replace(QRegExp("[\r\n]"), "");
+        lineIn.replace(QRegExp("^\\s"), "");
 
         tokens = QStringList::split(" ", lineIn);
         if (tokens[0].lower() != "key")
@@ -636,6 +638,11 @@ QString NetworkControl::processHelp(QStringList tokens)
             "query location        - Query current screen or location\r\n"
             "query recordings      - List currently available recordings\r\n";
     }
+    else if (command == "exit")
+    {
+        helpText +=
+            "exit                  - Terminates session\r\n\r\n";
+    }
 
     if (helpText != "")
         return helpText;
@@ -650,7 +657,7 @@ QString NetworkControl::processHelp(QStringList tokens)
         "key                - Send a keypress to the program\r\n"
         "play               - Playback related commands\r\n"
         "query              - Queries\r\n"
-        "exit               - Exit NetworkControl\r\n"
+        "exit               - Exit Network Control\r\n"
         "\r\n"
         "Type 'help COMMANDNAME' for help on any specific command.\r\n";
 

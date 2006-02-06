@@ -7,8 +7,8 @@
  * shared files for the entire program.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-29 05:24:40 +0200 (Sun, 29 Jan 2006) $
- * @version     $Revision: 8759 $
+ * @date        $Date: 2006-02-02 07:36:08 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8832 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -78,6 +78,14 @@
         fix_magic_quotes($_POST);
         fix_magic_quotes($_REQUEST);
         fix_magic_quotes($_SERVER);
+    }
+
+// No MySQL libraries installed in PHP
+    if (!function_exists('mysql_connect')) {
+        $Error = "Please install the MySQL libraries for PHP.\n"
+                .'The package is usually called something like php-mysql.';
+        require_once 'templates/_error.php';
+        exit;
     }
 
 // No database connection info defined?

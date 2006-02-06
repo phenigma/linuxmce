@@ -22,7 +22,15 @@
  * information about their screen sizes. This information enables the
  * development of very detailed themes/layouts for mobile devices. This
  * code is intented to be easily re-usable in different applications.
- */
+ *
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
+ * @author      $Author: xris $
+ * @license     GPL
+ *
+ * @package     MythWeb
+/**/
 
 
 /**

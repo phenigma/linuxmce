@@ -9,9 +9,10 @@
  * preferred language based on the browser's specifications.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-20 08:30:29 +0200 (Fri, 20 Jan 2006) $
- * @version     $Revision: 8661 $
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
  * @author      $Author: xris $
+ * @license     GPL
  *
  * @package     MythWeb
  *

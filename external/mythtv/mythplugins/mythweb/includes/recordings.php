@@ -1,9 +1,16 @@
 <?php
-/***                                                                        ***\
-    recordings.php                           Last Updated: 2005.02.09 (xris)
-
-    The Recording object, and a couple of related subroutines.
-\***                                                                        ***/
+/**
+ * The Recording object, and a couple of related subroutines.
+ *
+ * @url         $URL$
+ * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @version     $Revision: 8830 $
+ * @author      $Author: xris $
+ * @license     GPL
+ *
+ * @package     MythWeb
+ *
+/**/
 
 // Make sure the "Channels" class gets loaded   (yes, I know this is recursive, but require_once will handle things nicely)
     require_once 'includes/channels.php';
