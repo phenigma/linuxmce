@@ -18,11 +18,9 @@ clean:
 	$(MAKE) -f Makefile clean
 
 replaces:
-	
 	for i in postinst; do \
-	    KVER=`head -1 $(KSRC)/include/linux/version.h | sed 's/.*"\(.*\)"$$/\1/'` \
-	    cat mkr_$$i.sh.in | sed  -e 's/_KVER_/$(KVER)/g' > mkr_$$i.sh; \
-	    chmod +x mkr_$$i.sh
+	    cat mkr_$$i.sh.in | sed  -e 's/_KVER_/$(KVER)/g'  > mkr_$$i.sh ;\
+	    chmod +x mkr_$$i.sh ;\
 	done
 
 modules: replaces FORCE
