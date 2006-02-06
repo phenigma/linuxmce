@@ -452,7 +452,7 @@ void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
 
 	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,StringUtils::ltos(iPK_Device),true,true);
-	RegisterCallBack(cbObjectSelected, ScreenHandler::New_Phone_Enter_Number_DeviceConfigured, 
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::New_Phone_Enter_Number_DeviceConfigured, 
 		new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
