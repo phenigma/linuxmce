@@ -142,15 +142,16 @@ function telecomScenarios($output,$dbADO) {
 				if(count($phonesDTArray)==0)
 					$phonesDTArray[]=0;
 				$queryDevice='
-					SELECT 
-						Device.* FROM Device 
+					SELECT Device.*,Room.Description AS Room
+					FROM Device 
+					LEFT JOIN Room ON FK_Room=PK_Room
 					WHERE
-						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND FK_Installation=?';	
+						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND Device.FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$out.='<select name="phone_'.$rowSpeedDial['PK_CommandGroup'].'">
 						<option value="0"></option>';
 				while($rowDevice=$resDevice->FetchRow()){
-					$out.='<option value="'.$rowDevice['PK_Device'].'" '.(($rowDevice['PK_Device']==$rowSelDevice['IK_CommandParameter'])?'selected':'').'>'.$rowDevice['Description'].'</option>';
+					$out.='<option value="'.$rowDevice['PK_Device'].'" '.(($rowDevice['PK_Device']==$rowSelDevice['IK_CommandParameter'])?'selected':'').'>'.$rowDevice['Description'].' ['.$rowDevice['Room'].']</option>';
 				}
 				$out.='
 				</select>';
@@ -206,15 +207,16 @@ function telecomScenarios($output,$dbADO) {
 				if(count($phonesDTArray)==0)
 					$phonesDTArray[]=0;
 				$queryDevice='
-					SELECT 
-						Device.* FROM Device 
+					SELECT Device.*,Room.Description AS Room
+					FROM Device 
+					LEFT JOIN Room ON FK_Room=PK_Room
 					WHERE
-						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND FK_Installation=?';	
+						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND Device.FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$out.='<select name="phone">
 						<option value="0"></option>';
 				while($rowDevice=$resDevice->FetchRow()){
-					$out.='<option value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].'</option>';
+					$out.='<option value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].' ['.$rowDevice['Room'].']</option>';
 				}
 				$out.='
 				</select>';

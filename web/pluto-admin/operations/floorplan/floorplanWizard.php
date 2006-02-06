@@ -151,8 +151,10 @@ function floorplanWizard($output,$dbADO) {
 				d.Description as description, 
 				itemtype.IK_DeviceData as itemtype,	
 				coord.IK_DeviceData as coordinates,
-				PK_FloorplanObjectType
+				PK_FloorplanObjectType,
+				Room.Description AS Room
 			FROM Device d
+				LEFT JOIN Room ON FK_Room=PK_Room
 				INNER JOIN DeviceTemplate mdl ON d.FK_DeviceTemplate=mdl.PK_DeviceTemplate
 				INNER JOIN DeviceCategory dc ON mdl.FK_DeviceCategory=dc.PK_DeviceCategory
 				INNER JOIN Device_DeviceData itemtype 
@@ -222,7 +224,7 @@ function floorplanWizard($output,$dbADO) {
 			objSensor.SensorURL = "scripts/floorplan/images/'.$objColor[$rowCoord['PK_FloorplanObjectType']].'";
 			objSensor.SensorWidth = 20;
 			objSensor.SensorHeight = 20;
-			objSensor.Description = "'.$rowCoord['description'].' #'.$rowCoord['id'].'";
+			objSensor.Description = "'.$rowCoord['description'].' - '.$rowCoord['Room'].' #'.$rowCoord['id'].'";
 			//objSensor.Description = "'.$item['x'].' '.$item['y'].'";
 			objSensor.ID = '.$rowCoord['id'].';
 			objSensor.Type = '.$rowCoord['itemtype'].';
