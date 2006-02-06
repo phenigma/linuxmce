@@ -29,6 +29,9 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 34; } ;
 	virtual const char *GetDeviceDescription() { return "Telecom_Plugin"; } ;
+	int Get_Telecom_Local_Prefix() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,141).c_str()); else return atoi(m_mapParameters[141].c_str());}
+	int Get_Telecom_Prepend_Digit() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,142).c_str()); else return atoi(m_mapParameters[142].c_str());}
+	int Get_Telecom_Local_Number_Length() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,143).c_str()); else return atoi(m_mapParameters[143].c_str());}
 };
 
 
@@ -123,6 +126,9 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	int DATA_Get_Telecom_Local_Prefix() { return GetData()->Get_Telecom_Local_Prefix(); }
+	int DATA_Get_Telecom_Prepend_Digit() { return GetData()->Get_Telecom_Prepend_Digit(); }
+	int DATA_Get_Telecom_Local_Number_Length() { return GetData()->Get_Telecom_Local_Number_Length(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
