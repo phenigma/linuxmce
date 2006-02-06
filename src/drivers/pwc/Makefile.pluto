@@ -19,7 +19,7 @@ deb: modules
 	cd $(PACKAGE_NAME)-$(PACKAGE_VER) && echo | DEBFULLNAME="$(MAINT_NAME)" dh_make -s -e "$(MAINT_ADDR)"
 	mkdir -p $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra
 	cp *.ko $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra/
-#	cp postinst $(PACKAGE_NAME)-$(PACKAGE_VER)/debian/
+	cp postinst $(PACKAGE_NAME)-$(PACKAGE_VER)/debian/
 	cp Makefile.debian $(PACKAGE_NAME)-$(PACKAGE_VER)/Makefile
 	cd $(PACKAGE_NAME)-$(PACKAGE_VER) && dpkg-buildpackage -b 
 
