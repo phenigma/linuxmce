@@ -45,6 +45,7 @@ function leftMenu($output,$dbADO) {
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		
 		$selectedInstallation = isset($_REQUEST['installationNo'])?(int)$_REQUEST['installationNo']:(int)$_SESSION['installationID'];
+		
 		//load the selected installation into SESSION (and check if is a valid installation for this user)
 		if (in_array($selectedInstallation,$_SESSION['installationIDs'])) {
 			$_SESSION['installationID'] = $selectedInstallation;				
@@ -76,22 +77,52 @@ function leftMenu($output,$dbADO) {
 						}
 					}			
 		}	else {
-			$jsTree='';
-				$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
-				//$query1 = "select * from Device where FK_Device_ControlledVia IS NULL";
-				$res1 = $dbADO->_Execute($query1);
+				$jsTree='';
+				
+				$cachedLeftMenu=(getcwd()).'/cached/LeftMenu';
+				$cachedDevices=(getcwd()).'/cached/CachedDevices';
+
+				// get existing devices to compare them with old ones
+				$devices=getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC');
+				
+				// if something changed in Device table, or the cached menu does not exist, rebuild menu
+				if(file_exists($cachedLeftMenu)){
+					$oldDevices=file($cachedDevices);
+					$last_psc_mod=array_values(getAssocArray('Device','PK_Device','psc_mod',$dbADO,'','ORDER BY psc_mod DESC LIMIT 0,1'));
+					if(serialize($devices)==trim($oldDevices[1]) && $last_psc_mod[0]==trim($oldDevices[0])){
+						// get menu JS from cache
+						$jsTree=join('',file($cachedLeftMenu));
+					}else{
+						$rebuildMenu=1;
+					}
+				}else{
+					$rebuildMenu=1;
+				}
+				
+				if(@$rebuildMenu==1){
+					// rebuild menu JS for devices
+					$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
+					$res1 = $dbADO->_Execute($query1);
 					if ($res1) {
 						while ($row1 = $res1->FetchRow()) {
-							$jsTree.='				    
-								auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.str_replace('"','\"',removeCR($row1['Description'])).'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
-								auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
-							';
+							$jsTree.='
+							auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.str_replace('"','\"',removeCR($row1['Description'])).'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
+							auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
+						';
 							$jsTree.=getDeviceChilds($row1['PK_Device'],$dbADO);
 							$devicesArray[$row1['PK_Device']]=$row1['PK_Device'].' '.$row1['Description'];
 						}
-					}			
+					}
+					
+					// write menu and devices to catched files
+					writeFile($cachedLeftMenu,$jsTree,'w');
+					$last_psc_mod=array_values(getAssocArray('Device','PK_Device','psc_mod',$dbADO,'','ORDER BY psc_mod DESC LIMIT 0,1'));
+					$IDs=$last_psc_mod[0]."\n";
+					$IDs.=serialize($devices);
+					writeFile($cachedDevices,$IDs,'w');
+				}
 		}
-			
+
 			
 			$installationTxt = '';
 			

@@ -1122,7 +1122,6 @@ function builtTopMenu($website,$dbADO)
 			return join('',file($cachedTopMenu));
 		}
 	}
-	
 		
 	$selectMenu = "
 		SELECT DISTINCT PageSetup.* FROM PageSetup 
