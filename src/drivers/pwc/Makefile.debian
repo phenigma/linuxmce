@@ -1,0 +1,11 @@
+
+none:
+	
+
+clean:
+	
+
+install:
+	cp -a lib $(DESTDIR)
+
+
