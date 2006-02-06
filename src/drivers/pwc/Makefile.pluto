@@ -1,3 +1,6 @@
+KSRC ?= /usr/src/linux
+KVER ?= unknown
+
 KERNEL=$(shell uname -r)
 
 MAINT_NAME=Pluto Inc. (www.plutohome.com)
@@ -6,20 +9,32 @@ MAINT_ADDR=office@plutohome.com
 PACKAGE_NAME=pwc-drivers-pluto
 PACKAGE_VER=0.1
 
+# If they didn't set $(KVERS), see if we can do it for them.
+ifeq ($(KVER),unknown)
+    KVER = $(shell head -1 /usr/src/linux/include/linux/version.h | sed 's/.*"\(.*\)"$$/\1/')
+endif
 
 clean:
 	$(MAKE) -f Makefile clean
 
-modules: FORCE
+replaces:
+	
+	for i in postinst; do \
+	    KVER=`head -1 $(KSRC)/include/linux/version.h | sed 's/.*"\(.*\)"$$/\1/'` \
+	    cat mkr_$$i.sh.in | sed  -e 's/_KVER_/$(KVER)/g' > mkr_$$i.sh; \
+	    chmod +x mkr_$$i.sh
+	done
+
+modules: replaces FORCE
 	KDIR=/lib/modules/$(KERNEL)/build $(MAKE) -f Makefile -e 
 
-deb: modules 
+deb: modules replaces
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VER);
 	mkdir $(PACKAGE_NAME)-$(PACKAGE_VER)
 	cd $(PACKAGE_NAME)-$(PACKAGE_VER) && echo | DEBFULLNAME="$(MAINT_NAME)" dh_make -s -e "$(MAINT_ADDR)"
 	mkdir -p $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra
 	cp *.ko $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra/
-	cp postinst $(PACKAGE_NAME)-$(PACKAGE_VER)/debian/
+	cp mkr_postinst.sh $(PACKAGE_NAME)-$(PACKAGE_VER)/debian/postinst
 	cp Makefile.debian $(PACKAGE_NAME)-$(PACKAGE_VER)/Makefile
 	cd $(PACKAGE_NAME)-$(PACKAGE_VER) && dpkg-buildpackage -b 
 
