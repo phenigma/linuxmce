@@ -109,6 +109,10 @@ fi
 
 export PS1='\h_'\$PK_Installation':\w\$ '"
 
+if ! grep -q nullglob /root/.profile; then
+	echo "shopt -u nullglob # Pluto disable nullglob for shell" >>/root/.profile
+fi
+
 if ! grep -qF "$bash_flag" /root/.bashrc; then
 	awk '/PS1=/ {next} {print}' /root/.bashrc >/root/.bashrc.$$
 	echo "$bash_prompt" >>/root/.bashrc.$$
