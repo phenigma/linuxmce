@@ -206,7 +206,7 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
 		$msg.='
 			<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
-		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
+		<img src="security_images/alert_'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
 		<b>What to do?</b><br/>';
 		if(isset($sosForm)){
 			$msg.=$sosForm;
@@ -318,8 +318,8 @@ function displayScreens($dbADO)
 				$msg='Camera screenshot not available.';
 				foreach ($retArray as $line) {
 					if(!ereg(':OK',$line)){
-						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
-						$msg='<img src="security_images/'.$cameraid.'.jpg" alt="Loading ..."/>';
+						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/camera_'.$cameraid.'.jpg',$retArray,$retCode);
+						$msg='<img src="security_images/camera_'.$cameraid.'.jpg" alt="Loading ..."/>';
 					}
 				}
 			}
