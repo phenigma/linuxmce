@@ -12,8 +12,7 @@ function cellphoneNotifications($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$scriptInHead='';	
 	
-	// TODO: extract Wap Server PK_Device 
-	// using dummy device for testing
+
 	$deviceID=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
 	if(is_null($deviceID)){
 		$_GET['error']=$TEXT_ERROR_CANNOT_FIND_SECURITY_PLUGIN_CONST;
@@ -41,8 +40,9 @@ function cellphoneNotifications($output,$dbADO) {
 					$monArray=explode(',',$rowDDD['IK_DeviceData']);
 				}
 			}
-			
-			$phonesPulldown=getAssocArray('Device_DeviceData','IK_DeviceData','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'].' AND FK_Installation='.$installationID,'ORDER BY Description ASC');
+
+			$phonesPulldown=getAssocArray('Device_DeviceData','FK_Device','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'].' AND FK_Installation='.$installationID,'ORDER BY Description ASC');
+
 		$out.='
 			'.$TEXT_CALL_ORDER_CONST.': 
 			<select name="mon_sequence" onchange="form_change()">
@@ -210,7 +210,7 @@ function cellphoneNotifications($output,$dbADO) {
 			header("Location: index.php?section=cellphoneNotifications&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
-
+$dbADO->debug=true;
 		$oldMon=$_POST['oldMon'];
 		$mon_sequence=((int)$_POST['mon_sequence']>0)?(int)$_POST['mon_seconds']:(int)$_POST['mon_sequence'];
 		$MONDeviceData=$mon_sequence;
