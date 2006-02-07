@@ -5,9 +5,7 @@
 
 DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
-
-DlDir="/usr/pluto/diskless"
-
+DefaultBootParams="noirqdebug vga=normal"
 # vars:
 # CORE_INTERNAL_ADDRESS
 # INTERNAL_SUBNET
@@ -21,15 +19,12 @@ DlDir="/usr/pluto/diskless"
 # ENABLE_SPLASH
 # MOON_BOOTPARAMS
 
-KERNEL_VERSION="$(uname -r)"
 Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH MOON_BOOTPARAMS"
 
-DefaultBootParams="noirqdebug vga=normal"
 
+## Set up some variables
+KERNEL_VERSION="$(uname -r)"
 CORE_INTERNAL_INTERFACE="$IntIf"
-
-# Create Server-side files
-
 CORE_INTERNAL_ADDRESS="$IntIP"
 INTERNAL_SUBNET_MASK="$IntNetmask"
 for i in 1 2 3 4; do
@@ -38,79 +33,112 @@ for i in 1 2 3 4; do
 	NetDigit=$(($IPDigit & $MaskDigit))
 	INTERNAL_SUBNET="$INTERNAL_SUBNET$Dot$NetDigit" && Dot="."
 done
+if [[ "$(</proc/cmdline)" == *splash=* ]]; then
+	ENABLE_SPLASH="vga=0x311 splash=silent"
+fi
+MOON_HOSTS=""
 
+## Check for valid DHCP settings else exit
 if [ -z "$DHCPsetting" ]; then
 	echo "Diskless MDs can't exist in the current setup (no DHCP). Not setting up any."
 	exit
 fi
 
-# TODO: filter by installation too (currently only one installation is present, so it works :P)
+## Getting a list of Media Directors
 echo "Getting list of Media Directors"
-Q="SELECT PK_Device, IPaddress, MACaddress, Device.Description
-FROM Device
-JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-WHERE PK_DeviceTemplate=28 AND FK_Device_ControlledVia IS NULL"
+# TODO: filter by installation too (currently only one installation is present, so it works :P)
+Q="
+	SELECT 
+		PK_Device, 
+		IPaddress, 
+		MACaddress, 
+		Device.Description
+	FROM 
+		Device
+		JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+	WHERE 
+		PK_DeviceTemplate=28 
+		AND 
+		FK_Device_ControlledVia IS NULL
+"
 R=$(RunSQL "$Q")
 
-Prefix=$(echo "$DHCPsetting" | cut -d. -f-3)
-MoonNumber=1
-MOON_HOSTS=""
-
-cp /usr/pluto/templates/exports.tmpl /etc/exports.$$
 mkdir -p /tftpboot/pxelinux.cfg
+MoonNumber=1
 
-if [[ "$(</proc/cmdline)" == *splash=* ]]; then
-	ENABLE_SPLASH="vga=0x311 splash=silent"
-fi
-
+## Processing Moons
 for Client in $R; do
+	## Read information for the database about this moon
 	PK_Device=$(Field 1 "$Client")
 	IP=$(Field 2 "$Client")
 	MAC=$(Field 3 "$Client")
 	Description=$(Field 4 "$Client")
 	
-	echo "Processing moon $MoonNumber ($Description; $MAC; $PK_Device)"
-
+	## Allocating IP for moon
+	#FIXME: Is this next step necesary if IP!="" ?
 	IP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$PK_Device" -a)
 	if [[ -z "$IP" ]]; then
 		echo "*** WARNING *** No free IP"
 		continue
 	fi
-	echo "* Allocated IP '$IP'"
 
-	DlPath="$DlDir/$IP"
 	HexIP=$(gethostip -x "$IP")
 	lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
 	MAC=$(echo ${MAC//-/:} | tr 'a-z' 'A-Z')
-
 	MOON_IP="$IP"
 	MOON_ADDRESS="$IP moon$MoonNumber"
-	/usr/pluto/bin/CheckMAC.sh "$MAC"
-	ValidMAC=$?
 	
-	Q="SELECT PK_Device
-		FROM Device_DeviceData
-		JOIN Device ON PK_Device=FK_Device
-		JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-		WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IK_DeviceData='1' AND PK_Device='$PK_Device'"
+	## Check if this MD is diskless or not
+	Q="
+		SELECT 
+			PK_Device
+		FROM 
+			Device_DeviceData
+			JOIN Device ON PK_Device=FK_Device
+			JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
+		WHERE
+			FK_DeviceTemplate=28 
+			AND 
+			FK_DeviceData=9 
+			AND 
+			IK_DeviceData='1' 
+			AND 
+			PK_Device='$PK_Device'
+	"
 	Diskless=$(RunSQL "$Q")
 
+	## If is a diskless md
 	if [[ -n "$Diskless" ]]; then
 		echo "* Diskless filesystem"
+		## Create the a filesystem for this MD
+		#FIXME: Should we create this filesystem everytime ?
 		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$PK_Device" "$Activation_Code"
 		
+		## Check to see if we have a valid hardware adreess
+		/usr/pluto/bin/CheckMAC.sh "$MAC"
+		ValidMAC=$?
+
+		## If is a valid MAC address then set up pxelinux for this machine
 		if [[ "$ValidMAC" -eq 0 ]]; then
 			echo "* Setting up /tftpboot/pxelinux.cfg/01-$lcdMAC"
 			
 			OverrideDefaults=0
 			ExtraBootParams=
 			
-			Q="SELECT FK_DeviceData,IK_DeviceData
-				FROM Device_DeviceData
-				WHERE FK_Device='$PK_Device' && FK_DeviceData IN ($DEVICEDATA_Extra_Parameters,$DEVICEDATA_Extra_Parameters_Override)"
+			Q="
+				SELECT 
+					FK_DeviceData,
+					IK_DeviceData
+				FROM
+					Device_DeviceData
+				WHERE 
+					FK_Device='$PK_Device' 
+					AND
+					FK_DeviceData IN ($DEVICEDATA_Extra_Parameters, $DEVICEDATA_Extra_Parameters_Override)
+			"
 			ExtraParms=$(RunSQL "$Q")
 			
-			for ExtraParm in $(ExtraParms); do
+			for ExtraParm in $ExtraParms; do
 				FK_DeviceData=$(Field 1 "$ExtraParm")
 				IK_DeviceData=$(Field 2 "$ExtraParm")
 				case "$FK_DeviceData" in
@@ -132,10 +160,13 @@ for Client in $R; do
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			mv /tftpboot/pxelinux.cfg/01-$lcdMAC.$$ /tftpboot/pxelinux.cfg/01-$lcdMAC
+
+		## If is not a valid MAC address the we should inform the user about this
 		else
 			echo "* MAC address is wrong. You won't be able to boot this until you correct it."
 		fi
 
+		
 		echo "* Setting local files"
 		echo -n " fstab"
 		cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
@@ -209,10 +240,7 @@ for Client in $R; do
 			{print}' $DlPath/var/cache/debconf/config.dat > $DlPath/var/cache/debconf/config.dat.$$
 		mv $DlPath/var/cache/debconf/config.dat.$$ $DlPath/var/cache/debconf/config.dat
 
-		echo
-		
-		echo "* Adding root to exports"
-		echo "$DlPath $IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)" >>/etc/exports.$$
+		echo 
 	fi
 
 	echo "* Adding to hosts"
@@ -247,16 +275,7 @@ ff02::3 ip6-allhosts
 "
 echo "$hosts" >/etc/hosts
 
-ReplaceVars /etc/exports.$$
 ReplaceVars /etc/hosts
-
-mv /etc/exports.$$ /etc/exports
-
-if ! /sbin/showmount -e localhost &>/dev/null; then
-	/etc/init.d/nfs-common start
-	/etc/init.d/nfs-kernel-server start
-fi
-/usr/sbin/exportfs -ra
 
 Q="FLUSH PRIVILEGES"
 RunSQL "$Q"
