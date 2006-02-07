@@ -1,6 +1,7 @@
 sysvinit (2.86.ds1-1.1pluto10) unstable; urgency=low
   
-  * Fixed:  Cannot correctly enter single user mode (0001614)
+  * Fixed: Cannot correctly enter single user mode (0001614)
+  * Starting sshd faster
 
  -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 07 Feb 2006 14:29:51 +0200
 
