@@ -1761,8 +1761,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 				SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, iPK_Device,
 					sMessage, "0", "0", "0");
 				SendCommand(SCREEN_DialogGenericNoButtons);
-				//DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
-				//	" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
 				return;
 			}
 			else
@@ -2412,6 +2410,20 @@ bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		if( *it == iPK_Device )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL, "RowOrbiter for %d", iPK_Device);			
+			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(iPK_Device);
+			if(pRow_Orbiter)
+			{
+g_pPlutoLogger->Write(LV_CRITICAL, "About to reload row for %d", iPK_Device);				
+				pRow_Orbiter->Reload();
+g_pPlutoLogger->Write(LV_CRITICAL, "Reloaded row for %d", iPK_Device);					
+				if(pRow_Orbiter->RegenPercent_get() == 100)
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = false (scheduled)",iPK_Device);
+					return false;
+				}
+			}
+
 			g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = true",iPK_Device);
 			return true;
 		}
