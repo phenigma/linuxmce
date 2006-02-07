@@ -29,6 +29,7 @@ fi
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Update_StartupScrips.sh
+/usr/pluto/bin/generateRcScripts.sh
 
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
