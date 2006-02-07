@@ -4,6 +4,7 @@ switch($scriptID){
 	case 1:
 		$command[]='sudo -u root /usr/pluto/bin/Diskless_Setup.sh';
 		$command[]='sudo -u root /usr/pluto/bin/DHCP_config.sh';
+		$command[]='sudo -u root /usr/pluto/bin/NFS_setup.sh';
 		$title='Please wait for the setup process to complete, then do a "quick reload router", and then you can bootup your new diskless media director.';
 		$end='
 		<script language="JavaScript">
