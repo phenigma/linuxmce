@@ -281,8 +281,11 @@ set_mixers() {
     mixer PCM 90%
     mixer Synth 90%
     mixer CD 90%
-    # mute mic
-    amixer set Mic 0% mute >/dev/null 2>&1
+    ## mute mic
+    #amixer set Mic 0% mute >/dev/null 2>&1
+    # enable mic
+    mixer Mic 74%
+    mixer "Mic Boost (+20dB)"
     # ESS 1969 chipset has 2 PCM channels
     mixer PCM,1 90%
     # Trident/YMFPCI/emu10k1
