@@ -24,7 +24,6 @@ namespace DCE
 	// Private member variables
 
 	// Private methods
-	int CreateLocalPrefixes();
 public:
 	// Public member variables
 
