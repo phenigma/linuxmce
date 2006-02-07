@@ -12117,5 +12117,21 @@ namespace DCE
 	public:
 		CMD_Reset_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,776,0); }
 	};
+	class CMD_Remove_playlist : public PreformedCommand {
+	public:
+		CMD_Remove_playlist(long DeviceIDFrom, long DeviceIDTo,int iEK_Playlist) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,777,1,78,StringUtils::itos(iEK_Playlist).c_str()); }
+	};
+	class CMD_Remove_playlist_DL : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_DL(long DeviceIDFrom, string DeviceIDTo,int iEK_Playlist) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,777,1,78,StringUtils::itos(iEK_Playlist).c_str()); }
+	};
+	class CMD_Remove_playlist_DT : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iEK_Playlist) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,777,1,78,StringUtils::itos(iEK_Playlist).c_str()); }
+	};
+	class CMD_Remove_playlist_Cat : public PreformedCommand {
+	public:
+		CMD_Remove_playlist_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iEK_Playlist) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,777,1,78,StringUtils::itos(iEK_Playlist).c_str()); }
+	};
 }
 #endif

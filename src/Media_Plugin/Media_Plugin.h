@@ -861,6 +861,15 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #777 - Remove playlist */
+	/** Removes a playlist from database */
+		/** @param #78 EK_Playlist */
+			/** The id of the playlist to be removed. */
+
+	virtual void CMD_Remove_playlist(int iEK_Playlist) { string sCMD_Result; CMD_Remove_playlist(iEK_Playlist,sCMD_Result,NULL);};
+	virtual void CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
