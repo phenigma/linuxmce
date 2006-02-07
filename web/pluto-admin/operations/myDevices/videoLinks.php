@@ -78,7 +78,7 @@ function videoLinks($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=videoLinks&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=videoLinks&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		// process and redirect

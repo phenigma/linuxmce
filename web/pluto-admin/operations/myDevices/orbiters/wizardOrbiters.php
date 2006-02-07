@@ -393,7 +393,7 @@ function wizardOrbiters($output,$dbADO) {
 		}
 		
 		$commandMessage=(isset($commandToSend))?'<br>'.$TEXT_ORBITER_COMMAND_SENT_CONST.': '.$commandToSend:'';
-		header("Location: index.php?section=wizardOrbiters&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=$regen".@$suffix);		
+		header("Location: index.php?section=wizardOrbiters&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=".@$regen.@$suffix);		
 	}
 
 	$output->setScriptCalendar('null');

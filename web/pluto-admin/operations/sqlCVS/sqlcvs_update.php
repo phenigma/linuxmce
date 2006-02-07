@@ -18,9 +18,9 @@ function sqlcvs_update($output,$dbADO) {
 		
 		$out.='
 		<script>
-		function selAllCheckboxes(group)
+		function selAllCheckboxes(group,val)
 		{
-		   eval("val=(document.sqlcvs_update.table_"+group+".checked)?true:false");
+		   eval("sqlcvs_update.table_"+group+".checked="+val);
 		   for (i = 0; i < sqlcvs_update.elements.length; i++)
 		   {
 			tmpName=sqlcvs_update.elements[i].name;
@@ -29,6 +29,14 @@ function sqlcvs_update($output,$dbADO) {
 		         sqlcvs_update.elements[i].checked = val;
 		     }
 		   }
+		}
+		
+		function groupCheck(group,tablename){
+			eval("val=(document.sqlcvs_update.table_"+group+".checked)?true:false");
+			eval("tval=(document.sqlcvs_update."+group+"_"+tablename+".checked)?true:false");
+			if(tval==true && val==false){
+				eval("sqlcvs_update.table_"+group+".checked=true");
+			}
 		}
 		</script>
 				
@@ -71,8 +79,14 @@ function sqlcvs_update($output,$dbADO) {
 			$out.='
 			<tr bgcolor="#F0F3F8">
 				<td>&nbsp;</td>
-				<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1" onclick="selAllCheckboxes(\''.$cleanTable.'\');"></td>
+				<td width="20">
+					<input type="checkbox" name="table_'.$cleanTable.'" value="1">			
+				</td>
 				<td colspan="2"><B>'.$cleanTable.'</B></td>
+			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td colspan="2">&nbsp;</td>
+				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
 			</tr>';
 			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
 			foreach ($fieldsArray AS $key=>$value){
@@ -80,7 +94,7 @@ function sqlcvs_update($output,$dbADO) {
 			<tr>
 				<td>&nbsp;</td>
 				<td width="20">&nbsp;</td>
-				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1"></td>
+				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1" onClick="groupCheck(\''.$cleanTable.'\',\''.$value.'\')"></td>
 				<td>'.$value.'</td>
 			</tr>';
 			}
@@ -108,6 +122,11 @@ function sqlcvs_update($output,$dbADO) {
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
 		$tParmArray=array();
+
+		if($host=='' || $port==''){
+			header("Location: index.php?section=sqlcvs_update&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
+			exit();			
+		}
 		
 		for($i=0;$i<count($tablesArray);$i++){
 			$table=$tablesArray[$i];
@@ -130,11 +149,15 @@ function sqlcvs_update($output,$dbADO) {
 		
 		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
+			if(!isset($tParmArray[$rep])){
+				header("Location: index.php?section=sqlcvs_update&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
+				exit();
+			}
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
-		
+		$cmd='/usr/pluto/bin/sqlCVS -R '. $port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
+
 		$out='
 		<script>
 			function windowOpen(locationA,attributes) {

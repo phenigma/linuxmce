@@ -24,9 +24,9 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$out.='
 		<script>
-		function selAllCheckboxes(group)
+		function selAllCheckboxes(group,val)
 		{
-		   eval("val=(document.sqlcvs_diff.table_"+group+".checked)?true:false");
+		   eval("sqlcvs_diff.table_"+group+".checked="+val);
 		   for (i = 0; i < sqlcvs_diff.elements.length; i++)
 		   {
 			tmpName=sqlcvs_diff.elements[i].name;
@@ -35,6 +35,14 @@ function sqlcvs_diff($output,$dbADO) {
 		         sqlcvs_diff.elements[i].checked = val;
 		     }
 		   }
+		}
+		
+		function groupCheck(group,tablename){
+			eval("val=(document.sqlcvs_diff.table_"+group+".checked)?true:false");
+			eval("tval=(document.sqlcvs_diff."+group+"_"+tablename+".checked)?true:false");
+			if(tval==true && val==false){
+				eval("sqlcvs_diff.table_"+group+".checked=true");
+			}
 		}
 		</script>
 				
@@ -77,16 +85,20 @@ function sqlcvs_diff($output,$dbADO) {
 			$out.='
 			<tr bgcolor="#F0F3F8">
 				<td>&nbsp;</td>
-				<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1" onclick="selAllCheckboxes(\''.$cleanTable.'\');"></td>
+				<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1"></td>
 				<td colspan="2"><B>'.$cleanTable.'</B></td>
-			</tr>';
+			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td colspan="2">&nbsp;</td>
+				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
+			</tr>			';
 			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
 			foreach ($fieldsArray AS $key=>$value){
 				$out.='
 			<tr>
 				<td>&nbsp;</td>
 				<td width="20">&nbsp;</td>
-				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1"></td>
+				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1" onClick="groupCheck(\''.$cleanTable.'\',\''.$value.'\')"></td>
 				<td>'.$value.'</td>
 			</tr>';
 			}
@@ -107,6 +119,11 @@ function sqlcvs_diff($output,$dbADO) {
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
 		$tParmArray=array();
+		
+		if($host=='' || $port==''){
+			header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
+			exit();			
+		}		
 		
 		for($i=0;$i<count($tablesArray);$i++){
 			$table=$tablesArray[$i];
@@ -129,14 +146,26 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
+			if(!isset($tParmArray[$rep])){
+				header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
+				exit();
+			}			
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
 		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
-		echo $cmd;
 		exec($cmd,$retArray,$retVal);
 		
 		$out.='
+		<script>
+		function selAllCheckboxes(noItems,val)
+		{
+		   for (i = 0; i < noItems; i++)
+		   {
+				eval("sqlcvs_diff.line_"+i+".checked="+val);
+		   }
+		}
+		</script>
 	<form action="index.php" method="POST" name="sqlcvs_diff">
 		<input type="hidden" name="section" value="sqlcvs_diff">
 		<input type="hidden" name="action" value="finish">	
@@ -147,13 +176,13 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="text" name="host" value="'.$host.'"></td>
 		</tr>
 		<tr>
-			<td><B>'.$TEXT_USERNAME_CONST.':</B></td>
-			<td><input type="text" name="username" value="'.$username.'"></td>
-		</tr>
-		<tr>
 			<td><B>'.$TEXT_PORT_CONST.':</B></td>
 			<td><input type="text" name="port" value="'.$port.'"></td>
 		</tr>		
+		<tr>
+			<td><B>'.$TEXT_USERNAME_CONST.':</B></td>
+			<td><input type="text" name="username" value="'.$username.'"></td>
+		</tr>
 		<tr>
 			<td><B>'.$TEXT_PASSWORD_CONST.':</B></td>
 			<td><input type="text" name="password" value="'.$password.'"></td>
@@ -163,7 +192,7 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>
 		</table>
-		<table width="600" cellpadding="3" cellspacing="0">';
+		<table width="700" cellpadding="3" cellspacing="0" border="0">';
 		$repository='';
 		$table='';
 		if($retVal==0){
@@ -176,7 +205,7 @@ function sqlcvs_diff($output,$dbADO) {
 					$repository=$lineRep;
 					$out.='
 					<tr bgcolor="#F0F3F8">
-						<td colspan="5"><B>Repository: '.$lineRep.'</B></td>
+						<td colspan="5"><B>'.$TEXT_REPOSITORY_CONST.': '.$lineRep.'</B></td>
 					</tr>';
 				}
 				$lineTable=str_replace('TABLE:','',$items[1]);
@@ -184,7 +213,7 @@ function sqlcvs_diff($output,$dbADO) {
 					$table=$lineTable;
 					$out.='
 					<tr>
-						<td colspan="5"><B>Table: '.$lineTable.'</B></td>
+						<td colspan="5"><B>'.$TEXT_TABLE_CONST.': '.$lineTable.'</B></td>
 					</tr>';
 					$cols=array_values($dbADO->MetaColumnNames($lineTable));
 					$out.='
@@ -201,10 +230,10 @@ function sqlcvs_diff($output,$dbADO) {
 				$lineValues=getFieldsAsArray($lineTable,$cols[0].','.$cols[1].','.$cols[2],$dbADO,str_replace('WHERE:','',$items[4]));
 				$out.='
 					<tr>
-						<td><input type="checkbox" name="line_'.$lineNo.'" value="1"></td>';
+						<td><input type="checkbox" name="line_'.$lineNo.'" value="1" checked></td>';
 				if(str_replace('CHANGE:','',$items[3])!='DEL'){
 					$out.='
-						<td><a href="javascript:windowOpen(\'showRecord.php?table='.$lineTable.'&where='.str_replace('WHERE:','',$items[4]).'\',\'width=800,height=400,scrollbars=1,resizable=1\');">'.str_replace('CHANGE:','',$items[3]).'</a></td>
+						<td><a href="javascript:windowOpen(\'showRecord.php?table='.$lineTable.'&where='.urlencode(str_replace('WHERE:','',$items[4])).'\',\'width=800,height=400,scrollbars=1,resizable=1\');">'.str_replace('CHANGE:','',$items[3]).'</a></td>
 						<td>'.substr($lineValues[$cols[0]][0],0,20).'</td>
 						<td>'.substr($lineValues[$cols[1]][0],0,20).'</td>
 						<td>'.substr($lineValues[$cols[2]][0],0,20).'</td>
@@ -225,12 +254,15 @@ function sqlcvs_diff($output,$dbADO) {
 		if(@count($resultArray)>0){
 			$out.='
 				<tr>
+					<td colspan="5" bgcolor="#F0F3F8"><a href="javascript:selAllCheckboxes(\''.$lineNo.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$lineNo.'\',false);">[ Uncheck all ]</a></td>
+				</tr>			
+				<tr>
 					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
 				</tr>';
 		}else{
 			$out.='
 				<tr>
-					<td colspan="5" align="center">'.$TEXT_NO_CHANGES_CONST.'</td>
+					<td colspan="5" align="center">'.$TEXT_NO_CHANGES_CONST.' <a href="index.php?section=sqlcvs_diff">'.$TEXT_TRY_AGAIN_CONST.'</a></td>
 				</tr>';
 		}
 			$out.='
@@ -250,6 +282,11 @@ function sqlcvs_diff($output,$dbADO) {
 		$password=stripslashes($_POST['password']);
 		$parmList=$_POST['parms'];
 		$port=(int)$_POST['port'];
+		
+		if($host=='' || $port==''){
+			header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
+			exit();			
+		}		
 		
 		$fileLines=$_POST['fileLines'];
 		$fileArray=file('/tmp/tmp_sqlcvs_file');

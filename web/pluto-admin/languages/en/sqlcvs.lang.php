@@ -9,4 +9,8 @@ $TEXT_SQLCVS_UPDATE_CONST='sqlCVS Update';
 $TEXT_SQLCVS_VIEW_BATCH_CONST='sqlCVS View Batch';
 $TEXT_CHOOSE_REPOSITORY_CONST='Choose repository';
 $TEXT_REPOSITORY_REQUIRED_CONST='Please select a repository';
+$TEXT_ERROR_NO_TABLE_SELECTED_CONST='You must choose at least a table from repository.';
+$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST='Host or port not specified.';
+$TEXT_TABLE_CONST='Table';
+$TEXT_TRY_AGAIN_CONST='Try again';
 ?>

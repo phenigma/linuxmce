@@ -18,9 +18,9 @@ function sqlcvs_checkin($output,$dbADO) {
 		
 		$out.='
 		<script>
-		function selAllCheckboxes(group)
+		function selAllCheckboxes(group,val)
 		{
-		   eval("val=(document.sqlcvs_checkin.table_"+group+".checked)?true:false");
+		   eval("sqlcvs_checkin.table_"+group+".checked="+val);
 		   for (i = 0; i < sqlcvs_checkin.elements.length; i++)
 		   {
 			tmpName=sqlcvs_checkin.elements[i].name;
@@ -29,6 +29,14 @@ function sqlcvs_checkin($output,$dbADO) {
 		         sqlcvs_checkin.elements[i].checked = val;
 		     }
 		   }
+		}
+		
+		function groupCheck(group,tablename){
+			eval("val=(document.sqlcvs_checkin.table_"+group+".checked)?true:false");
+			eval("tval=(document.sqlcvs_checkin."+group+"_"+tablename+".checked)?true:false");
+			if(tval==true && val==false){
+				eval("sqlcvs_checkin.table_"+group+".checked=true");
+			}
 		}
 		</script>
 				
@@ -45,6 +53,10 @@ function sqlcvs_checkin($output,$dbADO) {
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
 			<td><input type="text" name="host" value=""></td>
 		</tr>
+		<tr>
+			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
+			<td><input type="text" name="port" value="3999"></td>
+		</tr>		
 		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
 			<td><input type="text" name="username" value=""></td>
@@ -69,14 +81,18 @@ function sqlcvs_checkin($output,$dbADO) {
 				<td>&nbsp;</td>
 				<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1" onclick="selAllCheckboxes(\''.$cleanTable.'\');"></td>
 				<td colspan="2"><B>'.$cleanTable.'</B></td>
-			</tr>';
+			</tr>
+			<tr bgcolor="#F0F3F8">
+				<td colspan="2">&nbsp;</td>
+				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
+			</tr>			';
 			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
 			foreach ($fieldsArray AS $key=>$value){
 				$out.='
 			<tr>
 				<td>&nbsp;</td>
 				<td width="20">&nbsp;</td>
-				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1"></td>
+				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1" onClick="groupCheck(\''.$cleanTable.'\',\''.$value.'\')"></td>
 				<td>'.$value.'</td>
 			</tr>';
 			}
@@ -99,10 +115,16 @@ function sqlcvs_checkin($output,$dbADO) {
 		}
 
 		$host=stripslashes($_POST['host']);
+		$port=(int)$_POST['port'];
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
 		$tParmArray=array();
+
+		if($host=='' || $port==''){
+			header("Location: index.php?section=sqlcvs_checkin&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
+			exit();			
+		}		
 		
 		for($i=0;$i<count($tablesArray);$i++){
 			$table=$tablesArray[$i];
@@ -123,12 +145,16 @@ function sqlcvs_checkin($output,$dbADO) {
 			}
 		}
 		
-		$parmList='';
+		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
-			$parmList.=' -r '.$rep.' -t '.join(',',$tParmArray[$rep]);
+			if(!isset($tParmArray[$rep])){
+				header("Location: index.php?section=sqlcvs_checkin&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
+				exit();
+			}			
+			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e checkin';
+		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -R '.$port.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e checkin';
 
 		$out='
 		<script>

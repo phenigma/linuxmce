@@ -20,7 +20,8 @@ function steps($output,$dbADO) {
 			$dbADO->Execute($insertSS,array($installationID,$senderStep));
 		}
 	}
-	
+
+$start_time=getmicrotime();		
 	$scriptInHead ='
 		<script>
 		function setMenuItem(mainUrl,selfPage,sender)
@@ -104,6 +105,8 @@ function steps($output,$dbADO) {
 			<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>Back to devices</B></a></td>
 		</tr>
 	</table>';
+	$end_time=getmicrotime();			
+	$out.='<br><p class="normaltext">Page generated in '.round(($end_time-$start_time),3).' s.';
 	
 	$output->setScriptInHead($scriptInHead);
 	$output->setScriptInBody('bgColor="#F0F3F8"');
