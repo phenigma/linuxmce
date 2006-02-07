@@ -175,6 +175,9 @@
 				RelativePath="..\Orbiter\ScreenHandler.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\ScreenHistory.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
 			</File>
 			<File

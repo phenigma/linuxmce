@@ -31,6 +31,7 @@
 #include "DataGrid.h"
 #include "SDLGraphic.h"
 #include "Splitter/TextWrapper.h"
+#include "Orbiter/ScreenHistory.h"
 
 #include "SDL_rotozoom.h"
 #include <SDL_ttf.h>

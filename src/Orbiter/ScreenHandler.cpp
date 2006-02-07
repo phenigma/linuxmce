@@ -1,4 +1,5 @@
 #include "ScreenHandler.h"
+#include "ScreenHistory.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_Text.h"
@@ -6,6 +7,7 @@
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
@@ -78,7 +80,7 @@ int ScreenHandler::GetCurrentScreen_PK_DesignObj()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress) 
 { 
-	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddress;
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMacAddress);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIpAddress);
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddress, "", false, false );
 }
@@ -109,7 +111,7 @@ void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, 
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddress;
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMacAddress);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMacAddress);
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, sMacAddress);
 }
@@ -439,7 +441,7 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Devic
 void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_DeviceTemplate, string sMacAddres, 
 	string sIPAddress, string sPK_DHCPDevice)
 { 
-	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddres;
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMacAddres);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIPAddress);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPK_DHCPDevice);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_DeviceTemplate));

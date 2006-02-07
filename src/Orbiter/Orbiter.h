@@ -1,7 +1,7 @@
 /**
 *
 * @file Orbiter.h
-* @brief header file for the ScreenHistory,  Orbiter and NeedToRender classes
+* @brief header file for the Orbiter and NeedToRender classes
 * @author
 * @todo notcommented
 * @warning do not change the code between the tags(  <-dceag-...-b-> < -dceag-...-e->  ) ,  it will be overriden by the generator (  unless '!' specified  )
@@ -70,45 +70,6 @@ namespace DCE
 
 #define PROMPT_CANCEL -1
 
-	/**
-	* @brief Contains a snapshot of the screen that was viewed and the state so that it can be restored with GoBack
-	*/
-	class ScreenHistory
-	{
-	private:
-		class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
-		list<class DesignObj_Orbiter *> m_listObjs;
-
-	public:
-
-		ScreenHistory(int nPK_Screen, Message *pMessage, class ScreenHistory *pScreenHistory_Prior);
-		~ScreenHistory();
-
-		DesignObj_Orbiter *GetObj();
-		void SetObj(DesignObj_Orbiter *pObj);
-
-		void AddToHistory();
-		bool HistoryEmpty();
-		void PurgeHistory() { m_listObjs.clear(); }
-		bool GoBack();
-		string ToString();
-
-
-		/**
-		* @brief A unique ID that can be specified in the Goto command
-		* A unique ID that can be specified in the Goto command, allowing a particular 'instance'
-		* of a screen to be removed in 'remove screen from history' 
-		*/
-		string m_sID;
-		int m_nPK_Screen;
-		Message *m_pMessage;
-		static bool m_bAddToHistory;
-		time_t m_tTime;
-		int m_dwPK_Device; /** < The device being controlled */
-		bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
-		map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
-	};
-
 	typedef void ( Orbiter::*OrbiterCallBack )( void *data );
 	enum ePurgeExisting { pe_NO=0, pe_ALL, pe_Match_Data };
 
@@ -148,7 +109,7 @@ namespace DCE
 	public: //data
 		int m_iImageWidth; /** < image width duh */
 		int m_iImageHeight; /** < image height */
-		ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
+		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		/**
 		* @brief stores objects that need to be redrawned
 		* When it's time to redraw some objects without redrawing the whole screen, store them here
@@ -303,11 +264,11 @@ namespace DCE
 		DesignObj_OrbiterMap m_mapObj_All; /** < All objects with the object ID in x.y.z.a.b format */
 
 		map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
-		list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
+		list < class ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 		map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
 		map<int,class FloorplanObject *> m_mapFloorplanObject_Selected;  /** < The selected floorplan object */
 
-		ScreenHistory *m_pScreenHistory_NewEntry;
+		class ScreenHistory *m_pScreenHistory_NewEntry;
 
 		string m_sObj_Popop_RemoteControl,m_sObj_Popop_FileList;
 		int m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,m_Popop_FileList_X,m_Popop_FileList_Y;
@@ -443,7 +404,7 @@ namespace DCE
 		* This immediately calls RenderScreen. Normally we add the current screen to the history list so we can go back again. However,
 		* if we're changing screens because of a GO BACK command, we won't do that
 		*/
-		virtual void NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
+		virtual void NeedToChangeScreens( class ScreenHistory *pScreenHistory);
 
 		/**
 		* @brief
@@ -594,40 +555,6 @@ namespace DCE
 		* @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
 		*/
 		int TranslateVirtualDevice(int PK_DeviceTemplate);
-
-		/*	virtual void RenderScreen(  );	// Render the screen in m_pScreenHistory_Current
-		virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht
-		void RealRedraw( void *data );  // temp hack -- see comments
-		virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter,  DesignObj_Orbiter *pDesignObj_Orbiter_Screen );
-		virtual void PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& DelSelections );
-		virtual void RenderDataGrid( DesignObj_DataGrid *pObj );
-		// The framework will call this when it's time to change screens.  This immediately calls RenderScreen.  Normally we add the current
-		// screen to the history list so we can go back again.  However,  if we're changing screens because of a GO BACK command,  we won't do that
-		virtual void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory=true );
-		virtual void ObjectOnScreenWrapper(  );
-		virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, bool bDontResetState );
-		virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
-		virtual void CheckSpecialOnScreenConditions(  ) {};
-		void GetVideoFrame( void *data );
-
-		void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter,  int X=0,  int Y=0 );
-		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  int Y );
-		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  class DataGridCell *pCell );
-
-		virtual void SpecialHandlingObjectSelected( DesignObj_Orbiter *pDesignObj_Orbiter ) {};
-
-		// The above methods are called by the orbiter-specific class to indicate input,  they will call these following methods:
-		bool ClickedButton( DesignObj_Orbiter *pDesignObj_Orbiter, int PK_Button );
-		bool ClickedRegion( DesignObj_Orbiter *pDesignObj_Orbiter, int X, int Y, DesignObj_Orbiter *&pTopMostAnimatedObject );
-
-		// Highlighting is used to show the currently 'highlighted' object,  particularly with a remote that has up/down/left/right/enter controls
-		// These functions move between objects that have their 'tab stop' property set to true
-		virtual void HighlightObject( class DesignObj_Orbiter *pObj );  // Highlight this object
-		virtual void HighlightFirstObject(  );  // Find the first 'tab stop' object on screen and highlight it
-		virtual bool HighlightFirstChildObject( DesignObj_Orbiter* pObj );  // A recursive loop for HighlightFirstObject
-		void FindObjectToHighlight( DesignObj_Orbiter **ppNextObjectToRight,  DesignObj_Orbiter *pObj,  int PK_Direction );  // This is used by the following function.
-		virtual void HighlightNextObject( int PK_Direction ); // Given a direction ( UDLR ) find the object.
-		*/
 
 		/**
 		*	INITIALIZATION
@@ -1888,7 +1815,7 @@ namespace DCE
 
 		class Orbiter *m_pOrbiter; /** <  */
 		const char *m_pWhere; /** <  */
-		static ScreenHistory *m_pScreenHistory;
+		static class ScreenHistory *m_pScreenHistory;
 		//static bool m_bAddToHistory;
 	public:
 
@@ -1907,9 +1834,9 @@ namespace DCE
 			{
 				if( m_pScreenHistory )
 				{
-					ScreenHistory *pScreenHistory = m_pScreenHistory;
+					class ScreenHistory *pScreenHistory = m_pScreenHistory;
 					m_pScreenHistory=NULL;
-					m_pOrbiter->NeedToChangeScreens( pScreenHistory/*, m_bAddToHistory */);
+					m_pOrbiter->NeedToChangeScreens(pScreenHistory);
 				}
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
@@ -1919,7 +1846,7 @@ namespace DCE
 
 		}
 
-		static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
+		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
 	};
 
 	//<-dceag-end-b->

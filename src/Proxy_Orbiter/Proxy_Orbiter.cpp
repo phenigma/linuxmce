@@ -31,6 +31,7 @@
 #include "SerializeClass/ShapesColors.h"
 #include "pluto_main/Define_Button.h"
 #include "Orbiter/SDL/JpegWrapper.h"
+#include "Orbiter/ScreenHistory.h"
 #include "pluto_main/Define_DesignObj.h"
 
 #include "DataGrid.h"

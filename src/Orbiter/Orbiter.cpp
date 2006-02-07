@@ -59,6 +59,7 @@ using namespace DCE;
 #include "../Orbiter/RendererMNG.h"
 #include "OrbiterFileBrowser.h"
 #include "ScreenHandler.h"
+#include "ScreenHistory.h"
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
@@ -108,98 +109,6 @@ extern void (*g_pReceivePingHandler)(Socket *pSocket);
 extern bool (*g_pSendPingHandler)(Socket *pSocket);
 void ReceivePingHandler(Socket *pSocket);
 bool SendPingHandler(Socket *pSocket);
-//------------------------------------------------------------------------
-// Screen History
-//------------------------------------------------------------------------
-ScreenHistory::ScreenHistory(int nPK_Screen, Message *pMessage, class ScreenHistory *pScreenHistory_Prior )
-{
-	m_nPK_Screen = nPK_Screen;
-	m_pMessage = pMessage;
-	m_tTime = time(NULL);
-	m_pObj=NULL;
-	m_dwPK_Device=0;
-	m_bCantGoBack=false; 
-	if(  pScreenHistory_Prior  )
-	{
-		m_dwPK_Device = pScreenHistory_Prior->m_dwPK_Device;
-	}
-}
-//------------------------------------------------------------------------
-ScreenHistory::~ScreenHistory()
-{
-	delete m_pMessage; //it's a copy
-}
-//------------------------------------------------------------------------
-DesignObj_Orbiter *ScreenHistory::GetObj() 
-{ 
-	return m_pObj; 
-}
-//------------------------------------------------------------------------
-void ScreenHistory::SetObj(DesignObj_Orbiter *pObj) 
-{ 
-	m_pObj = pObj;
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", 
-		m_nPK_Screen, pObj->m_iBaseObjectID);
-#endif
-}
-//------------------------------------------------------------------------
-void ScreenHistory::AddToHistory()
-{
-	m_listObjs.push_front(m_pObj);
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Added %d obj to stack (size %d) - screen %d", 
-		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen);
-#endif
-}
-//------------------------------------------------------------------------
-bool ScreenHistory::HistoryEmpty()
-{
-	return m_listObjs.size() == 0;
-}
-//------------------------------------------------------------------------
-bool ScreenHistory::GoBack()
-{
-	if(m_listObjs.size())
-	{
-		m_pObj = m_listObjs.front();
-		m_listObjs.pop_front();
-
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Removing %d from stack (size left %d) - screen %d, front left: %d", 
-			m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, 
-			m_listObjs.size() ? m_listObjs.front()->m_iBaseObjectID : 0);
-#endif
-		return true;
-	}
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Nothing to remove from queue screen %d", m_nPK_Screen);
-#endif
-
-	return false;
-}
-//------------------------------------------------------------------------
-string ScreenHistory::ToString()
-{
-	string sOutput;
-	sOutput += StringUtils::ltos(m_nPK_Screen) + "(\"" + m_sID + "\" - ";
-
-	list<DesignObj_Orbiter *>::iterator it;
-	for(it = m_listObjs.begin(); it != m_listObjs.end(); it++)
-	{
-		if(it != m_listObjs.begin())
-			sOutput += ",";
-
-		DesignObj_Orbiter *pObj = *it;
-		sOutput += StringUtils::ltos(pObj->m_iBaseObjectID);
-	}
-
-	sOutput += ")";
-
-	return sOutput;
-}
 //------------------------------------------------------------------------
 // CallBackInfo
 //------------------------------------------------------------------------
@@ -686,7 +595,7 @@ void Orbiter::RenderScreen( )
 	if(pCallBackData)
 	{
 		RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-		pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->m_nPK_Screen;
+		pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
 		pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
 	}
 
@@ -1528,7 +1437,7 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 
 		if(
 			!m_listScreenHistory.size() ||
-			(m_pScreenHistory_Current != pScreenHistory && m_listScreenHistory.back()->m_nPK_Screen != m_pScreenHistory_Current->m_nPK_Screen)
+			(m_pScreenHistory_Current != pScreenHistory && m_listScreenHistory.back()->PK_Screen() != m_pScreenHistory_Current->PK_Screen())
 			) 
 		{
 			//update the list only if the screen is changed
@@ -1537,7 +1446,7 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 
 			if(ScreenHistory::m_bAddToHistory)//m_pScreenHistory_Current->m_bAddToHistory)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Adding to screens history list screen %d", m_pScreenHistory_Current->m_nPK_Screen);
+				g_pPlutoLogger->Write(LV_WARNING, "Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
 			}
 
@@ -2427,7 +2336,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 
 void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 {
-	m_pScreenHistory_Current->m_dwPK_Device = pDesignObj_Orbiter->m_pFloorplanObject->PK_Device;
+//	m_pScreenHistory_Current->m_dwPK_Device = pDesignObj_Orbiter->m_pFloorplanObject->PK_Device;
 	CMD_Set_Variable(VARIABLE_Array_ID_CONST,pDesignObj_Orbiter->m_pFloorplanObject->ObjectTypeDescription);
 	CMD_Set_Variable(VARIABLE_Array_Desc_CONST,pDesignObj_Orbiter->m_pFloorplanObject->DeviceDescription);
 	CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
@@ -5007,7 +4916,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="LDGC"  )
 			Output += m_sLastSelectedDatagrid;
 		else if(  Variable=="ID"  )
-			Output += m_pScreenHistory_Current->m_sID;
+			Output += m_pScreenHistory_Current->ScreenID();
 		else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
 		else if(  Variable=="MT" )
@@ -5676,16 +5585,13 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	{
 		while(  m_listScreenHistory.size(  )  )
 		{
-#ifdef DEBUG
-			DumpScreenHistory();
-#endif
 			// The last screen we went to
 			pScreenHistory = m_listScreenHistory.back(  );
 
 			if(!pScreenHistory->GoBack())
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_WARNING, "Removing from screen history screen %d", pScreenHistory->m_nPK_Screen);
+				g_pPlutoLogger->Write(LV_WARNING, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
 #endif
 
 				// We now took the prior screen off teh list
@@ -5697,48 +5603,32 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			if(pScreenHistory->HistoryEmpty())
 				m_listScreenHistory.pop_back();
 
-			//if(!pScreenHistory->m_bCantGoBack)
-			//	continue;
-
-			//TODO : ask: is this needed ?
-			/*
-			if( m_pScreenHistory_Current && pScreenHistory->m_pObj == m_pScreenHistory_Current->m_pObj 
-			&& !pScreenHistory->m_pObj->m_bCanGoBackToSameScreen )
-			continue;
-			*/
-
 			break;   // We got one to go back to
 		}
 	}
 
-	// todo hack -- handle restoring variables,  etc. pScreenHistory
+#ifdef DEBUG
+	DumpScreenHistory();
+#endif
 
 	// We've got a screen to go back to
 	if(  pScreenHistory  )
 	{
 		// If we stored variables, be sure to restore them
-		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
-			CMD_Set_Variable((*it).first, (*it).second);
-
+		pScreenHistory->RestoreContext(m_mapVariable);
 		vm.Release();
 
 		ScreenHistory::m_bAddToHistory = false;
-
-		/*
-		if(pScreenHistory->QueueEmpty())
-		{
-		string sResult;
-		CMD_Goto_Screen("", pScreenHistory->m_nPK_Screen, sResult, pScreenHistory->m_pMessage);
-		}
-		else
-		{*/
 		m_pScreenHistory_NewEntry = pScreenHistory;
-		CMD_Goto_DesignObj(pScreenHistory->m_dwPK_Device, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->m_sID,
+		CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
 			"", false, pScreenHistory->GetObj()->m_bCantGoBack);
-		//}
 	}
 	else
 		GotoMainMenu();
+
+#ifdef DEBUG
+	DumpScreenHistory();
+#endif
 }
 
 //<-dceag-c5-b->
@@ -5846,18 +5736,21 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
 	}
 
+	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
+	bool bLastCantGoBack = pScreenHistory_New->m_bCantGoBack;
+
+	pScreenHistory_New->SetObj(pObj_New);
+	pScreenHistory_New->SaveContext(m_mapVariable);
+	pScreenHistory_New->ScreenID(sID);
+	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
+
 	if(ScreenHistory::m_bAddToHistory)
 	{
-		if(pScreenHistory_New->GetObj() && !pScreenHistory_New->GetObj()->m_bCantGoBack && pScreenHistory_New->GetObj() != pObj_New)
+		if(pScreenHistory_New->GetObj() && !bLastCantGoBack && sLastObject != pObj_New->m_ObjectID && sLastObject != "")
 			pScreenHistory_New->AddToHistory();
 		else if(m_pScreenHistory_Current && m_pScreenHistory_Current != pScreenHistory_New && m_pScreenHistory_Current->GetObj() && !m_pScreenHistory_Current->GetObj()->m_bCantGoBack)
 			m_pScreenHistory_Current->AddToHistory();
 	}
-
-	pScreenHistory_New->SetObj(pObj_New);
-	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
-	if( sID.size() )
-		pScreenHistory_New->m_sID=sID;
 
 #ifdef DEBUG
 	DumpScreenHistory();
@@ -5866,8 +5759,8 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	vm.Release(  );
 
 	// See if we need to store the variables on this screen,  so we restore them in case of a go back
-	if(bStore_Variables)
-		CMD_Store_Variables(  );
+	//if(bStore_Variables)
+	//	CMD_Store_Variables(  );
 
 	//NeedToRender::NeedToChangeScreens( this, pScreenHistory_New );
 	NeedToRender::NeedToChangeScreens( this, pScreenHistory_New);
@@ -5970,12 +5863,12 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 	{
 		ScreenHistory *pScreenHistory = *it;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Comparing %s - %s",pScreenHistory->GetObj()->m_ObjectID.c_str(),pScreenHistory->m_sID.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Comparing %s - %s",pScreenHistory->GetObj()->m_ObjectID.c_str(),pScreenHistory->ScreenID().c_str());
 #endif
-		if( pScreenHistory->m_nPK_Screen == iPK_Screen && (sID.length()==0 || sID==pScreenHistory->m_sID) )
+		if( pScreenHistory->PK_Screen() == iPK_Screen && (sID.length()==0 || sID == pScreenHistory->ScreenID()) )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"deleting %d - %s",iPK_Screen,pScreenHistory->m_sID.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"deleting %d - %s",iPK_Screen,pScreenHistory->ScreenID().c_str());
 #endif
 			delete (*it);
 			it = m_listScreenHistory.erase( it );
@@ -5989,7 +5882,7 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 	DumpScreenHistory();
 #endif
 
-	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_nPK_Screen == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen() == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->ScreenID()) )
 	{
 		m_pScreenHistory_Current->PurgeHistory(); // User wants to delete this entire screen instance.  If we leave this populated, we may just go to a prior design obj in this screen
 		vm.Release();
@@ -7562,7 +7455,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 time_t Orbiter::GetLastScreenChangedTime()
 {
-	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL);
+	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->TimeCreated() : time(NULL);
 }
 
 string Orbiter::GetCurrentScreenID()
@@ -9814,8 +9707,8 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	}
 #endif
 
-	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, new Message(pMessage), m_pScreenHistory_Current);
-	m_pScreenHistory_NewEntry->m_sID = sID;
+	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current);
+	m_pScreenHistory_NewEntry->ScreenID(sID);
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 	if( bCreatedMessage )
 		delete pMessage;

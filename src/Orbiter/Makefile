@@ -34,6 +34,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			RendererOCG.cpp \
 			ScreenHandler.cpp \
 			CallBackData.cpp \
+			ScreenHistory.cpp \
 			SDL/SDLRendererOCGHelper.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \

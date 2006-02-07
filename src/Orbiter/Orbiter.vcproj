@@ -183,6 +183,9 @@
 				RelativePath=".\ScreenHandler.cpp">
 			</File>
 			<File
+				RelativePath=".\ScreenHistory.cpp">
+			</File>
+			<File
 				RelativePath=".\Sdl\SDLGraphic.cpp">
 			</File>
 			<File

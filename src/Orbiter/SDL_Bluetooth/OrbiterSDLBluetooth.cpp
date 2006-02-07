@@ -30,6 +30,7 @@
 #include "VIPShared/BD_CP_SimulateEvent.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
+#include "Orbiter/ScreenHistory.h"
 #include "Orbiter/SDL/JpegWrapper.h"
 
 #include "DataGrid.h"

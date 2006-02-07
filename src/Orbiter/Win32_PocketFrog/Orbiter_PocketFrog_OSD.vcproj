@@ -200,6 +200,9 @@
 				RelativePath="..\ScreenHandler.cpp">
 			</File>
 			<File
+				RelativePath="..\ScreenHistory.cpp">
+			</File>
+			<File
 				RelativePath="..\SelfUpdate.cpp">
 			</File>
 			<File

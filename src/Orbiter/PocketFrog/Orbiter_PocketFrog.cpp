@@ -7,6 +7,7 @@
 #include "VirtualKeysTranslator.h"
 #include "PopupMessage.h"
 #include "ProgressDialog.h"
+#include "ScreenHistory.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
