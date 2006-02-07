@@ -1,50 +1,51 @@
 # GNU Makefile listing dependencies between services when services are started.
 
 ## Example runing abc_service first.
-#$(filter-out $<,$(ALL))         : abc_service
+$(filter-out $<,$(ALL))         : Pluto_Process_Logs.sh
 
 ## Running a_service after b_service and c_service
 #a_service : b_service c_service
 
 Startup_Scripts.sh              : mysql
-Pluto_Start_DCERouter.sh        : sysklogd mysql
+Pluto_Start_DCERouter.sh        : mysql
 #Pluto_Start_X.sh               :
-Pluto_Start_ratpoison.sh		: Pluto_Start_X.sh
-Pluto_Start_LocalDevices.sh 	: mysql Pluto_Start_ratpoison.sh Pluto_Start_DCERouter.sh
+#Pluto_Start_ratpoison.sh	: Pluto_Start_X.sh
+Pluto_Start_LocalDevices.sh 	: mysql Pluto_Start_X.sh Pluto_Start_DCERouter.sh
 Pluto_Start_OrbiterGen.sh       : mysql
 Pluto_Update_StartupScrips.sh   : mysql
-Pluto_Network_Firewall.sh		: mysql Pluto_Network_Setup.sh
+Pluto_Network_Firewall.sh	: mysql Pluto_Network_Setup.sh
+Pluto_NFS_setup.sh		: Pluto_Diskless_Setup.sh
 Pluto_Diskless_Setup.sh         : mysql
-Pluto_Network_Setup.sh			: mysql bind9
-Pluto_SSH_Keys.sh				: ssh
-Pluto_Update_Packages.sh		: Pluto_Network_Setup.sh
-#Pluto_ulimit					:
-#Pluto_HaltMDs.sh				:
-Pluto_WakeMDs.sh				: Pluto_Network_Setup.sh Pluto_Start_DCERouter.sh
-#Pluto_UpdateDNS.sh				:
-#Pluto_CheckDiskSpace.sh		:
-#Pluto_CheckForUpdates.sh		:
-#Pluto_ReportHealth.sh			:
+Pluto_Network_Setup.sh		: mysql bind9
+Pluto_SSH_Keys.sh		: ssh
+Pluto_Update_Packages.sh	: Pluto_Network_Setup.sh
+#Pluto_ulimit			:
+#Pluto_HaltMDs.sh		:
+Pluto_WakeMDs.sh		: Pluto_Network_Setup.sh Pluto_Start_DCERouter.sh
+#Pluto_UpdateDNS.sh		:
+#Pluto_CheckDiskSpace.sh	:
+#Pluto_CheckForUpdates.sh	:
+#Pluto_ReportHealth.sh		:
 #Pluto_corefile.sh              :
-#Pluto_enable_wol.sh			:
+#Pluto_enable_wol.sh		:
 #Pluto_diskless_load_modules.sh	:
 #Pluto_Process_Logs.sh          :
 Pluto_Config_Device_Changes.sh 	: mysql Pluto_Network_Setup.sh
 Pluto_Dhcpd-Plugin.sh           : 
-Pluto_qos.pl					: Pluto_Network_Setup.sh
+Pluto_qos.pl			: Pluto_Network_Setup.sh
 Pluto_Share_IRCodes.sh         	: mysql
 Pluto_Backup_Database.sh        : mysql
 Pluto_Purge_Camera_Archive.pl	: mysql
 Pluto_fixMythTvSettings.sh      : mysql
 #Pluto_loadIVTVDriversAtBoot.sh :
-#Pluto_RecoveryConsole.sh		:
+#Pluto_RecoveryConsole.sh	:
 #Pluto_alsaconf-noninteractive  :
 #Pluto_setup_intel8x0_outputmode.sh :
-Pluto_PlutoVersion.sh			: mysql
+Pluto_PlutoVersion.sh		: mysql
 Pluto_ConfirmInstallation.sh 	: mysql
 Pluto_UpdateMediaDaemon.sh     	: mysql
 Pluto_Net_Mount_All.sh          : mysql Pluto_Network_Setup.sh
-#Pluto_DHCP_config.sh            : 
+#Pluto_DHCP_config.sh           : 
 
 # Example runing xyz_service last.
 #xyz_sercice : $(filter-out $@,$(ALL))
