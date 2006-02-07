@@ -217,7 +217,7 @@ fi
 ## Start a the ssh daemon very early
 if [[ -x /etc/init.d/ssh ]] ;then
 	Message "Starting Secure Shell Daemon";
-	/etc/inin.d/ssh start &
+	/etc/init.d/ssh start &
 fi
 
 # A hack ?
