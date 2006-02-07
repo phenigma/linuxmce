@@ -204,6 +204,16 @@ Message "Start up networking"
 Message "Mounting remote filesystems"
 /etc/init.d/mountnfs.sh start 1> /dev/null &
 
+
+## Check to see if a single mode was requested
+grep -qi " s " /proc/cmdline || grep -qi " s$" /proc/cmdline
+if [[ $? ]]; then
+	rm -f /var/run/block_single
+	Message "Going into single user mode"
+	/sbin/sulogin
+	touch /var/run/block_single
+fi
+
 # A hack ?
 
 if [ -x /etc/init.d/mysql ] ;then
