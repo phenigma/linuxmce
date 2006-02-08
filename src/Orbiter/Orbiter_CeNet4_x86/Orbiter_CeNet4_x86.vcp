@@ -79,8 +79,7 @@ LINK32=link.exe
 # ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /I "../CENET" /I "../PocketFrog" /I "../../../libs/Libraries/PocketFrog" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "POCKETFROG" /D "WINCE_x86" /FR /Gs8192 /GF /c
-# SUBTRACT CPP /YX
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /I "../CENET" /I "../PocketFrog" /I "../../../libs/Libraries/PocketFrog" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "POCKETFROG" /D "WINCE_x86" /FR /Gs8192 /GF /Zm200 /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 BSC32=bscmake.exe
@@ -394,6 +393,7 @@ DEP_CPP_EVENT=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -897,6 +897,7 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\pluto_main\Define_FloorplanType.h"\
+	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
@@ -922,12 +923,14 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\Linux\OSDScreenHandler.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
@@ -1002,6 +1005,7 @@ DEP_CPP_ORBITE=\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\ScreenHistory.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
@@ -1351,6 +1355,8 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
@@ -1375,9 +1381,42 @@ DEP_CPP_SCREE=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_SCREE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\ScreenHistory.cpp
+DEP_CPP_SCREEN=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CENet\WinCE.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File

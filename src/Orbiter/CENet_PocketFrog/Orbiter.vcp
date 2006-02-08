@@ -397,6 +397,7 @@ DEP_CPP_EVENT=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -906,6 +907,7 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\pluto_main\Define_FloorplanType.h"\
+	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
@@ -930,12 +932,14 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\Linux\OSDScreenHandler.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
@@ -1013,6 +1017,7 @@ DEP_CPP_ORBITE=\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\ScreenHistory.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
@@ -1378,6 +1383,8 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
@@ -1402,9 +1409,42 @@ DEP_CPP_SCREE=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_SCREE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\ScreenHistory.cpp
+DEP_CPP_SCREEN=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CENet\wince.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File

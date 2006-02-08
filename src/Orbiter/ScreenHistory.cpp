@@ -92,10 +92,10 @@ string ScreenHistory::ToString()
 
 	sOutput += "vars[";
 
-	for(map<int, string>::const_iterator it = m_mapVariable.begin(); it != m_mapVariable.end(); ++it)
+	for(map<int, string>::const_iterator itm = m_mapVariable.begin(); itm != m_mapVariable.end(); ++itm)
 	{
-		if(it->second != "")
-			sOutput += StringUtils::ltos(it->first) + "-" + it->second + " ";
+		if(itm->second != "")
+			sOutput += StringUtils::ltos(itm->first) + "-" + itm->second + " ";
 	}
 
 	sOutput += "]";

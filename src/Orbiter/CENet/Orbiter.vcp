@@ -1181,6 +1181,7 @@ DEP_CPP_EVENT=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1779,9 +1780,12 @@ DEP_CPP_MAIN_=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
 	
@@ -1801,7 +1805,6 @@ DEP_CPP_MAIN_=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\DCE\Logger.h"\
@@ -1819,6 +1822,7 @@ NODEP_CPP_MAIN_=\
 	"..\Win32\Resource.h"\
 	"..\Win32\Simulator.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
@@ -1949,9 +1953,12 @@ DEP_CPP_MAIND=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
 	
@@ -1970,7 +1977,6 @@ DEP_CPP_MAIND=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\DCE\Logger.h"\
@@ -1990,6 +1996,7 @@ NODEP_CPP_MAIND=\
 	"..\Win32\SelfUpdate.h"\
 	"..\Win32\Simulator.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
@@ -2380,6 +2387,7 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\pluto_main\Define_FloorplanType.h"\
+	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
@@ -2403,21 +2411,26 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\Linux\OSDScreenHandler.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBIT=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2825,6 +2838,7 @@ DEP_CPP_ORBITERS=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\RendererOCG.h"\
+	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterSDL.h"\
 	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
@@ -3036,9 +3050,12 @@ DEP_CPP_ORBITERSD=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITERSD=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -3141,9 +3158,12 @@ DEP_CPP_POPUP=\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_POPUP=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -3153,12 +3173,12 @@ DEP_CPP_POPUP=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_POPUP=\
 	"..\Win32\PlutoUtils\StringUtils.h"\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
@@ -3223,7 +3243,12 @@ DEP_CPP_PROGR=\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+NODEP_CPP_PROGR=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
@@ -3232,11 +3257,11 @@ DEP_CPP_PROGR=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_PROGR=\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
@@ -3736,6 +3761,8 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_Variable.h"\
@@ -3759,6 +3786,7 @@ DEP_CPP_SCREE=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -3792,6 +3820,116 @@ NODEP_CPP_SCREE=\
 	"..\pluto_main\Define_Text.h"\
 	"..\pluto_main\Define_Variable.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\ScreenHistory.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SCREEN=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
+	"..\DCE\Logger.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SCREEN=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
+	"..\DCE\Logger.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SCREEN=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
+	"..\DCE\Logger.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SCREEN=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	".\wince.h"\
+	
+NODEP_CPP_SCREEN=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_SCREEN=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ScreenHistory.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SCREEN=\
+	"..\DCE\Logger.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\StringUtils.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	
@@ -4205,9 +4343,12 @@ DEP_CPP_SELFU=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Orbiter_PocketFrog.h"\
 	
@@ -4590,9 +4731,12 @@ DEP_CPP_SIMUL=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Orbiter_PocketFrog.h"\
 	
@@ -4618,7 +4762,6 @@ DEP_CPP_SIMUL=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\DCE\Logger.h"\
@@ -4642,6 +4785,7 @@ NODEP_CPP_SIMUL=\
 	"..\StartOrbiter.h"\
 	"..\stdafx.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
@@ -4889,9 +5033,12 @@ DEP_CPP_START=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
 	
@@ -4910,7 +5057,6 @@ DEP_CPP_START=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_START=\
 	"..\DCE\Logger.h"\
@@ -4930,6 +5076,7 @@ NODEP_CPP_START=\
 	"..\Win32\PlutoUtils\StringUtils.h"\
 	"..\Win32\ServerLogger.h"\
 	"..\Win32\stdafx.h"\
+	".\ipapi.h"\
 	
 
 !ENDIF 
