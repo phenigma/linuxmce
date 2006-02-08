@@ -47,6 +47,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 		/** Private member variables */
+		
+		int CreateXineWrapper();
 
 		XineSlaveWrapper *m_pXineSlaveControl; /** < m_pXineSlaveControl points to the XineSlaveWrapper object */
 

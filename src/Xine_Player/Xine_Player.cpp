@@ -79,10 +79,15 @@ bool Xine_Player::GetConfig()
 	if( !Xine_Player_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 
+	return CreateXineWrapper();
+}
+
+int Xine_Player::CreateXineWrapper()
+{
 	m_pXineSlaveControl = new XineSlaveWrapper(DATA_Get_Time_Code_Report_Frequency());
 
-	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 	//m_pSlimServerClient = new SlimServerClient();
 //	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
 
@@ -296,6 +301,9 @@ g_bHackToBeSureWeStop=false;
 	if ( getSlimServerClient()->isConnected(iStreamID) )
 		getSlimServerClient()->disconnectFromServer(iStreamID);
 */
+// hack to get Xine to let go of xvmc
+	delete m_pXineSlaveControl;
+	CreateXineWrapper();
 }
 
 //<-dceag-c39-b->
