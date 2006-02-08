@@ -9,6 +9,8 @@ my $DECLARED_USERPASSWD;
 my $DECLARED_NUMBER;
 my $DECLARED_HOST = "switch.nufone.net";
 my $DECLARED_PREFIX = "9";
+my $LOCAL_PREFIX1 = "";
+my $LOCAL_PREFIX2 = "";
 
 my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
 my %TRUNK_VARS = ();
@@ -31,6 +33,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 
 #fix permissions on each run
 `chmod g+w /etc/asterisk/*`;
+#add local prefixes
+&get_local_prefixes();
 
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
@@ -45,7 +49,7 @@ $TRUNK_VARS{'action'}="addtrunk";
 $TRUNK_VARS{'tech'}="iax2";
 $TRUNK_VARS{'outcid'}=$1."-".$2."-".$3 if($DECLARED_NUMBER=~/^(\d{3})(\d{3})(\d{4})$/);
 $TRUNK_VARS{'maxchans'}="";
-$TRUNK_VARS{'dialrules'}=$DECLARED_PREFIX."|.";
+$TRUNK_VARS{'dialrules'}="$LOCAL_PREFIX1\n";
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="nufone-out";
@@ -63,9 +67,9 @@ $TRUNK_VARS{'userconfig'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@switch-2.nufone.net";
 foreach my $var (keys %TRUNK_VARS)
 {
-	my $str = $TRUNK_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$TRUNK_DATA	.=$var."=".$str."&";
+    my $str = $TRUNK_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $TRUNK_DATA    .=$var."=".$str."&";
 }
 `curl -d '$TRUNK_DATA' '$TRUNK_URL' > /dev/null`;
 
@@ -76,7 +80,7 @@ open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
 my $OUT_ROUTE = "";
 while(<PAGE>)
 {
-	chomp;
+    chomp;
     if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/nufone-out[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
@@ -88,14 +92,14 @@ $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
 $OUT_VARS{'routename'}="nufone";
 $OUT_VARS{'routepass'}="";
-$OUT_VARS{'dialpattern'}=$DECLARED_PREFIX."|.";
+$OUT_VARS{'dialpattern'}="$LOCAL_PREFIX2\n";
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
 exit unless($OUT_ROUTE ne "");
 foreach my $var (keys %OUT_VARS)
 {
-	my $str = $OUT_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$OUT_DATA .=$var."=".$str."&";
+    my $str = $OUT_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $OUT_DATA .=$var."=".$str."&";
 }
 `rm -f /tmp/curl.log ; curl -d '$OUT_DATA' '$OUT_URL' > /dev/null`;
 
@@ -108,9 +112,9 @@ $IN_VARS{'goto0'}="extension";
 $IN_VARS{'extension0'}="10".$1 if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
 {
-	my $str = $IN_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$IN_DATA.=$var."=".$str."&";
+    my $str = $IN_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $IN_DATA.=$var."=".$str."&";
 }
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
@@ -121,3 +125,51 @@ foreach my $var (keys %IN_VARS)
 #reload asterisk
 `asterisk -r -x reload`;
 
+sub get_local_prefixes()
+{
+    my $CONF_HOST="localhost";
+    my $CONF_USER="root";
+    my $CONF_PASSWD="";
+    my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
+    my $DB_STATEMENT;
+    my $DB_SQL;
+    my $DB_ROW;
+
+    $LOCAL_PREFIX1 = "112\n411\n911\n";
+    $LOCAL_PREFIX2 = $LOCAL_PREFIX1;
+    $DB_SQL = "SELECT IK_DeviceData,FK_DeviceData FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceTemplate=34 AND (FK_DeviceData=141 OR FK_DeviceData=142 OR FK_DeviceData=143) ORDER BY FK_DeviceData;";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+
+    return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
+    return unless($DB_ROW->{'FK_DeviceData'} == 141);
+    if($DB_ROW->{'IK_DeviceData'} > 0)
+    {
+        my $prefix = $DB_ROW->{'IK_DeviceData'};
+        return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
+        return unless($DB_ROW->{'FK_DeviceData'} == 142);
+        my $digit = $DB_ROW->{'IK_DeviceData'};
+        return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
+        return unless($DB_ROW->{'FK_DeviceData'} == 143);
+        my $length = $DB_ROW->{'IK_DeviceData'};
+        my $short = "";
+        my $long = "";
+        for( my $i=0;$i<$length;$i++)
+        {
+            $short .= "X";
+            $long .= "X";
+        }
+        for( my $i=0;$i<length($prefix);$i++)
+        {
+            $long .= "X";
+        }
+        $LOCAL_PREFIX1 .= ($digit<0?"":$digit.$prefix."+").$short."\n";
+        $LOCAL_PREFIX1 .= ($digit<0?"":$digit."+").$long."\n";
+        $LOCAL_PREFIX1 .= $DECLARED_PREFIX."|.\n";
+        $LOCAL_PREFIX2 .= $short."\n";
+        $LOCAL_PREFIX2 .= $long."\n";
+        $LOCAL_PREFIX2 .= "9|112\n9|411\n9|911\n";
+        $LOCAL_PREFIX2 .= "9|".($digit<0?"":$digit).$long."\n";
+        $LOCAL_PREFIX2 .= "9|0.\n";
+    }
+}
