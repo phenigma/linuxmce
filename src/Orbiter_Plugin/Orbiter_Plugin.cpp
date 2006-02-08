@@ -1403,7 +1403,11 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
 				sDescription = pRow_FloorplanObjectType_Color->Description_get();
 
-			if(!m_pRouter->DeviceIsRegistered(fpObj->PK_Device))
+			//if(!m_pRouter->DeviceIsRegistered(fpObj->PK_Device))
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(fpObj->PK_Device);
+			if(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() == DEVICECATEGORY_Computers_CONST &&
+				pRow_Device->Status_get() != "MD_ON"
+			)
 			{
 				iColor = PlutoColor::Gray().m_Value;
 				sDescription = "offline";
