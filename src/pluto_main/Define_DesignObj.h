@@ -1902,6 +1902,7 @@
 #define DESIGNOBJ_dgAllCalls_CONST 4787
 #define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 4790
 #define DESIGNOBJ_mnuSearchMediaAttributes_CONST 4805
+#define DESIGNOBJ_butDeletePlaylist_CONST 4818
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

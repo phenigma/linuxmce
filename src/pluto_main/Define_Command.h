@@ -711,6 +711,7 @@
 #define COMMAND_AV_7_CONST 774
 #define COMMAND_AV_8_CONST 775
 #define COMMAND_Reset_CONST 776
+#define COMMAND_Remove_playlist_CONST 777
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
