@@ -1649,7 +1649,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int ps
 	else
 	{
 		cerr << "Unable to find record to retrieve current values (gcv) for table: " << m_sName << " psc_id: " << psc_id << endl;
-		throw "Canot locate record";
+		throw "Cannot locate record";
 	}
 }
 
