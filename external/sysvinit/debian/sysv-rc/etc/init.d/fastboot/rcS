@@ -205,7 +205,7 @@ Message "Mounting remote filesystems"
 
 ## Check to see if a single mode was requested
 grep -qi " s " /proc/cmdline || grep -qi " s$" /proc/cmdline
-if [[ $? ]]; then
+if [[ $? -eq 0 ]]; then
 	rm -f /var/run/block_single
 	Message "Going into single user mode"
 	/sbin/sulogin
