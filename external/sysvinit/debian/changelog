@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto12) unstable; urgency=low
+
+  * Get back to lshwd cause we can trick it to refresh /proc
+ 
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 08 Feb 2006 18:26:06 +0200
+
 sysvinit (2.86.ds1-1.1pluto11) unstable; urgency=low
 
   * Use hotplug for coldpluging by default
