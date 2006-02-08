@@ -1403,14 +1403,25 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
 				sDescription = pRow_FloorplanObjectType_Color->Description_get();
 
-			//if(!m_pRouter->DeviceIsRegistered(fpObj->PK_Device))
-			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(fpObj->PK_Device);
-			if(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() == DEVICECATEGORY_Computers_CONST &&
-				pRow_Device->Status_get() != "MD_ON"
-			)
+			if(fpObj->PK_Device < 0) //entertain area
 			{
-				iColor = PlutoColor::Gray().m_Value;
-				sDescription = "offline";
+				vector<Row_Device *> vectRow_Device;
+				m_pDatabase_pluto_main->Device_get()->GetRows(
+					"SELECT * FROM Device "
+					"JOIN DeviceTemplate ON Device.FK_DeviceTemplate = DeviceTemplate.PK_DeviceTemplate "
+					"WHERE FK_Room = " + StringUtils::ltos(fpObj->m_pEntertainArea->m_pRoom->m_dwPK_Room) + " "
+					"AND FK_DeviceCategory IN (7,8) AND FK_Device_ControlledVia IS NULL",
+					&vectRow_Device);
+
+				if(vectRow_Device.size() > 0)
+				{
+					Row_Device* pRow_Device = *vectRow_Device.begin();
+					if(pRow_Device->Status_get() == "MD_ON")
+					{
+						iColor = PlutoColor::Gray().m_Value;
+						sDescription = "offline";
+					}
+				}
 			}
 
 			(*sValue_To_Assign) += StringUtils::itos(iColor) + "|" + sDescription + "|" + OSD + (PK_DesignObj_Toolbar ? "|" + StringUtils::itos(PK_DesignObj_Toolbar) : "|") + "|";
