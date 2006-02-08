@@ -117,7 +117,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 {
     Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-    pRow_File->Path_set(m_sDirectory);
+    pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
     pRow_File->Filename_set(m_sFile);
     pRow_File->EK_MediaType_set(PK_MediaType);
     pRow_File->Table_File_get()->Commit();

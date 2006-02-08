@@ -1020,7 +1020,7 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,string sDirectory)
 {
 	vector<Row_File *> vectRow_File;
-	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::BasePath(sDirectory)) +
+	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory))) +
 		"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sDirectory)) + "' AND IsDirectory=1",
 		&vectRow_File);
 
@@ -1029,7 +1029,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->EK_MediaType_set(PK_MediaType);
-	pRow_File->Path_set( FileUtils::BasePath(sDirectory) );
+	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory)));
 	pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sDirectory) );
 	pRow_File->IsDirectory_set(1);
 	m_pDatabase_pluto_media->File_get()->Commit();
@@ -1078,14 +1078,28 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 				continue;
 			}
 
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-			if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
-				pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+			vector<Row_File *> vectRow_File;
+			m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
+				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(listFiles.front())) + "'",
+				&vectRow_File);
+
+			Row_File *pRow_File = NULL;
+			if(vectRow_File.size() > 0)
+			{
+				pRow_File = vectRow_File[0];
+			}
 			else
-				pRow_File->EK_MediaType_set(PK_MediaType);
-			pRow_File->Path_set( sDestination );
-			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-			m_pDatabase_pluto_media->File_get()->Commit();
+			{
+				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+				if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
+					pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+				else
+					pRow_File->EK_MediaType_set(PK_MediaType);
+				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
+				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+				m_pDatabase_pluto_media->File_get()->Commit();
+			}
+
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
 
 			// Be sure the disc id is associated with each track
@@ -1119,11 +1133,25 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		else
 		{
 			AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-			pRow_File->EK_MediaType_set(PK_MediaType);
-			pRow_File->Path_set( FileUtils::BasePath(sDestination) );
-			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-			m_pDatabase_pluto_media->File_get()->Commit();
+
+			vector<Row_File *> vectRow_File;
+			m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
+				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(listFiles.front())) + "'",
+				&vectRow_File);
+
+			Row_File *pRow_File = NULL;
+			if(vectRow_File.size() > 0)
+			{
+ 				pRow_File = vectRow_File[0];
+			}
+			else
+			{
+				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+				pRow_File->EK_MediaType_set(PK_MediaType);
+				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination)));
+				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+				m_pDatabase_pluto_media->File_get()->Commit();
+			}
 
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		}

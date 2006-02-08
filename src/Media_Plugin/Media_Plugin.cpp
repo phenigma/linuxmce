@@ -4722,11 +4722,20 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 {
 	if( StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/",true) || StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) )
 		return;  // Don't add it if it's just a drive
+
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + 
+		StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath)) + 
+		"' AND Filename='" + StringUtils::SQLEscape(pMediaFile->m_sFilename) + "'",
+		&vectRow_File);
+
+	if(vectRow_File.size()) //the file already exists
+		return;
+
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-	pRow_File->Path_set(pMediaFile->m_sPath);
+	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath));
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
 	pRow_File->EK_MediaType_set(PK_MediaType);
-	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
 
