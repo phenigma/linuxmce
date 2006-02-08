@@ -1416,7 +1416,8 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 				if(vectRow_Device.size() > 0)
 				{
 					Row_Device* pRow_Device = *vectRow_Device.begin();
-					if(pRow_Device->Status_get() == "MD_ON")
+					pRow_Device->Reload();
+					if(pRow_Device->Status_get() != "MD_ON")
 					{
 						iColor = PlutoColor::Gray().m_Value;
 						sDescription = "offline";
