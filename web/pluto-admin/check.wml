@@ -5,6 +5,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 require('include/config/config.inc.php');
 require('include/utils.inc.php');
 
+
 if(isset($_REQUEST['installationID'])){
 	$installationID = (int)$_REQUEST['installationID'];
 }else{
@@ -22,14 +23,20 @@ if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pi
 	// authentification
 	$sufix=(isset($_REQUEST['security']))?'&amp;security=0':'';
 	$msg='
-		Username<br/><input type="text" name="user" value=""/><br/>
-		PIN*<br/><input type="text" name="pinuser" value=""/><br/>
-		Callback phone<br/><input type="text" name="phone" value=""/><br/>
-		* Please set your PIN on pluto admin website
-	<do type="accept" label="Submit">
-		<go method="post" href="check.wml?user=$user&amp;pinuser=$pinuser&amp;phone=$phone'.$sufix.((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'">
+		Username<br/><input type="text" name="myuser" value=""/><br/>
+		PIN*<br/><input type="text" name="mypinuser" value=""/><br/>
+		Callback phone<br/><input type="text" name="myphone" value=""/><br/>
+		* Please set your PIN on pluto admin website<br/>
+<anchor>	
+		<go method="post" href="check.wml?'.$sufix.((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'">
+		<postfield name="user" value="$(myuser)"/>
+		<postfield name="pinuser" value="$(mypinuser)"/>
+		<postfield name="phone" value="$(myphone)"/>
 		</go>
-	</do>
+
+		Submit form
+</anchor>
+
 	';	
 }else{
 	if(isValidLogin($_REQUEST['user'],@$_REQUEST['pin'],$dbADO) || isValidLogin($_REQUEST['user'],md5(@$_REQUEST['pinuser']),$dbADO)){
@@ -206,7 +213,7 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
 		$msg.='
 			<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
-		<img src="security_images/alert_'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
+		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
 		<b>What to do?</b><br/>';
 		if(isset($sosForm)){
 			$msg.=$sosForm;
@@ -318,8 +325,8 @@ function displayScreens($dbADO)
 				$msg='Camera screenshot not available.';
 				foreach ($retArray as $line) {
 					if(!ereg(':OK',$line)){
-						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/camera_'.$cameraid.'.jpg',$retArray,$retCode);
-						$msg='<img src="security_images/camera_'.$cameraid.'.jpg" alt="Loading ..."/>';
+						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
+						$msg='<img src="security_images/'.$cameraid.'.jpg" alt="Loading ..."/>';
 					}
 				}
 			}
