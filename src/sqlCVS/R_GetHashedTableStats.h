@@ -1,13 +1,13 @@
 /**
  *
- * @file R_GetAll_psc_id.h
- * @brief header file for the R_GetAll_psc_id class
+ * @file R_GetHashedTableStats.h
+ * @brief header file for the R_GetHashedTableStats class
  * @author
  *
  */
 
-#ifndef R_GetAll_psc_id_H
-#define R_GetAll_psc_id_H
+#ifndef R_GetHashedTableStats_H
+#define R_GetHashedTableStats_H
 
 #include "RA/RA_Request.h"
 #include "sqlCVSrequests.h"
@@ -17,29 +17,32 @@
  * @todo complete documentation
  */
 
-class R_GetAll_psc_id : public RA_Request
+class R_GetHashedTableStats : public RA_Request
 {
 public:
 	/** @brief Request Variables */
 	string m_sTable;
-	int m_psc_id,m_psc_batch;
+	int m_iRange_Begin;
+	int m_iRange_End;
+	int m_iInterval_Length;
+
 	vector<int> m_vectRestrictions; /** The restrictions we're interested in */
-	string m_sExtraCondition;	/** extra conditions for filtering */
 
 	/** @brief Response Variables */
-	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
+	vector<pair<int,int> > m_hashedCount;  //
+	vector<string> m_hashedCheckSum;  //
 
 	/** @brief constructor */
-	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions, string extraCondition="1");
+	R_GetHashedTableStats(string sTable, vector<int> *p_vectRestrictions, int range_begin, int range_end, int interval_length);
 
 	/** @brief constructor */
-	R_GetAll_psc_id( ) {};
+	R_GetHashedTableStats( ) {};
 
 	/**
 	 * @brief Returns the id of @todo ask
 	 */
 
-	virtual unsigned long ID( ) { return R_GET_ALL_PSC_ID; }
+	virtual unsigned long ID( ) { return R_GET_HASHED_TABLE_STATS; }
 
 	/**
 	 * @brief Sets up the serialization request
@@ -48,7 +51,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sTable + m_vectRestrictions + m_sExtraCondition;
+		StartSerializeList( ) + m_sTable + m_vectRestrictions + m_iRange_Begin + m_iRange_End + m_iInterval_Length;
 	}
 
 	/**
@@ -58,7 +61,7 @@ public:
 	virtual void SetupSerialization_Response( )
 	{
 		RA_Request::SetupSerialization_Response( );
-		StartSerializeList( ) + m_vectAll_psc_id;
+		StartSerializeList( ) + m_hashedCount + m_hashedCheckSum;
 	}
 
 	/**

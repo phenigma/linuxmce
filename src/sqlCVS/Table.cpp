@@ -1,18 +1,18 @@
 /*
  Table
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 /**
@@ -21,15 +21,18 @@
  * @brief source file for the Table class
  *
  */
- 
-  
-#include "PlutoUtils/CommonIncludes.h"	
+
+
+#include "PlutoUtils/CommonIncludes.h"
 #include "Table.h"
 
 #include "CommonFunctions.h"
 
 #include <iostream>
 #include <sstream>
+
+#include <iterator>
+#include <algorithm>
 
 #include "Field.h"
 #include "Database.h"
@@ -40,6 +43,7 @@
 #include "R_GetAll_psc_id.h"
 #include "R_GetRow.h"
 #include "R_UpdateTable.h"
+#include "R_GetHashedTableStats.h"
 #include "A_UpdateRow.h"
 #include "sqlCVSprocessor.h"
 
@@ -94,7 +98,7 @@ void Table::GetFields( )
 
 			if( pField->m_iFlags & PRI_KEY_FLAG )
 				m_listField_PrimaryKey.push_back( pField );
-				
+
 			if( pField->m_iFlags & AUTO_INCREMENT_FLAG )
 				m_pField_AutoIncrement = pField;
 
@@ -346,12 +350,12 @@ void Table::MatchUpHistory( )
 		m_pTable_WeAreHistoryFor = pMainTable;
 		m_bIsSystemTable = true;
 
-		// It's possible that we added some new rows that have not yet been authorized, we'll need to 
+		// It's possible that we added some new rows that have not yet been authorized, we'll need to
 		// be sure we don't re-use those id's
 		if( m_psc_id_next > m_pTable_WeAreHistoryFor->m_psc_id_next )
 		{
 			m_pTable_WeAreHistoryFor->m_psc_id_next = m_psc_id_next;
-			cout << "Larger psc_id in history table for: " << m_pTable_WeAreHistoryFor->Name_get() 
+			cout << "Larger psc_id in history table for: " << m_pTable_WeAreHistoryFor->Name_get()
 				<< " setting it to: " << m_psc_id_next << endl;
 		}
 	}
@@ -437,7 +441,7 @@ int k=2;
 			 * [identifier], which has a field Description, which, if it starts with PK_ means our IK_ field refers
 			 * to a foreign key in that table
 			*/
-			
+
 			if( pField->Name_get( ).substr( 0, 3 )=="IK_" )
 			{
 				Field *pField_Indirect=NULL;
@@ -512,7 +516,7 @@ throw "problem with delete";
 
 	R_UpdateTable r_UpdateTable( m_sName, m_psc_batch_last_sync, m_psc_id_last_sync, &vectFields, &g_GlobalConfig.m_vectRestrictions );
 
-	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to 
+	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to
 	// explicitly exclude any batches that we sent ourselves, since have them already.  Create a list
 	// of the batches we created since our last sync
 
@@ -538,7 +542,7 @@ throw "problem with delete";
 		/**
 		 * It's going to fall out of scope, so we don't want the processor to retry sending a deleted request
 		 */
-		ra_Processor.RemoveRequest( &r_UpdateTable ); 
+		ra_Processor.RemoveRequest( &r_UpdateTable );
 		cerr << "Failed to update table: " << m_sName << ":" << (int) r_UpdateTable.m_cProcessOutcome << endl;
 		return false;
 	}
@@ -629,7 +633,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 			pa_UpdateRow->m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
 		cout << "Sending psc_id: " << psc_id << " psc_batch: " << psc_batch << " psc_id_last_sync: " <<
-			pR_UpdateTable->m_psc_id_last_sync << " m_psc_batch_last_sync: " << pR_UpdateTable->m_psc_batch_last_sync << 
+			pR_UpdateTable->m_psc_id_last_sync << " m_psc_batch_last_sync: " << pR_UpdateTable->m_psc_batch_last_sync <<
 			" # of fields: " << pR_UpdateTable->m_pvectFields->size( ) << " values: " << pa_UpdateRow->m_vectValues.size() << endl;
 		pR_UpdateTable->AddActionsToResponse( pa_UpdateRow );
 	}
@@ -712,7 +716,7 @@ void Table::AddChangedRow( ChangedRow *pChangedRow )
 bool Table::ConfirmDependencies( )
 {
 	if( g_GlobalConfig.m_bAllowUnmetDependencies )
-		return true; 
+		return true;
 
 	bool bDependenciesMet=true;
 
@@ -727,10 +731,10 @@ bool Table::ConfirmDependencies( )
 				ChangedRow *pChangedRow = *itCR;
 
 				/**
-				 * Go through all our fields. If any are foreign keys to another table, 
-				 * that row in the other table must be checked in as well 
+				 * Go through all our fields. If any are foreign keys to another table,
+				 * that row in the other table must be checked in as well
 				 */
-				
+
 				for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 				{
 					Field *pField = ( *it ).second;
@@ -761,11 +765,11 @@ TODO -- This won't work for indirect fields -- we can't match any field to any f
 bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring, Field *pField_ReferredTo )
 {
 	/** If we're checking the table that we're referring to, then we're fine. Any changes will be propagated. */
-	
+
 	if( g_GlobalConfig.m_mapTable.find( pField_ReferredTo->m_pTable->Name_get( ) )!=g_GlobalConfig.m_mapTable.end( ) )
 		return true;
 
-	/** We refer to a table that's not being checked in. That's okay if the row we're referncing has not been modified. 
+	/** We refer to a table that's not being checked in. That's okay if the row we're referncing has not been modified.
 	 * If it has changed, then we must check in that table too, otherwise we will be uploading a row to the server that references
 	 * a row the server doesn't have, and the server's database will become corrupted. First we have to get the value of the field here.
 	 */
@@ -813,135 +817,231 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	if( m_psc_id_last_sync<1 )
 		return true; /** We haven't synced any records with the server anyway */
 
-	// Suppose a user checked in an unauthorized row, psc_id=5.  We've already synced up to 10.
-	// That row, psc_id=5 is approved and merged into the main table.  But we haven't done an update yet
-	// When we do a determine deletions it will appear that we deleted it locally if we don't
-	// pass in the last batch.  So, we pass in m_psc_batch_last_sync, and the server will filter 
-	// rows that are <=.  This does mean that suppose psc_id=5 was checked in and I did sync locally.
-	// I deleted it locally, but before checking in my deletion, another user updated it and I haven't
-	// yet updated.  Therefore, the batch will be > m_psc_id_last_sync and will not show up
+	//number of intervals to divide
+	const int intervals_count = 10;
 
-	R_GetAll_psc_id r_GetAll_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions );
+	//this will be ranges queue for search of changes
+	vector < pair<int, int> > ranges_queue;
+
+	//initial seed: up to 10 mln of records
+	ranges_queue.push_back(pair<int, int> (0, 99999999));
+
+	//these arrays wll contain resulting ranges of local deletions and remote deletions
+	vector<pair<int, int> > local_deletions, remote_deletions;
+
+	while (ranges_queue.size())
+	{
+		// collecting all requests to send them together
+		vector<R_GetHashedTableStats*> hash_requests;
+
+		for (int i=0; i<ranges_queue.size(); i++)
+		{
+			int range_begin = ranges_queue[i].first;
+			int range_end = ranges_queue[i].second;
+			int interval_length = (range_end-range_begin)/intervals_count+1;
+
+			cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
+
+			R_GetHashedTableStats* pReq = new R_GetHashedTableStats(m_sName, &g_GlobalConfig.m_vectRestrictions, range_begin, range_end, interval_length);
+			hash_requests.push_back(pReq);
+
+			ra_Processor.AddRequest( pReq );
+		}
+
+		// sending requests
+		while( ra_Processor.SendRequests( Connection, ppSocket ) );
+
+		// processing responses
+		for (int req=0; req<hash_requests.size(); req++)
+		{
+
+			if( hash_requests[req]->m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+			{
+				cerr << "Cannot get table stats from server:" << (int) hash_requests[req]->m_cProcessOutcome << endl;
+				while (hash_requests.size()) {delete hash_requests[0]; hash_requests.erase(hash_requests.begin());}
+				throw "Communication error";
+			}
+
+			int range_begin = ranges_queue[0].first;
+			int range_end = ranges_queue[0].second;
+			int interval_length = (range_end-range_begin)/intervals_count+1;
+
+			// requesting stats for the same range from local client
+			std::ostringstream sSQL;
+			sSQL << "SELECT (psc_id-" << range_begin << ") DIV " << interval_length << " , count(*),BIT_XOR(POW(psc_id-"<<range_begin<<", FLOOR(63/CEIL(LOG2("<<(1+range_end-range_begin)<<"))))) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY (psc_id-"<< range_begin<< ") DIV " << interval_length << " ORDER BY (psc_id-"<< range_begin<<") DIV " << interval_length;
+
+			PlutoSqlResult res;
+			MYSQL_ROW row=NULL;
+			res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
+			if( !res.r )
+			{
+				cerr << "Problem retrieving rows with query: " << sSQL.str() << endl;
+				while (hash_requests.size()) {delete hash_requests[0]; hash_requests.erase(hash_requests.begin());}
+				throw "Database error";
+			}
+
+			map<int, pair<int,string> >  server_stats, client_stats;
+			vector<int> server_intervals, client_intervals;
+
+			// adding server stats into map
+			for (int i=0; i<hash_requests[req]->m_hashedCount.size(); i++)
+			{
+				server_stats[hash_requests[req]->m_hashedCount[i].first] = pair<int,string> (hash_requests[req]->m_hashedCount[i].second, hash_requests[req]->m_hashedCheckSum[i]);
+
+				server_intervals.push_back(hash_requests[req]->m_hashedCount[i].first);
+			}
+
+			while( ( row = mysql_fetch_row( res.r ) ) )
+			{
+				if (row[0])
+				{
+					client_stats[atoi(row[0])] = pair<int, string> (atoi(row[1]), row[2]);
+
+					client_intervals.push_back(atoi(row[0]));
+				}
+			}
+
+			// determining deletions and intersections
+			vector<int> deleted_locally, deleted_remotely, common;
+
+			set_intersection(client_intervals.begin(), client_intervals.end(), server_intervals.begin(), server_intervals.end(), inserter(common, common.end()));
+
+			set_difference(client_intervals.begin(), client_intervals.end(), server_intervals.begin(), server_intervals.end(), inserter(deleted_remotely, deleted_remotely.end()));
+
+			set_difference(server_intervals.begin(), server_intervals.end(), client_intervals.begin(), client_intervals.end(), inserter(deleted_locally, deleted_locally.end()));
+
+			// checking common intervals
+			for (int i=0; i<common.size(); i++)
+			{
+				int interval_no = common[i];
+				if ((client_stats[interval_no].first!=server_stats[interval_no].first)||(client_stats[interval_no].second!=server_stats[interval_no].second))
+				{
+					ranges_queue.push_back(pair<int, int> (range_begin+interval_length*interval_no, range_begin+interval_length*(interval_no+1)-1));
+					cout << "Interval: " << interval_no << " is different = range [" << (range_begin+interval_length*interval_no) << ", " << (range_begin+interval_length*(interval_no+1)-1) << "] " << endl;
+				}
+			}
+
+			// deleted locally - processing
+			for (int i=0; i<deleted_locally.size(); i++)
+			{
+				int interval_no = deleted_locally[i];
+				local_deletions.push_back(pair<int, int> (range_begin+interval_length*interval_no, range_begin+interval_length*(interval_no+1)-1));
+			}
+
+			// deleted remotely - processing
+			for (int i=0; i<deleted_remotely.size(); i++)
+			{
+				int interval_no = deleted_remotely[i];
+				remote_deletions.push_back(pair<int, int> (range_begin+interval_length*interval_no, range_begin+interval_length*(interval_no+1)-1));
+			}
+
+			ranges_queue.erase(ranges_queue.begin());
+
+		}
+
+		while (hash_requests.size()) {delete hash_requests[0]; hash_requests.erase(hash_requests.begin());}
+	}
+
+	cout << "Local deletions: ";
+	for (int i=0; i<local_deletions.size(); i++)
+	{
+		cout << "[" << local_deletions[i].first << ", " << local_deletions[i].second << "] ";
+	}
+	cout << endl;
+
+	cout << "Remote deletions: ";
+	for (int i=0; i<remote_deletions.size(); i++)
+	{
+		cout << "[" << remote_deletions[i].first << ", " << remote_deletions[i].second << "] ";
+	}
+	cout << endl;
+
+
+	//processing local deletions
+	std::ostringstream lSQL;
+	lSQL << "(0 ";
+	for (int i=0; i<local_deletions.size(); i++)
+	{
+		lSQL << "OR (psc_id>="<< local_deletions[i].first << " AND psc_id<=" << local_deletions[i].second << ") ";
+	}
+	lSQL << ")";
+
+	//requesting from server information about locally deleted records
+	R_GetAll_psc_id r_GetAll_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions,  lSQL.str());
 	ra_Processor.AddRequest( &r_GetAll_psc_id );
 	while( ra_Processor.SendRequests( Connection, ppSocket ) );
 
 	if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
-		cerr << "Cannot get list of records from server:" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
+		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
 		throw "Communication error";
 	}
-	std::ostringstream sSQL;
 
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 AND " << g_GlobalConfig.GetRestrictionClause(m_sName) << " ORDER BY psc_id";
+	cout << "Received: " << endl;
+	for (int i=0; i<r_GetAll_psc_id.m_vectAll_psc_id.size(); i++)
+	{
+		cout << r_GetAll_psc_id.m_vectAll_psc_id[i].first << "(" << r_GetAll_psc_id.m_vectAll_psc_id[i].second << ")" << endl;
+
+		// if record is newer than our last-sync and it is not our batch - skipping it
+		if ( r_GetAll_psc_id.m_vectAll_psc_id[i].first>m_psc_id_last_sync &&  !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[i].second) )
+		{
+			cout << "Record is newer than our last-sync and it is not our batch - skipping it" << endl;
+			continue;
+		}
+
+		if( r_GetAll_psc_id.m_vectAll_psc_id[i].second>m_psc_batch_last_sync )
+		{
+			if( !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[i].second) )
+			{
+				cout << "Record is newer than what we've synced" << endl;
+				continue;
+			}
+			else
+				cout << "Record is newer than what we've synced, but we added it" << endl;
+		}
+		else
+			cout << "Marking for deletion" << endl;
+
+		itmp_RowsToDelete++;
+		ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[i].first);
+		AddChangedRow( pChangedRow);
+	}
+
+
+	//processing remote deletions
+	std::ostringstream rSQL;
+	rSQL << "SELECT psc_id, psc_batch FROM " << m_sName << " WHERE 0 ";
+	for (int i=0; i<remote_deletions.size(); i++)
+	{
+		rSQL << "OR (psc_id>="<< remote_deletions[i].first << " AND psc_id<=" << remote_deletions[i].second << ") ";
+	}
+
+	// walking thru records deleted remotely - if they have non-zero batch, mark them as to be deleted
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
-	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
-	size_t pos=0; // A position in the vector
+	res.r = m_pDatabase->mysql_query_result( rSQL.str( ) );
 	if( !res.r )
 	{
-		cerr << "Problem retrieving rows with query4: " << sSQL.str() << endl;
+		cerr << "Problem retrieving rows with query: " << rSQL.str() << endl;
 		throw "Database error";
 	}
-	else
-	{
-cout << "Got " << (int) r_GetAll_psc_id.m_vectAll_psc_id.size() << ":" ;
-for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
-{
-int id=r_GetAll_psc_id.m_vectAll_psc_id[s].first;
-int batch=r_GetAll_psc_id.m_vectAll_psc_id[s].second;
-cout << id << "(" << batch << ")" << ",";
-}
-cout << endl;
 
-		while( ( row = mysql_fetch_row( res.r ) ) )
+	while( ( row = mysql_fetch_row( res.r ) ) )
+	{
+		cout << "Server deleted row psc_id=" << row[0];
+		if ( !row[1] || atoi(row[1])>=0 )
 		{
-			if( !row[0] )
-			{
-				cerr << "Found NULL in query: " << sSQL.str() << endl;
-				throw "Database error";
-			}
-
-			/** If the value of our local row[] is > than the server's vect (and not > than what we've already synced), then we deleted some records locally */
-			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
-			{
-				// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
-				// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
-				// if the batch is in our list of batches, then we really did delete it
-				if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
-						!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
-				{
-					pos++;
-					continue;
-				}
-				
-				
-cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
-
-int foo=r_GetAll_psc_id.m_vectAll_psc_id[pos].second;
-if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
-{
-	if( !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
-	{
-		cout << "Never mind, it's newer than what we've synced" << endl;
-		pos++;
-		continue;
-	}
-	else
-		cout << "It's newer than what we've synced, but we added it" << endl;
-}
-
-itmp_RowsToDelete++;
-				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
-				AddChangedRow( pChangedRow );
-				pos++;
-			} 
-
-			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
-			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) // We've still got rows, but the server doesn't--it deleted them
-				|| r_GetAll_psc_id.m_vectAll_psc_id[pos].first>atoi(row[0]) // The server still has rows, greater than ours 
-				)
-			{
-
-	cout << "row deleted on server - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-		" server: " << (pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) ? r_GetAll_psc_id.m_vectAll_psc_id[pos].first : -999) << 
-		" local row deleted on server: " << row[0] << endl;
-				// It's possible that this row was added as an unauthorized batch and hasn't
-				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
-				if( !row[1] || atoi(row[1])>=0 )
-					m_vectRowsToDelete.push_back( atoi( row[0] ) );
-				else
-					cout << "RE: Above, never mind.  It's an unauthorized row" << endl;
-				continue; 
-			}
-			if( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )==r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
-			{
-				/** So far so good, keep going */
-				pos++;
-				continue;
-			}
+			cout << " marking it for deletion too" << endl;
+			m_vectRowsToDelete.push_back(atoi(row[0]));
 		}
-		if( pos==r_GetAll_psc_id.m_vectAll_psc_id.size( ) )
-			return true; /** We finished at the same time, nothing more to do */
-
-		/** There are still more rows in the server's vect. We must have deleted them */
-		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
+		else
 		{
-			// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
-			// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
-			// if the batch is in our list of batches, then we really did delete it
-			if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
-					!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
-				continue;
-
-cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" psc_id: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
-
-itmp_RowsToDelete++;
-			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
-			AddChangedRow( pChangedRow );
+			cout << " it is unauthorized, skipping" << endl;
 		}
 	}
+
+
+
 	return true;
 }
 
@@ -955,9 +1055,9 @@ int k=2;
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 	{
 		Field *pField = ( *it ).second;
-		
+
 		/** If this a new record, don't add the auto increment field */
-		
+
 		if( pField==m_pField_id || pField==m_pField_batch || pField==m_pField_user || pField==m_pField_mod || pField==m_pField_frozen || pField==m_pField_restrict || ( pField==m_pField_AutoIncrement && toc==toc_New ) )
 			continue;
 		vectFields.push_back( ( *it ).first );
@@ -1030,13 +1130,13 @@ int k=2;
 			{
 				if( r_CommitRow.m_cProcessOutcome==SKIPPING_ROW_DELETED )
 				{
-					cout << "Changes to table: " << m_sName << " psc_id: " << pChangedRow->m_psc_id 
+					cout << "Changes to table: " << m_sName << " psc_id: " << pChangedRow->m_psc_id
 						<< " were rejected because the row has been deleted by another user " << endl;
 					if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue?",false) )
 						return false;
 					continue;
 				}
-				
+
 				/** It's going to fall out of scope, so we don't want the processor to retry sending a deleted request */
 				ra_Processor.RemoveRequest( &r_CommitRow );
 				cerr << "Failed to commit row in table: " << m_sName  << ":" << (int) r_CommitRow.m_cProcessOutcome << endl << r_CommitRow.m_sResponseMessage << endl;
@@ -1099,10 +1199,10 @@ int k=2;
 			}
 
 			/** Do this last since the 2 above may be relying on the old primary key */
-			
+
 			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iBeforeTransmit_iAutoIncrID )
 			{
-				cout << "Need to check for changed primary key r_CommitRow.m_iNewAutoIncrID: " << r_CommitRow.m_iNewAutoIncrID 
+				cout << "Need to check for changed primary key r_CommitRow.m_iNewAutoIncrID: " << r_CommitRow.m_iNewAutoIncrID
 					<< " m_iBeforeTransmit_iAutoIncrID: " << r_CommitRow.m_iBeforeTransmit_iAutoIncrID << endl;
 
 				if( !m_pField_AutoIncrement )
@@ -1156,14 +1256,14 @@ cout << "Found higher value: " << pChangedRow->m_iNewAutoIncrID << " orig: " << 
 					}
 					// We found it -- quick sanity check.  If it's one we're checking in, it must be a new record that we haven't committed yet,
 					// with 1 single auto increment primary key
-					if( pChangedRowToMove && 
+					if( pChangedRowToMove &&
 						(pChangedRowToMove->m_bCommitted || pChangedRowToMove->m_eTypeOfChange!=toc_New || pChangedRowToMove->m_vectPrimaryKey.size()!=1) )
 					{
 						cerr << "Something is wrong with re-allocating an auto incr primary key: " << r_CommitRow.m_iNewAutoIncrID << "-" << r_CommitRow.m_iBeforeTransmit_iAutoIncrID << endl;
 						throw "Internal error--data unexpected";
 					}
 
-					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row_hi << " m_psc_id_next: " << m_psc_id_next << " pChangedRowToMove " 
+					cout << "Checking:Reassigning Auto Incr Value for table (2): " << m_sName << " determined highest used value is: " << row_hi << " m_psc_id_next: " << m_psc_id_next << " pChangedRowToMove "
 						<< (pChangedRowToMove==NULL ? " is null" : " is not null") << " highestid: " << iHighestUsedID << endl;
 if( pChangedRowToMove )
 cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iBeforeTransmit_iAutoIncrID << " psc_id: " << pChangedRowToMove->m_psc_id << endl;
@@ -1208,11 +1308,11 @@ cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_
 			}
 
 			/**
-				* First update this table's auto increment field before setting the psc_mod to 0. Then, handle the 
-				* propagate. That way if this table contains a foreign key to itself, or is somehow modified by 
+				* First update this table's auto increment field before setting the psc_mod to 0. Then, handle the
+				* propagate. That way if this table contains a foreign key to itself, or is somehow modified by
 				* the propagate, it's modification flag will be set again
 				*/
-				
+
 			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iBeforeTransmit_iAutoIncrID )
 			{
 				m_mapUncommittedAutoIncrChanges[pChangedRow->m_iOriginalAutoIncrID] = r_CommitRow.m_iNewAutoIncrID;
@@ -1294,14 +1394,14 @@ int k=2;
 
 		cout << "Updating (insert) row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
 
-		// It's possible that an incoming row is going to use the same primary key as one 
+		// It's possible that an incoming row is going to use the same primary key as one
 		// we added locally but haven't checked in yet, or isn't approved
 		int iAutoIncrementKeyValue=0;
 		sSQL << "INSERT INTO `" << m_sName << "` ( ";
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 		{
-			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, "; 
+			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, ";
 			if( m_pField_AutoIncrement && m_pField_AutoIncrement->Name_get()==( *pR_UpdateTable->m_pvectFields )[s] )
 				iAutoIncrementKeyValue = atoi(pA_UpdateRow->m_vectValues[s].c_str());
 		}
@@ -1326,12 +1426,12 @@ int k=2;
 		if( iAutoIncrementKeyValue )
 		{
 			std::ostringstream sSQL2;
-			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName 
+			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName
 				<< "` WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iAutoIncrementKeyValue;
 
 			PlutoSqlResult result_set;
 			MYSQL_ROW row=NULL;
-			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) && 
+			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) &&
 				(row = mysql_fetch_row(result_set.r)) )
 			{
 				// We've got a conflict
@@ -1357,7 +1457,7 @@ int k=2;
 			bSkippingUpdate=true;
 		}
 
-		// It's possible that an incoming row is going to use the same primary key as one 
+		// It's possible that an incoming row is going to use the same primary key as one
 		// we added locally but haven't checked in yet, or isn't approved
 		int iAutoIncrementKeyValue=0;
 
@@ -1370,7 +1470,7 @@ int k=2;
 			else if( bSkippingUpdate )
 				continue;
 
-			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`="; 
+			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`=";
 			if( pA_UpdateRow->m_vectValues[s]==NULL_TOKEN )
 				sSQL << "NULL, ";
 			else
@@ -1383,12 +1483,12 @@ int k=2;
 		if( iAutoIncrementKeyValue )
 		{
 			std::ostringstream sSQL2;
-			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName 
+			sSQL2 << "SELECT `" << m_pField_AutoIncrement->Name_get() << "` FROM `" << m_sName
 				<< "` WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iAutoIncrementKeyValue;
 
 			PlutoSqlResult result_set;
 			MYSQL_ROW row=NULL;
-			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) && 
+			if( (result_set.r=m_pDatabase->mysql_query_result(sSQL2.str())) &&
 				(row = mysql_fetch_row(result_set.r)) && atoi(row[0])!=iAutoIncrementKeyValue )
 			{
 				// We've got a conflict
@@ -1504,7 +1604,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		else
 		{
 			// The row is not here.  It must have been deleted.  Alternately it's possible that it
-			// was a row checked in as unauthorized, never approved, and therefore only exists in the 
+			// was a row checked in as unauthorized, never approved, and therefore only exists in the
 			// history.  But that shouldn't happen since we no longer checkin modifications to unauthorized
 			// rows
 			cout << "Row not found " << sSQL.str() << endl;
@@ -1519,7 +1619,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 	{
-		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`="; 
+		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`=";
 		if( pR_CommitRow->m_vectValues[s]==NULL_TOKEN )
 			sSQL << "NULL, ";
 		else
@@ -1577,7 +1677,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 
 	// Even if the row is unauthorized, it will need a unique psc_id so we can change it later
 	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", ";
-	
+
 	if( pR_CommitRow->m_psc_user )
 		sSQL << pR_CommitRow->m_psc_user;
 	else if( psqlCVSprocessor->m_ipsc_user_default )
@@ -1587,13 +1687,13 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	}
 	else
 		sSQL << "NULL";
-	
+
 	sSQL << ",";
 	if( pR_CommitRow->m_psc_restrict )
 		sSQL << pR_CommitRow->m_psc_restrict;
 	else
 		sSQL << "NULL";
-		
+
 	sSQL << " )"; /** @warning batch # todo - hack */
 
 	cout << "Adding new row with id: " << m_psc_id_next << endl;
@@ -1649,7 +1749,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int ps
 	else
 	{
 		cerr << "Unable to find record to retrieve current values (gcv) for table: " << m_sName << " psc_id: " << psc_id << endl;
-		throw "Cannot locate record";
+		throw "Canot locate record";
 	}
 }
 
@@ -1680,7 +1780,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 			map<string,bool> mapChangedFields;  // We only need a list of fields, but use a map for faster lookup
 
 			// Now we have to see what fields were changed
-			sSql.str("");	
+			sSql.str("");
 			sSql << "SELECT * FROM " << m_sName << "_pschmask WHERE psc_batch=" << psc_batch;
 			PlutoSqlResult result_set2;
 			MYSQL_ROW row2=NULL;
@@ -1690,7 +1790,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 				/* This shouldn't happen, but since it did, just add all fields */
 				if( psc_toc==toc_Modify )
 					cerr << "***ERROR*** Cannot find value in history mask table:" << sSql.str() << endl;
-				
+
 				for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
 				{
 					string Field = (*it).first;
@@ -1744,7 +1844,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 			sSqlHistory << pR_CommitRow->m_psc_restrict;
 		else
 			sSqlHistory << "NULL";
-		sSqlHistory << ")"; 
+		sSqlHistory << ")";
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
@@ -1766,7 +1866,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		sSqlHistory << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
 
 	/** If this isn't a new row, any auto-increment fields are passed like normal  */
-	
+
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
@@ -1793,7 +1893,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << pR_CommitRow->m_iNewAutoIncrID << ", ";
 
-	sSqlHistory << pR_CommitRow->m_eTypeOfChange << "," << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << pR_CommitRow->m_psc_batch_new << ", " 
+	sSqlHistory << pR_CommitRow->m_eTypeOfChange << "," << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << pR_CommitRow->m_psc_batch_new << ", "
 		<< (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << ","
 		<< (pR_CommitRow->m_psc_restrict ? StringUtils::itos(pR_CommitRow->m_psc_restrict) : "NULL") << ")"; // batch # todo - hack
 	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
@@ -1815,7 +1915,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		std::ostringstream sSqlHistory;
 		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc,psc_restrict) VALUES ("
 			<< pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << "," << pChangedRow->m_eTypeOfChange << ","
-			<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL") << ")"; 
+			<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL") << ")";
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
@@ -1831,10 +1931,10 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	int NumChangedFields=0;
 
 	bool b_psc_user_passedin=false;
-	
+
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
 	{
-		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However, 
+		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However,
 		// we don't want to use it, since it will be NULL.  We're going to use the NewAutoIncrValue
 		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
 			continue;
@@ -1847,7 +1947,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	}
 
 	/** If this isn't a new row, any auto-increment fields are passed like normal  */
-	
+
 	if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
@@ -1859,7 +1959,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 
 	for( MapStringString::iterator it=pChangedRow->m_mapFieldValues.begin();it!=pChangedRow->m_mapFieldValues.end();++it )
 	{
-		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However, 
+		// When we're approving a batch, GetBatchContents will have retrieved the auto increment key.  However,
 		// we don't want to use it, since it will be NULL.  We're going to use the NewAutoIncrValue
 		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
 			continue;
@@ -1888,7 +1988,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 
 	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch
 		<< "," << (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL");
-		
+
 	if( !b_psc_user_passedin )
 		sSqlHistory << ", " << (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL");
 	sSqlHistory << " )"; // batch # todo - hack
@@ -2071,7 +2171,7 @@ bool Table::RevertChange(int psc_id,enum TypeOfChange toc)
 		cerr << "Cannot get changed record from server:" << (int) r_GetRow.m_cProcessOutcome << endl;
 		throw "Communication error";
 	}
-	
+
 	if( toc==toc_Delete )
 	{
 		sSQL << "INSERT INTO " << m_sName << "(";
@@ -2234,7 +2334,7 @@ bool Table::ShowChanges(int psc_user)
 
 void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 {
-	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << " type: " << (int) pChangedRow->m_eTypeOfChange << " fields: " 
+	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << " type: " << (int) pChangedRow->m_eTypeOfChange << " fields: "
 		<< "Row has changed fields: " << (int) pChangedRow->m_mapFieldValues.size() << endl;
 
 	ostringstream sSql;
@@ -2280,7 +2380,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 				bFirst=false;
 			else
 				sSql << ",";
-			sSql << "`" << (*it).first << "`"; 
+			sSql << "`" << (*it).first << "`";
 			if( (*it).first=="psc_id" )
 				bFound_psc_id=true;
 			else if( (*it).first=="psc_batch" )
@@ -2303,7 +2403,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 			if( it->second==NULL_TOKEN )
 				sSql << "NULL";
 			else
-				sSql << "'" << StringUtils::SQLEscape((*it).second) << "'"; 
+				sSql << "'" << StringUtils::SQLEscape((*it).second) << "'";
 		}
 		if( !bFound_psc_id )
 			sSql << "," << pChangedRow->m_psc_id;
@@ -2356,7 +2456,7 @@ void Table::VerifyIntegrity()
 				{
 					if( !row[0] || !atoi(row[0]) || atoi(row[0])==psc_id_last )
 					{
-						cerr << "In table: " << m_sName << " all rows don't have unique psc_id's: " << (row[0] ? row[0] : "blank") << endl; 
+						cerr << "In table: " << m_sName << " all rows don't have unique psc_id's: " << (row[0] ? row[0] : "blank") << endl;
 						throw "Database integrity failed";
 					}
 					psc_id_last = atoi(row[0]);
@@ -2383,7 +2483,7 @@ void Table::VerifyIntegrity()
 					sql.str("");
 					sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
 						"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
-						" ON L.`" << pField->Name_get() << "`=" <<  
+						" ON L.`" << pField->Name_get() << "`=" <<
 						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` AND " << sRestrictions_R << " WHERE " <<
 						"L.`" << pField->Name_get() << "` IS NOT NULL " <<
 						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL AND " << sRestrictions_L;
@@ -2436,7 +2536,7 @@ void Table::VerifyIntegrity()
 					sql << "SELECT T1.FK_" << pField->Name_get().substr(3) << ",T1." << pField->Name_get() << " FROM `" << m_sName << "` AS T1 " <<
 						"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
 						" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
-						" AND " << sRestrictions_T3 << 
+						" AND " << sRestrictions_T3 <<
 						" WHERE T2.Description = \"" << sName << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
 						" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>'' " <<
 						" AND " << sRestrictions_T1;
@@ -2456,7 +2556,7 @@ void Table::VerifyIntegrity()
 							cout << " " << pField_IReferTo_Indirectly->Table_get()->Name_get() << ":" << pField_IReferTo_Indirectly->Name_get() << endl;
 							if( Keys.length() )
 								Keys += " OR ";
-							Keys += "(FK_" + pField->Name_get().substr(3) + "='" + StringUtils::SQLEscape(row[0]) + "' AND " + pField->Name_get() + 
+							Keys += "(FK_" + pField->Name_get().substr(3) + "='" + StringUtils::SQLEscape(row[0]) + "' AND " + pField->Name_get() +
 								"='" + StringUtils::SQLEscape(row[1]) + "')" ;
 						}
 						if( Keys.length() )
@@ -2505,7 +2605,7 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 
 		PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos(iNextID), StringUtils::itos(iPrimaryKey), NULL );
 		sSQL2.str("");
-		sSQL2 << "UPDATE `" << m_sName << "` SET `" << m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
+		sSQL2 << "UPDATE `" << m_sName << "` SET `" << m_pField_AutoIncrement->Name_get() << "`=" << iNextID <<
 			" WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iPrimaryKey;
 		if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )<0 )
 		{

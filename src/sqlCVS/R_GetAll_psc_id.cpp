@@ -1,18 +1,18 @@
 /*
  R_GetAll_psc_id
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 
@@ -22,7 +22,7 @@
  * @brief source file for the R_GetAll_psc_id class
  *
  */
- 
+
 #include "R_GetAll_psc_id.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
@@ -38,10 +38,11 @@
 
 using namespace sqlCVS;
 
-R_GetAll_psc_id::R_GetAll_psc_id( string sTable, vector<int> *p_vectRestrictions )
+R_GetAll_psc_id::R_GetAll_psc_id( string sTable, vector<int> *p_vectRestrictions, string extraCondition)
 {
 	m_sTable=sTable;
 	m_vectRestrictions=*p_vectRestrictions;
+	m_sExtraCondition = extraCondition;
 }
 
 bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
@@ -49,7 +50,7 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 	cout << "R_GetAll_psc_id" << endl;
 	std::ostringstream sSQL;
 	// See notes in Table::DetermineDeletions
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " << m_sExtraCondition << " AND " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " ORDER BY psc_id";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
@@ -73,21 +74,21 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}
-	
+
 	return true; /**<< Request successfully processed */
 }
 
 
 /** @test
-VR_IdentifyPhone::VR_IdentifyPhone( unsigned long EstablishmentID, 
-		string sBluetooth, u_int64_t MacAddress, unsigned long CachedRecordVersion, unsigned long CachedPlutoId, 
-		unsigned long IdentifiedPlutoId, string IdentiedPlutoIdPin, class Customer *pCustomer ) 
+VR_IdentifyPhone::VR_IdentifyPhone( unsigned long EstablishmentID,
+		string sBluetooth, u_int64_t MacAddress, unsigned long CachedRecordVersion, unsigned long CachedPlutoId,
+		unsigned long IdentifiedPlutoId, string IdentiedPlutoIdPin, class Customer *pCustomer )
 	: RA_Request( )
 {
 }
 
-VR_IdentifyPhone::VR_IdentifyPhone( unsigned long size, const char *data ) 
-	: RA_Request( size, data ) 
+VR_IdentifyPhone::VR_IdentifyPhone( unsigned long size, const char *data )
+	: RA_Request( size, data )
 {
 	m_iUseCache=0;
 	m_iRecordVersion=0;
@@ -258,7 +259,7 @@ bool VR_IdentifyPhone::ProcessRequest( )
 		m_iPlutoId = atoi( MacAddressRow[0] );
 		PKID_C_PhoneStatus = atoi( MacAddressRow[1] );
 
-		UsageLog << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress << 
+		UsageLog << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress <<
 			" PlutoID: " << m_iPlutoId << " Status: " << PKID_C_PhoneStatus; }
 
 		s.str( "" );
@@ -266,12 +267,12 @@ bool VR_IdentifyPhone::ProcessRequest( )
 		if( ( rsPlutoId.r = g_pPlutoConfig->mysql_query_result( s.str( ) ) ) && ( PlutoIdRow=mysql_fetch_row( rsPlutoId.r ) ) )
 		{
 			m_iRecordVersion = atoi( PlutoIdRow[0] );
-			UsageLog << "Request from " << m_iEstablishmentID << 
+			UsageLog << "Request from " << m_iEstablishmentID <<
 				" PlutoID: " << m_iPlutoId << " has version " << m_iCachedRecordVersion << "/" << m_iRecordVersion; }
 			if( m_iCachedRecordVersion == m_iRecordVersion )
 			{
 				cout << "using cached version\n";
-				UsageLog << "Request from " << m_iEstablishmentID << 
+				UsageLog << "Request from " << m_iEstablishmentID <<
 					" PlutoID: " << m_iPlutoId << " using cache"; }
 			  m_iUseCache=1;
 				goto CheckForVMC;
@@ -280,11 +281,11 @@ bool VR_IdentifyPhone::ProcessRequest( )
 	}
 
 	// The Establishment doensn't have a current cached version. First let's see if this is the first time
-	// the phone has registered. This would mean we didn't find the MacAddress in the database, but the 
+	// the phone has registered. This would mean we didn't find the MacAddress in the database, but the
 	// Establishment did pass in a PlutoId that it derived from the Bluetooth ID.
 	if( !m_iPlutoId && m_iIdentifiedPlutoId )
 	{
-		UsageLog << "Request from " << m_iEstablishmentID << 
+		UsageLog << "Request from " << m_iEstablishmentID <<
 			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; }
 		s.str( "" );
 		s << "SELECT RecordVersion, Email, FKID_PhoneModel, NoBinary, BinaryFilename FROM PlutoId "
@@ -297,7 +298,7 @@ bool VR_IdentifyPhone::ProcessRequest( )
 		if( ( rsPlutoId.r = g_pPlutoConfig->mysql_query_result( s.str( ) ) ) && ( PlutoIdRow=mysql_fetch_row( rsPlutoId.r ) ) )
 		{
 			cout << "Adding to database Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
-			UsageLog << "Request from " << m_iEstablishmentID << 
+			UsageLog << "Request from " << m_iEstablishmentID <<
 				" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; }
 			// We found the record
 			m_iPlutoId = m_iIdentifiedPlutoId;
@@ -312,7 +313,7 @@ bool VR_IdentifyPhone::ProcessRequest( )
 
 			s.str( "" );
 			s << "INSERT INTO MacAddress( PKID_MacAddress, FKID_PlutoId, FKID_C_PhoneStatus, NoBinary, FKID_PhoneModel ) " <<
-				"VALUES( " << m_iMacAddress << ", " << m_iPlutoId << ", " << C_PHONESTATUS_NEW_PHONE_CONST << 
+				"VALUES( " << m_iMacAddress << ", " << m_iPlutoId << ", " << C_PHONESTATUS_NEW_PHONE_CONST <<
 				", " << ( PlutoIdRow[3] ? PlutoIdRow[3] : "0" ) << // No Binary
 				", " << ( PlutoIdRow[2] ? PlutoIdRow[2] : "NULL" ) << // Phone Model
 				" )";
@@ -325,7 +326,7 @@ bool VR_IdentifyPhone::ProcessRequest( )
 	if( !m_iPlutoId )
 	{
 		cout << "No records found\n";
-		UsageLog << "Request from " << m_iEstablishmentID << 
+		UsageLog << "Request from " << m_iEstablishmentID <<
 			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " not one of ours"; }
 		m_cProcessOutcome=RECORD_NOT_FOUND;
 		return true;
@@ -408,8 +409,8 @@ bool VR_IdentifyPhone::ProcessRequest( )
 					{
 						VIPPhoneNumber *pn = new VIPPhoneNumber( );
 						pn->m_iPhoneNumberType=( PhoneRow[3] ? atoi( PhoneRow[3] ) : 0 );
-						pn->m_sNumber=string( "( " ) + ( PhoneRow[0] ? PhoneRow[0] : "" ) + 
-							" ) " + ( PhoneRow[1] ? PhoneRow[1] : "" ) + 
+						pn->m_sNumber=string( "( " ) + ( PhoneRow[0] ? PhoneRow[0] : "" ) +
+							" ) " + ( PhoneRow[1] ? PhoneRow[1] : "" ) +
 							( PhoneRow[2]!=NULL ? string( " ext: " ) + PhoneRow[2] : "" );
 						MYSTL_ADDTO_LIST( m_listPhoneNumbers, pn );
 					}
@@ -459,7 +460,7 @@ CheckForVMC:
 			AutoSendVMC = CustomerDataRow[1];
 		else if( CustomerDataRow[2] )
 			AutoSendVMC = CustomerDataRow[2];
-			
+
 		if( AutoSendVMC )
 		{
 			cout << "Sending menu " << AutoSendVMC;

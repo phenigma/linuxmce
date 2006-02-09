@@ -1,18 +1,18 @@
 /*
  sqlCVSrequests
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 /**
@@ -21,8 +21,8 @@
  * @brief source file    @todo ask
  *
  */
- 
-  
+
+
 #include "sqlCVSrequests.h"
 #include "RA/RA_Processor.h"
 #include "R_CommitChanges.h"
@@ -34,6 +34,7 @@
 #include "R_UpdateTable.h"
 #include "R_CloseTransaction.h"
 #include "R_ApproveBatch.h"
+#include "R_GetHashedTableStats.h"
 
 #include "A_UpdateRow.h"
 #include "A_UpdateSchema.h"
@@ -79,6 +80,10 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		return pRequest;
 	case R_APPROVE_BATCH:
 		pRequest=new R_ApproveBatch( );
+		pRequest->CreateRequest( dwSize, pcData );
+		return pRequest;
+	case R_GET_HASHED_TABLE_STATS:
+		pRequest=new R_GetHashedTableStats( );
 		pRequest->CreateRequest( dwSize, pcData );
 		return pRequest;
 	};

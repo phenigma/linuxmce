@@ -5,7 +5,7 @@
  * @author
  *
  */
- 
+
 #ifndef sqlCVSrequests_h
 #define sqlCVSrequests_h
 
@@ -22,6 +22,9 @@
 #define R_CLOSE_TRANSACTION		7
 #define R_APPROVE_BATCH			8
 #define R_GET_ROW				9
+
+#define R_GET_HASHED_TABLE_STATS		10
+
 
 #define A_UPDATE_ROW			1
 #define A_UPDATE_SCHEMA			2
