@@ -112,6 +112,18 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 bool TarFiles(string sArchiveFileName);
 bool ZipFiles(string sArchiveFileName);
 
+// isDriverPackage
+bool isDriverPackage(int iPK_Package)
+{
+	static const int DriverPkgs[] = { 339, 338, 337, 336, 516, 515, -1 };
+	for (int i = 0; DriverPkgs[i] != -1; i++)
+	{
+		if (iPK_Package == DriverPkgs[i])
+			return true;
+	}
+	return false;
+}
+
 // Misc
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
@@ -1557,8 +1569,11 @@ string Makefile = "none:\n"
 
 	string sDepends,sPreDepends;
 
-	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1 ) // Pluto
+	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1
+			&& !isDriverPackage(pRow_Package_Source->FK_Package_get()) ) // Pluto && ! kernel_module
+	{
 		sPreDepends = "pluto-kernel-upgrade, ";
+	}
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
