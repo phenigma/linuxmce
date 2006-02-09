@@ -1903,6 +1903,10 @@
 #define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 4790
 #define DESIGNOBJ_mnuSearchMediaAttributes_CONST 4805
 #define DESIGNOBJ_butDeletePlaylist_CONST 4818
+#define DESIGNOBJ_butTransferCallMore_CONST 4819
+#define DESIGNOBJ_butTransferCallOutside_CONST 4820
+#define DESIGNOBJ_arrTransferSIPDevices_CONST 4821
+#define DESIGNOBJ_butTransferSIPDevices_CONST 4822
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
