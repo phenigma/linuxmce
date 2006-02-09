@@ -37,6 +37,7 @@ if [[ "$(</proc/cmdline)" == *splash=* ]]; then
 	ENABLE_SPLASH="vga=0x311 splash=silent"
 fi
 MOON_HOSTS=""
+DlDir="/usr/pluto/diskless"
 
 ## Check for valid DHCP settings else exit
 if [ -z "$DHCPsetting" ]; then
@@ -73,7 +74,8 @@ for Client in $R; do
 	IP=$(Field 2 "$Client")
 	MAC=$(Field 3 "$Client")
 	Description=$(Field 4 "$Client")
-	
+
+		
 	## Allocating IP for moon
 	#FIXME: Is this next step necesary if IP!="" ?
 	IP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$PK_Device" -a)
@@ -87,6 +89,7 @@ for Client in $R; do
 	MAC=$(echo ${MAC//-/:} | tr 'a-z' 'A-Z')
 	MOON_IP="$IP"
 	MOON_ADDRESS="$IP moon$MoonNumber"
+	DlPath="$DlDir/$IP"
 	
 	## Check if this MD is diskless or not
 	Q="
