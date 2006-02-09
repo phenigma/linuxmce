@@ -201,3 +201,4 @@ $scriptBackground \"$scriptCommand\" $scriptParameter
 "  
 	CreateRcScript "$compRoot" "$scriptWhen" "$scriptName" "$scriptOrder" "$scriptContent"
 done
+exit 0
