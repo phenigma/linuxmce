@@ -110,9 +110,9 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Proxy_Orbiter::~Proxy_Orbiter()
-{	
-	Sleep(1500);
-	PushRefreshEvent(true);
+{
+	Sleep(2500);
+	PushRefreshEvent(true, true); //force push, ignore any previous push 
     pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -232,7 +232,14 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=f
     timespec tInterval = tCurrentImageGenerated - tLastImageGenerated;
 	long nMilisecondsPassed = tInterval.tv_sec * 1000 + tInterval.tv_nsec / 1000000;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed); 
+	g_pPlutoLogger->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed);
+	g_pPlutoLogger->Write(LV_STATUS, "Current screen id %d", m_nCurrentScreenId);
+
+	if(m_nCurrentScreenId == DESIGNOBJ_mnuDVDmenu_CONST)
+		bIgnoreMinimumInterval = false;
+
+	if(!bIgnoreMinimumInterval)
+		g_pPlutoLogger->Write(LV_STATUS, "Minimum interval NOT ignored!");		
 	
 	if(!bIgnoreMinimumInterval && !bFirstTime && nMilisecondsPassed < MINIMUM_PUSH_INTERVAL && !bForce)
 	{
@@ -248,7 +255,7 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=f
 	m_bPhoneRespondedToPush = false;
     vector<string> vectHeaders;
     map<string, string> mapParams;
-	string sPriorityLevel = bForce ? "1" : "0";
+	string sPriorityLevel = bForce ? "0" : "1";
     string sRequestUrl = 
             string() + 
             "<CiscoIPPhoneExecute>"
@@ -530,7 +537,11 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Current screen to analyze: %d", m_nCurrentScreenId);
-		if(m_nCurrentScreenId == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || m_nCurrentScreenId == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST)
+		if(
+				m_nCurrentScreenId == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || 
+				m_nCurrentScreenId == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST ||
+				m_nCurrentScreenId == DESIGNOBJ_mnuFileSaveSmallUI_CONST
+		)
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "One of those screens. Sleeping 500 ms...");
 			Sleep(500);
@@ -646,7 +657,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 
 void *Proxy_Orbiter::PushRefreshEventTask(void *)
 {
-	PushRefreshEvent(false);
+	PushRefreshEvent(false, true);
 	return NULL;
 }
 
