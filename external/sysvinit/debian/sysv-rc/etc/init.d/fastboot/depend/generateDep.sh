@@ -37,6 +37,7 @@ do
     [ "$(basename $initFile)" == "Pluto_Start_LocalDevices.sh" ] && continue
     [ "$(basename $initFile)" == "Pluto_Start_X.sh" ] && continue
     [ "$(basename $initFile)" == "mysql" ] && continue
+    [ "$(basename $initFile)" == "ssh" ] && continue
     
     if [[ -x "$initFile" ]]; then
 	echo "$(basename $initFile)" >> /tmp/available.srv
