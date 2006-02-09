@@ -30,7 +30,7 @@ public:
 	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
 
 	/** @brief constructor */
-	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions, string extraCondition="1");
+	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions, string extraCondition="");
 
 	/** @brief constructor */
 	R_GetAll_psc_id( ) {};

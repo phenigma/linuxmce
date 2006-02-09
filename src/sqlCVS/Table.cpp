@@ -840,7 +840,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			int range_end = ranges_queue[i].second;
 			int interval_length = (range_end-range_begin)/intervals_count+1;
 
-			cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
+//			cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
 
 			R_GetHashedTableStats* pReq = new R_GetHashedTableStats(m_sName, &g_GlobalConfig.m_vectRestrictions, range_begin, range_end, interval_length);
 			hash_requests.push_back(pReq);
@@ -868,8 +868,13 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 
 			// requesting stats for the same range from local client
 			std::ostringstream sSQL;
+			// BIT_XOR and DIV are not implemented for MySQL 4.0.x
+			/*
 			sSQL << "SELECT (psc_id-" << range_begin << ") DIV " << interval_length << " , count(*),BIT_XOR(POW(psc_id-"<<range_begin<<", FLOOR(63/CEIL(LOG2("<<(1+range_end-range_begin)<<"))))) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY (psc_id-"<< range_begin<< ") DIV " << interval_length << " ORDER BY (psc_id-"<< range_begin<<") DIV " << interval_length;
+			*/
 
+			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+psc_id-"<<range_begin<<", 3)) AS UNSIGNED)) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
+			
 			PlutoSqlResult res;
 			MYSQL_ROW row=NULL;
 			res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -917,7 +922,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 				if ((client_stats[interval_no].first!=server_stats[interval_no].first)||(client_stats[interval_no].second!=server_stats[interval_no].second))
 				{
 					ranges_queue.push_back(pair<int, int> (range_begin+interval_length*interval_no, range_begin+interval_length*(interval_no+1)-1));
-					cout << "Interval: " << interval_no << " is different = range [" << (range_begin+interval_length*interval_no) << ", " << (range_begin+interval_length*(interval_no+1)-1) << "] " << endl;
+//					cout << "Interval: " << interval_no << " is different = range [" << (range_begin+interval_length*interval_no) << ", " << (range_begin+interval_length*(interval_no+1)-1) << "] " << endl;
 				}
 			}
 
@@ -977,10 +982,9 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 		throw "Communication error";
 	}
 
-	cout << "Received: " << endl;
 	for (int i=0; i<r_GetAll_psc_id.m_vectAll_psc_id.size(); i++)
 	{
-		cout << r_GetAll_psc_id.m_vectAll_psc_id[i].first << "(" << r_GetAll_psc_id.m_vectAll_psc_id[i].second << ")" << endl;
+			cout << "Row deleted locally: " <<  r_GetAll_psc_id.m_vectAll_psc_id[i].first << "(" << r_GetAll_psc_id.m_vectAll_psc_id[i].second << ")" << endl;
 
 		// if record is newer than our last-sync and it is not our batch - skipping it
 		if ( r_GetAll_psc_id.m_vectAll_psc_id[i].first>m_psc_id_last_sync &&  !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[i].second) )
