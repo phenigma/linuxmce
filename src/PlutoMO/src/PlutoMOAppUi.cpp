@@ -397,7 +397,6 @@ void CPlutoMOAppUi::OpenImage(unsigned char Type, unsigned long Size, char *Data
 	pVCMUtil->SetImage(Type, Size, Data);
 
 	m_pVMCView->Refresh();
-
 	MakeViewerVisible(m_bMakeVisibleAllowed);
 }
 //----------------------------------------------------------------------------------------------
@@ -577,6 +576,9 @@ void CPlutoMOAppUi::Hide()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Show()
 {
+	if(m_bApplicationIsMinimized)
+		return;
+
 	CaptureSoftKeys();
 
 	TApaTask task(CEikonEnv::Static()->WsSession());

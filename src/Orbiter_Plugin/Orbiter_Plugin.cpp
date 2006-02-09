@@ -81,7 +81,7 @@ using namespace DCE;
 #include <algorithm>
 
 #define VERSION "<=version=>"
-string g_sLatestMobilePhoneVersion="2005.10.12";
+string g_sLatestMobilePhoneVersion="2006.02.09";
 
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
