@@ -91,7 +91,7 @@ namespace DCE
 		virtual void OnReload();
 		virtual void CMD_Regen_Screen(string &sCMD_Result,Message *pMessage);
 		
-		bool PushRefreshEvent(bool bForce);
+		bool PushRefreshEvent(bool bForce, bool bIgnoreMinimumInterval = false);
 		void *PushRefreshEventTask(void *p);
 	};
 }

@@ -54,6 +54,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 #define CISCO_LISTEN_PORT_START 3451
 #define REQUEST_INTERVAL_TIMEOUT 400
 #define CISCO_FAILURE_WATCHDOG_INTERVAL 1000
+#define MINIMUM_PUSH_INTERVAL 6000
 
 //-----------------------------------------------------------------------------------------------------
 Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
@@ -216,13 +217,13 @@ string Proxy_Orbiter::GetDeviceXmlFileName()
 	{
 		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 500 ms");
-			CallMaintenanceInMiliseconds(500, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 1000 ms");
+			CallMaintenanceInMiliseconds(1000, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
 		}
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
+bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=false*/)
 {
     static bool bFirstTime = true;
     static timespec tLastImageGenerated;
@@ -233,7 +234,7 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce)
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed); 
 	
-	if(!bFirstTime && nMilisecondsPassed < 3000 && !bForce)
+	if(!bIgnoreMinimumInterval && !bFirstTime && nMilisecondsPassed < MINIMUM_PUSH_INTERVAL && !bForce)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Ignoring push event request...");
 		return false;
