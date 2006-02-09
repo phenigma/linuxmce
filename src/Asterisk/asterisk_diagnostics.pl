@@ -4,6 +4,7 @@ use strict;
 use diagnostics;
 use IO::Socket;
 
+my $LOG_MESSAGE = "";
 my %VOIP_SERVERS = ();
 
 &write_log("NEW RUN");
@@ -13,6 +14,7 @@ if($ast_run != 1)
 {
     &write_log("Asterisk is NOT running will try to start");
     `/etc/init.d/asterisk start` || die "ASTERISK IS NOT INSTALLED";
+    `sleep 3`;    
     $ast_run = &check_asterisk_running();
     if($ast_run != 1)
     {
@@ -40,13 +42,10 @@ if($voip_unreg == 0)
     &write_log("END RUN\n\n\n");
     exit(0);
 }
-
+$LOG_MESSAGE = "";
 if(&check_network_ping() != 0)
 {
     &write_log("PLEASE BE SURE YOU HAVE AN INTERNET CONNECTION");
-    &write_log("END RUN\n\n\n");
-    exit(1);
-
 }
 
 &write_log("Problems with :");
@@ -55,19 +54,19 @@ foreach my $prov (keys %{$VOIP_SERVERS{'sip'}})
     unless($VOIP_SERVERS{'sip'}{$prov} =~ /^Registered/)
     {
         my ($host,$port) = split(/[:]/,$prov);
-    if($VOIP_SERVERS{'sip'}{$prov} =~ /^Rejected/)
-    {
-        &write_log("    HOST $host rejects you, please check voip account details: username/password/etc");
-    }
-    if(&check_network_ping($host) != 0)
-    {
-        &write_log("    HOST $host unreachable by regular ping")
-    }
-    if(&check_sip_ping($host) != 0)
-    {
-        &write_log("    HOST $host unreachable by sip ping")
-    }
-    &write_log("    --");
+        if($VOIP_SERVERS{'sip'}{$prov} =~ /^Rejected/)
+        {
+            &write_log("    HOST $host rejects you, please check voip account details: username/password/etc");
+        }
+        if(&check_network_ping($host) != 0)
+        {
+            &write_log("    HOST $host unreachable by regular ping")
+        }
+        if(&check_sip_ping($host) != 0)
+        {
+            &write_log("    HOST $host unreachable by sip ping")
+        }
+        &write_log("    --");
     }
 }
 
@@ -76,23 +75,24 @@ foreach my $prov (keys %{$VOIP_SERVERS{'iax'}})
     unless($VOIP_SERVERS{'iax'}{$prov} =~ /^Registered/)
     {
         my ($host,$port) = split(/[:]/,$prov);
-    if($VOIP_SERVERS{'iax'}{$prov} =~ /^Rejected/)
-    {
-        &write_log("    HOST $host rejects you, please check voip account details: username/password/etc");
-    }
-    if(&check_network_ping($host) != 0)
-    {
-        &write_log("    HOST $host unreachable by regular ping")
-    }
-    if(&check_iax_ping($host,$port) != 0)
-    {
-        &write_log("    HOST $host unreachable by iax ping")
-    }
-    &write_log("    --");
+        if($VOIP_SERVERS{'iax'}{$prov} =~ /^Rejected/)
+        {
+            &write_log("    HOST $host rejects you, please check voip account details: username/password/etc");
+        }
+        if(&check_network_ping($host) != 0)
+        {
+            &write_log("    HOST $host unreachable by regular ping")
+        }
+        if(&check_iax_ping($host,$port) != 0)
+        {
+            &write_log("    HOST $host unreachable by iax ping, maybe an firewall")
+        }
+        &write_log("    --");
     }
 }
 
-&write_log("END RUN\n\n\n");
+`/usr/pluto/bin/MessageSend localhost -targetType category 1 5 1 741 159 177 163 \"$LOG_MESSAGE\" 181 0 182 0 183 0`;
+&write_log("MESSAGE TO SCREEN WAS SENT\nEND RUN\n\n\n");
 exit(0);
 
 sub check_asterisk_running()
@@ -105,7 +105,7 @@ sub check_asterisk_running()
         my @line=split(/[ \t]+/,$_,11);
         if((defined $line[0]) && (defined $line[10]))
         {
-            if(($line[0] =~ /^asterisk$/) && ($line[10] =~ /^asterisk/))
+            if(($line[0] =~ /^asterisk$/) && ($line[10] =~ /asterisk/))
             {
                 $result = 1;
                 last;
@@ -216,6 +216,7 @@ sub write_log()
 {
     my $now=localtime();
     my $msg = shift;
+    $LOG_MESSAGE .= "$msg\n";
     my $LOG_FILE = "/var/log/pluto/asterisk_diagnostics.log";
     open(LOGFILE, ">> $LOG_FILE");
     printf(LOGFILE "%s - %s\n",$now ,$msg);
