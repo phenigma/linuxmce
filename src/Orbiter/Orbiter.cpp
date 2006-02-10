@@ -767,7 +767,7 @@ void Orbiter::RealRedraw( void *data )
 	size_t s;
 
 	bool bRehighlight=false;
-	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last || m_pObj_Highlighted_Last->m_pDataGridTable))
+	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last /*|| m_pObj_Highlighted_Last->m_pDataGridTable*/))
 	{
 		bRehighlight=true;
 		UnHighlightObject();
@@ -781,7 +781,10 @@ void Orbiter::RealRedraw( void *data )
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
 		if(pObj && pObj->m_bOnScreen)
 		{
-			if( !bRehighlight && m_rectLastHighlight.IntersectsWith(pObj->m_rPosition) )
+			bool bIntersectedWith = pObj->m_rPosition.IntersectsWith(m_rectLastHighlight);
+			bool bIncludedIn = pObj->m_rPosition.Contains(m_rectLastHighlight);
+
+			if(!bRehighlight && (bIntersectedWith || bIncludedIn))
 			{
 				bRehighlight=true;
 				UnHighlightObject();

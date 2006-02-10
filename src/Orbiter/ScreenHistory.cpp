@@ -90,6 +90,7 @@ string ScreenHistory::ToString()
 
 	sOutput += ")";
 
+	/*
 	sOutput += "vars[";
 
 	for(map<int, string>::const_iterator itm = m_mapVariable.begin(); itm != m_mapVariable.end(); ++itm)
@@ -99,6 +100,7 @@ string ScreenHistory::ToString()
 	}
 
 	sOutput += "]";
+	*/
 
 	return sOutput;
 }
