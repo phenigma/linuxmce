@@ -1118,7 +1118,7 @@ function builtTopMenu($website,$dbADO)
 	// if something changed in Device table, or the cached menu does not exist, rebuild menu
 	if(file_exists($cachedTopMenu)){
 		$oldIDs=file($cachedIDs);
-		if($devices==trim($oldIDs[1])){
+		if($devices==trim(@$oldIDs[1])){
 			return join('',file($cachedTopMenu));
 		}
 	}
