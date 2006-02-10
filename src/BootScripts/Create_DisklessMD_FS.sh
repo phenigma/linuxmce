@@ -153,7 +153,7 @@ ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
 # Use Core's /etc/modules
-cp /etc/modules "$DlPath"/etc/modules
+#cp /etc/modules "$DlPath"/etc/modules
 
 cd -
 
