@@ -33,6 +33,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 
 #fix permissions on each run
 `chmod g+w /etc/asterisk/*`;
+#add local prefixes
+&get_local_prefixes();
 
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
