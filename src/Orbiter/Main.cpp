@@ -1,22 +1,24 @@
 /*
  Main
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
- 
+
 //<-dceag-incl-b->!
+#include "Main.h"
 #include "Orbiter.h"
+#include "SDL/StartOrbiterSDL.h"
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -49,7 +51,8 @@ bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 //<-dceag-plug-b->! never a plug-in
 
 //<-dceag-main-b->!  **DON'T AUTOMATICALLY OVERWRITE THIS SECTIONS, IT'S CUSTOM
-int main(int argc, char* argv[])
+// int main(int argc, char* argv[])
+bool ParseCommandLineParams(int argc, char* argv[], CommandLineParams &commandlineparams)
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -61,17 +64,9 @@ int main(int argc, char* argv[])
 		<<"http://plutohome.com/index.php?section=public_license "<<endl
 		<<"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
 		<<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
-		<<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
-    
-    string sRouter_IP="dcerouter";
-    int PK_Device=0,PK_DeviceTemplate=0;
-    string sLogger="stdout";
-    int Width=800,Height=600;
-	bool bFullScreen=false;
-    string sLocalDirectory="";
-    string sNestedDisplay = "";
-
-    bool bLocalMode=false,bError=false; // An error parsing the command line
+		<<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;
+  
+  bool bError=false; // An error parsing the command line
     char c;
     for(int optnum=1;optnum<argc;++optnum)
     {
@@ -85,31 +80,31 @@ int main(int argc, char* argv[])
         switch (c)
         {
         case 'r':
-            sRouter_IP = argv[++optnum];
+          commandlineparams.sRouter_IP = argv[++optnum];
             break;
         case 'd':
-            PK_Device = atoi(argv[++optnum]);
+          commandlineparams.PK_Device = atoi(argv[++optnum]);
             break;
         case 'l':
-            sLogger = argv[++optnum];
+          commandlineparams.sLogger = argv[++optnum];
             break;
         case 'D':
-            sLocalDirectory = argv[++optnum];
+          commandlineparams.sLocalDirectory = argv[++optnum];
             break;
         case 'L':
-            bLocalMode = true;
+          commandlineparams.bLocalMode = true;
             break;
         case 'W':
-            Width = atoi(argv[++optnum]);
+          commandlineparams.Width = atoi(argv[++optnum]);
             break;
         case 'H':
-            Height = atoi(argv[++optnum]);
+          commandlineparams.Height = atoi(argv[++optnum]);
             break;
 		case 'F':
-			bFullScreen = true;
+			commandlineparams.bFullScreen = true;
 			break;
 		case 'T':
-            PK_DeviceTemplate = atoi(argv[++optnum]);
+      commandlineparams.PK_DeviceTemplate = atoi(argv[++optnum]);
 			break;
         default:
             bError=true;
@@ -119,103 +114,50 @@ int main(int argc, char* argv[])
 
     if (bError)
     {
-        
-//                123456789012345678901234567890123456789012345678901234567890	
+
+//                123456789012345678901234567890123456789012345678901234567890
 	cout << "Orbiter, v." << VERSION << endl
             << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl 
+            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
 	    << "[-D Directory] [-L] [-W Width] [-H Height]" << endl
             << "-r router's IP		-- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
             << "-d my device ID		-- This device's ID number.  If not specified, it will be requested" << endl
 	    << " 	from the router based on our IP address." << endl
-            << "-l dcerouter		-- Where to save the log files.  Specify 'dce_router' to have " << endl 
+            << "-l dcerouter		-- Where to save the log files.  Specify 'dce_router' to have " << endl
 	    << "	the messages logged to the DCE Router.  Defaults to stdout." << endl
             << "-D directory		-- If a directory is specified, it will look for it's image " << endl
 	    << "	and config files here rather than requesting from the server." << endl
             << "-L 			-- Local mode only.  Do not connect to the server.  All messages will just loop back." << endl
             << "-F			-- Full screen."
 			<< "-W/H			-- Width/Height default to full screen." << endl;
-			
-        exit(0);
+
+        return false;
     }
 
 	g_pPlutoLogger = NULL;
 
     try
     {
-        if( sLogger=="dcerouter" )
-            g_pPlutoLogger = new ServerLogger(PK_Device, Orbiter::PK_DeviceTemplate_get_static(), sRouter_IP);
-        else if( sLogger=="null" )
+        if( commandlineparams.sLogger=="dcerouter" )
+            g_pPlutoLogger = new ServerLogger(commandlineparams.PK_Device, Orbiter::PK_DeviceTemplate_get_static(), commandlineparams.sRouter_IP);
+        else if( commandlineparams.sLogger=="null" )
             g_pPlutoLogger = new NullLogger();
-        else if( sLogger=="stdout" )
+        else if( commandlineparams.sLogger=="stdout" )
             g_pPlutoLogger = new FileLogger(stdout);
         else
-            g_pPlutoLogger = new FileLogger(sLogger.c_str());
+            g_pPlutoLogger = new FileLogger(commandlineparams.sLogger.c_str());
     }
     catch(...)
     {
         cerr << "Unable to create logger" << endl;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+    g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",commandlineparams.PK_Device);
 
-    if( sLocalDirectory.length()>0 && sLocalDirectory[ sLocalDirectory.length()-1 ]!='/' )
-        sLocalDirectory += "/";
+    if( commandlineparams.sLocalDirectory.length()>0 && commandlineparams.sLocalDirectory[ commandlineparams.sLocalDirectory.length()-1 ]!='/' )
+        commandlineparams.sLocalDirectory += "/";
 
-#ifdef WIN32
-    WORD    wVersion;
-    WSADATA wsaData;
-    wVersion = MAKEWORD( 1, 1 );
-    if (WSAStartup(wVersion, &wsaData)!=0)
-    {
-        int ec = WSAGetLastError();
-        char s[91];
-        sprintf(s, "WSAStartup err %d", ec);
-        cerr << s << endl;
-		delete g_pPlutoLogger;
-        exit(1);
-    }
-#endif
-
-	bool bReload=false;
-    try
-    {
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "about to call StartOrbiter");
-#endif
-	bReload = StartOrbiter(PK_Device,PK_DeviceTemplate,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReload ? "Y" : "N"));
-#endif
-    }
-    catch(string s)
-    {
-        cerr << "Caught exception: " << s << endl;
-        Sleep(2000);
-		delete g_pPlutoLogger;
-        exit(1);
-    }
-    catch(const char *s)
-    {
-        cerr << "Caught exception: " << s << endl;
-        Sleep(2000);
-		delete g_pPlutoLogger;
-        exit(1);
-    }
-
-#ifdef WIN32
-    WSACleanup();
-#endif
-g_pPlutoLogger->Write(LV_STATUS, "About to delete logger...");
-
-	delete g_pPlutoLogger;
-
-//g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
-	cout << "Orbiter ready to return and die" << endl;
-
-	if( bReload )
-		return 2;
-	else
-	    return 0;
+    return true;
 }
+
 //<-dceag-main-e->

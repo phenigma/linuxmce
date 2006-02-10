@@ -1,3 +1,4 @@
+
 #include "Orbiter.h"
 #include "WizardLogic.h"
 #include "CreateDevice/UserUtils.h"
@@ -92,6 +93,19 @@ int WizardLogic::PreSeedRoomInfo( map<int, int > &mapRooms )
 	return iNumRooms;
 }
 
+string WizardLogic::GetRoomTypeName(int PK_RoomType)
+{
+    string sSQL = "SELECT Description FROM RoomType WHERE PK_RoomType=" + StringUtils::ltos(PK_RoomType);
+
+    string sResult;
+    PlutoSqlResult result_set_room;
+    MYSQL_ROW row;
+    if( (result_set_room.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set_room.r)) )
+        sResult = row[0];
+
+    return sResult;
+}
+
 void WizardLogic::ProcessUpdatedRoomInfo( map<int, int > &mapRooms )
 {
 	for( map<int, int >::iterator it=mapRooms.begin();it!=mapRooms.end();++it)
@@ -135,7 +149,7 @@ void WizardLogic::RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int N
 		if( !PK_Room )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::RemoveRoomsOfType cannot find a room to delete: type %d current %d desired %d",
-				PK_RoomType, NumRoomsCurrent, NumRoomsDesired);
+                            PK_RoomType, NumRoomsCurrent, NumRoomsDesired);
 			continue;
 		}
 
@@ -215,46 +229,46 @@ void WizardLogic::ChangeRoomName(int PK_Room, string sName)
 
 int WizardLogic::GetCountry()
 {
-	string sSQL = "SELECT FK_Country FROM Installation WHERE PK_Installation=" + 
+	string sSQL = "SELECT FK_Country FROM Installation WHERE PK_Installation=" +
 		Installation_get();
 
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && 
-		(row = mysql_fetch_row(result_set.r)) && row[0] && atoi(row[0]) )
-			return atoi(row[0]);
+	if( (result_set.r=mysql_query_result(sSQL)) &&
+      (row = mysql_fetch_row(result_set.r)) && row[0] && atoi(row[0]) )
+    return atoi(row[0]);
 
-	return COUNTRY_UNITED_STATES_CONST; 
+	return COUNTRY_UNITED_STATES_CONST;
 }
 
 void WizardLogic::SetCountry(int PK_Country)
-{ 
-	string sSQL = "UPDATE Installation SET City=NULL,State=NULL,Zip=NULL,FK_City=NULL,FK_PostalCode=NULL WHERE PK_Installation=" + 
-		Installation_get() + 
+{
+	string sSQL = "UPDATE Installation SET City=NULL,State=NULL,Zip=NULL,FK_City=NULL,FK_PostalCode=NULL WHERE PK_Installation=" +
+		Installation_get() +
 		" AND FK_Country<>" + StringUtils::itos(PK_Country);
 
-	threaded_mysql_query(sSQL); 
+	threaded_mysql_query(sSQL);
 
-	sSQL = "UPDATE Installation SET FK_Country=" + StringUtils::itos(PK_Country) + 
-		" WHERE PK_Installation=" + 
+	sSQL = "UPDATE Installation SET FK_Country=" + StringUtils::itos(PK_Country) +
+		" WHERE PK_Installation=" +
 		Installation_get();
 
-	threaded_mysql_query(sSQL); 
+	threaded_mysql_query(sSQL);
 }
 
-string WizardLogic::GetCityRegion() 
-{ 
-	string sSQL = "SELECT City,State FROM Installation WHERE PK_Installation=" + 
+string WizardLogic::GetCityRegion()
+{
+	string sSQL = "SELECT City,State FROM Installation WHERE PK_Installation=" +
 		Installation_get();
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && 
-		(row = mysql_fetch_row(result_set.r)) && row[0] )
+	if( (result_set.r=mysql_query_result(sSQL)) &&
+      (row = mysql_fetch_row(result_set.r)) && row[0] )
 		return string(row[0]) + (row[1] ? ", " + string(row[1]) : string(""));
 
-	return ""; 
+	return "";
 }
 
 int WizardLogic::GetPostalCode()
@@ -269,7 +283,7 @@ int WizardLogic::GetPostalCode()
 		return 0;
 }
 
-bool WizardLogic::SetPostalCode(string PostalCode) 
+bool WizardLogic::SetPostalCode(string PostalCode)
 {
 	int PK_Country = GetCountry();
 	string sSQL = "SELECT City,State,FK_City,`Long`,Lat,PK_PostalCode FROM PostalCode WHERE PostalCode='"
@@ -277,27 +291,27 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && 
-		(row = mysql_fetch_row(result_set.r)) && row[0] )
+	if( (result_set.r=mysql_query_result(sSQL)) &&
+      (row = mysql_fetch_row(result_set.r)) && row[0] )
 	{
-		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) + 
+		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) +
 			"'" +
-			(row[1] ? string(",State='") + StringUtils::SQLEscape(row[1]) + "'": string("")) + 
+			(row[1] ? string(",State='") + StringUtils::SQLEscape(row[1]) + "'": string("")) +
 			(row[2] ? string(",FK_City='") + StringUtils::SQLEscape(row[2]) + "'" : string("")) +
 			",FK_PostalCode=" + row[5];
 		threaded_mysql_query(sSQL);
-		
-		DeviceData_Base *pDevice_Event_Plugin = 
+
+		DeviceData_Base *pDevice_Event_Plugin =
 			m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Event_Plugins_CONST);
 		if( pDevice_Event_Plugin )
 		{
-			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" + 
-				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," + 
+			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
+				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
 				StringUtils::itos(DEVICEDATA_Longitude_CONST) + ")";
 			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
 
-			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" + 
-				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," + 
+			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
+				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
 				StringUtils::itos(DEVICEDATA_Latitude_CONST) + ")";
 			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
 
@@ -318,7 +332,7 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 
 void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)
 {
-	string sSQL = "DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) + 
+	string sSQL = "DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) +
 		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
 	threaded_mysql_query(sSQL);
 
@@ -333,8 +347,8 @@ int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = ""
 {
 	int iPK_Device=0;
 	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
-		&iPK_Device);
+                                           PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
+                                           &iPK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device);
 	return iPK_Device;
 }
@@ -355,8 +369,8 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 	string sSQL = "SELECT PK_Device FROM Device "
 		"join DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"join DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
-		"where PK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + 
-		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + 
+		"where PK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) +
+		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) +
 		" AND FK_Room=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Room);
 
 	PlutoSqlResult result_set;
@@ -389,7 +403,7 @@ int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
 		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"JOIN DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
 		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
-		" WHERE PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + 
+		" WHERE PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) +
 		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST);
 
 	PlutoSqlResult result_set;
