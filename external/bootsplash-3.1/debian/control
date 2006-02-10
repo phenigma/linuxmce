@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: bootsplash
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, bootsplash-theme-pluto | bootsplash-theme, kernel-image-2.6.15-pluto-1-686
+Depends: ${shlibs:Depends}, ${misc:Depends}, bootsplash-theme-pluto | bootsplash-theme
 Recommends: sysv-rc (>= 2.86.ds1-1pluto)
 Description: Bootsplash user space utilities and scripts.
  Bootsplash utilites work with a bootsplash patched kernel to help displaying a nice
