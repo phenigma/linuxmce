@@ -12,4 +12,5 @@ $TEXT_SETUP_DISKLESS_MD_CONST='Setup Diskless Media Directors';
 $TEXT_DISKLESS_MD_NOTICE_CONST='When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
 $TEXT_ADD_MD_CONST='Add device';
 $TEXT_MD_UPDATED_CONST='The devices were updated';
+$TEXT_ERROR_DUPLICATE_ROOMS_CONST='Duplicate room for media directors.';
 ?>

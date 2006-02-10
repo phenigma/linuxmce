@@ -23,44 +23,29 @@ function mediaDirectors($output,$dbADO) {
 	$output->setHelpSrc('/support/index.php?section=document&docID=129');
 
 	// get selected category Device Templates
-	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
-	
-	$queryDeviceTemplate='
-		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-		ORDER BY Description ASC';
-	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$DTArray=array();
-	$DTIDArray=array();
-	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['Description'];
-		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
-	}
+	$mdArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO,1);
+	$DTArray=array_values($mdArray);
+	$DTIDArray=array_keys($mdArray);
 
 	// get AV Device Templates
-	unset($GLOBALS['childsDeviceCategoryArray']);
-	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$GLOBALS['rootAVEquipment'];
-	
-	$queryDeviceTemplate='
-		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-		ORDER BY Description ASC';
-	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$avDTIDArray=array();
-	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$avDTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
-	}
+	$avDTIDArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
 
-	$queryRooms='SELECT * FROM Room WHERE FK_Installation=? ORDER BY Description ASC';
+	$queryRooms='
+		SELECT Room.Description, PK_Room,Device.Description AS md,PK_Device 
+		FROM Room 
+		LEFT JOIN Device ON FK_Room=PK_Room AND FK_DeviceTemplate IN ('.join(',',$DTIDArray).')
+		WHERE Room.FK_Installation=? 
+		ORDER BY Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
 	$roomIDArray=array();
 	$roomArray=array();
 	while($rowRoom=$resRooms->FetchRow()){
-		$roomArray[]=$rowRoom['Description'];
+		if((!is_null($rowRoom['PK_Device']))){
+			$suffix=' [ '.$rowRoom['md'].' ]';
+		}else{
+			$suffix='';	
+		}
+		$roomArray[]=$rowRoom['Description'].$suffix;
 		$roomIDArray[]=$rowRoom['PK_Room'];
 	}
 
@@ -357,6 +342,19 @@ function mediaDirectors($output,$dbADO) {
 			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			$DeviceDataToDisplayArray=explode(',',@$_POST['DeviceDataToDisplay']);
 			if(@$_POST['displayedDevices']!=''){
+				$usedRooms=array();
+				foreach($displayedDevicesArray as $key => $value){
+					if($_POST['room_'.$value]!=0){
+						$usedRooms[$_POST['room_'.$value]][]=$value;
+					}
+				}
+				foreach ($usedRooms AS $usedID=>$usedArray){
+					if(count($usedArray)>1){
+						header('Location: index.php?section=mediaDirectors&error='.$TEXT_ERROR_DUPLICATE_ROOMS_CONST);
+						exit();
+					}
+				}
+				
 				foreach($displayedDevicesArray as $key => $value){
 					$description=stripslashes(@$_POST['description_'.$value]);
 					if(isset($_POST['ip_'.$value])){

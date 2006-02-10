@@ -115,12 +115,13 @@ function phonesTable($telecomADO,$userID,$page){
 			</tr>	
 			<tr>
 				<td colspan="2">Records '.$start.'-'.$end.' of '.$totalRecords.'</td>
-				<td colspan="9" align="right">'.$pageLinks.'</td>
+				<td colspan="10" align="right">'.$pageLinks.'</td>
 			</tr>
 			<tr bgcolor="lightblue">
 				<td align="center"><B>'.$TEXT_CONTACT_NAME_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_COMPANY_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_TITLE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_EMAIL_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>	
 				<td align="center"><B>CC*</B></td>	
 				<td align="center"><B>AC**</B></td>
@@ -148,6 +149,7 @@ function phonesTable($telecomADO,$userID,$page){
 					<td align="center"><a href="index.php?section=editContact&cid='.$row['FK_Contact'].'">'.$row['Name'].'</a></td>
 					<td align="center">'.$row['Company'].'</td>
 					<td align="center">'.$row['Title'].'</td>
+					<td align="center">'.$row['Email'].'</td>
 					<td align="center">'.$row['Description'].'</td>	
 					<td align="center">'.$row['CountryCode'].'</td>	
 					<td align="center">'.$row['AreaCode'].'</td>
@@ -165,7 +167,7 @@ function phonesTable($telecomADO,$userID,$page){
 	$out.='
 		<tr>
 			<td colspan="2">'.$TEXT_RECORDS_CONST.' '.$start.'-'.$end.': '.$totalRecords.'</td>
-			<td colspan="9" align="right">'.$pageLinks.'</td>
+			<td colspan="10" align="right">'.$pageLinks.'</td>
 		</tr>';
 	}
 	$out.='	

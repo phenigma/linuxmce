@@ -17,4 +17,6 @@ $TEXT_FOLLOW_LOG_CONST='Follow log';
 $TEXT_DEVICE_INFO_CONST='Device Info';
 $TEXT_DEVICE_TEMPLATE_COMMENTS_CONST='Device Template Comments';
 $TEXT_VIEW_CONST='View';
+$TEXT_DEVICE_RESETED_CONST='The device was reseted.';
+$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST='The room is used by another media director';
 ?>

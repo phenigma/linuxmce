@@ -171,10 +171,25 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td>Room:</td>
 					<td><select name="Room">
 						<option value="0">Please select</option>';
-					$selectRooms='SELECT * FROM Room WHERE FK_installation=?';
+					if(isMediaDirector($deviceID,$dbADO)){
+						$mdArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
+					
+						$selectRooms='
+							SELECT Room.Description, PK_Room,Device.Description AS md,PK_Device 
+							FROM Room 
+							LEFT JOIN Device ON FK_Room=PK_Room AND FK_DeviceTemplate IN ('.join(',',$mdArray).')
+							WHERE Room.FK_Installation=? 
+							ORDER BY Description ASC';
+					}else{
+						$selectRooms='
+							SELECT Room.Description, PK_Room
+							FROM Room 
+							WHERE Room.FK_Installation=? 
+							ORDER BY Description ASC';
+					}
 					$resRooms=$dbADO->Execute($selectRooms,$installationID);
 					while($rowRooms=$resRooms->FetchRow()){
-						$out.='<option value="'.$rowRooms['PK_Room'].'" '.(($rowRooms['PK_Room']==$deviceRoom)?'selected':'').'>'.$rowRooms['Description'].'</option>';
+						$out.='<option value="'.$rowRooms['PK_Room'].'" '.(($rowRooms['PK_Room']==$deviceRoom)?'selected':'').'>'.$rowRooms['Description'].((!is_null(@$rowRooms['PK_Device']))?' [ '.@$rowRooms['md'].' ]':'').'</option>';
 					}
 					$out.='
 					</select></td>
@@ -507,7 +522,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		if($action=='reset'){
 			$command="/usr/pluto/bin/MessageSend localhost 0 $deviceID 7 1";
 			exec($command);
-			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&msg=The device was reseted.');
+			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&msg='.$TEXT_DEVICE_RESETED_CONST);
 			exit();			
 		}
 		
@@ -520,7 +535,13 @@ $installationID = (int)@$_SESSION['installationID'];
 		$PingTest=(isset($_POST['PingTest']))?1:0;
 		$State= (isset($_POST['State']))?cleanString($_POST['State']):getStateValue('State');
 		$Status= cleanString($_POST['Status']);
+		$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
 		
+		if(isMediaDirector($deviceID,$dbADO) && roomIsUsed($room,$deviceID,$dbADO)){
+			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST);
+			exit();			
+		}
+		die();
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
 		if ($addNewDeviceRelated!=0) {
 			$queryInsertDeviceRelated = 'INSERT INTO Device_Device_Related 
@@ -599,7 +620,7 @@ $installationID = (int)@$_SESSION['installationID'];
 						//check if master device list ischanged. if yes, delete the data values
 				}
 			
-			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
+			
 			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=? WHERE PK_Device = ?";
 			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$State,$Status,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
@@ -715,4 +736,22 @@ function getMyDeviceParents($childID,$dbADO) {
 	return $stringResult;
 }
 
+// check if the room has another media director assigned
+// since we need to restrict a 1/1 relationship between mds and rooms
+function roomIsUsed($room,$deviceID,$dbADO){
+	$mdArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
+
+	$query='
+		SELECT Room.Description, PK_Room,Device.Description AS md,PK_Device 
+		FROM Room 
+		LEFT JOIN Device ON FK_Room=PK_Room AND FK_DeviceTemplate IN ('.join(',',$mdArray).')
+		WHERE Room.FK_Installation=? AND PK_Device!=?
+		ORDER BY Description ASC';
+	$res=$dbADO->Execute($query,array((int)$_SESSION['installationID'],$deviceID));
+	if($res->RecordCount()>0){
+		return true;
+	}
+	
+	return false;
+}
 ?>
