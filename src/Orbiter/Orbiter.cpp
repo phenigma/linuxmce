@@ -5734,6 +5734,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		//about the hide last current screen. 
 		ObjectOffScreen(m_pScreenHistory_Current->GetObj());
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
+		pScreenHistory_New->AddToHistory();
 	}
 
 	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
@@ -5744,7 +5745,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	pScreenHistory_New->ScreenID(sID);
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
-	if(ScreenHistory::m_bAddToHistory)
+	if(ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)
 	{
 		if(pScreenHistory_New->GetObj() && !bLastCantGoBack && sLastObject != pObj_New->m_ObjectID && sLastObject != "")
 			pScreenHistory_New->AddToHistory();
