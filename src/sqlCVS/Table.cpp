@@ -841,7 +841,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			int range_end = ranges_queue[i].second;
 			int interval_length = (range_end-range_begin)/intervals_count+1;
 
-//			cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
+			//cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
 
 			R_GetHashedTableStats* pReq = new R_GetHashedTableStats(m_sName, &g_GlobalConfig.m_vectRestrictions, range_begin, range_end, interval_length);
 			hash_requests.push_back(pReq);
@@ -874,7 +874,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			sSQL << "SELECT (psc_id-" << range_begin << ") DIV " << interval_length << " , count(*),BIT_XOR(POW(psc_id-"<<range_begin<<", FLOOR(63/CEIL(LOG2("<<(1+range_end-range_begin)<<"))))) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY (psc_id-"<< range_begin<< ") DIV " << interval_length << " ORDER BY (psc_id-"<< range_begin<<") DIV " << interval_length;
 			*/
 
-			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+psc_id-"<<range_begin<<", 3)) AS UNSIGNED)) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
+			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+(psc_id-"<<range_begin<<")%"<<interval_length<<", 3)) AS UNSIGNED)) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
 			
 			PlutoSqlResult res;
 			MYSQL_ROW row=NULL;

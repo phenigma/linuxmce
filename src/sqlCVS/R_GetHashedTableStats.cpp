@@ -58,7 +58,9 @@ bool R_GetHashedTableStats::ProcessRequest( class RA_Processor *pRA_Processor )
 	sSQL << "SELECT (psc_id-" << m_iRange_Begin << ") DIV " << m_iInterval_Length << " , count(*), BIT_XOR(POW(psc_id-"<<m_iRange_Begin<<", FLOOR(63/CEIL(LOG2("<<(1+m_iRange_End-m_iRange_Begin)<<"))))) FROM " << m_sTable << " WHERE (psc_id IS NOT NULL AND psc_id>0) AND (psc_id BETWEEN " << m_iRange_Begin << " AND " << m_iRange_End << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " GROUP BY (psc_id-"<< m_iRange_Begin<< ") DIV " << m_iInterval_Length << " ORDER BY (psc_id-"<< m_iRange_Begin<<") DIV " << m_iInterval_Length;
 */
 
-	sSQL << "SELECT FLOOR((psc_id-" << m_iRange_Begin << ") / " << m_iInterval_Length << ") , count(*), MD5(CAST(SUM(POW(1+psc_id-"<<m_iRange_Begin<<", 3)) AS UNSIGNED)) FROM " << m_sTable << " WHERE (psc_id IS NOT NULL AND psc_id>0) AND (psc_id BETWEEN " << m_iRange_Begin << " AND " << m_iRange_End << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " GROUP BY FLOOR( (psc_id-"<< m_iRange_Begin<< ") / " << m_iInterval_Length << ") ORDER BY FLOOR( (psc_id-"<< m_iRange_Begin<<") / " << m_iInterval_Length << ")";
+	sSQL << "SELECT FLOOR((psc_id-" << m_iRange_Begin << ") / " << m_iInterval_Length << ") , count(*), MD5(CAST(SUM(POW(1+(psc_id-"<<m_iRange_Begin<<")%"<<m_iInterval_Length<<", 3)) AS UNSIGNED)) FROM " << m_sTable << " WHERE (psc_id IS NOT NULL AND psc_id>0) AND (psc_id BETWEEN " << m_iRange_Begin << " AND " << m_iRange_End << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " GROUP BY FLOOR( (psc_id-"<< m_iRange_Begin<< ") / " << m_iInterval_Length << ") ORDER BY FLOOR( (psc_id-"<< m_iRange_Begin<<") / " << m_iInterval_Length << ")";
+
+	//cout << "Query: " << sSQL.str() << endl;
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
