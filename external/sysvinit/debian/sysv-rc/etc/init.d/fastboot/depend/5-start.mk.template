@@ -21,7 +21,7 @@ Pluto_SSH_Keys.sh		: ssh
 Pluto_Update_Packages.sh	: Pluto_Network_Setup.sh
 #Pluto_ulimit			:
 #Pluto_HaltMDs.sh		:
-Pluto_WakeMDs.sh		: Pluto_Network_Setup.sh Pluto_Start_DCERouter.sh
+Pluto_WakeMDs.sh		: Pluto_Network_Setup.sh Pluto_Start_DCERouter.sh Pluto_Diskless_Setup.sh dhcp3-server nfs-common
 #Pluto_UpdateDNS.sh		:
 #Pluto_CheckDiskSpace.sh	:
 #Pluto_CheckForUpdates.sh	:

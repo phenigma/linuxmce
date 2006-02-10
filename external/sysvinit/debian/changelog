@@ -1,3 +1,7 @@
+sysvinit (2.86.ds1-1.1pluto15) unstable; urgency=low
+
+  * Fixed 0001645: MDs woken up too early
+
 sysvinit (2.86.ds1-1.1pluto14) unstable; urgency=low
   
   * Fixed some warings that where shown at shutdown/reboo
