@@ -1417,9 +1417,7 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 
 	if( pDevice_OrbiterRequesting && pDevice_Orbiter_OSD->m_dwPK_Device!=pDevice_OrbiterRequesting->m_dwPK_Device )
 		sMessage += " & 0 " + StringUtils::itos(pDevice_OrbiterRequesting->m_dwPK_Device ) + 
-		//" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
-		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + 
-		StringUtils::ltos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::ltos(SCREEN_GenericAppController_CONST);
+		" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 		sBinary,"generic_app",sArguments,
