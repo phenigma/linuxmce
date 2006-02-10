@@ -1240,10 +1240,12 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 #endif
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	string delSelections;
+	string sSelectedIndex = "0";
 	if ( !pObj->sSelVariable.empty(  ) )
 	{
 		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-			delSelections = "|"+m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )]+"|";
+		delSelections = "|" + m_mapVariable[atoi(pObj->sSelVariable.c_str())] + "|";
+		sSelectedIndex = m_mapVariable[atoi(pObj->sSelVariable.c_str())];
 		vm.Release(  );
 	}
 
@@ -1981,7 +1983,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 				if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
 				{
 					pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
-					pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
+
+					if(pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
+						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow + 1;
+
 					SelectedGrid( pDesignObj_DataGrid,  pCell );
 					bFinishLoop = true;
 					bFoundSelection = true; // Is this correct????  Hacked in this time
@@ -7185,10 +7190,32 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 			if(pDesignObj->m_sGridID.size()>6 && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
 			{
 				PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
+				
+				int nOldHightlightedRow = pDesignObj->m_iHighlightedRow;
+				int nOldHightlightedCol = pDesignObj->m_iHighlightedColumn;
+				int nGridCurRow = pDesignObj->m_GridCurRow;
+				int nGridCurCol = pDesignObj->m_GridCurCol;
+				int nStartingRow = pDesignObj->m_pDataGridTable->m_StartingRow;
+
+				int nOldSelectedIndex = atoi(m_mapVariable[atoi(pDesignObj->sSelVariable.c_str())].c_str()); 
+
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire=true;
 				PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 				m_vectObjs_NeedRedraw.push_back(pDesignObj);
+
+				if(nOldHightlightedRow + nStartingRow == nOldSelectedIndex + !!nStartingRow)  
+				{
+					//we did it
+					pDesignObj->m_iHighlightedRow = nOldHightlightedRow;
+					pDesignObj->m_iHighlightedColumn = nOldHightlightedCol;
+					pDesignObj->m_GridCurRow = nGridCurRow;
+					pDesignObj->m_GridCurCol = nGridCurCol;
+				}
+				else
+				{
+					//someone else did it; we won't do anything else
+				}
 			}
 		}
 
