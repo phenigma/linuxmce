@@ -9,8 +9,27 @@ function setResolution($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$mdID=(int)$_REQUEST['mdID'];
 	$installationID = (int)@$_SESSION['installationID'];
-	$videoSettingsArray=array('M'=>'Manual', '640 480'=>'640x480', '800 600'=>'800x600', '1024 768'=>'1024x768', '1280 1024'=>'1280x1024', '1600 1200'=>'1600x1200', '720 480 p'=>'480p', '1280 720 p'=>'720p', '1920 1080 i'=>'1080i', '1920 1080 p'=>'1080p');
-	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '65'=>'65 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz', '100'=>'100 hz', '120'=>'120 hz');
+	$videoSettingsArray=array(
+		'M'=>'Manual',
+		'640 480'=>'640x480',
+		'800 600'=>'800x600',
+		'1024 768'=>'1024x768',
+		'1280 1024'=>'1280x1024',
+		'1600 1200'=>'1600x1200',
+		'848 480 p'=>'480p (848x480 progressive)',
+		'1280 720 p'=>'720p (1280x720 progressive)',
+		'1920 1080 i'=>'1080i (1920x1080 interlaced)',
+		'1920 1080 p'=>'1080p (1920x1080 progressive)');
+	$refreshArray=array(
+		'50'=>'50 Hz',
+		'60'=>'60 Hz',
+		'65'=>'65 Hz',
+		'72'=>'72 Hz',
+		'75'=>'75 Hz',
+		'80'=>'80 Hz',
+		'85'=>'85 Hz',
+		'100'=>'100 Hz',
+		'120'=>'120 Hz');
 	
 	$oldValues=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$mdID.' AND FK_DeviceData='.$GLOBALS['VideoSettings']);
 	if(!is_null($oldValues['IK_DeviceData'])){
