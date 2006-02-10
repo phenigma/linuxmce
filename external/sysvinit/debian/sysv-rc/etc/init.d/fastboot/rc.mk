@@ -32,14 +32,11 @@ INITD_DIR        := /etc/init.d
 SUBSYS_FILE_DIR  := /var/lock/subsys
 
 # Used to create temporary files, before collating them all into 
-# $(FINAL_OUTPUT_FILE).
 TMP_DIR          := /var/run/plutoboot
 
 TMPFILE_PREFIX   := .runlevel
 TMP_FILE          = $(TMP_DIR)/$(TMPFILE_PREFIX).$(JOB).$@
 
-# File that contains all output of programs/scripts run.
-FINAL_OUTPUT_FILE = /var/log/initd.$(JOB)
 
 # List of *all* services.
 # (Important Note: if you don't include a service in this list,
@@ -57,7 +54,7 @@ ifndef JOB
 $(error must specify JOB, so I know what to do)
 endif
 
-default: $(ALL) create_final_output_file
+default: $(ALL) 
 
 ##############################################################
 # Generic rule to control a service.
@@ -79,9 +76,3 @@ $(ALL)	: $(SUBSYS_FILE_DIR)/$@
 # dependencies).
 include /etc/init.d/fastboot/depend/$(RUNLEVEL)-$(JOB).mk
 
-# Lastly, merge all the service output files into a single file.
-# Note that the order of the service output in the merged file is not
-# chronological.
-create_final_output_file	:
-	@$(CAT) $(TMP_DIR)/$(TMPFILE_PREFIX).$(JOB).* > $(FINAL_OUTPUT_FILE)
-#	@$(RM) -f $(TMP_DIR)/$(TMPFILE_PREFIX).$(JOB).*
