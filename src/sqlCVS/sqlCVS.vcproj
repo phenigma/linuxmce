@@ -177,6 +177,9 @@
 				RelativePath=".\R_GetHashedTableStats.cpp">
 			</File>
 			<File
+				RelativePath=".\R_GetConditional_psc_id.cpp">
+			</File>
+			<File
 				RelativePath="..\Ra\RA_Action.cpp">
 			</File>
 			<File

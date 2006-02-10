@@ -1,13 +1,13 @@
 /**
  *
- * @file R_GetAll_psc_id.h
- * @brief header file for the R_GetAll_psc_id class
+ * @file R_GetConditional_psc_id.h
+ * @brief header file for the R_GetConditional_psc_id class
  * @author
  *
  */
 
-#ifndef R_GetAll_psc_id_H
-#define R_GetAll_psc_id_H
+#ifndef R_GetConditional_psc_id_H
+#define R_GetConditional_psc_id_H
 
 #include "RA/RA_Request.h"
 #include "sqlCVSrequests.h"
@@ -17,7 +17,7 @@
  * @todo complete documentation
  */
 
-class R_GetAll_psc_id : public RA_Request
+class R_GetConditional_psc_id : public RA_Request
 {
 public:
 	/** @brief Request Variables */
@@ -30,16 +30,16 @@ public:
 	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
 
 	/** @brief constructor */
-	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions);
+	R_GetConditional_psc_id(string sTable, vector<int> *p_vectRestrictions, string extraCondition="");
 
 	/** @brief constructor */
-	R_GetAll_psc_id( ) {};
+	R_GetConditional_psc_id( ) {};
 
 	/**
 	 * @brief Returns the id of @todo ask
 	 */
 
-	virtual unsigned long ID( ) { return R_GET_ALL_PSC_ID; }
+	virtual unsigned long ID( ) { return R_GET_CONDITIONAL_PSC_ID; }
 
 	/**
 	 * @brief Sets up the serialization request

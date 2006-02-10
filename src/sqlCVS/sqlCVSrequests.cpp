@@ -35,6 +35,7 @@
 #include "R_CloseTransaction.h"
 #include "R_ApproveBatch.h"
 #include "R_GetHashedTableStats.h"
+#include "R_GetConditional_psc_id.h"
 
 #include "A_UpdateRow.h"
 #include "A_UpdateSchema.h"
@@ -84,6 +85,10 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		return pRequest;
 	case R_GET_HASHED_TABLE_STATS:
 		pRequest=new R_GetHashedTableStats( );
+		pRequest->CreateRequest( dwSize, pcData );
+		return pRequest;
+	case R_GET_CONDITIONAL_PSC_ID:
+		pRequest=new R_GetConditional_psc_id( );
 		pRequest->CreateRequest( dwSize, pcData );
 		return pRequest;
 	};

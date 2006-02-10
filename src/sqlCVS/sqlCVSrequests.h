@@ -24,6 +24,7 @@
 #define R_GET_ROW				9
 
 #define R_GET_HASHED_TABLE_STATS		10
+#define R_GET_CONDITIONAL_PSC_ID		11
 
 
 #define A_UPDATE_ROW			1

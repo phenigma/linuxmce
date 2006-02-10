@@ -1,5 +1,5 @@
 /*
- R_GetAll_psc_id
+ R_GetConditional_psc_id
 
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
@@ -18,12 +18,12 @@
 
 /**
  *
- * @file R_GetAll_psc_id.cpp
- * @brief source file for the R_GetAll_psc_id class
+ * @file R_GetConditional_psc_id.cpp
+ * @brief source file for the R_GetConditional_psc_id class
  *
  */
 
-#include "R_GetAll_psc_id.h"
+#include "R_GetConditional_psc_id.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -38,18 +38,19 @@
 
 using namespace sqlCVS;
 
-R_GetAll_psc_id::R_GetAll_psc_id( string sTable, vector<int> *p_vectRestrictions)
+R_GetConditional_psc_id::R_GetConditional_psc_id( string sTable, vector<int> *p_vectRestrictions, string extraCondition)
 {
 	m_sTable=sTable;
 	m_vectRestrictions=*p_vectRestrictions;
+	m_sExtraCondition = extraCondition;
 }
 
-bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
+bool R_GetConditional_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 {
-	cout << "R_GetAll_psc_id" << endl;
+	cout << "R_GetConditional_psc_id" << endl;
 	std::ostringstream sSQL;
 	// See notes in Table::DetermineDeletions
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " <<  g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " << ((m_sExtraCondition=="")?"1":m_sExtraCondition) << " AND " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " ORDER BY psc_id";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;

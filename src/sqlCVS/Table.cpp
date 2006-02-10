@@ -44,6 +44,7 @@
 #include "R_GetRow.h"
 #include "R_UpdateTable.h"
 #include "R_GetHashedTableStats.h"
+#include "R_GetConditional_psc_id.h"
 #include "A_UpdateRow.h"
 #include "sqlCVSprocessor.h"
 
@@ -972,30 +973,30 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	lSQL << ")";
 
 	//requesting from server information about locally deleted records
-	R_GetAll_psc_id r_GetAll_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions,  lSQL.str());
-	ra_Processor.AddRequest( &r_GetAll_psc_id );
+	R_GetConditional_psc_id r_GetConditional_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions,  lSQL.str());
+	ra_Processor.AddRequest( &r_GetConditional_psc_id );
 	while( ra_Processor.SendRequests( Connection, ppSocket ) );
 
-	if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+	if( r_GetConditional_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
-		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
+		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetConditional_psc_id.m_cProcessOutcome << endl;
 		throw "Communication error";
 	}
 
-	for (int i=0; i<r_GetAll_psc_id.m_vectAll_psc_id.size(); i++)
+	for (int i=0; i<r_GetConditional_psc_id.m_vectAll_psc_id.size(); i++)
 	{
-			cout << "Row deleted locally: " <<  r_GetAll_psc_id.m_vectAll_psc_id[i].first << "(" << r_GetAll_psc_id.m_vectAll_psc_id[i].second << ")" << endl;
+			cout << "Row deleted locally: " <<  r_GetConditional_psc_id.m_vectAll_psc_id[i].first << "(" << r_GetConditional_psc_id.m_vectAll_psc_id[i].second << ")" << endl;
 
 		// if record is newer than our last-sync and it is not our batch - skipping it
-		if ( r_GetAll_psc_id.m_vectAll_psc_id[i].first>m_psc_id_last_sync &&  !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[i].second) )
+		if ( r_GetConditional_psc_id.m_vectAll_psc_id[i].first>m_psc_id_last_sync &&  !DoWeHaveBatch(r_GetConditional_psc_id.m_vectAll_psc_id[i].second) )
 		{
 			cout << "Record is newer than our last-sync and it is not our batch - skipping it" << endl;
 			continue;
 		}
 
-		if( r_GetAll_psc_id.m_vectAll_psc_id[i].second>m_psc_batch_last_sync )
+		if( r_GetConditional_psc_id.m_vectAll_psc_id[i].second>m_psc_batch_last_sync )
 		{
-			if( !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[i].second) )
+			if( !DoWeHaveBatch(r_GetConditional_psc_id.m_vectAll_psc_id[i].second) )
 			{
 				cout << "Record is newer than what we've synced" << endl;
 				continue;
@@ -1007,7 +1008,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			cout << "Marking for deletion" << endl;
 
 		itmp_RowsToDelete++;
-		ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[i].first);
+		ChangedRow *pChangedRow = new ChangedRow( this, r_GetConditional_psc_id.m_vectAll_psc_id[i].first);
 		AddChangedRow( pChangedRow);
 	}
 
@@ -1043,8 +1044,6 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			cout << " it is unauthorized, skipping" << endl;
 		}
 	}
-
-
 
 	return true;
 }
