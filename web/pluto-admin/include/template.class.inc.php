@@ -58,7 +58,7 @@
   var $HelpSrc= "/support/index.php?section=document&docID=35";
   var $body = "";
   
-  var $leftFrameSrc = 'index.php?section=leftMenu';
+  var $leftFrameSrc = 'index.php?section=wizard';
   var $rightFrameSrc = 'index.php?section=deviceTemplates';
 
   var $reloadLeftFrame=true;
@@ -223,7 +223,7 @@ function setTemplateFileType($type) {
   			try{
 	  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
 	  			if(queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\'){
-	  				top.treeframe.location=\'index.php?section=leftMenu\';
+	  				top.treeframe.location=\'index.php?section=wizard\';
 	  			}
 	  		}catch(e){
 	  			// do nothing, it\'s not in frame

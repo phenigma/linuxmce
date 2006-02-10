@@ -1421,7 +1421,7 @@ switch ($section) {
 		
 		$output->setTemplateFileType('homeWithFrames');
 		
-		$output->setLeftFrameSrc('index.php?section=leftMenu&rightSection=login');
+		$output->setLeftFrameSrc('index.php?section=wizard&rightSection=login');
 		$output->setRightFrameSrc('index.php?section=login');
 		
 		$output->setBody('');		

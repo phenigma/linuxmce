@@ -185,7 +185,7 @@ function login($output,$dbADO) {
 		<script>
 			parent.frames[\'basefrm\'].location.href="index.php?section=login&msg='.$TEXT_LOGOUT_MSG_CONST.'"
 			if (parent.frames[\'treeframe\']) {
-				parent.frames[\'treeframe\'].location.href=\'index.php?section=leftMenu&rightSection=login\';
+				parent.frames[\'treeframe\'].location.href=\'index.php?section=wizard&rightSection=login\';
 			}		
 		</script>
 	';

@@ -14,7 +14,7 @@ function userHome($output,$dbADO) {
 <script>
 	'.($reloadTree==true?'
 	if (parent.frames[\'treeframe\']) {
-		top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
+		top.frames[\'treeframe\'].location=\'index.php?section=wizard\';
 	}':'').'
 </script>
 ';
