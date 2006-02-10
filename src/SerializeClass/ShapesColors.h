@@ -185,7 +185,14 @@ public:
 	void Location(PlutoPoint p) { X=p.X; Y=p.Y; }
 	PlutoSize Size() { return PlutoSize(Width,Height); }
 	void Size(PlutoSize s) { Width=s.Width; Height=s.Height; }
-	bool Contains(int dX, int dY) { return (dX >= X && dY >=Y && dX < (X+Width) && dY < (Y+Height)); };
+	bool Contains(int dX, int dY) 
+	{ 
+		return (dX >= X && dY >=Y && dX < (X+Width) && dY < (Y+Height)); 
+	};
+	bool Contains(const PlutoRectangle& rect)
+	{
+		return Contains(rect.X, rect.Y) && Contains(rect.X + rect.Width - 1, rect.Y + rect.Height - 1);
+	}
 	PlutoRectangle& operator=(const PlutoRectangle& Rect) { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height;return *this; };
 	PlutoRectangle operator+ (PlutoPoint &p) { return PlutoRectangle(X + p.X,Y + p.Y,Width,Height); }
 
