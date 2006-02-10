@@ -64,7 +64,7 @@ $modelSelected = (int)$_REQUEST['model'];
 						'.$TEXT_NO_CONST.':<input type="radio" value="0" name="IsAV" '.($isAV==0?' checked="checked" ':'').'></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 	</table>
 	</form>

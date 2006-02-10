@@ -89,7 +89,7 @@ function infraredCommands($output,$publicADO) {
 
 		$out.='
 			<tr>
-				<td colspan="4" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"></td>
+				<td colspan="4" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>		
 		</table>
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">

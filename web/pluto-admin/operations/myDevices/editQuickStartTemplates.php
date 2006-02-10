@@ -24,7 +24,7 @@ function editQuickStartTemplates($output,$dbADO) {
 		
 	<div align="center"><h3>Edit Quick Start templates</h3></div><br>
 	'.$tree.'
-		
+	<input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">	
 	</form>
 	';
 	} else {

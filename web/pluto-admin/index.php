@@ -139,30 +139,6 @@ switch ($section) {
 	    packagesList($output,$dbADO);
 	break;	
 
-	case 'confirmPackages':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/packages/confirmPackages.php');
-	    confirmPackages($output,$dbADO);
-	break;	
-	case 'confirmDevicePackages':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/packages/confirmDevicePackages.php');
-	    confirmDevicePackages($output,$dbADO);
-	break;	
-	case 'addDistro':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/packages/addDistro.php');
-	    addDistro($output,$dbADO);
-	break;	
-	case 'deletePackageDistro':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/packages/deletePackageDistro.php');
-	    deletePackageDistro($output,$dbADO);
-	break;
 	case 'addRepositorySource':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
@@ -464,12 +440,6 @@ switch ($section) {
 		$output->setTemplateFileType('small');
 	    include_once('operations/users_settings/createUser.php');
 	    createUser($output,$dbADO);	    
-	break;
-	case 'removeUserFromInstallation':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/users_settings/removeUserFromInstallation.php');
-	    removeUserFromInstallation($output,$dbADO);	    
 	break;
 	case 'userChangePassword':
 		$output = new Template($dbADO);

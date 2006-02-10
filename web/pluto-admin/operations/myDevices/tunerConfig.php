@@ -62,7 +62,7 @@ function tunerConfig($output,$dbADO) {
 			<td colspan="2" align="center">&nbsp;</td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_TUNER_CONFIRMATION_CONST.'"> <input type="button" class="button" onClick="self.close();" value="'.$TEXT_TUNER_INFIRMATION_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_TUNER_CONFIRMATION_CONST.'"> <input type="button" class="button" onClick="self.close();" value="'.$TEXT_TUNER_INFIRMATION_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 		</tr>		
 	</table>';
 	}

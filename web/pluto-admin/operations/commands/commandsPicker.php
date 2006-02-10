@@ -48,7 +48,7 @@ function commandsPicker($output,$dbADO) {
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"></td>
+				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>		
 			<tr>
 				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=commandsPicker\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>

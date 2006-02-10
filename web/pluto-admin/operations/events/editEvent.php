@@ -105,7 +105,8 @@ function editEvent($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">
 						<input type="hidden" name="displayedEventParams" value="'.join(",",$displayedEventParams).'">
-						<input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'">
+						<input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> 
+						<input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 					</td>
 				</tr>
 			</table>

@@ -92,7 +92,7 @@ function mediaRemotes($output,$dbADO) {
 		<td>'.pulldownFromArray($remotesArray,'remote',0,'','key','- '.$TEXT_PLEASE_SELECT_CONST.' -').'</td>
 	</tr>
 	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="addPreference" value="'.$TEXT_ADD_PREFERENCE_CONST.'"></td>
+		<td colspan="2" align="center"><input type="submit" class="button" name="addPreference" value="'.$TEXT_ADD_PREFERENCE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 	</tr>
 </table>		
 		</form>

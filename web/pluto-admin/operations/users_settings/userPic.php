@@ -40,7 +40,7 @@ function userPic($output,$dbADO) {
 				<td align="center">'.@$userImage.'</td>
 			</tr>
 			<tr>
-				<td align="center">'.$TEXT_CHOOSE_PICTURE_CONST.' * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="'.$TEXT_UPLOAD_PICTURE_CONST.'"></td>
+				<td align="center">'.$TEXT_CHOOSE_PICTURE_CONST.' * <input type="file" name="pic"> <input type="submit" class="button" name="add" value="'.$TEXT_UPLOAD_PICTURE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>
 			<tr>
 				<td align="left">* '.$TEXT_ALLOWED_FILE_TYPE_CONST.' <br>

@@ -208,7 +208,7 @@ function getObj(obj) {
 					<select name="model" id="model" size="10">					
 							'.$selectModels.'	
 					</select>
-					<input type="button" class="button" name="edit_Category" value="'.$TEXT_EDIT_CONST	.'" onClick="javascript:checkEdit(this.form);" />
+					<input type="button" class="button" name="edit_Category" value="'.$TEXT_EDIT_CONST	.'" onClick="javascript:checkEdit(this.form);" /> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 				</td>
 			</tr>
 		</table>					

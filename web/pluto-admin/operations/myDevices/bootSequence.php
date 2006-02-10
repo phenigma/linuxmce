@@ -155,7 +155,7 @@ function bootSequence($output,$dbADO) {
 		$out.='
 			<input type="hidden" name="displayedSS" value="'.@join(',',$displayedSS).'">
 			<tr> 
-				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"  ></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"  > <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>
 		</table>
 		</form>

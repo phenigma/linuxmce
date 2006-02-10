@@ -57,6 +57,7 @@ function customBackground($output,$dbADO) {
 		</table>';
 	}
 	$out.='
+		<input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 	</form>';
 	
 	} else {

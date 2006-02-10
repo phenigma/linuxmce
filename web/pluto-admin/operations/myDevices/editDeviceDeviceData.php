@@ -75,7 +75,7 @@ function editDeviceDeviceData($output,$dbADO) {
 					}
 				}
 			}
-			$deviceDataBox.='<br><input type="submit" class="button" name="submit" value="Update">';
+			$deviceDataBox.='<br><input type="submit" class="button" name="submit" value="Update"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">';
 		}
 		
 		$out.='
