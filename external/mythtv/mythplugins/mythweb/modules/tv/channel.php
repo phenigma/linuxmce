@@ -3,7 +3,7 @@
  * Show the current lineup for a specific channel
  *
  * @url         $URL$
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
+ * @date        $Date: 2006-01-24 22:41:36 -0500 (Tue, 24 Jan 2006) $
  * @version     $Revision: 8709 $
  * @author      $Author: xris $
  * @license     GPL

@@ -228,6 +228,7 @@ $L = array(
     'Custom'                                     => '',
     'Edit MythWeb and some MythTV settings.'     => 'Uredi MythWeb in nekaj MythTV nastavitev.',
     'Exact Match'                                => 'Točen zadetek',
+    'Fold Duplicates'                            => '',
     'HD Only'                                    => 'Samo HD',
     'Manual'                                     => '',
     'MythMusic on the web.'                      => 'MythMusic na spletu',
@@ -442,7 +443,9 @@ $L = array(
     'Wind'               => 'Veter',
     'Wind Chill'         => 'Temperatura zraka',
 // themes/default/weather/welcome.php
-    'welcome: weather' => ''
+    'welcome: weather' => '',
+// themes/default/welcome.php
+    'Visit $1' => ''
 // End of the translation hash ** Do not touch the next line
           );
 

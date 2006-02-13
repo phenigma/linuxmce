@@ -27,8 +27,9 @@ static HostLineEdit *SetMusicDirectory()
 
 static HostComboBox *MusicAudioDevice()
 {
-    HostComboBox *gc = new HostComboBox("AudioDevice", true);
+    HostComboBox *gc = new HostComboBox("MusicAudioDevice", true);
     gc->setLabel(QObject::tr("Audio device"));
+    gc->addSelection(QObject::tr("default"), "default");
     QDir dev("/dev", "dsp*", QDir::Name, QDir::System);
     gc->fillSelectionsFromDir(dev);
     dev.setNameFilter("adsp*");
@@ -39,7 +40,7 @@ static HostComboBox *MusicAudioDevice()
     gc->fillSelectionsFromDir(dev);
     dev.setNameFilter("adsp*");
     gc->fillSelectionsFromDir(dev);
-    gc->setHelpText(QObject::tr("Audio Device used for playback."));
+    gc->setHelpText(QObject::tr("Audio Device used for playback. 'default' will use the device specified in MythTV"));
     return gc;
 };
 

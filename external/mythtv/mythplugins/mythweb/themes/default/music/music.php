@@ -3,7 +3,7 @@
  * MythMusic browser.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-17 11:16:41 +0200 (Sat, 17 Dec 2005) $
+ * @date        $Date: 2005-12-17 04:16:41 -0500 (Sat, 17 Dec 2005) $
  * @version     $Revision: 8298 $
  * @author      $Author: xris $
  * @license     GPL

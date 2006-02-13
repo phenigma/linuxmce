@@ -4,7 +4,7 @@
  * port 6544)
  *
  * @url         $URL$
- * @date        $Date: 2005-12-08 07:00:04 +0200 (Thu, 08 Dec 2005) $
+ * @date        $Date: 2005-12-08 00:00:04 -0500 (Thu, 08 Dec 2005) $
  * @version     $Revision: 8171 $
  * @author      $Author: xris $
  * @license     GPL

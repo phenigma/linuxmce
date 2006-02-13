@@ -3,8 +3,8 @@
  * The Recording object, and a couple of related subroutines.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -123,7 +123,7 @@ class Recording {
         // No channel data?  Load it
             global $Channels;
             if (!is_array($Channels) || !count($Channels))
-                load_all_channels($this->chanid);
+                load_all_channels();
         // Now we really should scan the $Channel array and add a link to this recording's channel
             foreach (array_keys($Channels) as $key) {
                 if ($Channels[$key]->chanid == $this->chanid) {

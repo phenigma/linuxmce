@@ -1,5 +1,5 @@
 /*
- * $Id: analogscan.h 6806 2005-07-12 04:56:56Z ijr $
+ * $Id: analogscan.h 8901 2006-02-07 21:56:06Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -51,7 +51,7 @@ public:
       @param _sourceid the video source id 
       @param _cardid the card id to perform the scan on
      */
-    AnalogScan(unsigned _sorceid,unsigned _cardid);
+    AnalogScan(unsigned _sourceid, unsigned _cardid);
 
     ~AnalogScan();
 

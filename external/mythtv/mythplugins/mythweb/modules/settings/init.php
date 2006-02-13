@@ -2,8 +2,8 @@
 /**
  * Initialization routines for the MythWeb settings module
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/settings/init.php $
- * @date        $Date: 2005-12-31 02:08:13 +0200 (Sat, 31 Dec 2005) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/settings/init.php $
+ * @date        $Date: 2005-12-30 19:08:13 -0500 (Fri, 30 Dec 2005) $
  * @version     $Revision: 8440 $
  * @author      $Author: xris $
  * @license     GPL

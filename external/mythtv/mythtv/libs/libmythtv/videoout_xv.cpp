@@ -2924,7 +2924,13 @@ void VideoOutputXv::ProcessFrameMem(VideoFrame *frame, OSD *osd,
 
     if (osd && !embedding)
     {
-        DisplayOSD(frame, osd);
+        if (!chroma_osd)
+            DisplayOSD(frame, osd);
+        else
+        {
+            QMutexLocker locker(&global_lock);
+            needrepaint |= chroma_osd->ProcessOSD(osd);
+        }
     }
 
     if (!pauseframe && deint_proc && !m_deinterlaceBeforeOSD)
@@ -2950,15 +2956,16 @@ void VideoOutputXv::ProcessFrame(VideoFrame *frame, OSD *osd,
         ProcessFrameXvMC(frame, osd);
 }
 
-int VideoOutputXv::ChangePictureAttribute(int attributeType, int newValue)
+int VideoOutputXv::ChangePictureAttribute(int attribute, int newValue)
 {
     int value;
     int i, howmany, port_min, port_max, range;
     char *attrName = NULL;
-    Atom attribute;
+    Atom attributeAtom;
     XvAttribute *attributes;
 
-    switch (attributeType) {
+    switch (attribute)
+    {
         case kPictureAttribute_Brightness:
             attrName = "XV_BRIGHTNESS";
             break;
@@ -2979,8 +2986,8 @@ int VideoOutputXv::ChangePictureAttribute(int attributeType, int newValue)
     if (newValue < 0) newValue = 0;
     if (newValue >= 100) newValue = 99;
 
-    X11S(attribute = XInternAtom (XJ_disp, attrName, False));
-    if (!attribute) {
+    X11S(attributeAtom = XInternAtom (XJ_disp, attrName, False));
+    if (!attributeAtom) {
         return -1;
     }
 
@@ -2997,7 +3004,7 @@ int VideoOutputXv::ChangePictureAttribute(int attributeType, int newValue)
 
             value = (int) (port_min + (range/100.0) * newValue);
 
-            X11S(XvSetPortAttribute(XJ_disp, xv_port, attribute, value));
+            X11S(XvSetPortAttribute(XJ_disp, xv_port, attributeAtom, value));
 
             return newValue;
         }

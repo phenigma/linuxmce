@@ -23,6 +23,8 @@ using namespace std;
 #define LOC QString("IVD: ")
 #define LOC_ERR QString("IVD Error: ")
 
+//#define EXTRA_DEBUG
+
 DevInfoMap IvtvDecoder::devInfo;
 QMutex     IvtvDecoder::devInfoLock;
 const uint IvtvDecoder::vidmax  = 131072; // must be a power of 2
@@ -45,6 +47,7 @@ IvtvDecoder::IvtvDecoder(NuppelVideoPlayer *parent, ProgramInfo *pginfo)
 
       nexttoqueue(1),         lastdequeued(0)
 {
+    lastResetTime.start();
     fps = 29.97f;
     lastKey = 0;
 }
@@ -449,55 +452,92 @@ bool IvtvDecoder::ReadWrite(int onlyvideo, long stopframe)
     frame_decoded = 0;
 
     int count, total = 0;
+    bool canwrite = false;
+
+    VideoOutputIvtv *videoout = (VideoOutputIvtv*) GetNVP()->getVideoOutput();
 
     if (onlyvideo < 0)
+    {
         vidread = vidwrite = vidfull = 0;
+    }
     else if (vidfull || vidread != vidwrite)
     {
-        VideoOutputIvtv *videoout = (VideoOutputIvtv*)(GetNVP()->getVideoOutput());
-        bool canwrite = videoout->Poll(1) > 0;
+        int ret = videoout->Poll(50);
 
+        if (ret==0)
+            VERBOSE(VB_PLAYBACK, LOC + "write0 !canwrite");
+
+        canwrite = ret > 0;
         if (canwrite && vidwrite >= vidread)
         {
-            count = videoout->WriteBuffer(&vidbuf[vidwrite], vidmax - vidwrite);
+            count = vidmax - vidwrite;
+            count = videoout->WriteBuffer(&vidbuf[vidwrite], count);
             if (count < 0)
+            {
                 ateof = true;
+                VERBOSE(VB_PLAYBACK, LOC + "write1 ateof");
+            }
             else if (count > 0)
             {
                 vidwrite = (vidwrite + count) & (vidmax - 1);
                 vidfull = 0;
                 total += count;
-                //fprintf(stderr, "write1 = %d, %d, %d, %d\n", count, vidread, vidwrite, vidfull);
+#ifdef EXTRA_DEBUG
+                VERBOSE(VB_PLAYBACK, LOC +
+                        QString("write1 cnt(%1) rd(%2) wr(%3) full(%4)")
+                        .arg(count, 5).arg(vidread, 5).arg(vidwrite, 5)
+                        .arg(vidfull));
+#endif // EXTRA_DEBUG
             }
         }
 
         if (canwrite && vidwrite < vidread)
         {
-            count = videoout->WriteBuffer(&vidbuf[vidwrite], vidread - vidwrite);
+            count = vidread - vidwrite;
+            count = videoout->WriteBuffer(&vidbuf[vidwrite], count);
             if (count < 0)
+            {
                 ateof = true;
+                VERBOSE(VB_PLAYBACK, LOC + "write2 ateof");
+            }
             else if (count > 0)
             {
                 vidwrite = (vidwrite + count) & (vidmax - 1);
                 vidfull = 0;
                 total += count;
-                //fprintf(stderr, "write2 = %d, %d, %d, %d\n", count, vidread, vidwrite, vidfull);
+#ifdef EXTRA_DEBUG
+                VERBOSE(VB_PLAYBACK, LOC +
+                        QString("write2 cnt(%1) rd(%2) wr(%3) full(%4)")
+                        .arg(count, 5).arg(vidread, 5).arg(vidwrite, 5)
+                        .arg(vidfull));
+#endif // EXTRA_DEBUG
             }
         }
     }
 
+    int size = 0;
     if ((long)framesRead <= stopframe && (!vidfull || vidread != vidwrite))
     {
-        if (vidread >= vidwrite)
+        long long startpos = ringBuffer->GetReadPosition();
+        if (waitingForChange)
         {
-            long long startpos = ringBuffer->GetReadPosition();
-            if (waitingForChange && startpos + 4 >= readAdjust)
+#ifdef EXTRA_DEBUG
+            VERBOSE(VB_PLAYBACK,
+                    "startpos: "<<startpos
+                    <<" readAdjust: "<<readAdjust);
+#endif // EXTRA_DEBUG
+
+            if (startpos + 4 >= readAdjust)
             {
                 FileChanged();
                 startpos = ringBuffer->GetReadPosition();
             }
+        }
 
-            count = ringBuffer->Read(&vidbuf[vidread], vidmax - vidread);
+        if (vidread >= vidwrite)
+        {
+            size  = vidmax - vidread;
+            count = ringBuffer->Read(&vidbuf[vidread], size);
             if (count > 0)
             {
                 count = MpegPreProcessPkt(&vidbuf[vidread], count, 
@@ -505,20 +545,19 @@ bool IvtvDecoder::ReadWrite(int onlyvideo, long stopframe)
                 vidread = (vidread + count) & (vidmax - 1);
                 vidfull = (vidread == vidwrite);
                 total += count;
-                //fprintf(stderr, "read1 = %d, %d, %d, %d\n", count, vidread, vidwrite, vidfull);
+#ifdef EXTRA_DEBUG
+                VERBOSE(VB_PLAYBACK, LOC +
+                        QString("read1  cnt(%1) rd(%2) wr(%3) full(%4)")
+                        .arg(count, 5).arg(vidread, 5).arg(vidwrite, 5)
+                        .arg(vidfull));
+#endif // EXTRA_DEBUG
             }
         }
 
         if (vidread < vidwrite)
         {
-            long long startpos = ringBuffer->GetReadPosition();
-            if (waitingForChange && startpos + 4 >= readAdjust)
-            {
-                FileChanged();
-                startpos = ringBuffer->GetReadPosition();
-            }
-
-            count = ringBuffer->Read(&vidbuf[vidread], vidwrite - vidread);
+            size  = vidwrite - vidread;
+            count = ringBuffer->Read(&vidbuf[vidread], size);
             if (count > 0)
             {
                 count = MpegPreProcessPkt(&vidbuf[vidread], count, 
@@ -526,12 +565,68 @@ bool IvtvDecoder::ReadWrite(int onlyvideo, long stopframe)
                 vidread = (vidread + count) & (vidmax - 1);
                 vidfull = (vidread == vidwrite);
                 total += count;
-                //fprintf(stderr, "read2 = %d, %d, %d, %d\n", count, vidread, vidwrite, vidfull);
+#ifdef EXTRA_DEBUG
+                VERBOSE(VB_PLAYBACK, LOC +
+                        QString("read2  cnt(%1) rd(%2) wr(%3) full(%4)")
+                        .arg(count, 5).arg(vidread, 5).arg(vidwrite, 5)
+                        .arg(vidfull));
+#endif // EXTRA_DEBUG
             }
         }
 
-        if (total == 0)
+        if (total == 0 && (vidread != vidwrite) && canwrite)
+        {
             ateof = true;
+#ifdef EXTRA_DEBUG
+            VERBOSE(VB_PLAYBACK, LOC +
+                    QString("read3  cnt(%1) rd(%2) wr(%3) full(%4) size(%5)")
+                    .arg(count, 5).arg(vidread, 5).arg(vidwrite, 5)
+                    .arg(vidfull).arg(size) + " ateof");
+#endif // EXTRA_DEBUG
+        }
+
+        bool was_set = needReset;
+        needReset = !total && !canwrite;
+        if (needReset && !was_set)
+            needResetTimer.start();
+    }
+
+#ifdef EXTRA_DEBUG
+    if (needReset)
+    {
+        VERBOSE(VB_PLAYBACK, LOC + "needReset "<<needResetTimer.elapsed()
+                <<" livetv("<<(bool)GetNVP()->GetTVChain()<<")");
+        usleep(50000);
+    }
+#endif // EXTRA_DEBUG
+
+    // If hit the EOF and are watching an old recording, set ateof.
+    // This lets us exit out of old recording quicker.
+    ateof |= needReset && (size > 0) && !(bool)GetNVP()->GetTVChain();
+
+    if (needReset && needResetTimer.elapsed() > 1000)
+    {
+        // Abort the reset itself if the we just did a reset, to avoid looping.
+        if (lastResetTime.elapsed() < 1200)
+        {
+            VERBOSE(VB_IMPORTANT, LOC + "RESET -- aborted "
+                    <<lastResetTime.elapsed());
+            ateof = true;
+            return false;
+        }
+        needReset = false;
+        lastResetTime.start();
+        VERBOSE(VB_IMPORTANT, LOC + "*********************************");
+        VERBOSE(VB_IMPORTANT, LOC + "RESET -- begin");
+        lastdequeued = 0;
+        vidframes = 0;
+        queuedlist.clear();
+        videoout->Stop(false /* hide */);
+        videoout->Flush();
+        videoout->Start(0 /*GOP offset*/, 0 /* muted frames */);
+        videoout->Play();
+        VERBOSE(VB_IMPORTANT, LOC + "RESET -- end");
+        VERBOSE(VB_IMPORTANT, LOC + "*********************************");
     }
 
     if ((long)framesRead <= stopframe)
@@ -555,7 +650,8 @@ bool IvtvDecoder::GetFrame(int onlyvideo)
 
     if (ateof && !GetNVP()->GetEditMode())
     {
-        //cout << "setting eof at " << framesRead << endl;
+        VERBOSE(VB_PLAYBACK, LOC + QString("NVP::SetEof() at frame %1")
+                .arg(framesRead));
         GetNVP()->SetEof();
     }
 

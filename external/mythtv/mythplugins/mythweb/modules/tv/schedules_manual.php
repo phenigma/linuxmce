@@ -3,8 +3,8 @@
  * Schedule a custom recording by manually specifying starttime and length
  *
  * @url         $URL$
- * @date        $Date: 2006-01-30 09:09:05 +0200 (Mon, 30 Jan 2006) $
- * @version     $Revision: 8775 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  *
  * @package     MythWeb
@@ -172,10 +172,16 @@
     function channel_select($chanid) {
         global $Channels;
         echo '<select name="channel">';
+        $seen = array();
         foreach ($Channels as $channel) {
         // Ignore invisible channels
             if ($channel->visible == 0)
                 continue;
+        // Group by channum
+            if ($seen[$channel->channum])
+                continue;
+            $seen[$channel->channum] = $channel;
+
         // Print the option
             echo '<option value="'.$channel->chanid.'"';
         // Selected?

@@ -3,7 +3,7 @@
  * Routines that allow mythweb to communicate with mythbackend
  *
  * @url         $URL$
- * @date        $Date: 2006-01-17 23:43:30 +0200 (Tue, 17 Jan 2006) $
+ * @date        $Date: 2006-01-17 16:43:30 -0500 (Tue, 17 Jan 2006) $
  * @version     $Revision: 8634 $
  * @author      $Author: xris $
  * @license     GPL

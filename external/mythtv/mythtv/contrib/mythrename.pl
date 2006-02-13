@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #
-# $Date: 2006-01-26 04:53:29 +0200 (Thu, 26 Jan 2006) $
-# $Revision: 8728 $
+# $Date: 2006-02-06 22:05:03 -0500 (Mon, 06 Feb 2006) $
+# $Revision: 8888 $
 # $Author: xris $
 #
 # license: GPL
@@ -408,8 +408,8 @@ EOF
                 print "$dest/$name\n";
             }
         }
-    # Rename the file
-        else {
+    # Rename the file, but only if it's a real file
+        elsif (-f "$video_dir/".$info{'basename'}) {
             if ($info{'basename'} ne $name.$suffix) {
             # Check for duplicates
                 if (-e "$video_dir/$name$suffix") {

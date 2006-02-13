@@ -39,7 +39,7 @@ using namespace std;
 #define O_LARGEFILE 0
 #endif
 
-const uint RingBuffer::kBufferSize = 10 * 256000;
+const uint RingBuffer::kBufferSize = 10 * 256 * 1024;
 
 #define PNG_MIN_SIZE   20 /* header plus one empty chunk */
 #define NUV_MIN_SIZE  204 /* header size? */
@@ -90,7 +90,7 @@ RingBuffer::RingBuffer(const QString &lfilename,
       pausereadthread(false),
       rbrpos(0),                rbwpos(0),
       internalreadpos(0),       ateof(false),
-      readsallowed(false),      wantseek(false),
+      readsallowed(false),      wantseek(false), setswitchtonext(false),
       rawbitrate(8000),         playspeed(1.0f),
       fill_threshold(-1),       fill_min(-1),
       readblocksize(128000),    wanttoread(0),
@@ -331,23 +331,27 @@ void RingBuffer::Start(void)
         StartupReadAheadThread();
 }
 
-/** \fn RingBuffer::Reset(bool)
+/** \fn RingBuffer::Reset(bool, bool, bool)
  *  \brief Resets the read-ahead thread and our position in the file
  */
-void RingBuffer::Reset(bool full, bool toAdjust)
+void RingBuffer::Reset(bool full, bool toAdjust, bool resetInternal)
 {
     wantseek = true;
     pthread_rwlock_wrlock(&rwlock);
     wantseek = false;
     numfailures = 0;
     commserror = false;
+    setswitchtonext = false;
 
     writepos = 0;
     readpos = (toAdjust) ? (readpos - readAdjust) : 0;
     readAdjust = 0;
 
     if (full)
-        ResetReadAhead(readpos - readAdjust);
+        ResetReadAhead(readpos);
+
+    if (resetInternal)
+        internalreadpos = readpos;
 
     pthread_rwlock_unlock(&rwlock);
 }
@@ -451,7 +455,8 @@ int RingBuffer::safe_read(RemoteFile *rf, void *data, uint sz)
 
 /** \fn RingBuffer::UpdateRawBitrate(uint)
  *  \brief Set the raw bit rate, to allow RingBuffer adjust effective bitrate.
- *  \param estbitrate Streams average number of kilobits per second.
+ *  \param raw_bitrate Streams average number of kilobits per second when
+ *                     playspeed is 1.0
  */
 void RingBuffer::UpdateRawBitrate(uint raw_bitrate)
 {
@@ -469,7 +474,7 @@ void RingBuffer::UpdateRawBitrate(uint raw_bitrate)
 uint RingBuffer::GetBitrate(void) const
 {
     QMutexLocker locker(&bitratelock);
-    uint tmp = max(abs(rawbitrate * playspeed), 0.5f * rawbitrate);
+    uint tmp = (uint) max(abs(rawbitrate * playspeed), 0.5f * rawbitrate);
     return min(rawbitrate * 3, tmp);
 }
 
@@ -483,7 +488,8 @@ uint RingBuffer::GetReadBlockSize(void) const
 }
 
 /** \fn RingBuffer::UpdatePlaySpeed(float)
- *  \param Set the play speed, to allow RingBuffer adjust effective bitrate.
+ *  \brief Set the play speed, to allow RingBuffer adjust effective bitrate.
+ *  \param play_speed Speed to set. (1.0 for normal speed)
  */
 void RingBuffer::UpdatePlaySpeed(float play_speed)
 {
@@ -507,7 +513,7 @@ void RingBuffer::CalcReadAheadThresh(void)
     wantseek = true;
     pthread_rwlock_wrlock(&rwlock);
 
-    estbitrate     = max(abs(rawbitrate * playspeed), 0.5f * rawbitrate);
+    estbitrate     = (uint) max(abs(rawbitrate * playspeed), 0.5f * rawbitrate);
     estbitrate     = min(rawbitrate * 3, estbitrate);
     wantseek       = false;
     readsallowed   = false;
@@ -577,6 +583,7 @@ void RingBuffer::ResetReadAhead(long long newinternal)
     internalreadpos = newinternal;
     ateof = false;
     readsallowed = false;
+    setswitchtonext = false;
     readAheadLock.unlock();
 }
 
@@ -754,10 +761,11 @@ void RingBuffer::ReadAheadThread(void)
             {
                 if (livetvchain)
                 {
-                    if (!ignoreliveeof && livetvchain->HasNext())
+                    if (!setswitchtonext && !ignoreliveeof && 
+                        livetvchain->HasNext())
                     {
                         livetvchain->SwitchToNext(true);
-                        ateof = true;
+                        setswitchtonext = true;
                     }
                 }
                 else
@@ -780,7 +788,7 @@ void RingBuffer::ReadAheadThread(void)
         if (!readsallowed && used >= fill_min)
             readsallowed = true;
 
-        if (readsallowed && used < fill_min && !ateof)
+        if (readsallowed && used < fill_min && !ateof && !setswitchtonext)
         {
             readsallowed = false;
             VERBOSE(VB_GENERAL, QString ("rebuffering (%1 %2)").arg(used)
@@ -791,7 +799,7 @@ void RingBuffer::ReadAheadThread(void)
             readsAllowedWait.wakeAll();
 
         availWaitMutex.lock();
-        if (commserror || ateof || stopreads ||
+        if (commserror || ateof || stopreads || setswitchtonext ||
             (wanttoread <= used && wanttoread > 0))
         {
             availWait.wakeAll();
@@ -819,7 +827,7 @@ long long RingBuffer::SetAdjustFilesize(void)
 /** \fn RingBuffer::ReadFromBuf(void*, int)
  *  \brief Reads from the read-ahead buffer, this is called by
  *         Read(void*, int) when the read-ahead thread is running.
- *  \param data  Pointer to where data will be written
+ *  \param buf   Pointer to where data will be written
  *  \param count Number of bytes to read
  *  \return Returns number of bytes read
  */
@@ -889,22 +897,19 @@ int RingBuffer::ReadFromBuf(void *buf, int count)
                         " seconds for data to become available...");
             }
 
-            bool quit = false;
-            if (livetvchain && elapsed > 8000)
-            {
-                livetvchain->ReloadAll();
-                quit = livetvchain->NeedsToSwitch() || 
-                       livetvchain->NeedsToJump();
-            }
+            bool quit = livetvchain && (livetvchain->NeedsToSwitch() || 
+                                        livetvchain->NeedsToJump() ||
+                                        setswitchtonext);
 
             if (elapsed > 16000 || quit)
             {
                 if (!quit)
-                {
                     VERBOSE(VB_IMPORTANT, LOC_ERR + "Waited " +
                             QString("%1").arg(elapsed/1000) +
                             " seconds for data, aborting.");
-                }
+                else
+                    VERBOSE(VB_IMPORTANT, LOC + "Timing out wait due to "
+                            "impending livetv switch.");
 
                 ateof = true;
                 wanttoread = 0;

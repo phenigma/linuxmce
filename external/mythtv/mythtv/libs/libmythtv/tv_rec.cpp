@@ -620,12 +620,26 @@ void TVRec::StartedRecording(ProgramInfo *curRec)
  *         programs. If the recording type is kFindOneRecord this find
  *         is removed.
  *  \sa ProgramInfo::FinishedRecording(bool prematurestop)
- *  \param prematurestop If true, we only fetch the recording status.
+ *  \param curRec ProgramInfo or recording to mark as done
  */
 void TVRec::FinishedRecording(ProgramInfo *curRec)
 {
     if (!curRec)
         return;
+
+    ProgramInfo *pi = NULL;
+
+    QString pigrp = curRec->recgroup;
+
+    pi = ProgramInfo::GetProgramFromRecorded(curRec->chanid,
+                                             curRec->recstartts);
+    if (pi)
+    {
+        pigrp = pi->recgroup;
+        delete pi;
+    }
+    VERBOSE(VB_RECORD, LOC + QString("FinishedRecording(%1) in recgroup: %2")
+                                     .arg(curRec->title).arg(pigrp));
 
     curRec->recstatus = rsRecorded;
     curRec->recendts = mythCurrentDateTime();
@@ -641,14 +655,16 @@ void TVRec::FinishedRecording(ProgramInfo *curRec)
     if (curRec->recendts <= curRec->recstartts)
         curRec->recendts = mythCurrentDateTime().addSecs(1);
 
-    MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
-                 .arg(curRec->cardid)
-                 .arg(curRec->chanid)
-                 .arg(curRec->startts.toString(Qt::ISODate))
-                 .arg(curRec->recstatus)
-                 .arg(curRec->recendts.toString(Qt::ISODate)));
-    gContext->dispatch(me);
-
+    if (pigrp != "LiveTV")
+    {
+        MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
+                     .arg(curRec->cardid)
+                     .arg(curRec->chanid)
+                     .arg(curRec->startts.toString(Qt::ISODate))
+                     .arg(curRec->recstatus)
+                     .arg(curRec->recendts.toString(Qt::ISODate)));
+        gContext->dispatch(me);
+    }
     curRec->FinishedRecording(false);
 }
 
@@ -760,7 +776,8 @@ void TVRec::ChangeState(TVState nextState)
  *  \brief Calls RecorderBase::SetOption(const QString&,int) with the "name"d
  *         option from the recording profile.
  *  \sa RecordingProfile, RecorderBase
- *  \param "name" Profile/RecorderBase option to get/set.
+ *  \param profile RecordingProfile to use
+ *  \param name RecordingProfile option to get and RecorderBase option to set
  */
 void TVRec::SetOption(RecordingProfile &profile, const QString &name)
 {
@@ -1217,7 +1234,8 @@ void TVRec::RunTV(void)
         {
 #define LIVETV_END (now >= curRecording->endts)
 // use the following instead to test ringbuffer switching
-//#define LIVETV_END (now >= curRecording->recstartts.addSecs(60))
+//static QDateTime last = QDateTime::currentDateTime(); 
+//#define LIVETV_END ((now >= curRecording->recstartts.addSecs(20)) && (now > last))
 
             QDateTime now   = QDateTime::currentDateTime();
             bool has_finish = HasFlags(kFlagFinishRecording);
@@ -1239,6 +1257,7 @@ void TVRec::RunTV(void)
                         <<"!rec_soon("<<!rec_soon<<") "
                         <<"curRec("<<curRecording<<") "
                         <<"starttm("<<starttime.toString(Qt::ISODate)<<")");
+//                last = QDateTime::currentDateTime().addSecs(20); 
             }
             else
                 enable_ui = false;
@@ -1305,7 +1324,7 @@ void TVRec::RunTV(void)
     }
 }
 
-bool TVRec::WaitForEventThreadSleep(bool wake, unsigned long time)
+bool TVRec::WaitForEventThreadSleep(bool wake, ulong time)
 {
     bool ok = false;
     MythTimer t;
@@ -1785,7 +1804,7 @@ DTVSignalMonitor *TVRec::GetDTVSignalMonitor(void)
  *  \brief Checks if named channel exists on current tuner, or
  *         another tuner.
  *
- *  \param channelid channel to verify against tuners.
+ *  \param chanid channel to verify against tuners.
  *  \return true if the channel on another tuner and not current tuner,
  *          false otherwise.
  *  \sa EncoderLink::ShouldSwitchToAnotherCard(const QString&),
@@ -2563,12 +2582,12 @@ long long TVRec::GetKeyframePosition(long long desired)
     return -1;
 }
 
-/** \fn TVRec::GetMaxBitrate()
+/** \fn TVRec::GetMaxBitrate(void)
  *  \brief Returns the maximum bits per second this recorder can produce.
  *
- *  \sa EncoderLink::GetMaxBitrate(), RemoteEncoder::GetMaxBitrate()
+ *  \sa EncoderLink::GetMaxBitrate(void), RemoteEncoder::GetMaxBitrate(void)
  */
-long long TVRec::GetMaxBitrate()
+long long TVRec::GetMaxBitrate(void)
 {
     long long bitrate;
     if (genOpt.cardtype == "MPEG")
@@ -2585,9 +2604,10 @@ long long TVRec::GetMaxBitrate()
     return bitrate;
 }
 
-/** \fn TVRec::SpawnLiveTV()
+/** \fn TVRec::SpawnLiveTV(LiveTVChain*,bool)
  *  \brief Tells TVRec to spawn a "Live TV" recorder.
- *  \sa EncoderLink::SpawnLiveTV(), RemoteEncoder::SpawnLiveTV()
+ *  \sa EncoderLink::SpawnLiveTV(LiveTVChain*,bool),
+ *      RemoteEncoder::SpawnLiveTV(LiveTVChain*,bool)
  */
 void TVRec::SpawnLiveTV(LiveTVChain *newchain, bool pip)
 {
@@ -2995,7 +3015,9 @@ int TVRec::ChangeHue(bool direction)
  *
  *   You must call PauseRecorder() before calling this.
  *
- *  \param name channel to change to.
+ *  \param name channum of channel to change to
+ *  \param requestType tells us what kind of request to actually send to
+ *                     the tuning thread, kFlagDetect is usually sufficient
  */
 void TVRec::SetChannel(QString name, uint requestType)
 {
@@ -3261,7 +3283,7 @@ void TVRec::HandleTuning(void)
     }
 }
 
-/** \fn TuningShutdowns(const TuningRequest&)
+/** \fn TVRec::TuningShutdowns(const TuningRequest&)
  *  \brief This shuts down anything that needs to be shut down 
  *         before handling the passed in tuning request.
  */
@@ -3586,7 +3608,7 @@ static int init_jobs(const ProgramInfo *rec, RecordingProfile &profile,
     // grab standard jobs flags from program info
     JobQueue::AddJobsToMask(rec->GetAutoRunJobs(), jobs);
 
-        // disable commercial flagging on PBS, BBC, etc.
+    // disable commercial flagging on PBS, BBC, etc.
     if (rec->chancommfree)
         JobQueue::RemoveJobsFromMask(JOB_COMMFLAG, jobs);
 

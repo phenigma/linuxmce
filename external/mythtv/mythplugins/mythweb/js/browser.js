@@ -15,8 +15,8 @@
  * support for anything earlier than version 4 browsers because of their lack
  * of the RegExp object.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/js/browser.js $
- * @date        $Date: 2006-02-02 05:34:43 +0200 (Thu, 02 Feb 2006) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/js/browser.js $
+ * @date        $Date: 2006-02-01 22:34:43 -0500 (Wed, 01 Feb 2006) $
  * @version     $Revision: 8826 $
  * @author      $Author: xris $
  * @copyright   Silicon Mechanics

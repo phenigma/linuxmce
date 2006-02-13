@@ -10,7 +10,7 @@ using namespace std;
 #include "mythdbcon.h"
 
 /// This is the DB schema version expected by the running MythTV instance.
-const QString currentDatabaseVersion = "1122";
+const QString currentDatabaseVersion = "1123";
 
 static bool UpdateDBVersionNumber(const QString &newnumber);
 static bool performActualUpdate(const QString updates[], QString version,
@@ -353,7 +353,7 @@ static bool UpdateDBVersionNumber(const QString &newnumber)
     return true;
 }
 
-/** \fn performActualUpdate(const QString[], QString, QString&)
+/** \fn performActualUpdate(const QString updates[], QString, QString&)
  *  \brief Runs a number of SQL commands, and updates the schema version.
  *
  *  \param updates  array of SQL commands to issue, terminated by a "" string.
@@ -421,6 +421,10 @@ bool UpgradeTVDatabaseSchema(void)
 
     if (dbver == currentDatabaseVersion)
         return true;
+
+    MSqlQuery chartype(MSqlQuery::InitCon());
+    chartype.prepare("ALTER DATABASE mythconverg DEFAULT CHARACTER SET latin1;");
+    chartype.exec();
 
     VERBOSE(VB_IMPORTANT, QString("Newest Schema Version : %1")
                                   .arg(currentDatabaseVersion));
@@ -1987,6 +1991,18 @@ static bool doUpgradeTVDatabaseSchema(void)
 ""
 };
         if (!performActualUpdate(updates, "1122", dbver))
+            return false;
+    }
+
+    if (dbver == "1122")
+    {
+        const QString updates[] = {
+"ALTER TABLE recorded ADD duplicate TINYINT(1) NOT NULL DEFAULT 0;",
+"UPDATE recorded SET duplicate=1;",
+""
+}; 
+        
+        if (!performActualUpdate(updates, "1123", dbver))
             return false;
     }
 

@@ -7,7 +7,7 @@
  * shared files for the entire program.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 07:36:08 +0200 (Thu, 02 Feb 2006) $
+ * @date        $Date: 2006-02-02 00:36:08 -0500 (Thu, 02 Feb 2006) $
  * @version     $Revision: 8832 $
  * @author      $Author: xris $
  * @license     GPL

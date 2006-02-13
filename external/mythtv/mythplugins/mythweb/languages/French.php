@@ -228,6 +228,7 @@ $L = array(
     'Custom'                                     => '',
     'Edit MythWeb and some MythTV settings.'     => 'Editer les param&egrave;tres de Mythweb et certains de MythTV',
     'Exact Match'                                => 'Correspondance exacte',
+    'Fold Duplicates'                            => '',
     'HD Only'                                    => 'TVHD seul',
     'Manual'                                     => '',
     'MythMusic on the web.'                      => 'MythMusic sur le Web',
@@ -442,7 +443,9 @@ $L = array(
     'Wind'               => 'Vent',
     'Wind Chill'         => 'Vent Frais',
 // themes/default/weather/welcome.php
-    'welcome: weather' => ''
+    'welcome: weather' => '',
+// themes/default/welcome.php
+    'Visit $1' => ''
 // End of the translation hash ** Do not touch the next line
           );
 

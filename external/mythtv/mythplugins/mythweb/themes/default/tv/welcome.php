@@ -2,8 +2,8 @@
 /**
  * Welcome page description of the TV module.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/tv/welcome.php $
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/tv/welcome.php $
+ * @date        $Date: 2006-01-24 22:41:36 -0500 (Tue, 24 Jan 2006) $
  * @version     $Revision: 8709 $
  * @author      $Author: xris $
  * @license     GPL

@@ -1,7 +1,7 @@
 <?php
 /*
- *  $Date: 2006-02-02 09:59:05 +0200 (Thu, 02 Feb 2006) $
- *  $Revision: 8837 $
+ *  $Date: 2006-02-10 21:48:14 -0500 (Fri, 10 Feb 2006) $
+ *  $Revision: 8920 $
  *  $Author: xris $
  *
  *  languages/Finnish.php
@@ -233,6 +233,7 @@ $L = array(
     'Custom'                                     => 'Mukautettu',
     'Edit MythWeb and some MythTV settings.'     => 'Muokkaa MythWeb:in ja MythTV:n asetuksia.',
     'Exact Match'                                => 'Tarkka Vastaavuus',
+    'Fold Duplicates'                            => '',
     'HD Only'                                    => 'Vain Teräväpiirto',
     'Manual'                                     => 'Manuaalinen',
     'MythMusic on the web.'                      => 'MythMusic Netissä.',
@@ -447,7 +448,9 @@ $L = array(
     'Wind'               => 'Tuuli',
     'Wind Chill'         => 'Tuulen Viileys',
 // themes/default/weather/welcome.php
-    'welcome: weather' => 'tervetuloa: säätila'
+    'welcome: weather' => 'tervetuloa: säätila',
+// themes/default/welcome.php
+    'Visit $1' => ''
 // End of the translation hash ** Do not touch the next line
           );
 

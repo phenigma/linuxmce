@@ -4,7 +4,7 @@
  * commands.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-30 09:16:42 +0200 (Mon, 30 Jan 2006) $
+ * @date        $Date: 2006-01-30 02:16:42 -0500 (Mon, 30 Jan 2006) $
  * @version     $Revision: 8776 $
  * @author      $Author: xris $
  * @license     GPL

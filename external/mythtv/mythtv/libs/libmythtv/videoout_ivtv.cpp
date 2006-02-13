@@ -57,7 +57,8 @@ VideoOutputIvtv::VideoOutputIvtv(void) :
 
     stride(0),
 
-    lastcleared(false),
+    lastcleared(false),       pipon(false),
+    osdon(false),
     osdbuffer(NULL),          osdbuf_aligned(NULL),
     osdbufsize(0),            osdbuf_revision(0xfffffff),
 
@@ -88,34 +89,50 @@ VideoOutputIvtv::~VideoOutputIvtv()
 
 void VideoOutputIvtv::ClearOSD(void) 
 {
-    if (fbfd >= 0)
+    if (fbfd < 0)
     {
-        struct ivtv_osd_coords osdcoords;
-        bzero(&osdcoords, sizeof(osdcoords));
-
-        if (ioctl(fbfd, IVTVFB_IOCTL_GET_ACTIVE_BUFFER, &osdcoords) < 0)
-        {
-            VERBOSE(VB_IMPORTANT, LOC_ERR +
-                    "Failed to get active buffer for ClearOSD()" + ENO);
-        }
-        struct ivtvfb_ioctl_dma_host_to_ivtv_args prep;
-        bzero(&prep, sizeof(prep));
-
-        prep.source = osdbuf_aligned;
-        prep.dest_offset = 0;
-        prep.count = osdcoords.max_offset;
-
-        bzero(osdbuf_aligned, osdbufsize);
-
-        if (ioctl(fbfd, IVTVFB_IOCTL_PREP_FRAME, &prep) < 0)
-            VERBOSE(VB_IMPORTANT, LOC_ERR + "Failed to prepare frame" + ENO);
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "ClearOSD() -- no framebuffer!");
+        return;
     }
+
+    VERBOSE(VB_PLAYBACK, LOC + "ClearOSD");
+
+    struct ivtv_osd_coords osdcoords;
+    bzero(&osdcoords, sizeof(osdcoords));
+
+    if (ioctl(fbfd, IVTVFB_IOCTL_GET_ACTIVE_BUFFER, &osdcoords) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, LOC_ERR +
+                "Failed to get active buffer for ClearOSD()" + ENO);
+    }
+    struct ivtvfb_ioctl_dma_host_to_ivtv_args prep;
+    bzero(&prep, sizeof(prep));
+
+    prep.source = osdbuf_aligned;
+    prep.dest_offset = 0;
+    prep.count = osdcoords.max_offset;
+
+    bzero(osdbuf_aligned, osdbufsize);
+
+    if (ioctl(fbfd, IVTVFB_IOCTL_PREP_FRAME, &prep) < 0)
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "Failed to prepare frame" + ENO);
 }
 
 void VideoOutputIvtv::SetAlpha(eAlphaState newAlphaState)
 {
     if (alphaState == newAlphaState)
         return;
+
+#if 0
+    if (newAlphaState == kAlpha_Local)
+        VERBOSE(VB_PLAYBACK, LOC + "SetAlpha(Local)");
+    if (newAlphaState == kAlpha_Clear)
+        VERBOSE(VB_PLAYBACK, LOC + "SetAlpha(Clear)");
+    if (newAlphaState == kAlpha_Solid)
+        VERBOSE(VB_PLAYBACK, LOC + "SetAlpha(Solid)");
+    if (newAlphaState == kAlpha_Embedded)
+        VERBOSE(VB_PLAYBACK, LOC + "SetAlpha(Embedded)");
+#endif
 
     alphaState = newAlphaState;
 
@@ -158,6 +175,11 @@ void VideoOutputIvtv::InputChanged(int width, int height, float aspect)
 int VideoOutputIvtv::GetRefreshRate(void)
 {
     return 0;
+}
+
+int VideoOutputIvtv::ValidVideoFrames(void) const
+{
+    return 131; // approximation for when output buffer is full...
 }
 
 bool VideoOutputIvtv::Init(int width, int height, float aspect, 
@@ -237,6 +259,8 @@ bool VideoOutputIvtv::Init(int width, int height, float aspect,
 
         if (ioctl(fbfd, IVTVFB_IOCTL_SET_ACTIVE_BUFFER, &osdcoords) < 0)
             VERBOSE(VB_IMPORTANT, LOC_ERR + "Setting active buffer" + ENO);
+
+        SetAlpha(kAlpha_Clear);
     }
 
     VERBOSE(VB_GENERAL, "Using the PVR-350 decoder/TV-out");
@@ -400,76 +424,107 @@ void VideoOutputIvtv::ProcessFrame(VideoFrame *frame, OSD *osd,
     (void)filterList;
     (void)frame;
 
-    if (fbfd >= 0 && osd)
+    if (fbfd < 0)
+        return;
+
+    if (!osd && !pipon)
+        return;
+
+    if (embedding && alphaState != kAlpha_Embedded)
+        SetAlpha(kAlpha_Embedded);
+    else if (!embedding && alphaState == kAlpha_Embedded && lastcleared)
+        SetAlpha(kAlpha_Clear);
+
+    if (embedding)
+        return;
+
+    VideoFrame tmpframe;
+    tmpframe.codec = FMT_ARGB32;
+    tmpframe.buf = (unsigned char *)osdbuf_aligned;
+    tmpframe.width = stride;
+    tmpframe.height = XJ_height;
+
+    OSDSurface *surface = NULL;
+    if (osd)
+        surface = osd->Display();
+
+    // Clear osdbuf if OSD has changed, or PiP has been toggled
+    bool clear = (pipPlayer!=0) ^ pipon;
+    int new_revision = osdbuf_revision;
+    if (surface)
     {
-        bool drawanyway = false;
-
-        if (embedding && alphaState != kAlpha_Embedded)
-            SetAlpha(kAlpha_Embedded);
-        else if (!embedding && alphaState == kAlpha_Embedded && lastcleared)
-            SetAlpha(kAlpha_Clear);
-
-        VideoFrame tmpframe;
-        tmpframe.codec = FMT_ARGB32;
-        tmpframe.buf = (unsigned char *)osdbuf_aligned;
-        tmpframe.width = stride;
-        tmpframe.height = XJ_height;
-
-        // Clear osdbuf if OSD has changed.
-        OSDSurface *surface = osd->Display();
-        int new_revision = osdbuf_revision;
-        if (surface && (surface->GetRevision() != osdbuf_revision))
-        {
-            bzero(tmpframe.buf, XJ_height * stride);
-            new_revision = surface->GetRevision();
-        }
-
-        int ret = DisplayOSD(&tmpframe, osd, stride, osdbuf_revision);
-        osdbuf_revision = new_revision;
-
-        if (ret < 0 && !lastcleared)
-        {
-            lastcleared = true;
-            drawanyway = true;
-        }
-
-        if (pipPlayer)
-        {
-            ShowPip(&tmpframe, pipPlayer);
-            drawanyway = true;
-            lastcleared = false;
-        }
-
-        if (ret >= 0)
-            lastcleared = false;
-
-        if (lastcleared && drawanyway)
-        {
-            if (!embedding)
-                SetAlpha(kAlpha_Clear);
-            lastcleared = true;
-        } 
-        else if (ret > 0 || drawanyway)
-        {
-            if (embedding)
-                return;
-
-            struct ivtvfb_ioctl_dma_host_to_ivtv_args prep;
-            bzero(&prep, sizeof(prep));
-
-            prep.source = osdbuf_aligned;
-            prep.dest_offset = 0;
-            prep.count = XJ_height * stride;
-
-            if (ioctl(fbfd, IVTVFB_IOCTL_PREP_FRAME, &prep) < 0)
-            {
-                VERBOSE(VB_IMPORTANT, LOC_ERR +
-                        "Failed to process frame" + ENO);
-            }
-            if (alphaState != kAlpha_Local)
-                SetAlpha(kAlpha_Local);
-        }
+        new_revision = surface->GetRevision();
+        clear |= surface->GetRevision() != osdbuf_revision;
     }
+
+    bool drawanyway = false;
+    if (clear)
+    {
+        bzero(tmpframe.buf, XJ_height * stride);
+        drawanyway = true;
+    }
+
+    if (pipPlayer)
+    {
+        ShowPip(&tmpframe, pipPlayer);
+        osdbuf_revision = 0xfffffff; // make sure OSD is redrawn
+        lastcleared = false;
+        drawanyway  = true;
+    }
+
+    int ret = 0;
+    ret = DisplayOSD(&tmpframe, osd, stride, osdbuf_revision);
+    osdbuf_revision = new_revision;
+
+    // Handle errors, such as no surface, by clearing OSD surface.
+    // If there is a PiP, we need to actually clear the buffer, otherwise
+    // we can get away with setting the alpha to kAlpha_Clear.
+    if (ret < 0 && osdon)
+    {
+        if (!clear || pipon)
+        {
+            VERBOSE(VB_PLAYBACK, "clearing buffer");
+            bzero(tmpframe.buf, XJ_height * stride);
+            // redraw PiP...
+            if (pipPlayer)
+                ShowPip(&tmpframe, pipPlayer);
+        }
+        drawanyway  |= !lastcleared || pipon;
+        lastcleared &= !pipon;
+    }
+
+    // Set these so we know if/how to clear if need be, the next time around.
+    osdon = (ret >= 0);
+    pipon = (bool) pipPlayer;
+
+    // If there is an OSD, make sure we draw OSD surface
+    lastcleared &= !osd;
+
+#if 0
+// These optimizations have been disabled until someone with a real PVR-350
+// setup can test them Feb 7th, 2006 -- dtk
+    // If nothing on OSD surface, just set the alpha to zero
+    if (lastcleared && drawanyway)
+    {
+        SetAlpha(kAlpha_Clear);
+        return;
+    }
+
+    // If there has been no OSD change and no draw has been forced we're done
+    if (ret <= 0 && !drawanyway)
+        return;
+#endif
+
+    // The OSD surface needs to be updated...
+    struct ivtvfb_ioctl_dma_host_to_ivtv_args prep;
+    bzero(&prep, sizeof(prep));
+    prep.source = osdbuf_aligned;
+    prep.count  = XJ_height * stride;
+
+    if (ioctl(fbfd, IVTVFB_IOCTL_PREP_FRAME, &prep) < 0)
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "Failed to process frame" + ENO);
+
+    SetAlpha(kAlpha_Local);
 }
 
 /** \fn VideoOutputIvtv::Start(int,int)

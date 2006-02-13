@@ -3,7 +3,7 @@
  * Schedule a custom recording by manually specifying various search options
  *
  * @url         $URL$
- * @date        $Date: 2006-01-30 09:22:21 +0200 (Mon, 30 Jan 2006) $
+ * @date        $Date: 2006-01-30 02:22:21 -0500 (Mon, 30 Jan 2006) $
  * @version     $Revision: 8778 $
  * @author      $Author: xris $
  * @license     GPL

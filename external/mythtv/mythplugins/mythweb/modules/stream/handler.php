@@ -3,8 +3,8 @@
  * This module would work fine, except that PHP freaks out with files larger
  * than 2G, so it's disabled and left half-finished.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/stream/handler.php $
- * @date        $Date: 2005-12-17 07:27:36 +0200 (Sat, 17 Dec 2005) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/stream/handler.php $
+ * @date        $Date: 2005-12-17 00:27:36 -0500 (Sat, 17 Dec 2005) $
  * @version     $Revision: 8297 $
  * @author      $Author: xris $
  * @license     GPL

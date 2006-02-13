@@ -3,7 +3,7 @@
  * Display/save mythweb session settings
  *
  * @url         $URL$
- * @date        $Date: 2006-01-28 21:36:32 +0200 (Sat, 28 Jan 2006) $
+ * @date        $Date: 2006-01-28 14:36:32 -0500 (Sat, 28 Jan 2006) $
  * @version     $Revision: 8744 $
  * @author      $Author: xris $
  * @license     GPL

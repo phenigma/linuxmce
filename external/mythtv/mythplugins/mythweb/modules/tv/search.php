@@ -3,8 +3,8 @@
  * Searches the database for programs matching a particular query.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-16 05:07:00 +0200 (Fri, 16 Dec 2005) $
- * @version     $Revision: 8278 $
+ * @date        $Date: 2006-02-10 21:45:02 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8919 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -51,9 +51,8 @@
         $_SESSION['search']['search_exact'] = _or($_GET['search_exact'], $_POST['search_exact']);
     if ($_GET['search_hd'] || $_POST['search_hd'])
         $_SESSION['search']['search_hd'] = _or($_GET['search_hd'], $_POST['search_hd']);
-
-// Flags that apply in all cases
-    $nodups = _or($_GET['nodups'], $_POST['nodups']);
+    if ($_GET['fold_dups'] || $_POST['fold_dups'])
+        $_SESSION['search']['fold_dups'] = _or($_GET['fold_dups'], $_POST['fold_dups']);
 
 // Start the query
     $search_name = '';
@@ -76,9 +75,6 @@
     // Find the query
         if ($Canned_Searches[$search_name]) {
             $query = array($Canned_Searches[$search_name]);
-        // default nodups on here, unless explicitly set
-            if (!empty($nodups))
-                $nodups = true;
         }
         else
             add_warning("Unknown canned query: $search_name");
@@ -164,15 +160,31 @@
         if (empty($Results))
             $Results = array();
 
+    // Group $Results by channum
+        $seen = array();
+        foreach( $Results as $dex => $row ) {
+            $uniquer = $row->programid . $row->starttime . $row->channel->channum;
+            if( isset($seen[$uniquer]) ) {
+                unset( $Results[$dex] );
+            } else {
+                $seen[$uniquer] = $dex;
+            }
+        }
+
     // Remove dups from the results if requested
-        if ($nodups) {
+        if ($_SESSION['search']['fold_dups']) {
             $seen = array();        // program ids already seen
             foreach( $Results as $dex => $row ) {
-                $uniquer = $row->programid . $row->chanid;
+                $uniquer = $row->programid . $row->channel->channum;
                 if( $seen[$uniquer] ) {
                     // add a new field to the old row
-                    $Results[$seen[$uniquer]]->extra_showings[] =
-                                $row->starttime;
+                    if ($row->starttime != $Results[$seen[$uniquer]]->starttime &&
+                            (!is_array($Results[$seen[$uniquer]]->extra_showings) ||
+                            !in_array($row->starttime,
+                            $Results[$seen[$uniquer]]->extra_showings))) {
+                        $Results[$seen[$uniquer]]->extra_showings[] =
+                            $row->starttime;
+                    }
                     unset( $Results[$dex] );
                 } else {
                     $seen[$uniquer] = $dex;

@@ -3,7 +3,7 @@
  * MythMusic browser
  *
  * @url         $URL: svn+ssh://xris@cvs.mythtv.org/var/lib/svn/trunk/mythplugins/mythweb/modules/music/init.php $
- * @date        $Date: 2005-12-22 09:17:32 +0200 (Thu, 22 Dec 2005) $
+ * @date        $Date: 2005-12-22 02:17:32 -0500 (Thu, 22 Dec 2005) $
  * @version     $Revision: 8347 $
  * @author      $Author: xris $
  * @license     GPL

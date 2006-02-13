@@ -3,8 +3,8 @@
  * Print the program list
  *
  * @url         $URL$
- * @date        $Date: 2005-12-31 01:11:40 +0200 (Sat, 31 Dec 2005) $
- * @version     $Revision: 8431 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -100,6 +100,7 @@
 
         $timeslot_anchor    = 0;
         $channel_count      = 0;
+        $displayed_channels = array();
 
     // Go through each channel and load/print its info - use references to avoid "copy" overhead
 
@@ -111,6 +112,10 @@
             if ($channel->visible == 0) {
                 continue;
             }
+        // Skip already-displayed channels
+            if ($displayed_channels[$channel->channum])
+                continue;
+            $displayed_channels[$channel->channum] = 1;
         // Display the timeslot bar?
             if ($channel_count % timeslotbar_skip == 0) {
             // Update the timeslot anchor

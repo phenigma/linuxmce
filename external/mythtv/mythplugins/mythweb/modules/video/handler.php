@@ -3,7 +3,7 @@
  * View MythVideo files
  *
  * @url         $URL$
- * @date        $Date: 2006-01-26 04:45:37 +0200 (Thu, 26 Jan 2006) $
+ * @date        $Date: 2006-01-25 21:45:37 -0500 (Wed, 25 Jan 2006) $
  * @version     $Revision: 8727 $
  * @author      $Author: xris $
  *

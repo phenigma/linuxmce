@@ -3,7 +3,7 @@
  * Routines for sorting Program objects
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
+ * @date        $Date: 2006-02-01 23:32:34 -0500 (Wed, 01 Feb 2006) $
  * @version     $Revision: 8830 $
  * @author      $Author: xris $
  * @license     GPL

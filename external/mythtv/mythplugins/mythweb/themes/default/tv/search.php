@@ -3,8 +3,8 @@
  * Show search results, or how to perform a detailed search.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-08 06:11:23 +0200 (Thu, 08 Dec 2005) $
- * @version     $Revision: 8168 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -115,7 +115,7 @@
     <td><?php echo $show->description ?></td>
     <td><?php echo $show->channel->channum.' - '.$show->channel->name ?></td>
     <td nowrap><?php
-            echo '<br /><a href="'.root.'tv/detail/'.$show->chanid.'/'.$show->starttime.'">'.
+            echo '<a href="'.root.'tv/detail/'.$show->chanid.'/'.$show->starttime.'">'.
                 strftime($_SESSION['date_search'], $show->starttime) . '</a>';
             if( $show->extra_showings )
                 foreach( $show->extra_showings as $showtime )

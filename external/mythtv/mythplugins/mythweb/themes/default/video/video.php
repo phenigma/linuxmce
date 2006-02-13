@@ -3,7 +3,7 @@
  * Rudimentary interface to MythVideo data
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 09:59:05 +0200 (Thu, 02 Feb 2006) $
+ * @date        $Date: 2006-02-02 02:59:05 -0500 (Thu, 02 Feb 2006) $
  * @version     $Revision: 8837 $
  * @author      $Author: xris $
  * @license     GPL

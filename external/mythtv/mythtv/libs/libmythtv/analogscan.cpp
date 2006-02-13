@@ -1,5 +1,5 @@
 /*
- * $Id: analogscan.cpp 7648 2005-10-30 21:20:29Z rkulagow $
+ * $Id: analogscan.cpp 8901 2006-02-07 21:56:06Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -46,7 +46,7 @@
 
 #include "analogscan.h"
 
-AnalogScan::AnalogScan(unsigned _sourceid,unsigned _cardid) :
+AnalogScan::AnalogScan(unsigned _sourceid, unsigned _cardid) :
     fRunning(false),
     fStop(false),
     sourceid(_sourceid),

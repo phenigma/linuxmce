@@ -59,6 +59,9 @@ class VideoOutputIvtv: public VideoOutput
         (void) allow_unsafe;
         return NULL;
     }
+
+    int ValidVideoFrames(void) const;
+
   private:
     typedef enum
     {
@@ -89,6 +92,8 @@ class VideoOutputIvtv: public VideoOutput
     int stride;
 
     bool lastcleared;
+    bool pipon;
+    bool osdon;
 
     char *osdbuffer;
     char *osdbuf_aligned;

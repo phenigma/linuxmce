@@ -3,9 +3,9 @@
  * The display code for the main welcome page that lists the available mythweb
  * sections.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/welcome.php $
- * @date        $Date: 2005-12-06 08:46:14 +0200 (Tue, 06 Dec 2005) $
- * @version     $Revision: 8138 $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/welcome.php $
+ * @date        $Date: 2006-02-04 16:20:25 -0500 (Sat, 04 Feb 2006) $
+ * @version     $Revision: 8863 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -75,8 +75,11 @@
 ?>
     </div>
 
-</div>
+    <div id="mythtv_link">
+        <a href="http://www.mythtv.org/"><?php echo t('Visit $1', 'MythTV.org') ?></a>
+    </div>
 
+</div>
 
 <?php
 // Print the page footer

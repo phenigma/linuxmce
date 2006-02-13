@@ -3,8 +3,8 @@
  * The Channel object, and a couple of related subroutines.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-19 07:29:51 +0200 (Thu, 19 Jan 2006) $
- * @version     $Revision: 8649 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -31,10 +31,10 @@
         else
             $sql = 'SELECT * FROM channel WHERE';
         $sql .= ' channel.visible=1';
-    // Group and sort
-        $sql .= ' GROUP BY channum, callsign ORDER BY '
-                .(sortby_channum ? '' : 'callsign, ')
-                .'(channum + 0), chanid';
+    // Sort.
+        $sql .= ' ORDER BY '
+                .(sortby_channum ? '' : 'channel.callsign, ')
+                .'(channel.channum + 0), channel.chanid';
     // Query
         $result = mysql_query($sql)
             or trigger_error('SQL Error: '.mysql_error(), FATAL);

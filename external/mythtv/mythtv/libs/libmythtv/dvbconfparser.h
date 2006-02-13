@@ -1,5 +1,5 @@
 /*
- * $Id: dvbconfparser.h 6641 2005-06-14 22:00:42Z taylor $
+ * $Id: dvbconfparser.h 8901 2006-02-07 21:56:06Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -92,7 +92,7 @@ public:
     enum RETURN {ERROR_OPEN,ERROR_PARSE,OK};
     enum TYPE {ATSC,OFDM,QPSK,QAM};
 
-    DVBConfParser(TYPE _type,unsigned sourceid, const QString& _file);
+    DVBConfParser(enum TYPE _type,unsigned sourceid, const QString& _file);
     virtual ~DVBConfParser() {};
     int parse(); 
 
@@ -113,7 +113,7 @@ protected:
     bool parseConfATSC(QStringList& tokens);
     void processChannels();
     int findMultiplex(const Multiplex& m);
-    int findChannel(const Channel& c);
+    int findChannel(const Channel& c, int& mplexid);
     int generateNewChanID(int sourceID);
 };
 

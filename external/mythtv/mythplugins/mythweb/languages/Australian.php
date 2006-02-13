@@ -229,6 +229,7 @@ $L = array(
     'Custom'                                     => '',
     'Edit MythWeb and some MythTV settings.'     => 'Warning: Do not do while drunk!',
     'Exact Match'                                => '',
+    'Fold Duplicates'                            => '',
     'HD Only'                                    => '',
     'Manual'                                     => '',
     'MythMusic on the web.'                      => '',
@@ -443,7 +444,9 @@ $L = array(
     'Wind'               => '',
     'Wind Chill'         => '',
 // themes/default/weather/welcome.php
-    'welcome: weather' => ''
+    'welcome: weather' => '',
+// themes/default/welcome.php
+    'Visit $1' => ''
 // End of the translation hash ** Do not touch the next line
           );
 

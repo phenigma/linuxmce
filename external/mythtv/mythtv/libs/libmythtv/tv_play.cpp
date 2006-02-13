@@ -192,9 +192,9 @@ void *SpawnDecode(void *param)
     return NULL;
 }
 
-/** \fn TV:TV()
+/** \fn TV::TV(void)
  *  \brief Performs instance initialiation not requiring access to database.
- *  \sa Init()
+ *  \sa Init(void)
  */
 TV::TV(void)
     : QObject(NULL, "TV"),
@@ -489,7 +489,7 @@ void TV::GetPlayGroupSettings(const QString &group)
         prev_speed = normal_speed;
 }
 
-/** \fn LiveTV(bool)
+/** \fn TV::LiveTV(bool,bool)
  *  \brief Starts LiveTV
  *  \param showDialogs if true error dialogs are shown, if false they are not
  *  \param startInGuide if true the EPG will be shown upon entering LiveTV
@@ -1308,14 +1308,29 @@ void TV::TeardownPlayer(void)
 {
     if (nvp)
     {
-        QMutexLocker locker(&osdlock); // prevent UpdateOSDSignal using osd...
-        pthread_join(decode, NULL);
-        delete nvp;
-        nvp = NULL;
+        osdlock.lock(); // prevent UpdateOSDSignal from using osd...
+
+        NuppelVideoPlayer *xnvp = nvp;
+        pthread_t          xdec = decode;
+
+        nvp            = NULL;
+        activenvp      = NULL;
+        activerecorder = NULL;
+        activerbuffer  = NULL;
+
+        osdlock.unlock();
+
+        // NVP may try to get qapp lock if there is an error,
+        // so we need to do this outside of the osdlock.
+        pthread_join(xdec, NULL);
+        delete xnvp;
     }
 
     if (udpnotify)
+    {
         delete udpnotify;
+        udpnotify = NULL;
+    }
 
     paused = false;
     doing_ff_rew = 0;
@@ -1323,8 +1338,6 @@ void TV::TeardownPlayer(void)
     speed_index = 0;
     sleep_index = 0;
     normal_speed = 1.0f;
-
-    nvp = activenvp = NULL;
 
     pbinfoLock.lock();
     if (playbackinfo)
@@ -1358,14 +1371,20 @@ void TV::TeardownPipPlayer(void)
 {
     if (pipnvp)
     {
-        QMutexLocker locker(&osdlock);
-        pthread_join(pipdecode, NULL);
-        delete pipnvp;
-        pipnvp = NULL;
-    }
+        if (activerecorder == piprecorder)
+            ToggleActiveWindow();
 
-    if (activerecorder == piprecorder)
-        activerecorder = recorder;
+        osdlock.lock(); // prevent UpdateOSDSignal from using osd...
+        NuppelVideoPlayer *xnvp = pipnvp;
+        pthread_t          xdec = pipdecode;
+        pipnvp = NULL;
+        osdlock.unlock();
+
+        // NVP may try to get qapp lock if there is an error,
+        // so we need to do this outside of the osdlock.
+        pthread_join(xdec, NULL);
+        delete xnvp;
+    }
 
     if (piprecorder)
     {
@@ -1483,10 +1502,11 @@ void TV::RunTV(void)
         if (netCmd != "")
             processNetworkControlCommand(netCmd);
 
-        if ((recorder && recorder->GetErrorStatus()) || IsErrored())
+        if ((recorder && recorder->GetErrorStatus()) ||
+            (nvp && nvp->IsErrored()) || IsErrored())
         {
             exitPlayer = true;
-            wantsToQuit = false;
+            wantsToQuit = true;
         }
 
         if (StateIsPlaying(internalState))
@@ -1667,17 +1687,42 @@ bool TV::eventFilter(QObject *o, QEvent *e)
     }
 }
 
+static bool has_action(QString action, const QStringList &actions)
+{
+    QStringList::const_iterator it;
+    for (it = actions.begin(); it != actions.end(); ++it)
+    {
+        if (action == *it)
+            return true;
+    }
+    return false;
+}
+
 void TV::ProcessKeypress(QKeyEvent *e)
 {
 #if DEBUG_ACTIONS
-    VERBOSE(VB_IMPORTANT, LOC + "ProcessKeypress()");
+    VERBOSE(VB_IMPORTANT, LOC + "ProcessKeypress() ignoreKeys: "<<ignoreKeys);
 #endif // DEBUG_ACTIONS
 
     bool was_doing_ff_rew = false;
     bool redisplayBrowseInfo = false;
+    QStringList actions;
 
     if (ignoreKeys)
-        return;
+    {
+        if (!gContext->GetMainWindow()->TranslateKeyPress(
+                "TV Playback", e, actions))
+        {
+            return;
+        }
+
+        bool esc   = has_action("ESCAPE", actions);
+        bool pause = has_action("PAUSE",  actions);
+        bool play  = has_action("PLAY",   actions);
+
+        if ((!esc || browsemode) && !pause && !play)
+            return;
+    }
 
     if (editmode)
     {   
@@ -1711,7 +1756,6 @@ void TV::ProcessKeypress(QKeyEvent *e)
         }
     }
 
-    QStringList actions;
     if (!gContext->GetMainWindow()->TranslateKeyPress(
             "TV Playback", e, actions))
     {
@@ -3095,7 +3139,7 @@ void TV::ChangeSpeed(int direction)
     int old_speed = speed_index;
 
     if (paused)
-        speed_index = -4;
+        speed_index = -6;
 
     speed_index += direction;
 
@@ -3564,7 +3608,7 @@ QString TV::GetQueuedChanNum(void) const
 
 /** \fn TV::ClearInputQueues(bool)
  *  \brief Clear channel key buffer of input keys.
- *  \param hideosd, if true hides "channel_number" OSDSet.
+ *  \param hideosd if true, hides "channel_number" OSDSet.
  */
 void TV::ClearInputQueues(bool hideosd)
 {
@@ -3629,13 +3673,17 @@ bool TV::ProcessSmartChannel(QString &inputStr)
         return false;
 
     // Check for and remove duplicate separator characters
-    if ((chan.length() > 2) && (chan.right(1) == chan.right(2).left(1)) &&
-        !chan.right(1).toUInt())
+    if ((chan.length() > 2) && (chan.right(1) == chan.right(2).left(1)))
     {
-        chan = chan.left(chan.length()-1);
+        bool ok;
+        chan.right(1).toUInt(&ok);
+        if (!ok)
+        {
+            chan = chan.left(chan.length()-1);
 
-        QMutexLocker locker(&queuedInputLock);
-        queuedChanNum = QDeepCopy<QString>(chan);
+            QMutexLocker locker(&queuedInputLock);
+            queuedChanNum = QDeepCopy<QString>(chan);
+        }
     }
 
     // Look for channel in line-up
@@ -3649,7 +3697,7 @@ bool TV::ProcessSmartChannel(QString &inputStr)
 #if DEBUG_CHANNEL_PREFIX
     VERBOSE(VB_IMPORTANT, QString("valid_pref(%1) cardid(%2) chan(%3) "
                                   "pref_cardid(%4) complete(%5) sp(%6)")
-            .arg(valid_prefix).arg(cardid).arg(chan)
+            .arg(valid_prefix).arg(0).arg(chan)
             .arg(pref_cardid).arg(is_not_complete).arg(needed_spacer));
 #endif
 
@@ -3669,7 +3717,7 @@ bool TV::ProcessSmartChannel(QString &inputStr)
 #if DEBUG_CHANNEL_PREFIX
     VERBOSE(VB_IMPORTANT, QString(" ValidPref(%1) CardId(%2) Chan(%3) "
                                   " PrefCardId(%4) Complete(%5) Sp(%6)")
-            .arg(valid_prefix).arg(cardid).arg(GetQueuedChanNum())
+            .arg(valid_prefix).arg(0).arg(GetQueuedChanNum())
             .arg(pref_cardid).arg(is_not_complete).arg(needed_spacer));
 #endif
 
@@ -4081,7 +4129,7 @@ void TV::UpdateOSDSignal(const QStringList& strlist)
 {
     QMutexLocker locker(&osdlock);
 
-    if (!GetOSD())
+    if (!GetOSD() || browsemode || !queuedChanNum.isEmpty())
     {
         if (&lastSignalMsg != &strlist)
             lastSignalMsg = strlist;
@@ -4286,6 +4334,7 @@ static void format_time(int seconds, QString &tMin, QString &tHrsMin)
  *  \brief Fetches information on the desired program from the backend.
  *  \param enc RemoteEncoder to query, if null query the activerecorder.
  *  \param direction BrowseDirection to get information on.
+ *  \param infoMap InfoMap to fill in with returned data
  */
 void TV::GetNextProgram(RemoteEncoder *enc, int direction,
                         InfoMap &infoMap)
@@ -4762,7 +4811,7 @@ void TV::customEvent(QCustomEvent *e)
         MythEvent *me = (MythEvent *)e;
         QString message = me->Message();
 
-        if (message.left(14) == "DONE_RECORDING")
+        if (recorder && message.left(14) == "DONE_RECORDING")
         {
             if (GetState() == kState_WatchingRecording)
             {
@@ -4771,7 +4820,7 @@ void TV::customEvent(QCustomEvent *e)
                 int cardnum = tokens[1].toInt();
                 int filelen = tokens[2].toInt();
 
-                if (cardnum == recorder->GetRecorderNumber())
+                if (recorder && cardnum == recorder->GetRecorderNumber())
                 {
                     nvp->SetWatchingRecording(false);
                     nvp->SetLength(filelen);
@@ -4785,7 +4834,7 @@ void TV::customEvent(QCustomEvent *e)
                 int cardnum = tokens[1].toInt();
                 int filelen = tokens[2].toInt();
 
-                if (cardnum == recorder->GetRecorderNumber() &&
+                if (recorder && cardnum == recorder->GetRecorderNumber() &&
                     tvchain && tvchain->HasNext())
                 {
                     nvp->SetWatchingRecording(false);
@@ -4803,7 +4852,7 @@ void TV::customEvent(QCustomEvent *e)
             int hasrec    = tokens[3].toInt();
             VERBOSE(VB_IMPORTANT, LOC + message << " hasrec: "<<hasrec);
 
-            if (cardnum == recorder->GetRecorderNumber())
+            if (recorder && cardnum == recorder->GetRecorderNumber())
             {
                 menurunning = false;
                 AskAllowRecording(me->ExtraDataList(), timeuntil, hasrec);
@@ -4843,7 +4892,7 @@ void TV::customEvent(QCustomEvent *e)
 
             uint s = (cardnum == recorder->GetRecorderNumber()) ? 0 : 1;
 
-            if (cardnum == recorder->GetRecorderNumber() ||
+            if ((recorder    && cardnum == recorder->GetRecorderNumber()) ||
                 (piprecorder && cardnum == piprecorder->GetRecorderNumber()))
             {
                 if (watch)
@@ -4864,7 +4913,7 @@ void TV::customEvent(QCustomEvent *e)
         {
             // Get osdlock, while intended for the OSD this ensures that
             // the nvp & pipnvp are not deleted while we are using it..
-            while (!osdlock.tryLock())
+            while (!osdlock.tryLock() && nvp)
                 usleep(2500);
 
             message = message.simplifyWhiteSpace();
@@ -4905,7 +4954,7 @@ void TV::customEvent(QCustomEvent *e)
                 UpdateOSDSignal(signalList);
             }
         }
-        else if (message.left(7) == "SKIP_TO")
+        else if (recorder && message.left(7) == "SKIP_TO")
         {
             int cardnum = (QStringList::split(" ", message))[1].toInt();
             QStringList keyframe = me->ExtraDataList();
@@ -5000,7 +5049,7 @@ void TV::BrowseStart(void)
 
 /** \fn TV::BrowseEnd(bool)
  *  \brief Ends channel browsing. Changing the channel if change is true.
- *  \param change, iff true we call ChangeChannel()
+ *  \param change iff true we call ChangeChannel()
  */
 void TV::BrowseEnd(bool change)
 {

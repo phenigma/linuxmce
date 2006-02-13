@@ -3,8 +3,8 @@
  * view and manipulate recorded programs.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-15 04:59:12 +0200 (Sun, 15 Jan 2006) $
- * @version     $Revision: 8611 $
+ * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8914 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -12,6 +12,9 @@
  * @subpackage  TV
  *
 /**/
+
+// Populate the $Channels array
+    load_all_channels();
 
 // Make sure the recordings directory exists
     if (file_exists('data/recordings')) {

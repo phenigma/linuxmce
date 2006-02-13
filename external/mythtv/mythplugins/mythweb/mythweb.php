@@ -2,8 +2,8 @@
 /**
  * The main brain script for all of MythWeb.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/mythweb.php $
- * @date        $Date: 2006-01-31 02:05:51 +0200 (Tue, 31 Jan 2006) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/mythweb.php $
+ * @date        $Date: 2006-01-30 19:05:51 -0500 (Mon, 30 Jan 2006) $
  * @version     $Revision: 8793 $
  * @author      $Author: xris $
  * @license     GPL

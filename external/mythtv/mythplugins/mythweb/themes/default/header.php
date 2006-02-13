@@ -2,9 +2,9 @@
 /**
  * This header file is shared by all MythWeb modules.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/header.php $
- * @date        $Date: 2006-01-30 09:38:09 +0200 (Mon, 30 Jan 2006) $
- * @version     $Revision: 8780 $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/header.php $
+ * @date        $Date: 2006-02-10 21:48:14 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8920 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -46,7 +46,7 @@
 
 <div id="page_header" class="clearfix">
     <div id="logo_box">
-        <a id="mythtv_logo" href="http://www.mythtv.org">
+        <a id="mythtv_logo" href="<?php echo root ?>">
         <img src="<?php echo theme_url ?>img/mythtv-logo.png" width="174" height="48" border="0" alt="MythTV" class="alpha_png">
         </a>
     </div>
@@ -130,6 +130,10 @@
                         <div>
                             <input type="checkbox" class="radio" id="search_hd" name="search_hd" value="1"<?php echo $_SESSION['search']['search_hd'] ? ' CHECKED' : '' ?>>
                             <a onclick="get_element('search_hd').checked=get_element('search_hd').checked ? false : true;"><?php echo t('HD Only') ?></a>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="radio" id="fold_dups" name="fold_dups" value="1"<?php echo $_SESSION['search']['fold_dups'] ? ' CHECKED' : '' ?>>
+                            <a onclick="get_element('fold_dups').checked=get_element('fold_dups').checked ? false : true;"><?php echo t('Fold Duplicates') ?></a>
                         </div>
                     </div>
 

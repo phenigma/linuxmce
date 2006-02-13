@@ -3,7 +3,7 @@
  * other javascript files.
  *
  * @url         $URL$
- * @date        $Date: 2005-11-03 09:09:14 +0200 (Thu, 03 Nov 2005) $
+ * @date        $Date: 2005-11-03 02:09:14 -0500 (Thu, 03 Nov 2005) $
  * @version     $Revision: 7680 $
  * @author      $Author: xris $
  * @license     LGPL

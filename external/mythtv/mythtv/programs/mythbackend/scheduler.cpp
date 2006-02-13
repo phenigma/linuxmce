@@ -292,6 +292,10 @@ bool Scheduler::FillRecordList(void)
     return hasconflicts;
 }
 
+/** \fn Scheduler::FillRecordListFromDB(int)
+ *  \param recordid Record ID of recording that has changed,
+ *                  or -1 if anything might have been changed.
+ */
 void Scheduler::FillRecordListFromDB(int recordid)
 {
     struct timeval fillstart, fillend;
@@ -1938,7 +1942,7 @@ void Scheduler::AddNewRecords(void)
             MSqlQuery epicnt(dbConn);
 
             epicnt.prepare("SELECT count(*) FROM recorded "
-                           "WHERE title = :TITLE;");
+                           "WHERE title = :TITLE AND duplicate <> 0;");
             epicnt.bindValue(":TITLE", qtitle.utf8());
 
             epicnt.exec();
@@ -2040,6 +2044,7 @@ void Scheduler::AddNewRecords(void)
 " LEFT JOIN recorded ON "
 "  ( "
 "    RECTABLE.dupmethod > 1 AND "
+"    recorded.duplicate <> 0 AND "
 "    program.title = recorded.title AND "
 "    recorded.recgroup <> 'LiveTV' "
 "     AND "

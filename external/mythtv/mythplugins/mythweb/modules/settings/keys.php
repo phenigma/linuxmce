@@ -3,7 +3,7 @@
  * Configure MythTV Key Bindings
  *
  * @url         $URL$
- * @date        $Date: 2006-01-14 21:52:53 +0200 (Sat, 14 Jan 2006) $
+ * @date        $Date: 2006-01-14 14:52:53 -0500 (Sat, 14 Jan 2006) $
  * @version     $Revision: 8607 $
  * @author      $Author: xris $
  * @license     GPL

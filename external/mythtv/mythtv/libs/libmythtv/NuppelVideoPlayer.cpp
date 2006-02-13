@@ -899,7 +899,7 @@ void NuppelVideoPlayer::DiscardVideoFrame(VideoFrame *buffer)
         videoOutput->DiscardFrame(buffer);
 }
 
-/** \fn DiscardVideoFrames(bool)
+/** \fn NuppelVideoPlayer::DiscardVideoFrames(bool)
  *  \brief Places frames in the available frames queue.
  *
  *   If called with 'next_frame_keyframe' set to false then all frames
@@ -1113,7 +1113,7 @@ void NuppelVideoPlayer::ShutdownYUVResize(void)
 const unsigned char *NuppelVideoPlayer::GetScaledFrame(QSize &size)
 {
     QMutexLocker locker(&yuv_lock);
-    yuv_desired_size = size = QSize(size.width() & ~0x1, size.height() & ~0x1);
+    yuv_desired_size = size = QSize(size.width() & ~0x3, size.height() & ~0x3);
 
     if ((size.width() > 0) && (size.height() > 0))
     {
@@ -1185,7 +1185,7 @@ void NuppelVideoPlayer::StopEmbedding(void)
     }
 }
 
-/** \fn ToggleCC(uint, uint)
+/** \fn NuppelVideoPlayer::ToggleCC(uint, uint)
  *  \brief Sets vbimode. If arg is zero, toggles subtitlesOn,
  *         otherwise it turns subtitles on and sets a specific
  *         teletext page or cc text.
@@ -2178,9 +2178,10 @@ void NuppelVideoPlayer::SwitchToProgram(void)
     if (eof)
         discontinuity = true;
 
+    livetvchain->SetProgram(pginfo);
+
     if (discontinuity || newtype)
     {
-        livetvchain->SetProgram(pginfo);
         GetDecoder()->SetProgramInfo(pginfo);
 
         ringBuffer->Reset(true);
@@ -2218,10 +2219,15 @@ void NuppelVideoPlayer::SwitchToProgram(void)
 
 void NuppelVideoPlayer::FileChangedCallback(void)
 {
+    VERBOSE(VB_PLAYBACK, "FileChangedCallback");
+
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
 
-    ringBuffer->Reset(false, true);
+    if (dynamic_cast<AvFormatDecoder *>(GetDecoder()))
+        ringBuffer->Reset(false, true);
+    else
+        ringBuffer->Reset(false, true, true);
 
     ringBuffer->Unpause();
 
@@ -2259,6 +2265,8 @@ void NuppelVideoPlayer::JumpToProgram(void)
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
 
+    livetvchain->SetProgram(pginfo);
+
     ringBuffer->Reset(true);
     ringBuffer->OpenFile(pginfo->pathname);
     if (!ringBuffer->IsOpen())
@@ -2283,7 +2291,6 @@ void NuppelVideoPlayer::JumpToProgram(void)
     ringBuffer->Unpause();
     ringBuffer->IgnoreLiveEOF(false);
 
-    livetvchain->SetProgram(pginfo);
     GetDecoder()->SetProgramInfo(pginfo);
     if (m_tv)
         m_tv->SetCurrentlyPlaying(pginfo);
@@ -2456,7 +2463,7 @@ void NuppelVideoPlayer::StartPlaying(void)
         if (m_playbackinfo)
             m_playbackinfo->UpdateInUseMark();
 
-        if ((!paused || eof) && livetvchain)
+        if ((!paused || eof) && livetvchain && !GetDecoder()->GetWaitForChange())
         {
             if (livetvchain->NeedsToSwitch())
                 SwitchToProgram();
@@ -2498,11 +2505,13 @@ void NuppelVideoPlayer::StartPlaying(void)
         {
             if (livetvchain)
             {
-                if (!paused)
+                if (!paused && livetvchain->HasNext())
                 {
+                    VERBOSE(VB_IMPORTANT, "LiveTV forcing JumpTo 1");
                     livetvchain->JumpToNext(true, 1);
                     continue;
                 }
+                VERBOSE(VB_PLAYBACK, "Ignoring livetv eof in decoder loop");
             }
             else
                 break;
@@ -2982,8 +2991,8 @@ void NuppelVideoPlayer::DoPlay(void)
         ClearAfterSeek();
     }
 
-    float tmp = ffrew_skip / video_frame_rate / play_speed;
-    frame_interval = (int) (1000000.0f * tmp);
+    frame_interval = (int) (1000000.0f * ffrew_skip / video_frame_rate / 
+                            play_speed);
 
     VERBOSE(VB_PLAYBACK, LOC + "DoPlay: " +
             QString("rate: %1 speed: %2 skip: %3 => new interval %4")

@@ -135,15 +135,15 @@ $L = array(
     'subtitle'                                           => 'undertitel',
     'title'                                              => 'titel',
 // config/canned_searches.php
-    'All HDTV'                           => '',
-    'Movies'                             => '',
-    'Movies, 3&frac12; Stars or more'    => '',
-    'Movies, Stinkers (2 Stars or less)' => '',
-    'Music Specials'                     => '',
-    'New Titles, Premieres'              => '',
-    'Non-Music Specials'                 => '',
-    'Non-Series HDTV'                    => '',
-    'Science Fiction Movies'             => '',
+    'All HDTV'                           => 'Alla HDTV',
+    'Movies'                             => 'Filmer',
+    'Movies, 3&frac12; Stars or more'    => 'Filmer, 3&frac12; stjärnor eller mer',
+    'Movies, Stinkers (2 Stars or less)' => 'B-filmer (2 stjärnor eller mindre)',
+    'Music Specials'                     => 'Musikspecialer',
+    'New Titles, Premieres'              => 'Nya titlar, premiärer',
+    'Non-Music Specials'                 => 'Icke-musikspecialer',
+    'Non-Series HDTV'                    => 'Icke-serier HDTV',
+    'Science Fiction Movies'             => 'Science Fiction-filmer',
 // includes/programs.php
     'CC'                           => 'Textning',
     'HDTV'                         => 'HDTV',
@@ -228,6 +228,7 @@ $L = array(
     'Custom'                                     => 'Egen',
     'Edit MythWeb and some MythTV settings.'     => 'Ändra MythWeb och några MythTV-inställningar',
     'Exact Match'                                => 'Exakt matchning',
+    'Fold Duplicates'                            => '',
     'HD Only'                                    => 'Endast HD',
     'Manual'                                     => 'Manuell',
     'MythMusic on the web.'                      => 'MythMusic på webben',
@@ -399,7 +400,7 @@ $L = array(
     'Search for:  $1'                  => 'Sök efter:  $1',
 // themes/default/tv/searches.php
     'Handy Predefined Searches' => 'Förberedda sökningar',
-    'handy: overview'           => 'Denna sida innehåller förberedda komplexa sökningar av programlistorna.',
+    'handy: overview'           => 'Denna sida innehåller förberedda komplexa sökningar av programlistorna (fungerar för närvarande endast med data från DataDirect, alltså ej i Sverige.).',
 // themes/default/tv/upcoming.php
     'Commands'    => 'Kommando',
     'Conflicts'   => 'Konflikter',
@@ -442,7 +443,9 @@ $L = array(
     'Wind'               => 'Vind',
     'Wind Chill'         => 'Vindkyleffekt',
 // themes/default/weather/welcome.php
-    'welcome: weather' => 'Hämta lokal väderprognos.'
+    'welcome: weather' => 'Hämta lokal väderprognos.',
+// themes/default/welcome.php
+    'Visit $1' => 'Besök $1'
 // End of the translation hash ** Do not touch the next line
           );
 

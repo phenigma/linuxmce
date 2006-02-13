@@ -3,7 +3,7 @@
  * Primarily used for interactive menus
  *
  * @url         $URL: svn+ssh://xris@svn.siliconmechanics.com/var/svn/web/trunk/shared_code/js/mouseovers.js $
- * @date        $Date: 2006-01-25 05:27:24 +0200 (Wed, 25 Jan 2006) $
+ * @date        $Date: 2006-01-24 22:27:24 -0500 (Tue, 24 Jan 2006) $
  * @version     $Revision: 8708 $
  * @author      $Author: xris $
  * @license     LGPL

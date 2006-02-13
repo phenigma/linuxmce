@@ -2,8 +2,8 @@
 /**
  * Handler for all MythWeb TV routines
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/tv/handler.php $
- * @date        $Date: 2006-01-01 02:00:31 +0200 (Sun, 01 Jan 2006) $
+ * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/tv/handler.php $
+ * @date        $Date: 2005-12-31 19:00:31 -0500 (Sat, 31 Dec 2005) $
  * @version     $Revision: 8460 $
  * @author      $Author: xris $
  * @license     GPL

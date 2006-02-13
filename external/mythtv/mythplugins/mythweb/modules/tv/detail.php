@@ -4,8 +4,8 @@
  * commands.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-23 07:34:04 +0200 (Mon, 23 Jan 2006) $
- * @version     $Revision: 8697 $
+ * @date        $Date: 2006-02-06 21:57:11 -0500 (Mon, 06 Feb 2006) $
+ * @version     $Revision: 8887 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -179,7 +179,7 @@
 // Parse the list of scheduled recordings for possible conflicts
     global $Scheduled_Recordings;
     $conflicting_shows = array();
-    foreach ($Scheduled_Recordings as $chanid => $shows) {
+    foreach ($Scheduled_Recordings as $channum => $shows) {
     // Now the shows in this channel
         foreach ($shows as $starttime => $show_group) {
         // Clearly not a match
@@ -191,13 +191,13 @@
                 if ($show->chanid == $program->chanid && $show->starttime == $program->starttime)
                     continue;
             // Make sure this is a valid show (ie. skip in-progress recordings and other junk)
-                if (!$chanid || $show->length < 1)
+                if (!$channum || $show->length < 1)
                     continue;
             // Not a conflict
                 if ($show->endtime < $program->starttime)
                     continue;
             // Assign a reference to this show to the various arrays
-                $conflicting_shows[] =& $Scheduled_Recordings[$chanid][$starttime][$key];
+                $conflicting_shows[] =& $Scheduled_Recordings[$channum][$starttime][$key];
             }
         }
     }

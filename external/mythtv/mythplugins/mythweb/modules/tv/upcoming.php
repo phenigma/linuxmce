@@ -3,8 +3,8 @@
  * View and fix scheduling conflicts.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-08 07:00:04 +0200 (Thu, 08 Dec 2005) $
- * @version     $Revision: 8171 $
+ * @date        $Date: 2006-02-06 21:57:11 -0500 (Mon, 06 Feb 2006) $
+ * @version     $Revision: 8887 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -76,16 +76,16 @@
 // Parse the list of scheduled recordings
     global $Scheduled_Recordings;
     $all_shows = array();
-    foreach ($Scheduled_Recordings as $chanid => $shows) {
+    foreach ($Scheduled_Recordings as $channum => $shows) {
     // Now the shows in this channel
         foreach ($shows as $starttime => $show_group) {
-        // Skip things we've already recorded (or missed)
-            if ($starttime <= time() && $show->recstatus != 'Recording')
-                continue;
         // Parse each show group
             foreach ($show_group as $key => $show) {
+            // Skip things we've already recorded (or missed)
+                if ($starttime <= time() && $show->recstatus != 'Recording')
+                    continue;
             // Make sure this is a valid show (ie. skip in-progress recordings and other junk)
-                if (!$chanid || $show->length < 1)
+                if (!$channum || $show->length < 1)
                     continue;
             // Skip scheduled shows?
                 if (in_array($show->recstatus, array('WillRecord', 'ForceRecord'))) {
@@ -107,7 +107,7 @@
                     continue;
                 }
             // Assign a reference to this show to the various arrays
-                $all_shows[] =& $Scheduled_Recordings[$chanid][$starttime][$key];
+                $all_shows[] =& $Scheduled_Recordings[$channum][$starttime][$key];
             }
         }
     }

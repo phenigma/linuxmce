@@ -3,8 +3,8 @@
  * The Schedule object and a couple of related subroutines.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @date        $Date: 2006-02-06 21:57:11 -0500 (Mon, 06 Feb 2006) $
+ * @version     $Revision: 8887 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -77,9 +77,9 @@
         if ($key === 'offset') {
             list($Num_Conflicts, $Num_Scheduled) = $program;
         }
-    // Normal entry:  $Scheduled_Recordings[chanid][starttime][]
+    // Normal entry:  $Scheduled_Recordings[channum][starttime][]
         else {
-            $Scheduled_Recordings[$program[4]][$program[11]][] =& new Program($program);
+            $Scheduled_Recordings[$program[5]][$program[11]][] =& new Program($program);
         }
     }
 

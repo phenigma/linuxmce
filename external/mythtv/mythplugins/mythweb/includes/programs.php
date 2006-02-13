@@ -3,8 +3,8 @@
  * This contains the Program class
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @date        $Date: 2006-02-10 02:09:02 -0500 (Fri, 10 Feb 2006) $
+ * @version     $Revision: 8915 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -124,14 +124,20 @@
                                    "&frac12;", "")) AS starstring,
                          IFNULL(programrating.system, "") AS rater,
                          IFNULL(programrating.rating, "") AS rating,
-                         oldrecorded.recstatus
+                         oldrecorded.recstatus,
+                         channel.channum
                   FROM program
                        LEFT JOIN programrating USING (chanid, starttime)
                        LEFT JOIN oldrecorded
-                                 ON LENGTH(IFNULL(oldrecorded.seriesid, "")) > 0
-                                    AND LENGTH(IFNULL(oldrecorded.programid, "")) > 0
-                                    AND oldrecorded.programid = program.programid
-                                    AND oldrecorded.seriesid  = program.seriesid
+                                 ON oldrecorded.recstatus IN (-3, 11)
+                                    AND IF(oldrecorded.programid OR oldrecorded.seriesid,
+                                           oldrecorded.programid = program.programid
+                                             AND oldrecorded.seriesid = program.seriesid,
+                                           oldrecorded.title = program.title
+                                             AND oldrecorded.subtitle = program.subtitle
+                                             AND oldrecorded.description = program.description
+                                          )
+                       LEFT JOIN channel ON program.chanid = channel.chanid
                  WHERE';
     // Only loading a single channel worth of information
         if ($chanid > 0)
@@ -166,8 +172,8 @@
             if (!$data['chanid'])
                 continue;
         // This program has already been loaded, and is attached to a recording schedule
-            if ($Scheduled_Recordings[$data['chanid']][$data['starttime_unix']]) {
-                $program =& $Scheduled_Recordings[$data['chanid']][$data['starttime_unix']][0];
+            if ($Scheduled_Recordings[$data['channum']][$data['starttime_unix']]) {
+                $program =& $Scheduled_Recordings[$data['channum']][$data['starttime_unix']][0];
             }
         // Otherwise, create a new instance of the program
             else {
@@ -299,8 +305,6 @@ class Program {
             #$this->inputid        = $data[19];
             $this->recpriority     = $data[20];
             $this->recstatus       = $data[21];
-            $this->conflicting     = ($this->recstatus == 'Conflict');   # conflicts with another scheduled recording?
-            $this->recording       = ($this->recstatus == 'WillRecord'); # scheduled to record?
             $this->recordid        = $data[22];
             $this->rectype         = $data[23];
             $this->dupin           = $data[24];
@@ -366,8 +370,11 @@ class Program {
             }
         }
     // Turn recstatus into a word
-        if (isset($this->recstatus) && $GLOBALS['RecStatus_Types'][$this->recstatus])
+        if (isset($this->recstatus) && $GLOBALS['RecStatus_Types'][$this->recstatus]) {
             $this->recstatus = $GLOBALS['RecStatus_Types'][$this->recstatus];
+            $this->conflicting = ($this->recstatus == 'Conflict');   # conflicts with another scheduled recording?
+            $this->recording   = ($this->recstatus == 'WillRecord'); # scheduled to record?
+        }
     // No longer a null column, so check for blank entries
         if ($this->airdate == '0000-00-00')
             $this->airdate = NULL;
@@ -376,7 +383,7 @@ class Program {
         // No channel data?  Load it
             global $Channels;
             if (!is_array($Channels) || !count($Channels))
-                load_all_channels($this->chanid);
+                load_all_channels();
         // Now we really should scan the $Channel array and add a link to this program's channel
             foreach (array_keys($Channels) as $key) {
                 if ($Channels[$key]->chanid == $this->chanid) {
