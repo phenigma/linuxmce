@@ -1,8 +1,8 @@
 Section "ServerLayout"
-        Identifier	"Pluto Configured"
-        Screen      0	"DefaultScreen"		0 0
-        InputDevice	"DefaultMouse"		"CorePointer"
-        InputDevice	"DefaultKeyboard"	"CoreKeyboard"
+	Identifier	"Pluto Configured"
+	Screen      0	"DefaultScreen"		0 0
+	InputDevice	"DefaultMouse"		"CorePointer"
+	InputDevice	"DefaultKeyboard"	"CoreKeyboard"
 EndSection
 
 Section "Files"
@@ -17,11 +17,11 @@ Section "Files"
 EndSection
 
 Section "Module"
-        Load		"dbe"
-        Load		"extmod"
-        Load		"record"
-        Load		"xtrap"
-        Load		"speedo"
+	Load		"dbe"
+	Load		"extmod"
+	Load		"record"
+	Load		"xtrap"
+	Load		"speedo"
 	Load		"type1"
 	Load		"glx"
 EndSection
@@ -41,7 +41,6 @@ Section "InputDevice"
 	Option		"Device"		"#Mouse_Device#"
 	
 	#Mouse_ZAxisMapping#
-	
 EndSection
 
 Section "Monitor"
@@ -49,9 +48,8 @@ Section "Monitor"
 	VendorName	"#Monitor_Vendor#"
 	ModelName	"#Monitor_ModelName#"
 
-	#Monitor_HorizSync#
-	#Monitor_VertRefresh#
-	
+	HorizSync	#Monitor_HorizSync#
+	VertRefresh	#Monitor_VertRefresh#
 EndSection
 
 Section "Device"
@@ -66,11 +64,13 @@ Section "Screen"
 	Device		"DefaultVideoCard"
 	Monitor		"DefaultMonitor"
 
-	#Screen_DefaultDepth#
-
+	DefaultDepth	#Screen_DefaultDepth#
+	SubSection "Display"
+		Depth	#Screen_DefaultDepth#
+		Modes	"#Screen_Mode#"
+	EndSubSection
 EndSection
 
 Section "ServerFlags"
 	Option		"AllowMouseOpenFail"	"#ServerFlags_AllowMouseOpenFail#"
 EndSection
-

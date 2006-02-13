@@ -72,22 +72,23 @@ function setupMonitor() {
 	replaceVar "Monitor_ModelName"
 
 	# Monitor_HorizSync
-	if [[ $Monitor_HorizSync == "" ]]; then
+	if [[ -z "$Monitor_HorizSync" ]]; then
 		Monitor_HorizSync=$(cat /tmp/edid.$$ | grep HorizSync | cut -d' ' -f2)
-	fi	
-	if [[ $Monitor_HorizSync != "" ]]; then
-		Monitor_HorizSync="HorizSync $Monitor_HorizSync"
-		replaceVar "Monitor_HorizSync"
 	fi
 	
+	if [[ -z "$Monitor_HorizSync" ]]; then
+		Monitor_HorizSync="43-90"
+	fi
+	replaceVar "Monitor_HorizSync"
+	
 	# Monitor_VertRefresh
-	if [[ $Monitor_VertRefresh == "" ]]; then
+	if [[ -z "$Monitor_VertRefresh" ]]; then
 		Monitor_VertRefresh=$(cat /tmp/edid.$$ | grep VertRefresh | cut -d' ' -f2)
 	fi
-	if [[ $Monitor_VertRefresh != "" ]]; then
-		Monitor_VertRefresh="VertRefresh $Monitor_VertRefresh"
-		replaceVar "Monitor_VertRefresh"
+	if [[ -z $Monitor_VertRefresh ]]; then
+		Monitor_VertRefresh="50-90"
 	fi
+	replaceVar "Monitor_VertRefresh"
 	
 	# Delete the edid output as is no loger needed
 	rm -f /tmp/edid.$$
@@ -130,10 +131,14 @@ function setupVideoCard() {
 
 function setupScreen() {
 	#Screen_DefaultDepth
-	if [[ $Screen_DefaultDepth != "" ]]; then
-		Screen_DefaultDepth="DefaultDepth $DefaultDepth"
-		replaceVar "DefaultDepth"
+	if [[ -z $Screen_DefaultDepth ]]; then
+		Screen_DefaultDepth="24"
 	fi
+	if [[ -z "$Screen_Mode" ]]; then
+		Screen_Mode="800x600"
+	fi
+	replaceVar "Screen_DefaultDepth"
+	replaceVar "Screen_Mode"
 }
 
 function setupServerFlags() {
@@ -141,11 +146,11 @@ function setupServerFlags() {
 }
 
 # Read the default vaues
-. PlutoXConf.vars
+. /usr/pluto/bin/PlutoXConf.vars
 
 # Create the temporary file that we will populate
 rm -f /tmp/PlutoXConf.template.*
-cp PlutoXConf.template /tmp/PlutoXConf.template.$$
+cp /usr/pluto/templates/PlutoXConf.template /tmp/PlutoXConf.template.$$
 
 setupKeyboard
 setupMouse
@@ -154,3 +159,4 @@ setupVideoCard
 setupScreen
 setupServerFlags
 
+cp /tmp/PlutoXConf.template.$$ /etc/X11/XF86Config-4.test
