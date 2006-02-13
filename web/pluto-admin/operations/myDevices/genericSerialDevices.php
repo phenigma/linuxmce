@@ -262,7 +262,12 @@ function genericSerialDevices($output,$dbADO) {
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
 						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br> ';
-					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');"></td>';
+					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');">';
+					if($rowD['FK_DeviceTemplate']==$GLOBALS['CanBus']){
+						$buttons.=' <br><input type="submit" class="button" name="reinit_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_CANBUS_CONST.'" >';
+					}
+					
+					$out.='</td>';
 					
 					$controlledByPulldown='<select name="controlledBy_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
@@ -349,6 +354,11 @@ function genericSerialDevices($output,$dbADO) {
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
 				deleteDevice($value,$dbADO);
+			}
+			
+			if(isset($_POST['reinit_'.$value])){
+				$cmd='/usr/pluto/bin/ReinitCanBus.bh '.$value;
+				exec($cmd,$retArr);
 			}
 		}
 		

@@ -64,6 +64,7 @@
 	$GLOBALS['GenericWebDevice']=1748;			// Generic Web Device
 	$GLOBALS['PowerfileC200']=1737;				// Powerfile C200
 	$GLOBALS['VirtDevTelecomPlugIn']=-107;		// VirtDev - Telecom Plug-in
+	$GLOBALS['CanBus']=1746;						// Can Bus
 	
 	// PK_Template from table Template
 	
@@ -231,6 +232,9 @@
 	$GLOBALS['InputsCommandCategory']=22;		// Inputs
 	$GLOBALS['OutputsCommandCategory']=27;		// Outputs
 	$GLOBALS['GeneralInternal']=55;				// General/Internal
+	
+	// TextCategory table
+	$GLOBALS['PlutoAdminCategory']=208;			// Pluto admin category
 	
 	// options to display in Media Wizard
 	

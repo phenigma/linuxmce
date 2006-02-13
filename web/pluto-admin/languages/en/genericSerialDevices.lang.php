@@ -6,4 +6,5 @@ $TEXT_ADD_GSD_DEVICE_CONST='Add device';
 $TEXT_GSD_DEVICE_DESCRIPTION_REQUIRED_CONST='Please enter a device description';
 $TEXT_GSD_DEVICE_TEMPLATE_REQUIRED_CONST='Please select a Device Template!';
 $TEXT_GSD_DEVICES_UPDATED_CONST='The devices were updated';
+$TEXT_REINIT_CANBUS_CONST='Reinit CanBus';
 ?>
