@@ -67,9 +67,9 @@ $TRUNK_VARS{'userconfig'}="auth=rsa\ninkeys=freeworlddialup\ncontext=from-pstn\n
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
 foreach my $var (keys %TRUNK_VARS)
 {
-	my $str = $TRUNK_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$TRUNK_DATA	.=$var."=".$str."&";
+    my $str = $TRUNK_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $TRUNK_DATA    .=$var."=".$str."&";
 }
 `curl -d '$TRUNK_DATA' '$TRUNK_URL' > /dev/null`;
 
@@ -80,7 +80,7 @@ open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
 my $OUT_ROUTE = "";
 while(<PAGE>)
 {
-	chomp;
+    chomp;
     if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/fwd[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
@@ -97,9 +97,9 @@ $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
 exit unless($OUT_ROUTE ne "");
 foreach my $var (keys %OUT_VARS)
 {
-	my $str = $OUT_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$OUT_DATA .=$var."=".$str."&";
+    my $str = $OUT_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $OUT_DATA .=$var."=".$str."&";
 }
 `rm -f /tmp/curl.log ; curl -d '$OUT_DATA' '$OUT_URL' > /dev/null`;
 
@@ -112,9 +112,9 @@ $IN_VARS{'goto0'}="extension";
 $IN_VARS{'extension0'}="10".$1 if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
 {
-	my $str = $IN_VARS{$var};
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$IN_DATA.=$var."=".$str."&";
+    my $str = $IN_VARS{$var};
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $IN_DATA.=$var."=".$str."&";
 }
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
