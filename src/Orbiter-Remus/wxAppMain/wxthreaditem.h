@@ -1,8 +1,8 @@
 #ifndef _WXTHREADITEM_H_
 #define _WXTHREADITEM_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxthreaditem.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxthreaditem.h"
 #endif
 
 #include "wxthreadinfo.h"

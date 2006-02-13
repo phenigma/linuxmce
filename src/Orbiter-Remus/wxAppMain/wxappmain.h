@@ -1,8 +1,8 @@
 #ifndef _WXAPPMAIN_H_
 #define _WXAPPMAIN_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxappmain.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxappmain.h"
 #endif
 
 /*!

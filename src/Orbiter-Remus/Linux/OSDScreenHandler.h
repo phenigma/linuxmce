@@ -75,12 +75,19 @@ public:
 	virtual void SCREEN_VOIP_Provider(long PK_Screen);
 	bool VOIP_Provider_ObjectSelected(CallBackData *pData);
 
-  void SCREEN_AdvancedOptions(long PK_Screen);
+  // Register RoomsWizard on this Screen
+  virtual void SCREEN_AdvancedOptions(long PK_Screen);
+  virtual void SCREEN_Media(long PK_Screen, string sLocation);
+  // RoomsWizard callbacks
   bool RoomsWizardCreate( CallBackData *pData );
   bool RoomsWizardDelete( CallBackData *pData );
   bool RoomsWizardRefresh( CallBackData *pData );
+  //pluto_pthread_mutex_t m_RoomsWizardMutex; // this will protect dialog refresh
 
-  virtual void SCREEN_Media(long PK_Screen, string sLocation);
+  //wxDialog_RoomWizard *m_pwxDialog_RoomWizard;
+  //void OSDScreenHandler::wxDialog_RoomWizard_SetSize(int x, int y, int h, int w);
+  //void OSDScreenHandler::wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/);
+  //void OSDScreenHandler::wxDialog_RoomWizard_Close();
 };
 
 #endif

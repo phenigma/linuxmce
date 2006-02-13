@@ -1,8 +1,8 @@
 #ifndef _WXDIALOG_ROOMWIZARD_H_
 #define _WXDIALOG_ROOMWIZARD_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxdialog_roomwizard.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxdialog_roomwizard.h"
 #endif
 
 /*!
@@ -34,7 +34,7 @@ using namespace std;
 
 ////@begin control identifiers
 #define ID_DIALOG_ROOMWIZARD 10000
-#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxTHICK_FRAME|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxNO_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_ROOMWIZARD_TITLE _T("Room Wizard")
 #define SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME ID_DIALOG_ROOMWIZARD
 #define SYMBOL_WXDIALOG_ROOMWIZARD_SIZE wxSize(300, 100)
@@ -98,8 +98,8 @@ public:
     /// wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD
     void OnKeyUp( wxKeyEvent& event );
 
-    /// wxEVT_GRID_SELECT_CELL event handler for ID_GRID
-    void OnSelectCell( wxGridEvent& event );
+    /// wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID
+    void OnCellLeftClick( wxGridEvent& event );
 
 ////@end wxDialog_RoomWizard event handler declarations
 
@@ -122,8 +122,10 @@ public:
 public:
   ~wxDialog_RoomWizard();
   bool Destroy();
+  bool IsInitialized(); // dialog can be used
 
-  void SetExternalData(void *pExternData);
+  void SetExternalData(void *pExternData); // ptr to object containing
+                                           // data for the dialog
   bool data_load();
   bool data_save();
 
@@ -140,6 +142,7 @@ protected:
 
   wxArray_RoomItems v_aRoomItems;
   int v_nSelectedItem; // 0 based, -1 not selected
+
   bool b_initialized;
 
 #if (! defined USE_DEBUG_CODE)
@@ -150,10 +153,7 @@ protected:
 #endif // (! defined USE_DEBUG_CODE)
 };
 
-//========================================
-// extern helper functions & data >>
-
-extern wxDialog_RoomWizard *g_pwxDialog_RoomWizard;
+// extern helper functions & data
 
 bool wxDialog_RoomWizard_isActive();
 
@@ -161,8 +161,7 @@ void wxDialog_RoomWizard_SetSize(int x, int y, int h, int w);
 void wxDialog_RoomWizard_Show(void *pExternData=NULL);
 void wxDialog_RoomWizard_Close();
 
-// extern helper functions & data <<
-//========================================
+extern wxDialog_RoomWizard *g_pwxDialog_RoomWizard;
 
 #endif
 // _WXDIALOG_ROOMWIZARD_H_

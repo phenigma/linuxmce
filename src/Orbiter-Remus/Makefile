@@ -1,5 +1,6 @@
 # * automatic *
-WX_CONFIG     := /usr/lib/wx/config/gtk2-ansi-release-2.6
+WX_CONFIG     := wx-config
+# WX_CONFIG     := /usr/lib/wx/config/gtk2-ansi-release-2.6
 # WX_CONFIG     := /usr/lib/wx/config/gtk2-ansi-debug-2.6
 WX_VERSION    := $(shell echo `$(WX_CONFIG) --version`)
 

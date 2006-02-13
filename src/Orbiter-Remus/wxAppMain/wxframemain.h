@@ -1,8 +1,8 @@
 #ifndef _WXFRAMEMAIN_H_
 #define _WXFRAMEMAIN_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxframemain.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxframemain.h"
 #endif
 
 /*!
@@ -30,7 +30,7 @@ class wxStatusBar;
 
 ////@begin control identifiers
 #define ID_FRAMEMAIN 10003
-#define SYMBOL_WXFRAMEMAIN_STYLE wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER
+#define SYMBOL_WXFRAMEMAIN_STYLE wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE|wxMAXIMIZE|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER
 #define SYMBOL_WXFRAMEMAIN_TITLE _T("wxApplication")
 #define SYMBOL_WXFRAMEMAIN_IDNAME ID_FRAMEMAIN
 #define SYMBOL_WXFRAMEMAIN_SIZE wxSize(500, 300)

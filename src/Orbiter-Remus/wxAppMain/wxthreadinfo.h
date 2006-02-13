@@ -1,8 +1,8 @@
 #ifndef _WXTHREADINFO_H_
 #define _WXTHREADINFO_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxthreadinfo.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxthreadinfo.h"
 #endif
 
 //typedef void (* type_fn_thread_launch)();

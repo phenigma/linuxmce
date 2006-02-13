@@ -767,7 +767,7 @@ void Orbiter::RealRedraw( void *data )
 	size_t s;
 
 	bool bRehighlight=false;
-	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last || m_pObj_Highlighted_Last->m_pDataGridTable))
+  if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last /*|| m_pObj_Highlighted_Last->m_pDataGridTable*/))
 	{
 		bRehighlight=true;
 		UnHighlightObject();
@@ -781,7 +781,10 @@ void Orbiter::RealRedraw( void *data )
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
 		if(pObj && pObj->m_bOnScreen)
 		{
-			if( !bRehighlight && m_rectLastHighlight.IntersectsWith(pObj->m_rPosition) )
+			bool bIntersectedWith = pObj->m_rPosition.IntersectsWith(m_rectLastHighlight);
+			bool bIncludedIn = pObj->m_rPosition.Contains(m_rectLastHighlight);
+
+			if(!bRehighlight && (bIntersectedWith || bIncludedIn))
 			{
 				bRehighlight=true;
 				UnHighlightObject();
@@ -830,8 +833,10 @@ void Orbiter::RealRedraw( void *data )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Render object %s", pObj->m_ObjectID.c_str());
-    
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Render object %s", pObj->m_ObjectID.c_str());
+#endif
+
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
 		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRefreshWxWidget);
@@ -968,7 +973,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
       PROFILE_STOP( ctText,  "Text ( obj below )" )
       }
 	*/
-	switch( pObj->m_ObjectType )
+
+  g_pPlutoLogger->Write(LV_CRITICAL, "Object type: %d", pObj->m_ObjectType);
+
+  switch( pObj->m_ObjectType )
 	{
     case DESIGNOBJTYPE_Rectangle_CONST:
       // todo 2.0     SolidRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
@@ -984,8 +992,8 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
       break;
     case DESIGNOBJTYPE_App_Desktop_CONST:
     case DESIGNOBJTYPE_wxWidgets_Applet_CONST:
-      //g_pPlutoLogger->Write( LV_STATUS, "AppDesktop: Yield:%d; Rect:%d,%d,%d,%d",
-      //                       m_bYieldInput, pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height);
+      g_pPlutoLogger->Write(LV_CRITICAL, "It's a wxwidget! Calling RenderDesktop");
+
       if ( m_bYieldScreen )
         RenderDesktop( pObj, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
       else
@@ -1250,10 +1258,12 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 #endif
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	string delSelections;
+	string sSelectedIndex = "0";
 	if ( !pObj->sSelVariable.empty(  ) )
 	{
 		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 			delSelections = "|"+m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )]+"|";
+		sSelectedIndex = m_mapVariable[atoi(pObj->sSelVariable.c_str())];
 		vm.Release(  );
 	}
 
@@ -1648,8 +1658,10 @@ void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
 //------------------------------------------------------------------------
 void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
-	g_pPlutoLogger->Write(LV_WARNING, "offscreen object %s%s", pObj->m_ObjectID.c_str(), (pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST) ? " (wx-object)" : "");
-  
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "offscreen object %s%s", pObj->m_ObjectID.c_str(), (pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST) ? " (wx-object)" : "");
+#endif
+
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnDeleteWxWidget))
 		return;
 
@@ -1993,7 +2005,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 				if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
 				{
 					pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
-					pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
+
+					if(pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
+						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow + 1;
+
 					SelectedGrid( pDesignObj_DataGrid,  pCell );
 					bFinishLoop = true;
 					bFoundSelection = true; // Is this correct????  Hacked in this time
@@ -5749,6 +5764,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		//about the hide last current screen.
 		ObjectOffScreen(m_pScreenHistory_Current->GetObj());
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
+		pScreenHistory_New->AddToHistory();
 	}
 
 	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
@@ -5759,7 +5775,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	pScreenHistory_New->ScreenID(sID);
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
-	if(ScreenHistory::m_bAddToHistory)
+	if(ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)
 	{
 		if(pScreenHistory_New->GetObj() && !bLastCantGoBack && sLastObject != pObj_New->m_ObjectID && sLastObject != "")
 			pScreenHistory_New->AddToHistory();
@@ -7196,10 +7212,32 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 			if(pDesignObj->m_sGridID.size()>6 && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
 			{
 				PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
+
+				int nOldHightlightedRow = pDesignObj->m_iHighlightedRow;
+				int nOldHightlightedCol = pDesignObj->m_iHighlightedColumn;
+				int nGridCurRow = pDesignObj->m_GridCurRow;
+				int nGridCurCol = pDesignObj->m_GridCurCol;
+				int nStartingRow = pDesignObj->m_pDataGridTable->m_StartingRow;
+
+				int nOldSelectedIndex = atoi(m_mapVariable[atoi(pDesignObj->sSelVariable.c_str())].c_str());
+
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire=true;
 				PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 				m_vectObjs_NeedRedraw.push_back(pDesignObj);
+
+				if(nOldHightlightedRow + nStartingRow == nOldSelectedIndex + !!nStartingRow)
+				{
+					//we did it
+					pDesignObj->m_iHighlightedRow = nOldHightlightedRow;
+					pDesignObj->m_iHighlightedColumn = nOldHightlightedCol;
+					pDesignObj->m_GridCurRow = nGridCurRow;
+					pDesignObj->m_GridCurCol = nGridCurCol;
+				}
+				else
+				{
+					//someone else did it; we won't do anything else
+				}
 			}
 		}
 

@@ -26,6 +26,7 @@
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
     ScreenHandler(pOrbiter, p_MapDesignObj)
+    //, m_RoomsWizardMutex("", true)
 {
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
@@ -38,6 +39,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::~OSDScreenHandler()
 {
+	//pthread_mutex_destroy(&m_RoomsWizardMutex.mutex);
 	delete m_pWizardLogic;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1441,9 +1443,19 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 void OSDScreenHandler::SCREEN_AdvancedOptions(long PK_Screen)
 {
   ScreenHandler::SCREEN_AdvancedOptions(PK_Screen);
+  // register the RoomWizard callbacks
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_AdvancedOptions()" );
+  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
+  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
+  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
+}
 
-  // wxRoomWizard
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
+//-----------------------------------------------------------------------------------------------------
+void OSDScreenHandler::SCREEN_Media(long PK_Screen, string sLocation)
+{
+  ScreenHandler::SCREEN_Media(PK_Screen, sLocation);
+  // register the RoomWizard callbacks
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_Media()" );
   RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
   RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
   RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
@@ -1457,28 +1469,30 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
   PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
   if (pPositionCallBackData == NULL)
   {
-    g_pPlutoLogger->Write( LV_CRITICAL, "RoomsWizardCreate(), NULL Data");
+    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), NULL Data");
     return false;
   }
   PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
-  g_pPlutoLogger->Write( LV_WARNING, "RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
                          pRect.X, pRect.Y, pRect.Width, pRect.Height );
+  //PLUTO_SAFETY_LOCK( rwm, m_RoomsWizardMutex );
   wxDialog_RoomWizard_Show(m_pWizardLogic);
   wxDialog_RoomWizard_SetSize(pRect.X, pRect.Y, pRect.Width, pRect.Height);
-  if (! wxDialog_RoomWizard_isActive())
-    g_pPlutoLogger->Write( LV_CRITICAL, "RoomsWizardCreate(), Cannot create window",
-                           pRect.X, pRect.Y, pRect.Width, pRect.Height );
-  g_pPlutoLogger->Write( LV_WARNING, "RoomsWizardCreate() END" );
+  //if (! wxDialog_RoomWizard_isActive())
+  //  g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), Cannot create window",
+  //                         pRect.X, pRect.Y, pRect.Width, pRect.Height );
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
   return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 {
-  g_pPlutoLogger->Write( LV_WARNING, "RoomsWizardDelete()" );
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
+  //PLUTO_SAFETY_LOCK( rwm, m_RoomsWizardMutex );
   wxDialog_RoomWizard_Close();
-  if (! wxDialog_RoomWizard_isActive())
-    g_pPlutoLogger->Write( LV_CRITICAL, "RoomsWizardCreate(), Cannot delete window");
+  //if (! wxDialog_RoomWizard_isActive())
+  //  g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), Cannot delete window");
   return false;
 }
 
@@ -1488,25 +1502,48 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
   PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
   if (pPositionCallBackData == NULL)
   {
-    g_pPlutoLogger->Write( LV_CRITICAL, "RoomsWizardRefresh(), NULL Data");
+    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), NULL Data");
     return false;
   }
-
+  //PLUTO_SAFETY_LOCK( rwm, m_RoomsWizardMutex );
   PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
-  g_pPlutoLogger->Write( LV_WARNING, "RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
                          pRect.X, pRect.Y, pRect.Width, pRect.Height );
-  wxDialog_RoomWizard_SetSize(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+  //wxDialog_RoomWizard_SetSize(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+  g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
   return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_Media(long PK_Screen, string sLocation)
-{
-  ScreenHandler::SCREEN_Media(PK_Screen, sLocation);
+//#include "../wxAppMain/wx_other.h"
+//void OSDScreenHandler::wxDialog_RoomWizard_SetSize(int x, int y, int h, int w)
+//{
+//  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d)", x, y, h, w);
+//  _wx_log_nfo("Allocated at %p", m_pwxDialog_RoomWizard);
+//  if (m_pwxDialog_RoomWizard->IsInitialized())
+//    m_pwxDialog_RoomWizard->SetSize(x, y, h, w, wxSIZE_ALLOW_MINUS_ONE);
+//  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d);;", x, y, h, w);
+//}
 
-  // wxRoomWizard
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
-  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
-  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
-  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
-}
+//void OSDScreenHandler::wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/)
+//{
+//  _wx_log_nfo("wxDialog_RoomWizard_Show(%p)", pExternData);
+//  _wx_log_nfo("Launching new dialog");
+//  m_pwxDialog_RoomWizard = new wxDialog_RoomWizard();
+//  _wx_log_nfo("Allocated at %p", m_pwxDialog_RoomWizard);
+//  m_pwxDialog_RoomWizard->SetExternalData(pExternData);
+//  m_pwxDialog_RoomWizard->data_load();
+//  m_pwxDialog_RoomWizard->Create(NULL, ID_DIALOG_ROOMWIZARD, _("Room Wizard Dialog"));
+//  m_pwxDialog_RoomWizard->Show(true);
+//}
+
+//void OSDScreenHandler::wxDialog_RoomWizard_Close()
+//{
+//  _wx_log_nfo("wxDialog_RoomWizard_Close()");
+//  _wx_log_nfo("Closing the dialog");
+//  _wx_log_nfo("Allocated at %p", m_pwxDialog_RoomWizard);
+//  m_pwxDialog_RoomWizard->data_save();
+//  m_pwxDialog_RoomWizard->Destroy();
+//  m_pwxDialog_RoomWizard = NULL;
+//}
+//-----------------------------------------------------------------------------------------------------

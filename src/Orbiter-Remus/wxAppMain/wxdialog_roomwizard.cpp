@@ -1,4 +1,4 @@
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxdialog_roomwizard.h"
 #endif
 
@@ -29,158 +29,6 @@ using namespace DCE;
 ////@begin XPM images
 ////@end XPM images
 
-//========================================
-// extern helper functions & data >>
-
-#include <wx/arrimpl.cpp>
-WX_DEFINE_OBJARRAY(wxArray_RoomItems);
-
-wxDialog_RoomWizard *g_pwxDialog_RoomWizard = NULL;
-
-void wxDialog_RoomWizard::SetExternalData(void *pExternData)
-{
-  _wx_log_nfo("wxDialog_RoomWizard::SetExternalData(%p)", pExternData);
-#ifdef USE_DEBUG_CODE
-  wxUnusedVar(pExternData);
-#else // USE_DEBUG_CODE
-  m_pWizardLogic = (WizardLogic *)pExternData;
-#endif // USE_DEBUG_CODE
-}
-
-bool wxDialog_RoomWizard::data_load()
-{
-  _wx_log_nfo("wxDialog_RoomWizard::data_load()");
-#ifdef USE_DEBUG_CODE
-  v_aRoomItems.Add( RoomItem("Living Room", 1, 0) );
-  v_aRoomItems.Add( RoomItem("Bathroom", 2, 0) );
-  v_aRoomItems.Add( RoomItem("Bedroom", 4, 0) );
-#else // USE_DEBUG_CODE
-  if (m_pWizardLogic == NULL)
-  {
-    _wx_log_wrn("wxDialog_RoomWizard::data_load() : external data not initialized");
-  }
-  else
-  {
-    m_pWizardLogic->PreSeedRoomInfo(m_map_room_types);
-    for(map<int,int>::iterator it = m_map_room_types.begin(); it != m_map_room_types.end(); ++it)
-    {
-      int nKey = it->first;
-      int nValue = it->second;
-      string sName = m_pWizardLogic->GetRoomTypeName(nKey);
-      m_map_room_names[nKey] = sName;
-      g_pPlutoLogger->Write(LV_STATUS, "Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
-      v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
-    }
-  }
-#endif // USE_DEBUG_CODE
-  _wx_log_nfo("wxDialog_RoomWizard::data_load();;");
-  return true;
-}
-
-bool wxDialog_RoomWizard::data_save()
-{
-  _wx_log_nfo("wxDialog_RoomWizard::data_save()");
-  wxASSERT(v_aRoomItems.GetCount() > 0);
-  if (v_aRoomItems.GetCount() <= 0)
-    _wx_log_wrn("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
-  else
-    _wx_log_nfo("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
-#ifdef USE_DEBUG_CODE
-#else // USE_DEBUG_CODE
-  if (m_pWizardLogic == NULL)
-  {
-    _wx_log_wrn("wxDialog_RoomWizard::data_save() : external data not initialized");
-  }
-  else
-  {
-    wxASSERT(v_aRoomItems.GetCount() > 0);
-    if (v_aRoomItems.GetCount() <= 0)
-      _wx_log_wrn("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
-    else
-      _wx_log_nfo("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
-    for (size_t i=0; i<v_aRoomItems.GetCount(); i++)
-    {
-      m_map_room_types[v_aRoomItems[i].nKey] = v_aRoomItems[i].nValue;
-      g_pPlutoLogger->Write(LV_STATUS, "Save Roomtype: %s (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
-    }
-    m_pWizardLogic->ProcessUpdatedRoomInfo(m_map_room_types);
-  }
-#endif // USE_DEBUG_CODE
-  _wx_log_nfo("wxDialog_RoomWizard::data_save();;");
-  return true;
-}
-
-void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
-{
-  _wx_log_nfo("wxDialog_RoomWizard::ItemWindowSelect(%d, %d)", nItem, bOn);
-  if ( (nItem < 0) || (nItem >= (int)v_aRoomItems.GetCount()) )
-    return;
-  // deselect previous
-  if (bOn && (nItem != v_nSelectedItem))
-    ItemWindowSelect(v_nSelectedItem, false);
-  // also change GUI attributes
-  if (bOn)
-  {
-    v_nSelectedItem = nItem;
-    v_oGrid->SelectRow(v_nSelectedItem);
-  }
-  else
-  {
-    v_nSelectedItem = -1;
-  }
-}
-
-void wxDialog_RoomWizard::Window_SetBackgroundColour(wxWindow* pWin, bool bOn/*=true*/)
-{
-  _wx_log_nfo("wxDialog_RoomWizard::Window_SetBackgroundColour(*)");
-  wxELSE_RET(pWin != NULL);
-  if (bOn)
-  {
-    pWin->SetBackgroundColour(*wxBLUE);
-    //pWin->SetOwnBackgroundColour(*wxBLUE);
-  }
-  else
-  {
-    pWin->SetBackgroundColour(wxNullColour);
-    //pWin->SetOwnBackgroundColour(wxNullColour);
-  }
-}
-
-void wxDialog_RoomWizard::eventButtonDec()
-{
-  _wx_log_nfo("wxDialog_RoomWizard::eventButtonDec()");
-  if (v_nSelectedItem < 0)
-    return;
-  _wx_log_nfo("wxDialog_RoomWizard::eventButtonDec(): sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
-  if (v_aRoomItems[v_nSelectedItem].nValue > 0)
-    v_aRoomItems[v_nSelectedItem].nValue--;
-  v_oGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
-}
-
-void wxDialog_RoomWizard::eventButtonInc()
-{
-  _wx_log_nfo("wxDialog_RoomWizard::eventButtonInc()");
-  if (v_nSelectedItem < 0)
-    return;
-  _wx_log_nfo("wxDialog_RoomWizard::eventButtonInc(): sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
-  v_aRoomItems[v_nSelectedItem].nValue++;
-  v_oGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
-}
-
-void wxDialog_RoomWizard::_debug_log_ItemSelected(const wxString &s/* = ""*/)
-{
-  _wx_log_nfo("wxDialog_RoomWizard::_debug_log_ItemSelected()");
-  wxString s_new;
-  if ( (v_nSelectedItem < 0) || (v_nSelectedItem >= (int)v_aRoomItems.GetCount()) )
-    s_new = s + wxString::Format("[%d]", v_nSelectedItem);
-  else
-    s_new = s + wxString::Format("[%d] %s = %d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].sName.c_str(), v_aRoomItems[v_nSelectedItem].nValue);
-  _wx_log_nfo(s_new);
-}
-
-// extern helper functions & data <<
-//========================================
-
 /*!
  * wxDialog_RoomWizard type definition
  */
@@ -198,7 +46,7 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_RoomWizard, wxDialog )
     EVT_CHAR( wxDialog_RoomWizard::OnChar )
     EVT_KEY_UP( wxDialog_RoomWizard::OnKeyUp )
 
-    EVT_GRID_SELECT_CELL( wxDialog_RoomWizard::OnSelectCell )
+    EVT_GRID_CELL_LEFT_CLICK( wxDialog_RoomWizard::OnCellLeftClick )
     EVT_CHAR( wxDialog_RoomWizard::OnChar )
     EVT_KEY_UP( wxDialog_RoomWizard::OnKeyUp )
 
@@ -212,6 +60,7 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_RoomWizard, wxDialog )
  */
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( )
+    : b_initialized(false)
 {
   _wx_log_nfo("wxDialog_RoomWizard::wxDialog_RoomWizard()");
   if (g_pwxDialog_RoomWizard != NULL)
@@ -225,6 +74,7 @@ wxDialog_RoomWizard::wxDialog_RoomWizard( )
 }
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
+    : b_initialized(false)
 {
   _wx_log_nfo("wxDialog_RoomWizard::wxDialog_RoomWizard(*)");
   if (g_pwxDialog_RoomWizard != NULL)
@@ -238,27 +88,6 @@ wxDialog_RoomWizard::wxDialog_RoomWizard( wxWindow* parent, wxWindowID id, const
   Create(parent, id, caption, pos, size, style);
 }
 
-wxDialog_RoomWizard::~wxDialog_RoomWizard( )
-{
-  _wx_log_nfo("wxDialog_RoomWizard::~wxDialog_RoomWizard()");
-  if (g_pwxDialog_RoomWizard == this)
-    g_pwxDialog_RoomWizard = NULL;
-}
-
-bool wxDialog_RoomWizard::Destroy()
-{
-  _wx_log_nfo("wxDialog_RoomWizard::Destroy()");
-  return wxDialog::Destroy();
-}
-
-void wxDialog_RoomWizard::OnInternalIdle()
-{
-  //_wx_log_nfo("wxDialog::OnInternalIdle()");
-  if ( wxIdleThreadShouldStop() )
-    Destroy();
-  wxDialog::OnInternalIdle();
-}
-
 /*!
  * wxDialog_RoomWizard creator
  */
@@ -267,17 +96,17 @@ bool wxDialog_RoomWizard::Create( wxWindow* parent, wxWindowID id, const wxStrin
 {
   _wx_log_nfo("wxDialog_RoomWizard::Create(*)");
 ////@begin wxDialog_RoomWizard member initialisation
-  v_oBoxV_all = NULL;
-  v_oGrid = NULL;
+    v_oBoxV_all = NULL;
+    v_oGrid = NULL;
 ////@end wxDialog_RoomWizard member initialisation
 
 ////@begin wxDialog_RoomWizard creation
-  SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT);
-  wxDialog::Create( parent, id, caption, pos, size, style );
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT);
+    wxDialog::Create( parent, id, caption, pos, size, style );
 
-  CreateControls();
+    CreateControls();
 ////@end wxDialog_RoomWizard creation
-  return true;
+    return true;
 }
 
 /*!
@@ -287,7 +116,6 @@ bool wxDialog_RoomWizard::Create( wxWindow* parent, wxWindowID id, const wxStrin
 void wxDialog_RoomWizard::CreateControls()
 {
   _wx_log_nfo("wxDialog_RoomWizard::CreateControls()");
-  b_initialized = false;
 ////@begin wxDialog_RoomWizard content construction
     wxDialog_RoomWizard* itemDialog1 = this;
 
@@ -297,7 +125,7 @@ void wxDialog_RoomWizard::CreateControls()
     v_oBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog1->SetSizer(v_oBoxV_all);
 
-    v_oGrid = new wxGrid( itemDialog1, ID_GRID, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER|wxCLIP_CHILDREN |wxVSCROLL );
+    v_oGrid = new wxGrid( itemDialog1, ID_GRID, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL );
     v_oGrid->SetForegroundColour(wxColour(255, 255, 255));
     v_oGrid->SetBackgroundColour(wxColour(0, 0, 255));
     v_oGrid->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
@@ -305,8 +133,8 @@ void wxDialog_RoomWizard::CreateControls()
     v_oGrid->SetDefaultRowSize(20);
     v_oGrid->SetColLabelSize(0);
     v_oGrid->SetRowLabelSize(0);
-    v_oGrid->CreateGrid(4, 5, wxGrid::wxGridSelectRows);
-    v_oBoxV_all->Add(v_oGrid, 1, wxGROW|wxALL, 5);
+    v_oGrid->CreateGrid(4, 5, wxGrid::wxGridSelectCells);
+    v_oBoxV_all->Add(v_oGrid, 1, wxGROW, 1);
 
 ////@end wxDialog_RoomWizard content construction
   wxASSERT(v_aRoomItems.GetCount() > 0);
@@ -395,19 +223,19 @@ void wxDialog_RoomWizard::OnKeyUp( wxKeyEvent& event )
 }
 
 /*!
- * wxEVT_GRID_SELECT_CELL event handler for ID_GRID
+ * wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID
  */
 
-void wxDialog_RoomWizard::OnSelectCell( wxGridEvent& event )
+void wxDialog_RoomWizard::OnCellLeftClick( wxGridEvent& event )
 {
-  if (! b_initialized)
+  if (! IsInitialized())
   {
     event.Skip();
     return;
   }
   int row=event.GetRow();
   int col=event.GetCol();
-  _wx_log_nfo("wxDialog_RoomWizard::OnSelectCell(): row=%d, col=%d", row, col);
+  _wx_log_nfo("wxDialog_RoomWizard::OnCellLeftClick(): row=%d, col=%d", row, col);
   ItemWindowSelect(row);
   event.Skip(false);
   if (col == 0)
@@ -418,15 +246,12 @@ void wxDialog_RoomWizard::OnSelectCell( wxGridEvent& event )
   {
     eventButtonInc();
   }
-  //   if (col != 1)
-  //     oGrid->SetGridCursor(row, 1);
-  //_debug_log_ItemSelected("OnSelectCell");
   return;
   /*
-////@begin wxEVT_GRID_SELECT_CELL event handler for ID_GRID in wxDialog_RoomWizard.
+////@begin wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID in wxDialog_RoomWizard.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_GRID_SELECT_CELL event handler for ID_GRID in wxDialog_RoomWizard.
+////@end wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID in wxDialog_RoomWizard.
 */
 }
 
@@ -468,6 +293,175 @@ wxIcon wxDialog_RoomWizard::GetIconResource( const wxString& name )
 ////@end wxDialog_RoomWizard icon retrieval
 }
 
+wxDialog_RoomWizard::~wxDialog_RoomWizard( )
+{
+  _wx_log_nfo("wxDialog_RoomWizard::~wxDialog_RoomWizard()");
+  if (g_pwxDialog_RoomWizard == this)
+    g_pwxDialog_RoomWizard = NULL;
+}
+
+bool wxDialog_RoomWizard::Destroy()
+{
+  _wx_log_nfo("wxDialog_RoomWizard::Destroy()");
+  return wxDialog::Destroy();
+}
+
+bool wxDialog_RoomWizard::IsInitialized()
+{
+  return b_initialized;
+}
+
+void wxDialog_RoomWizard::OnInternalIdle()
+{
+  //_wx_log_nfo("wxDialog_RoomWizard::OnInternalIdle()");
+  if ( wxIdleThreadShouldStop() )
+    Destroy();
+  wxDialog::OnInternalIdle();
+}
+
+void wxDialog_RoomWizard::SetExternalData(void *pExternData)
+{
+  _wx_log_nfo("wxDialog_RoomWizard::SetExternalData(%p)", pExternData);
+#ifdef USE_DEBUG_CODE
+  wxUnusedVar(pExternData);
+#else // USE_DEBUG_CODE
+  m_pWizardLogic = (WizardLogic *)pExternData;
+#endif // USE_DEBUG_CODE
+}
+
+bool wxDialog_RoomWizard::data_load()
+{
+  _wx_log_nfo("wxDialog_RoomWizard::data_load()");
+#ifdef USE_DEBUG_CODE
+  v_aRoomItems.Add( RoomItem("Living Room", 1, 0) );
+  v_aRoomItems.Add( RoomItem("Bathroom", 2, 0) );
+  v_aRoomItems.Add( RoomItem("Bedroom", 4, 0) );
+#else // USE_DEBUG_CODE
+  if (m_pWizardLogic == NULL)
+  {
+    _wx_log_wrn("wxDialog_RoomWizard::data_load() : external data not initialized");
+  }
+  else
+  {
+    _wx_log_nfo("wxDialog_RoomWizard::data_load() : external data (%p)", m_pWizardLogic);
+    m_pWizardLogic->PreSeedRoomInfo(m_map_room_types);
+    for(map<int,int>::iterator it = m_map_room_types.begin(); it != m_map_room_types.end(); ++it)
+    {
+      int nKey = it->first;
+      int nValue = it->second;
+      string sName = m_pWizardLogic->GetRoomTypeName(nKey);
+      m_map_room_names[nKey] = sName;
+      g_pPlutoLogger->Write(LV_STATUS, "Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
+      v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
+    }
+  }
+#endif // USE_DEBUG_CODE
+  _wx_log_nfo("wxDialog_RoomWizard::data_load();;");
+  return true;
+}
+
+bool wxDialog_RoomWizard::data_save()
+{
+  _wx_log_nfo("wxDialog_RoomWizard::data_save()");
+  wxASSERT(v_aRoomItems.GetCount() > 0);
+  if (v_aRoomItems.GetCount() <= 0)
+    _wx_log_wrn("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
+  else
+    _wx_log_nfo("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
+#ifdef USE_DEBUG_CODE
+#else // USE_DEBUG_CODE
+  if (m_pWizardLogic == NULL)
+  {
+    _wx_log_wrn("wxDialog_RoomWizard::data_save() : external data not initialized");
+  }
+  else
+  {
+    _wx_log_nfo("wxDialog_RoomWizard::data_save() : external data (%p)", m_pWizardLogic);
+    wxASSERT(v_aRoomItems.GetCount() > 0);
+    if (v_aRoomItems.GetCount() <= 0)
+      _wx_log_wrn("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
+    else
+      _wx_log_nfo("wxDialog_RoomWizard::data_save() : Number of rooms: %d", v_aRoomItems.GetCount());
+    for (size_t i=0; i<v_aRoomItems.GetCount(); i++)
+    {
+      m_map_room_types[v_aRoomItems[i].nKey] = v_aRoomItems[i].nValue;
+      g_pPlutoLogger->Write(LV_STATUS, "Save Roomtype: %s (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
+    }
+    m_pWizardLogic->ProcessUpdatedRoomInfo(m_map_room_types);
+  }
+#endif // USE_DEBUG_CODE
+  _wx_log_nfo("wxDialog_RoomWizard::data_save();;");
+  return true;
+}
+
+void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
+{
+  _wx_log_nfo("wxDialog_RoomWizard::ItemWindowSelect(%d, %d)", nItem, bOn);
+  if ( (nItem < 0) || (nItem >= (int)v_aRoomItems.GetCount()) )
+    return;
+  // deselect previous
+  if (bOn && (nItem != v_nSelectedItem))
+    ItemWindowSelect(v_nSelectedItem, false);
+  // also change GUI attributes
+  if (bOn)
+  {
+    v_nSelectedItem = nItem;
+    v_oGrid->SelectRow(v_nSelectedItem);
+  }
+  else
+  {
+    v_nSelectedItem = -1;
+  }
+}
+
+void wxDialog_RoomWizard::Window_SetBackgroundColour(wxWindow* pWin, bool bOn/*=true*/)
+{
+  _wx_log_nfo("wxDialog_RoomWizard::Window_SetBackgroundColour(*)");
+  wxELSE_RET(pWin != NULL);
+  if (bOn)
+  {
+    pWin->SetBackgroundColour(*wxBLUE);
+    //pWin->SetOwnBackgroundColour(*wxBLUE);
+  }
+  else
+  {
+    pWin->SetBackgroundColour(wxNullColour);
+    //pWin->SetOwnBackgroundColour(wxNullColour);
+  }
+}
+
+void wxDialog_RoomWizard::eventButtonDec()
+{
+  _wx_log_nfo("wxDialog_RoomWizard::eventButtonDec()");
+  if (v_nSelectedItem < 0)
+    return;
+  _wx_log_nfo("wxDialog_RoomWizard::eventButtonDec(): sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
+  if (v_aRoomItems[v_nSelectedItem].nValue > 0)
+    v_aRoomItems[v_nSelectedItem].nValue--;
+  v_oGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
+}
+
+void wxDialog_RoomWizard::eventButtonInc()
+{
+  _wx_log_nfo("wxDialog_RoomWizard::eventButtonInc()");
+  if (v_nSelectedItem < 0)
+    return;
+  _wx_log_nfo("wxDialog_RoomWizard::eventButtonInc(): sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
+  v_aRoomItems[v_nSelectedItem].nValue++;
+  v_oGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
+}
+
+void wxDialog_RoomWizard::_debug_log_ItemSelected(const wxString &s/* = ""*/)
+{
+  _wx_log_nfo("wxDialog_RoomWizard::_debug_log_ItemSelected()");
+  wxString s_new;
+  if ( (v_nSelectedItem < 0) || (v_nSelectedItem >= (int)v_aRoomItems.GetCount()) )
+    s_new = s + wxString::Format("[%d]", v_nSelectedItem);
+  else
+    s_new = s + wxString::Format("[%d] %s = %d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].sName.c_str(), v_aRoomItems[v_nSelectedItem].nValue);
+  _wx_log_nfo(s_new);
+}
+
 //==================================================
 
 bool wxDialog_RoomWizard_isActive()
@@ -483,7 +477,14 @@ void wxDialog_RoomWizard_SetSize(int x, int y, int h, int w)
     _wx_log_wrn("Dialog is not active, ignoring SetSize request");
     return;
   }
-  g_pwxDialog_RoomWizard->SetSize(x, y, h, w);
+  if (! g_pwxDialog_RoomWizard->IsInitialized())
+  {
+    _wx_log_wrn("Dialog is not initialized, ignoring SetSize request");
+    return;
+  }
+  _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
+  g_pwxDialog_RoomWizard->SetSize(x, y, h, w, wxSIZE_ALLOW_MINUS_ONE);
+  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d);;", x, y, h, w);
 }
 
 void wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/)
@@ -494,8 +495,9 @@ void wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/)
     _wx_log_wrn("Dialog is already active, closing without saving data");
     g_pwxDialog_RoomWizard->Destroy();
   }
-  _wx_log_nfo("Launching new dialog", pExternData);
+  _wx_log_nfo("Launching new dialog");
   new wxDialog_RoomWizard();
+  _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
   g_pwxDialog_RoomWizard->SetExternalData(pExternData);
   g_pwxDialog_RoomWizard->data_load();
   g_pwxDialog_RoomWizard->Create(NULL, ID_DIALOG_ROOMWIZARD, _("Room Wizard Dialog"));
@@ -511,8 +513,12 @@ void wxDialog_RoomWizard_Close()
     return;
   }
   _wx_log_nfo("Closing the dialog");
+  _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
   g_pwxDialog_RoomWizard->data_save();
   g_pwxDialog_RoomWizard->Destroy();
 }
 
-//==================================================
+wxDialog_RoomWizard *g_pwxDialog_RoomWizard = NULL;
+
+#include <wx/arrimpl.cpp>
+WX_DEFINE_OBJARRAY(wxArray_RoomItems);

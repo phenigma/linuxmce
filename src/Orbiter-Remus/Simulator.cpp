@@ -426,6 +426,8 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 		else // Preserve the // and anything after it
 			sItem.replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
 
+		*it = sItem;
+
 		mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
     }
 

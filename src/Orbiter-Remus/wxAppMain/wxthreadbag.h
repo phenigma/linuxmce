@@ -1,8 +1,8 @@
 #ifndef _WXTHREADBAG_H_
 #define _WXTHREADBAG_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "wxthreadbag.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wxthreadbag.h"
 #endif
 
 #include "wxthreadinfo.h"

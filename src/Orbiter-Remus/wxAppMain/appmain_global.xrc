@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
     <object class="wxFrame" name="ID_FRAMEMAIN" subclass="wxFrameMain">
-        <style>wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER</style>
+        <style>wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE|wxMAXIMIZE|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER</style>
         <size>500,300d</size>
         <title>wxApplication</title>
         <object class="wxMenuBar" name="ID_MENUBAR">
@@ -102,7 +102,7 @@
         </object>
     </object>
     <object class="wxDialog" name="ID_DIALOG_ROOMWIZARD" subclass="wxDialog_RoomWizard">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxTHICK_FRAME|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxNO_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN </style>
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
         <fg>#FFFFFF</fg>
         <bg>#0000FF</bg>
@@ -119,8 +119,8 @@
         <object class="wxBoxSizer" name="v_oBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL</flag>
-                <border>5</border>
+                <flag>wxGROW</flag>
+                <border>1</border>
                 <option>1</option>
                 <object class="wxGrid" name="ID_GRID">
                     <font>
@@ -131,7 +131,7 @@
                         <underlined>0</underlined>
                         <face>Sans</face>
                     </font>
-                    <style>wxRAISED_BORDER|wxCLIP_CHILDREN |wxVSCROLL</style>
+                    <style>wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
                     <fg>#FFFFFF</fg>
                     <bg>#0000FF</bg>
                 </object>

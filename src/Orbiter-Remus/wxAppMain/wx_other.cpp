@@ -1,4 +1,4 @@
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wx_other.h"
 #endif
 #include <wx/wxprec.h>
@@ -13,17 +13,6 @@
 #include "wxthreaditem.h"
 #include "wxthreadbag.h"
 #include "wxthreadevent.h"
-
-// run_message: Xlib: unexpected async reply
-// enable : XInitThreads(), XLockDisplay(), XUnlockDisplay() ; Nested locking works correctly
-#if defined(__WXGTK__) || defined(__WXMOTIF__) || defined(__WXX11__)
-#include <X11/Xlib.h>
-#endif
-// g_thread_init()
-// surround any calls to GTK+ not made within a signal handler with a
-// gdk_threads_enter()/gdk_threads_leave()
-//
-// new X connection to the server => separate event queue
 
 //==================================================
 
@@ -52,10 +41,12 @@ static void _log_stdarg(const char *sformat, va_list arg_ptr)
 static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog p_wxVLog)
 {
   if (! ::wxIsMainThread())
-    wxMutexGuiEnter();
+    return;
+  //if (! ::wxIsMainThread())
+  //  wxMutexGuiEnter();
   p_wxVLog(sformat, arg_ptr);
-  if (! ::wxIsMainThread())
-    wxMutexGuiLeave();
+  //if (! ::wxIsMainThread())
+  //  wxMutexGuiLeave();
 }
 
 // not usable directly
@@ -175,14 +166,6 @@ int main(int argc, char *argv[])
 {
   _wx_log_nfo("* extern main() : STARTED");
   int nExitCode = EXIT_SUCCESS;
-  // activate GUI threads
-  {
-    if ( XInitThreads() == 0 )
-    {
-      _wx_log_err("Unable to initialize multithreaded X11 code (XInitThreads failed)");
-      exit( EXIT_FAILURE );
-    }
-  }
   // wx initialize
   {
     _wx_log_nfo("* extern main() : wxEntry() begin");
