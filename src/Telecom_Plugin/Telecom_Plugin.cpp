@@ -60,6 +60,10 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 #include "PlutoUtils/MySQLHelper.h"
 
+#include "SerializeClass/ShapesColors.h"
+#define MAX_TELECOM_COLORS 5
+int UniqueColors[MAX_TELECOM_COLORS];
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -108,7 +112,11 @@ bool Telecom_Plugin::GetConfig()
 		map_ext2device[atoi(vectDeviceData[s]->IK_DeviceData_get().c_str())] = vectDeviceData[s]->FK_Device_get();
 		map_device2ext[vectDeviceData[s]->FK_Device_get()] = atoi(vectDeviceData[s]->IK_DeviceData_get().c_str());
 	}
-
+	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
+	UniqueColors[1] = PlutoColor(0,128,0).m_Value;
+	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
+	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
+	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 	return true;
 }
 
@@ -1054,7 +1062,8 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 						}
 					}
 				}
-				pDataGrid->SetData(0,Row, pCell);
+		        pCell->m_AltColor = UniqueColors[Row%MAX_TELECOM_COLORS];
+				pDataGrid->SetData(0,Row,pCell);
 				text_list.push_back(ext_txt);
 				Row++;
 			}
