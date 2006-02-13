@@ -3,6 +3,7 @@ nvidia-graphics-drivers (1.0.8178-1) unstable; urgency=low
   * built with 8178
 
  -- Radu Cristescu <radu.c@plutohome.com>  Mon, 13 Feb 2006 19:56:00 +0200
+
 nvidia-graphics-drivers (1.0.7174-3) unstable; urgency=low
 
   * reinclude nvidia docs 
