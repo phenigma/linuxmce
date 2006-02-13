@@ -35,8 +35,12 @@ awk -v "Force=$Force" '
 		print "\tModeline '"${Modeline//\"/\\\"}"'";
 		if (Force == "yes") {
 			print "\tHorizSync 28-500";
-			print "\tVertRefresh '"$Refresh"'";
 		}
+		else
+		{
+			print "\tHorizSync 43-90";
+		}
+		print "\tVertRefresh '"$Refresh"'";
 		print;
 		Monitor = 0;
 		next;
