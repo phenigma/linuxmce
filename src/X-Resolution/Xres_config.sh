@@ -24,13 +24,8 @@ ShowDialog()
 	kill "$pidOfX"
 }
 
-Modeline="$(/usr/pluto/bin/xtiming.pl "$Width" "$Height" "$Refresh" "$Type")"
-if [[ "${Refresh// }" != "60" ]]; then
-	ModeName="${Modeline%% *}"
-else
-	# Workaround of the 'i810' driver which decides on its own to ignore ModeLines completely
-	ModeName="\"${Width}x${Height}\""
-fi
+ModeName="\"${Width}x${Height}\""
+Modeline="\"${Width}x${Height}\"$(/usr/pluto/bin/xtiming.pl "$Width" "$Height" "$Refresh" "$Type" | cut -d' ' -f2-)"
 
 awk -v "Force=$Force" '
 	BEGIN { Monitor = 0; Display = 0; }
