@@ -1,8 +1,8 @@
-mythtv (0.19-4) unstable; urgency=low
+mythtv (0.19-5) unstable; urgency=low
 
-  * Built against SVN Revision 8854
+  * Built against Upstream release 0.19
 
- -- Radu Cristescu <radu.c@plutohome.com>  Mon, 06 Feb 2006 13:43:04 +0200
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 14 Feb 2006 00:22:24 +0200
 
 mythtv (0.19-3) unstable; urgency=low
 
