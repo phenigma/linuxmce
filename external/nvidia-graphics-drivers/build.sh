@@ -1,5 +1,7 @@
 #!/bin/bash
 
+dpkg-buildpackage -rfakeroot -b -us -uc
+
 tar -xzf nvidia-kernel-source.tar.gz
 pushd modules/nvidia-kernel/ &>/dev/null
 KSRC=/lib/modules/`uname -r`/build KVERS=`uname -r` fakeroot debian/rules binary_modules
