@@ -689,7 +689,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		rect.Height = m_iImageHeight - rect.Y - 1;
 
 	Rect srcRect;
-	srcRect.Set(rect.X, rect.Y, rect.Right(), rect.Bottom());
+	srcRect.Set(rect.X, rect.Y, rect.Right() + 1, rect.Bottom() + 1);
 
 	Surface *pSurface = GetDisplay()->CreateSurface(rect.Width, rect.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);

@@ -63,8 +63,8 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 { 
 	m_GraphicManagement = GR_KEEPCOMPRESSED; 
 	m_GraphicFormat = GR_UNKNOWN; 
-
 	m_Filename = "";
+	m_pOrbiter = NULL;
 }
 //=======================================================================================================
 //Concrete class DesignObj_Orbiter
@@ -228,6 +228,7 @@ string DesignObj_Orbiter::GetParameterValue(int ParameterID)
 PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 {
 	PlutoRectangle r;
+
 	r.X = max(0,m_rPosition.X-4);
 	r.Y = max(0,m_rPosition.Y-4);
 	r.Right( min(m_rPosition.Right()+4,m_pCore->m_Width-1) );

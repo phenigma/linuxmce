@@ -60,9 +60,7 @@ void ScreenHandler::RefreshDatagrid(long PK_DesignObj_Datagrid)
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(StringUtils::ltos(PK_DesignObj_Datagrid));
 	if(pObj)
 	{
-		PLUTO_SAFETY_LOCK(nd, m_pOrbiter->m_NeedRedrawVarMutex);
-		m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObj);
-
+		m_pOrbiter->RenderObjectAsync(pObj);
 		m_pOrbiter->InitializeGrid((DesignObj_DataGrid *)pObj);
 		m_pOrbiter->RedrawObjects();
 	}
