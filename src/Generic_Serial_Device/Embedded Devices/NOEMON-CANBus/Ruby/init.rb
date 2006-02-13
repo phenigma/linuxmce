@@ -1,4 +1,4 @@
-#Init 07-Feb-06 10:52
+#Init 13-Feb-06 13:05
 $AlarmsStatus=Hash.new
 $RelaysStatus=Hash.new
 $LightsStatus=Hash.new
@@ -8,6 +8,8 @@ $LightsNo=6       # 6
 $RelaysNo=4      # 8
 $AlarmsNo=4      #4
 
+$MaxLightId=200     #used to detect type of child not very well
+
 $pcBranch=0
 $pcNo=3
 $deviceBranch=0
@@ -15,13 +17,12 @@ $deviceNo=1
 
 $branchList=Array.new
 
-$eventHead
-{
+$eventHead={
 "AlarmOn"       => "T10C20002",
 "AlarmOff"     =>  "T10820002"
 }
 
-$CmdAckHead={
+$cmdAckHead={
 "Alarms 1"    =>     "T1B810",
 "Alarms 2"    =>     "T1B818",
 "Relay"         =>     "T1B820",
