@@ -152,8 +152,12 @@ mkdir -p "/tftpboot/$IP"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
-# Use Core's /etc/modules
-#cp /etc/modules "$DlPath"/etc/modules
+RequiredModules="ide-cd ide-disk psmouse"
+for Module in $RequiredModules; do
+	if ! grep -q "$Module" "$DlPath"/etc/modules; then
+		echo $Module >>"$DlPath"/etc/modules
+	fi
+done
 
 cd -
 
