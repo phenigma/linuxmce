@@ -43,8 +43,6 @@ Section "Monitor"
 	Identifier   "Monitor0"
 	VendorName   "Monitor Vendor"
 	ModelName    "Monitor Model"
-	HorizSync	43-90
-	VertRefresh	50-90
 EndSection
 
 Section "Device"
