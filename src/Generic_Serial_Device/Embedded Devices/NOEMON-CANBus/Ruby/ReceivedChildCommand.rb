@@ -1,4 +1,4 @@
-# 06-Feb-06 13:42 Receive command from child
+# 13-Feb-06 13:11 Receive command from child
 log( "received command from child" + "\n" ) 
 cmdId = cmd.id_
 cmdTo = cmd.devidto_
@@ -39,16 +39,16 @@ end
 
 case cmdId
 	when 192      #  OFF
-	if (childNo<=$MaxNoLights) then 
+	if (childNo<=$MaxLightId) then 
 		NOEMTurnLight(childNo,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	else
-		NOEMTurnRelay(childNo-$MaxNoLights,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
+		NOEMTurnRelay(childNo-$MaxLightId,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	end
 	when 193      #  ON
-	if (childNo<=$MaxNoLights) then 
+	if (childNo<=$MaxLightId) then 
 		NOEMTurnLight(childNo,false,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	else
-		NOEMTurnRelay(childNo-$MaxNoLights,false,$pcBranch,$pcNo,deviceBranch,deviceUnit )
+		NOEMTurnRelay(childNo-$MaxLightId,false,$pcBranch,$pcNo,deviceBranch,deviceUnit )
 	end
 	
 	when 184      #  SetLevel

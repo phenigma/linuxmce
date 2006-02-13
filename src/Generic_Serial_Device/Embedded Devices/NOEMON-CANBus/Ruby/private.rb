@@ -1,5 +1,5 @@
 # Private functions
-# 07-Feb-06 10:51
+# 13-Feb-06 13:09
 
 #$logFile = File.new("g:/CanBUS.log","w")
 $logFile = File.new("/var/log/pluto/CanBUS.log", "w")
@@ -208,6 +208,7 @@ def createChildrenList()
 	totalIndex +=1
 	end
 	
+	totalIndex=$MaxLightId
 	#relays
 	for index in 1..$RelaysNo        #8   
 	auxStr += totalIndex.to_s + "\t" + index.to_s + "\t" + "room1" 
@@ -217,12 +218,12 @@ def createChildrenList()
 	end
 	
 	#alarms
-	for index in 1..$AlarmsNo        #12   
+	#for index in 1..$AlarmsNo        #12   
 	#auxStr += index.to_s + "\t" + index.to_s + "\t" + "room1" 
 	#auxStr += "\t" + "1780" + "\t" + "3" + "\n" 
 	
 	#totalIndex +=1
-	end
+	#end
 	
 	addChildDevices( auxStr )
 end
