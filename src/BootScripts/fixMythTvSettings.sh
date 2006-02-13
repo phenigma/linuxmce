@@ -56,7 +56,7 @@ addEntries HorizScanPercentage	1	$hostname;
 addEntries NetworkControlEnabled	1	$hostname;
 addEntries NetworkControlPort	10001	$hostname;
 addEntries PreferredMPEG2Decoder	xvmc 	$hostname;
-addEntries UseChromaKeyOSD 1    $hostname;
+addEntries UseChromaKeyOSD 0    $hostname;
 addEntries UseOpenGLVSync	0	$hostname;
 addEntries SelectChangesChannel	1	$hostname;
 addEntries Deinterlace	1	$hostname;
