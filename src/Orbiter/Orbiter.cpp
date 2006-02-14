@@ -831,8 +831,18 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 {
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Render object %s", pObj->m_ObjectID.c_str());
 
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
-		return;
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
+	{
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRefreshWxWidget);
+		if(pCallBackData)
+		{
+			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
+			pPositionData->m_rectPosition = pObj->m_rPosition;
+		}
+
+		if(ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
+			return;
+	}
 
 	if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
 	{
@@ -963,6 +973,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		//      LocalHandleWebWindow( pObj,  rectTotal );
 		break;
 	case DESIGNOBJTYPE_App_Desktop_CONST:
+	case DESIGNOBJTYPE_wxWidgets_Applet_CONST:
 		if ( m_bYieldScreen )
 			RenderDesktop( pObj, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
 		else

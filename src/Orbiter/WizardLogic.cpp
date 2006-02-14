@@ -21,7 +21,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect("192.168.80.1"/*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
+	if( !MySQLConnect("dcerouter", "root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
