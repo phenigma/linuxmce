@@ -525,7 +525,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&msg='.$TEXT_DEVICE_RESETED_CONST);
 			exit();			
 		}
-		
+
 		$description = cleanString($_POST['DeviceDescription']);
 		$ipAddress = cleanString($_POST['ipAddress']);
 		$macAddress = cleanString($_POST['macAddress']);
@@ -541,7 +541,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST);
 			exit();			
 		}
-		die();
+
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
 		if ($addNewDeviceRelated!=0) {
 			$queryInsertDeviceRelated = 'INSERT INTO Device_Device_Related 
@@ -681,7 +681,6 @@ $installationID = (int)@$_SESSION['installationID'];
 			exec($cmd);
 		}
 
-		
 		$out.='
 		<script>
 			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg=Device updated').'\';
