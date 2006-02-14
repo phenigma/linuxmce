@@ -31,6 +31,7 @@ awk -v "Force=$Force" '
 	BEGIN { Monitor = 0; Display = 0; }
 	/Modeline/ || /Modes/ { next }
 	/Section..*"Monitor"/ { print; Monitor = 1; next; }
+	Monitor == 1 && (/HorizSync/ || /VertRefresh/) { next; }
 	/EndSection/ && Monitor == 1 {
 		print "\tModeline '"${Modeline//\"/\\\"}"'";
 		if (Force == "yes") {
