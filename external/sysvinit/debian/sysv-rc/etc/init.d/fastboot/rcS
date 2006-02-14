@@ -22,7 +22,7 @@ Message() {
 InitBootsplash() {
     progress=0
     kscripts=0
-    sscripts=20
+    sscripts=21
     export progress kscripts sscripts
 }
 
@@ -54,6 +54,7 @@ Message "Initializing udev"
 
 ## Loading modules
 Message "Loading modules"
+/sbin/depmod
 (cat /etc/modules; echo) | # make sure there is a LF at the end
 while read module args
 do

@@ -1,7 +1,15 @@
+sysvinit (2.86.ds1-1.1pluto16) unstable; urgency=low
+
+  * Added a depmod just before loading modules
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 14 Feb 2006 12:44:42 +0200
+
 sysvinit (2.86.ds1-1.1pluto15) unstable; urgency=low
 
   * Fixed 0001645: MDs woken up too early
-
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 11 Feb 2006 12:44:42 +0200
+ 
 sysvinit (2.86.ds1-1.1pluto14) unstable; urgency=low
   
   * Fixed some warings that where shown at shutdown/reboo
