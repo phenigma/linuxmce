@@ -284,7 +284,7 @@ set_mixers() {
     ## mute mic
     #amixer set Mic 0% mute >/dev/null 2>&1
     # enable mic
-    mixer Mic 74%
+    amixer set Mic 74% mute
     mixer "Mic Boost (+20dB)"
     # ESS 1969 chipset has 2 PCM channels
     mixer PCM,1 90%
