@@ -4458,29 +4458,33 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 
 			int PK_Picture = 0;
             Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
-			if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get())))
-			{
-				string sFilePath = FileUtils::BasePath(pRow_File->Path_get());
-				string sFileName = FileUtils::FilenameWithoutPath(pRow_File->Path_get(), false);
-				PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
-				int PK_File = PlutoMediaFile_.GetFileAttribute(false);
-				if(PK_File)
-					PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
-			}
 
-			if(PK_Picture)
+			if(pRow_File)
 			{
-				size_t iSize;
-				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
-				if( pBuffer )
+				if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get())))
 				{
-					pDataGridCell_Cover->m_pGraphicData = pBuffer;
-					pDataGridCell_Cover->m_GraphicLength = iSize;
+					string sFilePath = FileUtils::BasePath(pRow_File->Path_get());
+					string sFileName = FileUtils::FilenameWithoutPath(pRow_File->Path_get(), false);
+					PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
+					int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+					if(PK_File)
+						PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
 				}
-				g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+
+				if(PK_Picture)
+				{
+					size_t iSize;
+					char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
+					if( pBuffer )
+					{
+						pDataGridCell_Cover->m_pGraphicData = pBuffer;
+						pDataGridCell_Cover->m_GraphicLength = iSize;
+					}
+					g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+				}
+				else
+					g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
 			}
-			else
-				g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
         }
         else
         {
