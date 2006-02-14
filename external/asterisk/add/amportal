@@ -44,6 +44,7 @@ chown_asterisk() {
     chmod ug+x $AMPWEBROOT/admin/*.sh
     chmod ug+x $AMPWEBROOT/panel/*.pl
     chmod ug+x $AMPWEBROOT/panel/safe_opserver
+    chmod -R ug+rx /var/lib/asterisk/sounds/voicemail
 }
 
 check_asterisk() {

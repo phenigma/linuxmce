@@ -41,7 +41,7 @@ patch -p1 < ${SRCFOLDER}/bristuff-*/patches/asterisk.patch
 
 cd ${SRCFOLDER}/libpri-*
 make clean
-make all
+make all || exit
 make INSTALL_PREFIX=${PKGFOLDER}/ install
 cd ${PKGFOLDER}/usr/lib
 ln -sf libpri.so.1.0 libpri.so.1
@@ -57,24 +57,24 @@ sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 patch < ${ADDFOLDER}/zaptel_2.6.15.patch
 touch ${PKGFOLDER}/etc/conf.modules
 make clean
-make
+make || exit
 make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
 cp zaptel.conf.sample ${PKGFOLDER}/etc/
 
 cd ${SRCFOLDER}/bristuff-*/
 cd qozap
 sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all
+make clean all || exit
 make INSTALL_PREFIX=${PKGFOLDER} install
 cd ..
 cd cwain
 sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all
+make clean all || exit
 make INSTALL_PREFIX=${PKGFOLDER} install
 cd ..
 cd zaphfc
 sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all
+make clean all || exit
 make INSTALL_PREFIX=${PKGFOLDER} install
 
 cd ${SRCFOLDER}/spandsp-*/asterisk-*/
@@ -85,39 +85,43 @@ patch < apps_makefile.patch
 cd ${SRCFOLDER}/spandsp-*/
 ./configure --prefix=/usr/
 make clean
-make all
-make DESTDIR=${PKGFOLDER} install
+make all || exit
+make DESTDIR=${PKGFOLDER} install || exit
 
 cd ${SRCFOLDER}/asterisk-[0-9]*/
 make clean
-make DESTDIR=${PKGFOLDER} all
-make DESTDIR=${PKGFOLDER} install
-make DESTDIR=${PKGFOLDER} samples
+make DESTDIR=${PKGFOLDER} all || exit
+make DESTDIR=${PKGFOLDER} install || exit
+make DESTDIR=${PKGFOLDER} samples || exit
 
 cd ${SRCFOLDER}/asterisk-addons-*/
 make clean
-make
-make INSTALL_PREFIX=${PKGFOLDER} install
+make || exit
+make INSTALL_PREFIX=${PKGFOLDER} install || exit
 
 cd  ${SRCFOLDER}/chan_sccp-*/
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 patch < ${ADDFOLDER}/chan_sccp_noask.patch
 make clean
-make INSTALL_PREFIX=${PKGFOLDER}
+make INSTALL_PREFIX=${PKGFOLDER} || exit
 make INSTALL_PREFIX=${PKGFOLDER} install
 cp conf/sccp.conf ${PKGFOLDER}/etc/asterisk/
 
 cd  ${SRCFOLDER}/app_conference/
 make clean
-make INSTALL_PREFIX=${PKGFOLDER}
-make INSTALL_PREFIX=${PKGFOLDER} install
+make INSTALL_PREFIX=${PKGFOLDER} || exit
+make INSTALL_PREFIX=${PKGFOLDER} install || exit
 
 cd ${SRCFOLDER}/chan_capi-*/
 make clean
-make INSTALL_PREFIX=${PKGFOLDER}
-make INSTALL_PREFIX=${PKGFOLDER} install
+make INSTALL_PREFIX=${PKGFOLDER} || exit
+make INSTALL_PREFIX=${PKGFOLDER} install || exit
+
 
 ### ADD AMP TO THIS PACKAGE (PROBABLY NOT BIG ENOUGH)
+#patch some stuff
+cd ${SRCFOLDER}
+patch -p0 < ${ADDFOLDER}/amp_webpage.patch
 
 cd ${MAINFOLDER}
 #init pluto's config
