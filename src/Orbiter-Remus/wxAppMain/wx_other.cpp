@@ -23,16 +23,46 @@ typedef void (& type_fn_wxVLog)(const char *sformat, va_list arg_ptr);
 
 //==================================================
 
+enum E_LOG_TYPE
+{
+  STD,
+  NFO,
+  ERR,
+  WRN,
+};
+
 // not usable directly
 // log to : stderr, file
-static void _log_stdarg(const char *sformat, va_list arg_ptr)
+static void _log_stdarg(const char *sformat, va_list arg_ptr, E_LOG_TYPE logtype)
 {
+  char * s_beg;
+  char * s_end;
+  switch(logtype)
+  {
+    case NFO:
+      s_beg = "\033[36mINFO:";
+      s_end = "\n\033[0m";
+      break;
+    case ERR:
+      s_beg = "\033[31mERROR:";
+      s_end = "\n\033[0m";
+      break;
+    case WRN:
+      s_beg = "\033[35mWARNING:";
+      s_end = "\n\033[0m";
+      break;
+    default:
+      s_beg = "";
+      s_end = "\n";
+  }
+  fprintf(stderr, s_beg);
   vfprintf(stderr, sformat, arg_ptr);
-  fprintf(stderr, "\n");
+  fprintf(stderr, s_end);
   if (g_fpLogFile)
   {
+    fprintf(g_fpLogFile, s_beg);
     vfprintf(g_fpLogFile, sformat, arg_ptr);
-    fprintf(g_fpLogFile, "\n");
+    fprintf(g_fpLogFile, s_end);
   }
 }
 
@@ -41,7 +71,10 @@ static void _log_stdarg(const char *sformat, va_list arg_ptr)
 static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog p_wxVLog)
 {
   if (! ::wxIsMainThread())
+  {
+    //_log_stdarg("Not in main thread");
     return;
+  }
   //if (! ::wxIsMainThread())
   //  wxMutexGuiEnter();
   p_wxVLog(sformat, arg_ptr);
@@ -51,9 +84,9 @@ static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog p_w
 
 // not usable directly
 // log to : stderr, file, wxVLog*
-static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog p_wxVLog)
+static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog p_wxVLog, E_LOG_TYPE logtype)
 {
-  _log_stdarg(sformat, arg_ptr);
+  _log_stdarg(sformat, arg_ptr, logtype);
   _log_wxVLog(sformat, arg_ptr, p_wxVLog);
 }
 
@@ -63,7 +96,7 @@ void wx_log_nfo(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
-  _log_stdarg_wx(sformat, arg_ptr, wxVLogMessage);
+  _log_stdarg_wx(sformat, arg_ptr, wxVLogMessage, NFO);
   va_end(arg_ptr);
 }
 
@@ -71,7 +104,7 @@ void wx_log_err(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
-  _log_stdarg_wx(sformat, arg_ptr, wxVLogError);
+  _log_stdarg_wx(sformat, arg_ptr, wxVLogError, ERR);
   va_end(arg_ptr);
 }
 
@@ -79,7 +112,7 @@ void wx_log_wrn(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
-  _log_stdarg_wx(sformat, arg_ptr, wxVLogWarning);
+  _log_stdarg_wx(sformat, arg_ptr, wxVLogWarning, WRN);
   va_end(arg_ptr);
 }
 
@@ -87,7 +120,7 @@ void wx_log_err_abort(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
-  _log_stdarg_wx(sformat, arg_ptr, wxVLogFatalError);
+  _log_stdarg_wx(sformat, arg_ptr, wxVLogFatalError, ERR);
   va_end(arg_ptr);
 }
 
@@ -95,7 +128,7 @@ void wx_log_verbose(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
-  _log_stdarg_wx(sformat, arg_ptr, wxVLogVerbose);
+  _log_stdarg_wx(sformat, arg_ptr, wxVLogVerbose, NFO);
   va_end(arg_ptr);
 }
 

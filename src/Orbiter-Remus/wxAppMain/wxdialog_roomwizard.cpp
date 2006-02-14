@@ -60,7 +60,7 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_RoomWizard, wxDialog )
  */
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( )
-    : b_initialized(false)
+    : b_initialized(false), b_should_refresh(false)
 {
   _wx_log_nfo("wxDialog_RoomWizard::wxDialog_RoomWizard()");
   if (g_pwxDialog_RoomWizard != NULL)
@@ -74,7 +74,7 @@ wxDialog_RoomWizard::wxDialog_RoomWizard( )
 }
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
-    : b_initialized(false)
+    : b_initialized(false), b_should_refresh(false)
 {
   _wx_log_nfo("wxDialog_RoomWizard::wxDialog_RoomWizard(*)");
   if (g_pwxDialog_RoomWizard != NULL)
@@ -133,7 +133,7 @@ void wxDialog_RoomWizard::CreateControls()
     v_oGrid->SetDefaultRowSize(20);
     v_oGrid->SetColLabelSize(0);
     v_oGrid->SetRowLabelSize(0);
-    v_oGrid->CreateGrid(4, 5, wxGrid::wxGridSelectCells);
+    v_oGrid->CreateGrid(4, 5, wxGrid::wxGridSelectRows);
     v_oBoxV_all->Add(v_oGrid, 1, wxGROW, 1);
 
 ////@end wxDialog_RoomWizard content construction
@@ -316,7 +316,24 @@ void wxDialog_RoomWizard::OnInternalIdle()
   //_wx_log_nfo("wxDialog_RoomWizard::OnInternalIdle()");
   if ( wxIdleThreadShouldStop() )
     Destroy();
+  if (b_initialized && b_should_refresh && ::wxIsMainThread())
+  {
+    this->SetSize(v_rect_refresh, wxSIZE_ALLOW_MINUS_ONE);
+    b_should_refresh = false;
+  }
   wxDialog::OnInternalIdle();
+}
+
+void wxDialog_RoomWizard::SetExternalRefresh(int x, int y, int h, int w)
+{
+  _wx_log_nfo("wxDialog_RoomWizard::SetExternalRefresh(x=%d, y=%d, h=%d, w=%d)", x, y, h, w);
+  if (! IsInitialized())
+  {
+    _wx_log_wrn("Dialog is not initialized, ignoring the request");
+    return;
+  }
+  v_rect_refresh = wxRect(x, y, h, w);
+  b_should_refresh = true;
 }
 
 void wxDialog_RoomWizard::SetExternalData(void *pExternData)
@@ -464,29 +481,6 @@ void wxDialog_RoomWizard::_debug_log_ItemSelected(const wxString &s/* = ""*/)
 
 //==================================================
 
-bool wxDialog_RoomWizard_isActive()
-{
-  return (g_pwxDialog_RoomWizard != NULL);
-}
-
-void wxDialog_RoomWizard_SetSize(int x, int y, int h, int w)
-{
-  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d)", x, y, h, w);
-  if (! wxDialog_RoomWizard_isActive())
-  {
-    _wx_log_wrn("Dialog is not active, ignoring SetSize request");
-    return;
-  }
-  if (! g_pwxDialog_RoomWizard->IsInitialized())
-  {
-    _wx_log_wrn("Dialog is not initialized, ignoring SetSize request");
-    return;
-  }
-  _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
-  g_pwxDialog_RoomWizard->SetSize(x, y, h, w, wxSIZE_ALLOW_MINUS_ONE);
-  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d);;", x, y, h, w);
-}
-
 void wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/)
 {
   _wx_log_nfo("wxDialog_RoomWizard_Show(%p)", pExternData);
@@ -516,6 +510,24 @@ void wxDialog_RoomWizard_Close()
   _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
   g_pwxDialog_RoomWizard->data_save();
   g_pwxDialog_RoomWizard->Destroy();
+}
+
+bool wxDialog_RoomWizard_isActive()
+{
+  return (g_pwxDialog_RoomWizard != NULL);
+}
+
+void wxDialog_RoomWizard_Refresh(int x, int y, int h, int w)
+{
+  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d)", x, y, h, w);
+  if (! wxDialog_RoomWizard_isActive())
+  {
+    _wx_log_wrn("Dialog is not active, ignoring SetSize request");
+    return;
+  }
+  _wx_log_nfo("Allocated at %p", g_pwxDialog_RoomWizard);
+  g_pwxDialog_RoomWizard->SetExternalRefresh(x, y, h, w);
+  _wx_log_nfo("wxDialog_RoomWizard_SetSize(x=%d, y=%d, h=%d, w=%d);;", x, y, h, w);
 }
 
 wxDialog_RoomWizard *g_pwxDialog_RoomWizard = NULL;

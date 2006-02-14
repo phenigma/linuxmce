@@ -34,7 +34,7 @@ using namespace std;
 
 ////@begin control identifiers
 #define ID_DIALOG_ROOMWIZARD 10000
-#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_ROOMWIZARD_TITLE _T("Room Wizard")
 #define SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME ID_DIALOG_ROOMWIZARD
 #define SYMBOL_WXDIALOG_ROOMWIZARD_SIZE wxSize(300, 100)
@@ -122,10 +122,15 @@ public:
 public:
   ~wxDialog_RoomWizard();
   bool Destroy();
+
   bool IsInitialized(); // dialog can be used
 
-  void SetExternalData(void *pExternData); // ptr to object containing
-                                           // data for the dialog
+  // refresh when ready
+  void SetExternalRefresh(int x, int y, int h, int w);
+
+  // ptr to object containing data for the dialog
+  void SetExternalData(void *pExternData);
+
   bool data_load();
   bool data_save();
 
@@ -144,6 +149,8 @@ protected:
   int v_nSelectedItem; // 0 based, -1 not selected
 
   bool b_initialized;
+  bool b_should_refresh;
+  wxRect v_rect_refresh;
 
 #if (! defined USE_DEBUG_CODE)
 protected:
@@ -153,13 +160,13 @@ protected:
 #endif // (! defined USE_DEBUG_CODE)
 };
 
-// extern helper functions & data
+// call from the main thread
+void wxDialog_RoomWizard_Show(void *pExternData=NULL); // create, load, show
+void wxDialog_RoomWizard_Close(); // save, close
 
-bool wxDialog_RoomWizard_isActive();
-
-void wxDialog_RoomWizard_SetSize(int x, int y, int h, int w);
-void wxDialog_RoomWizard_Show(void *pExternData=NULL);
-void wxDialog_RoomWizard_Close();
+// call from any thread
+bool wxDialog_RoomWizard_isActive(); // check if the dialog is created
+void wxDialog_RoomWizard_Refresh(int x, int y, int h, int w); // create a refresh event
 
 extern wxDialog_RoomWizard *g_pwxDialog_RoomWizard;
 
