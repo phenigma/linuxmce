@@ -82,12 +82,6 @@ public:
   bool RoomsWizardCreate( CallBackData *pData );
   bool RoomsWizardDelete( CallBackData *pData );
   bool RoomsWizardRefresh( CallBackData *pData );
-  //pluto_pthread_mutex_t m_RoomsWizardMutex; // this will protect dialog refresh
-
-  //wxDialog_RoomWizard *m_pwxDialog_RoomWizard;
-  //void OSDScreenHandler::wxDialog_RoomWizard_SetSize(int x, int y, int h, int w);
-  //void OSDScreenHandler::wxDialog_RoomWizard_Show(void *pExternData/*=NULL*/);
-  //void OSDScreenHandler::wxDialog_RoomWizard_Close();
 };
 
 #endif
