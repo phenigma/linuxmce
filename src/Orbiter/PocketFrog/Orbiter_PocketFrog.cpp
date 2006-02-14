@@ -265,7 +265,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
     //orbiter win xp/ce specifics
     if( wParam == VK_F12 && orbiterEvent.type == Orbiter::Event::BUTTON_UP) 
     {
-        OnQuit();
+		OnQuit();
     }
 #ifdef WINCE
     else if( wParam == VK_F10) 
@@ -652,7 +652,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Rect srcRect;
-	srcRect.Set(point.X + pObj->m_rPosition.Left(), point.Y + pObj->m_rPosition.Top(), point.X + pObj->m_rPosition.Right(), point.Y + pObj->m_rPosition.Bottom());
+	srcRect.Set(point.X + pObj->m_rPosition.Left(), point.Y + pObj->m_rPosition.Top(), 
+		point.X + pObj->m_rPosition.Right() + 1, point.Y + pObj->m_rPosition.Bottom() + 1);
 
     if(srcRect.right >= m_iImageWidth)
         srcRect.right = m_iImageWidth - 1;
@@ -722,7 +723,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	Orbiter::RenderScreen();
 	m_bPoolRendering=false;
 
-	if( m_vectPooledTextToRender.size() )
+	if( m_vectPooledTextToRender.size())
 	{
         RECT rectLocation;
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);

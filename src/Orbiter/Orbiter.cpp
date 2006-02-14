@@ -917,19 +917,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
 	{
 		vector<PlutoGraphic*> *pvectGraphic_Hold = pObj->m_pvectCurrentGraphic;
-
 		vector<PlutoGraphic*> vectGraphicToUndoSelect;
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
 		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
-
-		/*
-		if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
-		{
-		int k=2;
-		}
-		*/
 		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
-
 		pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
 
 		vectGraphicToUndoSelect.clear();
@@ -1121,7 +1112,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 			continue;
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
-		string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
+		string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
 		RenderText( TextToDisplay, pText, pTextStyle, point );
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
@@ -2613,20 +2604,12 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
 	if(sbNoSelection != m_nSelectionBehaviour)
-	{
-		int x = point.X + pObj->m_rBackgroundPosition.X;
-		int y = point.Y + pObj->m_rBackgroundPosition.Y;
-		int w = pObj->m_rBackgroundPosition.Width;
-		int h = pObj->m_rBackgroundPosition.Height;
-
-		PlutoColor WhiteColor(255, 255, 255, 100);
-		PlutoColor BlueColor(0, 0, 255, 100);
-
-		HollowRectangle(x    , y    , w - 1, h - 1, BlueColor);
-		HollowRectangle(x + 1, y + 1, w - 3, h - 3, BlueColor);
-		HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
-		HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
-	}
+		for(int i = 0; i < 4; i++)
+			HollowRectangle(
+				point.X + pObj->m_rBackgroundPosition.X + i, point.Y + pObj->m_rBackgroundPosition.Y + i,
+				pObj->m_rBackgroundPosition.Width - 2 * i - 2, pObj->m_rBackgroundPosition.Height - 2 * i - 2, 
+				i < 2 ? PlutoColor::Blue() : PlutoColor::White()
+			);
 }
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject()
@@ -7148,8 +7131,8 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 				int nOldHightlightedCol = pDesignObj->m_iHighlightedColumn;
 				int nGridCurRow = pDesignObj->m_GridCurRow;
 				int nGridCurCol = pDesignObj->m_GridCurCol;
-				int nStartingRow = pDesignObj->m_pDataGridTable->m_StartingRow;
 				int nOldSelectedIndex = atoi(m_mapVariable[atoi(pDesignObj->sSelVariable.c_str())].c_str()); 
+				int nStartingRow = pDesignObj->m_pDataGridTable ? pDesignObj->m_pDataGridTable->m_StartingRow : 0;
 
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire = true;
