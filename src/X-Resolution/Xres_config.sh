@@ -38,7 +38,7 @@ awk -v "Force=$Force" '
 		}
 		else
 		{
-			print "\tHorizSync 43-90";
+			print "\tHorizSync 28-90";
 		}
 		print "\tVertRefresh '"$Refresh"'";
 		print;
