@@ -1,6 +1,9 @@
 #include <linux/cdrom.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 inline int usage()
 {
@@ -28,4 +31,6 @@ int main(int argc, const char * argv[])
 	dev = open("/dev/cdrom", O_RDONLY);
 	ioctl(dev, CDROM_LOCKDOOR, state);
 	close(dev);
+
+	return 0;
 }

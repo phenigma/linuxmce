@@ -1,0 +1,6 @@
+CC=gcc
+CFLAGS=-W -Wall -ggdb3
+LDLIBS=-ldvdread
+
+all: cdop
+	cp cdop ../bin
