@@ -740,6 +740,9 @@ void gc100::Start_seriald()
 	//		vect_sMyPorts.insert(vect_sMyPorts.end(), pssPort);
 	//}
 
+	snprintf(command, 512, "/usr/bin/killall -9 socat");
+	g_pPlutoLogger->Write(LV_STATUS, "killing all socats: %s", command);
+	system(command);
 	for (serial_iter=module_map.begin(); serial_iter!=module_map.end(); ++serial_iter)
 	{
 		if (serial_iter->second.type == "SERIAL")
@@ -757,9 +760,6 @@ void gc100::Start_seriald()
 
 //			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
-			snprintf(command, 512, "killall -9 socat");
-			g_pPlutoLogger->Write(LV_STATUS, "killing all socats: %s", command);
-			system(command);
 			snprintf(command, 512, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
