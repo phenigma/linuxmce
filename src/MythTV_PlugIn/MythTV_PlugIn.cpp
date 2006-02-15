@@ -662,14 +662,20 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
-			RemoteControlSet *pRemoteControlSet =
-				pMythTvMediaStream->m_mapRemoteControlSet[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device];
-			pRemoteControlSet->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
-			pRemoteControlSet->m_iPK_DesignObj_OSD = PK_DesignObj_OSD;
+			if (pBoundRemote)
+			{
+				RemoteControlSet *pRemoteControlSet =
+					pMythTvMediaStream->m_mapRemoteControlSet[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device];
+				if (pRemoteControlSet)
+				{
+					pRemoteControlSet->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
+					pRemoteControlSet->m_iPK_DesignObj_OSD = PK_DesignObj_OSD;
 
-			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pMythTvMediaStream,false,true);
+					g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+						pMythTvMediaStream,false,true);
+				}
+			}
 		}
 	}
 }
