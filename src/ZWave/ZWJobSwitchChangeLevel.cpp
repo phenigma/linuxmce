@@ -94,7 +94,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 #endif
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
-				break;				
+				return handler()->processData(buffer, length);
 			}
 			if(buffer[0] == RESPONSE)
 			{
@@ -102,7 +102,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~8" );
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the response is here");
 #endif
-				return true;				
+				return true;
 			}
 			else //buffer[1] == REQUEST
 			{
