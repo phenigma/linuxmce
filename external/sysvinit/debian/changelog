@@ -1,3 +1,8 @@
+sysvinig (2.86.ds1-1.1pluto17) unstable; urgency=low
+
+  * Prevent diskless setup and MD's UpdatePackages run at once
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 15 Feb 2006 18:00:35 +0200
 sysvinit (2.86.ds1-1.1pluto16) unstable; urgency=low
 
   * Added a depmod just before loading modules

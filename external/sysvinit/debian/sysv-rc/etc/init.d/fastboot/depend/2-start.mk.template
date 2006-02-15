@@ -15,7 +15,7 @@ Pluto_Start_OrbiterGen.sh       : mysql
 Pluto_Update_StartupScrips.sh   : mysql
 Pluto_Network_Firewall.sh	: mysql Pluto_Network_Setup.sh
 Pluto_NFS_setup.sh		: Pluto_Diskless_Setup.sh
-Pluto_Diskless_Setup.sh         : mysql
+Pluto_Diskless_Setup.sh         : mysql dhcp3-server
 Pluto_Network_Setup.sh		: mysql bind9
 Pluto_SSH_Keys.sh		: ssh
 Pluto_Update_Packages.sh	: Pluto_Network_Setup.sh
