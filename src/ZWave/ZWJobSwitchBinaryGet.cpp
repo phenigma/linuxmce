@@ -77,7 +77,7 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "*******************6" );
 #endif
-			break;
+			return false;
 		case ZWaveJob::RUNNING:
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "*******************7" );
