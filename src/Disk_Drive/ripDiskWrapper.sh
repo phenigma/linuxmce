@@ -90,6 +90,9 @@ if [ "$command" == "" ]; then
 	exit 1;
 fi
 
+trap "/usr/pluto/bin/cdop '$sourceDevice' unlock" EXIT # unlock tray on exit
+/usr/pluto/bin/cdop "$sourceDevice" lock # lock tray
+
 if [[ "$diskType" == 2 ]]; then
 	if eval $command; then
 		echo "Ripping successful"
