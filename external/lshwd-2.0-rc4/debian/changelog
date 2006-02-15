@@ -1,3 +1,10 @@
+lshwd (2.0-rc4-1pluto3) unstable; urgency=low
+
+  * Update pcitable to coldplug the b2c2-flexcop-pci instead of 
+   old skystar2 module.
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 15 Feb 2006 12:59:22 +0200
+
 lshwd (2.0-rc4-1pluto2) unstable; urgency=low
 
   * Changed debian/rules so the rc script is not invoked at install
