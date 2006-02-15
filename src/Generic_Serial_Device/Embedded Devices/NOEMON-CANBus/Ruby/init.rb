@@ -1,4 +1,4 @@
-#Init 13-Feb-06 13:05
+#Init 14-Feb-06 17:53
 $AlarmsStatus=Hash.new
 $RelaysStatus=Hash.new
 $LightsStatus=Hash.new
@@ -32,7 +32,10 @@ $cmdAckHead={
 
 $cmdState=1                      # 1 send a StatusReport, 2 wait a answer       
 $cmdBuffer=Array.new
+
+
 $bStartInterogate=false       # send a status report
+$branchInterogate
 
 #version
 $softVersion="0"
@@ -67,7 +70,7 @@ else
 end
 
 searchBranches()       # search all branches of childrens
-
 CANInit()
-NOEMStatus($pcBranch,$pcNo,$deviceBranch,$deviceNo)
+NOEMAllStatus()           # status for all branches
+#NOEMStatus($pcBranch,$pcNo,$deviceBranch,$deviceNo)
 
