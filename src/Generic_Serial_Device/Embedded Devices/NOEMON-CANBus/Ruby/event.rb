@@ -1,4 +1,4 @@
-#event 07-Feb-06 10:52
+#event 15-Feb-06 17:50
 buff=readLine()
 bFind=false
 
@@ -9,7 +9,7 @@ $eventHead.each{ |key,value|
 		#log( "Value:" + value + "\n" )
 		if (head == value) then
 			bFind=true
-			NOEMEvent( buff , key )
+			NOEMONEvent( buff , key )
 			break
 		end
 	end
@@ -22,7 +22,7 @@ $cmdAckHead.each{ |key,value|
 		#log( "Value:" + value + "\n" )
 		if (head == value) then
 			bFind=true
-			NOEMCmdAck( buff , key )
+			NOEMONCmdAck( buff , key )
 			break
 		end
 	end
