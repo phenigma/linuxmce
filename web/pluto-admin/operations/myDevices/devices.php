@@ -245,6 +245,7 @@ function devices($output,$dbADO) {
 					}
 					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0 && $value!=$GLOBALS['securityAlert']){
 						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
+						$out.=(isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'<input type="hidden" name="isDisabled_'.$rowD['PK_Device'].'_'.$value.'" value="1">':'';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':
 								if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
@@ -377,7 +378,8 @@ function devices($output,$dbADO) {
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
 					$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
-					if($oldDeviceData!=$deviceData){
+					$isDisabled=(int)@$_POST['isDisabled_'.$value.'_'.$ddValue];
+					if($oldDeviceData!=$deviceData && $isDisabled!=1){
 						if($oldDeviceData=='NULL'){
 							$insertDDD='
 								INSERT INTO Device_DeviceData 

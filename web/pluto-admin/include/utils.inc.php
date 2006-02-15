@@ -2671,7 +2671,7 @@ function getTelecomPlugin($installationID,$dbADO)
 function isInfrared($deviceTemplate,$dbADO)
 {
 	$res=$dbADO->Execute('
-		SELECT FK_CommMethod 
+		SELECT DeviceTemplate.FK_CommMethod 
 		FROM DeviceTemplate
 		LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
 		WHERE PK_DeviceTemplate=? AND FK_CommMethod=1',$deviceTemplate);
@@ -3638,7 +3638,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				$allowedDevices=getDeviceTemplatesControlledBy($_SESSION['parentID'],$dbADO);
 			}
 			$arJsPos=0;
-				$avDT=getAssocArray('DeviceTemplate','PK_DeviceTemplate','FK_CommMethod',$dbADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup');
+				$avDT=getAssocArray('DeviceTemplate','PK_DeviceTemplate','InfraredGroup.FK_CommMethod AS FK_CommMethod',$dbADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup');
 				while ($row = $rs->FetchRow()) {
 					$irHighlight=(in_array($row['PK_DeviceTemplate'],array_keys($avDT)) && $avDT[$row['PK_DeviceTemplate']]==1)?'style="background-color:#FFDFDF;"':'';
 					if(count(@$allowedDevices)==0 || (count(@$allowedDevices)>0 && in_array($row['PK_DeviceTemplate'],@$allowedDevices))){
