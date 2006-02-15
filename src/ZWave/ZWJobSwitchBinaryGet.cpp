@@ -130,7 +130,7 @@ entry:
 				{
 					DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchBinaryGet::processData, not for me, kill the job, because nothing will come");
 					setState(ZWaveJob::STOPPED);
-					return false;			
+					return false;
 				}
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
@@ -224,5 +224,5 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************22" );
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "*******************23" );
 #endif
-	return false;
+	return handler()->processData(buffer, length);
 }
