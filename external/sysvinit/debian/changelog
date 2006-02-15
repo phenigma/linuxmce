@@ -1,4 +1,4 @@
-sysvinig (2.86.ds1-1.1pluto17) unstable; urgency=low
+sysvinit (2.86.ds1-1.1pluto17) unstable; urgency=low
 
   * Prevent diskless setup and MD's UpdatePackages run at once
 
