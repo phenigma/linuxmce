@@ -1,3 +1,16 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ *
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 
 #include "iaxclient_lib.h"
 
@@ -34,14 +47,12 @@ void gettimeofday( struct timeval* tv, void* tz )
 
 void os_init(void)
 {
-#ifdef IAXC_IAX2
 	WSADATA wsd;
 
 	if(WSAStartup(0x0101,&wsd))
 	{   // Error message?
 	    exit(1);
 	}
-#endif
 }
 
 /* yes, it could have just been a #define, but that makes linking trickier */
@@ -59,3 +70,19 @@ int post_event_callback(iaxc_event ev) {
   PostMessage(post_event_handle,post_event_id,(WPARAM) NULL, (LPARAM) e);
   return 0;
 }
+
+/* Increasing the Thread Priority.  See
+ * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/scheduling_priorities.asp
+ * for discussion on Win32 scheduling priorities.
+ */
+
+int iaxc_prioboostbegin() {
+      if ( !SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL)  ) {
+            fprintf(stderr, "SetThreadPriority failed: %ld.\n", GetLastError());
+      }
+}
+
+int iaxc_prioboostend() {
+    /* TODO */
+}
+

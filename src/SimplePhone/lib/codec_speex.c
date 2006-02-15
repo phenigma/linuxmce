@@ -13,12 +13,13 @@
 #include "iaxclient_lib.h"
 #include "speex/speex.h"
 
-/* defining SPEEX_TERMINATOR, and using frame sizes > 160 will result in encoded output with a
- * terminator after each 20ms sub-frame, in a format which is generally incompatible with asterisk. 
- * so, unless you're doing something special, DON'T define this! */
+/* see codec_speex.h for termination mode definition;  Zero is the "asterisk-compatible" method --
+ * generally, any other choice will not be compatible with established practice */
 
 struct state {
       void *state;
+      int frame_size;
+      int termination_mode;
       SpeexBits bits;
 };
 
@@ -40,7 +41,7 @@ static void destroy ( struct iaxc_audio_codec *c) {
 
 
 static int decode ( struct iaxc_audio_codec *c, 
-    int *inlen, char *in, int *outlen, short *out ) {
+    int *inlen, unsigned char *in, int *outlen, short *out ) {
 
     struct state * decstate = (struct state *) c->decstate;
     int ret =0;
@@ -52,46 +53,40 @@ static int decode ( struct iaxc_audio_codec *c,
 	//return 0;
 	//fprintf(stderr, "Speex Interpolate\n");
 	speex_decode_int(decstate->state, NULL, out);
-	*outlen -= 160;
+	*outlen -= decstate->frame_size;
 	return 0;
     }
 
     /* XXX if the input contains more than we can read, we lose here */
-    speex_bits_read_from(&decstate->bits, in, *inlen);
+    speex_bits_read_from(&decstate->bits, (char *) in, *inlen);
     *inlen = 0; 
 
     start_bits = speex_bits_remaining(&decstate->bits);
 
-    while(speex_bits_remaining(&decstate->bits) && (*outlen >= 160)) 
+    while(speex_bits_remaining(&decstate->bits) && (*outlen >= decstate->frame_size)) 
     {
         ret = speex_decode_int(decstate->state, &decstate->bits, out);
 // * from speex/speex.h, speex_decode returns:
 // * @return return status (0 for no error, -1 for end of stream, -2 other)
         if (ret == 0) {
+            //fprintf(stderr, "decode: inlen=%d outlen=%d\n", *inlen, *outlen);
         /* one frame of output */
-            *outlen -= 160;
-            out += 160;
+            *outlen -= decstate->frame_size;
+            out += decstate->frame_size;
+	    if(decstate->termination_mode == IAXC_SPEEX_TERMINATION_NONE) {
+		bits_left = speex_bits_remaining(&decstate->bits) % 8;	
+		if(bits_left)
+		    speex_bits_advance(&decstate->bits, bits_left);
+	    }
         } else if (ret == -1) {
-	/* at end of stream, or just a terminator */
-            bits_left = speex_bits_remaining(&decstate->bits);
-            if (bits_left < 5 )
-            {
-		/* end of stream */
+	    /* at end of stream, or just a terminator */
+            bits_left = speex_bits_remaining(&decstate->bits) % 8;
+	    if(bits_left >= 5)
+		speex_bits_advance(&decstate->bits, bits_left);
+	    else
                 break;
-            } 
-            else {
-		/* read past terminator to end of byte boundary */
-                int bye_bits = 0;
-                bits_read = start_bits - bits_left ;
-                bye_bits = 8 - bits_read % 8;
-                if (bye_bits < 8) 
-      {
-            //fprintf(stderr, "advancing to end of byte.  extra bits=>%d, total read => %d, bits remaining after advance => %d\n",bye_bits, bits_read + bye_bits, bits_left - bye_bits );
-                    speex_bits_advance(&decstate->bits, bye_bits);
-                }
-            }
         } else {
-	  /* maybe there's not a whole frame somehow? */
+	    /* maybe there's not a whole frame somehow? */
             fprintf(stderr, "decode_int returned non-zero => %d\n",ret);
 	  break;
       }
@@ -100,58 +95,57 @@ static int decode ( struct iaxc_audio_codec *c,
 }
 
 static int encode ( struct iaxc_audio_codec *c, 
-    int *inlen, short *in, int *outlen, char *out ) {
+    int *inlen, short *in, int *outlen, unsigned char *out ) {
 
     int bytes;
   //int bitrate;
     struct state * encstate = (struct state *) c->encstate;
 
-    /* need to encode minimum of 160 samples */
+    /* need to encode minimum of encstate->frame_size samples */
 
-#ifdef SPEEX_TERMINATOR
-//fprintf(stderr, "SPEEX_TERMINATOR = 1\n");
-    /* if mininum_outgoing_framesize (*inlen) is set at >160, 
-       then pack multiple sets together in one packet on the wire, 
-       separate with terminator */
-    while(*inlen >= 160) 
-    {
-    /* reset and encode*/
-        speex_bits_reset(&encstate->bits);
-        speex_encode_int(encstate->state, in, &encstate->bits);
+    if(encstate->termination_mode) {
+	    /* abnormal termination modes: separate frames, with or without termination in-between */
+	    while(*inlen >= encstate->frame_size) 
+	    {
+	        /* reset and encode*/
+    	    speex_bits_reset(&encstate->bits);
+    	    speex_encode_int(encstate->state, in, &encstate->bits);
 
-    /* add terminator */
-        speex_bits_pack(&encstate->bits, 15, 5);
+	        /* add terminator */
+    	    if(encstate->termination_mode != IAXC_SPEEX_TERMINATION_NONE)
+		    speex_bits_pack(&encstate->bits, 15, 5);
 
-    /* write to output */
-        /* can an error happen here?  no bytes? */
-        bytes = speex_bits_write(&encstate->bits, out, *outlen);
-//fprintf(stderr, "encode wrote %d bytes, outlen was %d\n", bytes, *outlen);
-    /* advance pointers to input and output */
-        *inlen -= 160;
-        in += 160;
-        *outlen -= bytes;
-        out += bytes;
-     } 
-#else
-//fprintf(stderr, "SPEEX_TERMINATOR = 0\n");
-/*  only add terminator at end of bits */
-    speex_bits_reset(&encstate->bits);
+    	    /* write to output */
+    	    /* can an error happen here?  no bytes? */
+    	    bytes = speex_bits_write(&encstate->bits, (char *) out, *outlen);
+            //fprintf(stderr, "encode wrote %d bytes, outlen was %d\n", bytes, *outlen);
+    	    /* advance pointers to input and output */
+    	    *inlen -= encstate->frame_size;
+    	    in += encstate->frame_size;
+    	    *outlen -= bytes;
+    	    out += bytes;
+	    } 
+    } else {
 
-    /* need to encode minimum of 160 samples */
-    while(*inlen >= 160) {
-      speex_encode_int(encstate->state, in, &encstate->bits);
-      *inlen -= 160;
-      in += 160;
-    } 
+	/*  only add terminator at end of bits */
+	speex_bits_reset(&encstate->bits);
 
-    /* add terminator */
-    speex_bits_pack(&encstate->bits, 15, 5);
-   
-    bytes = speex_bits_write(&encstate->bits, out, *outlen);
+	/* need to encode minimum of encstate->frame_size samples */
+	while(*inlen >= encstate->frame_size) {
+		//fprintf(stderr, "encode: inlen=%d outlen=%d\n", *inlen, *outlen);
+	  speex_encode_int(encstate->state, in, &encstate->bits);
+	  *inlen -= encstate->frame_size;
+	  in += encstate->frame_size;
+	} 
 
-    /* can an error happen here?  no bytes? */
-    *outlen -= bytes;
-#endif
+	/* add terminator */
+	speex_bits_pack(&encstate->bits, 15, 5);
+       
+	bytes = speex_bits_write(&encstate->bits, (char *) out, *outlen);
+
+	/* can an error happen here?  no bytes? */
+	*outlen -= bytes;
+    }
     return 0;
 }
 
@@ -160,6 +154,7 @@ struct iaxc_audio_codec *iaxc_audio_codec_speex_new(struct iaxc_speex_settings *
   struct state * encstate;
   struct state * decstate;
   struct iaxc_audio_codec *c = calloc(sizeof(struct iaxc_audio_codec),1);
+  const SpeexMode *sm;
 
   if(!c) return c;
 
@@ -168,8 +163,6 @@ struct iaxc_audio_codec *iaxc_audio_codec_speex_new(struct iaxc_speex_settings *
   c->encode = encode;
   c->decode = decode;
   c->destroy = destroy;
-
-  c->minimum_frame_size = 160;
 
   c->encstate = calloc(sizeof(struct state),1);
   c->decstate = calloc(sizeof(struct state),1);
@@ -181,8 +174,12 @@ struct iaxc_audio_codec *iaxc_audio_codec_speex_new(struct iaxc_speex_settings *
   encstate = (struct state *) c->encstate;
   decstate = (struct state *) c->decstate;
 
-  encstate->state = speex_encoder_init(&speex_nb_mode);
-  decstate->state = speex_decoder_init(&speex_nb_mode);
+  sm = set->mode;
+  if(!sm) sm = &speex_nb_mode;
+
+
+  encstate->state = speex_encoder_init(sm);
+  decstate->state = speex_decoder_init(sm);
   speex_bits_init(&encstate->bits);
   speex_bits_init(&decstate->bits);
   speex_bits_reset(&encstate->bits);
@@ -207,6 +204,21 @@ struct iaxc_audio_codec *iaxc_audio_codec_speex_new(struct iaxc_speex_settings *
   if(set->abr)
     speex_encoder_ctl(encstate->state, SPEEX_SET_ABR, &set->abr);
 
+  /* set up frame sizes (normally, this is 20ms worth) */
+  speex_encoder_ctl(encstate->state,SPEEX_GET_FRAME_SIZE,&encstate->frame_size);
+  speex_encoder_ctl(decstate->state,SPEEX_GET_FRAME_SIZE,&decstate->frame_size);
+
+  /* XXX: for some reason, with narrowband, we get 0 for decstate sometimes? */
+  if(!decstate->frame_size) decstate->frame_size = 160;
+  if(!encstate->frame_size) encstate->frame_size = 160;
+
+  c->minimum_frame_size = 160;
+
+  if(encstate->frame_size >  c->minimum_frame_size)  c->minimum_frame_size = encstate->frame_size;
+  if(decstate->frame_size >  c->minimum_frame_size)  c->minimum_frame_size = decstate->frame_size;
+
+  encstate->termination_mode = set->termination_mode;
+  decstate->termination_mode = set->termination_mode;
 
   if(!(encstate->state && decstate->state)) 
       return NULL;

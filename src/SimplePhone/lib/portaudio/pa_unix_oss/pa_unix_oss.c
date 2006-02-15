@@ -43,7 +43,7 @@
 #ifdef __linux__
 #include <linux/soundcard.h>
 #else
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/soundcard.h>
 #else
 #include <machine/soundcard.h> /* JH20010905 */

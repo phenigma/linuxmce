@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /cvsroot/iaxclient/iaxclient/lib/gsm/src/code.c,v 1.2 2003/06/19 14:03:25 stevek Exp $ */
+/* $Header: /cvsroot/iaxclient/iaxclient/lib/gsm/src/code.c,v 1.3 2005/07/29 19:54:39 coppice Exp $ */
 
 #include	"config.h"
 
@@ -13,7 +13,8 @@
 #include	<stdlib.h>
 //#else
 #	include "proto.h"
-	extern char	* memcpy P((char *, char *, int));
+#	include "string.h"
+	//extern char	* memcpy P((char *, char *, int));
 //#endif
 
 #include	"private.h"

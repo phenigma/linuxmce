@@ -1,5 +1,22 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ *
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 
+#define _BSD_SOURCE
+#include <unistd.h>
 #include <sys/time.h>
+#define __USE_POSIX199309
+#include <time.h>
 #include "iaxclient_lib.h"
 
 #ifndef NULL
@@ -22,6 +39,70 @@ void iaxc_millisleep(long ms)
         /* yes, it can return early.  We don't care */
         nanosleep(&req,NULL);
 }
+
+
+/* TODO: Implement for X/MacOSX? */
+int post_event_callback(iaxc_event ev) {
+#if 0
+  iaxc_event *e;
+  e = malloc(sizeof(ev));
+  *e = ev;
+
+  /* XXX Test return value? */
+  PostMessage(post_event_handle,post_event_id,(WPARAM) NULL, (LPARAM) e);
+#endif
+  return 0;
+}
+
+#ifdef MACOSX
+    /* Presently, OSX allows user-level processes to request RT
+     * priority.  The API is nice, but the scheduler presently ignores
+     * the parameters (but the API validates that you're not asking for
+     * too much).  See
+     * http://lists.apple.com/archives/darwin-development/2004/Feb/msg00079.html
+     */
+int iaxc_prioboostbegin() {
+      struct thread_time_constraint_policy ttcpolicy;
+      int params [2] = {CTL_HW,HW_BUS_FREQ};
+      int hzms;
+      size_t sz;
+      int ret;
+
+      /* get hz */
+      sz = sizeof (hzms);
+      sysctl (params, 2, &hzms, &sz, NULL, 0);
+
+      /* make hzms actually hz per ms */
+      hzms /= 1000;
+
+      /* give us at least how much? 6-8ms every 10ms (we generally need less) */
+      ttcpolicy.period = 10 * hzms; /* 10 ms */
+      ttcpolicy.computation = 2 * hzms;
+      ttcpolicy.constraint = 3 * hzms;
+      ttcpolicy.preemptible = 1;
+
+      if ((ret=thread_policy_set(mach_thread_self(),
+        THREAD_TIME_CONSTRAINT_POLICY, (int *)&ttcpolicy,
+        THREAD_TIME_CONSTRAINT_POLICY_COUNT)) != KERN_SUCCESS) {
+            fprintf(stderr, "thread_policy_set failed: %d.\n", ret);
+      }    
+}
+
+int iaxc_prioboostend() {
+    /* TODO */
+}
+#endif
+
+#ifdef __NetBSD__
+
+int iaxc_prioboostbegin() {
+}
+
+int iaxc_prioboostend() {
+}
+
+#else
+
 
 /* Priority boosting/monitoring:  Adapted from portaudio/pa_unix.c ,
  * which carries the following copyright notice:
@@ -126,11 +207,13 @@ static int WatchDogProc( prioboost   *b )
     maxPri = sched_get_priority_max(SCHEDULER_POLICY);
     if( schp.sched_priority > maxPri ) schp.sched_priority = maxPri;
 
+#ifndef __NetBSD__
     if (pthread_setschedparam(pthread_self(), SCHEDULER_POLICY, &schp) != 0)
     {
         ERR_RPT("WatchDogProc: cannot set watch dog priority!\n");
         goto killAudio;
     }
+#endif
 
     DBUG("prioboost: WatchDog priority set to level %d!\n", schp.sched_priority);        
 
@@ -169,6 +252,7 @@ static int WatchDogProc( prioboost   *b )
     return 0;
 
 lowerAudio:
+#ifndef __NetBSD__
     {
         struct sched_param    schat = { 0 };
         if( pthread_setschedparam(b->ThreadID, SCHED_OTHER, &schat) != 0)
@@ -182,6 +266,10 @@ lowerAudio:
             goto cleanup;
         }
     }
+
+#else
+	goto cleanup;
+#endif
 
 killAudio:
     ERR_RPT("WatchDogProc: killing hung audio thread!\n");
@@ -306,16 +394,5 @@ int iaxc_prioboostend()  {
 	return 0;
 }
 
-
-/* TODO: Implement for X/MacOSX? */
-int post_event_callback(iaxc_event ev) {
-#if 0
-  iaxc_event *e;
-  e = malloc(sizeof(ev));
-  *e = ev;
-
-  /* XXX Test return value? */
-  PostMessage(post_event_handle,post_event_id,(WPARAM) NULL, (LPARAM) e);
 #endif
-  return 0;
-}
+

@@ -1,16 +1,37 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ * Michael Van Donselaar <mvand@vandonselaar.org> 
+ * Shawn Lawrence <shawn.lawrence@terracecomm.com>
+ *
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 #ifndef _iaxclient_lib_h
 #define _iaxclient_lib_h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* This is the internal include file for IAXCLIENT -- externally
  * accessible APIs should be declared in iaxclient.h */
 
+#include <stdio.h>
+#include <string.h>
 
 #ifdef WIN32
 #include "winpoop.h" // Win32 Support Functions
 #include <winsock.h>
 #include <process.h>
 #include <stddef.h>
-#include <stdlib.h>
 #include <time.h>
 
 #else
@@ -24,10 +45,12 @@
 
 #if (SPEEX_PREPROCESS == 1)
 #include "speex/speex_preprocess.h"
+#include "speex/speex_echo.h" //av://fd:
 #endif
 
-#include <stdio.h>
-
+#include <stdlib.h>
+#include <math.h>
+#include "spandsp/plc.h"
 
 
 
@@ -99,7 +122,7 @@ struct iaxc_audio_driver {
 	void *priv;	/* pointer to private data */
 
 	/* methods */
-	int (*initialize)(struct iaxc_audio_driver *d);
+	int (*initialize)(struct iaxc_audio_driver *d, int sample_rate);
 	int (*destroy)(struct iaxc_audio_driver *d);  /* free resources */
 	int (*select_devices)(struct iaxc_audio_driver *d, int input, int output, int ring);
 	int (*selected_devices)(struct iaxc_audio_driver *d, int *input, int *output, int *ring);
@@ -127,7 +150,30 @@ struct iaxc_audio_driver {
 	/* mic boost */
 	int (*mic_boost_get)(struct iaxc_audio_driver *d ) ;
 	int (*mic_boost_set)(struct iaxc_audio_driver *d, int enable);
+}; 
 
+struct iaxc_video_driver {
+	/* data */
+	char *name; 	/* driver name */
+	//struct iaxc_audio_device *devices; /* list of devices */
+	//int nDevices;	/* count of devices */
+	void *priv;	/* pointer to private data */
+
+	/* methods */
+	int (*initialize)(struct iaxc_video_driver *d, int w, int h, int framerate);
+	int (*destroy)(struct iaxc_video_driver *d);  /* free resources */
+	int (*select_devices)(struct iaxc_video_driver *d, int input, int output);
+	int (*selected_devices)(struct iaxc_video_driver *d, int *input, int *output);
+
+	/* 
+	 * select_ring ? 
+	 * set_latency
+	 */
+
+	int (*start)(struct iaxc_video_driver *d);
+	int (*stop)(struct iaxc_video_driver *d);
+	int (*output)(struct iaxc_video_driver *d, unsigned char *data);
+	int (*input)(struct iaxc_video_driver *d, unsigned char **data);
 }; 
 
 struct iaxc_audio_codec {
@@ -136,16 +182,32 @@ struct iaxc_audio_codec {
 	int minimum_frame_size;
 	void *encstate;
 	void *decstate;
-	int (*encode) ( struct iaxc_audio_codec *codec, int *inlen, short *in, int *outlen, char *out );
-	int (*decode) ( struct iaxc_audio_codec *codec, int *inlen, char *in, int *outlen, short *out );
+	int (*encode) ( struct iaxc_audio_codec *codec, int *inlen, short *in, int *outlen, unsigned char *out );
+	int (*decode) ( struct iaxc_audio_codec *codec, int *inlen, unsigned char *in, int *outlen, short *out );
 	void (*destroy) ( struct iaxc_audio_codec *codec);
 };
+
+struct iaxc_video_codec {
+	char name[256];
+	int format;
+	void *encstate;
+	void *decstate;
+	int (*encode) ( struct iaxc_video_codec *codec, int *inlen, char *in, int *outlen, char *out );
+	int (*decode) ( struct iaxc_video_codec *codec, int *inlen, char *in, int *outlen, char *out );
+	void (*destroy) ( struct iaxc_video_codec *codec);
+};
+
 
 
 struct iaxc_call {
 	/* to be replaced with codec-structures, with codec-private data  */
 	struct iaxc_audio_codec *encoder;
 	struct iaxc_audio_codec *decoder;
+
+#ifdef IAXC_VIDEO
+	struct iaxc_video_codec *vencoder;
+	struct iaxc_video_codec *vdecoder;
+#endif
 
 	/* the "state" of this call */
 	int state;
@@ -175,9 +237,10 @@ struct iaxc_call {
 #include "audio_portaudio.h"
 #include "audio_file.h"
 
-#ifdef USE_WIN_AUDIO
-#include "audio_win32.h"
+#ifdef IAXC_VIDEO
+#include "video_portvideo.h"
 #endif
+
 
 /* our format capabilities */
 extern int audio_format_capability;
@@ -187,40 +250,41 @@ extern int audio_format_preferred;
 
 extern double iaxc_silence_threshold;
 extern int iaxc_audio_output_mode;
-extern iaxc_event_callback_t iaxc_event_callback;
-extern MUTEX iaxc_lock;
-
-/* external audio functions */
-void iaxc_external_service_audio();
 
 /* post_event_callback */
 int post_event_callback(iaxc_event e);
+
+/* post an event to the application */
+void iaxc_post_event(iaxc_event e);
 
 /* parameters for callback */
 extern void * post_event_handle;
 extern int post_event_id;
 
+/* Priority boost support */
+extern int iaxc_prioboostbegin(void);
+extern int iaxc_prioboostend(void);
 
-/* Common decode PLC code */
-/* requires DECLS in a structure */
-#define INTERPOLATE_BUFSIZ 160
-#define INTERPOLATE_DECLS \
-	    short interp_buf[INTERPOLATE_BUFSIZ]; \
-	    int interp_bufptr
+/* get the raw in/out levels, as int */
+extern int iaxc_get_inout_volumes(int *input, int *output);
 
-#define INTERPOLATE_GET(state, sample) \
-	do { \
-		sample = state->interp_buf[state->interp_bufptr]; \
-		state->interp_buf[state->interp_bufptr++] = sample * 0.9; \
-		if(state->interp_bufptr >= INTERPOLATE_BUFSIZ) state->interp_bufptr = 0; \
-	} while(0)
+//Inserted by avasilev from tipic-s version of iaxclient - iaxclient_lib.h from line 263
+//fd: preprocessing
+struct iaxc_preprocessor *iaxc_preprocessor_initialize(int NN, int delay, int echo_tail, int bitrate, float power_decay, void (*callback) ( void *udata, short *inputBuffer, int n ) );
+struct iaxc_preprocessor 
+{
+	int NN, delay, bitrate, filters, echo_tail;
+	float power_decay;
+	void *state;
 
-#define INTERPOLATE_PUT(state, sample) \
-	do { \
-		state->interp_buf[state->interp_bufptr++] = sample; \
-		if(state->interp_bufptr >= INTERPOLATE_BUFSIZ) state->interp_bufptr = 0; \
-	} while(0)
+	void (*preprocess) ( struct iaxc_preprocessor *preprocessor, short *inputBuffer, short *outputBuffer, int n,  void *udata);
+	void (*callback) ( void *udata, short *inputBuffer, int n );
+	void (*reset) ( struct iaxc_preprocessor *preprocessor, int filters);
+	void (*destroy) ( struct iaxc_preprocessor *preprocessor);
+};
 
-
+//===
+#ifdef __cplusplus
+}
 #endif
-
+#endif

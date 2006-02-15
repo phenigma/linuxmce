@@ -22,6 +22,8 @@
 
 #include "iaxclient_lib.h"
 
+typedef short SAMPLE;
+
 static FILE *inFile=NULL, *outFile=NULL;
 
 #define FRAMES_PER_BUFFER 80 /* 80 frames == 10ms */
@@ -31,30 +33,30 @@ static int file_play_sound(struct iaxc_sound *inSound, int ring) {
   return 0;
 }
 
-int file_stop_sound(int soundID) {
+static int file_stop_sound(int soundID) {
   return 0; 
 }
 
 
-int file_start (struct iaxc_audio_driver *d ) {
+static int file_start (struct iaxc_audio_driver *d ) {
     return 0;
 }
 
-int file_stop (struct iaxc_audio_driver *d ) {
+static int file_stop (struct iaxc_audio_driver *d ) {
     return 0;
 }
 
-void file_shutdown_audio() {
+static void file_shutdown_audio() {
     return;
 }
 
 
-int file_input(struct iaxc_audio_driver *d, void *samples, int *nSamples) {
+static int file_input(struct iaxc_audio_driver *d, void *samples, int *nSamples) {
 	*nSamples = 0;
 	return 0;
 }
 
-int file_output(struct iaxc_audio_driver *d, void *samples, int nSamples) {
+static int file_output(struct iaxc_audio_driver *d, void *samples, int nSamples) {
 	
 	if(outFile) {
 	    fwrite(samples, sizeof(SAMPLE), nSamples, outFile);
@@ -62,39 +64,39 @@ int file_output(struct iaxc_audio_driver *d, void *samples, int nSamples) {
 	return 0;
 }
 
-int file_select_devices (struct iaxc_audio_driver *d, int input, int output, int ring) {
+static int file_select_devices (struct iaxc_audio_driver *d, int input, int output, int ring) {
     return 0;
 }
 
-int file_selected_devices (struct iaxc_audio_driver *d, int *input, int *output, int *ring) {
+static int file_selected_devices (struct iaxc_audio_driver *d, int *input, int *output, int *ring) {
     *input = 0;
     *output = 0;
     *ring = 0;
     return 0;
 }
 
-int file_destroy (struct iaxc_audio_driver *d ) {
+static int file_destroy (struct iaxc_audio_driver *d ) {
     //implementme
     return 0;
 }
 
-double file_input_level_get(struct iaxc_audio_driver *d){
+static double file_input_level_get(struct iaxc_audio_driver *d){
     return -1;
 }
 
-double file_output_level_get(struct iaxc_audio_driver *d){
+static double file_output_level_get(struct iaxc_audio_driver *d){
     return -1;
 }
 
-int file_input_level_set(struct iaxc_audio_driver *d, double level){
+static int file_input_level_set(struct iaxc_audio_driver *d, double level){
     return -1;
 }
 
-int file_output_level_set(struct iaxc_audio_driver *d, double level){
+static int file_output_level_set(struct iaxc_audio_driver *d, double level){
     return -1;
 }
 
-int file_set_files(FILE *input, FILE *output) {
+EXPORT int iaxc_set_files(FILE *input, FILE *output) {
     inFile = input;
     outFile = output;
     return 0;
@@ -102,7 +104,10 @@ int file_set_files(FILE *input, FILE *output) {
 
 
 /* initialize audio driver */
-int file_initialize (struct iaxc_audio_driver *d ) {
+int file_initialize (struct iaxc_audio_driver *d , int sample_rate) {
+
+    if(sample_rate != 8000 ) return -1;
+
     /* setup methods */
     d->initialize = file_initialize;
     d->destroy = file_destroy;

@@ -422,11 +422,13 @@ static PaError PaHost_WatchDogProc( PaHostSoundControl   *pahsc )
     maxPri = sched_get_priority_max(SCHEDULER_POLICY);
     if( schp.sched_priority > maxPri ) schp.sched_priority = maxPri;
 
+#ifndef __NetBSD__
     if (sched_setscheduler(0, SCHEDULER_POLICY, &schp) != 0)
     {
         ERR_RPT(("PaHost_WatchDogProc: cannot set watch dog priority!\n"));
         goto killAudio;
     }
+#endif
 
     /* Compare watchdog time with audio and canary thread times. */
     /* Sleep for a while or until thread cancelled. */
@@ -465,6 +467,7 @@ static PaError PaHost_WatchDogProc( PaHostSoundControl   *pahsc )
 lowerAudio:
     {
         struct sched_param    schat = { 0 };
+#ifndef __NetBSD__
         if( sched_setscheduler(pahsc->pahsc_AudioThreadPID, SCHED_OTHER, &schat) != 0)
         {
             ERR_RPT(("PaHost_WatchDogProc: failed to lower audio priority. errno = %d\n", errno ));
@@ -475,6 +478,9 @@ lowerAudio:
             ERR_RPT(("PaHost_WatchDogProc: lowered audio priority to prevent hogging of CPU.\n"));
             goto cleanup;
         }
+#else
+	goto cleanup;
+#endif
     }
 
 killAudio:

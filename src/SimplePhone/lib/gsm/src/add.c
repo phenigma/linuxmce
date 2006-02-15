@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /cvsroot/iaxclient/iaxclient/lib/gsm/src/add.c,v 1.2 2003/06/19 14:03:25 stevek Exp $ */
+/* $Header: /cvsroot/iaxclient/iaxclient/lib/gsm/src/add.c,v 1.3 2005/07/29 19:54:39 coppice Exp $ */
 
 /*
  *  See private.h for the more commonly used macro versions.
@@ -23,13 +23,13 @@
 word gsm_add P2((a,b), word a, word b)
 {
 	longword sum = (longword)a + (longword)b;
-	return saturate(sum);
+	return (word) saturate(sum);
 }
 
 word gsm_sub P2((a,b), word a, word b)
 {
 	longword diff = (longword)a - (longword)b;
-	return saturate(diff);
+	return (word) saturate(diff);
 }
 
 word gsm_mult P2((a,b), word a, word b)

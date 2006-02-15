@@ -1,3 +1,18 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ * Michael Van Donselaar <mvand@vandonselaar.org> 
+ * Shawn Lawrence <shawn.lawrence@terracecomm.com>
+ *
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 
 #include "iaxclient_lib.h"
 #include "codec_gsm.h"
@@ -11,6 +26,7 @@ static double input_level = 0, output_level = 0;
 
 static SpeexPreprocessState *st = NULL;
 static int speex_state_size = 0;
+static int speex_state_rate = 0;
 int    iaxc_filters = IAXC_FILTER_AGC|IAXC_FILTER_DENOISE|IAXC_FILTER_AAGC|IAXC_FILTER_CN;
 
 /* use to measure time since last audio was processed */
@@ -25,10 +41,21 @@ static struct iaxc_speex_settings speex_settings = {
   3     /* complexity */
 };
 
+
 static double vol_to_db(double vol)
 {
     /* avoid calling log10 on zero */
     return log10(vol + 1.0e-99) * 20;
+}
+
+/* just get the current input/output volumes, and return them. */
+int iaxc_get_inout_volumes(int *input, int *output) {
+  if(input) 
+    *input = (int)vol_to_db(input_level);
+  if(output)
+    *output = (int)vol_to_db(output_level);
+
+  return 0;
 }
 
 static int do_level_callback()
@@ -59,15 +86,22 @@ static int do_level_callback()
 void iaxc_set_speex_filters() 
 {
     int i;
+    float f;
 
-    if(!st) st = speex_preprocess_state_init(160,8000); 
+    if(!st) return;
 
-    i = (iaxc_silence_threshold > 0) ? 1 : 0;
+    i = 1; /* always make VAD decision */
     speex_preprocess_ctl(st, SPEEX_PREPROCESS_SET_VAD, &i);
     i = (iaxc_filters & IAXC_FILTER_AGC) ? 1 : 0;
     speex_preprocess_ctl(st, SPEEX_PREPROCESS_SET_AGC, &i);
     i = (iaxc_filters & IAXC_FILTER_DENOISE) ? 1 : 0;
     speex_preprocess_ctl(st, SPEEX_PREPROCESS_SET_DENOISE, &i);
+
+    /* make vad more sensitive */
+    f=0.30f;
+    speex_preprocess_ctl(st, SPEEX_PREPROCESS_SET_PROB_START, &f);
+    f=0.07f;
+    speex_preprocess_ctl(st, SPEEX_PREPROCESS_SET_PROB_CONTINUE, &f);
 }
 
 static void calculate_level(short *audio, int len, double *level) {
@@ -83,15 +117,17 @@ static void calculate_level(short *audio, int len, double *level) {
     *level += (((double)now/32767) - *level) / 5;
 }
 
-static int input_postprocess(void *audio, int len)
+int iaxc_input_postprocess(void *audio, int len, int rate)
 {
     double volume;
     static double lowest_volume = 1;
-    int silent;
+    int silent=0;
 
-    if(!st || (speex_state_size != len)) {
-	st = speex_preprocess_state_init(len,8000);
+    if(!st || (speex_state_size != len) || (speex_state_rate != rate)) {
+	if(st) speex_preprocess_state_destroy(st);
+	st = speex_preprocess_state_init(len,rate);
 	speex_state_size = len;
+	speex_state_rate = rate;
 	iaxc_set_speex_filters();
     }
 
@@ -157,10 +193,13 @@ static int input_postprocess(void *audio, int len)
 	return volume < iaxc_silence_threshold;
 }
 
+void iaxc_calculate_output_levels(void *audio, int len) {
+    calculate_level(audio, len, &output_level);
+}
+
 static int output_postprocess(void *audio, int len)
 {
-
-    calculate_level(audio, len, &output_level);
+    iaxc_calculate_output_levels(audio, len);
 
     do_level_callback();
 
@@ -204,7 +243,7 @@ EXPORT void iaxc_set_speex_settings(int decode_enhance, float quality, int bitra
 
 int send_encoded_audio(struct iaxc_call *call, void *data, int format, int samples)
 {
-	char outbuf[1024];
+	unsigned char outbuf[1024];
 	int outsize = 1024;
 	int silent;
 	int insize = samples;
@@ -214,7 +253,7 @@ int send_encoded_audio(struct iaxc_call *call, void *data, int format, int sampl
 	/* update last input timestamp */
 	gettimeofday( &timeLastInput, NULL ) ;
 
-	silent = input_postprocess(data,insize);	
+	silent = iaxc_input_postprocess(data,insize,8000);	
 
 	if(silent) { 
 	  if(!call->tx_silent) {  /* send a Comfort Noise Frame */
@@ -319,6 +358,3 @@ int decode_audio(struct iaxc_call *call, void *out, void *data, int len, int for
 	*samples = outsize;
 	return len-insize;
 }
-
-
-		 

@@ -1,4 +1,20 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ * Michael Van Donselaar <mvand@vandonselaar.org> 
+ * Shawn Lawrence <shawn.lawrence@terracecomm.com>
+ *
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 #include "iaxclient_lib.h"
+#include "jitterbuf.h"
 
 #if defined(__STDC__) || defined(_MSC_VER)
 #include <stdarg.h>
@@ -6,21 +22,26 @@
 #include <varargs.h>
 #endif
 
+#define IAXC_ERROR  IAXC_TEXT_TYPE_ERROR
+#define IAXC_STATUS IAXC_TEXT_TYPE_STATUS
+#define IAXC_NOTICE IAXC_TEXT_TYPE_NOTICE
+
 #define DEFAULT_CALLERID_NAME    "Not Available"
 #define DEFAULT_CALLERID_NUMBER  "7005551212"
 
 struct iaxc_registration {
     struct iax_session *session;
-    int firstpass;
     struct timeval last;
     char host[256];
     char user[256];
     char pass[256];
-    long   refresh;
+    long refresh;
+    int id;
     struct iaxc_registration *next;
 };
 
-struct iaxc_registration *registrations = NULL;
+static int next_registration_id = 0;
+static struct iaxc_registration *registrations = NULL;
 
 struct iaxc_audio_driver audio;
 
@@ -34,7 +55,7 @@ int post_event_id = 0;
 
 static int minimum_outgoing_framesize = 160; /* 20ms */
 
-MUTEX iaxc_lock;
+static MUTEX iaxc_lock;
 
 int netfd;
 int port;
@@ -64,9 +85,36 @@ static THREADID procThreadID;
 /* QuitFlag: 0: Running 1: Should Quit, -1: Not Running */
 static int procThreadQuitFlag = -1;
 
-static void iaxc_do_pings(void);
+static iaxc_event_callback_t iaxc_event_callback = NULL;
 
-iaxc_event_callback_t iaxc_event_callback = NULL;
+// Internal queue of events, waiting to be posted once the library
+// lock is released.
+static iaxc_event *event_queue = NULL;
+
+// Record whether lock is held, so we know whether to send events now
+// or queue them until the lock is released.
+static int iaxc_locked = 0;
+
+// Lock the library
+static void get_iaxc_lock() {
+    MUTEXLOCK(&iaxc_lock);
+    iaxc_locked = 1;
+}
+
+// Unlock the library and post any events that were queued in the meantime
+static void put_iaxc_lock() {
+    iaxc_event *prev, *event = event_queue;
+    event_queue = NULL;
+    iaxc_locked = 0;
+    MUTEXUNLOCK(&iaxc_lock);
+    while (event) {
+	iaxc_post_event(*event);
+	prev = event;
+	event = event->next;
+	free(prev);
+    }
+}
+
 
 EXPORT void iaxc_set_silence_threshold(double thr) {
     iaxc_silence_threshold = thr;
@@ -129,7 +177,26 @@ static void default_message_callback(char *message) {
 }
 
 // Post Events back to clients
-EXPORT void iaxc_post_event(iaxc_event e) {
+void iaxc_post_event(iaxc_event e) {
+
+    if(e.type == 0) {
+	iaxc_usermsg(IAXC_ERROR, "Error: something posted to us an invalid event");
+	return;
+    }
+	
+    // If the library is locked then just queue the event to be posted
+    // once the lock is released.
+    if (iaxc_locked)
+    {
+	iaxc_event **tail = &event_queue;
+	e.next = NULL;
+	while (*tail)
+	    tail = &((*tail)->next);
+	*tail = malloc(sizeof(iaxc_event));
+	memcpy(*tail, &e, sizeof(iaxc_event));
+	return;
+    }
+    // Library is not locked, so process event now.
     if(iaxc_event_callback)
     {
 	int rv;
@@ -152,10 +219,6 @@ EXPORT void iaxc_post_event(iaxc_event e) {
 }
 
 
-#define IAXC_ERROR  IAXC_TEXT_TYPE_ERROR
-#define IAXC_STATUS IAXC_TEXT_TYPE_STATUS
-#define IAXC_NOTICE IAXC_TEXT_TYPE_NOTICE
-
 void iaxc_usermsg(int type, const char *fmt, ...)
 {
     va_list args;
@@ -165,11 +228,7 @@ void iaxc_usermsg(int type, const char *fmt, ...)
     e.ev.text.type=type;
 
     va_start(args, fmt);
-#ifdef WIN32
-    _vsnprintf(e.ev.text.message, IAXC_EVENT_BUFSIZ, fmt, args);
-#else
     vsnprintf(e.ev.text.message, IAXC_EVENT_BUFSIZ, fmt, args);
-#endif
     va_end(args);
 
     iaxc_post_event(e);
@@ -198,6 +257,35 @@ void iaxc_do_state_callback(int callNo)
       strncpy(e.ev.call.local,         calls[callNo].local,         IAXC_EVENT_BUFSIZ);
       strncpy(e.ev.call.local_context, calls[callNo].local_context, IAXC_EVENT_BUFSIZ);
       iaxc_post_event(e);
+}
+
+void iaxc_do_registration_callback(int id, int reply, int msgcount) 
+{
+    iaxc_event e;
+    e.type = IAXC_EVENT_REGISTRATION;
+    e.ev.reg.id = id;
+    e.ev.reg.reply = reply;
+    e.ev.reg.msgcount = msgcount;
+    iaxc_post_event(e);
+}
+
+static int iaxc_remove_registration_by_id(int id) {
+	struct iaxc_registration *curr, *prev;
+	int count=0;
+	for( prev=NULL, curr=registrations; curr != NULL; prev=curr, curr=curr->next ) {
+		if( curr->id == id ) {
+			count++;
+			if( curr->session != NULL )
+				iax_destroy( curr->session );
+			if( prev != NULL )
+				prev->next = curr->next;
+			else
+				registrations = curr->next;
+			free( curr );
+			break;
+		}
+	}
+	return count;
 }
 
 EXPORT int iaxc_first_free_call()  {
@@ -233,17 +321,21 @@ EXPORT int iaxc_select_call(int callNo) {
   
         // callNo < 0 means no call selected (i.e. all on hold)
 	if(callNo < 0) {
+	    if (selected_call >= 0) {
+	    	calls[selected_call].state &= ~IAXC_CALL_STATE_SELECTED;
+		}
 	    selected_call = callNo;
 	    return 0;
 	}
   
-	// de-select old call if not also the new call	
+	// de-select and notify the old call if not also the new call	
 	if(callNo != selected_call) {
-	    calls[selected_call].state &= ~IAXC_CALL_STATE_SELECTED;
+	    if (selected_call >= 0) {
+		    calls[selected_call].state &= ~IAXC_CALL_STATE_SELECTED;
+		    iaxc_do_state_callback(selected_call);
+		}
 	    selected_call = callNo;
-	    iaxc_do_state_callback(selected_call);
-
-	    calls[callNo].state |= IAXC_CALL_STATE_SELECTED;
+	    calls[selected_call].state |= IAXC_CALL_STATE_SELECTED;
 	}
 
 
@@ -269,6 +361,44 @@ EXPORT void iaxc_set_networking(iaxc_sendto_t st, iaxc_recvfrom_t rf) {
     iaxc_recvfrom = rf;
 }
 
+static void jb_errf(const char *fmt, ...)
+{
+    va_list args;
+    char buf[1024];
+
+    va_start(args, fmt);
+    vsnprintf(buf, 1024, fmt, args);
+    va_end(args);
+
+    iaxc_usermsg(IAXC_ERROR, buf);
+}
+
+static void jb_warnf(const char *fmt, ...)
+{
+    va_list args;
+    char buf[1024];
+
+    va_start(args, fmt);
+    vsnprintf(buf, 1024, fmt, args);
+    va_end(args);
+
+    iaxc_usermsg(IAXC_NOTICE, buf);
+}
+
+static void jb_dbgf(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+}
+
+static void setup_jb_output() {
+      //jb_setoutput(jb_errf, jb_warnf, jb_dbgf);
+      jb_setoutput(jb_errf, jb_warnf, NULL);
+}
+
 // Parameters:
 // audType - Define whether audio is handled by library or externally
 EXPORT int iaxc_initialize(int audType, int inCalls) {
@@ -278,10 +408,12 @@ EXPORT int iaxc_initialize(int audType, int inCalls) {
 	 * Win32, etc) */
 	os_init();
 
+	setup_jb_output();
+
 	MUTEXINIT(&iaxc_lock);
 
 	if(iaxc_sendto == sendto) {
-	    if ( (port = iax_init(45690) < 0)) {
+	    if ( (port = iax_init(0) < 0)) {
 		    iaxc_usermsg(IAXC_ERROR, "Fatal error: failed to initialize iax with port %d", port);
 		    return -1;
 	    }
@@ -292,7 +424,7 @@ EXPORT int iaxc_initialize(int audType, int inCalls) {
 
 	nCalls = inCalls;
 	/* initialize calls */
-	if(nCalls == 0) nCalls = 1; /* 0 == Default? */
+	if(nCalls <= 0) nCalls = 1; /* 0 == Default? */
 
 	/* calloc zeroes for us */
 	calls = calloc(sizeof(struct iaxc_call), nCalls);
@@ -319,11 +451,11 @@ EXPORT int iaxc_initialize(int audType, int inCalls) {
 #endif
 		default:
 		case AUDIO_INTERNAL_PA:
-			if (pa_initialize(&audio))
+			if (pa_initialize(&audio, 8000))
 				return -1;
 			break;
 		case AUDIO_INTERNAL_FILE:
-			if (file_initialize(&audio))
+			if (file_initialize(&audio, 8000))
 				return -1;
 			break;
 	}
@@ -331,15 +463,23 @@ EXPORT int iaxc_initialize(int audType, int inCalls) {
 	audio_format_capability = IAXC_FORMAT_ULAW | IAXC_FORMAT_ALAW | IAXC_FORMAT_GSM | IAXC_FORMAT_SPEEX;
 	audio_format_preferred = IAXC_FORMAT_SPEEX;
 
+#ifdef IAXC_VIDEO
+	if(iaxc_video_initialize()) {
+		fprintf(stderr, "can't initialize pv\n");
+		return -1;
+	}
+#endif
+
+
 	return 0;
 }
 
 EXPORT void iaxc_shutdown() {
 	iaxc_dump_all_calls();
 
-	MUTEXLOCK(&iaxc_lock);
+	get_iaxc_lock();
 	audio.destroy(&audio);
-	MUTEXUNLOCK(&iaxc_lock);
+	put_iaxc_lock();
 
 	MUTEXDESTROY(&iaxc_lock);
 }
@@ -371,52 +511,6 @@ static void iaxc_note_activity(int callNo) {
   gettimeofday(&calls[callNo].last_activity, NULL);   
 }
 
-static void iaxc_do_pings(void) {
-  int i;
-  struct timeval now;
-
-  gettimeofday(&now, NULL);
-  for(i = 0; i < nCalls; i++)
-  {
-      long act_since;
-      long ping_since;
-
-      if(!(calls[i].state & IAXC_CALL_STATE_ACTIVE))
-	  break;
-
-      act_since = iaxc_usecdiff(&now, &calls[i].last_activity)/1000;
-
-      // if we've had any activity in a while, don't worry about anything.
-      if(act_since < IAXC_CALL_TIMEOUT/3)
-	  break;  /* OK */
-
-      ping_since = iaxc_usecdiff(&now, &calls[i].last_ping)/1000;
-
-      /* if we haven't had activity in a while, and also haven't sent a
-       * ping in a while, send a ping.
-       */
-      if(ping_since > IAXC_CALL_TIMEOUT/3) { 
-	  //fprintf(stderr, "Sending Ping for call %d as=%ld, ps=%ld\n", i, act_since, ping_since); 
-	  calls[i].last_ping = now;
-	  iax_send_ping(calls[i].session);
-	  break; 
-      }
-
-      /* finally, we've recently sent a ping, and still haven't had any 
-       * activity.  If it's been longer then the timeout, timeout the call.
-       */
-      if(act_since > IAXC_CALL_TIMEOUT) {
-	  /* timeout the call. */
-	  //fprintf(stderr, "Timing out call %d as=%ld, ps=%ld\n", i, act_since, ping_since); 
-	  iax_hangup(calls[i].session,"Timed out waiting for ping or activity");
-	  iaxc_usermsg(IAXC_STATUS, "call %d timed out (ping/act = %ld/%ld)", i, ping_since/1000, act_since/1000);
-	  iaxc_clear_call(i);
-      }
-
-  }
-
-}
-
 void iaxc_refresh_registrations() {
     struct iaxc_registration *cur;
     struct timeval now;
@@ -426,7 +520,9 @@ void iaxc_refresh_registrations() {
     for(cur = registrations; cur != NULL; cur=cur->next) {
 	if(iaxc_usecdiff(&now, &cur->last) > cur->refresh ) {
 	    //fprintf(stderr, "refreshing registration %s:%s@%s\n", cur->user, cur->pass, cur->host);
-
+	    if( cur->session != NULL ) {	
+		    iax_destroy( cur->session );
+	    }
 	    cur->session = iax_session_new();
 	    if(!cur->session) {
 		    iaxc_usermsg(IAXC_ERROR, "Can't make new registration session");
@@ -447,94 +543,32 @@ EXPORT void iaxc_process_calls(void) {
 	    win_prepare_audio_buffers();
     }
 #endif
-    MUTEXLOCK(&iaxc_lock);
+    get_iaxc_lock();
     iaxc_service_network();
-    iaxc_do_pings();
     service_audio();
     iaxc_refresh_registrations();
-
-    MUTEXUNLOCK(&iaxc_lock);
+    
+    // XXX move to service_audio or something -- set call properly!
+#ifdef IAXC_VIDEO
+    iaxc_send_video(NULL);
+#endif
+    put_iaxc_lock();
 }
 
 THREADFUNCDECL(iaxc_processor)
 {
     THREADFUNCRET(ret);
     /* Increase Priority */
-#ifdef WIN32
-    /* Increasing the Thread Priority.  See
-     * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/scheduling_priorities.asp
-     * for discussion on Win32 scheduling priorities.
-     */
-      if ( !SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL)  ) {
-            fprintf(stderr, "SetThreadPriority failed: %ld.\n", GetLastError());
-      }
-#endif
-#ifdef MACOSX
-    /* Presently, OSX allows user-level processes to request RT
-     * priority.  The API is nice, but the scheduler presently ignores
-     * the parameters (but the API validates that you're not asking for
-     * too much).  See
-     * http://lists.apple.com/archives/darwin-development/2004/Feb/msg00079.html
-     */
-    {
-      struct thread_time_constraint_policy ttcpolicy;
-      int params [2] = {CTL_HW,HW_BUS_FREQ};
-      int hzms;
-      size_t sz;
-      int ret;
-
-      /* get hz */
-      sz = sizeof (hzms);
-      sysctl (params, 2, &hzms, &sz, NULL, 0);
-
-      /* make hzms actually hz per ms */
-      hzms /= 1000;
-
-      /* give us at least how much? 6-8ms every 10ms (we generally need less) */
-      ttcpolicy.period = 10 * hzms; /* 10 ms */
-      ttcpolicy.computation = 2 * hzms;
-      ttcpolicy.constraint = 3 * hzms;
-      ttcpolicy.preemptible = 1;
-
-      if ((ret=thread_policy_set(mach_thread_self(),
-        THREAD_TIME_CONSTRAINT_POLICY, (int *)&ttcpolicy,
-        THREAD_TIME_CONSTRAINT_POLICY_COUNT)) != KERN_SUCCESS) {
-            fprintf(stderr, "thread_policy_set failed: %d.\n", ret);
-      }    
-    }
-#endif
-#ifdef LINUX
     iaxc_prioboostbegin(); 
-#endif
 
-#if 0 /* test canary/watchdog */
-	{ int i;
-	  struct timeval then;
-	  struct timeval now;
-		gettimeofday(&then,NULL);
-		sleep(2);
-		for(i=0;i<5000000;i++) {
-		  getpid();
-		  gettimeofday(&now,NULL) ;
-		  if(now.tv_sec != then.tv_sec) {
-		      fprintf(stderr, "tick\n");
-		      then = now;
-		  }
-		  fprintf(stderr, "");
-		  getpid();
-		}
-	}
-	fprintf(stderr, "DONE\n");
-#endif
     while(1) { 
 	iaxc_process_calls();
 	iaxc_millisleep(5);	
 	if(procThreadQuitFlag)
 	  break;
     }
-#ifdef LINUX
+
     iaxc_prioboostend(); 
-#endif
     return ret;
 }
 
@@ -635,7 +669,7 @@ static int service_audio()
 }
 
 /* handle IAX text events */
-void handle_text_event(struct iax_event *e, int callNo) {
+static void handle_text_event(struct iax_event *e, int callNo) {
     iaxc_event ev;
 
    if(callNo < 0)
@@ -644,10 +678,54 @@ void handle_text_event(struct iax_event *e, int callNo) {
     ev.ev.text.type=IAXC_TEXT_TYPE_IAX;
     ev.ev.text.callNo = callNo;
 
-#ifdef IAXC_IAX2
-    strncpy(ev.ev.text.message, e->data, IAXC_EVENT_BUFSIZ);
-#endif
+    strncpy(ev.ev.text.message, (char *) e->data, IAXC_EVENT_BUFSIZ);
     iaxc_post_event(ev);
+}
+
+/* handle IAX URL events */
+void handle_url_event( struct iax_event *e, int callNo ) {
+	iaxc_event ev;
+
+	if(callNo < 0) return;
+
+	ev.ev.url.callNo = callNo;
+	ev.type = IAXC_EVENT_URL;
+	strcpy( ev.ev.url.url, "" );
+
+	switch( e->subclass ) {
+		case AST_HTML_URL:
+			ev.ev.url.type = IAXC_URL_URL;
+			if( e->datalen ) {
+				if( e->datalen > IAXC_EVENT_BUFSIZ ) {
+					fprintf( stderr, "ERROR: URL too long %d > %d\n", 
+							e->datalen, IAXC_EVENT_BUFSIZ );
+				} else {
+					strncpy( ev.ev.url.url, (char *) e->data, e->datalen );
+				}
+			}
+			/* fprintf( stderr, "URL:%s\n", ev.ev.url.url ); */
+			break;
+		case AST_HTML_LINKURL:
+			ev.ev.url.type = IAXC_URL_LINKURL;
+			/* fprintf( stderr, "LINKURL event\n" ); */
+			break;
+		case AST_HTML_LDCOMPLETE:
+			ev.ev.url.type = IAXC_URL_LDCOMPLETE;
+			/* fprintf( stderr, "LDCOMPLETE event\n" ); */
+			break;
+		case AST_HTML_UNLINK:
+			ev.ev.url.type = IAXC_URL_UNLINK;
+			/* fprintf( stderr, "UNLINK event\n" ); */
+			break;
+		case AST_HTML_LINKREJECT:
+			ev.ev.url.type = IAXC_URL_LINKREJECT;
+			/* fprintf( stderr, "LINKREJECT event\n" ); */
+			break;
+		default:
+			fprintf( stderr, "Unknown URL event %d\n", e->subclass );
+			break;
+	}
+    iaxc_post_event( ev );
 }
 
 /* DANGER: bad things can happen if iaxc_netstat != iax_netstat.. */
@@ -658,7 +736,6 @@ EXPORT int iaxc_get_netstats(int call, int *rtt, struct iaxc_netstat *local, str
 /* handle IAX text events */
 static void generate_netstat_event(int callNo) {
     iaxc_event ev;
-    int i = 0;
 
     if(callNo < 0)
        return;
@@ -671,13 +748,14 @@ static void generate_netstat_event(int callNo) {
 	iaxc_post_event(ev);
 }
 
-void handle_audio_event(struct iax_event *e, int callNo) {
+static void handle_audio_event(struct iax_event *e, int callNo) {
 	int total_consumed = 0;
 	int cur;
 	short fr[1024];
 	int samples;
 	int bufsize = sizeof(fr)/sizeof(short);
 	struct iaxc_call *call;
+       int mainbuf_delta;
 
         if(callNo < 0)
             return;
@@ -692,7 +770,8 @@ void handle_audio_event(struct iax_event *e, int callNo) {
 	samples = bufsize;
 
 	do {
-		cur = decode_audio(call, fr + (bufsize - samples),
+               mainbuf_delta = bufsize - samples;
+               cur = decode_audio(call, fr,
 		    e->data+total_consumed,e->datalen-total_consumed,
 		    call->format, &samples);
 
@@ -704,7 +783,7 @@ void handle_audio_event(struct iax_event *e, int callNo) {
 		total_consumed += cur;
 		if(iaxc_audio_output_mode != 0) 
 		    continue;
-		audio.output(&audio,fr,bufsize-samples);
+               audio.output(&audio,fr,bufsize - samples - mainbuf_delta);
 	} while(total_consumed < e->datalen);
 }
 
@@ -725,16 +804,15 @@ void iaxc_handle_network_event(struct iax_event *e, int callNo)
 			
 			break;
 
+
 		case IAX_EVENT_REJECT:
 			iaxc_usermsg(IAXC_STATUS, "Call rejected by remote");
 			iaxc_clear_call(callNo);
 			break;
 		case IAX_EVENT_ACCEPT:
-			calls[callNo].state |= IAXC_CALL_STATE_RINGING;	
 			calls[callNo].format = e->ies.format;
 	  //fprintf(stderr, "outgoing call remote accepted, format=%d\n", e->ies.format);
-			iaxc_do_state_callback(callNo);
-			iaxc_usermsg(IAXC_STATUS,"Call %d ringing", callNo);
+			iaxc_usermsg(IAXC_STATUS,"Call %d accepted", callNo);
 //			issue_prompt(f);
 			break;
 		case IAX_EVENT_ANSWER:
@@ -745,17 +823,47 @@ void iaxc_handle_network_event(struct iax_event *e, int callNo)
 			//iaxc_answer_call(callNo);
 			// notify the user?
  			break;
+        case IAX_EVENT_BUSY:
+			calls[callNo].state &= ~IAXC_CALL_STATE_RINGING;	
+            calls[callNo].state |= IAXC_CALL_STATE_BUSY;
+            iaxc_do_state_callback(callNo);
+            break;
 		case IAX_EVENT_VOICE:
 			handle_audio_event(e, callNo); 
+                        if (calls[callNo].state & IAXC_CALL_STATE_RINGING) {
+                                calls[callNo].state &= ~IAXC_CALL_STATE_RINGING;
+                                iaxc_do_state_callback(callNo);
+                                iaxc_usermsg(IAXC_STATUS,"Call %d progress",
+                                             callNo);
+                        }
 			break;
 		case IAX_EVENT_TEXT:
 			handle_text_event(e, callNo);
 			break;
 		case IAX_EVENT_RINGA:
+			calls[callNo].state |= IAXC_CALL_STATE_RINGING;	
+			iaxc_do_state_callback(callNo);
+			iaxc_usermsg(IAXC_STATUS,"Call %d ringing", callNo);
 			break;
 		case IAX_EVENT_PONG:  /* we got a pong */
 			//fprintf(stderr, "**********GOT A PONG!\n");
 			generate_netstat_event(callNo);
+			break;
+		case IAX_EVENT_URL:
+			handle_url_event(e, callNo);
+			break;
+		case IAX_EVENT_CNG:
+			/* ignore? */
+			break;
+		case IAX_EVENT_TIMEOUT:
+			iax_hangup(e->session, "Call timed out");
+			iaxc_usermsg(IAXC_STATUS, "Call %d timed out.", callNo);
+			iaxc_clear_call(callNo);
+			break;
+		case IAX_EVENT_TRANSFER:
+			calls[callNo].state |= IAXC_CALL_STATE_TRANSFER;	
+			iaxc_do_state_callback(callNo);
+			iaxc_usermsg(IAXC_STATUS,"Call %d transfer released", callNo);
 			break;
 		default:
 			iaxc_usermsg(IAXC_STATUS, "Unknown event: %d for call %d", e->etype, callNo);
@@ -763,38 +871,62 @@ void iaxc_handle_network_event(struct iax_event *e, int callNo)
 	}
 }
 
-EXPORT void iaxc_register(char *user, char *pass, char *host)
+EXPORT int iaxc_unregister( int id )
+{
+	int count=0;
+	get_iaxc_lock();
+	count = iaxc_remove_registration_by_id(id);
+	put_iaxc_lock();
+	return count;
+}
+
+EXPORT int iaxc_register(char *user, char *pass, char *host)
 {
 	struct iaxc_registration *newreg;
 
 	newreg = malloc(sizeof (struct iaxc_registration));
 	if(!newreg) {
 		iaxc_usermsg(IAXC_ERROR, "Can't make new registration");
-		return;
+		return -1;
 	}
 
+	get_iaxc_lock();
 	newreg->session = iax_session_new();
 	if(!newreg->session) {
 		iaxc_usermsg(IAXC_ERROR, "Can't make new registration session");
-		return;
+		put_iaxc_lock();
+		return -1;
 	}
 
 	gettimeofday(&newreg->last,NULL);
-	newreg->refresh = 60*1000*1000;  // 60 seconds, in usecs
+	newreg->refresh = 60*1000*1000;  /* 60 seconds, in usecs */
 
 	strncpy(newreg->host, host, 256);
 	strncpy(newreg->user, user, 256);
 	strncpy(newreg->pass, pass, 256);
 
-	// so we notify the user.
-	newreg->firstpass = 1;
-
-	// send out the initial registration timeout 300 seconds
+	/* send out the initial registration timeout 300 seconds */
 	iax_register(newreg->session, host, user, pass, 300);
 
-	// add it to the list;
+	/* add it to the list; */
+	newreg->id = ++next_registration_id;
 	newreg->next = registrations;
 	registrations = newreg;
+
+	put_iaxc_lock();
+	return newreg->id;
+}
+
+static void codec_destroy( int callNo )
+{
+	if( calls[callNo].encoder ) {
+		calls[callNo].encoder->destroy( calls[callNo].encoder );
+		calls[callNo].encoder = NULL;
+	}
+	if( calls[callNo].decoder ) {
+		calls[callNo].decoder->destroy( calls[callNo].decoder );
+		calls[callNo].decoder = NULL;
+	}
 }
 
 EXPORT void iaxc_call(char *num)
@@ -803,7 +935,7 @@ EXPORT void iaxc_call(char *num)
 	struct iax_session *newsession;
 	char *ext = strstr(num, "/");
 
-	MUTEXLOCK(&iaxc_lock);
+	get_iaxc_lock();
 
         // if no call is selected, get a new appearance
         if(selected_call < 0) {
@@ -830,9 +962,7 @@ EXPORT void iaxc_call(char *num)
 
 	calls[callNo].session = newsession;
 
-	/* XXX leak???? */
-	calls[callNo].encoder = 0;
-	calls[callNo].decoder = 0;
+	codec_destroy( callNo );
 
 	if(ext) {
 	    strncpy(calls[callNo].remote_name, num, IAXC_EVENT_BUFSIZ); 
@@ -851,19 +981,15 @@ EXPORT void iaxc_call(char *num)
 	iaxc_note_activity(callNo);
 	calls[callNo].last_ping = calls[callNo].last_activity;
 
-#ifdef IAXC_IAX2
 	iax_call(calls[callNo].session, calls[callNo].callerid_number,
 	                                calls[callNo].callerid_name, num, NULL, 0,
 					audio_format_preferred, audio_format_capability);
-#else
-	iax_call(calls[callNo].session, calls[callNo].callerid_number, num, NULL, 0);
-#endif
 
 	// does state stuff also
 	iaxc_select_call(callNo);
 
 iaxc_call_bail:
-	MUTEXUNLOCK(&iaxc_lock);
+	put_iaxc_lock();
 }
 
 EXPORT void iaxc_answer_call(int callNo) 
@@ -897,40 +1023,66 @@ static void iaxc_dump_one_call(int callNo)
 EXPORT void iaxc_dump_all_calls(void)
 {
       int callNo;
-      MUTEXLOCK(&iaxc_lock);
+      get_iaxc_lock();
 	for(callNo=0; callNo<nCalls; callNo++)
 	    iaxc_dump_one_call(callNo);
-      MUTEXUNLOCK(&iaxc_lock);
+      put_iaxc_lock();
 }
 
 
 EXPORT void iaxc_dump_call(void)
 {
     if(selected_call >= 0) {
-	MUTEXLOCK(&iaxc_lock);
+	get_iaxc_lock();
 	iaxc_dump_one_call(selected_call);
-	MUTEXUNLOCK(&iaxc_lock);
+	put_iaxc_lock();
     }
 }
 
 EXPORT void iaxc_reject_call(void)
 {
     if(selected_call >= 0) {
-	MUTEXLOCK(&iaxc_lock);
-	// XXX should take callNo?
-	iax_reject(calls[selected_call].session, "Call rejected manually.");
-	iaxc_clear_call(selected_call);
-	MUTEXUNLOCK(&iaxc_lock);
+	iaxc_reject_call_number(selected_call);
+    }
+}
+
+EXPORT void iaxc_reject_call_number( int callNo )
+{
+    if(callNo >= 0) {
+	get_iaxc_lock();
+	iax_reject(calls[callNo].session, "Call rejected manually.");
+	iaxc_clear_call(callNo);
+	put_iaxc_lock();
     }
 }
 
 EXPORT void iaxc_send_dtmf(char digit)
 {
     if(selected_call >= 0) {
-	MUTEXLOCK(&iaxc_lock);
+	get_iaxc_lock();
 	if(calls[selected_call].state & IAXC_CALL_STATE_ACTIVE)
 		iax_send_dtmf(calls[selected_call].session,digit);
-	MUTEXUNLOCK(&iaxc_lock);
+	put_iaxc_lock();
+    }
+}
+
+EXPORT void iaxc_send_text(char *text)
+{
+    if(selected_call >= 0) {
+	get_iaxc_lock();
+	if(calls[selected_call].state & IAXC_CALL_STATE_ACTIVE)
+		iax_send_text(calls[selected_call].session, text);
+	put_iaxc_lock();
+    }
+}
+
+EXPORT void iaxc_send_url(char *url, int link)
+{
+    if(selected_call >= 0) {
+	get_iaxc_lock();
+	if(calls[selected_call].state & IAXC_CALL_STATE_ACTIVE)
+		iax_send_url(calls[selected_call].session, url, link); 
+	put_iaxc_lock();
     }
 }
 
@@ -943,46 +1095,27 @@ static int iaxc_find_call_by_session(struct iax_session *session)
 	return -1;
 }
 
-static void iaxc_handle_regreply(struct iax_event *e) {
-  struct iaxc_registration *cur;
-  // find the registration session
+static struct iaxc_registration *iaxc_find_registration_by_session(struct iax_session *session) {
+    struct iaxc_registration *reg;
+    for (reg = registrations; reg != NULL; reg=reg->next)
+        if (reg->session == session) break;
+    return reg;
+}
 
-    for(cur = registrations; cur != NULL; cur=cur->next) 
-	if(cur->session == e->session) break;
+static void iaxc_handle_regreply(struct iax_event *e, struct iaxc_registration *reg) {
 
-    if(!cur) {
-	iaxc_usermsg(IAXC_ERROR, "Unexpected registration reply");
-	return;
-    }
-
-    if(cur->firstpass) {
-	cur->firstpass = 0;
-      
-#ifdef IAXC_IAX2
-	if(e->etype == IAX_EVENT_REGACK ) {
-	    iaxc_usermsg(IAXC_STATUS, "Registration accepted");
-	} else if(e->etype == IAX_EVENT_REGREJ ) {
-	    iaxc_usermsg(IAXC_STATUS, "Registration rejected");
-	}
-#else // IAX1
-
-	if(e->event.regreply.status == IAX_REG_SUCCESS)
-	    iaxc_usermsg(IAXC_STATUS, "Registration accepted");
-	else if(e->event.regreply.status == IAX_REG_REJECT)
-	    iaxc_usermsg(IAXC_STATUS, "Registration rejected");
-	    // XXX should remove from registrations list?
-	else if(e->event.regreply.status == IAX_REG_TIMEOUT)
-	    iaxc_usermsg(IAXC_STATUS, "Registration timed out");
-	else
-	    iaxc_usermsg(IAXC_ERROR, "Unknown registration event");
-#endif
-    }
+    iaxc_do_registration_callback(reg->id, e->etype, e->ies.msgcount);
 
     // XXX I think the session is no longer valid.. at least, that's
     // what miniphone does, and re-using the session doesn't seem to
     // work!
-    iax_destroy(cur->session);
-    cur->session = NULL;
+    iax_destroy(reg->session);
+    reg->session = NULL;
+    
+    if (e->etype == IAX_EVENT_REGREJ) {
+        // we were rejected, so end the registration
+        iaxc_remove_registration_by_id(reg->id);
+    }
 }
 
 /* this is what asterisk does */
@@ -1010,20 +1143,17 @@ static int iaxc_choose_codec(int formats) {
 static void iaxc_service_network() { 
 	struct iax_event *e = 0;
 	int callNo;
+	struct iaxc_registration *reg;
 
 	while ( (e = iax_get_event(0))) {
 		// first, see if this is an event for one of our calls.
 		callNo = iaxc_find_call_by_session(e->session);
 		if(callNo >= 0) {
 			iaxc_handle_network_event(e, callNo);
-		} else if 
-#ifndef IAXC_IAX2
-		( e->etype == IAX_EVENT_REGREP )
-#else 
-		((e->etype == IAX_EVENT_REGACK ) || (e->etype == IAX_EVENT_REGREJ ))
-#endif
-		{ 
-		    iaxc_handle_regreply(e);
+		} else if((reg = iaxc_find_registration_by_session(e->session)) != NULL) {
+            iaxc_handle_regreply(e,reg);
+        } else if((e->etype == IAX_EVENT_REGACK ) || (e->etype == IAX_EVENT_REGREJ )) { 
+            iaxc_usermsg(IAXC_ERROR, "Unexpected registration reply");
 		} else if(e->etype == IAX_EVENT_REGREQ ) {
 			iaxc_usermsg(IAXC_ERROR, "Registration requested by someone, but we don't understand!");
 		} else  if(e->etype == IAX_EVENT_CONNECT) {
@@ -1066,21 +1196,6 @@ static void iaxc_service_network() {
 			calls[callNo].format = format;
 
 
-#ifndef IAXC_IAX2			  
-			if(e->event.connect.dnid)
-			    strncpy(calls[callNo].local,e->event.connect.dnid,
-				IAXC_EVENT_BUFSIZ);
-			else
-			    strncpy(calls[callNo].local,"unknown",
-				IAXC_EVENT_BUFSIZ);
-
-			if(e->event.connect.callerid)
-			    strncpy(calls[callNo].remote,
-				e->event.connect.callerid, IAXC_EVENT_BUFSIZ);
-			else
-			    strncpy(calls[callNo].remote,
-				"unknown", IAXC_EVENT_BUFSIZ);
-#else
 			if(e->ies.called_number)
 			    strncpy(calls[callNo].local,e->ies.called_number,
 				IAXC_EVENT_BUFSIZ);
@@ -1108,13 +1223,11 @@ static void iaxc_service_network() {
 			else
 			    strncpy(calls[callNo].remote_name,
     				"unknown", IAXC_EVENT_BUFSIZ);
-#endif
 			iaxc_note_activity(callNo);
 			iaxc_usermsg(IAXC_STATUS, "Call from (%s)", calls[callNo].remote);
 
-			/* XXX leak? */
-			calls[callNo].encoder = 0;
-			calls[callNo].decoder = 0;
+			codec_destroy( callNo );
+
 			calls[callNo].session = e->session;
 			calls[callNo].state = IAXC_CALL_STATE_ACTIVE|IAXC_CALL_STATE_RINGING;
 
@@ -1125,24 +1238,16 @@ static void iaxc_service_network() {
 
 			iaxc_usermsg(IAXC_STATUS, "Incoming call on line %d", callNo);
 
+		} else if (e->etype == IAX_EVENT_TIMEOUT) {
+		    
+			iaxc_usermsg(IAXC_STATUS, "Timeout for a non-existant session.  Dropping", e->etype);
+			
 		} else {
 			iaxc_usermsg(IAXC_STATUS, "Event (type %d) for a non-existant session.  Dropping", e->etype);
 		}
 bail:
 		iax_event_free(e);
 	}
-}
-
-static void iaxc_external_audio_event(struct iax_event *e, struct iaxc_call *call)
-{
-	// To be coded in the future
-	return;
-}
-
-static void iaxc_external_service_audio()
-{
-	// To be coded in the future
-	return;
 }
 
 EXPORT int iaxc_audio_devices_get(struct iaxc_audio_device **devs, int *nDevs, int *input, int *output, int *ring) {
@@ -1154,9 +1259,9 @@ EXPORT int iaxc_audio_devices_get(struct iaxc_audio_device **devs, int *nDevs, i
 
 EXPORT int iaxc_audio_devices_set(int input, int output, int ring) {
     int ret = 0;
-    MUTEXLOCK(&iaxc_lock);
+    get_iaxc_lock();
     ret = audio.select_devices(&audio, input, output, ring);
-    MUTEXUNLOCK(&iaxc_lock);
+    put_iaxc_lock();
     return ret;
 }
 
@@ -1177,11 +1282,19 @@ EXPORT int iaxc_output_level_set(double level) {
 }
 
 EXPORT int iaxc_play_sound(struct iaxc_sound *s, int ring) {
-    return audio.play_sound(s,ring);
+    int ret = 0;
+    get_iaxc_lock();
+    ret = audio.play_sound(s,ring);
+    put_iaxc_lock();
+    return ret;
 }
 
 EXPORT int iaxc_stop_sound(int id) {
-    return audio.stop_sound(id);
+    int ret = 0;
+    get_iaxc_lock();
+    ret = audio.stop_sound(id);
+    put_iaxc_lock();
+    return ret;
 }
 
 EXPORT int iaxc_quelch(int callNo, int MOH)
@@ -1206,4 +1319,10 @@ EXPORT int iaxc_mic_boost_get( void )
 EXPORT int iaxc_mic_boost_set( int enable )
 {
 	return audio.mic_boost_set( &audio, enable ) ;
+}
+
+EXPORT char* iaxc_version(char* ver)
+{
+	strncpy(ver,   LIBVER,   IAXC_EVENT_BUFSIZ);
+	return ver;
 }

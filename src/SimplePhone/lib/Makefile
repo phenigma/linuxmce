@@ -1,25 +1,48 @@
+#
+# iaxclient: a cross-platform IAX softphone library
+#
+# Copyrights:
+# Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+#
+# Contributors <see README for complete list>
+# Steve Kann <stevek@stevek.com>
+# Michael Van Donselaar <mvand@vandonselaar.org>
+# Shawn Lawrence <shawn.lawrence@terracecomm.com>
+#
+#
+# This program is free software, distributed under the terms of
+# the GNU Lesser (Library) General Public License
+#
 
-# set to 2 for IAX2
-IAXVER=2
 
-CODEC_ILBC=0
+
+CODEC_ILBC=1
 
 SPEEX_PREPROCESS=1
 SPAN_EC=0
 SPEEX_EC=1
+SPEEX_USE_AEC_NLMS=1
 MEC2_EC=0
 
 USE_NEWJB=1
 
+USE_VIDEO=0
+
 CFLAGS= -I. -Igsm/inc \
 	-Iportaudio/pa_common -Iportaudio/pablio -Iportmixer/px_common \
-	-Ilibspeex/include
+	-Ilibspeex/include --std=c99
 
 #CFLAGS:= $(CFLAGS) -g -Wall -Wpointer-arith
 CFLAGS:= $(CFLAGS) -g -O2
 
+CFLAGS:= $(CFLAGS) -DLIBVER='"CVS-$(shell date +%Y/%m/%d-%H:%M)"'
+
 ifeq ($(SPEEX_PREPROCESS),1)
 CFLAGS:= $(CFLAGS) -DSPEEX_PREPROCESS=1
+endif
+
+ifeq ($(SPEEX_USE_AEC_NLMS),1)
+CFLAGS:= $(CFLAGS) -DSPEEX_USE_AEC_NLMS=1
 endif
 
 ifeq ($(USE_NEWJB),1)
@@ -52,6 +75,7 @@ OBJS=\
 	portaudio/pa_common/pa_lib.o \
 	portaudio/pablio/pablio.o \
 	portaudio/pablio/ringbuffer.o \
+	spandsp/plc.o \
 	audio_encode.o \
 	audio_portaudio.o \
 	audio_file.o \
@@ -60,7 +84,8 @@ OBJS=\
 	codec_alaw.o \
 	codec_speex.o \
 	jitterbuf.o \
-	iaxclient_lib.o 
+	iaxclient_lib.o\
+	iaxc_preprocess.o
 
 OBJS_LIBSPEEX=\
         libspeex/nb_celp.o \
@@ -124,6 +149,14 @@ OBJS_ILBC=\
 	iLBC/iCBConstruct.o\
 	iLBC/lsf.o
 
+OBJS_VIDEO=\
+	video.o\
+	video_portvideo.o\
+	PortVideoSDL/common/cameraTool.o\
+	PortVideoSDL/common/RingBuffer.o\
+	PortVideoSDL/common/FrameInverter.o\
+	codec_theora.o
+
 
 OBJS:= $(OBJS) $(OBJS_LIBSPEEX) 
 
@@ -137,15 +170,20 @@ OBJS_WIN32=\
 	portmixer/px_win_wmme/px_win_wmme.o \
 	portaudio/pa_win_wmme/pa_win_wmme.o
 
-
 OBJS_LINUX=\
 	unixfuncs.o \
 	portmixer/px_unix_oss/px_unix_oss.o \
 	portaudio/pa_unix_oss/pa_unix_oss.o \
 	portaudio/pa_unix_oss/pa_unix.o 
 
+OBJS_NETBSD=\
+	unixfuncs.o \
+	portmixer/px_unix_oss/px_unix_oss.o \
+	portaudio/pa_unix_oss/pa_unix_oss.o \
+	portaudio/pa_unix_oss/pa_unix.o 
+
+
 OBJS_SOLARIS=\
-	libiax2/src/align.o \
 	unixfuncs.o \
 	portmixer/px_solaris/px_solaris.o \
 	portaudio/pa_unix_oss/pa_unix_solaris.o \
@@ -156,10 +194,6 @@ OBJS_MACOSX=\
 	portmixer/px_mac_core/px_mac_core.o \
 	portaudio/pa_common/pa_convert.o \
 	portaudio/pa_mac_core/pa_mac_core.o 
-
-OBJS_IAX1=\
-	libiax/src/md5.o \
-	libiax/src/iax.o \
 
 OBJS_IAX2=\
         libiax2/src/md5.o \
@@ -192,8 +226,12 @@ else
 ifneq (,$(findstring SunOS,$(shell uname)))
 OSTYPE=SOLARIS
 else
+ifneq (,$(findstring NetBSD,$(shell uname)))
+OSTYPE=NETBSD
+else
 $(warning OSTYPE cannot be detected, assuming Linux)
 OSTYPE=LINUX
+endif
 endif
 endif
 endif
@@ -203,7 +241,8 @@ endif
 # Setup platform-specific stuff based on gleaning
 ifeq ($(OSTYPE),WIN32)
 OBJS:= $(OBJS) $(OBJS_WIN32) 
-DYNLDFLAGS= -lwinmm -lwsock32 -lcomdlg32 -luser32 -lgdi32 -lole32 -lcomctl32 -lctl3d32 \
+CFLAGS:= -mno-cygwin $(CFLAGS)
+DYNLDFLAGS= -mno-cygwin -lwinmm -lwsock32 -lcomdlg32 -luser32 -lgdi32 -lole32 -lcomctl32 -lctl3d32 \
 		-lgcc -lstdc++ -lshell32 -loleaut32 -ladvapi32 -luuid -Wl,--out-implib,libiaxclient.a
 DYNCFLAGS=-DBUILDING_DLL
 DYNLIB=iaxclient.dll
@@ -217,30 +256,52 @@ endif
 
 ifeq ($(OSTYPE),SOLARIS)
 OBJS:= $(OBJS) $(OBJS_SOLARIS) 
+# only SPARC solaris machines need the alignment stuff
+ifeq (sparc,$(findstring sparc,$(shell uname -a)))
 CFLAGS:= $(CFLAGS) -DALIGN32 
+endif
 DYNCFLAGS=-fPIC
 DYNLIB=libiaxclient.so
 CC=gcc
+endif
+ifeq ($(OSTYPE),NETBSD)
+OBJS:= $(OBJS) $(OBJS_NETBSD) 
+DYNCFLAGS=-fPIC
+DYNLIB=libiaxclient.so
+DYNLDFLAGS= -lossaudio
 endif
 
 ifeq ($(OSTYPE),MACOSX)
 OBJS:= $(OBJS) $(OBJS_MACOSX) 
 RANLIB= ranlib
-# comment these lines to build against current OS, and not 10.2.7.
-CC=MACOSX_DEPLOYMENT_TARGET=10.2 NEXT_ROOT=/Developer/SDKs/MacOSX10.2.7.sdk cc
-CFLAGS:= $(CFLAGS) -isystem /Developer/SDKs/MacOSX10.2.7.sdk/usr/include
+# comment these lines in to build against version  10.2.7.
+#CC=MACOSX_DEPLOYMENT_TARGET=10.2 NEXT_ROOT=/Developer/SDKs/MacOSX10.2.7.sdk cc
+#CFLAGS:= $(CFLAGS) -isystem /Developer/SDKs/MacOSX10.2.7.sdk/usr/include
 DYNLIB=libiaxclient.dylib
 endif
 
+ifeq ($(USE_VIDEO),1)
+	OBJS:= $(OBJS) $(OBJS_VIDEO) 
+	CFLAGS:= $(CFLAGS) -DIAXC_VIDEO
+	LIBS:= $(LIBS) -lavcodec -ltheora
+  ifeq ($(OSTYPE),LINUX)
+	OBJS:= $(OBJS) PortVideoSDL/linux/linuxfwCamera.o PortVideoSDL/linux/v4linuxCamera.o
+  endif
+  ifeq ($(OSTYPE),WIN32)
+	CFLAGS:= $(CFLAGS) -IPortVideoSDL/win32/dslib/include -Ic:/DX90SDK/include-gcc -Ic:/DX90SDK/Samples/C++/DirectShow/BaseClasses
+	OBJS:= $(OBJS) PortVideoSDL/win32/dslibCamera.cpp
+  endif
+  ifeq ($(OSTYPE),MACOSX)
+        CFLAGS:= $(CFLAGS) -I../../theora/include -I/sw/include
+        OBJS:= $(OBJS) PortVideoSDL/macosx/macvdCamera.o PortVideoSDL/macosx/vdigGrab.o
+  endif
+endif
 
-ifeq ($(IAXVER),1)
-OBJS:= $(OBJS) $(OBJS_IAX1)
-CFLAGS:= $(CFLAGS) -Ilibiax/src
-else
+
+
 OBJS:= $(OBJS) $(OBJS_IAX2)
 #CFLAGS:= $(CFLAGS) -Ilibiax2/src -DIAXC_IAX2 -DLIBIAX -DDEBUG_SUPPORT 
-CFLAGS:= $(CFLAGS) -Ilibiax2/src -DIAXC_IAX2 -DLIBIAX 
-endif
+CFLAGS:= $(CFLAGS) -Ilibiax2/src -DLIBIAX 
 
 ifeq ($(SPAN_EC),1)
 OBJS:= $(OBJS) ec/echo.o
@@ -269,6 +330,7 @@ GCCLIBDIR=$(MGLIBDIR)/gcc-lib/mingw32/3.2/
 
 GCCLIB=$(GCCLIBDIR)/libgcc.a 
 
+CXXFLAGS=$(CFLAGS)
 
 $(MSLIB): $(OBJS)
 #	rm -f $(MSLIB)
@@ -279,7 +341,12 @@ $(MSLIB): $(OBJS)
 shared: CFLAGS := $(CFLAGS) $(DYNCFLAGS)
 #shared: clean libiaxclient.a
 shared: libiaxclient.a
+ifeq ($(OSTYPE),MACOSX)
+	libtool -single_module -dynamic -o libiaxclient.dylib libiaxclient.a -lc -framework CoreAudio -framework AudioToolbox -lcc_dynamic
+else
 	$(CC) -shared -o $(DYNLIB) $(OBJS) $(DYNLDFLAGS)
+endif
+
 
 
 plat:

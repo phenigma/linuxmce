@@ -18,8 +18,9 @@
 /* disable zero-sized array in struct/union warning */
 #pragma warning(disable:4200)
 #endif
-
-#ifndef LINUX
+ 
+#if defined(LINUX) || defined(__FreeBSD__) || defined(__NetBSD__)
+#else
 #define socklen_t int
 #endif
 
@@ -77,6 +78,7 @@ struct iax_session;
 #define IAX_EVENT_REGREJ  30		/* Registration reply */
 #define IAX_EVENT_LINKURL	31		/* Unlink */
 #define IAX_EVENT_CNG	32		/* Comfort-noise (almost silence) */
+#define IAX_EVENT_POKE	64
 
 /* moved from iax.c to support attended transfer */
 #define IAX_EVENT_REREQUEST	999
@@ -147,15 +149,16 @@ struct sockaddr_in;
 
 /* Front ends for sending events */
 extern int iax_send_dtmf(struct iax_session *session, char digit);
-extern int iax_send_voice(struct iax_session *session, int format, char *data, int datalen, int samples);
-extern int iax_send_cng(struct iax_session *session, int level, char *data, int datalen);
-extern int iax_send_image(struct iax_session *session, int format, char *data, int datalen);
+extern int iax_send_voice(struct iax_session *session, int format, unsigned char *data, int datalen, int samples);
+extern int iax_send_cng(struct iax_session *session, int level, unsigned char *data, int datalen);
+extern int iax_send_image(struct iax_session *session, int format, unsigned char *data, int datalen);
 extern int iax_send_url(struct iax_session *session, char *url, int link);
 extern int iax_send_text(struct iax_session *session, char *text);
 extern int iax_send_ping(struct iax_session *session);
 extern int iax_load_complete(struct iax_session *session);
 extern int iax_reject(struct iax_session *session, char *reason);
 extern int iax_busy(struct iax_session *session);
+extern int iax_congestion(struct iax_session *session);
 extern int iax_hangup(struct iax_session *session, char *byemsg);
 extern int iax_call(struct iax_session *session, char *cidnum, char *cidname, char *ich, char *lang, int wait, int format, int capability);
 extern int iax_accept(struct iax_session *session, int format);
@@ -198,20 +201,26 @@ struct iax_netstat {
 	int ooo;
 };
 /* fills in rtt, and an iax_netstat structure for each of local/remote directions of call */
-int iax_get_netstats(struct iax_session *s, int *rtt, struct iax_netstat *local, struct iax_netstat *remote);
+extern int iax_get_netstats(struct iax_session *s, int *rtt, struct iax_netstat *local, struct iax_netstat *remote);
 
 
-void iax_set_private(struct iax_session *s, void *pvt);
-void *iax_get_private(struct iax_session *s);
-void iax_set_sendto(struct iax_session *s, sendto_t sendto);
+extern void iax_set_private(struct iax_session *s, void *pvt);
+extern void *iax_get_private(struct iax_session *s);
+extern void iax_set_sendto(struct iax_session *s, sendto_t sendto);
 
 /* to use application networking instead of internal, set call this instead of iax_init,
  * and pass in sendto and recvfrom replacements.  blocking reads may not be implemented */
-void iax_set_networking(sendto_t st, recvfrom_t rf);
+extern void iax_set_networking(sendto_t st, recvfrom_t rf);
 
+/* destroy an iax session */
+extern void iax_session_destroy(struct iax_session **session);
 
 /* Handle externally received frames */
 struct iax_event *iax_net_process(unsigned char *buf, int len, struct sockaddr_in *sin);
+extern unsigned int iax_session_get_capability(struct iax_session *s);
+extern char iax_pref_codec_add(struct iax_session *session, unsigned int format);
+extern void iax_pref_codec_del(struct iax_session *session, unsigned int format);
+extern int iax_pref_codec_get(struct iax_session *session, unsigned int *array, int len);
 
 #if defined(__cplusplus)
 }

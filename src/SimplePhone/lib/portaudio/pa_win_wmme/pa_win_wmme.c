@@ -1,5 +1,5 @@
 /*
- * $Id: pa_win_wmme.c,v 1.6 2004/11/28 02:26:14 mvand Exp $
+ * $Id: pa_win_wmme.c,v 1.8 2005/07/19 14:51:07 stevek Exp $
  * pa_win_wmme.c
  * Implementation of PortAudio for Windows MultiMedia Extensions (WMME)
  *
@@ -114,7 +114,7 @@ static  gUnderCallbackCounter = 0;
 #endif
 
 #define PRINT(x) { printf x; fflush(stdout); }
-#define ERR_RPT(x) PRINT(x)
+#define ERR_RPT(x) /* PRINT(x) */
 #define DBUG(x)  /* PRINT(x) */
 #define DBUGX(x) /* PRINT(x) */
 /************************************************* Definitions ********/
@@ -282,7 +282,7 @@ static void Pa_EndUsageCalculation( internalPortAudioStream   *stream )
 }
 /****************************************** END CPU UTILIZATION *******/
 
-static void Pa_InitializeNumDevices( void )
+/*static*/ void Pa_InitializeNumDevices( void )
 {
     sNumInputDevices = waveInGetNumDevs();
     if( sNumInputDevices > 0 )
@@ -309,7 +309,7 @@ static void Pa_InitializeNumDevices( void )
     sNumDevices = sNumInputDevices + sNumOutputDevices;
 }
 
-static PaError Pa_AllocateDevicePtrs( void )
+/*static*/ PaError Pa_AllocateDevicePtrs( void )
 {
     int numBytes;
     int i;

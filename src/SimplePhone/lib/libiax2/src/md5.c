@@ -1,16 +1,28 @@
 /* MD5 checksum routines used for authentication.  Not covered by GPL, but
    in the public domain as per the copyright below */
 
-#ifdef FREEBSD
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 # include <machine/endian.h>
 #elif defined(LINUX)  
 # include <endian.h>
 # include <features.h>
 # include <sys/types.h>
 #elif defined(SOLARIS)
-/* each solaris is different -- this won't work on 2.6 or 2.7 */
-# include <sys/isa_defs.h>
+  /* each solaris is different -- this won't work on 2.6 or 2.7 */
+# include <sys/isa_defs.h> /* Defines either _LITTLE_ENDIAN or _BIG_ENDIAN */
+#  define __BIG_ENDIAN		4321
+#  define __LITTLE_ENDIAN	1234
+#  define BIG_ENDIAN		4321
+#  define LITTLE_ENDIAN		1234
+#  ifdef _LITTLE_ENDIAN
+#    define __BYTE_ORDER	__LITTLE_ENDIAN
+#    define BYTE_ORDER		LITTLE_ENDIAN
+#  else
+#    define __BYTE_ORDER	__BIG_ENDIAN
+#    define BYTE_ORDER		BIG_ENDIAN
+#  endif
 #endif
+
 #if __BYTE_ORDER == __BIG_ENDIAN || BYTE_ORDER == BIG_ENDIAN
 # define HIGHFIRST 1
 #elif __BYTE_ORDER == __LITTLE_ENDIAN || BYTE_ORDER == LITLE_ENDIAN

@@ -1,3 +1,15 @@
+/*
+ * iaxclient: a cross-platform IAX softphone library
+ *
+ * Copyrights:
+ * Copyright (C) 2003 HorizonLive.com, (c) 2004, Horizon Wimba, Inc.
+ *
+ * Contributors:
+ * Steve Kann <stevek@stevek.com>
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU Lesser (Library) General Public License
+ */
 #ifndef _iaxclient_h
 #define _iaxclient_h
 
@@ -5,8 +17,6 @@
 extern "C" {
 #endif
 
-/* IAXCLIENT.H external library include 2003 SteveK, 
- * This file is covered by the LGPL */
 
 /* This is the include file which declared all external API functions to
  * IAXCLIENT.  It should include all functions and declarations needed
@@ -64,11 +74,15 @@ extern "C" {
 #define IAXC_FORMAT_SPEEX        (1 << 9)        /* Speex Audio */
 #define IAXC_FORMAT_ILBC         (1 << 10)       /* iLBC Audio */
 
-#define IAXC_FORMAT_MAX_AUDIO (1 << 15)  /* Maximum audio format */
+#define IAXC_FORMAT_MAX_AUDIO 	 (1 << 15)  /* Maximum audio format */
 #define IAXC_FORMAT_JPEG         (1 << 16)       /* JPEG Images */
 #define IAXC_FORMAT_PNG          (1 << 17)       /* PNG Images */
 #define IAXC_FORMAT_H261         (1 << 18)       /* H.261 Video */
 #define IAXC_FORMAT_H263         (1 << 19)       /* H.263 Video */
+#define IAXC_FORMAT_H263_PLUS    (1 << 20)       /* H.263+ Video */
+#define IAXC_FORMAT_MPEG4    	 (1 << 21)       /* MPEG4 Video */
+#define IAXC_FORMAT_H264    	 (1 << 23)       /* H264 Video */
+#define IAXC_FORMAT_THEORA    	 (1 << 24)       /* Theora Video */
 
 
 
@@ -76,13 +90,18 @@ extern "C" {
 #define IAXC_EVENT_LEVELS		2
 #define IAXC_EVENT_STATE		3
 #define IAXC_EVENT_NETSTAT		4
+#define IAXC_EVENT_URL			5	/* URL push via IAX(2) */
+#define IAXC_EVENT_VIDEO		6	/* video data (pointer) */
+#define IAXC_EVENT_REGISTRATION 	7
 
 #define IAXC_CALL_STATE_FREE 		0
-#define IAXC_CALL_STATE_ACTIVE 		(1<<1)
+#define IAXC_CALL_STATE_ACTIVE		(1<<1)
 #define IAXC_CALL_STATE_OUTGOING 	(1<<2)
 #define IAXC_CALL_STATE_RINGING 	(1<<3)
 #define IAXC_CALL_STATE_COMPLETE 	(1<<4)
 #define IAXC_CALL_STATE_SELECTED 	(1<<5)
+#define IAXC_CALL_STATE_BUSY		(1<<6)
+#define IAXC_CALL_STATE_TRANSFER	(1<<7)
 
 #define IAXC_TEXT_TYPE_STATUS		1
 #define IAXC_TEXT_TYPE_NOTICE		2
@@ -91,7 +110,17 @@ extern "C" {
 #define IAXC_TEXT_TYPE_FATALERROR	4
 #define IAXC_TEXT_TYPE_IAX		5
 
+/* registration replys, corresponding to IAX_EVENTs*/
+#define IAXC_REGISTRATION_REPLY_ACK     18   /* IAX_EVENT_REGACC  */
+#define IAXC_REGISTRATION_REPLY_REJ     30   /* IAX_EVENT_REGREJ  */
+#define IAXC_REGISTRATION_REPLY_TIMEOUT 6    /* IAX_EVENT_TIMEOUT */
 
+#define IAXC_URL_URL				1	/* URL received */
+#define IAXC_URL_LDCOMPLETE	2	/* URL loading complete */
+#define IAXC_URL_LINKURL		3	/* URL link request */
+#define IAXC_URL_LINKREJECT	4	/* URL link reject */
+#define IAXC_URL_UNLINK			5	/* URL unlink */
+ 
 
 #define IAXC_EVENT_BUFSIZ	256
 struct iaxc_ev_levels {
@@ -132,13 +161,37 @@ struct iaxc_ev_netstats {
 	struct iaxc_netstat remote;
 };
 
+struct iaxc_ev_url {
+	int callNo;
+	int type;
+	char url[IAXC_EVENT_BUFSIZ];
+};
+
+struct iaxc_ev_video {
+	int callNo;
+	int format;
+	int width;
+	int height;
+	unsigned char *data;
+};
+
+struct iaxc_ev_registration {
+    int id;
+    int reply;
+    int msgcount;
+};
+
 typedef struct iaxc_event_struct {
+	struct iaxc_event_struct *next;
 	int type;
 	union {
 		struct iaxc_ev_levels 		levels;
 		struct iaxc_ev_text 		text;
 		struct iaxc_ev_call_state 	call;
 		struct iaxc_ev_netstats 	netstats;
+		struct iaxc_ev_url          url;
+		struct iaxc_ev_video		video;
+		struct iaxc_ev_registration reg;
 	} ev;
 } iaxc_event;
 
@@ -167,13 +220,17 @@ EXPORT int iaxc_service_audio();
 EXPORT int iaxc_start_processing_thread();
 EXPORT int iaxc_stop_processing_thread();
 EXPORT void iaxc_call(char *num);
-EXPORT void iaxc_register(char *user, char *pass, char *host);
+EXPORT int iaxc_unregister( int id );
+EXPORT int iaxc_register(char *user, char *pass, char *host);
 EXPORT void iaxc_answer_call(int callNo); 
 EXPORT void iaxc_blind_transfer_call(int callNo, char *number); 
 EXPORT void iaxc_dump_all_calls(void);
 EXPORT void iaxc_dump_call(void);
 EXPORT void iaxc_reject_call(void);
+EXPORT void iaxc_reject_call_number(int callNo);
 EXPORT void iaxc_send_dtmf(char digit);
+EXPORT void iaxc_send_text(char *text);
+EXPORT void iaxc_send_url(char *url, int link); /* link == 1 ? AST_HTML_LINKURL : AST_HTML_URL */
 EXPORT int iaxc_was_call_answered();
 EXPORT void iaxc_millisleep(long ms);
 EXPORT void iaxc_set_silence_threshold(double thr);
@@ -185,6 +242,7 @@ EXPORT int iaxc_quelch(int callNo, int MOH);
 EXPORT int iaxc_unquelch(int call);
 EXPORT int iaxc_mic_boost_get( void ) ;
 EXPORT int iaxc_mic_boost_set( int enable ) ;
+EXPORT char* iaxc_version(char *ver);
 
 /* application-defined networking; give substiture sendto and recvfrom functions,
  * must be called before iaxc_initialize! */
@@ -249,8 +307,10 @@ EXPORT int iaxc_stop_sound(int id);
 #define IAXC_FILTER_ECHO 	(1<<2)
 #define IAXC_FILTER_AAGC 	(1<<3) /* Analog (mixer-based) AGC */
 #define IAXC_FILTER_CN 		(1<<4) /* Send CN frames when silence detected */
+#define IAXC_FILTER_BASS_BOOST 	(1<<5) /* Enable Bass boost to the signal sent in the speakers */
 EXPORT int iaxc_get_filters(void);
 EXPORT void iaxc_set_filters(int filters);
+EXPORT int iaxc_set_files(FILE *input, FILE *output);
 
 /* speex specific codec settings */
 /* a good choice is (1,-1,-1,0,8000,3): 8kbps ABR */
@@ -267,6 +327,18 @@ EXPORT void iaxc_set_filters(int filters);
 	*    default and good choice.
 */
 EXPORT void iaxc_set_speex_settings(int decode_enhance, float quality, int bitrate, int vbr, int abr, int complexity);
+
+/* set/get video mode */
+#define IAXC_VIDEO_MODE_NONE 			0  /* don't send video at all */
+#define IAXC_VIDEO_MODE_ACTIVE 			1  /* send video */
+#define IAXC_VIDEO_MODE_PREVIEW_RAW 		2  /* send video, and show raw preview */
+#define IAXC_VIDEO_MODE_PREVIEW_ENCODED  	3  /* send video, and show encoded preview */
+EXPORT int iaxc_video_mode_set(int mode);
+EXPORT int iaxc_video_mode_get();
+
+/* set allowed/preferred video encodings */
+EXPORT void iaxc_video_format_set(int preferred, int allowed, int framerate, int bitrate, int width, int height);
+
 
 #ifdef __cplusplus
 }

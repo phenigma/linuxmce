@@ -195,7 +195,7 @@ nb_mode_new (int frameSize, int subframeSize, int lpcSize, int bufSize,
   nb_mode->frameSize = frameSize;
   nb_mode->subframeSize = subframeSize;
   nb_mode->lpcSize = lpcSize;
-  nb_mode->bufSize = bufSize;
+//fd:  nb_mode->bufSize = bufSize;
   nb_mode->pitchStart = pitchStart;
   nb_mode->pitchEnd = pitchEnd;
   nb_mode->gamma1 = gamma1;

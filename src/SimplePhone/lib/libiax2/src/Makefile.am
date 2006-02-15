@@ -1,15 +1,15 @@
-CFLAGS = -Wall -O2
-CFLAGS += -g -Wall -Wstrict-prototypes -I .
-CFLAGS += -DDEBUG_SUPPORT -DLIBIAX
-CFLAGS += -fsigned-char
+AM_CFLAGS = -Wall -O2
+AM_CFLAGS += -g -Wall -Wstrict-prototypes -I .
+AM_CFLAGS += -DDEBUG_SUPPORT -DLIBIAX
+AM_CFLAGS += -fsigned-char
 # -DDEBUG_DEFAULT 
-CFLAGS += $(UCFLAGS)
+AM_CFLAGS += $(UCFLAGS)
 
 
 pkgdir = $(libdir)
 pkg_LTLIBRARIES=libiax.la
-libiax_la_SOURCES = iax2-parser.c iax.c md5.c 
-EXTRA_DIST = md5.h frame.h iax-client.h iax2.h iax2-parser.h
+libiax_la_SOURCES = iax2-parser.c iax.c md5.c jitterbuf.c
+EXTRA_DIST = md5.h frame.h iax-client.h iax2.h iax2-parser.h jitterbuf.h
 
 install-data-local:
 	mkdir -p $(includedir)/iax

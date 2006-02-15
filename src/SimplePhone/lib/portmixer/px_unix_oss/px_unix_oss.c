@@ -38,11 +38,16 @@
 #ifdef __linux__
 #include <linux/soundcard.h>
 #else
+#if defined(__FreeBSD__) || defined(__NetBSD__)
+#include <sys/soundcard.h>
+#else
 #include <machine/soundcard.h> /* JH20010905 */
 #endif
-
+#endif
+ 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -397,5 +402,25 @@ void Px_SetPlaythrough( PxMixer *mixer, PxVolume volume )
    vol = (int)((volume * 100.0) + 0.5);
    vol = (vol | (vol<<8));
    ioctl(info->fd, MIXER_WRITE(info->recs[i]), &vol);
+}
+
+
+/*
+  unimplemented stubs
+*/
+
+int Px_SetMicrophoneBoost( PxMixer* mixer, int enable )
+{
+	return 1 ;
+}
+
+int Px_GetMicrophoneBoost( PxMixer* mixer )
+{
+	return -1 ;
+}
+
+int Px_SetCurrentInputSourceByName( PxMixer* mixer, const char* line_name )
+{
+	return 1 ;
 }
 

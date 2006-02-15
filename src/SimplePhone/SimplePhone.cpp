@@ -63,11 +63,11 @@ bool SimplePhone::GetConfig()
 bool SimplePhone::Register()
 //<-dceag-reg-e->
 {
-	return Connect(PK_DeviceTemplate_get()); 
+	return Connect(PK_DeviceTemplate_get());
 }
 
 /*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
+	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You
 	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
 //<-dceag-createinst-b->
 SimplePhone_Command *Create_SimplePhone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
@@ -79,9 +79,9 @@ SimplePhone_Command *Create_SimplePhone(Command_Impl *pPrimaryDeviceCommand, Dev
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
+	created for the child that will get the message.  If the child does not, then you will
+	get all	commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
@@ -93,7 +93,7 @@ void SimplePhone::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,stri
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -121,7 +121,7 @@ void SimplePhone::SomeFunction()
 	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
 	// Examples:
-	
+
 	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 	SendCommand(CMD_Simulate_Mouse_Click);
@@ -147,12 +147,12 @@ void SimplePhone::SomeFunction()
 	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
 	// This send command will wait for the destination device to respond since there is
 	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
+	SendCommand(CMD_Get_Signal_Strength);
 
-	// This time we don't care about the out parameter.  We just want the command to 
+	// This time we don't care about the out parameter.  We just want the command to
 	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
 	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
+	SendCommandNoResponse(CMD_Get_Signal_Strength);
 
 	// This command has an out parameter of a data block.  Any parameter that is a binary
 	// data block is a pair of int and char *
@@ -208,7 +208,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 	iaxc_call(tmp);
 	sCMD_Result="OK";
 	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
-	SendCommand(SCREEN_DevCallInProgress_);								
+	SendCommand(SCREEN_DevCallInProgress_);
 }
 
 //<-dceag-c335-b->
@@ -221,11 +221,15 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 {
 	if(phone_status>0)
 	{
+		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
+		SendCommand(CMD_MH_Stop_Media_);
+		iaxc_millisleep(2000);
+		DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+		SendCommand(SCREEN_DevCallInProgress_);
+		iaxc_millisleep(1000);
 		iaxc_answer_call(0);
 		iaxc_select_call(0);
 		sCMD_Result="OK";
-		DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
-		SendCommand(SCREEN_DevCallInProgress_);								
 	}
 	else
 	{
@@ -245,9 +249,8 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	iaxc_millisleep(1000);
 	sCMD_Result="OK";
 	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
-	SendCommand(SCREEN_Main_);								
+	SendCommand(SCREEN_Main_);
 }
-
 
 /* IAXCLIENT PART */
 int iaxCallback(iaxc_event e)
@@ -295,7 +298,7 @@ void SimplePhone::doProccess(void)
 			{
 				CMD_Phone_Answer(tmp,NULL);
 			}
-			
+
 		}
 		if(phone_status<0)
 		{
@@ -323,7 +326,7 @@ void SimplePhone::registerWithAsterisk()
 	iaxc_set_formats(IAXC_FORMAT_GSM,IAXC_FORMAT_GSM);
 	iaxc_set_silence_threshold(-50);
 	iaxc_set_event_callback(iaxCallback);
-	g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);	
+	g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);
 	iaxc_register(deviceExtension,devicePassword,asteriskHost);
 }
 
@@ -339,7 +342,7 @@ void * startIaxThread(void * Arg)
 {
 	SimplePhone *phone = (SimplePhone *) Arg;
 	g_pPlutoLogger->Write(LV_STATUS, "Started IAX2 Thread");
-	phone->registerWithAsterisk();		
+	phone->registerWithAsterisk();
 	phone->doProccess();
 	phone->unregisterWithAsterisk();
 	return NULL;
@@ -368,7 +371,7 @@ void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 //<-dceag-c28-e->
 {
 	char ch;
-	
+
 	g_pPlutoLogger->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
 	sCMD_Result="ERROR";
 	if(call_status && IAXC_CALL_STATE_COMPLETE)

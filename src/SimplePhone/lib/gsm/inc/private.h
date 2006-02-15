@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/*$Header: /cvsroot/iaxclient/iaxclient/lib/gsm/inc/private.h,v 1.2 2003/06/19 14:03:24 stevek Exp $*/
+/*$Header: /cvsroot/iaxclient/iaxclient/lib/gsm/inc/private.h,v 1.3 2005/07/29 19:54:39 coppice Exp $*/
 
 #ifndef	PRIVATE_H
 #define	PRIVATE_H
@@ -152,7 +152,7 @@ static __inline__ short GSM_SUB(short a, short b)
 /* Nonportable, but faster: */
 
 #define	GSM_ADD(a, b)	\
-	((ulongword)((ltmp = (longword)(a) + (longword)(b)) - MIN_WORD) > \
+	(short) ((ulongword)((ltmp = (longword)(a) + (longword)(b)) - MIN_WORD) > \
 		MAX_WORD - MIN_WORD ? (ltmp > 0 ? MAX_WORD : MIN_WORD) : ltmp)
 
 # define GSM_SUB(a, b)	\
