@@ -1,8 +1,4 @@
-# Private functions
-# 13-Feb-06 13:09
-
-#$logFile = File.new("g:/CanBUS.log","w")
-$logFile = File.new("/var/log/pluto/CanBUS.log", "w")
+#Private functions  15-Feb-06 18:00
 
 def log( buff )
 if  $logFile.nil? then
@@ -51,12 +47,12 @@ end
 def logReport()
 log( "Report: \n" )
 
-log( "Branches lists:" + "\n" )
+log( "Branches lists:" + "   " )
 $branchList.each{ |i| log( i.to_s + "," ) }
 log( "\n" )
 
 log( "CmdState:" +$cmdState.to_s + "   "  )
-log( "CmdBuffer size" + $cmdBuffer.size.to_s + "\n" )
+log( "CmdBuffer size:" + $cmdBuffer.size.to_s + "\n" )
 
 log( "Alarms  value: ")
 if ($AlarmsStatus.size==0) then log( "No alarms")  end
@@ -118,28 +114,45 @@ def extractDataBits(data,noBits)
 	return rez
 end
 
-def send(word)
-	if ( conn_.nil? ) then
-		log( "Problem with serial conection" + "\n" )
+def send(buff)
+if ( (defined? conn_) == nil) then
+	log( "Conn_ not defined\n" )
+else
+	if conn_.nil? then
+		log( "Conn_ is NULL\n" )
+	else
+		conn_.Send(buff)
+	end
+end
+logStringA( buff )
+log( "\n" )
+end
+
+def sendCmd(word,waitAnswer)
+
+if ( waitAnswer == true ) then 
+	log( "Sending:")
+	send(word) 
 	else
 		if ( $cmdState==1 ) then
 			log( "Sending:")
-			conn_.Send(word)
+			send(word)
+			$cmdState = 2
 		else 
-			log( "Ading to buffer:" )
+			log( "Adding to buffer:" )
+			logStringA( word )
 			$cmdBuffer.push( word )
-		end
-		logStringA( word )
 	end
 end
 
+end
+
 def sendCmd2()
-$cmdState=1
 if ($cmdBuffer.empty?) then      #buffer empty
 	log( "Buffer is empty:" + "\n" )
+	$cmdState=1
 	if ($bStartInterogate == true) then
-		logReport();
-		$bStartInterogate = false;
+		finishBranchInt()
 	end
 else                                    #execute first command from buffer
 	log( "Sending comand from buffer:\n" )
@@ -151,20 +164,26 @@ end
 end
 
 def searchBranches()
+	log( "Call search branches:\n" )	
 	children=device_.childdevices_
 	children.each { |key,val| 
-		
-		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(139)) then
+		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(144)) then
 			deviceBranch = val.devdata_[40].to_i
-			deviceUnit = val.devdata_[139].to_i
+			deviceUnit = val.devdata_[144].to_i
 			aux = deviceBranch * 256 + deviceUnit			
+			idBranch = "%04u" % aux
 			 
-			if ( $branchList.include?( aux) == false ) then
-				$branchList.push( aux )
+			if ( $branchList.include?( idBranch ) == false ) then
+				$branchList.push( idBranch )
+				log( "Found:" + idBranch.to_s + " branch\n" )
 			end
 		end
 	}
-	
+	log( "Found:" + $branchList.size.to_s + " branches" + "\n")
+	$branchList.each(){ |i| 
+		log( i + "  " )
+	}
+	log( "\n" )
 end
 
 def readLine()
@@ -232,10 +251,10 @@ def addChildDevices( childList )
 if (childList.empty?) then 
 	log( "Child list is empty not fire event" + "\n" )
 else
-	if ($bInit == true) then 
+	if ($bHaveChilds == true) then 
 		log( "Already initialized not fire event." + "\n" )
 	else
-		$bInit=true
+		$bHaveChilds = true
 		
 		reportEv= Command.new(device_.devid_, -1001, 1, 2, 54);      #54 Reporting
 		reportEv.params_[12] = ""                                                 # error 
@@ -386,7 +405,7 @@ def CANSend11(header,data)
 end
 
 def CANSend29( header,data,waitAnswer)
-outStr = "T"
+	outStr = "T"
 
 	log( "Call CANSend29 \n" )
 	log( "Header:"  + "   " )
@@ -408,14 +427,35 @@ outStr = "T"
 		
 	outStr += "\r"
 	
-	send( outStr )
-	if ( $cmdState==1 ) then readLine() end
+	if ( waitAnswer == true )
+		sendCmd( outStr, waitAnswer )
+		readLine()
+	else
+		sendCmd( outStr, waitAnswer )
+	end
 end
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#                                                                 NOEMO function
+#                                                                 NOEMON function
 
-def NOEMSendCmd(pcBranch,pcNo,deviceBranch,deviceNo,code)
+def NOEMONInit()
+	log( "Call NOEMON init\n")
+	$bInit = false
+	$bStartInterogate = false      #??
+	
+	$AlarmsStatus=Hash.new
+	$RelaysStatus=Hash.new
+	$LightsStatus=Hash.new
+	$LedsStatus=Hash.new
+	
+	$branchList=Array.new
+	$currentBranch=0
+	
+	searchBranches()       # search all branches of childrens
+	startBranchInt()        # status for all branches
+end
+
+def NOEMONSendCmd(pcBranch,pcNo,deviceBranch,deviceNo,code)
 	header = String.new
 	data = String.new
 	
@@ -444,20 +484,60 @@ def NOEMSendCmd(pcBranch,pcNo,deviceBranch,deviceNo,code)
 	log( "\n\n" )
 end
 
-def NOEMStatus(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMAlarmsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMRelaysStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMLightsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+def startBranchInt()  
+	if ($branchList.size <= $currentBranch ) then 
+		log( "Finish to interogate all branches\n\n" )
+		$bStartInterogate = false;
+		$bInit = true;
+		return 
+	end
+	
+	val = $branchList[$currentBranch].to_i
+	deviceBranch = val / 256
+	deviceUnit = val % 256 
+	
+	$bStartInterogate = true
+	$startTime=Time.now
+	
+	log( "Start interogate\n" )	
+	log( "Device branch:"  + deviceBranch.to_s + "   " )
+	log( "Device unit:"  + deviceUnit.to_s + "   " )
+	log( "Id:" + $branchList[$currentBranch] + " " )
+	log( "Time:" + $startTime.strftime("%H:%M:%S  ") + "\n" )
+	
+	NOEMONStatus($pcBranch,$pcNo,deviceBranch,deviceUnit)  
+end
+
+#end a branch interogation
+def finishBranchInt
+	myTime=Time.new
+	strTime = myTime.strftime("%H:%M:%S")
+	diff = (myTime - $startTime).to_i
+	
+	log( "Finish to interogate: " )
+	log( "Time:" + strTime + "   " )
+	log( "In:" + diff.to_s + "   sec\n" ) 
+		
+	logReport();
+	$bStartInterogate = false;
+	$currentBranch += 1
+	startBranchInt()
+end
+
+def NOEMONStatus(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONAlarmsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONRelaysStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONLightsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
 	
 	#small bug last send twice
-	NOEMLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
 	
 	$bStartInterogate=true
 	#logReport()
 end
 
-def NOEMStatusReport(pcBranch,pcNo,branchNo,chipNo,reportType)
+def NOEMONStatusReport(pcBranch,pcNo,branchNo,chipNo,reportType)
 	data = String.new
 	header = String.new
 	
@@ -466,7 +546,7 @@ def NOEMStatusReport(pcBranch,pcNo,branchNo,chipNo,reportType)
 	header << ( pcValue / 256 )
 	header << ( pcValue % 256 )
 	
-	log( "NOEMO Status Report:" + $cmdState.to_s + "\n" )
+	log( "NOEMON Status Report:" + $cmdState.to_s + "\n" )
 	log( "Branch no:" + branchNo.to_s + "  " )
 	log( "Chip no" + chipNo.to_s + "\n" )
 	log( "PC branch:" + pcBranch.to_s + "  " )
@@ -478,11 +558,9 @@ def NOEMStatusReport(pcBranch,pcNo,branchNo,chipNo,reportType)
 	
 	CANSend29( header , data , false )
 	log( "\n\n" )
-	
-	$cmdState=2
 end
 
-def NOEMEvent(code,type)
+def NOEMONEvent(code,type)
 	len=code.size()-2      #without 0x0A
 	data=code[10..len]    #T+8+1(length) 
 	
@@ -495,7 +573,7 @@ def NOEMEvent(code,type)
 	end
 end
 
-def NOEMCmdAck(code,type)
+def NOEMONCmdAck(code,type)
 	len=code.size()-2      #without 0x0A
 	data=code[14..len]    #T+8+1(length) + 4 first 2bytes of data   
 	res=Array.new
@@ -503,9 +581,13 @@ def NOEMCmdAck(code,type)
 	log( "Command ack:" + type + "\n" )
 	log( "Data:" + data + "\n" )
 	
-	aux = $deviceBranch * 256 + $deviceNo	
-	id = "%04u" % aux
-	log( "Id:"  + id + "\n" )
+	if ( $branchList.size> $currentBranch ) then 
+		id = $branchList[$currentBranch] 
+		log( "Id:"  + id + "\n" )
+	else
+		log( "Current branch " + $currentBranch.to_s + " to big\n" )
+		return
+	end
 
 	case type
 	
@@ -583,145 +665,145 @@ def NOEMCmdAck(code,type)
 end
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOEMO command
+# NOEMON command
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #!!!!!! Lights
-def NOEMLightsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,4)
+def NOEMONLightsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,4)
 end
 
-def NOEMTurnLight(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONTurnLight(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "Turn light " + no.to_s + "   " + state.to_s + "\n" )
 	aux = deviceBranch * 256 + deviceUnit	
 	id = "%04u" % aux
 	id += "%02u" % no
 
 	if ( state == true ) then
-		NOEMSetUpLightLevel(no,100,pcBranch,pcUnit,deviceBranch,deviceUnit)      # 100 level    
-		NOEMSetDimmUpRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
-		NOEMStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
-		NOEMStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONSetUpLightLevel(no,100,pcBranch,pcUnit,deviceBranch,deviceUnit)      # 100 level    
+		NOEMONSetDimmUpRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
+		NOEMONStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 		
 		$LightsStatus[id] = 100
 	else
-		NOEMSetDownLightLevel(no,0,pcBranch,pcUnit,deviceBranch,deviceUnit)          # 0 level    
-		NOEMSetDimmDownRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
-		NOEMStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
-		NOEMStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONSetDownLightLevel(no,0,pcBranch,pcUnit,deviceBranch,deviceUnit)          # 0 level    
+		NOEMONSetDimmDownRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
+		NOEMONStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 		
 		$LightsStatus[id] = 0
 	end
 end
 
-def NOEMLightSetLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONLightSetLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "Light set level " + no.to_s + "   " + level.to_s + "\n" )
 	aux = deviceBranch * 256 + deviceUnit	
 	id = "%04u" % aux
 	id += "%02u"  % no 
 	
-	NOEMSetUpLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)     
-	NOEMSetDimmUpRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
+	NOEMONSetUpLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)     
+	NOEMONSetDimmUpRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
 	
 	log( "Ligths is:" + id.to_s + "   " )
 	lastVal=$LightsStatus[id].to_i
 	log( lastVal.to_s )
 	if ( lastVal < level ) then                                    #is lower then  
 		log( "Previous value was lower\n" )
-		NOEMStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
-		NOEMStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	else
 		log( "Previous value was higher\n" )
-		NOEMStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
-		NOEMStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+		NOEMONStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	end
 	
 	$LightsStatus[id] = level
 end
 
-def NOEMSetUpLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONSetUpLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "SetUpLightLevel" + "\n" )
 
 	outStr=String.new
 	outStr << 3 << (no-1) << 0 << level
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMSetDownLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONSetDownLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "SetDownLightLevel" + "\n" )
 
 	outStr=String.new
 	outStr << 4 << (no-1) << 0 << level
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMSetDimmUpRate(no,rate,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONSetDimmUpRate(no,rate,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "SetDimmUpRate" + "\n" )
 	outStr=String.new
 	outStr << 5 << (no-1) << 0 << rate
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMSetDimmDownRate(no,rate,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONSetDimmDownRate(no,rate,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "SetDimmDownRate" + "\n" )
 
 	outStr=String.new
 	outStr << 6 << (no-1) << 0 << rate
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONStartUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "StartUpDimming" + "\n" )
 	
 	outStr=String.new
 	outStr << 7 << (no-1) << 0 << 1
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONStopUpDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "StopUpDimming" + "\n" )
 
 	outStr=String.new
 	outStr << 7 << (no-1) << 0 << 0
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONStartDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "StartDownDimming" + "\n" )
 
 	outStr=String.new
 	outStr << 8 << (no-1) << 0 << 1
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
-def NOEMStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONStopDownDimming(no,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "StopDownDimming" + "\n" )
 
 	outStr=String.new
 	outStr << 8 << (no-1) << 0 << 0
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
 #!!!!!! Alarm
-def NOEMAlarmsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,2)
+def NOEMONAlarmsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,2)
 end
 
-def NOEMArmInput(no,pcBranch,pcUnit,deviceBranch,deviceNo)
+def NOEMONArmInput(no,pcBranch,pcUnit,deviceBranch,deviceNo)
 	log( "ArmInput" + "\n" )
 	outStr = String.new
 	outStr << 14 << (no-1) << 0 << 1
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
 
-def NOEMDisarmInput(no,pcBranch,pcUnit,deviceBranch,deviceNo)
+def NOEMONDisarmInput(no,pcBranch,pcUnit,deviceBranch,deviceNo)
 	log( "DisarmInput" + "\n" )
 	outStr = String.new
 	outStr << 14 << (no-1) << 0 << 0
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceNooutStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNooutStr )
 end
 
-def NOEMSetAlarmInput(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)      #0 bypass,1 not bypass
+def NOEMONSetAlarmInput(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)      #0 bypass,1 not bypass
 	log( "SetAlarmInput" + "\n" )
 	outStr << 13 << (no-1)
 	case state 
@@ -731,15 +813,15 @@ def NOEMSetAlarmInput(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)      #0 by
 		outStr << 0 << 0
 	end
 	
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Turn Relay on/off
-def NOEMRelaysStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,3)
+def NOEMONRelaysStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,3)
 end
 
-def NOEMTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
+def NOEMONTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "TurnOnRelay:" + no.to_s + "   " + state.to_s + "\n" )
 	
 	outStr = String.new
@@ -749,15 +831,15 @@ def NOEMTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	else
 		outStr << 0
 	end			
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
 end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Leds
-def NOEMLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
-	NOEMStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,5)
+def NOEMONLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
+	NOEMONStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,5)
 end
 
-def NOEMSetLed(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)
+def NOEMONSetLed(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)
 	outStr = String.new
 	
 	case state
@@ -771,12 +853,12 @@ def NOEMSetLed(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)
 		outStr << 2 << (no-1) << 0 << 0
 	end
 	
-	NOEMSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
 
 #other
 
-def NOEMSetBeeper(mode)
+def NOEMONSetBeeper(mode)
 	case mode
 	when "discontinuous" 
 		outStr << 9 << 0 << 0 << 1
@@ -789,7 +871,7 @@ def NOEMSetBeeper(mode)
 	end
 end
 
-def NOEMSetKeyboard( pass )
+def NOEMONSetKeyboard( pass )
 	outStr << 50 << 0 << 0 << pass
-	NOEMSendCmd( $pcBranch,$pcNo,$branchNo,$chipNo,outStr )
+	NOEMONSendCmd( $pcBranch,$pcNo,$branchNo,$chipNo,outStr )
 end
