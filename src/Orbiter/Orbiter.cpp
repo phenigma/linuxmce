@@ -83,7 +83,6 @@ extern Command_Impl *g_pCommand_Impl;
 #ifdef WINCE
 #include "wince.h"
 
-//very nasty hack :) (this will ignore cout's. could be improved to actually log all these in a file)
 class cout_dummy
 {
 public:
@@ -644,10 +643,7 @@ void Orbiter::RedrawObjects(  )
 	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
 		return; // Nothing to do anyway
-	// TODO --- hack
-	// There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
-	// to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
-	// So for now just do the redraw's always on a separate thread
+	
 	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, pe_ALL );
 }
 
@@ -909,7 +905,6 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if( pObj->m_bIsBoundToUser )
 	{
 		vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_dwPK_Users];
-		//vector<PlutoGraphic*> *p = pvectGraphic;
 
 		if( pvectGraphic )
 			pObj->m_pvectCurrentGraphic = pvectGraphic;
@@ -938,26 +933,8 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		pObj->m_pGraphicToUndoSelect=NULL;
 	}
 	else if(  pObj->m_pvectCurrentGraphic  )
-	{
-		/*
-		if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
-		{
-		int k=2;
-		}
-		*/
 		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
-	}
 
-	// Matt is going to pass through the text before/after children
-	/*  moving this block to the end to see if it puts text on top of icons
-	VectorDesignObjText::iterator iText;
-	for( iText=pObj->m_vectDesignObjText.begin(  ); iText != pObj->m_vectDesignObjText.end(  ); ++iText )
-	{
-	PROFILE_START( ctText )
-	RenderText( *iText );
-	PROFILE_STOP( ctText,  "Text ( obj below )" )
-	}
-	*/
 	switch( pObj->m_ObjectType )
 	{
 	case DESIGNOBJTYPE_Rectangle_CONST:
@@ -1039,46 +1016,11 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		}
 
 		break;
-
-		// Grabbing up to four video frames can take some time.  Draw the rest of the
-		// objects first.
-		/* todo 2.0
-		if ( !m_bInitialPaint )
-		{
-		if(  pObj->m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW1_CONST || pObj->m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW2_CONST  )
-		m_AutoInvalidateTime = clock(  ) + ( CLOCKS_PER_SEC*4 );
-		else
-		m_AutoInvalidateTime = clock(  ) + ( ( 3 * CLOCKS_PER_SEC )/4 );
-		*/
-		// TODO!! hardcoded to motion device.  Should get that info from vidmgr
-
-		//          ::OutputDebugString( ( pObj->GetParameterValue( C_PARAMETER_SOURCE_CONST )+"\n" ).c_str(  ) );
-		/*  todo
-		int PK_Device_VideoSource = atoi( pObj->GetParameterValue( C_PARAMETER_SOURCE_CONST ).c_str(  ) );
-		if(  PK_Device_VideoSource  )
-		{
-		Message *pMessage = m_pcRequestSocket->SendReceiveMessage( new Message( m_dwPK_Device,  PK_Device_VideoSource,  PRIORITY_LOW,  MESSAGETYPE_REQUEST,  REQUESTTYPE_VIDEO_FRAME,  3,
-		C_DEVICEDATA_DEVICELIST_CONST,  pObj->GetParameterValue( C_PARAMETER_SOURCE_CONST ).c_str(  ),
-		COMMANDPARAMETER_Position_X_CONST,  StringUtils::itos( pObj->m_rPosition.Width ).c_str(  ),
-		COMMANDPARAMETER_Position_Y_CONST,  StringUtils::itos( pObj->m_rPosition.Height ).c_str(  ) ) );
-		string sResult;
-		if ( pMessage ) //LACA_B4_0( "About to decompress cam video" );
-		LocalDecompressCamVideo( pObj,  pMessage,  rectTotal );
-		}
-		*/
-		/* todo 2.0
-		}
-		else
-		{
-		m_AutoInvalidateTime = clock(  );
-		}
-		*/
-		break;
 	}
 
 	PROFILE_STOP( ctObj,  pObj->m_ObjectID.c_str(  ) )
 
-		DesignObj_DataList::reverse_iterator iHao;
+	DesignObj_DataList::reverse_iterator iHao;
 
 	//#pragma warning( "todo - nasty hack -- on the hard drive screen,  you select music,  then when you go to video,  it redraws the video section,  but then redraws the deselected music with m_pGraphicToUndoSelect,  which includes a snapshot of the prior highlighters,  that are overwriting the new ones.  Redraw these first!  After render object won't draw anything" )
 	for( iHao=pObj->m_ChildObjects.rbegin(  ); iHao != pObj->m_ChildObjects.rend(  ); ++iHao )
@@ -1191,18 +1133,6 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		if ( !bTransparentCell )
 			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 
-		/*
-		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
-		{
-		SolidRectangle( x+w-pObj->BorderWidth,  y,  pObj->BorderWidth,  h,  pObj->BorderColor2 );
-		SolidRectangle( x,  y+h-pObj->BorderWidth,  w,  pObj->BorderWidth,  pObj->BorderColor2 );
-		SolidRectangle( x,  y,  w,  pObj->BorderWidth,  pObj->BorderColor );
-		SolidRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
-		}
-		else
-		*/
-
-		//SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
 		if ( pCell->m_pGraphicData )
 		{
 			PlutoGraphic *pPlutoGraphic = CreateGraphic();
@@ -1445,9 +1375,8 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 		{
 			//update the list only if the screen is changed
 			PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
-			//if(bAddToHistory)
 
-			if(ScreenHistory::m_bAddToHistory)//m_pScreenHistory_Current->m_bAddToHistory)
+			if(ScreenHistory::m_bAddToHistory)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
@@ -1469,7 +1398,7 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
+		g_pPlutoLogger->Write( LV_STATUS, "About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
 #endif
 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
@@ -1477,7 +1406,7 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
+		g_pPlutoLogger->Write( LV_STATUS, "About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
 #endif
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
@@ -1528,11 +1457,6 @@ void Orbiter::ObjectOnScreenWrapper(  )
 	//also reset the last selected object from the floorplan.
 	m_pObj_LastSelected = NULL;
 
-	// I used to call DoLoadUnload from within ObjectOnScreen,  but that means some of the
-	// load/unload actions and the initialize grid's are getting called before the objects
-	;    // are on the screen.  This caused a problem when there is an onload that sets
-	// a variable and a datagrid that uses it.  PopulateDataGrid can get called before the
-	// variable is set.  10-15-2003
 	ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->GetObj() );
 	for(list<class PlutoPopup*>::iterator it=m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
 	{
@@ -1552,17 +1476,9 @@ void Orbiter::ObjectOnScreenWrapper(  )
 		break;
 	}
 
-
 	// Do the on load actions for the screen itself,  and objects on it
 	ExecuteCommandsInList( &m_pScreenHistory_Current->GetObj()->m_Action_LoadList, m_pScreenHistory_Current->GetObj(), smLoadUnload, 0, 0 );
-
 	HandleNewObjectsOnScreen( &vectDesignObj_Orbiter_OnScreen );
-
-	//if(  m_vectObjs_TabStops.size(  )  )
-	//   HighlightFirstObject();
-
-	//if(NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_vectHighlightedGraphic.size())
-	//	HighlightObject( m_pObj_Highlighted );
 }
 //------------------------------------------------------------------------
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
@@ -1641,14 +1557,6 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnDeleteWxWidget))
 		return;
 
-#ifdef DEBUG
-	if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
-		//if(  pObj->m_iBaseObjectID == 2707  )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "control off screen state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
-	}
-#endif
-
 	pObj->m_bOnScreen=false;
 	if(  pObj->m_pGraphicToUndoSelect  )
 	{
@@ -1700,7 +1608,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 		if( X>=0 && Y>=0 )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33mSelected datagrid: %s\x1b[0m", pObj->m_ObjectID.c_str(  ) );
+			g_pPlutoLogger->Write( LV_WARNING,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
 #endif
 			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y ) )
 				return;
@@ -1726,7 +1634,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33mSelected objs: %s\x1b[0m with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
+	g_pPlutoLogger->Write( LV_WARNING,  "Selected objs: %s with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
 #endif
 
 	// There's a problem that we draw the selected state before we show or hide other objects,  and this causes
@@ -3354,11 +3262,13 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 {
 	m_LastActivityTime = time( NULL );
 
-	for( ScreenMap::iterator it=m_ScreenMap.begin(  );it!=m_ScreenMap.end(  );++it )
+	int nIndex = 0;
+	int nCount = int(m_ScreenMap.size());
+	for(ScreenMap::iterator it = m_ScreenMap.begin(); it != m_ScreenMap.end(); ++it)
 	{
 		DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) ( *it ).second;
-		//g_pPlutoLogger->Write(LV_CRITICAL,"parsing %s",pObj->m_ObjectID.c_str());
-		ParseObject( pObj, pObj, pObj, Type, 0 );
+		ParseObject(pObj, pObj, pObj, Type, 0);
+		ShowProgress(50 + (nIndex++) * 50 / nCount);
 	}
 
 	bool bCacheAll = DATA_Get_CacheSize()==-1;
@@ -3514,39 +3424,14 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-	ShowProgress();
-	/*
-	if(  pObj->m_ObjectID.find( "4666" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
-	{
-	int k=2;
-	}
-	if(  pObj->m_ObjectID.find( "2211.0.2.2217" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
-	{
-	int k=2;
-	}
-	*/
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
 
-	/*
-
-
-	if(  pObj->m_ObjectID.find( "3290." )!=string::npos  )
-	//if(  ocDesignObj->m_drDesignObj->PK_DesignObj_get(  )==2790  )
-	{
-	int k=2;
-	//  DesignObjZone *pz = pObj->m_ZoneList.front(  );
-	//  DesignObjCommand *pc = pz->m_Commands.front(  );
-	//  string screen = pc->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST];
-
-	}
-	*/
 	m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
 	pObj->m_pObj_Screen=pObj_Screen;
 
 	if(  pObj->m_bHideByDefault  )
 		pObj->m_bHidden = true;
-
 
 	enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
 	if(  pObj->m_sBackgroundFile.length(  )>0  )
@@ -3909,7 +3794,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
 #endif
-			//LACA_B4_0( "Orbitercore::respond to input home" );
 			GotoScreen( m_sMainMenu );
 			bHandled=true;
 		}
@@ -3921,7 +3805,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	return bHandled;
 }
 
-//#include "WizardLogic.h"
 bool Orbiter::ButtonDown( int iPK_Button )
 {
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
@@ -4243,33 +4126,9 @@ bool Orbiter::RegionDown( int x,  int y )
 		clock_t clkFinished = clock(  );
 		if(  m_pScreenHistory_Current   )
 		{
-			g_pPlutoLogger->Write( LV_CONTROLLER, "$$$$$$$$$$$$$ SelectedObject took %d ms $$$$$$$$$$$$$$", clkFinished - clkStart );
+			g_pPlutoLogger->Write( LV_WARNING, "SelectedObject took %d ms", clkFinished - clkStart );
 		}
 #endif
-
-		/*
-		if(  pTopMostAnimatedObject  )
-		{
-		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		if(  m_ChangeToScreen!=""  )
-		{
-		//LACA_B4_0( "fill rectangle" )
-		SolidRectangle( pTopMostAnimatedObject->m_rBackgroundPosition.X+XOffset, pTopMostAnimatedObject->m_rBackgroundPosition.Y+YOffset,  pTopMostAnimatedObject->m_rBackgroundPosition.Width,  pTopMostAnimatedObject->m_rBackgroundPosition.Height,  RGB( 255, 255, 255 ),  75 );
-		}
-		else
-		{
-		CHAEffect *curEffect = CreateEffect( 1,  pTopMostAnimatedObject,  XOffset,  YOffset );
-		if(  !curEffect  )
-		g_pPlutoLogger->Write( LV_CRITICAL, "Create effect returned NULL" );
-		else
-		{
-		m_EffectList.push_back( curEffect );
-		m_NextEffectTime = ( m_NextEffectTime == 0 ) ? ( curEffect )->m_NextFrameTime : min( m_NextEffectTime,  ( curEffect )->m_NextFrameTime );
-		}
-		}
-		// AnimateObject pTopMostAnimatedObject
-		}
-		*/
 	}
 
 	if(  pScreenHistory != m_pScreenHistory_Current  )
@@ -4468,12 +4327,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 #endif
 
 	bool bRefreshGrids=false;
-
 	Message *pMessage=NULL;
 
-	//          g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33;1mSelected object: %s zone: %d, %d-%d, %d,  actions in zone: %d,  obj %p zone %p", pObj->m_ObjectID.c_str(  ),
-	//              ( *iZone )->m_Rect.X, ( *iZone )->m_Rect.Y, ( *iZone )->m_Rect.Width, ( *iZone )->m_Rect.Height,
-	//              ( *iZone )->m_Commands.size(  ), pObj, ( *iZone ) );
 	// The commands are in the list backwards, so use a reverse iterator so that they are executed in the same order they appear within designer
 	DesignObjCommandList::reverse_iterator iCommand;
 	bool bGetConfirmation=false;
@@ -5192,7 +5047,6 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &Gri
 {
 	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
 	{
-		// 25-july-2005		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;  This means the highlighted row is lost on paging????
 		if ( pDataGridTable )
 		{
 			delete pDataGridTable;
@@ -5630,10 +5484,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 #endif
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
-	/*
-	if( sID.size() )
-	int k=2;
-	*/
+
 	bool bIsRemote=false;
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" )
@@ -5733,12 +5584,6 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 #endif
 
 	vm.Release(  );
-
-	// See if we need to store the variables on this screen,  so we restore them in case of a go back
-	//if(bStore_Variables)
-	//	CMD_Store_Variables(  );
-
-	//NeedToRender::NeedToChangeScreens( this, pScreenHistory_New );
 	NeedToRender::NeedToChangeScreens( this, pScreenHistory_New);
 }
 
@@ -7031,7 +6876,6 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 }
 
 ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
-//bool NeedToRender::m_bAddToHistory=true;
 
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
@@ -7054,7 +6898,6 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 	g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->GetObj()->m_ObjectID.c_str());
 #endif
 	m_pScreenHistory = pScreenHistory;
-	//m_bAddToHistory = bAddToHistory;
 
 	//purge pending tasks, if need it.  Do it here, so that things will happen in the right order.
 	//ie: CMD_GotoScreen, CMD_SelectObject. The real need to change screens won't get called until
@@ -7472,18 +7315,8 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	int iCurrentFrame = pObj->m_iCurrentFrame;
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-	/*
-	if( pObj->m_ObjectID.find(".3351")!=string::npos )
-	{
-	if( rectTotal.X!=13 )
-	{
-	int k4=4;
-	}
-	int k=2;
-	}
-	*/
 
-	//hack: if a button doesn't have a mng as selected state (see bDisableEffects), then the png
+	//if a button doesn't have a mng as selected state (see bDisableEffects), then the png
 	//used in normal state will be rendered for selected state + a blue rectangle to show the selection
 	if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
 	{
@@ -7664,13 +7497,6 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
 		CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 	}
-	/*
-	if( pObj->m_ObjectID.find(".2355")!=string::npos )
-	{
-	// x=163
-	int k=2;
-	}
-	*/
 
 	if(!pPlutoGraphic->IsEmpty())
 		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
@@ -8668,10 +8494,6 @@ void Orbiter::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_
 //<-dceag-c416-e->
 {
 }
-
-
-
-
 
 void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 {

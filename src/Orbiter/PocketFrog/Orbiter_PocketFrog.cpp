@@ -26,10 +26,26 @@ using namespace Frog::Internal;
 const int ciCharWidth = 9;
 const int ciCharHeight = 16;
 const int ciSpaceHeight = 5;
-
-static int g_nCounter = 0;
 //-----------------------------------------------------------------------------------------------------
 #define MAX_STRING_LEN 1024
+//-----------------------------------------------------------------------------------------------------
+//progress bar custom settings
+#define PROGRESS_MAX 100
+#define PROGRESS_OPTIMAL_SIZE 300
+#define PROGRESS_UPDATE_STEP 10
+#define PROGRESS_BOTTOM_DISTANCE 50
+#define PROGRESS_HEIGHT 20
+
+namespace ProgressBar
+{
+	PlutoColor TextColor(0xDD, 0xDD, 0xDD);
+	PlutoColor TextShadowColor = PlutoColor::Black();
+	PlutoColor BorderColor(0xB5, 0xB5, 0xB5);
+	PlutoColor FillBackgroundColor(0x66, 0x66, 0x66);
+	PlutoColor ProgressStartColor(0x10, 0x76, 0xE4);
+	PlutoColor ProgressEndColor(0x3D, 0xB2, 0x14);
+};
+using namespace ProgressBar;
 //-----------------------------------------------------------------------------------------------------
 using namespace Frog;
 CComModule _Module;
@@ -89,7 +105,16 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	m_bWeCanRepeat = true;
 	m_bPoolRendering = true;
 
-	g_nCounter = 0;
+	//used to render some text
+	m_spTextStyle.reset(new TextStyle());
+	m_spTextStyle->m_bBold = true;
+	m_spTextStyle->m_bItalic = false;
+	m_spTextStyle->m_bUnderline = false;
+	m_spTextStyle->m_ForeColor = PlutoColor::Black();
+	m_spTextStyle->m_sFont = "Arial";
+	m_spTextStyle->m_iPixelHeight = 15;
+	m_spTextStyle->m_iPK_VertAlignment = VERTALIGNMENT_Middle_CONST;
+	m_spTextStyle->m_iPK_HorizAlignment = HORIZALIGNMENT_Center_CONST;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -956,26 +981,50 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::ShowProgress()
+/*virtual*/ void Orbiter_PocketFrog::ShowProgress(int nPercent)
 {
 	CHECK_STATUS();
 
-	static PlutoColor green(0, 200, 0);
-	static PlutoColor white(255, 255, 255);
+	static int nCount = 0;
+	if(++nCount % PROGRESS_UPDATE_STEP)
+		return;
 
-	g_nCounter++;
+	int nProgressWidth = m_iImageWidth < PROGRESS_OPTIMAL_SIZE ? m_iImageWidth - PROGRESS_MAX : PROGRESS_OPTIMAL_SIZE;
+	PlutoRectangle rect(
+		(m_iImageWidth - nProgressWidth) / 2, m_iImageHeight - PROGRESS_BOTTOM_DISTANCE, 
+		nProgressWidth, PROGRESS_HEIGHT
+	);
 
-	int iProgressWidth = m_iImageWidth < 300 ? m_iImageWidth - 100 : 300;
-	int iStart = (m_iImageWidth - iProgressWidth) / 2;
-    int iStep = m_iImageWidth < 300 ? iProgressWidth / 9 : iProgressWidth / 35 ;
+	SolidRectangle(rect.Left(), rect.Top(), rect.Width, rect.Height, BorderColor);
+	SolidRectangle(rect.Left() + 1, rect.Top() + 1, rect.Width - 3, rect.Height - 3, FillBackgroundColor);
+	SolidRectangle(rect.Left() + 1, rect.Top() + 1, rect.Width * nPercent / PROGRESS_MAX - 3, rect.Height - 3, 
+		PlutoColor(
+			ProgressStartColor.R() + nPercent * (ProgressEndColor.R() - ProgressStartColor.R()) / PROGRESS_MAX, 
+			ProgressStartColor.G() + nPercent * (ProgressEndColor.G() - ProgressStartColor.G()) / PROGRESS_MAX, 
+			ProgressStartColor.B() + nPercent * (ProgressEndColor.B() - ProgressStartColor.B()) / PROGRESS_MAX
+		)
+	);
 
-	if(!(g_nCounter % 50))
-	{
-        SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
-		SolidRectangle(iStart, m_iImageHeight - 50, g_nCounter / iStep, 3, green);
-		PlutoRectangle rect(iStart, m_iImageHeight - 50, iProgressWidth, 3);
-        GetDisplay()->Update();
-	}
+	DesignObjText text;
+	string sText = StringUtils::ltos(nPercent) + "%";
+
+	//avoid pool rendering
+	m_bPoolRendering = false; 
+
+	m_spTextStyle->m_ForeColor = TextShadowColor;
+	text.m_rPosition = PlutoRectangle(rect.Left() + 1, rect.Top() + 1, rect.Width, rect.Height);
+	RenderText(sText, &text, m_spTextStyle.get());
+
+	m_spTextStyle->m_ForeColor = TextColor;
+	text.m_rPosition = rect;
+	RenderText(sText, &text, m_spTextStyle.get());
+
+	//restore default
+	m_bPoolRendering = true;
+
+	Rect rectPocketFrog;
+	rectPocketFrog.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+    GetDisplay()->Update(&rectPocketFrog);
 }
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter_PocketFrog::SelfUpdate()

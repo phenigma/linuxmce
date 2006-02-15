@@ -36,6 +36,8 @@ protected:
 	bool m_bUpdating;
 	bool m_bFullScreen;
 
+	auto_ptr<TextStyle> m_spTextStyle;
+
 public:
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
 
@@ -91,7 +93,7 @@ public:
 	virtual void EndPaint();
 	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0));
 
-	virtual void ShowProgress();
+	virtual void ShowProgress(int nPercent);
 	virtual void OnQuit();
 
     virtual bool OnReplaceHandler(string sIP);
