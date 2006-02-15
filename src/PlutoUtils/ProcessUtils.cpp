@@ -201,7 +201,7 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	while ( itPids != pidsArray.end() )
 	{
 #ifndef WIN32
-		kill(-*itPids, SIGKILL);
+		kill(-*itPids, SIGTERM);
 #endif
 		itPids++;
 	}
