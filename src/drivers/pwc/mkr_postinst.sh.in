@@ -6,5 +6,5 @@
 	done
 
 	echo -n "Running depmod .... "
-	depmod -a
+	depmod -a "$KVER"
 	echo "done"
