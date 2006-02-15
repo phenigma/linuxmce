@@ -8,6 +8,7 @@
 //<-dceag-d-e->
 
 #include "DCE/PlainClientSocket.h"
+#include "PlutoZWSerialAPI.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -16,14 +17,33 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		PlainClientSocket *m_pPlainClientSocket;
 	    pluto_pthread_mutex_t m_ZWaveMutex; 
 	    pthread_mutexattr_t m_MutexAttr;
+		
+		// ZWave API
+		PlutoZWSerialAPI * m_ZWaveAPI;
+		
+		/** Flag used by the pooling thread.*/
+		static bool m_PoolStarted;
+		
+		/** Pooling thread */
+		static pthread_t m_PoolThread;
 
 		// Private methods
+		
+		/** Starts or stops the ZWave pooling thread.*/
+		void CMD_Pool(bool start);
+		
 		bool ConfirmConnection(int iRetryCount=0);
+		
 public:
+	
 		// Public member variables
+		
+		// Public methods
+		
+		/** Get the nodes state, one by one.*/
+		void PoolZWaveNetwork();
 
 //<-dceag-const-b->
 public:
@@ -49,9 +69,11 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Serial_Port();
 	string DATA_Get_Remote_Phone_IP();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Device_OnOff(bool bOnOff);
 	void EVENT_Reporting_Child_Devices(string sError_Message,string sText);
 	void EVENT_Download_Config_Done(string sError_Message);
 
@@ -88,6 +110,12 @@ PK_CommandParameter|Value|... */
 	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters) { string sCMD_Result; CMD_Send_Command_To_Child(sID.c_str(),iPK_Command,sParameters.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #776 - Reset */
+	/** Reset Zwave device. */
+
+	virtual void CMD_Reset() { string sCMD_Result; CMD_Reset(sCMD_Result,NULL);};
+	virtual void CMD_Reset(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

@@ -1,8 +1,8 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1750 ZWave
-Maintainer = chrisName
+desc = DCE Implemenation for #1754 ZWave
+Maintainer = AdministratorName
 Email = 
 Depend = DCE_Dependencies
 <-dceag-p-e->

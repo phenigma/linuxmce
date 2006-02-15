@@ -10,7 +10,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = ZWave
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1750mplateID
+MYDEVTEMPLATEID = 1754mplateID
 
 Gen_Dev_Files = $(GENDEV)/ZWaveBase.cpp
 sources = Main.cpp ZWave.cpp $(Gen_Dev_Files)
@@ -19,10 +19,15 @@ sources = Main.cpp ZWave.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lSerial
 
 Gen_Dev_Files +=
-sources +=
+sources += \
+	PlutoZWSerialAPI.cpp ZWJobGetInitData.cpp ZWJobGetVersion.cpp ZWJobSwitchBinaryGet.cpp \
+	ZWaveNode.cpp SerialConnection.cpp ZWJobGetNodeProtocolInfo.cpp ZWJobInitialize.cpp \
+	ZWJobSwitchChangeLevel.cpp ZWJobGetID.cpp ZWJobGetSUC.cpp ZWJobLightLevel.cpp \
+	ZWaveJob.cpp ZWJobReset.cpp ZWJobReceive.cpp ZWJobPool.cpp \
+	ZWJobSetLearnNodeState.cpp ZWJobAddNode.cpp ZWJobRemoveNode.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

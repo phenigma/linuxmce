@@ -16,6 +16,31 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+
+#include "ZW_classcmd.h"
+#include "ZWaveNode.h"
+#include "ZWJobInitialize.h"
+#include "ZWJobReceive.h"
+#include "ZWJobPool.h"
+#include "ZWJobReset.h"
+#include "ZWJobSwitchChangeLevel.h"
+
+#ifdef _WIN32 
+#include <windows.h> 
+#include <winbase.h> 
+#define POOL_DELAY 200 
+#else 
+#include <unistd.h> 
+#define POOL_DELAY 200000 
+#endif
+
+#define ZW_TIMEOUT 20
+#define ZW_LONG_TIMEOUT 120
+
+bool ZWave::m_PoolStarted = false;
+pthread_t ZWave::m_PoolThread;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -23,12 +48,17 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 	, m_ZWaveMutex("zwave")
+	, m_ZWaveAPI(NULL)
 {
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_ZWaveMutex.Init( &m_MutexAttr );
 
-	m_pPlainClientSocket=NULL;
+	m_ZWaveAPI = PlutoZWSerialAPI::instance();
+	if( m_ZWaveAPI == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Not enough memory for ZWave API");
+	}
 }
 
 //<-dceag-const2-b->!
@@ -37,7 +67,7 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 ZWave::~ZWave()
 //<-dceag-dest-e->
 {
-	
+	CMD_Pool(false);
 }
 
 //<-dceag-getconfig-b->
@@ -77,70 +107,87 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 {
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
-	int NodeID = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
-	if( !NodeID )
-	{
-		sCMD_Result = "BAD CHILD";
-		g_pPlutoLogger->Write(LV_CRITICAL,"Child device doesn't have a zwave node id");
-		return;
-	}
 	if( !ConfirmConnection() )
 	{
 		sCMD_Result = "NO ZWAVE";
 		return;
 	}
 
-	sCMD_Result = "OK";
-	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
+	int NodeID = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+	if( NodeID > 0 && NodeID <= 233 && 
+		NULL != m_ZWaveAPI->getNode( NodeID ) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
-		string sOutput = "ON " + StringUtils::itos(NodeID);
-		m_pPlainClientSocket->SendString(sOutput);
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
-		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse!="OK " + sOutput )
+		sCMD_Result = "OK";
+		if( pMessage->m_dwID == COMMAND_Generic_On_CONST )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Expected response <%s> but got <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			sCMD_Result = "DEVICE DIDN'T RESPOND";
-			return;
+			g_pPlutoLogger->Write(LV_STATUS,"Sending ON - %d", NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
+			if( light != NULL )
+			{
+				m_ZWaveAPI->insertJob( light );
+				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
 		}
+		else if( pMessage->m_dwID == COMMAND_Generic_Off_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Sending Off - %d", NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
+			if( light != NULL )
+			{
+				m_ZWaveAPI->insertJob( light );
+				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
+		}
+		else if( pMessage->m_dwID == COMMAND_Set_Level_CONST )
+		{
+			int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Sending LEVEL - %d || %d", level, NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, level, (unsigned char)NodeID);
+			if( light != NULL )
+			{
+				m_ZWaveAPI->insertJob( light );
+				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
+		}
+		else
+			sCMD_Result = "UNHANDLED CHILD";
+	}
+	else
+	{
+		sCMD_Result = "BAD NODE ID";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Child device doesn't have a zwave node id");
 		return;
 	}
-	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
-		string sOutput = "OFF " + StringUtils::itos(NodeID);
-		m_pPlainClientSocket->SendString(sOutput);
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
-		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse!="OK " + sOutput )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Expected response <%s> but got <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			sCMD_Result = "DEVICE DIDN'T RESPOND";
-			return;
-		}
-
-		return;
-	}
-	else if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Sending LEVEL");
-		string sOutput = "LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID);
-		m_pPlainClientSocket->SendString(sOutput);
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
-		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse!="OK " + sOutput )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Expected response <%s> but got <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			sCMD_Result = "DEVICE DIDN'T RESPOND";
-			return;
-		}
-		return;
-	}
-	sCMD_Result = "UNHANDLED CHILD";
 }
 
 /*
@@ -174,48 +221,46 @@ void ZWave::DownloadConfiguration()
 {
 //EVENT_Download_Config_Done("");
 //return;
-	for(int iRetries=0;;++iRetries)
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"ZWave::DownloadConfiguration trying to get list of devices");
+	
+	if( !ConfirmConnection() )
 	{
-		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-		g_pPlutoLogger->Write(LV_STATUS,"TZWave::ReportChildDevices trying to get list of devices");
-		if( !ConfirmConnection() )
-		{
-			g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave %d",iRetries);
-			if( iRetries>4 )
-			{
-				EVENT_Download_Config_Done("Cannot connect to ZWave");
-				return;
-			}
-			zm.Release();
-			Sleep(1000);
-			continue;
-		}
-
-		m_pPlainClientSocket->SendString("RECEIVECONFIG");
-		string sResponse;
-		if( !m_pPlainClientSocket->ReceiveString(sResponse,120) || sResponse!="OK" )
-		{
-			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d-%s",iRetries,sResponse.c_str());
-			if( iRetries>4 )
-			{
-				EVENT_Download_Config_Done("Device didn't respond: " + sResponse);
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get list of devices");
-				return;
-			}
-			zm.Release();
-			Sleep(1000);
-			continue;
-		}
-
-		g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s",sResponse.c_str());
-		EVENT_Download_Config_Done("");
+		g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave");
+		EVENT_Download_Config_Done("Cannot connect to ZWave");
 		return;
 	}
+
+	ZWJobReceive * receive = new ZWJobReceive(m_ZWaveAPI);
+	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
+	if( receive != NULL && init != NULL )
+	{
+		m_ZWaveAPI->insertJob( receive );
+		m_ZWaveAPI->insertJob( init );
+		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
+		{
+			EVENT_Download_Config_Done("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS");
+			return;
+		}
+	}
+	else
+	{
+		delete receive;
+		receive = NULL;
+		delete init;
+		init = NULL;
+		
+		EVENT_Download_Config_Done("NOT ENOUGH MEMORY");
+		return;
+	}
+	
+	EVENT_Download_Config_Done("");
 }
 
 void ZWave::ReportChildDevices()
 {
-	/*
+/*
 EVENT_Reporting_Child_Devices("",
 "1\tNode 1\t\t37\t9\n"
 "2\tNode 2\t\t38\t10\n"
@@ -223,90 +268,109 @@ EVENT_Reporting_Child_Devices("",
 );
 return;
 */
-	for(int iRetries=0;;++iRetries)
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices trying to get list of devices");
+	if( !ConfirmConnection() )
 	{
-		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-		g_pPlutoLogger->Write(LV_STATUS,"TZWave::ReportChildDevices trying to get list of devices");
-		if( !ConfirmConnection() )
-		{
-			g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave %d",iRetries);
-			if( iRetries>4 )
-			{
-				EVENT_Reporting_Child_Devices("Cannot connect to ZWave","");
-				return;
-			}
-			zm.Release();
-			Sleep(1000);
-			continue;
-		}
-
-		m_pPlainClientSocket->SendString("DEVICES");
-		string sResponse;
-		if( !m_pPlainClientSocket->ReceiveString(sResponse,30) )
-		{
-			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d-%s",iRetries,sResponse.c_str());
-			if( iRetries>4 )
-			{
-				EVENT_Reporting_Child_Devices("Device didn't respond: " + sResponse,"");
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get list of devices");
-				return;
-			}
-			zm.Release();
-			Sleep(1000);
-			continue;
-		}
-
-		StringUtils::Replace(&sResponse,"|","\n");
-		g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s",sResponse.c_str());
-		EVENT_Reporting_Child_Devices("",sResponse);
+		g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave");
+		EVENT_Reporting_Child_Devices("Cannot connect to ZWave", "");
 		return;
 	}
+
+	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
+	if( init != NULL )
+	{
+		m_ZWaveAPI->insertJob( init );
+		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
+		{
+			EVENT_Reporting_Child_Devices("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS", "");
+			return;
+		}
+	}
+	else
+	{
+		EVENT_Reporting_Child_Devices("NOT ENOUGH MEMORY", "");
+		return;
+	}
+	
+	std::string sResponse;
+	char buffer[256];
+	ZWaveNode * node = NULL;
+	const NodesMap & nodes = m_ZWaveAPI->getNodes();
+	for(NodesMapCIterator itNode=nodes.begin(); itNode!=nodes.end(); ++itNode)
+	{
+		node = (*itNode).second;
+		if( node != NULL )
+		{
+			NodeType type = node->type();
+			if( node->nodeID() != m_ZWaveAPI->nodeID() )
+				// TODO: && specific type == SPECIFIC_TYPE_POWER_SWITCH_MULTILEVEL
+			{
+				switch( type.generic )
+				{
+					// dimmer
+					case GENERIC_TYPE_SWITCH_MULTILEVEL:
+						// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+						snprintf(buffer, sizeof(buffer), "%d\t\t\t38\t", node->nodeID());
+						sResponse += buffer;
+						sResponse += "\n";
+						break;
+						
+					// light on/off
+					case GENERIC_TYPE_SWITCH_BINARY:
+						// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+						snprintf(buffer, sizeof(buffer), "%d\t\t\t37\t", node->nodeID());
+						sResponse += buffer;
+						sResponse += "\n";
+						break;
+						
+					default:
+						break;
+				}
+			}
+		}
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s", sResponse.c_str());
+	EVENT_Reporting_Child_Devices("", sResponse);
 }
 
 bool ZWave::ConfirmConnection(int RetryCount)
 {
-//return true;
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-	if( !m_pPlainClientSocket )
-		m_pPlainClientSocket = new PlainClientSocket(DATA_Get_Remote_Phone_IP() + ":3999");
-
-	if( m_pPlainClientSocket->m_Socket!=INVALID_SOCKET )
+	
+	if( m_ZWaveAPI != NULL )
 	{
-		m_pPlainClientSocket->SendString("PING");
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse);
-		g_pPlutoLogger->Write(LV_STATUS,"Sent PING 1 got %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse=="PONG" )
-			return true;
-
-		m_pPlainClientSocket->Close();
-		delete m_pPlainClientSocket;
-		m_pPlainClientSocket = new PlainClientSocket(DATA_Get_Remote_Phone_IP() + ":3999");
-	}
-
-	if( !m_pPlainClientSocket->Connect() )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to connect");
-		if( RetryCount<3 )
+		// force stopping the current ZWave command
+		m_ZWaveAPI->stop();
+		// force cleaning the jobs queue
+		m_ZWaveAPI->clearJobs();
+		
+		if( PlutoZWSerialAPI::STOPPED == m_ZWaveAPI->state() &&
+			( 0 == m_ZWaveAPI->nodeID() ||
+		      0 == m_ZWaveAPI->homeID() ) )
 		{
-			Sleep(500);
-			return ConfirmConnection(RetryCount+1);
+			ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
+			if( init != NULL )
+			{
+				m_ZWaveAPI->insertJob( init );
+				if( m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) &&
+					m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					// start ZWave pooling
+					CMD_Pool(true);
+					
+					return true;
+				}
+			}
 		}
-
-		return false;
+		else
+		{
+			return true;
+		}
 	}
-	m_pPlainClientSocket->SendString("PING");
-	string sResponse;
-	bool bResult=m_pPlainClientSocket->ReceiveString(sResponse,10);
-	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %d-%s",(int) bResult,sResponse.c_str());
-	if( sResponse=="PONG" ) 
-		return true;
-	if( RetryCount<3 )
-	{
-		Sleep(500);
-		return ConfirmConnection(RetryCount+1);
-	}
-
+	
 	return false;
 }
 
@@ -341,6 +405,153 @@ void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message 
 	pthread_t t;
 	pthread_create(&t, NULL, DoDownloadConfiguration, (void*)this);
 }
+
+void *DoPooling(void *p)
+{
+	ZWave *pZWave = (ZWave *) p;
+	pZWave->PoolZWaveNetwork();
+	return NULL;
+}
+
+void ZWave::PoolZWaveNetwork()
+{
+	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : begin");
+	
+	unsigned i=0;
+	while( m_PoolStarted )
+	{
+		// 30 sec = 150 x 200 ms
+		if( i >= 150 )
+		{
+			i = 0;
+		}
+		
+		if( !i )
+		{
+			PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+			
+			ZWJobPool * pool = new ZWJobPool(m_ZWaveAPI);
+			if( pool != NULL )
+			{
+				m_ZWaveAPI->insertJob( pool );
+				if( m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) &&
+					m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
+				{
+					// checking the current state for each children
+					DeviceData_Impl *pChildDevice = NULL;
+					for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+						 it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+					{
+						pChildDevice = (*it);
+						if( pChildDevice != NULL )
+						{
+							int NodeID = atoi(pChildDevice->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+							ZWaveNode * node = m_ZWaveAPI->getNode(NodeID);
+							if( node != NULL )
+							{
+								NodeType type = node->type();
+								if( node->nodeID() != m_ZWaveAPI->nodeID() &&
+									-1 != node->level() &&
+									node->isChanged() )
+								{
+									switch( type.generic )
+									{
+										// dimmer
+										case GENERIC_TYPE_SWITCH_MULTILEVEL:
+											g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : new state for node %d", node->nodeID());
+											m_pEvent->SendMessage(
+												new Message(pChildDevice->m_dwPK_Device,
+															DEVICEID_EVENTMANAGER,
+															PRIORITY_NORMAL,
+															MESSAGETYPE_EVENT,
+															EVENT_Device_OnOff_CONST,
+															1,
+															EVENTPARAMETER_OnOff_CONST,
+															0 < node->level() ? "1" : "0"));
+											break;
+											
+										// light on/off
+										case GENERIC_TYPE_SWITCH_BINARY:
+											g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : new state for node %d", node->nodeID());
+											m_pEvent->SendMessage(
+												new Message(pChildDevice->m_dwPK_Device,
+															DEVICEID_EVENTMANAGER,
+															PRIORITY_NORMAL,
+															MESSAGETYPE_EVENT,
+															EVENT_Device_OnOff_CONST,
+															1,
+															EVENTPARAMETER_OnOff_CONST,
+															0 < node->level() ? "1" : "0"));
+											break;
+											
+										default:
+											break;
+									}
+								}
+							}
+							else
+							{
+								g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : zwave node is null");
+							}
+						}
+						else
+						{
+							g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : zwave child device is null");
+						}
+					}
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : couldn't run the job");
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : not enough memory");
+			}
+			
+			
+			zm.Release();
+		}
+		i++;
+		
+		
+#ifdef _WIN32
+			Sleep(POOL_DELAY); 
+#else
+			usleep(POOL_DELAY); 
+#endif
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : end");
+}
+
+void ZWave::CMD_Pool(bool start)
+{
+	if( start )
+	{
+		if( !m_PoolStarted )
+		{
+			if( !pthread_create(&m_PoolThread, NULL, DoPooling, (void*)this) )
+			{
+				m_PoolStarted = true;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Pool : couldn't create the thread");
+			}
+		}
+	}
+	else
+	{
+		if( m_PoolStarted )
+		{
+			m_PoolStarted = false;
+			pthread_join(m_PoolThread, NULL);
+		}
+	}
+}
+
 //<-dceag-c760-b->
 
 	/** @brief COMMAND: #760 - Send Command To Child */
@@ -358,41 +569,94 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 {
 	if( !ConfirmConnection() )
 	{
+		sCMD_Result = "NO ZWAVE or ZWAVE BUSY";
+		return;
+	}
+
+	int NodeID = atoi(sID.c_str());
+	if( NodeID > 0 && NodeID <= 233 && 
+		NULL != m_ZWaveAPI->getNode( NodeID ) )
+	{
+		sCMD_Result = "OK";
+		if( iPK_Command == COMMAND_Generic_On_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Sending ON - %s", sID.c_str());
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
+			if( light != NULL )
+			{
+				m_ZWaveAPI->insertJob( light );
+				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
+		}
+		else if( iPK_Command == COMMAND_Generic_Off_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Sending Off - %s", sID.c_str());
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
+			if( light != NULL )
+			{
+				m_ZWaveAPI->insertJob( light );
+				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
+		}
+	}
+	else
+	{
+		sCMD_Result = "BAD NODE ID";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Child device doesn't have a zwave node id");
+	}
+}
+
+//<-dceag-c776-b->
+
+	/** @brief COMMAND: #776 - Reset */
+	/** Reset Zwave device. */
+
+void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
+//<-dceag-c776-e->
+{
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+
+	if( !ConfirmConnection() )
+	{
 		sCMD_Result = "NO ZWAVE";
 		return;
 	}
 
+	ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
+	if( reset != NULL )
+	{
+		m_ZWaveAPI->insertJob( reset );
+		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+		{
+			sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+			return;
+		}
+	}
+	else
+	{
+		sCMD_Result = "NOT ENOUGH MEMORY";
+		return;
+	}
+	
 	sCMD_Result = "OK";
-	if( iPK_Command==COMMAND_Generic_On_CONST )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
-		string sOutput = "ON " + sID;
-		m_pPlainClientSocket->SendString(sOutput);
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
-		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse!="OK " + sOutput )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Expected response <%s> but got <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			sCMD_Result = "DEVICE DIDN'T RESPOND";
-			return;
-		}
-		return;
-	}
-	else if( iPK_Command==COMMAND_Generic_Off_CONST )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
-		string sOutput = "OFF " + sID;
-		m_pPlainClientSocket->SendString(sOutput);
-		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
-		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
-		if( sResponse!="OK " + sOutput )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Expected response <%s> but got <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			sCMD_Result = "DEVICE DIDN'T RESPOND";
-			return;
-		}
-		return;
-	}
 }
