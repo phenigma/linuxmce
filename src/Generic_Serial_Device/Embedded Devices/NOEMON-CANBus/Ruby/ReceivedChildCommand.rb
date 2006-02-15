@@ -1,5 +1,11 @@
-# 13-Feb-06 13:11 Receive command from child
-log( "received command from child" + "\n" ) 
+# 15-Feb-06 17:24 Receive command from child
+if ( $bInit == false ) then
+	log( "The initialisation is not finish yet\n")
+	return
+end
+
+
+log( "Received command from child" + "\n" ) 
 cmdId = cmd.id_
 cmdTo = cmd.devidto_
 cmdType= cmd.type_
@@ -31,28 +37,30 @@ children.each { |key,val|
 	}
 	
 aux = deviceBranch * 256 + deviceUnit
-if ( $branchList.include?(aux) == false ) then
+idBranch = "%04u" % aux
+
+if ( $branchList.include?(idBranch) == false ) then
 	log( "New branch found" )
 	$branchList.push(aux)
-	NOEMStatus($pcBranch,$pcNo,deviceBranch,deviceUnit)
+	NOEMONStatus($pcBranch,$pcNo,deviceBranch,deviceUnit)
 end
 
 case cmdId
 	when 192      #  OFF
 	if (childNo<=$MaxLightId) then 
-		NOEMTurnLight(childNo,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
+		NOEMONTurnLight(childNo,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	else
-		NOEMTurnRelay(childNo-$MaxLightId,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
+		NOEMONTurnRelay(childNo-$MaxLightId,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	end
 	when 193      #  ON
 	if (childNo<=$MaxLightId) then 
-		NOEMTurnLight(childNo,false,$pcBranch,$pcNo,deviceBranch,deviceUnit)
+		NOEMONTurnLight(childNo,false,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	else
-		NOEMTurnRelay(childNo-$MaxLightId,false,$pcBranch,$pcNo,deviceBranch,deviceUnit )
+		NOEMONTurnRelay(childNo-$MaxLightId,false,$pcBranch,$pcNo,deviceBranch,deviceUnit )
 	end
 	
 	when 184      #  SetLevel
 	level = cmd.params_[76]
 	log( "Level:" + level + "\n" )
-	NOEMLightSetLevel(childNo,level.to_i,$pcBranch,$pcNo,deviceBranch,deviceUnit)
+	NOEMONLightSetLevel(childNo,level.to_i,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 end
