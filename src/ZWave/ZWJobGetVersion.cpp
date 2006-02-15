@@ -39,18 +39,20 @@ bool ZWJobGetVersion::processData(const char * buffer, size_t length)
 			if(length < 2)
 			{
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobGetVersion::processData, length too small");
-				break;
+				return handler()->processData(buffer, length);
 			}
 			if(buffer[0] != RESPONSE || buffer[1] != FUNC_ID_ZW_GET_VERSION)
 			{
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobGetVersion::processData, buffer incorrect");
-				break;				
+				return handler()->processData(buffer, length);
 			}
+			
 			std::string version(&(buffer[2]));
 			DCE::g_pPlutoLogger->Write(LV_DEBUG, version.c_str());
 			handler()->setVersion(version);
 			setState(ZWaveJob::STOPPED);
 			return true;
 	}
+	
 	return false;
 }

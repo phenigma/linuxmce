@@ -129,6 +129,9 @@ int SerialConnection::disconnect()
 
 		pthread_mutex_destroy(&mutex_serial);
 		pthread_mutex_destroy(&mutex_buffer);
+		
+		buffer.clear();
+		
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 3");
 #endif
@@ -155,27 +158,6 @@ int SerialConnection::send(char *b, size_t len)
 		return -1;
 	}
 	
-#ifdef DEBUG_EUGEN
-	pthread_mutex_lock( &instance->mutex_buffer );
-	g_pPlutoLogger->Write(LV_WARNING, "Send:");
-	for(size_t i=0; i<len; i++)
-	{
-			g_pPlutoLogger->Write(LV_WARNING, "0x%02x ", buffer[i]);
-	}
-	
-	len += 3;
-	char paddedBuffer[512];
-	paddedBuffer[0] = SERIAL_SOF; 
-	paddedBuffer[1] = (char)len - 2;
-	memcpy(&(paddedBuffer[2]), buffer, len - 3);
-	paddedBuffer[(int)len - 1] = checkSum(paddedBuffer + 1, len - 2);
-
-	g_pPlutoLogger->Write(LV_WARNING, "--------------");
-	g_pPlutoLogger->Flush();
-	pthread_mutex_unlock( &instance->mutex_buffer );
-	
-	return 0;
-#else
 	//pad the command with everything that is needed (SOF, LEN, CHECKSUM)
 
 	int returnValue = 0;
@@ -185,6 +167,11 @@ int SerialConnection::send(char *b, size_t len)
 		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::send lock serial mutex");
 #endif
 		pthread_mutex_lock( &mutex_serial );
+		
+#ifdef PLUTO_DEBUG
+		printDataBuffer(b, len, "SerialConnection::send");
+#endif
+	
 		if(instance->serialPort!= NULL)
 		{
 			try
@@ -214,7 +201,6 @@ int SerialConnection::send(char *b, size_t len)
 	else returnValue = -1;
 
 	return returnValue ;
-#endif
 }
 
 int SerialConnection::receiveCommand(char *b, size_t *len)

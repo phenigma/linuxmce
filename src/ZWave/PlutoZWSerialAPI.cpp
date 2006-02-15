@@ -404,5 +404,7 @@ bool PlutoZWSerialAPI::sendData(char *buffer, size_t length)
 
 bool PlutoZWSerialAPI::processData(const char * buffer, size_t length)
 {
-	return false;
+	SerialConnection::printDataBuffer( buffer, length, "Unknown command:");
+	
+	return true;
 }
