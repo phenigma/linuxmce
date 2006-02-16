@@ -191,3 +191,28 @@ void USB_UIRT_0038::SomeFunction()
 
 void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
+//<-dceag-c191-b->
+
+	/** @brief COMMAND: #191 - Send Code */
+	/** The I/R code -- usually in Pronto format */
+		/** @param #9 Text */
+			/** The I/R code -- usually in Pronto format */
+
+void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c191-e->
+//<-dceag-c245-b->
+
+	/** @brief COMMAND: #245 - Learn IR */
+	/** The next IR code received is to be learned in Pronto format and fire a Store IR Code command to the I/R Plugin when done */
+		/** @param #2 PK_Device */
+			/** You can specify the device to learn for here, or you can send the command to the device itself and leave this blank */
+		/** @param #8 On/Off */
+			/** Turn IR Learning mode on or off
+0, 1 */
+		/** @param #25 PK_Text */
+			/** If specified, the text object  which should contain the result of the learn command */
+		/** @param #154 PK_Command */
+			/** Command ID for which the learning is done for */
+
+void USB_UIRT_0038::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage)
+//<-dceag-c245-e->
