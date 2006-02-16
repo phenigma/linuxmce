@@ -50,6 +50,15 @@ public:
 			*****COMMANDS***** we need to implement
 	*/
 
+
+	/** @brief COMMAND: #687 - Set Screen Type */
+	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
+		/** @param #48 Value */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, N=navigable OSD on media dev, f=full screen media app, F=File Listing, c=computing list, C=Computing full screen */
+
+	virtual void CMD_Set_Screen_Type(int iValue) { string sCMD_Result; CMD_Set_Screen_Type(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	};
 
