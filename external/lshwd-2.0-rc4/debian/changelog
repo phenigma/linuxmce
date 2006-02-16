@@ -1,3 +1,9 @@
+lshwd (2.0-rc4-1pluto4) unstable; urgency=low
+
+  * Fixed updated_modules array
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 16 Feb 2006 14:23:35 +0200
+
 lshwd (2.0-rc4-1pluto3) unstable; urgency=low
 
   * Update pcitable to coldplug the b2c2-flexcop-pci instead of 

@@ -1,7 +1,7 @@
 # simple makefile for lshwd
 #
 #CC = ncc -ncgcc -ncld -ncfabs
-CFLAGS =-I. -Wall -O2 #-DDEBUG #-D_GNU_SOURCE
+CFLAGS =-I. -Wall -O2 #-DDEBUG -ggdb3 #-D_GNU_SOURCE
 INSTALL = install
 
 OBJFILES = lshwd.c utilities.c usb.c psaux.c

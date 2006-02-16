@@ -33,7 +33,7 @@ updated_modules[][2] =
 	{ "Mouse:USB|Wheel", "usbhid"},
 	{ "Mouse:USB|Generic", "usbhid"},
 	{ "Mouse:USB|Microsoft Explorer", "usbhid"},
-	{ "via82cxxx", "snd_via82xx"},
+	{ "via82cxxx_audio", "snd_via82xx"},
 	{ "usb-uhci", "uhci_hcd"},						// usb-uhci=2.4 uhci-hcd=2.6 
 	{ "usb-ohci", "ohci_hcd"}						// usb-uhci=2.4 uhci-hcd=2.6
 };
