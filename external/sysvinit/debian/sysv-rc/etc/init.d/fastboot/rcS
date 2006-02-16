@@ -9,7 +9,9 @@ Message() {
 
     # Update boot splash progress bar
     progress=$(( $progress + 1 ))
-    if grep -e "silent" /proc/splash ;then
+
+    grep -q "silent" /proc/splash 2>/dev/null
+    if [[ $? -eq 0 ]] ;then
         echo "show $(( 65534 * ( $progress + 1 ) / 20 ))" > /proc/splash
         if [ "$text_x" != "" -a "$text_y" != "" -a "$text_color" != "" -a "$text_size" != "" ] ;then
             text_font="/etc/bootsplash/fonts/VeraBd.ttf"
@@ -79,27 +81,30 @@ fi
 Message "Enable swaping"
 /sbin/swapon -a > /dev/null
 
+
 ## Check Filesystem
-if [ ! -f /fastboot ] ;then
-	if [ -f /forcefsck ] ;then
-		force='-f'
-	else
-		force=''
-	fi
-
-	fsck -R -A -a $force 
-
-	if [ $? -gt 1 ] ;then
-		echo
-		echo "fsck failed. Please repair manualy."
-		echo
-		echo "CONTROL-D will exit form this shell and continue system startup."
-		echo
-
-		/sbin/sulogin 
-	fi
-fi
-rm -f /fastboot /forcefsck
+Message "Checkeing Filesystem"
+/etc/init.d/checkroot.sh start
+#if [ ! -f /fastboot ] ;then
+#	if [ -f /forcefsck ] ;then
+#		force='-f'
+#	else
+#		force=''
+#	fi
+#
+#	fsck -R -A -a $force 
+#
+#	if [ $? -gt 1 ] ;then
+#		echo
+#		echo "fsck failed. Please repair manualy."
+#		echo
+#		echo "CONTROL-D will exit form this shell and continue system startup."
+#		echo
+#
+#		/sbin/sulogin 
+#	fi
+#fi
+#rm -f /fastboot /forcefsck
 
 ## Clean up the /etc/mtab
 Message "Cleaning up /etc/mtab"
