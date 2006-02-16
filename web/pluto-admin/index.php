@@ -1385,6 +1385,12 @@ switch ($section) {
 	    include_once('translation_tools/addTranslationItem.php');
 	    addTranslationItem($output,$dbADO);	    
 	break;	
+	case 'voicemail':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/telecom/voicemail.php');
+	    voicemail($output,$dbADO);	    
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

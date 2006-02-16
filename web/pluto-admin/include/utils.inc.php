@@ -4412,7 +4412,7 @@ function getParentsForControlledVia($deviceID,$dbADO)
 			SELECT 
 				Device.*,
 				DeviceTemplate.Description AS Template,Room.Description AS Room,
-				FK_CommMethod
+				DeviceTemplate.FK_CommMethod
 			FROM Device 
 				INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 				LEFT JOIN Room ON FK_Room=PK_Room

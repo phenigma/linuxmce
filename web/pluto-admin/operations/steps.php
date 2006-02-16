@@ -117,7 +117,7 @@ $start_time=getmicrotime();
 				<td colspan="2" align="center">&nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>Back to devices</B></a></td>
+				<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>'.$TEXT_SHOW_DEVICES_TREE_CONST.'</B></a></td>
 			</tr>';
 	}
 		$out.='

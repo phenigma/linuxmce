@@ -81,6 +81,7 @@ function leftMenu($output,$dbADO) {
 				
 				$cachedLeftMenu=(getcwd()).'/cached/LeftMenu';
 				$cachedDevices=(getcwd()).'/cached/CachedDevices';
+				$cachedQuickJump=(getcwd()).'/cached/QuickJump';
 
 				// get existing devices to compare them with old ones
 				$devices=getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC');
@@ -92,6 +93,7 @@ function leftMenu($output,$dbADO) {
 					if(serialize($devices)==trim($oldDevices[1]) && $last_psc_mod[0]==trim($oldDevices[0])){
 						// get menu JS from cache
 						$jsTree=join('',file($cachedLeftMenu));
+						$quickJumpPulldown=join(',',file($cachedQuickJump));
 					}else{
 						$rebuildMenu=1;
 					}
@@ -120,6 +122,8 @@ function leftMenu($output,$dbADO) {
 					$IDs=$last_psc_mod[0]."\n";
 					$IDs.=serialize($devices);
 					writeFile($cachedDevices,$IDs,'w');
+					$quickJumpPulldown=pulldownFromArray($devicesArray,'quickJump',0,'');
+					writeFile($cachedQuickJump,$quickJumpPulldown,'w');
 				}
 		}
 
@@ -154,7 +158,7 @@ function leftMenu($output,$dbADO) {
 			<tr>
 				<td><fieldset><legend>'.$TEXT_GO_TO_DEVICE_CONST.'</legend>
 				<div align="right">
-					'.pulldownFromArray($devicesArray,'quickJump',0,'').' <input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();">
+					'.$quickJumpPulldown.' <input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();">
 				</div></fieldset>
 				</td>
 			</tr>

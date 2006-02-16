@@ -18,8 +18,9 @@ function userHome($output,$dbADO) {
 	}':'').'
 </script>
 ';
-
-	$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>';
+	$content=(isset($_REQUEST['voicemail']))?'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>':$TEXT_USER_HOME_TEXT_CONST;
+	
+	$out.=setLeftMenu($dbADO).$content;
 
 	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
