@@ -159,6 +159,11 @@ for Module in $RequiredModules; do
 	fi
 done
 
+SuppressModules="ide-generic"
+for Module in $SupressModules; do
+	sed -i "/$Module/ d" "$DlPath"/etc/modules
+done
+
 cd -
 
 # Use Core's apt sources.list
