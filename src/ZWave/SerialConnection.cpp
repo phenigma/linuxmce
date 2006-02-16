@@ -94,6 +94,7 @@ int SerialConnection::connect(const char *port)
 	}
 	catch(...)
 	{
+		serialPort = NULL;
 		g_pPlutoLogger->Write(LV_WARNING, "exeception from serial port");
 		return -1;
 	}

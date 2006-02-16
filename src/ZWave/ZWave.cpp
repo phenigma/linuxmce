@@ -78,8 +78,16 @@ bool ZWave::GetConfig()
 //<-dceag-getconfig-e->
 
 	if( !ConfirmConnection() )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to windows zwave");
-	CMD_Report_Child_Devices();
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to ZWave device %s.", DATA_Get_Serial_Port().c_str());
+		// TODO HMM ?!
+		// return false;
+	}
+	else
+	{
+		CMD_Report_Child_Devices();
+	}
+	
 	return true;
 }
 

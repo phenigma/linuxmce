@@ -138,13 +138,13 @@ bool PlutoZWSerialAPI::start(const char *port)
 				{
 					return true;
 				}
-				
-				// it wasn't possible to start it, then just reset it
-				clearJobs();
-				stop();
 			}
 		}
 	}
+	
+	// it wasn't possible to start it, then just reset it
+	clearJobs();
+	stop();
 	
 	return false;
 }
