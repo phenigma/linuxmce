@@ -141,17 +141,6 @@ Code=$Code"
 	touch "$DlPath"/usr/pluto/install/.notdone
 fi
 
-# Pre-upgrade some packages
-set -x
-Upgrade_Essential
-set +x
-
-# Make sure the right kernel version is installed
-InstallKernel $KERNEL_VERSION || exit 1
-mkdir -p "/tftpboot/$IP"
-ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
-ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
-
 RequiredModules="ide-cd ide-disk psmouse"
 for Module in $RequiredModules; do
 	if ! grep -q "$Module" "$DlPath"/etc/modules; then
@@ -163,6 +152,17 @@ SuppressModules="ide-generic"
 for Module in $SupressModules; do
 	sed -i "/$Module/ d" "$DlPath"/etc/modules
 done
+
+# Pre-upgrade some packages
+set -x
+Upgrade_Essential
+set +x
+
+# Make sure the right kernel version is installed
+InstallKernel $KERNEL_VERSION || exit 1
+mkdir -p "/tftpboot/$IP"
+ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
+ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
 cd -
 
