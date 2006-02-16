@@ -17,16 +17,11 @@ using namespace DCE;
 USB_UIRT_0038::USB_UIRT_0038(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: USB_UIRT_0038_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, IRReceiverBase(this)
 {
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-USB_UIRT_0038::USB_UIRT_0038(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: USB_UIRT_0038_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 USB_UIRT_0038::~USB_UIRT_0038()
@@ -42,9 +37,57 @@ bool USB_UIRT_0038::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	// Put your code here to initialize the data in this class
-	// The configuration parameters DATA_ are now populated
-	return true;
+	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
+	IRReceiverBase::GetConfig(m_pData);
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
+	if( pDevice )
+		m_dwPK_Device_IRPlugin = pDevice->m_dwPK_Device;
+	else
+		m_dwPK_Device_IRPlugin = 0;
+
+	m_iRepeat=DATA_Get_Repeat();
+
+	// Find all our sibblings that are remote controls 
+	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
+		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
+	{
+		DeviceData_Base *pDevice = itD->second;
+		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_UsbUirt_Remote_Controls_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
+			string sType;
+			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
+				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
+			SendCommand(CMD_Get_Device_Data_Cat2);
+
+			string sConfiguration;
+			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
+				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
+
+			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
+			{
+				vector<string> vectCodes;
+				StringUtils::Tokenize(sConfiguration,"\r\n",vectCodes);
+				for(size_t s=0;s<vectCodes.size();++s)
+				{
+					string::size_type pos=0;
+					string sButton = StringUtils::Tokenize(vectCodes[s]," ",pos);
+					while(pos<vectCodes[s].size())
+					{
+						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
+						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,pDevice->m_dwPK_Device);
+						// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
+						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+					}
+				}
+			}
+		}
+	}
+
+	// Jon -- Initialize the USB UIRT here
+	return true
 }
 
 //<-dceag-reg-b->
@@ -77,6 +120,27 @@ USB_UIRT_0038_Command *Create_USB_UIRT_0038(Command_Impl *pPrimaryDeviceCommand,
 void USB_UIRT_0038::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	// Let the IR Base class try to handle the message
+	if (IRBase::ProcessMessage(pMessage))
+	{
+		printf("Message processed by IRBase class\n");
+		sCMD_Result = "OK";
+		return;
+	}
+	
+	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Learn_IR_CONST )
+	{
+		// Jon -- We must start or stop the learning process here
+		if( pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1" )
+			StartLearning(pMessage->m_dwPK_Device_To,atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_CONST].c_str()),
+				pMessage->m_dwPK_Device_From,
+				atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
+		else
+			StopLearning();
+		sCMD_Result = "OK";
+		return;
+	}
+
 	sCMD_Result = "UNHANDLED CHILD";
 }
 
@@ -175,6 +239,102 @@ void USB_UIRT_0038::SomeFunction()
 */
 //<-dceag-sample-e->
 
+void UsbUirt::SendIR(string Port, string IRCode)
+{
+	if( m_bLearningIR )
+		StopLearning();
+
+	const char *pBuffer = IRCode.c_str();
+	size_t size = IRCode.size();
+	bool bDeleteBuffer=false;
+	if( pBuffer[0]=='/' )
+	{
+		bDeleteBuffer=true;
+		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS,"UsbUirt Sending: %s",pBuffer);
+
+	// Jon this function needs to hook into your stuff to send the code contained in pBuffer
+    int res = UsbUirt_transmit(m_iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
+                            -1, /* Use embedded frequency value*/
+                            (const unsigned char *) pBuffer,
+                            size);
+
+    if ( res != 0 ) 
+		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt failed Sending(%d): %s",res,IRCode.c_str());
+
+	if( bDeleteBuffer )
+		delete pBuffer;
+}
+
+// Must override so we can call IRBase::Start() after creating children
+void UsbUirt::CreateChildren()
+{
+	UsbUirt_Command::CreateChildren();
+	Start();
+}
+
+void UsbUirt::OurCallback(const char *szButton)
+{
+	timespec ts_now;
+	gettimeofday(&ts_now,NULL);
+
+	if( m_sLastButton==szButton )
+	{
+		timespec ts_diff = ts_now-m_tsLastButton;
+		if( ts_diff.tv_sec==0 && ts_diff.tv_nsec<500000000 )
+			return;
+	}
+	else
+	{
+		m_sLastButton=szButton;
+		m_tsLastButton=ts_now;
+	}
+
+	map<string,pair<string,int> >::iterator it=m_mapCodesToButtons.find(szButton);
+	if( it==m_mapCodesToButtons.end() )
+		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
+	else
+		ReceivedCode(it->second.second,it->second.first.c_str());
+}
+
+// Jon your code needs to call this function whenever a button is pressed
+// You can either call it with the raw I/R code and we'll do the lookup for the button name
+// or you can call with the button name itself
+
+int __stdcall OurCalback(const char * eventstring) {
+   g_pUsbUirt->OurCallback(eventstring);
+   printf("IR Data %s\n", eventstring);
+   return 0;
+};
+
+void UsbUirt::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
+{
+	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
+			PK_Device, PK_Command, m_dwPK_Device_IRPlugin);
+		return;
+	}
+	m_iPK_Device_Learning=PK_Device; m_iPK_Command_Learning=PK_Command;
+	m_iPK_Orbiter=PK_Orbiter; m_iPK_Text=PK_Text;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
+		PK_Command,PK_Device);
+
+	PLUTO_SAFETY_LOCK(tm,m_UsbUirtMutex);
+//	pthread_t t;
+//	pthread_create(&t, NULL, Learning_Thread, (void*)this);
+}
+
+void UsbUirt::StopLearning()
+{
+	PLUTO_SAFETY_LOCK(tm,m_UsbUirtMutex);
+
+}
+
+
 /*
 
 	COMMANDS TO IMPLEMENT
@@ -191,6 +351,10 @@ void USB_UIRT_0038::SomeFunction()
 
 void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
+{
+}
+
+
 //<-dceag-c191-b->
 
 	/** @brief COMMAND: #191 - Send Code */
@@ -200,6 +364,9 @@ void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *
 
 void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
+{
+}
+
 //<-dceag-c245-b->
 
 	/** @brief COMMAND: #245 - Learn IR */
@@ -216,3 +383,5 @@ void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMes
 
 void USB_UIRT_0038::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c245-e->
+{
+}

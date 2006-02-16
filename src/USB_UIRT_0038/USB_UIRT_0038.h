@@ -7,10 +7,15 @@
 #include "Gen_Devices/USB_UIRT_0038Base.h"
 //<-dceag-d-e->
 
-//<-dceag-decl-b->
+#include "../LIRC_DCE/IRReceiverBase.h"
+#include "IRBase/IRBase.h"
+
+#define LEARNING_TIMEOUT 10 // Stop learning after this many seconds
+	
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class USB_UIRT_0038 : public USB_UIRT_0038_Command
+	class USB_UIRT_0038 : public USB_UIRT_0038_Command, public IRReceiverBase, public IRBase
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -30,11 +35,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		USB_UIRT_0038(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 //<-dceag-h-b->
 	/*
