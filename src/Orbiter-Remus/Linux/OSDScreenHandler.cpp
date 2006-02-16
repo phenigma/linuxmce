@@ -9,6 +9,7 @@
 #include "../wxAppMain/wxdialog_roomwizard.h"
 
 #include "OSDScreenHandler.h"
+#include "OrbiterLinux.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_Text.h"
@@ -1475,6 +1476,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
                          pRect.X, pRect.Y, pRect.Width, pRect.Height );
   wxDialog_RoomWizard_Show(m_pWizardLogic);
+  (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("dialog");
   wxDialog_RoomWizard_Refresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
   return false;
@@ -1485,6 +1487,7 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 {
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
   wxDialog_RoomWizard_Close();
+  (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
   return false;
 }
 

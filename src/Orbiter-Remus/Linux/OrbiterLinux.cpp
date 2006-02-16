@@ -17,6 +17,7 @@
 
 #include "DCE/Logger.h"
 #include "OrbiterLinux.h"
+#include "pluto_main/Define_DesignObj.h"
 
 #include <iomanip>
 #include <sstream>
@@ -60,6 +61,9 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
+
+    m_sCurrentAppDesktopName = "";
+    
 
     // Disable DPMS and screen saver
     system("/usr/bin/X11/xset -display :0 -dpms s off");
@@ -170,6 +174,9 @@ Window OrbiterLinux::getWindow()
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
+		SetCurrentAppDesktopName("pluto-xine-playback-window");
+
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
 
@@ -199,8 +206,10 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
         m_pRecordHandler->enableRecording(this);
     }
 
-    stringstream commandLine;
+    if(m_sCurrentAppDesktopName != "")
+      commandRatPoison(":select " + m_sCurrentAppDesktopName);
 
+    stringstream commandLine;
     commandLine << ":set padding " << x << " " << y << " "
                 << m_nDesktopWidth - x - width << " " << m_nDesktopHeight - y - height;
 
@@ -459,4 +468,9 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
 ScreenHandler *OrbiterLinux::CreateScreenHandler()
 {
 	return new OSDScreenHandler(this, &m_mapDesignObj);
+}
+
+void OrbiterLinux::SetCurrentAppDesktopName(string sName)
+{
+	m_sCurrentAppDesktopName = sName;
 }

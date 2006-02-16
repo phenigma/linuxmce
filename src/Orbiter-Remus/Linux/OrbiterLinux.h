@@ -46,6 +46,8 @@ private:
     
     XProgressWnd *m_pProgressWnd;
 
+	string m_sCurrentAppDesktopName;
+
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
@@ -83,6 +85,9 @@ public:
 	
 	/*virtual */bool DisplayProgress(string sMessage, int nProgress);
 	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
+
+	virtual void SetCurrentAppDesktopName(string sName);
+
 #ifndef WIN32
 	virtual void DoResetRatpoison() { g_pPlutoLogger->Write(LV_CRITICAL,"Need to reset ratpoison"); resetRatpoison(); }
 #endif
