@@ -94,7 +94,8 @@ function users($output,$dbADO) {
 									<td align="center">
 										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PASSWORD_CONST.'</a><br>
 										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PIN_CONST.'</a><br>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_UPLOAD_PICTURE_CONST.'</a>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_UPLOAD_PICTURE_CONST.'</a><br>
+										<a href="javascript:if(confirm(\''.$TEXT_DELETE_USER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=users&action=delete&did='.$rowUser['PK_Users'].'\'">'.$TEXT_DELETE_USER_CONST.'</a>
 									</td>
 								</tr>			
 							</table>			
@@ -224,6 +225,19 @@ function users($output,$dbADO) {
 
 		if ($canModifyInstallation) {
 			//process
+			// delete user if $_REQUEST['did'] is set
+			if(isset($_REQUEST['did']) && (int)$_REQUEST['did']>0){
+				$toDel=(int)$_REQUEST['did'];
+				$dbADO->Execute('DELETE FROM Installation_Users WHERE FK_Users=?',$toDel);
+				$dbADO->Execute('DELETE FROM Users WHERE PK_Users=?',$toDel);
+				
+				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
+				exec($commandToSend);
+
+				header("Location: index.php?section=users&msg=$TEXT_USER_DELETED_CONST");
+				exit();
+			}
+			
 			$displayedUsers = cleanString($_POST['displayedUsers']);
 			$displayedUsersArray = explode(",",$displayedUsers);
 

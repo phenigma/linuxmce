@@ -282,13 +282,13 @@ function phoneLinesLocalSettings($dbADO){
 	
 	<table align="center" cellpadding="3" cellspacing="0" bgcolor="#F0F3F8">
 		<tr>
-			<td colspan="2"><input type="checkbox" name="ckb_141" value="1" '.((@$ddArray['141']!=0 && @$ddArray['141']!='')?'checked':'').'> '.$TEXT_PREPEND_AREA_CODE_CONST.' <input type="text" name="value_141" value="'.$ddArray['141'].'" style="width:25px;"></td>
+			<td colspan="2"><input type="checkbox" name="ckb_141" value="1" '.((@$ddArray['141']!=0 && @$ddArray['141']!='')?'checked':'').'> '.$TEXT_PREPEND_AREA_CODE_CONST.' <input type="text" name="value_141" value="'.@$ddArray['141'].'" style="width:25px;"></td>
 		</tr>
 		<tr>
-			<td><input type="checkbox" name="ckb_142" value="1" '.((@$ddArray['142']!=-1)?'checked':'').'> '.$TEXT_PREPEND_DIGIT_CONST.' <input type="text" name="value_142" value="'.(($ddArray['142']==-1)?'':$ddArray['142']).'" style="width:25px;"></td>
+			<td><input type="checkbox" name="ckb_142" value="1" '.((@$ddArray['142']!=-1)?'checked':'').'> '.$TEXT_PREPEND_DIGIT_CONST.' <input type="text" name="value_142" value="'.((@$ddArray['142']==-1)?'':@$ddArray['142']).'" style="width:25px;"></td>
 		</tr>
 		<tr>
-			<td>'.$TEXT_LOCAL_NUMBER_LENGTH_CONST.' <input type="text" name="value_143" value="'.$ddArray['143'].'" style="width:25px;"></td>
+			<td>'.$TEXT_LOCAL_NUMBER_LENGTH_CONST.' <input type="text" name="value_143" value="'.@$ddArray['143'].'" style="width:25px;"></td>
 		</tr>
 		<tr>
 			<td align="center"><input type="submit" class="button" name="update_settings" value="'.$TEXT_UPDATE_CONST.'"></td>

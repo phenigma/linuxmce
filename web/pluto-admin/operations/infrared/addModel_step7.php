@@ -6,7 +6,7 @@
 		exit();
 	}
 
-	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description AS Category,Manufacturer.Description AS Manuf,FK_Manufacturer,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer WHERE PK_DeviceTemplate='.$dtID);
+	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description AS Category,Manufacturer.Description AS Manuf,FK_Manufacturer,FK_DeviceCategory,FK_CommMethod',$publicADO,'INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer WHERE PK_DeviceTemplate='.$dtID);
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
 		exit();
@@ -123,7 +123,7 @@
 	
 		$description=stripslashes($_POST['description']);
 		if($description!=''){
-			$publicADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description) VALUES (?,?,?)',array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray['FK_Manufacturer'][0],$description));
+			$publicADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description,FK_CommMethod) VALUES (?,?,?,?)',array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray['FK_Manufacturer'][0],$description,$dtDataArray['FK_CommMethod'][0]));
 			$irgID=$publicADO->Insert_ID();
 			
 			$publicADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_Devicetemplate=?',array($irgID,$dtID));

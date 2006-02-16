@@ -8,7 +8,7 @@
 	}
 	
 	$cdCategsArray=array(104,106,107,129,137);
-	$dtDataArray=getFieldsAsArray('DeviceTemplate','DeviceTemplate.FK_DeviceCategory,DeviceCategory.Description,FK_CommMethod',$publicADO,'INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID);
+	$dtDataArray=getFieldsAsArray('DeviceTemplate','DeviceTemplate.FK_DeviceCategory,DeviceCategory.Description,DeviceTemplate.FK_CommMethod AS FK_CommMethod',$publicADO,'INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID);
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
 		exit();

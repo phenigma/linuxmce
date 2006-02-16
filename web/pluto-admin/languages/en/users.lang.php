@@ -12,4 +12,7 @@ $TEXT_CAN_SET_HOUSE_SECURITY_MODE_CONST='Can set house/security mode';
 $TEXT_CREATE_NEW_USER_CONST='Create a new user/family member';
 $TEXT_USERS_PAGE_SAVED_CONST='Saved!';
 $TEXT_NOT_ALLOWED_CONST='Not allowed!';
+$TEXT_DELETE_USER_CONST='Delete user';
+$TEXT_DELETE_USER_CONFIRMATION_CONST='Are you sure you want to delete this user? All his directories and files will be deleted too.';
+$TEXT_USER_DELETED_CONST='User deleted';
 ?>

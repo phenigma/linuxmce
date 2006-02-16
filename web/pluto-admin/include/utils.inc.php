@@ -2673,7 +2673,6 @@ function isInfrared($deviceTemplate,$dbADO)
 	$res=$dbADO->Execute('
 		SELECT DeviceTemplate.FK_CommMethod 
 		FROM DeviceTemplate
-		LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
 		WHERE PK_DeviceTemplate=? AND FK_CommMethod=1',$deviceTemplate);
 	if($res->RecordCount()>0){
 		return 1;

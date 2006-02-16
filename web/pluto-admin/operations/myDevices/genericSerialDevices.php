@@ -265,6 +265,7 @@ function genericSerialDevices($output,$dbADO) {
 					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');">';
 					if($rowD['FK_DeviceTemplate']==$GLOBALS['CanBus']){
 						$buttons.=' <br><input type="submit" class="button" name="reinit_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_CANBUS_CONST.'" >';
+						$buttons.=' <br><input type="submit" class="button" name="reinit_noemon_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_NOEMON_CONST.'" >';
 					}
 					
 					$out.='</td>';
@@ -358,6 +359,11 @@ function genericSerialDevices($output,$dbADO) {
 			
 			if(isset($_POST['reinit_'.$value])){
 				$cmd='/usr/pluto/bin/ReinitCanBus.bh '.$value;
+				exec($cmd,$retArr);
+			}
+			
+			if(isset($_POST['reinit_noemon_'.$value])){
+				$cmd='/usr/pluto/bin/ReinitCanBus.bh '.$value.' NOEMON';
 				exec($cmd,$retArr);
 			}
 		}
