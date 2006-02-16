@@ -149,7 +149,7 @@ for Module in $RequiredModules; do
 done
 
 SuppressModules="ide-generic"
-for Module in $SupressModules; do
+for Module in $SuppressModules; do
 	sed -i "/$Module/ d" "$DlPath"/etc/modules
 done
 
