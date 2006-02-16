@@ -84,27 +84,29 @@ Message "Enable swaping"
 
 ## Check Filesystem
 Message "Checkeing Filesystem"
-/etc/init.d/checkroot.sh start
-#if [ ! -f /fastboot ] ;then
-#	if [ -f /forcefsck ] ;then
-#		force='-f'
-#	else
-#		force=''
-#	fi
-#
-#	fsck -R -A -a $force 
-#
-#	if [ $? -gt 1 ] ;then
-#		echo
-#		echo "fsck failed. Please repair manualy."
-#		echo
-#		echo "CONTROL-D will exit form this shell and continue system startup."
-#		echo
-#
-#		/sbin/sulogin 
-#	fi
-#fi
-#rm -f /fastboot /forcefsck
+#etc/init.d/checkroot.sh start
+grep -qi " fsck " /proc/cmdline || grep -qi " fsck$" /proc/cmdline
+fsckRequested=$?
+if [[ ! -f /fastboot || $fsckRequested -eq 0 ]] ;then
+	if [[ -f /forcefsck || $fsckRequested -eq 0 ]] ;then
+		force='-f'
+	else
+		force=''
+	fi
+
+	fsck -C -A -a $force 
+
+	if [ $? -gt 1 ] ;then
+		echo
+		echo "fsck failed. Please repair manualy."
+		echo
+		echo "CONTROL-D will exit form this shell and continue system startup."
+		echo
+
+		/sbin/sulogin 
+	fi
+fi
+rm -f /fastboot /forcefsck
 
 ## Clean up the /etc/mtab
 Message "Cleaning up /etc/mtab"
