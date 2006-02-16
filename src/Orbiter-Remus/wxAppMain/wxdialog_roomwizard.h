@@ -34,12 +34,12 @@ using namespace std;
 
 ////@begin control identifiers
 #define ID_DIALOG_ROOMWIZARD 10000
-#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_ROOMWIZARD_TITLE _T("Room Wizard")
 #define SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME ID_DIALOG_ROOMWIZARD
 #define SYMBOL_WXDIALOG_ROOMWIZARD_SIZE wxSize(300, 100)
 #define SYMBOL_WXDIALOG_ROOMWIZARD_POSITION wxPoint(200, 300)
-#define ID_GRID 10001
+#define ID_GRID_RW 10001
 ////@end control identifiers
 
 /*!
@@ -98,7 +98,7 @@ public:
     /// wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD
     void OnKeyUp( wxKeyEvent& event );
 
-    /// wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID
+    /// wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID_RW
     void OnCellLeftClick( wxGridEvent& event );
 
 ////@end wxDialog_RoomWizard event handler declarations
@@ -131,8 +131,8 @@ public:
   // ptr to object containing data for the dialog
   void SetExternalData(void *pExternData);
 
-  bool data_load();
-  bool data_save();
+  bool Data_Load();
+  bool Data_Save();
 
 protected:
   virtual void OnInternalIdle();
@@ -160,15 +160,12 @@ protected:
 #endif // (! defined USE_DEBUG_CODE)
 };
 
-// call from the main thread
-void wxDialog_RoomWizard_Show(void *pExternData=NULL); // create, load, show
-void wxDialog_RoomWizard_Close(); // save, close
-
 // call from any thread
-bool wxDialog_RoomWizard_isActive(); // check if the dialog is created
 void wxDialog_RoomWizard_Refresh(int x, int y, int h, int w); // create a refresh event
 
-extern wxDialog_RoomWizard *g_pwxDialog_RoomWizard;
+// call from the main thread
+void wxDialog_RoomWizard_Show(void *pExternData=NULL); // create, load, show
+void wxDialog_RoomWizard_Close(bool bSaveData); // save, close
 
 #endif
 // _WXDIALOG_ROOMWIZARD_H_

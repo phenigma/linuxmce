@@ -37,6 +37,7 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
 #define ID_TOOLBAR 10006
 #define ID_TOOL_RW 10004
+#define ID_TOOL_WL 10009
 #define ID_TOOL_U_B_D 10012
 #define ID_TOOL_U_B_J 10002
 #define ID_TOOL_U_N_D 10011
@@ -85,6 +86,12 @@ class wxFrameMain: public wxFrame
 
     /// wxEVT_UPDATE_UI event handler for ID_TOOL_RW
     void OnToolRwUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL
+    void OnToolWlClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_WL
+    void OnToolWlUpdate( wxUpdateUIEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_D
     void OnToolUBDClick( wxCommandEvent& event );

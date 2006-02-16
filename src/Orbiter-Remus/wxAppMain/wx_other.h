@@ -22,8 +22,6 @@
 
 #include "wx_defines.h"
 
-#define WARN_IF(x) do { if (x) wxFAIL_MSG("Warning: " #x "\n"); } while (0)
-
 // if not, return
 #define wxELSE_RET(x)   do { if (!(x)) { wxFAIL; return; } } while (0)
 
@@ -39,17 +37,17 @@
 // case CONST : return "CONST"
 #define CASE_const_ret_str(x) case x: return #x
 
-#define _wx_log_nfo wx_log_nfo
-#define _wx_log_err wx_log_err
-#define _wx_log_wrn wx_log_wrn
-#define _wx_log_err_abort wx_log_err_abort
-#define _wx_log_verbose wx_log_verbose
+#define _wx_log_nfo _wx_log_nfo_
+#define _wx_log_err _wx_log_err_
+#define _wx_log_wrn _wx_log_wrn_
+#define _wx_log_err_abort _wx_log_err_abort_
+#define _wx_log_verbose _wx_log_verbose_
 
-void wx_log_nfo(const char *, ...);
-void wx_log_err(const char *, ...);
-void wx_log_wrn(const char *, ...);
-void wx_log_err_abort(const char *, ...);
-void wx_log_verbose(const char *, ...);
+void _wx_log_nfo_(const char *, ...);
+void _wx_log_err_(const char *, ...);
+void _wx_log_wrn_(const char *, ...);
+void _wx_log_err_abort_(const char *, ...);
+void _wx_log_verbose_(const char *, ...);
 
 inline wxString Str(int val)
 {

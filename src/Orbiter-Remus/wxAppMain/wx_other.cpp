@@ -92,7 +92,7 @@ static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog 
 
 //==================================================
 
-void wx_log_nfo(const char *sformat, ...)
+void _wx_log_nfo_(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
@@ -100,7 +100,7 @@ void wx_log_nfo(const char *sformat, ...)
   va_end(arg_ptr);
 }
 
-void wx_log_err(const char *sformat, ...)
+void _wx_log_err_(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
@@ -108,7 +108,7 @@ void wx_log_err(const char *sformat, ...)
   va_end(arg_ptr);
 }
 
-void wx_log_wrn(const char *sformat, ...)
+void _wx_log_wrn_(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
@@ -116,7 +116,7 @@ void wx_log_wrn(const char *sformat, ...)
   va_end(arg_ptr);
 }
 
-void wx_log_err_abort(const char *sformat, ...)
+void _wx_log_err_abort_(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);
@@ -124,7 +124,7 @@ void wx_log_err_abort(const char *sformat, ...)
   va_end(arg_ptr);
 }
 
-void wx_log_verbose(const char *sformat, ...)
+void _wx_log_verbose_(const char *sformat, ...)
 {
   va_list arg_ptr;
   va_start(arg_ptr, sformat);

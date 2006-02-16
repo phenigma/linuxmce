@@ -64,7 +64,7 @@ LIBDIRNAME=$(WXWIN)/GCCBuildDebugGTK2/lib
 RESPATH=--include-dir "$(WXWIN)/include" --include-dir "$(WXWIN)/contrib/include" --include-dir "$(WXWIN)/GCCBuildDebugGTK2/lib/wx/include/gtk2d-2.4"
 endif
 
-OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wx_other.o $(OBJECTPATH)/wxthreadbag.o $(OBJECTPATH)/wxthreadevent.o $(OBJECTPATH)/wxthreadinfo.o $(OBJECTPATH)/wxthreaditem.o $(RESOURCEOBJECT)
+OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wxdialog_waitlist.o $(OBJECTPATH)/wx_other.o $(OBJECTPATH)/wxthreadbag.o $(OBJECTPATH)/wxthreadevent.o $(OBJECTPATH)/wxthreadinfo.o $(OBJECTPATH)/wxthreaditem.o $(RESOURCEOBJECT)
 
 all:	$(OBJECTPATH) $(MACPACKAGEINFO)
 
@@ -109,11 +109,14 @@ $(OUTPUTPATH)/$(PROGRAM).app/Contents/PkgInfo: $(OUTPUTPATH)/$(PROGRAM) $(WXWIN)
 $(OBJECTPATH)/wxappmain.o:	wxappmain.cpp wxappmain.h wxframemain.h wx_other.h wx_defines.h wxthreadbag.h wxthreadinfo.h wxthreaditem.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxappmain.cpp
 
-$(OBJECTPATH)/wxframemain.o:	wxframemain.cpp wxframemain.h wx_other.h wx_defines.h wxdialog_roomwizard.h wxthreadbag.h wxthreadinfo.h wxthreaditem.h wxthreadevent.h exit.xpm exec.xpm
+$(OBJECTPATH)/wxframemain.o:	wxframemain.cpp wxframemain.h wx_other.h wx_defines.h wxdialog_roomwizard.h wxdialog_waitlist.h wxthreadbag.h wxthreadinfo.h wxthreaditem.h wxthreadevent.h exit.xpm exec.xpm clock.xpm
 	$(CXX) -c -o $@ $(CPPFLAGS) wxframemain.cpp
 
 $(OBJECTPATH)/wxdialog_roomwizard.o:	wxdialog_roomwizard.cpp wxdialog_roomwizard.h wx_other.h wx_defines.h wxthreadbag.h wxthreadinfo.h wxthreaditem.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_roomwizard.cpp
+
+$(OBJECTPATH)/wxdialog_waitlist.o:	wxdialog_waitlist.cpp wxdialog_waitlist.h wx_other.h wx_defines.h logo_pluto.xpm
+	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_waitlist.cpp
 
 $(OBJECTPATH)/wx_other.o:	wx_other.cpp wx_other.h wx_defines.h wxthreaditem.h wxthreadinfo.h wxthreadbag.h wxthreadevent.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_other.cpp

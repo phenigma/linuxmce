@@ -19,12 +19,14 @@
 #include "wxframemain.h"
 #include "wx_other.h"
 #include "wxdialog_roomwizard.h"
+#include "wxdialog_waitlist.h"
 #include "wxthreadbag.h"
 #include "wxthreadevent.h"
 
 ////@begin XPM images
 #include "exit.xpm"
 #include "exec.xpm"
+#include "clock.xpm"
 ////@end XPM images
 
 /*!
@@ -47,6 +49,9 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
     EVT_MENU( ID_TOOL_RW, wxFrameMain::OnToolRwClick )
     EVT_UPDATE_UI( ID_TOOL_RW, wxFrameMain::OnToolRwUpdate )
+
+    EVT_MENU( ID_TOOL_WL, wxFrameMain::OnToolWlClick )
+    EVT_UPDATE_UI( ID_TOOL_WL, wxFrameMain::OnToolWlUpdate )
 
     EVT_MENU( ID_TOOL_U_B_D, wxFrameMain::OnToolUBDClick )
     EVT_UPDATE_UI( ID_TOOL_U_B_D, wxFrameMain::OnToolUBDUpdate )
@@ -136,15 +141,17 @@ void wxFrameMain::CreateControls()
     v_oToolBar->AddSeparator();
     wxBitmap itemtool9Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     v_oToolBar->AddTool(ID_TOOL_RW, _T("RW"), itemtool9Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
+    wxBitmap itemtool10Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    v_oToolBar->AddTool(ID_TOOL_WL, _T("WL"), itemtool10Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
     v_oToolBar->AddSeparator();
-    wxBitmap itemtool11Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool11Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
     wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool12Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
+    v_oToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool12Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
     wxBitmap itemtool13Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool13Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    v_oToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool13Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
     wxBitmap itemtool14Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool14Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
+    v_oToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool14Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    wxBitmap itemtool15Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_oToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool15Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
     v_oToolBar->AddSeparator();
     v_oToolBar->Realize();
     itemFrame1->SetToolBar(v_oToolBar);
@@ -211,8 +218,8 @@ void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 void wxFrameMain::OnToolRwClick( wxCommandEvent& event )
 {
   _wx_log_nfo("wxFrameMain::OnToolRwClick(*)");
-  if (wxDialog_RoomWizard_isActive())
-    g_pwxDialog_RoomWizard->Destroy();
+  if (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE))
+    wxDialog_RoomWizard_Close(false);
   else
     wxDialog_RoomWizard_Show();
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_RW in wxFrameMain.
@@ -227,11 +234,41 @@ void wxFrameMain::OnToolRwClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolRwUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_RW, wxDialog_RoomWizard_isActive());
+  v_oToolBar->ToggleTool(ID_TOOL_RW, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_RW in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_UPDATE_UI event handler for ID_TOOL_RW in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL
+ */
+
+void wxFrameMain::OnToolWlClick( wxCommandEvent& event )
+{
+  _wx_log_nfo("wxFrameMain::OnToolWlClick(*)");
+  if (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE))
+    wxDialog_WaitList_Close();
+  else
+    wxDialog_WaitList_Show();
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL in wxFrameMain. 
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_WL
+ */
+
+void wxFrameMain::OnToolWlUpdate( wxUpdateUIEvent& event )
+{
+  v_oToolBar->ToggleTool(ID_TOOL_WL, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE));
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_WL in wxFrameMain. 
 }
 
 /*!
@@ -402,6 +439,11 @@ wxBitmap wxFrameMain::GetBitmapResource( const wxString& name )
         wxBitmap bitmap(exec_xpm);
         return bitmap;
     }
+    else if (name == _T("clock.png"))
+    {
+        wxBitmap bitmap(clock_xpm);
+        return bitmap;
+    }
     return wxNullBitmap;
 ////@end wxFrameMain bitmap retrieval
 }
@@ -425,8 +467,6 @@ bool wxFrameMain::Destroy()
   _wx_log_nfo("wxFrameMain::Destroy()");
   if (wxThreadBag *pwxThreadBag = g_pwxThreadBag)
     delete pwxThreadBag;
-  if (wxDialog_RoomWizard_isActive())
-    g_pwxDialog_RoomWizard->Destroy();
   if (pLogChain)
     pLogChain->SetLog(NULL);
   // NO : wxDELETE(pLogChain);

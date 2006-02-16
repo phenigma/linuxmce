@@ -35,6 +35,14 @@
                 <longhelp>Room Wizard Dialog</longhelp>
                 <toggle>1</toggle>
             </object>
+            <object class="tool" name="ID_TOOL_WL">
+                <help>Dialog Wait List</help>
+                <bitmap>clock.png</bitmap>
+                <label>WL</label>
+                <tooltip>Wait List</tooltip>
+                <longhelp>Dialog Wait List</longhelp>
+                <toggle>1</toggle>
+            </object>
             <object class="separator">
             </object>
             <object class="tool" name="ID_TOOL_U_B_D">
@@ -122,7 +130,7 @@
                 <flag>wxGROW</flag>
                 <border>1</border>
                 <option>1</option>
-                <object class="wxGrid" name="ID_GRID">
+                <object class="wxGrid" name="ID_GRID_RW">
                     <font>
                         <size>12</size>
                         <family>swiss</family>
@@ -134,6 +142,76 @@
                     <style>wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
                     <fg>#FFFFFF</fg>
                     <bg>#0000FF</bg>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_WAITLIST" subclass="wxDialog_WaitList">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <fg>#FFFFFF</fg>
+        <bg>#E0E0F0</bg>
+        <size>400,300d</size>
+        <title>Wait List</title>
+        <font>
+            <size>12</size>
+            <family>swiss</family>
+            <style>normal</style>
+            <weight>bold</weight>
+            <underlined>0</underlined>
+            <face>Sans</face>
+        </font>
+        <object class="wxBoxSizer" name="v_oBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_oBoxH">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>10</border>
+                        <object class="wxStaticBitmap" name="wxID_STATIC">
+                            <size>126,87d</size>
+                            <bitmap>logo_pluto.jpg</bitmap>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>10</border>
+                        <option>1</option>
+                        <object class="wxGrid" name="ID_GRID_WL">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
+                            <fg>#FFFFFF</fg>
+                            <bg>#0000FF</bg>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>10</border>
+                <object class="wxGauge" name="ID_GAUGE">
+                    <font>
+                        <size>12</size>
+                        <family>swiss</family>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <face>Sans</face>
+                    </font>
+                    <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH</style>
+                    <value>50</value>
+                    <range>100</range>
                 </object>
             </object>
         </object>

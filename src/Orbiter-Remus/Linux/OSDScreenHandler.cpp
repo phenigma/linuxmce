@@ -1486,7 +1486,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
 bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 {
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
-  wxDialog_RoomWizard_Close();
+  wxDialog_RoomWizard_Close(true);
   (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
   return false;
 }

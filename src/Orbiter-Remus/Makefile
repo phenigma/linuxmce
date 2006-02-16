@@ -46,38 +46,32 @@ CPPFLAGS += $(WX_CPPFLAGS)
 XTRALDLIBS += $(WX_LIBS)
 
 Gen_Dev_Files +=
-sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
-			Simulator.cpp \
-			OrbiterFileBrowser.cpp \
-			Linux/OrbiterLinux.cpp \
-			Linux/XRecordExtensionHandler.cpp \
-			RendererMNG.cpp \
-			GraphicBuilder.cpp \
-			TextStyle.cpp \
-			CacheImageManager.cpp \
-			RendererOCG.cpp \
-			ScreenHandler.cpp \
-			CallBackData.cpp \
-			ScreenHistory.cpp \
-			SDL/SDLRendererOCGHelper.cpp \
-			SDL/SDLGraphic.cpp \
-			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
-			Linux/OSDScreenHandler.cpp \
-			WizardLogic.cpp \
-			../CreateDevice/UserUtils.cpp \
-			$(ROOT)/Splitter/TextSplitter.cpp \
-			$(ROOT)/Splitter/TextWrapper.cpp \
-			$(ROOT)/OrbiterGen/Renderer.cpp \
-			Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp \
-			Linux/XPromptUser.cpp\
-			wxAppMain/wx_other.cpp\
-			wxAppMain/wxappmain.cpp\
-			wxAppMain/wxdialog_roomwizard.cpp\
-			wxAppMain/wxframemain.cpp\
-			wxAppMain/wxthreadbag.cpp\
-			wxAppMain/wxthreadevent.cpp\
-			wxAppMain/wxthreadinfo.cpp\
-			wxAppMain/wxthreaditem.cpp\
+sources += \
+	$(WX_SOURCES) \
+	DesignObj_Data.cpp \
+	DesignObj_Orbiter.cpp \
+	Simulator.cpp \
+	OrbiterFileBrowser.cpp \
+	Linux/OrbiterLinux.cpp \
+	Linux/XRecordExtensionHandler.cpp \
+	RendererMNG.cpp \
+	GraphicBuilder.cpp \
+	TextStyle.cpp \
+	CacheImageManager.cpp \
+	RendererOCG.cpp \
+	ScreenHandler.cpp \
+	CallBackData.cpp \
+	ScreenHistory.cpp \
+	SDL/SDLRendererOCGHelper.cpp \
+	SDL/SDLGraphic.cpp \
+	SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
+	Linux/OSDScreenHandler.cpp \
+	WizardLogic.cpp \
+	../CreateDevice/UserUtils.cpp \
+	$(ROOT)/Splitter/TextSplitter.cpp \
+	$(ROOT)/Splitter/TextWrapper.cpp \
+	$(ROOT)/OrbiterGen/Renderer.cpp \
+	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp\
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
