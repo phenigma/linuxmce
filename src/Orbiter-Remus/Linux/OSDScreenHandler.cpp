@@ -1475,7 +1475,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
                          pRect.X, pRect.Y, pRect.Width, pRect.Height );
   wxDialog_RoomWizard_Show(m_pWizardLogic);
-  wxDialog_RoomWizard_SetSize(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+  wxDialog_RoomWizard_Refresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
   return false;
 }
@@ -1500,7 +1500,7 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
   PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
   g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
                          pRect.X, pRect.Y, pRect.Width, pRect.Height );
-  wxDialog_RoomWizard_SetSize(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+  wxDialog_RoomWizard_Refresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
   g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
   return false;
 }
