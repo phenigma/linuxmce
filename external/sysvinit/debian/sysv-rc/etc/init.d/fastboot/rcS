@@ -24,7 +24,7 @@ Message() {
 InitBootsplash() {
     progress=0
     kscripts=0
-    sscripts=21
+    sscripts=25
     export progress kscripts sscripts
 }
 
@@ -134,7 +134,6 @@ fi
 ## Do some pluto specific cleanup
 setterm -blank >/dev/console             # disable console blanking
 chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
-/usr/pluto/bin/Report_Machine_Status.sh &
 rm /var/log/pluto/running.pids
 chmod 777 /var/log/pluto
 rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
@@ -234,6 +233,7 @@ fi
 
 
 # assure some settings
+/usr/pluto/bin/Report_Machine_Status.sh &
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
 R="$(RunSQL "$Q")"
 ConfSet PK_Installation "$R"
