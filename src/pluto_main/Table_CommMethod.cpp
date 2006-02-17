@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_CommMethod.h"
 
+#include "Table_DeviceTemplate.h"
 #include "Table_InfraredGroup.h"
 
 
@@ -894,6 +895,13 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_CommMethod::DeviceTemplate_FK_CommMethod_getrows(vector <class Row_DeviceTemplate*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
+pTable->GetRows("`FK_CommMethod`=" + StringUtils::itos(m_PK_CommMethod),rows);
+}
 void Row_CommMethod::InfraredGroup_FK_CommMethod_getrows(vector <class Row_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
