@@ -1,3 +1,9 @@
+nvidia-kernel (1.0.8178-2) unstable; urgency=low
+
+  * added Conflicts with nvidia-driver
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 13 Feb 2006 19:56:00 +0200
+
 nvidia-kernel (1.0.8178-1) unstable; urgency=low
 
   * built with 8178
