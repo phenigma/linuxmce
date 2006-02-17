@@ -1,4 +1,4 @@
-#Private functions  17-Feb-06 11:30
+#Private functions  17-Feb-06 13:20
 
 def log( buff )
 if  $logFile.nil? then
@@ -203,6 +203,35 @@ def searchBranches()
 		log( i + "  " )
 	}
 	log( "\n" )
+end
+
+def searchChild( name, branch, unit)
+	childName = String.new
+	childDevice = String.new
+	childUnit = String.new
+
+	children=device_.childdevices_
+	children.each { |key,val| 
+		if ( val.devdata_.has_key?(40) )  then
+			childBranch = val.devdata_[40]
+		end
+	
+		if ( val.devdata_.has_key?(144) )  then
+			childUnit = val.devdata_[144]
+		end
+	
+		if ( val.devdata_.has_key?(12) )  then
+			childName = val.devdata_[12]
+		end
+	
+		if ( ( childName == name) and ( branch == childBranch) and 
+			( unit == childUnit ) ) then
+		
+			log( "Found child with name:" + childName + "   " )
+			log( val.to_s + "," + key.to_s + "\n" )
+			return key
+		end
+	}
 end
 
 def readLine()
@@ -587,9 +616,16 @@ def NOEMONEvent(code,type)
 	
 	log( "Event:" + type + "\n" )
 	log( "Data:" + data + "\n" )
+	
+	idNo = 1
 
 	case type
 	when "AlarmOn"
+	log( "Alarm on. \n" )
+	
+	tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i		
+	tripEv.params_[25] = "1"
+	SendCommand(tripEv)
 	when "AlarmOff"
 	end
 end
@@ -690,15 +726,21 @@ end
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #!!!!!! Lights
+def getId(no,deviceBranch,deviceNo)
+	aux = deviceBranch * 256 + deviceNo	
+	id = "%04u" % aux
+	id += "%02u" % no
+	
+	return id
+end
+
 def NOEMONLightsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
 	NOEMONStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo,4)
 end
 
 def NOEMONTurnLight(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "Turn light " + no.to_s + "   " + state.to_s + "\n" )
-	aux = deviceBranch * 256 + deviceUnit	
-	id = "%04u" % aux
-	id += "%02u" % no
+	id = getId( no, deviceBranch, deviceUnit)
 
 	if ( state == true ) then
 		NOEMONSetUpLightLevel(no,100,pcBranch,pcUnit,deviceBranch,deviceUnit)      # 100 level    
@@ -719,9 +761,7 @@ end
 
 def NOEMONLightSetLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	log( "Light set level " + no.to_s + "   " + level.to_s + "\n" )
-	aux = deviceBranch * 256 + deviceUnit	
-	id = "%04u" % aux
-	id += "%02u"  % no 
+	id = getId( no, deviceBranch, deviceUnit)
 	
 	NOEMONSetUpLightLevel(no,level,pcBranch,pcUnit,deviceBranch,deviceUnit)     
 	NOEMONSetDimmUpRate(no,2,pcBranch,pcUnit,deviceBranch,deviceUnit)     # 1 s
@@ -843,7 +883,8 @@ def NOEMONRelaysStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
 end
 
 def NOEMONTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
-	log( "TurnOnRelay:" + no.to_s + "   " + state.to_s + "\n" )
+	log( "TurnRelay:" + no.to_s + "   " + state.to_s + "\n" )
+	id = getId( no, deviceBranch, deviceUnit)
 	
 	outStr = String.new
 	outStr << 0 << (no-1) << 0
@@ -853,6 +894,12 @@ def NOEMONTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 		outStr << 0
 	end			
 	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceUnit,outStr )
+	
+	if( state == true ) then 
+		$RelaysStatus[id] = 1
+	else
+		$RelayStatus[id] = 0
+	end
 end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Leds
@@ -861,6 +908,9 @@ def NOEMONLedsStatusReport(pcBranch,pcUnit,deviceBranch,deviceNo)
 end
 
 def NOEMONSetLed(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)
+	log( "SetLed:" + no.to_s + "   " + state.to_s + "\n" )
+	id = getId( no, deviceBranch, deviceUnit)
+	
 	outStr = String.new
 	
 	case state
@@ -879,6 +929,9 @@ end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Beeper
 def NOEMONSetBeeper(no,mode,pcBranch,pcUnit,deviceBranch,deviceNo)
+	log( "SetBeeper:" + no.to_s + "   " + state.to_s + "\n" )
+	id = getId( no, deviceBranch, deviceUnit)
+	
 	outStr = String.new
 
 	case mode
