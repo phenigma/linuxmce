@@ -1,5 +1,5 @@
-#NOEMOReport 06-Feb-06 17:58
-log( "Call NOEMO status" + arguments + "  " )
+#NOEMOReport 15-Feb-06 17:25
+log( "Call NOEMON status" + arguments + "  " )
 
 if (arguments.empty? == false) 
 	res=arguments.split( "," )

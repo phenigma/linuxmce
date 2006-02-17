@@ -1,4 +1,4 @@
-#Private functions  15-Feb-06 18:00
+#Private functions  16-Feb-06 11:56
 
 def log( buff )
 if  $logFile.nil? then
@@ -237,12 +237,13 @@ def createChildrenList()
 	end
 	
 	#alarms
-	#for index in 1..$AlarmsNo        #12   
-	#auxStr += index.to_s + "\t" + index.to_s + "\t" + "room1" 
-	#auxStr += "\t" + "1780" + "\t" + "3" + "\n" 
+	totalIndex = $MaxLightId + 200
+	for index in 1..$AlarmsNo        #12   
+	auxStr += index.to_s + "\t" + "Motion detector" + "\t" + "room1" 
+	auxStr += "\t" + "1780" + "\t" + "3" + "\n" 
 	
-	#totalIndex +=1
-	#end
+	totalIndex +=1
+	end
 	
 	addChildDevices( auxStr )
 end
@@ -856,22 +857,27 @@ def NOEMONSetLed(no,state,pcBranch,pcUnit,deviceBranch,deviceNo)
 	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
 
-#other
+#  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Beeper
+def NOEMONSetBeeper(no,mode,pcBranch,pcUnit,deviceBranch,deviceNo)
+	outStr = String.new
 
-def NOEMONSetBeeper(mode)
 	case mode
 	when "discontinuous" 
-		outStr << 9 << 0 << 0 << 1
+		outStr << 9 << (no-1) << 0 << 1
 	when "continuous"
-		outStr << 9 << 0 << 0 << 0
+		outStr << 9 << (no-1) << 0 << 0
 	when "on"
-		outStr << 10 << 0 << 0 << 1
+		outStr << 10 << (no-1) << 0 << 1
 	when "off"
-		outStr << 10 << 0 << 0 << 0
+		outStr << 10 << (no-1) << 0 << 0
 	end
+	
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
 
-def NOEMONSetKeyboard( pass )
+#  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Keyboard   
+def NOEMONSetKeyboard( pass,pcBranch,pcUnit,deviceBranch,deviceNo )
+	outStr = String.new
 	outStr << 50 << 0 << 0 << pass
-	NOEMONSendCmd( $pcBranch,$pcNo,$branchNo,$chipNo,outStr )
+	NOEMONSendCmd( pcBranch,pcUnit,deviceBranch,deviceNo,outStr )
 end
