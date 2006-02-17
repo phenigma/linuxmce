@@ -206,9 +206,9 @@ Message "Start up networking"
 /etc/init.d/inetd      start     1> /dev/null # Starts tftp on Core and Hybrid
 /etc/init.d/portmap    start     1> /dev/null # Search me ! :/
 
-## Now we can safely mount remoute filesystems (in background ?)
+## Now we can safely mount remoute filesystems
 Message "Mounting remote filesystems"
-/etc/init.d/mountnfs.sh start 1> /dev/null &
+/etc/init.d/mountnfs.sh start 1> /dev/null
 
 
 ## Check to see if a single mode was requested
