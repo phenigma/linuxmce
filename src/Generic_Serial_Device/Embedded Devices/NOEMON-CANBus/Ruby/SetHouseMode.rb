@@ -18,11 +18,11 @@ log( "\n" )
 case valueNo
 when 1      #unarmed at home
 	for i in 1..5
-		NOEMArmInput(i)
+		NOEMONArmInput(i)
 	end	
 when 2      # armed away
 	for i in 1..5
-		NOEMArmInput(i)
+		NOEMONArmInput(i)
 	end
 	
 when 3      # armed at home
