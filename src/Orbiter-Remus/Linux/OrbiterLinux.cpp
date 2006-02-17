@@ -395,6 +395,44 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
   XCloseDisplay(dpy);
 }
 
+bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
+{
+  std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
+
+  if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+  {
+    delete m_pProgressWnd;
+    m_pProgressWnd = NULL;
+    return true;
+  }
+
+  if (nProgress != -1 && !m_pProgressWnd) {
+    // Create the progress window ...
+    m_pProgressWnd = new XProgressWnd();
+    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+    m_pProgressWnd->Run();
+    commandRatPoison(":set winname class");
+    commandRatPoison(":desktop off");
+
+    commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+    commandRatPoison(":desktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
+    setDesktopVisible(false);
+  } else if (nProgress != -1) {
+    // Update progress info
+    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+    m_pProgressWnd->DrawWindow();
+  } else if(m_pProgressWnd) {
+    // We are done here ...
+    m_pProgressWnd->Terminate();
+    m_pProgressWnd = NULL;
+    reinitGraphics();
+  }
+
+  return false;
+}
+
 bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 {
   std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;

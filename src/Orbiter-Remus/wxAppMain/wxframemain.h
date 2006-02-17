@@ -35,15 +35,17 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_IDNAME ID_FRAMEMAIN
 #define SYMBOL_WXFRAMEMAIN_SIZE wxSize(500, 300)
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
-#define ID_TOOLBAR 10006
-#define ID_TOOL_RW 10004
-#define ID_TOOL_WL 10009
+#define ID_TOOLBAR_MAIN 10006
+#define ID_TOOL_ROOMWIZARD 10004
+#define ID_TOOL_WAITGRID 10009
+#define ID_TOOL_WAITLIST 10018
+#define ID_TOOL_WAITUSER 10019
 #define ID_TOOL_U_B_D 10012
 #define ID_TOOL_U_B_J 10002
 #define ID_TOOL_U_N_D 10011
 #define ID_TOOL_U_N_J 10010
-#define ID_TEXTCTRL 10007
-#define ID_STATUSBAR1 10008
+#define ID_TEXTCTRL_LOG 10007
+#define ID_STATUSBAR_MAIN 10008
 ////@end control identifiers
 
 /*!
@@ -81,17 +83,29 @@ class wxFrameMain: public wxFrame
     /// wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
     void OnExitClick( wxCommandEvent& event );
 
-    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_RW
-    void OnToolRwClick( wxCommandEvent& event );
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD
+    void OnToolRoomwizardClick( wxCommandEvent& event );
 
-    /// wxEVT_UPDATE_UI event handler for ID_TOOL_RW
-    void OnToolRwUpdate( wxUpdateUIEvent& event );
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_ROOMWIZARD
+    void OnToolRoomwizardUpdate( wxUpdateUIEvent& event );
 
-    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL
-    void OnToolWlClick( wxCommandEvent& event );
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID
+    void OnToolWaitgridClick( wxCommandEvent& event );
 
-    /// wxEVT_UPDATE_UI event handler for ID_TOOL_WL
-    void OnToolWlUpdate( wxUpdateUIEvent& event );
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_WAITGRID
+    void OnToolWaitgridUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST
+    void OnToolWaitlistClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_WAITLIST
+    void OnToolWaitlistUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER
+    void OnToolWaituserClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_WAITUSER
+    void OnToolWaituserUpdate( wxUpdateUIEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_D
     void OnToolUBDClick( wxCommandEvent& event );

@@ -19,7 +19,9 @@
 #include "wxframemain.h"
 #include "wx_other.h"
 #include "wxdialog_roomwizard.h"
+#include "wxdialog_waitgrid.h"
 #include "wxdialog_waitlist.h"
+#include "wxdialog_waituser.h"
 #include "wxthreadbag.h"
 #include "wxthreadevent.h"
 
@@ -47,11 +49,17 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
     EVT_MENU( wxID_EXIT, wxFrameMain::OnExitClick )
 
-    EVT_MENU( ID_TOOL_RW, wxFrameMain::OnToolRwClick )
-    EVT_UPDATE_UI( ID_TOOL_RW, wxFrameMain::OnToolRwUpdate )
+    EVT_MENU( ID_TOOL_ROOMWIZARD, wxFrameMain::OnToolRoomwizardClick )
+    EVT_UPDATE_UI( ID_TOOL_ROOMWIZARD, wxFrameMain::OnToolRoomwizardUpdate )
 
-    EVT_MENU( ID_TOOL_WL, wxFrameMain::OnToolWlClick )
-    EVT_UPDATE_UI( ID_TOOL_WL, wxFrameMain::OnToolWlUpdate )
+    EVT_MENU( ID_TOOL_WAITGRID, wxFrameMain::OnToolWaitgridClick )
+    EVT_UPDATE_UI( ID_TOOL_WAITGRID, wxFrameMain::OnToolWaitgridUpdate )
+
+    EVT_MENU( ID_TOOL_WAITLIST, wxFrameMain::OnToolWaitlistClick )
+    EVT_UPDATE_UI( ID_TOOL_WAITLIST, wxFrameMain::OnToolWaitlistUpdate )
+
+    EVT_MENU( ID_TOOL_WAITUSER, wxFrameMain::OnToolWaituserClick )
+    EVT_UPDATE_UI( ID_TOOL_WAITUSER, wxFrameMain::OnToolWaituserUpdate )
 
     EVT_MENU( ID_TOOL_U_B_D, wxFrameMain::OnToolUBDClick )
     EVT_UPDATE_UI( ID_TOOL_U_B_D, wxFrameMain::OnToolUBDUpdate )
@@ -135,38 +143,39 @@ void wxFrameMain::CreateControls()
     menuBar->Append(itemMenu3, _T("Menu"));
     itemFrame1->SetMenuBar(menuBar);
 
-    v_oToolBar = CreateToolBar( wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN , ID_TOOLBAR );
+    v_oToolBar = CreateToolBar( wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN , ID_TOOLBAR_MAIN );
     wxBitmap itemtool7Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
     v_oToolBar->AddTool(wxID_EXIT, _T("Quit"), itemtool7Bitmap, wxNullBitmap, wxITEM_NORMAL, _T("Quit Application"), _T("Quit Application"));
     v_oToolBar->AddSeparator();
     wxBitmap itemtool9Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_RW, _T("RW"), itemtool9Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
+    v_oToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool9Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
     wxBitmap itemtool10Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    v_oToolBar->AddTool(ID_TOOL_WL, _T("WL"), itemtool10Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
+    v_oToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool10Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait Grid"), _T("Dialog Wait Grid"));
+    wxBitmap itemtool11Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    v_oToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool11Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
+    wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    v_oToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool12Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait User"), _T("Dialog Wait User"));
     v_oToolBar->AddSeparator();
-    wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool12Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
-    wxBitmap itemtool13Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool13Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
     wxBitmap itemtool14Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool14Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    v_oToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool14Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
     wxBitmap itemtool15Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool15Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
+    v_oToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool15Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
+    wxBitmap itemtool16Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_oToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool16Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    wxBitmap itemtool17Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_oToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool17Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
     v_oToolBar->AddSeparator();
     v_oToolBar->Realize();
     itemFrame1->SetToolBar(v_oToolBar);
 
     v_oLogTextCtrl = new wxTextCtrl;
-    v_oLogTextCtrl->Create( itemFrame1, ID_TEXTCTRL, _T(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
-    v_oLogTextCtrl->SetHelpText(_T("Log Help Text"));
-    if (ShowToolTips())
-        v_oLogTextCtrl->SetToolTip(_T("Log Tooltip Text"));
+    v_oLogTextCtrl->Create( itemFrame1, ID_TEXTCTRL_LOG, _T(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
     v_oLogTextCtrl->SetForegroundColour(wxColour(0, 0, 128));
     v_oLogTextCtrl->SetBackgroundColour(wxColour(229, 229, 229));
     v_oLogTextCtrl->SetFont(wxFont(8, wxTELETYPE, wxNORMAL, wxNORMAL, false, _T("Console")));
 
     v_oStatusBar = new wxStatusBar;
-    v_oStatusBar->Create( itemFrame1, ID_STATUSBAR1, wxST_SIZEGRIP|wxNO_BORDER|wxCLIP_CHILDREN  );
+    v_oStatusBar->Create( itemFrame1, ID_STATUSBAR_MAIN, wxST_SIZEGRIP|wxNO_BORDER|wxCLIP_CHILDREN  );
     v_oStatusBar->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false, _T("Sans")));
     v_oStatusBar->SetFieldsCount(1);
     itemFrame1->SetStatusBar(v_oStatusBar);
@@ -175,13 +184,14 @@ void wxFrameMain::CreateControls()
   pLogChain = NULL;
   pLogChain = new wxLogChain(new wxLogTextCtrl(v_oLogTextCtrl));
   new wxThreadBag;
-#if (! defined USE_DEBUG_CODE)
+#ifdef USE_DEBUG_CODE
+#else // USE_DEBUG_CODE
   CommandLineParams commandlineparams;
   bool bStartedOK = ParseCommandLineParams(wxTheApp->argc, wxTheApp->argv, commandlineparams);
   if (! bStartedOK)
     return;
 	sdl_event_loop_data.pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
-#endif // (! defined USE_DEBUG_CODE)
+#endif // USE_DEBUG_CODE
 }
 
 /*!
@@ -204,7 +214,6 @@ void wxFrameMain::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 
 void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 {
-  _wx_log_nfo("wxFrameMain::OnExitClick(*)");
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT in wxFrameMain.
     // Before editing this code, remove the block markers.
     Destroy();
@@ -212,63 +221,137 @@ void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 }
 
 /*!
- * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_RW
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD
  */
 
-void wxFrameMain::OnToolRwClick( wxCommandEvent& event )
+void wxFrameMain::OnToolRoomwizardClick( wxCommandEvent& event )
 {
-  _wx_log_nfo("wxFrameMain::OnToolRwClick(*)");
   if (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE))
     wxDialog_RoomWizard_Close(false);
   else
     wxDialog_RoomWizard_Show();
-////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_RW in wxFrameMain.
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_RW in wxFrameMain.
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
 }
 
 /*!
- * wxEVT_UPDATE_UI event handler for ID_TOOL_RW
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_ROOMWIZARD
  */
 
-void wxFrameMain::OnToolRwUpdate( wxUpdateUIEvent& event )
+void wxFrameMain::OnToolRoomwizardUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_RW, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
-////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_RW in wxFrameMain.
+  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_UPDATE_UI event handler for ID_TOOL_RW in wxFrameMain.
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
 }
 
 /*!
- * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID
  */
 
-void wxFrameMain::OnToolWlClick( wxCommandEvent& event )
+void wxFrameMain::OnToolWaitgridClick( wxCommandEvent& event )
 {
-  _wx_log_nfo("wxFrameMain::OnToolWlClick(*)");
-  if (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE))
-    wxDialog_WaitList_Close();
+  wxDialog_WaitGrid *pwxDialog = (wxDialog_WaitGrid *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE);
+  if (pwxDialog)
+  {
+    pwxDialog->Destroy();
+  }
   else
-    wxDialog_WaitList_Show();
-////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL in wxFrameMain.
+  {
+    pwxDialog = new wxDialog_WaitGrid(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITGRID_IDNAME, SYMBOL_WXDIALOG_WAITGRID_TITLE);
+    pwxDialog->Show(true);
+  }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WL in wxFrameMain. 
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID in wxFrameMain.
 }
 
 /*!
- * wxEVT_UPDATE_UI event handler for ID_TOOL_WL
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_WAITGRID
  */
 
-void wxFrameMain::OnToolWlUpdate( wxUpdateUIEvent& event )
+void wxFrameMain::OnToolWaitgridUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_WL, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE));
-////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WL in wxFrameMain.
+  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITGRID_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE));
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITGRID in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_UPDATE_UI event handler for ID_TOOL_WL in wxFrameMain. 
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_WAITGRID in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST
+ */
+
+void wxFrameMain::OnToolWaitlistClick( wxCommandEvent& event )
+{
+  wxDialog_WaitList *pwxDialog = (wxDialog_WaitList *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE);
+  if (pwxDialog)
+  {
+    pwxDialog->Destroy();
+  }
+  else
+  {
+    pwxDialog = new wxDialog_WaitList(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITLIST_IDNAME, SYMBOL_WXDIALOG_WAITLIST_TITLE);
+    pwxDialog->Show(true);
+  }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST in wxFrameMain.
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_WAITLIST
+ */
+
+void wxFrameMain::OnToolWaitlistUpdate( wxUpdateUIEvent& event )
+{
+  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITLIST_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE));
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITLIST in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_WAITLIST in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER
+ */
+
+void wxFrameMain::OnToolWaituserClick( wxCommandEvent& event )
+{
+  wxDialog_WaitUser *pwxDialog = (wxDialog_WaitUser *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE);
+  if (pwxDialog)
+  {
+    pwxDialog->Destroy();
+  }
+  else
+  {
+    pwxDialog = new wxDialog_WaitUser(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITUSER_IDNAME, SYMBOL_WXDIALOG_WAITUSER_TITLE);
+    pwxDialog->Show(true);
+  }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER in wxFrameMain.
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_WAITUSER
+ */
+
+void wxFrameMain::OnToolWaituserUpdate( wxUpdateUIEvent& event )
+{
+  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITUSER_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE));
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITUSER in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_WAITUSER in wxFrameMain.
 }
 
 /*!
@@ -277,7 +360,6 @@ void wxFrameMain::OnToolWlUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUBDClick( wxCommandEvent& WXUNUSED(event) )
 {
-  _wx_log_nfo("wxFrameMain::OnToolUDBClick(*)");
   if (g_pwxThreadBag->GetCount())
   {
     g_pwxThreadBag->DestroyAll();
@@ -313,7 +395,6 @@ void wxFrameMain::OnToolUBDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
 {
-  _wx_log_nfo("wxFrameMain::OnToolUJBClick(*)");
   if (g_pwxThreadBag->GetCount())
   {
     g_pwxThreadBag->DestroyAll();
@@ -347,7 +428,6 @@ void wxFrameMain::OnToolUBJUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNDClick( wxCommandEvent& event )
 {
-  _wx_log_nfo("wxFrameMain::OnToolUDNClick(*)");
   if (g_pwxThreadBag->GetCount())
   {
     g_pwxThreadBag->DestroyAll();
@@ -381,7 +461,6 @@ void wxFrameMain::OnToolUNDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNJClick( wxCommandEvent& event )
 {
-  _wx_log_nfo("wxFrameMain::OnToolUJNClick(*)");
   if (g_pwxThreadBag->GetCount())
   {
     g_pwxThreadBag->DestroyAll();
@@ -415,7 +494,6 @@ void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 
 bool wxFrameMain::ShowToolTips()
 {
-  _wx_log_nfo("wxFrameMain::ShowToolTips()");
   return true;
 }
 

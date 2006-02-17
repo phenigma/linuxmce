@@ -22,6 +22,12 @@
 
 #include "wx_defines.h"
 
+#include <string>
+#include <map>
+using namespace std;
+
+WX_DEFINE_ARRAY(bool, wxArrayBool);
+
 // if not, return
 #define wxELSE_RET(x)   do { if (!(x)) { wxFAIL; return; } } while (0)
 

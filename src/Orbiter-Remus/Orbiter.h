@@ -376,10 +376,14 @@ namespace DCE
 		virtual void AdjustWindowSize(int iWidth, int iHeight) {}
 
 		/**
-		* @brief renders an object on the screen
-		* @todo ask
+		* @brief renders an object on the screen sync
 		*/
 		virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0) );
+		
+		/**
+		* @brief renders an object on the screen async; it will add the object to m_vectObjs_NeedRedraw vector to be re-rendered
+		*/
+		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
 
 		/**
 		* @brief renders a floorplan
@@ -549,6 +553,7 @@ namespace DCE
 		virtual int MonitorRegen(int PK_Device);
 		virtual int PromptFor(string sToken);
 		virtual bool DisplayProgress(string sMessage, int nProgress);
+		virtual bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress) { return false; }
 		virtual bool RegenOrbiter(); // Send Orbiter plugin a command to regen this orbiter
 
 		/**
