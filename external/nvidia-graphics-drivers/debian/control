@@ -27,7 +27,7 @@ Architecture: i386 amd64
 Depends: nvidia-kernel-1.0.8178, xserver-common (>= 4.0.3), xlibmesa-glu | libglu | libglu1, ${shlibs:Depends}
 Recommends: nvidia-kernel-source (>= 1.0.8178)
 Suggests: nvidia-settings
-Conflicts: nvidia-glx-src
+Conflicts: nvidia-glx-src, nvidia-driver
 Replaces: nvidia-glx-src
 Provides: xserver
 Description: NVIDIA binary XFree86 4.x driver
