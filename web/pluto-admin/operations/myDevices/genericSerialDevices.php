@@ -358,7 +358,7 @@ function genericSerialDevices($output,$dbADO) {
 			}
 			
 			if(isset($_POST['reinit_'.$value])){
-				ReinitCanBus($value);
+				ReinitCanBus($value,"CANBUS");
 			}
 			
 			if(isset($_POST['reinit_noemon_'.$value])){
