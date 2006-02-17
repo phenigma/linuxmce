@@ -222,7 +222,7 @@ function setTemplateFileType($type) {
   		$this->body.='<script>
   			try{
 	  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
-	  			if(queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\'){
+	  			if(queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\' && queryStr!=\'\'){
 	  				top.treeframe.location=\'index.php?section=wizard\';
 	  			}
 	  		}catch(e){

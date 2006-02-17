@@ -48,7 +48,8 @@ function leftMenu($output,$dbADO) {
 		
 		//load the selected installation into SESSION (and check if is a valid installation for this user)
 		if (in_array($selectedInstallation,$_SESSION['installationIDs'])) {
-			$_SESSION['installationID'] = $selectedInstallation;				
+			$_SESSION['installationID'] = $selectedInstallation;
+			$installationID=$_SESSION['installationID'];	
 		} else {
 			$selectedInstallation = $_SESSION['installationID'];
 		}
@@ -78,13 +79,13 @@ function leftMenu($output,$dbADO) {
 					}			
 		}	else {
 				$jsTree='';
-				
+
 				$cachedLeftMenu=(getcwd()).'/cached/LeftMenu';
 				$cachedDevices=(getcwd()).'/cached/CachedDevices';
 				$cachedQuickJump=(getcwd()).'/cached/QuickJump';
 
 				// get existing devices to compare them with old ones
-				$devices=getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC');
+				$devices=getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY PK_Device ASC');
 				
 				// if something changed in Device table, or the cached menu does not exist, rebuild menu
 				if(file_exists($cachedLeftMenu)){
@@ -93,7 +94,7 @@ function leftMenu($output,$dbADO) {
 					if(serialize($devices)==trim($oldDevices[1]) && $last_psc_mod[0]==trim($oldDevices[0])){
 						// get menu JS from cache
 						$jsTree=join('',file($cachedLeftMenu));
-						$quickJumpPulldown=join(',',file($cachedQuickJump));
+						$quickJumpPulldown=join('',file($cachedQuickJump));
 					}else{
 						$rebuildMenu=1;
 					}
@@ -103,6 +104,7 @@ function leftMenu($output,$dbADO) {
 				
 				if(@$rebuildMenu==1){
 					// rebuild menu JS for devices
+
 					$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
 					$res1 = $dbADO->_Execute($query1);
 					if ($res1) {
@@ -135,7 +137,7 @@ function leftMenu($output,$dbADO) {
 					'.$TEXT_CHANGE_INSTALLATION_CONST.':
 					<input type="hidden" name="section" value="leftMenu">
 					<input type="hidden" name="rightSection" value="'.$currentSection.'">
-					<select name="installationNo" onChange="parent.frames[1].location.href=\'index.php?section=userHome&reloadTree=true\';this.form.submit();">';
+					<select name="installationNo" onChange="parent.frames[1].location.href=\'index.php?section=userHome&reloadTree=false\';this.form.submit();">';
 			
 					foreach ($_SESSION['installationIDs'] as $elem) {
 						$installationTxt.="<option ".($selectedInstallation==$elem?" selected ":'')." value='".$elem."'>$elem</option>";

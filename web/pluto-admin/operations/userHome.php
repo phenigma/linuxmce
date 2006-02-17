@@ -12,7 +12,7 @@ function userHome($output,$dbADO) {
 
 	$scriptInHead='
 <script>
-	'.($reloadTree==true?'
+	'.($reloadTree===true?'
 	if (parent.frames[\'treeframe\']) {
 		top.frames[\'treeframe\'].location=\'index.php?section=wizard\';
 	}':'').'
@@ -20,7 +20,7 @@ function userHome($output,$dbADO) {
 ';
 	$content=(isset($_REQUEST['voicemail']))?'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>':$TEXT_USER_HOME_TEXT_CONST;
 	
-	$out.=setLeftMenu($dbADO).$content;
+	$out.=$content;
 
 	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
