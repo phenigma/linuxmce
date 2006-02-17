@@ -1,4 +1,4 @@
-#Private functions  17-Feb-06 13:20
+#Private functions  17-Feb-06 14:49
 
 def log( buff )
 if  $logFile.nil? then
@@ -158,9 +158,11 @@ if ( waitAnswer == true ) then
 			send(word)
 			$cmdState = 2
 		else 
-			log( "Adding to buffer:" )
-			logStringA( word )
 			$cmdBuffer.push( word )
+			log( "Adding to buffer:("  )
+			log( "State:" + $cmdState.to_s + "   " )
+			log( "Size:" + $cmdBuffer.size.to_s + ")\n" )
+			logStringA( word )
 	end
 end
 
@@ -174,9 +176,12 @@ if ($cmdBuffer.empty?) then      #buffer empty
 		finishBranchInt()
 	end
 else                                    #execute first command from buffer
-	log( "Sending comand from buffer:\n" )
-	send( $cmdBuffer.first )
+	buff = $cmdBuffer.first
 	$cmdBuffer.delete_at(0)
+	send( buff )
+	log( "Sending comand from buffer:("  )
+	log( "State:" + $cmdState.to_s + "   " )
+	log( "Size:" + $cmdBuffer.size.to_s + ")\n" )
 end
 
 #return buff2
@@ -463,7 +468,7 @@ def CANSend29( header,data,waitAnswer)
 		log( str + " " )
 		outStr += str
 	}
-	log( "\n" )
+	log( "   " )
 	
 	log( "Data:" + "   " )
 	outStr += data.size.to_s	
@@ -515,7 +520,7 @@ def NOEMONSendCmd(pcBranch,pcNo,deviceBranch,deviceNo,code)
 	header << ( pcValue % 256 )
 	
 	log( "PC branch:" + pcBranch.to_s + "  " )
-	log( "PC no" + pcNo.to_s +  "   " )
+	log( "PC no:" + pcNo.to_s +  "   " )
 	log( "PC value:" + pcValue.to_s + "  " )
 	log( "Device branch:" + deviceBranch.to_s + "   " )
 	log( "Device no:" + deviceNo.to_s + "\n" )
@@ -549,11 +554,11 @@ def startBranchInt()
 	$bStartInterogate = true
 	$startTime=Time.now
 	
-	log( "Start interogate\n" )	
+	log( "Start interogate" + "   " )	
 	log( "Device branch:"  + deviceBranch.to_s + "   " )
 	log( "Device unit:"  + deviceUnit.to_s + "   " )
 	log( "Id:" + $branchList[$currentBranch] + " " )
-	log( "Time:" + $startTime.strftime("%H:%M:%S  ") + "\n" )
+	log( "Time:" + $startTime.strftime("%H:%M:%S  ") + "\n\n" )
 	
 	NOEMONStatus($pcBranch,$pcNo,deviceBranch,deviceUnit)  
 end
@@ -566,7 +571,7 @@ def finishBranchInt
 	
 	log( "Finish to interogate: " )
 	log( "Time:" + strTime + "   " )
-	log( "In:" + diff.to_s + "   sec\n" ) 
+	log( "In:" + diff.to_s + "   sec\n\n" ) 
 		
 	logReport();
 	$bStartInterogate = false;
@@ -597,8 +602,8 @@ def NOEMONStatusReport(pcBranch,pcNo,branchNo,chipNo,reportType)
 	header << ( pcValue % 256 )
 	
 	log( "NOEMON Status Report:" + $cmdState.to_s + "\n" )
-	log( "Branch no:" + branchNo.to_s + "  " )
-	log( "Chip no" + chipNo.to_s + "\n" )
+	log( "Device branch:" + branchNo.to_s + "  " )
+	log( "Device no:" + chipNo.to_s + "\n" )
 	log( "PC branch:" + pcBranch.to_s + "  " )
 	log( "PC no:" + pcNo.to_s + "   " )
 	log( "Value:" + pcValue.to_s + "\n" )
@@ -618,15 +623,21 @@ def NOEMONEvent(code,type)
 	log( "Data:" + data + "\n" )
 	
 	idNo = 1
+	#idNo = searchChild( name, branch, unit )
+	tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp 
 
 	case type
 	when "AlarmOn"
 	log( "Alarm on. \n" )
-	
-	tripEv= Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp   key.to_i		
+		
 	tripEv.params_[25] = "1"
 	SendCommand(tripEv)
+	
 	when "AlarmOff"
+	log( "Alarm off. \n" )
+	
+	tripEv.params_[25] = "0"
+	SendCommand(tripEv)
 	end
 end
 
