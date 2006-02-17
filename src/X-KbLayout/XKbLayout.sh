@@ -16,10 +16,10 @@ function setCurrentLayout {
 	grep -q "^.*Option.*\"XkbLayout\".*" $XConfFile
 	if [[ $? -eq 0 ]]; then
 		# Just replace the current layout
-		sed "s|^.*Option.*\"XkbLayout\".*|\tOptions\t\t\"XkbLayout\"\t\"$layout\"|g" $XConfFile > $XConfFile.$$
+		sed "s|^.*Option.*\"XkbLayout\".*|\tOption\t\t\"XkbLayout\"\t\"$layout\"|g" $XConfFile > $XConfFile.$$
 	else
 		# Create the layout option
-		sed "s|^.*Driver.*\"keyboard\"|\tDriver\t\t\"keyboard\"\n\tOptions\t\t\"XkbLayout\"\t\"$layout\"|g" $XConfFile > $XConfFile.$$
+		sed "s|^.*Driver.*\"keyboard\"|\tDriver\t\t\"keyboard\"\n\tOption\t\t\"XkbLayout\"\t\"$layout\"|g" $XConfFile > $XConfFile.$$
 	fi
 	
 	mv $XConfFile.$$ $XConfFile
@@ -46,6 +46,8 @@ case "$Action" in
 		setCurrentLayout $KbLayout
 		if [[ "$IP" != "127.0.0.1" ]]; then
 			ssh $IP "setxkbmap $KbLayout" &>/dev/null
+		else
+			setxkbmap $KbLayout 2>/dev/null
 		fi
 	;;
 
