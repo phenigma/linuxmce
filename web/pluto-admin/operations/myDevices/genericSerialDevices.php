@@ -358,13 +358,11 @@ function genericSerialDevices($output,$dbADO) {
 			}
 			
 			if(isset($_POST['reinit_'.$value])){
-				$cmd='/usr/pluto/bin/ReinitCanBus.bh '.$value;
-				exec($cmd,$retArr);
+				ReinitCanBus($value);
 			}
 			
 			if(isset($_POST['reinit_noemon_'.$value])){
-				$cmd='/usr/pluto/bin/ReinitCanBus.bh '.$value.' NOEMON';
-				exec($cmd,$retArr);
+				ReinitCanBus($value, "NOEMON");
 			}
 		}
 		
@@ -455,5 +453,10 @@ function getChildDevices($childs,$deviceID,$dbADO,$filter){
 	}
 	
 	return $childs;
+}
+
+function ReinitCanBus($myObj, $myParam='CANBUS')
+{
+	exec("/usr/pluto/bin/MessageSend localhost 0 $myObj 1 776 51 $myParam");
 }
 ?>
