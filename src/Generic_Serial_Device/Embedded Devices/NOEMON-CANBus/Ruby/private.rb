@@ -1,4 +1,4 @@
-#Private functions  16-Feb-06 11:56
+#Private functions  17-Feb-06 11:30
 
 def log( buff )
 if  $logFile.nil? then
@@ -47,40 +47,59 @@ end
 def logReport()
 log( "Report: \n" )
 
+log( "CmdState:" +$cmdState.to_s + "   "  )
+log( "CmdBuffer size:" + $cmdBuffer.size.to_s + "   " )
+log( "Init:" + $bInit.to_s + "\n" )
+
 log( "Branches lists:" + "   " )
 $branchList.each{ |i| log( i.to_s + "," ) }
-log( "\n" )
-
-log( "CmdState:" +$cmdState.to_s + "   "  )
-log( "CmdBuffer size:" + $cmdBuffer.size.to_s + "\n" )
-
-log( "Alarms  value: ")
-if ($AlarmsStatus.size==0) then log( "No alarms")  end
-$AlarmsStatus.each{ |key,value|
-	log( key.to_s + "," + value.to_s + "   " )
-}
-log( "\n" )
-
-log( "Relays  value: ")
-if ($RelaysStatus.size==0) then log( "No relays")  end
-$RelaysStatus.each{ |key,value|
-	log( key.to_s + "," + value.to_s + "   " )
-}
-log( "\n" )
-
-log( "Lights  value: ")
-if ($LightsStatus.size==0) then log( "No lights")  end
-$LightsStatus.each{ |key,value|
-	log( key.to_s + "," + value.to_s + "   " )
-}
-log( "\n" )
-
-log( "Leds  value: ")
-if ($LedsStatus.size==0) then log( "No leds")  end
-$LedsStatus.each{ |key,value|
-	log( key.to_s + "," + value.to_s + "   " )
-}
 log( "\n\n" )
+
+$branchList.each{ |i|
+	log( "Branch no:" + i.to_s + "\n" )
+
+	log( "Alarms  value: ")
+	count = 0
+	$AlarmsStatus.each{ |key,value|
+		if ( key[0..3] == i )  then
+			log( key.to_s + "," + value.to_s + "   " )
+			count += 1
+		end
+	}
+	if (count == 0) then log( "No alarms")  end
+	log( "\n" )
+
+	log( "Relays  value: ")
+	if ($RelaysStatus.size==0) then log( "No relays")  end
+	$RelaysStatus.each{ |key,value|
+		if( key[0..3] == i )  then
+			log( key.to_s + "," + value.to_s + "   " )
+			count += 1
+		end
+	}
+	if (count == 0) then log( "No relays")  end
+	log( "\n" )
+
+	log( "Lights  value: ")
+	$LightsStatus.each{ |key,value|
+		if( key[0..3] == i )  then
+			log( key.to_s + "," + value.to_s + "   " )
+			count += 1
+		end
+	}
+	if (count == 0) then log( "No lights")  end
+	log( "\n" )
+
+	log( "Leds  value: ")
+	$LedsStatus.each{ |key,value|
+		if( key[0..3] == i )  then
+			log( key.to_s + "," + value.to_s + "   " )
+			count += 1
+		end
+	}
+	if (count == 0) then log( "No leds")  end
+	log( "\n\n" )
+}
 end
 
 def extractData(data,noBytes)
@@ -237,10 +256,10 @@ def createChildrenList()
 	end
 	
 	#alarms
-	totalIndex = $MaxLightId + 200
+	totalIndex = $MaxLightId + 10
 	for index in 1..$AlarmsNo        #12   
-	auxStr += index.to_s + "\t" + "Motion detector" + "\t" + "room1" 
-	auxStr += "\t" + "1780" + "\t" + "3" + "\n" 
+	auxStr += totalIndex.to_s + "\t" + "Motion" + "\t" + "room1" 
+	auxStr += "\t" + "56" + "\t" + "3" + "\n" 
 	
 	totalIndex +=1
 	end
@@ -490,6 +509,7 @@ def startBranchInt()
 		log( "Finish to interogate all branches\n\n" )
 		$bStartInterogate = false;
 		$bInit = true;
+		logReport()
 		return 
 	end
 	
