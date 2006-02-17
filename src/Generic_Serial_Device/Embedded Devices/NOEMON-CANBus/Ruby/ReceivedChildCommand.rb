@@ -1,4 +1,4 @@
-# 15-Feb-06 17:24 Receive command from child
+# 17-Feb-06 13:38 Receive command from child
 if ( $bInit == false ) then
 	log( "The initialisation is not finish yet\n")
 	return
@@ -19,23 +19,16 @@ log( "Child name:" + childName + "\n" )
 deviceBranch=0
 deviceUnit=1
 
-children=device_.childdevices_
-children.each { |key,val| 
-	#log( key.to_s + "   " + val.to_s + "\n" ) 
-	
-	if (childName == val.devdata_[12] ) then      #found the child
-		
-		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(139)) then
-			log( "Id:" + val.devdata_[12] + "   " )
-			log( "Branch:" + val.devdata_[40] + "   " )
-			log( "Unit:" + val.devdata_[139]  + "\n" )
+val = device_.childdevices_[cmdTo]
+if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(144)) then
+	log( "Id:" + val.devdata_[12] + "   " )
+	log( "Branch:" + val.devdata_[40] + "   " )
+	log( "Unit:" + val.devdata_[144]  + "\n" )
 			
-			deviceBranch = val.devdata_[40].to_i
-			deviceUnit = val.devdata_[139].to_i
-		end
-	end
-	}
-	
+	deviceBranch = val.devdata_[40].to_i
+	deviceUnit = val.devdata_[144].to_i
+end
+
 aux = deviceBranch * 256 + deviceUnit
 idBranch = "%04u" % aux
 
