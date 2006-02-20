@@ -1044,6 +1044,7 @@ function getDevicesArrayFromCategory($categoryID,$dbADO)
 	}
 	unset($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray']=array();
+
 	return $devicesList;
 }
 
