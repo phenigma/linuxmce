@@ -40,16 +40,22 @@ for section in $sections; do
 	echo "mkdir -p $dirR" >>$section.patch.sh
 	echo "cd $dirR" >>$section.patch.sh
 
-	# Removed files/directories
-	entries=$(cat $section.changes | grep '^-' | cut -c2- | tr '\n ' ' _')
-	for entry in $entries; do
-		Type="${entry:0:1}"
-		FileName="${entry:2}"
-		case "$Type" in
-			F) echo "rm -f $FileName" >>$section.patch.sh ;;
-			D) echo "rmdir $FileName" >>$section.patch.sh ;;
-			*) echo "# Unknown type $Type" ;;
-		esac
+	# Remove files then directories
+	# it usually goes like this: the directories to be removed are left empty by removing the files in them
+	# if a directory is to be removed but it's not empty, something went wrong
+	# rmdir is there to make sure we don't delete non-empty directories
+	# but this situation should never happen with this algorithm, unless tampered with
+	
+	# Removed files
+	entries=$(cat $section.changes | grep '^-F' | cut -f2 -d' ' | tr '\n' ' ')
+	for FileName in $entries; do
+		echo "rm -f $FileName" >>$section.patch.sh
+	done
+	
+	# Removed directories
+	entries=$(cat $section.changes | grep '^-D' | cut -f2 -d' ' | tr '\n' ' ')
+	for FileName in $entries; do
+		echo "rmdir $FileName" >>$section.patch.sh
 	done
 
 	# Added files/directories
@@ -60,7 +66,7 @@ for section in $sections; do
 		FileName="${entry:2}"
 		case "$Type" in
 			F) echo "# add file $FileName" >>$section.patch.sh; files="$files $FileName" ;;
-			D) echo "# add directory $FileName" >>$section.patch.sh ;; # don't add directories to the list; tar knows paths and we only need changed files
+			D) echo "mkdir -p $FileName" >>$section.patch.sh ;;
 			*) echo ""
 		esac
 	done
