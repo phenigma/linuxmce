@@ -1,10 +1,12 @@
 #!/bin/bash
 
+KVER=$(uname -r)
 dpkg-buildpackage -rfakeroot -b -us -uc
 
 tar -xzf nvidia-kernel-source.tar.gz
 pushd modules/nvidia-kernel/ &>/dev/null
-KSRC=/lib/modules/`uname -r`/build KVERS=`uname -r` fakeroot debian/rules binary_modules
+KSRC=/lib/modules/${KVER}/build KVERS=${KVER} fakeroot debian/rules binary_modules
 popd &>/dev/null
 
-cp modules/nvidia-kernel-`uname -r`_1.0.8178-2_i386.deb ..
+Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
+cp modules/nvidia-kernel-${KVER}_${Version}_i386.deb ..

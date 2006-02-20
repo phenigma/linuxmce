@@ -1,4 +1,4 @@
-nvidia-graphics-drivers (1.0.8178-2) unstable; urgency=low
+nvidia-graphics-drivers (1.0.8178-3) unstable; urgency=low
 
   * added Conflicts with nvidia-driver
 
