@@ -67,9 +67,15 @@ for section in $sections; do
 		case "$Type" in
 			F) echo "# add file $FileName" >>$section.patch.sh; files="$files $FileName" ;;
 			D) echo "mkdir -p $FileName" >>$section.patch.sh ;;
-			*) echo ""
+			*) echo "# Unknown type '$Type'"
 		esac
 	done
-	(cd $dirL; tar -czvf $location/$section.tar.gz $files)
-	echo "tar -xzvf /home/uploads/$section.tar.gz" >>$section.patch.sh
+	rm -f "$location/$section.tar.gz"
+	if [[ -n "$file" ]]; then
+		(cd $dirL; tar -czvf $location/$section.tar.gz $files)
+		echo "tar -xzvf /home/uploads/$section.tar.gz" >>$section.patch.sh
+	else
+		tar --files-from=/dev/null -czvf $location/$section.tar.gz
+		echo "# Files already up to date" >>$section.patch.sh
+	fi
 done
