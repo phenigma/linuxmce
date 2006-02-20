@@ -185,6 +185,7 @@ namespace DCE
 		string m_sLocalDirectory; /** < A directory to get files from */
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 		int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens

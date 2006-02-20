@@ -84,7 +84,9 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 	list<Word> line;
 	ImageRow ImageLine;
 	RendererImage * RI;
-	bool statU = false, statI = false, statB = false;
+	bool statU = pDefaultTextStyle->m_bUnderline;
+	bool statI = pDefaultTextStyle->m_bItalic;
+	bool statB = pDefaultTextStyle->m_bBold;
 	LineAttr LAttr;
 	pair<int, int> WW; // used to stand for "Word Width", but now it's "Word Dimensions" (first: Width; second: Height)
     int lastY = 0;

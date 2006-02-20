@@ -236,6 +236,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
+	m_pObj_SelectedLastScreen=NULL;
 	m_pGraphicBeforeHighlight=NULL;
 	m_LastActivityTime=time( NULL );
 	m_iLastEntryInDeviceGroup=-1;
@@ -1591,6 +1592,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectionMethod, int X,  int Y)
 {
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
+	m_pObj_SelectedLastScreen = pObj;
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbObjectSelected);
 	if(pCallBackData)

@@ -204,19 +204,15 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     TextLocation.h = Text->m_rPosition.Height;
 
 #ifdef WIN32
-    string BasePath="C:\\Windows\\Fonts\\";
+	char pWindowsDirector[MAX_PATH];
+	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
+    string BasePath = string(pWindowsDirector) + "\\Fonts";
 #else
-    string BasePath="/usr/pluto/fonts/";
+    string BasePath="/usr/share/fonts/truetype/msttcorefonts";
 #endif //win32
 
-    try
-    {
-        WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
-            pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
-    }
-    catch(...)
-    {
-    }
+	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
+		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)

@@ -1095,60 +1095,40 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 #if ( defined( PROFILING_TEMP ) )
 	clock_t clkStart = clock(  );
 #endif
-
-    //  cout << "Starting to render text" << pDesignObjText->m_PK_Text << " " << pDesignObjText->m_Text << endl;
-    // hack
+ 
+	int nPixelHeight = pTextStyle->m_iPixelHeight; // * 17 / 20;
     if( !pTextStyle->m_pTTF_Font )
     {
-// TODO -- temporary debugging info
         if (pTextStyle->m_sFont == "")
             pTextStyle->m_sFont = "arial";
 
-        try
-        {
-            pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + pTextStyle->m_sFont + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
-        }
-        catch(...)
-        {
-        }
+		// Sometimes the camel case is converted to all upper or lower in Linux.
 
-        // Sometimes the camel case is converted to all upper or lower in Linux.
-        if( pTextStyle->m_pTTF_Font==NULL )
-        {
-            try
-            {
-                pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToUpper(pTextStyle->m_sFont) + ".TTF").c_str(), pTextStyle->m_iPixelHeight);
-            }
-            catch(...)
-            {
-            }
-        }
-
-        if( pTextStyle->m_pTTF_Font==NULL )
-        {
-            try
-            {
-                pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToLower(pTextStyle->m_sFont) + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
-            }
-            catch(...)
-            {
-            }
-        }
-
-        /*
-        #ifdef WIN32
-        TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("C:\\Windows\\Fonts\\Arial.ttf", pDesignObjText->m_PixelHeight);
-        #else
-        TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("/usr/share/pluto/fonts/arial.ttf", pDesignObjText->m_PixelHeight);
-        #endif
-        */
-        if (pTextStyle->m_pTTF_Font == NULL)
-        {
-            TTF_Quit();
-            throw "Can't open font: " + pTextStyle->m_sFont + ": " + TTF_GetError();
-        }
-    }
-    //  cout << "opened font" << endl;
+		try
+		{
+			string sFontFile = m_sFontPath + pTextStyle->m_sFont + ".ttf";
+			pTextStyle->m_pTTF_Font = TTF_OpenFont(sFontFile.c_str(), nPixelHeight);
+			if(NULL == pTextStyle->m_pTTF_Font)
+			{
+				string sUpperCasedFontFile = StringUtils::ToUpper(m_sFontPath + pTextStyle->m_sFont + ".ttf");
+				pTextStyle->m_pTTF_Font = TTF_OpenFont(sUpperCasedFontFile.c_str(), nPixelHeight);
+				if(NULL == pTextStyle->m_pTTF_Font)
+				{
+					string sLowerCasedFontFile = StringUtils::ToUpper(m_sFontPath + pTextStyle->m_sFont + ".ttf");
+					pTextStyle->m_pTTF_Font = TTF_OpenFont(sLowerCasedFontFile.c_str(), nPixelHeight);
+					if(NULL == pTextStyle->m_pTTF_Font)
+					{
+						TTF_Quit();
+						g_pPlutoLogger->Write(LV_WARNING, "Can't open font: %s: %s", pTextStyle->m_sFont.c_str(), TTF_GetError());
+						return PlutoSize(1, 1);
+					}
+				}
+			}
+		}
+		catch(...)
+		{
+		}
+	}
 
     SDL_Color SDL_color;
     /* HACKED IN - Windows and Linux get different colors here */
@@ -1189,10 +1169,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     if (RenderedText == NULL)
     {
         TTF_Quit();
-        //throw /*cerr <<*/ "Can't render text: " + pDesignObjText->m_sText + ": " + TTF_GetError();
  		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText: Can't render text: %s", pDesignObjText->m_sText.c_str());
-			
-
 		return PlutoSize(1, 1);
     }
 
@@ -1210,8 +1187,6 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
         SDL_SetAlpha(RenderedText, 0, 0);
         pRenderImage->NewSurface = false;
         SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
-//      SDL_SaveBMP(pRenderImage->m_pSDL_Surface, ("blit-" + pDesignObjText->m_sText + ".bmp").c_str());
-    //          cout << "called Blit" << endl;
     }
 
 // todo - find a solution for this  TTF_CloseFont(Font);
