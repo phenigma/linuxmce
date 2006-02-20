@@ -24,21 +24,11 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	
 	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
 	
-	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
-	
-	$queryDeviceTemplate='
-		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-		ORDER BY Description ASC';
-	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$DTArray=array();
-	$DTIDArray=array();
-	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['Description'];
-		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
-	}
+	$SecurityDevicesDT=getDeviceTemplatesFromCategory($GLOBALS['rootSecurity'],$dbADO,1);
+	$CamerasDevicesDT=getDeviceTemplatesFromCategory($GLOBALS['rootCameras'],$dbADO,1);
+
+	$DTIDArray=array_keys($SecurityDevicesDT+$CamerasDevicesDT);
+	$DTArray=array_values($SecurityDevicesDT+$CamerasDevicesDT);
 
 	if ($action == 'form') {
 		$out.=setLeftMenu($dbADO).'
