@@ -94,7 +94,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 #endif
 				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
-				return handler()->processData(buffer, length);
+				break;				
 			}
 			if(buffer[0] == RESPONSE)
 			{
@@ -102,7 +102,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~8" );
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the response is here");
 #endif
-				return true;
+				return true;				
 			}
 			else //buffer[1] == REQUEST
 			{
@@ -110,6 +110,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~8" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~9" );
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the tx status is here");
 #endif
+				bool completedOK = false;
 				switch(buffer[3])
 				{
 					case TRANSMIT_COMPLETE_OK:
@@ -117,6 +118,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~9" );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~10" );
 #endif
+						completedOK = true;
 						break;
 					case TRANSMIT_COMPLETE_NO_ACK:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
@@ -140,7 +142,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~13" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~14" );
 #endif
 				setState(ZWaveJob::STOPPED);
-				return true;				
+				return completedOK;				
 			
 			}
 	}
@@ -148,5 +150,5 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~14" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~15" );
 #endif
 	//setState(ZWaveJob::STOPPED);
-	return false;
+	return handler()->processData(buffer, length);
 }

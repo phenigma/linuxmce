@@ -137,6 +137,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the tx status is here");
 #endif
+				bool completedOK = false;
 				switch(buffer[3])
 				{
 					case TRANSMIT_COMPLETE_OK:
@@ -144,6 +145,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 #ifdef PLUTO_DEBUG
 						g_pPlutoLogger->Write(LV_DEBUG, "*******************14" );
 #endif
+						completedOK = true;
 						break;
 					case TRANSMIT_COMPLETE_NO_ACK:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
@@ -167,7 +169,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 #ifdef PLUTO_DEBUG
 				g_pPlutoLogger->Write(LV_DEBUG, "*******************18" );
 #endif
-				return true;				
+				return completedOK;				
 			}
 			else//buffer[0] == REQUEST
 			{
