@@ -4,6 +4,8 @@ IP="$1"
 MAC="$2"
 lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
 
+sed -i "/$IP/ d" /root/.ssh/known_hosts &>/dev/null
+
 if [[ -z "$IP" ]]; then
 	echo "Error: Empty IP"
 	exit
