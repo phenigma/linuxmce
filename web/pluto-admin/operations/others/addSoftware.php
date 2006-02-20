@@ -29,7 +29,8 @@ function addSoftware($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="left">Add software</h3>
+			
+			<h3 align="left">'.$TEXT_ADD_SOFTWARE_CONST.'</h3>
 			<form action="index.php" method="POST" name="addSoftware">
 			<input type="hidden" name="section" value="addSoftware">
 			<input type="hidden" name="action" value="add">

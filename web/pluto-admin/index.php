@@ -1391,6 +1391,12 @@ switch ($section) {
 	    include_once('operations/telecom/voicemail.php');
 	    voicemail($output,$dbADO);	    
 	break;	
+	case 'keyboardLayout':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/keyboardLayout.php');
+	    keyboardLayout($output,$dbADO);	    
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	
