@@ -149,11 +149,13 @@ function sqlcvs_diff($output,$dbADO) {
 			if(!isset($tParmArray[$rep])){
 				header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
 				exit();
-			}			
+			}
+			$parmList.=(substr($parmList,-1)==' ')?',':'';			
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
 		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
+		
 		exec($cmd,$retArray,$retVal);
 		
 		$out.='

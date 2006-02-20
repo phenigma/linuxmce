@@ -153,6 +153,7 @@ function sqlcvs_update($output,$dbADO) {
 				header("Location: index.php?section=sqlcvs_update&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
 				exit();
 			}
+			$parmList.=(substr($parmList,-1)==' ')?',':'';			
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
