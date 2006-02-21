@@ -88,13 +88,13 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 #endif
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode: current job returns error");
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: current job returns error");
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode: current job is null");
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: current job is null");
 		return false;
 	}
 	
@@ -152,7 +152,7 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode SET_LEARN_NODE_STATE FAILURE!");
+						g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode SET_LEARN_NODE_STATE FAILURE!");
 					}
 				}
 				else

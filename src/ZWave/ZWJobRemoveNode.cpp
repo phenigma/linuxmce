@@ -85,13 +85,13 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobRemoveNode: current job returns error");
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: current job returns error");
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobRemoveNode: current job is null");
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: current job is null");
 		return false;
 	}
 	

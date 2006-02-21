@@ -130,7 +130,7 @@ bool ZWJobPool::run()
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobPool no lights available!");
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool no lights available!");
 		return false;
 	}
 	

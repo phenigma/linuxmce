@@ -79,7 +79,7 @@ bool ZWave::GetConfig()
 
 	if( !ConfirmConnection() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to ZWave device %s.", DATA_Get_Serial_Port().c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", DATA_Get_Serial_Port().c_str());
 		// TODO HMM ?!
 		// return false;
 	}
@@ -200,7 +200,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	else
 	{
 		sCMD_Result = "BAD NODE ID";
-		g_pPlutoLogger->Write(LV_CRITICAL,"Child device doesn't have a zwave node id");
+		g_pPlutoLogger->Write(LV_WARNING,"Child device doesn't have a zwave node id");
 		return;
 	}
 }
@@ -526,18 +526,18 @@ void ZWave::PoolZWaveNetwork()
 							}
 							else
 							{
-								g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : zwave node is null");
+								g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave node is null");
 							}
 						}
 						else
 						{
-							g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : zwave child device is null");
+							g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave child device is null");
 						}
 					}
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"PoolZWaveNetwork : couldn't run the job");
+					g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : couldn't run the job");
 				}
 			}
 			else
@@ -657,7 +657,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 	else
 	{
 		sCMD_Result = "BAD NODE ID";
-		g_pPlutoLogger->Write(LV_CRITICAL,"Child device doesn't have a zwave node id");
+		g_pPlutoLogger->Write(LV_WARNING,"Child device doesn't have a zwave node id");
 	}
 }
 

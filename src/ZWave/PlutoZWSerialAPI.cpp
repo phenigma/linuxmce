@@ -178,7 +178,6 @@ bool PlutoZWSerialAPI::stop()
 bool PlutoZWSerialAPI::listen(time_t timeout)
 {
 	time_t listenTime = time(NULL);
-	time_t receivingTime = listenTime;
 	time_t currentTime = listenTime;
 	d->timeLeft = timeout;
 	
@@ -188,12 +187,10 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 		while( d->connection->isConnected() )
 		{
 			// overall jobs timeout
-			// receiving (between succesive answers) timeout (10 sec)
 			currentTime = time(NULL);
-			if( listenTime + timeout < currentTime ||
-				receivingTime + RECEIVING_TIMEOUT < currentTime )
+			if( listenTime + timeout < currentTime )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::listen Timeout");
+				g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen Timeout");
 				stop();
 				return false;
 			}
@@ -206,10 +203,6 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 				memset(d->command, 0, d->commandLength);
 				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
 				{
-					// a new answer was got
-					// update the receiving timer, RECEIVING_TIMEOUT sec left for a new answer
-					receivingTime = time(NULL);
-					
 					if( d->currentJob != NULL )
 					{
 						d->state = PlutoZWSerialAPI::RUNNING;
@@ -223,7 +216,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::listen : current job is null");
+						g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job is null");
 						stop();
 						return false;
 					}
@@ -284,7 +277,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 #endif
 		}
 	}
-#ifdef PLUTO_DEBUG	
+#ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 6");
 #endif
 	// may be it's not needed
@@ -460,12 +453,16 @@ void PlutoZWSerialAPI::showZWaveNetwork() const
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::showZWaveNetwork() : node null !");
+			g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::showZWaveNetwork() : node null !");
 		}
 	}
 }
 
 time_t PlutoZWSerialAPI::timeLeft() const
 {
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "TimeLeft = %u", d->timeLeft);
+#endif
+
 	return d->timeLeft;
 }

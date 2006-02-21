@@ -116,14 +116,14 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize: current job returned an error");
+			g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: current job returned an error");
 			setState(ZWaveJob::STOPPED);
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobInitialize: current job is null");
+		g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: current job is null");
 		setState(ZWaveJob::STOPPED);
 		return false;
 	}
