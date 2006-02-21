@@ -9,8 +9,11 @@ $TEXT_AC3_PASSTHROUGH_CONST='AC3 passthrough';
 $TEXT_VIDEO_CARD_CONST='Video Card';
 $TEXT_SET_RESOLUTION_REFRESH_CONST='Set resolution & refresh';
 $TEXT_SETUP_DISKLESS_MD_CONST='Setup Diskless Media Directors';
-$TEXT_DISKLESS_MD_NOTICE_CONST='When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
+$TEXT_DISKLESS_MD_NOTICE_CONST='When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a "quick reload router", and then you can bootup your new diskless media director.';
 $TEXT_ADD_MD_CONST='Add device';
 $TEXT_MD_UPDATED_CONST='The devices were updated';
 $TEXT_ERROR_DUPLICATE_ROOMS_CONST='Duplicate room for media directors.';
+$TEXT_NO_PVR_CARDS_CONST='No PVR cards.';
+$TEXT_CONFIRM_DELETE_PVR_CARD_CONST='Are you sure you want to delete this card?';
+$TEXT_PVR_CARD_DELETED_CONST='PVR card deleted.';
 ?>

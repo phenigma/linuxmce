@@ -246,19 +246,18 @@ function mediaDirectors($output,$dbADO) {
 
 					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
 					if($orbiterMDChild){
-						$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO,$GLOBALS['DigitalTVCards']);
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
 						$out.='
-							<input type="hidden" name="oldPVR_'.$rowD['PK_Device'].'" value="'.$pvrDevice.'">
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
 							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
 							<tr class="normaltext">
 								<td colspan="7">
-									<table>
+									<table border="0">
 										<tr>
-											<td valign="top">'.$TEXT_PVR_CAPTURE_CARD_CONST.'</td>
-											<td valign="top">'.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').'</td>
+											<td valign="top" rowspan="2">'.$TEXT_PVR_CAPTURE_CARD_CONST.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],0,'None').'<br>
+											'.getPVRCards(array_keys($pvrArray),$_SESSION['installationID'],$rowD['PK_Device'],(int)$rowD['FK_Device_ControlledVia'],$dbADO).'
+											</td>
 											<td align="right">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
 											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']]).'<br>
 											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'></td>
@@ -311,6 +310,11 @@ function mediaDirectors($output,$dbADO) {
 			exit(0);
 		}
 		
+		if($action=='delCard'){
+			deleteDevice((int)$_REQUEST['delCard'],$dbADO);
+			header("Location: index.php?section=mediaDirectors&msg=$TEXT_PVR_CARD_DELETED_CONST");		
+			exit();
+		}
 		
 		$oldShareIRCodes=@(int)$_POST['oldShareIRCodes'];
 		$coreID=@(int)$_POST['coreID'];
@@ -421,8 +425,9 @@ function mediaDirectors($output,$dbADO) {
 					// add/delete PVR Capture Card, sound card and video card
 					
 					$pvrDT=$_POST['PVRCaptureCard_'.$value];
-					if($pvrDT!=$_POST['oldPVR_'.$value]){
-						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO,$GLOBALS['DigitalTVCards']);
+					if($pvrDT!=0){
+						createDevice($pvrDT,$_SESSION['installationID'],$value,$room,$dbADO,1);
+						//recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO,$GLOBALS['DigitalTVCards']);
 					}
 					$soundDT=$_POST['SoundCard_'.$value];
 					if($soundDT!=$_POST['oldSound_'.$value]){
@@ -512,5 +517,38 @@ function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO,$
 	if($dtID!=0){
 		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);
 	}
+}
+
+function getPVRCards($pvrArray,$instalationID,$mdID,$parentID,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mediaDirectors.lang.php');
+	
+	$filterParent=($parentID!=0)?'OR FK_Device_ControlledVia='.$parentID:'';
+
+	$res=$dbADO->Execute('SELECT PK_Device,Description FROM Device WHERE FK_Installation=? AND (FK_Device_ControlledVia=? '.$filterParent.') AND FK_DeviceTemplate IN ('.join(',',$pvrArray).')',array($instalationID,$mdID));
+	$pvrCards=array();
+	if($res->RecordCount()==0){
+		return '<div align="right">'.$TEXT_NO_PVR_CARDS_CONST.'</div>';
+	}
+	while($row=$res->fetchRow()){
+		$pvrCards[$row['PK_Device']]=$row['Description'];
+	}
+
+	$out='<table cellpadding="2" cellspacing="0" align="right" width="100%">';
+	$pos=0;
+	foreach ($pvrCards AS $pid=>$description){
+		$pos++;
+		$color=($pos%2!=0)?'#F0F3F8':'#FFFFFF';
+		$out.='
+			<tr bgcolor="'.$color.'">
+				<td>'.$description.'</td>
+				<td><a href="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_PVR_CARD_CONST.'\'))self.location=\'index.php?section=mediaDirectors&action=delCard&delCard='.$pid.'\';">'.$TEXT_DELETE_CONST.'</a></td>
+			</tr>';
+	}
+	$out.='</table>';
+	
+	return $out;
+	
 }
 ?>
