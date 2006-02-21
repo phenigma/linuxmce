@@ -15,6 +15,8 @@
 #define READ_DELAY 200000
 #endif
 
+// 10 sec
+#define RECEIVING_TIMEOUT 10
 
 PlutoZWSerialAPI * PlutoZWSerialAPI::ref = NULL;
 
@@ -38,6 +40,7 @@ class PlutoZWSerialAPI::Private
 		std::string version;
 		unsigned char capabilities;
 		unsigned char firmwareVersion;
+		time_t timeLeft;
 		
 		ZWaveJob * currentJob;
 		char command[65536];
@@ -54,6 +57,9 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	  homeID(0L),
 	  nodeID(0),
 	  sucID(0),
+	  capabilities(0),
+	  firmwareVersion(0),
+	  timeLeft(0),
 	  currentJob(NULL),
 	  commandLength(0),
 	  parent_(parent)
@@ -159,6 +165,7 @@ bool PlutoZWSerialAPI::stop()
 #endif
 		d->connection->disconnect();
 		d->state = PlutoZWSerialAPI::STOPPED;
+		d->timeLeft = 0;
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 4");
 		g_pPlutoLogger->Flush();
@@ -168,15 +175,30 @@ bool PlutoZWSerialAPI::stop()
 	return true;
 }
 
-bool PlutoZWSerialAPI::listen(size_t timeout)
+bool PlutoZWSerialAPI::listen(time_t timeout)
 {
-	// TODO Timeout !
+	time_t listenTime = time(NULL);
+	time_t receivingTime = listenTime;
+	time_t currentTime = listenTime;
+	d->timeLeft = timeout;
 	
 	if( PlutoZWSerialAPI::RUNNING == d->state )
 	{
 		d->state = PlutoZWSerialAPI::WAITTING;
 		while( d->connection->isConnected() )
 		{
+			// overall jobs timeout
+			// receiving (between succesive answers) timeout (10 sec)
+			currentTime = time(NULL);
+			if( listenTime + timeout < currentTime ||
+				receivingTime + RECEIVING_TIMEOUT < currentTime )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::listen Timeout");
+				stop();
+				return false;
+			}
+			d->timeLeft = timeout - (currentTime - listenTime);
+			
 			int commandRet = d->connection->hasCommand();
 			if( commandRet == 1 )
 			{
@@ -184,16 +206,26 @@ bool PlutoZWSerialAPI::listen(size_t timeout)
 				memset(d->command, 0, d->commandLength);
 				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
 				{
+					// a new answer was got
+					// update the receiving timer, RECEIVING_TIMEOUT sec left for a new answer
+					receivingTime = time(NULL);
+					
 					if( d->currentJob != NULL )
 					{
 						d->state = PlutoZWSerialAPI::RUNNING;
 						if( !d->currentJob->processData(d->command, d->commandLength) )
 						{
-							// TODO error
+							g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job returns error");
 							stop();
 							return false;
 						}
 						d->state = PlutoZWSerialAPI::WAITTING;
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::listen : current job is null");
+						stop();
+						return false;
 					}
 					
 					// check if the job has finished
@@ -211,7 +243,7 @@ bool PlutoZWSerialAPI::listen(size_t timeout)
 							d->state = PlutoZWSerialAPI::RUNNING;
 							if( !d->currentJob->run() )
 							{
-								// TODO error
+								g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job couldn't run");
 								stop();
 								return false;
 							}
@@ -255,6 +287,8 @@ bool PlutoZWSerialAPI::listen(size_t timeout)
 #ifdef PLUTO_DEBUG	
 		g_pPlutoLogger->Write(LV_WARNING, "-------- 6");
 #endif
+	// may be it's not needed
+	d->timeLeft = 0;
 	return true;
 }
 
@@ -407,4 +441,31 @@ bool PlutoZWSerialAPI::processData(const char * buffer, size_t length)
 	SerialConnection::printDataBuffer( buffer, length, "Unknown command:");
 	
 	return true;
+}
+
+void PlutoZWSerialAPI::showZWaveNetwork() const
+{
+	ZWaveNode * node = NULL;
+	for(NodesMapIterator itNode=d->nodes.begin(); itNode!=d->nodes.end(); ++itNode)
+	{
+		node = (*itNode).second;
+		if( node != NULL )
+		{
+			g_pPlutoLogger->Write(LV_DEBUG, "Node[%d] : BType = 0x%02x GType = 0x%02x SType = 0x%02x Level = %d",
+				node->nodeID(),
+				(unsigned)node->type().basic,
+				(unsigned)node->type().generic,
+				(unsigned)node->type().specific,
+				node->level() );
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "PlutoZWSerialAPI::showZWaveNetwork() : node null !");
+		}
+	}
+}
+
+time_t PlutoZWSerialAPI::timeLeft() const
+{
+	return d->timeLeft;
 }

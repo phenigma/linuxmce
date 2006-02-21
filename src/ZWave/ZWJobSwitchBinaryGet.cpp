@@ -147,18 +147,21 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 #endif
 						completedOK = true;
 						break;
+					
 					case TRANSMIT_COMPLETE_NO_ACK:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
 #ifdef PLUTO_DEBUG
 						g_pPlutoLogger->Write(LV_DEBUG, "*******************15" );
 #endif
 						break;
+					
 					case TRANSMIT_COMPLETE_FAIL:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "failed to transmit command");
 #ifdef PLUTO_DEBUG
 						g_pPlutoLogger->Write(LV_DEBUG, "*******************16" );
 #endif
 						break;
+					
 					default:
 						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
 #ifdef PLUTO_DEBUG
@@ -169,7 +172,13 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 #ifdef PLUTO_DEBUG
 				g_pPlutoLogger->Write(LV_DEBUG, "*******************18" );
 #endif
-				return completedOK;				
+				// if there was an error, the job is stopped
+				if( !completedOK )
+				{
+					setState(ZWaveJob::STOPPED);
+				}
+				
+				return completedOK;
 			}
 			else//buffer[0] == REQUEST
 			{

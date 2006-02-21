@@ -113,6 +113,13 @@ bool ZWave::Register()
 void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	// try to avoid trylock timeout
+	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		m_ZWaveAPI->stop();
+	}
+	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
 	if( !ConfirmConnection() )
@@ -229,6 +236,14 @@ void ZWave::DownloadConfiguration()
 {
 //EVENT_Download_Config_Done("");
 //return;
+
+	// try to avoid trylock timeout
+	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		m_ZWaveAPI->stop();
+	}
+	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"ZWave::DownloadConfiguration trying to get list of devices");
 	
@@ -276,6 +291,13 @@ EVENT_Reporting_Child_Devices("",
 );
 return;
 */
+	// try to avoid trylock timeout
+	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		m_ZWaveAPI->stop();
+	}
+	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices trying to get list of devices");
 	if( !ConfirmConnection() )
@@ -340,7 +362,9 @@ return;
 		}
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s", sResponse.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got:");
+	g_pPlutoLogger->Write(LV_STATUS,"%s", sResponse.c_str());
+	
 	EVENT_Reporting_Child_Devices("", sResponse);
 }
 
@@ -425,7 +449,10 @@ void ZWave::PoolZWaveNetwork()
 {
 	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : begin");
 	
-	unsigned i=0;
+	// start with 30 sec delay
+	// so that the children will be reported
+	// before pooling the network
+	unsigned i = 1;
 	while( m_PoolStarted )
 	{
 		// 30 sec = 150 x 200 ms
@@ -434,7 +461,7 @@ void ZWave::PoolZWaveNetwork()
 			i = 0;
 		}
 		
-		if( !i )
+		if( !i /*&& TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft()*/ )
 		{
 			PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 			
@@ -519,7 +546,7 @@ void ZWave::PoolZWaveNetwork()
 			}
 			
 			
-			zm.Release();
+//			zm.Release();
 		}
 		i++;
 		
@@ -642,6 +669,13 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
+	// try to avoid trylock timeout
+	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		m_ZWaveAPI->stop();
+	}
+	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
 	if( !ConfirmConnection() )

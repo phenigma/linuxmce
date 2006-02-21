@@ -143,6 +143,13 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
 			return false;
 		}
 	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobLightLevel: current job is null");
+		setState(ZWaveJob::STOPPED);
+		return false;
+	}
+	
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "==============14" );
 #endif

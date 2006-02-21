@@ -88,9 +88,14 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 #endif
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobAddNode: .");
+			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode: current job returns error");
 			return false;
 		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobAddNode: current job is null");
+		return false;
 	}
 	
 #ifdef PLUTO_DEBUG

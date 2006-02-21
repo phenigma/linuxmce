@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include <time.h>
+
 #include "ZWaveNode.h"
 #include "ZWaveJob.h"
 
@@ -33,7 +35,7 @@ class PlutoZWSerialAPI
 		virtual bool start(const char *port);
 #endif
 		
-		virtual bool listen(size_t timeout);
+		virtual bool listen(time_t timeout);
 		
 		virtual bool stop();
 		
@@ -80,6 +82,12 @@ class PlutoZWSerialAPI
 		virtual unsigned char firmwareVersion() const;
 
 		virtual void setFirmwareVersion(unsigned char firmwareVersion);
+		
+		/** Print some debug information about each node from the ZWave network.*/
+		virtual void showZWaveNetwork() const;
+		
+		/** The time left until it gets timeout.*/
+		virtual time_t timeLeft() const;
 
 		private:
 

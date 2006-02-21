@@ -70,6 +70,10 @@ ZWJobPool::ZWJobPool(PlutoZWSerialAPI * zwAPI)
 
 ZWJobPool::~ZWJobPool()
 {
+#ifdef PLUTO_DEBUG
+	handler()->showZWaveNetwork();
+#endif
+
 	delete d;
 	d = NULL;
 }
@@ -150,8 +154,15 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 		if( !d->currentJob->processData(buffer, length) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobPool: current job returned an error");
-			return false;
+//			try another node
+//			return false;
 		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobPool: current job is null");
+		setState(ZWaveJob::STOPPED);
+		return false;
 	}
 	
 	// check if the job has finished
