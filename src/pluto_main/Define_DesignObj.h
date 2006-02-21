@@ -649,7 +649,7 @@
 #define DESIGNOBJ_butSprinkler1hour_CONST 2596
 #define DESIGNOBJ_butEmailContacts_CONST 2597
 #define DESIGNOBJ_DVDOptions_CONST 2598
-#define DESIGNOBJ_mmenu1_CONST 2603
+#define DESIGNOBJ_butLightsScenarios_CONST 2603
 #define DESIGNOBJ_iconFollowMe_CONST 2606
 #define DESIGNOBJ_Lights_menu_CONST 2609
 #define DESIGNOBJ_iconLightsbig_CONST 2610
@@ -675,10 +675,10 @@
 #define DESIGNOBJ_record_tv_CONST 2634
 #define DESIGNOBJ_start_disc_CONST 2635
 #define DESIGNOBJ_tv_CONST 2636
-#define DESIGNOBJ_mmenu2_CONST 2637
-#define DESIGNOBJ_mmenu3_CONST 2638
-#define DESIGNOBJ_mmenu4_CONST 2639
-#define DESIGNOBJ_mmenu5_CONST 2640
+#define DESIGNOBJ_butMediaScenarios_CONST 2637
+#define DESIGNOBJ_butClimateScenarios_CONST 2638
+#define DESIGNOBJ_butTelecomScenarios_CONST 2639
+#define DESIGNOBJ_butSecurityScenarios_CONST 2640
 #define DESIGNOBJ_temp_desktop_CONST 2648
 #define DESIGNOBJ_mnuNewPhoneDetected_CONST 3150
 #define DESIGNOBJ_no_CONST 3152
@@ -1907,6 +1907,7 @@
 #define DESIGNOBJ_butTransferCallOutside_CONST 4820
 #define DESIGNOBJ_arrTransferSIPDevices_CONST 4821
 #define DESIGNOBJ_butTransferSIPDevices_CONST 4822
+#define DESIGNOBJ_butMinimizeApp_CONST 4824
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
