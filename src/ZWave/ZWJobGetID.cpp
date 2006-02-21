@@ -71,7 +71,7 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID wrong state.");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetID wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
@@ -92,7 +92,7 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetID data error");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetID data error");
 			}
 			break;
 	}

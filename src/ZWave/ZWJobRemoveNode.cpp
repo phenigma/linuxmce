@@ -77,7 +77,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 
 	if( ZWaveJob::RUNNING != state() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: wrong job state.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobRemoveNode: wrong job state.");
 		return false;
 	}
 	
@@ -85,13 +85,13 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: current job returns error");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobRemoveNode: current job returns error");
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: current job is null");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobRemoveNode: current job is null");
 		return false;
 	}
 	
@@ -99,7 +99,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 	if( ZWaveJob::STOPPED == d->currentJob->state() )
 	{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 1");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 1");
 #endif
 		// next step
 		switch( d->currentJob->type() )
@@ -107,12 +107,12 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 			case ZWaveJob::SET_LEARN_NODE_STATE :
 			{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 2");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 2");
 #endif
 				if( LEARN_NODE_STATE_DELETE == ((ZWJobSetLearnNodeState*)(d->currentJob))->mode() )
 				{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 3");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 3");
 #endif
 					char learnInfo[LEARN_INFO_MAX];
 					size_t learnInfoLength = LEARN_INFO_MAX;
@@ -120,7 +120,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 						learnInfoLength )
 					{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 4");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 4");
 #endif
 						// LEARN_INFO = Status Byte, NodeID Byte, Param Length Byte, Param[0]...Param[Length-1]
 						// ZWJobSetLearnNodeState was running well
@@ -131,7 +131,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 						if( learnOff != NULL )
 						{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 5");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 5");
 #endif
 							learnOff->setMode( LEARN_NODE_STATE_OFF );
 							d->jobsQueue.push_back( learnOff );
@@ -148,13 +148,13 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobRemoveNode SET_LEARN_NODE_STATE FAILURE!");
+						g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobRemoveNode SET_LEARN_NODE_STATE FAILURE!");
 					}
 				}
 				else
 				{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 6");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- REMOVE_NODE ---- 6");
 #endif
 					// just nothing to do
 				}
@@ -166,7 +166,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 				break;
 				
 			default:
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobRemoveNode: wrong job type.");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobRemoveNode: wrong job type.");
 				return false;
 				break;
 		}
@@ -194,7 +194,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 	}
 	
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- REMOVE_NODE ---- 7");
+			g_pPlutoLogger->Write(LV_ZWAVE, "----- REMOVE_NODE ---- 7");
 #endif
 	return true;
 }

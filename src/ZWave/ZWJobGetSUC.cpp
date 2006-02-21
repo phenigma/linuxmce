@@ -62,7 +62,7 @@ bool ZWJobGetSUC::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetSUC wrong state.");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetSUC wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
@@ -78,7 +78,7 @@ bool ZWJobGetSUC::processData(const char * buffer, size_t length)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetSUC data error");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetSUC data error");
 			}
 			break;
 	}

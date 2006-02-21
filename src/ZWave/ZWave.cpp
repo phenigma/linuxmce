@@ -116,7 +116,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
 		m_ZWaveAPI->stop();
 	}
 	
@@ -135,7 +135,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		sCMD_Result = "OK";
 		if( pMessage->m_dwID == COMMAND_Generic_On_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Sending ON - %d", NodeID);
+			g_pPlutoLogger->Write(LV_ZWAVE, "Sending ON - %d", NodeID);
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
 			if( light != NULL )
 			{
@@ -155,7 +155,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		}
 		else if( pMessage->m_dwID == COMMAND_Generic_Off_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Sending Off - %d", NodeID);
+			g_pPlutoLogger->Write(LV_ZWAVE, "Sending Off - %d", NodeID);
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
@@ -176,7 +176,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		else if( pMessage->m_dwID == COMMAND_Set_Level_CONST )
 		{
 			int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
-			g_pPlutoLogger->Write(LV_STATUS,"Sending LEVEL - %d || %d", level, NodeID);
+			g_pPlutoLogger->Write(LV_ZWAVE, "Sending LEVEL - %d || %d", level, NodeID);
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, level, (unsigned char)NodeID);
 			if( light != NULL )
 			{
@@ -200,7 +200,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	else
 	{
 		sCMD_Result = "BAD NODE ID";
-		g_pPlutoLogger->Write(LV_WARNING,"Child device doesn't have a zwave node id");
+		g_pPlutoLogger->Write(LV_WARNING, "Child device doesn't have a zwave node id");
 		return;
 	}
 }
@@ -240,16 +240,16 @@ void ZWave::DownloadConfiguration()
 	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "Force ZWave to stop.");
 		m_ZWaveAPI->stop();
 	}
 	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"ZWave::DownloadConfiguration trying to get list of devices");
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::DownloadConfiguration trying to get list of devices");
 	
 	if( !ConfirmConnection() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave");
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
 		EVENT_Download_Config_Done("Cannot connect to ZWave");
 		return;
 	}
@@ -294,15 +294,15 @@ return;
 	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "Force ZWave to stop.");
 		m_ZWaveAPI->stop();
 	}
 	
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices trying to get list of devices");
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::ReportChildDevices trying to get list of devices");
 	if( !ConfirmConnection() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave");
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
 		EVENT_Reporting_Child_Devices("Cannot connect to ZWave", "");
 		return;
 	}
@@ -362,8 +362,8 @@ return;
 		}
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got:");
-	g_pPlutoLogger->Write(LV_STATUS,"%s", sResponse.c_str());
+	g_pPlutoLogger->Write(LV_ZWAVE,"ZWave::ReportChildDevices got:");
+	g_pPlutoLogger->Write(LV_ZWAVE,"%s", sResponse.c_str());
 	
 	EVENT_Reporting_Child_Devices("", sResponse);
 }
@@ -447,7 +447,7 @@ void *DoPooling(void *p)
 
 void ZWave::PoolZWaveNetwork()
 {
-	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : begin");
+	g_pPlutoLogger->Write(LV_DEBUG, "PoolZWaveNetwork : begin");
 	
 	// start with 30 sec delay
 	// so that the children will be reported
@@ -493,7 +493,7 @@ void ZWave::PoolZWaveNetwork()
 									{
 										// dimmer
 										case GENERIC_TYPE_SWITCH_MULTILEVEL:
-											g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : new state for node %d", node->nodeID());
+											g_pPlutoLogger->Write(LV_ZWAVE, "PoolZWaveNetwork : new state for node %d", node->nodeID());
 											m_pEvent->SendMessage(
 												new Message(pChildDevice->m_dwPK_Device,
 															DEVICEID_EVENTMANAGER,
@@ -507,7 +507,7 @@ void ZWave::PoolZWaveNetwork()
 											
 										// light on/off
 										case GENERIC_TYPE_SWITCH_BINARY:
-											g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : new state for node %d", node->nodeID());
+											g_pPlutoLogger->Write(LV_ZWAVE, "PoolZWaveNetwork : new state for node %d", node->nodeID());
 											m_pEvent->SendMessage(
 												new Message(pChildDevice->m_dwPK_Device,
 															DEVICEID_EVENTMANAGER,
@@ -526,18 +526,18 @@ void ZWave::PoolZWaveNetwork()
 							}
 							else
 							{
-								g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave node is null");
+								g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : zwave node is null");
 							}
 						}
 						else
 						{
-							g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave child device is null");
+							g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : zwave child device is null");
 						}
 					}
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : couldn't run the job");
+					g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : couldn't run the job");
 				}
 			}
 			else
@@ -558,7 +558,7 @@ void ZWave::PoolZWaveNetwork()
 #endif
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : end");
+	g_pPlutoLogger->Write(LV_DEBUG,"PoolZWaveNetwork : end");
 }
 
 void ZWave::CMD_Pool(bool start)
@@ -615,7 +615,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		sCMD_Result = "OK";
 		if( iPK_Command == COMMAND_Generic_On_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Sending ON - %s", sID.c_str());
+			g_pPlutoLogger->Write(LV_ZWAVE,"Sending ON - %s", sID.c_str());
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
 			if( light != NULL )
 			{
@@ -635,7 +635,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		}
 		else if( iPK_Command == COMMAND_Generic_Off_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Sending Off - %s", sID.c_str());
+			g_pPlutoLogger->Write(LV_ZWAVE,"Sending Off - %s", sID.c_str());
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
@@ -672,7 +672,7 @@ void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
 	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Force ZWave to stop.");
+		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
 		m_ZWaveAPI->stop();
 	}
 	

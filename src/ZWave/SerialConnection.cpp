@@ -34,12 +34,12 @@ SerialConnection *SerialConnection::getInstance()
 void SerialConnection::forceClose()
 {
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 3");
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 3");
 #endif
 	delete instance;
 	instance = NULL;
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 4");
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 4");
 #endif
 }
 
@@ -50,7 +50,7 @@ int SerialConnection::connect(const char *port)
 		serialPort = new CSerialPort(port, 115200, epbsN81);
 		
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::connect init serial mutex");
+		g_pPlutoLogger->Write(LV_ZWAVE, "SerialConnection::connect init serial mutex");
 #endif
 
 		pthread_mutex_init(&mutex_serial, NULL);
@@ -63,17 +63,17 @@ int SerialConnection::connect(const char *port)
 			{
 			case EAGAIN:
 #ifdef PLUTO_DEBUG
-				g_pPlutoLogger->Write(LV_DEBUG, "EAGAIN received");
+				g_pPlutoLogger->Write(LV_ZWAVE, "EAGAIN received");
 #endif
 				break;
 			case EINVAL:
 #ifdef PLUTO_DEBUG
-				g_pPlutoLogger->Write(LV_DEBUG, "EINVAT received");
+				g_pPlutoLogger->Write(LV_ZWAVE, "EINVAT received");
 #endif
 				break;
 			default:
 #ifdef PLUTO_DEBUG
-				g_pPlutoLogger->Write(LV_DEBUG, "%d received", stat);
+				g_pPlutoLogger->Write(LV_ZWAVE, "%d received", stat);
 #endif
 				break;
 			}
@@ -81,7 +81,7 @@ int SerialConnection::connect(const char *port)
 		else
 		{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_DEBUG, "receive thread created OK!!!!");
+			g_pPlutoLogger->Write(LV_ZWAVE, "receive thread created OK!!!!");
 #endif
 		}
 
@@ -106,25 +106,25 @@ int SerialConnection::disconnect()
 	if( serialPort != NULL )
 	{
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 1");
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- asa 1");
 #endif
 		pthread_mutex_lock( &instance->mutex_serial );
 		delete serialPort;
 		serialPort = NULL;
 		pthread_mutex_unlock( &instance->mutex_serial );
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 2");
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- asa 2");
 		g_pPlutoLogger->Flush();
 #endif
 		
 // wait a bit so that the write_thread will finish his task
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "waiting for thread to finish");
+		g_pPlutoLogger->Write(LV_ZWAVE, "waiting for thread to finish");
 		g_pPlutoLogger->Flush();
 #endif
 		pthread_join(write_thread, NULL);
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "thread finished");
+		g_pPlutoLogger->Write(LV_ZWAVE, "thread finished");
 		g_pPlutoLogger->Flush();
 #endif
 
@@ -134,12 +134,12 @@ int SerialConnection::disconnect()
 		buffer.clear();
 		
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 3");
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- asa 3");
 #endif
 	}
 	
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- asa 4");
+		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- asa 4");
 		g_pPlutoLogger->Flush();
 #endif
 	return 0;
@@ -165,7 +165,7 @@ int SerialConnection::send(char *b, size_t len)
 	if(b != NULL)
 	{
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::send lock serial mutex");
+		g_pPlutoLogger->Write(LV_ZWAVE, "SerialConnection::send lock serial mutex");
 #endif
 		pthread_mutex_lock( &mutex_serial );
 		
@@ -190,13 +190,13 @@ int SerialConnection::send(char *b, size_t len)
 			catch(...)
 			{
 				returnValue = -1;
-				g_pPlutoLogger->Write(LV_CRITICAL, "exeception from serial port");
+				g_pPlutoLogger->Write(LV_WARNING, "exeception from serial port");
 			}
 		}
 		else returnValue = -1;
 		pthread_mutex_unlock( &mutex_serial );
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::send unlock serial mutex");
+		g_pPlutoLogger->Write(LV_ZWAVE, "SerialConnection::send unlock serial mutex");
 #endif
 	}
 	else returnValue = -1;
@@ -287,7 +287,7 @@ int SerialConnection::hasCommand()
 #endif
 	if( !isConnected() )
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() is not connected");
+		g_pPlutoLogger->Write(LV_ZWAVE, "SerialConnection::hasCommand() is not connected");
 		return -1;
 	}
 	
@@ -347,7 +347,7 @@ int SerialConnection::hasCommand()
 				}
 				pthread_mutex_unlock( &mutex_serial );
 #ifdef PLUTO_DEBUG
-				g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand lock serial mutex");
+				g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand unlock serial mutex");
 #endif
 			}
 		}
@@ -449,13 +449,13 @@ void SerialConnection::printDataBuffer(const char *buffer, const size_t length, 
 SerialConnection::~SerialConnection()
 {
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 1");
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 1");
 #endif
 	if( serialPort != NULL )
 	{
 		disconnect();
 	}
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "SerialConnection ------------- 2");
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 2");
 #endif
 }

@@ -69,7 +69,7 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	connection = SerialConnection::getInstance();
 	if( connection == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Not enough memory");
+		g_pPlutoLogger->Write(LV_CRITICAL, "Not enough memory to allocate the serial connection object");
 	}
 }
 
@@ -114,7 +114,7 @@ PlutoZWSerialAPI::PlutoZWSerialAPI()
 	d = new Private(this);
 	if(d == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Not enough memory");
+		g_pPlutoLogger->Write(LV_CRITICAL, "Not enough memory to allocate PlutoZWSerialAPI::Private");
 	}
 }
 
@@ -160,14 +160,14 @@ bool PlutoZWSerialAPI::stop()
 	if( d->state != PlutoZWSerialAPI::STOPPED )
 	{
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 3");
+		g_pPlutoLogger->Write(LV_DEBUG, "-------- 3");
 		g_pPlutoLogger->Flush();
 #endif
 		d->connection->disconnect();
 		d->state = PlutoZWSerialAPI::STOPPED;
 		d->timeLeft = 0;
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 4");
+		g_pPlutoLogger->Write(LV_DEBUG, "-------- 4");
 		g_pPlutoLogger->Flush();
 #endif
 	}
@@ -190,7 +190,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 			currentTime = time(NULL);
 			if( listenTime + timeout < currentTime )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen Timeout");
+				g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen Timeout");
 				stop();
 				return false;
 			}
@@ -208,7 +208,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 						d->state = PlutoZWSerialAPI::RUNNING;
 						if( !d->currentJob->processData(d->command, d->commandLength) )
 						{
-							g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job returns error");
+							g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job returns error");
 							stop();
 							return false;
 						}
@@ -216,7 +216,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job is null");
+						g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job is null");
 						stop();
 						return false;
 					}
@@ -225,7 +225,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 					if( ZWaveJob::STOPPED == d->currentJob->state() )
 					{
 #ifdef PLUTO_DEBUG
-						g_pPlutoLogger->Write(LV_WARNING, "-------- 1");
+						g_pPlutoLogger->Write(LV_DEBUG, "-------- 1");
 #endif
 						delete d->currentJob;
 						d->currentJob = NULL;
@@ -236,7 +236,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 							d->state = PlutoZWSerialAPI::RUNNING;
 							if( !d->currentJob->run() )
 							{
-								g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job couldn't run");
+								g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job couldn't run");
 								stop();
 								return false;
 							}
@@ -245,11 +245,11 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 						else
 						{
 #ifdef PLUTO_DEBUG
-							g_pPlutoLogger->Write(LV_WARNING, "-------- 2");
+							g_pPlutoLogger->Write(LV_DEBUG, "-------- 2");
 #endif
 							stop();
 #ifdef PLUTO_DEBUG
-							g_pPlutoLogger->Write(LV_WARNING, "-------- 2-1");
+							g_pPlutoLogger->Write(LV_DEBUG, "-------- 2-1");
 #endif
 						}
 					}
@@ -264,11 +264,11 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 			else
 			{
 #ifdef PLUTO_DEBUG
-				g_pPlutoLogger->Write(LV_DEBUG, " commandRet = %d ", commandRet);
+				g_pPlutoLogger->Write(LV_ZWAVE, " commandRet = %d ", commandRet);
 #endif
 			}
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_DEBUG, "PlutoZWSerialAPI::listen() sleeping");		
+			g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen() sleeping");		
 #endif
 #ifdef _WIN32
 	Sleep(READ_DELAY);
@@ -278,7 +278,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 		}
 	}
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "-------- 6");
+		g_pPlutoLogger->Write(LV_DEBUG, "-------- 6");
 #endif
 	// may be it's not needed
 	d->timeLeft = 0;
@@ -453,7 +453,7 @@ void PlutoZWSerialAPI::showZWaveNetwork() const
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::showZWaveNetwork() : node null !");
+			g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::showZWaveNetwork() : node null !");
 		}
 	}
 }
@@ -461,7 +461,7 @@ void PlutoZWSerialAPI::showZWaveNetwork() const
 time_t PlutoZWSerialAPI::timeLeft() const
 {
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "TimeLeft = %u", d->timeLeft);
+	g_pPlutoLogger->Write(LV_ZWAVE, "TimeLeft = %u", d->timeLeft);
 #endif
 
 	return d->timeLeft;

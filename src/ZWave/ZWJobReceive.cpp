@@ -88,7 +88,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobReceive wrong state.");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobReceive wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
@@ -98,12 +98,12 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				buffer[2] == 1 )
 			{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 1");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 1");
 #endif
 				if( ZWJobReceive::STOP == d->state )
 				{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 2");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 2");
 #endif
 					setState( ZWaveJob::STOPPED );
 					
@@ -116,7 +116,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				else
 				{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 3");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 3");
 #endif
 					// buffer[3]... buffer[6] etc = LEARN_NODE
 					// Node Status
@@ -124,7 +124,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 					{
 						case NEW_CONTROLLER_LEARNED:
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 4");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 4");
 #endif
 							// what to do here ?
 							d->state = ZWJobReceive::RECEIVING;
@@ -134,7 +134,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 						case NEW_CONTROLLER_DONE :
 						{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 5");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 5");
 #endif
 							// the receiving it's done, change the controller state
 							// back to normal state (stop == not receiving)
@@ -156,7 +156,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 						case NEW_CONTROLLER_FAILED :
 						default:
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 6");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 6");
 #endif
 							setState( ZWaveJob::STOPPED );
 							break;
@@ -173,7 +173,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 					 buffer[5] == COMMAND_CLASS_CONTROLLER_REPLICATION )
 			{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 7");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 7");
 #endif
 				// the receiving it's done, change the controller state
 				// back to normal state (stop == not receiving)
@@ -190,7 +190,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 	}
 	
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- RECEIVE ---- 8");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 8");
 #endif
 	return false;
 }

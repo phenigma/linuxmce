@@ -59,7 +59,7 @@ bool ZWJobGetNodeProtocolInfo::run()
 		return handler()->sendData(buffer, 3);
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo wrong node id.");
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetNodeProtocolInfo wrong node id.");
 	return false;
 }
 
@@ -72,7 +72,7 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo wrong state.");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetNodeProtocolInfo wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
@@ -107,13 +107,13 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo there isn't such node ID: %d.",
+					g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetNodeProtocolInfo there isn't such node ID: %d.",
 						d->nodeID);
 				}
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobGetNodeProtocolInfo data error");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetNodeProtocolInfo data error");
 			}
 			break;
 	}

@@ -85,7 +85,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~5" );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 #endif
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, length too small");
+				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, length too small");
 				break;
 			}
 			if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
@@ -93,7 +93,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 #endif
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
+				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
 				break;				
 			}
 			if(buffer[0] == RESPONSE)
@@ -114,26 +114,26 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~9" );
 				switch(buffer[3])
 				{
 					case TRANSMIT_COMPLETE_OK:
-						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command completed OK");
+						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "command completed OK");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~10" );
 #endif
 						completedOK = true;
 						break;
 					case TRANSMIT_COMPLETE_NO_ACK:
-						DCE::g_pPlutoLogger->Write(LV_DEBUG, "command not ack");
+						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "command not ack");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~11" );
 #endif
 						break;
 					case TRANSMIT_COMPLETE_FAIL:
-						DCE::g_pPlutoLogger->Write(LV_DEBUG, "failed to transmit command");
+						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "failed to transmit command");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~12" );
 #endif
 						break;
 					default:
-						DCE::g_pPlutoLogger->Write(LV_DEBUG, "unrecognized response coming as tx status");
+						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "unrecognized response coming as tx status");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~13" );
 #endif

@@ -44,7 +44,7 @@ ZWJobPool::Private::Private()
 ZWJobPool::Private::~Private()
 {
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "----- POOL ---- 1");
+		g_pPlutoLogger->Write(LV_DEBUG, "----- POOL ---- 1");
 #endif
 	delete currentJob;
 	currentJob = NULL;
@@ -57,7 +57,7 @@ ZWJobPool::Private::~Private()
 		job = NULL;
 	}
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "----- POOL ---- 2");
+	g_pPlutoLogger->Write(LV_DEBUG, "----- POOL ---- 2");
 #endif
 }
 
@@ -130,7 +130,7 @@ bool ZWJobPool::run()
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool no lights available!");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool no lights available!");
 		return false;
 	}
 	
@@ -145,7 +145,7 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 
 	if( ZWaveJob::RUNNING != state() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool: wrong job state.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool: wrong job state.");
 		return false;
 	}
 	
@@ -153,14 +153,14 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobPool: current job returned an error");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool: current job returned an error");
 //			try another node
 //			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobPool: current job is null");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool: current job is null");
 		setState(ZWaveJob::STOPPED);
 		return false;
 	}
@@ -175,7 +175,7 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 				break;
 			
 			default:
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool: wrong job type.");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool: wrong job type.");
 				return false;
 				break;
 		}
@@ -199,7 +199,7 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 		else
 		{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- POOL ---- 3");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- POOL ---- 3");
 #endif
 			setState(ZWaveJob::STOPPED);
 			return true;

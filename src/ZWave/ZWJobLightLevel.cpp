@@ -88,14 +88,14 @@ bool ZWJobLightLevel::run()
 	d->currentJob = new ZWJobSwitchChangeLevel(handler(), d->level, d->nodeID) ;
 	if( d->currentJob == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobLightLevel allocation error!");
+		g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobLightLevel memory allocation error!");
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_DEBUG, "==============7" );
 #endif
 		return false;
 	}
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "Current job = ZWJobLightLevel");
+	g_pPlutoLogger->Write(LV_ZWAVE, "Current job = ZWJobLightLevel");
 #endif
 	// add jobs
 	//d->currentJob = d->jobsQueue.front();
@@ -106,7 +106,7 @@ bool ZWJobLightLevel::run()
 	
 	setState( ZWaveJob::RUNNING );
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "ZWJobLightLevel running");
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel running");
 #endif
 	return d->currentJob->run();
 }
@@ -123,7 +123,7 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_DEBUG, "==============10" );
 #endif
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: wrong job state.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel: wrong job state.");
 		return false;
 	}
 	
@@ -138,14 +138,14 @@ bool ZWJobLightLevel::processData(const char * buffer, size_t length)
 		if( !d->currentJob->processData(buffer, length) )
 		{
 g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: current job is returning false");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel: current job is returning false");
 			setState(ZWaveJob::STOPPED);
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: current job is null");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel: current job is null");
 		setState(ZWaveJob::STOPPED);
 		return false;
 	}
@@ -184,7 +184,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
 #ifdef PLUTO_DEBUG
 				g_pPlutoLogger->Write(LV_DEBUG, "==============18" );
 #endif
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobLightLevel: wrong job type.");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel: wrong job type.");
 				break;
 		}
 #ifdef PLUTO_DEBUG

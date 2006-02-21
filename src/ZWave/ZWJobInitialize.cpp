@@ -48,7 +48,7 @@ ZWJobInitialize::Private::Private()
 ZWJobInitialize::Private::~Private()
 {
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 1");
+		g_pPlutoLogger->Write(LV_DEBUG, "----- INIT ---- 1");
 #endif
 	delete currentJob;
 	currentJob = NULL;
@@ -61,7 +61,7 @@ ZWJobInitialize::Private::~Private()
 		job = NULL;
 	}
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 2");
+	g_pPlutoLogger->Write(LV_DEBUG, "----- INIT ---- 2");
 #endif
 }
 
@@ -108,7 +108,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 
 	if( ZWaveJob::RUNNING != state() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job state.");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobInitialize: wrong job state.");
 		return false;
 	}
 	
@@ -116,14 +116,14 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 	{
 		if( !d->currentJob->processData(buffer, length) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: current job returned an error");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobInitialize: current job returned an error");
 			setState(ZWaveJob::STOPPED);
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: current job is null");
+		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobInitialize: current job is null");
 		setState(ZWaveJob::STOPPED);
 		return false;
 	}
@@ -177,7 +177,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 				break;
 				
 			default:
-				g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize: wrong job type.");
+				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobInitialize: wrong job type.");
 				return false;
 				break;
 		}
@@ -201,7 +201,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 		else
 		{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- INIT ---- 3");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- INIT ---- 3");
 #endif
 			setState(ZWaveJob::STOPPED);
 			return true;

@@ -75,7 +75,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 			
 		case ZWaveJob::RUNNING :
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 1");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 1");
 #endif
 			if( length >= 6 && 
 				buffer[0] == RESPONSE &&
@@ -83,7 +83,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 				buffer[2] == 1 /* completed*/ )
 			{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 2");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 2");
 #endif
 				// Node Status
 				switch( buffer[3] )
@@ -95,14 +95,14 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 					case LEARN_STATE_DONE :
 					{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 3");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 3");
 #endif
 						size_t len = buffer[5];
 						if( length >= len + 6 &&
 							len + 3 <= sizeof(d->learnInfo) )
 						{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 4");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 4");
 #endif
 							d->learnInfolength = len + 3;
 							memcpy(d->learnInfo, &buffer[3], d->learnInfolength);
@@ -111,7 +111,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 						else
 						{
 							// TODO error
-							g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSetLearnNodeState: learn_info too big.");
+							g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSetLearnNodeState: learn_info too big.");
 							d->failed = true;
 						}
 						setState( ZWaveJob::STOPPED );
@@ -121,7 +121,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 					case LEARN_STATE_FAIL :
 					default :
 						// TODO error
-						g_pPlutoLogger->Write(LV_CRITICAL, "ZWJobSetLearnNodeState: failed.");
+						g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSetLearnNodeState: failed.");
 						d->failed = true;
 						setState( ZWaveJob::STOPPED );
 						break;
@@ -133,7 +133,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 	}
 	
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 5");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 5");
 #endif
 	return false;
 }
@@ -170,7 +170,7 @@ int ZWJobSetLearnNodeState::learnInfo(char* buffer, size_t* length)
 	if( !d->failed && *length >= d->learnInfolength )
 	{
 #ifdef PLUTO_DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "----- SET_LEARN_NODE_STATE ---- 6");
+			g_pPlutoLogger->Write(LV_DEBUG, "----- SET_LEARN_NODE_STATE ---- 6");
 #endif
 		memcpy(buffer, d->learnInfo, d->learnInfolength);
 		*length = d->learnInfolength;

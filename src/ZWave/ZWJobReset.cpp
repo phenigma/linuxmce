@@ -78,7 +78,7 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 		default :
 		case ZWaveJob::IDLE :
 		case ZWaveJob::STOPPED :
-			g_pPlutoLogger->Write(LV_WARNING, "ZWJobReset wrong state.");
+			g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobReset wrong state.");
 			break;
 			
 		case ZWaveJob::RUNNING :
