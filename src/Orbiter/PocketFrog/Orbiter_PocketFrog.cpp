@@ -28,6 +28,7 @@ const int ciCharHeight = 16;
 const int ciSpaceHeight = 5;
 //-----------------------------------------------------------------------------------------------------
 #define MAX_STRING_LEN 1024
+#define MATCH_SDL_FONT_HEIGHT 9 / 8
 //-----------------------------------------------------------------------------------------------------
 //progress bar custom settings
 #define PROGRESS_MAX 100
@@ -567,12 +568,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	// Clear out the lf structure to use when creating the font.
 	memset(&lf, 0, sizeof(LOGFONT));
 
-	lf.lfHeight		= iPixelHeight;
+	lf.lfHeight		= iPixelHeight * MATCH_SDL_FONT_HEIGHT;
 	if( m_iRotation==0 )
 		lf.lfQuality	= DRAFT_QUALITY;
 	else
-		lf.lfQuality	= NONANTIALIASED_QUALITY;
-	lf.lfWeight		= bBold ? FW_EXTRABOLD : FW_NORMAL;
+		lf.lfQuality	= DEFAULT_QUALITY;
+	lf.lfWeight		= bBold ? FW_BOLD : FW_NORMAL;
 	lf.lfItalic		= bItalic;
 	lf.lfUnderline	= bUnderline;
 /*	MS' Gdi doesn't seem to work, we have to hack in a work around
