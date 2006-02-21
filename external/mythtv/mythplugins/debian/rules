@@ -10,7 +10,7 @@ export DH_COMPAT=3
 
 export QTDIR=$(shell for qtdir in /usr/share/qt3 /usr/share/qt; do if test -d $$qtdir; then echo $$qtdir; break; fi; done)
 
-CCVARS=CC=gcc-3.4 CXX=g++-3.4 LINK=g++-3.4
+CCVARS=CC=gcc CXX=g++ LINK=g++
 
 config.mak: configure
 	dh_testdir
