@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# udev script for alsa-utils
+
+DEV_BASENAME="${DEVNAME##*/}"
+N="${DEV_BASENAME#controlC}"
+exec /etc/init.d/alsa-utils start $N

@@ -1,0 +1,246 @@
+--- alsa-lib/debian/control	(revision 1463)
++++ alsa-lib/debian/control	(working copy)
+@@ -3,7 +3,7 @@
+ Priority: optional
+ Maintainer: Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>
+ Uploaders: Jordi Mallach <jordi@debian.org>, Thomas Hood <jdthood@yahoo.co.uk>
+-Build-Depends: debhelper (>= 4.1.51), dpatch, autotools-dev, doxygen
++Build-Depends: debhelper (>= 4.1.51), dpatch, autotools-dev, doxygen, libc6-dev-powerpc [ppc64], libc6-dev-i386 [amd64] | ia32-libs-dev [amd64], libc6-dev-amd64 [i386], libc6-dev-ppc64 [powerpc], libc6-dev-s390x [s390], libc6-dev-sparc64 [sparc], lib32gcc1 [amd64 ppc64], lib64gcc1 [i386 powerpc sparc s390]
+ Standards-Version: 3.6.2.1
+ 
+ Package: libasound2
+@@ -32,6 +32,52 @@
+  .
+  ALSA is the Advanced Linux Sound Architecture.
+ 
++Package: lib64asound2
++Architecture: sparc s390 i386 powerpc
++Section: libs
++Depends: libasound2 (= ${Source-Version}), ${shlibs:Depends}, ${bilib:depends}
++Suggests: libasound2-plugins (>= 1.0.9)
++Conflicts: libasound2-plugins (<< 1.0.9)
++Description: ALSA library (64bit)
++ This package contains the ALSA library (64 bit) and its standard
++ plugins.
++ .
++ ALSA is the Advanced Linux Sound Architecture.
++
++Package: lib64asound2-dev
++Architecture: sparc s390 i386 powerpc
++Section: libdevel
++Depends: lib64asound2 (= ${Source-Version}), libasound2-dev (= ${Source-Version}), ${bidev:depends}
++Suggests: libasound2-doc
++Description: ALSA library development files (64 bit)
++ This package contains files required for developing software
++ that makes use of lib64asound2, the ALSA library.
++ .
++ ALSA is the Advanced Linux Sound Architecture.
++
++Package: lib32asound2
++Architecture: amd64 ppc64
++Section: libs
++Depends: libasound2 (= ${Source-Version}), ${shlibs:Depends}, ${bilib:depends}
++Suggests: libasound2-plugins (>= 1.0.9)
++Conflicts: libasound2-plugins (<< 1.0.9)
++Description: ALSA library (32bit)
++ This package contains the ALSA library (32 bit) and its standard
++ plugins.
++ .
++ ALSA is the Advanced Linux Sound Architecture.
++
++Package: lib32asound2-dev
++Architecture: amd64 ppc64
++Section: libdevel
++Depends: lib32asound2 (= ${Source-Version}), libasound2-dev (= ${Source-Version}), ${bidev:depends}
++Suggests: libasound2-doc
++Description: ALSA library development files (32 bit)
++ This package contains files required for developing software
++ that makes use of lib32asound2, the ALSA library.
++ .
++ ALSA is the Advanced Linux Sound Architecture.
++
+ Package: libasound2-doc
+ Architecture: all
+ Section: libdevel
+--- alsa-lib/debian/patches/00list	(revision 1463)
++++ alsa-lib/debian/patches/00list	(working copy)
+@@ -1,2 +1,3 @@
+ 01_alpha_versioned_symbols
+ 02_aclocal_libs_fix
++03_configure_cross_compile
+--- alsa-lib/debian/rules	(revision 1463)
++++ alsa-lib/debian/rules	(working copy)
+@@ -9,6 +9,35 @@
+ export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+ export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+ 
++DEB_BUILD_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_CPU)
++DEB_HOST_ARCH  ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
++
++biarch_map := i386=amd64 powerpc=ppc64 sparc=sparc64 s390=s390x \
++		amd64=i386 ppc64=powerpc
++biarch_cpu := $(strip $(patsubst $(DEB_BUILD_ARCH_CPU)=%, %, \
++			   $(filter $(DEB_BUILD_ARCH_CPU)=%, $(biarch_map))))
++
++ifneq (,$(biarch_cpu))
++  ifneq (,$(findstring /$(DEB_HOST_ARCH)/, /i386/powerpc/sparc/s390/))
++    bi = 64
++    bilibdir = usr/lib64
++  endif
++  ifneq (,$(findstring /$(DEB_HOST_ARCH)/, /amd64/ppc64/))
++    bi = 32
++    bilibdir = emul/ia32-linux/usr/lib # amd64 unstable only!
++    bilibdir = usr/lib32
++  endif
++  configure_biarch_stamp = configure-biarch-stamp
++  build_biarch_stamp = build-biarch-stamp
++  BIARCH_CC = gcc -m$(bi)
++  dpkg_ctrl_args = -- '-Vbilib:depends=libc6-$(biarch_cpu)' \
++	'-Vbidev:depends=libc6-dev-$(biarch_cpu)'
++  ifeq ($(DEB_HOST_ARCH),amd64)
++  dpkg_ctrl_args = -- '-Vbilib:depends=libc6-$(biarch_cpu) | ia32-libs' \
++	'-Vbidev:depends=libc6-dev-$(biarch_cpu) | ia32-libs-dev'
++  endif
++endif
++
+ CFLAGS = -g -Wall
+ 
+ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+@@ -17,7 +46,7 @@
+ 	CFLAGS += -O2
+ endif
+ 
+-configure-stamp: patch-stamp
++configure-stamp: patch-stamp $(configure_biarch_stamp)
+ 	dh_testdir
+ 	-rm -f config.sub config.guess
+ 	ln -s /usr/share/misc/config.sub config.sub
+@@ -30,15 +59,41 @@
+ 		    --enable-static
+ 	touch configure-stamp
+ 
+-configure: configure-stamp
++configure-biarch-stamp: patch-stamp
++	dh_testdir
++	-rm -f config.sub config.guess
++	ln -s /usr/share/misc/config.sub config.sub
++	ln -s /usr/share/misc/config.guess config.guess
++	rm -rf bibuild
++	mkdir bibuild
++	mkdir bibuild/include
++	cd bibuild && CC="$(BIARCH_CC)" ../configure --prefix=/usr \
++		    --mandir=\$${prefix}/share/man \
++		    --infodir=\$${prefix}/share/info \
++		    --enable-static
++	ln -sf . include/alsa
++	rm -f bibuild/include/alsa
++	ln -s . bibuild/include/alsa
++	sed -e '/^SUBDIRS/s/doc//' bibuild/Makefile > bibuild/Makefile.new
++	mv bibuild/Makefile bibuild/Makefile.old
++	mv bibuild/Makefile.new bibuild/Makefile
++	touch -r bibuild/Makefile.old bibuild/Makefile
++	touch configure-biarch-stamp
+ 
++configure: configure-stamp $(configure_biarch_stamp)
++
+ build-arch-stamp: configure-stamp
+ 	dh_testdir
+ 	$(MAKE) CFLAGS="$(CFLAGS)"
+ 	touch build-arch-stamp
+ 
+-build-arch: build-arch-stamp
++build-biarch-stamp: configure-biarch-stamp
++	dh_testdir
++	$(MAKE) -C bibuild CFLAGS="$(CFLAGS)"
++	touch build-biarch-stamp
+ 
++build-arch: $(build_biarch_stamp) build-arch-stamp
++
+ build-indep-stamp: build-arch-stamp
+ 	dh_testdir
+ 	$(MAKE) doc CFLAGS="$(CFLAGS)"
+@@ -51,26 +106,45 @@
+ install-arch: build-arch-stamp
+ 	dh_testdir
+ 	dh_testroot
+-	dh_clean -k
++	dh_clean -k -s
+ 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+-	dh_installdirs -a
+-	dh_install -a
++ifneq (,$(build_biarch_stamp))
++	rm -rf debian/bitmp
++	$(MAKE) -C bibuild/src install DESTDIR=$(CURDIR)/debian/bitmp
++	mkdir -p debian/lib$(bi)asound2/$(bilibdir)
++	cp -a debian/bitmp/usr/lib/libasound.so.* \
++	    debian/lib$(bi)asound2/$(bilibdir)/
++	mkdir -p debian/lib$(bi)asound2-dev/$(bilibdir)
++#	mkdir -p debian/lib$(bi)asound2-dev/$(bilibdir)/pkgconfig
++	cp -a \
++	  debian/bitmp/usr/lib/libasound.so \
++	  debian/bitmp/usr/lib/libasound.a \
++	    debian/lib$(bi)asound2-dev/$(bilibdir)/
++	sed -e "/^libdir=/s,=.*,='/$(bilibdir)'," \
++	  debian/bitmp/usr/lib/libasound.la \
++	    > debian/lib$(bi)asound2-dev/$(bilibdir)/libasound.la
++#	sed -e "/^libdir=.*lib$$/s,=.*,=/$(bilibdir)," \
++#	  debian/bitmp/usr/lib/pkgconfig/alsa.pc \
++#	    > debian/lib$(bi)asound2-dev/$(bilibdir)/pkgconfig/alsa.pc
++endif
++	dh_installdirs -s
++	dh_install -s
+ 	dh_installdocs -plibasound2
+-	dh_installexamples -a
++	dh_installexamples -s
+ 	dh_installchangelogs -plibasound2 debian/changelog.ALSA
+ 	install -p -m 0644 -o root -g root debian/libasound2.lintian-overrides \
+ 		debian/libasound2/usr/share/lintian/overrides/libasound2
+ 	install -p -m 0644 -o root -g root debian/libasound2-dev.lintian-overrides \
+ 		debian/libasound2-dev/usr/share/lintian/overrides/libasound2-dev
+-	dh_strip -a
+-	dh_link -a
+-	dh_compress -a
+-	dh_fixperms -a
++	dh_strip -s
++	dh_link -s
++	dh_compress -s
++	dh_fixperms -s
+ 
+ install-indep: build-indep-stamp
+ 	dh_testdir
+ 	dh_testroot
+-	dh_clean -k
++	dh_clean -k -i
+ 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+ 	dh_installdirs -i
+ 	dh_install -i
+@@ -85,11 +159,11 @@
+ 
+ binary-arch: build-arch-stamp install-arch
+ 	dh_makeshlibs -plibasound2  -V'libasound2 (>> 1.0.10)'
+-	dh_installdeb -a
+-	dh_shlibdeps -a
+-	dh_gencontrol -a
+-	dh_md5sums -a
+-	dh_builddeb -a
++	dh_installdeb -s
++	dh_shlibdeps -s
++	dh_gencontrol -s
++	dh_md5sums -s
++	dh_builddeb -s
+ 
+ binary-indep: build-indep-stamp install-indep
+ 	dh_installdeb -i
+@@ -103,9 +177,11 @@
+ 	dh_testdir
+ 	dh_testroot
+ 	-$(MAKE) distclean
+-	-rm -f configure-stamp build-arch-stamp build-indep-stamp
++	-rm -f *-stamp
+ 	-rm -f config.sub config.guess config.status config.cache
+ 	-rm -rf doc/doxygen
++	rm -rf bibuild debian/bitmp
++	rm -f include/alsa
+ 	dh_clean
+ 
+ .PHONY: configure build-arch build-indep build install-arch install-indep binary-arch binary-indep binary clean

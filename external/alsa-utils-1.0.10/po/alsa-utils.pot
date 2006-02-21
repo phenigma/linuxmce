@@ -1,0 +1,989 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-11-16 15:58+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: aplay/aplay.c:128
+msgid "raw data"
+msgstr ""
+
+#: aplay/aplay.c:129
+msgid "VOC"
+msgstr ""
+
+#: aplay/aplay.c:130
+msgid "WAVE"
+msgstr ""
+
+#: aplay/aplay.c:131
+msgid "Sparc Audio"
+msgstr ""
+
+#: aplay/aplay.c:152
+#, c-format
+msgid ""
+"Usage: %s [OPTION]... [FILE]...\n"
+"\n"
+"-h, --help              help\n"
+"    --version           print current version\n"
+"-l, --list-devices      list all soundcards and digital audio devices\n"
+"-L, --list-pcms         list all PCMs defined\n"
+"-D, --device=NAME       select PCM by name\n"
+"-q, --quiet             quiet mode\n"
+"-t, --file-type TYPE    file type (voc, wav, raw or au)\n"
+"-c, --channels=#        channels\n"
+"-f, --format=FORMAT     sample format (case insensitive)\n"
+"-r, --rate=#            sample rate\n"
+"-d, --duration=#        interrupt after # seconds\n"
+"-s, --sleep-min=#       min ticks to sleep\n"
+"-M, --mmap              mmap stream\n"
+"-N, --nonblock          nonblocking mode\n"
+"-F, --period-time=#     distance between interrupts is # microseconds\n"
+"-B, --buffer-time=#     buffer duration is # microseconds\n"
+"    --period-size=#     distance between interrupts is # frames\n"
+"    --buffer-size=#     buffer duration is # frames\n"
+"-A, --avail-min=#       min available space for wakeup is # microseconds\n"
+"-R, --start-delay=#     delay for automatic PCM start is # microseconds \n"
+"                        (relative to buffer size if <= 0)\n"
+"-T, --stop-delay=#      delay for automatic PCM stop is # microseconds from "
+"xrun\n"
+"-v, --verbose           show PCM structure and setup (accumulative)\n"
+"-I, --separate-channels one file for each channel\n"
+msgstr ""
+
+#: aplay/aplay.c:179 speaker-test/speaker-test.c:497
+msgid "Recognized sample formats are:"
+msgstr ""
+
+#: aplay/aplay.c:185
+msgid ""
+"\n"
+"Some of these may not be available on selected hardware\n"
+msgstr ""
+
+#: aplay/aplay.c:186
+msgid "The availabled format shortcuts are:\n"
+msgstr ""
+
+#: aplay/aplay.c:187
+msgid "-f cd (16 bit little endian, 44100, stereo)\n"
+msgstr ""
+
+#: aplay/aplay.c:188
+msgid "-f cdr (16 bit big endian, 44100, stereo)\n"
+msgstr ""
+
+#: aplay/aplay.c:189
+msgid "-f dat (16 bit little endian, 48000, stereo)\n"
+msgstr ""
+
+#: aplay/aplay.c:199
+#, c-format
+msgid "snd_names_list error: %s"
+msgstr ""
+
+#: aplay/aplay.c:221
+msgid "no soundcards found..."
+msgstr ""
+
+#: aplay/aplay.c:224
+#, c-format
+msgid "**** List of %s Hardware Devices ****\n"
+msgstr ""
+
+#: aplay/aplay.c:253
+#, c-format
+msgid "card %i: %s [%s], device %i: %s [%s]\n"
+msgstr ""
+
+#: aplay/aplay.c:259
+#, c-format
+msgid "  Subdevices: %i/%i\n"
+msgstr ""
+
+#: aplay/aplay.c:266
+#, c-format
+msgid "  Subdevice #%i: %s\n"
+msgstr ""
+
+#: aplay/aplay.c:294
+msgid "PCM list:\n"
+msgstr ""
+
+#: aplay/aplay.c:307
+#, c-format
+msgid "Aborted by signal %s...\n"
+msgstr ""
+
+#: aplay/aplay.c:388
+msgid "command should be named either arecord or aplay"
+msgstr ""
+
+#: aplay/aplay.c:430
+#, c-format
+msgid "unrecognized file format %s"
+msgstr ""
+
+#: aplay/aplay.c:437
+#, c-format
+msgid "value %i for channels is invalid"
+msgstr ""
+
+#: aplay/aplay.c:456
+#, c-format
+msgid "wrong extended format '%s'"
+msgstr ""
+
+#: aplay/aplay.c:467
+#, c-format
+msgid "bad speed value %i"
+msgstr ""
+
+#: aplay/aplay.c:523
+#, c-format
+msgid "Try `%s --help' for more information.\n"
+msgstr ""
+
+#: aplay/aplay.c:544
+#, c-format
+msgid "audio open error: %s"
+msgstr ""
+
+#: aplay/aplay.c:549
+#, c-format
+msgid "info error: %s"
+msgstr ""
+
+#: aplay/aplay.c:556
+#, c-format
+msgid "nonblock setting error: %s"
+msgstr ""
+
+#: aplay/aplay.c:566 aplay/aplay.c:670 aplay/aplay.c:1013
+msgid "not enough memory"
+msgstr ""
+
+#: aplay/aplay.c:660
+#, c-format
+msgid "read error (called from line %i)"
+msgstr ""
+
+#: aplay/aplay.c:718
+#, c-format
+msgid "unknown length of 'fmt ' chunk (read %u, should be %u at least)"
+msgstr ""
+
+#: aplay/aplay.c:726
+msgid "can't play not PCM-coded WAVE-files"
+msgstr ""
+
+#: aplay/aplay.c:730
+#, c-format
+msgid "can't play WAVE-files with %d tracks"
+msgstr ""
+
+#: aplay/aplay.c:738 aplay/aplay.c:835
+msgid "Warning: format is changed to U8\n"
+msgstr ""
+
+#: aplay/aplay.c:744
+msgid "Warning: format is changed to S16_LE\n"
+msgstr ""
+
+#: aplay/aplay.c:752
+msgid "Warning: format is changed to S24_3LE\n"
+msgstr ""
+
+#: aplay/aplay.c:758
+msgid "Warning: format is changed to S24_LE\n"
+msgstr ""
+
+#: aplay/aplay.c:762
+#, c-format
+msgid ""
+" can't play WAVE-files with sample %d bits in %d bytes wide (%d channels)"
+msgstr ""
+
+#: aplay/aplay.c:771
+#, c-format
+msgid " can't play WAVE-files with sample %d bits wide"
+msgstr ""
+
+#: aplay/aplay.c:829
+msgid "Warning: format is changed to MU_LAW\n"
+msgstr ""
+
+#: aplay/aplay.c:841
+msgid "Warning: format is changed to S16_BE\n"
+msgstr ""
+
+#: aplay/aplay.c:854 aplay/aplay.c:1452 aplay/aplay.c:1459 aplay/aplay.c:2006
+#: aplay/aplay.c:2018
+msgid "read error"
+msgstr ""
+
+#: aplay/aplay.c:874
+msgid "Broken configuration for this PCM: no configurations available"
+msgstr ""
+
+#: aplay/aplay.c:891
+msgid "Access type not available"
+msgstr ""
+
+#: aplay/aplay.c:896
+msgid "Sample format non available"
+msgstr ""
+
+#: aplay/aplay.c:901
+msgid "Channels count non available"
+msgstr ""
+
+#: aplay/aplay.c:914
+#, c-format
+msgid "Warning: rate is not accurate (requested = %iHz, got = %iHz)\n"
+msgstr ""
+
+#: aplay/aplay.c:915
+#, c-format
+msgid "         please, try the plug plugin (-Dplug:%s)\n"
+msgstr ""
+
+#: aplay/aplay.c:949
+msgid "Unable to install hw params:"
+msgstr ""
+
+#: aplay/aplay.c:956
+#, c-format
+msgid "Can't use period equal to buffer size (%lu == %lu)"
+msgstr ""
+
+#: aplay/aplay.c:963
+msgid "Unable to obtain xfer align\n"
+msgstr ""
+
+#: aplay/aplay.c:1000
+msgid "unable to install sw params:"
+msgstr ""
+
+#: aplay/aplay.c:1039
+#, c-format
+msgid "status error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1047
+#, c-format
+msgid "%s!!! (at least %.3f ms long)\n"
+msgstr ""
+
+#: aplay/aplay.c:1048
+msgid "underrun"
+msgstr ""
+
+#: aplay/aplay.c:1048
+msgid "overrun"
+msgstr ""
+
+#: aplay/aplay.c:1051
+msgid "Status:\n"
+msgstr ""
+
+#: aplay/aplay.c:1055
+#, c-format
+msgid "xrun: prepare error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1061
+msgid "Status(DRAINING):\n"
+msgstr ""
+
+#: aplay/aplay.c:1065
+msgid "capture stream format change? attempting recover...\n"
+msgstr ""
+
+#: aplay/aplay.c:1067
+#, c-format
+msgid "xrun(DRAINING): prepare error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1074
+msgid "Status(R/W):\n"
+msgstr ""
+
+#: aplay/aplay.c:1077
+#, c-format
+msgid "read/write error, state = %s"
+msgstr ""
+
+#: aplay/aplay.c:1087
+msgid "Suspended. Trying resume. "
+msgstr ""
+
+#: aplay/aplay.c:1092
+msgid "Failed. Restarting stream. "
+msgstr ""
+
+#: aplay/aplay.c:1094
+#, c-format
+msgid "suspend: prepare error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1099
+msgid "Done.\n"
+msgstr ""
+
+#: aplay/aplay.c:1178
+#, c-format
+msgid "Unsupported bit size %d.\n"
+msgstr ""
+
+#: aplay/aplay.c:1186
+#, c-format
+msgid "Max peak (%li samples): 0x%08x "
+msgstr ""
+
+#: aplay/aplay.c:1222
+#, c-format
+msgid "write error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1264
+#, c-format
+msgid "writev error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1303
+#, c-format
+msgid "read error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1342
+#, c-format
+msgid "readv error: %s"
+msgstr ""
+
+#: aplay/aplay.c:1390
+msgid "can't allocate buffer for silence"
+msgstr ""
+
+#: aplay/aplay.c:1399 aplay/aplay.c:1627 aplay/aplay.c:1632 aplay/aplay.c:1679
+#: aplay/aplay.c:1688 aplay/aplay.c:1695 aplay/aplay.c:1705 aplay/aplay.c:1711
+#: aplay/aplay.c:1779 aplay/aplay.c:1809 aplay/aplay.c:1823
+msgid "write error"
+msgstr ""
+
+#: aplay/aplay.c:1413
+msgid "voc_pcm_flush - silence error"
+msgstr ""
+
+#: aplay/aplay.c:1419
+msgid "voc_pcm_flush error"
+msgstr ""
+
+#: aplay/aplay.c:1443
+msgid "malloc error"
+msgstr ""
+
+#: aplay/aplay.c:1447
+#, c-format
+msgid "Playing Creative Labs Channel file '%s'...\n"
+msgstr ""
+
+#: aplay/aplay.c:1515 aplay/aplay.c:1607
+msgid "can't play packed .voc files"
+msgstr ""
+
+#: aplay/aplay.c:1567
+#, c-format
+msgid "can't play loops; %s isn't seekable\n"
+msgstr ""
+
+#: aplay/aplay.c:1616
+#, c-format
+msgid "unknown blocktype %d. terminate."
+msgstr ""
+
+#: aplay/aplay.c:1746
+#, c-format
+msgid "Wave doesn't support %s format..."
+msgstr ""
+
+#: aplay/aplay.c:1803
+#, c-format
+msgid "Sparc Audio doesn't support %s format..."
+msgstr ""
+
+#: aplay/aplay.c:1888
+msgid "Playing"
+msgstr ""
+
+#: aplay/aplay.c:1888
+msgid "Recording"
+msgstr ""
+
+#: aplay/aplay.c:1892
+#, c-format
+msgid "Rate %d Hz, "
+msgstr ""
+
+#: aplay/aplay.c:1894
+msgid "Mono"
+msgstr ""
+
+#: aplay/aplay.c:1896
+msgid "Stereo"
+msgstr ""
+
+#: aplay/aplay.c:1898
+#, c-format
+msgid "Channels %i"
+msgstr ""
+
+#: aplay/aplay.c:2180 aplay/aplay.c:2233
+#, c-format
+msgid "You need to specify %d files"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:49
+msgid "aconnect - ALSA sequencer connection manager\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:50
+msgid "Copyright (C) 1999-2000 Takashi Iwai\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:51
+msgid "Usage:\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:52
+msgid " * Connection/disconnection between two ports\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:53
+msgid "   aconnect [-options] sender receiver\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:54
+msgid "     sender, receiver = client:port pair\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:55
+msgid "     -d,--disconnect     disconnect\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:56
+msgid "     -e,--exclusive      exclusive connection\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:57
+msgid "     -r,--real #         convert real-time-stamp on queue\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:58
+msgid "     -t,--tick #         convert tick-time-stamp on queue\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:59
+msgid " * List connected ports (no subscription action)\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:60
+msgid "   aconnect -i|-o [-options]\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:61
+msgid "     -i,--input          list input (readable) ports\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:62
+msgid "     -o,--output         list output (writable) ports\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:63
+msgid "     -l,--list           list current connections of each port\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:64
+msgid " * Remove all exported connections\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:65
+msgid "     -x, --removeall\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:132
+msgid "Connecting To"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:133
+msgid "Connected From"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:169
+#, c-format
+msgid "client %d: '%s' [type=%s]\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:173
+msgid "user"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:173
+msgid "kernel"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:326
+msgid "can't open sequencer\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:354
+msgid "can't get client id\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:361
+msgid "can't set client info\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:368
+#, c-format
+msgid "invalid sender address %s\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:373 seq/aseqnet/aseqnet.c:289
+#, c-format
+msgid "invalid destination address %s\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:387
+msgid "No subscription is found\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:392
+#, c-format
+msgid "Disconnection failed (%s)\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:398
+msgid "Connection is already subscribed\n"
+msgstr ""
+
+#: seq/aconnect/aconnect.c:403
+#, c-format
+msgid "Connection failed (%s)\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:163
+msgid "aseqnet - network client/server on ALSA sequencer\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:164
+msgid "  Copyright (C) 1999 Takashi Iwai\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:165
+msgid "usage:\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:166
+msgid "  server mode: aseqnet [-options]\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:167
+msgid "  client mode: aseqnet [-options] server_host\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:168
+msgid "options:\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:169
+msgid "  -p,--port # : sepcify TCP port (digit or service name)\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:170
+msgid "  -s,--source addr : read from given addr (client:port)\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:171
+msgid "  -d,--dest addr : write to given addr (client:port)\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:172
+msgid "  -v, --verbose : print verbose messages\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:173
+msgid "  -i, --info : print certain received events\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:187
+msgid "can't malloc\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:212
+msgid "closing files..\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:271
+#, c-format
+msgid "sequencer opened: %d:%d\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:278
+#, c-format
+msgid "invalid source address %s\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:308
+#, c-format
+msgid "service '%s' is not found in /etc/services\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:376
+msgid "too many connections!\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:387
+#, c-format
+msgid "accepted[%d]\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:410
+#, c-format
+msgid "can't get address %s\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:421
+msgid "ok.. connected\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:517
+#, c-format
+msgid "Channel %2d: Control event : %5d\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:521
+#, c-format
+msgid "Channel %2d: Pitchbender   : %5d\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:525
+#, c-format
+msgid "Channel %2d: Note On event : %5d\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:529
+#, c-format
+msgid "Channel %2d: Note Off event: %5d\n"
+msgstr ""
+
+#: seq/aseqnet/aseqnet.c:584
+msgid "disconnected\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:72
+msgid "Front Left"
+msgstr ""
+
+#: speaker-test/speaker-test.c:73
+msgid "Front Right"
+msgstr ""
+
+#: speaker-test/speaker-test.c:74
+msgid "Rear Left"
+msgstr ""
+
+#: speaker-test/speaker-test.c:75
+msgid "Rear Right"
+msgstr ""
+
+#: speaker-test/speaker-test.c:76
+msgid "Center"
+msgstr ""
+
+#: speaker-test/speaker-test.c:77
+msgid "LFE"
+msgstr ""
+
+#: speaker-test/speaker-test.c:78
+msgid "Side Left"
+msgstr ""
+
+#: speaker-test/speaker-test.c:79
+msgid "Side Right"
+msgstr ""
+
+#: speaker-test/speaker-test.c:80
+msgid "8"
+msgstr ""
+
+#: speaker-test/speaker-test.c:81
+msgid "9"
+msgstr ""
+
+#: speaker-test/speaker-test.c:82
+msgid "10"
+msgstr ""
+
+#: speaker-test/speaker-test.c:83
+msgid "11"
+msgstr ""
+
+#: speaker-test/speaker-test.c:84
+msgid "12"
+msgstr ""
+
+#: speaker-test/speaker-test.c:85
+msgid "13"
+msgstr ""
+
+#: speaker-test/speaker-test.c:86
+msgid "14"
+msgstr ""
+
+#: speaker-test/speaker-test.c:87
+msgid "15"
+msgstr ""
+
+#: speaker-test/speaker-test.c:88
+msgid "16"
+msgstr ""
+
+#: speaker-test/speaker-test.c:268
+#, c-format
+msgid "Broken configuration for playback: no configurations available: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:275
+#, c-format
+msgid "Access type not available for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:282
+#, c-format
+msgid "Sample format not available for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:289
+#, c-format
+msgid "Channels count (%i) not available for playbacks: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:297
+#, c-format
+msgid "Rate %iHz not available for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:302
+#, c-format
+msgid "Rate doesn't match (requested %iHz, get %iHz, err %d)\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:306
+#, c-format
+msgid "Rate set to %iHz (requested %iHz)\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:315
+#, c-format
+msgid "Buffer size range from %lu to %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:316
+#, c-format
+msgid "Period size range from %lu to %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:317
+#, c-format
+msgid "Periods = %d\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:318
+#, c-format
+msgid "Buffer time size %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:330
+#, c-format
+msgid "To choose buffer_size = %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:331
+#, c-format
+msgid "To choose period_size = %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:335
+#, c-format
+msgid "Unable to set period size %lu for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:340
+#, c-format
+msgid "Unable to get period size for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:345
+#, c-format
+msgid "Unable to set buffer size %lu for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:349
+#, c-format
+msgid "was set period_size = %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:350
+#, c-format
+msgid "was set buffer_size = %lu\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:352
+msgid "buffer to small, could not use\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:360
+#, c-format
+msgid "Unable to set hw params for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:373
+#, c-format
+msgid "Unable to determine current swparams for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:380
+#, c-format
+msgid "Unable to set start threshold mode for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:387
+#, c-format
+msgid "Unable to set avail min for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:394
+#, c-format
+msgid "Unable to set transfer align for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:401
+#, c-format
+msgid "Unable to set sw params for playback: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:416
+#, c-format
+msgid "Can't recovery from underrun, prepare failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:427
+#, c-format
+msgid "Can't recovery from suspend, prepare failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:463
+#, c-format
+msgid "Write error: %d,%s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:465
+#, c-format
+msgid "xrun_recovery failed: %d,%s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:484
+msgid ""
+"Usage: speaker-test [OPTION]... \n"
+"-h,--help\thelp\n"
+"-D,--device\tplayback device\n"
+"-r,--rate\tstream rate in Hz\n"
+"-c,--channels\tcount of channels in stream\n"
+"-f,--frequency\tsine wave frequency in Hz\n"
+"-F,--format\tsample format\n"
+"-b,--buffer\tring buffer size in us\n"
+"-p,--period\tperiod size in us\n"
+"-t,--test\t1=use pink noise, 2=use sine wave\n"
+"-s,--speaker\tsingle speaker test. Values 1=Left or 2=right\n"
+"\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:595
+msgid "Invalid parameter for -s option.\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:600
+#, c-format
+msgid "Unknown option '%c'\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:613
+#, c-format
+msgid "Output failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:617
+#, c-format
+msgid "Playback device is %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:618
+#, c-format
+msgid "Stream parameters are %iHz, %s, %i channels\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:620
+msgid "Using 16 octaves of pink noise\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:622
+#, c-format
+msgid "Sine wave rate is %.4fHz\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:626
+#, c-format
+msgid "Playback open error: %d,%s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:631
+#, c-format
+msgid "Setting of hwparams failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:638
+#, c-format
+msgid "Setting of swparams failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:648
+msgid "No enough memory\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:672 speaker-test/speaker-test.c:694
+#, c-format
+msgid "Transfer failed: %s\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:675
+msgid "Pausing\n"
+msgstr ""
+
+#: speaker-test/speaker-test.c:687
+#, c-format
+msgid "Time per period = %lf\n"
+msgstr ""
