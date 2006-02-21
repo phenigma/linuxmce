@@ -447,20 +447,6 @@ void General_Info_Plugin::CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Mes
 void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c323-e->
 {
-	if(iPK_Device == DEVICEID_NULL) //this is the core
-	{
-		map<int, string> mapCoreDevices;
-		GetDevicesByCategory(DEVICECATEGORY_Core_CONST, &mapCoreDevices);
-
-        if(mapCoreDevices.size() > 0)
-		{
-			iPK_Device = mapCoreDevices.begin()->first;
-			pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::ltos(iPK_Device);
-
-			g_pPlutoLogger->Write(LV_STATUS, "The core must be halted. Core's id: %d", iPK_Device);
-		}
-	}
-
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if( !pDevice )
 	{
