@@ -762,7 +762,7 @@ function GetDeviceControlledVia($deviceID, $dbADO)
 	}
 }
 
-function isMediaDirector($deviceID,$dbADO)
+function isMediaDirector($deviceID,$dbADO,$mdOnly=0)
 {
 	$getTemplate='SELECT FK_DeviceTemplate,FK_Device_ControlledVia FROM Device WHERE PK_Device=?';
 	$resTemplate=$dbADO->Execute($getTemplate,$deviceID);
@@ -774,7 +774,9 @@ function isMediaDirector($deviceID,$dbADO)
 	if($DeviceTemplate==$GLOBALS['rootMediaDirectorsID']){
 		return true;
 	}
-	elseif($row['FK_Device_ControlledVia']=='' )
+	elseif($mdOnly==1){
+		return false;
+	}elseif($row['FK_Device_ControlledVia']=='' )
 		return false;
 	else{
 		return isMediaDirector($row['FK_Device_ControlledVia'],$dbADO);

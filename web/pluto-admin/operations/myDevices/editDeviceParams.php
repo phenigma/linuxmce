@@ -537,7 +537,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$Status= cleanString($_POST['Status']);
 		$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
 		
-		if(isMediaDirector($deviceID,$dbADO) && roomIsUsed($room,$deviceID,$dbADO)){
+		if(isMediaDirector($deviceID,$dbADO,1) && roomIsUsed($room,$deviceID,$dbADO)){
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST);
 			exit();			
 		}
@@ -653,7 +653,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				$msg='Device Pipe added.';
 			}
 			else
-				$error='Device pipe already exist.';
+				$error=$TEXT_ERROR_DEVICE_PIPE_EXISTS_CONST;
 		}
 		
 		$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To
@@ -687,7 +687,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			//top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {
-		Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error=You are not allowed to modify installation.');
+		Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST);
 		exit();
 	}
 }

@@ -19,4 +19,5 @@ $TEXT_DEVICE_TEMPLATE_COMMENTS_CONST='Device Template Comments';
 $TEXT_VIEW_CONST='View';
 $TEXT_DEVICE_RESETED_CONST='The device was reseted.';
 $TEXT_ROOM_USED_BY_ANOTHER_MD_CONST='The room is used by another media director';
+$TEXT_ERROR_DEVICE_PIPE_EXISTS_CONST='Device pipe already exist.';
 ?>
