@@ -20,6 +20,7 @@ public:
 	* @return the instance of this class*/
 	static SerialConnection* getInstance();
 	
+	/**force closing the serial connection*/
 	static void forceClose();
 
 	/**send a buffer to the serial port
@@ -52,14 +53,15 @@ public:
 	
 	virtual ~SerialConnection();
 
-	static pthread_mutex_t mutex_serial;
-	static pthread_mutex_t mutex_buffer;
-	static pthread_t write_thread;
 
 	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
 	static void* receiveFunction(void *);
 	
 	static void printDataBuffer(const char *buffer, const size_t length, const char *classID);
+
+	static pthread_mutex_t mutex_serial;
+	static pthread_mutex_t mutex_buffer;
+	static pthread_t write_thread;
 private:
 	/**static instance of this class*/
 	static SerialConnection* instance;
