@@ -28,10 +28,13 @@ SQL="
 	FROM 
 		Device_DeviceData
         WHERE 
-		FK_Device=$PK_Device AND FK_DeviceData=XX?
+		FK_Device=$PK_Device AND FK_DeviceData=12
 "
 R=$(RunSQL "$SQL")
 IK_DeviceData=$(Filed 1 "$R")
 
+modprobe video1394
+modprobe raw1394
+modprobe vloopback pipes=16 dev_offset=30
 dc1394_vloopback --daemon --video1394=/dev/video1394-$IK_DeviceData
 
