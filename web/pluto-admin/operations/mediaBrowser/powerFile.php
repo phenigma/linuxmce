@@ -24,14 +24,6 @@ function powerFile($output,$mediadbADO,$dbADO) {
 		
 		if(isset($_POST['rip_format'])){
 			$_SESSION['rip_format']=$_POST['rip_format'];
-			/*
-			if($mediaPluginID!==null){
-				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($rip,$mediaPluginID,$GLOBALS['RipFormat']));
-				$rip_format_array['selected']=$rip;
-			}else{
-				error_redirect('Error: unable to find Media plugin device.','index.php?section=powerFile');
-			}
-			*/
 		}
 		
 				
@@ -83,19 +75,13 @@ function powerFile($output,$mediadbADO,$dbADO) {
 		
 			<table align="center" width="600">
 				<tr>
-					<td width="150" align="right">Choose Jukebox:</td>
+					<td width="150" align="right">'.$TEXT_CHOOSE_JUKEBOX_CONST.':</td>
 					<td>'.pulldownFromArray($powerFiles,'powerFile',$powerFileID,'onChange="document.powerFile.action.value=\'form\';document.powerFile.submit();"','key','').'</td>
-					<td width="100" align="right">Choose format:</td>
+					<td width="100" align="right">'.$TEXT_CHOOSE_FORMAT_CONST.':</td>
 					<td align="left">'.pulldownFromArray($rip_format_array['formats'],'rip_format',@$_SESSION['rip_format'],'onChange="document.powerFile.action.value=\'form\';document.powerFile.submit();"','key','').'</td>
 				</tr>
 				<tr>
-					<td colspan="4">To rip discs you must:<br>
-						1) Identify the discs in the slots you want to rip by selecting the slots and choose ‘Identify Selected’. <br>
-						2) For any discs which were not identifiable (shown in red) you must manually type in the information. <br>
-						3) Discs that are identified, either automatically or manually, and are ready to rip are in green.  Double-check that they are correct. <br>
-						4) Select the discs you want to rip (only those in green), verify the format (flac, ogg, etc.) and choose one of the ‘Rip’ buttons.  <br>
-						5) Monitor the progress on the ‘Monitor Progress’ tab.  <br><br>
-				<B>IMPORTANT NOTE</B>: If you remove disks from the jukebox, click ‘Refresh Status’ BEFORE you load any new discs.  If you previously ejected disks, do not load new discs until you click ‘Refresh Status’.  If you do not do this and get the system ‘out of sync’, check all slots and chose ‘Identify’.</td>
+					<td colspan="4">'.$TEXT_RIP_DISCS_INFO_CONST.'</td>
 				</tr>		
 			</table><br>
 			
@@ -148,7 +134,7 @@ function getSlotStatus($powerFileID,$dbADO,$forced=0){
 	}
 
 // todo: remove hardcoded test
-//	$status='D0=Full-2,D1=Empty,S1=Full,S2=Empty,S3=Full,S4=Full,S5=Full,S6=Full,S7=Full,S8=Full,S9=Full,S10=Full,S11=Full,S12=Full,S13=Full,S14=Full,S15=Full,S16=Full,S17=Full,S18=Full,S19=Full,S20=Full,S21=Full,S22=Full,S23=Full,S24=Full,S25=Full,S26=Full,S27=Full,S28=Full,S29=Full,S30=Full,S31=Full,S32=Full,S33=Full,S34=Full,S35=Full,S36=Full,S37=Full,S38=Full,S39=Full,S40=Full,S41=Full,S42=Full,S43=Full,S44=Full,S45=Full,S46=Full,S47=Full,S48=Full,S49=Full,S50=Full,S51=Full,S52=Full,S53=Full,S54=Full,S55=Full,S56=Full,S57=Full,S58=Full,S59=Full,S60=Full,S61=Full,S62=Full,S63=Full,S64=Full,S65=Full,S66=Full,S67=Full,S68=Full,S69=Full,S70=Full,S71=Full,S72=Full,S73=Full,S74=Full,S75=Full,S76=Full,S77=Full,S78=Full,S79=Full,S80=Full,S81=Full,S82=Full,S83=Full,S84=Full,S85=Full,S86=Full,S87=Full,S88=Full,S89=Full,S90=Full,S91=Full,S92=Full,S93=Full,S94=Full,S95=Full,S96=Full,S97=Full,S98=Full,S99=Full,S100=Full,S101=Full,S102=Full,S103=Full,S104=Full,S105=Full,S106=Full,S107=Full,S108=Full,S109=Full,S110=Full,S111=Full,S112=Full,S113=Full,S114=Full,S115=Full,S116=Full,S117=Full,S118=Full,S119=Full,S120=Full,S121=Full,S122=Full,S123=Full,S124=Full,S125=Full,S126=Full,S127=Full,S128=Full,S129=Full,S130=Full,S131=Full,S132=Full,S133=Full,S134=Full,S135=Full,S136=Full,S137=Full,S138=Full,S139=Full,S140=Full,S141=Full,S142=Full,S143=Full,S144=Full,S145=Full,S146=Full,S147=Full,S148=Full,S149=Full,S150=Full,S151=Full,S152=Full,S153=Empty,S154=Empty,S155=Empty,S156=Empty,S157=Empty,S158=Empty,S159=Empty,S160=Empty,S161=Empty,S162=Empty,S163=Empty,S164=Empty,S165=Empty,S166=Empty,S167=Empty,S168=Empty,S169=Empty,S170=Empty,S171=Empty,S172=Empty,S173=Empty,S174=Empty,S175=Empty,S176=Empty,S177=Empty,S178=Empty,S179=Empty,S180=Empty,S181=Empty,S182=Empty,S183=Empty,S184=Empty,S185=Empty,S186=Empty,S187=Empty,S188=Empty,S189=Empty,S190=Empty,S191=Empty,S192=Empty,S193=Empty,S194=Empty,S195=Empty,S196=Empty,S197=Empty,S198=Empty,S199=Empty,S200=Empty';
+// $status='D0=Full-2,D1=Empty,S1=Full,S2=Empty,S3=Full,S4=Full,S5=Full,S6=Full,S7=Full,S8=Full,S9=Full,S10=Full,S11=Full,S12=Full,S13=Full,S14=Full,S15=Full,S16=Full,S17=Full,S18=Full,S19=Full,S20=Full,S21=Full,S22=Full,S23=Full,S24=Full,S25=Full,S26=Full,S27=Full,S28=Full,S29=Full,S30=Full,S31=Full,S32=Full,S33=Full,S34=Full,S35=Full,S36=Full,S37=Full,S38=Full,S39=Full,S40=Full,S41=Full,S42=Full,S43=Full,S44=Full,S45=Full,S46=Full,S47=Full,S48=Full,S49=Full,S50=Full,S51=Full,S52=Full,S53=Full,S54=Full,S55=Full,S56=Full,S57=Full,S58=Full,S59=Full,S60=Full,S61=Full,S62=Full,S63=Full,S64=Full,S65=Full,S66=Full,S67=Full,S68=Full,S69=Full,S70=Full,S71=Full,S72=Full,S73=Full,S74=Full,S75=Full,S76=Full,S77=Full,S78=Full,S79=Full,S80=Full,S81=Full,S82=Full,S83=Full,S84=Full,S85=Full,S86=Full,S87=Full,S88=Full,S89=Full,S90=Full,S91=Full,S92=Full,S93=Full,S94=Full,S95=Full,S96=Full,S97=Full,S98=Full,S99=Full,S100=Full,S101=Full,S102=Full,S103=Full,S104=Full,S105=Full,S106=Full,S107=Full,S108=Full,S109=Full,S110=Full,S111=Full,S112=Full,S113=Full,S114=Full,S115=Full,S116=Full,S117=Full,S118=Full,S119=Full,S120=Full,S121=Full,S122=Full,S123=Full,S124=Full,S125=Full,S126=Full,S127=Full,S128=Full,S129=Full,S130=Full,S131=Full,S132=Full,S133=Full,S134=Full,S135=Full,S136=Full,S137=Full,S138=Full,S139=Full,S140=Full,S141=Full,S142=Full,S143=Full,S144=Full,S145=Full,S146=Full,S147=Full,S148=Full,S149=Full,S150=Full,S151=Full,S152=Full,S153=Empty,S154=Empty,S155=Empty,S156=Empty,S157=Empty,S158=Empty,S159=Empty,S160=Empty,S161=Empty,S162=Empty,S163=Empty,S164=Empty,S165=Empty,S166=Empty,S167=Empty,S168=Empty,S169=Empty,S170=Empty,S171=Empty,S172=Empty,S173=Empty,S174=Empty,S175=Empty,S176=Empty,S177=Empty,S178=Empty,S179=Empty,S180=Empty,S181=Empty,S182=Empty,S183=Empty,S184=Empty,S185=Empty,S186=Empty,S187=Empty,S188=Empty,S189=Empty,S190=Empty,S191=Empty,S192=Empty,S193=Empty,S194=Empty,S195=Empty,S196=Empty,S197=Empty,S198=Empty,S199=Empty,S200=Empty';
 	if(!isset($status)){
 		error_redirect($TEXT_ERROR_CANNOT_RETRIEVE_STATUS_CONST,'index.php?section=powerFile');
 	}
@@ -168,6 +154,10 @@ function getSlotStatus($powerFileID,$dbADO,$forced=0){
 }
 
 function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/powerFile.lang.php');
+	
 	// check if ripping is in progress and return HTML block to display it
 	if(ripInProgress($powerFileID)>0){
 		return ripInProgressHTML($powerFileID);
@@ -194,10 +184,10 @@ function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
 						$color="green";
 						if(isset($alreadyRipped[$i]) && $alreadyRipped[$i]!=''){
 							$color="purple";
-							$slotName.=' (Already ripped)';
+							$slotName.=' ('.$TEXT_ALREADY_RIPPED_CONST.')';
 						}						
 					}else{
-						$slotName='CD: Incomplete ID';
+						$slotName='CD: '.$TEXT_INCOMPLETE_ID_CONST;
 						$checkbox_value='2';
 						$color="red";
 					}
@@ -208,16 +198,16 @@ function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
 						$color="green";
 						if(isset($alreadyRipped[$i]) && $alreadyRipped[$i]!=''){
 							$color="purple";
-							$slotName.='Already ripped';
+							$slotName.=$TEXT_ALREADY_RIPPED_CONST;
 						}
 						
 					}else{
-						$slotName='DVD: Incomplete ID';
+						$slotName='DVD: '.$TEXT_INCOMPLETE_ID_CONST;
 						$checkbox_value='2';
 						$color="red";
 					}
 				}else{
-					$slotName='Unknown media type';
+					$slotName=$TEXT_UNKNOWN_MEDIA_TYPE_CONST;
 					$checkbox_stat='disabled';
 					$color="red";
 				}
@@ -225,7 +215,7 @@ function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
 				
 			}else{
 				// no record in Disc, disc is not identified
-				$slotName='Not Identified';
+				$slotName=$TEXT_NOT_IDENTIFIED_CONST;
 				$color="blue";
 				$checkbox_value='2';
 			}
@@ -279,8 +269,8 @@ function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
 		</tr>
 		<tr>
 			<td colspan="4" align="center">	
-				<input type="submit" class="button" name="rip_public" value="Rip selected as public"> 
-				<input type="submit" class="button" name="rip_private" value="Rip selected as private"> 
+				<input type="submit" class="button" name="rip_public" value="'.$TEXT_RIP_SELECTED_AS_PUBLIC.'"> 
+				<input type="submit" class="button" name="rip_private" value="'.$TEXT_RIP_SELECTED_AS_PRIVATE_CONST.'"> 
 				<input type="button" class="button" name="force_refresh" value="Refresh status" onClick="self.location=\'index.php?section=powerFile&forced=1\'">
 				<input type="submit" class="button" name="mass_identify" value="Identify selected">
 				<input type="button" class="button" name="monitor" value="Monitor progress" onClick="self.location=\'index.php?section=powerFile&action=monitor\'">
@@ -323,8 +313,7 @@ function ripInProgress($powerFileID){
 	exec($cmd,$retArray);
 
 	// todo: remove hardcoded
-	//$retArray=array(0=>'OK:',1=>'158:S1-S,S2-F de aia,S5-R bubu,S10-I cucu,S100-N');
-//	 $retArray=array(0=>'OK:',1=>'158:');
+	 // $retArray=array(0=>'OK:',1=>'158:S1-S~S2-F de aia~S5-R bubu~S10-I cucu~S100-N');
 	
 	foreach ($retArray AS $line){
 		if(strpos($line,'158:')!==false){
@@ -341,6 +330,7 @@ function ripInProgress($powerFileID){
 		return 0;
 	}	
 	$slotStatusArray=explode('~',$status);
+
 	foreach ($slotStatusArray AS $slot){
 		$parts=explode('-',$slot);
 		switch (substr($parts[1],0,1)){
@@ -463,8 +453,8 @@ function select_tracks_to_rip($powerFileID,$mediadbADO){
 	$out.='
 		<tr>
 			<td colspan="2" align="center">
-				<input type="submit" class="button" name="rip_public" value="Rip selected as public"> 
-				<input type="submit" class="button" name="rip_private" value="Rip selected as private"> 
+				<input type="submit" class="button" name="rip_public" value="'.$TEXT_RIP_SELECTED_AS_PUBLIC_CONST.'"> 
+				<input type="submit" class="button" name="rip_private" value="'.$TEXT_RIP_SELECTED_AS_PRIVATE_CONST.'"> 
 			</td>
 		<tr>	
 	</table>
@@ -540,7 +530,7 @@ function rip_selected_traks($powerFileID){
 
 	exec($cmd);
 	$out='
-		<B>Riping status</B><br>
+		<B>'.$TEXT_RIPING_STATUS_CONST.'</B><br>
 		<iframe src="index.php?section=ripStatus&pf='.$powerFileID.'" style="width:800px;height:600px;border:0;scrollbars=1;"></iframe>
 		';
 	

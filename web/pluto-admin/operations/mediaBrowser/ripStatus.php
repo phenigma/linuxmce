@@ -19,7 +19,7 @@ function ripStatus($output,$mediadbADO,$dbADO){
 	exec($cmd,$retArray);
 
 	// todo: remove hardcoded
-	// $retArray=array(0=>'OK:',1=>'158:S1-S,S2-F de aia,S5-R bubu,S10-I cucu,S42-N');
+	// $retArray=array(0=>'OK:',1=>'158:S1-S~S2-F de aia~S5-R bubu~S10-I cucu~S42-N');
 	
 	foreach ($retArray AS $line){
 		if(strpos($line,'158:')!==false){
