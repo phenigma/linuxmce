@@ -36,6 +36,7 @@ ForwardPort()
 
 	[[ "$DestPort" -eq 0 ]] && DestPort="$SrcPort"
 	[[ "$FilterIP" != "0.0.0.0/0" ]] && FilterMsg="; Limited to: $FilterIP"
+	[[ "$ExtIP" == dhcp ]] && ExtIP="0.0.0.0/0"
 	
 	echo "  Source port: $SrcPort/$Protocol; Destination: $DestIP:$DestPort$FilterMsg"
 	iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
