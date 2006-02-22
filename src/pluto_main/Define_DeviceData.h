@@ -31,7 +31,7 @@
 #define DEVICEDATA_COM_Port_on_PC_CONST 37
 #define DEVICEDATA_PK_HouseMode_CONST 38
 #define DEVICEDATA_Delay_CONST 39
-#define DEVICEDATA_Name_CONST 40
+#define DEVICEDATA_BranchNo_CONST 40
 #define DEVICEDATA_Update_Name_CONST 41
 #define DEVICEDATA_File_Name_and_Path_CONST 42
 #define DEVICEDATA_Communication_file_CONST 43
@@ -125,6 +125,7 @@
 #define DEVICEDATA_Telecom_Local_Prefix_CONST 141
 #define DEVICEDATA_Telecom_Prepend_Digit_CONST 142
 #define DEVICEDATA_Telecom_Local_Number_Length_CONST 143
+#define DEVICEDATA_UnitNo_CONST 147
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

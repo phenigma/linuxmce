@@ -714,6 +714,7 @@
 #define COMMAND_Recorded_TV_Menu_CONST 777
 #define COMMAND_NOEMOReport_CONST 778
 #define COMMAND_Remove_playlist_CONST 780
+#define COMMAND_StatusReport_CONST 788
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

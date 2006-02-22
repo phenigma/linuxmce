@@ -1908,6 +1908,7 @@
 #define DESIGNOBJ_arrTransferSIPDevices_CONST 4821
 #define DESIGNOBJ_butTransferSIPDevices_CONST 4822
 #define DESIGNOBJ_butMinimizeApp_CONST 4824
+#define DESIGNOBJ_objNowPlayingShort_CONST 4825
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
