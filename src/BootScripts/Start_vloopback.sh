@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 function showUsage {
         echo "Usage: $0 -r <RouterID> -d <DeviceID>"
         echo
