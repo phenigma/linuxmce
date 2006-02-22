@@ -225,7 +225,8 @@
 	// PK_StartupScript from table StartupScript
 	$GLOBALS['ProcessLogs']=45;					// Process_Logs.sh
 	$GLOBALS['ShareIRCodes']=49;				// Share IR codes
-
+	$GLOBALS['UpdateMediaDaemon']=61;			// UpdateMediaDaemon
+	
 	// PK_CommandCategory
 	$GLOBALS['AVCommandCategory']=12;			// AV commands
 	$GLOBALS['DSPModeCommandCategory']=21;		// DSP Modes

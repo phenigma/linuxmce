@@ -1,5 +1,5 @@
 <?
-function leftMediaFilesSync($output,$mediadbADO) {
+function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	
@@ -9,7 +9,7 @@ function leftMediaFilesSync($output,$mediadbADO) {
 	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public/data';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';	
-	
+
 	if($action=='form'){
 		$out='
 		<script>
@@ -22,6 +22,7 @@ function leftMediaFilesSync($output,$mediadbADO) {
 		<form action="index.php" method="POST" name="leftMediaFilesSync">
 		<input type="hidden" name="section" value="leftMediaFilesSync">
 		<input type="hidden" name="action" value="search">
+		<input type="hidden" name="startPath" value="'.urlencode($startPath).'">
 		
 		<table border=0 align="left">				
 				<tr>
@@ -61,15 +62,21 @@ function leftMediaFilesSync($output,$mediadbADO) {
 			$linksTree.=$indent.'<a href="javascript:syncPath(\''.urlencode(addslashes($childPath)).'\')">&gt; '.stripslashes($childName).'</a><br>';
 		}
 
-		
 		$out.='
 			<tr>
 				<td colspan="2">'.$linksTree.'</td>
 			</tr>
+			<tr>
+				<td colspan="2"><input type="checkbox" name="UpdateMediaDaemon" value="1" '.((get_update_media_daemon_status($dbADO)==1)?'checked':'').' onClick="document.leftMediaFilesSync.submit();"> '.$TEXT_UPDATE_MEDIA_DAEMON_CONST.'</td>
+			</tr>		
 			</table>
 		</form>';
 	}else{
 		// processing area
+		set_update_media_daemon_status((int)@$_REQUEST['UpdateMediaDaemon'],$dbADO);
+
+		header('Location: index.php?section=leftMediaFilesSync&startPath='.urlencode($_REQUEST['startPath']));
+		exit();
 	}	
 
 	
@@ -97,5 +104,20 @@ function getDirectories ($path) {
 	reset($dirs);
 	
 	return $dirs;
+}
+
+function get_update_media_daemon_status($dbADO){
+	$coreDevices=array_keys(getDevicesArrayFromCategory($GLOBALS['CategoryCore'],$dbADO));
+	$scriptInfo=getAssocArray('Device_StartupScript','FK_StartupScript','Enabled',$dbADO,'WHERE FK_Device='.$coreDevices[0].' AND FK_StartupScript='.$GLOBALS['UpdateMediaDaemon']);
+	
+	return @$scriptInfo[$GLOBALS['UpdateMediaDaemon']];
+}
+
+function set_update_media_daemon_status($value,$dbADO){
+	$coreDevices=array_keys(getDevicesArrayFromCategory($GLOBALS['CategoryCore'],$dbADO));
+	$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=? WHERE FK_Device=? AND FK_StartupScript=?',array($value,$coreDevices[0],$GLOBALS['UpdateMediaDaemon']));
+	
+	$cmd='sudo -u root /usr/pluto/bin/generateRcScripts.sh';
+	exec($cmd);
 }
 ?>

@@ -690,7 +690,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
 	    include_once('operations/mediaBrowser/leftMediaFilesSync.php');
-	    leftMediaFilesSync($output,$mediadbADO);	    
+	    leftMediaFilesSync($output,$mediadbADO,$dbADO);	    
 	break;
 	case 'mainMediaFilesSync':
 		$output = new Template($dbADO);
