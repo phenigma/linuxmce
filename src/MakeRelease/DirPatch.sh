@@ -71,7 +71,7 @@ for section in $sections; do
 		esac
 	done
 	rm -f "$location/$section.tar.gz"
-	if [[ -n "$file" ]]; then
+	if [[ -n "$files" ]]; then
 		(cd $dirL; tar -czvf $location/$section.tar.gz $files)
 		echo "tar -xzvf /home/uploads/$section.tar.gz" >>$section.patch.sh
 	else
