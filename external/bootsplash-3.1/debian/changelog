@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto4) unstable; urgency=low
+
+  * Bootsplash is the default boot option now
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 22 Feb 2006 11:57:04 +0200
+
 bootsplash (3.1-1pluto3) unstable; urgency=low
 
   * Removed kernel dependency
