@@ -5,7 +5,7 @@ make -C debian/scripts sh.vars
 
 mkdir -p $STAMP_DIR/upstream/tarballs/ $SOURCE_DIR
 if [ ! -z "$SRC_TAR_DIR" -a -d "$SRC_TAR_DIR" ];then
-	files=$(find $SRC_TAR_DIR -type f|sort)
+	files=$(find $SRC_TAR_DIR -type f -not -path '*.svn*'|sort)
 else
 	VER=$(dpkg-parsechangelog 2>&1|egrep ^Version|cut -d " " -f 2|cut -d "-" -f 1)
 	SRC=$(dpkg-parsechangelog 2>&1|egrep ^Source|cut -d " " -f 2-)

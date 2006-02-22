@@ -148,7 +148,7 @@ do.patching() {
 			continue
 		fi
 		eval mkdir -p $dirprep
-		for f in `(cd $d >/dev/null;find -type f ! -name 'chk-*' 2>/dev/null )|sort $reversesort`;do
+		for f in `(cd $d >/dev/null;find -type f -not -path '*.svn*' ! -name 'chk-*' 2>/dev/null )|sort $reversesort`;do
 			eval stampfile=$stampfiletmpl
 			eval log=$logtmpl
 			eval file=$filetmpl
