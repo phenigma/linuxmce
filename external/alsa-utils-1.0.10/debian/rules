@@ -72,7 +72,7 @@ binary-arch: build install
 	install $(INSTALL_UAG) -m644 debian/lintian-overrides \
 		debian/alsa-utils/usr/share/lintian/overrides/alsa-utils
 	dh_link
-	DH_OPTIONS= dh_installinit --no-start -- start 50 S . stop 50 0 6 .
+	DH_OPTIONS= dh_installinit --no-start -- start 12 2 . stop 40 0 6 .
 	dh_installdocs
 	dh_installman
 	mv debian/alsa-utils/usr/share/doc/alsa-utils/patch-stamp \
