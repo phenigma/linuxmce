@@ -17,10 +17,10 @@ function keyboardLayout($output,$dbADO) {
 	}
 		
 	if($action=='form'){
-		// todo: use real path here
+		$xmlPath=(file_exists('/etc/X11/xkb/rules/xfree86.xml'))?'/etc/X11/xkb/rules/xfree86.xml':'xfree86.xml';
 
 		$parser=new xml2Array();
-		$arr=$parser->parse(join('',file('/etc/X11/xkb/rules/xfree86.xml')));
+		$arr=$parser->parse(join('',file($xmlPath)));
 		$keyboardLayoutsArray=getLayoutsArray($arr[0]['children']);
 		
 		
