@@ -1,3 +1,9 @@
+lsb (3.0-15pluto1) unstable; urgency=low
+
+  * Backported to Sarge
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 22 Feb 2006 17:05:30 +0200
+
 lsb (3.0-15) unstable; urgency=low
 
   * Test $TERM in log_use_fancy_output; if it is "dumb" we don't have a
