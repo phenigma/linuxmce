@@ -569,6 +569,11 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	memset(&lf, 0, sizeof(LOGFONT));
 
 	lf.lfHeight		= iPixelHeight * MATCH_SDL_FONT_HEIGHT;
+
+	//adjust minumum text height 
+	if(lf.lfHeight < 12)
+		lf.lfHeight = 12;
+
 	if( m_iRotation==0 )
 		lf.lfQuality	= DRAFT_QUALITY;
 	else
