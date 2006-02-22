@@ -204,9 +204,14 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     TextLocation.h = Text->m_rPosition.Height;
 
 #ifdef WIN32
+#ifdef WINCE
+	string BasePath = "C:\\Windows\\Fonts";
+#else
 	char pWindowsDirector[MAX_PATH];
 	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
     string BasePath = string(pWindowsDirector) + "\\Fonts";
+#endif
+
 #else
     string BasePath="/usr/share/fonts/truetype/msttcorefonts";
 #endif //win32

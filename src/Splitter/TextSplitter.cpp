@@ -16,7 +16,8 @@ bool TextLineExtract::lineSplitter(char c)
 bool TextLineExtract::wordSplitter(char c)
 {
 	if ((c >= 'a' && c <='z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
-		|| c == ',') // ? ! ; ' "
+		|| c == ',' || c == '\'' || c == '(' || c == ')' || c == '/' 
+		|| c == '?' || c == '!' || c == ';' || c == '"' || c == '.')
 	{
 		return false;
 	}
@@ -85,16 +86,16 @@ list<Row> & TextLineExtract::Extract(string text)
 		
 		if (!inflags && wordSplitter(c))
 		{
-			if (! splitter)
+			//if (! splitter)
 			{
 				AddWord(line, word);
-				splitter = true;
+				//splitter = true;
 				word = "";
 			}
 		}
 		else
 		{
-			splitter = false;
+			//splitter = false;
 		}
 	}
 	AddWord(line, word);
