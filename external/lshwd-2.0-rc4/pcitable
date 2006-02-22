@@ -6747,7 +6747,7 @@
 0x8086	0x2659	"uhci_hcd"	"Intel Corp.|I/O Controller Hub USB"
 0x8086	0x265a	"uhci_hcd"	"Intel Corp.|I/O Controller Hub USB"
 0x8086	0x265b	"uhci_hcd"	"Intel Corp.|I/O Controller Hub USB"
-0x8086	0x265c	"uhci_hcd"	"Intel Corp.|I/O Controller Hub USB2"
+0x8086	0x265c	"ehci_hcd"	"Intel Corp.|I/O Controller Hub USB2"
 0x8086	0x2660	"unknown"	"Intel Corp.|I/O Controller Hub PCI Express Port 0"
 0x8086	0x2662	"unknown"	"Intel Corp.|I/O Controller Hub PCI Express Port 1"
 0x8086	0x2664	"unknown"	"Intel Corp.|I/O Controller Hub PCI Express Port 2"
