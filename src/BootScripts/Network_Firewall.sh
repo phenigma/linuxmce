@@ -112,7 +112,7 @@ for Port in $R; do
 		DPort="$DestPort"
 		for ((SPort=SrcPort; SPort<=SrcPortEnd; SPort++)); do
 			ForwardPort "$Protocol" "$ExtIP" "$SPort" "$DestIP" "$DPort" "$SrcIP"
-			((++DPort))
+			[[ "$DPort" -ne 0 ]] && ((++DPort))
 		done
 	fi
 done
