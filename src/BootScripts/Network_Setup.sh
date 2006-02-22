@@ -77,10 +77,8 @@ iface $ExtIf inet static
 	done
 else
 	IfConf="auto $ExtIf
-	iface $ExtIf inet dhcp"
+iface $ExtIf inet dhcp"
 	echo "$IfConf" >>"$File"
-
-	DNSservers=$(grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g' | tr '\n' ' ')
 fi
 
 if [[ -z "$IntIf" ]]; then
@@ -104,13 +102,11 @@ else
 fi
 
 /etc/init.d/networking start
-
-Fwd="forwarders {"
-for i in $DNSservers; do
-	Fwd=$(printf "%s" "$Fwd~!$i;")
-done
-Fwd=$(printf "%s" "$Fwd~};~")
-echo "$Fwd" | tr '~!' '\n\t' >/etc/bind/named.conf.forwarders
+if [[ "$Setting" == static ]]; then
+	/usr/pluto/bin/Network_DNS.sh
+else
+	touch /etc/bind/named.conf.forwarders # Make sure file exists so BIND starts
+fi
 
 awk 'BEGIN { Replace = 0 }
 /\/\/ forwarders/ {
