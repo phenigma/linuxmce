@@ -2,6 +2,11 @@
 
 #. /usr/pluto/bin/SQL_Ops.sh
 
+function syncMDwithCORE {
+	# More faster to copy from here than to download
+	cp -ru /var/cache/apt/archives-core /var/cache/apt/archives	
+}
+
 cronEntry="0 3 * * * root /usr/pluto/bin/Update_Packages.sh --download-only"
 cronNotify="0 */10 * * * root /usr/pluto/bin/Update_Notify.sh"
 
@@ -11,7 +16,12 @@ if ! grep -qF "$cronEntry" /etc/crontab; then
 fi
 
 [[ -n "$1" ]] && DownloadOnly="Yes"
-
+	
+IsDiskless=0
+if [[ -f /etc/diskless.conf ]]; then
+	IsDiskless=1
+fi
+	
 
 if [[ "$DownloadOnly" == "Yes" ]]; then
 	set -e
@@ -19,6 +29,10 @@ if [[ "$DownloadOnly" == "Yes" ]]; then
 	echo "- Updating package lists"
 	apt-get update 1>/dev/null
 
+	if [[ $isDiskless -eq 1 ]]; then
+		syncMDwithCORE
+	fi
+	
 	echo "- Cleaning up dpkg journal"
 	dpkg --forget-old-unavail
 
@@ -26,19 +40,19 @@ if [[ "$DownloadOnly" == "Yes" ]]; then
 	apt-get -f -y --download-only dist-upgrade 1>/dev/null
 	touch /usr/pluto/locks/upgrade_ok
 else
-	IsDiskless=0
-	if [[ -f /etc/diskless.conf ]]; then
-		IsDiskless=1
-	fi
-	
+
 	if [[ IsDiskless -eq 0 ]]; then
-		LeftToDownload=$(apt-get dist-upgrade < /bin/false  | grep "Need to get" | cut -d" " -f4 | cut -d'/' -f1)
-		if [[ -n "$LeftToDownload" &&  "$LeftToDownload" != "0B" ]]; then
-			echo "- Need to get $LeftToDownload before doing the update"
-			exit 0
-		else
-			echo "- No need to download any files"
-		fi
+	#	LeftToDownload=$(apt-get dist-upgrade < /bin/false  | grep "Need to get" | cut -d" " -f4 | cut -d'/' -f1)
+	#	if [[ -n "$LeftToDownload" &&  "$LeftToDownload" != "0B" ]]; then
+	#		echo "- Need to get $LeftToDownload before doing the update"
+	#		exit 0
+	#	else
+	#		echo "- No need to download any files"
+	#	fi
+		apt-get update
+	else
+		apt-get update
+		syncMDwithCORE
 	fi
 		
 

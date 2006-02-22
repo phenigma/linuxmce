@@ -14,4 +14,4 @@ sysfs			/sys			sysfs	defaults				0		0
 %CORE_INTERNAL_ADDRESS%:/usr/pluto/orbiter /usr/pluto/orbiter nfs intr,tcp,rsize=8192,wsize=8192,retrans=10,timeo=50 1 1
 %CORE_INTERNAL_ADDRESS%:/usr/pluto/keys /usr/pluto/keys nfs intr,tcp,rsize=8192,wsize=8192,retrans=10,timeo=50 1 1
 %CORE_INTERNAL_ADDRESS%:/usr/pluto/deb-cache /usr/pluto/deb-cache nfs intr,tcp,rsize=8192,wsize=8192,retrans=10,timeo=50 1 1
-#%CORE_INTERNAL_ADDRESS%:/var/cache/apt/archives /var/cache/apt/archives nfs intr,tcp 1 1
+%CORE_INTERNAL_ADDRESS%:/var/cache/apt/archives /var/cache/apt/archives-core nfs intr,tcp 1 1

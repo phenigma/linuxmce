@@ -164,6 +164,9 @@ mkdir -p "/tftpboot/$IP"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
+# Create the archives-cache directory
+mkdir "$DlPath"/var/cache/apt/archives-core
+
 cd -
 
 # Use Core's apt sources.list
