@@ -12,6 +12,7 @@ function voicemail($output,$dbADO) {
 
 	$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>';
 
+	$output->setNavigationMenu(array($TEXT_VOICEMAIL_CONST=>'index.php?section=voicemail'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_VOICEMAIL_CONST);
 	$output->output();

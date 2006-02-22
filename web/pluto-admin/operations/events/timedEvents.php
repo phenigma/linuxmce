@@ -153,6 +153,7 @@ function timedEvents($output,$dbADO) {
 		header("Location: index.php?section=editTimedEvent&ehID=".$ehID);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_TIMED_EVENTS_CONST=>'index.php?section=timedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_TIMED_EVENTS_CONST);			
 	$output->output();

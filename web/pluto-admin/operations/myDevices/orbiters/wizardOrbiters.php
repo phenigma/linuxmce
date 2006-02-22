@@ -397,6 +397,7 @@ function wizardOrbiters($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
+	$output->setNavigationMenu(array($TEXT_ORBITES_CONST=>'index.php?section=wizardOrbiters'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ORBITES_CONST);
 	$output->output();

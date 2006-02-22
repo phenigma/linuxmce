@@ -49,7 +49,7 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=alertsLog&msg=Alerts types updated.");
 	}
 	
-		
+	$output->setNavigationMenu(array($TEXT_ALERTS_LOG_CONST=>'index.php?section=modeChangesLog'));				
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERTS_LOG_CONST);			
 	$output->output();  		
@@ -100,6 +100,10 @@ function multipageAlertsLogs($query, $url, $page_no, $art_pagina,$securitydbADO,
 
 function headerAlertLog()
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
+	
 	$output='<table border="0" align="center">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>'.$TEXT_ALERT_TYPE_CONST.'</B></td>

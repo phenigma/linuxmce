@@ -130,7 +130,8 @@ function advancedEvents($output,$dbADO) {
 		
 		header("Location: index.php?section=advancedEvents&msg=$TEXT_THE_EVENT_DESCRIPTION_WAS_UPDATED_CONST");
 	}
-	
+
+	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_CONST=>'index.php?section=advancedEvents'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADVANCED_EVENTS_CONST);			
 	$output->output();

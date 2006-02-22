@@ -53,6 +53,7 @@ function dceCommands($output,$dbADO) {
 		header('Location: index.php?section=dceCommands');
 	}
 	
+	$output->setNavigationMenu(array($TEXT_COMMANDS_CONST=>'index.php?section=dceCommands'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

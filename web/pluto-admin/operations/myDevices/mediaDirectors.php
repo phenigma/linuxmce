@@ -465,7 +465,7 @@ function mediaDirectors($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array($TEXT_MEDIA_DIRECTORS_CONST=>'index.php?section=mediaDirectors'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MEDIA_DIRECTORS_CONST);
 	$output->output();

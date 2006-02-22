@@ -177,6 +177,7 @@ function phoneLines($output,$astADO,$dbADO) {
 	}
 	
 	$output->setScriptCalendar('null');
+	$output->setNavigationMenu(array($TEXT_PHONE_LINES_CONST=>'index.php?section=phoneLines'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PHONE_LINES_CONST);
 	$output->output();

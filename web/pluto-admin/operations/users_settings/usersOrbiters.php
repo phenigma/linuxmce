@@ -110,7 +110,7 @@ function usersOrbiters($output,$dbADO) {
 
 	
 
-	
+	$output->setNavigationMenu(array($TEXT_PRIVACY_SETTINGS_CONST=>'index.php?section=usersOrbiters'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_CONST);			
 	$output->output();  		

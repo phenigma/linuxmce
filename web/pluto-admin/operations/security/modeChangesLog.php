@@ -38,7 +38,7 @@ function modeChangesLog($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=modeChangesLog");
 	}
 	
-		
+	$output->setNavigationMenu(array($TEXT_MODE_CHANGES_LOG_CONST=>'index.php?section=modeChangesLog'));			
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MODE_CHANGES_LOG_CONST);			
 	$output->output();  		

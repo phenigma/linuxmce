@@ -108,7 +108,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=alertTypes&msg=$TEXT_ALERTS_TYPES_UPDATED_CONST");
 	}
 	
-		
+	$output->setNavigationMenu(array($TEXT_ALERT_TYPES_CONST=>'index.php?section=alertTypes'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERT_TYPES_CONST);
 	$output->output();  		

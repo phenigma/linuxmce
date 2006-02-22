@@ -19,7 +19,7 @@ function dceEvents($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Events</h3>
+			<h3 align="center">'.$TEXT_EVENTS_CONST.'</h3>
 			<form action="index.php" method="POST" name="dceEvents">
 			<input type="hidden" name="section" value="dceEvents">
 			<input type="hidden" name="action" value="update">
@@ -78,6 +78,7 @@ function dceEvents($output,$dbADO) {
 		header('Location: index.php?section=dceEvents');
 	}
 	
+	$output->setNavigationMenu(array($TEXT_EVENTS_CONST=>'index.php?section=dceEvents'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

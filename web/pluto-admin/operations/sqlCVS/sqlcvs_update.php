@@ -171,6 +171,7 @@ function sqlcvs_update($output,$dbADO) {
 		
 	}
 
+	$output->setNavigationMenu(array($TEXT_SQLCVS_UPDATE_CONST=>'index.php?section=sqlcvs_update'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_UPDATE_CONST);

@@ -425,7 +425,7 @@ function devices($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array(((isset($title))?$title:strtoupper(str_replace('_',' ',$type)))=>'index.php?section=devices&type='.$type));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

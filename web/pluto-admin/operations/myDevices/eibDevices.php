@@ -338,7 +338,7 @@ function eibDevices($output,$dbADO,$eibADO) {
 	}
 
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array('EIB '.strtoupper($type)=>'index.php?section=eibDevices&type='.$type));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

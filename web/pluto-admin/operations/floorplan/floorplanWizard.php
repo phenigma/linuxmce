@@ -353,6 +353,7 @@ function floorplanWizard($output,$dbADO) {
 		header("Location: index.php?section=floorplanWizard&page=".$pageToRedirect."&type=".$type);
 	}
 
+	$output->setNavigationMenu(array($TEXT_FLOORPLAN_WIZARD_CONST=>'index.php?section=floorplanWizard'));
 	$output->setScriptInHead($scriptInHead);
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FLOORPLAN_WIZARD_CONST);

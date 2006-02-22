@@ -126,9 +126,10 @@ function executeScenarios($output,$dbADO) {
 		header('Location: index.php?section=executeScenarios');
 	}
 	
+	$output->setNavigationMenu(array($TEXT_EXECUTE_SCENARIOS_CONST=>'index.php?section=executeScenarios'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EXECUTE_SCENARIOS_CONST);
 	$output->output();
 }
 ?>

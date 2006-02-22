@@ -72,6 +72,7 @@ function softwareVersions($output,$dbADO) {
 		header('Location: index.php?section=softwareVersions&msg='.$msg);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_SOFTWARE_VERSIONS_CONST=>'index.php?section=softwareVersions'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SOFTWARE_VERSIONS_CONST);

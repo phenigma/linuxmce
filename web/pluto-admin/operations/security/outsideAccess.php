@@ -231,7 +231,7 @@ function outsideAccess($output,$dbADO) {
 		header("Location: index.php?section=outsideAccess");
 	}
 	
-		
+	$output->setNavigationMenu(array($TEXT_OUTSIDE_ACCESS_CONST=>'index.php?section=outsideAccess'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_OUTSIDE_ACCESS_CONST);			
 	$output->output();  		

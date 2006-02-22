@@ -434,7 +434,7 @@ function genericSerialDevices($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array($TEXT_GENERIC_SERIAL_DEVICES_CONST=>'index.php?section=genericSerialDevices'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_GENERIC_SERIAL_DEVICES_CONST);
 	$output->output();

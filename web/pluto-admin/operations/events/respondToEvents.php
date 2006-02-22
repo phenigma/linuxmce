@@ -154,6 +154,7 @@ function respondToEvents($output,$dbADO) {
 		header("Location: index.php?section=editRespondToEvent&ehID=".$ehID);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_RESPOND_TO_EVENTS_CONST=>'index.php?section=respondToEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESPOND_TO_EVENTS_CONST);			
 	$output->output();

@@ -462,7 +462,7 @@ $start_time=getmicrotime();
 	}
 
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array($TEXT_AV_EQUIPMENT_CONST=>'index.php?section=avWizard'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_EQUIPMENT_CONST);
 	$output->output();

@@ -166,7 +166,7 @@ function firewall($output,$dbADO) {
 		header("Location: index.php?section=firewall&msg=$TEXT_FIREWALL_RULES_UPDATED_CONST");
 	}
 	$output->setScriptCalendar('null');
-
+	$output->setNavigationMenu(array($TEXT_FIREWALL_RULES_CONST=>'index.php?section=firewallRules'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FIREWALL_RULES_CONST);
 	$output->output();

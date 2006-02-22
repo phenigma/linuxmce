@@ -139,7 +139,7 @@ function viewCameras($output,$dbADO) {
 		
 	}
 	
-	
+	$output->setNavigationMenu(array($TEXT_VIEW_CAMERAS_CONST=>'index.php?section=viewCameras'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_VIEW_CAMERAS_CONST);

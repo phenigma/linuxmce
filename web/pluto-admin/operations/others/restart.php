@@ -140,6 +140,7 @@ function restart($output,$dbADO) {
 		header('Location: index.php?section=restart&msg='.$TEXT_COMMAND_SENT_CONST.' '.$command);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_RESTART_CONST=>'index.php?section=restart'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESTART_CONST);

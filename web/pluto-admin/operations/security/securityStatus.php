@@ -208,7 +208,7 @@ function securityStatus($output,$dbADO) {
 		}
 	}
 	
-	
+	$output->setNavigationMenu(array($TEXT_SECURITY_STATUS_CONST=>'index.php?section=securityStatus'));				
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SECURITY_STATUS_CONST);

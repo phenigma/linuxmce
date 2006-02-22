@@ -164,7 +164,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 		header("Location: index.php?section=securitySettings&msg=$TEXT_SECURITY_SETTINGS_UPDATED_CONST");		
 	}
 
-	
+	$output->setNavigationMenu(array($TEXT_REACTION_TO_SENSORS_CONST=>'index.php?section=securitySettings'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_REACTION_TO_SENSORS_CONST);

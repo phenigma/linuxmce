@@ -167,7 +167,8 @@ function sqlcvs_checkin($output,$dbADO) {
 		</script>';
 		
 	}
-
+	
+	$output->setNavigationMenu(array($TEXT_SQLCVS_CHECKIN_CONST=>'index.php?section=sqlcvs_checkin'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_CHECKIN_CONST);

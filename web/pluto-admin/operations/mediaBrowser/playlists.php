@@ -75,6 +75,7 @@ function playlists($output,$mediadbADO) {
 		}
 	}
 	
+	$output->setNavigationMenu(array($TEXT_PLAYLISTS_CONST=>'index.php?section=playlists'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PLAYLISTS_CONST);

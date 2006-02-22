@@ -83,6 +83,7 @@ function keyboardLayout($output,$dbADO) {
 		header('Location: index.php?section=keyboardLayout&msg='.$TEXT_KEYBOARD_LAYOUTS_UPDATED_CONST);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_KEYBOARD_LAYOUT_CONST=>'index.php?section=users'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_KEYBOARD_LAYOUT_CONST);

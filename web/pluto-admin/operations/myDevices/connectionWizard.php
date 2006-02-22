@@ -402,7 +402,7 @@ if ($action == 'form') {
 		header("Location: index.php?section=connectionWizard&msg=$TEXT_DEVICES_UPDATED_CONST&entertainArea=$entertainArea");		
 	}
 
-
+	$output->setNavigationMenu(array($TEXT_AV_CONNECTION_WIZARD_CONST=>'index.php?section=connectionWizard'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_CONNECTION_WIZARD_CONST);
 	$output->output();

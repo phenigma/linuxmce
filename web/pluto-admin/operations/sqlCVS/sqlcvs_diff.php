@@ -320,6 +320,7 @@ function sqlcvs_diff($output,$dbADO) {
 		
 	}
 
+	$output->setNavigationMenu(array($TEXT_SQLCVS_DIFF_CONST=>'index.php?section=sqlcvs_diff'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_DIFF_CONST);

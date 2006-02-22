@@ -95,6 +95,7 @@ function sqlcvs_view_batch($output,$dbADO) {
 		
 	}
 
+	$output->setNavigationMenu(array($TEXT_SQLCVS_VIEW_BATCH_CONST=>'index.php?section=sqlcvs_view_batch'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SQLCVS_VIEW_BATCH_CONST);

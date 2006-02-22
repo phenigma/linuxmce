@@ -107,6 +107,7 @@ function addSoftware($output,$dbADO) {
 		header('Location: index.php?section=addSoftware&msg='.$msg);
 	}
 	
+	$output->setNavigationMenu(array($TEXT_ADD_SOFTWARE_CONST=>'index.php?section=addSoftware'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_SOFTWARE_CONST);

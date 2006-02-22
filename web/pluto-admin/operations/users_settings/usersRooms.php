@@ -17,7 +17,12 @@ function usersRooms($output,$dbADO) {
 
 	$usersArray=array();
 	$checkedArray=array();
-	$resUsers=$dbADO->Execute('SELECT * FROM Users ORDER BY UserName ASC');
+	$resUsers=$dbADO->Execute('
+		SELECT * 
+		FROM Users 
+		INNER JOIN Installation_Users ON FK_Users=PK_Users
+		WHERE FK_Installation=?
+		ORDER BY UserName ASC',$installationID);
 	while($rowUsers=$resUsers->FetchRow()){
 		$usersArray[$rowUsers['PK_Users']]=$rowUsers['UserName'];
 		$checkedArray[$rowUsers['PK_Users']][]=0;
@@ -102,7 +107,7 @@ function usersRooms($output,$dbADO) {
 
 	
 
-	
+	$output->setNavigationMenu(array($TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST=>'index.php?section=usersRooms'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST);			
 	$output->output();  		

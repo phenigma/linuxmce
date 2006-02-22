@@ -186,7 +186,7 @@ function bootSequence($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
-	
+	$output->setNavigationMenu(array($TEXT_BOOT_SEQUENCE_CONST=>'index.php?section=bootSequence'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_BOOT_SEQUENCE_CONST);			
 	$output->output();  	

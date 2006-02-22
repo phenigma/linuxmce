@@ -108,7 +108,7 @@ $TEXT_WAP_NOTES_CONST.'
 		header("Location: index.php?section=wapSettings");
 	}
 	
-		
+	$output->setNavigationMenu(array($TEXT_WAP_GPRS_SETTINGS_CONST=>'index.php?section=wapSettings'));		
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_WAP_GPRS_SETTINGS_CONST);
 	$output->output();  		
