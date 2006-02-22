@@ -43,7 +43,7 @@
 	__asm__ (".symver " #real "," #name "@@" #version)
 #endif
 
-#ifdef USE_VERSIONED_SYMBOLS
+#if defined(USE_VERSIONED_SYMBOLS) || defined(__alpha__)
 #define use_symbol_version(real, name, version) \
 		symbol_version(real, name, version)
 #define use_default_symbol_version(real, name, version) \

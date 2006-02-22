@@ -1,0 +1,33 @@
+# autoloader aliases
+alias char-major-116 snd
+alias char-major-14 soundcore
+alias sound-slot-0 snd-card-0
+alias sound-slot-1 snd-card-1
+alias sound-slot-2 snd-card-2
+alias sound-slot-3 snd-card-3
+alias sound-slot-4 snd-card-4
+alias sound-slot-5 snd-card-5
+alias sound-slot-6 snd-card-6
+alias sound-slot-7 snd-card-7
+above sound-slot-0 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-1 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-2 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-3 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-4 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-5 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-6 snd-pcm-oss snd-mixer-oss snd-seq-oss
+above sound-slot-7 snd-pcm-oss snd-mixer-oss snd-seq-oss
+alias sound-service-0-0 snd-mixer-oss
+alias sound-service-0-1 snd-seq-oss
+alias sound-service-0-3 snd-pcm-oss
+alias sound-service-0-8 snd-seq-oss
+alias sound-service-0-12 snd-pcm-oss
+# Load optional modules above their base modules
+above snd-pcm snd-pcm-oss
+above snd-mixer snd-mixer-oss
+above snd-seq snd-seq-oss snd-seq-midi
+above snd-emu10k1 snd-emu10k1-synth
+above snd-via82xx snd-seq
+# Cause a script to be run after snd-*-synth module initialization
+post-install snd-emu8000-synth /lib/alsa/modprobe-post-install snd-emu8000-synth
+post-install snd-emu10k1-synth /lib/alsa/modprobe-post-install snd-emu10k1-synth

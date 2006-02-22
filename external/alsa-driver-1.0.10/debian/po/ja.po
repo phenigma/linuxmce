@@ -1,0 +1,131 @@
+# Japanese translation of alsa-driver templates
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: alsa-driver 1.0.7-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-20 15:25+0200\n"
+"PO-Revision-Date: 2005-09-08 22:38+0900\n"
+"Last-Translator: Kenshi Muto <kmuto@debian.org>\n"
+"Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=EUC-JP\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid "Build ALSA drivers with ISA PnP support?"
+msgstr "ISA PnP サポート付きで ALSA ドライバを構築しますか?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid ""
+"If you agree then the ALSA drivers will be built with support for the isa-"
+"pnp driver."
+msgstr ""
+"「はい」と答えると、ALSA ドライバは isa-pnp ドライバのサポート付きで構築され"
+"ます。"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid "Build ALSA drivers with debugging code?"
+msgstr "デバッグコード付きで ALSA ドライバを構築しますか?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid ""
+"If you agree then the ALSA drivers will be built with code to help with "
+"debugging."
+msgstr ""
+"「はい」と答えると、ALSA ドライバはデバッグに役立つコード付きで構築されます。"
+
+#. Type: multiselect
+#. Choices
+#: ../alsa-source.templates:18
+msgid "all, ${alsa_cards}"
+msgstr "すべて, ${alsa_cards}"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "Select ALSA drivers to build"
+msgstr "構築する ALSA ドライバを選んでください"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"Select the ALSA sound card drivers that should be included in alsa-modules "
+"packages that are built from the sources included in the alsa-source package."
+msgstr ""
+"alsa-source パッケージに含まれているソースから構築される、alsa-modules パッ"
+"ケージに含めたい ALSA サウンドカードドライバを選択してください。"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"The following is a list of available sound card drivers along with short "
+"descriptions."
+msgstr "以下は利用可能なサウンドカードドライバおよびその短い説明のリストです。"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "${alsa_cards_with_descriptions}"
+msgstr "${alsa_cards_with_descriptions}"
+
+#. Type: select
+#. Choices
+#: ../linux-sound-base.templates:3
+msgid "ALSA, OSS, default"
+msgstr "ALSA, OSS, デフォルト"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "Sound system to use"
+msgstr "利用するサウンドシステム"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "ALSA and OSS are alternative systems of drivers for sound hardware."
+msgstr ""
+"ALSA と OSS はサウンドハードウェア用ドライバのシステムで、どちらかを利用しま"
+"す。"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"If either ALSA or OSS is selected then in cases where both systems offer a "
+"driver, only the driver from the selected sound system will be automatically "
+"loaded by hotplug or discover. If \"default\" is selected then the choice of "
+"which drivers to load automatically will be left up to hotplug or discover "
+"and may depend upon the kernel version. Removing the linux-sound-base "
+"package effectively puts the system into \"default\" mode."
+msgstr ""
+"ALSA または OSS が選択されると、両方のシステムのドライバが提供されている場合"
+"に、選択されたサウンドシステムのドライバだけが hotplug または discover により"
+"自動的にロードされます。\"デフォルト\" を選ぶと、自動的にロードされるドライバ"
+"の選択は、hotplug または discover に任されます (カーネルバージョンにも依存し"
+"ます)。linux-sound-base パッケージを削除すると、システムを \"デフォルト\" "
+"モードにすることになります。"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"The ALSA sound system is recommended. Select OSS only if you are using a 2.4 "
+"kernel and you do not want to install an alsa-modules package, or if the OSS "
+"driver works with your hardware and the ALSA driver does not."
+msgstr ""
+"ALSA サウンドシステムを推奨します。2.4 カーネルを使っていて alsa-modules パッ"
+"ケージをインストールしたくないか、あるいは OSS ドライバがあなたのハードウェア"
+"で動作しかつ ALSA ドライバが動作しないというときのみ、OSS を選択してくださ"
+"い。"

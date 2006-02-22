@@ -1,0 +1,62 @@
+#!/bin/sh -e
+##
+## 10_disable_gcc_version_check1.dpatch by Thomas Hood
+##
+## DP: Disable GCC version check in configure.in
+## DP: 10_disable_gcc_version_check2.dpatch is the result of running autoconf
+## DP: after this patch has been applied.
+
+. debian/patches/patch-opts
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argum
+ent"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad alsa-driver-1.0.8/configure.in /tmp/dpep.bpMKkD/alsa-driver-1.0.8/configure.in
+--- alsa-driver-1.0.8/configure.in	2005-01-13 10:54:14.000000000 +0100
++++ /tmp/dpep.bpMKkD/alsa-driver-1.0.8/configure.in	2005-01-16 15:05:02.000000000 +0100
+@@ -187,6 +187,7 @@
+ AC_MSG_RESULT($kaversion)
+ 
+ dnl Check for GCC version...
++if false; then
+ AC_MSG_CHECKING(for GCC version)
+ ac_save_CFLAGS="$CFLAGS"
+ CFLAGS="$CFLAGS $KERNEL_INC $HACK_KERNEL_INC"
+@@ -236,6 +237,7 @@
+ kernel_compiler="")])
+ CFLAGS="$ac_save_CFLAGS"
+ my_compiler=`$CROSS_COMPILE$CC --version | head -n 1`
++fi
+ dnl
+ dnl Test section, uncomment any of these double lines to verify the bellow code:
+ dnl
+@@ -255,6 +257,7 @@
+ dnl my_compiler="2.95.3"
+ dnl
+ 
++if false; then
+ AC_DEFUN([CHECK_COMPILER], [
+   typevar=$2
+   versionvar=$3
+@@ -333,6 +336,7 @@
+   fi
+ fi
+ fi
++fi
+ dnl compiler version check
+ 
+ AC_DEFUN([CHECK_KERNEL_HEADER], [

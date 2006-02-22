@@ -1,0 +1,8 @@
+alsa-base (1.0.9b-3) unstable; urgency=low
+
+  As of this release, /etc/init.d/alsa no longer stores or restores
+  mixer levels. The /etc/init.d/alsa-utils init script now performs
+  that function.
+
+ -- Jordi Mallach <jordi@debian.org>  Wed, 10 Jul 2005 15:00:00 +0200
+

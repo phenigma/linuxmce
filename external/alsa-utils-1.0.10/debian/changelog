@@ -1,6 +1,6 @@
-alsa-utils (1.0.10-1pluto1) unstable; urgency=low
+alsa-utils (1.0.10-1pluto2) unstable; urgency=low
 
-  * Backported to Plutoe
+  * Backported to Pluto
 
  -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 21 Feb 2006 17:07:53 +0200
 

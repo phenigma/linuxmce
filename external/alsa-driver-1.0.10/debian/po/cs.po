@@ -1,0 +1,129 @@
+# Czech translation of alsa-driver templates.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: alsa-driver 1.0.9b-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-20 15:25+0200\n"
+"PO-Revision-Date: 2005-08-11 16:26+0200\n"
+"Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid "Build ALSA drivers with ISA PnP support?"
+msgstr "Sestavit ALSA ovladače s podporou ISA PnP?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid ""
+"If you agree then the ALSA drivers will be built with support for the isa-"
+"pnp driver."
+msgstr ""
+"Pokud odpovíte kladně, ALSA ovladače budou sestaveny s podporou pro isa-pnp."
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid "Build ALSA drivers with debugging code?"
+msgstr "Sestavit ALSA ovladače s podporou ladění?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid ""
+"If you agree then the ALSA drivers will be built with code to help with "
+"debugging."
+msgstr ""
+"Pokud odpovíte kladně, ALSA ovladače budou sestaveny s dodatečným kódem pro "
+"ladění."
+
+#. Type: multiselect
+#. Choices
+#: ../alsa-source.templates:18
+msgid "all, ${alsa_cards}"
+msgstr "všechny, ${alsa_cards}"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "Select ALSA drivers to build"
+msgstr "Vyberte ALSA ovladače pro sestavení"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"Select the ALSA sound card drivers that should be included in alsa-modules "
+"packages that are built from the sources included in the alsa-source package."
+msgstr ""
+"Vyberte ovladače zvukových karet, které mají být zahrnuty v balíku alsa-"
+"modules. Tento se sestavuje ze zdrojových kódů v balíku alsa-source."
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"The following is a list of available sound card drivers along with short "
+"descriptions."
+msgstr ""
+"Následuje seznam dostupných zvukových karet společně s jejich krátkými "
+"popisy."
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "${alsa_cards_with_descriptions}"
+msgstr "${alsa_cards_with_descriptions}"
+
+#. Type: select
+#. Choices
+#: ../linux-sound-base.templates:3
+msgid "ALSA, OSS, default"
+msgstr "ALSA, OSS, výchozí"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "Sound system to use"
+msgstr "Zvukový systém"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "ALSA and OSS are alternative systems of drivers for sound hardware."
+msgstr "ALSA a OSS jsou různé systémy ovladačů pro zvukový hardware."
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"If either ALSA or OSS is selected then in cases where both systems offer a "
+"driver, only the driver from the selected sound system will be automatically "
+"loaded by hotplug or discover. If \"default\" is selected then the choice of "
+"which drivers to load automatically will be left up to hotplug or discover "
+"and may depend upon the kernel version. Removing the linux-sound-base "
+"package effectively puts the system into \"default\" mode."
+msgstr ""
+"Pokud je vybrán systém ALSA nebo OSS, nahraje hotplug nebo discover zvukový "
+"modul z vybraného systému. Je-li vybráno \"výchozí\", pak záleží výběr "
+"vhodného modulu na hotplugu resp. discoveru a svou roli v rozhodování "
+"sehraje i verze jádra. Odstraněním balíčku linux-sound-base dosáhnete "
+"podobného výsledku jako při zapnutí \"výchozího\" režimu."
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"The ALSA sound system is recommended. Select OSS only if you are using a 2.4 "
+"kernel and you do not want to install an alsa-modules package, or if the OSS "
+"driver works with your hardware and the ALSA driver does not."
+msgstr ""
+"Preferovaný je zvukový systém ALSA. OSS zvolte pouze v případě, že používáte "
+"jádro řady 2.4 a nechcete instalovat balík alsa-modules, nebo pokud s vaší "
+"zvukovou kartou funguje pouze ovladač systému OSS."

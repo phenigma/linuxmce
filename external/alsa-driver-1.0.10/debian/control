@@ -1,0 +1,58 @@
+Source: alsa-driver
+Section: sound
+Priority: optional
+Maintainer: Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>
+Uploaders: Jordi Mallach <jordi@debian.org>, Thomas Hood <jdthood@yahoo.co.uk>
+Build-Depends-Indep: debhelper (>= 4.1.17), bzip2, cpio, po-debconf, dpatch (>= 1.11)
+Standards-Version: 3.6.2.1
+
+Package: linux-sound-base
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: alsa-base (>> 1.0.8-7)
+Conflicts: alsa-base (<= 1.0.8-7)
+Replaces: alsa-base (<= 1.0.8-7)
+Description: base package for ALSA and OSS sound systems
+ This package allows the administrator to choose between
+ the OSS and ALSA sound systems.
+
+Package: alsa-base
+Architecture: all
+Provides: alsa
+Depends: lsof (>= 4.64), modutils (>= 2.3.5-1) | module-init-tools, linux-sound-base
+Recommends: alsa-utils (>= 1.0.9a-4)
+Suggests: apmd (>= 3.0.2-1), discover (>= 2.0.7-1) | discover1 (>= 1.7.3) | hotplug, alsa-oss
+Conflicts: modutils (= 2.3.20-1), lsof-2.2 (<< 4.64), discover1 (<< 1.7.3), discover (<< 2.0.7-1), alsa-utils (<< 1.0.9a-4)
+Description: ALSA driver configuration files
+ This package contains various configuration files for
+ the ALSA drivers.
+ .
+ For ALSA to work on a system with a given sound card,
+ there must be an ALSA driver for that card in the kernel.
+ Linux 2.6 as shipped in linux-image packages contains
+ ALSA drivers for all supported sound cards in the form
+ of loadable modules. For either Linux 2.6 or Linux 2.4
+ a custom alsa-modules package can be built from the
+ sources in the alsa-source package using the make-kpkg
+ utility (included in the kernel-package package). Some
+ pre-built alsa-modules packages are available in the
+ Debian archive. Please read the README.Debian file for
+ information about loading modules.
+ .
+ ALSA is the Advanced Linux Sound Architecture.
+     http://alsa.sourceforge.net
+ OSS is the free version of the Open Sound System.
+
+Package: alsa-source
+Architecture: all
+Depends: ${misc:Depends}, make, gcc | c-compiler, dpkg-dev, debhelper (>= 4.0.0), debconf-utils, bzip2
+Recommends: kernel-package, fakeroot, kernel-headers | kernel-source | kernel-source-2.4.27
+Description: ALSA driver sources
+ This package contains the source code for the ALSA drivers.
+ The source code can be compiled into an alsa-modules package
+ using the make-kpkg utility (available in the kernel-package
+ package). Please note that the kernel headers must be
+ installed to compile these modules.
+ .
+ ALSA is the Advanced Linux Sound Architecture.
+

@@ -1,0 +1,37 @@
+#!/bin/sh -e
+##
+## 16_core_oss_framepointer.dpatch by Steve Kowalik
+##
+## DP: Compile snd-pcm-oss.o with -fno-omit-frame-pointer.
+
+. debian/patches/patch-opts
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argum
+ent"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad alsa-driver-1.0.8/alsa-kernel/core/oss/Makefile /tmp/dpep.IPoXXc/alsa-driver-1.0.8/alsa-kernel/core/oss/Makefile
+--- alsa-driver-1.0.8/alsa-kernel/core/oss/Makefile	2005-01-16 15:11:05.000000000 +0100
++++ /tmp/dpep.IPoXXc/alsa-driver-1.0.8/alsa-kernel/core/oss/Makefile	2005-01-16 15:11:41.000000000 +0100
+@@ -3,6 +3,8 @@
+ # Copyright (c) 1999 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++CFLAGS += -fno-omit-frame-pointer
++
+ snd-mixer-oss-objs := mixer_oss.o
+ 
+ snd-pcm-oss-objs := pcm_oss.o pcm_plugin.o \

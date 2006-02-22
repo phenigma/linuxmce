@@ -1,0 +1,53 @@
+#!/bin/sh -e
+##
+## 99_debian_makefile_depmod.dpatch by Steve Kowalik
+##
+## DP: Removes calls to depmod at install-modules time, and call install with
+## DP: a user and group of root in install-scripts.
+
+. debian/patches/patch-opts
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch) patch $patch_opts < $0;;
+    -unpatch) patch $patch_opts -R < $0;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad alsa-driver-1.0.8/Makefile /tmp/dpep.AE2Zsz/alsa-driver-1.0.8/Makefile
+--- alsa-driver-1.0.8/Makefile	2004-12-02 16:12:26.000000000 +0100
++++ /tmp/dpep.AE2Zsz/alsa-driver-1.0.8/Makefile	2005-01-16 15:18:22.000000000 +0100
+@@ -172,11 +172,11 @@
+ 	rm -f $(DESTDIR)$(moddir)/snd*.*o $(DESTDIR)$(moddir)/persist.o $(DESTDIR)$(moddir)/isapnp.o
+ endif
+ 	@for d in $(SUBDIRS); do if ! $(MAKE) -C $$d modules_install; then exit 1; fi; done
+-ifeq ($(DESTDIR),)
+-	-/sbin/depmod -a $(kaversion) $(SYSTEM_MAP_OPT)
+-else
+-	-/sbin/depmod -a -b $(DESTDIR)/ $(SYSTEM_MAP_OPT) $(kaversion)
+-endif
++#ifeq ($(DESTDIR),)
++#	-/sbin/depmod -a $(kaversion) $(SYSTEM_MAP_OPT)
++#else
++#	-/sbin/depmod -a -b $(DESTDIR)/ $(SYSTEM_MAP_OPT) $(kaversion)
++#endif
+ 
+ .PHONY: install-scripts
+ install-scripts:
+@@ -185,7 +185,7 @@
+ 	   if [ -f $(DESTDIR)$$d/alsasound ]; then \
+ 	     cmp -s utils/alsasound $(DESTDIR)$$d/alsasound || cp $(DESTDIR)$$d/alsasound $(DESTDIR)$$d/alsasound.old; \
+ 	   fi; \
+-	   install -m 755 -g $(IGROUP) -o $(IUSER) utils/alsasound $(DESTDIR)$$d/alsasound; \
++	   install -m 755 -g root -o root utils/alsasound $(DESTDIR)$$d/alsasound; \
+ 	   break; \
+ 	fi; done
+ 

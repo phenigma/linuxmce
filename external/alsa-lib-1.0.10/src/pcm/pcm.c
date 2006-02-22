@@ -883,7 +883,7 @@ int snd_pcm_status(snd_pcm_t *pcm, snd_pcm_status_t *status)
  * \return PCM state #snd_pcm_state_t of given PCM handle
  *
  * This is a faster way to obtain only the PCM state without calling
- * \link ::snd_pcm_status() \endlink.
+ * ::snd_pcm_status().
  */
 snd_pcm_state_t snd_pcm_state(snd_pcm_t *pcm)
 {
@@ -945,7 +945,7 @@ int snd_pcm_delay(snd_pcm_t *pcm, snd_pcm_sframes_t *delayp)
  *
  * This function can be used when the stream is in the suspend state
  * to do the fine resume from this state. Not all hardware supports
- * this feature, when an -ENOSYS error is returned, use the \link ::snd_pcm_prepare() \endlink
+ * this feature, when an -ENOSYS error is returned, use the ::snd_pcm_prepare()
  * function to recovery.
  */
 int snd_pcm_resume(snd_pcm_t *pcm)
@@ -1013,7 +1013,7 @@ int snd_pcm_start(snd_pcm_t *pcm)
  * This function stops the PCM <i>immediately</i>.
  * The pending samples on the buffer are ignored.
  *
- * For processing all pending samples, use \link ::snd_pcm_drain() \endlink
+ * For processing all pending samples, use ::snd_pcm_drain()
  * instead.
  */
 int snd_pcm_drop(snd_pcm_t *pcm)
@@ -1036,7 +1036,7 @@ int snd_pcm_drop(snd_pcm_t *pcm)
  * the PCM.
  * For capture stop PCM permitting to retrieve residual frames.
  *
- * For stopping the PCM stream immediately, use \link ::snd_pcm_drop() \endlink
+ * For stopping the PCM stream immediately, use ::snd_pcm_drop()
  * instead.
  */
 int snd_pcm_drain(snd_pcm_t *pcm)
@@ -1056,7 +1056,7 @@ int snd_pcm_drain(snd_pcm_t *pcm)
  * \return 0 on success otherwise a negative error code
  *
  * Note that this function works only on the hardware which supports
- * pause feature.  You can check it via \link ::snd_pcm_hw_params_can_pause() \endlink
+ * pause feature.  You can check it via ::snd_pcm_hw_params_can_pause()
  * function.
  */
 int snd_pcm_pause(snd_pcm_t *pcm, int enable)
@@ -1293,16 +1293,16 @@ int snd_pcm_poll_descriptors_count(snd_pcm_t *pcm)
  *
  * This function fills the given poll descriptor structs for the specified
  * PCM handle.  The poll desctiptor array should have the size returned by
- * \link ::snd_pcm_poll_descriptors_count() \endlink function.
+ * ::snd_pcm_poll_descriptors_count() function.
  *
  * The result is intended for direct use with the poll() syscall.
  *
  * For reading the returned events of poll descriptor after poll() system
- * call, use \link ::snd_pcm_poll_descriptors_revents() \endlink function.
+ * call, use ::snd_pcm_poll_descriptors_revents() function.
  * The field values in pollfd structs may be bogus regarding the stream
  * direction from the application perspective (POLLIN might not imply read
  * direction and POLLOUT might not imply write), but
- * the \link ::snd_pcm_poll_descriptors_revents() \endlink function
+ * the ::snd_pcm_poll_descriptors_revents() function
  * does the right "demangling".
  *
  * You can use output from this function as arguments for the select()

@@ -82,7 +82,7 @@ snd_rawmidi_read() and snd_rawmidi_write() functions to obtain / write MIDI byte
 
 The ALSA library uses a generic string representation for names of devices.
 The devices might be virtual, physical or a mix of both. The generic string
-is passed to \link ::snd_rawmidi_open() \endlink or \link ::snd_rawmidi_open_lconf() \endlink.
+is passed to ::snd_rawmidi_open() or ::snd_rawmidi_open_lconf().
 It contains two parts: device name and arguments. Devices and arguments are described
 in configuration files. The usual place for default definitions is at /usr/share/alsa/alsa.conf.
 

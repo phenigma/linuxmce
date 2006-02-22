@@ -1,0 +1,137 @@
+# Vietnamese Translation for alsa-driver.
+# Copyright © 2005 Free Software Foundation, Inc.
+# Clytie Siddall <clytie@riverland.net.au>, 2005.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: alsa-driver 1.0.9b-4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-20 15:25+0200\n"
+"PO-Revision-Date: 2005-08-10 14:53+0930\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid "Build ALSA drivers with ISA PnP support?"
+msgstr "Xây dụng các trình hỗ trợ thiết bị ALSA cũng có hỗ trợ ISA PnP không?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:4
+msgid ""
+"If you agree then the ALSA drivers will be built with support for the isa-"
+"pnp driver."
+msgstr ""
+"Nếu bạn hiệu lực tùy chọn này thì sẽ xây dụng các trình hỗ trợ thiết bị ALSA "
+"cũng có hỗ trợ thiết bị isa-pnp."
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid "Build ALSA drivers with debugging code?"
+msgstr "Xây dụng các trình hỗ trợ thiết bị ALSA với mã gỡ lỗi không?"
+
+#. Type: boolean
+#. Description
+#: ../alsa-source.templates:11
+msgid ""
+"If you agree then the ALSA drivers will be built with code to help with "
+"debugging."
+msgstr ""
+"Nếu bạn hiệu lực tùy chọn này thì sẽ xây dụng các trình hỗ trợ thiết bị ALSA "
+"với mã giúp đỡ việc gỡ lỗi."
+
+#. Type: multiselect
+#. Choices
+#: ../alsa-source.templates:18
+msgid "all, ${alsa_cards}"
+msgstr "tất cả, ${alsa_cards}"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "Select ALSA drivers to build"
+msgstr "Hãy chọn xây dụng trình hỗ trợ thiết bị ALSA nào"
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"Select the ALSA sound card drivers that should be included in alsa-modules "
+"packages that are built from the sources included in the alsa-source package."
+msgstr ""
+"Hãy chọn những trình hỗ trợ thiết bị thẻ âm thanh nên bao gồm trong gói alsa-"
+"modules được xây dụng từ mã nguồn được gồm trong gói alsa-source."
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid ""
+"The following is a list of available sound card drivers along with short "
+"descriptions."
+msgstr ""
+"Theo đây có danh sách các trình hỗ trợ thiết bị âm thanh, cũng với mô tả "
+"ngắn."
+
+#. Type: multiselect
+#. Description
+#: ../alsa-source.templates:19
+msgid "${alsa_cards_with_descriptions}"
+msgstr "${alsa_cards_with_descriptions}"
+
+#. Type: select
+#. Choices
+#: ../linux-sound-base.templates:3
+msgid "ALSA, OSS, default"
+msgstr "ALSA, OSS, mặc định"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "Sound system to use"
+msgstr "Hệ thống âm thanh cần dùng"
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid "ALSA and OSS are alternative systems of drivers for sound hardware."
+msgstr ""
+"ALSA và OSS là hai hệ thống trình hỗ trợ thiết bị phần cứng âm thanh thay "
+"thế."
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"If either ALSA or OSS is selected then in cases where both systems offer a "
+"driver, only the driver from the selected sound system will be automatically "
+"loaded by hotplug or discover. If \"default\" is selected then the choice of "
+"which drivers to load automatically will be left up to hotplug or discover "
+"and may depend upon the kernel version. Removing the linux-sound-base "
+"package effectively puts the system into \"default\" mode."
+msgstr ""
+"Nếu bạn chọa hoặc ALSA hoặc OSS thì dù nếu cả hai hệ thống có thể cung cấp "
+"một trình hỗ trợ thiết bị, trình hotplug hay discover sẽ tự động tải chỉ "
+"điều từ hệ thống đã chọn. Nếu bạn chọn «mặc định» thì trình hotplug hay "
+"discover sẽ tự động tải trình hỗ trợ thiết bị thích hợp, mà có lẽ sẽ phụ "
+"thuộc vào phiên bản hạt nhân trong hệ thống ấy. Loại bỏ gói tin «linux-sound-"
+"base» sẽ giảm các tùy chọn xuống chế độ «mặc định»."
+
+#. Type: select
+#. Description
+#: ../linux-sound-base.templates:5
+msgid ""
+"The ALSA sound system is recommended. Select OSS only if you are using a 2.4 "
+"kernel and you do not want to install an alsa-modules package, or if the OSS "
+"driver works with your hardware and the ALSA driver does not."
+msgstr ""
+"Đệ nghị bạn sử dụng hệ thống âm thanh ALSA. Hãy chọn OSS chỉ nếu bạn đang sử "
+"dụng một hạt nhân phiên bản 2.4, và không muốn cài đặt một gói tin «alsa-"
+"modules», hoặc nếu trình OSS có hỗ trợ thiết bị bạn hữu ích, và trình ALSA "
+"không có."

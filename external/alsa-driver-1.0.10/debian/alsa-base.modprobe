@@ -1,0 +1,20 @@
+# autoloader aliases
+install sound-slot-0 modprobe snd-card-0
+install sound-slot-1 modprobe snd-card-1
+install sound-slot-2 modprobe snd-card-2
+install sound-slot-3 modprobe snd-card-3
+install sound-slot-4 modprobe snd-card-4
+install sound-slot-5 modprobe snd-card-5
+install sound-slot-6 modprobe snd-card-6
+install sound-slot-7 modprobe snd-card-7
+# Cause optional modules to be loaded above generic modules
+install snd modprobe --ignore-install snd && { modprobe --quiet snd-ioctl32 ; : ; }
+install snd-pcm modprobe --ignore-install snd-pcm && { modprobe --quiet snd-pcm-oss ; : ; }
+install snd-mixer modprobe --ignore-install snd-mixer && { modprobe --quiet snd-mixer-oss ; : ; }
+install snd-seq modprobe --ignore-install snd-seq && { modprobe --quiet snd-seq-midi ; modprobe --quiet snd-seq-oss ; : ; }
+# Cause optional modules to be loaded above sound card driver modules
+install snd-emu10k1 modprobe --ignore-install snd-emu10k1 $CMDLINE_OPTS && { /lib/alsa/modprobe-post-install snd-emu10k1 ; modprobe --quiet snd-emu10k1-synth ; }
+install snd-via82xx modprobe --ignore-install snd-via82xx $CMDLINE_OPTS && { /lib/alsa/modprobe-post-install snd-via82xx ; modprobe --quiet snd-seq ; }
+# Cause a script to be run after *-synth module initialization
+install snd-emu8000-synth modprobe --ignore-install snd-emu8000-synth && /lib/alsa/modprobe-post-install snd-emu8000-synth
+install snd-emu10k1-synth modprobe --ignore-install snd-emu10k1-synth && /lib/alsa/modprobe-post-install snd-emu10k1-synth

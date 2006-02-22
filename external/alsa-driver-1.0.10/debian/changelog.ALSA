@@ -1,0 +1,2144 @@
+Changelog between 1.0.10rc3 and 1.0.10 releases
+(http://www.alsa-project.org/changes/v1-0-10rc3--v1-0-10.txt)
+**************************************************
+
+* alsa-driver
+  + Sound Core
+    - Add a wrapper for the new platform_driver
+    - Improve header hacks
+    - release 1.0.10
+  + ALSA Core
+    - Add printk_ratelimit() wrapper
+    - Remove hacks for owner field in pci_driver
+    - Simplify class_device_create() wrapper
+    - Use platform_driver
+    - Add a wrapper for the new platform_driver
+    - Improve header hacks
+  + /arm/Makefile
+    - Add a wrapper for the new platform_driver
+  + AC97 Codec
+    - ac97 - procfs - print PCI subsystem vendor/device values
+  + AD1889 driver
+    - 2.6-git-sync: Remove .owner field
+  + ALI5451 driver
+    - ali5451 - Fix and clean up codec accessor
+  + ALS4000 driver
+    - 2.6-git-sync: Remove .owner field
+  + ARM PXA2XX driver
+    - Use platform_driver
+    - Add a wrapper for the new platform_driver
+  + ATIIXP driver
+    - 2.6-git-sync: Remove .owner field
+  + ATIIXP-modem driver
+    - 2.6-git-sync: Remove .owner field
+  + Digigram VX core
+    - sound/drivers/vx/vx_hwdep.c should #include <linux/vmalloc.h>
+  + EMU10K1/EMU10K2 driver
+    - emu10k1 - Enable side surround channels for Audigy2 EX
+    - Add support for Audigy 2 subsystem 2006
+    - snd-emu10k1: Attenuate output volume to reduce distortion
+    - snd-emu10k1: Found some new registers to display in debug mode.
+  + HDA Codec driver
+    - hda-codec - Allocate amp hash array dynamically
+    - hda-codec - Fix HDA sound and V.92 modem for notebook Siemens FieldPG-M
+  + HDA Intel driver
+    - sound/hda: rate-limit timeout message
+  + ICE1712 driver
+    - ice1724 (juli) - forced analog doughter board detection
+  + PPC PMAC driver
+    - pmac - remove superfluous include
+  + SPARC cs4231 driver
+    - 2.6-git-sync: Simplify SBUS code
+  + VIA82xx driver
+    - via82xx - Add dxs entry for MSI KT800 Delta-FSR
+
+
+Changelog between 1.0.10rc2 and 1.0.10rc3 releases
+(http://www.alsa-project.org/changes/v1-0-10rc2--v1-0-10rc3.txt)
+**************************************************
+
+* alsa-driver
+  + Sound Core
+    - Add workaround for the old class_device_create()
+    - Add workarounds for the new driver suspend/resume callbacks
+    - Add page-reserve check for older kernels
+    - Add check of <linux/platform_device.h>
+    - release 1.0.10rc3
+    - Disable rtc-timer
+  + ALSA Core
+    - Add definition of gfp_t
+    - Add the missing forward declration
+    - Fix compilation with older kernels.
+    - remove snd_runtime_check()
+    - fix 2.2.x compilation
+    - Fix for old 2.4.x SUSE kernels
+    - Fix compile without CONFIG_PCI
+    - Fix compile with 2.2/2.4 kernels
+    - Add schedule_timeout_[un]interruptible wrappers.
+    - Fix Oops with suspend/resume of generic drivers
+    - clean up device types symbols
+    - fix improper CONFIG_SND_MAJOR usage
+    - Fix a typo in the last fix
+    - Fix for older 2.6 kernels
+    - Remove kmalloc wrapper from snd-page-alloc
+    - 2.6.14-git-sync: class_device_create() changes
+    - Add workaround for the old class_device_create()
+    - Sync 2.6.14-git: Replace with gfp_t
+    - DRIVER MODEL: Get rid of the obsolete tri-level suspend/resume callbacks
+    - Add workarounds for the new driver suspend/resume callbacks
+    - Add page-reserve check for older kernels
+    - 2.6-git sync: include <linux/platform_device.h>
+  + HWDEP Midlevel
+    - fix improper CONFIG_SND_MAJOR usage
+  + PCM Midlevel
+    - fix improper CONFIG_SND_MAJOR usage
+    - 2.6-git sync: Remove page-reserve check
+    - Add page-reserve check for older kernels
+  + RawMidi Midlevel
+    - fix improper CONFIG_SND_MAJOR usage
+  + Timer Midlevel
+    - timer: fix timer instance memory allocation checks
+    - timer: remove list_entry() type casts
+    - timer: formatting changes
+  + /arm/Makefile
+    - Add workarounds for the new driver suspend/resume callbacks
+  + AC97 Codec
+    - ac97 - Fix confliction of DRA and surround slots
+    - DRIVER MODEL: Get rid of the obsolete tri-level suspend/resume callbacks
+  + AD1848 driver
+    - Fix schedule_timeout usage
+  + AD1889 driver
+    - Big kfree NULL check cleanup - sound
+  + AK4114 receiver
+    - Add missing KERN_* suffix to printk
+  + AK4117 receiver
+    - Add missing KERN_* suffix to printk
+  + ALI5451 driver
+    - Remove multi-card support for ali5451 and nm256
+  + ALSA Minor Numbers
+    - clean up device types symbols
+  + ALSA sequencer
+    - seq-timer: restrict timer frequencies
+    - Fix schedule_timeout usage
+  + ALSA<-OSS emulation
+    - Add missing KERN_* prefix
+  + ARM AACI PL041 driver
+    - 2.6.14-git-sync: fix include
+  + ARM PXA2XX driver
+    - DRIVER MODEL: Get rid of the obsolete tri-level suspend/resume callbacks
+    - Add workarounds for the new driver suspend/resume callbacks
+    - 2.6-git sync: include <linux/platform_device.h>
+  + ATIIXP driver
+    - Fix the type of enable module option
+  + ATIIXP-modem driver
+    - Fix the type of enable module option
+  + AZT3328 driver
+    - AZT3328 driver update
+  + BT87x driver
+    - 2.6.14-git-sync: pci_ids: macros: replace partial with whole symbols
+  + CA0106 driver
+    - snd-ca0106: Add midi support.
+    - ca0106: Cosmetic changes.
+    - ca0106: Added copyright messages.
+  + Common EMU synth
+    - Fix emu10k1 synth problems.
+  + Documentation
+    - Remove obsolete chip_t
+    - Add description about a new option of nm256 driver
+    - Remove multi-card support for ali5451 and nm256
+  + EMU10K1/EMU10K2 driver
+    - Fix emu10k1 synth problems.
+    - emu10k1 - Use 31 bit DMA mask for Audigy
+    - snd-emu10k1: Enable Audigy 2 ZS Notebook [SB0530]
+  + ES18xx driver
+    - Add missing KERN_* suffix to printk
+  + GUS Library
+    - Fix schedule_timeout usage
+  + HDA Codec driver
+    - hda-codec - Get subsystem ID from AFG/MFG
+    - hda-codec - Minor rewrites
+  + HDA generic driver
+    - hda-codec - Show power state in proc file
+    - hda-codec - Minor rewrites
+  + HPE timer driver
+    - timers: add module refcounting for global timers
+    - hpetimer: allow non-power-of-two frequencies
+  + I2C cs8427
+    - Add missing KERN_* suffix to printk
+    - Fix schedule_timeout usage
+  + I2C tea6330t
+    - Add missing KERN_* suffix to printk
+  + ICE1712 driver
+    - ice1724 - Add SPDIF support to Shuttle SN25P
+  + ICE1724 driver
+    - Add support of high-rate SPDIF output
+  + Instrument layer
+    - Replace with gfp_t
+    - Sync 2.6.14-git: Replace with gfp_t
+  + Intel8x0 driver
+    - intel8x0 - Fix handling of module parameters
+    - Fix the type of enable module option
+    - intel8x0 - fix capture for M1563
+    - intel8x0 - Add ac97_quirk for Dell Inspiron 8600
+    - intel8x0 - Fix irq handler registration
+  + Intel8x0-modem driver
+    - Fix the type of enable module option
+  + MAINTAINERS file
+    - Added MAINTAINERS file from 2.6
+  + MIPS AU1x00 driver
+    - Remove obsolete chip_t
+    - AMD Au1x00 driver: buggy spinlocks
+  + Maestro3 driver
+    - Fix maestro3 hang after cold boot
+  + Memalloc module
+    - Replace with gfp_t
+    - adjust memalloc.patch
+    - fix 2.2.x compilation
+    - Remove kmalloc wrapper from snd-page-alloc
+    - Sync 2.6.14-git: Replace with gfp_t
+  + NM256 driver
+    - nm256: reset workaround for Latitude CSx
+    - Remove multi-card support for ali5451 and nm256
+  + Opti9xx drivers
+    - Add missing KERN_* prefix
+  + PARISC Harmony driver
+    - 2.6.14-git-sync: Update harmony driver
+  + PCI drivers
+    - snd-ca0106: Add midi support.
+  + PPC Beep
+    - Remove obsolete chip_t
+    - 2.6.14-git-sync: convert sound/ppc/beep to dynamic input_dev allocation
+  + RME HDSP driver
+    - hdsp - Code clean up
+  + RME9652 driver
+    - Big kfree NULL check cleanup - sound
+  + SPARC DBRI driver
+    - Remove obsolete chip_t
+  + Sound Scape driver
+    - Fix schedule_timeout usage
+  + USB USX2Y
+    - Add missing KERN_* prefix
+  + USB generic driver
+    - usb-audio: don't call usb_reset_configuration() when probing
+    - Add missing KERN_* prefix
+    - usb-audio: remove superfluous include
+    - Sync with 2.6
+    - Sync 2.6.14-git: Replace with gfp_t
+    - usb-audio: start submitting URBs in the prepared state
+  + VIA82xx driver
+    - Enable DXS controls for VIA VT82xx
+    - Reduce interrupt latency in sound/pci/via82xx.c
+  + YMFPCI driver
+    - ymfpci: change timer resolution to 48 kHz
+
+
+Changelog between 1.0.10rc1 and 1.0.10rc2 releases
+(http://alsa-project.org/changes/v1-0-10rc1--v1-0-10rc2.txt)
+***********************************************
+
+* alsa-driver
+  + Sound Core
+    - Add check of CONFIG_ISA_DMA_API
+    - Merge hpklinux to alsa-driver tree
+    - Fix detection of CONFIG_ISA_DMA_API
+    - ad1889: add AD1889 driver docs
+    - disable HPET driver
+    - Add a wrapper for register_sound_special_device()
+    - Add pci_ids.h wrapper
+    - Added kzalloc() wrapper
+    - release 1.0.10rc2
+  + ALSA Core
+    - Define CONFIG_ISA_DMA_API for older kernels
+    - sparse: add __nocast to wrappers
+    - Add snd_card_set_generic_dev() call
+    - Add a wrapper for register_sound_special_device()
+    - Add pci_ids.h wrapper
+    - Add wrappers for pci_get_device() and pci_dev_put()
+    - Fixed compilation with older 2.6 kernels
+    - Added kzalloc() wrapper
+    - Replace with kzalloc()
+    - Try to fix compiling to work. More problems exist.
+    - fix typo that prevented compiling.
+    - include new PCI IDs with 2.2.x kernels
+    - set owner field in struct pci_driver
+    - fix driver_register() on old kernels
+    - fix missing return value of dummy snd_card_set_generic_dev()
+    - fix warning about CONFIG_ISA_DMA_API redefinition
+    - fix compilation on 2.2.x kernels
+    - Fix PCI IDs in rme32/96 driver
+    - Add getnstimeofday() wrapper.
+    - Move kmalloc wrappers to alsa-driver tree
+    - Fix compile without CONFIG_SND_DEBUG_MEMORY
+  + Generic drivers
+    - Add snd_card_set_generic_dev() call
+    - Replace with kzalloc()
+  + IOCTL32 emulation
+    - Replace with kzalloc()
+  + MPU401 UART
+    - mpu401: fix patch
+  + MSND driver
+    - sparse address space annotations
+    - msnd-pinnacle: remove strange escapes
+    - Remove vmalloc wrapper, kfree_nocheck()
+  + Memalloc module
+    - Move kmalloc wrappers to alsa-driver tree
+  + Opti9xx drivers
+    - Add snd_card_set_generic_dev() call
+
+
+Changelog between 1.0.9b and 1.0.10rc1 releases
+(http://alsa-project.org/changes/v1-0-9b--v1-0-10rc1.txt)
+***********************************************
+
+* alsa-driver
+  + Sound Core
+    - Move hdspm driver to alsa-kernel tree
+    - cosmetic changes
+    - note the alsaconf script in the alsa-utils package
+    - Fix compile warnings with gcc-4
+    - Summar: miro: add missing INSTALL text for snd-miro
+    - Added CONFIG_CREATE_WORKQUEUE_FLAGS for Aurox distro
+    - kstrdup wrapper
+    - Remove -Werror from new ioctl check
+    - Move ARM PXA2xx AC97 driver to alsa-kernel
+    - Added CONFIG_HAVE_MSECS_TO_JIFFIES checks and implementation
+    - fix msecs_to_jiffies wrapper
+    - check for more required kernel headers
+    - Define dummy struct device
+    - Add riptide driver
+    - Fix compile with RH kernel
+    - fix for sparc64 - ioctl32 interface check
+    - Added description of ad1889
+    - allow kernel build V and C options
+    - updated the build system for 2.6 to be more friendly
+    - Fix make install target
+    - one more fix for the make install target
+    - release 1.0.10rc1
+  + ALSA Core
+    - Added CONFIG_CREATE_WORKQUEUE_FLAGS for Aurox distro
+    - Fix two typos and changes on snd_assert()
+    - cleanup and typo-correction
+    - Replace with kstrdup
+    - kstrdup wrapper
+    - Use kstrdup
+    - No more simple_class
+    - No more simple_class
+    - typo-fix and snd_assert()-expression-split
+    - Added CONFIG_HAVE_MSECS_TO_JIFFIES checks and implementation
+    - fix msecs_to_jiffies wrapper
+    - sound/core Fix the sparse warning "implicit cast to nocast type"
+    - Add __nocast wrapper
+    - Fix the declaration of snd_hidden_kcalloc()
+    - adds __init and in snd_memory_init()
+    - 2.2.x del_timer_sync() wrapper
+    - use preprocessor for HZ calculations, if possible
+    - usb-audio: use usb_buffer_alloc/free
+    - Timer API - added SUSPEND/RESUME events
+    - Timer API - SNDRV_TIMER_EVENT_RESUME - val is resolution in ns
+  + Control Midlevel
+    - Add const prefix
+  + PCM Midlevel
+    - Export snd_pcm_hw_params for old snd-ioctl32 module
+    - ALSA's struct _snd_pcm_substream: Obsolete open_flag
+    - make local objects static
+    - Fix PCM 32bit compat layer
+    - Timer API - added SUSPEND/RESUME events
+  + Timer Midlevel
+    - Remove redundant NULL checks before kfree
+    - Replace with kstrdup
+    - make local objects static
+    - Timer API - added SUSPEND/RESUME events
+    - ALSA timer - fixed compilation
+  + /arm/Makefile
+    - Add ARM PXA2xx AC97 driver
+    - Move ARM PXA2xx AC97 driver to alsa-kernel
+  + /sparc/Makefile
+    - Add DBRI driver on Sparcs
+  + AC97 Codec
+    - MC97 modem mixer in sound/pci/ac97
+    - AC97 - renamed vendor/device to subvendor/subdevice where appropriate
+    - Fix resume of intel8x0
+    - ac97: Fix volume control bit size detection for STAC9704.
+    - ac97 - remove unused variable
+    - Jack Sense support for AD1980 and AD1888
+    - WM97xx AC97 codec controls
+    - AC97 bus interface for ad-hoc drivers
+    - use SNDRV_CTL_NAME_IEC958 macro
+    - WM9713 modem detection
+    - make local objects static
+    - Add VT1617A codec support
+    - ac97: make patch_wolfson_wm97??_specific() functions static
+    - ac97 - make ac97 codec device name unique
+  + AD1816A driver
+    - ad1816a - Add clockfreq module option
+  + AD1848 driver
+    - sound - fix .iface field of mixer control elements
+  + AK4114 receiver
+    - ak4114: removed duplicate wake_up()
+  + ALI5451 driver
+    - Modem support for ALI5451
+  + ALSA sequencer
+    - Remove redundant NULL checks before kfree
+    - Fix dependency of GUS driver
+    - seq-midi - silently ignore non-MIDI events
+    - [2.6 PATCH] clean up inline static vs static inline
+  + ALSA<-OSS emulation
+    - Replace with kstrdup
+    - ALSA's struct _snd_pcm_substream: Obsolete open_flag
+  + ALSA<-OSS sequencer
+    - Remove redundant NULL checks before kfree
+    - [2.6 PATCH] clean up inline static vs static inline
+  + ARM
+    - Add ARM PXA2xx AC97 driver
+    - Move ARM PXA2xx AC97 driver to alsa-kernel
+  + ARM PXA2XX driver
+    - Add ARM PXA2xx AC97 driver
+    - Move ARM PXA2xx AC97 driver to alsa-kernel
+    - PXA27x AC97 warm reset
+    - Fix compiler warnings in PXA2XX-AC97
+  + ATIIXP driver
+    - AC97 - renamed vendor/device to subvendor/subdevice where appropriate
+    - PCM resume cleanups
+  + ATIIXP-modem driver
+    - PCI modem drivers update
+    - Add new pci device id (SB400) to atiixp-modem
+  + BT87x driver
+    - [2.6 SYNC] bt87x driver - pci_match_device
+  + CA0106 driver
+    - Implement support for Line-in capture on SB Live 24bit.
+    - Add Mic capture support.
+    - Implement S32_LE(24bit) and 96000 capture rates etc.
+    - Be more specific with which I2C channel to use.
+    - sound/pci/ca0106: Use the DMA_32BIT_MASK constant
+    - ca0106: Fix 96000 Hz audio playback.
+    - use PCM interface for IEC958 controls
+    - Add new ID. Fixes ALSA bug #1298
+  + CMI8330 driver
+    - use SNDRV_CTL_NAME_IEC958 macro
+  + CMIPCI driver
+    - cmipci - Add Mic Boost capture switch
+  + CS4231 driver
+    - PCM resume cleanups
+  + CS4236+ driver
+    - cs4236-irq-handling-fix.patch
+  + CS4281 driver
+    - Input: kill empty comment in gameport support section of cs4281
+      ALSA driver.
+  + CS46xx driver
+    - sound - fix .iface field of mixer control elements
+  + Digigram VX Pocket driver
+    - Add PCMCIA id table
+    - Fix and clean-up of vxpocket driver
+    - vxpocket - Remove unused code
+    - [PATCH] pcmcia: remove references to pcmcia/version.h
+  + Digigram VX core
+    - Remove redundant NULL checks before kfree
+    - vx-driver - Fix the calculation of frequency parameter
+    - [2.6 PATCH] clean up inline static vs static inline
+    - use PCM interface for IEC958 controls
+    - PCM resume cleanups
+  + Documentation
+    - Add write support to snd-page-alloc proc file
+    - Add documentation for HDSP MADI
+    - Move hdspm driver to alsa-kernel tree
+    - hda-codec - More fix of ALC880 codec support
+    - hda-codec - Add 6stack model for ALC880
+    - Fix and clean-up of vxpocket driver
+    - Add DBRI driver on Sparcs
+    - Add ARM PXA2xx AC97 driver
+    - sound - fix .iface field of mixer control elements
+    - Add riptide driver
+    - ad1816a - Add clockfreq module option
+  + EMU10K1/EMU10K2 driver
+    - emu10k1: Add more card identification entries.
+    - snd-emu10k1: Card capabilities tidy up.
+    - snd-emu10k1: Tidy mixer controls.
+    - emu10k1: Sort by card id.
+    - emu10k1: Added tested status comments.
+    - emu10k1: Add module option uint subsystem.
+    - snd-emu10k1: Fixes recognition of Audigy ES.
+    - emu10k1: Add EMU 1212m card entry and document it as not supported yet.
+    - sound - fix .iface field of mixer control elements
+    - use PCM interface for IEC958 controls
+    - Add new card ID. Fixes ALSA bug #1297
+  + ENS1370/1+ driver
+    - ens1371 - added extra delay for ac97 codec initialization
+    - sound/pci: fix-up sleeping paths
+    - use SNDRV_CTL_NAME_IEC958 macro
+    - use PCM interface for IEC958 controls
+  + ES1968 driver
+    - sound/pci: fix-up sleeping paths
+  + FM801 driver
+    - use SNDRV_CTL_NAME_IEC958 macro
+  + GUS Library
+    - Replace with kstrdup
+    - fix compiler warning
+    - make local objects static
+  + Generic drivers
+    - Use kstrdup
+    - [2.6 PATCH] clean up inline static vs static inline
+  + HDA Codec driver
+    - Fix the handling of amp cache in hda-codec
+    - Fix the PCM mixer switch for AD1986A
+    - Fix the analog loopback volumes of ALC codecs
+    - hda-codec - Feed front signals to all surrounds
+    - hda-codec - Clean up and fix ALC-codec support code
+    - hda-codec - Allow sub_device=0 in board config check
+    - hda-codec - Add support of more models with ALC codecs
+    - hda-codec - More fix of ALC880 codec support
+    - SigmaTel HDA SPDIF and input mux updates
+    - hda-codec - Fix oops with ALC880
+    - hda-codec - SigmaTel HDA multichannel support
+    - hda-codec - SigmaTel HDA resume support
+    - hda-codec - Add 6stack model for ALC880
+    - hda-codec - Add entry for Acer APFV
+    - Use kstrdup
+    - hda: add sigmatel hp detect support
+    - hda driver, correct bug in model "auto"
+    - hda-codec - Fix reordering of surround channels
+    - hda-codec - Add default config for ASUS P5AD2
+    - hda-codec - Fix LFE volume/switch
+    - Summar: hda-codec - MFG support
+    - hda-codec - support for Si3054/5 HDA modems
+    - hda-patch-realtek - added pci subdevice ID for Acer TravelMate 8100
+      (3 stack model + digital out)
+  + HDA Intel driver
+    - hda-codec - Add support of more models with ALC codecs
+    - hda-codec - More fix of ALC880 codec support
+    - hda: enable unsolicited responses
+    - hda-intel - Add SiS966 support
+    - hda-intel: Suspend/resume fixes for PCM devices
+  + HDA generic driver
+    - hda-codec - Print all AMP IN values
+    - hda-codec - More fix of ALC880 codec support
+    - Summar: hda-codec - MFG support
+    - hda-codec - support for Si3054/5 HDA modems
+  + HDSPM driver
+    - Add HDSP MADI driver
+    - Move hdspm driver to alsa-kernel tree
+  + IOCTL32 emulation
+    - Export snd_pcm_hw_params for old snd-ioctl32 module
+  + Instrument layer
+    - sound/core Fix the sparse warning "implicit cast to nocast type"
+  + Intel8x0 driver
+    - AC97 - renamed vendor/device to subvendor/subdevice where appropriate
+    - Add FSC T3010 quirk
+    - Fix resume of intel8x0
+    - sound/pci: fix-up sleeping paths
+    - intel8x0 - Fix PM
+  + Intel8x0-modem driver
+    - PCI modem drivers update
+  + Maestro3 driver
+    - maestro3 - Clean up
+  + Memalloc module
+    - Add write support to snd-page-alloc proc file
+    - fix compilation on 2.2.x kernels
+    - sound/core Fix the sparse warning "implicit cast to nocast type"
+    - fix memalloc.patch
+    - make local objects static
+  + NM256 driver
+    - nm256 - Fix PM and irq handling
+  + OPL3SA2 driver
+    - opl3sa2 driver - added support for PnP BIOS devices
+    - opl3sa2 - fixed typo in PnP BIOS IDs (YMF0021 -> YMH0021)
+    - opl3sa2 - use different name for PnP BIOS driver
+  + OSS device core
+    - No more simple_class
+  + Opti9xx drivers
+    - miro: add firmware 0x07 which is pcm20 revE
+    - miro: MPU-401 error action bugfix
+    - miro: set mixer values for aci on startup
+    - miro: OPL4 support
+  + PCI drivers
+    - Add HDSP MADI driver
+    - AC97 bus interface for ad-hoc drivers
+  + PCMCIA Kconfig
+    - Fix and clean-up of vxpocket driver
+  + PDAudioCF driver
+    - Add PCMCIA id table
+    - [PATCH] pcmcia: remove references to pcmcia/version.h
+    - [PATCH] pcmcia: move event handler
+  + PPC AWACS driver
+    - Sync with mainstream
+    - Fix-up sleeping in sound/ppc
+  + PPC DACA driver
+    - Sync with mainstream
+  + PPC PMAC driver
+    - Sync with mainstream
+    - Fix-up sleeping in sound/ppc
+  + PPC Tumbler driver
+    - Sync with mainstream
+    - Fix-up sleeping in sound/ppc
+  + RME HDSP driver
+    - Add write support to snd-page-alloc proc file
+    - hdsp - Add "Sample Clock Source Locking" control
+  + RME9652 driver
+    - Add write support to snd-page-alloc proc file
+    - Add HDSP MADI driver
+    - Fix compile warnings
+    - [2.6 SYNC] use the way from 2.6 to avoid warnings for #if ABCD
+    - hdspm - Fix module parameter description
+  + SB drivers
+    - Fix compile warnings
+    - [2.6 SYNC] use the way from 2.6 to avoid warnings for #if ABCD
+  + SPARC
+    - Add help texts to Kconfig
+    - Add DBRI driver on Sparcs
+  + SPARC DBRI driver
+    - Add DBRI driver on Sparcs
+  + Trident driver
+    - Disable MPU401 on SIS7018
+    - trident - Shut up compile warnings
+  + USB USX2Y
+    - Fix-up sleeping in sound/usb
+    - ALSA's struct _snd_pcm_substream: Obsolete open_flag
+  + USB generic driver
+    - usb-audio - high speed audio support
+    - usb-audio - fix capture of non-48k sample rates on Audigy 2 NX
+    - usb-audio: add support for an unknown Yamaha USB MIDI device
+    - usb-audio - enable high speed transfers with Audiy 2 NX
+    - usb-audio - rename QUIRK_MIDI_MOTU to QUIRK_MIDI_RAW
+    - usb-audio - use bDeviceSubClass to detect MOTU FastLane
+    - Fix-up sleeping in sound/usb
+    - usb-audio - add support for Miditech USB MIDI keyboards
+    - usb-audio - change quirk type handling
+    - usb-audio: throttle MIDI URB resubmits on USB errors
+    - usb-audio: use 1 ms URBs when capturing
+    - usb-audio: fix packets per URB calculation for playback
+    - usb-audio: make nrpacks parameter writeable
+    - usb-audio: schedule high speed URBs with 1 ms alignment
+    - usb-audio: optimize handling of capture URBs
+    - usb-audio: double-buffer all playback data
+    - usb-audio: actually schedule playback URBs at frame boundaries
+    - usb-audio: properly lock hwptr_done accesses
+    - usb-audio: use vmalloc for the PCM buffer
+  + VIA82xx driver
+    - via82xx - added 0x1071/0x8399 to while list
+    - AC97 - renamed vendor/device to subvendor/subdevice where appropriate
+    - via82xx - fixed entry for Umax AB 595T (VIA K8N800A - VT8237)
+    - via82xx - Fix info text about dxs_support option
+    - Add dxs_support for Soltek SL-K8Tpro-939
+    - via82xx - added MSI K7T266 Pro2 - 4005:4710 to white list (DXS enable)
+    - via82xx - changed MSI K7T266 Pro2 - 4005:4710 in white list (SRC enable)
+    - sound/pci: fix-up sleeping paths
+    - via82xx - Fix dxs_support of twinhead laptop
+    - via82xx - Add dxs entry for Acer Aspire 1524 WMLi
+    - use SNDRV_CTL_NAME_IEC958 macro
+    - via82xx - Add DXS entry for MSI K8MM-V
+    - via82xx - Fix SPDIF sample rates
+    - PCM resume cleanups
+    - via82xx - Add DXS entry for MSI 7142
+  + VIA82xx-modem driver
+    - PCI modem drivers update
+  + YMFPCI driver
+    - ymfpci: add per-voice volume controls
+  + cvscompile script
+    - Fix alsa-driver to use more up to date autoconf tools.
+  + snddevices script
+    - snddevices - extensions from Thomas Hood
+
+Changelog between 1.0.9a and 1.0.9b releases
+(http://www.alsa-project.org/changes/v1-0-9a--v1-0-9b.txt)
+********************************************
+
+* alsa-driver
+  + Sound Core
+    - release 1.0.9b
+  + ALSA Core
+    - Added DMA_32BIT_MASK
+    - fix compilation on 2.2/2.4 kernels
+
+
+Changelog between 1.0.9 and 1.0.9a releases
+(http://alsa-project.org/changes/v1-0-9--v1-0-9a.txt)
+*******************************************
+
+* alsa-driver
+  + Sound Core
+    - Check class_simple and patch for the new class device
+    - release v1.0.9a
+    - release 1.0.9a
+  + ALSA Core
+    - Check class_simple and patch for the new class device
+  + PCM Midlevel
+    - Fix races between PCM drain and other ops
+  + ALSA Version
+    - release v1.0.9a
+  + ALSA<-OSS emulation
+    - OSS PCM emulation - The final fix for SNDCTL_DSP_GETOPTR problem
+    - OSS PCM emulation - The 2nd final fix for SNDCTL_DSP_GETOPTR problem
+  + HDA Intel driver
+    - hda-intel - Fix Oops in the error path
+
+
+Changelog between 1.0.8 and 1.0.9 releases
+(http://www.alsa-project.org/changes/v1-0-8--v1-0-9.txt)
+******************************************
+
+* alsa-driver
+  + Sound Core
+    - Move azx driver to alsa-kernel tree
+    - Check the new unlocked/compat_ioctl
+    - Add msleep_interruptible() and ssleep() wrappers
+    - Add pxa2xx-ac97 and pxa2xx-pcm modules for ARM
+    - Add PC-speaker PCM driver support
+    - Detection of ARM arch flags, PC-speaker hook
+    - add check for kernel vsnprintf
+    - MPU-401 PnP support
+    - define CONFIG_X86 on X86_64
+    - Don't replace existing alsasound
+    - Fixed TAGS target
+    - just cosmetic fix
+    - release: 1.0.9rc1
+    - add HPET support
+    - big sync with 2.6 (joystick changes & mips tree)
+    - Added MIPS driver support
+    - release: 1.0.9rc2
+    - fix --with-kernel/--with-build parameter handling
+    - fix logic error when checking for the kernel version.h
+    - fix configure.in typo
+    - Fix compilation with module version on 2.2/2.4 kernels
+    - Merge Gina3G and Layla3G support to a single driver
+    - release: 1.0.9rc3
+    - Fix CONFIG_INPUT and CONFIG_PPC_PMAC
+    - fix io_remap_{page|pfn}_range checks
+    - release: 1.0.9rc4
+    - Fix compile options for kernel config checks
+    - release: 1.0.9rc4a
+    - Add comments for $CONFIG_SND
+    - Use standard form for URL
+    - release: 1.0.9
+  + ALSA Core
+    - Added workqueue implementation for 2.4 kernels (no 2.2 yet)
+    - exports for 2.4 workqueue implementation
+    - Export new register/unregister functions
+    - Remove snd-ioctl32 entry
+    - Check the new unlocked/compat_ioctl
+    - Add a dummy entry for snd-ioctl32
+    - Move snd-ioctl32 codes to alsa-driver
+    - Use DEFINE_SPINLOCK(), DEFINE_RWLOCK() macros
+    - Add DEFINE_SPINLOCK() & DEFINE_RWLOCK() wrappers
+    - Add msleep_interruptible() and ssleep() wrappers
+    - Add newline to printk
+    - Fixed 2.4 workqueue compat routines
+    - Remove pm_register/pm_unregister
+    - Add CONFIG_SND_GENERIC_PM
+    - Add the PM code for 2.2/2.4 kernels
+    - Interpret negative index as bitmask of permissible indexes
+    - compatibility code for older kernels
+    - fix snd_compat_msleep* exports
+    - completion emulation for 2.2 kernels
+    - driver model type fixes for ALSA
+    - Add pm_message_t and PMSG_* for older kernels
+    - Regenerated for suspend/resume fix
+    - Fix inclusion of pm.h
+    - Fix suspend/resume functions
+    - Fix suspend/resume functions
+    - Kconfig: cleanup sound menu
+    - Add wait_event_interruptible_timeout() wrapper
+    - add wait_event_interruptible_timeout wrapper
+    - use struct task_struct instead of task_t
+    - set the first argument to pm_register
+    - add check for kernel vsnprintf
+    - MPU-401 PnP support
+    - Fix the check of new PM macros
+    - Fix compilation without debug option
+    - workarounds for symbols not exported in 2.2.x kernels
+    - use simple_strtoul instead of simple_strtol
+    - remove duplicate module alias
+    - define __le16 for 2.6 kernels that do not have it
+    - Fix typos
+    - add HPET support
+    - add HPET support
+    - Reduce stack usage
+    - Use vprintk()
+    - Add vprintk() wrapper
+    - Replace with macros for gameport initialization
+    - Add compat layer for old gameport API
+    - Fix compilation with older kernels
+    - fix compilation with modversions
+    - fix wait_ms conflict
+    - Fix compile without CONFIG_PCI
+    - fix pm_message_t vs. u32 in alsa
+    - add PCI_Dx power states
+    - Use pci_module_init() on older kernels
+    - fix pci_register_driver compatibility with 2.2.x kernels
+    - replace SNDRV_PCM_HW_PARAMS_RUNTIME -> SNDRV_PCM_HW_PARAMS_NORESAMPLE
+    - Fix compilation with older 2.6 kernels
+    - Increase timer protocol number
+    - Fixed conflict of pci_module_init definition
+    - Make pci_register_drivers() compat layer to 2.6 style
+    - Fix compilation with module version on 2.2/2.4 kernels
+    - usb-audio - add Extigy/Audigy 2 NX remote control support
+    - remove superfluous MODVERSIONS definitions
+    - usb-audio - 2.2.x compatibility
+    - compiling problem fixed
+    - Change some timer ioctls due to confliction
+    - sound/core/: possible cleanups
+    - fix io_remap_{page|pfn}_range checks
+  + Control Midlevel
+    - unlocked/compat_ioctl rewrite for control API
+    - Compile fix for old ioctls
+    - driver model type fixes for ALSA
+    - Fix the wrong function call from ioctl
+    - Control API - fix the wrong allocation for userspace controls
+    - Reduce stack usage
+    - Suppress debug message
+  + HWDEP Midlevel
+    - unlocked/compat_ioctl rewrite for hwdep, rawmidi, timer and sequencer API
+    - Compile fix for old ioctls
+    - big sync with 2.6 (joystick changes & mips tree)
+  + PCM Midlevel
+    - Sumary: Fix comment of snd_pcm_lib_malloc_pages()
+    - unlocked/compat_ioctl rewrite for PCM API
+    - Compile fix for old ioctls
+    - Use DEFINE_SPINLOCK(), DEFINE_RWLOCK() macros
+    - Fix 32bit calls to snd_pcm_channel_info()
+    - [SPARSE] Fix __user pointers
+    -  Fix rounded-up integer division bug
+    -  Fix bugs with incorrectly wrapped appl_ptr
+    - Add proper spin/irq locks to suspend
+    - Reduce stack usage
+    - Fix permissions in some /proc files
+    - [Sync] Use io_remap_pfn_range
+    - Use io_remap_page_range() for older kernel
+    - Export missing snd_pcm_format_*()
+    - sound/core/: possible cleanups
+    - Fix for older kernels
+    - fix io_remap_{page|pfn}_range checks
+    - Make docproc happy
+  + RawMidi Midlevel
+    - unlocked/compat_ioctl rewrite for hwdep, rawmidi, timer and sequencer API
+    - Compile fix for old ioctls
+    - replace schedule_timeout() with msleep()
+    - replace interruptible_sleep_on_timeout() with wait_event_interruptible_timeout()
+    - [SPARSE] Fix __user pointers
+    - fix buffer wrap in snd_rawmidi_transmit_peek
+    - fix counting of MIDI input overruns
+    - remove _snd_rawmidi_runtime.trigger
+    - move common code into snd_rawmidi_runtime_create/_free functions
+    - move rawmidi event callback into tasklet
+    - rawmidi - fix locking in drop_output and drain_input
+    - rawmidi - move output trigger into a tasklet
+  + Timer Midlevel
+    - unlocked/compat_ioctl rewrite for hwdep, rawmidi, timer and sequencer API
+    - Use DEFINE_SPINLOCK(), DEFINE_RWLOCK() macros
+    - Fix Oops with timer notifying
+    - Wake up polls and signals at timer notification
+    - add HPET support
+    - Reduce stack usage
+    - timer - added tread semaphore
+    - Add missing PAUSE ioctl
+    - Change some timer ioctls due to confliction
+    - fixed PAUSE ioctl for user space interface
+    - sound/core/: possible cleanups
+  + /arm/Makefile
+    - Add pxa2xx-ac97 and pxa2xx-pcm modules for ARM
+    - Add s3c24xx i2s audio core
+    - ARM AACI primecell driver
+  + /isa/Makefile
+    - initial version of miroSOUND PCM1 pro, PCM12, PCM20 radio driver
+  + AC97 Codec
+    - Fix silent output on some machines with AD1981x codecs
+    - Simplify the general ac97 volume/switch callback
+    - Enable HP jack sense for FSC Scenic-W
+    - Special AC97 patch for ASUS W1000/CMI9739 laptop
+    - Bind master and HP controls with hp_only quirk
+    - add STAC9708 output bias mixer control
+    - Fix rate setting on multiple codecs
+    - Fix CM9761A codec support
+    - Fix CM9761 again
+    - Fix CM9761 again
+    - use simple_strtoul instead of simple_strtol
+    - Fix stereo mutes on Surround volume control
+    - Restore the default value after rate detection
+    - Add AD1986 support
+    - AC97 wm9713 support
+    - Fix ALC655/658/850 SPDIF playback route
+    - Replace '/' with commas in ac97 codec names
+    - Add AC97_SCAP_NO_SPDIF flag
+    - Fix the detection of resolution of ac97 controls
+    - Remove unused variables
+    - Add CM9780 support, fix CM9761 SPDIF
+    - Fix MC97 codec initialization
+    - MC97 registers reset
+    - Improve the shared-jack handling on ac97
+    - fix behaviour of ac97_enum_mixer elements
+    - ac97 - add the "Mic Front Input Switch" control (ALC850)
+    - ac97 - fix Mic jack sharing on AD1888 codecs
+    - ac97 - enable multichannel output on AD198x codecs
+    - Remove obsolete mixer control
+    - Fix Mic/CLFE sharing on AD1985
+    - Fix a wrong bit set in AC1985 code
+  + AD1816A driver
+    - Add PnP ID ADS7180
+  + AK4114 receiver
+    - Added ICE1724 - ESI Juli@ code (not complete) + AK4114 code + AK4358
+    - Added ESI Juli@ driver
+    - fix typo in assignment of snd_ak4114_spdif_playback_put
+    - AK4114 - fixed workqueue initialization & removed debug code
+    - ak4114 (Juli@) - increased delay between statistics update & rate check
+  + AK4117 receiver
+    - AK4117 code - fixed cosmetic typos
+  + AK4XXX AD/DA converters
+    - Added ICE1724 - ESI Juli@ code (not complete) + AK4114 code + AK4358
+  + ALS100 driver
+    - fixes als100 not detecting opl3
+  + ALS4000 driver
+    - Replace with macros for gameport initialization
+    - Replace pci_module_init() with pci_register_driver()
+    - als4000 - Fix kernel panic with MPU401
+  + ALSA Version
+    - release: 1.0.9rc2
+    - 1.0.9rc3
+    - 1.0.9rc4
+    - release: 1.0.9rc4a
+  + ALSA sequencer
+    - unlocked/compat_ioctl rewrite for hwdep, rawmidi, timer and sequencer API
+    - Use DEFINE_SPINLOCK(), DEFINE_RWLOCK() macros
+    - [SPARSE] Fix __user pointers
+    - Fix compilation with compat support
+    - remove superfluous from_timer_port parameter
+    - Add module_init and module_exit entries
+    - add module aliases for rtctimer and seq-dummy
+    - Fix typos
+    - big sync with 2.6 (joystick changes & mips tree)
+    - seq - fix local variable initialization
+    - Fix memory leak
+    - virmidi - fix ioctl parameter passing when creating seq port
+    - virmidi - fix ioctl parameter passing when setting client name
+    - sound/core/: possible cleanups
+  + ALSA<-OSS emulation
+    - unlocked/compat_ioctl rewrite for OSS compatible drivers
+    - [SPARSE] Fix __user pointers
+    - [SPARSE] Use unsigned int :1 bitfields
+    - fix forgotten release of semaphore in error path
+    - kill dead code
+    - Fix capture on OSS emulation
+    - pcm_oss - fix SNDCTL_DSP_GETOPTR not working correctly
+    - Reverted last patch for SNDCTL_DSP_GETOPTR fix & possible overflow fix
+    - alsa-oss - improve readability of snd_pcm_oss_bytes() function
+    - alsa-oss - 2nd - improved readability
+    - Fix compilation on 32bit arch
+  + ALSA<-OSS sequencer
+    - unlocked/compat_ioctl rewrite for OSS compatible drivers
+    - Remove interruptible_sleep_on_timeout().
+  + AMD InterWave driver
+    - fix sound/isa/gus/interwave.c compile with PNP=n
+  + ARM
+    - Add pxa2xx-ac97 and pxa2xx-pcm modules for ARM
+    - Add s3c24xx i2s audio core
+    - ARM AACI primecell driver
+  + ARM AACI PL041 driver
+    - ARM AACI primecell driver
+  + ARM DMA routines
+    - ARM DMA subsystem
+  + ARM PXA2XX driver
+    - Add pxa2xx-ac97 and pxa2xx-pcm modules for ARM
+    - Fix a typo
+    - Fix pxa2xx ac97 driver
+  + ARM S3C24XX IIS driver
+    - Add s3c24xx i2s audio core
+  + ATIIXP driver
+    - Add quirk for HP pavilion ZV5030US
+    - Fix suspend/resume with ATIIXP
+    - Add AC97_SCAP_NO_SPDIF flag
+    - Replace pci_module_init() with pci_register_driver()
+  + ATIIXP-modem driver
+    - Add workaround for buggy ATI IXP hardwares
+    - Set default index of modem and bt87x drivers to -2
+    - fix pm_message_t vs. u32 in alsa
+    - Replace pci_module_init() with pci_register_driver()
+  + AZT3328 driver
+    - Replace with macros for gameport initialization
+  + BT87x driver
+    - Set default index of modem and bt87x drivers to -2
+    - Add __iomem prefix
+  + CA0106 driver
+    - Add support for Audigy2LS on MSI motherboard
+    - Increase buffer sizes for the CA0106 driver
+    - Skip ac97 SPDIF controls
+    - Fix permissions in some /proc files
+    - make code static
+    - Implement surround71 outputs on SB Live 24bit.
+    - When the alsamixer says "SPDIF Out [Off]", SPDIF output should be off and Analog output should be on.
+    - Tidy up card recognition.
+  + CMIPCI driver
+    - CMI8768 patch
+    - Don't query chip models on CMI8338
+    - Replace with macros for gameport initialization
+  + CS423x drivers
+    - initial version of miroSOUND PCM1 pro, PCM12, PCM20 radio driver
+  + CS4281 driver
+    - fix locking for rawmidi trigger callbacks
+    - remove superfluous spin_lock_irqsave calls
+    - remove unneeded interrupt locks in rawmidi drivers
+    - Replace with macros for gameport initialization
+    - cs4281 - fix typos in the case gameport is disabled
+    - cs4281 - fix DLLRDY not seen problem
+  + CS46xx driver
+    - remove superfluous spin_lock_irqsave calls
+    - big sync with 2.6 (joystick changes & mips tree)
+  + Digigram VX Pocket driver
+    - Add missing inclusion of linux/device.h
+  + Digigram VX core
+    - Show firmware loading state in proc file
+    - Add missing inclusion of linux/device.h
+    - replace schedule_timeout() with msleep()
+    - driver model type fixes for ALSA
+  + Digigram VX222 driver
+    - Add missing inclusion of linux/device.h
+  + Documentation
+    - Fix typos in doc
+    - fix typo
+    - Add Intel HDA driver
+    - Move azx driver to alsa-kernel tree
+    - Warning doc about VIA82xx recording
+    - Remove descriptions of obsolete options
+    - HDSP fixes
+    - Interpret negative index as bitmask of permissible indexes
+    - Set default index of modem and bt87x drivers to -2
+    - Fix descriptions about suspend/resume callbacks
+    - fix snd-serial-u16550 docs for setserial
+    - document rawmidi interface
+    - documentation - clarify information about atomic callbacks
+    - rawmidi - move output trigger into a tasklet
+    - some docs for the new emu10k1 multichannel functionality
+    - Support all sample rate conversion capabilities of DXS channels
+    - Replace pci_module_init() with pci_register_driver()
+    - Add position_fix module option
+    - Add ASUS Z71V support
+    - Adding support for ATI IXP450 HD Audio device support
+    - Add support of VIA VT8251/VT8237A HD-Audio controllers
+    - cmipci: Fix obsolete description
+    - Update documentation for ice1712 and ice1724
+    - [doc] Fix a comment about dxs_support for via82xx driver
+    - ice1724 - Add support of Chaintech AV-710
+  + EMU10K1/EMU10K2 driver
+    - Changes "Music" to "Synth" in mixer control names
+    - capture EXTINs with multichannel device
+    - add 96Khz support and setting sample rate for	direct SPDIF output
+    - split snd_emu10k1_trigger_voice into trigger and prepare functions
+    - Enables SPDIF output on the Audigy2 Value
+    - emu10k1 driver - add multichannel device hw:x,3 [1/8]
+    - emu10k1 driver - add multichannel device hw:x,3 [2-8/8]
+    - emu10k1 - add "voices" /proc entry for debugging the voice allocator
+    - [SPARSE] Use unsigned int :1 bitfields
+    - Fix comiple with old gcc
+    - [SPARSE] Fix __user pointers
+    - remove an unnecessary printk
+    - Fix the Audigy SPDIF sample rate register definitions
+    - emu10k1 - fix the initial value for Captured FX8010 Outputs
+    - Fix pops and clicks at beginning/end of playback
+    - Fix voice allocation corruption
+    - emu10k1 - give the subdevices descriptive names
+    - emu10k1 - Silence the "BUG (or not enough voices)" message
+    - emu10k1 - copyright additions/fixes
+    - emu10k1 - add support for p16v chip (24-bit playback)
+    - fix P16V breakage for non Audigy2 cards
+    - fix misc oopses
+    - emu10k1 external tram size
+    - Fix 96000 SPDIF out from Audigy 2 P16V
+    - Add framework for better audigy sound card capabilities selection
+    - Fixes AC3 output on Audigy2 sound cards
+    - Clean up the chip detection
+    - Fix Oops in snd_emu10k1_add_controls
+    - Fix EFX voice allocation/preparation
+    - Add AC97_SCAP_NO_SPDIF flag
+    - Adds Capture to P16V chip.
+    - Add's identification of the SB Live! Platinum [CT4760P]
+    - Added identification for the Audigy ES.
+    - clean up card features
+    - Use old default id strings for compatibility
+    - Fix the default id of multiple cards
+    - Audigy SB0090 identification
+    - Check revision for the proper detection of audigy 2
+    - Display SPDIF in status in proc fs "spdif-in" file.
+    - Improve SPDIF playback via the P16V/CA0151 chip.
+    - Improve playback startup. Increase buffer size, and reduce xruns.
+    - Fix typo in speaker routing. Now sound comes from the correct speakers
+    - Fix compile warning
+    - Fix permissions in some /proc files
+    - trivial warning fix for emu10k1
+    - Update A_SAMPLE_RATE register details.
+    - Support multiple capture rates on p16v.
+    - Implement different capture sources.
+    - Increase capture buffer sizes.
+    - emu10k1 - add SB0060 to emu_chip_details
+    - emu10k1: add details for the audigy player box version
+  + EMU8000 driver
+    - replace schedule_timeout() with msleep()
+  + ENS1370/1+ driver
+    - remove superfluous spin_lock_irqsave calls
+    - remove unneeded interrupt locks in rawmidi drivers
+  + ES1968 driver
+    - Fix resume of es1968
+    - Fix Oops with joystick support
+    - Add the vendor 0x1558 to PM whitelist of es1968
+  + FM801 driver
+    - FM801 - radio: Fixed thinko for tea575x_tuner module parameter (int type not bool)
+    - Add PCI ID for Gallant Odyssey Sound 4
+  + GUS Library
+    - insert set_current_state() before schedule_timeout()
+    - replace schedule_timeout() with msleep_interruptible()
+    - remove interruptible_sleep_on_timeout() usage
+    - [SPARSE] Use unsigned int :1 bitfields
+    - GUS - Remove unused gus_lfo.c file
+    - sound/isa/: cleanups
+  + Generic drivers
+    - Add PC-speaker PCM driver support
+    - replace the param arrays with a single vars
+    - [SPARSE] Use NULL instead of 0
+    - fix indentation
+    - add port names for serial MIDI ports
+    - fix locking for rawmidi trigger callbacks
+    - remove unneeded interrupt locks in rawmidi drivers
+  + HDA Codec driver
+    - Add Intel HDA driver
+    - Fix resume callback
+    - Fix detection of AFG node
+    - [SPARSE] Use NULL instead of 0
+    - Don't set up the front stream twice
+    - Fix SPDIF output
+    - Fix Digital Input
+    - ALC882 support, fix ALC880 5-stack mode
+    - Fix digital input
+    - Fix ALC260 support
+    - Fix ALC260 input
+    - Use full-digital model as default for CMI9880
+    - Add new C-Media 9880 codec ID
+    - Fix SPDIF output on CMI9880
+    - use amp capabilities from afg if amp override not set
+    - correct comment for setting widget output
+    - Add AD1986A support
+    - Add Mono volume controls for ALC260
+    - fix multi-channel for model==full
+    - choose multi-channel jacks automatically
+    - hda: fix vref cap and ctl values
+    - add sigmatel codec support
+    - Add AD1981HD and AD1983 support
+    - Remove dead code
+    - Misc clean up
+    - Fix and cleanup of CM9880 auto-configuration
+    - Add ASUS Z71V support
+    - Add test model for debugging ALC880 devices
+    - Rename pci_vendor/pci_device to pci_subvendor/pci_subdevice
+    - make code static
+    - Suppress error message
+    - Allow more than 2 channel modes
+    - Add Analog Devices vendor name
+    - hda-code: Fix the array size of codec list
+    - Fix ALC880 capture problems
+  + HDA Intel driver
+    - fix usage of preprocessor directive inside macro
+    - Add support for ESB2 Southbridge HDA
+    - Add position_fix module option
+    - Adding support for ATI IXP450 HD Audio device support
+    - Add support of VIA VT8251/VT8237A HD-Audio controllers
+    - Fix a typo in position_fix module option type
+  + HDA generic driver
+    - Add Intel HDA driver
+    - Fix mono volume/mute controls
+    - Fix Digital Input
+    - Fix auto-probing of widget tree
+    - Add AD1986A support
+    - Show currectly selected widget in proc_read for hda driver
+    - hda: fix vref cap and ctl values
+    - add sigmatel codec support
+    - Fix a typo in comments
+    - Show PIN jack type
+    - Rename pci_vendor/pci_device to pci_subvendor/pci_subdevice
+  + HPE timer driver
+    - add HPET support
+  + ICE1712 driver
+    - Add support for Chaintech 9CJS
+    - Added support for Terratec PHASE 22
+    - Fix sample rates of Revo 7.1
+    - Provides preliminary support for the Terratec Phase 28 card
+    - Add Shuttle SN25P support
+    - Update documentation for ice1712 and ice1724
+  + ICE1724 driver
+    - Added support for Terratec PHASE 22
+    - Fix sample rates of Revo 7.1
+    - ice1724 - Add support of Chaintech AV-710
+  + IOCTL32 emulation
+    - Fix struct alignment on PPC64
+    - Add missing FORWARD ioctl
+    - Fix struct size mismatch
+    - Remove ioctl32/* files
+    - Move snd-ioctl32 codes to alsa-driver
+    - Fix old sequencer ioctl32 wrapper
+  + ISA
+    - Remove pm_register/pm_unregister
+    - isa/Kconfig - added SND_AD1848_LIB and SND_CS4231_LIB tristates
+    - initial version of miroSOUND PCM1 pro, PCM12, PCM20 radio driver
+    - Sync with 2.6
+    - select ISAPNP for SND_INTERWAVE_STB target
+  + Intel8x0 driver
+    - AC'97 Audio support for Intel ICH7
+    - Add quirk for HP nc8000
+    - intel8x0 - fixed timeout in the "get current DMA pointer" routine
+    - intel8x0 - fix for broken PCI ID define for ICH6
+    - Add quirk for Fujitsu S6210
+    - Add ac97_quirk for Dell machine
+    - AC97 quirk for Dell Precision 650
+    - Disable DRA for ALI5455
+    - intel8x0: AC'97 audio patch for Intel ESB2
+    - [2.6-SYNC] Add missing ESB2 support
+  + Intel8x0-modem driver
+    - Set default index of modem and bt87x drivers to -2
+    - Add mixer controls to intel8x0m
+    - Add PCI ids for ICH6/7
+    - Fix "semaphore is not ready" problem with snd-intel8x0m
+  + KORG1212 driver
+    - Korg1212 updates
+    - Fix invalid use of readl/writel
+  + MIXART driver
+    - [SPARSE] Fix the wrong cast
+    - fix bug with pci hotplug mode
+    - fix bug with pci hotplug mode
+  + MPU401 UART
+    - MPU-401 PnP support
+    - MPU-401 driver cleanup
+    - fix locking for rawmidi trigger callbacks
+    - replace wrong spin_trylock_irqsave with spin_lock_irqsave
+    - remove superfluous spin_lock_irqsave calls
+    - remove unneeded interrupt locks in rawmidi drivers
+  + MSND driver
+    - Change header for enable_/disable_irq()
+    - remove calls to check_region
+    - fix locking for rawmidi trigger callbacks
+  + Maestro3 driver
+    - Add quirk for LEGEND ZhaoYang 3100CF
+    - maestro3: Fix interrupt ack and disable
+    - maestro3: Add HW volume button support
+    - maestro3: HP OmniBook HW volume button magic
+    - maestro3: Add hardware volume control quirk list
+  + Memalloc module
+    - add check for kernel vsnprintf
+    - remove superfluous MODVERSIONS definitions
+  + OPL3SA2 driver
+    - Sync with 2.6 code
+    - enable disabling of isapnp
+  + OSS device core
+    - Sync with 2.6 code
+  + Opti9xx drivers
+    - initial version of miroSOUND PCM1 pro, PCM12, PCM20 radio driver
+    - more proc lines for miro
+  + PARISC
+    - Sync with 2.6 - ALSA Harmony sound driver for PA-RISC
+  + PARISC Harmony driver
+    - Sync with 2.6 - ALSA Harmony sound driver for PA-RISC
+    - 2.6 sync - ALSA Harmony fixes
+  + PCI drivers
+    - Add Intel HDA driver
+    - Sync with 2.6 code
+  + PDAudioCF driver
+    - Sync with 2.6 code
+  + PPC
+    - ppc32: add sound support for Mac Mini
+    - [Sync] powermac driver updates
+  + PPC Beep
+    - ppc64: very basic desktop g5 sound support (#2)
+  + PPC PMAC driver
+    - Fix compile error (due to last suspend/resume fix)
+    - pmac: sound support for latest laptops
+    - ppc64: very basic desktop g5 sound support (#2)
+    - ppc32: add sound support for Mac Mini
+    - [Sync] powermac driver updates
+    - ppc32: Fix Alsa PowerMac driver on old machines
+  + PPC PowerMac driver
+    - ppc32: add sound support for Mac Mini
+  + PPC Toonie
+    - ppc32: add sound support for Mac Mini
+    - Small build fix for alsa powermac
+    - [Sync] powermac driver updates
+  + PPC Tumbler driver
+    - pmac: sound support for latest laptops
+    - pmac: Improve sleep code of tumbler driver
+    - ppc64: very basic desktop g5 sound support (#2)
+    - ppc64: improve g5 sound headphone mute
+    - [Sync] powermac driver updates
+  + RME HDSP driver
+    - Fix compilation on big-endian arch
+    - Ascii chars only
+    - HDSP fixes
+    - hdsp ghost midi device fix
+    - fix typo in midi code
+    - hdsp - solved big endian problem
+  + RME32 driver
+    - rme32 - remove superfluous spin_lock_irqsave call
+  + RTC timer driver
+    - add module aliases for rtctimer and seq-dummy
+  + SA11xx UDA1341 driver
+    - Remove pm_register/pm_unregister
+    - driver model type fixes for ALSA
+  + SB8 driver
+    - fix locking for rawmidi trigger callbacks
+  + Serial BUS drivers
+    - Added ICE1724 - ESI Juli@ code (not complete) + AK4114 code + AK4358
+    - Added ESI Juli@ driver
+    - fixup - vd.release does not exists for older kernels
+    - fixup - vd.release does not exists for older kernels
+    - fixup - vd.release does not exists for older kernels
+  + TEA575x tuner
+    - TEA575x - add video release callback to avoid warning
+  + Trident driver
+    - [SPARSE] Use unsigned int :1 bitfields
+    - big sync with 2.6 (joystick changes & mips tree)
+  + USB
+    - Fix snd-usb-audio dependency on snd-hwdep.
+  + USB USX2Y
+    - Remove unused variable
+    - prevent oops & dead keyboard on usb unplugging while the device is being used
+    - usb-audio - remove superfluous parameter
+  + USB generic driver
+    - don't use broken legacy interfaces on M-Audio Quattro/Omnistudio
+    - add more Yamaha USB MIDI quirks
+    - use cached idVendor/idProduct values
+    - simplify snd_usbmidi_count_bits()
+    - Novation and MOTU USB MIDI support
+    - add code to dump packets
+    - add support for Emagic USB MIDI interfaces
+    - add logging to send_bulk_static_data
+    - ignore Emagic padding bytes
+    - fix Emagic broadcast port names
+    - add Roland FANTOM-X support
+    - add more USB MIDI quirks
+    - remove unsafe usage of urb->status
+    - usb - change timeout of USB control/bulk msg functions to msecs
+    - usb-audio - allow USB MIDI quirks to specify endpoints explicitly
+    - Add mixer map for Sound Blaster MP3+
+    - usb-audio - BOSS GS-10 PCM support
+    - prevent oops & dead keyboard on usb unplugging while the device is being used
+    - usb-audio: add Audigy 2 NX control names
+    - usb-audio - show exact synchronous frequency in proc file
+    - usb-audio - add selector unit names override for Audigy 2 NX
+    - usb-audio - remove superfluous parameter
+    - usb-audio - restrict Audigy 2 NX frequencies to 48/96 kHz
+    - usb-audio - reduce size of unitbitmap array
+    - usb-audio - move mixer data into separate struct
+    - usb-audio - add mixer control notifications
+    - usb-audio - add Extigy/Audigy 2 NX remote control support
+    - usb-audio - cache vendor/product IDs
+    - usb-audio - allow type 0 extension units
+    - usb-audio - use proper interval between synchronization packets
+    - usb-audio - use only one packet in synchronization feedback URBs
+    - usb-audio - make SB remote control device LIRC compatible
+    - usb-audio - Audigy 2 NX blinkenlights
+    - usb-audio - set sample rate attribute on Audigy 2 NX endpoints
+    - usb-audio - enable high speed (not) on Audigy 2 NX
+    - usb-audio - remove superfluous LIRC ioctls
+    - usb-audio - add a proc file for Audigy 2 NX jack status
+    - usb-audio - bind to control interface instead of usb_device
+    - usb-audio - sanity-check sync feedback frequency values
+    - usb-audio - avoid unnecessary double buffering
+    - usb-audio - claim all interfaces for Roland USB MIDI devices
+    - usb-audio - fix synchronization packet interval with Audigy 2 NX
+    - 2.6 sync - timeout value
+  + VIA82xx driver
+    - Use DXS volumes as PCM
+    - Add DXS support for MSI K8T Neo2-FI
+    - Remove unnecessary ac97 init code
+    - Support all sample rate conversion capabilities of DXS channels
+    - Fix SPDIF rate with dxs_support=4
+    - Add dxs_support=5 for Insight P4-ITX
+    - Add dxs_support entry for MSI K8T Neo-FIS2R
+    - fix via82xx resume
+    - Add dxs_support for a Twinhead mobo
+  + VIA82xx-modem driver
+    - Remove unnecessary ac97 init code
+    - Fix resume of via82xx-modem
+  + Virtual Midi
+    - use unsigned 1-bit fields
+    - sound/core/: possible cleanups
+  + Wavefront drivers
+    - insert set_current_state() before schedule_timeout()
+    - Remove unused yss225.h
+    - [SPARSE] Add __user pointer casts
+    - fix locking for rawmidi trigger callbacks
+  + YMFPCI driver
+    - Fix Oops with joystick support
+    - remove dead code
+  + au88x0 driver
+    - do codec init more like windows does
+    - replace spdif frequency control with iec958 control
+    - remove duplicate field initialization
+    - Add AC97_SCAP_NO_SPDIF flag
+* alsa-firmware
+  + Core
+    - Added open-source tascam_loader firmware
+    - release: 1.0.9rc3
+    - release: 1.0.9rc4
+    - release: 1.0.9
+  + RME HDSP Firmware
+    - ppc firmware upload fix
+  + Tescam USX2Y Firmware
+    - Added open-source tascam_loader firmware
+    - text for building usx2y-fw from source file
+
+
+(http://music.columbia.edu/pipermail/linux-audio-announce/2005-January/000522.html)
+1.0.8
+-----
+
+* alsa-driver
+  + Sound Core
+    - build without kbuild subdirectory
+    - fix cross-compile for 2.6 kernels
+    - Fix build for sparc64
+    - Fix build of SPARC32
+    - Added pci_dev_present() function for 2.6.9- kernels
+    - Moved via82xx-modem driver to alsa-kernel tree
+    - Improve the parse of include path
+    - Exclude .cvsignore from tarball
+    - Rename of audigyls to ca0106 and support of SB Live 24bit
+    - Fix make pack for 2.6.x
+    - Hotplug firmware loader support
+    - Add Digigram PCXHR driver
+    - release: 1.0.8-rc1
+    - release: 1.0.8rc1
+    - Move emu10k1x driver to alsa-kernel
+    - Move snd-ca0106 driver to alsa-kernel
+    - Check CONFIG_FW_LOADER in configure
+    - Add echoaudio drivers
+    - Add a note about make install-modules
+    - release: 1.0.8rc2
+    - fix compiler version check
+    - Split --with-cards to --with-card-options option
+    - release: 1.0.8
+  + ALSA Core
+    - Add pci_save_state() in suspend
+    - regenerated for the addition of pci_save_state().
+    - fix module_param_array() wrapper for old 2.6 kernels
+    - check CONFIG_COMPAT for snd-ioctl32
+    - [trivial] Fix compile warnings
+    - remove CONFIG_SND_VERSION
+    - Export functions for ioctl32 wrapper
+    - Clean up of kfree()/vfree() NULL checks
+    - Added pci_dev_present() function for 2.6.9- kernels
+    - ALSA core: misc cleanups
+    - Remove the NULL pointer check in kfree/vfree wrappers
+    - Fix unresolved symbols for 2.4 kernels
+    - Add missing USX2Y_PCM hwdep entry
+    - Clean up power-management
+    - Clean up power-management
+    - Export snd_ctl_elem_read/write() functions
+    - Add volatile to IO pinters
+    - Hotplug firmware loader support
+    - compilation fixes for 2.2.x/2.4.x kernels
+    - Add PCXHR hwdep iface type
+    - Fix creation of control devices over udev
+    - Fix msleep wrapper
+    - Fix handling of user-defined controls
+    - Add CODEC and BUS device types
+  + Control Midlevel
+    - Export functions for ioctl32 wrapper
+    - Clean up power-management
+    - Export snd_ctl_elem_read/write() functions
+    - Fix creation of control devices over udev
+    - Fix handling of user-defined controls
+    - Fix the release of resources at error path
+    - Clean up handling of user-defined controls
+  + HWDEP Midlevel
+    - ALSA core: misc cleanups
+  + PCM Midlevel
+    - fix iomem mmap
+    - regenerated for iomem mmap fix
+    - fix weird placement of static keyword in sound/core/pcm_memory.c
+    - Export functions for ioctl32 wrapper
+    - Clean up of kfree()/vfree() NULL checks
+    - ALSA core: misc cleanups
+    - Fix the wrong sign of format data entries
+  + RawMidi Midlevel
+    - ALSA core: misc cleanups
+    - Fix ioctl arguments
+  + Timer Midlevel
+    - Clean up of kfree()/vfree() NULL checks
+  + /kbuild/Makefile
+    - build without kbuild subdirectory
+  + AC97 Codec
+    - add Line/Headphone jack detection for AD1981A/B
+    - AD18xx/19xx resume fix
+    - Disable "IEC958 Input Monitor" switch for ALC codecs
+    - Fix compilation without CONFIG_PM
+    - Fix detection of Xbox
+    - Fix CMI9739A silent problem
+    - Add mute LED quirk
+    - Unify ac97 control callbacks
+    - Remove spinlock in callbacks
+    - Don't probe rates when bus->no_vra is set
+    - Allow strings for ac97_quirk options
+    - Clean up and fix stereo mutes
+    - Fix C-Media codecs
+    - Add codec id in component names
+    - Fix Oops at resume
+    - Adapt SPDIF Input selection for Realtek ALC658
+    - Remove & from function pointers
+    - Add suspend callback
+  + AD1848 driver
+    - ALSA ISA drivers: misc cleanups
+  + AK4117 receiver
+    - Add CODEC and BUS device types
+  + AK4531 codec
+    - Remove spinlock in callbacks
+  + ALS100 driver
+    - alternate ALS0200 ident string
+  + ALS4000 driver
+    - Add pci_disable_device() to removal and error paths
+  + ALSA Version
+    - release: 1.0.8-rc1
+    - release: 1.0.8rc1
+    - release: 1.0.8rc2
+    - release: 1.0.8
+  + ALSA sequencer
+    - fix MIDI GS chorus/reverb mode
+    - Fix targets for GUS and OPL4
+  + ALSA<-OSS emulation
+    - Clean up codes
+  + ALSA<-OSS sequencer
+    - delete unused file
+  + ATIIXP driver
+    - Add pci_disable_device() to removal and error paths
+    - Remove unnecessary ac97 spinlocks
+    - Fix DMA pointer read
+    - Add ac97_quirk option
+  + ATIIXP-modem driver
+    - Add pci_disable_device() to removal and error paths
+    - Remove unnecessary ac97 spinlocks
+  + AZT3328 driver
+    - Add pci_disable_device() to removal and error paths
+    - ALSA PCI drivers: misc cleanups
+    - Fix compile warning (make inline)
+    - Fix the order of creation of instances
+  + CA0106 driver
+    - Add snd-ca0106 driver
+    - Add a new ID
+    - Don't probe sample rates on non-VRA chips
+    - remove compatibility code for 2.2.x kernels
+  + CMIPCI driver
+    - 2.6 kernel sync
+    - Fix the order of creation of instances
+  + CS4231 driver
+    - ALSA ISA drivers: misc cleanups
+    - ifdef typos: sound_isa_cs423x_cs4231_lib.c
+  + CS4236+ driver
+    - alternate CS4235 ident string
+  + CS4281 driver
+    - Fix the order of creation of instances
+  + CS46xx driver
+    - [trivial] Fix compile warnings
+    - Add 'Duplicate Front' control
+    - Use msleep() in ac97 callbacks
+  + Common EMU synth
+    - misc cleanups
+  + Digigram VX core
+    - misc cleanups
+    - Fix memory corruption
+    - Hotplug firmware loader support
+    - Hotplug firmware loader support
+    - Fix compilation errors
+  + Digigram VX222 driver
+    - Hotplug firmware loader support
+  + Documentation
+    - Addition of pci_disable_device() and cleanup
+    - Added VIA82xx-modem driver
+    - Clean up power-management
+    - More rewrite of azx and hda-codec drivers
+    - Add description about hotplug fw loader
+    - Add emu10k1x driver
+    - Add snd-ca0106 driver
+    - Update documentation for hotplug fw loader
+    - Description about snd_card_set_dev()
+    - Fix description of ALSA/OSS device mapping
+    - Fixed description about ac97_quirk
+    - Add ac97_quirk option
+  + EMU10K1/EMU10K2 driver
+    - minor send routing cleanup
+    - whitespace cleanup
+    - fix display of send routing in /proc
+    - ALSA PCI drivers: misc cleanups
+    - Fixes the "It disables the right channel" bug
+    - Support for Audigy2 Value SB0400
+    - add register dump to proc
+    - Fixed problem with changing size of etram
+    - Fix the detection of Audigy2 ZS
+    - Add emu10k1x driver
+    - Code clean up
+    - Fix compile warning
+    - Don't probe sample rates on non-VRA chips
+    - Print values at errors
+  + EMU8000 driver
+    - fix chorus/reverb FX loader
+  + ENS1370/1+ driver
+    - Trivial patch to enable rear out selection for ens1373 on
+    - Remove unnecessary ac97 spinlocks
+    - Fix the order of creation of instances
+  + ES1688 driver
+    - ALSA ISA drivers: misc cleanups
+  + ES18xx driver
+    - ifdef typos: sound_isa_es18xx.c
+  + ES1938 driver
+    - Fix interrupt generation on MIDI input for es1938 sound cards
+  + ES1968 driver
+    - Fix sleep in h/w volume control
+    - Don't probe sample rates on non-VRA chips
+  + FM801 driver
+    - Fix spinlocks
+  + GUS Library
+    - ALSA ISA drivers: misc cleanups
+  + Generic drivers
+    - compile fix for 2.6.10
+  + HDSPM driver
+    - Change the peak meter ioctl to use indirect access
+  + I2C cs8427
+    - misc cleanups
+  + I2C lib core
+    - Add CODEC and BUS device types
+  + ICE1712 driver
+    - Fix WM8770 Init
+    - IEC958 Capture mixer controls and Universe support
+    - Midiman Delta DIO2496 has two stereo analog outs
+  + ICE1724 driver
+    - IEC958 Capture mixer controls and Universe support
+  + IOCTL32 emulation
+    - Fix ioctl32 wrapper (for SPARC)
+    - Fix ioctl32 wrapper (for SPARC)
+    - Clean up of kfree()/vfree() NULL checks
+    - Export snd_ctl_elem_read/write() functions
+    - Fix ctl_read/write ioctl wrappers
+  + Intel8x0 driver
+    - 2.6 sync - bitfield signedness fix
+    - AC97 quirks for Dell
+    - fix sleep in atomic during prepare callback
+    - misc clean up
+    - Fix non-symmetrical page_attr changes
+    - [trivial] Fix compile warning
+    - Add mute LED quirk
+    - Remove unnecessary ac97 spinlocks
+    - Allow strings for ac97_quirk options
+    - ac97 quirk entries for HP xw6200 & xw8000
+    - Add quirk for HP zv5000
+  + L3 drivers
+    - Add CODEC and BUS device types
+  + MIXART driver
+    - [trivial] Fix compile warnings
+    - Hotplug firmware loader support
+    - Fix compilation errors
+    - Fix NULL pointer access
+    - Fix float format support
+  + Memalloc module
+    - fix the test of dma_mask
+    - Clean up of kfree()/vfree() NULL checks
+    - Fix SBUS-only memory allocation on older kernels
+  + NM256 driver
+    - Use msleep() in ac97 callbacks
+  + OPL3
+    - opl4 depends on opl3
+    - misc cleanups
+    - Add CODEC and BUS device types
+  + OPL4
+    - Add CODEC and BUS device types
+  + PCI drivers
+    - Added VIA82xx-modem driver
+    - Add emu10k1x driver
+    - Add snd-ca0106 driver
+  + PDAudioCF driver
+    - make some code static
+  + PPC DACA driver
+    - sync with 2.6 mainstream
+  + PPC PMAC driver
+    - sync with 2.6 mainstream
+    - buffersize and constraints on pmac
+    - Fix the invalid DMA pointer value
+  + PPC Tumbler driver
+    - sync with 2.6 mainstream
+  + RME HDSP driver
+    - Fix the missing line in the patch for hdsp accurate_ptr
+    - Fix invalid "AutoSync Reference" value
+    - Add hotplug firmware loader support
+  + RME32 driver
+    - Fix the interface type of mixer controls
+  + RME96 driver
+    - Fix interface type for some mixer controls
+  + SA11xx UDA1341 driver
+    - Clean up power-management
+  + SB drivers
+    - ALSA ISA drivers: misc cleanups
+  + SPARC cs4231 driver
+    - [trivial] Fix compilation warnings on 64bit
+    - 2.6 kernel sync
+  + Sound Scape driver
+    - check __copy_to_user in sscape_upload_bootblock()
+    - Update user-space access from sscape driver
+  + SoundFont
+    - misc cleanups
+  + Synth
+    - delete unused file
+  + Trident driver
+    - ALSA PCI drivers: misc cleanups
+  + USB
+    - hwdep interface for pcm data
+  + USB USX2Y
+    - Use macro usb_maxpacket() for portability
+    - hwdep interface for pcm data
+    - Add missing source codes in the last hwdep-pcm patch.
+    - Fix open handling
+    - Remove superfluous code
+  + USB generic driver
+    - Return -EBADFD when the device is disconnected
+  + VIA82xx driver
+    - via82xx: Enable DXS on ABIT KV8 Pro
+    - sort DXS whitelist
+    - disable legacy IRQs before request_irq() to avoid unhandled interrupts
+    - Allow strings for ac97_quirk options
+    - Add a DXS entry for ABIT VA-20
+  + VIA82xx-modem driver
+    - Added VIA82xx-modem driver
+  + Wavefront drivers
+    - Fix compile warning
+  + YMFPCI driver
+    - ALSA PCI drivers: misc cleanups
+    - Avoid VRA on codec chips
+  + au88x0 driver
+    - Replace long delays with msleep()
+    - Spinlock removal and loop fix
+    - Fix spinlock
+* alsa-firmware
+  + Core
+    - Hotplug firmware loader support
+    - Add pcxhrloader
+    - release: 1.0.8rc1
+    - Added missing Makefile for pcxhrloader
+    - Add echoaudio firmware files
+    - release: 1.0.8rc2
+    - release: 1.0.8
+  + Digigram Echo Audio Loader
+    - Add echoaudio firmware files
+    - Fix typo and fw path
+  + Digigram MixArt Loader
+    - Hotplug firmware loader support
+  + Digigram PCXHR Loader
+    - Add pcxhrloader
+  + Digigram Vx Loader
+    - Hotplug firmware loader support
+  + RME HDSP Loader
+    - Hotplug firmware loader support
+
+
+(http://music.columbia.edu/pipermail/linux-audio-announce/2004-November/000484.html)
+1.0.7
+-----
+
+* alsa-driver
+  - core
+    - fix compilation with gcc 2.95.x and 2.2.x kernels
+    - enhance Kconfig help texts
+    - Fix iomem variable type
+    - 2.6 kernel code sync - module_param_array() should take a pointer
+    - PCM
+      - mmap callback is added to PCM ops
+      - OSS emulation - fix for O_NONBLOCK write
+      - Fixes for PCM/control 32bit emulation
+      - Fix drain/drop of linked PCM streams
+      - PCM boundary fix in 32bit compat layer
+      - Fix non-blocking write in ALSA OSS emulation
+      - nonblock_open=1 by default for OSS PCM API emulation
+    - sequencer
+      - OSS emulation fixes
+      - suppress auto-loading of modules in module_init()
+      - copy_to_user() return value checking in snd_seq_read()
+      - Fix auto-loading of sequencer modules
+      - fix sequencer sleeping in interrupt context
+    - rawmidi
+      - fix handling of EFAULT errors in snd_rawmidi_read/write
+      - fix hang when writing to /dev/midi* with O_SYNC
+  - new drivers
+    - via82xx-modem driver
+    - AudioScience asihpi driver
+    - Portman2x4 driver
+    - Fixed issues with Abit AV8
+  - PPC Tumbler driver
+    - suspend & mixer fixes
+  - ES1938
+    - added PM support
+  - emu10k1
+    - fixed AC97 master volume for Audigy
+    - Audigy DSP support
+    - Support for capture of 16,32,64 channels on emu10k1 device 2
+    - Fix AC3 playback on SB Live
+    - fixed emu10k1_fx8010_code_t structure to be less than 8192 bytes
+    - add interval timer support
+  - intel8x0
+    - quirks for Dell Precision 450, HP xw4200 and xw8200
+    - intel8x0: Fixed a long mdelay()
+    - fixed resume when interrupts are shared with another devices
+    - AC97 96 kHz sample rate support
+    - add AC97 quirk for Fujitsu-Siemens E4010
+    - remove gameport/MIDI support
+    - Added Compaq Evo W4000 quirk
+    - Improved clock measurement
+    - Fix SPDIF rate setting for old ICHs
+    - Fix SPDIF support on ICH4/5/6
+  - via82xx
+    - added the DXS entry for Uniwill/Targa Visionary XP-210
+    - Disable legacy FM and SB to prevent lock-ups
+    - ac97 quirk entry for Soltek SL-75DRV5
+    - Fix DXS entry for GA-7VAX
+    - Added dxs quirk for QDI Kudoz 7X/600-6AL
+  - rme32
+    - rme32 segfault fix
+    - fixing a two-rme32-in-one-machine bug
+  - hdsp
+    - Fix for 64bit architectures
+    - Fix the variable types in struct
+    - Fix HDSP meter ioctl
+    - RME9632 precise_ptr fix
+  - ICE1712
+   - Added support of Mediastation
+   - Clean up ice1712 chip struct
+   - Add routing/volume of ADAT I/O on EWS88D   
+  - ICE1724
+    - Added support for AudioTrak Prodigy 192 cards
+    - fixes a bug that SPDIF-in mode can't be reset once after it's set
+    - Allow the private EEPROM image for evaluation boards
+    - aureon
+      - fixed the master volume control
+      - Fixed center/LFE volume controls
+      - Provide individual driver names for Aureon and Prodigy boards
+      - Aureon S/PDIF input fixes
+      - Adds AC'97 support to Aureon cards
+      - Fix Aureon CCS init sequence
+    - pontis
+      - buggy SPI communcation is fixed
+      - fixed the return value of put callbacks of GPIO controls
+      - corrected the initial register value of CS8416
+  - maestro3
+    - call pci_set_master() in resume (to be sure)
+  - AC97
+    - added jack sense switches for AD1885
+    - AC97 96 kHz sample rate support
+    - Added VIA shared type
+    - Check ac97 codec id in quirk table
+    - inverted EAPD support
+    - added AC97_SCAP_DETECT_BY_VENDOR flag (for xbox)
+    - Add (experimental) CM9761 support
+    - fix DAC slot assignment
+    - Fix AC97_EXTENDED_STATUS initialial value
+    - Fixed SPDIF on CS4298
+  - ATI IXP
+    - add IXP400 support
+    - Added workaround for buggy BIOS
+  - ens1371
+    - Fixed AC3-passthru on ens1371/1373 boards
+    - Fix latency in ens1371 driver
+  - ES18xx
+    - Fixed a bug in setting the filter register
+  - AZX (Intel HD Audio)
+    - code update and clean-up
+    - use ALSA proc info API and clean-up
+  - Korg1212
+    - Korg1212 misc fixes
+  - USB Audio
+    - add mixer quirk for LineX FM Transmitter
+    - add UA-1000 sample rate detection
+    - add Edirol UA-25 support
+    - mixer - handle missing control bitmap when parsing MUDs
+    - mixer - read bmControls array in correct order
+    - mixer - fix parsing of mixer unit descriptors
+  - OPL3
+    - Fix / clean up OPL3 for CS4281
+  - bt87x
+    - detect errors reported by the hardware
+    - don't stop capture on errors
+    - add overclocking option for the analog input
+    - use blacklist/whitelist for (non-)audio Bt878 cards
+    - Limit parity error messages
+  - ES1968
+   - Remove delay() to improve latency
+   - removes unneeded spin_lock_irqsave()s from snd-es1968
+  - usX2Y
+    - usx2y cleanups and fixes
+    - snd-usb-usx2y 0.7.3
+    - snd-usb-usx2y - crash fix for OHCI USB-HCDs
+  - au88x0
+    - more au88x0 eq cleanups
+    - au88x0: set-levels cleanup
+    - au88x0: sign_invert cleanup
+    - au88x0: name typo
+    - au88x0: comment and whitespace cleanup
+    - au88x0: fix is-quad oops
+    - au88x0: add resetup dma
+    - fix data type mismatch in sign_invert
+  - nm256
+    - Add reset_workaround module option
+  - cs46xx
+    - Fix ac97 codec reset and clean up
+  - CS4231
+    - replace schedule_timeout() with msleep()
+* alsa-firmware
+  - license issues
+
+
+(http://music.columbia.edu/pipermail/linux-audio-announce/2004-August/000435.html)
+1.0.6a
+------
+
+* alsa-driver
+  - core
+    - fixed the detection of x86-64 arch
+    - 2.6 kernel sync - mostly __user stuff
+    - This patch removes snd_kcalloc() from the kernel and updates callers to
+      use the new generic kcalloc().
+    - Removal and replacement of magic memory allocators and casts
+    - Clean up of obsolete MODULE_* stuff (core part)
+      - Removed MODULE_CLASSES() and MODULE_SYNTAX().
+      - Replaced MODULE_DEVICES() with MODULE_SUPPORTED_DEVICE()
+    - Clean up the PCI resource allocation.
+    - Clean up the suspend/resume: save/restore of pci state
+    - use ARRAY_SIZE() instead of sizeof() computations
+    - Clean up: removed ifdefs and obsolete codes.
+    - Unlock BKL in ioctl callback to avoid the long preempt-disabling.
+    - Clean up DMA buffer allocation routines.
+    - Fix up sound driver proc-reading interfaces.
+  - PCM midlevel
+    - stack usage reduction
+    - Clean up and optimization of PCM format-specific functions
+    - Clean up the buffer management in the PCM runtime record
+    - Fix the mmap via io_remap_page_range() on nm256, rme32 and rme96.
+      Added SNDRV_PCM_INFO_MMAP_IOMEM to handle this case.
+    - Clean up the indirect accessing on RME32/RME96 drivers.
+    - Clean up of indirect PCM data transfer with helper functions.
+    - snd_pcm_timer_resolution_change() - better precision
+    - The PCM prepare callback is now non-atomic, so that the driver can
+      use the functions calling schedule (e.g. kmalloc with GFP_KERNEL).
+    - Fixed/improved XRUN detection
+      - don't print XRUN message in the case of draining.
+      - pointer callback can return SNDRV_PCM_POS_XRUN to notify the middle layer.
+    - ioctl32 - Added the wrapper for sync_ptr and hwsync ioctls.
+    - Serialize runtime->status->state access
+  - PCM OSS emulation
+    - reduce stack usage
+  - sequencer
+    - use separate functions for some ioctls to reduce stack usage
+    - Clean up Makefiles for the sequencer stuff using reverse selections.
+  - Added Intel ICH6 HD Audio (Azalia) driver.
+  - Added Audigy-LS driver
+  - Added snd-atiixp driver for ATI IXP AC97 modem controllers.
+  - Moved back pc98-specific stuff again to alsa-driver tree.
+  - ICE1724
+    - SPDIF output fixes
+    - Fixed the volume update on aureon.
+    - Removed the bogus master volume from aureon.
+    - Fixed the wrong number of ADCS (not used, though).
+    - Don't access GPIO high bits on VT1720.
+    - Fixed the buffer byte alignment for SPDIF and independen PCMs.
+    - Proper rate constraints according to the I2S/AC-link connection.
+    - Clean up the private data for PCM callbacks.
+    - Clean up spinlocks.
+    - aureon - Added master volume control.
+    - Added the (experimental) support of Terratec Phase 88.
+    - Added the support of Pontis MS300 to snd-ice1724 driver.
+    - Added the support of ZNF3-250 (supposed to be ZNF3-150 compatible).
+  - CS46xx
+    - add memory allocation checks in cs46xx_dsp_proc_register_scb_desc()
+    - reduce stack usage
+  - intel8x0
+    - Added the PCI ID for nVidia CK8
+    - Fixed the calculation of the current DMA position on some sloppy devices.
+    - Fixed the detection of sample rates with no VRA support.
+    - Added the support of nVidia CK804.
+    - Added the support of MCP04.
+    - Fixed the handling of unknown irqs on ICH5.
+    - Added an ac97 quirk for ICH/AD1885 mobo.
+    - Added buggy_irq module parameter to intel8x0 driver.
+  - intel8x0m
+    - Added the support of SIS7013 modem.
+  - via82xx
+    - Fixed the calculation of the current DMA position at the period boundary.
+    - Added the ac97_quirk entry for ECS K7VTA3 v8.0 mobo.
+    - Fixed the check of invalid DMA position.
+    - Added the quirk entry for ECS L7VMM2 uATX.
+    - Added the DXS whitelist entry for Acer Inspire 1353LM.
+  - ali5451
+    - Fixed the suspend/resume.
+  - Opti9xx
+    - Fixed spin deadlocks
+  - USB audio
+    - Quattro USB: handle the different endianness of playback and recording
+      sample data
+    - handle devices that allow setting but not reading sample rate
+    - new functions snd_usbmidi_input_stop() and snd_usbmidi_input_start()
+      needed by snd-usb-usx2y to be able to use usb_set_interface()
+    - add support for Yamaha CVP-301, CVP-303, CVP-305, CVP-307, CVP-309,
+      CVP-309GP, PSR-1500, PSR-3000, ELS-01, ELS-01C, PSR-295, PSR-293,
+      DGX-205, DGX-203, DGX-305, DGX-505, DGP-7, DGP-5, PM5D, DME64N,
+      DME24N, DTX, UB99
+  - USX2Y
+    - all pcm streams have to operate at the same rate and format
+    - renamed functions
+    - set NRPACKS to 1 as default setting to improve latency
+    - Don't sleep in START/STOP callbacks anymore.
+    - us428 channels C/D not handled just for this version, sorry.
+  - MixArt
+    - reduce stack usage
+  - ES1938
+    - fixed quake playback
+  - ES1968
+    - Fix the crash at unloading the module due to the shared interrupt
+      with other devices.
+  - Dummy
+    - Do the buffer allocation in hw_params callback instead of open
+      callback.
+  - emu10k1
+    - Merge EFX playback and capture streams to the single device (hw:0,2).
+    - Fix Audigy + FX8010 capture (hw:x,2)
+    - Audigy 2 ZS - side support
+    - Enable low latency EFX capture on emu10k1
+  - au88x0
+    - Fixed the wrong pointer cast on 64bit architectures.
+  - CMIPCI
+    - reduce stack usage
+    - don't sleep in prepare callback
+    - Fix the i/o port range of gameport on cmipci
+  - AC97 codec
+    - Fixed the detection of STAC9708/11 surround control.
+    - Check the validity of registers before creating controls.
+    - move AC'97 bus callbacks into seperate ops record;
+    - remove ac97_bus_t template requirement from snd_ac97_bus()
+    - replace ac97_t template with ac97_template_t
+    - Fixed the reset problem of shared audio/modem drivers.
+    - Don't use mute bit in REC_GAIN register during tests.
+    - Add more timeout to avoid not respond messages
+  - emu10kx
+    - added capture support
+    - added S/PDIF support (untested)
+    - fixed interrupt bug when playing multiple channels
+    - split channels into separate PCMs
+    - documented some of the registers
+    - added support for more periods (up to 512 for playback)
+    - formatting clean up
+    - MIDI support
+    - voice clean up
+    - delayed interrupt enable/disable
+    - playback/capture constraints added
+    - fixed max number of periods
+  - nm256
+    - Added AC97 CD register to the list of allowed registeres.
+  - RME32
+    - Added the experimental fullduplex support.
+  - OPL4
+    - reorganize locking
+    - optimize memory accesses
+  - PPC drivers
+    - Added the PCM beep support
+  - PMAC
+    - pmac also apply the DMA stop work around to fix capture on iBook2
+    - Removed non-functional 48kHz support from pmac driver.
+  - soundfont
+    - Fixed messy locks in soundfont support code.
+
+
+1.0.5a
+------
+
+* alsa-driver
+  - Bugfix for the "hang-up" problem in the ALSA driver initialization
+
+
+(http://music.columbia.edu/pipermail/linux-audio-announce/2004-May/000396.html)
+1.0.5
+-----
+
+* alsa-driver
+  - use the new module_param*() functions
+  - clean up of power-management codes
+  - removed superfluous warning messages after pci_module_init()
+  - fixed the allocation of coherent DMA pages under 32bit mask
+  - added early event flag and code to the timer interface
+  - added experimental emu10k1x driver
+  - added snd-atiixp-modem driver for ATI IXP modem (experimental)
+  - sequencer
+    - export snd_seq_set_queue_tempo() for OSS to prevent calling
+      snd_seq_kernel_client_ctl() (using copy_from_user()) in interrupt
+      context
+  - PCM midlevel
+    - fixed the deadlock of power_lock in suspend
+    - fixed the bit width of IEC958_SUBFRAME_* formats from 24 to 32
+    - added SYNC_PTR ioctl (for problematic cache coherency archs)
+  - PCM OSS
+    - don't return negative byte count from GET[IO]PTR ioctl
+  - intel8x0
+    - 20-bit sample support
+    - fixed MX440 workaround in suspend/resume
+    - interrupt handling fixes
+  - via82xx
+    - added dxs_support and ac97_quirk entries for Amira notebook
+    - added DXS whitelist for (eMachines) m680x
+    - added the DXS entry for ECS K7VTA3 v8.0
+    - fixed the DXS entry for ASUS A7V8X to NO_VRA
+    - added the DXS entry for Mitac/Vobis/Yakumo laptop
+  - atiixp
+    - fixed S/PDIF support
+    - fixed the codec probing without the proper interrupts
+    - added the experimental PM support
+  - usx2y
+    - US224 support
+  - au88x0
+    - bugfixes and VIA/AMD chipset automatic workaround
+  - ICE1712
+    - added Event Electronics EZ8 support
+    - added a control for default rate in the ice1712 driver
+    - fix Hoontech DSP* box configuration
+    - added model module option to specify board model
+  - ICE1724
+    - added model module option to specify board model
+    - added the support of Aureon 7.1-Universe
+    - improved the description of ice1724 driver on Kconfig.
+    - better support of VT1720 with snd-ice1724 driver.
+    - check PCI subsystem IDs when no EEPROM is available (ice1724 only)
+    - change the driver name string if given in the board list.
+    - merged prodigy 7.1 support into aureon.c.  they are almost identical.
+    - allow to use PDMA4 and RMDA1 for non-SPDIF purpose if specified (ice1724 only).
+    - avoid to change the AC97 rate registers
+  - USB audio
+    - Edirol UA-700 advanced modes support
+    - Roland UA-1000 support
+  - Opti9xx
+    - fixed irq&dma initialization for <93x chips
+  - opl3sa2
+    - added YMH0801 ISA PnP ID - OPL3-SA2
+  - emu10k1
+    - added support for SB Live 5.1 (c) 2003
+  - HDSP
+    - HDSP9632 has also firmware version 0x97
+  - nm256
+    - added a blacklist to avoid the possible hang-up at module loading
+  - cmipci
+    - dropped the software encoding of AC3 stream in the driver (moved to alsa-lib)
+  - AC97 codec
+    - detection for S/PDIF rates
+    - fix access to wrong register when clearing powerdown bits
+    - show AC'97 2.3 information in proc file
+    - fix AC'97 revision bits on AD1985
+    - added the write support to ac97#x-x+regs proc file (DEBUG)
+    - fixed AD18xx PCM bit handling
+    - stac9758 initialization fixes
+    - STAC9758: stereo mutes, jack configuration
+    - added the global mutex for ac97_t (ad18xx mutex is removed).
+       used to protect paging and AD18xx multi-codecs.
+    - set PAGE_INT register explicitly before accessing (for STAC9758).
+    - moved ALC650 revision check to patch_alc650().
+    - support stereo Mic playback.
+    - moved STAC9708 quirk to patch_stac9708().
+    - don't clear PC_BEEP high bits (ac97 2.3 sets frequency there).
+    - avoid the unnecessary RESET-waiting for audio/modem codec.
+    - fixed the evaluation of modem codec to call mpatch callback properly.
+    - determine the SPDIF rate in the build path.
+    - added suffix argument to snd_ac97_rename|remove|swap_ctl().
+    - added snd_ac97_rename_vol_ctl().
+    - Added the single mixer control with AC97 2.3 paging.
+    - Handle the paging for some ALC655/658 registers.
+    - Added the experimental support for ALC850.
+  - VX core
+    - added 'Clock Mode' control to choose the clock source

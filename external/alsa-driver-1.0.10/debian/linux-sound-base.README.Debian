@@ -1,0 +1,28 @@
+                     linux-sound-base README.Debian
+                     ------------------------------
+
+contents
+--------
+news
+sound system selection
+
+
+news
+----
+Last updated 13 June 2005
+
+
+sound system selection
+----------------------
+The sound system can be selected by running:
+
+    dpkg-reconfigure linux-sound-base
+
+When ALSA is selected, all OSS modules are blacklisted for hotplug and
+discover1.  When OSS is selected, all ALSA modules are blacklisted for
+hotplug and discover1.  The configuation of discover (version 2) is
+done differently: for those and only those devices for which there is
+both an ALSA and an OSS driver, the selection of sound system decides
+between the two.  For those devices for which there is only an ALSA,
+or only an OSS driver, the sound system selection has no effect.
+

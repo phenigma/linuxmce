@@ -1,0 +1,6 @@
+04_make_minus_j_fix
+09_alpha_build_fixes
+10_disable_gcc_version_check1
+10_disable_gcc_version_check2
+16_core_oss_framepointer
+99_debian_makefile_depmod

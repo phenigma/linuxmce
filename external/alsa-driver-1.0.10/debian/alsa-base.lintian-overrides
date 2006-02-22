@@ -1,0 +1,2 @@
+alsa-base: description-synopsis-starts-with-a-capital-letter
+alsa-base: script-in-etc-init.d-not-registered-via-update-rc.d

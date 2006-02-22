@@ -1,0 +1,2 @@
+#!/bin/sh
+exec run-parts ${1:+--arg="$1"} /etc/alsa/modprobe-post-install.d

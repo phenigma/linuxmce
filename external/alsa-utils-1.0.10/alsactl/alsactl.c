@@ -30,7 +30,7 @@
 #include <alsa/asoundlib.h>
 #include "alsactl.h"
 
-#define SYS_ASOUNDRC "/etc/asound.state"
+#define SYS_ASOUNDRC "/var/lib/alsa/asound.state"
 #define SYS_ASOUNDNAMES "/etc/asound.names"
 
 int debugflag = 0;

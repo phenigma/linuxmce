@@ -35,7 +35,7 @@ Help: show available flags and commands.
 
 .TP
 \fI\-f, \-\-file\fP
-Select the configuration file to use. The default is /etc/asound.state or
+Select the configuration file to use. The default is /var/lib/alsa/asound.state or
 /etc/asound.names (for the \fInames\fP command).
 
 .TP
@@ -52,7 +52,7 @@ Use debug mode: a bit more verbose.
 Print alsactl version number.
 
 .SH FILES
-\fI/etc/asound.state\fP (or whatever file you specify with the
+\fI/var/lib/alsa/asound.state\fP (or whatever file you specify with the
 \fB\-f\fP flag) is used to store current settings for your
 soundcards. The settings include all the usual soundcard mixer
 settings.  More importantly, alsactl is

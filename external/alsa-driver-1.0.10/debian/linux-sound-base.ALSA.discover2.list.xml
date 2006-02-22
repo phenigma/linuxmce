@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<discover-data>
+  <location bus="pci" type="device" url="file:///lib/discover/linux-sound-base.ALSA.pci-device.xml"/>
+</discover-data>

@@ -43,6 +43,7 @@ if test "$alsa_inc_prefix" != "" ; then
 	CFLAGS="$CFLAGS -I$alsa_inc_prefix"
 fi
 AC_MSG_RESULT($ALSA_CFLAGS)
+CFLAGS="$alsa_save_CFLAGS"
 
 dnl add any special lib dirs
 AC_MSG_CHECKING(for ALSA LDFLAGS)
@@ -119,19 +120,15 @@ AC_CHECK_LIB([asound], [snd_ctl_open],,
 )
 fi
 
+LDFLAGS="$alsa_save_LDFLAGS"
+LIBS="$alsa_save_LIBS"
+
 if test "x$alsa_found" = "xyes" ; then
    ifelse([$2], , :, [$2])
-   LIBS=`echo $LIBS | sed 's/-lasound//g'`
-   LIBS=`echo $LIBS | sed 's/  //'`
-   LIBS="-lasound $LIBS"
-fi
-if test "x$alsa_found" = "xno" ; then
-   ifelse([$3], , :, [$3])
-   CFLAGS="$alsa_save_CFLAGS"
-   LDFLAGS="$alsa_save_LDFLAGS"
-   LIBS="$alsa_save_LIBS"
+else
    ALSA_CFLAGS=""
    ALSA_LIBS=""
+   ifelse([$3], , :, [$3])
 fi
 
 dnl That should be it.  Now just export out symbols:
