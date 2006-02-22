@@ -14,6 +14,8 @@ fi
 
 
 if [[ "$DownloadOnly" == "Yes" ]]; then
+	set -e
+	
 	echo "- Updating package lists"
 	apt-get update 1>/dev/null
 
@@ -24,13 +26,21 @@ if [[ "$DownloadOnly" == "Yes" ]]; then
 	apt-get -f -y --download-only dist-upgrade 1>/dev/null
 	touch /usr/pluto/locks/upgrade_ok
 else
-	LeftToDownload=$(apt-get dist-upgrade < /bin/false  | grep "Need to get" | cut -d" " -f4 | cut -d'/' -f1)
-	if [[ -n "$LeftToDownload" &&  "$LeftToDownload" != "0B" ]]; then
-		echo "- Need to get $LeftToDownload before doing the update"
-		exit 0
-	else
-		echo "- No need to download any files"
+	IsDiskless=0
+	if [[ -f /etc/diskless.conf ]]; then
+		IsDiskless=1
 	fi
+	
+	if [[ IsDiskless -eq 0 ]]; then
+		LeftToDownload=$(apt-get dist-upgrade < /bin/false  | grep "Need to get" | cut -d" " -f4 | cut -d'/' -f1)
+		if [[ -n "$LeftToDownload" &&  "$LeftToDownload" != "0B" ]]; then
+			echo "- Need to get $LeftToDownload before doing the update"
+			exit 0
+		else
+			echo "- No need to download any files"
+		fi
+	fi
+		
 
 	echo "- Previewing dist-upgrade"
 	InstPkgs="$(apt-get -s -f dist-upgrade | grep "^Conf " | cut -d' ' -f2 | tr '\n' ' ')"
@@ -60,3 +70,4 @@ else
 	echo "- Copying kernel package(s) for later use"
 	cp /var/cache/apt/archives/kernel-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
 fi
+
