@@ -144,6 +144,12 @@ if [ -f /boot/grub/menu.lst ] ;then
                 update-grub
         fi
 
+        # Remove duplicate vga=0x311 vga=normal (hack because no noaltoptions)
+        if grep -q "^.*vga=0x311 vga=normal.*$" /boot/grub/menu.lst ;then
+                sed "s~vga=0x311 vga=normal~vga=normal~g" /boot/grub/menu.lst > /boot/grub/menu.lst.sed
+                mv /boot/grub/menu.lst.sed /boot/grub/menu.lst
+        fi
+
 fi
 
 ### INFO:Bootplash is not a default for pluto right now, so we comment this
