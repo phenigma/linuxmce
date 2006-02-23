@@ -6,6 +6,7 @@ class Device
 public:
 	Device();
 	virtual ~Device();
+	static const char DeviceType[];
 };
 
 #endif /*DEVICE_H_*/

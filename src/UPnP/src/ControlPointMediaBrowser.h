@@ -1,9 +1,9 @@
 #ifndef CONTROLPOINTMEDIABROWSER_H_
 #define CONTROLPOINTMEDIABROWSER_H_
 
-#include "main.h"
+#include "ControlPoint.h"
 
-class ControlPointMediaBrowser
+class ControlPointMediaBrowser:public ControlPoint
 {
 public:
 	ControlPointMediaBrowser();

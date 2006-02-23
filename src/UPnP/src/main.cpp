@@ -53,19 +53,22 @@ int main()
 	}
 		
 	//try to find the media servers on the net
-	err = UpnpSearchAsync(handle, 5, DeviceMediaServer::MediaServerDeviceType, NULL);
+	err = UpnpSearchAsync(handle, 15, DeviceMediaServer::MediaServerDeviceType, NULL);
 	if(UPNP_E_SUCCESS != err)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "search failed %d", err);
 		goto exit_point;
 	}
 	
+	//wait a bit
+	usleep(50*1000*1000);
+	
 	UpnpUnRegisterClient(handle);
 			
 exit_point:
 	UpnpFinish();
 	g_pPlutoLogger->Write(LV_DEBUG, "Upnp closed");
-
+	g_pPlutoLogger->Write(LV_DEBUG, "=========end===========");
 	g_pPlutoLogger->Flush();
 	delete(g_pPlutoLogger);
 	return 0;
