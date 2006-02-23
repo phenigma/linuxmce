@@ -9436,16 +9436,16 @@ bool Orbiter::WaitForRelativesIfOSD()
 		}
 
 		string sDescription = m_mapTextString[TEXT_Waiting_for_related_devices_CONST];
+		map<string, bool> mapChildDevices;
 		for(map<int,bool>::iterator it=mapUnregisteredRelatives.begin();it!=mapUnregisteredRelatives.end();++it)
 		{
-			if( it->second )
-				continue;
 			DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(it->first);
-			sDescription += "  #" + StringUtils::itos(it->first) + "/" + (pDevice ? pDevice->m_sDescription : string(""));
+			string sDevice = StringUtils::itos(it->first) + "|" + (pDevice ? pDevice->m_sDescription : string(""));
+			mapChildDevices[sDevice] = it->second;
 		}
 
 		g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
-		if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
+		if( DisplayProgress(sDescription, mapChildDevices, 100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
 		{
 			DisplayProgress("",-1);
 			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");

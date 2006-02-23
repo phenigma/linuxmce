@@ -14,7 +14,7 @@ public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 	~OSDScreenHandler();
 
-	//	
+	//
 	//Video Wizard Screens
 	//
 
@@ -74,7 +74,15 @@ public:
 	//10. VOIP Provider
 	virtual void SCREEN_VOIP_Provider(long PK_Screen);
 	bool VOIP_Provider_ObjectSelected(CallBackData *pData);
+
+  // Register RoomsWizard on this Screen
+  virtual void SCREEN_AdvancedOptions(long PK_Screen);
+  virtual void SCREEN_Media(long PK_Screen, string sLocation);
+  // RoomsWizard callbacks
+  bool RoomsWizardCreate( CallBackData *pData );
+  bool RoomsWizardDelete( CallBackData *pData );
+  bool RoomsWizardRefresh( CallBackData *pData );
 };
 
 #endif
-
+//__OSD_SCREEN_HANLDER_H__

@@ -30,7 +30,7 @@ private:
 protected:
 	class Orbiter *m_pOrbiter;
 	class UserUtils *m_pUserUtils;
-public: 
+public:
 	list< pair<int,string> > m_listRoomTypes;  // In the order to display them
 	map<int,string> m_mapRoomTypes; // For fast lookup
 
@@ -47,7 +47,7 @@ public:
 	void RemoveUser(int PK_User);
 
 	/*
-		SETUP LOCATION 
+		SETUP LOCATION
 	*/
 	int GetCountry();
 	void SetCountry(int PK_Country);
@@ -60,6 +60,7 @@ public:
 		SETUP ROOMS
 	*/
 	// Get a map of RoomTypes to number of Rooms of that Type, and the total number of rooms
+  string GetRoomTypeName(int PK_RoomType);
 	int PreSeedRoomInfo( map<int, int > &mapRooms ); // Call this to pre-populate the room info
 	void ProcessUpdatedRoomInfo( map<int, int > &mapRooms ); // Call this to process the updated info
 	void RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired ); // Helper function
@@ -96,10 +97,10 @@ public:
 
 	string GetDeviceName(string sPK_Device);
 	void SetDeviceName(string sPK_Device, string sName);
-	
+
 	long GetDeviceTemplateForDevice(string sPK_Device);
 	void ChangeDeviceTemplateForDevice(string sPK_Device, string sFK_DeviceTemplate);
-	
+
 	long GetRoomForDevice(string sPK_Device);
 	void SetRoomForDevice(string sPK_Device, string sFK_Room);
 
@@ -107,3 +108,4 @@ public:
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
+// WizardLogic_h

@@ -1,18 +1,18 @@
 /*
  StartOrbiterSDL
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
+
  www.plutohome.com
- 
+
  Phone: +1 (877) 758-8648
- 
+
  This program is distributed according to the terms of the Pluto Public License, available at:
  http://plutohome.com/index.php?section=public_license
- 
+
  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
 
 #include "PlutoUtils/CommonIncludes.h"
@@ -22,10 +22,10 @@
 //#define AUDIDEMO
 
 #ifdef WIN32
-#include "OrbiterSDL.h"
-#include "MainDialog.h"
+#  include "OrbiterSDL.h"
+#  include "MainDialog.h"
 #else
-#include "../Linux/OrbiterLinux.h"
+#  include "../Linux/OrbiterLinux.h"
 #endif
 
 #include "StartOrbiterSDL.h"
@@ -57,16 +57,6 @@ void SocketCrashHandler(Socket *pSocket)
     g_pCommand_Impl->OnReload();
   }
 }
-
-struct keyboardState
-{
-  bool bShiftDown;
-  bool bControlDown;
-  bool bAltDown;
-  bool bRepeat;
-  bool bCapsLock;
-  clock_t cKeyDown;
-};
 
 void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbiterEvent, struct keyboardState *kbdState)
 {
@@ -131,9 +121,9 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
         orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
         kbdState->bAltDown=false;
       }
-      
-      else*/ 
-      
+
+      else*/
+
       if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown )
       {
         // No Modifiers were down
@@ -172,7 +162,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 		case SDLK_KP_ENTER: case SDLK_RETURN: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;
 		case SDLK_SPACE:		orbiterEvent->data.button.m_iPK_Button = BUTTON_space_CONST; break;
-												
+
         case SDLK_BACKSPACE:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
 
 		case SDLK_UNDERSCORE:   orbiterEvent->data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
@@ -204,7 +194,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 		case SDLK_MINUS: case SDLK_KP_MINUS:  orbiterEvent->data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
 		case SDLK_EQUALS:     case SDLK_KP_EQUALS:   orbiterEvent->data.button.m_iPK_Button = BUTTON_plus_CONST;  break;
-	    
+
 		case SDLK_0: case SDLK_KP0:   orbiterEvent->data.button.m_iPK_Button = BUTTON_right_parenthesis_CONST; break;
     	case SDLK_1: case SDLK_KP1:   orbiterEvent->data.button.m_iPK_Button = BUTTON_exclamation_point_CONST; break;
       	case SDLK_2: case SDLK_KP2:   orbiterEvent->data.button.m_iPK_Button = BUTTON_at_sign_CONST; break;
@@ -218,7 +208,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 		case SDLK_SEMICOLON:    orbiterEvent->data.button.m_iPK_Button = BUTTON_colon_CONST; break;
 		case SDLK_QUOTE:     orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
-									  
+
         default:
           orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
         };
@@ -261,20 +251,12 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
   }
 }
 
-bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
-                  int Width, int Height, bool bFullScreen)
+OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
 {
-#ifdef WIN32
-  OrbiterSDL *pCLinux =
-    new OrbiterSDL(
-      PK_Device, PK_DeviceTemplate, sRouter_IP,
-      sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
-#else
   OrbiterSDL *pCLinux =
     new OrbiterLinux(
       PK_Device, PK_DeviceTemplate, sRouter_IP,
       sLocalDirectory, bLocalMode, Width, Height);
-#endif
 
   // Add a handler to take care of crashes
   g_pCommand_Impl = pCLinux;
@@ -297,36 +279,34 @@ bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
     Simulator::GetInstance()->m_pOrbiter = pCLinux;
     Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
-
-    // temporary hack --
-    // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
-    // For now I'll assume that shift + arrows scrolls a grid
-
-    SDL_Event Event;
-    Orbiter::Event orbiterEvent;
-    struct keyboardState keyboardState; // keep the state of the Ctrl/Shift etc if we need it in the furter calls.
-
-    keyboardState.bShiftDown = keyboardState.bControlDown = keyboardState.bAltDown = 0;
-    keyboardState.bRepeat = keyboardState.bCapsLock = 0;
-    keyboardState.cKeyDown = 0;
-
-    while (!pCLinux->m_bQuit)
-    {
-      SDL_WaitEvent(&Event);
-
-      // convert the SDL into what we know to interpret.
-      translateSDLEventToOrbiterEvent(Event, &orbiterEvent, &keyboardState);
-
-      if ( orbiterEvent.type == Orbiter::Event::QUIT )
-        break;
-
-      pCLinux->ProcessEvent(orbiterEvent);
-    }  // while
-  } // if connect
-  bool bReload = pCLinux->m_bReload;
-  g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance End of SDL loop with reload: %s",(bReload ? "Y" : "N"));
+    return pCLinux;
+  }
   delete pCLinux;
-  g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
-  return bReload;
+  return NULL;
+}
+
+bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
+{
+  if (sdl_event_loop_data.pOrbiter->m_bQuit)
+    return false;
+  if(SDL_PollEvent(&sdl_event_loop_data.event))
+  {
+    // convert the SDL into what we know to interpret.
+    translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
+
+    if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
+      return false;
+
+    sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
+  }
+  return true;
+}
+
+bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)
+{
+    bool bReload = sdl_event_loop_data.pOrbiter->m_bReload;
+    g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance End of SDL loop with reload: %s",(bReload ? "Y" : "N"));
+    delete sdl_event_loop_data.pOrbiter;
+    g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
+    return bReload;
 }
