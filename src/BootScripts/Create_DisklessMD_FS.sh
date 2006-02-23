@@ -165,7 +165,7 @@ ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
 
 # Create the archives-cache directory
-mkdir "$DlPath"/var/cache/apt/archives-core
+mkdir -p "$DlPath"/usr/pluto/var/Updates
 
 cd -
 

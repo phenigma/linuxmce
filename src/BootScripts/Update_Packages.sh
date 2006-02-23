@@ -2,11 +2,16 @@
 
 #. /usr/pluto/bin/SQL_Ops.sh
 
+# This file should be removed, until then is safe to put this here
+exit 0
+
+## Function to sync core's archive with MD's one
 function syncMDwithCORE {
 	# More faster to copy from here than to download
 	cp -ru /var/cache/apt/archives-core /var/cache/apt/archives	
 }
 
+## Add some cron entries to download new debs
 cronEntry="0 3 * * * root /usr/pluto/bin/Update_Packages.sh --download-only"
 cronNotify="0 */10 * * * root /usr/pluto/bin/Update_Notify.sh"
 
@@ -15,14 +20,17 @@ if ! grep -qF "$cronEntry" /etc/crontab; then
 	/etc/init.d/cron reload
 fi
 
+## Are we called by cron or at startup ?
 [[ -n "$1" ]] && DownloadOnly="Yes"
 	
+## Is this a diskless MD ?
 IsDiskless=0
 if [[ -f /etc/diskless.conf ]]; then
 	IsDiskless=1
 fi
 	
 
+## We are called by cron so we download only
 if [[ "$DownloadOnly" == "Yes" ]]; then
 	set -e
 	
@@ -38,9 +46,11 @@ if [[ "$DownloadOnly" == "Yes" ]]; then
 
 	echo "- Downloading updates"
 	apt-get -f -y --download-only dist-upgrade 1>/dev/null
-	touch /usr/pluto/locks/upgrade_ok
-else
 
+	touch /usr/pluto/locks/upgrade_ok
+
+## We are called by a startup script so we need to do the update
+else
 	if [[ IsDiskless -eq 0 ]]; then
 	#	LeftToDownload=$(apt-get dist-upgrade < /bin/false  | grep "Need to get" | cut -d" " -f4 | cut -d'/' -f1)
 	#	if [[ -n "$LeftToDownload" &&  "$LeftToDownload" != "0B" ]]; then
