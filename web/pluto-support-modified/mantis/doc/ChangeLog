@@ -1,6 +1,21 @@
 Mantis ChangeLog
 
 
+2006.02.18 - 1.0.1
+
+- 0006722: [installation] Remaining mysqli_ install problems (ref. #0006672): mysqli_real_escape_string() expects parameter 1 to be link (thraxisp)
+- 0006672: [installation] install.php assumes mysql extension, fails with mysqli extension (thraxisp)
+- 0006668: [filters] Parse error while saving new filter: Call to undefined function: string_strip_tags() (thraxisp)
+
+
+2006.02.04  -  1.0.0
+
+- 0006044: [security] 'Return' _GET is not checked (thraxisp)
+- 0006650: [security] ADOdb can be exploited to execute arbitrary SQL code (vboctor)
+- 0006659: [security] Cross site scripting vulnerability (thraxisp)
+- 0006634: [filters] Filter does not work with profiles (vboctor)
+
+
 2006.01.17  -  1.0.0rc5
 
 - 0006509: [security] Port: Additional XSS Vulnerabilities in Filter (thraxisp)
@@ -10,6 +25,7 @@ Mantis ChangeLog
 - 0006594: [bugtracker] config_flush_cache does not work correctly (thraxisp)
 - 0006585: [documentation] don't see the documentation (thraxisp)
 - 0006501: [filters] Categories can't be selected for filter-setting (thraxisp)
+
 
 2005.12.13  -  1.0.0rc4
 
@@ -27,6 +43,7 @@ Mantis ChangeLog
 - 0006358: [localization] Updated Dutch localization (Wanderer)
 - 0006474: [localization] Calls to htmlspecialchars should take into account the current charset (jlatour)
 
+
 2005.10.29  -  1.0.0rc3
 
 - 0006273: [security] File Inclusion Vulnerability (vboctor)
@@ -36,6 +53,7 @@ Mantis ChangeLog
 - 0006288: [filters] Patch against CVS HEAD for Saved filter problem with view_state (thraxisp)
 - 0006296: [filters] Filter sql includes unnecessary links to custom_field_string_table for date custom fields (thraxisp)
 - 0006297: [filters] sorting on custom field, bring MySQL to deadlock loop (thraxisp)
+
 
 2005.09.11  -  1.0.0rc2
 

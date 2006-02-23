@@ -1,4 +1,7 @@
 <?php
+header("Location: ../../index.php?section=register");
+exit();
+
 	# Mantis - a php based bugtracking system
 	# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
 	# Copyright (C) 2002 - 2004  Mantis Team   - mantisbt-dev@lists.sourceforge.net

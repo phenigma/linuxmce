@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: html_api.php,v 1.184.4.1.2.1 2006/01/10 11:38:07 vboctor Exp $
+	# $Id: html_api.php,v 1.184.4.1.2.1.2.1 2006/02/03 03:56:33 thraxisp Exp $
 	# --------------------------------------------------------
 
 	###########################################################################
@@ -234,7 +234,9 @@
 			$p_time = config_get( 'wait_time' );
 		}
 
-		echo "\t<meta http-equiv=\"Refresh\" content=\"$p_time;URL=$p_url\" />\n";
+		$t_url = string_sanitize_url( $p_url );
+
+		echo "\t<meta http-equiv=\"Refresh\" content=\"$p_time;URL=$t_url\" />\n";
 
 		return true;
 	}

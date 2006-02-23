@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: config_defaults_inc.php,v 1.283.2.1.2.1.2.1 2006/01/10 11:38:07 vboctor Exp $
+	# $Id: config_defaults_inc.php,v 1.283.2.1.2.1.2.1.2.2.2.1 2006/02/19 13:43:15 thraxisp Exp $
 	# --------------------------------------------------------
 
 
@@ -78,7 +78,7 @@
 			$t_host = 'www.example.com';
 		}
 
-		$t_path = dirname( $_SERVER['PHP_SELF'] );
+		$t_path = dirname( strip_tags( $_SERVER['PHP_SELF'] ) );
 		if ( '/' == $t_path || '\\' == $t_path ) {
 			$t_path = '';
 		}
@@ -312,7 +312,7 @@
 	#############################
 
 	# --- version variables -----------
-	$g_mantis_version		= '1.0.0rc5';
+	$g_mantis_version		= '1.0.1';
 	$g_show_version			= ON;
 
 	################################

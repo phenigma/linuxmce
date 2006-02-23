@@ -6,7 +6,7 @@
 	# See the README and LICENSE files for details
 
 	# --------------------------------------------------------
-	# $Id: filter_api.php,v 1.122.2.2.2.3.2.5 2006/01/15 02:41:50 thraxisp Exp $
+	# $Id: filter_api.php,v 1.122.2.2.2.3.2.5.2.3 2006/01/29 12:59:47 vboctor Exp $
 	# --------------------------------------------------------
 
 	$t_core_dir = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
@@ -478,7 +478,7 @@
 		# profile
 		$t_any_found = false;
 		foreach( $t_filter['show_profile'] as $t_filter_member ) {
-				if ( ( META_FILTER_ANY == $t_filter_member ) || ( is_numeric( $t_filter_member ) ) ) {
+			if ( ( META_FILTER_ANY == $t_filter_member ) && ( is_numeric( $t_filter_member ) ) ) {
 				$t_any_found = true;
 			}
 		}
@@ -980,6 +980,7 @@
 		$t_filter = current_user_get_bug_filter();
 		$t_filter = filter_ensure_valid_filter( $t_filter );
 		$t_project_id = helper_get_current_project();
+		$t_page_number = (int) $p_page_number;
 
 		$t_view_type = $t_filter['_view_type'];
 
@@ -1004,7 +1005,7 @@
 				PRINT '<input type="hidden" name="offset" value="0" />';
 			}
 		?>
-		<input type="hidden" name="page_number" value="<?php PRINT $p_page_number ?>" />
+		<input type="hidden" name="page_number" value="<?php PRINT $t_page_number ?>" />
 		<input type="hidden" name="view_type" value="<?php PRINT $t_view_type ?>" />
 
 		<?php
