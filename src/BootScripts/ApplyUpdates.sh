@@ -6,6 +6,8 @@ if [[ -f /tmp/fallbackUpdate.txt ]]; then
 	apt-get update
 	dpkg --forget-old-unavail
 	apt-get -V -f -y dist-upgrade
+
+	rm -f /tmp/fallbackUpdate.txt
 	#reboot
 	exit 0
 fi
