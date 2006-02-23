@@ -103,6 +103,8 @@ run_asterisk() {
             fi    
         done
         echo " done"
+		killall asterisk_keep_running.pl > /dev/null
+        tail -f /var/log/asterisk/full | /usr/pluto/bin/asterisk_keep_running.pl &
     fi
 }
 

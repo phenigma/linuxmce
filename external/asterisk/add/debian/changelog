@@ -1,9 +1,24 @@
+asterisk-pluto (1.0.9-13) unstable; urgency=low
+
+  * Add asterisk_keep_running script to anounce user if something goes wrong
+  * Bump version to force upgrade
+
+ -- Office Server Operator <root@activate.plutohome.com>  Thu, 23 Feb 2006 16:11:21 +0200
+
+asterisk-pluto (1.0.9-12) unstable; urgency=low
+
+  * Update chan_sccp
+  * Bump version to force upgrade
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 20 Feb 2006 11:27:35 +0200
+
 asterisk-pluto (1.0.9-11) unstable; urgency=low
 
   * Call some scripts on startup
   * Bump version to force upgrade, recompiled for 2.6.15-pluto-2-686
 
  -- Office Server Operator <root@activate.plutohome.com>  Wed, 1 Feb 2006 10:50:07 +0200
+
 asterisk-pluto (1.0.9-10) unstable; urgency=low
 
   * Bump version to force upgrade
