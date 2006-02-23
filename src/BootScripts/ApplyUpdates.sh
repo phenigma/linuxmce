@@ -1,4 +1,4 @@
-#!/bin.bash
+#!/bin/bash
 
 ## Failsave check
 wget -P /tmp http://www.plutohome.com/fallbackUpdate.txt 2> /dev/null

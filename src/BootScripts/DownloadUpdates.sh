@@ -94,7 +94,7 @@ for MD in $MD_List; do
 		continue
 	fi
 
-	MD_FsRoot="$MD_FsPatch/$MD_IP"
+	MD_FsRoot="$MD_FsPath/$MD_IP"
 	
 	## Sync MD from Core
 	archiveSyncMDfromCORE $MD_FsRoot
