@@ -2624,14 +2624,16 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	}
 
 	$serial_ports=explode(',',$portDeviceData);
-	
+
 	$usedPorts=getFieldsAsArray('Device_DeviceData','Device.Description,FK_Device,IK_DeviceData',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_Installation='.$installationID.' AND FK_DeviceData='.$GLOBALS['Port'].' AND PK_Device!='.$deviceID);
 	$serialPortAsoc=array();
 	foreach($serial_ports AS $key=>$value){
 		$usedBy=array();
 		for($i=0;$i<count(@$usedPorts['IK_DeviceData']);$i++){
 			if($value==$usedPorts['IK_DeviceData'][$i]){
-				$usedBy[]=$usedPorts['Description'][$i];
+				if(getTopLevelParent($usedPorts['FK_Device'][$i],$dbADO)==$topParent){
+					$usedBy[]=$usedPorts['Description'][$i];
+				}
 			}
 		}
 		if(count($usedBy)>0){
