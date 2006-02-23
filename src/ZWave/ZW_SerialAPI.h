@@ -1,39 +1,13 @@
-/*******************************  SERIALAPI.H  *******************************
- *           #######
- *           ##  ##
- *           #  ##    ####   #####    #####  ##  ##   #####
- *             ##    ##  ##  ##  ##  ##      ##  ##  ##
- *            ##  #  ######  ##  ##   ####   ##  ##   ####
- *           ##  ##  ##      ##  ##      ##   #####      ##
- *          #######   ####   ##  ##  #####       ##  #####
- *                                           #####
- *          Z-Wave, the wireless language.
- *
- *              Copyright (c) 2001
- *              Zensys A/S
- *              Denmark
- *
- *              All Rights Reserved
- *
- *    This source file is subject to the terms and conditions of the
- *    Zensys Software License Agreement which restricts the manner
- *    in which it may be used.
- *
- *---------------------------------------------------------------------------
- *
- * Description:       Serial API
- *
- * Author:            Kim Jakobsen
- *
- * Last Changed By:  $Author: heh $
- * Revision:         $Revision: 1.12 $
- * Last Changed:     $Date: 2003/08/19 11:13:04 $
- *
- ****************************************************************************/
-
-/****************************************************************************/
-/*                              INCLUDE FILES                               */
-/****************************************************************************/
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
 
 
 /****************************************************************************/

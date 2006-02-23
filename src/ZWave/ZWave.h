@@ -1,3 +1,13 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
 //<-dceag-d-b->
 #ifndef ZWave_h
 #define ZWave_h

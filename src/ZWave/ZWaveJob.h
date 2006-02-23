@@ -1,9 +1,21 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+
 #ifndef _ZWAVE_JOB_H_
 #define _ZWAVE_JOB_H_
 #include <stddef.h>
 
 class PlutoZWSerialAPI;
 
+/**Virtual class that stands for an atomic job*/
 class ZWaveJob
 {
 	public:

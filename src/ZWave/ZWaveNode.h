@@ -1,3 +1,14 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+
 #ifndef _ZWAVE_NODE_H_
 #define _ZWAVE_NODE_H_
 
@@ -9,6 +20,7 @@ struct nodetype
 };
 typedef struct nodetype NodeType;
 
+/**Class that stands for a ZWave node (eg: a dimmer, a SUC)*/
 class ZWaveNode
 {
 	public:
@@ -32,6 +44,7 @@ class ZWaveNode
 		  */
 		virtual unsigned long homeID() const;
 		
+		/**compares left with right operand*/
 		inline friend bool operator==(const ZWaveNode& left, const ZWaveNode& right)
 		{
 			if( left.nodeID() == right.nodeID() &&

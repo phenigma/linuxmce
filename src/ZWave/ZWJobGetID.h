@@ -1,8 +1,20 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+
 #ifndef _ZWJOBGETID_H_
 #define _ZWJOBGETID_H_
 
 #include "ZWaveJob.h"
 
+/**get the node id and the home id of the zwave box*/
 class ZWJobGetID : public ZWaveJob
 {
 	public:

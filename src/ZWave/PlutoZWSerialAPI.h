@@ -1,3 +1,16 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+// Description: ZWave serial api
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+
 #ifndef _ZW_SERIAL_API_H_
 #define _ZW_SERIAL_API_H_
 
@@ -23,7 +36,8 @@ typedef JobsDeque::const_iterator JobsDequeCIterator;
 class PlutoZWSerialAPI
 {
 	public:
-
+		/**serial state enum representing the state of the object 
+		 * regarding to serial connection*/
 		enum SerialState { STOPPED, IDLE, RUNNING, WAITTING };
 		
 		/**get an instance of this class
@@ -31,19 +45,23 @@ class PlutoZWSerialAPI
 		static PlutoZWSerialAPI * instance();
 
 		virtual ~PlutoZWSerialAPI();
-
-#ifndef _WIN32
+		
+		/**connects to port and starts the first command
+		 * @param port the serial port (win: COM1, linux: ttyUSB0)
+		 * @return true if OK*/
 		virtual bool start(const char *port);
-#else
-		virtual bool start(const char *port);
-#endif
-		/**listen
+		
+		/**listen for responses
 		 * @param timeout the listen timeout
 		 * @return true if succesfull*/
 		virtual bool listen(time_t timeout);
 		
+		/**disconnects from the serial port
+		 * @return true if succesfull*/
 		virtual bool stop();
 		
+		/**get the state of the serial connection
+		 * @return the state*/
 		virtual SerialState state() const;
 		
 		/**insert a job
@@ -140,7 +158,8 @@ class PlutoZWSerialAPI
 		/** Print some debug information about each node from the ZWave network.*/
 		virtual void showZWaveNetwork() const;
 		
-		/** The time left until it gets timeout.*/
+		/** The time left until it gets timeout.
+		 * @return the time left*/
 		virtual time_t timeLeft() const;
 
 		private:

@@ -1,35 +1,14 @@
-/*******************************  ZW_TRANSPORT_API.H  ***********************
- *           #######
- *           ##  ##
- *           #  ##    ####   #####    #####  ##  ##   #####
- *             ##    ##  ##  ##  ##  ##      ##  ##  ##
- *            ##  #  ######  ##  ##   ####   ##  ##   ####
- *           ##  ##  ##      ##  ##      ##   #####      ##
- *          #######   ####   ##  ##  #####       ##  #####
- *                                           #####
- *          Z-Wave, the wireless language.
- *
- *              Copyright (c) 2001
- *              Zensys A/S
- *              Denmark
- *
- *              All Rights Reserved
- *
- *    This source file is subject to the terms and conditions of the
- *    Zensys Software License Agreement which restricts the manner
- *    in which it may be used.
- *
- *---------------------------------------------------------------------------
- *
- * Description: Z-Wave Transport Application layer interface
- *
- * Author:   Ivar Jeppesen
- *
- * Last Changed By:  $Author: jsi $
- * Revision:         $Revision: 1.34 $
- * Last Changed:     $Date: 2004/06/21 13:42:33 $
- *
- ****************************************************************************/
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+
 #ifndef _ZW_TRANSPORT_API_H_
 #define _ZW_TRANSPORT_API_H_
 

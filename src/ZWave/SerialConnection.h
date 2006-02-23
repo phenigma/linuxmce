@@ -1,3 +1,13 @@
+//
+// C++ Interface: PlutoZWSerialAPI
+//
+//
+// Author:	Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2006
+//  		Edgar Grimberg <edgar.g@plutohome.com>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
 #ifndef __SERIALCONNECTION_H
 #define __SERIALCONNECTION_H
 
@@ -54,7 +64,8 @@ public:
 	virtual ~SerialConnection();
 
 
-	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
+	/**function that will be called in a new pthread and will receive 
+	 * the bytes from the serial connection*/
 	static void* receiveFunction(void *);
 	
 	static void printDataBuffer(const char *buffer, const size_t length, const char *classID);
