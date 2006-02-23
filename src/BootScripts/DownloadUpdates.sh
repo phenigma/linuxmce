@@ -33,7 +33,7 @@ UpdatesDownloadingStamp=$(date +%s)
 if [[ -f /usr/pluto/var/Updates/DownloadUpdates.lock ]]; then
 	exit 0;
 else
-	echo $UpdatesDownloadingStamp > /var/lock/DownloadUpdates.lock
+	echo $UpdatesDownloadingStamp > /usr/pluto/var/Updates/DownloadUpdates.lock
 fi
 							
 ## Apt-get update for core
