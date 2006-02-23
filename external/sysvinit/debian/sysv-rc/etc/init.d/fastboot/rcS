@@ -256,11 +256,14 @@ if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
     /etc/init.d/Pluto_ConfirmInstallation.sh
 fi
 
-if [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
-    Message "Checking for Updates"
-    /etc/init.d/Pluto_Update_Packages.sh
+#f [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
+#   Message "Checking for Updates"
+#   /etc/init.d/Pluto_Update_Packages.sh
+#i
+if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
+	/usr/pluto/bin/ApplyUpdates.sh
 fi
-
+	
 if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
     Message "Starting DCE Router"
     /etc/init.d/Pluto_Start_DCERouter.sh

@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto19) unstable; urgency=low
+
+  * New update system called at startup
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 23 Feb 2006 16:50:24 +0200
+
 sysvinit (2.86.ds1-1.1pluto18) unstable; urgency=low
 
   * NFS is not mounted in background anymore
