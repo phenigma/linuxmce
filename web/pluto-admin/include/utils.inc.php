@@ -4837,6 +4837,7 @@ function irrigationHTML($devicesArray){
 		<tr bgcolor="lightblue">
 			<td align="center"><B>Device / Room</B></td>
 			<td align="center"><B>Type</B></td>
+			<td align="center"><B>Unchanged</B></td>
 			<td align="center"><B>On</B></td>
 			<td align="center"><B>Off</B></td>
 			<td align="center" colspan="2"><B>Delay</B></td>
@@ -4852,10 +4853,11 @@ function irrigationHTML($devicesArray){
 		<tr bgcolor="'.$color.'">
 			<td align="center">'.$data['Description'].' / '.$data['Room'].'</td>
 			<td align="center">'.$data['Template'].'</td>
+			<td align="center"><input type="radio" name="cmd_'.$device.'" value="0" '.(($commands_no==0)?'checked':'').'></td>
 			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['genericONCommand'].'" '.(($commands_no==1 && $data['Commands'][0]==$GLOBALS['genericONCommand'])?'checked':'').'></td>
 			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['genericOFFCommand'].'" '.(($commands_no==1 && $data['Commands'][0]==$GLOBALS['genericOFFCommand'])?'checked':'').'></td>
 			<td align="center"><input type="radio" name="cmd_'.$device.'" value="'.$GLOBALS['DelayCommand'].'" '.(($commands_no==3)?'checked':'').'></td>
-			<td><input type="text" name="delay_'.$device.'" value="'.@$data['Delay'].'" style="width:30px;" onClick="eval(\'document.scenarioWizard.cmd_'.$device.'[2].checked=true\');"></td>
+			<td><input type="text" name="delay_'.$device.'" value="'.@$data['Delay'].'" style="width:30px;" onClick="eval(\'document.scenarioWizard.cmd_'.$device.'[3].checked=true\');"></td>
 			<td align="center"><input type="submit" class="button" name="up_'.$device.'" value="U"> <input type="submit" class="button" name="down_'.$device.'" value="D"></td>
 		</tr>
 		<input type="hidden" name="cgc_'.$device.'" value="'.$cgcID.'">
@@ -4937,6 +4939,10 @@ function processIrrigationScenario($cgID,$section,$dbADO){
 						delete_command_from_cg($cgID,$device,$old_commands_array,$dbADO);
 						$dbADO->Execute($insertCG_C,array($cgID,$device,$GLOBALS['genericOFFCommand'],$pos+3));
 					}
+				break;
+				case 0:
+					if(count($old_commands_array)>0)
+						delete_command_from_cg($cgID,$device,$old_commands_array,$dbADO);
 				break;
 			}
 		}
