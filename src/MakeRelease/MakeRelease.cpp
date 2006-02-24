@@ -793,10 +793,13 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				
 				if( listFiles.size()==0 )
 				{
-					cout << "***WARNING*** No files found in " << sInputPath << endl;
+					cout << "***WARNING*** No files found in " << sInputPath << " for " << File << endl;
 					if( g_bInteractive )
-						return AskYNQuestion("Continue anyway?",false);
-					return true;
+					{
+						if (!AskYNQuestion("Continue anyway?",false))
+							return false;
+					}
+					continue;
 				}
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
