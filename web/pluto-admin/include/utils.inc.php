@@ -940,6 +940,10 @@ function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0
 
 function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$res=$dbADO->Execute($query,$params);
 	$total=$res->RecordCount();
 	$max_pages = $total/$art_pagina;
@@ -956,12 +960,12 @@ function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 		$output.='</div>';
 	}
 	if($total==0){
-		$output='No records';
+		$output=$TEXT_NO_RECORDS_CONST;
 	}
 	else{
 		$output.='<table>
 					<tr bgcolor="lightblue">
-						<td align="center"><B>Files</B></td>
+						<td align="center"><B>'.$TEXT_FILES_CONST.'</B></td>
 						<td align="center">&nbsp;</td>
 					</tr>';
 		$art_index=0;
@@ -974,13 +978,17 @@ function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 			$output.=multi_page_format($row, $art_index+$start,$dbADO);
 		}
 	}
-	$output.='Found: '.$total.'. ';
+	$output.=$TEXT_FOUND_CONST.': '.$total.'. ';
 	if($total!=0)
-		$output.= 'Page '.($page_no+1).' from '.$max_pages.'.<br>';
+		$output.= $TEXT_PAGE_CONST.' '.($page_no+1).'l '.$TEXT_TOTAL_PAGES_CONST.': '.$max_pages.'.<br>';
 	return $output;
 }
 function multi_page_format($row, $art_index,$mediadbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$queryOtherAttributes='
 		SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
 		FROM File_Attribute
@@ -997,8 +1005,8 @@ function multi_page_format($row, $art_index,$mediadbADO)
 
 	$out='
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
-			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Filename'].'</a><br><B>Path:</B> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Path'].'</a></td>
-			<td rowspan="2"><a href="#" onClick="if(confirm(\'Are you sure you want to delete the media file? The physical file will be deleted too if exist!\'))self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">Delete</a></td>
+			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>'.$TEXT_FILENAME_CONST.':</b> <a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Filename'].'</a><br><B>'.$TEXT_PATH_CONST.':</B> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Path'].'</a></td>
+			<td rowspan="2"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_MEDIA_FILES_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
 		</tr>
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
 			<td align="left">'.$otherAttributes.'</td>
@@ -1238,6 +1246,10 @@ function formatMySQLDate($mySQLformat,$customFormat)
 
 function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$out='';
 	$cplArray=array();
 	$resCPL=$dbADO->Execute('SELECT * FROM CriteriaParmList ORDER BY Description ASC');
@@ -1251,8 +1263,8 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 		<table border="0" width="100%">
 			<tr bgcolor="#E7E7E7">
 				<td><B>(</B></td>
-				<td colspan="2"><input type="checkbox" name="nestingNot_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsNot']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setNot='.(($rowCPN['IsNot']==1)?'0':'1').'\'"> Not <input type="checkbox" name="nestingAnd_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsAnd']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setAnd='.(($rowCPN['IsAnd']==1)?'0':'1').'\'"> And </td>
-				<td colspan="3" align="right"><a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&fkCPN='.$FK_CriteriaParmNesting.'&action=addSegment">Add segment</a> &nbsp;&nbsp;&nbsp;<a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&parentCPN='.$FK_CriteriaParmNesting.'&action=addNesting">Add nesting</a> &nbsp;&nbsp;<a href="#" onClick="if(confirm(\'Are you sure you want to delete this nesting?\'))self.location=\'index.php?section=editCriteria&ehID='.$eventHandlerID.'&delCPN='.$FK_CriteriaParmNesting.'&action=delNesting\'">Delete</a></td>
+				<td colspan="2"><input type="checkbox" name="nestingNot_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsNot']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setNot='.(($rowCPN['IsNot']==1)?'0':'1').'\'"> '.$TEXT_NOT_CONST.' <input type="checkbox" name="nestingAnd_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsAnd']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setAnd='.(($rowCPN['IsAnd']==1)?'0':'1').'\'"> '.$TEXT_AND_CONST.' </td>
+				<td colspan="3" align="right"><a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&fkCPN='.$FK_CriteriaParmNesting.'&action=addSegment">'.$TEXT_ADD_SEGMENT_CONST.'</a> &nbsp;&nbsp;&nbsp;<a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&parentCPN='.$FK_CriteriaParmNesting.'&action=addNesting">'.$TEXT_ADD_NESTING_CONST.'</a> &nbsp;&nbsp;<a href="#" onClick="if(confirm(\''.$TEXT_DELETE_NESTING_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCriteria&ehID='.$eventHandlerID.'&delCPN='.$FK_CriteriaParmNesting.'&action=delNesting\'">'.$TEXT_DELETE_CONST.'</a></td>
 			</tr>';
 	$queryCP='
 			SELECT CriteriaParm.*, CriteriaParmList.Description AS CPL_Description
@@ -1320,7 +1332,7 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 						}
 						$out.='</select>';
 					}elseif($rowCP['CPL_Description']=='State'){
-						$stateArray=array(5=>'Afternoon',1=>'Daylight',6=>'Evening',3=>'Morning',7=>'Night',2=>'Not Daylight',9=>'Weekday',8=>'Weekend');
+						$stateArray=array(5=>$TEXT_AFTERNOON_CONST,1=>$TEXT_DAYLIGHT_CONST,6=>$TEXT_EVENING_CONST,3=>$TEXT_MORNING_CONST,7=>$TEXT_NIGHT_CONST,2=>$TEXT_NOT_DAYLIGHT_CONST,9=>$TEXT_WEEKDAY_CONST,8=>$TEXT_WEEKEND_CONST);
 						$out.='<select name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'">
 										<option value=""></option>';
 						foreach($stateArray AS $key => $value){
@@ -1336,7 +1348,7 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 				$out.='
 				</td>
 				<td align="center">'.(($rowCPN['IsAnd']==1)?'And':'Or').'</td>
-				<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this criteria parm?\'))self.location=\'index.php?section=editCriteria&action=delete&ehID='.$eventHandlerID.'&dcpID='.$rowCP['PK_CriteriaParm'].'\'">Delete</a></td>			
+				<td align="center"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_CRITERIA_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCriteria&action=delete&ehID='.$eventHandlerID.'&dcpID='.$rowCP['PK_CriteriaParm'].'\'">'.$TEXT_DELETE_CONST.'</a></td>			
 			</tr>';
 	}
 	$resNestingChilds=$dbADO->Execute('SELECT * FROM CriteriaParmNesting WHERE FK_CriteriaParmNesting_Parent=?',$FK_CriteriaParmNesting);
@@ -1498,10 +1510,14 @@ function getChildsOfWizard($page,$dbADO)
 
 function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,$extra='')
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$out='
 		<select name="'.$name.'" '.$extra.'>';
 	if($allowNoValue==1){
-		$out.='<option value="0">-Please select-</option>';
+		$out.='<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 	}
 	$out.='
 			<option value="-300" '.(($selectedValue=='-300')?'selected':'').'>[Local Orbiter]</option>';
@@ -1570,6 +1586,10 @@ function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth,$filter
 
 function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$operatingSystem=0)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	if($distro!=0){
 		$queryDistro='SELECT * FROM Distro WHERE PK_Distro=?';
 		$resDistro=$dbADO->Execute($queryDistro,$distro);
@@ -1609,7 +1629,7 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 	}else{
 		$out.='
 			<tr class="normaltext">
-				<td colspan="5"><b>What software modules do you want on this device?</b> &nbsp; The most common are selected by default.</td>
+				<td colspan="5">'.$TEXT_OPTIONAL_DEVICES_INFO_CONST.'</td>
 			</tr>';
 	}
 	$oldCategory='';
@@ -1700,6 +1720,10 @@ function getDevicesFromCategories($categoriesArray,$dbADO)
 
 function commandPulldownForDevice($deviceID,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
 	$out='';
 	if ($deviceID!=0) {
 		if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
@@ -1723,12 +1747,12 @@ function commandPulldownForDevice($deviceID,$dbADO)
 		}
 		if ($resNewCommand) {
 			$out.='<select name="addNewDeviceCommand">
-					<option value="0">-please select-</option>';
+					<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 			while ($rowNewCommand = $resNewCommand->FetchRow()) {
 				$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
 			}
 			if ($resNewCommand->RecordCount()==0) {
-				$out.='<option value="0">-no command-</option>';
+				$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
 			}
 			$resNewCommand->Close();
 			$out.='</select>';
@@ -1741,15 +1765,19 @@ function commandPulldownForDevice($deviceID,$dbADO)
 
 function lightingDevicesTable($cgID,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$out='
 		<table cellpadding="2">
 			<tr bgcolor="#DDDDDD">
-				<td align="center"><B>Device / Room</B></td>
-				<td align="center"><B>Type</B></td>
-				<td align="center"><B>Unchanged</B></td>
-				<td align="center"><B>On</B></td>
-				<td align="center"><B>Off</B></td>
-				<td align="center"><B>Set level</B></td>
+				<td align="center"><B>'.$TEXT_DEVICE_CONST.' / '.$TEXT_ROOM_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_UNCHANGED_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ON_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_OFF_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_SET_LEVEL_CONST.'</B></td>
 			</tr>';
 
 	$lightingDevicesArray=getValidLightingObjectsArray($_SESSION['installationID'],$dbADO);
@@ -1767,7 +1795,7 @@ function lightingDevicesTable($cgID,$dbADO)
 	if($resGetRoomsDevice->RecordCount()==0){
 		$out.='
 			<tr>
-				<td colspan="6">No lighting devices available in this room.</td>
+				<td colspan="6">'.$TEXT_NO_LIGHTING_DEVICES_CONST.'</td>
 			</tr>';
 	}
 	$displayedDevices=array();
@@ -1819,7 +1847,7 @@ function lightingDevicesTable($cgID,$dbADO)
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="Update"  ></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 			</tr>
 		';
 	}
@@ -1841,7 +1869,7 @@ function lightingDevicesTable($cgID,$dbADO)
 				if(isDim==true){
 					eval("dimVal=parseInt(document.scenarioWizard.dimValue_"+devicesArray[i]+".value)");
 					if(dimVal<0 || dimVal>100 || isNaN(dimVal)){
-						alert("Please enter a value between 0 and 100.");
+						alert("'.$TEXT_NUMBER_RANGE_REQUIRED_CONST.'");
 						eval("document.scenarioWizard.dimValue_"+devicesArray[i]+".focus()");
 						return false;
 					}
@@ -1856,17 +1884,21 @@ function lightingDevicesTable($cgID,$dbADO)
 
 function climateDevicesTable($cgID,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$out='
 		<table>
 			<tr bgcolor="#DDDDDD">
-				<td align="center"><B>Device / Room</B></td>
-				<td align="center"><B>Type</B></td>
-				<td align="center"><B>Unchanged</B></td>
-				<td align="center"><B>Auto</B></td>
-				<td align="center"><B>Heat</B></td>
-				<td align="center"><B>Cool</B></td>
-				<td align="center"><B>Off</B></td>
-				<td align="center"><B>Set temperature</B></td>
+				<td align="center"><B>'.$TEXT_DEVICE_CONST.' / '.$TEXT_ROOM_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_UNCHANGED_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_AUTO_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_HEAT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_COOL_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_OFF_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_SET_TEMPERATURE_CONST.'</B></td>
 			</tr>';
 
 	$climateDevicesArray=getValidClimateObjectsArray($_SESSION['installationID'],$dbADO);
@@ -1886,7 +1918,7 @@ function climateDevicesTable($cgID,$dbADO)
 	if($resGetRoomsDevice->RecordCount()==0){
 		$out.='
 			<tr>
-				<td colspan="9">No climate devices available in this room.</td>
+				<td colspan="9">'.$TEXT_NO_CLIMATE_DEVICES_CONST.'</td>
 			</tr>';
 	}
 	$displayedDevices=array();
@@ -1951,7 +1983,7 @@ function climateDevicesTable($cgID,$dbADO)
 	if(count($displayedDevices)>0){
 		$out.='
 				<tr>
-					<td colspan="9" align="center"><input type="submit" class="button" name="updateDevices" value="Update"  ></td>
+					<td colspan="9" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 				</tr>';
 	}
 	$out.='</table>
@@ -1961,6 +1993,10 @@ function climateDevicesTable($cgID,$dbADO)
 
 function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$selectCommandsAssigned = "
 		SELECT CommandGroup_Command.*
 		FROM CommandGroup_Command				
@@ -2010,7 +2046,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 					$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
 				}
 				if ($resNewCommand->RecordCount()==0) {
-					$out.='<option value="0">-no command-</option>';
+					$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
 				}
 				$out.='</select>';
 			}
@@ -2043,18 +2079,18 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 					
 							</td>
 						<td valign="top">
-						<input type="button" class="button" name="editA" value="Remove" onClick="document.'.$section.'.cgc.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();">
+						<input type="button" class="button" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="document.'.$section.'.cgc.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();">
 						</td>						
 					</tr>
 					<tr bgcolor="'.(($lineCount%2==1)?'#DDDDDD':'').'">
-						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="Test command" onClick="document.'.$section.'.commandToTest.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();"></td>
+						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="'.$TEST_COMMAND_CONST.'" onClick="document.'.$section.'.commandToTest.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();"></td>
 					</tr>
 					';
 		}
 
 		$out.='
 					<tr>
-						<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Update"  ></td>
+						<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="'.$TEXT_UPDATE_CONST.'"  ></td>
 					</tr>';
 	}
 	$out.='<tr>
@@ -2182,6 +2218,10 @@ function processClimateScenario($cgID,$dbADO)
 
 function processAdvancedScenarios($cgID,$section,$dbADO)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:0;
 	$from=@$_REQUEST['from'];
 	$roomID=(int)@$_REQUEST['roomID'];
@@ -2197,17 +2237,17 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 		$query = $dbADO->Execute($deleteObjFromDevice,array($toDel));
 		//delete saved values
 		if ($dbADO->Affected_Rows()>0) {
-			$commandsDeleted = "Command removed from this command group!";
+			$commandsDeleted = $TEXT_COMMAND_REMOVED_FROM_COMMAND_GROUP_CONST;
 			$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ?';
 			$query = $dbADO->Execute($deleteParamValues,array($toDel));
 			if ($dbADO->Affected_Rows()>0) {
-				$parametersDeleted = 'Parameter values also deleted!';
+				$parametersDeleted = $TEXT_PARAMETER_VALUES_ALSO_DELETED_CONST;
 			} else {
-				$parametersDeleted = 'No parameter values deleted!';
+				$parametersDeleted = $TEXT_NO_PARAMETER_VALUES_DELETED_CONST;
 			}
 
 		} else {
-			$commandsDeleted = "Command not removed from this command group!";
+			$commandsDeleted = $TEXT_ERROR_COMMAND_NOT_REMOVED_FROM_COMMAND_GROUP_CONST;
 		}
 		if($section=='scenarioWizard'){
 			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=$commandsDeleted $parametersDeleted");
@@ -2298,7 +2338,7 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 						$dbADO->Execute($insert,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
 					}
 					if ($dbADO->Affected_Rows()==1) {
-						$GLOBALS['parametersUpdatedAlert']='Parameters updated!';
+						$GLOBALS['parametersUpdatedAlert']=$TEXT_PARAMETERS_UPDATED_CONST;
 					}
 				}
 			}
@@ -2607,10 +2647,14 @@ function PortForHumans($device,$deviceNames)
 
 function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$dbADO,$deviceID)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
 	$installationID=(int)$_SESSION['installationID'];
 
 	if($topParent==0){
-		return 'Error: top parent device not found';
+		return $TEXT_ERROR_TOP_PARENT_DEVICE_NOT_FOUND_CONST;
 	}
 	
 	/*
@@ -2620,7 +2664,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	*/
 	$portDeviceData=getDeviceData($topParent,$GLOBALS['AvailableSerialPorts'],$dbADO);
 	if($portDeviceData==''){
-		return 'No serial ports found.';
+		return $TEXT_ERROR_NO_SERIAL_PORTS_FOUND_CONST;
 	}
 
 	$serial_ports=explode(',',$portDeviceData);
@@ -2886,7 +2930,11 @@ function getProperties($primaryKey,$table,$properties,$field,$dbADO)
 
 function displayRemotes($mdID,$dbADO,$section)
 {
-	$out='<B>Infrared remote controls you will use:</B> ';
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
+	$out='<B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B> ';
 	$remotes=array();
 	
 	$DTarray=getDeviceTemplatesFromCategory($GLOBALS['RemoteControlls'],$dbADO);
@@ -2900,10 +2948,10 @@ function displayRemotes($mdID,$dbADO,$section)
 	}
 	$delLinks='';
 	foreach ($remotes AS $rid=>$description){
-		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
+		$delLinks.='<a href="javascript:if(confirm(\''.$TEXT_DELETE_REMOTE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
 	}
 	$note=($delLinks!='')?' Click to remove':'';
-	$out.=substr($delLinks,0,-2).$note.' <input type="button" class="button" name="button" value="Add Remote" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
+	$out.=substr($delLinks,0,-2).$note.' <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
 	
 	return $out;
 }
@@ -2961,7 +3009,11 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 
 function displayReceivers($mdID,$dbADO)
 {
-	$out='<B>Infrared Receivers</B> ';
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
+	$out='<B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B> ';
 
 	unset($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray']=array();
@@ -3479,6 +3531,10 @@ function reorderMultiPulldownJs()
 // retrieve a matrix table with all commands and infrared groups
 function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO,$deviceID)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$restrictedCommandsArray=array(194=>'Toggle power',192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
 	$out='';
 	if(count($InfraredGroupsArray)==0){
@@ -3502,7 +3558,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$GLOBALS['DT_&_Room']=1;
 		$controlledByRows='
 		<tr>
-			<td colspan="10" align="right">Send codes to device: '.controlledViaPullDown('controlledVia',$deviceID,$dtID,@$deviceInfo['FK_DeviceCategory'][0],@$deviceInfo['FK_Device_ControlledVia'][0],$publicADO,'0,- Please select -','onChange="document.addModel.action.value=\'changeParent\';document.addModel.submit();"').'</td>
+			<td colspan="10" align="right">'.$TEXT_SEND_CODES_TO_DEVICE_CONST.': '.controlledViaPullDown('controlledVia',$deviceID,$dtID,@$deviceInfo['FK_DeviceCategory'][0],@$deviceInfo['FK_Device_ControlledVia'][0],$publicADO,'0,- Please select -','onChange="document.addModel.action.value=\'changeParent\';document.addModel.submit();"').'</td>
 		</tr>';
 		$GLOBALS['DT_&_Room']=0;
 	}
@@ -3518,7 +3574,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td align="center"><B>'.$cmdName.'</B></td>';
 	}
 	$out.='
-			<td><B>Action</B></td>
+			<td><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';
 	
 	// display codes/commands
@@ -3534,7 +3590,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
-			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&newIRG='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&newIRG='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="'.$TEXT_THIS_WORKS_CONST.'"></td>
 		</tr>';
 	}
 	
@@ -3548,6 +3604,10 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 
 function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$redirectUrl='index.php?section='.$section;
 	$from=@$_REQUEST['from'];
 	
@@ -3798,21 +3858,21 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				if($returnValue!=0){
 					$out.='
 					<tr>
-						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
+						<td colspan="3">'.$TEXT_ADD_DEVICE_INFO_CONST.'</td>
 					</tr>';
 				}
 				if($boolDeviceTemplate==1 && $disabledAdd!=''){
 					$out.='
 					<tr>
-						<td colspan="3" class="normaltext">If your model is not listed, pick the manufacturer and the category and click to <input type="button" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  onClick="javascript:addModel();"/></td>
+						<td colspan="3" class="normaltext">'.$TEXT_ADD_DEVICE_TEMPLATE_INFO_CONST.' <input type="button" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  onClick="javascript:addModel();"/></td>
 					</tr>';
 				}
 				$out.='		
 					<tr>
-						<th width="25%">Manufacturers</th>
-						<th width="25%">Device Category</th>
+						<th width="25%">'.$TEXT_MANUFACTURERS_CONST.'</th>
+						<th width="25%">'.$TEXT_DEVICE_CATEGORY_CONST.'</th>
 						<th width="25%">
-						Models
+						'.$TEXT_MODELS_CONST.'
 						
 						</th>				
 					</tr>
@@ -3823,7 +3883,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					if($boolManufacturer==1 && isset($_SESSION['userID'])){
 						$out.='
 							<input type="text" name="Manufacturer_Description" size="15" />
-							<input type="submit" class="button" name="addManufacturer" value="Add"  />';
+							<input type="submit" class="button" name="addManufacturer" value="'.$TEXT_ADD_CONST.'"  />';
 					}
 					$out.=$firstColText.'
 						</td>
@@ -3891,7 +3951,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							}
 							$out.='
 							<hr />
-							<em>* Models in red use IR codes, in white use Pluto\'s GSD.  Models in green are plug and play.</em><br>
+							<em>* '.$TEXT_MODELS_COLOR_INFO_CONST.'</em><br>
 						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
 							
 							';
@@ -4737,14 +4797,18 @@ function getDD($deviceID,$deviceDataValues,$dbADO)
 }
 
 function editCommandsByWizard($wizard,$section,$commandGroupID,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$out='
 		<table align="center">
 			<tr bgcolor="#D1D9EA">
 				<td><B>Add commands using Wizard:</B> <select name="wizard" onChange="document.editTimedEvent.submit();">
-					<option value="0" '.(($wizard==0)?'selected':'').'>Lighting wizard</option>
-					<option value="1" '.(($wizard==1)?'selected':'').'>Climate wizard</option>
-					<option value="2" '.(($wizard==2)?'selected':'').'>Irrigation wizard</option>	
-					<option value="3" '.(($wizard==3)?'selected':'').'>Advanced wizard</option>
+					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>
+					<option value="1" '.(($wizard==1)?'selected':'').'>'.$TEXT_CLIMATE_WIZARD_CONST.'</option>
+					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_IRRIGATION_WIZARD_CONST.'</option>	
+					<option value="3" '.(($wizard==3)?'selected':'').'>'.$TEXT_ADVANCED_WIZARD_CONST.'</option>
 				</select>
 				</td>
 			</tr>
@@ -4771,12 +4835,16 @@ function editCommandsByWizard($wizard,$section,$commandGroupID,$dbADO){
 }
 
 function irrigationCommandGroupCommandsTable($cgID,$section,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+	
 	$devicesArray=array();
 
 	$pos=0;	
 	$irigationDT=getDeviceTemplatesFromCategory($GLOBALS['IrrigationDevices'],$dbADO);
 	if(count($irigationDT)==0){
-		return 'ERROR: No device template for irigation devices.';
+		return $TEXT_ERROR_NO_DEVICE_TEMPLATE_FOR_IRIGATION_DEVICES_CONST;
 	}
 	$res=$dbADO->Execute('
 		SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template,Room.Description AS Room
@@ -4828,20 +4896,24 @@ function irrigationCommandGroupCommandsTable($cgID,$section,$dbADO){
 }
 
 function irrigationHTML($devicesArray){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
 	
 	if(count($devicesArray)==0){
-		return 'No irrigation devices. Add some devices first';
+		return $TEXT_NO_IRRIGATION_DEVICES_CONST;
 	}
 	$out='
 	<table cellpadding="3" cellspacing="0">
 		<tr bgcolor="lightblue">
-			<td align="center"><B>Device / Room</B></td>
-			<td align="center"><B>Type</B></td>
-			<td align="center"><B>Unchanged</B></td>
-			<td align="center"><B>On</B></td>
-			<td align="center"><B>Off</B></td>
-			<td align="center" colspan="2"><B>Delay</B></td>
-			<td align="center"><B>Action</B></td>
+			<td align="center"><B>'.$TEXT_DEVICE_CONST.' / '.$TEXT_ROOM_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_UNCHANGED_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_ON_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_OFF_CONST.'</B></td>
+			<td align="center" colspan="2"><B>'.$TEXT_DELAY_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';
 	$pos=0;
 
@@ -4867,7 +4939,7 @@ function irrigationHTML($devicesArray){
 	}
 	$out.='
 		<tr bgcolor="#E7E7E7">
-			<td align="center" colspan="8"><input type="submit" class="button" name="update_irrigation" value="Update"></td>
+			<td align="center" colspan="8"><input type="submit" class="button" name="update_irrigation" value="'.$TEXT_UPDATE_CONST.'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="irrigationDevices" value="'.join(',',array_keys($devicesArray)).'">';

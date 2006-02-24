@@ -57,13 +57,13 @@ $start_time=getmicrotime();
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
 				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
+					<td valign="top" colspan="3">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a><hr></td>					
 				</tr>
 		';
 	} else {
 		$out.='
 				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a></td>
+					<td valign="top" colspan="3">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a><hr></td>
 				</tr>
 		';
 	}	
@@ -114,10 +114,10 @@ $start_time=getmicrotime();
 		}
 		$out.='
 			<tr>
-				<td colspan="2" align="center">&nbsp;</td>
+				<td colspan="3" align="center">&nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>'.$TEXT_SHOW_DEVICES_TREE_CONST.'</B></a></td>
+				<td colspan="3" align="center"><a href="index.php?section=leftMenu"><B>'.$TEXT_SHOW_DEVICES_TREE_CONST.'</B></a></td>
 			</tr>';
 	}
 		$out.='
