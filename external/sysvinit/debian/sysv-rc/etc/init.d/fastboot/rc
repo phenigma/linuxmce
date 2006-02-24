@@ -18,6 +18,7 @@ AddService() {
     [ "$(basename $initFile)" == "Pluto_ConfirmInstallation.sh" ] && return
     [ "$(basename $initFile)" == "mysql" ] && return
     [ "$(basename $initFile)" == "ssh" ] && return
+    [ "$(basename $initFile)" == "Pluto_Config_Device_Changes.sh" ] && return
     
     # Else queue it to run
     if [[ -x "$initFile" ]]; then

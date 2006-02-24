@@ -261,6 +261,7 @@ fi
 #   /etc/init.d/Pluto_Update_Packages.sh
 #i
 if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
+	Message "Updating system"
 	/usr/pluto/bin/ApplyUpdates.sh
 fi
 	
@@ -278,6 +279,11 @@ fi
 if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
     Message "Starting X Server"
     /etc/init.d/Pluto_Start_X.sh
+fi
+
+if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
+    Message "Configure Device Changes"
+    /etc/init.d/Pluto_Config_Device_Changes.sh
 fi
 
 if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
