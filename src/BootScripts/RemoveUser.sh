@@ -77,6 +77,7 @@ BaseDir=${BaseDir%/*}
 deluserOptions=""
 if [[ "$DeleteHomeDir" == "Yes" ]]; then
 	deluserOptions="$deluserOptions --remove-home"
+	rm /home/$UserName
 fi
 if [[ "$DeleteAllFiles" == "Yes" ]]; then
 	deluserOptions="$deluserOptions --remove-all-files"
@@ -85,4 +86,4 @@ if [[ "$BackupUserFiles" == "Yes" ]]; then
 	deluserOptions="$deluserOptions --backup --backup-to $BackupDir"
 fi
 
-deluser $deluserOptions $UserName"
+deluser $deluserOptions pluto_$UserName
