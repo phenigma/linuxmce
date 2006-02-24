@@ -5619,9 +5619,6 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
 {
-g_pPlutoLogger->Write(LV_CRITICAL, "Showing object %s", sPK_DesignObj);
-
-	//g_pPlutoLogger->Write( LV_CRITICAL, "CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
 	if(  iPK_Variable ||
 		sComparisson_Operator.length(  )==0 ||
 		sComparisson_Value.length(  )==0 ||
