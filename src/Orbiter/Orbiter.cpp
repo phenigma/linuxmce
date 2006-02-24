@@ -8746,6 +8746,7 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 {
 	if(GotActivity()) 
 	{
+		/*
 		if(m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
 		{
 			// Selected the highlighted object as well as it's parents.  If this was clicked, this would happen
@@ -8759,6 +8760,8 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 		}
 		
 		HandleButtonEvent(BUTTON_Any_key_CONST);
+		*/
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
 	}
 #ifdef DEBUG
 	else
@@ -8778,8 +8781,11 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 {
 	if(GotActivity())
 	{
+		/*
 		HighlightNextObject(DIRECTION_Up_CONST);
 		HandleButtonEvent(BUTTON_Any_key_CONST);
+		*/
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Up_Arrow_CONST), "");
 	}
 #ifdef DEBUG
 	else
@@ -8799,8 +8805,10 @@ void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 {
 	if(GotActivity())
 	{
+		/*
 		HighlightNextObject( DIRECTION_Down_CONST );
-		HandleButtonEvent(BUTTON_Any_key_CONST);
+		HandleButtonEvent(BUTTON_Any_key_CONST);*/
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Down_Arrow_CONST), "");
 	}
 #ifdef DEBUG
 	else
@@ -8820,8 +8828,10 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 {
 	if( GotActivity(  ) )
 	{
+		/*
 		HighlightNextObject( DIRECTION_Left_CONST );
-		HandleButtonEvent(BUTTON_Any_key_CONST);
+		HandleButtonEvent(BUTTON_Any_key_CONST);*/
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Left_Arrow_CONST), "");
 	}
 #ifdef DEBUG
 	else
@@ -8841,8 +8851,10 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 {
 	if( GotActivity(  ) )
 	{
+		/*
 		HighlightNextObject( DIRECTION_Right_CONST );
-		HandleButtonEvent(BUTTON_Any_key_CONST);
+		HandleButtonEvent(BUTTON_Any_key_CONST);*/
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Right_Arrow_CONST), "");
 	}
 #ifdef DEBUG
 	else
