@@ -14,14 +14,24 @@
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
 
-//#include "Defs.h" //pocketfrog
+#ifdef ENABLE_OPENGL
+#include <GL/gl.h>
+#include "OpenGLProxy.h"
+#include "OpenGLTextureConverter_PocketFrog.h"
+#include "OpenGL/orbitergl3dengine.h"
+#include "OpenGL/math3dutils.h"
+#include "OpenGL/GL2DWidgets/basicwindow.h"
+#include "OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
+#include "OpenGL/orbitergl3dengine.h"
+#include "OpenGL/GL2DEffects/gl2deffecttransit.h"
+#include "OpenGL/GL2DEffects/gl2deffectbeziertranzit.h" 
+#endif
 
 using namespace Frog;
 using namespace Frog::Internal;
-
-#include "src/internal/graphicbuffer.h" 
-#include "src/rasterizer.h"
-#include "src/internal/raster2d.h"
+#include <src/internal/graphicbuffer.h>
+#include <src/rasterizer.h>
+#include <src/internal/raster2d.h>
 //-----------------------------------------------------------------------------------------------------
 const int ciCharWidth = 9;
 const int ciCharHeight = 16;
@@ -120,6 +130,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
+#ifdef ENABLE_OPENGL
+	m_spAfterGraphic->Initialize();
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -744,11 +757,22 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 #endif
 	
-    if (m_pScreenHistory_Current)
-    {
-        PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+#ifdef ENABLE_OPENGL
+	Rect srcRect;
+	srcRect.Set(0, 0, m_iImageWidth, m_iImageHeight);
+	auto_ptr<Surface> spSurface(GetDisplay()->CreateSurface(m_iImageWidth, m_iImageHeight));
+	auto_ptr<Rasterizer> spRasterizer(GetDisplay()->CreateRasterizer(spSurface.get()));
+	spRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+	m_spBeforeGraphic.reset(new PocketFrogGraphic(spSurface.get()));
+	spRasterizer.release();
+	spSurface.release();
+#endif
+
+	if (m_pScreenHistory_Current)
+	{
+		PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 		GetDisplay()->FillRect(0, 0, m_iImageWidth, m_iImageHeight, 0x0000);
-    }
+	}
 
 	m_bPoolRendering=true;
 	Orbiter::RenderScreen();
@@ -769,8 +793,33 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 		m_vectPooledTextToRender.clear();
 	}
-	
+
+#ifdef ENABLE_OPENGL
+	if(m_spAfterGraphic.get())
+		m_spAfterGraphic->Initialize();
+
+	m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
+
+	if(m_pObj_SelectedLastScreen)
+	{
+		m_rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
+		m_rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
+		m_rectLastSelected.X = 0;
+		m_rectLastSelected.Y = m_iImageHeight;
+		m_rectLastSelected.Width = 80;
+		m_rectLastSelected.Height = 80;
+	}
+
+	m_pObj_SelectedLastScreen = NULL;
+
+	StartAnimation();
+#else
 	TryToUpdate();
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RedrawObjects()
@@ -1226,4 +1275,47 @@ string Orbiter_PocketFrog::FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex)
 
     return sMessage;
 }
+//-----------------------------------------------------------------------------------------------------
+#ifdef ENABLE_OPENGL
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::OpenGL_RenderFrame(void *data) //callback
+{
+	if(!m_spGLDesktop.get())
+	{
+		m_spGLDesktop.reset(new OrbiterGL3D(this));
+		m_spGLDesktop->BeginAnimation();
+
+		GL2DBezierEffectTransit* Transit = (GL2DBezierEffectTransit*) m_spGLDesktop->EffectBuilder->
+			CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 400);
+		Transit->Configure(m_spBeforeGraphic.get(), m_spAfterGraphic.get(), m_rectLastSelected);
+	}
+
+	if (!m_spGLDesktop->EffectBuilder->HasEffects()) 
+	{
+		if (!m_bPaintDesktop) 
+		{
+			m_bPaintDesktop = true;
+			m_spGLDesktop->Paint();
+			m_spGLDesktop->EndAnimation();
+			m_spGLDesktop.reset();
+		}
+	}
+	else 
+	{
+		m_bPaintDesktop = false;
+		m_spGLDesktop->Paint();
+
+		CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
+			NULL, pe_NO);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::StartAnimation()
+{
+	m_bPaintDesktop = false;
+	CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
+		NULL, pe_NO);
+}
+//-----------------------------------------------------------------------------------------------------
+#endif //ENABLE_OPENGL
 //-----------------------------------------------------------------------------------------------------

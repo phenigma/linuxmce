@@ -1592,7 +1592,9 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectionMethod, int X,  int Y)
 {
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
-	m_pObj_SelectedLastScreen = pObj;
+
+	if(pObj != m_pScreenHistory_Current->GetObj())
+		m_pObj_SelectedLastScreen = pObj;
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbObjectSelected);
 	if(pCallBackData)

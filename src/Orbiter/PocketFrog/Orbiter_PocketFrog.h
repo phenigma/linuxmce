@@ -127,9 +127,22 @@ public:
 
 	bool SelfUpdate();
 
-private:
+protected:
     void DumpLocks();
     string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
+
+#ifdef ENABLE_OPENGL
+	auto_ptr<class OrbiterGL3D> m_spGLDesktop;
+	bool m_bPaintDesktop;
+
+	void OpenGL_RenderFrame(void *data); //callback
+	void StartAnimation();
+
+	auto_ptr<PlutoGraphic> m_spAfterGraphic;
+	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
+	PlutoRectangle m_rectLastSelected;
+
+#endif
 };
 
 }
