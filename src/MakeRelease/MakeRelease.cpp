@@ -786,7 +786,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				list<string> listFiles;
 				
-				cout << "Scanning: " << sInputPath << endl;
+				cout << "Scanning: " << sInputPath << " for " << File << endl;
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
