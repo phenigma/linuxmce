@@ -67,9 +67,6 @@ $TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
 $TRUNK_VARS{'usercontext'}="teliax";
 $TRUNK_VARS{'userconfig'}="context=from-pstn\n";
 $TRUNK_VARS{'userconfig'}.="type=friend\n";
-$TRUNK_VARS{'userconfig'}.="auth=md5\n";
-$TRUNK_VARS{'userconfig'}.="username=$DECLARED_USERNAME\n";
-$TRUNK_VARS{'userconfig'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
 foreach my $var (keys %TRUNK_VARS)
 {
@@ -114,8 +111,8 @@ $IN_VARS{'display'}="7";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
 $IN_VARS{'extension'}=$DECLARED_NUMBER;
-$IN_VARS{'goto0'}="extension";
-$IN_VARS{'extension0'}="10".$1 if($OUT_ROUTE=~/(\d)$/);
+$IN_VARS{'goto0'}="custom";
+$IN_VARS{'custom_args0'}="from-pluto-custom,10".$1.",1" if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
 {
     my $str = $IN_VARS{$var};
@@ -177,5 +174,6 @@ sub get_local_prefixes()
         $LOCAL_PREFIX2 .= $long."\n";
         $LOCAL_PREFIX2 .= "9|112\n9|411\n9|911\n";
         $LOCAL_PREFIX2 .= "9|".($digit<0?"":$digit).$long."\n";
+		$LOCAL_PREFIX2 .= "9|0.\n9|*.\n";
     }
 }

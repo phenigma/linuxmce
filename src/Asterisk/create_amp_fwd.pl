@@ -108,8 +108,8 @@ $IN_VARS{'display'}="7";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
 $IN_VARS{'extension'}=$DECLARED_NUMBER;
-$IN_VARS{'goto0'}="extension";
-$IN_VARS{'extension0'}="10".$1 if($OUT_ROUTE=~/(\d)$/);
+$IN_VARS{'goto0'}="custom";
+$IN_VARS{'custom_args0'}="from-pluto-custom,10".$1.",1" if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
 {
     my $str = $IN_VARS{$var};
