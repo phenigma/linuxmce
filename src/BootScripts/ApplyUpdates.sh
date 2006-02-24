@@ -28,6 +28,9 @@ if [[ $RunningOnMD == "No" ]] ;then
 	fi
 fi
 
+## Try to force NFS to sync so we can read the flags/locks in realtime
+sync
+
 ## Check the existence of DownloadUpdates.lock
 if [[ -f /usr/pluto/var/Updates/DownloadUpdates.lock ]]; then
 	if [[ $RunningOnMD == "No" ]]; then
