@@ -228,6 +228,9 @@ function users($output,$dbADO) {
 			// delete user if $_REQUEST['did'] is set
 			if(isset($_REQUEST['did']) && (int)$_REQUEST['did']>0){
 				$toDel=(int)$_REQUEST['did'];
+				$cmd='sudo -u root /usr/pluto/bin/RemoveUser.sh -d '.$toDel;
+				exec($toDel);
+				
 				$dbADO->Execute('DELETE FROM Installation_Users WHERE FK_Users=?',$toDel);
 				$dbADO->Execute('DELETE FROM Users WHERE PK_Users=?',$toDel);
 				
