@@ -8747,16 +8747,21 @@ void Orbiter::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-	if( GotActivity(  ) && m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
+	if(GotActivity()) 
 	{
-		// Selected the highlighted object as well as it's parents.  If this was clicked, this would happen
-		// automatically, but since we're using the navigation we have to walk the tree ourselves
-		DesignObj_Orbiter *pObj = m_pObj_Highlighted;
-		while(pObj)
+		if(m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
 		{
-			SelectedObject(pObj,smNavigation);
-			pObj = (DesignObj_Orbiter *) pObj->m_pParentObject;
+			// Selected the highlighted object as well as it's parents.  If this was clicked, this would happen
+			// automatically, but since we're using the navigation we have to walk the tree ourselves
+			DesignObj_Orbiter *pObj = m_pObj_Highlighted;
+			while(pObj)
+			{
+				SelectedObject(pObj,smNavigation);
+				pObj = (DesignObj_Orbiter *) pObj->m_pParentObject;
+			}
 		}
+		
+		HandleButtonEvent(BUTTON_Any_key_CONST);
 	}
 #ifdef DEBUG
 	else
@@ -8774,8 +8779,11 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-	if( GotActivity(  ) )
-		HighlightNextObject( DIRECTION_Up_CONST );
+	if(GotActivity())
+	{
+		HighlightNextObject(DIRECTION_Up_CONST);
+		HandleButtonEvent(BUTTON_Any_key_CONST);
+	}
 #ifdef DEBUG
 	else
 	{
@@ -8792,8 +8800,11 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-	if( GotActivity(  ) )
+	if(GotActivity())
+	{
 		HighlightNextObject( DIRECTION_Down_CONST );
+		HandleButtonEvent(BUTTON_Any_key_CONST);
+	}
 #ifdef DEBUG
 	else
 	{
@@ -8811,7 +8822,10 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	if( GotActivity(  ) )
+	{
 		HighlightNextObject( DIRECTION_Left_CONST );
+		HandleButtonEvent(BUTTON_Any_key_CONST);
+	}
 #ifdef DEBUG
 	else
 	{
@@ -8829,7 +8843,10 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	if( GotActivity(  ) )
+	{
 		HighlightNextObject( DIRECTION_Right_CONST );
+		HandleButtonEvent(BUTTON_Any_key_CONST);
+	}
 #ifdef DEBUG
 	else
 	{
