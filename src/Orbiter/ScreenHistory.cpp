@@ -130,20 +130,32 @@ void ScreenHistory::PK_Screen(int nPK_Screen)
 	m_nPK_Screen = nPK_Screen;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHistory::SaveContext(const map<int, string>& mapVariable)
+void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
+								const map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Saving context (%d variables) ...", mapVariable.size());
+	g_pPlutoLogger->Write(LV_WARNING, "Saving context for screen %d, object %s (%d variables, %d visibility status) ...", 
+		m_nPK_Screen, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
 	m_mapVariable.clear();
 	for(map<int, string>::const_iterator it = mapVariable.begin(); it != mapVariable.end(); ++it)
 		m_mapVariable[it->first] = it->second;
+
+	m_mapVisibilityContext.clear();
+	for(map<DesignObj_Orbiter *, bool>::const_iterator itv = mapVisibilityContext.begin(); itv != mapVisibilityContext.end(); ++itv)
+		m_mapVisibilityContext[itv->first] = itv->second;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHistory::RestoreContext(map<int, string>& mapVariable)
+void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
+								   map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Restoring context (%d variables) ...", m_mapVariable.size());
+	g_pPlutoLogger->Write(LV_WARNING, "Restoring context for screen %d, object %s (%d variables, %d visibility status) ...", 
+		m_nPK_Screen, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
-	for(map<int, string>::const_iterator it = m_mapVariable.begin(); it != m_mapVariable.end(); ++it)
+	for(map<int, string>::iterator it = m_mapVariable.begin(); it != m_mapVariable.end(); ++it)
 		mapVariable[it->first] = it->second;
+
+	mapVisibilityContext.clear();
+	for(map<DesignObj_Orbiter *, bool>::iterator itv = m_mapVisibilityContext.begin(); itv != m_mapVisibilityContext.end(); ++itv)
+		mapVisibilityContext[itv->first] = itv->second;
 }
 //-----------------------------------------------------------------------------------------------------

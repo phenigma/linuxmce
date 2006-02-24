@@ -238,6 +238,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
 	m_pObj_SelectedLastScreen=NULL;
 	m_pGraphicBeforeHighlight=NULL;
+	m_pContextToBeRestored=NULL;
 	m_LastActivityTime=time( NULL );
 	m_iLastEntryInDeviceGroup=-1;
 	m_pActivePopup=NULL;
@@ -1389,6 +1390,15 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 				m_listScreenHistory.pop_front(  );
 			}
 		}
+	}
+
+	//restoring variables and visibility status for objects
+	if(m_pContextToBeRestored)
+	{
+		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
+		m_pContextToBeRestored->RestoreContext(m_mapVariable, mapVisibilityContext);
+		SetChildrenVisibilityContext(m_pContextToBeRestored->GetObj(), mapVisibilityContext);
+		m_pContextToBeRestored = NULL;
 	}
 
 	ScreenHistory::m_bAddToHistory = true;
@@ -5447,10 +5457,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	// We've got a screen to go back to
 	if(  pScreenHistory  )
 	{
-		// If we stored variables, be sure to restore them
-		pScreenHistory->RestoreContext(m_mapVariable);
-		vm.Release();
-
+		m_pContextToBeRestored = pScreenHistory;
 		ScreenHistory::m_bAddToHistory = false;
 		m_pScreenHistory_NewEntry = pScreenHistory;
 		CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
@@ -5571,7 +5578,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	bool bLastCantGoBack = pScreenHistory_New->m_bCantGoBack;
 
 	pScreenHistory_New->SetObj(pObj_New);
-	pScreenHistory_New->SaveContext(m_mapVariable);
+
+    map<DesignObj_Orbiter *, bool> mapVisibilityContext;
+	GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
+	pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
 	pScreenHistory_New->ScreenID(sID);
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
@@ -5609,6 +5619,8 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Showing object %s", sPK_DesignObj);
+
 	//g_pPlutoLogger->Write( LV_CRITICAL, "CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
 	if(  iPK_Variable ||
 		sComparisson_Operator.length(  )==0 ||
@@ -5639,7 +5651,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 
 		pObj->m_bHidden = !bShow;
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
+		g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) !pObj->m_bHidden );
 #endif
 		RenderObjectAsync(pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( pObj->m_bHidden && pObj->m_pParentObject )
@@ -9697,5 +9709,39 @@ void Orbiter::RenderObjectAsync(DesignObj_Orbiter *pObj)
 	PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
 	m_vectObjs_NeedRedraw.push_back(pObj);
 	nd.Release();	
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::GetChildrenVisibilityContext(DesignObj_Orbiter *pObj, 
+										  map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
+{
+	DesignObj_DataList::iterator it;
+	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+	{
+		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
+		mapVisibilityContext[pChildObj] = pChildObj->IsHidden();
+
+		GetChildrenVisibilityContext(pChildObj, mapVisibilityContext);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::SetChildrenVisibilityContext(DesignObj_Orbiter *pObj, 
+											const map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
+{
+	DesignObj_DataList::const_iterator it;
+	map<DesignObj_Orbiter *, bool>::const_iterator itmap;
+	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+	{
+		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
+
+		itmap = mapVisibilityContext.find(pChildObj);
+		if(itmap != mapVisibilityContext.end() && pChildObj->m_bHidden != itmap->second)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "* Changing visibility status for %s from %d to %d",
+				pChildObj->m_ObjectID.c_str(), pChildObj->m_bHidden, itmap->second);
+			pChildObj->m_bHidden = itmap->second;
+		}
+
+		SetChildrenVisibilityContext(pChildObj, mapVisibilityContext);
+	}
 }
 //-----------------------------------------------------------------------------------------------------

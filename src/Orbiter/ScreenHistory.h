@@ -24,6 +24,7 @@ namespace DCE
 		list<DesignObj_Orbiter *> m_listObjs; /** < The list of design objects for this screen */
 		map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
 		time_t m_tTime; /** < The moment of time when this screen was created */
+		map<DesignObj_Orbiter *, bool> m_mapVisibilityContext; /** < We keep here the visibily status for each object */
 
 		string m_sID; /** < The id for current design object */
 		int m_nPK_Screen; /** < The PK_Screen of the screen */
@@ -70,9 +71,11 @@ namespace DCE
 		/** < Returns the moment of time when this screen was created */
 		time_t TimeCreated() const;
 
-		/** < Saves/restores to map with variables */
-		void SaveContext(const map<int, string>& mapVariable);
-		void RestoreContext(map<int, string>& mapVariable);
+		/** < Saves/restores to map with variables and the visibily status for each object */
+		void SaveContext(const map<int, string>& mapVariable, 
+			const map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
+		void RestoreContext(map<int, string>& mapVariable,
+			map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

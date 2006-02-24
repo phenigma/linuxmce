@@ -186,6 +186,7 @@ namespace DCE
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
+		class ScreenHistory *m_pContextToBeRestored; // We need to restore objects visibility status after the user does a go back
 		int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens
@@ -875,6 +876,18 @@ namespace DCE
 		* @todo ask
 		*/
 		string SubstituteVariables( string Input, DesignObj_Orbiter *pDesignObj_Orbiter, int iX, int iY );
+
+		/**
+		* @brief get the lists with visible and hidden children of an object
+		*/
+		void GetChildrenVisibilityContext(DesignObj_Orbiter *pObj, 
+			map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
+
+		/**
+		* @brief get the lists with visible and hidden children of an object
+		*/
+		void SetChildrenVisibilityContext(DesignObj_Orbiter *pObj, 
+			const map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
 
 		/**
 		* @brief A helper function we can call internally rather than the full CMD_GotoScreen
