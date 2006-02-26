@@ -1128,6 +1128,20 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir does not exists %s found %d files",sDestination.c_str(),(int) listFiles.size());
 
+		if( listFiles.size()>1 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase removing id3 files");
+			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+			{
+g_pPlutoLogger->Write(LV_WARNING,"Checking file %s with extension %s",(*it).c_str(),FileUtils::FindExtension(*it).c_str());
+				if( FileUtils::FindExtension(*it)=="id3" )
+				{
+					listFiles.erase(it);
+g_pPlutoLogger->Write(LV_WARNING,"Removing it.  size is %d",(int) listFiles.size());
+					break;
+				}
+			}
+		}
 		if( listFiles.size()!=1 )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",sDestination.c_str());
 		else
