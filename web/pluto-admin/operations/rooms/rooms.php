@@ -28,7 +28,12 @@ function rooms($output,$dbADO) {
 	$out.='<h3>'.$TEXT_ROOMS_CONST.'</h3>';
 
 	if ($action=='form') {
-		$queryRooms = 'SELECT * FROM Room WHERE FK_Installation = ?';
+		$queryRooms = '
+			SELECT count(PK_Device) AS NoDevices,Room.* 
+			FROM Room 
+			LEFT JOIN Device ON FK_Room=PK_Room
+			WHERE Room.FK_Installation = ?
+			GROUP BY PK_Room';
 		$resRooms = $dbADO->Execute($queryRooms,array($installationID));
 		$roomTypes=getAssocArray('RoomType','PK_RoomType','Description',$dbADO,'','ORDER BY Description ASC');
 
@@ -38,7 +43,7 @@ function rooms($output,$dbADO) {
 			if(isset($_GET['eaid'])){
 				$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 				if (!$canModifyInstallation){
-					header("Location: index.php?section=rooms&error=You are not authorised to change this installation!");
+					header("Location: index.php?section=rooms&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 					exit(0);
 				}
 
@@ -99,7 +104,10 @@ function rooms($output,$dbADO) {
 				$roomImage='';
 				$out.='
 			<tr>
-				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="if(confirm(\'Are you sure you want to delete this room?\'))windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">'.$TEXT_DELETE_ROOM_CONST.'</a></td>
+				<td align="center" valign="top">
+					<input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br>
+					<a href="javascript:void(0);" onClick="if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\'))windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">'.$TEXT_DELETE_ROOM_CONST.'</a>
+				</td>
 				<td align="center" valign="top">'.pulldownFromArray($roomTypes,'roomType_'.$rowRoom['PK_Room'],$rowRoom['FK_RoomType']).'</td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
 				<td valign="top" align="center"><input type="checkbox" name="hidden_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['HideFromOrbiter']==1)?'checked':'').'></td>

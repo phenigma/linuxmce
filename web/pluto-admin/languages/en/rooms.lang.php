@@ -13,4 +13,5 @@ $TEXT_PICTURES_RESTRICTION_WARNING_CONST='Pictures allowed must be JPG or PNG; t
 $TEXT_SAVED_CONST='Saved';
 $TEXT_DELETE_ROOM_CONST='Delete Room';
 $TEXT_MANUALLY_CONFIGURE_CONST='Manually configure.';
+$TEXT_DELETE_ROOM_CONFIRMATION_CONST='Are you sure you want to delete this room? Number of devices in this room:';
 ?>

@@ -17,6 +17,9 @@ function deleteRoomFromInstallation($output,$dbADO) {
 			$deleteRoomFromInstallation = 'delete from Room where PK_Room = ?';
 			$query = $dbADO->Execute($deleteRoomFromInstallation,array($roomID));
 			
+			$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+			exec($commandToSend);
+					
 			$out.="
 			<script>
 				alert('$TEXT_ROOM_DELETED_CONST');
