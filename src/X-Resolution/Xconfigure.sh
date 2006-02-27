@@ -68,7 +68,7 @@ if [[ -n "$Resolution" ]]; then
 		for Var in ${!resHD*}; do
 			if [[ "$Resolution" == "${!Var}" ]]; then
 				nvHD=${Var#res}
-				if [[ "$ScanType" == interlace ]]; then
+				if [[ "$ScanType" == interlace && "$Var" != *720* ]]; then
 					nvHD="${nvHD}i"
 				else
 					nvHD="${nvHD}p"
