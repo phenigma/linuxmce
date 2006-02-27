@@ -44,18 +44,11 @@ if [[ "$Defaults" == y ]]; then
 		radeon|ati) PackageIsInstalled fglrx-driver && DisplayDriver="fglrx" ;;
 		"") DisplayDrivers="vesa" ;; # just-in-case default
 	esac
-	cat /usr/pluto/templates/XF86Config-4.in | awk -v "DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+	cat /usr/pluto/templates/XF86Config-4.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
 fi
 
 if [[ -n "$Resolution" ]]; then
-	awk -v "Resolution=$Resolution" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
-	mv "$ConfigFile"{.$$,}
 	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	awk -v "Modeline=${Modeline%@*}" -f/usr/pluto/bin/X-ChangeModeline.awk "$ConfigFile" >"$ConfigFile.$$"
-	mv "$ConfigFile"{.$$,}
-fi
-
-if [[ -n "$Refresh" ]]; then
-	awk -v "Refresh=$Refresh" -f/usr/pluto/bin/X-ChangeRefresh.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=${Modeline#* }" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 fi
