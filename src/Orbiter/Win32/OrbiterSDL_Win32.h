@@ -1,9 +1,19 @@
 #ifndef __ORBITER_SDL_WIN_H__
 #define __ORBITER_SDL_WIN_H__
+
 //-----------------------------------------------------------------------------------------------------
+#ifdef ENABLE_OPENGL
+#include "../SDL/OrbiterSDLGL.h"
+#else
 #include "../SDL/OrbiterSDL.h"
+#endif
 //-----------------------------------------------------------------------------------------------------
-class OrbiterSDL_Win32 : public OrbiterSDL
+class OrbiterSDL_Win32 : 
+#ifdef ENABLE_OPENGL
+	public OrbiterSDLGL
+#else
+	public OrbiterSDL
+#endif
 {
 private:
 

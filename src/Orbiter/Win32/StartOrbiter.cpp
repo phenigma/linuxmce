@@ -176,7 +176,12 @@ bool EventLoop(ORBITER* pOrbiter)
 #ifdef POCKETFROG
 	pOrbiter->Run();
 #else
-    SDL_Event Event;
+
+#if defined(ENABLE_OPENGL)
+	int SDL_Event_Pending = 0;
+#endif
+
+	SDL_Event Event;
 
     // temporary hack --
     // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
@@ -185,7 +190,11 @@ bool EventLoop(ORBITER* pOrbiter)
     {
 		try
 		{
+#if !defined(ENABLE_OPENGL)
 			SDL_WaitEvent(&Event);
+#else
+			SDL_Event_Pending = SDL_PollEvent(&Event);
+#endif
 		}
 		catch(...) 
 		{
@@ -193,56 +202,68 @@ bool EventLoop(ORBITER* pOrbiter)
 			break;
 		}
 
-		Orbiter::Event orbiterEvent;
-		orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
-
-        if (Event.type == SDL_QUIT)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
-            break;
-		}
-
-#ifdef AUDIDEMO
-        if (Event.type == SDL_MOUSEBUTTONDOWN)
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
-
-			orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
-			switch ( Event.button.button )
-			{
-				case 1:	orbiterEvent.data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
-				case 2: orbiterEvent.data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
-				case 3:	orbiterEvent.data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
-				case 4:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 		break;
-				case 5:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
-				case 6:	orbiterEvent.data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
-				case 7:	orbiterEvent.data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
-
-				default:
-					g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
-					orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
-					break;
-			}
-            pOrbiter->ProcessEvent(orbiterEvent);
-        }
-#else
-        if (Event.type == SDL_MOUSEBUTTONDOWN)
-		{
-			orbiterEvent.type = Orbiter::Event::REGION_DOWN;
-			orbiterEvent.data.region.m_iX = Event.button.x;
-			orbiterEvent.data.region.m_iY = Event.button.y;
-            pOrbiter->ProcessEvent(orbiterEvent);
-
-			RecordMouseAction(Event.button.x, Event.button.y);
-		}
-        else if (Event.type == SDL_MOUSEBUTTONUP)
-		{
-			orbiterEvent.type = Orbiter::Event::REGION_UP;
-			orbiterEvent.data.region.m_iX = Event.button.x;
-			orbiterEvent.data.region.m_iY = Event.button.y;
-            pOrbiter->ProcessEvent(orbiterEvent);
-		}
+#if defined(ENABLE_OPENGL) 
+		if (SDL_Event_Pending)
 #endif
+		{
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+
+			if (Event.type == SDL_QUIT)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				break;
+			}
+
+	#ifdef AUDIDEMO
+			if (Event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
+
+				orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+				switch ( Event.button.button )
+				{
+					case 1:	orbiterEvent.data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
+					case 2: orbiterEvent.data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
+					case 3:	orbiterEvent.data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
+					case 4:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 		break;
+					case 5:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
+					case 6:	orbiterEvent.data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
+					case 7:	orbiterEvent.data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
+
+					default:
+						g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
+						orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+						break;
+				}
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+	#else
+			if (Event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+
+				RecordMouseAction(Event.button.x, Event.button.y);
+			}
+			else if (Event.type == SDL_MOUSEBUTTONUP)
+			{
+				orbiterEvent.type = Orbiter::Event::REGION_UP;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+	#endif
+	} //if (SDL_Event_Pending)
+#if defined(ENABLE_OPENGL) 
+	else
+	{
+		((OrbiterSDLGL*) pOrbiter)->OnIdle();
+	}
+#endif
+
     }  // while
 
 #endif //POCKETFROG vs. SDL

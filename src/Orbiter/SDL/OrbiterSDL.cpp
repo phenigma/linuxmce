@@ -14,11 +14,11 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+#include "OrbiterSDL.h"
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
-#include "OrbiterSDL.h"
 #include "SerializeClass/ShapesColors.h"
 
 #include "PlutoSDLDefs.h"

@@ -20,10 +20,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..;Win32;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;PHONEKEYSX;PROFILINGX;THREAD_LOG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;ENABLE_OPENGL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -32,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib OpenGL32.lib"
 				OutputFile="../Debug/Orbiter_SDL.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../../libs/Libraries/jpgsrc6b/vc7/Debug"
@@ -126,6 +127,15 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\OpenGL\GL2DWidgets\basewidget.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DWidgets\basicwindow.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DWidgets\bezierwindow.cpp">
+			</File>
+			<File
 				RelativePath=".\CacheImageManager.cpp">
 			</File>
 			<File
@@ -141,6 +151,30 @@
 				RelativePath="DesignObj_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\GL2DWidgets\DrawingWidgetsEngine.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffect.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectfadesfromtop.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
+			</File>
+			<File
 				RelativePath=".\GraphicBuilder.cpp">
 			</File>
 			<File
@@ -148,6 +182,15 @@
 			</File>
 			<File
 				RelativePath=".\Win32\MainDialog.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\math3dutils.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
+			</File>
+			<File
+				RelativePath=".\Sdl\OpenGLTextureConverter_SDL.cpp">
 			</File>
 			<File
 				RelativePath="Orbiter.cpp">
@@ -159,10 +202,19 @@
 				RelativePath=".\OrbiterFileBrowser.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\orbitergl3dengine.cpp">
+			</File>
+			<File
 				RelativePath=".\Sdl\OrbiterSDL.cpp">
 			</File>
 			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.cpp">
+			</File>
+			<File
+				RelativePath=".\Sdl\OrbiterSDLBase.cpp">
+			</File>
+			<File
+				RelativePath=".\Sdl\OrbiterSDLGL.cpp">
 			</File>
 			<File
 				RelativePath=".\Win32\PopupMessage.cpp">
@@ -233,6 +285,9 @@
 			</File>
 			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.h">
+			</File>
+			<File
+				RelativePath=".\Sdl\OrbiterSDLBase.h">
 			</File>
 			<File
 				RelativePath=".\Sdl\PlutoSDLDefs.h">

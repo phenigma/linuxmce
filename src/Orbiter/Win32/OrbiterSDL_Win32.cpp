@@ -38,10 +38,18 @@ extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 								   bool bLocalMode, int nImageWidth, int nImageHeight, 
-								   bool bFullScreen) :
-	OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
+								   bool bFullScreen)
+	:
+#ifdef ENABLE_OPENGL
+	  OrbiterSDLGL(DeviceID, PK_DeviceTemplate, ServerAddress, 
+		   sLocalDirectory, bLocalMode, 
+		   nImageWidth, nImageHeight, bFullScreen, NULL)
+#else
+	  OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen)
+
+#endif
 {
 	//todo
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
@@ -105,7 +113,11 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::RenderScreen()
 {
+#ifdef ENABLE_OPENGL
+	OrbiterSDLGL::RenderScreen();
+#else
 	OrbiterSDL::RenderScreen();
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -16,6 +16,9 @@
  */
 #include "gl2deffecttransit.h"
 #include "gl2deffectbeziertranzit.h"
+#include "gl2deffectslidefromleft.h"
+#include "gl2deffectfadesfromtop.h"
+#include "gl2deffectfadesfromunderneath.h"
 
 namespace DCE {
 
@@ -47,6 +50,15 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 		case GL2D_EFFECT_BEZIER_TRANSIT:
 			Effect = new GL2DBezierEffectTransit (this, TimeForComplete);
 			break;
+		case GL2D_EFFECT_SLIDE_FROM_LEFT:
+			Effect = new GL2DEffectSlideFromLeft (this, TimeForComplete);
+			break;
+		case GL2D_EFFECT_FADES_FROM_TOP:
+			Effect = new GL2DEffectFadesFromTop(this, TimeForComplete);
+			break;
+		case GL2D_EFFECT_FADES_FROM_UNDERNEATH:
+			Effect = new GL2DEffectFadesFromUnderneath (this, TimeForComplete);
+			break;
 	}
 	if(IDEffect >= GL2D_UNIQUE_EFFECT)
 		ClearEffects();
@@ -69,7 +81,7 @@ void GL2DEffectFactory::UpdateEffects()
 	
 	for(Effect = Effects.begin(); Effect < Effects.end(); )
 	{
-		if(((*Effect)->Configured) &&((*Effect)->Stage(float(CurrentTime))>1) )
+		if(((*Effect)->Configured) &&((*Effect)->Stage(CurrentTime)>1) )
 		{
 			delete *Effect;
 			Effect = Effects.erase(Effect);

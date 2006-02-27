@@ -162,7 +162,7 @@ T3DMatrix T3DMatrix::operator = (T3DMatrix& Matrix)
 	return (*this);
 }
 
-const float MathUtils::PI = 3.1415926f;
+const float MathUtils::_PI = 3.1414926535f;
 
 int MathUtils::MinPowerOf2(int Value)
 {

@@ -225,7 +225,7 @@ class MathUtils
 		static int MinPowerOf2(int Value);
 		static float InterpolateValues(float Source, float Dest, float Theta);
 		static float InterpolateSinus(float Source, float Dest, float Theta);
-		static const float PI;
+		static const float _PI;
 
 		static POINT_3D pointAdd(POINT_3D p, POINT_3D q);
 		static POINT_3D pointTimes(float c, POINT_3D p);

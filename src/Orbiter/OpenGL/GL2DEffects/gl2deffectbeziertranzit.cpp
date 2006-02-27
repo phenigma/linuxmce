@@ -51,7 +51,8 @@ void GL2DBezierEffectTransit::Configure(PlutoGraphic* SourceFrame, PlutoGraphic*
 
 void GL2DBezierEffectTransit::Paint(int Now)
 {
-	if(!Configured) {
+	if(!Configured) 
+	{
 		//Generate textures for OpenGL
 		IDBack = OpenGLTextureConverter::GenerateTexture(BackSrf.get());
 		IDFront = OpenGLTextureConverter::GenerateTexture(FrontSrf.get());

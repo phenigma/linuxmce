@@ -136,7 +136,7 @@ void OrbiterGL3D::EndAnimation()
 void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
-	SDL_SwapBuffers();
+	SDL_GL_SwapBuffers();
 #else
 	SwapBuffers(hdc);
 #endif
@@ -179,6 +179,7 @@ void OrbiterGL3D::InitOpenGL()
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
+	OrbiterSDLGL * pOrbiterSDLGL = (OrbiterSDLGL *)this->pOrbiterGL;
 	if ((pOrbiterSDLGL->Screen = SDL_SetVideoMode(pOrbiterSDLGL->m_iImageWidth, pOrbiterSDLGL->m_iImageHeight, 
 		0, uVideoModeFlags)) == NULL)
 	{
