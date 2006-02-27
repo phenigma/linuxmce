@@ -124,5 +124,7 @@ done
 if [[ "$runlevel" == "0" || "$runlevel" == "6" ]] ;then
     make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start 2>/dev/null 1>/dev/null
 else
-    screen -d -m -S "BkgSS-MakeRunlevel-$runlevel" make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start
+	if [[ -x /usr/bin/screen ]]; then
+		screen -d -m -S "BkgSS-MakeRunlevel-$runlevel" make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start
+	fi
 fi

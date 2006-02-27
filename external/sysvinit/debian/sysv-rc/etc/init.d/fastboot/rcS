@@ -56,7 +56,6 @@ Message "Initializing udev"
 
 ## Loading modules
 Message "Loading modules"
-/sbin/depmod
 (cat /etc/modules; echo) | # make sure there is a LF at the end
 while read module args
 do
@@ -200,11 +199,21 @@ fi
 
 ## Start up the networking
 Message "Start up networking"
-/etc/init.d/ifupdown-clean start 1> /dev/null
-/etc/init.d/ifupdown   start     1> /dev/null # Remove when droping the 
-/etc/init.d/networking start     1> /dev/null # Uptate_Packages script ?
-/etc/init.d/inetd      start     1> /dev/null # Starts tftp on Core and Hybrid
-/etc/init.d/portmap    start     1> /dev/null # Search me ! :/
+if [[ -x /etc/init.d/ifupdown-clean ]]; then
+	/etc/init.d/ifupdown-clean start 1> /dev/null
+fi
+if [[ -x /etc/init.d/ifupdown ]]; then
+	/etc/init.d/ifupdown start 1> /dev/null # Remove when droping the 
+fi
+if [[ -x /etc/init.d/networking ]]; then
+	/etc/init.d/networking start 1> /dev/null # Uptate_Packages script ?
+fi
+if [[ -x /etc/init.d/inetd ]]; then
+	/etc/init.d/inetd start 1> /dev/null # Starts tftp on Core and Hybrid
+fi
+if [[ -x /etc/init.d/portmap ]]; then
+	/etc/init.d/portmap start 1> /dev/null # Search me ! :/
+fi
 
 ## Now we can safely mount remoute filesystems
 Message "Mounting remote filesystems"
@@ -235,7 +244,9 @@ fi
 
 
 # assure some settings
-/usr/pluto/bin/Report_Machine_Status.sh &
+if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
+	/usr/pluto/bin/Report_Machine_Status.sh  &
+fi
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
 R="$(RunSQL "$Q")"
 ConfSet PK_Installation "$R"
@@ -244,8 +255,11 @@ R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
 
 
-. /usr/pluto/bin/Config_Ops.sh
-if [[ "$FirstBoot" != "false" ]] ;then
+if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
+	 /usr/pluto/bin/Config_Ops.sh
+fi
+
+if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	Message "Generating pluto bootscripts for the first time"
 	/usr/pluto/bin/generateRcScripts.sh
 	ConfSet "FirstBoot" "false"
