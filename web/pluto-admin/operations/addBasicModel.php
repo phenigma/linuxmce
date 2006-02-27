@@ -86,8 +86,12 @@
 				if($from=='genericSerialDevices'){
 					$redirectJS='
 					<script>
+					try{
 						opener.location=\'index.php?section=genericSerialDevices&msg=The device was added.\';
 						self.close();
+					}catch(e){
+						self.location=\'index.php?section=deviceTemplates&msg=The device was added.\';
+					}
 					</script>
 					';
 				}else{
@@ -106,9 +110,14 @@
 				$fk_package=NULL;
 				$redirectJS='
 				<script>
-					opener.location=\'index.php?section=editMasterDevice&model=\';
-					window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$virtualDeviceDocument.'\',\'_blank\',\'\')
-					self.close();
+					try{
+						opener.location=\'index.php?section=editMasterDevice&model=\';
+						window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$virtualDeviceDocument.'\',\'_blank\',\'\')
+						self.close();
+					}catch(e){
+						//
+						self.location=\'index.php?section=deviceTemplates&msg=The device was added.\';
+					}
 				</script>
 				';				
 			break;

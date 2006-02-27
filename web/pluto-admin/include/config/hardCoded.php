@@ -264,7 +264,7 @@
 	$GLOBALS['ThermostatCommands']=36;
 	
 	// date format
-	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';
+	$GLOBALS['defaultDateFormat']='Y-m-d H:i:s';
 
 	$GLOBALS['GenericSerialDeviceCommandLine']='Generic_Serial_Device';		// the command line used to identify generic serial devices
 	
