@@ -1,4 +1,4 @@
-# 27-Feb-06 13:27 Receive command from child
+# 27-Feb-06 15:50 Receive command from child
 if ( $bInit == false ) then
 	log( "The initialisation is not finish yet\n")
 	return
@@ -61,26 +61,29 @@ if ( $branchList.include?(idBranch) == false ) then
 end
 
 #    38  is the device template for lights
-# 1780  is the device template for StandardIrrigationSprinkler
+# 1780   is the device template for StandardIrrigationSprinkler
+# 1786   is the device template for StandardRelayLight 
 case cmdId
-	when 192      #  OFF
+	when 192      #  OFF command
 	if ( childType == 38 ) then 
 		NOEMONTurnLight(childNo,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	end
 	
-	if ( childType == 1780 )
+	# StandardSprinkler  or StandardRelayLight 
+	if ( childType == 1780 ) or ( childType == 1786 ) then
 		NOEMONTurnRelay(childNo,true,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	end
-	when 193      #  ON
+	when 193      #  ON command
 	if ( childType == 38 ) then 
 		NOEMONTurnLight(childNo,false,$pcBranch,$pcNo,deviceBranch,deviceUnit)
 	end
 	
-	if ( childType == 1780 )
+	# StandardSprinkler  or StandardRelayLight 
+	if ( childType == 1780 ) or ( childType == 1786 ) then
 		NOEMONTurnRelay(childNo,false,$pcBranch,$pcNo,deviceBranch,deviceUnit )
 	end
 	
-	when 184      #  SetLevel
+	when 184      #  SetLevel  command
 	level = cmd.params_[76]
 	log( "Level:" + level + "\n" )
 	NOEMONLightSetLevel(childNo,level.to_i,$pcBranch,$pcNo,deviceBranch,deviceUnit)
