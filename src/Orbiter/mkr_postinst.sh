@@ -2,8 +2,6 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
-. /usr/pluto/bin/Utils.sh
-. /usr/pluto/bin/PlutoVersion.h
 
 Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
 DeviceCategory=$(RunSQL "$Q")
@@ -28,14 +26,9 @@ if [[ -n "$DeviceCategory" ]]; then
 fi
 
 PrevVer="$2"
-DeviceCategory_VideoCards=125
 
 if [[ -n "$PrevVer" ]]; then
 	echo "Upgrading from version '$PrevVer'. Not setting up X again"
-	exit 0
-elif [[ -n "$(FindDevice_Category "$PK_Device" "$DeviceCategory_VideoCards")" ]]; then
-	echo "Child device in 'Video Cards' category found. It will configure X, not us"
-	exit 0
 else
 	echo "Configuring X"
 	/usr/pluto/bin/Xconfigure.sh --defaults
@@ -45,3 +38,4 @@ else
 		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
 	fi
 fi
+exit 0
