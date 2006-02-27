@@ -8,7 +8,7 @@ GetVideoDriver()
 	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
 	rm /tmp/xinfo
 	case "$VideoDriver" in
-		nv) PackageIsInstalled pluto-nvidia-video-drivers && VideoDriver="nvidia" ;;
+		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
 		"") VideoDrivers="vesa" ;; # just-in-case default
 	esac
