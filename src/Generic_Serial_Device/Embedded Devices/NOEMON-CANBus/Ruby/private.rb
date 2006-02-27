@@ -1,4 +1,4 @@
-#Private functions  17-Feb-06 14:49
+#Private functions  23-Feb-06 15:42
 
 def log( buff )
 if  $logFile.nil? then
@@ -191,9 +191,9 @@ def searchBranches()
 	log( "Call search branches:\n" )	
 	children=device_.childdevices_
 	children.each { |key,val| 
-		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(144)) then
+		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(147)) then
 			deviceBranch = val.devdata_[40].to_i
-			deviceUnit = val.devdata_[144].to_i
+			deviceUnit = val.devdata_[147].to_i
 			aux = deviceBranch * 256 + deviceUnit			
 			idBranch = "%04u" % aux
 			 
@@ -221,8 +221,8 @@ def searchChild( name, branch, unit)
 			childBranch = val.devdata_[40]
 		end
 	
-		if ( val.devdata_.has_key?(144) )  then
-			childUnit = val.devdata_[144]
+		if ( val.devdata_.has_key?(147) )  then
+			childUnit = val.devdata_[147]
 		end
 	
 		if ( val.devdata_.has_key?(12) )  then
