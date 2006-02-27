@@ -2,6 +2,10 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
+resHD480=848x480
+resHD720=1280x720
+resHD1080=1920x1080
+
 GetVideoDriver()
 {
 	lshwd -ox >/dev/null
@@ -59,8 +63,16 @@ elif [[ -n "$UpdateVideoDriver" ]]; then
 fi
 
 if [[ -n "$Resolution" ]]; then
+	if grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
+		for Var in ${!resHD*}; do
+			if [[ "$Resolution" == "${!Var}" ]]; then
+				nvHD=${Var#res}
+				break
+			fi
+		done
+	fi
 	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	Modeline="${Modeline/@*\"/\"}"
-	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 fi
