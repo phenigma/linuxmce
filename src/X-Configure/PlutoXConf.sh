@@ -2,7 +2,8 @@
 
 # replaceVar $varName
 # Replaces a template variable with it's value in PlutoXConf.template file
-function replaceVar() {
+function replaceVar()
+{
 	local VarName=$1
 	local VarValue=''
 	eval  VarValue='$'$VarName
@@ -12,7 +13,8 @@ function replaceVar() {
 }
 
 # Set up the DefaultKeyboard
-function setupKeyboard() {
+function setupKeyboard()
+{
 	#Keyboard_Layout
 	if [[ $Keyboard_Layout == "" ]]; then
 		Keyboard_Layout="us"
@@ -32,7 +34,8 @@ function setupKeyboard() {
 	replaceVar "Keyboard_Model"
 }
 
-function setupMouse() {
+function setupMouse()
+{
 	if [[ $Mouse_Protocol == "" ]]; then
 		Mouse_Prococol="auto"
 	fi
@@ -49,7 +52,8 @@ function setupMouse() {
 	fi
 }
 
-function setupMonitor() {
+function setupMonitor()
+{
 	# Run edid and save the ouput to a file
 	get-edid 2>/dev/null | parse-edid 2>/dev/null 1>/tmp/edid.$$
 	
@@ -94,7 +98,8 @@ function setupMonitor() {
 	rm -f /tmp/edid.$$
 }
 
-function setupVideoCard() {
+function setupVideoCard()
+{
 	# Run lshwd -xo to generate /tmp/xinfo file
 	lshwd -ox  2>/dev/null 1>/dev/null
 
@@ -129,7 +134,8 @@ function setupVideoCard() {
 	rm /tmp/xinfo
 }
 
-function setupScreen() {
+function setupScreen()
+{
 	#Screen_DefaultDepth
 	if [[ -z $Screen_DefaultDepth ]]; then
 		Screen_DefaultDepth="24"
@@ -141,7 +147,8 @@ function setupScreen() {
 	replaceVar "Screen_Mode"
 }
 
-function setupServerFlags() {
+function setupServerFlags()
+{
 	replaceVar "ServerFlags_AllowMouseOpenFail"
 }
 
