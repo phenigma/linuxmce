@@ -1,4 +1,4 @@
-# 17-Feb-06 16:00 Receive command from child
+# 27-Feb-06 13:27 Receive command from child
 if ( $bInit == false ) then
 	log( "The initialisation is not finish yet\n")
 	return
@@ -26,15 +26,24 @@ if ( val.devdata_.has_key?(138) ) then
 else
 	if ( val.devdata_.has_key?(12) ) then
 		childName = val.devdata_[12]
+	else
+		log( "Couldn't read device id:" + "\n" )
+		return
 	end
 end
 
 if ( val.devdata_.has_key?(40) ) then
 	deviceBranch = val.devdata_[40].to_i
+else
+	log( "Couldn't read device branch:" + "\n" )
+	return
 end
 
-if ( val.devdata_.has_key?(144) ) then
-	deviceUnit = val.devdata_[144].to_i
+if ( val.devdata_.has_key?(147) ) then
+	deviceUnit = val.devdata_[147].to_i
+else
+	log( "Couldn't read devide unit:" + "\n" )
+	return
 end
 
 childNo= childName.to_i
