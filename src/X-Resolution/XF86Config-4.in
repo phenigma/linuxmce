@@ -1,45 +1,45 @@
 Section "ServerLayout"
-	Identifier     "XFree86 Configured"
-	Screen      0  "Screen0"	0 0
-	InputDevice    "Mouse0"		"CorePointer"
-	InputDevice    "Keyboard0"	"CoreKeyboard"
+	Identifier	"XFree86 Configured"
+	Screen	  0	"Screen0"	0 0
+	InputDevice	"Mouse0"	"CorePointer"
+	InputDevice	"Keyboard0"	"CoreKeyboard"
 EndSection
 
 Section "Files"
-	RgbPath      "/usr/X11R6/lib/X11/rgb"
-	ModulePath   "/usr/X11R6/lib/modules"
-	FontPath     "/usr/X11R6/lib/X11/fonts/misc/"
-	FontPath     "/usr/X11R6/lib/X11/fonts/Speedo/"
-	FontPath     "/usr/X11R6/lib/X11/fonts/Type1/"
-	FontPath     "/usr/X11R6/lib/X11/fonts/CID/"
-	FontPath     "/usr/X11R6/lib/X11/fonts/75dpi/"
-	FontPath     "/usr/X11R6/lib/X11/fonts/100dpi/"
+	RgbPath		"/usr/X11R6/lib/X11/rgb"
+	ModulePath	"/usr/X11R6/lib/modules"
+	FontPath	"/usr/X11R6/lib/X11/fonts/misc/"
+	FontPath	"/usr/X11R6/lib/X11/fonts/Speedo/"
+	FontPath	"/usr/X11R6/lib/X11/fonts/Type1/"
+	FontPath	"/usr/X11R6/lib/X11/fonts/CID/"
+	FontPath	"/usr/X11R6/lib/X11/fonts/75dpi/"
+	FontPath	"/usr/X11R6/lib/X11/fonts/100dpi/"
 EndSection
 
 Section "Module"
-	Load  "dbe"
-	Load  "extmod"
-	Load  "record"
-	Load  "xtrap"
-	Load  "speedo"
-	Load  "type1"
-	Load  "glx"
+	Load	"dbe"
+	Load	"extmod"
+	Load	"record"
+	Load	"xtrap"
+	Load	"speedo"
+	Load	"type1"
+	Load	"glx"
 EndSection
 
 Section "InputDevice"
-	Identifier  "Keyboard0"
-	Driver      "keyboard"
+	Identifier	"Keyboard0"
+	Driver		"keyboard"
 	Option		"XkbLayout"		"us"
 	Option		"XkbVariant"	"basic"
 	Option		"XkbModel"		"pc105"
 EndSection
 
 Section "InputDevice"
-	Identifier  "Mouse0"
-	Driver      "mouse"
-	Option	    "Protocol"		"auto"
-	Option	    "Device"		"/dev/input/mice"
-	Option      "ZAxisMapping"	"4 5"
+	Identifier	"Mouse0"
+	Driver		"mouse"
+	Option		"Protocol"		"auto"
+	Option		"Device"		"/dev/input/mice"
+	Option		"ZAxisMapping"	"4 5"
 EndSection
 
 Section "Monitor"
@@ -51,19 +51,19 @@ Section "Monitor"
 EndSection
 
 Section "Device"
-    ### Available Driver options are:-
-    ### Values: <i>: integer, <f>: float, <bool>: "True"/"False",
-    ### <string>: "String", <freq>: "<f> Hz/kHz/MHz"
-    ### [arg]: arg optional
-    #Option		"NoAccel"            	# [<bool>]
-    #Option		"SWcursor"           	# [<bool>]
-    #Option		"ColorKey"           	# <i>
-    #Option		"CacheLines"         	# <i>
-    #Option		"Dac6Bit"            	# [<bool>]
-    #Option		"DRI"                	# [<bool>]
-    #Option		"NoDDC"              	# [<bool>]
-    #Option		"ShowCache"          	# [<bool>]
-    #Option		"XvMCSurfaces"       	# <i>
+	### Available Driver options are:-
+	### Values: <i>: integer, <f>: float, <bool>: "True"/"False",
+	### <string>: "String", <freq>: "<f> Hz/kHz/MHz"
+	### [arg]: arg optional
+	#Option		"NoAccel"				# [<bool>]
+	#Option		"SWcursor"				# [<bool>]
+	#Option		"ColorKey"				# <i>
+	#Option		"CacheLines"			# <i>
+	#Option		"Dac6Bit"				# [<bool>]
+	#Option		"DRI"					# [<bool>]
+	#Option		"NoDDC"					# [<bool>]
+	#Option		"ShowCache"				# [<bool>]
+	#Option		"XvMCSurfaces"			# <i>
 	Identifier	"Card0"
 	Driver		"vesa"
 	VendorName	"Unknown Vendor Name"
