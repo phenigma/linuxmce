@@ -2,6 +2,19 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
+GetVideoDriver()
+{
+	lshwd -ox >/dev/null
+	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
+	rm /tmp/xinfo
+	case "$VideoDriver" in
+		nv) PackageIsInstalled pluto-nvidia-video-drivers && VideoDriver="nvidia" ;;
+		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
+		"") VideoDrivers="vesa" ;; # just-in-case default
+	esac
+	echo "$VideoDriver"
+}
+
 ConfigFile="/etc/X11/XF86Config-4"
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -30,22 +43,19 @@ while [[ $# -gt 0 ]]; do
 			esac
 		;;
 		--force) Force=y ;;
+		--update-video-driver) UpdateVideoDriver=y ;;
 		--conffile) ConfigFile="$2"; shift ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
 	shift
 done
 
+[[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
 if [[ "$Defaults" == y ]]; then
-	lshwd -ox >/dev/null
-	DisplayDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
-	rm /tmp/xinfo
-	case "$DisplayDriver" in
-		nv) PackageIsInstalled pluto-nvidia-video-drivers && DisplayDriver="nvidia" ;;
-		radeon|ati) PackageIsInstalled fglrx-driver && DisplayDriver="fglrx" ;;
-		"") DisplayDrivers="vesa" ;; # just-in-case default
-	esac
 	cat /usr/pluto/templates/XF86Config-4.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+elif [[ -n "$UpdateVideoDriver" ]]; then
+	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
 fi
 
 if [[ -n "$Resolution" ]]; then

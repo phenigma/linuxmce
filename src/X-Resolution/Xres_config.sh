@@ -5,7 +5,7 @@ trap true SIGINT
 Width="$1"
 Height="$2"
 Refresh="$3"
-Type="$4"
+Type="${4:+--scantype $4}"
 
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
@@ -25,7 +25,10 @@ ShowDialog()
 }
 
 cp /etc/X11/XF86Config-4{,.test}
-/usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/XF86Config-4.test --resolution "${Width}x${Height}@${Refresh}" $Force
+if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/XF86Config-4.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
+	echo "X configuration script exited with error"
+	exit 10
+fi
 
 X :1 -ac -xf86config /etc/X11/XF86Config-4.test &
 pidOfX=
