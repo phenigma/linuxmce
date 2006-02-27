@@ -29,6 +29,7 @@ while [[ $# -gt 0 ]]; do
 				*) echo "Unknown scan type '$2'"; exit 1 ;;
 			esac
 		;;
+		--force) Force=y
 		--conffile) ConfigFile="$2"; shift ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
@@ -49,6 +50,7 @@ fi
 
 if [[ -n "$Resolution" ]]; then
 	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=${Modeline#* }" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	Modeline="${x/@*\"/\"}"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 fi
