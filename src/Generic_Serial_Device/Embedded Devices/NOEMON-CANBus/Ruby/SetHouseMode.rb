@@ -1,4 +1,4 @@
-#SetHouseMode 25-Ian-06 16:34
+#SetHouseMode 23-Feb-06 16:14
 #log parameters
 log( "SetHouseMode:" + "  " )
 log( "Value:"         +   value_to_assign           + "  " )
@@ -17,12 +17,12 @@ log( "\n" )
 
 case valueNo
 when 1      #unarmed at home
-	for i in 1..5
-		NOEMONArmInput(i)
+	for id in 1..5
+		NOEMONArmInput(id,$pcBranch,$pcNo,deviceBranch,deviceNo)
 	end	
 when 2      # armed away
-	for i in 1..5
-		NOEMONArmInput(i)
+	for id in 1..5
+		NOEMONDisarmInput(id,$pcBranch,$pcNo,deviceBranch,deviceNo)
 	end
 	
 when 3      # armed at home
