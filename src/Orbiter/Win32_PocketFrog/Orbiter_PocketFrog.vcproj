@@ -173,6 +173,15 @@
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
 			</File>
 			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromtop.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
+			</File>
+			<File
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
 			</File>
 			<File
