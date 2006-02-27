@@ -1,4 +1,4 @@
-#Init 15-Feb-06 17:20
+#Init 23-Feb-06 15:37
 #$logFile = File.new("g:/CanBUS.log","w")
 $logFile = File.new("/var/log/pluto/CanBus.log", "w")
 $bFlush = true
@@ -61,9 +61,9 @@ else
 	log( "Couldn't read PC branch:" + "\n" )
 end
 
-if ( device_.devdata_.has_key?(144)) then
-	log( "Read PC unit:" + device_.devdata_[144].to_s + "\n" )
-	$pcNo = device_.devdata_[144].to_i;
+if ( device_.devdata_.has_key?(147)) then
+	log( "Read PC unit:" + device_.devdata_[147].to_s + "\n" )
+	$pcNo = device_.devdata_[147].to_i;
 else
 	log( "Couldn't read PC unit:" + "\n" )
 end
