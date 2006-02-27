@@ -72,6 +72,7 @@ function rooms($output,$dbADO) {
 		</script>";
 			$out.='<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>';
 			$out.='
+		<div class="confirm" align="center"><B>'.@$_GET['msg'].'</B></div>			
 		<table border="0">
 			<form action="index.php" method="post" name="rooms" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="rooms">
