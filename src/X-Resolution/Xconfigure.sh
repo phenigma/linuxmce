@@ -5,6 +5,7 @@
 resHD480=848x480
 resHD720=1280x720
 resHD1080=1920x1080
+resHD576=720x576 # SDTV actually, EDTV with doublescan, but nVidia calls it HD so...
 
 GetVideoDriver()
 {
@@ -67,6 +68,11 @@ if [[ -n "$Resolution" ]]; then
 		for Var in ${!resHD*}; do
 			if [[ "$Resolution" == "${!Var}" ]]; then
 				nvHD=${Var#res}
+				if [[ "$ScanType" == interlace ]]; then
+					nvHD="${nvHD}i"
+				else
+					nvHD="${nvHD}p"
+				fi
 				break
 			fi
 		done
