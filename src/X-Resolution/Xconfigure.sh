@@ -2,23 +2,60 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
+ConfigFile="/etc/X11/XF86Config-4"
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		defaults) Defaults=y ;;
+		--defaults) Defaults=y ;;
+		--resolution)
+			Resolution="$2"
+			if [[ "$Resolution" == *@* ]]; then
+				Refresh=${Resolution##*@}
+				Resolution=${Resolution%@*}
+			else
+				Refresh=60
+			fi
+			ResX=${Resolution%%x*}
+			ResY=${Resolution#*x}
+			if [[ "$ResX" == *[![:digit:]]* || "$ResY" == *[![:digit:]]* || "$Refresh" == *[![:digit:]]* ]]; then
+				echo "Mismatched resolution. Use format: <ResX>x<ResY>@<Refresh>"
+				exit 1
+			fi
+			shift
+		;;
+		--scantype)
+			case "$2" in
+				progressive) ;;
+				interlace|doublescan) ScanType="$2"; shift ;;
+				*) echo "Unknown scan type '$2'"; exit 1 ;;
+			esac
+		;;
+		--conffile) ConfigFile="$2"; shift ;;
+		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
 	shift
 done
 
 if [[ "$Defaults" == y ]]; then
-	cp /usr/pluto/templates/XF86Config-4.in /etc/X11/XF86Config-4.$$
 	lshwd -ox >/dev/null
-	DisplayDriver="$(grep 'Driver' /tmp/xinfo | awk '{print $2}' | tr -d '"')"
+	DisplayDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
 	rm /tmp/xinfo
 	case "$DisplayDriver" in
 		nv) PackageIsInstalled pluto-nvidia-video-drivers && DisplayDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && DisplayDriver="fglrx" ;;
+		"") DisplayDrivers="vesa" ;; # just-in-case default
 	esac
-	awk -v "DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk /etc/X11/XF86Config-4.$$ >/etc/X11/XF86Config-4
-	rm /etc/X11/XF86Config-4.$$
-	exit 0
+	cat /usr/pluto/templates/XF86Config-4.in | awk -v "DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+fi
+
+if [[ -n "$Resolution" ]]; then
+	awk -v "Resolution=$Resolution" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
+	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
+	awk -v "Modeline=${Modeline%@*}" -f/usr/pluto/bin/X-ChangeModeline.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
+fi
+
+if [[ -n "$Refresh" ]]; then
+	awk -v "Refresh=$Refresh" -f/usr/pluto/bin/X-ChangeRefresh.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
 fi
