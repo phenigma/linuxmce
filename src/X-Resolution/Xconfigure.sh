@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
 				*) echo "Unknown scan type '$2'"; exit 1 ;;
 			esac
 		;;
-		--force) Force=y
+		--force) Force=y ;;
 		--conffile) ConfigFile="$2"; shift ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
