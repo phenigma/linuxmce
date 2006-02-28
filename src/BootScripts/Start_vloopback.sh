@@ -31,7 +31,7 @@ SQL="
 		FK_Device=$PK_Device AND FK_DeviceData=12
 "
 R=$(RunSQL "$SQL")
-IK_DeviceData=$(Filed 1 "$R")
+IK_DeviceData=$(Field 1 "$R")
 
 modprobe video1394
 modprobe raw1394
