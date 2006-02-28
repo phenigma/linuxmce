@@ -36,5 +36,5 @@ IK_DeviceData=$(Field 1 "$R")
 modprobe video1394
 modprobe raw1394
 modprobe vloopback pipes=16 dev_offset=30
-dc1394_vloopback --daemon --video1394=/dev/video1394-$IK_DeviceData
+dc1394_vloopback --daemon --video1394=/dev/video1394-$IK_DeviceData --vloopback=/dev/video30 --pipe
 
