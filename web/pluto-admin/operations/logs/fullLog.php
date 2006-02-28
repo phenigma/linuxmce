@@ -30,7 +30,7 @@ function fullLog($output,$dbADO) {
 		$resDevice=$dbADO->Execute($selectDevice,$deviceID);
 		$rowDevice=$resDevice->FetchRow();
 		
-		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template']);		
+		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template'],(int)@$_REQUEST['parentID']);		
 		$pagesArray=array();
 		if(file_exists($logName)){
 			exec('wc -l '.$logName,$retArray);	// (afisheaza: <nr. linii> <spatziu> <nume fishier>)

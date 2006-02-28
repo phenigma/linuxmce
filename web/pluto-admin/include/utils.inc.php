@@ -3058,7 +3058,7 @@ function processReceiver($mdID,$dbADO)
 	}
 }
 
-function getLogName($deviceID,$dtID,$dtDescription)
+function getLogName($deviceID,$dtID,$dtDescription,$parentID=0)
 {
 	$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$dtDescription);
 
@@ -3068,7 +3068,10 @@ function getLogName($deviceID,$dtID,$dtDescription)
 
 	// override log namimg rules for DCE router and orbiters
 	$logName=($dtID==$GLOBALS['rootDCERouter'])?'DCERouter.newlog':$logName.'.newlog';
-
+	
+	// override log name for childs of DCE router - plugins
+	$logName=($parentID!=0)?'DCERouter.newlog':$logName;
+	
 	$logName='/var/log/pluto/'.$logName;
 	
 	return $logName;

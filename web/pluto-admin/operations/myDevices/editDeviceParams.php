@@ -18,25 +18,28 @@ $installationID = (int)@$_SESSION['installationID'];
 	}
 	$query = "
 		SELECT 
-			FK_DeviceTemplate,
-			FK_Device_ControlledVia,
+			Device.FK_DeviceTemplate,
+			Device.FK_Device_ControlledVia,
 			Device.Description,
-			IPaddress,
-			MACaddress,
-			IgnoreOnOff,
-			NeedConfigure,
+			Device.IPaddress,
+			Device.MACaddress,
+			Device.IgnoreOnOff,
+			Device.NeedConfigure,
 			DeviceTemplate.Description as MDL_description,
-			FK_Room, Comments,
-			ManufacturerURL,
-			InternalURLSuffix,
-			FK_DeviceCategory,
-			PingTest,
-			State,
-			Status,
-			ImplementsDCE
-		FROM Device 
-		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
-		WHERE PK_Device = ?";
+			Device.FK_Room, 
+			DeviceTemplate.Comments,
+			DeviceTemplate.ManufacturerURL,
+			DeviceTemplate.InternalURLSuffix,
+			DeviceTemplate.FK_DeviceCategory,
+			Device.PingTest,
+			Device.State,
+			Device.Status,
+			DeviceTemplate.ImplementsDCE,
+			Parent.FK_DeviceTemplate AS ParentDT
+		FROM Device
+		LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
+		INNER JOIN DeviceTemplate on Device.FK_DeviceTemplate = PK_DeviceTemplate
+		WHERE Device.PK_Device = ?";
 	$res = $dbADO->Execute($query,array($deviceID));
 	
 	
@@ -61,6 +64,9 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ImplementsDCE=$row['ImplementsDCE'];
 		//$helpDocument=$row['FK_Document'];
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
+
+		// if the device is child of DCE router, append DCE router device ID to logs url to be able to use DCE router log instead of plugin log
+		$dceRouterSuffix=($row['ParentDT']==$GLOBALS['rootDCERouter'])?'&parentID='.$row['FK_Device_ControlledVia']:'';
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -119,7 +125,8 @@ $installationID = (int)@$_SESSION['installationID'];
 	if(isset($_REQUEST['showNote'])){
 		$Alert='alert("'.$TEXT_ADVANCED_PREPARATION_NOTE_CONST.'");
 		';
-	}	
+	}
+
 	$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -138,9 +145,9 @@ $installationID = (int)@$_SESSION['installationID'];
 			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
 			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">'.$TEXT_SEND_COMMAND_TO_DEVICE_CONST.'</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
 			</td>
-			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_FOLLOW_LOG_CONST.'</a>
+			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_FOLLOW_LOG_CONST.'</a>
 				'.$coreSystemLog.'
 			</td>
 		</tr>
