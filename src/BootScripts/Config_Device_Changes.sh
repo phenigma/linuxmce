@@ -3,6 +3,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/Utils.sh
 
 NeedConfigure()
 {
@@ -56,6 +57,33 @@ Unset_NeedConfigure_Children()
 		Unset_NeedConfigure_Children $i
 	done
 }
+
+# Clean up video driver packages
+# When a video card is removed/replaced, remove its packages
+# The new drivers for video cards are installed later in this script, not in this function
+CleanupVideo()
+{
+	# Check for video card changes and update system accordingly
+	local Pkgs_nVidia="nvidia-driver nvidia-glx nvidia-kernel-* pluto-nvidia-video-drivers"
+	local Pkgs_ATI="fglrx-driver pluto-ati-video-drivers"
+	local nV_inst ATI_inst nV_dev ATI_dev
+	local DEVICECATEGORY_Video_Cards=125
+
+	nV_inst="$(echo "$Pkgs_nVidia" | COLUMNS=1024 xargs dpkg -l | grep ^ii | awk '{ print $2 }')"
+	ATI_inst="$(echo "$Pkgs_ATI" | COLUMNS=1024 xargs dpkg -l | grep ^ii | awk '{ print $2 }')"
+	nV_dev="$(FindDevice_Category $PK_Device $DEVICECATEGORY_Video_Cards)"
+	ATI_dev="$(FindDevice_Category $PK_Device $DEVICECATEGORY_Video_Cards)"
+
+	if [[ -n "$nV_inst" && -z "$nV_dev" ]]; then
+		apt-get -y remove --purge $nV_inst
+	elif [[ -n "$ATI_inst" && -z "$ATI_dev" ]]; then
+		apt-get -y remove --purge $ATI_inst
+	fi
+
+	/usr/pluto/bin/Xconfigure.sh --update-video-driver
+}
+
+CleanupVideo
 
 if [[ "$1" != "F" ]]; then
 	NeedConfigure "$PK_Device" || exit 0
