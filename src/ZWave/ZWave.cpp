@@ -13,6 +13,7 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -36,7 +37,7 @@ using namespace DCE;
 #define POOL_DELAY 200000 
 #endif
 
-#define ZW_TIMEOUT 20
+#define ZW_TIMEOUT 15
 #define ZW_LONG_TIMEOUT 120
 
 bool ZWave::m_PoolStarted = false;
@@ -79,7 +80,7 @@ bool ZWave::GetConfig()
 
 	if( !ConfirmConnection() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", DATA_Get_Serial_Port().c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", GetZWaveSerialDevice().c_str());
 		// TODO HMM ?!
 		// return false;
 	}
@@ -120,13 +121,13 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		m_ZWaveAPI->stop();
 	}
 	
-	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-
 	if( !ConfirmConnection() )
 	{
 		sCMD_Result = "NO ZWAVE";
 		return;
 	}
+
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
 	int NodeID = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 	if( NodeID > 0 && NodeID <= 233 && 
@@ -140,7 +141,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -160,7 +161,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -181,7 +182,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -244,9 +245,6 @@ void ZWave::DownloadConfiguration()
 		m_ZWaveAPI->stop();
 	}
 	
-	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::DownloadConfiguration trying to get list of devices");
-	
 	if( !ConfirmConnection() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
@@ -254,13 +252,16 @@ void ZWave::DownloadConfiguration()
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::DownloadConfiguration trying to get list of devices");
+	
 	ZWJobReceive * receive = new ZWJobReceive(m_ZWaveAPI);
 	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 	if( receive != NULL && init != NULL )
 	{
 		m_ZWaveAPI->insertJob( receive );
 		m_ZWaveAPI->insertJob( init );
-		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 		{
 			EVENT_Download_Config_Done("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS");
@@ -298,8 +299,6 @@ return;
 		m_ZWaveAPI->stop();
 	}
 	
-	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::ReportChildDevices trying to get list of devices");
 	if( !ConfirmConnection() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
@@ -307,11 +306,14 @@ return;
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::ReportChildDevices trying to get list of devices");
+	
 	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 	if( init != NULL )
 	{
 		m_ZWaveAPI->insertJob( init );
-		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 		{
 			EVENT_Reporting_Child_Devices("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS", "");
@@ -387,7 +389,7 @@ bool ZWave::ConfirmConnection(int RetryCount)
 			if( init != NULL )
 			{
 				m_ZWaveAPI->insertJob( init );
-				if( m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) &&
+				if( m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) &&
 					m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					// start ZWave pooling
@@ -469,7 +471,7 @@ void ZWave::PoolZWaveNetwork()
 			if( pool != NULL )
 			{
 				m_ZWaveAPI->insertJob( pool );
-				if( m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) &&
+				if( m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) &&
 					m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 				{
 					// checking the current state for each children
@@ -608,6 +610,9 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(zm, m_ZWaveMutex);
+	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::CMD_Send_Command_To_Child");
+	
 	int NodeID = atoi(sID.c_str());
 	if( NodeID > 0 && NodeID <= 233 && 
 		NULL != m_ZWaveAPI->getNode( NodeID ) )
@@ -620,7 +625,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -640,7 +645,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) ||
+				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -665,8 +670,11 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 
 	/** @brief COMMAND: #776 - Reset */
 	/** Reset Zwave device. */
+		/** @param #51 Arguments */
+			/** Argument string
+NOEMON or CANBUS */
 
-void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
+void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
 	// try to avoid trylock timeout
@@ -676,19 +684,19 @@ void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
 		m_ZWaveAPI->stop();
 	}
 	
-	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
-
 	if( !ConfirmConnection() )
 	{
 		sCMD_Result = "NO ZWAVE";
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+
 	ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
 	if( reset != NULL )
 	{
 		m_ZWaveAPI->insertJob( reset );
-		if( !m_ZWaveAPI->start( DATA_Get_Serial_Port().c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
 		{
 			sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 			return;
@@ -701,4 +709,68 @@ void ZWave::CMD_Reset(string &sCMD_Result,Message *pMessage)
 	}
 	
 	sCMD_Result = "OK";
+}
+//<-dceag-c770-b->
+
+	/** @brief COMMAND: #770 - HD */
+	/** Test comand. Erase at the end */
+
+void ZWave::CMD_HD(string &sCMD_Result,Message *pMessage)
+//<-dceag-c770-e->
+{
+	sCMD_Result = "Not implemented";
+}
+
+//<-dceag-c771-b->
+
+	/** @brief COMMAND: #771 - AV 4 */
+	/** Test command only. 
+Turn relay on/off */
+
+void ZWave::CMD_AV_4(string &sCMD_Result,Message *pMessage)
+//<-dceag-c771-e->
+{
+	sCMD_Result = "Not implemented";
+}
+
+//<-dceag-c787-b->
+
+	/** @brief COMMAND: #787 - Open */
+	/** Test comand. Erase at the end */
+
+void ZWave::CMD_Open(string &sCMD_Result,Message *pMessage)
+//<-dceag-c787-e->
+{
+	sCMD_Result = "Not implemented";
+}
+
+//<-dceag-c788-b->
+
+	/** @brief COMMAND: #788 - StatusReport */
+	/** Test comand. Erase at the end
+Asq a report */
+		/** @param #51 Arguments */
+			/** Argument string */
+
+void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage)
+//<-dceag-c788-e->
+{
+	sCMD_Result = "Not implemented";
+}
+
+string ZWave::GetZWaveSerialDevice()
+{
+	string sPort = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
+	
+	if(sPort.find("/dev/") == 0)
+	{
+		sPort.erase(0, strlen("/dev/"));
+	}
+	
+	if(sPort.length() > 0)
+	{
+		g_pPlutoLogger->Write(LV_ZWAVE, "Using serial port: %s.", sPort.c_str());
+	}
+	
+	return sPort;
 }

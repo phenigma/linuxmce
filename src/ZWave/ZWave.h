@@ -41,6 +41,9 @@ namespace DCE
 
 		// Private methods
 		
+		/** Returns the serial/USB device.*/
+		string GetZWaveSerialDevice();
+		
 		/** Starts or stops the ZWave pooling thread.*/
 		void CMD_Pool(bool start);
 		
@@ -79,8 +82,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Serial_Port();
-	string DATA_Get_Remote_Phone_IP();
+	string DATA_Get_COM_Port_on_PC();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Device_OnOff(bool bOnOff);
@@ -121,11 +123,46 @@ PK_CommandParameter|Value|... */
 	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #770 - HD */
+	/** Test comand. Erase at the end */
+
+	virtual void CMD_HD() { string sCMD_Result; CMD_HD(sCMD_Result,NULL);};
+	virtual void CMD_HD(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #771 - AV 4 */
+	/** Test command only. 
+Turn relay on/off */
+
+	virtual void CMD_AV_4() { string sCMD_Result; CMD_AV_4(sCMD_Result,NULL);};
+	virtual void CMD_AV_4(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #776 - Reset */
 	/** Reset Zwave device. */
+		/** @param #51 Arguments */
+			/** Argument string
+NOEMON or CANBUS */
 
-	virtual void CMD_Reset() { string sCMD_Result; CMD_Reset(sCMD_Result,NULL);};
-	virtual void CMD_Reset(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reset(string sArguments) { string sCMD_Result; CMD_Reset(sArguments.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #787 - Open */
+	/** Test comand. Erase at the end */
+
+	virtual void CMD_Open() { string sCMD_Result; CMD_Open(sCMD_Result,NULL);};
+	virtual void CMD_Open(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #788 - StatusReport */
+	/** Test comand. Erase at the end
+Asq a report */
+		/** @param #51 Arguments */
+			/** Argument string */
+
+	virtual void CMD_StatusReport(string sArguments) { string sCMD_Result; CMD_StatusReport(sArguments.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};
