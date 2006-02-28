@@ -12,6 +12,10 @@
 	$section=$_REQUEST['section'];
 	$output = new Template($dbADO);
 	$output->setTemplateFileType('large');
-	include_once($section.'.php');
+	if(file_exists($section.'.php')){
+		include_once($section.'.php');
+	}else{
+		die('Invalid section');
+	}
 	
 ?>
