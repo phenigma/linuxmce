@@ -128,7 +128,7 @@ function phonesTable($telecomADO,$userID,$page){
 				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_EXTENSION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_DIAL_AS_CONST.'</B></td>	
-				<td align="center"><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>	
+				<td align="center"><B>'.$TEXT_PRIVATE_CONTACT_CONST.'</B></td>	
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>	
 			</tr>';
 	if($totalRecords==0){
@@ -156,7 +156,7 @@ function phonesTable($telecomADO,$userID,$page){
 					<td align="center">'.$row['PhoneNumber'].'</td>
 					<td align="center">'.$row['Extension'].'</td>
 					<td align="center">'.$row['DialAs'].'</td>	
-					<td align="center">'.((is_null($row['EK_Users']))?'Y':'N').'</td>	
+					<td align="center">'.((!is_null($row['EK_Users']))?'Y':'N').'</td>	
 					<td align="center">
 						<input type="button" class="button" name="edit" value="'.$TEXT_EDIT_CONST.'" onClick="self.location=\'index.php?section=editPhoneNumber&id='.$row['PK_PhoneNumber'].'\'"> 
 						<input type="button" class="button" name="delete" value="'.$TEXT_DELETE_CONST.'" onclick="if(confirm(\''.$TEXT_DELETE_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneBook&action=del&did='.$row['PK_PhoneNumber'].'\'"></td>	
