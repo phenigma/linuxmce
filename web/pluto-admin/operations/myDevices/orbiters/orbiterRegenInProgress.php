@@ -16,7 +16,7 @@ function orbiterRegenInProgress($output,$dbADO){
 	$row=$orbiterData->FetchRow();
 	if($row['RegenInProgress']==1){
 		$out='
-		<table width="100%">
+		<table border="0">
 			<tr>
 				<td colspan="2" align="center">'.percentBox($row['RegenPercent']).'</td>
 			</tr>		
@@ -37,7 +37,7 @@ function orbiterRegenInProgress($output,$dbADO){
 		';
 	}else{
 		$out='
-		<table width="100%">
+		<table width="100%" border="0">
 			<tr>
 				<td colspan="2" align="center"><B>'.$TEXT_ORBITER_GENERATION_FINISHED_CONST.'</B></td>
 			</tr>	

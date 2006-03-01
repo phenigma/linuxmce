@@ -4,9 +4,13 @@ function wizardOrbiters($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/wizardOrbiters.lang.php');
 	
+	// multipage display variables
+	$orbitersPerPage=5;
+	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
+
 	global $dbPlutoMainDatabase,$excludedData;
 	/* @var $dbADO ADOConnection */
-	/* @var $rs ADORecordSet */
+	/* @var $resDevice ADORecordSet */
 //	$dbADO->debug=true;
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
@@ -18,7 +22,7 @@ function wizardOrbiters($output,$dbADO) {
 	$orbitersDTArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO,1);
 	$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID, 'ORDER BY Description ASC');
 
-	if(isset($_REQUEST['lastAdded'])){
+	if(isset($_REQUEST['lastAdded']) && !isset($_REQUEST['page'])){
 		$newOrbiterAlert='alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.");
 		';
 	}
@@ -36,12 +40,13 @@ function wizardOrbiters($output,$dbADO) {
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
+	<input type="hidden" name="page" value="'.$page.'">			
 		
 	<h3  align="left">'.$TEXT_ORBITES_CONST.'</h3>
 	'.$TEXT_DOWNLOAD_CONST.' <a href="index.php?section=orbitersWin">'.$TEXT_ORBITER_WIN_INSTALLER_CONST.'</a><br>
 	'.$TEXT_PRIVACY_SETTINGS_CONST.': <a href="index.php?section=usersOrbiters">'.$TEXT_RESTRICT_ACCES_TO_USERS_CONST.'</a>
 		<div id="preloader" style="display:;">
-			<table width="100%">
+			<table width="100%" border="0">
 				<tr>
 					<td align="center">'.$TEXT_ORBITERS_PAGE_LOADING_CONST.'</td>
 				</tr>
@@ -56,7 +61,6 @@ function wizardOrbiters($output,$dbADO) {
 					<input type="submit" class="button" name="FullRegenAll" value="'.$TEXT_FULL_REGEN_ALL_CONST.'"> 
 					<input type="checkbox" name="reset_all" value="1"> '.$TEXT_RESET_ROUTER_WHEN_DONE_REGENERATING_CONST.'</td>
 			</tr>';
-		
 		
 		
 			$displayedDevices=array();
@@ -122,83 +126,108 @@ function wizardOrbiters($output,$dbADO) {
 			$regenArray=array();
 			$content=array();
 			$properties=array();
+			$pos=0;
+			
 			while($rowD=$resDevice->FetchRow()){
-				$orbiterGroupDisplayed=$rowD['OrbiterGroup'];
-
-				if(!in_array($rowD['FK_DeviceData'],$DeviceDataToDisplay)){
-					$DeviceDataToDisplay[]=$rowD['FK_DeviceData'];
-				}
-				
-				$PingTest=$rowD['PingTest'];
-				$regenArray[$rowD['PK_Device']]['regen']=(int)$rowD['RegenInProgress'];
-				$regenArray[$rowD['PK_Device']]['status']=$rowD['RegenStatus'];
-				$regenArray[$rowD['PK_Device']]['percent']=$rowD['RegenPercent'];
-				
-				if($rowD['FK_DeviceData']==84 && @$ddValue==1){
-					$isOSD=1;
-				}
-
-
 				if(!in_array($rowD['PK_Device'],$displayedDevices)){
 					$displayedDevices[]=$rowD['PK_Device'];
 				}
-
-
-				if(!in_array('dt',$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dt']='
-							<tr>
-								<td align="right"><B'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
-								<td align="left" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
-							</tr>
-							';
+			}
+			// multipage settings
+			$noRecords=count($displayedDevices);
+			$noPages=ceil($noRecords/$orbitersPerPage);
+			$linkPages=array();
+			for($i=1;$i<$noPages+1;$i++){
+				$linkPages[]=($i==$page)?'<span class="normal_row">'.$i.'</span>':'<a class="red_link" href="index.php?'.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
+			}
+			$linksBar=join(' ',$linkPages);
+			
+			$resDevice->MoveFirst();
+			$lastDevice=0;
+			$devicesOnPage=array();
+			while($rowD=$resDevice->FetchRow()){
+				if($lastDevice!=$rowD['PK_Device']){
+					$lastDevice=$rowD['PK_Device'];
+					
+					$pos++;
 				}
-
-				if(!in_array('state',$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['state']='
-							<tr>
-								<td align="right"><B>'.$TEXT_STATE_CONST.'</B></td>
-								<td>'.getStateFormElement($rowD['PK_Device'],'State_'.$rowD['PK_Device'],$rowD['State'],$dbADO).'</td>
-							</tr>
-							';
-				}
-
-				if(!in_array('description',$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['description']='
-							<tr>
-								<td align="right"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
-								<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"> # '.$rowD['PK_Device'].'</td>
-							</tr>';
-				}
-
-				if($rowD['IsIPBased']==1 && !in_array('ip_mac',$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['ip_mac']='
+				if($pos>($page-1)*$orbitersPerPage && $pos<=$page*$orbitersPerPage){
+					$orbiterGroupDisplayed=$rowD['OrbiterGroup'];
+					
+					if(!in_array($rowD['PK_Device'],$devicesOnPage)){
+						$devicesOnPage[]=$rowD['PK_Device'];
+					}
+					
+					if(!in_array($rowD['FK_DeviceData'],$DeviceDataToDisplay)){
+						$DeviceDataToDisplay[]=$rowD['FK_DeviceData'];
+					}
+					
+					$PingTest=$rowD['PingTest'];
+					$regenArray[$rowD['PK_Device']]['regen']=(int)$rowD['RegenInProgress'];
+					$regenArray[$rowD['PK_Device']]['status']=$rowD['RegenStatus'];
+					$regenArray[$rowD['PK_Device']]['percent']=$rowD['RegenPercent'];
+					
+					if($rowD['FK_DeviceData']==84 && @$ddValue==1){
+						$isOSD=1;
+					}
+	
+	
+					if(!in_array('dt',$excludedData[$orbiterGroupDisplayed])){
+						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dt']='
 								<tr>
-									<td align="right"><B>'.$TEXT_IP_ADDRESS_CONST.'</B></td>
-									<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
+									<td align="right"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+									<td align="left" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 								</tr>
+								';
+					}
+	
+					if(!in_array('state',$excludedData[$orbiterGroupDisplayed])){
+						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['state']='
 								<tr>
-									<td align="right"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
-									<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
+									<td align="right"><B>'.$TEXT_STATE_CONST.'</B></td>
+									<td>'.getStateFormElement($rowD['PK_Device'],'State_'.$rowD['PK_Device'],$rowD['State'],$dbADO).'</td>
+								</tr>
+								';
+					}
+	
+					if(!in_array('description',$excludedData[$orbiterGroupDisplayed])){
+						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['description']='
+								<tr>
+									<td align="right"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+									<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"> # '.$rowD['PK_Device'].'</td>
 								</tr>';
+					}
+	
+					if($rowD['IsIPBased']==1 && !in_array('ip_mac',$excludedData[$orbiterGroupDisplayed])){
+						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['ip_mac']='
+									<tr>
+										<td align="right"><B>'.$TEXT_IP_ADDRESS_CONST.'</B></td>
+										<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
+									</tr>
+									<tr>
+										<td align="right"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
+										<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
+									</tr>';
+					}
+					
+					if(!in_array('room',$excludedData[$orbiterGroupDisplayed])){
+						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['room']='
+								<tr>
+									<td align="right"><B>'.$TEXT_ROOM_CONST.'</B></td>
+									<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
+								</tr>
+								';
+					}
+	
+					if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroupDisplayed])){
+						@$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dd'].=formatDDRows($rowD,$dbADO);
+					}
+	
+	
+					$properties[$rowD['PK_Device']]['regenArray']=$regenArray[$rowD['PK_Device']];
+					$properties[$rowD['PK_Device']]['PingTest']=$PingTest;
+					$properties[$rowD['PK_Device']]['isOSD']=$isOSD;
 				}
-				
-				if(!in_array('room',$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['room']='
-							<tr>
-								<td align="right"><B>'.$TEXT_ROOM_CONST.'</B></td>
-								<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
-							</tr>
-							';
-				}
-
-				if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroupDisplayed])){
-					@$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dd'].=formatDDRows($rowD,$dbADO);
-				}
-
-
-				$properties[$rowD['PK_Device']]['regenArray']=$regenArray[$rowD['PK_Device']];
-				$properties[$rowD['PK_Device']]['PingTest']=$PingTest;
-				$properties[$rowD['PK_Device']]['isOSD']=$isOSD;
 
 			}
 
@@ -207,16 +236,13 @@ function wizardOrbiters($output,$dbADO) {
 			$content['on_screen_orbiters']=(@$content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
 			$out.='
 				<tr>
+					<td colspan="2" align="right">'.$linksBar.'</td>
+				</tr>			
+				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_MOBILE_PHONE_ORBITERS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['mobile_orbiters'],'mobile_orbiters',$properties).'</td>
-				</tr>
-				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_STANDARD_ROAMING_ORBITERS_CONST.'</B></td>
-				</tr>
-				<tr>
-					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
 				</tr>
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_ON_SCREEN_DISPLAYS_FOR_MEDIA_DIRECTORS_CONST.'</B></td>
@@ -224,14 +250,19 @@ function wizardOrbiters($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['on_screen_orbiters'],'on_screen_orbiters',$properties).'</td>
 				</tr>
-			
-				
+				<tr>
+					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_STANDARD_ROAMING_ORBITERS_CONST.'</B></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
+				</tr>
 			';
 			
 			
 			$out.='
 				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
-				<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
+				<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">
+				<input type="hidden" name="devicesOnPage" value="'.join(',',$devicesOnPage).'">';
 			$out.='
 			</table>
 			<table align="center" border="0">
@@ -272,7 +303,8 @@ function wizardOrbiters($output,$dbADO) {
 			$regen='F_ALL';
 		}		
 
-		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
+		// only devices on page are used
+		$displayedDevicesArray=explode(',',$_POST['devicesOnPage']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
 				deleteDevice($value,$dbADO); 
@@ -393,7 +425,7 @@ function wizardOrbiters($output,$dbADO) {
 		}
 		
 		$commandMessage=(isset($commandToSend))?'<br>'.$TEXT_ORBITER_COMMAND_SENT_CONST.': '.$commandToSend:'';
-		header("Location: index.php?section=wizardOrbiters&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=".@$regen.@$suffix);		
+		header("Location: index.php?section=wizardOrbiters&page=".$_REQUEST['page']."&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=".@$regen.@$suffix);		
 	}
 
 	$output->setScriptCalendar('null');
