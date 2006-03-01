@@ -35,6 +35,7 @@
 0x02ac	0x1012	"8139too"	"SpeedStream|1012 PCMCIA 10/100 Ethernet Card [RTL81xx]"
 0x0311	0x6000	"bttv"	"Sensoray 311"
 0x0357	0x000a	"8139cp"	"TTTech AG|TTP-Monitoring Card V2.0"
+0x0403  0xf2d0  "ftdi_sio"	"USB Vendor Specific Protocol: ACT, Inc. Z-Wave Computer Interface"
 0x0432	0x0001	"pluto2"	"SCM Microsystems Inc.|Pluto2 DVB-T Receiver for PCMCIA [EasyWatch MobilSet]"
 0x045e	0x006e	"unknown"	"Microsoft|MN-510 802.11b wireless USB paddle"
 0x045e	0x00c2	"unknown"	"Microsoft|MN-710 wireless USB paddle"
