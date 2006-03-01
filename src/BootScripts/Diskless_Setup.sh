@@ -5,6 +5,8 @@
 
 DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
+DEVICEDATA_Architecture=112
+
 DefaultBootParams="noirqdebug vga=normal"
 # vars:
 # CORE_INTERNAL_ADDRESS
@@ -113,9 +115,23 @@ for Client in $R; do
 	## If is a diskless md
 	if [[ -n "$Diskless" ]]; then
 		echo "* Diskless filesystem"
+
+		Q="
+			SELECT
+				FK_DeviceData,
+				IK_DeviceData
+			FROM
+				Device_DeviceData
+			WHERE
+				FK_Device='$PK_Device'
+				AND
+				FK_DeviceData='$DEVICEDATA_Architecture'
+		"
+		Architecture=$(RunSQL "$Q")
+		
 		## Create the a filesystem for this MD
 		#FIXME: Should we create this filesystem everytime ?
-		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$PK_Device" "$Activation_Code"
+		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$PK_Device" "$Activation_Code" "$Architecture"
 		
 		## Check to see if we have a valid hardware adreess
 		/usr/pluto/bin/CheckMAC.sh "$MAC"
