@@ -11,6 +11,8 @@ namespace DCE
 	extern	Logger *g_pPlutoLogger;
 }
 
-// #define PLUTO_DEBUG
+#ifdef DEBUG
+#define PLUTO_DEBUG
+#endif
 
 #endif
