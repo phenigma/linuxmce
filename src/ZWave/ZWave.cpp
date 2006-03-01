@@ -78,6 +78,13 @@ bool ZWave::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	// try to avoid trylock timeout
+	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
+	{
+		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
+		m_ZWaveAPI->stop();
+	}
+	
 	if( !ConfirmConnection() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", GetZWaveSerialDevice().c_str());
