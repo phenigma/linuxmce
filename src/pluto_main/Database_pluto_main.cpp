@@ -116,6 +116,9 @@ tblDirectory=NULL;
 tblDistro=NULL;
 tblDocument=NULL;
 tblDocument_Comment=NULL;
+tblEffect=NULL;
+tblEffectType=NULL;
+tblEffectType_Effect_Skin=NULL;
 tblEntertainArea=NULL;
 tblEvent=NULL;
 tblEventCategory=NULL;
@@ -533,6 +536,15 @@ if( tblDocument!=NULL )
 		bResult=false;
 if( tblDocument_Comment!=NULL )
 	if( !Commit_Document_Comment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblEffect!=NULL )
+	if( !Commit_Effect(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblEffectType!=NULL )
+	if( !Commit_EffectType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblEffectType_Effect_Skin!=NULL )
+	if( !Commit_EffectType_Effect_Skin(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblEntertainArea!=NULL )
 	if( !Commit_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -1028,6 +1040,9 @@ DeleteTable_Directory();
 DeleteTable_Distro();
 DeleteTable_Document();
 DeleteTable_Document_Comment();
+DeleteTable_Effect();
+DeleteTable_EffectType();
+DeleteTable_EffectType_Effect_Skin();
 DeleteTable_EntertainArea();
 DeleteTable_Event();
 DeleteTable_EventCategory();

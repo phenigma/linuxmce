@@ -394,6 +394,15 @@
 				RelativePath=".\Table_Document_Comment.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Effect.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_EffectType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_EffectType_Effect_Skin.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_EntertainArea.cpp">
 			</File>
 			<File

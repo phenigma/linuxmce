@@ -29,6 +29,7 @@ using namespace std;
 #include "Table_DesignObj.h"
 #include "Table_DesignObjVariation_Text_Skin_Language.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "Table_EffectType_Effect_Skin.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_Screen_DesignObj.h"
 #include "Table_Skin.h"
@@ -1435,6 +1436,13 @@ void Row_Skin::DeviceTemplate_MediaType_DesignObj_FK_Skin_getrows(vector <class 
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
+pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
+}
+void Row_Skin::EffectType_Effect_Skin_FK_Skin_getrows(vector <class Row_EffectType_Effect_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_EffectType_Effect_Skin *pTable = table->database->EffectType_Effect_Skin_get();
 pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::MediaType_DesignObj_FK_Skin_getrows(vector <class Row_MediaType_DesignObj*> *rows)

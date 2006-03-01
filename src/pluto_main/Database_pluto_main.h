@@ -209,6 +209,12 @@ class Table_Document* tblDocument;
 bool Commit_Document(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Document_Comment* tblDocument_Comment;
 bool Commit_Document_Comment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Effect* tblEffect;
+bool Commit_Effect(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_EffectType* tblEffectType;
+bool Commit_EffectType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_EffectType_Effect_Skin* tblEffectType_Effect_Skin;
+bool Commit_EffectType_Effect_Skin(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_EntertainArea* tblEntertainArea;
 bool Commit_EntertainArea(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Event* tblEvent;
@@ -566,6 +572,9 @@ class Table_Directory* Directory_get() { if( !tblDirectory ) CreateTable_Directo
 class Table_Distro* Distro_get() { if( !tblDistro ) CreateTable_Distro(); return tblDistro; }
 class Table_Document* Document_get() { if( !tblDocument ) CreateTable_Document(); return tblDocument; }
 class Table_Document_Comment* Document_Comment_get() { if( !tblDocument_Comment ) CreateTable_Document_Comment(); return tblDocument_Comment; }
+class Table_Effect* Effect_get() { if( !tblEffect ) CreateTable_Effect(); return tblEffect; }
+class Table_EffectType* EffectType_get() { if( !tblEffectType ) CreateTable_EffectType(); return tblEffectType; }
+class Table_EffectType_Effect_Skin* EffectType_Effect_Skin_get() { if( !tblEffectType_Effect_Skin ) CreateTable_EffectType_Effect_Skin(); return tblEffectType_Effect_Skin; }
 class Table_EntertainArea* EntertainArea_get() { if( !tblEntertainArea ) CreateTable_EntertainArea(); return tblEntertainArea; }
 class Table_Event* Event_get() { if( !tblEvent ) CreateTable_Event(); return tblEvent; }
 class Table_EventCategory* EventCategory_get() { if( !tblEventCategory ) CreateTable_EventCategory(); return tblEventCategory; }
@@ -796,6 +805,9 @@ void CreateTable_Directory();
 void CreateTable_Distro();
 void CreateTable_Document();
 void CreateTable_Document_Comment();
+void CreateTable_Effect();
+void CreateTable_EffectType();
+void CreateTable_EffectType_Effect_Skin();
 void CreateTable_EntertainArea();
 void CreateTable_Event();
 void CreateTable_EventCategory();
@@ -1020,6 +1032,9 @@ void DeleteTable_Directory();
 void DeleteTable_Distro();
 void DeleteTable_Document();
 void DeleteTable_Document_Comment();
+void DeleteTable_Effect();
+void DeleteTable_EffectType();
+void DeleteTable_EffectType_Effect_Skin();
 void DeleteTable_EntertainArea();
 void DeleteTable_Event();
 void DeleteTable_EventCategory();

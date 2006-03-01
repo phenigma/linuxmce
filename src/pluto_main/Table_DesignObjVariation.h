@@ -86,6 +86,9 @@ long int m_FK_CommandGroup_D_OnLoad;
 long int m_FK_CommandGroup_D_OnUnload;
 long int m_FK_CommandGroup_D_OnTimeout;
 long int m_FK_CommandGroup_D_OnStartup;
+long int m_FK_EffectType_Selected_WithChange;
+long int m_FK_EffectType_Selected_NoChange;
+long int m_FK_EffectType_Highlighted;
 long int m_FK_Button;
 long int m_FK_Criteria_Orbiter;
 short int m_DontResetSelectedState;
@@ -100,7 +103,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[22];
+		bool is_null[25];
 	
 	public:
 		long int PK_DesignObjVariation_get();
@@ -112,6 +115,9 @@ long int FK_CommandGroup_D_OnLoad_get();
 long int FK_CommandGroup_D_OnUnload_get();
 long int FK_CommandGroup_D_OnTimeout_get();
 long int FK_CommandGroup_D_OnStartup_get();
+long int FK_EffectType_Selected_WithChange_get();
+long int FK_EffectType_Selected_NoChange_get();
+long int FK_EffectType_Highlighted_get();
 long int FK_Button_get();
 long int FK_Criteria_Orbiter_get();
 short int DontResetSelectedState_get();
@@ -136,6 +142,9 @@ void FK_CommandGroup_D_OnLoad_set(long int val);
 void FK_CommandGroup_D_OnUnload_set(long int val);
 void FK_CommandGroup_D_OnTimeout_set(long int val);
 void FK_CommandGroup_D_OnStartup_set(long int val);
+void FK_EffectType_Selected_WithChange_set(long int val);
+void FK_EffectType_Selected_NoChange_set(long int val);
+void FK_EffectType_Highlighted_set(long int val);
 void FK_Button_set(long int val);
 void FK_Criteria_Orbiter_set(long int val);
 void DontResetSelectedState_set(short int val);
@@ -158,6 +167,9 @@ bool FK_CommandGroup_D_OnLoad_isNull();
 bool FK_CommandGroup_D_OnUnload_isNull();
 bool FK_CommandGroup_D_OnTimeout_isNull();
 bool FK_CommandGroup_D_OnStartup_isNull();
+bool FK_EffectType_Selected_WithChange_isNull();
+bool FK_EffectType_Selected_NoChange_isNull();
+bool FK_EffectType_Highlighted_isNull();
 bool FK_Button_isNull();
 bool FK_Criteria_Orbiter_isNull();
 bool psc_id_isNull();
@@ -174,6 +186,9 @@ void FK_CommandGroup_D_OnLoad_setNull(bool val);
 void FK_CommandGroup_D_OnUnload_setNull(bool val);
 void FK_CommandGroup_D_OnTimeout_setNull(bool val);
 void FK_CommandGroup_D_OnStartup_setNull(bool val);
+void FK_EffectType_Selected_WithChange_setNull(bool val);
+void FK_EffectType_Selected_NoChange_setNull(bool val);
+void FK_EffectType_Highlighted_setNull(bool val);
 void FK_Button_setNull(bool val);
 void FK_Criteria_Orbiter_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -201,6 +216,7 @@ class Row_CommandGroup_D* FK_CommandGroup_D_OnLoad_getrow();
 class Row_CommandGroup_D* FK_CommandGroup_D_OnUnload_getrow();
 class Row_CommandGroup_D* FK_CommandGroup_D_OnTimeout_getrow();
 class Row_CommandGroup_D* FK_CommandGroup_D_OnStartup_getrow();
+class Row_EffectType* FK_EffectType_Highlighted_getrow();
 class Row_Button* FK_Button_getrow();
 class Row_Criteria* FK_Criteria_Orbiter_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
@@ -215,7 +231,7 @@ void DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_Des
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_UI+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_PreserveTransparencies+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_UI+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_EffectType_Selected_WithChange+ m_FK_EffectType_Selected_NoChange+ m_FK_EffectType_Highlighted+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_PreserveTransparencies+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -229,6 +245,9 @@ string FK_CommandGroup_D_OnLoad_asSQL();
 string FK_CommandGroup_D_OnUnload_asSQL();
 string FK_CommandGroup_D_OnTimeout_asSQL();
 string FK_CommandGroup_D_OnStartup_asSQL();
+string FK_EffectType_Selected_WithChange_asSQL();
+string FK_EffectType_Selected_NoChange_asSQL();
+string FK_EffectType_Highlighted_asSQL();
 string FK_Button_asSQL();
 string FK_Criteria_Orbiter_asSQL();
 string DontResetSelectedState_asSQL();

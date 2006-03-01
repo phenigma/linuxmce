@@ -98,6 +98,9 @@ Table_Directory.cpp \
 Table_Distro.cpp \
 Table_Document.cpp \
 Table_Document_Comment.cpp \
+Table_Effect.cpp \
+Table_EffectType.cpp \
+Table_EffectType_Effect_Skin.cpp \
 Table_EntertainArea.cpp \
 Table_Event.cpp \
 Table_EventCategory.cpp \
