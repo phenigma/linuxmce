@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto21) unstable; urgency=low
+
+  * Enable RAID devices at boot
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 01 Mar 2006 14:08:05 +0200
+
 sysvinit (2.86.ds1-1.1pluto20) unstable; urgency=low
 
   * Clean up some warning that appear at first boot

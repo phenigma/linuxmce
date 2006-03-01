@@ -76,6 +76,12 @@ elif [ -x /etc/init.d/hotplug ] ;then
 	/etc/init.d/hotplug start
 fi
 
+## Enableing RAID devices
+if [[ -x /etc/init.d/mdadm ]]; then
+	/etc/init.d/mdadm start
+	/etc/init.d/mdadm-raid start
+fi
+
 ## Enable Swaping
 Message "Enable swaping"
 /sbin/swapon -a > /dev/null
@@ -114,6 +120,7 @@ Message "Cleaning up /etc/mtab"
 
 # Do a remount one again so it will show up in mtab
 /bin/mount -w -o remount /
+
 
 if [ -d /proc/sys ] ;then
 	/bin/mount -f proc /proc -t proc
