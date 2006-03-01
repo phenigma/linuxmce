@@ -172,6 +172,7 @@ awk '
 	{ print }
 ' /etc/inittab >/etc/inittab.new
 mv -f /etc/inittab.new /etc/inittab
+rm -f /dead.letter /root/dead.letter
 reboot
 #init q
 exit 0
