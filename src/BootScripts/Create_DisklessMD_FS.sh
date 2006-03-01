@@ -11,6 +11,7 @@ IP="$1"
 MAC="$2"
 Device="$3"
 Code="$4"
+Architecture="${5:-686}"
 
 FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$IP"
@@ -19,6 +20,7 @@ HexIP=$(gethostip -x "$IP")
 Modules="pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169 b44 via_velocity"
 
 KERNEL_VERSION="$(uname -r)"
+KERNEL_VERSION="${KERNEL_VERSION%-*}-$Architecture" # Our kernels always report the architecture they're compiled for last
 
 InstallKernel()
 {
