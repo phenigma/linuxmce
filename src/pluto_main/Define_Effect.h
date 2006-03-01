@@ -1,6 +1,10 @@
 #ifndef __Define_Effect_H__
 #define __Define_Effect_H__
 
+#define EFFECT_Bounce_new_screen_on_CONST 1
+#define EFFECT_Slide_new_screen_from_the_left_CONST 2
+#define EFFECT_New_screen_fades_in_from_top_CONST 3
+#define EFFECT_New_screen_fades_out_from_unde_CONST 4
 
 #define EFFECT_TABLE "Effect"
 #define EFFECT_PK_EFFECT_FIELD "PK_Effect"
