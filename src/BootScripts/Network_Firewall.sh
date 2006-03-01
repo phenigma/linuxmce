@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/LockUtils.sh
 
 OpenPort()
 {
@@ -55,6 +56,9 @@ ClearFirewall()
 		done
 	done
 }
+
+trap 'Unlock "Firewall" "Firewall"' EXIT
+WaitLock "Firewall" "Firewall"
 
 ClearFirewall
 
