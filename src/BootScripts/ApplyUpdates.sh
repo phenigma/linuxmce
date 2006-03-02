@@ -13,7 +13,6 @@ if [[ -f /tmp/fallbackUpdate.txt ]]; then
 fi
 
 ## Check to see if this is a Core or a MD
-#FIXME: check is /etc/diskless.conf is right
 RunningOnMD="No"
 if [[ -f /etc/diskless.conf ]]; then
 	RunningOnMD="Yes"
@@ -61,7 +60,19 @@ if [[ "$LastUpdateStamp" == "$UpdatesOkStamp" ]]; then
 	exit 0
 fi
 
-## If we get till here than we should start upgradin
+## Offline mode check
+if [[ $OfflineMode == "true" ]]; then
+	## Should check if apt wants to download any files
+	bytesLeft=`apt-get dist-upgrade < /dev/null | grep '^Need to get' | cut -f4 -d' ' | cut -f1 -d'/'`
+	if [[ "$bytesLeft" != "0B" && "$bytesLeft" != "" ]]; then
+		## We have a problem. some packages neet to update from the internet
+		## PS: We should never get here !!
+		echo " - Some packages where not downloaded but we are in offline mode, exiting"
+		exit 0
+	fi
+fi
+
+## If we get till here than we should start upgrading
 echo "- Previewing dist-upgrade"
 InstPkgs="$(apt-get -s -f dist-upgrade | grep "^Conf " | cut -d' ' -f2 | tr '\n' ' ')"
 RebootPkg="pluto-kernel-upgrade"
