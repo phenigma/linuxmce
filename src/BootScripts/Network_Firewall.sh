@@ -65,12 +65,6 @@ ClearFirewall
 echo "Enabling packet forwarding"
 echo 1 >/proc/sys/net/ipv4/ip_forward
 
-modules="ip_conntrack ip_conntrack_ftp ip_conntrack_irc ip_nat_ftp ip_nat_irc"
-
-for module in $modules; do
-	modprobe $module
-done
-
 if [[ "$DisableFirewall" == 1 ]]; then
 	echo "Firewall disabled"
 	exit
