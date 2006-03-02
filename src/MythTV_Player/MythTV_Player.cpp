@@ -165,7 +165,8 @@ MythTV_Player::~MythTV_Player()
     delete m_pRatWrapper;
 #endif
 	m_bExiting = true;
-	pthread_join(m_threadMonitorMyth, NULL);
+	if (m_threadMonitorMyth != 0)
+		pthread_join(m_threadMonitorMyth, NULL);
 	delete m_pMythSocket;
 }
 
