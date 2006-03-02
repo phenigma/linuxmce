@@ -139,8 +139,11 @@ gc100::~gc100()
 	signal(SIGSEGV,SIG_IGN);           //ignore SIGFAULT here
 	m_bQuit = true;                    //force quit	
 	Sleep(100);                        //wait a little
-	pthread_cancel(m_EventThread);     //pthread_cancel is asynchron so call it first and continue cleanup		
-	pthread_join(m_EventThread, NULL); //finish
+	if (m_EventThread != 0)
+	{
+		pthread_cancel(m_EventThread);     //pthread_cancel is asynchron so call it first and continue cleanup		
+		pthread_join(m_EventThread, NULL); //finish
+	}
 }
 
 //<-dceag-reg-b->
