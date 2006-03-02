@@ -1,4 +1,4 @@
-#Private functions  23-Feb-06 15:42
+#Private functions  02-March-06 14:45
 
 def log( buff )
 if  $logFile.nil? then
@@ -51,18 +51,33 @@ log( "CmdState:" +$cmdState.to_s + "   "  )
 log( "CmdBuffer size:" + $cmdBuffer.size.to_s + "   " )
 log( "Init:" + $bInit.to_s + "\n" )
 
-log( "Branches lists:" + "   " )
-$branchList.each{ |i| log( i.to_s + "," ) }
+log( "Branches lists:(" + $branchList.size.to_s + ")\n" )
+$branchList.each{ |i| 
+	val = i.to_i
+	deviceBranch = val / 256 
+	deviceUnit = val % 256
+	
+	log( "Device branch no:" + deviceBranch.to_s.to_s + "   " )
+	log( "Device unit:" + deviceUnit.to_s + "   " )
+	log( "Id no:" + i.to_s + "\n" ) 
+}
 log( "\n\n" )
 
 $branchList.each{ |i|
-	log( "Branch no:" + i.to_s + "\n" )
+	val = i.to_i
+	deviceBranch = val / 256 
+	deviceUnit = val % 256
+	log( "Device branch no:" + deviceBranch.to_s.to_s + "   " )
+	log( "Device unit:" + deviceUnit.to_s + "   " )
+	log( "Id no:" + i.to_s + "\n" )
 
 	log( "Alarms  value: ")
 	count = 0
 	$AlarmsStatus.each{ |key,value|
+	
+		index = key[4..5]
 		if ( key[0..3] == i )  then
-			log( key.to_s + "," + value.to_s + "   " )
+			log( index.to_s + "," + value.to_s + "   " )
 			count += 1
 		end
 	}
@@ -72,8 +87,10 @@ $branchList.each{ |i|
 	log( "Relays  value: ")
 	if ($RelaysStatus.size==0) then log( "No relays")  end
 	$RelaysStatus.each{ |key,value|
+		index = key[4..5]
+	
 		if( key[0..3] == i )  then
-			log( key.to_s + "," + value.to_s + "   " )
+			log( index.to_s + "," + value.to_s + "   " )
 			count += 1
 		end
 	}
@@ -82,8 +99,10 @@ $branchList.each{ |i|
 
 	log( "Lights  value: ")
 	$LightsStatus.each{ |key,value|
+		index = key[4..5]
+	
 		if( key[0..3] == i )  then
-			log( key.to_s + "," + value.to_s + "   " )
+			log( index.to_s + "," + value.to_s + "   " )
 			count += 1
 		end
 	}
@@ -92,8 +111,10 @@ $branchList.each{ |i|
 
 	log( "Leds  value: ")
 	$LedsStatus.each{ |key,value|
+		index = key[4..5]
+	
 		if( key[0..3] == i )  then
-			log( key.to_s + "," + value.to_s + "   " )
+			log( index.to_s + "," + value.to_s + "   " )
 			count += 1
 		end
 	}
@@ -191,23 +212,41 @@ def searchBranches()
 	log( "Call search branches:\n" )	
 	children=device_.childdevices_
 	children.each { |key,val| 
-		if (val.devdata_.has_key?(40)) and (val.devdata_.has_key?(147)) then
-			deviceBranch = val.devdata_[40].to_i
-			deviceUnit = val.devdata_[147].to_i
+		
+		if ( val.devdata_.has_key?(12) ) then
+			childData = val.devdata_[12]
+			childList = childData.split( "," )
+			
+			log( "Key:" + key.to_s + "   " )
+			log( "Value:" +  childData.to_s + "   " )
+			
+			
+			if ( childList.size() < 3 ) then
+				log( "Wrong format " + "\n" )
+				next
+			end
+	
+			deviceBranch  =  childList[0].to_i 
+			deviceUnit      =  childList[1].to_i
+			childNo          =  childList[2].to_i
+			
 			aux = deviceBranch * 256 + deviceUnit			
 			idBranch = "%04u" % aux
 			 
 			if ( $branchList.include?( idBranch ) == false ) then
 				$branchList.push( idBranch )
 				log( "Found:" + idBranch.to_s + " branch\n" )
+			else
+				log( "Already exist\n" ) 
 			end
 		end
 	}
-	log( "Found:" + $branchList.size.to_s + " branches" + "\n")
+	
+	log( "Found:" + $branchList.size.to_s + " branches(" )
 	$branchList.each(){ |i| 
 		log( i + "  " )
 	}
-	log( "\n" )
+	log( ")\n\n" )
 end
 
 def searchChild( name, branch, unit)
@@ -909,7 +948,7 @@ def NOEMONTurnRelay(no,state,pcBranch,pcUnit,deviceBranch,deviceUnit)
 	if( state == true ) then 
 		$RelaysStatus[id] = 1
 	else
-		$RelayStatus[id] = 0
+		$RelaysStatus[id] = 0
 	end
 end
 
