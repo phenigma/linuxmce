@@ -148,10 +148,7 @@ public:
 	virtual void CMD_Report_Child_Devices(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_HD(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_AV_4(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reset(string sArguments,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Open(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_StatusReport(string sArguments,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -247,56 +244,6 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 770:
-					{
-						string sCMD_Result="OK";
-						CMD_HD(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_HD(sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case 771:
-					{
-						string sCMD_Result="OK";
-						CMD_AV_4(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_AV_4(sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
 				case 776:
 					{
 						string sCMD_Result="OK";
@@ -319,31 +266,6 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Reset(sArguments.c_str(),sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case 787:
-					{
-						string sCMD_Result="OK";
-						CMD_Open(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Open(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
