@@ -174,8 +174,12 @@ Window OrbiterLinux::getWindow()
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
-		SetCurrentAppDesktopName("pluto-xine-playback-window");
+  {
+    if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
+      SetCurrentAppDesktopName("dialog");
+    else if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
+      SetCurrentAppDesktopName("pluto-xine-playback-window");
+  }
 
   vector<int> vectButtonMaps;
   GetButtonsInObject(pObj,vectButtonMaps);
@@ -510,5 +514,6 @@ ScreenHandler *OrbiterLinux::CreateScreenHandler()
 
 void OrbiterLinux::SetCurrentAppDesktopName(string sName)
 {
+  g_pPlutoLogger->Write( LV_WARNING, "OrbiterLinux::SetCurrentAppDesktopName(%s)", sName.c_str());
 	m_sCurrentAppDesktopName = sName;
 }

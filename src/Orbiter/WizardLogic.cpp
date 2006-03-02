@@ -77,9 +77,18 @@ void WizardLogic::RemoveUser(int PK_User)
 int WizardLogic::PreSeedRoomInfo( map<int, int > &mapRooms )
 {
 	int iNumRooms=0;
-	string sSQL = "SELECT FK_RoomType,count(PK_Room) FROM Room "
-		"JOIN RoomType ON FK_RoomType=PK_RoomType "
-		"GROUP BY FK_RoomType";
+
+  //string sSQL = "SELECT FK_RoomType,count(PK_Room) FROM Room "
+	//	"JOIN RoomType ON FK_RoomType=PK_RoomType "
+	//	"GROUP BY FK_RoomType";
+
+  // activate all room types (sql from Chris)
+  string sSQL =
+    "SELECT PK_RoomType, Sum(IF(NOT IFNULL(FK_Installation, 0), 0, 1)) As Count "
+    "FROM RoomType LEFT JOIN Room ON FK_RoomType = PK_RoomType "
+    "WHERE FK_Installation = " + Installation_get() + " OR FK_Installation IS NULL "
+    "GROUP BY PK_RoomType"
+    ;
 
 	PlutoSqlResult result_set_room;
 	MYSQL_ROW row;

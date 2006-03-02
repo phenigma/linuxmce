@@ -254,19 +254,19 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 // Rooms Wizard
 //-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
-{
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+//void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
+//{
+//	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
+//	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+//	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+//	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 
-	ScreenHandlerBase::SCREEN_RoomsWizard(PK_Screen);
+//	ScreenHandlerBase::SCREEN_RoomsWizard(PK_Screen);
 
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_ObjectSelected, new ObjectInfoBackData());
-	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
-	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_DatagridSelected, new DatagridCellBackData());
-}
+//	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_ObjectSelected, new ObjectInfoBackData());
+//	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
+//	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::RoomsWizard_DatagridSelected, new DatagridCellBackData());
+//}
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 {
@@ -1439,23 +1439,34 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	return false;
 }
 
-//-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_AdvancedOptions(long PK_Screen)
-{
-  ScreenHandler::SCREEN_AdvancedOptions(PK_Screen);
-  // register the RoomWizard callbacks
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_AdvancedOptions()" );
-  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
-  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
-  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
-}
+////-----------------------------------------------------------------------------------------------------
+//void OSDScreenHandler::SCREEN_AdvancedOptions(long PK_Screen)
+//{
+//  ScreenHandler::SCREEN_AdvancedOptions(PK_Screen);
+//  // register the RoomWizard callbacks
+//  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_AdvancedOptions()" );
+//  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
+//  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
+//  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
+//}
+
+////-----------------------------------------------------------------------------------------------------
+//void OSDScreenHandler::SCREEN_Media(long PK_Screen, string sLocation)
+//{
+//  ScreenHandler::SCREEN_Media(PK_Screen, sLocation);
+//  // register the RoomWizard callbacks
+//  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_Media()" );
+//  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
+//  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
+//  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
+//}
 
 //-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_Media(long PK_Screen, string sLocation)
+void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-  ScreenHandler::SCREEN_Media(PK_Screen, sLocation);
+  ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
   // register the RoomWizard callbacks
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_Media()" );
+  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
   RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
   RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
   RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );

@@ -76,8 +76,8 @@ public:
 	bool VOIP_Provider_ObjectSelected(CallBackData *pData);
 
   // Register RoomsWizard on this Screen
-  virtual void SCREEN_AdvancedOptions(long PK_Screen);
-  virtual void SCREEN_Media(long PK_Screen, string sLocation);
+  //virtual void SCREEN_AdvancedOptions(long PK_Screen);
+  //virtual void SCREEN_Media(long PK_Screen, string sLocation);
   // RoomsWizard callbacks
   bool RoomsWizardCreate( CallBackData *pData );
   bool RoomsWizardDelete( CallBackData *pData );
