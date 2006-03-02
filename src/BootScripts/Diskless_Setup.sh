@@ -118,7 +118,6 @@ for Client in $R; do
 
 		Q="
 			SELECT
-				FK_DeviceData,
 				IK_DeviceData
 			FROM
 				Device_DeviceData
