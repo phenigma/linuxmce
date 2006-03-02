@@ -2,8 +2,8 @@
 
 . /usr/pluto/bin/pluto.func
 
-if [[ "$#" -ne 4 ]]; then
-	echo "Syntax: $0 <IP> <MAC> <Device> <Activation Code>"
+if [[ "$#" -ne 5 ]]; then
+	echo "Syntax: $0 <IP> <MAC> <Device> <Activation Code> <Architecture>"
 	exit 1
 fi
 
