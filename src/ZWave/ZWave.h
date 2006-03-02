@@ -126,36 +126,14 @@ PK_CommandParameter|Value|... */
 	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #770 - HD */
-	/** Test comand. Erase at the end */
-
-	virtual void CMD_HD() { string sCMD_Result; CMD_HD(sCMD_Result,NULL);};
-	virtual void CMD_HD(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #771 - AV 4 */
-	/** Test command only. 
-Turn relay on/off */
-
-	virtual void CMD_AV_4() { string sCMD_Result; CMD_AV_4(sCMD_Result,NULL);};
-	virtual void CMD_AV_4(string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #776 - Reset */
-	/** Reset Zwave device. */
+	/** Reset device. */
 		/** @param #51 Arguments */
 			/** Argument string
 NOEMON or CANBUS */
 
 	virtual void CMD_Reset(string sArguments) { string sCMD_Result; CMD_Reset(sArguments.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #787 - Open */
-	/** Test comand. Erase at the end */
-
-	virtual void CMD_Open() { string sCMD_Result; CMD_Open(sCMD_Result,NULL);};
-	virtual void CMD_Open(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #788 - StatusReport */

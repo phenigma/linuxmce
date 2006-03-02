@@ -684,7 +684,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 //<-dceag-c776-b->
 
 	/** @brief COMMAND: #776 - Reset */
-	/** Reset Zwave device. */
+	/** Reset device. */
 		/** @param #51 Arguments */
 			/** Argument string
 NOEMON or CANBUS */
@@ -724,39 +724,6 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 	}
 	
 	sCMD_Result = "OK";
-}
-//<-dceag-c770-b->
-
-	/** @brief COMMAND: #770 - HD */
-	/** Test comand. Erase at the end */
-
-void ZWave::CMD_HD(string &sCMD_Result,Message *pMessage)
-//<-dceag-c770-e->
-{
-	sCMD_Result = "Not implemented";
-}
-
-//<-dceag-c771-b->
-
-	/** @brief COMMAND: #771 - AV 4 */
-	/** Test command only. 
-Turn relay on/off */
-
-void ZWave::CMD_AV_4(string &sCMD_Result,Message *pMessage)
-//<-dceag-c771-e->
-{
-	sCMD_Result = "Not implemented";
-}
-
-//<-dceag-c787-b->
-
-	/** @brief COMMAND: #787 - Open */
-	/** Test comand. Erase at the end */
-
-void ZWave::CMD_Open(string &sCMD_Result,Message *pMessage)
-//<-dceag-c787-e->
-{
-	sCMD_Result = "Not implemented";
 }
 
 //<-dceag-c788-b->
