@@ -9,6 +9,11 @@ resHD576=720x576 # SDTV actually, EDTV with doublescan, but nVidia calls it HD s
 
 GetVideoDriver()
 {
+	if [[ -n "$ForceVESA" ]]; then
+		echo vesa
+		return 0
+	fi
+	
 	lshwd -ox >/dev/null
 	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
 	rm /tmp/xinfo
@@ -20,6 +25,13 @@ GetVideoDriver()
 	echo "$VideoDriver"
 }
 
+TestConfig()
+{
+	X -probeonly -xf86config "$ConfigFile" &>/dev/null
+	return $?
+}
+
+OrigParams=("$@")
 ConfigFile="/etc/X11/XF86Config-4"
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -49,6 +61,7 @@ while [[ $# -gt 0 ]]; do
 		;;
 		--force) Force=y ;;
 		--update-video-driver) UpdateVideoDriver=y ;;
+		--force-vesa) ForceVESA=y ;;
 		--conffile) ConfigFile="$2"; shift ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
@@ -61,6 +74,12 @@ if [[ "$Defaults" == y ]]; then
 elif [[ -n "$UpdateVideoDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
+fi
+
+if [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
+	if ! TestConfig && [[ " $* " != *" --force-vesa "* ]]; then
+		exec "$0" "${OrigParams[@]}" --force-vesa
+	fi
 fi
 
 if [[ -n "$Resolution" ]]; then
