@@ -107,11 +107,44 @@ for MD in $MD_List; do
 	archiveSyncCOREfromMD $MD_FsRoot
 done
 
-## Put a flag so MD's and CORE to know that an updates are available
-UpdatesOkStamp=$(date +%s)
-touch /usr/pluto/var/Updates/UpdatesOk.flag
-echo $UpdatesOkStamp > /usr/pluto/var/Updates/UpdatesOk.flag
+## First check if the core realy needs to upgrade any packages
+Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
+
+if [[ "$Count" != "0" ]]; then	
+	## Put a flag so MD's and CORE to know that an updates are available
+	UpdatesOkStamp=$(date +%s)
+	touch /usr/pluto/var/Updates/UpdatesOk.flag
+	echo $UpdatesOkStamp > /usr/pluto/var/Updates/UpdatesOk.flag
+
+	## Message to DCERouter so nows that updates for core are available
+	#TODO: add message code here
+else
+	## If the core has no updates, check if any of the MD's have
+	for MD in $MD_List; do
+        	MD_DeviceID=$(Field 1 "$MD")
+        	MD_IP=$(Field 2 "$MD")
+
+        	if [[ -z "MD_IP" ]]; then
+                	continue
+        	fi
+
+        	MD_FsRoot="$MD_FsPath/$MD_IP"
+
+		# Check if this particular MD is up
+		MD_IsUp="No"
+		if ssh $MD_IP ps -A | grep -q Orbiter; then
+			MD_IsUp="Yes"
+		fi
+
+		# Check if we have any packages to install on this MD
+		Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
+
+		# Send a message to inform about the updates
+		if [[ "$Count" != 0 && MD_IsUp == "Yes" ]]; then
+			#TODO: add message code here
+		fi
+	done
+fi
 
 ## Remove our lock
 rm -f /usr/pluto/var/Updates/DownloadUpdates.lock
-
