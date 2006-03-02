@@ -77,7 +77,7 @@ elif [[ -n "$UpdateVideoDriver" ]]; then
 fi
 
 if [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
-	if ! TestConfig && [[ " $* " != *" --force-vesa "* ]]; then
+	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
 		exec "$0" "${OrigParams[@]}" --force-vesa
 	fi
 fi
