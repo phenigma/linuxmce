@@ -38,6 +38,9 @@ namespace DCE
 		
 		/** Pooling thread */
 		static pthread_t m_PoolThread;
+		
+		/** Keeps the name for serial device used by ZWave.*/
+		string zwaveSerialDevice;
 
 		// Private methods
 		

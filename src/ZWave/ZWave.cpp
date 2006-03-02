@@ -87,7 +87,7 @@ bool ZWave::GetConfig()
 	
 	if( !ConfirmConnection() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", GetZWaveSerialDevice().c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", zwaveSerialDevice.c_str());
 		// TODO HMM ?!
 		// return false;
 	}
@@ -148,7 +148,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -168,7 +168,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -189,7 +189,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -268,7 +268,7 @@ void ZWave::DownloadConfiguration()
 	{
 		m_ZWaveAPI->insertJob( receive );
 		m_ZWaveAPI->insertJob( init );
-		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 		{
 			EVENT_Download_Config_Done("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS");
@@ -320,7 +320,7 @@ return;
 	if( init != NULL )
 	{
 		m_ZWaveAPI->insertJob( init );
-		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 		{
 			EVENT_Reporting_Child_Devices("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS", "");
@@ -392,18 +392,26 @@ bool ZWave::ConfirmConnection(int RetryCount)
 			( 0 == m_ZWaveAPI->nodeID() ||
 		      0 == m_ZWaveAPI->homeID() ) )
 		{
-			ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
-			if( init != NULL )
+			zwaveSerialDevice = GetZWaveSerialDevice();
+			if( !zwaveSerialDevice.empty() )
 			{
-				m_ZWaveAPI->insertJob( init );
-				if( m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) &&
-					m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
+				if( init != NULL )
 				{
-					// start ZWave pooling
-					CMD_Pool(true);
-					
-					return true;
+					m_ZWaveAPI->insertJob( init );
+					if( m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) &&
+						m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					{
+						// start ZWave pooling
+						CMD_Pool(true);
+						
+						return true;
+					}
 				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_ZWAVE,"ZWave::ConfirmConnection : zwave device is empty");
 			}
 		}
 		else
@@ -478,7 +486,7 @@ void ZWave::PoolZWaveNetwork()
 			if( pool != NULL )
 			{
 				m_ZWaveAPI->insertJob( pool );
-				if( m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) &&
+				if( m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) &&
 					m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
 				{
 					// checking the current state for each children
@@ -632,7 +640,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -652,7 +660,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
-				if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) ||
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
 					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
@@ -703,7 +711,7 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 	if( reset != NULL )
 	{
 		m_ZWaveAPI->insertJob( reset );
-		if( !m_ZWaveAPI->start( GetZWaveSerialDevice().c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
 		{
 			sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 			return;
