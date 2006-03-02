@@ -21,13 +21,6 @@ if [[ ! -d /usr/pluto/var/Updates ]]; then
 	mkdir -p /usr/pluto/var/Updates
 fi
 
-## Start Logging this
-mv /var/log/pluto/DownloadPackages.newlog /var/log/pluto/DownloadPackages.log
-touch /var/log/pluto/DownloadPacakges.newlog
-exec 6>&1
-exec > /var/log/pluto/DownloadPacakges.newlog
-echo "##  Updates Download Started at $(date -R)"
-
 ## Make sure we don't run more than once
 UpdatesDownloadingStamp=$(date +%s)
 if [[ -f /usr/pluto/var/Updates/DownloadUpdates.lock ]]; then
@@ -36,6 +29,14 @@ else
 	echo $UpdatesDownloadingStamp > /usr/pluto/var/Updates/DownloadUpdates.lock
 fi
 							
+## Start Logging this
+echo "Download Packages Started (see /var/log/pluto/DownloadPackages.log for debuging)"
+touch /var/log/pluto/DownloadPackages.newlog
+mv /var/log/pluto/DownloadPackages.newlog /var/log/pluto/DownloadPackages.log > /dev/null 2>&1
+exec 6>&1
+exec > /var/log/pluto/DownloadPackges.newlog 2>&1
+echo "##  Updates Download Started at $(date -R)"
+
 ## Apt-get update for core
 echo "##  Apt-get update for core"
 apt-get update 1>/dev/null
