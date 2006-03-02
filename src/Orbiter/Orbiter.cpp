@@ -9476,6 +9476,52 @@ bool Orbiter::WaitForRelativesIfOSD()
 		}
 
 		string sDescription = m_mapTextString[TEXT_Waiting_for_related_devices_CONST];
+
+		for(map<int,bool>::iterator it=mapUnregisteredRelatives.begin();it!=mapUnregisteredRelatives.end();++it)
+		{
+			if( it->second )
+				continue;
+			DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(it->first);
+			sDescription += "  #" + StringUtils::itos(it->first) + "/" + (pDevice ? pDevice->m_sDescription : string(""));
+
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
+		if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
+		{
+			DisplayProgress("",-1);
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");
+			OnQuit();
+			return false;
+		}
+		Sleep(1000); // Sleep and try again
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
+	DisplayProgress("",-1);
+	return true;
+
+/*
+	//todo: enable this code instead of that above to use remus's wx custom progress bar dialog 
+
+	if( !m_bIsOSD )
+		return true;
+
+	time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
+	map<int,bool> mapUnregisteredRelatives;
+	while( true )
+	{
+		int iUnregisteredRelatives = FindUnregisteredRelatives(&mapUnregisteredRelatives);
+		if( !iUnregisteredRelatives )
+			break;
+		if( time(NULL)>tTimeout )
+		{
+			string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
+			PromptUser(sMessage);
+			g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
+			break;
+		}
+
+		string sDescription = m_mapTextString[TEXT_Waiting_for_related_devices_CONST];
 		map<string, bool> mapChildDevices;
 		for(map<int,bool>::iterator it=mapUnregisteredRelatives.begin();it!=mapUnregisteredRelatives.end();++it)
 		{
@@ -9497,6 +9543,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
 	DisplayProgress("",-1);
 	return true;
+*/
 }
 //-----------------------------------------------------------------------------------------------------
 //<-dceag-c741-b->
