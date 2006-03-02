@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 function archiveSyncMDfromCORE {
 	local MD_Root=$1
@@ -14,7 +15,6 @@ function archiveSyncCOREfromMD {
 
 	cp -ru $MD_Root/var/cache/apt/archives /var/cache/apt/archives
 }
-
 
 ## This directory shoul be there, but just in case
 if [[ ! -d /usr/pluto/var/Updates ]]; then
@@ -36,6 +36,14 @@ mv /var/log/pluto/DownloadPackages.newlog /var/log/pluto/DownloadPackages.log > 
 exec 6>&1
 exec > /var/log/pluto/DownloadPackges.newlog 2>&1
 echo "##  Updates Download Started at $(date -R)"
+
+## Check to see if we are in offline mode (pluto.conf)
+if [[ $OfflineMode == "true" ]]; then
+	echo "## Offline mode is activated. There's no need to run, i'm exiting"
+	exit 0
+fi
+
+
 
 ## Apt-get update for core
 echo "##  Apt-get update for core"
