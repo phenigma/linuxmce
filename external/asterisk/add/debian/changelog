@@ -1,3 +1,11 @@
+asterisk-pluto (1.0.9-14) unstable; urgency=low
+
+  * Run update for firewall rules on install
+  * More reliable startup during 'fast boot'
+  * Bump version to force upgrade
+
+ -- Office Server Operator <root@activate.plutohome.com>  Fri, 3 Mar 2006 16:06:27 +0200
+
 asterisk-pluto (1.0.9-13) unstable; urgency=low
 
   * Add asterisk_keep_running script to anounce user if something goes wrong

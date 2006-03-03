@@ -32,9 +32,11 @@ case "$1" in
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',5060,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('tcp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
-			#enable oss module to speak in the house
+			#run setup firewall
+			/usr/pluto/bin/Network_Firewall.sh
+			#disable oss module to speak in the house
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
-			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf			
+			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
 			if (getent passwd asterisk >/dev/null);then
 				if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
 					usermod -d /var/lib/asterisk asterisk || /bin/true
@@ -53,7 +55,6 @@ case "$1" in
 			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
 			killall asterisk safe_asterisk || /bin/true
-			
 		fi
 		rm -f /etc/init.d/asterisk || /bin/true
 		rm -f /etc/rc?.d/*asterisk || /bin/true

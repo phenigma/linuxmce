@@ -72,7 +72,10 @@ run_asterisk() {
         echo "Asterisk is already running"
     else
         echo -n "Asterisk is starting "
-        /usr/sbin/safe_asterisk -U asterisk -G asterisk &
+        nohup /bin/sh -c '/usr/sbin/safe_asterisk -U asterisk -G asterisk &' > /dev/null
+        killall -9 asterisk_keep_running.pl > /dev/null
+	touch /var/log/asterisk/full
+        nohup /bin/sh -c 'tail -f /var/log/asterisk/full | /usr/pluto/bin/asterisk_keep_running.pl &' > /dev/null
 
         # Wait up to 5 seconds for asterisk to start
         local counter=0
@@ -89,7 +92,7 @@ run_asterisk() {
         done
 
         # Check for 0.1 x counter seconds that asterisk stays started
-        local counter=5
+        local counter=50
         while [ $counter -gt 0 ]; do
             echo -n "."
             sleep 0.1
@@ -103,8 +106,6 @@ run_asterisk() {
             fi    
         done
         echo " done"
-		killall asterisk_keep_running.pl > /dev/null
-        tail -f /var/log/asterisk/full | /usr/pluto/bin/asterisk_keep_running.pl &
     fi
 }
 
@@ -116,6 +117,7 @@ stop_asterisk() {
     then
         /usr/sbin/asterisk -rx "stop gracefully"
         echo "Asterisk Stopped"
+        killall -9 asterisk_keep_running.pl > /dev/null
     fi
 }
 

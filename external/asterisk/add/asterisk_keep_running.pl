@@ -10,7 +10,9 @@ my $TROUBLE_LEVEL = 0;
 my $SECONDS = 0;
 
 my $ast_run = &check_asterisk_running();
-if($ast_run != 1)
+sleep(5);
+$ast_run += &check_asterisk_running();
+unless($ast_run eq 2)
 {
     &write_log("Asterisk is NOT running will try to start");
     system("/etc/init.d/asterisk start");
@@ -24,7 +26,7 @@ if($ast_run != 1)
         exit(1);
     }
 }
-
+sleep(5);
 &write_log("Asterisk is running");
 my $voip_unreg = &check_asterisk_register();
 &write_log("VoIP list");
@@ -138,11 +140,27 @@ while (1 eq 1)
     else
     {
         $SECONDS ++;
-        #check in about 5 minutes
+        #check in about 5 minutes (may be more because not ticking when performing test)
         if($SECONDS > 300)
         {
             $SECONDS = 0;
             &write_log("Still alive...");
+            
+            $ast_run = &check_asterisk_running();
+            unless($ast_run eq 1)
+            {
+                &write_log("Asterisk is NOT running will try to start");
+                system("/etc/init.d/asterisk start");
+                sleep(5);
+                $ast_run = &check_asterisk_running();
+                if($ast_run != 1)
+                {
+                    &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
+                    &send_message("Asterisk is not running, voip will be unavailable");
+                    &write_log("END RUN\n\n\n");
+                    exit(1);
+                }
+            }
             $LOG_MESSAGE = "";
             &check_network_conditions();
             unless($LOG_MESSAGE eq "")
@@ -231,7 +249,7 @@ sub check_network_ping()
 {
     my $host = shift;
     $host="www.google.com" unless(defined $host);
-    return system("ping -c 5 $host");
+    return system("/bin/ping -c 5 $host");
 }
 
 sub check_iax_ping()
@@ -277,12 +295,12 @@ sub check_iax_ping()
 
 sub check_network_conditions()
 {
-    my $voip_unreg = &check_asterisk_register();
+    $voip_unreg = &check_asterisk_register();
     if($TROUBLE_LEVEL > 0)
     {
         `/bin/sh -c '/usr/sbin/tcpdump -vv -n not net 192.168.80.0/24 &' >> /var/log/asterisk/tcpdumps.log`;
     }
-    if(($voip_unreg != 0))
+    unless($voip_unreg == 0)
     {
         &write_log("Possible problems with your voip");
         foreach my $prov (keys %{$VOIP_SERVERS{'sip'}})
@@ -301,7 +319,6 @@ sub check_network_conditions()
                 &write_log("    ---");
             }
         }
-
         foreach my $prov (keys %{$VOIP_SERVERS{'iax'}})
         {
             unless($VOIP_SERVERS{'iax'}{$prov} =~ /^Registered/)
@@ -325,6 +342,7 @@ sub check_network_conditions()
     }
     if($TROUBLE_LEVEL > 0)
     {
+        sleep(5);
         `killall tcpdump`;
         `echo -n -e "\n\n\n" >> /var/log/asterisk/tcpdumps.log`;
     }
