@@ -123,6 +123,7 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 #endif
     m_iMythFrontendWindowId = 0;
     m_bExiting = false;
+    m_threadMonitorMyth = 0;
     m_mythStatus = MYTHSTATUS_DISCONNECTED;
     
 }
