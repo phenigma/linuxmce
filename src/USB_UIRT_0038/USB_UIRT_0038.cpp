@@ -23,7 +23,8 @@ USB_UIRT_0038 *g_pUsbUirt;
 #include "uuirtdrv.h"
 
 #ifdef __linux
- static void *		hinstLib = NULL; 
+#include <dlfcn.h>
+static void *		hinstLib = NULL; 
 #else
  HINSTANCE		hinstLib = NULL; 
 #endif
@@ -213,6 +214,8 @@ void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, uns
 /*****************************************************************************/
 #ifdef __linux
 void LearnThread( LPVOID lpParameter )
+#define GetLastError(x) (errno)
+
 #else
 DWORD WINAPI LearnThread( LPVOID lpParameter )
 #endif
@@ -324,6 +327,7 @@ bool USB_UIRT_0038::GetConfig()
 	}
 
 #ifdef __linux
+	char devicePath[81];
 	// TODO: Does this need to be a config option?
 	strcpy(devicePath, DEVICE_PATH);
 #endif
@@ -390,17 +394,6 @@ bool USB_UIRT_0038::GetConfig()
 	// Register a callback function for IR receive...
 	fn_UUIRTSetReceiveCallback(hDrvHandle, &IRReceiveCallback, (void *)0xA5A5A5A5);
 
-#ifdef __linux
-	// Disable tty blocking on Stdio
-	struct termios tty;
-	struct termios savetty;
-	tcgetattr(0, &savetty);
-	tcgetattr(0, &tty);
-	tty.c_lflag &= ~(ICANON|IEXTEN);
-	tty.c_cc[VTIME] = 0;
-	tty.c_cc[VMIN] = 0;
-	tcsetattr(0, TCSADRAIN, &tty);
-#endif
 
 
 	// Jon -- Initialize the USB UIRT here
@@ -555,7 +548,7 @@ void USB_UIRT_0038::SendIR(string Port, string IRCode)
 	if( m_bLearningIR )
 		StopLearning();
 
-	const char *pBuffer = IRCode.c_str();
+	char *pBuffer = (char *)IRCode.c_str();
 	size_t size = IRCode.size();
 	bool bDeleteBuffer=false;
 	if( pBuffer[0]=='/' )
@@ -623,17 +616,6 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 	else
 		ReceivedCode(it->second.second,it->second.first.c_str());
 }
-
-// Jon your code needs to call this function whenever a button is pressed
-// You can either call it with the raw I/R code and we'll do the lookup for the button name
-// or you can call with the button name itself
-
-int __stdcall OurCalback(const char * eventstring)
-{
-   g_pUsbUirt->OurCallback(eventstring);
-   printf("IR Data %s\n", eventstring);
-   return 0;
-};
 
 void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
 {

@@ -20,10 +20,11 @@
   #define WINAPI
   #define PASCAL
   typedef unsigned int DWORD;
-  typedef bool BOOL;
+  #define BOOL bool
+  // typedef bool BOOL
   typedef unsigned int UINT32;
   typedef UINT32 *PUINT32;
-  typedef void *LPVOID;
+  //typedef void *LPVOID;
   struct s_event_t
   {
       pthread_cond_t cond;
