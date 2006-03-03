@@ -1762,7 +1762,7 @@
 #define DESIGNOBJ_butTracklight_CONST 4610
 #define DESIGNOBJ_butRecessedlighting_CONST 4611
 #define DESIGNOBJ_butStartUsingMonster_CONST 4612
-#define DESIGNOBJ_roomsapplet_CONST 4616
+#define DESIGNOBJ_appRooms_CONST 4616
 #define DESIGNOBJ_butApplet_CONST 4617
 #define DESIGNOBJ_butGreetings_CONST 4618
 #define DESIGNOBJ_butTVManufNotListed_CONST 4623
@@ -1843,7 +1843,7 @@
 #define DESIGNOBJ_dgTvSourcesRegularTV_CONST 4711
 #define DESIGNOBJ_dgTvSourcesExternalBox_CONST 4712
 #define DESIGNOBJ_dgLightType_CONST 4713
-#define DESIGNOBJ_sensorsapplet_CONST 4714
+#define DESIGNOBJ_appSecuritySensors_CONST 4714
 #define DESIGNOBJ_dgAvailableInputs_CONST 4715
 #define DESIGNOBJ_butVoipUsername_CONST 4716
 #define DESIGNOBJ_dgRoomTypes_CONST 4717
