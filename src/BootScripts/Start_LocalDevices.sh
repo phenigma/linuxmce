@@ -55,6 +55,7 @@ for command in $CommandList; do
 	ChildCommand=$(Field 3 "$command")
 	ChildIgnore=$(Field 4 "$command")
 
+	ChildDescription="${ChildDescription//[\/ ]/_}"
 	if [[ "$ChildIgnore" -eq 1 ]]; then
 		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID ; $ChildDescription) disabled"
 	fi
