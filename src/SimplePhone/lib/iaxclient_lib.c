@@ -417,7 +417,7 @@ EXPORT int iaxc_initialize(int audType, int inCalls) {
 	MUTEXINIT(&iaxc_lock);
 
 	if(iaxc_sendto == sendto) {
-	    if ( (port = iax_init(0) < 0)) {
+	    if ( (port = iax_init(45690) < 0)) {
 		    iaxc_usermsg(IAXC_ERROR, "Fatal error: failed to initialize iax with port %d", port);
 		    return -1;
 	    }

@@ -20,8 +20,8 @@ using namespace DCE;
 
 static int phone_status=0;
 static int call_status=0;
-static short ringData [] = {0,1,2,3,4,5,6,7,8,9,0};
 
+#include "RingData.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -223,7 +223,7 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
     if(phone_status>0)
     {
         iaxc_millisleep(1000);
-//        StopRingTone();
+        StopRingTone();
         DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
         SendCommand(SCREEN_DevCallInProgress_);
         iaxc_millisleep(1000);
@@ -245,7 +245,7 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-//    StopRingTone();
+    StopRingTone();
     iaxc_dump_call();
     iaxc_millisleep(1000);
     sCMD_Result="OK";
@@ -297,11 +297,11 @@ void SimplePhone::PlayRingTone()
         StopRingTone();
     }
     ringTone = (iaxc_sound *)calloc(1,sizeof(iaxc_sound));
-    ringTone->channel = 0;
+    ringTone->channel = 1;
     ringTone->len  = sizeof(ringData)/sizeof(short);
     ringTone->data = ringData;
     ringTone->repeat = -1;
-    iaxc_play_sound(ringTone, 0);
+    iaxc_play_sound(ringTone, 1);
 	g_pPlutoLogger->Write(LV_STATUS, "Play RING");	
 }
 
@@ -318,10 +318,10 @@ void SimplePhone::doProccess(void)
             if(event_status != phone_status)
             {
                 GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
-                iaxc_millisleep(100);
                 DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
                 SendCommand(CMD_MH_Stop_Media_);
-//                PlayRingTone();
+                iaxc_millisleep(1000);				
+                PlayRingTone();
             }
             if(phone_status>1)
             {
