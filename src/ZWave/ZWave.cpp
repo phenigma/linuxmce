@@ -287,6 +287,7 @@ void ZWave::DownloadConfiguration()
 	}
 	
 	EVENT_Download_Config_Done("");
+	CMD_Report_Child_Devices();
 }
 
 void ZWave::ReportChildDevices()
