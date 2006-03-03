@@ -12,13 +12,250 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
+
+USB_UIRT_0038 *g_pUsbUirt;
+
+
+#include "uuirtdrv.h"
+
+#ifdef __linux
+ static void *		hinstLib = NULL; 
+#else
+ HINSTANCE		hinstLib = NULL; 
+#endif
+
+// Driver handle for UUIRT device
+HUUHANDLE		hDrvHandle;
+
+unsigned int	drvVersion;
+
+// Globals to hold last-learned IR-Code and its format...
+char	gIRCode[2048] = "0000 0048 0001 0011 0017 0163 0017 00a3 0016 00a3 0017 00a3 0016 0062 0017 0061 0016 00a3 0017 00a3 0016 00a3 0017 00a3 0017 00a3 0016 00a3 0017 00a3 0016 00a3 0017 00a3 0016 00a3 0017 00a3 0017 0163";
+int		gIRCodeFormat = UUIRTDRV_IRFMT_PRONTO;
+
+// Globals used during Learning...
+char	gLearnBuffer[2048];
+int		gLearnFormat;
+
+// UUIRT .dll function pointers. These will be assigned when calling LoadDLL()
+pfn_UUIRTOpenEx				fnUUIRTOpenEx;
+pfn_UUIRTClose				fnUUIRTClose;
+pfn_UUIRTGetDrvInfo			fn_UUIRTGetDrvInfo;
+pfn_UUIRTGetUUIRTInfo		fn_UUIRTGetUUIRTInfo;
+pfn_UUIRTGetUUIRTConfig		fn_UUIRTGetUUIRTConfig;
+pfn_UUIRTSetUUIRTConfig		fn_UUIRTSetUUIRTConfig;
+pfn_UUIRTSetReceiveCallback	fn_UUIRTSetReceiveCallback;
+pfn_UUIRTTransmitIR			fn_UUIRTTransmitIR;
+pfn_UUIRTLearnIR			fn_UUIRTLearnIR;
+
+#ifdef __linux
+
+#define DEVICE_PATH "/dev/ttyUSB0"
+
+void *LoadLibrary(const char* LibName)
+{
+	char namePath[256];
+	strcpy(namePath,"./");
+	strcat(namePath, LibName);
+	strcat(namePath,".so");
+	return dlopen(namePath, RTLD_NOW);
+};
+
+bool FreeLibrary(void* handle)
+{
+	return dlclose(handle) == 0;	
+};
+
+void *GetProcAddress(void* handle, const char* Name)
+{
+	return dlsym(handle,Name);	
+};
+
+#endif 
+
+/*****************************************************************************/
+/* unLoadDLL: Disconnects from .DLL and unloads it from memory				 */
+/*																			 */
+/* returns: none															 */
+/*																			 */
+/*****************************************************************************/
+void unLoadDLL(void)
+{
+	if (hinstLib)
+		FreeLibrary(hinstLib);
+	hinstLib = NULL;
+}
+
+/*****************************************************************************/
+/* loadDLL: Establish contact with the UUIRTDRV dll and assign function      */
+/*			entry points													 */
+/*																			 */
+/* returns: TRUE on success, FALSE on failure								 */
+/*																			 */
+/*****************************************************************************/
+BOOL loadDLL(void)
+{
+    // Get a handle to the DLL module.
+ 
+    hinstLib = LoadLibrary("uuirtdrv"); 
+ 
+    // If the handle is valid, try to get the function address.
+ 
+    if (hinstLib != NULL) 
+    { 
+        fnUUIRTOpenEx = (pfn_UUIRTOpenEx) GetProcAddress(hinstLib, "UUIRTOpenEx");
+        fnUUIRTClose = (pfn_UUIRTClose) GetProcAddress(hinstLib, "UUIRTClose");
+		fn_UUIRTGetDrvInfo  = (pfn_UUIRTGetDrvInfo) GetProcAddress(hinstLib, "UUIRTGetDrvInfo");
+		fn_UUIRTGetUUIRTInfo = (pfn_UUIRTGetUUIRTInfo) GetProcAddress(hinstLib, "UUIRTGetUUIRTInfo");
+		fn_UUIRTGetUUIRTConfig = (pfn_UUIRTGetUUIRTConfig) GetProcAddress(hinstLib, "UUIRTGetUUIRTConfig");
+		fn_UUIRTSetUUIRTConfig = (pfn_UUIRTSetUUIRTConfig) GetProcAddress(hinstLib, "UUIRTSetUUIRTConfig");
+		fn_UUIRTSetReceiveCallback = (pfn_UUIRTSetReceiveCallback) GetProcAddress(hinstLib, "UUIRTSetReceiveCallback");
+		fn_UUIRTTransmitIR = (pfn_UUIRTTransmitIR) GetProcAddress(hinstLib, "UUIRTTransmitIR");
+		fn_UUIRTLearnIR = (pfn_UUIRTLearnIR) GetProcAddress(hinstLib, "UUIRTLearnIR");
+
+		if (!fnUUIRTOpenEx || 
+			!fnUUIRTClose || 
+			!fn_UUIRTGetDrvInfo || 
+			!fn_UUIRTGetUUIRTInfo || 
+			!fn_UUIRTGetUUIRTConfig || 
+			!fn_UUIRTSetUUIRTConfig || 
+			!fn_UUIRTSetReceiveCallback || 
+			!fn_UUIRTTransmitIR || 
+			!fn_UUIRTLearnIR)
+		{
+			unLoadDLL();
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/*****************************************************************************/
+/* IRReceiveCallback: Receive IR Callback Procedure						     */
+/*																			 */
+/* This procedure is called by the UUIRT .dll whenever an IRcode is received */
+/* The IRcode is passed to the callback in UIR format.						 */
+/*																			 */
+/*****************************************************************************/
+void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
+{
+#ifndef __linux
+	COORD coord;
+	HANDLE hStdOut;
+	CONSOLE_SCREEN_BUFFER_INFO conInfo;
+
+	// Move the cursor to the bottom of the screen
+	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); 
+	GetConsoleScreenBufferInfo(hStdOut, &conInfo);
+	coord.X = conInfo.srWindow.Left;
+	coord.Y = conInfo.srWindow.Bottom-1;
+	SetConsoleCursorPosition(hStdOut, coord);
+#endif
+	g_pUsbUirt->OurCallback(IREventStr);
+
+	g_pPlutoLogger->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)userData);
+
+#ifndef __linux
+	// Move the cursor back to its original position
+	SetConsoleCursorPosition(hStdOut, conInfo.dwCursorPosition);
+#endif
+}
+
+/*****************************************************************************/
+/* IRLearnCallback: Learn IR Callback Procedure						         */
+/*																			 */
+/* This procedure is called by the UUIRT .dll during the LEARN process		 */
+/* to allow user feedback on Learn progress, signal quality and (if needed)  */
+/* carrier frequency.														 */
+/*																			 */
+/*****************************************************************************/
+void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, unsigned long carrierFreq, void *userData)
+{
+#ifndef __linux
+	COORD coord;
+	HANDLE hStdOut;
+	CONSOLE_SCREEN_BUFFER_INFO conInfo;
+
+	// Move the cursor to the bottom of the screen
+	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); 
+	GetConsoleScreenBufferInfo(hStdOut, &conInfo);
+	coord.X = conInfo.srWindow.Left;
+	coord.Y = conInfo.srWindow.Bottom-2;
+	SetConsoleCursorPosition(hStdOut, coord);
+#endif
+
+	printf("<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
+
+#ifndef __linux
+	// Move the cursor back to its original position
+	SetConsoleCursorPosition(hStdOut, conInfo.dwCursorPosition);
+#endif
+}
+
+
+/*****************************************************************************/
+/* LearnThread: Learn IR Thread function									 */
+/*																			 */
+/* This function executes as a separate thread which calls the UUIRTLearnIR  */
+/* function.  In this example, the UUIRTLearnIR function is called from this */
+/* separate thread to allow the main console thread to continue monitoring   */
+/* the keyboard so that the user may abort the learn process. Depending on   */
+/* the application, the UUIRTLearnIR may be called from the main thread if   */
+/* an asynchronous method (such as a timer) is available to monitor user     */
+/* input.																	 */
+/*																			 */
+/*****************************************************************************/
+#ifdef __linux
+void LearnThread( LPVOID lpParameter )
+#else
+DWORD WINAPI LearnThread( LPVOID lpParameter )
+#endif
+{
+	signed int *pAbortLearn = (signed int *)lpParameter;
+
+	printf("\nCalling LearnIR...");
+	if (!fn_UUIRTLearnIR(hDrvHandle, gLearnFormat, gLearnBuffer, IRLearnCallback, (void *)0x5a5a5a5a, pAbortLearn, 0, NULL, NULL))
+	{
+		printf("\n\t*** ERROR calling UUIRTLearnIR! ***\n");
+	}
+	else
+	{
+		if (*pAbortLearn <= 0)
+		{
+			printf("...Done...IRCode = %s\n",gLearnBuffer);
+			strcpy(gIRCode, gLearnBuffer);
+			gIRCodeFormat = gLearnFormat & 0xff;
+		}
+		else
+		{
+			printf("...*** LEARN ABORTED ***\n");
+		}
+	}
+#ifdef __linux
+	*pAbortLearn = 1;
+	pthread_exit(0);
+#else
+	return 0;
+#endif
+}
+
+
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 USB_UIRT_0038::USB_UIRT_0038(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: USB_UIRT_0038_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, IRReceiverBase(this)
+	, IRReceiverBase(this), m_UIRTMutex("UIRT")
 {
+	g_pUsbUirt=this; // Used for the callback
+
 }
 
 //<-dceag-const2-b->!
@@ -35,7 +272,7 @@ bool USB_UIRT_0038::GetConfig()
 {
 	if( !USB_UIRT_0038_Command::GetConfig() )
 		return false;
-//<-dceag-getconfig-e->
+	//<-dceag-getconfig-e->
 
 	IRBase::setCommandImpl(this);
 	IRBase::setAllDevices(&(GetData()->m_AllDevices));
@@ -46,7 +283,7 @@ bool USB_UIRT_0038::GetConfig()
 	else
 		m_dwPK_Device_IRPlugin = 0;
 
-	m_iRepeat=DATA_Get_Repeat();
+	m_iRepeat=1; // DATA_Get_Repeat();
 
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
@@ -54,7 +291,7 @@ bool USB_UIRT_0038::GetConfig()
 	{
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_UsbUirt_Remote_Controls_CONST )
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Remote_Controls_CONST )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
 			string sType;
@@ -86,8 +323,88 @@ bool USB_UIRT_0038::GetConfig()
 		}
 	}
 
+#ifdef __linux
+	// TODO: Does this need to be a config option?
+	strcpy(devicePath, DEVICE_PATH);
+#endif
+
+	if (!loadDLL())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
+		return 0;
+	}
+
+	if (!fn_UUIRTGetDrvInfo(&drvVersion))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to retrieve uuirtdrv version!\n");
+		unLoadDLL();
+		return 0;
+	}
+
+	if (drvVersion != 0x0100)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Invalid uuirtdrv version!\n");
+		unLoadDLL();
+		return 0;
+	}
+
+#ifdef __linux
+	hDrvHandle = fnUUIRTOpenEx(devicePath,0,0,0);
+#else
+	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
+#endif
+	if (hDrvHandle == INVALID_HANDLE_VALUE)
+	{
+		DWORD err;
+
+		err = GetLastError();
+
+		if (err == UUIRTDRV_ERR_NO_DLL)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to find USB-UIRT Driver. Please make sure driver is Installed!\n");
+		}
+		else if (err == UUIRTDRV_ERR_NO_DEVICE)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device!  Please ensure device is connected to the computer!\n");
+		}
+		else if (err == UUIRTDRV_ERR_NO_RESP)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n");
+		}
+		else if (err == UUIRTDRV_ERR_VERSION)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Your USB-UIRT's firmware is not compatible with this API DLL. Please verify you are running the latest API DLL and that you're using the latest version of USB-UIRT firmware!  If problem persists, contact Technical Support!\n");
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to initialize USB-UIRT (unknown error)!\n");
+		}
+
+		unLoadDLL();
+
+		return 0;
+	}
+
+	printf("\n");
+
+	// Register a callback function for IR receive...
+	fn_UUIRTSetReceiveCallback(hDrvHandle, &IRReceiveCallback, (void *)0xA5A5A5A5);
+
+#ifdef __linux
+	// Disable tty blocking on Stdio
+	struct termios tty;
+	struct termios savetty;
+	tcgetattr(0, &savetty);
+	tcgetattr(0, &tty);
+	tty.c_lflag &= ~(ICANON|IEXTEN);
+	tty.c_cc[VTIME] = 0;
+	tty.c_cc[VMIN] = 0;
+	tcsetattr(0, TCSADRAIN, &tty);
+#endif
+
+
 	// Jon -- Initialize the USB UIRT here
-	return true
+	return true;
 }
 
 //<-dceag-reg-b->
@@ -101,13 +418,7 @@ bool USB_UIRT_0038::Register()
 /*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
 	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
 	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-USB_UIRT_0038_Command *Create_USB_UIRT_0038(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new USB_UIRT_0038(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
-
+//<-dceag-createinst-b->!
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
@@ -239,7 +550,7 @@ void USB_UIRT_0038::SomeFunction()
 */
 //<-dceag-sample-e->
 
-void UsbUirt::SendIR(string Port, string IRCode)
+void USB_UIRT_0038::SendIR(string Port, string IRCode)
 {
 	if( m_bLearningIR )
 		StopLearning();
@@ -255,27 +566,41 @@ void UsbUirt::SendIR(string Port, string IRCode)
 	
 	g_pPlutoLogger->Write(LV_STATUS,"UsbUirt Sending: %s",pBuffer);
 
-	// Jon this function needs to hook into your stuff to send the code contained in pBuffer
-    int res = UsbUirt_transmit(m_iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
-                            -1, /* Use embedded frequency value*/
-                            (const unsigned char *) pBuffer,
-                            size);
 
-    if ( res != 0 ) 
-		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt failed Sending(%d): %s",res,IRCode.c_str());
+	if (!fn_UUIRTTransmitIR(hDrvHandle,
+										pBuffer /* IRCode */,
+										gIRCodeFormat /* codeFormat */,
+										10 /* repeatCount */,
+										0 /* inactivityWaitTime */,
+										NULL /* hEvent */,
+										NULL /* reserved1 */,
+										NULL /* reserved2 */
+										))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt transmit failed sending %s!",pBuffer);
+	}
+
+	// Jon this function needs to hook into your stuff to send the code contained in pBuffer
+/*    int res = UsbUirt_transmit(m_iRepeat, 
+                            -1, 
+                            (const unsigned char *) pBuffer,
+                            size);*/
+
+//    if ( res != 0 ) 
+//		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt failed Sending(%d): %s",res,IRCode.c_str());
 
 	if( bDeleteBuffer )
 		delete pBuffer;
 }
 
 // Must override so we can call IRBase::Start() after creating children
-void UsbUirt::CreateChildren()
+void USB_UIRT_0038::CreateChildren()
 {
-	UsbUirt_Command::CreateChildren();
+	USB_UIRT_0038_Command::CreateChildren();
 	Start();
 }
 
-void UsbUirt::OurCallback(const char *szButton)
+void USB_UIRT_0038::OurCallback(const char *szButton)
 {
 	timespec ts_now;
 	gettimeofday(&ts_now,NULL);
@@ -303,13 +628,14 @@ void UsbUirt::OurCallback(const char *szButton)
 // You can either call it with the raw I/R code and we'll do the lookup for the button name
 // or you can call with the button name itself
 
-int __stdcall OurCalback(const char * eventstring) {
+int __stdcall OurCalback(const char * eventstring)
+{
    g_pUsbUirt->OurCallback(eventstring);
    printf("IR Data %s\n", eventstring);
    return 0;
 };
 
-void UsbUirt::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
+void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
 {
 	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
 	{
@@ -323,14 +649,14 @@ void UsbUirt::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_T
 	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
 
-	PLUTO_SAFETY_LOCK(tm,m_UsbUirtMutex);
+	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
 //	pthread_t t;
 //	pthread_create(&t, NULL, Learning_Thread, (void*)this);
 }
 
-void UsbUirt::StopLearning()
+void USB_UIRT_0038::StopLearning()
 {
-	PLUTO_SAFETY_LOCK(tm,m_UsbUirtMutex);
+	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
 
 }
 
