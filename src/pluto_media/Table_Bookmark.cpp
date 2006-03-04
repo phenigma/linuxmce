@@ -23,6 +23,7 @@ using namespace std;
 #include "Table_MediaProvider.h"
 #include "Table_Picture.h"
 
+#include "Table_PlaylistEntry.h"
 
 
 void Database_pluto_media::CreateTable_Bookmark()
@@ -646,7 +647,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_as
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Bookmark=id;
@@ -1319,6 +1320,13 @@ return pTable->GetRow(m_FK_Picture);
 }
 
 
+void Row_Bookmark::PlaylistEntry_FK_Bookmark_getrows(vector <class Row_PlaylistEntry*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
+pTable->GetRows("`FK_Bookmark`=" + StringUtils::itos(m_PK_Bookmark),rows);
+}
 
 
 

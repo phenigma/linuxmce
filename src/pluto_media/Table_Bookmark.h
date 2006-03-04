@@ -184,7 +184,8 @@ class Row_Picture* FK_Picture_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void PlaylistEntry_FK_Bookmark_getrows(vector <class Row_PlaylistEntry*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {

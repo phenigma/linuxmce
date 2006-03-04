@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_PlaylistEntry.h"
 #include "Table_Playlist.h"
 #include "Table_File.h"
+#include "Table_Bookmark.h"
 
 
 
@@ -126,20 +127,24 @@ is_null[1] = false;
 is_null[2] = true;
 m_FK_File = 0;
 is_null[3] = true;
+m_FK_Bookmark = 0;
 is_null[4] = true;
 is_null[5] = true;
-m_Order = 0;
 is_null[6] = true;
-m_psc_id = 0;
+m_Order = 0;
 is_null[7] = true;
-m_psc_batch = 0;
+m_Duration = 0;
 is_null[8] = true;
+m_psc_id = 0;
+is_null[9] = true;
+m_psc_batch = 0;
+is_null[10] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[9] = false;
+is_null[11] = false;
 m_psc_mod = "00000000000000";
-is_null[10] = false;
-is_null[11] = true;
+is_null[12] = false;
+is_null[13] = true;
 m_psc_restrict = 0;
 
 
@@ -157,6 +162,9 @@ return m_FK_Playlist;}
 long int Row_PlaylistEntry::FK_File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_File;}
+long int Row_PlaylistEntry::FK_Bookmark_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Bookmark;}
 string Row_PlaylistEntry::Path_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Path;}
@@ -166,6 +174,9 @@ return m_Filename;}
 long int Row_PlaylistEntry::Order_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Order;}
+long int Row_PlaylistEntry::Duration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Duration;}
 long int Row_PlaylistEntry::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -195,98 +206,118 @@ m_FK_Playlist = val; is_modified=true; is_null[1]=false;}
 void Row_PlaylistEntry::FK_File_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_File = val; is_modified=true; is_null[2]=false;}
+void Row_PlaylistEntry::FK_Bookmark_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Bookmark = val; is_modified=true; is_null[3]=false;}
 void Row_PlaylistEntry::Path_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Path = val; is_modified=true; is_null[3]=false;}
+m_Path = val; is_modified=true; is_null[4]=false;}
 void Row_PlaylistEntry::Filename_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Filename = val; is_modified=true; is_null[4]=false;}
+m_Filename = val; is_modified=true; is_null[5]=false;}
 void Row_PlaylistEntry::Order_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Order = val; is_modified=true; is_null[5]=false;}
+m_Order = val; is_modified=true; is_null[6]=false;}
+void Row_PlaylistEntry::Duration_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Duration = val; is_modified=true; is_null[7]=false;}
 void Row_PlaylistEntry::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[6]=false;}
+m_psc_id = val; is_modified=true; is_null[8]=false;}
 void Row_PlaylistEntry::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[7]=false;}
+m_psc_batch = val; is_modified=true; is_null[9]=false;}
 void Row_PlaylistEntry::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[8]=false;}
+m_psc_user = val; is_modified=true; is_null[10]=false;}
 void Row_PlaylistEntry::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[9]=false;}
+m_psc_frozen = val; is_modified=true; is_null[11]=false;}
 void Row_PlaylistEntry::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[10]=false;}
+m_psc_mod = val; is_modified=true; is_null[12]=false;}
 void Row_PlaylistEntry::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[11]=false;}
+m_psc_restrict = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_PlaylistEntry::FK_File_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_PlaylistEntry::Path_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::FK_Bookmark_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_PlaylistEntry::Filename_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::Path_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_PlaylistEntry::Order_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::Filename_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_PlaylistEntry::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::Order_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_PlaylistEntry::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::Duration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_PlaylistEntry::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_PlaylistEntry::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_PlaylistEntry::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PlaylistEntry::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[10];}
+bool Row_PlaylistEntry::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
+bool Row_PlaylistEntry::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[13];}
 
 			
 void Row_PlaylistEntry::FK_File_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::Path_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::FK_Bookmark_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::Filename_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::Path_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::Order_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::Filename_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::Order_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::Duration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_PlaylistEntry::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PlaylistEntry::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[10]=val;
+is_modified=true;
+}
+void Row_PlaylistEntry::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
+is_modified=true;
+}
+void Row_PlaylistEntry::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[13]=val;
 is_modified=true;
 }
 	
@@ -330,11 +361,24 @@ sprintf(buf, "%li", m_FK_File);
 return buf;
 }
 
-string Row_PlaylistEntry::Path_asSQL()
+string Row_PlaylistEntry::FK_Bookmark_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Bookmark);
+
+return buf;
+}
+
+string Row_PlaylistEntry::Path_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
 return "NULL";
 
 char *buf = new char[301];
@@ -348,7 +392,7 @@ string Row_PlaylistEntry::Filename_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[201];
@@ -362,7 +406,7 @@ string Row_PlaylistEntry::Order_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -371,11 +415,24 @@ sprintf(buf, "%li", m_Order);
 return buf;
 }
 
+string Row_PlaylistEntry::Duration_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Duration);
+
+return buf;
+}
+
 string Row_PlaylistEntry::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -388,7 +445,7 @@ string Row_PlaylistEntry::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -401,7 +458,7 @@ string Row_PlaylistEntry::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -414,7 +471,7 @@ string Row_PlaylistEntry::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -427,7 +484,7 @@ string Row_PlaylistEntry::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char *buf = new char[29];
@@ -441,7 +498,7 @@ string Row_PlaylistEntry::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -488,10 +545,10 @@ bool Table_PlaylistEntry::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFaile
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PlaylistEntry_asSQL()+", "+pRow->FK_Playlist_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Order_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PlaylistEntry_asSQL()+", "+pRow->FK_Playlist_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->FK_Bookmark_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Order_asSQL()+", "+pRow->Duration_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into PlaylistEntry (`PK_PlaylistEntry`, `FK_Playlist`, `FK_File`, `Path`, `Filename`, `Order`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into PlaylistEntry (`PK_PlaylistEntry`, `FK_Playlist`, `FK_File`, `FK_Bookmark`, `Path`, `Filename`, `Order`, `Duration`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -510,7 +567,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PlaylistEnt
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_PlaylistEntry=id;
@@ -547,7 +604,7 @@ condition = condition + "`PK_PlaylistEntry`=" + tmp_PK_PlaylistEntry;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_PlaylistEntry`="+pRow->PK_PlaylistEntry_asSQL()+", `FK_Playlist`="+pRow->FK_Playlist_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Order`="+pRow->Order_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_PlaylistEntry`="+pRow->PK_PlaylistEntry_asSQL()+", `FK_Playlist`="+pRow->FK_Playlist_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `FK_Bookmark`="+pRow->FK_Bookmark_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Order`="+pRow->Order_asSQL()+", `Duration`="+pRow->Duration_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update PlaylistEntry set " + update_values_list + " where " + condition;
@@ -692,100 +749,122 @@ sscanf(row[2], "%li", &(pRow->m_FK_File));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Path = "";
+pRow->m_FK_Bookmark = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Path = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Bookmark));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Filename = "";
+pRow->m_Path = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Filename = string(row[4],lengths[4]);
+pRow->m_Path = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Order = 0;
+pRow->m_Filename = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_Order));
+pRow->m_Filename = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Order = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+sscanf(row[6], "%li", &(pRow->m_Order));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Duration = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_Duration));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_id));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%li", &(pRow->m_psc_user));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_restrict));
+sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[12]=false;
+pRow->m_psc_mod = string(row[12],lengths[12]);
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -932,100 +1011,122 @@ sscanf(row[2], "%li", &(pRow->m_FK_File));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Path = "";
+pRow->m_FK_Bookmark = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Path = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Bookmark));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Filename = "";
+pRow->m_Path = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Filename = string(row[4],lengths[4]);
+pRow->m_Path = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Order = 0;
+pRow->m_Filename = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_Order));
+pRow->m_Filename = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Order = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+sscanf(row[6], "%li", &(pRow->m_Order));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Duration = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_Duration));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_id));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%li", &(pRow->m_psc_user));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_restrict));
+sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[12]=false;
+pRow->m_psc_mod = string(row[12],lengths[12]);
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1049,6 +1150,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_File *pTable = table->database->File_get();
 return pTable->GetRow(m_FK_File);
+}
+class Row_Bookmark* Row_PlaylistEntry::FK_Bookmark_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Bookmark *pTable = table->database->Bookmark_get();
+return pTable->GetRow(m_FK_Bookmark);
 }
 
 
