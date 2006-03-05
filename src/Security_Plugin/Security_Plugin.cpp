@@ -228,6 +228,7 @@ Security_Plugin::~Security_Plugin()
 //<-dceag-dest-e->
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+	delete m_pAlarmManager;
 	if( m_mapNotification.size() )
 	{
 		for( map<pthread_t,Notification *>::iterator it=m_mapNotification.begin();it!=m_mapNotification.end();++it)
