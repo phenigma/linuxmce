@@ -259,7 +259,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 			}
 		}
 		else
-			EVENT_Playback_Started(sFilename,int iStreamID,"audio??","video??");
+			EVENT_Playback_Started(sFilename,iStreamID,"audio??","video??");
 	}
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 }
@@ -1169,3 +1169,6 @@ void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 
 void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
+{
+}
+
