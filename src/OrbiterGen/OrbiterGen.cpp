@@ -422,6 +422,9 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
+	if( m_pRow_Screen_MainMenu->PK_Screen_get()!=SCREEN_Main_CONST )  // It's possible we chose a non-standard main menu
+		m_mapDesignObj[SCREEN_Main_CONST] = GetDesignObjFromScreen(m_pRow_Screen_MainMenu->PK_Screen_get())->PK_DesignObj_get();
+
 	m_pRow_Screen_Sleeping = m_pRow_Skin->FK_Screen_Sleeping_getrow();
 
 	if( !m_pRow_Screen_Sleeping )
@@ -1588,7 +1591,7 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands)
 {
-if( pDesignObj_Data->m_ObjectID.find("1255.0.0.3407")!=string::npos )
+if( pDesignObj_Data->m_ObjectID.find("1981.9.9.3557")!=string::npos )
 {
 int k=2;
 map<string,listDesignObj_Generator *>::iterator itgs;
