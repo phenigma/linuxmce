@@ -20,6 +20,7 @@
 #define OPERATOR_NOTEQUALS		2
 #define OPERATOR_GREATERTHAN	3
 #define OPERATOR_LESSTHAN		4
+#define OPERATOR_CONTAINS		5
 
 bool EvaluateTimeOfDay(string Expression,void *pExtraInfo);
 
@@ -137,6 +138,12 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		else if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST)
 			return *iLValue!=iRValue;
 	}
+	if( pCriteriaParm->m_Operator==OPERATOR_CONTAINS )
+	{
+		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
+			return StringUtils::ToUpper(*sLValue).find(StringUtils::ToUpper(sRValue))!=string::npos;
+		return false;  // Nothing else can do this
+	}
 	if( pCriteriaParm->m_Operator==OPERATOR_GREATERTHAN )
 	{
 		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
@@ -152,7 +159,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 			return *iLValue<iRValue;
 	}
 
-	throw(string("Unhandled criteria"));
+	g_pPlutoLogger->Write(LV_CRITICAL,"Criteria::EvaluateExpression unhandled criteria operator %d",pCriteriaParm->m_Operator);
 }
 
 #include "../General_Info_Plugin/General_Info_Plugin.h"
