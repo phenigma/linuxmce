@@ -81,8 +81,6 @@ private:
         int m_iImgXPos, m_iImgYPos;
         int m_iPlaybackSpeed;
 
-		string m_sFilename;
-
         bool m_bHasVideo;
         pthread_t eventLoop;
         xine_stream_t *m_pStream;

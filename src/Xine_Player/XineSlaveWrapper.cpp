@@ -1769,7 +1769,7 @@ void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
     XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
 
     if ( ! m_isSlimClient )
-		m_pAggregatorObject->EVENT_Playback_Completed(xineStream ? xineStream->m_sFilename : "",iStreamID, bWithErrors );
+		m_pAggregatorObject->EVENT_Playback_Completed(m_pAggregatorObject->m_sCurrentFile,iStreamID, bWithErrors );
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )
