@@ -4,6 +4,8 @@
 #include "MediaTitle.h"
 #include "MediaSection.h"
 #include "MediaAttributes_LowLevel.h"
+#include "pluto_media/Table_Bookmark.h"
+#include "pluto_media/Table_File.h"
 
 class MediaFile
 {
@@ -50,6 +52,22 @@ public:
 		m_tTimeout=0;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
+		if( m_dwPK_Bookmark )
+		{
+			Row_Bookmark *pRow_Bookmark = pRow_PlaylistEntry->Table_PlaylistEntry_get()->Database_pluto_media_get()->Bookmark_get()->GetRow(m_dwPK_Bookmark);
+			if( pRow_Bookmark )
+			{
+				Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+				if( pRow_File )
+				{
+					m_dwPK_File = pRow_File->PK_File_get();
+					m_sPath = pRow_File->Path_get();
+					m_sFilename = pRow_File->Filename_get();
+					m_sStartPosition = pRow_Bookmark->Position_get();
+				}
+			}
+		}	
+
 	}
 
 	~MediaFile() {
