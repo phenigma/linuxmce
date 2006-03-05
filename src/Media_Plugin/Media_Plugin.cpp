@@ -94,6 +94,9 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
+// Alarm Types
+#define MEDIA_PLAYBACK_TIMEOUT					1
+
 #define MAX_MEDIA_COLORS    5 // We need some unique colors to color-code the media streams
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -166,6 +169,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
 	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
+	m_pAlarmManager=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -299,6 +303,10 @@ continue;
 		int PK_MediaType = atoi(StringUtils::Tokenize(sMediaType,",",pos).c_str());
 		m_mapMediaType_Bookmarkable[PK_MediaType]=true;
 	}
+
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(1);      //4 = number of worker threads
+
 	return true;
 }
 
@@ -310,6 +318,7 @@ continue;
 Media_Plugin::~Media_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pAlarmManager;
     delete m_pMediaAttributes;
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_media;
@@ -326,6 +335,7 @@ Media_Plugin::~Media_Plugin()
 
     delete m_pGenericMediaHandlerInfo;
 	delete m_pGeneric_NonPluto_Media;
+
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
@@ -644,6 +654,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
 		string sError;
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError);
+		CheckStreamForTimeout(pMediaStream);
 		MediaInfoChanged(pMediaStream,true);
     }
     else
@@ -935,7 +946,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
-			pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition.size()==0) )
+			pMediaStream->GetCurrentMediaFile()->m_sStartPosition.size()==0) )
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 	else if( pMediaStream->m_sStartPosition.size() && (queue_pos = pMediaStream->m_sStartPosition.find(" QUEUE_POS:"))!=string::npos )
 	{
@@ -949,6 +960,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	string sError;
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
 	{
+		CheckStreamForTimeout(pMediaStream);
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
 		for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
@@ -1333,7 +1345,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pM
     if( !pMediaStream->m_pPictureData && pMediaStream->m_dequeMediaFile.size() )
     {
 g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
-		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 		int PK_Picture=0;
 
 #ifdef WIN32
@@ -2589,6 +2601,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
 		string sError;
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
+		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
 	}
 
 	MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // Refresh the screen and re-draw the grid
@@ -3119,6 +3132,7 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
 		string sError;
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
+		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
 		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // we need the true to refresh the grid
 	}
 }
@@ -3275,9 +3289,9 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
 		pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 ||
 		( StringUtils::StartsWith(StringUtils::ToUpper(
-			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"/DEV/")==false &&
+			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile()),"/DEV/")==false &&
 		  StringUtils::StartsWith(StringUtils::ToUpper(
-			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"CDDA:/")==false 
+			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile()),"CDDA:/")==false 
 		) )
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
@@ -4012,7 +4026,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 		}
 		MediaFile *pMediaFile=NULL;
 		if( pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
-			(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL || (iEK_File=pMediaFile->m_dwPK_File)==0 )
+			(pMediaFile=pMediaStream->GetCurrentMediaFile())==NULL || (iEK_File=pMediaFile->m_dwPK_File)==0 )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute no valid file in stream %d",iStreamID);
 			sCMD_Result="STREAM HAS NO FILE";
@@ -4413,7 +4427,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 					pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 &&
 					pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
 				{
-					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos];
+					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
 					sWhere = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
 				}
 			}
@@ -4588,7 +4602,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 		if( pMediaStream->m_dequeMediaFile.size()==0 ||
 			pMediaStream->m_iDequeMediaFile_Pos<0 ||
 			pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
-			(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL ||
+			(pMediaFile=pMediaStream->GetCurrentMediaFile())==NULL ||
 			pMediaFile->m_dwPK_File==0)
 		{
 	g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
@@ -4842,7 +4856,7 @@ void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
 
 void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 {
-	MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 	if( !pMediaFile->m_dwPK_File )
 		return; // The file isn't in the database
 
@@ -4942,10 +4956,9 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 			pMediaStream->m_iDequeMediaFile_Pos=pos;
 	}
 
-	MediaFile *pMediaFile=NULL;
-	if( pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+	MediaFile *pMediaFile=pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile )
 	{
-		pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
 		if( pMediaFile->m_dwPK_File )
 		{
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
@@ -5142,6 +5155,7 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from shuffle");
 		string sError;
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
+		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
 		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
 	}
 }
@@ -5254,3 +5268,39 @@ void Media_Plugin::CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Mess
 	m_pDatabase_pluto_media->Playlist_get()->Commit();
 }
 
+void Media_Plugin::AlarmCallback(int id, void* param)
+{
+	PLUTO_SAFETY_LOCK(sm,m_MediaMutex);
+	if( id==MEDIA_PLAYBACK_TIMEOUT )
+	{
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param);
+		if( pMediaStream )
+			ProcessMediaFileTimeout(pMediaStream);
+	}
+}
+
+void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)
+{
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( !pMediaFile || pMediaFile->m_tTimeout>time(NULL) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ignoring timeout for file %p",pMediaFile);
+		return;
+	}
+
+	string sPosition;
+	DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iStreamID_get(),&sPosition);  // Ignore the position since we are forcing the stop
+	SendCommand(CMD_Stop_Media);
+}
+
+void Media_Plugin::CheckStreamForTimeout(MediaStream *pMediaStream)
+{
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( !pMediaFile || pMediaFile->m_dwDuration==0 )
+		return;
+
+	pMediaFile->m_tTimeout = time(NULL) + pMediaFile->m_dwDuration;
+	int StreamID = pMediaStream->m_iStreamID_get( );
+	m_pAlarmManager->AddRelativeAlarm(pMediaFile->m_dwDuration,this,MEDIA_PLAYBACK_TIMEOUT,(void *) StreamID);
+}

@@ -149,7 +149,7 @@ g_pPlutoLogger->Write(LV_STATUS,"GetFilenameToPlay called with size: %d pos: %d"
     // ensure the playlist position is accurate
     SetPlaylistPosition(m_iDequeMediaFile_Pos);
 
-    return m_dequeMediaFile[m_iDequeMediaFile_Pos]->FullyQualifiedFile();
+    return GetCurrentMediaFile()->FullyQualifiedFile();
 }
 
 void MediaStream::DumpPlaylist()
@@ -315,8 +315,8 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 				UpdateDescriptions(false,m_dequeMediaFile[s]);
 			return;
 		}
-		else if( !pMediaFile && m_iDequeMediaFile_Pos>=0 && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
-			pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+		else if( !pMediaFile )
+			pMediaFile = GetCurrentMediaFile();
 
 		int PK_Attribute;
 		Row_Attribute *pRow_Attribute_Song=NULL,*pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL,*pRow_Attribute_Title=NULL;
@@ -413,8 +413,8 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		if( m_sMediaDescription.size()==0 )
 		{
 			MediaFile *pMediaFile=NULL;
-			if( !pMediaFile && m_iDequeMediaFile_Pos>=0 && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
-				pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+			if( !pMediaFile )
+				pMediaFile = GetCurrentMediaFile();
 
 			if( pMediaFile && !StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/") )
 				m_sMediaDescription = pMediaFile->m_sFilename;
@@ -425,11 +425,9 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 
 	if( m_sMediaDescription.size()==0 )
 	{
-		if( m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
-		{
-			MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+		MediaFile *pMediaFile = GetCurrentMediaFile();
+		if( pMediaFile )
 			m_sMediaDescription = pMediaFile->m_sFilename;
-		}
 		else
 		{
 			DeviceData_Router *pDeviceData_Router = m_pMediaDevice_Source->m_pDeviceData_Router;

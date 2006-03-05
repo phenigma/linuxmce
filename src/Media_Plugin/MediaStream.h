@@ -157,6 +157,17 @@ namespace DCE
 
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
 
+		virtual MediaFile *GetCurrentMediaFile()
+		{
+			if( m_iDequeMediaFile_Pos<0 || m_iDequeMediaFile_Pos>m_dequeMediaFile.size() )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"MediaFile::GetCurrentMediaFile - no file");
+				return NULL;
+			}
+
+			return m_dequeMediaFile[m_iDequeMediaFile_Pos];
+		}
+
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);
 		/**

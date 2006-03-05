@@ -10,16 +10,25 @@ class MediaFile
 public:
 	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
+		m_dwPK_Bookmark=0;
+		m_dwDuration=0;
+		m_tTimeout=0;
 	}
 
 	MediaFile(string sMRL)	{
 		m_sFilename=sMRL;
 		m_dwPK_File=0;
+		m_dwPK_Bookmark=0;
+		m_dwDuration=0;
+		m_tTimeout=0;
 	}
 
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFullyQualifiedFile);
+		m_dwPK_Bookmark=0;
+		m_dwDuration=0;
+		m_tTimeout=0;
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -28,11 +37,17 @@ public:
 		m_sFilename=pMediaFile_Copy->m_sFilename;
 		m_sDescription=pMediaFile_Copy->m_sDescription;
 		m_sStartPosition=pMediaFile_Copy->m_sStartPosition;
+		m_dwPK_Bookmark=0;
+		m_dwDuration=0;
+		m_tTimeout=0;
 	}
 
 
 	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
-		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
+		m_dwPK_File=pRow_PlaylistEntry->FK_File_get();
+		m_dwPK_Bookmark=pRow_PlaylistEntry->FK_Bookmark_get();
+		m_dwDuration=pRow_PlaylistEntry->Duration_get();
+		m_tTimeout=0;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
 	}
@@ -48,6 +63,8 @@ public:
 	map< int,int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
 	int m_dwPK_File;
+	unsigned long m_dwPK_Bookmark,m_dwDuration;
+	time_t m_tTimeout;
 	string m_sPath,m_sFilename,m_sDescription;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
 

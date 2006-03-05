@@ -19,6 +19,7 @@
 #include "DeviceData_Router.h"
 #include "DCE/Logger.h"
 #include "DCERouter.h"
+#include "AlarmManager.h"
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
 #include "pluto_main/Table_MediaType.h"
@@ -49,7 +50,7 @@ namespace DCE
 
 
 //<-dceag-decl-b->!
-class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device
+class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device, public AlarmEvent
 {
 //<-dceag-decl-e->
     friend class MediaStream;
@@ -67,6 +68,7 @@ public:
     class MediaAttributes *m_pMediaAttributes;
 	class Generic_NonPluto_Media *m_pGeneric_NonPluto_Media;
     class MediaHandlerInfo *m_pGenericMediaHandlerInfo;
+	class AlarmManager *m_pAlarmManager;
 
     friend class MediaHandlerInfo;
     pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
@@ -264,6 +266,10 @@ public:
 
     int DetermineUserOnOrbiter(int iPK_Device_Orbiter);
 
+	// For the alarm callbacks
+	virtual void AlarmCallback(int id, void* param);
+	void ProcessMediaFileTimeout(MediaStream *pMediaStream);
+
     /**
      * @brief Helper functions for the process of auto-creating entertainment areas
      */
@@ -392,6 +398,9 @@ public:
 	void AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice);
 	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,vector<int> *p_vectDevice=NULL);
 
+	// If we're playing from a playlist, there may be a timeout specified, meaning after a certain time stop playing
+	// this and go to the next item in the playlist
+	void CheckStreamForTimeout(MediaStream *pMediaStream);
 
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
