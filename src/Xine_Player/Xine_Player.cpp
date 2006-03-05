@@ -258,6 +258,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 				EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
 			}
 		}
+		else
+			EVENT_Playback_Started(sFilename,int iStreamID,"audio??","video??");
 	}
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 }
@@ -1138,8 +1140,10 @@ void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #95 - Stop */
 	/** Stop the media */
+		/** @param #203 Eject */
+			/** If true, the drive will be ejected if there is no media currently playing, so a remote's stop button acts as stop/eject. */
 
-void Xine_Player::CMD_Stop(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
 }
@@ -1154,3 +1158,14 @@ void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 {
 }
 
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->

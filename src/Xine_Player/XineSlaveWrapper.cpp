@@ -1244,6 +1244,7 @@ void XineSlaveWrapper::stopMedia( int iStreamID )
     if ( pStream == NULL )
         return ;
 
+	pStream->playbackCompleted( pStream->m_iStreamID, false );
     // stop the event thread first
     if ( pStream->eventLoop )
     {
