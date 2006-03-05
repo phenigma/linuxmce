@@ -1695,6 +1695,7 @@
 #define DEVICETEMPLATE_USB_UIRT_Embedded_Transmit_CONST 1784
 #define DEVICETEMPLATE_Generic_Firewire_Camera_CONST 1785
 #define DEVICETEMPLATE_Standard_Relay_Light_CONST 1786
+#define DEVICETEMPLATE_Windows_XP_MC_Remote_USBUIRT_CONST 1788
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

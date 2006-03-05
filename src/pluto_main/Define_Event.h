@@ -57,6 +57,7 @@
 #define EVENT_Download_Config_Done_CONST 55
 #define EVENT_PBX_Hangup_CONST 56
 #define EVENT_Device_Configured_CONST 57
+#define EVENT_Playback_Started_CONST 58
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

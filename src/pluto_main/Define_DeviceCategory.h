@@ -97,6 +97,7 @@
 #define DEVICECATEGORY_Network_Storage_CONST 150
 #define DEVICECATEGORY_Embedded_Tuners_CONST 151
 #define DEVICECATEGORY_Irrigation_Devices_CONST 153
+#define DEVICECATEGORY_USBUIRT_Remote_Controls_CONST 154
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
