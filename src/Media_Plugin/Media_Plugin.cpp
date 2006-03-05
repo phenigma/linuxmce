@@ -2783,6 +2783,9 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
 
 class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+    int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
+	
     g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
@@ -2804,7 +2807,10 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
         while( (row=mysql_fetch_row(result.r)) )
 		{
             // 	g_pPlutoLogger->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
-			pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
+			if( nHeight==1 ) // It's a horizontal list
+				pDataGrid->SetData(RowCount++,0,new DataGridCell(row[1], row[0]));
+			else
+				pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
 		}
 
     return pDataGrid;
@@ -5284,6 +5290,7 @@ void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 	if( !pMediaFile || pMediaFile->m_tTimeout>time(NULL) )
 	{
+time_t k = time(NULL);
 		g_pPlutoLogger->Write(LV_STATUS,"Ignoring timeout for file %p",pMediaFile);
 		return;
 	}
@@ -5300,7 +5307,7 @@ void Media_Plugin::CheckStreamForTimeout(MediaStream *pMediaStream)
 	if( !pMediaFile || pMediaFile->m_dwDuration==0 )
 		return;
 
-	pMediaFile->m_tTimeout = time(NULL) + pMediaFile->m_dwDuration;
+	pMediaFile->m_tTimeout = time(NULL) + pMediaFile->m_dwDuration -1; // Subtract 1 to prevent a rounding issue
 	int StreamID = pMediaStream->m_iStreamID_get( );
 	m_pAlarmManager->AddRelativeAlarm(pMediaFile->m_dwDuration,this,MEDIA_PLAYBACK_TIMEOUT,(void *) StreamID);
 }

@@ -126,7 +126,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2640 )// ||  m_pRow_DesignObj->PK_Desi
     int k=2; 
 }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_DesignObj_get()==2211 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_DesignObj_get()==2211 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -1051,7 +1051,7 @@ int k=2;
         }
 
     }
-if( m_pRow_DesignObj->PK_DesignObj_get()==2640 )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3312 )
 int k=2;
 
 
