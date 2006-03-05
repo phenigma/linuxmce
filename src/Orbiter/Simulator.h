@@ -31,6 +31,7 @@ public: //data
 	bool m_bEnableGenerator;
 	long m_dwDelayMin;
 	long m_dwDelayMax;
+	long m_dwTimeout;
 	int m_iNumberOfButtonsPerClick;
 	bool m_bGenerateMouseClicks;
 	bool m_bGenerateKeyboardEvents;

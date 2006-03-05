@@ -78,6 +78,8 @@ void *GeneratorThread( void *p)
 	int iDelayMin = pSimulator->m_dwDelayMin;
 	int iDelayMax = pSimulator->m_dwDelayMax;
 
+	int iTimeout = pSimulator->m_dwTimeout;
+
 #ifndef WIN32
 	iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
 	iDelayMax = max(pSimulator->m_dwDelayMax, 1000);
@@ -139,7 +141,7 @@ void *GeneratorThread( void *p)
 			return NULL;
 		}
 
-		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > 3600) //1 hour
+		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
 				pOrbiter->GetCurrentScreenID().c_str());
@@ -258,6 +260,7 @@ Simulator::Simulator()
 	m_bEnableGenerator = 0;
 	m_dwDelayMin = 500;
 	m_dwDelayMax = 5000;
+	m_dwTimeout = 3600;  // 1 Hour
 	m_iNumberOfButtonsPerClick = 0;
 	m_bGenerateMouseClicks = 1;
 	m_bGenerateKeyboardEvents = 1;
@@ -333,6 +336,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_bEnableGenerator = ReadInteger("EnableGenerator", m_bEnableGenerator) != 0;
 	m_dwDelayMin = ReadInteger("DelayMin", m_dwDelayMin);
 	m_dwDelayMax = ReadInteger("DelayMax", m_dwDelayMin);
+	m_dwTimeout = ReadInteger("Timeout", m_dwTimeout);
 	m_iNumberOfButtonsPerClick = ReadInteger("NumberOfButtonsPerClick", m_iNumberOfButtonsPerClick);
 	m_bGenerateMouseClicks = ReadInteger("GenerateMouseClicks", m_bGenerateMouseClicks) != 0;
 	m_bGenerateKeyboardEvents = ReadInteger("GenerateKeyboardEvents", m_bGenerateKeyboardEvents) != 0;
