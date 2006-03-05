@@ -278,7 +278,6 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 {
     PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
-	m_sCurrentFile="";
 	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
@@ -306,6 +305,7 @@ g_bHackToBeSureWeStop=false;
 // hack to get Xine to let go of xvmc
 	delete m_pXineSlaveControl;
 	CreateXineWrapper();
+	m_sCurrentFile="";
 }
 
 //<-dceag-c39-b->
