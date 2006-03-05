@@ -249,13 +249,13 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 				if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, sMediaPosition) )
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sFilename.c_str());
-					EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
+					EVENT_Playback_Completed(sFilename,iStreamID,true);  // true = there was an error, don't keep repeating
 				}
 			}
 			else
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s",sFilename.c_str());
-				EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
+				EVENT_Playback_Completed(sFilename,iStreamID,true);  // true = there was an error, don't keep repeating
 			}
 		}
 		else

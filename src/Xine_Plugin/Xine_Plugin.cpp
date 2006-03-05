@@ -245,7 +245,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
 
-	if( pMediaFile )
+	if( pMediaFile && pXineMediaStream->m_iPK_Playlist==0 )  // If this is part of a playlist, rather than just a normal bookmark, the user will likely want it to keep resuming at the set position
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
 
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);

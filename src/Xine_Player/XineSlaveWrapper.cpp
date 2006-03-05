@@ -1766,8 +1766,10 @@ void XineSlaveWrapper::selectMenu( int iStreamID, int iMenuType )
 void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
 {
     g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event %d", ( int ) m_isSlimClient );
+    XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
+
     if ( ! m_isSlimClient )
-        m_pAggregatorObject->EVENT_Playback_Completed(iStreamID, bWithErrors );
+		m_pAggregatorObject->EVENT_Playback_Completed(xineStream ? xineStream->m_sFilename : "",iStreamID, bWithErrors );
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )

@@ -27,9 +27,9 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 7,2,9,StringUtils::itos(iStream_ID).c_str(),10,(bOnOff ? "1" : "0")));
 	}
 
-	virtual void Playback_Completed(int iStream_ID,bool bWith_Errors)
+	virtual void Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,2,9,StringUtils::itos(iStream_ID).c_str(),37,(bWith_Errors ? "1" : "0")));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,3,4,sMRL.c_str(),9,StringUtils::itos(iStream_ID).c_str(),37,(bWith_Errors ? "1" : "0")));
 	}
 
 	virtual void Playback_Started(string sMRL,int iStream_ID,string sAudio,string sVideo)
@@ -164,7 +164,7 @@ public:
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
-	void EVENT_Playback_Completed(int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(iStream_ID,bWith_Errors); }
+	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(sMRL.c_str(),iStream_ID,bWith_Errors); }
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sAudio.c_str(),sVideo.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
