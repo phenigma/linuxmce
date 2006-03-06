@@ -1270,7 +1270,16 @@ last_psc_batch=psc_last.second;
 		{
 			Table *pTable = ( *it ).second;
 			pTable->MatchUpHistory( );
-			pTable->GetDependencies( );
+			// we are doing an import - should continue even if GetDependencies is invalid
+			try
+			{
+				pTable->GetDependencies( );
+			}
+			catch( const char *pException )
+			{
+				cerr << "Suppresed exception: \"" << pException << endl << "\" because we are in the middle of IMPORT. Hope the schema will be OK after all" << endl;
+				m_bInvalid=true;
+			}
 		}
 	}
 
