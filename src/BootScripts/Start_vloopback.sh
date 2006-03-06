@@ -45,14 +45,14 @@ for DeviceData in $R; do
 	FK_DeviceData=$(Field 1 "$DeviceData")
 	IK_DeviceData=$(Field 2 "$DeviceData")
 	case "$FK_DeviceData" in
-		"$DEVICEDATA_PortChannel_Number") Dev_IEEE1394="$IK_DeviceData" ;;
-		"$DEVICEDATA_Device") Dev_V4L_2="$IK_DeviceData" ;;
+		"$DEVICEDATA_Device") Dev_IEEE1394="$IK_DeviceData" ;;
+		"$DEVICEDATA_PortChannel_Number") Dev_Pipe="$IK_DeviceData" ;;
 	esac
 done
 
-Dev_V4L_1=$((Dev_V4L_2 - 1))
+Dev_V4L=$((Dev_Pipe * 2 + PipeDevOffset))
 
 modprobe video1394
 modprobe raw1394
 modprobe vloopback pipes=$PipeCount dev_offset=$PipeDevOffset
-dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L_1" --pipe
+dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L" --pipe
