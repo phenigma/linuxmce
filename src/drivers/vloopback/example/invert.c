@@ -2,6 +2,7 @@
  *
  *	Example program for videoloopback device.
  *	Copyright 2000 by Jeroen Vreeken (pe1rxq@amsat.org)
+ *	Copyright 2005 by Angel Carpintero (ack@telefonica.net)
  *	This software is distributed under the GNU public license version 2
  *	See also the file 'COPYING'.
  *
@@ -12,6 +13,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <signal.h>
@@ -19,8 +21,8 @@
 #include <linux/videodev.h>
 
 
-int fmt=VIDEO_PALETTE_RGB24;
-
+int fmt=0;
+int noexit = 1;
 int read_img=0;
 
 char *start_capture (int dev, int width, int height)
@@ -31,20 +33,20 @@ char *start_capture (int dev, int width, int height)
 	char *map;
 
 	if (ioctl (dev, VIDIOCGCAP, &vid_caps) == -1) {
-		perror ("ioctl (VIDIOCGCAP)");
+		printf ("ioctl (VIDIOCGCAP)\nError[%s]\n",strerror(errno));
 		return (NULL);
 	}
 	if (vid_caps.type & VID_TYPE_MONOCHROME) fmt=VIDEO_PALETTE_GREY;
 	if (ioctl (dev, VIDIOCGMBUF, &vid_buf) == -1) {
 		fprintf(stderr, "no mmap falling back on read\n");
 		if (ioctl (dev, VIDIOCGWIN, &vid_win)== -1) {
-			perror ("ioctl VIDIOCGWIN");
+			printf ("ioctl VIDIOCGWIN\nError[%s]\n",strerror(errno));
 			return (NULL);
 		}
 		vid_win.width=width;
 		vid_win.height=height;
 		if (ioctl (dev, VIDIOCSWIN, &vid_win)== -1) {
-			perror ("ioctl VIDIOCSWIN");
+			printf ("ioctl VIDIOCSWIN\nError[%s]\n",strerror(errno));
 			return (NULL);
 		}
 		read_img=1;
@@ -69,26 +71,26 @@ int start_pipe (int dev, int width, int height)
 	struct video_picture vid_pic;
 
 	if (ioctl (dev, VIDIOCGCAP, &vid_caps) == -1) {
-		perror ("ioctl (VIDIOCGCAP)");
+		printf ("ioctl (VIDIOCGCAP)\nError[%s]\n",strerror(errno));
 		return (1);
 	}
 	if (ioctl (dev, VIDIOCGPICT, &vid_pic)== -1) {
-		perror ("ioctl VIDIOCGPICT");
+		printf ("ioctl VIDIOCGPICT\nError[%s]\n",strerror(errno));
 		return (1);
 	}
-	vid_pic.palette=VIDEO_PALETTE_RGB24;
+	vid_pic.palette=fmt;
 	if (ioctl (dev, VIDIOCSPICT, &vid_pic)== -1) {
-		perror ("ioctl VIDIOCSPICT");
+		printf ("ioctl VIDIOCSPICT\nError[%s]\n",strerror(errno));
 		return (1);
 	}
 	if (ioctl (dev, VIDIOCGWIN, &vid_win)== -1) {
-		perror ("ioctl VIDIOCGWIN");
+		printf ("ioctl VIDIOCGWIN\nError[%s]\n",strerror(errno));
 		return (1);
 	}
 	vid_win.width=width;
 	vid_win.height=height;
 	if (ioctl (dev, VIDIOCSWIN, &vid_win)== -1) {
-		perror ("ioctl VIDIOCSWIN");
+		printf ("ioctl VIDIOCSWIN\nError[%s]\n",strerror(errno));
 		return (1);
 	}
 	return 0;
@@ -149,10 +151,16 @@ char *next_capture (int dev, char *map, int width, int height)
 int put_image(int dev, char *image, int width, int height)
 {
 	if (write(dev, image, width*height*3)!=width*height*3) {
-		perror("Error writing image to pipe!");
+		printf("Error writing image to pipe!\nError[%s]\n",strerror(errno));
 		return 0;
 	}
 	return 1;
+}
+
+
+void sig_handler(int signo)
+{
+	noexit = 0;
 }
 
 int main (int argc, char **argv)
@@ -161,47 +169,53 @@ int main (int argc, char **argv)
 	int width;
 	int height;
 	char *image_out, *image_new;
+	char palette[10]={'\0'};
 	
-	if (argc != 4) {
-		printf("Usage:\n");
-		printf("\n");
-		printf("invert [input] [output] [widthxheight]\n");
-		printf("\n");
-		printf("example: invert /dev/video0 /dev/video1 352x288\n");
-		printf("\n");
+	if (argc != 5) {
+		printf("Usage:\n\n");
+		printf("invert input output widthxheight rgb24|yuv420p\n\n");
+		printf("example: invert /dev/video0 /dev/video1 352x288 yuv420p\n\n");
 		exit(1);
 	}
 	sscanf(argv[3], "%dx%d", &width, &height);
+	sscanf(argv[4], "%s", palette);
 
+	if (!strcmp(palette,"rgb24")) fmt = VIDEO_PALETTE_RGB24;
+	else if (!strcmp(palette,"yuv420p")) fmt = VIDEO_PALETTE_YUV420P;
+	else fmt = VIDEO_PALETTE_RGB24;
+
+	
 	image_out=malloc(width*height*3);
 
 	devin=open (argv[1], O_RDWR);
 	if (devin < 0) {
-		perror ("Failed to open input video device");
+		printf("Failed to open input video device [%s]\nError:[%s]\n",argv[1],strerror(errno));
 		exit(1);
 	}
 
 	devout=open (argv[2], O_RDWR);
 	if (devout < 0) {
-		perror ("Failed to open output video device");
+		printf ("Failed to open output video device [%s]\nError:[%s]\n",argv[2],strerror(errno));
 		exit(1);
 	}
 
 	image_new=start_capture (devin, width, height);
 	if (!image_new) {
-		perror("Capture error");
+		printf("Capture error \n Error[%s]\n",strerror(errno));
 		exit(1);
 	}
 
 	start_pipe(devout, width, height);
 
+	signal(SIGTERM, sig_handler);
+	
 	printf("Starting video stream.\n");
-	while (next_capture(devin, image_new, width, height)) {
+	while ( (next_capture(devin, image_new, width, height)) && (noexit) ){
 		for (i=width*height*3; i>=0; i--) image_out[i]=-image_new[i];
 		if (put_image(devout, image_out, width, height)==0)
 			exit(1);
 	}
-	perror("You bought vaporware!");
+	printf("You bought vaporware!\nError[%s]\n",strerror(errno));
 	close (devin);
 	close (devout);
 	free(image_out);

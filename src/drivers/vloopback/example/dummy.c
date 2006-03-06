@@ -2,6 +2,7 @@
  *
  *	Example program for using a videoloopback device in zero-copy mode.
  *	Copyright 2000 by Jeroen Vreeken (pe1rxq@amsat.org)
+ *	Copyright 2005 by Angel Carpintero (ack@telefonica.net)
  *	This software is distributed under the GNU public license version 2
  *	See also the file 'COPYING'.
  *
@@ -12,11 +13,14 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/poll.h>
+#include <dirent.h>
+#include <sys/utsname.h>
 #include <linux/videodev.h>
 
 /* all seem reasonable, or not? */
@@ -25,7 +29,7 @@
 #define MAXHEIGHT 480
 int width;
 int height;
-int fmt=VIDEO_PALETTE_RGB24;
+int fmt=0;
 char ioctlbuf[MAXIOCTL];
 int v4ldev;
 char *image_out;
@@ -255,7 +259,7 @@ void sighandler(int signo)
 
 int open_vidpipe(void)
 {
-	int pipe;
+	int pipe_fd = -1;
 	FILE *vloopbacks;
 	char pipepath[255];
 	char buffer[255];
@@ -264,68 +268,163 @@ int open_vidpipe(void)
 	char *istatus;
 	char *output;
 	char *ostatus;
+	char *major;
+	char *minor;
+	struct utsname uts;
 
-	vloopbacks=fopen("/proc/video/vloopback/vloopbacks", "r");
-	if (!vloopbacks) {
-		perror ("Failed to open '/proc/video/vloopback/vloopbacks");
+	if (uname(&uts) < 0) {
+		printf("Unable to execute uname\nError[%s]\n",strerror(errno));
 		return -1;
 	}
-	/* Read vloopback version */
-	fgets(buffer, 255, vloopbacks);
-	printf("%s", buffer);
-	/* Read explaination line */
-	fgets(buffer, 255, vloopbacks);
-	while (fgets(buffer, 255, vloopbacks)) {
-		if (strlen(buffer)>1) {
-			buffer[strlen(buffer)-1]=0;
-			loop=strtok(buffer, "\t");
-			input=strtok(NULL, "\t");
-			istatus=strtok(NULL, "\t");
-			output=strtok(NULL, "\t");
-			ostatus=strtok(NULL, "\t");
-			if (istatus[0]=='-') {
-				sprintf(pipepath, "/dev/%s", input);
-				pipe=open(pipepath, O_RDWR);
-				if (pipe>=0) {
-					printf("Input: /dev/%s\n", input);
-					printf("Output: /dev/%s\n", output);
-					return pipe;
-				}
-			}
-		} 
+	
+	major = strtok(uts.release, ".");
+	minor = strtok(NULL, ".");
+	if ((major == NULL) || (minor == NULL) || (strcmp(major, "2"))) {
+		printf("Unable to decipher OS version\n");
+		return -1;
 	}
-	return -1;
+
+	if (strcmp(minor, "5") < 0) {
+	
+		vloopbacks=fopen("/proc/video/vloopback/vloopbacks", "r");
+		if (!vloopbacks) {
+			printf ("Failed to open '/proc/video/vloopback/vloopbacks");
+			return -1;
+		}
+		/* Read vloopback version */
+		fgets(buffer, 255, vloopbacks);
+		printf("%s", buffer);
+		/* Read explaination line */
+		fgets(buffer, 255, vloopbacks);
+		while (fgets(buffer, 255, vloopbacks)) {
+			if (strlen(buffer)>1) {
+				buffer[strlen(buffer)-1]=0;
+				loop=strtok(buffer, "\t");
+				input=strtok(NULL, "\t");
+				istatus=strtok(NULL, "\t");
+				output=strtok(NULL, "\t");
+				ostatus=strtok(NULL, "\t");
+				if (istatus[0]=='-') {
+					sprintf(pipepath, "/dev/%s", input);
+					pipe_fd=open(pipepath, O_RDWR);
+					if (pipe_fd>=0) {
+						printf("Input: /dev/%s\n", input);
+						printf("Output: /dev/%s\n", output);
+						return pipe_fd;
+					}
+				}
+			} 
+		}
+
+	}else{
+		DIR *dir;
+		struct dirent *dirp;
+		const char prefix[]="/sys/class/video4linux/";
+		char *ptr, *io;
+		int fd;
+		int low=9999;
+		int tfd;
+		int tnum;
+
+		if ((dir=opendir(prefix))== NULL) {
+			printf( "Failed to open '%s'", prefix);
+			return -1;
+		}
+
+		while ((dirp=readdir(dir)) != NULL) {
+                        if (!strncmp(dirp->d_name, "video", 5)) {
+                                strcpy(buffer, prefix);
+                                strcat(buffer, dirp->d_name);
+                                strcat(buffer, "/name");
+                                if ((fd=open(buffer, O_RDONLY)) >= 0) {
+                                        if ((read(fd, buffer, sizeof(buffer)-1))<0) {
+                                                close(fd);
+                                                continue;
+                                        }
+                                        ptr = strtok(buffer, " ");
+                                        if (strcmp(ptr,"Video")) {
+                                                close(fd);
+                                                continue;
+                                        }
+                                        major = strtok(NULL, " ");
+                                        minor = strtok(NULL, " ");
+                                        io  = strtok(NULL, " \n");
+                                        if (strcmp(major, "loopback") || strcmp(io, "input")) {
+                                                close(fd);
+                                                continue;
+                                        }
+                                        if ((ptr=strtok(buffer, " "))==NULL) {
+                                                close(fd);
+                                                continue;
+                                        }
+                                        tnum = atoi(minor);
+                                        if (tnum < low) {
+                                                strcpy(buffer, "/dev/");
+                                                strcat(buffer, dirp->d_name);
+                                                if ((tfd=open(buffer, O_RDWR))>=0) {
+                                                        strcpy(pipepath, buffer);
+                                                        if (pipe_fd>=0) {
+                                                                close(pipe_fd);
+                                                        }
+                                                        pipe_fd = tfd;
+                                                        low = tnum;
+                                                }
+                                        }
+                                        close(fd);
+                                }
+                        }
+                }
+		
+
+		closedir(dir);
+                if (pipe_fd >= 0)
+                        printf("Opened input of %s", pipepath);
+        }
+	
+	return pipe_fd;
 }
 
 int main (int argc, char **argv)
 {
-	if (argc != 1) {
+	char palette[10]={'\0'};
+
+	if (argc != 3) {
 		printf("dummy.c\n");
 		printf("A example for using a video4linux loopback in zero-copy mode\n");
 		printf("Written by Jeroen Vreeken, 2000\n");
-		printf("Updated to vloopback API v0.82\n");
-		printf("\n");
+		printf("Updated to vloopback API v0.97\n\n");
+		printf("Usage:\n\n");
+		printf("dummy widthxheight rgb24|yuv420p\n\n");
+		printf("example: dummy 352x288 yuv420p\n\n");
 		exit(1);
 	}
+	
+	sscanf(argv[1], "%dx%d", &width, &height);
+	sscanf(argv[2], "%s", palette);
 
-	/* Default startup values, nothing special */
+	if (!strcmp(palette,"rgb24")) fmt = VIDEO_PALETTE_RGB24;
+	else if (!strcmp(palette,"yuv420p")) fmt = VIDEO_PALETTE_YUV420P;
+	else fmt = VIDEO_PALETTE_RGB24;
+	
+	/* Default startup values, nothing special 
 	width=352;
 	height=288;
+	*/
 
 	v4ldev=open_vidpipe();
 	if (v4ldev < 0) {
-		perror ("Failed to open video loopback device");
+		printf ("Failed to open video loopback device\nError[%s]\n",strerror(errno));
 		exit(1);
 	}
 	image_out=v4l_create(v4ldev, MAXWIDTH*MAXHEIGHT*3);
 	if (!image_out) {
 		exit(1);
-		perror ("Failed to set device to zero-copy mode");
+		printf ("Failed to set device to zero-copy mode\nError[%s]\n",strerror(errno));
 	}
 
 	signal (SIGIO, sighandler);
 
-	printf("Listening.\n");
+	printf("\nListening.\n");
 	while (1) {
 		sleep(1000);
 	}

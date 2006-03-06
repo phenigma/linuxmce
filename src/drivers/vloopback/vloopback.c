@@ -102,13 +102,28 @@
  * 02.05.05	(Kenneth Lavrsen)
  *			Released 0.95-snap2 formerly as 0.95
  *	
+ * 10.05.05	(Angel Carpintero)
+ *			Added MODULE_VERSION(), fixed create_pipes when video_register_device() returns
+ *			-ENFILE . 
+ *			Fix warnings about checking return value from copy_to_user() and copy_from_user() functions.
+ *
+ * 14.11.05	(Angel Carpintero)
+ *			Added <linux/version.h> that includes LINUX_VERSION_CODE and KERNEL_VERSION to fix 
+ *			compilation agains kernel 2.6.14 , change version to 0.97-snap1
+ *
+ * 19.12.05	(Angel Carpintero)
+ *			Added to example option to choose between rgb24 or yuv420p palettes.
+ *
+ * 31.12.05	(Angel Carpintero)
+ * 			Fixed examples, remove perror calls and add support to dummy.c for sysfs.	 			
  */
 
 
-#define VLVER "0.95"
+#define VLOOPBACK_VERSION "0.97-snap2"
 
 /* Include files common to 2.4 and 2.6 versions */
-#include <linux/config.h>	/* needed to get LINUX_VERSION_CODE */
+#include <linux/version.h>	/* >= 2.6.14 LINUX_VERSION_CODE */ 
+#include <linux/config.h>	/* needed to get LINUX_VERSION_CODE >= 2.6.13 */
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -401,10 +416,11 @@ static ssize_t vloopback_write(struct file *f, const char *buf,
 		info("Too much data! Only %ld bytes used.", realcount);
 	}
 	
-	copy_from_user(
+	if (copy_from_user(
 	    loops[nr]->buffer+loops[nr]->frame*loops[nr]->buflength,
 	    buf, realcount
-	);
+	)) return -EFAULT;
+
 	loops[nr]->frame=0;
 	up(&loops[nr]->lock);
 
@@ -425,9 +441,11 @@ static ssize_t vloopback_read (struct file * f, char * buf, size_t count, loff_t
 		if (ptr->in) {
 			if (realcount > loops[nr]->ioctllength+sizeof(unsigned long int))
 				realcount=loops[nr]->ioctllength+sizeof(unsigned long int);
-			copy_to_user(buf , &loops[nr]->ioctlnr, sizeof(unsigned long int));
-			copy_to_user(buf+sizeof(unsigned long int) , loops[nr]->ioctldata, 
-					realcount-sizeof(unsigned long int));
+			if (copy_to_user(buf , &loops[nr]->ioctlnr, sizeof(unsigned long int)))
+				return -EFAULT;
+			if (copy_to_user(buf+sizeof(unsigned long int) , loops[nr]->ioctldata, 
+					realcount-sizeof(unsigned long int)))
+				return -EFAULT;	
 			if (loops[nr]->ioctlnr==0)
 				loops[nr]->ioctlnr=-1;
 			return realcount;
@@ -473,7 +491,8 @@ static ssize_t vloopback_read (struct file * f, char * buf, size_t count, loff_t
 		up(&loops[nr]->lock);
 		return 0;
 	}
-	copy_to_user(buf, loops[nr]->buffer, realcount);	
+	if (copy_to_user(buf, loops[nr]->buffer, realcount))
+		return -EFAULT;
 	up(&loops[nr]->lock);
 
 	loops[nr]->framesread++;
@@ -574,7 +593,8 @@ static int vloopback_ioctl(struct inode *inod, struct file *f, unsigned int cmd,
 			 	//info("DEBUG: vl_ioctl: cmd & IOC_IN 2"); 
 				return 0;
 			} else {
-				copy_to_user((void*)arg, loops[nr]->ioctlretdata, _IOC_SIZE(cmd));
+				if (copy_to_user((void*)arg, loops[nr]->ioctlretdata, _IOC_SIZE(cmd)))
+					return -EFAULT;
 				//info("DEBUG: vl_ioctl: !(cmd & IOC_IN) 1");
 				return 0;
 			}
@@ -915,7 +935,7 @@ static struct video_device vloopback_template=
 
 static int create_pipe(int nr)
 {
-	int minor_in, minor_out;
+	int minor_in, minor_out , ret;
 		
 	if (dev_offset == -1)
 		minor_in  = minor_out = -1; /* autoassign */
@@ -978,27 +998,31 @@ static int create_pipe(int nr)
 	sprintf(loops[nr]->vloopout->name, "Video loopback %d output", nr);
 	init_waitqueue_head(&loops[nr]->wait);
 	init_MUTEX(&loops[nr]->lock);
-	if (video_register_device(loops[nr]->vloopin, VFL_TYPE_GRABBER,
-			minor_in)==-1) {
+	
+	ret = video_register_device(loops[nr]->vloopin, VFL_TYPE_GRABBER,minor_in);
+	
+	if ((ret == -1 ) || ( ret == -23 )) {
+		info("error registering device %s",loops[nr]->vloopin->name);
 		kfree(loops[nr]->vloopin->priv);
 		kfree(loops[nr]->vloopin);
 		kfree(loops[nr]->vloopout->priv);
 		kfree(loops[nr]->vloopout);
 		kfree(loops[nr]);
 		loops[nr]=NULL;
-		info("error registering device");
-		return -ENODEV;
+		return ret;
 	}
-	if (video_register_device(loops[nr]->vloopout, VFL_TYPE_GRABBER,
-			minor_out)==-1) {
+	
+	ret = video_register_device(loops[nr]->vloopout, VFL_TYPE_GRABBER,minor_out);
+	
+	if ((ret ==-1) || (ret == -23)) {
+		info("error registering device %s", loops[nr]->vloopout->name);
 		kfree(loops[nr]->vloopin->priv);
 		video_unregister_device(loops[nr]->vloopin);
 		kfree(loops[nr]->vloopout->priv);
 		kfree(loops[nr]->vloopout);
 		kfree(loops[nr]);
 		loops[nr]=NULL;
-		info("error registering device");
-		return -ENODEV;
+		return ret;
 	}
 	
 	loops[nr]->ioctldata=kmalloc(1024, GFP_KERNEL);
@@ -1021,12 +1045,13 @@ MODULE_PARM_DESC(spares, "Nr of spare pipes that should be created");
 MODULE_PARM(dev_offset, "i");
 MODULE_PARM_DESC(dev_offset, "Prefered offset for video device numbers");
 MODULE_LICENSE("GPL");
+MODULE_VERSION( VLOOPBACK_VERSION );
 
 static int __init vloopback_init(void)
 {
-	int i;
+	int i,ret;
 
-	info("Video4linux loopback driver v"VLVER);
+	info("Video4linux loopback driver v"VLOOPBACK_VERSION);
 
 	if (pipes==-1) pipes=1;
 	if (pipes > MAX_PIPES) {
@@ -1035,12 +1060,17 @@ static int __init vloopback_init(void)
 	}
 
 	for (i=0; i<pipes; i++) {
-		if (!create_pipe(i)) {
+		
+		ret = create_pipe(i);
+
+		if (ret == 0) {
 			info("Loopback %d registered, input: video%d,"
 			     "output: video%d",
 			     i, loops[i]->vloopin->minor,
 			     loops[i]->vloopout->minor);
 			nr_o_pipes=i+1;
+		}else{
+			return ret;
 		}
 	}
 	return 0;

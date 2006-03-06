@@ -34,7 +34,7 @@ Jeroen Vreeken, pe1rxq@amsat.org
 -------------------------------------------------------------------------------
 
 Module has experimental support for kernel 2.6.x .
-The current version 0.95beta1 has been tested with kernel 2.6.8 , 2.6.9 and 2.6.10.
+The current version 0.95 has been tested with kernel 2.6.8 , 2.6.9 and 2.6.10.
 
 To compile and install :
 
@@ -46,13 +46,21 @@ make uninstall ( as root ).
 
 - Problems :
 
-It you got this message after 'insmod ./vloopback.ko' :
+* If you got this message after 'insmod ./vloopback.ko' :
 
  "insmod: error inserting './vloopback.ko': -1 Unknown symbol in module" 
 
-You must load videodev module :
+  Solution : You must load videodev module :
 
  'insmod videodev ; insmod ./vloopback.ko'
+
+* If you got this message after 'modprobe vloopback [options]' :
+
+ "FATAL: Error inserting vloopback (/lib/modules/2.6.8-1-k7/kernel/drivers/misc/vloopback.ko): Too many open files in system"
+
+ You probably used dev_offset= as a option , but the video device that vloopback was trying to register was already in use, maybe the value used for dev_offeset was too high.
+
+  Solution : Try to use a lower value for dev_offset= or even better don't use it .
 
 Angel Carpintero, ack@telefonica.net
 Kenneth Lavrsen, kenneth@lavrsen.dk

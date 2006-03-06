@@ -2,21 +2,23 @@ ifneq ($(KERNELRELEASE),)
 	obj-m	:= vloopback.o
 
 else
-	KDIR	:= /lib/modules/$(shell uname -r)/build
+	KVER  := $(shell uname -r)
+	KLINK := $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
+	KSRC  := /lib/modules/$(KVER)/$(KLINK)
 	PWD		:= $(shell pwd)
-	DEST	:= /lib/modules/$(shell uname -r)/kernel/drivers/misc
+	DEST	:= /lib/modules/$(KVER)/kernel/drivers/misc
 default:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules
 
 install:
 	cp vloopback.ko $(DEST)/.
-	depmod -a
-	modprobe videodev 
+	/sbin/depmod -a
+	/sbin/modprobe videodev 
 
 uninstall:
 	rm -f $(DEST)/vloopback.ko
-	depmod -a
+	/sbin/depmod -a
 clean:
-	rm -f .*.cmd *.o *.mod.c *.ko *~ core
+	rm -f .*.cmd *.o *.mod.c *.ko .v* *~ core
 	rm -rf .tmp_versions/
 endif
