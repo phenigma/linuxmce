@@ -11,4 +11,7 @@ $TEXT_FILE_DELETED_CONFIRMATION_CONST='The file was deleted from playlist.';
 $TEXT_FILE_INCREASED_CONFIRMATION_CONST='The file order in playlist was increased.';
 $TEXT_FILE_DECREASED_CONFIRMATION_CONST='The file order in playlist was decreased.';
 $TEXT_ERROR_POSITION_DOESN_NOT_EXIST_CONST='The position you type doesn\'t exist in the list.';
+$TEXT_DURATION_CONST='Duration';
+$TEXT_PLAYLIST_ENTRIES_UPDATED_CONST='Playlist entries updated';
+$TEXT_ADD_BOOKMARK_CONST='Add bookmark';
 ?>

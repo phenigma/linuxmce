@@ -21,11 +21,11 @@ function playlists($output,$mediadbADO) {
 			<input type="hidden" name="section" value="playlists">
 			<input type="hidden" name="action" value="update">
 		
-			<table cellpadding="3" cellspacing="0">
+			<table cellpadding="3" cellspacing="0" border="0">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>#</B></td>
 					<td align="center"><B>'.$TEXT_PLAYLIST_CONST.'</B></td>
-					<td>&nbsp;</td>
+					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>
 		';
 		$resPlaylist=$mediadbADO->Execute('SELECT * FROM Playlist WHERE EK_User=? || EK_User=0',$userID);
@@ -52,9 +52,7 @@ function playlists($output,$mediadbADO) {
 					<td align="center" colspan="3">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="center">&nbsp;</td>
-					<td align="center"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B></td>
-					<td align="center"><input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+					<td align="center" colspan="3"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B> <input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>
 			</table>
 		</form>';
