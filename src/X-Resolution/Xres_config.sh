@@ -2,17 +2,19 @@
 
 trap true SIGINT
 
-Width="$1"
-Height="$2"
-Refresh="$3"
-Type="${4:+--scantype $4}"
+Params=(Width Height Refresh Type)
+ParmIdx=0
 
-while [[ "$#" -gt 0 ]]; do
-	case "$1" in
-		"-f") Force=--force ;;
+for Param in "$@"; do
+	case "$Param" in
+		-f) Force=--force ;;
+		*)
+			eval ${Params[$ParamIdx]}="$Param"
+			((ParamIdx++))
 	esac
-	shift
 done
+
+Type="${Type:+--scantype $Type}"
 
 ShowDialog()
 {
