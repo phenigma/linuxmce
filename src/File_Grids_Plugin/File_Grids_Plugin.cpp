@@ -260,7 +260,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 					{
 						FileListInfo *pFileListInfo = new FileListInfo(true, "", false);
  						pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
-						pCell = new DataGridCell("Unable to communicated with Powerfile '" + pRow_Device->Description_get() + "'", "");
+						pCell = new DataGridCell("Unable to communicate with Powerfile '" + pRow_Device->Description_get() + "'", "");
 						pCell->m_Colspan = 6;
 						pDataGrid->SetData(1, iRow++, pCell);						
 						pDataGrid->m_vectFileInfo.push_back(pFileListInfo);					
