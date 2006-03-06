@@ -1735,7 +1735,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
 		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
-        "WHERE Name Like '" + AC + "%' AND Identifier>0 " +
+		"WHERE Name Like '" + StringUtils::SQLEscape(AC) + "%' AND Identifier>0 " +
 		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
 		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
         " ORDER BY Name limit 30;";
@@ -1784,8 +1784,8 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		"JOIN File ON File_Attribute.FK_File=PK_File "\
         "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
 		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
-        "WHERE Token like '" + AC + "%' " +
-		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
+		"WHERE Token like '" + StringUtils::SQLEscape(AC) + "%' " +
+		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + StringUtils::SQLEscape(AttributesFirstSearch) + ") " : "") +
 		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
 		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND Identifier>0 " +
 		" ORDER BY Name "\
