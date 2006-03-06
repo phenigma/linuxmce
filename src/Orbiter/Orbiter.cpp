@@ -2706,7 +2706,10 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		case DIRECTION_Up_CONST:
 			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
 				bScrolledOutsideGrid=true;
-			else if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
+			else if(
+				(pDesignObj_DataGrid->m_iHighlightedRow > 0 || pDesignObj_DataGrid->m_GridCurRow > 0) &&
+				pDesignObj_DataGrid->m_MaxRow > 1
+				)
 			{
 				pDesignObj_DataGrid->m_iHighlightedRow--;
 				if(pDesignObj_DataGrid->m_iHighlightedRow < 0 || (pDesignObj_DataGrid->m_iHighlightedRow == 0 && pDesignObj_DataGrid->HasMoreUp()))
@@ -2725,16 +2728,19 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
 				bScrolledOutsideGrid=true;
 			// Continue only if we're not already highlighting the last cell
-			else if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
+			else if(
+				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow < 
+					pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&
+				pDesignObj_DataGrid->m_MaxRow > 1
+				)  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
 			{
 				pDesignObj_DataGrid->m_iHighlightedRow++;
 				// See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
 				if(pDesignObj_DataGrid->m_iHighlightedRow >= pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
 				{
-					//int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
 					CMD_Scroll_Grid( "", "", PK_Direction );
-					pDesignObj_DataGrid->m_iHighlightedRow = 1; /*iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow + 1*/;
+					pDesignObj_DataGrid->m_iHighlightedRow = 1; 
 				}
 			}
 			else
@@ -2743,7 +2749,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		case DIRECTION_Left_CONST:
 			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )!=string::npos )
 				bScrolledOutsideGrid=true;
-			else if(  pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurCol>0  )
+			else if(pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurCol>0  )
 			{
 				pDesignObj_DataGrid->m_iHighlightedColumn--;
 				if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )

@@ -22,7 +22,6 @@ namespace HADesigner
 			get	{return (MDIForm)this.MdiParent;}
 		}
 		private int id_DesignObj_Selected = 0;
-		private int id_Category_Selected = 0;
 
 		private System.Windows.Forms.TreeView tvDesignObj;
 		private System.Windows.Forms.Button btnChoose;

@@ -10,8 +10,8 @@ GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (GL2DEffectFactory * EffectsEngin
 {
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
-	FullScreen.Width = Effects->Widgets->GetWidth();
-	FullScreen.Height = Effects->Widgets->GetHeight();
+	FullScreen.Width = float(Effects->Widgets->GetWidth());
+	FullScreen.Height = float(Effects->Widgets->GetHeight());
 
 	//creating the basic window which it stay on back
 	Background = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
@@ -88,7 +88,7 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 		Configured = true;
 	}
 	
-	float Step = Stage(Now);
+	float Step = Stage(float(Now));
 	
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
 

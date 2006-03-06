@@ -154,6 +154,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataAccess\ArrayData.resx"
+                    DependentUpon = "ArrayData.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "DataAccess\ButtonData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
@@ -259,14 +264,34 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataAccess\DesignObjVariation_ZoneData.resx"
+                    DependentUpon = "DesignObjVariation_ZoneData.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "DataAccess\DesignObjVariationData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataAccess\DesignObjVariationData.resx"
+                    DependentUpon = "DesignObjVariationData.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "DataAccess\DeviceTemplateData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\EffectTypeData.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\EffectTypeData.resx"
+                    DependentUpon = "EffectTypeData.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "DataAccess\HorizAlignmentData.cs"
@@ -302,6 +327,11 @@
                     RelPath = "DataAccess\Screen_CommandParameterData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\Screen_CommandParameterData.resx"
+                    DependentUpon = "Screen_CommandParameterData.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "DataAccess\SizeData.cs"

@@ -158,6 +158,10 @@ namespace HADesigner
 		private System.Windows.Forms.TabPage tabOnUnload;
 		private System.Windows.Forms.TabPage tabOnStartup;
 		private System.Windows.Forms.TabPage tabOnTimeout;
+		private System.Windows.Forms.TabPage tabOnSelected_WithChange;
+		private System.Windows.Forms.TabPage tabOnSelected_NoChange;
+		private System.Windows.Forms.TabPage tabOnHighlighted;
+
 
 		private System.Windows.Forms.TreeView tvCommand;
 
@@ -762,7 +766,7 @@ namespace HADesigner
 			}
 			else
 			{
-				pnCommandGroupInfo.Visible = (tabAllPages.SelectedIndex > 2);
+				pnCommandGroupInfo.Visible = tabAllPages.SelectedIndex > 2 && tabAllPages.SelectedIndex < 8;
 				if (pnCommandGroupInfo.Visible)
 				{
 					tvCommand.Enabled = true;
@@ -930,6 +934,9 @@ namespace HADesigner
 			this.tabOnUnload = new System.Windows.Forms.TabPage();
 			this.tabOnStartup = new System.Windows.Forms.TabPage();
 			this.tabOnTimeout = new System.Windows.Forms.TabPage();
+			this.tabOnSelected_WithChange = new System.Windows.Forms.TabPage();
+			this.tabOnSelected_NoChange = new System.Windows.Forms.TabPage();
+			this.tabOnHighlighted = new System.Windows.Forms.TabPage();
 			this.pnCommandGroupInfo = new System.Windows.Forms.Panel();
 			this.lMasterDevice = new System.Windows.Forms.Label();
 			this.chRelToSender = new System.Windows.Forms.CheckBox();
@@ -1392,6 +1399,9 @@ namespace HADesigner
 			this.tabAllPages.Controls.Add(this.tabOnUnload);
 			this.tabAllPages.Controls.Add(this.tabOnStartup);
 			this.tabAllPages.Controls.Add(this.tabOnTimeout);
+			this.tabAllPages.Controls.Add(this.tabOnSelected_WithChange);
+			this.tabAllPages.Controls.Add(this.tabOnSelected_NoChange);
+			this.tabAllPages.Controls.Add(this.tabOnHighlighted);
 			this.tabAllPages.Location = new System.Drawing.Point(144, 576);
 			this.tabAllPages.Name = "tabAllPages";
 			this.tabAllPages.SelectedIndex = 0;
@@ -1809,6 +1819,30 @@ namespace HADesigner
 			this.tabOnTimeout.Size = new System.Drawing.Size(760, 190);
 			this.tabOnTimeout.TabIndex = 6;
 			this.tabOnTimeout.Text = "OnTimeout";
+			// 
+			// tabOnSelected_WithChange
+			// 
+			this.tabOnSelected_WithChange.Location = new System.Drawing.Point(4, 22);
+			this.tabOnSelected_WithChange.Name = "tabOnSelected_WithChange";
+			this.tabOnSelected_WithChange.Size = new System.Drawing.Size(760, 190);
+			this.tabOnSelected_WithChange.TabIndex = 7;
+			this.tabOnSelected_WithChange.Text = "OnSelected(with change)";
+			// 
+			// tabOnSelected_NoChange
+			// 
+			this.tabOnSelected_NoChange.Location = new System.Drawing.Point(4, 22);
+			this.tabOnSelected_NoChange.Name = "tabOnSelected_NoChange";
+			this.tabOnSelected_NoChange.Size = new System.Drawing.Size(760, 190);
+			this.tabOnSelected_NoChange.TabIndex = 8;
+			this.tabOnSelected_NoChange.Text = "OnSelected(no change)";
+			// 
+			// tabOnHighlighted
+			// 
+			this.tabOnHighlighted.Location = new System.Drawing.Point(4, 22);
+			this.tabOnHighlighted.Name = "tabOnHighlighted";
+			this.tabOnHighlighted.Size = new System.Drawing.Size(760, 190);
+			this.tabOnHighlighted.TabIndex = 9;
+			this.tabOnHighlighted.Text = "OnHightlighted";
 			// 
 			// pnCommandGroupInfo
 			// 

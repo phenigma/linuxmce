@@ -81,7 +81,7 @@ void GL2DEffectFactory::UpdateEffects()
 	
 	for(Effect = Effects.begin(); Effect < Effects.end(); )
 	{
-		if(((*Effect)->Configured) &&((*Effect)->Stage(CurrentTime)>1) )
+		if(((*Effect)->Configured) &&((*Effect)->Stage(float(CurrentTime))>1) )
 		{
 			delete *Effect;
 			Effect = Effects.erase(Effect);
