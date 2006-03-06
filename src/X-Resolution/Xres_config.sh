@@ -11,6 +11,7 @@ for Param in "$@"; do
 		*)
 			eval ${Params[$ParamIdx]}="$Param"
 			((ParamIdx++))
+		;;
 	esac
 done
 
