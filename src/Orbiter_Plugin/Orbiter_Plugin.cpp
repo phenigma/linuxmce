@@ -2162,12 +2162,18 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 	MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_MD->m_dwPK_Device);
 	if( pMediaDevice )
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
+	SetPipesEnable(pDevice_MD,bOverride);
+}
 
-	for(map<int, class Pipe *>::iterator it=pDevice_MD->m_mapPipe_Available.begin();
-		it!=pDevice_MD->m_mapPipe_Available.end();++it)
+void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
+{
+	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
+		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
 		class Pipe *pPipe = it->second;
-		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		DeviceData_Router *pDevice_Dest = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		SetPipesEnable(pDevice_Dest,bOverride);
+		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Dest->m_dwPK_Device);
 		if( !pMediaDevice )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());

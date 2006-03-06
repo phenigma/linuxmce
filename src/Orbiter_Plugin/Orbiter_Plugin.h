@@ -163,7 +163,8 @@ public:
 	turn off when the orbiter is specifcally turned off or goes to sleep.  In those cases the user
 	will set the DEVICEDATA_Leave_Monitor_on_for_OSD_CONST flag to 1 */
 	void OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverride);
-	
+	void SetPipesEnable(DeviceData_Router *pDevice,bool bOverride);  // Used to recurse
+
 	bool CheckForNewWizardDevices(DeviceData_Router *pDevice_MD);
 
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
