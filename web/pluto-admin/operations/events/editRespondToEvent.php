@@ -71,6 +71,7 @@ function editRespondToEvent($output,$dbADO) {
 		while($rowCE=$resCannedEvents->FetchRow()){
 			$out.='<option value="'.$rowCE['PK_CannedEvents'].'" '.(($rowCE['PK_CannedEvents']==$parmlistToDisplay)?'selected':'').'>'.$rowCE['Description'].'</option>';
 		}
+
 		$out.='
 			</select></td>
 			</tr>';
@@ -129,6 +130,9 @@ function editRespondToEvent($output,$dbADO) {
 					<select name="CriteriaParmOperator_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
 						<option value="1" '.(($selectedOperator==1)?'selected':'').'>=</option>
 						<option value="2" '.(($selectedOperator==2)?'selected':'').'>&lt;&gt;</option>
+						<option value="3" '.(($selectedOperator==3)?'selected':'').'>&gt;</option>
+						<option value="4" '.(($selectedOperator==4)?'selected':'').'>&lt;</option>
+						<option value="5" '.(($selectedOperator==5)?'selected':'').'>contain</option>
 					</select> ';
 				
 				if($rowCriteria['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){

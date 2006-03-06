@@ -1306,6 +1306,9 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 				$out.=' <select name="CriteriaParmOperator_'.$rowCP['PK_CriteriaParm'].'">
 						<option value="1" '.(($rowCP['Operator']==1)?'selected':'').'>=</option>
 						<option value="2" '.(($rowCP['Operator']==2)?'selected':'').'>&lt;&gt;</option>
+						<option value="3" '.(($rowCP['Operator']==3)?'selected':'').'>&gt;</option>
+						<option value="4" '.(($rowCP['Operator']==4)?'selected':'').'>&lt;</option>
+						<option value="5" '.(($rowCP['Operator']==5)?'selected':'').'>contain</option>
 				</select> ';
 				if($rowCP['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){
 					$out.='Value: ';
