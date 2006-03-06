@@ -74,7 +74,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
                     listFileNames.push_back(fi);
                 }
             }
-            else if (finddata.name[0] != '.')
+            else if (finddata.name[0] != '.' && FileUtils::FindExtension(finddata.name)!="id3" )
             {
                 string::size_type pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
@@ -138,7 +138,7 @@ g_pPlutoLogger->Write(LV_STATUS, "adding dir");
                     listFileNames.push_back(fi);
                 }
             }
-            else if ( S_ISREG(dirEntryStat.st_mode) && entry.d_name[0] != '.') // ignore hidden files
+            else if ( S_ISREG(dirEntryStat.st_mode) && entry.d_name[0] != '.' && FileUtils::FindExtension(finddata.name)!="id3" ) // ignore hidden files
             {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
