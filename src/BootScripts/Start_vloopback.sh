@@ -2,6 +2,12 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
+DEVICEDATA_PortChannel_Number=12
+DEVICEDATA_Device=1
+
+PipeDevOffset=30
+PipeCount=16
+
 function showUsage {
         echo "Usage: $0 -r <RouterID> -d <DeviceID>"
         echo
@@ -23,18 +29,30 @@ done
 shift $(($OPTIND - 1))
 
 SQL="
-	SELECT 
-		IK_DeviceData 
-	FROM 
+	SELECT
+		FK_DeviceData,
+		IK_DeviceData
+	FROM
 		Device_DeviceData
-        WHERE 
-		FK_Device=$PK_Device AND FK_DeviceData=12
+	WHERE
+		FK_Device=$PK_Device
+		AND
+		FK_DeviceData IN ($DEVICEDATA_PortChannel_Number, $DEVICEDATA_Device)
 "
 R=$(RunSQL "$SQL")
-IK_DeviceData=$(Field 1 "$R")
+
+for DeviceData in $R; do
+	FK_DeviceData=$(Field 1 "$DeviceData")
+	IK_DeviceData=$(Field 2 "$DeviceData")
+	case "$FK_DeviceData" in
+		"$DEVICEDATA_PortChannel_Number") Dev_IEEE1394="$IK_DeviceData" ;;
+		"$DEVICEDATA_Device") Dev_V4L_2="$IK_DeviceData" ;;
+	esac
+done
+
+Dev_V4L_1=$((Dev_V4L_2 - 1))
 
 modprobe video1394
 modprobe raw1394
-modprobe vloopback pipes=16 dev_offset=30
-dc1394_vloopback --daemon --video1394=/dev/video1394-$IK_DeviceData --vloopback=/dev/video30 --pipe
-
+modprobe vloopback pipes=$PipeCount dev_offset=$PipeDevOffset
+dc1394_vloopback --daemon "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L_1" --pipe
