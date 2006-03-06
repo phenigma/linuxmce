@@ -1,0 +1,58 @@
+vloopback is a video4linux driver providing video pipes.
+With the driver you can use the output of a user program to feed a program that
+would normally communicate with a video4linux device.
+To achieve this a video pipe consists out of two video4linux devices:
+one for the generating program to write its data to and one for a normal
+video4linux program to read from.
+
+At the moment there are only few programs that can feed the input of the pipe:
+invert and resize, the example programs with the driver and
+motion, my motion detection program.
+
+Just type 'make' and then 'insmod vloopback'.
+If you want more pipes use 'insmod vloopback pipes=N' with N between 1 and 16.
+If you want to create spare pipes use 'spares=N'.
+
+Type 'dmesg' to see which video devices have been created as input and output.
+For example: if you have a camera on /dev/video0 the input pipe will most likely
+be /dev/video1 and the output on /dev/video2.
+e.g. if you want to watch an inverted image of the camera you would start invert
+with /dev/video0 as its input and /dev/video1 as its output.
+Then start a viewing app (such as camstream or xawtv) with as input /dev/video2
+and you can see yourself inverted.
+
+This is a very experimental device driver!
+SMP should work from 0.2 on..... but is untested!
+If it troubles you fix it or tell me how to fix it :)
+
+Using vloopback with xawtv:
+As of 0.83 xawtv will work with vloopback outputs, but you will have to specify
+the size to use. For example: 'xawtv -c /dev/video2 -geometry 320x240'
+
+Jeroen Vreeken, pe1rxq@amsat.org
+
+-------------------------------------------------------------------------------
+
+Module has experimental support for kernel 2.6.x .
+The current version 0.95beta1 has been tested with kernel 2.6.8 , 2.6.9 and 2.6.10.
+
+To compile and install :
+
+make ; su - ; make install
+
+To uninstall :
+
+make uninstall ( as root ).
+
+- Problems :
+
+It you got this message after 'insmod ./vloopback.ko' :
+
+ "insmod: error inserting './vloopback.ko': -1 Unknown symbol in module" 
+
+You must load videodev module :
+
+ 'insmod videodev ; insmod ./vloopback.ko'
+
+Angel Carpintero, ack@telefonica.net
+Kenneth Lavrsen, kenneth@lavrsen.dk
