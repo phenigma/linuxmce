@@ -55,4 +55,4 @@ Dev_V4L_1=$((Dev_V4L_2 - 1))
 modprobe video1394
 modprobe raw1394
 modprobe vloopback pipes=$PipeCount dev_offset=$PipeDevOffset
-dc1394_vloopback --daemon "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L_1" --pipe
+dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L_1" --pipe
