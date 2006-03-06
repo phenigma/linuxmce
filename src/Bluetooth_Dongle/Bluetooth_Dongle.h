@@ -157,6 +157,7 @@ public:
 		 */
 		BD_Orbiter *m_mapOrbiterSockets_Find( string sMacAddress ) 
 		{
+			PLUTO_SAFETY_LOCK(bm, m_BTMutex);
 			map<string, class BD_Orbiter *>::iterator it = m_mapOrbiterSockets.find( sMacAddress );
 			return it == m_mapOrbiterSockets.end() ? NULL : ( *it ).second;
 		}

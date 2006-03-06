@@ -307,6 +307,8 @@ bool Bluetooth_Dongle::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
+
 	Map_DeviceData_Base::iterator it;
 	for( it=GetData()->m_AllDevices.m_mapDeviceData_Base.begin(); it!=GetData()->m_AllDevices.m_mapDeviceData_Base.end(); ++it )
 	{
@@ -324,6 +326,8 @@ bool Bluetooth_Dongle::GetConfig()
 				g_pPlutoLogger->Write( LV_WARNING, "Mobile orbiter: %d found, with no mac address", pDeviceData_Base->m_dwPK_Device );
 		}
 	}
+	bm.Release();
+
 	StartScanning(); // start the scanning loop
 	return true;
 }
