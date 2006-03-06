@@ -55,6 +55,7 @@ namespace HAData.DataAccess {
 				tDesignObjVariation_Text_Skin_Language.LoadAll(conn,trans);
 				tDesignObjVariation_Zone.LoadAll(conn,trans);
 				tDeviceTemplate.LoadAll(conn,trans);
+				tEffectType.LoadAll(conn, trans);
 				tHorizAlignment.LoadAll(conn,trans);
 				tIcon.LoadAll(conn,trans);
 				tInstallation.LoadAll(conn,trans);
@@ -678,6 +679,23 @@ namespace HAData.DataAccess {
 					Tables.Add(dt);
 				}
 				return (Screen_CommandParameterTable) dt;
+			}
+		}
+        public EffectTypeTable tEffectType
+		{
+			get
+			{
+				if( m_bIsCache )
+					return (EffectTypeTable) Tables["EffectType"];
+				if( m_mdsCache!=null )
+					return (EffectTypeTable) m_mdsCache.Tables["EffectType"];
+				EffectTypeTable dt = (EffectTypeTable)Tables["EffectType"];
+				if( dt==null )
+				{
+					dt = EffectTypeData.BuildEffectTypeTable();
+					Tables.Add(dt);
+				}
+				return (EffectTypeTable) dt;
 			}
 		}
 		public CommandCategoryTable tCommandCategory
@@ -1432,7 +1450,21 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.Users_FK_Language,tLanguage.cPK_Language,tUsers.cFK_Language);
 			Relations.Add(MyRelations.Users_FK_Installation_Main,tInstallation.cPK_Installation,tUsers.cFK_Installation_Main);
 			Relations.Add(MyRelations.Screen_CommandParameter_FK_CommandParameter,tCommandParameter.cPK_CommandParameter,tScreen_CommandParameter.cFK_CommandParameter);
+
+			//DesignObjVariation - EffectType relations
+			Relations.Add(MyRelations.DesignObjVariation_FK_EffectType_Selected_WithChange, 
+				tEffectType.cPK_EffectType, 
+				tDesignObjVariation.cFK_EffectType_Selected_WithChange);
+
+			Relations.Add(MyRelations.DesignObjVariation_FK_EffectType_Selected_NoChange, 
+				tEffectType.cPK_EffectType, 
+				tDesignObjVariation.cFK_EffectType_Selected_NoChange);			
+
+			Relations.Add(MyRelations.DesignObjVariation_FK_EffectType_Highlighted, 
+				tEffectType.cPK_EffectType, 
+				tDesignObjVariation.cFK_EffectType_Highlighted);			
 		}
+
 		public class MyRelations
 		{
 			public const string Command_FK_CommandCategory="1";
@@ -1505,6 +1537,9 @@ namespace HAData.DataAccess {
 			public const string Users_FK_Language="73";
 			public const string Users_FK_Installation_Main="74";
 			public const string Screen_CommandParameter_FK_CommandParameter="75";
+			public const string DesignObjVariation_FK_EffectType_Selected_WithChange="76";
+			public const string DesignObjVariation_FK_EffectType_Selected_NoChange="77";
+			public const string DesignObjVariation_FK_EffectType_Highlighted="78";
 		}
 	}
 } // namespace HAData.Common.Data

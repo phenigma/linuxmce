@@ -20,6 +20,9 @@ namespace HAData.DataAccess {
 		public const String FK_COMMANDGROUP_D_ONUNLOAD_FIELD = "FK_CommandGroup_D_OnUnload";
 		public const String FK_COMMANDGROUP_D_ONTIMEOUT_FIELD = "FK_CommandGroup_D_OnTimeout";
 		public const String FK_COMMANDGROUP_D_ONSTARTUP_FIELD = "FK_CommandGroup_D_OnStartup";
+		public const String FK_EFFECTTYPE_SELECTED_WITHCHANGE_FIELD = "FK_EffectType_Selected_WithChange";
+		public const String FK_EFFECTTYPE_SELECTED_NOCHANGE_FIELD = "FK_EffectType_Selected_NoChange";
+		public const String FK_EFFECTTYPE_HIGHLIGHTED_FIELD = "FK_EffectType_Highlighted";
 		public const String FK_BUTTON_FIELD = "FK_Button";
 		public const String FK_CRITERIA_ORBITER_FIELD = "FK_Criteria_Orbiter";
 		public const String DONTRESETSELECTEDSTATE_FIELD = "DontResetSelectedState";
@@ -34,6 +37,9 @@ namespace HAData.DataAccess {
 		public const String FK_COMMANDGROUP_D_ONUNLOAD_TABLE_FIELD = "DesignObjVariation.FK_CommandGroup_D_OnUnload";
 		public const String FK_COMMANDGROUP_D_ONTIMEOUT_TABLE_FIELD = "DesignObjVariation.FK_CommandGroup_D_OnTimeout";
 		public const String FK_COMMANDGROUP_D_ONSTARTUP_TABLE_FIELD = "DesignObjVariation.FK_CommandGroup_D_OnStartup";
+		public const String FK_EFFECTTYPE_SELECTED_TABLE_WITHCHANGE = "DesignObjVariation.FK_EffectType_Selected_WithChange";
+		public const String FK_EFFECTTYPE_SELECTED_TABLE_NOCHANGE = "DesignObjVariation.FK_EffectType_Selected_NoChange";
+		public const String FK_EFFECTTYPE_TABLE_HIGHLIGHTED = "DesignObjVariation.FK_EffectType_Highlighted";
 		public const String FK_BUTTON_TABLE_FIELD = "DesignObjVariation.FK_Button";
 		public const String FK_CRITERIA_ORBITER_TABLE_FIELD = "DesignObjVariation.FK_Criteria_Orbiter";
 		public const String DONTRESETSELECTEDSTATE_TABLE_FIELD = "DesignObjVariation.DontResetSelectedState";
@@ -51,6 +57,9 @@ namespace HAData.DataAccess {
 		protected const String FK_COMMANDGROUP_D_ONUNLOAD_PARM = "@FK_CommandGroup_D_OnUnload";
 		protected const String FK_COMMANDGROUP_D_ONTIMEOUT_PARM = "@FK_CommandGroup_D_OnTimeout";
 		protected const String FK_COMMANDGROUP_D_ONSTARTUP_PARM = "@FK_CommandGroup_D_OnStartup";
+		protected const String FK_EFFECTTYPE_SELECTED_WITHCHANGE_PARM = "@FK_EffectType_Selected_WithChange";
+		protected const String FK_EFFECTTYPE_SELECTED_NOCHANGE_PARM = "@FK_EffectType_Selected_NoChange";
+		protected const String FK_EFFECTTYPE_HIGHLIGHTED_PARM = "@FK_EffectType_Highlighted";
 		protected const String FK_BUTTON_PARM = "@FK_Button";
 		protected const String FK_CRITERIA_ORBITER_PARM = "@FK_Criteria_Orbiter";
 		protected const String DONTRESETSELECTEDSTATE_PARM = "@DontResetSelectedState";
@@ -131,6 +140,9 @@ namespace HAData.DataAccess {
 			Columns.Add(FK_COMMANDGROUP_D_ONUNLOAD_FIELD, typeof(System.Int32));
 			Columns.Add(FK_COMMANDGROUP_D_ONTIMEOUT_FIELD, typeof(System.Int32));
 			Columns.Add(FK_COMMANDGROUP_D_ONSTARTUP_FIELD, typeof(System.Int32));
+			Columns.Add(FK_EFFECTTYPE_SELECTED_WITHCHANGE_FIELD, typeof(System.Int32));
+			Columns.Add(FK_EFFECTTYPE_SELECTED_NOCHANGE_FIELD, typeof(System.Int32));
+			Columns.Add(FK_EFFECTTYPE_HIGHLIGHTED_FIELD, typeof(System.Int32));
 			Columns.Add(FK_BUTTON_FIELD, typeof(System.Int32));
 			Columns.Add(FK_CRITERIA_ORBITER_FIELD, typeof(System.Int32));
 			Column = Columns.Add(DONTRESETSELECTEDSTATE_FIELD, typeof(System.Int16));
@@ -155,6 +167,9 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_ONUNLOAD_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_ONTIMEOUT_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_ONSTARTUP_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(FK_EFFECTTYPE_SELECTED_WITHCHANGE_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(FK_EFFECTTYPE_SELECTED_NOCHANGE_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(FK_EFFECTTYPE_HIGHLIGHTED_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_BUTTON_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_CRITERIA_ORBITER_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DONTRESETSELECTEDSTATE_PARM, OdbcType.SmallInt,2));
@@ -176,6 +191,9 @@ namespace HAData.DataAccess {
 			Params[FK_COMMANDGROUP_D_ONUNLOAD_PARM].SourceColumn = DesignObjVariationData.FK_COMMANDGROUP_D_ONUNLOAD_FIELD;
 			Params[FK_COMMANDGROUP_D_ONTIMEOUT_PARM].SourceColumn = DesignObjVariationData.FK_COMMANDGROUP_D_ONTIMEOUT_FIELD;
 			Params[FK_COMMANDGROUP_D_ONSTARTUP_PARM].SourceColumn = DesignObjVariationData.FK_COMMANDGROUP_D_ONSTARTUP_FIELD;
+			Params[FK_EFFECTTYPE_SELECTED_WITHCHANGE_PARM].SourceColumn = DesignObjVariationData.FK_EFFECTTYPE_SELECTED_WITHCHANGE_FIELD;
+			Params[FK_EFFECTTYPE_SELECTED_NOCHANGE_PARM].SourceColumn = DesignObjVariationData.FK_EFFECTTYPE_SELECTED_NOCHANGE_FIELD;
+			Params[FK_EFFECTTYPE_HIGHLIGHTED_PARM].SourceColumn = DesignObjVariationData.FK_EFFECTTYPE_HIGHLIGHTED_FIELD;
 			Params[FK_BUTTON_PARM].SourceColumn = DesignObjVariationData.FK_BUTTON_FIELD;
 			Params[FK_CRITERIA_ORBITER_PARM].SourceColumn = DesignObjVariationData.FK_CRITERIA_ORBITER_FIELD;
 			Params[DONTRESETSELECTEDSTATE_PARM].SourceColumn = DesignObjVariationData.DONTRESETSELECTEDSTATE_FIELD;
@@ -227,7 +245,12 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", Conn);
+				LoadCommand = new OdbcCommand(
+					"SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate," + 
+					"FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout," +
+					"FK_CommandGroup_D_OnStartup,FK_EffectType_Selected_WithChange, FK_EffectType_Selected_NoChange," + 
+					"FK_EffectType_Highlighted, FK_Button,FK_Criteria_Orbiter,DontResetSelectedState," + 
+					"FK_StabilityStatus FROM DesignObjVariation", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_DESIGNOBJVARIATION_PARM, OdbcType.Int,4));
@@ -271,7 +294,10 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DesignObjVariation, FK_DesignObj, FK_UI, FK_DesignObj_Goto, FK_CommandGroup_D_OnActivate, FK_CommandGroup_D_OnLoad, FK_CommandGroup_D_OnUnload, FK_CommandGroup_D_OnTimeout, FK_CommandGroup_D_OnStartup, FK_Button, FK_Criteria_Orbiter, DontResetSelectedState, FK_StabilityStatus FROM DesignObjVariation WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DesignObjVariation, FK_DesignObj, FK_UI, FK_DesignObj_Goto, FK_CommandGroup_D_OnActivate, " +
+				"FK_CommandGroup_D_OnLoad, FK_CommandGroup_D_OnUnload, FK_CommandGroup_D_OnTimeout, FK_CommandGroup_D_OnStartup, " +
+				"FK_EffectType_Selected_WithChange, FK_EffectType_Selected_NoChange, FK_EffectType_Highlighted, " + 
+				"FK_Button, FK_Criteria_Orbiter, DontResetSelectedState, FK_StabilityStatus FROM DesignObjVariation WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -700,6 +726,9 @@ namespace HAData.DataAccess {
 				return mds.tCommandGroup_D[Convert.ToInt32(dr[7])];
 			}
 		}
+
+
+
 		public System.Int32 fFK_CommandGroup_D_OnStartup
 		{
 			get
@@ -730,7 +759,10 @@ namespace HAData.DataAccess {
 				return mds.tCommandGroup_D[Convert.ToInt32(dr[8])];
 			}
 		}
-		public System.Int32 fFK_Button
+
+
+		//FK_EffectType_Selected_WithChange
+		public System.Int32 fFK_EffectType_Selected_WithChange
 		{
 			get
 			{
@@ -741,26 +773,28 @@ namespace HAData.DataAccess {
 				dr[9]=value;
 			}
 		}
-		public bool fFK_ButtonIsNull
+		public bool fFK_EffectType_Selected_WithChangeIsNull
 		{
 			get
 			{
 				return dr[9]==DBNull.Value;
 			}
 		}
-		public void fFK_ButtonSetNull()
+		public void fFK_EffectType_Selected_WithChangeSetNull()
 		{
 			dr[9]=DBNull.Value;
 		}
-		public ButtonDataRow fFK_Button_DataRow
+		public CommandGroup_DDataRow fFK_EffectType_Selected_WithChange_DataRow
 		{
 			get
 			{
 				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tButton[Convert.ToInt32(dr[9])];
+				return mds.tCommandGroup_D[Convert.ToInt32(dr[9])];
 			}
 		}
-		public System.Int32 fFK_Criteria_Orbiter
+
+		//FK_EffectType_Selected_NoChange
+		public System.Int32 fFK_EffectType_Selected_NoChange
 		{
 			get
 			{
@@ -771,29 +805,60 @@ namespace HAData.DataAccess {
 				dr[10]=value;
 			}
 		}
-		public bool fFK_Criteria_OrbiterIsNull
+		public bool fFK_EffectType_Selected_NoChangeIsNull
 		{
 			get
 			{
 				return dr[10]==DBNull.Value;
 			}
 		}
-		public void fFK_Criteria_OrbiterSetNull()
+		public void fFK_EffectType_Selected_NoChangeSetNull()
 		{
 			dr[10]=DBNull.Value;
 		}
-		public System.Int16 fDontResetSelectedState
+		public CommandGroup_DDataRow fFK_EffectType_Selected_NoChange_DataRow
 		{
 			get
 			{
-				return Convert.ToInt16(dr[11]);
+				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
+				return mds.tCommandGroup_D[Convert.ToInt32(dr[10])];
+			}
+		}
+
+		//FK_EffectType_Highlighted
+		public System.Int32 fFK_EffectType_Highlighted
+		{
+			get
+			{
+				return Convert.ToInt32(dr[11]);
 			}
 			set
 			{
 				dr[11]=value;
 			}
 		}
-		public System.Int32 fFK_StabilityStatus
+		public bool fFK_EffectType_HighlightedIsNull
+		{
+			get
+			{
+				return dr[11]==DBNull.Value;
+			}
+		}
+		public void fFK_EffectType_HighlightedSetNull()
+		{
+			dr[11]=DBNull.Value;
+		}
+		public CommandGroup_DDataRow fFK_EffectType_Highlighted_DataRow
+		{
+			get
+			{
+				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
+				return mds.tCommandGroup_D[Convert.ToInt32(dr[11])];
+			}
+		}
+
+
+		public System.Int32 fFK_Button
 		{
 			get
 			{
@@ -802,6 +867,75 @@ namespace HAData.DataAccess {
 			set
 			{
 				dr[12]=value;
+			}
+		}
+		public bool fFK_ButtonIsNull
+		{
+			get
+			{
+				return dr[12]==DBNull.Value;
+			}
+		}
+		public void fFK_ButtonSetNull()
+		{
+			dr[12]=DBNull.Value;
+		}
+		public ButtonDataRow fFK_Button_DataRow
+		{
+			get
+			{
+				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
+				return mds.tButton[Convert.ToInt32(dr[12])];
+			}
+		}
+
+
+
+		public System.Int32 fFK_Criteria_Orbiter
+		{
+			get
+			{
+				return Convert.ToInt32(dr[13]);
+			}
+			set
+			{
+				dr[13]=value;
+			}
+		}
+		public bool fFK_Criteria_OrbiterIsNull
+		{
+			get
+			{
+				return dr[13]==DBNull.Value;
+			}
+		}
+		public void fFK_Criteria_OrbiterSetNull()
+		{
+			dr[13]=DBNull.Value;
+		}
+
+
+
+		public System.Int16 fDontResetSelectedState
+		{
+			get
+			{
+				return Convert.ToInt16(dr[14]);
+			}
+			set
+			{
+				dr[14]=value;
+			}
+		}
+		public System.Int32 fFK_StabilityStatus
+		{
+			get
+			{
+				return Convert.ToInt32(dr[14]);
+			}
+			set
+			{
+				dr[14]=value;
 			}
 		}
 	} // public class DesignObjVariationDataRow
@@ -1071,7 +1205,9 @@ namespace HAData.DataAccess {
 					return dr[8]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_Button
+
+		//FK_EffectType_Selected_WithChange
+		public System.Int32 fFK_EffectType_Selected_WithChange
 		{
 			get
 			{
@@ -1081,7 +1217,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[9]);
 			}
 		}
-		public bool fFK_ButtonIsNull
+		public bool fFK_EffectType_Selected_WithChangeIsNull
 		{
 			get
 			{
@@ -1091,7 +1227,9 @@ namespace HAData.DataAccess {
 					return dr[9]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_Criteria_Orbiter
+
+		//FK_EffectType_Selected_NoChange
+		public System.Int32 fFK_EffectType_Selected_NoChange
 		{
 			get
 			{
@@ -1101,7 +1239,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[10]);
 			}
 		}
-		public bool fFK_Criteria_OrbiterIsNull
+		public bool fFK_EffectType_Selected_NoChangeIsNull
 		{
 			get
 			{
@@ -1111,17 +1249,30 @@ namespace HAData.DataAccess {
 					return dr[10]==DBNull.Value;
 			}
 		}
-		public System.Int16 fDontResetSelectedState
+
+		//FK_EffectType_Highlighted
+		public System.Int32 fFK_EffectType_Highlighted
 		{
 			get
 			{
 				if( bCache )
-					return Convert.ToInt16(((object[]) al[iRecord])[11]);
+					return Convert.ToInt32(((object[]) al[iRecord])[11]);
 				else
-					return Convert.ToInt16(dr[11]);
+					return Convert.ToInt32(dr[11]);
 			}
 		}
-		public System.Int32 fFK_StabilityStatus
+		public bool fFK_EffectType_HighlightedIsNull
+		{
+			get
+			{
+				if( bCache )
+					return ((object[]) al[iRecord])[11]==DBNull.Value;
+				else
+					return dr[11]==DBNull.Value;
+			}
+		}
+
+		public System.Int32 fFK_Button
 		{
 			get
 			{
@@ -1129,6 +1280,56 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(((object[]) al[iRecord])[12]);
 				else
 					return Convert.ToInt32(dr[12]);
+			}
+		}
+		public bool fFK_ButtonIsNull
+		{
+			get
+			{
+				if( bCache )
+					return ((object[]) al[iRecord])[12]==DBNull.Value;
+				else
+					return dr[12]==DBNull.Value;
+			}
+		}
+		public System.Int32 fFK_Criteria_Orbiter
+		{
+			get
+			{
+				if( bCache )
+					return Convert.ToInt32(((object[]) al[iRecord])[13]);
+				else
+					return Convert.ToInt32(dr[13]);
+			}
+		}
+		public bool fFK_Criteria_OrbiterIsNull
+		{
+			get
+			{
+				if( bCache )
+					return ((object[]) al[iRecord])[13]==DBNull.Value;
+				else
+					return dr[13]==DBNull.Value;
+			}
+		}
+		public System.Int16 fDontResetSelectedState
+		{
+			get
+			{
+				if( bCache )
+					return Convert.ToInt16(((object[]) al[iRecord])[14]);
+				else
+					return Convert.ToInt16(dr[14]);
+			}
+		}
+		public System.Int32 fFK_StabilityStatus
+		{
+			get
+			{
+				if( bCache )
+					return Convert.ToInt32(((object[]) al[iRecord])[14]);
+				else
+					return Convert.ToInt32(dr[14]);
 			}
 		}
 	} // public class DesignObjVariationDataReader
@@ -1161,7 +1362,11 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", conn);
+			OdbcCommand LoadCommand = new OdbcCommand(
+				"SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,"+
+				"FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup," +
+				"FK_EffectType_Selected_WithChange, FK_EffectType_Selected_NoChange, FK_EffectType_Highlighted, " + 
+				"FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1246,32 +1451,58 @@ namespace HAData.DataAccess {
 				return Columns[8];
 			}
 		}
-		public DataColumn cFK_Button
+
+		public DataColumn cFK_EffectType_Selected_WithChange
 		{
 			get
 			{
 				return Columns[9];
 			}
 		}
-		public DataColumn cFK_Criteria_Orbiter
+
+		public DataColumn cFK_EffectType_Selected_NoChange
 		{
 			get
 			{
 				return Columns[10];
 			}
 		}
-		public DataColumn cDontResetSelectedState
+
+		public DataColumn cFK_EffectType_Highlighted
 		{
 			get
 			{
 				return Columns[11];
 			}
 		}
-		public DataColumn cFK_StabilityStatus
+
+
+		public DataColumn cFK_Button
 		{
 			get
 			{
 				return Columns[12];
+			}
+		}
+		public DataColumn cFK_Criteria_Orbiter
+		{
+			get
+			{
+				return Columns[13];
+			}
+		}
+		public DataColumn cDontResetSelectedState
+		{
+			get
+			{
+				return Columns[14];
+			}
+		}
+		public DataColumn cFK_StabilityStatus
+		{
+			get
+			{
+				return Columns[15];
 			}
 		}
 	}
