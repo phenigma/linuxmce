@@ -4,6 +4,8 @@
 
 DEVICEDATA_PortChannel_Number=12
 DEVICEDATA_Device=1
+DEVICEDATA_Width=148
+DEVICEDATA_Height=149
 
 PipeDevOffset=30
 PipeCount=16
@@ -37,7 +39,7 @@ SQL="
 	WHERE
 		FK_Device=$PK_Device
 		AND
-		FK_DeviceData IN ($DEVICEDATA_PortChannel_Number, $DEVICEDATA_Device)
+		FK_DeviceData IN ($DEVICEDATA_PortChannel_Number, $DEVICEDATA_Device, $DEVICEDATA_Width, $DEVICEDATA_Height)
 "
 R=$(RunSQL "$SQL")
 
@@ -47,6 +49,8 @@ for DeviceData in $R; do
 	case "$FK_DeviceData" in
 		"$DEVICEDATA_Device") Dev_IEEE1394="$IK_DeviceData" ;;
 		"$DEVICEDATA_PortChannel_Number") Dev_Pipe="$IK_DeviceData" ;;
+		"$DEVICEDATA_Width") Width="$IK_DeviceData" ;;
+		"$DEVICEDATA_Height") Height="$IK_DeviceData" ;;
 	esac
 done
 
@@ -55,4 +59,5 @@ Dev_V4L=$((Dev_Pipe * 2 + PipeDevOffset))
 modprobe video1394
 modprobe raw1394
 modprobe vloopback pipes=$PipeCount dev_offset=$PipeDevOffset
-dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L" --pipe
+sleep 0.5
+dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L" --pipe "--width=$Width" "--height=$Height"
