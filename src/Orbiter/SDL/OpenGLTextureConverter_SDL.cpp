@@ -12,7 +12,7 @@
 
 #include "OpenGLTextureConverter_SDL.h"
 #include "SDLGraphic.h"
-#include "SDL/PlutoSDLDefs.h"
+#include "PlutoSDLDefs.h"
 
 #include "../OpenGL/math3dutils.h"
 

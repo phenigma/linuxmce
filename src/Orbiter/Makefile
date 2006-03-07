@@ -23,9 +23,9 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lGL
 
 MYNAME = Orbiter
 VERSION = 2.0.0
@@ -37,8 +37,9 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DxPHONEKEYS -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
+CPPFLAGS += -DENABLE_OPENGL
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst
+XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst 
 
 CFLAGS += $(WX_CFLAGS)
 CXXFLAGS += $(WX_CXXFLAGS)
@@ -64,7 +65,23 @@ sources += \
 	ScreenHistory.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
-	SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
+	SDL/OrbiterSDL.cpp \
+	SDL/StartOrbiterSDL.cpp \
+	SDL/OpenGLTextureConverter_SDL.cpp \
+	OpenGL/orbitergl3dengine.cpp \
+	OpenGL/math3dutils.cpp \
+	OpenGL/OpenGLTextureConverter.cpp \
+	OpenGL/GL2DWidgets/DrawingWidgetsEngine.cpp \
+	OpenGL/GL2DWidgets/basicwindow.cpp \
+	OpenGL/GL2DWidgets/basewidget.cpp \
+	OpenGL/GL2DWidgets/bezierwindow.cpp \
+	OpenGL/GL2DEffects/gl2deffectslidefromleft.cpp \
+	OpenGL/GL2DEffects/gl2deffecttransit.cpp \
+	OpenGL/GL2DEffects/gl2deffectfactory.cpp \
+	OpenGL/GL2DEffects/gl2deffectbeziertranzit.cpp \
+	OpenGL/GL2DEffects/gl2deffectfadesfromtop.cpp \
+	OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.cpp \
+	OpenGL/GL2DEffects/gl2deffect.cpp \
 	Linux/OSDScreenHandler.cpp \
 	WizardLogic.cpp \
 	../CreateDevice/UserUtils.cpp \
