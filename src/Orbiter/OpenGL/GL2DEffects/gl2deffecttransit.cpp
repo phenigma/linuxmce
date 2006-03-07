@@ -39,9 +39,6 @@ GL2DEffectTransit::GL2DEffectTransit (GL2DEffectFactory * EffectsEngine, int Tim
 
 
 GL2DEffectTransit::~GL2DEffectTransit() {
-	glDeleteTextures(1, &IDBack);
-	glDeleteTextures(1, &IDFront);
-
 	Effects->Widgets->DeleteWidget(Background);
 	Effects->Widgets->DeleteWidget(Destination);
 	Effects->Widgets->DeleteWidget(Button);	
@@ -53,15 +50,12 @@ GL2DEffectTransit::~GL2DEffectTransit() {
  * @param DestFrame 
  * @param ButtonSourceSize 
  */
-void GL2DEffectTransit::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* DestFrame, PlutoRectangle ButtonSourceSize)
+void GL2DEffectTransit::Configure(PlutoRectangle* EffectSourceSize)
 {
-	BackSrf.reset(SourceFrame);
-	FrontSrf.reset(DestFrame);
-
-	ButtonSize.Left = float(ButtonSourceSize.X);
-	ButtonSize.Top = float(ButtonSourceSize.Y-ButtonSourceSize.Height);
-	ButtonSize.Width = float(ButtonSourceSize.Width);
-	ButtonSize.Height = float(ButtonSourceSize.Height);
+	ButtonSize.Left = float(EffectSourceSize->X);
+	ButtonSize.Top = float(EffectSourceSize->Y-EffectSourceSize->Height);
+	ButtonSize.Width = float(EffectSourceSize->Width);
+	ButtonSize.Height = float(EffectSourceSize->Height);
 	
 	Configured = false;
 }
@@ -73,17 +67,10 @@ void GL2DEffectTransit::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* DestF
 void GL2DEffectTransit::Paint(int Now)
 {
 	if(!Configured) {
-		//Generate textures for OpenGL
-		IDBack = OpenGLTextureConverter::GenerateTexture(BackSrf.get());
-		IDFront = OpenGLTextureConverter::GenerateTexture(FrontSrf.get());
-
-		BackSrf.release();
-		FrontSrf.release();
-
 		//Set up the textures for triangles
-		Background->SetTexture(IDBack);
-		Button->SetTexture(IDBack);
-		Destination->SetTexture(IDFront);
+		Background->SetTexture(Effects->Widgets->OldScreen);
+		Button->SetTexture(Effects->Widgets->OldScreen);
+		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);

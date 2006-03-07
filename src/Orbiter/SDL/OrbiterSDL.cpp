@@ -65,252 +65,435 @@ void *HackThread2(void *p)
     return NULL;
 }
 
+#include "../OpenGL/math3dutils.h"
+#include "../OpenGL/GL2DWidgets/basicwindow.h"
+#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
+
+#include "../OpenGL/orbitergl3dengine.h"
+
+#include "../OpenGL/GL2DEffects/gl2deffecttransit.h"
+#include "../OpenGL/GL2DEffects/gl2deffectbeziertranzit.h"
+#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
+#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
+#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
+
+
+bool PaintDesktopGL;
+
+void *Orbiter_OpenGLThread(void *p)
+{
+	OrbiterSDL * pOrbiterSDL = (OrbiterSDL *) p;
+	pOrbiterSDL->m_Desktop = new OrbiterGL3D(pOrbiterSDL);
+	
+	PaintDesktopGL = false;
+
+	PLUTO_SAFETY_LOCK(cm, *(pOrbiterSDL->m_GLThreadMutex));
+	while(!pOrbiterSDL->m_bQuit)
+	{
+		//nothing to process. let's sleep...
+		cm.CondWait(); // This will unlock the mutex and lock it on awakening
+
+		if(pOrbiterSDL->m_bQuit)
+			return NULL;
+
+		//g_pPlutoLogger->Write(LV_STATUS,"wake up me");
+		if (!pOrbiterSDL->m_Desktop->EffectBuilder->HasEffects()) {
+			if (!PaintDesktopGL) {
+				PaintDesktopGL = true;
+				pOrbiterSDL->m_Desktop->Paint();
+			}
+			else
+			{
+				cm.Release();
+				Sleep(10);
+				cm.Relock();
+			}
+		}
+		else {
+			PaintDesktopGL = false;
+			
+			pOrbiterSDL->m_Desktop->Paint();
+		}
+	}
+	
+	delete pOrbiterSDL->m_Desktop;
+	cout<<"Quits from OpenGL"<<endl;
+	
+	return NULL;
+}	
+
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory,
     bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen/*=false*/,
-    pluto_pthread_mutex_t *pExternalScreenMutex/*=NULL*/)
+    pluto_pthread_mutex_t *pExternalScreenMutex/*=NULL*/, 
+	bool UseOpenGL /*=false*/)
  : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth,
     nImageHeight, pExternalScreenMutex)
 {
-    m_pScreenImage = NULL;
-    m_bFullScreen=bFullScreen;
+	EnableOpenGL = UseOpenGL;
+   	m_pScreenImage = NULL;
+   	m_bFullScreen=bFullScreen;
+	if(EnableOpenGL)
+	{
+		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
+		
+		pthread_cond_init(&m_GLThreadCond, NULL);
+		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
+		m_Desktop = NULL;
+		
+	}
 }
-//----------------------------------------------------------------------------------------------------
-/*virtual*/ bool OrbiterSDL::GetConfig()
-{
-    if(!Orbiter::GetConfig())
-        return false;
 
-    //initializing the engine...
-    Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
-
-    if(m_bFullScreen)
-        uSDLInitFlags |= SDL_FULLSCREEN;
-
-    if (SDL_Init(uSDLInitFlags) == -1)
-    {
-#ifndef WINCE
-                    cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
-#else
-                    printf("Failed to initialize SDL %s\n", SDL_GetError());
-#endif //WINCE
-
-#ifndef WIN32 //linux
-        string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
-        g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and ratpoison: %s", sCmd.c_str());
-        system(sCmd.c_str());
-#endif //linux
-
-        exit(1);
-    }
-
-    SDL_WM_SetCaption("OrbiterSDL", "OrbiterSDL");
-
-    atexit(SDL_Quit);
-    g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
-
-#ifdef USE_ONLY_SCREEN_SURFACE
-    Uint32 uVideoModeFlags = SDL_SWSURFACE;
-
-#if !defined(WIN32) || defined(WINCE)
-    if(m_bFullScreen)
-        uVideoModeFlags |= SDL_FULLSCREEN;
-#endif
-
-    g_bResettingVideoMode=true;
-    pthread_t hackthread;
-    pthread_create(&hackthread, NULL, HackThread2, (void*)this);
-
-    if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", m_iImageWidth, m_iImageHeight, SDL_GetError());
-        exit(1);
-    }
-    g_bResettingVideoMode=false;
-#endif
-
-    g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);
-
-#ifdef USE_ONLY_SCREEN_SURFACE
-    m_pScreenImage = Screen;
-#else
-    m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
-    if (m_pScreenImage == NULL)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
-    }
-#endif
-    m_bWeCanRepeat = true;
-
-    g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
-    return true;
-}
-//----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
-    KillMaintThread(); // We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor
-g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
+	KillMaintThread(); 
+	// We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor
+	g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 
-#ifndef USE_ONLY_SCREEN_SURFACE
-    SDL_FreeSurface(m_pScreenImage);
-#endif
+	#ifndef USE_ONLY_SCREEN_SURFACE
+		SDL_FreeSurface(m_pScreenImage);
+	#endif
 
-    m_pScreenImage = NULL;
+	m_pScreenImage = NULL;
 
-g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
+	g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
+
+	if(EnableOpenGL)
+	{
+		pthread_cond_broadcast(&m_GLThreadCond);
+		pthread_join(SDLGLthread, NULL);
+		delete m_GLThreadMutex;
+	}
 }
-//-----------------------------------------------------------------------------------------------------
+
+/*virtual*/ bool OrbiterSDL::GetConfig()
+{
+	if(!Orbiter::GetConfig())
+		return false;
+	
+	if (!EnableOpenGL)
+	{
+		//initializing the engine...
+		Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
+	
+		if(m_bFullScreen)
+			uSDLInitFlags |= SDL_FULLSCREEN;
+	
+		if (SDL_Init(uSDLInitFlags) == -1)
+		{
+		#ifndef WINCE
+				cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
+		#else
+				printf("Failed to initialize SDL %s\n", SDL_GetError());
+		#endif //WINCE
+	
+		#ifndef WIN32 //linux
+			string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
+			g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and ratpoison: %s", sCmd.c_str());
+			system(sCmd.c_str());
+		#endif //linux
+		
+			exit(1);
+		}
+	
+		SDL_WM_SetCaption("OrbiterSDL", "OrbiterSDL");
+	
+		atexit(SDL_Quit);
+		g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
+	
+	#ifdef USE_ONLY_SCREEN_SURFACE
+		Uint32 uVideoModeFlags = SDL_SWSURFACE;
+	
+	#if !defined(WIN32) || defined(WINCE)
+		if(m_bFullScreen)
+			uVideoModeFlags |= SDL_FULLSCREEN;
+	#endif
+	
+		g_bResettingVideoMode=true;
+		pthread_t hackthread;
+		pthread_create(&hackthread, NULL, HackThread2, (void*)this);
+	
+		if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", m_iImageWidth, m_iImageHeight, SDL_GetError());
+			exit(1);
+		}
+		g_bResettingVideoMode=false;
+	#endif
+	
+		g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);
+	
+	#ifdef USE_ONLY_SCREEN_SURFACE
+		m_pScreenImage = Screen;
+	#else
+		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
+		if (m_pScreenImage == NULL)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
+		}
+	#endif
+		m_bWeCanRepeat = true;
+	
+		g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
+	} //if (!EnableOpenGL)
+	else
+	{
+		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
+	
+		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
+		if (m_pScreenImage == NULL) {
+			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
+		}
+	}
+	return true;
+}
+//----------------------------------------------------------------------------------------------------
+/**
+ * 
+ */
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
-#endif
+	#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
+	#endif
+	
+	if (!EnableOpenGL)
+	{
+		if (m_pScreenHistory_Current)
+		{
+			PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+			SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+		}
+	
+		Orbiter::RenderScreen();
+		DisplayImageOnScreen(m_pScreenImage);
+	}
+	else //EnableOpenGL
+	{
+		PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+		PLUTO_SAFETY_LOCK(glm, *m_GLThreadMutex);
+		PlutoRectangle rectLastSelected(0, 0, 0, 0);
+	
+		//saving the surface before rendering the screen
+		SDL_Surface *pBeforeRender = SDL_CreateRGBSurface(SDL_HWSURFACE, m_iImageWidth, m_iImageHeight, 32, 
+			rmask, gmask, bmask, amask);
+			
+		SDL_Rect ImageSize;
+		ImageSize.x = 0;
+		ImageSize.y = 0;
+		ImageSize.w = m_iImageWidth;
+		ImageSize.h = m_iImageHeight;
+		SDL_BlitSurface(m_pScreenImage, NULL, pBeforeRender, NULL);
+	
+		m_spBeforeGraphic.reset(new SDLGraphic(pBeforeRender));
+		if (m_pScreenHistory_Current)
+			SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+	
+		//screen rendering
+		Orbiter::RenderScreen();
+	
+		//the surface after the screen was rendered
+		if(m_spAfterGraphic.get())
+			m_spAfterGraphic->Initialize();
+	
+		m_spAfterGraphic.reset(new SDLGraphic(m_pScreenImage));
+		
+		/*if(m_pObj_SelectedLastScreen)
+		{
+			rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
+			rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");*/
+			rectLastSelected.X = 0;
+			rectLastSelected.Y = m_iImageHeight;
+			rectLastSelected.Width = 80;
+			rectLastSelected.Height = 80;
+		//              }
+	
+		m_pObj_SelectedLastScreen = NULL;
+		
+		g_pPlutoLogger->Write(LV_CRITICAL, "Last selected object rectangle : x %d, y %d, w %d, h %d",
+			rectLastSelected.X, rectLastSelected.Y, rectLastSelected.Width, rectLastSelected.Height);
+	
+		if(m_Desktop && !m_Desktop->EffectBuilder->HasEffects())
+		{
+			//cout<<"One effect was created!";
 
-    if (m_pScreenHistory_Current)
-    {
-        PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-        SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
-    }
-
-    Orbiter::RenderScreen();
-    DisplayImageOnScreen(m_pScreenImage);
+			
+			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+			//SDL_SaveBMP(m_pScreenImage, "test2.bmp");
+			GL2DEffect* Transit = (GL2DEffect*) m_Desktop->EffectBuilder->
+				CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 600);
+			
+			//cout <<"Effect pending"<<endl;
+	
+			//GL2DEffectFadesFromUnderneath* Transit = (GL2DEffectFadesFromUnderneath*) m_Desktop->EffectBuilder->
+			//	CreateEffect(GL2D_EFFECT_FADES_FROM_UNDERNEATH, 900);
+	
+			Transit->Configure(&rectLastSelected);
+		} 
+	
+		glm.Release();
+		//DisplayImageOnScreen(m_pScreenImage);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
 {
-    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+	if(!EnableOpenGL)
+	{
+		PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+	
+	#ifndef USE_ONLY_SCREEN_SURFACE
+		SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
+	#endif
+	
+		SDL_UpdateRect(Screen, 0, 0, 0, 0);
+	}
+	else
+		WakeupFromCondWait();
 
-#ifndef USE_ONLY_SCREEN_SURFACE
-    SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
-#endif
-
-    SDL_UpdateRect(Screen, 0, 0, 0, 0);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
 {
-    //PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     Orbiter::RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
-    SDL_Rect TextLocation;
-    TextLocation.x = point.X + Text->m_rPosition.X;
-    TextLocation.y = point.Y + Text->m_rPosition.Y;
-    TextLocation.w = Text->m_rPosition.Width;
-    TextLocation.h = Text->m_rPosition.Height;
-
-#ifdef WIN32
-#ifdef WINCE
-	string BasePath = "C:\\Windows\\Fonts";
-#else
-	char pWindowsDirector[MAX_PATH];
-	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
-    string BasePath = string(pWindowsDirector) + "\\Fonts";
-#endif
-
-#else
-    string BasePath="/usr/share/fonts/truetype/msttcorefonts";
-#endif //win32
-
-	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
-		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
+	if (!EnableOpenGL)
+	{
+		SDL_Rect TextLocation;
+		TextLocation.x = point.X + Text->m_rPosition.X;
+		TextLocation.y = point.Y + Text->m_rPosition.Y;
+		TextLocation.w = Text->m_rPosition.Width;
+		TextLocation.h = Text->m_rPosition.Height;
+	
+	#ifdef WIN32
+	#ifdef WINCE
+		string BasePath = "C:\\Windows\\Fonts";
+	#else
+		char pWindowsDirector[MAX_PATH];
+		GetWindowsDirectory(pWindowsDirector, MAX_PATH);
+		string BasePath = string(pWindowsDirector) + "\\Fonts";
+	#endif
+	
+	#else
+		string BasePath="/usr/share/fonts/truetype/msttcorefonts";
+	#endif //win32
+	
+		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
+			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	//clipping
-	if(X + Width >= m_iImageWidth)
-		Width = m_iImageWidth - X - 1;
-
-	if(Y + Height >= m_iImageHeight)
-		Height = m_iImageHeight - Y - 1;
-
-    sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
+	if (!EnableOpenGL)
+	{
+		//clipping
+		if(X + Width >= m_iImageWidth)
+			Width = m_iImageWidth - X - 1;
+	
+		if(Y + Height >= m_iImageHeight)
+			Height = m_iImageHeight - Y - 1;
+	
+		sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity /*= 100*/)
 {
-	//clipping
-	if(x + width >= m_iImageWidth)
-		width = m_iImageWidth - x - 1;
-
-	if(y + height >= m_iImageHeight)
-		height = m_iImageHeight - y - 1;
-
-    SDL_Rect Rectangle;
-    Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
-
-    SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
+	if (!EnableOpenGL)
+	{
+		//clipping
+		if(x + width >= m_iImageWidth)
+			width = m_iImageWidth - x - 1;
+	
+		if(y + height >= m_iImageHeight)
+			height = m_iImageHeight - y - 1;
+	
+		SDL_Rect Rectangle;
+		Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
+	
+		SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal,
     bool bDisableAspectRatio, PlutoPoint point)
 {
-    if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic)
-        return;//nothing to render or not an sdl graphic
 
-    if(pPlutoGraphic->IsEmpty())
-        return;
+	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic)
+		return;//nothing to render or not an sdl graphic
 
-    SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
-    SDL_Surface *pSDL_Surface = pSDLGraphic->m_pSDL_Surface;
+	if(pPlutoGraphic->IsEmpty())
+		return;
 
-    //render the sdl surface
-    SDL_Rect Destination;
-    Destination.x = point.X + rectTotal.X;
-    Destination.y = point.Y + rectTotal.Y;
-    Destination.w = rectTotal.Width;
-    Destination.h = rectTotal.Height;
+	SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
+	SDL_Surface *pSDL_Surface = pSDLGraphic->m_pSDL_Surface;
 
-    if(pSDL_Surface->w == 0 || pSDL_Surface->h == 0) //nothing to render
-        return; //malformated image?
-    else
-        if(pSDL_Surface->w != rectTotal.Width || pSDL_Surface->h != rectTotal.Height) //different size. we'll have to stretch the surface
-        {
-            double ZoomX = 1;
-            double ZoomY = 1;
+	//render the sdl surface
+	SDL_Rect Destination;
+	Destination.x = point.X + rectTotal.X;
+	Destination.y = point.Y + rectTotal.Y;
+	Destination.w = rectTotal.Width;
+	Destination.h = rectTotal.Height;
 
-            SDL_Surface *rotozoom_picture;
+	if(pSDL_Surface->w == 0 || pSDL_Surface->h == 0) //nothing to render
+		return; //malformated image?
+	else
+		if(pSDL_Surface->w != rectTotal.Width || pSDL_Surface->h != rectTotal.Height) //different size. we'll have to stretch the surface
+		{
+			double ZoomX = 1;
+			double ZoomY = 1;
 
-            if(bDisableAspectRatio) //no aspect ratio kept
-            {
-                ZoomX = rectTotal.Width / double(pSDL_Surface->w);
-                ZoomY = rectTotal.Height / double(pSDL_Surface->h);
-            }
-            else //we'll have to keep the aspect
-            {
-                ZoomX = ZoomY = min(rectTotal.Width / double(pSDL_Surface->w),
-                    rectTotal.Height / double(pSDL_Surface->h));
-            }
+			SDL_Surface *rotozoom_picture;
 
-            rotozoom_picture = zoomSurface(pSDL_Surface, ZoomX, ZoomY, SMOOTHING_ON);
+			if(bDisableAspectRatio) //no aspect ratio kept
+			{
+				ZoomX = rectTotal.Width / double(pSDL_Surface->w);
+				ZoomY = rectTotal.Height / double(pSDL_Surface->h);
+			}
+			else //we'll have to keep the aspect
+			{
+				ZoomX = ZoomY = min(rectTotal.Width / double(pSDL_Surface->w),
+					rectTotal.Height / double(pSDL_Surface->h));
+			}
 
-            SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
-            SDL_FreeSurface(rotozoom_picture);
-        }
-        else //same size ... just blit the surface
-            SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
+			rotozoom_picture = zoomSurface(pSDL_Surface, ZoomX, ZoomY, SMOOTHING_ON);
+
+			SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
+			SDL_FreeSurface(rotozoom_picture);
+		}
+		else //same size ... just blit the surface
+			SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
-    SDL_Rect SourceRect;
-    SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
-    SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
-
-    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-        pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
-
-    SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
-    SDL_SetAlpha(pSDL_Surface, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
-
-    pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
+	if (!EnableOpenGL)
+	{
+		SDL_Rect SourceRect;
+		SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
+		SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
+		
+		SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+			pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
+		
+		SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+		SDL_SetAlpha(pSDL_Surface, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
+		
+		pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
+	}
 }
 
 PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
@@ -323,26 +506,24 @@ PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 		rect.Height = m_iImageHeight - rect.Y - 1;
 
 
-    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-        rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
+	SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
 
-    SDL_Rect SourceRect;
-    SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
-    SourceRect.w = rect.Width; SourceRect.h = rect.Height;
+	SDL_Rect SourceRect;
+	SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
+	SourceRect.w = rect.Width; SourceRect.h = rect.Height;
 
-    SDL_SetAlpha(m_pScreenImage, 0, 0);
-    SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+	SDL_SetAlpha(m_pScreenImage, 0, 0);
+	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 
-    return new SDLGraphic(pSDL_Surface);
+	return new SDLGraphic(pSDL_Surface);
 }
 
-
-//-----------------------------------------------------------------------------------------------------
 void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
     Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 }
-//-----------------------------------------------------------------------------------------------------
+
 void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
     SDL_PixelFormat * PF = m_pScreenImage->format;
@@ -376,11 +557,11 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 
     PlutoRectangle rect(x, y, width, height);
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ void OrbiterSDL::EndPaint()
 {
     //if we are using a buffer surface to blit images and text (Bluetooth_Dongle uses this)
@@ -390,7 +571,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     DisplayImageOnScreen(m_pScreenImage);
 #endif
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ void OrbiterSDL::OnQuit()
 {
     g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
@@ -401,16 +582,15 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     SDL_PushEvent(pEvent);
     delete pEvent;
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ PlutoGraphic *OrbiterSDL::CreateGraphic()
 {
     return new SDLGraphic(this);
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect, PlutoPoint point)
 {
     //clipping the rectangle
-
     PlutoRectangle localrect = rect;
     localrect.X += point.X;
     localrect.Y += point.Y;
@@ -427,10 +607,26 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     if(localrect.Bottom() >= m_Height)
         localrect.Height = m_Height - localrect.Y - 1;
 
-    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
-
 #ifdef USE_ONLY_SCREEN_SURFACE
-    SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
+	if(!EnableOpenGL)
+	{
+	    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+
+		SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
+	}
 #endif
 }
-//-----------------------------------------------------------------------------------------------------
+
+void OrbiterSDL::OnIdle()
+{
+	if(EnableOpenGL)
+	{
+		Sleep(5);
+		WakeupFromCondWait();
+	}
+}
+
+void OrbiterSDL::WakeupFromCondWait()
+{
+	pthread_cond_broadcast(&m_GLThreadCond);
+}

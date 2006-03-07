@@ -83,7 +83,8 @@ enum OrbiterStages
 bool EventLoop(ORBITER* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen, bool &bMustQuit)
+ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
+	int Width,int Height, bool bFullScreen, bool bUseOpenGL, bool &bMustQuit)
 {
     bMustQuit = false;
 
@@ -100,7 +101,8 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		ORBITER::BuildOrbiter(
 			PK_Device, PK_DeviceTemplate, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
-			Width, Height, bFullScreen
+			Width, Height, bFullScreen, 
+			bUseOpenGL
 		); //the builder method
 		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
 	}
@@ -177,9 +179,7 @@ bool EventLoop(ORBITER* pOrbiter)
 	pOrbiter->Run();
 #else
 
-#if defined(ENABLE_OPENGL)
 	int SDL_Event_Pending = 0;
-#endif
 
 	SDL_Event Event;
 
@@ -190,11 +190,7 @@ bool EventLoop(ORBITER* pOrbiter)
     {
 		try
 		{
-#if !defined(ENABLE_OPENGL)
-			SDL_WaitEvent(&Event);
-#else
 			SDL_Event_Pending = SDL_PollEvent(&Event);
-#endif
 		}
 		catch(...) 
 		{
@@ -202,9 +198,7 @@ bool EventLoop(ORBITER* pOrbiter)
 			break;
 		}
 
-#if defined(ENABLE_OPENGL) 
 		if (SDL_Event_Pending)
-#endif
 		{
 			Orbiter::Event orbiterEvent;
 			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
@@ -257,12 +251,10 @@ bool EventLoop(ORBITER* pOrbiter)
 			}
 	#endif
 	} //if (SDL_Event_Pending)
-#if defined(ENABLE_OPENGL) 
 	else
 	{
-		((OrbiterSDLGL*) pOrbiter)->OnIdle();
+		((OrbiterSDL*) pOrbiter)->OnIdle();
 	}
-#endif
 
     }  // while
 
@@ -275,7 +267,7 @@ bool EventLoop(ORBITER* pOrbiter)
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
-					int Width,int Height, bool bFullScreen)
+					int Width,int Height, bool bFullScreen, bool bUseOpenGL)
 {
 	ORBITER *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
@@ -292,7 +284,8 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 					WriteStatusOutput("Stage connect");
 				    g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
                     bool bMustQuit = false;
-				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen, bMustQuit);
+				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, 
+						Width, Height, bFullScreen, bUseOpenGL, bMustQuit);
 
 				    if(pOrbiter != NULL && !bMustQuit)
 				    {

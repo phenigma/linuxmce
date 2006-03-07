@@ -31,9 +31,6 @@ GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (GL2DEffectFactory * EffectsEngin
 
 
 GL2DEffectFadesFromTop::~GL2DEffectFadesFromTop() {
-	glDeleteTextures(1, &IDBack);
-	glDeleteTextures(1, &IDFront);
-
 	Effects->Widgets->DeleteWidget(Background);
 	Effects->Widgets->DeleteWidget(Destination);
 }
@@ -44,13 +41,10 @@ GL2DEffectFadesFromTop::~GL2DEffectFadesFromTop() {
  * @param DestFrame 
  * @param ButtonSourceSize 
  */
-void GL2DEffectFadesFromTop::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* DestFrame)
+void GL2DEffectFadesFromTop::Configure(PlutoRectangle* EffectSourceSize)
 {
-	BackSrf.reset(SourceFrame);
-	FrontSrf.reset(DestFrame);
-
 	ButtonSize.Left = 0;
-	ButtonSize.Top = -FullScreen.Height;
+	ButtonSize.Top = FullScreen.Height;
 	ButtonSize.Width = FullScreen.Width;
 	ButtonSize.Height = FullScreen.Height;
 	
@@ -64,17 +58,10 @@ void GL2DEffectFadesFromTop::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* 
 void GL2DEffectFadesFromTop::Paint(int Now)
 {
 	if(!Configured) {
-		//Generate textures for OpenGL
-		IDBack = OpenGLTextureConverter::GenerateTexture(BackSrf.get());
-		IDFront = OpenGLTextureConverter::GenerateTexture(FrontSrf.get());
-
-		BackSrf.release();
-		FrontSrf.release();
-
 		//Set up the textures for triangles
-		Background->SetTexture(IDBack);
-		Destination->SetTexture(IDFront);
-		
+		Background->SetTexture(Effects->Widgets->OldScreen);
+		Destination->SetTexture(Effects->Widgets->NewScreen);
+
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		

@@ -43,6 +43,7 @@ struct CommandLineParams
 	int Width, Height;
 	bool bLocalMode; 
 	bool bFullScreen;
+	bool bUseOpenGL;
 	string sLocalDirectory;
 	string sNestedDisplay;
 

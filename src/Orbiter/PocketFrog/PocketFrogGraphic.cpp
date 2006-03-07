@@ -152,3 +152,17 @@ PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
 }
 
 //-------------------------------------------------------------------------------------------------------
+PlutoGraphic *PocketFrogGraphic::Clone()
+{
+	DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+
+	Rect srcRect;
+	srcRect.Set(0, 0, Width, Height);
+
+	Surface *pSurface = pDisplayDevice->CreateSurface(Width, Height);
+	auto_ptr<Rasterizer> pDestionationRasterizer(pDisplayDevice->CreateRasterizer(pSurface));
+	pDestionationRasterizer->Blit(0, 0, m_pSurface, &srcRect);
+
+	return new PocketFrogGraphic(pSurface);
+}
+//-------------------------------------------------------------------------------------------------------

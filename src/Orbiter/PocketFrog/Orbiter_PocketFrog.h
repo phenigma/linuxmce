@@ -42,7 +42,7 @@ public:
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
 
 	Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false);
+		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
 	virtual ~Orbiter_PocketFrog();
 
 	//from socket class
@@ -106,7 +106,7 @@ public:
 
 	static void Cleanup();
 	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false);
+		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
 	static Orbiter_PocketFrog *GetInstance();
 
 	static Pixel GetColor16(PlutoColor color);
@@ -131,7 +131,6 @@ protected:
     void DumpLocks();
     string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
 
-#ifdef ENABLE_OPENGL
 	auto_ptr<class OrbiterGL3D> m_spGLDesktop;
 	bool m_bPaintDesktop;
 
@@ -142,7 +141,7 @@ protected:
 	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
 	PlutoRectangle m_rectLastSelected;
 
-#endif
+	bool m_bUseOpenGL;
 };
 
 }

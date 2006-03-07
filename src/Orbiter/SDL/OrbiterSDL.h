@@ -16,8 +16,6 @@ namespace DCE
 
 class OrbiterSDL : public Orbiter
 {
-protected:
-	SDL_Surface * m_pScreenImage;
 
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
@@ -25,7 +23,7 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 public:
 	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
         bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false, 
-        pluto_pthread_mutex_t *pExternalScreenMutex = NULL);
+        pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
 	virtual ~OrbiterSDL();
     virtual bool GetConfig();
 
@@ -58,17 +56,31 @@ public:
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
+	
+	void OnIdle();
 #ifndef WIN32
 	virtual void DoResetRatpoison() {}
 #endif
 
-protected:
+	void WakeupFromCondWait();
 
+public:
+
+	bool EnableOpenGL;
 	// Protected abstract methods
 
+	pthread_cond_t m_GLThreadCond;
+	class OrbiterGL3D *m_Desktop;
+	pluto_pthread_mutex_t* m_GLThreadMutex;
 	// Protected virtual methods
+	SDL_Surface * m_pScreenImage;
 
+	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
+	auto_ptr<PlutoGraphic> m_spAfterGraphic;
+	
 	SDL_Surface * Screen;
+protected:
+	pthread_t SDLGLthread;
 };
 
 }

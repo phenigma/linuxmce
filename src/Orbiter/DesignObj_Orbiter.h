@@ -63,6 +63,7 @@ public:
 	PlutoGraphic(Orbiter *pOrbiter);
 	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
 	virtual ~PlutoGraphic();
+	virtual PlutoGraphic* Clone() = 0; //Must be implemented
 
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented

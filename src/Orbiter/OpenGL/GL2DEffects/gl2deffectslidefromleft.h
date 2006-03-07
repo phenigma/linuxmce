@@ -22,14 +22,8 @@ namespace DCE {
 class GL2DEffectSlideFromLeft : public GL2DEffect
 {
 	TBasicWindow* Background;
-	TBasicWindow* Button;	
 	TBasicWindow* Destination;
 
-	auto_ptr<PlutoGraphic> BackSrf;
-	auto_ptr<PlutoGraphic> FrontSrf;
-	
-	OpenGLTexture IDBack, IDFront;
-	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;
 	
@@ -37,7 +31,7 @@ public:
 	GL2DEffectSlideFromLeft (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
 	virtual ~GL2DEffectSlideFromLeft();
 	
-	void Configure(PlutoGraphic *SourceFrame, PlutoGraphic* DestFrame);
+	void Configure(PlutoRectangle* EffectSourceSize);
 	
 	virtual void Paint(int Now);	
 	

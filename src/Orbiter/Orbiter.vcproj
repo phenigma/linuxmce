@@ -212,9 +212,6 @@
 				RelativePath=".\Win32\OrbiterSDL_Win32.cpp">
 			</File>
 			<File
-				RelativePath=".\Sdl\OrbiterSDLGL.cpp">
-			</File>
-			<File
 				RelativePath=".\Win32\PopupMessage.cpp">
 			</File>
 			<File

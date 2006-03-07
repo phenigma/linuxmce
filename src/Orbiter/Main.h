@@ -14,6 +14,7 @@ struct CommandLineParams
       , Width(800)
       , Height(600)
       , bFullScreen(false)
+	  , bUseOpenGL(false)
       , sLocalDirectory("")
       , sNestedDisplay("")
       , bLocalMode(false)
@@ -26,6 +27,7 @@ struct CommandLineParams
   int Width;
   int Height;
 	bool bFullScreen;
+	bool bUseOpenGL;
   string sLocalDirectory;
   string sNestedDisplay;
   bool bLocalMode;

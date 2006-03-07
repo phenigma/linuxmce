@@ -3,12 +3,6 @@
 #include <GL/gl.h>
 #include "../OpenGLTextureConverter.h"
 
-/**
- * Bezier code - based on NEHE tutorial
- * http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=28
- * 
- */
-
 // Generates A Display List Based On The Data In The Patch
 // And The Number Of Divisions
 GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
@@ -83,26 +77,16 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 }
 
 
-/**
- * Creates a basic window with with default color and settigs
- * @param Left 
- * @param Top 
- * @param Width 
- * @param Height 
- * @param Text 
- * @return 
- */
+
 TBezierWindow::TBezierWindow(int Left, int Top, int Width, int Height, char* Text)
 	: TBaseWidget(Left, Top, Width, Height, Text) {
-	BezierDefinition.Divisions = 4;
+	BezierDefinition.Divisions = 128;
 }
 
 TBezierWindow::~TBezierWindow() {
 }
 
-/**
- * Paint the window using defaults
- */ 
+
 void TBezierWindow::Paint()
 {
 	if (!Visible)

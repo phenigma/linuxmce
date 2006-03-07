@@ -23,11 +23,6 @@ class GL2DEffectFadesFromUnderneath : public GL2DEffect
 {
 	TBasicWindow* Background;
 	TBasicWindow* Destination;
-
-	auto_ptr<PlutoGraphic> BackSrf;
-	auto_ptr<PlutoGraphic> FrontSrf;
-	
-	OpenGLTexture IDBack, IDFront;
 	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;
@@ -41,7 +36,7 @@ public:
  * @param SourceFrame 
  * @param DestFrame 
  */
-	void Configure(PlutoGraphic *SourceFrame, PlutoGraphic* DestFrame);
+	void Configure(PlutoRectangle* EffectSourceSize);
 	
 	virtual void Paint(int Now);	
 	

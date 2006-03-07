@@ -3,6 +3,10 @@
 #include "gl2deffectfactory.h"
 #include "../OpenGLTextureConverter.h"
 
+//remove me
+#include "SDL.h"
+#include "../../SDL/SDLGraphic.h"
+
 namespace DCE {
 
 GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
@@ -30,23 +34,17 @@ GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (GL2DEffectFactory 
 
 
 GL2DEffectFadesFromUnderneath::~GL2DEffectFadesFromUnderneath() {
-	glDeleteTextures(1, &IDBack);
-	glDeleteTextures(1, &IDFront);
-
 	Effects->Widgets->DeleteWidget(Background);
 	Effects->Widgets->DeleteWidget(Destination);
 }
 
-void GL2DEffectFadesFromUnderneath::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* DestFrame)
+void GL2DEffectFadesFromUnderneath::Configure(PlutoRectangle* EffectSourceSize)
 {
-	BackSrf.reset(SourceFrame);
-	FrontSrf.reset(DestFrame);
-
 	ButtonSize.Left = 0;
-	ButtonSize.Top = FullScreen.Height;
+	ButtonSize.Top = -FullScreen.Height;
 	ButtonSize.Width = FullScreen.Width;
 	ButtonSize.Height = FullScreen.Height;
-	
+
 	Configured = false;
 }
 
@@ -57,27 +55,20 @@ void GL2DEffectFadesFromUnderneath::Configure(PlutoGraphic* SourceFrame, PlutoGr
 void GL2DEffectFadesFromUnderneath::Paint(int Now)
 {
 	if(!Configured) {
-		//Generate textures for OpenGL
-		IDBack = OpenGLTextureConverter::GenerateTexture(BackSrf.get());
-		IDFront = OpenGLTextureConverter::GenerateTexture(FrontSrf.get());
-
-		BackSrf.release();
-		FrontSrf.release();
-
 		//Set up the textures for triangles
-		Background->SetTexture(IDBack);
-		Destination->SetTexture(IDFront);
+		Background->SetTexture(Effects->Widgets->OldScreen);
+		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
 		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
-		Start = Effects->MilisecondTimmer();
 
 		Background->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
 		
+		Start = Effects->MilisecondTimmer();
 		Configured = true;
 	}
 	

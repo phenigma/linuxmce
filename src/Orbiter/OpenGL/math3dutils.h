@@ -32,6 +32,9 @@ public:
 	float Width;
 	float Height;
 	
+	/**
+	 * Default constructor
+	 */
 	FloatRect()
 		: Top(0),
 		  Left(0),
@@ -40,6 +43,9 @@ public:
 	{
 	}
 	
+	/**
+	 * Constructor with setup the variables
+	 */
 	FloatRect(float TopValue, float LeftValue, float WidthValue, float HeightValue) 
 		: Top(TopValue),
 		  Left(LeftValue),
@@ -47,6 +53,9 @@ public:
 		  Height(HeightValue) {
 	}
 	
+	/**
+	 * Copy onstructor
+	 */
 	FloatRect(PlutoRectangle Rectangle)
 		: Top((float)Rectangle.Y),
 		  Left((float)Rectangle.X),  
@@ -64,23 +73,31 @@ public:
 	FloatRect Interpolate(FloatRect DestRect, float Value);	
 	
 };
-
+/**
+ * That class defines one point structure which is defined as X, Y coordinate
+ * That structure is used where Point is not suitable for actual needs (because works with 
+ * integer based types)
+ */
 class FloatPoint
 {
 public:
 	float X;
 	float Y;
+	/**
+	 * Default constructor
+	 */
+	FloatPoint() 
+		: X(0),
+		  Y(0)
+	{
+	}
+
 	FloatPoint(float ValueX, float ValueY) 
 		: X(ValueX),
 		  Y(ValueY)
 	{
 	}
 	
-	FloatPoint() 
-		: X(0),
-		  Y(0)
-	{
-	}
 	/**
 	 * That function say ain intermediar point from source point
 	 * and one another dest point using a given value 
@@ -102,6 +119,10 @@ public:
 
 class T3DMatrix;
 
+/**
+ * Class that implements the 3D coordinate system. Is not used for actual implementation
+ * but became functional when the widgets will be fully 3D
+ */
 class T3DVertex {
 public:
 	/**
@@ -176,7 +197,7 @@ public:
 	
 	/**
 	 *        Set the curent matrix as a rotate over X axis
-	 * @param Angle 
+	 * @param Angle radian based angle
 	 */
 	void SetRotateX(float Angle);
 	/**
@@ -207,8 +228,8 @@ public:
 };
 
 /**
-* Structure for a 3-dimensional point 
-*/
+ * Structure for a 3-dimensional point 
+ */
 typedef struct point_3d {						
 	float x, y, z;
 } POINT_3D;

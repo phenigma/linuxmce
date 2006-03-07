@@ -178,7 +178,8 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 			CmdLineParams.bLocalMode,
 			CmdLineParams.Width,
 			CmdLineParams.Height,
-			CmdLineParams.bFullScreen
+			CmdLineParams.bFullScreen,
+			Simulator::GetInstance()->m_bUseOpenGL
 		);
 	}
 	catch(string s)
@@ -1412,6 +1413,7 @@ void SaveUI_To_ConfigurationData()
 	Simulator::GetInstance()->m_sDeviceID = DeviceID;
 	Simulator::GetInstance()->m_sRouterIP = RouterIP;
 	Simulator::GetInstance()->m_bFullScreen = bFullScreen;
+
 	Simulator::GetInstance()->m_bLogToServer = bLogToServer;
 
 	if(Simulator::GetInstance()->m_sConfigurationFile != "")

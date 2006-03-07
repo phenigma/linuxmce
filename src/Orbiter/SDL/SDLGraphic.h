@@ -20,6 +20,7 @@ public:
 	virtual PlutoGraphic *GetHighlightedVersion();
 	static Uint32 getpixel(struct SDL_Surface *pSDL_Surface,int x, int y);
 	static void putpixel(struct SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color);
+	PlutoGraphic* Clone();
 
 	struct SDL_Surface *m_pSDL_Surface;
 };

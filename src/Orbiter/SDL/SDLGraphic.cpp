@@ -188,3 +188,9 @@ void SDLGraphic::putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_c
         break;
     }
 }
+
+PlutoGraphic* SDLGraphic::Clone()
+{
+	SDL_Surface* Surface = SDL_DisplayFormat(this->m_pSDL_Surface);
+	return new SDLGraphic(Surface);
+}

@@ -24,11 +24,6 @@ class GL2DEffectFadesFromTop : public GL2DEffect
 	TBasicWindow* Background;
 	TBasicWindow* Destination;
 
-	auto_ptr<PlutoGraphic> BackSrf;
-	auto_ptr<PlutoGraphic> FrontSrf;
-	
-	OpenGLTexture IDBack, IDFront;
-	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;
 	
@@ -36,7 +31,7 @@ public:
 	GL2DEffectFadesFromTop (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
 	virtual ~GL2DEffectFadesFromTop();
 	
-	void Configure(PlutoGraphic *SourceFrame, PlutoGraphic* DestFrame);
+	void Configure(PlutoRectangle* EffectSourceSize);
 	
 	virtual void Paint(int Now);	
 	

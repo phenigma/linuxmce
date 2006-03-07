@@ -46,6 +46,8 @@ public: //data
 	long m_dwStartGeneratorThreadDelay;
 
 	bool m_bFullScreen;
+	/** Enable/disable OpenGL drawing effects */
+	bool m_bUseOpenGL;
 	bool m_bLogToServer;
 
 	bool m_bIsRunning;

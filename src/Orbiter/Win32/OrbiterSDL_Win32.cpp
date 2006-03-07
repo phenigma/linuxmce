@@ -38,18 +38,12 @@ extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 								   bool bLocalMode, int nImageWidth, int nImageHeight, 
-								   bool bFullScreen)
+								   bool bFullScreen, bool bUseOpenGL)
 	:
-#ifdef ENABLE_OPENGL
-	  OrbiterSDLGL(DeviceID, PK_DeviceTemplate, ServerAddress, 
-		   sLocalDirectory, bLocalMode, 
-		   nImageWidth, nImageHeight, bFullScreen, NULL)
-#else
 	  OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
-				nImageHeight, bFullScreen)
+				nImageHeight, bFullScreen, NULL, bUseOpenGL)
 
-#endif
 {
 	//todo
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
@@ -71,15 +65,14 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::BuildOrbiter(
 	int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-	int nImageWidth, int nImageHeight, bool bFullScreen
-)
+	int nImageWidth, int nImageHeight, bool bFullScreen, bool bUseOpenGL)
 {
 	if(NULL == m_pInstance)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
 		m_pInstance = new OrbiterSDL_Win32(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
-				nImageHeight, bFullScreen);
+				nImageHeight, bFullScreen, bUseOpenGL);
 		g_pCommand_Impl = m_pInstance;  
 	}
 	else
@@ -191,7 +184,7 @@ void OrbiterSDL_Win32::OnQuit()
 
 	//atexit(SDL_Quit);
 	//::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
-	::ShowWindow(hSDLWindow, SW_HIDE);
+	//::ShowWindow(hSDLWindow, SW_HIDE);
 
 	SDL_Event event;
 	event.type = SDL_MOUSEMOTION;

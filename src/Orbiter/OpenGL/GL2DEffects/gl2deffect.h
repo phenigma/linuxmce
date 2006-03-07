@@ -1,6 +1,8 @@
 #ifndef GL2DEffect_H
 #define GL2DEffect_H
 
+#include "../../DesignObj_Orbiter.h"
+
 namespace DCE {
 
 class GL2DEffectFactory;
@@ -28,6 +30,10 @@ public:
 	} 
   
 	virtual void Paint(int Time) = 0;
+
+	virtual void Configure(PlutoRectangle* EffectSourceSize) = 0;
+	
+	//virtual void Configure(PlutoRectangle* EffectSourceSize) = 0;
 };
 
 }

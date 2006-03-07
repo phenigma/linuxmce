@@ -67,6 +67,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     int Width=800,Height=600;
 
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
+	bool bUseOpenGL = false;
 	bool bFullScreen=false;
     string sLocalDirectory="";
     string sNestedDisplay = "";
@@ -193,6 +194,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		CmdLineParams.Height			= Height;
 		CmdLineParams.bLocalMode		= bLocalMode; 
 		CmdLineParams.bFullScreen		= bFullScreen;
+		CmdLineParams.bUseOpenGL		= bUseOpenGL;
 		CmdLineParams.sLocalDirectory	= sLocalDirectory;
 		CmdLineParams.sNestedDisplay    = sNestedDisplay;
 		CmdLineParams.bDeviceIDSpecified = bDeviceIDSpecified;

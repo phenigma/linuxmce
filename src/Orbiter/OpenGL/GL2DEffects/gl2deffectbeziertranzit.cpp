@@ -1,6 +1,5 @@
 #include "gl2deffectbeziertranzit.h"
 #include "gl2deffectfactory.h"
-#include "../OpenGLTextureConverter.h"
 
 namespace DCE {
 
@@ -29,22 +28,16 @@ GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEng
 
 
 GL2DBezierEffectTransit::~GL2DBezierEffectTransit() {
-	glDeleteTextures(1, &IDBack);
-	glDeleteTextures(1, &IDFront);
-
 	Effects->Widgets->DeleteWidget(Destination);
 	Effects->Widgets->DeleteWidget(Button);	
 }
 
-void GL2DBezierEffectTransit::Configure(PlutoGraphic* SourceFrame, PlutoGraphic* DestFrame, PlutoRectangle ButtonSourceSize)
+void GL2DBezierEffectTransit::Configure(PlutoRectangle* EffectSourceSize)
 {
-	BackSrf.reset(SourceFrame);
-	FrontSrf.reset(DestFrame);
-
-	ButtonSize.Left = (float)ButtonSourceSize.X;
-	ButtonSize.Top = (float)ButtonSourceSize.Y-ButtonSourceSize.Height;
-	ButtonSize.Width = (float)ButtonSourceSize.Width;
-	ButtonSize.Height = (float)ButtonSourceSize.Height;
+	ButtonSize.Left = (float)EffectSourceSize->X;
+	ButtonSize.Top = (float)EffectSourceSize->Y-EffectSourceSize->Height;
+	ButtonSize.Width = (float)EffectSourceSize->Width;
+	ButtonSize.Height = (float)EffectSourceSize->Height;
 
 	Configured = false;
 }
@@ -53,16 +46,9 @@ void GL2DBezierEffectTransit::Paint(int Now)
 {
 	if(!Configured) 
 	{
-		//Generate textures for OpenGL
-		IDBack = OpenGLTextureConverter::GenerateTexture(BackSrf.get());
-		IDFront = OpenGLTextureConverter::GenerateTexture(FrontSrf.get());
-
-		BackSrf.release();
-		FrontSrf.release();
-		
 		//Set up the textures for triangles
-		Button->SetTexture(IDFront);
-		Destination->SetTexture(IDBack);
+		Button->SetTexture(Effects->Widgets->NewScreen);
+		Destination->SetTexture(Effects->Widgets->OldScreen);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -73,7 +59,7 @@ void GL2DBezierEffectTransit::Paint(int Now)
  		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
 			
-		Button->BezierDefinition.Divisions = 15;
+		//Button->BezierDefinition.Divisions = 15;
 
 		Start = Effects->MilisecondTimmer();	
 		Configured = true;
@@ -105,6 +91,9 @@ void GL2DBezierEffectTransit::Paint(int Now)
 
 	if(!FistStage)
 		Step = 1.0;
+
+	// bit-to-bit copy 
+	BEZIER_PATCH BezierDefinition = Button->BezierDefinition;
 
 	// 0 = Start, 1 = Control Start, 2 = Control end, 3 = End 
 	POINT_3D LeftProfile [4], RightProfile[4];
@@ -148,6 +137,15 @@ void GL2DBezierEffectTransit::Paint(int Now)
 				j/3.0f
 				);
 		}
+	}
+	for(i = 0; i<4; i++)
+	{
+		for(j=0; j<4; j++)
+			Button->BezierDefinition.anchors[j][i].z = 
+				- 500 + 
+				Button->BezierDefinition.anchors[j][i].x
+				- BezierDefinition.anchors[j][i].x;
+
 	}
 
 }

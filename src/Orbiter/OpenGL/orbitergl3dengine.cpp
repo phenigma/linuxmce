@@ -16,7 +16,7 @@
 #include "../PocketFrog/OpenGLProxy.h"
 #else
 #include "SDL.h"
-#include "../SDL/OrbiterSDLGL.h"
+#include "../SDL/OrbiterSDL.h"
 #include "../SDL/SDLGraphic.h"
 #endif
 
@@ -61,6 +61,7 @@ void OrbiterGL3D::Paint()
 		exit(234);
 	}
 	
+	EffectBuilder->Widgets->SetUpNextDisplay();
 	EffectBuilder->UpdateEffects();
 	if (EffectBuilder->HasEffects())
 		Screen3D->SetVisible(false);
@@ -76,11 +77,16 @@ void OrbiterGL3D::Paint()
 #else
 		spPlutoGraphic.reset(
 			new SDLGraphic(
-				dynamic_cast<OrbiterSDLGL *>(pOrbiterGL)->m_pScreenImage
+				dynamic_cast<OrbiterSDL *>(pOrbiterGL)->m_pScreenImage
 			)
 		);
 #endif
-		Screen3D->SetUpTextureFromSurface(spPlutoGraphic.get());
+		Widgets->ConfigureNextScreen(spPlutoGraphic.get());
+		Widgets->SetUpNextDisplay();
+		Screen3D->SetTexture(Widgets->NewScreen);
+		Screen3D->SetTextureWraping(Widgets->UVRect.Left, Widgets->UVRect.Top, 
+			Widgets->UVRect.Width, Widgets->UVRect.Height);
+		
 		Screen3D->SetVisible(true);
 
 		spPlutoGraphic->Initialize();
@@ -179,13 +185,13 @@ void OrbiterGL3D::InitOpenGL()
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
-	OrbiterSDLGL * pOrbiterSDLGL = (OrbiterSDLGL *)this->pOrbiterGL;
-	if ((pOrbiterSDLGL->Screen = SDL_SetVideoMode(pOrbiterSDLGL->m_iImageWidth, pOrbiterSDLGL->m_iImageHeight, 
+	OrbiterSDL * pOrbiterSDL = (OrbiterSDL *)this->pOrbiterGL;
+	if ((pOrbiterSDL->Screen = SDL_SetVideoMode(pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight, 
 		0, uVideoModeFlags)) == NULL)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, 
 			"Failed to set video mode (%d x %d): %s", 
-			pOrbiterSDLGL->m_iImageWidth, pOrbiterSDLGL->m_iImageHeight,
+			pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight,
 			SDL_GetError());
 		exit(1);
 	}
@@ -193,7 +199,7 @@ void OrbiterGL3D::InitOpenGL()
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", 
-		pOrbiterSDLGL->m_iImageWidth, pOrbiterSDLGL->m_iImageHeight);
+		pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 
@@ -203,8 +209,8 @@ void OrbiterGL3D::InitOpenGL()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);  // Change Matrix Mode to Projection
 	glLoadIdentity();             // Reset View
-	glOrtho(0, pOrbiterSDLGL->m_iImageWidth, 0, 
-		pOrbiterSDLGL->m_iImageHeight, 0, pOrbiterSDLGL->m_iImageWidth);
+	glOrtho(0, pOrbiterSDL->m_iImageWidth, 0, 
+		pOrbiterSDL->m_iImageHeight, 0, pOrbiterSDL->m_iImageWidth);
 	glMatrixMode(GL_MODELVIEW);   // Change Projection to Matrix Mode
 	glLoadIdentity();
 
