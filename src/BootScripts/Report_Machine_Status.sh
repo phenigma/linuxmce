@@ -21,4 +21,8 @@ Uptime=$(awk '{print $1}' /proc/uptime | cut -d. -f1)
 Router=$(dpkg -s pluto-dcerouter 2>/dev/null | grep Version | cut -d" " -f2)
 Orbiter=$(dpkg -s pluto-orbiter 2>/dev/null | grep Version | cut -d" " -f2)
 
-wget -t 1 --timeout=10 -O /dev/null "http://$PH/report_status.php?Installation=$PK_Installation&Device=$PK_Device&DeviceTemplate=$PK_DeviceTemplate&Uptime=$Uptime&Orbiter=$Orbiter&Router=$Router" &>/dev/null
+if [[ "$OfflineMode" == "true" ]]; then
+	echo "$0: I am in offline mode, cannot wget, skiping."
+else
+	wget -t 1 --timeout=10 -O /dev/null "http://$PH/report_status.php?Installation=$PK_Installation&Device=$PK_Device&DeviceTemplate=$PK_DeviceTemplate&Uptime=$Uptime&Orbiter=$Orbiter&Router=$Router" &>/dev/null
+fi

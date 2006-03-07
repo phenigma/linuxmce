@@ -13,6 +13,12 @@ UploadLogs()
 	local ok
 
 	ok=0
+	
+	if [[ "$OfflineMode" == "true" ]]; then
+		echo "$(date) Offline mode, can't upload any files." >> /var/log/pluto/ftp-upload.log
+		ok=1
+	fi
+
 	while [ "$ok" -eq 0 ]; do
 		echo "$(date) Uploading critical errors" >>/var/log/pluto/ftp-upload.log
 		ftp-upload -v --ignore-quit-failure -h plutohome.com --passive -b -d incoming "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log

@@ -3,6 +3,11 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+if [[ $OfflineMode == "true" ]]; then
+	# We are in offline mode, we can't do that wget
+	exit 0
+fi
+
 Q="SELECT COUNT(*) FROM Installation WHERE PK_Installation=1"
 R=$(RunSQL "$Q")
 if [[ "$R" -ne 0 ]]; then
