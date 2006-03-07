@@ -102,7 +102,7 @@ BOOL loadDLL(void)
 {
     // Get a handle to the DLL module.
  
-    hinstLib = LoadLibrary("uuirtdrv"); 
+    hinstLib = LoadLibrary("../lib/uuirtdrv"); 
  
     // If the handle is valid, try to get the function address.
  
@@ -294,7 +294,7 @@ bool USB_UIRT_0038::GetConfig()
 	{
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Remote_Controls_CONST )
+			pDevice->m_dwPK_DeviceCategory==/*DEVICECATEGORY_Remote_Controls_CONST*/154 )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
 			string sType;
