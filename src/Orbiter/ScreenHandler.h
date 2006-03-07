@@ -97,6 +97,8 @@ public:
 	virtual void SCREEN_NAS_Options(long PK_Screen, int iPK_DeviceTemplate, string sMacAddres, 
 		string sIPAddress, string sPK_DHCPDevice);
 
+	virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer);
+
 	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device);

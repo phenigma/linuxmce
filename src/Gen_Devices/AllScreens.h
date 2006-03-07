@@ -8453,6 +8453,174 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_mnuPVROSD : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVROSD(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "207" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVROSD_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVROSD_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "207" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVROSD_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVROSD_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "207" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVROSD_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVROSD_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "207" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "208" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "208" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "208" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "208" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Demo_Media : public PreformedCommand
+	{
+	public:
+		SCREEN_Demo_Media(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "209" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Demo_Media_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Demo_Media_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "209" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Demo_Media_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Demo_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "209" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Demo_Media_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Demo_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "209" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Download_are_ready_to_install : public PreformedCommand
+	{
+	public:
+		SCREEN_Download_are_ready_to_install(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Device, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "210" /* screen ID */,
+				2 /* Device to be rebooted */, StringUtils::ltos(iPK_Device).c_str(), 192 /* AppServer device which will execute half command */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_Download_are_ready_to_install_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Download_are_ready_to_install_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Device, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "210" /* screen ID */,
+				2 /* Device to be rebooted */, StringUtils::ltos(iPK_Device).c_str(), 192 /* AppServer device which will execute half command */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_Download_are_ready_to_install_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Download_are_ready_to_install_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Device, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "210" /* screen ID */,
+				2 /* Device to be rebooted */, StringUtils::ltos(iPK_Device).c_str(), 192 /* AppServer device which will execute half command */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_Download_are_ready_to_install_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Download_are_ready_to_install_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Device, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "210" /* screen ID */,
+				2 /* Device to be rebooted */, StringUtils::ltos(iPK_Device).c_str(), 192 /* AppServer device which will execute half command */, sPK_Device_AppServer.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -8681,6 +8849,10 @@ namespace DCE
 		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_mnuPVROSD(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_mnuPVRRecording(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Demo_Media(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -9772,6 +9944,28 @@ namespace DCE
 				{
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, iPK_Device);
+					break;
+				}
+				case 207:
+				{
+					SCREEN_mnuPVROSD(nPK_Screen);
+					break;
+				}
+				case 208:
+				{
+					SCREEN_mnuPVRRecording(nPK_Screen);
+					break;
+				}
+				case 209:
+				{
+					SCREEN_Demo_Media(nPK_Screen);
+					break;
+				}
+				case 210:
+				{
+					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
+					string sPK_Device_AppServer = pMessage->m_mapParameters[192];
+					SCREEN_Download_are_ready_to_install(nPK_Screen, iPK_Device, sPK_Device_AppServer);
 					break;
 				}
 

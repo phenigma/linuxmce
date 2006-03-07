@@ -489,4 +489,25 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::BadGotoScreen %d",PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void ScreenHandler::SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, 
+	string sPK_Device_AppServer)
+{
+	string sYesMessage = 
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + sPK_Device_AppServer  + " " + 
+		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Halt_Device_CONST) + " " + 
+		StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " \"" + StringUtils::ltos(iPK_Device) + "\"" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Force_CONST) + " \"R\"";
 
+	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Download_finnished_CONST) + "%>",
+		false, "0", false, 
+		//Yes button
+		"Yes",      
+		//Yes command
+		sYesMessage,
+		//No button
+		"No",
+		//No command
+		"" //do nothing
+		);
+}
+//-----------------------------------------------------------------------------------------------------

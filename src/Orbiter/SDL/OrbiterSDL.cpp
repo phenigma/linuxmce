@@ -65,7 +65,11 @@ void *HackThread2(void *p)
     return NULL;
 }
 
-#ifndef WINCE
+#if defined(WINCE) || defined(BLUETOOTH_DONGLE) || defined(PROXY_ORBITER)
+#define DISABLE_OPENGL
+#endif
+
+#ifndef DISABLE_OPENGL
 	#include "../OpenGL/math3dutils.h"
 	#include "../OpenGL/GL2DWidgets/basicwindow.h"
 	#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
@@ -79,7 +83,7 @@ void *HackThread2(void *p)
 	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
 #endif
 
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 bool PaintDesktopGL;
 
 void *Orbiter_OpenGLThread(void *p)
@@ -136,7 +140,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 {
 	EnableOpenGL = UseOpenGL;
 
-#ifdef WINCE
+#ifdef DISABLE_OPENGL
 	EnableOpenGL = false;
 #endif
 
@@ -144,7 +148,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
    	m_bFullScreen=bFullScreen;
 	if(EnableOpenGL)
 	{
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
 		
 		pthread_cond_init(&m_GLThreadCond, NULL);
@@ -170,7 +174,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 	if(EnableOpenGL)
 	{
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 		pthread_cond_broadcast(&m_GLThreadCond);
 		pthread_join(SDLGLthread, NULL);
 		delete m_GLThreadMutex;
@@ -250,7 +254,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	} //if (!EnableOpenGL)
 	else
 	{
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
 	
 		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
@@ -284,7 +288,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	}
 	else //EnableOpenGL
 	{
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 		PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 		PLUTO_SAFETY_LOCK(glm, *m_GLThreadMutex);
 		PlutoRectangle rectLastSelected(0, 0, 0, 0);
@@ -370,7 +374,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	}
 	else
 	{
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 		WakeupFromCondWait();
 #endif
 	}
@@ -637,7 +641,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 
 void OrbiterSDL::OnIdle()
 {
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 	if(EnableOpenGL)
 	{
 		Sleep(5);
@@ -648,7 +652,7 @@ void OrbiterSDL::OnIdle()
 
 void OrbiterSDL::WakeupFromCondWait()
 {
-#ifndef WINCE
+#ifndef DISABLE_OPENGL
 	pthread_cond_broadcast(&m_GLThreadCond);
 #endif
 }
