@@ -875,7 +875,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			*/
 
 			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+(psc_id-"<<range_begin<<")%"<<interval_length<<", 3)) AS UNSIGNED)) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
-			
+
 			PlutoSqlResult res;
 			MYSQL_ROW row=NULL;
 			res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -1527,32 +1527,18 @@ int k=2;
 
 void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user )
 {
-	// If the user is a supervisor, he can do anything, otherwise be sure we're allowed to do this
+	// If the user is a supervisor, he can do anything, otherwise we queuing the batch
 	if( !psqlCVSprocessor->m_bSupervisor )
 	{
 		std::ostringstream sSQL;
-		sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		sSQL << "SELECT 0 as psc_user, psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 		{
-			if( m_bFrozen || (row[1] && row[1][0]=='1') )
-				bFrozen=true;
-			else
-				bFrozen=false;
-
-			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && (g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() || g_GlobalConfig.m_mapValidatedUsers[i]->m_bWithoutPassword) )
-				psc_user = i;
-			else
-				psc_user = 0;
-
-			if( bFrozen || psc_user || (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) )
-			{
-				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
-				AddToHistory( pR_CommitRow, psqlCVSprocessor );
-				return;
-			}
+			psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
+			AddToHistory( pR_CommitRow, psqlCVSprocessor );
+			return;
 		}
 		else
 		{
@@ -1581,28 +1567,14 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	if( !psqlCVSprocessor->m_bSupervisor )
 	{
 		std::ostringstream sSQL;
-		sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		sSQL << "SELECT 0 as psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( (result_set.r=m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row(result_set.r)) )
 		{
-			if( m_bFrozen || (row[1] && row[1][0]=='1') )
-				bFrozen=true;
-			else
-				bFrozen=false;
-
-			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && (g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() || g_GlobalConfig.m_mapValidatedUsers[i]->m_bWithoutPassword) )
-				psc_user = i;
-			else
-				psc_user = 0;
-
-			if( bFrozen || psc_user || (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) )
-			{
-				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
-				AddToHistory( pR_CommitRow, psqlCVSprocessor );
-				return;
-			}
+			psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
+			AddToHistory( pR_CommitRow, psqlCVSprocessor );
+			return;
 		}
 		else
 		{
