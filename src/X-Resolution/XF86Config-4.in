@@ -24,6 +24,7 @@ Section "Module"
 	Load	"speedo"
 	Load	"type1"
 	Load	"glx"
+	Load	"int10"
 EndSection
 
 Section "InputDevice"
@@ -70,6 +71,7 @@ Section "Device"
 	VendorName	"Unknown Vendor Name"
 	BoardName	"Unknown Board Name"
 	#BusID		"PCI:0:2:0"
+	Option		"NoDDC"	"true"
 EndSection
 
 Section "Screen"

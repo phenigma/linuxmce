@@ -1,5 +1,5 @@
 BEGIN {
-	if (ResX ~ /[^0-9]|^$/ || ResY ~ /[^0-9]|^$/ || Refresh ~ /[^0-9]|^$/ || Modeline == "")
+	if (ResX ~ /[^0-9]|^$/ || ResY ~ /[^0-9]|^$/ || Refresh ~ /[^0-9]|^$/)
 	{
 		print "Error in parameters" >"/dev/stderr";
 		exit;
@@ -12,7 +12,8 @@ BEGIN {
 /Section..*"Monitor"/ { Monitor = 1; }
 Monitor == 1 && (/HorizSync/ || /VertRefresh/ || /Modeline/) { next; }
 Monitor == 1 && /EndSection/ {
-	print "\tModeline \t" Modeline;
+	if (Modeline != "")
+		print "\tModeline \t" Modeline;
 	if (Force != "")
 	{
 		print "\tHorizSync\t28-500";

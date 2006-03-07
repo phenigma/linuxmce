@@ -98,6 +98,12 @@ if [[ -n "$Resolution" ]]; then
 	fi
 	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	Modeline="${Modeline/@*\"/\"}"
+	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* ]]; then
+		# don't use a modeline for standard refresh rates
+		# (X seems to know only 60 and 75 as "standard", all the others either not working, or giving different resolutions)
+		# (tested with i810)
+		Modeline=
+	fi
 	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 fi
