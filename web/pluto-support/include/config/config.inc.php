@@ -4,11 +4,15 @@
   	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
-  		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['globalConfigPath']='/var/www/globalconfig/';
+  		$GLOBALS['SupportPicsPath']='';
   	}else{
   		error_reporting(E_ALL);
-  		include_once('/home/users/vali/work/web/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
+  		$GLOBALS['SupportPicsPath']='/home/users/vali/work/web/plutohome-com/support/UserFiles/';
   	}
+  	
+  	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
   	
   // PlutoHome website
   	$GLOBALS['sendErrorsTo']='info@plutohome.com';
