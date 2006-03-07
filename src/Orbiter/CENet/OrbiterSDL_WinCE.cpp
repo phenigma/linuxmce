@@ -97,7 +97,7 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_WinCE::BuildOrbiter(
 	int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-	int nImageWidth, int nImageHeight, bool bFullScreen
+	int nImageWidth, int nImageHeight, bool bFullScreen, bool bUseOpenGL
 )
 {
 	if(NULL == m_pInstance)

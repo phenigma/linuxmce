@@ -65,7 +65,7 @@ public:
 
 	static void Cleanup();
 	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false);
+		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
 	static OrbiterSDL_WinCE *GetInstance();
 
 	void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);

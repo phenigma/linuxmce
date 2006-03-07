@@ -157,12 +157,15 @@ printf("dupped arg %d %s\n",i,ps);
             return pid;
     }
 #else
+//TO BE IMPLEMENTED
+/*
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     ZeroMemory (&si, sizeof(si));
     si.cb = sizeof(si);
     ZeroMemory (&pi, sizeof(pi));
     CreateProcess("C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+*/
 	return 1;
 #endif
 }

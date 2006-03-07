@@ -286,6 +286,8 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 	system( ("screen -d -m -h 3000 -S " + pDeviceData_Impl_Child->m_sCommandLine + "_" + StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) +
 			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
 #else
+	//TO BE IMPLEMENTED
+	/*
 	#ifndef WINCE
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -294,6 +296,7 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 		ZeroMemory ( &pi, sizeof(pi) );
 		CreateProcess( "C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
 	#endif
+	*/
 #endif
 
 	string sCommand = StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine;

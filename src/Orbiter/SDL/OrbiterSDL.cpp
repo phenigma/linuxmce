@@ -65,19 +65,21 @@ void *HackThread2(void *p)
     return NULL;
 }
 
-#include "../OpenGL/math3dutils.h"
-#include "../OpenGL/GL2DWidgets/basicwindow.h"
-#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
+#ifndef WINCE
+	#include "../OpenGL/math3dutils.h"
+	#include "../OpenGL/GL2DWidgets/basicwindow.h"
+	#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
 
-#include "../OpenGL/orbitergl3dengine.h"
+	#include "../OpenGL/orbitergl3dengine.h"
 
-#include "../OpenGL/GL2DEffects/gl2deffecttransit.h"
-#include "../OpenGL/GL2DEffects/gl2deffectbeziertranzit.h"
-#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
-#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
-#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
+	#include "../OpenGL/GL2DEffects/gl2deffecttransit.h"
+	#include "../OpenGL/GL2DEffects/gl2deffectbeziertranzit.h"
+	#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
+	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
+	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
+#endif
 
-
+#ifndef WINCE
 bool PaintDesktopGL;
 
 void *Orbiter_OpenGLThread(void *p)
@@ -121,7 +123,7 @@ void *Orbiter_OpenGLThread(void *p)
 	
 	return NULL;
 }	
-
+#endif
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
@@ -133,16 +135,22 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
     nImageHeight, pExternalScreenMutex)
 {
 	EnableOpenGL = UseOpenGL;
+
+#ifdef WINCE
+	EnableOpenGL = false;
+#endif
+
    	m_pScreenImage = NULL;
    	m_bFullScreen=bFullScreen;
 	if(EnableOpenGL)
 	{
+#ifndef WINCE
 		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
 		
 		pthread_cond_init(&m_GLThreadCond, NULL);
 		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
 		m_Desktop = NULL;
-		
+#endif		
 	}
 }
 
@@ -162,9 +170,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 	if(EnableOpenGL)
 	{
+#ifndef WINCE
 		pthread_cond_broadcast(&m_GLThreadCond);
 		pthread_join(SDLGLthread, NULL);
 		delete m_GLThreadMutex;
+#endif
 	}
 }
 
@@ -240,12 +250,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	} //if (!EnableOpenGL)
 	else
 	{
+#ifndef WINCE
 		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
 	
 		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
 		if (m_pScreenImage == NULL) {
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
 		}
+#endif
 	}
 	return true;
 }
@@ -272,6 +284,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	}
 	else //EnableOpenGL
 	{
+#ifndef WINCE
 		PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 		PLUTO_SAFETY_LOCK(glm, *m_GLThreadMutex);
 		PlutoRectangle rectLastSelected(0, 0, 0, 0);
@@ -327,7 +340,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 			//SDL_SaveBMP(m_pScreenImage, "test2.bmp");
 			GL2DEffect* Transit = (GL2DEffect*) m_Desktop->EffectBuilder->
-				CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 600);
+				CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 1000);
 			
 			//cout <<"Effect pending"<<endl;
 	
@@ -339,6 +352,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	
 		glm.Release();
 		//DisplayImageOnScreen(m_pScreenImage);
+#endif
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -355,7 +369,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		SDL_UpdateRect(Screen, 0, 0, 0, 0);
 	}
 	else
+	{
+#ifndef WINCE
 		WakeupFromCondWait();
+#endif
+	}
 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -619,14 +637,18 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 
 void OrbiterSDL::OnIdle()
 {
+#ifndef WINCE
 	if(EnableOpenGL)
 	{
 		Sleep(5);
 		WakeupFromCondWait();
 	}
+#endif
 }
 
 void OrbiterSDL::WakeupFromCondWait()
 {
+#ifndef WINCE
 	pthread_cond_broadcast(&m_GLThreadCond);
+#endif
 }

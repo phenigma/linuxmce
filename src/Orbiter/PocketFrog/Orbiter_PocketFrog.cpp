@@ -14,16 +14,19 @@
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
 
-#include <GL/gl.h>
-#include "OpenGLProxy.h"
-#include "OpenGLTextureConverter_PocketFrog.h"
-#include "OpenGL/orbitergl3dengine.h"
-#include "OpenGL/math3dutils.h"
-#include "OpenGL/GL2DWidgets/basicwindow.h"
-#include "OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
-#include "OpenGL/orbitergl3dengine.h"
-#include "OpenGL/GL2DEffects/gl2deffecttransit.h"
-#include "OpenGL/GL2DEffects/gl2deffectbeziertranzit.h" 
+#ifndef WINCE //no opengl support in windows ce
+	#include <GL/gl.h>
+
+	#include "OpenGLProxy.h"
+	#include "OpenGLTextureConverter_PocketFrog.h"
+	#include "OpenGL/orbitergl3dengine.h"
+	#include "OpenGL/math3dutils.h"
+	#include "OpenGL/GL2DWidgets/basicwindow.h"
+	#include "OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
+	#include "OpenGL/orbitergl3dengine.h"
+	#include "OpenGL/GL2DEffects/gl2deffecttransit.h"
+	#include "OpenGL/GL2DEffects/gl2deffectbeziertranzit.h" 
+#endif
 
 using namespace Frog;
 using namespace Frog::Internal;
@@ -110,6 +113,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	m_bFullScreen=bFullScreen;
 	m_bUseOpenGL = bUseOpenGL;
 
+#ifdef WINCE
+	m_bUseOpenGL = false; //opengl not available for WINCE
+#endif
+
 	m_bConnectionLost = false;
 	m_bReload = false;
 	m_bQuit = false;
@@ -130,8 +137,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
+#ifndef WINCE
 	if (m_bUseOpenGL)
 		m_spAfterGraphic->Initialize();
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -758,6 +767,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	
 	if (m_bUseOpenGL)
 	{
+#ifndef WINCE
 		Rect srcRect;
 		srcRect.Set(0, 0, m_iImageWidth, m_iImageHeight);
 		auto_ptr<Surface> spSurface(GetDisplay()->CreateSurface(m_iImageWidth, m_iImageHeight));
@@ -766,6 +776,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		m_spBeforeGraphic.reset(new PocketFrogGraphic(spSurface.get()));
 		spRasterizer.release();
 		spSurface.release();
+#endif
 	}
 
 	if (m_pScreenHistory_Current)
@@ -796,6 +807,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 
 	if (m_bUseOpenGL)
 	{
+#ifndef WINCE
 		if(m_spAfterGraphic.get())
 			m_spAfterGraphic->Initialize();
 
@@ -818,6 +830,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		m_pObj_SelectedLastScreen = NULL;
 
 		StartAnimation();
+#endif
 	}
 	else
 	{
@@ -1278,9 +1291,10 @@ string Orbiter_PocketFrog::FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex)
 
     return sMessage;
 }
-
+//-----------------------------------------------------------------------------------------------------
 void Orbiter_PocketFrog::OpenGL_RenderFrame(void *data) //callback
 {
+#ifndef WINCE
 	if(!m_spGLDesktop.get())
 	{
 		m_spGLDesktop.reset(new OrbiterGL3D(this));
@@ -1289,7 +1303,7 @@ void Orbiter_PocketFrog::OpenGL_RenderFrame(void *data) //callback
 		m_spGLDesktop->EffectBuilder->Widgets->ConfigureNextScreen(this->m_spAfterGraphic.get());
 		m_spGLDesktop->EffectBuilder->Widgets->ConfigureOldScreen(this->m_spBeforeGraphic.get());
 		GL2DBezierEffectTransit* Transit = (GL2DBezierEffectTransit*) m_spGLDesktop->EffectBuilder->
-			CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 400);
+			CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 1000);
 		Transit->Configure(&m_rectLastSelected);
 	}
 
@@ -1311,6 +1325,7 @@ void Orbiter_PocketFrog::OpenGL_RenderFrame(void *data) //callback
 		CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
 			NULL, pe_NO);
 	}
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void Orbiter_PocketFrog::StartAnimation()
@@ -1319,6 +1334,4 @@ void Orbiter_PocketFrog::StartAnimation()
 	CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
 		NULL, pe_NO);
 }
-//-----------------------------------------------------------------------------------------------------
-
 //-----------------------------------------------------------------------------------------------------
