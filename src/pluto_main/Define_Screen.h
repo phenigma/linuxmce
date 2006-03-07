@@ -207,6 +207,7 @@
 #define SCREEN_Sensors_Viewed_By_Camera_CONST 206
 #define SCREEN_mnuPVROSD_CONST 207
 #define SCREEN_mnuPVRRecording_CONST 208
+#define SCREEN_Demo_Media_CONST 209
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
