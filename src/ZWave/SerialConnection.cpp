@@ -5,10 +5,10 @@
 #ifdef _WIN32 
 #include <windows.h> 
 #include <winbase.h> 
-#define READ_DELAY 200 
+#define SC_READ_DELAY 200 
 #else 
-#include <unistd.h> 
-#define READ_DELAY 200000 
+#include <unistd.h>
+#define SC_READ_DELAY 200000 
 #endif
 
 SerialConnection* SerialConnection::instance = NULL;
@@ -86,9 +86,9 @@ int SerialConnection::connect(const char *port)
 		}
 
 #ifdef _WIN32 	
-			Sleep(READ_DELAY); 
+			Sleep(SC_READ_DELAY);
 #else 	
-			usleep(READ_DELAY); 
+			usleep(SC_READ_DELAY);
 #endif //_WIN32
 
 	}
@@ -186,6 +186,7 @@ int SerialConnection::send(char *b, size_t len)
 				paddedBuffer[(int)len - 1] = checkSum(&(paddedBuffer[1]), (int)len - 2);
 				
 				serialPort->Write(paddedBuffer, len);
+				serialPort->Flush();
 			}
 			catch(...)
 			{
@@ -380,6 +381,8 @@ void *SerialConnection::receiveFunction(void *)
 	g_pPlutoLogger->Write(LV_DEBUG, "entry point receiveFunction");
 #endif
 
+	unsigned uRead = 0;
+	
 	//g_pPlutoLogger->Flush();
 	//printf("entry point receiveFUnction");
 	if(instance->serialPort != NULL)
@@ -393,7 +396,8 @@ void *SerialConnection::receiveFunction(void *)
 			pthread_mutex_lock( &instance->mutex_serial );
 			if( instance != NULL && instance->isConnected() )
 			{
-				len = instance->serialPort->Read(mybuf, sizeof(mybuf), 20);
+				uRead++;
+				len = instance->serialPort->Read(mybuf, sizeof(mybuf), 200);
 			}
 			else
 			{
@@ -420,14 +424,14 @@ void *SerialConnection::receiveFunction(void *)
 			}
 			
 #ifdef _WIN32 	
-			Sleep(READ_DELAY);
+			Sleep(SC_READ_DELAY);
 #else 
-			usleep(READ_DELAY); 
+			usleep(SC_READ_DELAY); 
 #endif //_WIN32
 		}
 
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "exit receiveFunction");
+	g_pPlutoLogger->Write(LV_DEBUG, "exit receiveFunction : nr. of reads %u", uRead);
 #endif
 
 		pthread_exit(NULL);

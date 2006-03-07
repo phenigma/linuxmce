@@ -149,8 +149,8 @@ bool PlutoZWSerialAPI::start(const char *port)
 	}
 	
 	// it wasn't possible to start it, then just reset it
-	clearJobs();
 	stop();
+	clearJobs();
 	
 	return false;
 }
@@ -304,6 +304,8 @@ bool PlutoZWSerialAPI::clearJobs()
 		delete job;
 		job = NULL;
 	}
+	
+	d->jobsQueue.clear();
 	
 	return true;
 }

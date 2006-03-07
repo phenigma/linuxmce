@@ -42,6 +42,7 @@ using namespace DCE;
 
 bool ZWave::m_PoolStarted = false;
 pthread_t ZWave::m_PoolThread;
+string ZWave::zwaveSerialDevice;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -185,7 +186,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		{
 			int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
 			g_pPlutoLogger->Write(LV_ZWAVE, "Sending LEVEL - %d || %d", level, NodeID);
-			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, level, (unsigned char)NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, (level >= 100) ? 99 : level, (unsigned char)NodeID);
 			if( light != NULL )
 			{
 				m_ZWaveAPI->insertJob( light );
