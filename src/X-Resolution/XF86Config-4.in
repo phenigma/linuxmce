@@ -49,7 +49,6 @@ Section "Monitor"
 	ModelName	"Unknown Monitor Model"
 	HorizSync	28-90
 	VertRefresh	60
-	Modeline	"640x480"       24.11   640  672  760  792    480  490  495  505
 EndSection
 
 Section "Device"
