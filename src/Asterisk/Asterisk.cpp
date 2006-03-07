@@ -246,18 +246,18 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 
 	if(!bIsConference)
 	{
-		string rest = sPhoneCallID;
-		int pos = rest.find(' ');
+		int pos = sPhoneCallID.find_first_not_of(' ');
+		string rest=sPhoneCallID.substr(pos,sPhoneCallID.length());
+		pos = rest.find(' ');
 		if(pos>=0)
 		{
 			rest=rest.substr(0, pos);
 		}
-		
     	manager->Transfer(rest,sPhoneExtension,iCommandID);
 		if(pos >=0)
 		{
 			rest = sPhoneCallID.substr(pos+1,sPhoneCallID.length());
-			CMD_PBX_Hangup(iCommandID,rest,sCMD_Result,NULL);
+//			CMD_PBX_Hangup(iCommandID,rest,sCMD_Result,NULL);
 		}
 	}
 	else
