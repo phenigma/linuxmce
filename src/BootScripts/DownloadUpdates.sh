@@ -125,8 +125,9 @@ if [[ "$Count" != "0" ]]; then
 	touch /usr/pluto/var/Updates/UpdatesOk.flag
 	echo $UpdatesOkStamp > /usr/pluto/var/Updates/UpdatesOk.flag
 
-	## Message to DCERouter so nows that updates for core are available
-	#TODO: add message code here
+	## Inform about the updates that are available for the core
+	/usr/pluto/bin/NotifyUpdates.sh $PK_Device	
+
 else
 	## If the core has no updates, check if any of the MD's have
 	for MD in $MD_List; do
@@ -150,7 +151,7 @@ else
 
 		# Send a message to inform about the updates
 		if [[ "$Count" != 0 && MD_IsUp == "Yes" ]]; then
-			#TODO: add message code here
+			/usr/pluto/bin/NotifyUpdates.sh $MD_DeviceID
 		fi
 	done
 fi
