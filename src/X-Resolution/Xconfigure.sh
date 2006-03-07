@@ -83,26 +83,27 @@ if [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
 fi
 
 if [[ -n "$Resolution" ]]; then
-	if grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
-		for Var in ${!resHD*}; do
-			if [[ "$Resolution" == "${!Var}" ]]; then
-				nvHD=${Var#res}
-				if [[ "$ScanType" == interlace && "$Var" != *720* ]]; then
-					nvHD="${nvHD}i"
-				else
-					nvHD="${nvHD}p"
-				fi
-				break
+	for Var in ${!resHD*}; do
+		if [[ "$Resolution" == "${!Var}" ]]; then
+			nvHD=${Var#res}
+			if [[ "$ScanType" == interlace && "$Var" != *720* ]]; then
+				nvHD="${nvHD}i"
+			else
+				nvHD="${nvHD}p"
 			fi
-		done
-	fi
+			break
+		fi
+	done
 	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	Modeline="${Modeline/@*\"/\"}"
 	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* ]]; then
 		# don't use a modeline for standard refresh rates
 		# (X seems to know only 60 and 75 as "standard", all the others either not working, or giving different resolutions)
-		# (tested with i810)
 		Modeline=
+	fi
+	if ! grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
+		# we don't have a nVidia card; we use the nvHD variable to detect non-VESA modes too (not a perfect way to do so though)
+		nvHD=
 	fi
 	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
