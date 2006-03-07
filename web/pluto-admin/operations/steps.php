@@ -50,7 +50,7 @@ $start_time=getmicrotime();
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td colspan="3" align="center">
-					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg" border="0"></a>
+					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"></a>
 				</td>
 			</tr>
 	';

@@ -16,7 +16,7 @@ function leftMenu($output,$dbADO) {
 			<table border=0 align="left">				
 			<tr>
 				<td>
-					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg" border="0"></a>
+					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"></a>
 				</td>
 			</tr>';
 	

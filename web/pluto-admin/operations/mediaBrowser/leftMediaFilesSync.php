@@ -27,7 +27,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		<table border=0 align="left">				
 				<tr>
 					<td colspan="2">
-						<a href="index.php" target="_top"><img src="include/images/logo_pluto.jpg" border="0"><a>
+						<a href="index.php" target="_top"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"><a>
 					</td>
 				</tr>';
 		
