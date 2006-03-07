@@ -927,6 +927,7 @@
 #define TEXT_Which_Sensors_Viewed_CONST 1639
 #define TEXT_Display_On_CONST 1640
 #define TEXT_Minimize_Pluto_Orbiter_CONST 1641
+#define TEXT_Download_finnished_CONST 1642
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

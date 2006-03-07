@@ -208,6 +208,7 @@
 #define SCREEN_mnuPVROSD_CONST 207
 #define SCREEN_mnuPVRRecording_CONST 208
 #define SCREEN_Demo_Media_CONST 209
+#define SCREEN_Download_are_ready_to_install_CONST 210
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
