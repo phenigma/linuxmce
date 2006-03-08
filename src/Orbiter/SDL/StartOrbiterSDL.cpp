@@ -253,36 +253,38 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
 {
-  OrbiterSDL *pCLinux =
-    new OrbiterLinux(
-      PK_Device, PK_DeviceTemplate, sRouter_IP,
-      sLocalDirectory, bLocalMode, Width, Height);
-
-  // Add a handler to take care of crashes
-  g_pCommand_Impl = pCLinux;
-  g_pDeadlockHandler=DeadlockHandler;
-  g_pSocketCrashHandler=SocketCrashHandler;
-
-  if (bLocalMode || (pCLinux->GetConfig() && pCLinux->Connect(0))) // Don't validate the device template, since the same binary is used for lots of devices
-  {
-    g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-    pCLinux->Initialize(gtSDLGraphic);
-
-    if (!bLocalMode)
-    {
-      pCLinux->CreateChildren();
-      pCLinux->WaitForRelativesIfOSD();
-    }
-
-    //pCLinux->Initialize_Display();
-    g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
-    Simulator::GetInstance()->m_pOrbiter = pCLinux;
-    Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
-
-    return pCLinux;
-  }
-  delete pCLinux;
-  return NULL;
+	Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");  
+  
+	OrbiterSDL *pCLinux =
+	new OrbiterLinux(
+		PK_Device, PK_DeviceTemplate, sRouter_IP,
+		sLocalDirectory, bLocalMode, Width, Height, bFullScreen, Simulator::GetInstance()->m_bUseOpenGL);
+	
+	// Add a handler to take care of crashes
+	g_pCommand_Impl = pCLinux;
+	g_pDeadlockHandler=DeadlockHandler;
+	g_pSocketCrashHandler=SocketCrashHandler;
+	
+	// Don't validate the device template, since the same binary is used for lots of devices
+	if (bLocalMode || (pCLinux->GetConfig() && pCLinux->Connect(0))) 
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+		pCLinux->Initialize(gtSDLGraphic);
+		
+		if (!bLocalMode)
+		{
+			pCLinux->CreateChildren();
+			pCLinux->WaitForRelativesIfOSD();
+		}
+		
+		//pCLinux->Initialize_Display();
+		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
+		Simulator::GetInstance()->m_pOrbiter = pCLinux;
+		
+		return pCLinux;
+	}
+	delete pCLinux;
+	return NULL;
 }
 
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
@@ -299,6 +301,8 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 
     sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
   }
+  else
+	((OrbiterSDL*)sdl_event_loop_data.pOrbiter)->OnIdle();
   return true;
 }
 
