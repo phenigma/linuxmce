@@ -138,7 +138,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
 #ifndef WINCE
-	if (m_bUseOpenGL)
+	if (m_bUseOpenGL && m_spAfterGraphic.get())
 		m_spAfterGraphic->Initialize();
 #endif
 }
