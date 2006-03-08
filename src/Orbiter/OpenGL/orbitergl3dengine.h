@@ -27,7 +27,6 @@ That class creates a default decorator for OpenGL operations thread.
 
 namespace DCE {
 
-
 class OrbiterGL3D {
 	Orbiter * pOrbiterGL;
 	TBasicWindow * Screen3D;
@@ -41,20 +40,37 @@ public:
 	GL2DEffectFactory* EffectBuilder;
 	FloatRect FullScreenSize;
 	
+	/**
+	 *    Default constructor, creates one OpenGL 3D engine over one Orbiter
+	 * @param pOrbiterGL The Orbiter associated to the OpenGL
+	 */
 	OrbiterGL3D (Orbiter * pOrbiterGL);
+	
 	~OrbiterGL3D ();
 
 	/**
-	 * That method paints the actual frame
+	 * That method paints the frame based of current time in OpenGL
 	 */
 	void Paint();
 	
+	/**
+	 * On pocket-frog or any OpenGL enabled on different context should be used BeginAnimation - EndAnimation
+	 */
 	void BeginAnimation();
 	void EndAnimation();
 
 private:
+	/**
+	 * Set up defaults parameters on OpenGL
+	 */
 	void InitOpenGL();
+	/**
+	 * clean up code
+	 */
 	void ReleaseOpenGL();
+	/**
+	 * Show the result of the animation
+	 */
 	void Flip();
 };
 
