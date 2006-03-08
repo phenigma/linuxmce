@@ -4481,10 +4481,10 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 
 			if(pRow_File)
 			{
-				if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get())))
+				if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get()+"/"+pRow_File->Filename_get())))
 				{
-					string sFilePath = FileUtils::BasePath(pRow_File->Path_get());
-					string sFileName = FileUtils::FilenameWithoutPath(pRow_File->Path_get(), false);
+					string sFilePath = pRow_File->Path_get();
+					string sFileName = pRow_File->Filename_get();
 					PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
 					int PK_File = PlutoMediaFile_.GetFileAttribute(false);
 					if(PK_File)
