@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #ifndef _WXFRAMEMAIN_H_
 #define _WXFRAMEMAIN_H_
 
@@ -14,7 +20,6 @@
 #include "wx/toolbar.h"
 #include "wx/statusbr.h"
 ////@end includes
-#include "wx_other.h"
 
 /*!
  * Forward declarations
@@ -62,23 +67,26 @@ class wxStatusBar;
 
 class wxFrameMain: public wxFrame
 {
-  DECLARE_CLASS( wxFrameMain )
-    DECLARE_EVENT_TABLE()
+    DECLARE_CLASS( wxFrameMain )
+        DECLARE_EVENT_TABLE()
 
-    public:
-  /// Constructors
-  wxFrameMain( );
-  wxFrameMain( wxWindow* parent, wxWindowID id = SYMBOL_WXFRAMEMAIN_IDNAME, const wxString& caption = SYMBOL_WXFRAMEMAIN_TITLE, const wxPoint& pos = SYMBOL_WXFRAMEMAIN_POSITION, const wxSize& size = SYMBOL_WXFRAMEMAIN_SIZE, long style = SYMBOL_WXFRAMEMAIN_STYLE );
+        public:
+    /// Constructors
+    wxFrameMain( );
+    wxFrameMain( wxWindow* parent, wxWindowID id = SYMBOL_WXFRAMEMAIN_IDNAME, const wxString& caption = SYMBOL_WXFRAMEMAIN_TITLE, const wxPoint& pos = SYMBOL_WXFRAMEMAIN_POSITION, const wxSize& size = SYMBOL_WXFRAMEMAIN_SIZE, long style = SYMBOL_WXFRAMEMAIN_STYLE );
 
-  bool Create( wxWindow* parent, wxWindowID id = SYMBOL_WXFRAMEMAIN_IDNAME, const wxString& caption = SYMBOL_WXFRAMEMAIN_TITLE, const wxPoint& pos = SYMBOL_WXFRAMEMAIN_POSITION, const wxSize& size = SYMBOL_WXFRAMEMAIN_SIZE, long style = SYMBOL_WXFRAMEMAIN_STYLE );
+    bool Create( wxWindow* parent, wxWindowID id = SYMBOL_WXFRAMEMAIN_IDNAME, const wxString& caption = SYMBOL_WXFRAMEMAIN_TITLE, const wxPoint& pos = SYMBOL_WXFRAMEMAIN_POSITION, const wxSize& size = SYMBOL_WXFRAMEMAIN_SIZE, long style = SYMBOL_WXFRAMEMAIN_STYLE );
 
-  /// Creates the controls and sizers
-  void CreateControls();
+    /// Creates the controls and sizers
+    void CreateControls();
 
 ////@begin wxFrameMain event handler declarations
 
     /// wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN
     void OnCloseWindow( wxCloseEvent& event );
+
+    /// wxEVT_IDLE event handler for ID_FRAMEMAIN
+    void OnIdle( wxIdleEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
     void OnExitClick( wxCommandEvent& event );
@@ -142,27 +150,20 @@ class wxFrameMain: public wxFrame
     wxIcon GetIconResource( const wxString& name );
 ////@end wxFrameMain member function declarations
 
-  /// Should we show tooltips?
-  static bool ShowToolTips();
+    /// Should we show tooltips?
+    static bool ShowToolTips();
 
 ////@begin wxFrameMain member variables
-    wxToolBar* v_oToolBar;
-    wxTextCtrl* v_oLogTextCtrl;
-    wxStatusBar* v_oStatusBar;
+    wxToolBar* v_pToolBar;
+    wxTextCtrl* v_pLogTextCtrl;
+    wxStatusBar* v_pStatusBar;
 ////@end wxFrameMain member variables
 
-public:
-  virtual ~wxFrameMain();
-  bool Destroy();
+  public:
+    virtual ~wxFrameMain();
+    bool Destroy();
 
-  wxLogChain *pLogChain;
-protected:
-  void OnThreadCommandEvent(wxCommandEvent& event);
-  void OnIdle(wxIdleEvent& event);
-
-#if (! defined USE_DEBUG_CODE)
-  SDL_Event_Loop_Data sdl_event_loop_data;
-#endif // (! defined USE_DEBUG_CODE)
+    wxLogChain *pLogChain;
 };
 
 extern wxFrameMain *g_pwxFrameMain;

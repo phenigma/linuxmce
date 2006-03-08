@@ -1,0 +1,58 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma implementation "wx_main.h"
+#endif
+#include "wx/wxprec.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+#ifndef WX_PRECOMP
+#include "wx/wx.h"
+#endif
+
+#include "wx_main.h"
+
+int g_nExitCode = EXIT_SUCCESS;
+
+#ifdef USE_MAIN_CONSOLE
+int main(int argc, char *argv[])
+{
+    _WX_LOG_NFO("STARTED");
+    _WX_LOG_WRN("!! code for launching X should be added here !!");
+#ifdef USE_RELEASE_CODE
+#endif // USE_RELEASE_CODE
+    int nExitCode = EXIT_SUCCESS;
+    // wx initialize
+    {
+        _WX_LOG_NFO("wxEntry() begin");
+        nExitCode = wxEntry(argc, argv);
+        _WX_LOG_NFO("wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
+        _WX_LOG_NFO("wxEntry() end");
+    }
+    // be sure cleanup is ok
+    {
+        if (wxTheApp != NULL)
+        {
+            _WX_LOG_NFO("calling wxApp::OnExit()");
+            wxTheApp->OnExit();
+        }
+        if (wxTheApp != NULL)
+        {
+            _WX_LOG_NFO("calling wxApp::CleanUp()");
+#if wxCHECK_VERSION(2, 6, 0)
+            wxTheApp->CleanUp();
+#else // replacement code for old version
+            wxApp::CleanUp();
+#endif // wxCHECK_VERSION(2, 6, 0)
+        }
+        _WX_LOG_NFO("after wxApp::CleanUp(), wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
+    }
+    _WX_LOG_NFO("EXIT_SUCCESS ! CODE=%d", nExitCode);
+    return nExitCode;
+}
+#endif // USE_MAIN_CONSOLE

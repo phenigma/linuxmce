@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxframemain.h"
 #endif
@@ -17,13 +23,11 @@
 ////@end includes
 
 #include "wxframemain.h"
-#include "wx_other.h"
+#include "wxthread_bag.h"
 #include "wxdialog_roomwizard.h"
 #include "wxdialog_waitgrid.h"
 #include "wxdialog_waitlist.h"
 #include "wxdialog_waituser.h"
-#include "wxthreadbag.h"
-#include "wxthreadevent.h"
 
 ////@begin XPM images
 #include "exit.xpm"
@@ -36,7 +40,7 @@
  */
 
 IMPLEMENT_CLASS( wxFrameMain, wxFrame )
-  ;
+;
 
 /*!
  * wxFrameMain event table definition
@@ -46,6 +50,7 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
 ////@begin wxFrameMain event table entries
     EVT_CLOSE( wxFrameMain::OnCloseWindow )
+    EVT_IDLE( wxFrameMain::OnIdle )
 
     EVT_MENU( wxID_EXIT, wxFrameMain::OnExitClick )
 
@@ -75,11 +80,10 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
 ////@end wxFrameMain event table entries
 
-  EVT_THREAD_COMMAND(wxID_ANY, wxFrameMain::OnThreadCommandEvent)
-  EVT_IDLE(wxFrameMain::OnIdle)
+EVT_IDLE(wxFrameMain::OnIdle)
 
-  END_EVENT_TABLE()
-  ;
+END_EVENT_TABLE()
+;
 
 wxFrameMain *g_pwxFrameMain = NULL;
 
@@ -89,13 +93,13 @@ wxFrameMain *g_pwxFrameMain = NULL;
 
 wxFrameMain::wxFrameMain( )
 {
-  _wx_log_nfo("wxFrameMain::wxFrameMain()");
+    _WX_LOG_NFO();
 }
 
 wxFrameMain::wxFrameMain( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-  _wx_log_nfo("wxFrameMain::wxFrameMain(*)");
-  Create( parent, id, caption, pos, size, style );
+    _WX_LOG_NFO();
+    Create( parent, id, caption, pos, size, style );
 }
 
 /*!
@@ -104,13 +108,12 @@ wxFrameMain::wxFrameMain( wxWindow* parent, wxWindowID id, const wxString& capti
 
 bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-  _wx_log_nfo("wxFrameMain::Create(*)");
-  wxASSERT(g_pwxFrameMain == NULL);
-  g_pwxFrameMain = this;
+    _WX_LOG_NFO();
+    _COND_ASSIGN(g_pwxFrameMain, NULL, this);
 ////@begin wxFrameMain member initialisation
-    v_oToolBar = NULL;
-    v_oLogTextCtrl = NULL;
-    v_oStatusBar = NULL;
+    v_pToolBar = NULL;
+    v_pLogTextCtrl = NULL;
+    v_pStatusBar = NULL;
 ////@end wxFrameMain member initialisation
 
 ////@begin wxFrameMain creation
@@ -118,7 +121,7 @@ bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& capti
 
     CreateControls();
 ////@end wxFrameMain creation
-  return true;
+    return true;
 }
 
 /*!
@@ -127,7 +130,7 @@ bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& capti
 
 void wxFrameMain::CreateControls()
 {
-  _wx_log_nfo("wxFrameMain::CreateControls()");
+    _WX_LOG_NFO();
 ////@begin wxFrameMain content construction
     wxFrameMain* itemFrame1 = this;
 
@@ -135,63 +138,65 @@ void wxFrameMain::CreateControls()
     wxMenu* itemMenu3 = new wxMenu;
     itemMenu3->AppendSeparator();
     {
-        wxMenuItem* menuItem = new wxMenuItem(itemMenu3, wxID_EXIT, _T("Quit"), _T("Quit Application"), wxITEM_NORMAL);
+        wxMenuItem* menuItem = new wxMenuItem(itemMenu3, wxID_EXIT, _T("&Quit"), _T("Quit Application"), wxITEM_NORMAL);
         wxBitmap bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
         menuItem->SetBitmap(bitmap);
         itemMenu3->Append(menuItem);
     }
-    menuBar->Append(itemMenu3, _T("Menu"));
+    menuBar->Append(itemMenu3, _T("&Menu"));
     itemFrame1->SetMenuBar(menuBar);
 
-    v_oToolBar = CreateToolBar( wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN , ID_TOOLBAR_MAIN );
+    v_pToolBar = CreateToolBar( wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN , ID_TOOLBAR_MAIN );
     wxBitmap itemtool7Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
-    v_oToolBar->AddTool(wxID_EXIT, _T("Quit"), itemtool7Bitmap, wxNullBitmap, wxITEM_NORMAL, _T("Quit Application"), _T("Quit Application"));
-    v_oToolBar->AddSeparator();
+    wxBitmap itemtool7BitmapDisabled;
+    v_pToolBar->AddTool(wxID_EXIT, _T("Quit"), itemtool7Bitmap, itemtool7BitmapDisabled, wxITEM_NORMAL, _T("Quit Application"), _T("Quit Application"));
+    v_pToolBar->AddSeparator();
     wxBitmap itemtool9Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool9Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
+    wxBitmap itemtool9BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool9Bitmap, itemtool9BitmapDisabled, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
     wxBitmap itemtool10Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    v_oToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool10Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait Grid"), _T("Dialog Wait Grid"));
+    wxBitmap itemtool10BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool10Bitmap, itemtool10BitmapDisabled, wxITEM_CHECK, _T("Wait Grid"), _T("Dialog Wait Grid"));
     wxBitmap itemtool11Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    v_oToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool11Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
+    wxBitmap itemtool11BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool11Bitmap, itemtool11BitmapDisabled, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
     wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    v_oToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool12Bitmap, wxNullBitmap, wxITEM_CHECK, _T("Wait User"), _T("Dialog Wait User"));
-    v_oToolBar->AddSeparator();
+    wxBitmap itemtool12BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool12Bitmap, itemtool12BitmapDisabled, wxITEM_CHECK, _T("Wait User"), _T("Dialog Wait User"));
+    v_pToolBar->AddSeparator();
     wxBitmap itemtool14Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool14Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
+    wxBitmap itemtool14BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool14Bitmap, itemtool14BitmapDisabled, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
     wxBitmap itemtool15Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool15Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
+    wxBitmap itemtool15BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool15Bitmap, itemtool15BitmapDisabled, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
     wxBitmap itemtool16Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool16Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    wxBitmap itemtool16BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool16Bitmap, itemtool16BitmapDisabled, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
     wxBitmap itemtool17Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    v_oToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool17Bitmap, wxNullBitmap, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
-    v_oToolBar->AddSeparator();
-    v_oToolBar->Realize();
-    itemFrame1->SetToolBar(v_oToolBar);
+    wxBitmap itemtool17BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool17Bitmap, itemtool17BitmapDisabled, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
+    v_pToolBar->AddSeparator();
+    v_pToolBar->Realize();
+    itemFrame1->SetToolBar(v_pToolBar);
 
-    v_oLogTextCtrl = new wxTextCtrl;
-    v_oLogTextCtrl->Create( itemFrame1, ID_TEXTCTRL_LOG, _T(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
-    v_oLogTextCtrl->SetForegroundColour(wxColour(0, 0, 128));
-    v_oLogTextCtrl->SetBackgroundColour(wxColour(229, 229, 229));
-    v_oLogTextCtrl->SetFont(wxFont(8, wxTELETYPE, wxNORMAL, wxNORMAL, false, _T("Console")));
+    v_pLogTextCtrl = new wxTextCtrl;
+    v_pLogTextCtrl->Create( itemFrame1, ID_TEXTCTRL_LOG, _T(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
+    v_pLogTextCtrl->SetForegroundColour(wxColour(0, 0, 128));
+    v_pLogTextCtrl->SetBackgroundColour(wxColour(229, 229, 229));
+    v_pLogTextCtrl->SetFont(wxFont(8, wxTELETYPE, wxNORMAL, wxNORMAL, false, _T("Console")));
 
-    v_oStatusBar = new wxStatusBar;
-    v_oStatusBar->Create( itemFrame1, ID_STATUSBAR_MAIN, wxST_SIZEGRIP|wxNO_BORDER|wxCLIP_CHILDREN  );
-    v_oStatusBar->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false, _T("Sans")));
-    v_oStatusBar->SetFieldsCount(1);
-    itemFrame1->SetStatusBar(v_oStatusBar);
+    v_pStatusBar = new wxStatusBar;
+    v_pStatusBar->Create( itemFrame1, ID_STATUSBAR_MAIN, wxST_SIZEGRIP|wxNO_BORDER|wxCLIP_CHILDREN  );
+    v_pStatusBar->SetFont(wxFont(8, wxSWISS, wxNORMAL, wxNORMAL, false, _T("Sans")));
+    v_pStatusBar->SetFieldsCount(1);
+    itemFrame1->SetStatusBar(v_pStatusBar);
 
 ////@end wxFrameMain content construction
-  pLogChain = NULL;
-  pLogChain = new wxLogChain(new wxLogTextCtrl(v_oLogTextCtrl));
-  new wxThreadBag;
-#ifdef USE_DEBUG_CODE
-#else // USE_DEBUG_CODE
-  CommandLineParams commandlineparams;
-  bool bStartedOK = ParseCommandLineParams(wxTheApp->argc, wxTheApp->argv, commandlineparams);
-  if (! bStartedOK)
-    return;
-	sdl_event_loop_data.pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
-#endif // USE_DEBUG_CODE
+
+    // log also in text control
+    pLogChain = new wxLogChain(new wxLogTextCtrl(v_pLogTextCtrl));
+    new wxThread_Bag;
 }
 
 /*!
@@ -200,12 +205,26 @@ void wxFrameMain::CreateControls()
 
 void wxFrameMain::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 {
-  _wx_log_nfo("wxFrameMain::OnCloseWindow(*)");
+    _WX_LOG_NFO();
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN in wxFrameMain.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
     window->Destroy();
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN in wxFrameMain.
+}
+
+/*!
+ * wxEVT_IDLE event handler for ID_FRAMEMAIN
+ */
+
+void wxFrameMain::OnIdle( wxIdleEvent& event )
+{
+    wxAppSetReady();
+    wxFrame::OnIdle(event);
+////@begin wxEVT_IDLE event handler for ID_FRAMEMAIN in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_IDLE event handler for ID_FRAMEMAIN in wxFrameMain.
 }
 
 /*!
@@ -226,10 +245,15 @@ void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 
 void wxFrameMain::OnToolRoomwizardClick( wxCommandEvent& event )
 {
-  if (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE))
-    wxDialog_RoomWizard_Close(false);
-  else
-    wxDialog_RoomWizard_Show();
+    wxDialog_RoomWizard *pwxDialog = ptr_wxWindowByName<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE);
+    if (pwxDialog)
+        wxDialog_Close<wxDialog_RoomWizard>(pwxDialog);
+    else
+        wxDialog_Show<wxDialog_RoomWizard>(
+            wxDialog_CreateUnique<wxDialog_RoomWizard>(
+                SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME,
+                SYMBOL_WXDIALOG_ROOMWIZARD_TITLE)
+            );
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -242,7 +266,7 @@ void wxFrameMain::OnToolRoomwizardClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolRoomwizardUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
+    v_pToolBar->ToggleTool(ID_TOOL_ROOMWIZARD, (wxWindow::FindWindowByName(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE)));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -255,16 +279,22 @@ void wxFrameMain::OnToolRoomwizardUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaitgridClick( wxCommandEvent& event )
 {
-  wxDialog_WaitGrid *pwxDialog = (wxDialog_WaitGrid *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE);
-  if (pwxDialog)
-  {
-    pwxDialog->Destroy();
-  }
-  else
-  {
-    pwxDialog = new wxDialog_WaitGrid(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITGRID_IDNAME, SYMBOL_WXDIALOG_WAITGRID_TITLE);
-    pwxDialog->Show(true);
-  }
+    wxDialog_WaitGrid *pwxDialog = ptr_wxWindowByName<wxDialog_WaitGrid>(SYMBOL_WXDIALOG_WAITGRID_TITLE);
+    if (pwxDialog)
+        wxDialog_Close<wxDialog_WaitGrid>(pwxDialog);
+    else
+        wxDialog_Show<wxDialog_WaitGrid>(
+            wxDialog_CreateUnique<wxDialog_WaitGrid>(
+                SYMBOL_WXDIALOG_WAITGRID_IDNAME,
+                SYMBOL_WXDIALOG_WAITGRID_TITLE)
+            );
+#ifdef DEBUG_REFRESH_ON_THREAD
+    {
+        wxDialog_WaitGrid *pwxDialog = ptr_wxWindowByName<wxDialog_WaitGrid>(SYMBOL_WXDIALOG_WAITGRID_TITLE);
+        if (pwxDialog)
+            ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_refresh_update", _debug_refresh_update) )->Start();
+    }
+#endif // DEBUG_REFRESH_ON_THREAD
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -277,7 +307,7 @@ void wxFrameMain::OnToolWaitgridClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolWaitgridUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITGRID_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE));
+    v_pToolBar->ToggleTool(ID_TOOL_WAITGRID, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITGRID in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -290,16 +320,15 @@ void wxFrameMain::OnToolWaitgridUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaitlistClick( wxCommandEvent& event )
 {
-  wxDialog_WaitList *pwxDialog = (wxDialog_WaitList *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE);
-  if (pwxDialog)
-  {
-    pwxDialog->Destroy();
-  }
-  else
-  {
-    pwxDialog = new wxDialog_WaitList(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITLIST_IDNAME, SYMBOL_WXDIALOG_WAITLIST_TITLE);
-    pwxDialog->Show(true);
-  }
+    wxDialog_WaitList *pwxDialog = ptr_wxWindowByName<wxDialog_WaitList>(SYMBOL_WXDIALOG_WAITLIST_TITLE);
+    if (pwxDialog)
+        wxDialog_Close<wxDialog_WaitList>(pwxDialog);
+    else
+        wxDialog_Show<wxDialog_WaitList>(
+            wxDialog_CreateUnique<wxDialog_WaitList>(
+                SYMBOL_WXDIALOG_WAITLIST_IDNAME,
+                SYMBOL_WXDIALOG_WAITLIST_TITLE)
+            );
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -312,7 +341,7 @@ void wxFrameMain::OnToolWaitlistClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolWaitlistUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITLIST_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE));
+    v_pToolBar->ToggleTool(ID_TOOL_WAITLIST, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITLIST in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -325,16 +354,15 @@ void wxFrameMain::OnToolWaitlistUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaituserClick( wxCommandEvent& event )
 {
-  wxDialog_WaitUser *pwxDialog = (wxDialog_WaitUser *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE);
-  if (pwxDialog)
-  {
-    pwxDialog->Destroy();
-  }
-  else
-  {
-    pwxDialog = new wxDialog_WaitUser(wxTheApp->GetTopWindow(), SYMBOL_WXDIALOG_WAITUSER_IDNAME, SYMBOL_WXDIALOG_WAITUSER_TITLE);
-    pwxDialog->Show(true);
-  }
+    wxDialog_WaitUser *pwxDialog = ptr_wxWindowByName<wxDialog_WaitUser>(SYMBOL_WXDIALOG_WAITUSER_TITLE);
+    if (pwxDialog)
+        wxDialog_Close<wxDialog_WaitUser>(pwxDialog);
+    else
+        wxDialog_Show<wxDialog_WaitUser>(
+            wxDialog_CreateUnique<wxDialog_WaitUser>(
+                SYMBOL_WXDIALOG_WAITUSER_IDNAME,
+                SYMBOL_WXDIALOG_WAITUSER_TITLE)
+            );
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -347,7 +375,7 @@ void wxFrameMain::OnToolWaituserClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolWaituserUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(SYMBOL_WXDIALOG_WAITUSER_IDNAME, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE));
+    v_pToolBar->ToggleTool(ID_TOOL_WAITUSER, wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_WAITUSER in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -358,22 +386,20 @@ void wxFrameMain::OnToolWaituserUpdate( wxUpdateUIEvent& event )
  * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_D
  */
 
-void wxFrameMain::OnToolUBDClick( wxCommandEvent& WXUNUSED(event) )
+void wxFrameMain::OnToolUBDClick( wxCommandEvent& event )
 {
-  if (g_pwxThreadBag->GetCount())
-  {
-    g_pwxThreadBag->DestroyAll();
-  }
-  else
-  {
-    g_pwxThreadBag->Start(debug_thread_sample_block, wxTHREAD_DETACHED, "debug_thread_sample_block_D");
-  }
-  /*
+    if (g_pwxThread_Bag->GetCount())
+    {
+        g_pwxThread_Bag->DestroyAll();
+    }
+    else
+    {
+        ( new wxThread_Cmd(wxTHREAD_DETACHED, "_debug_thread_block_D", _debug_thread_block) )->Start();
+    }
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_D in wxFrameMain.
-*/
 }
 
 /*!
@@ -382,7 +408,7 @@ void wxFrameMain::OnToolUBDClick( wxCommandEvent& WXUNUSED(event) )
 
 void wxFrameMain::OnToolUBDUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_U_B_D, g_pwxThreadBag->GetCount());
+    v_pToolBar->ToggleTool(ID_TOOL_U_B_D, g_pwxThread_Bag->GetCount());
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_B_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -395,14 +421,14 @@ void wxFrameMain::OnToolUBDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
 {
-  if (g_pwxThreadBag->GetCount())
-  {
-    g_pwxThreadBag->DestroyAll();
-  }
-  else
-  {
-    g_pwxThreadBag->Start(debug_thread_sample_block, wxTHREAD_JOINABLE, "debug_thread_sample_block_J");
-  }
+    if (g_pwxThread_Bag->GetCount())
+    {
+        g_pwxThread_Bag->DestroyAll();
+    }
+    else
+    {
+        ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_thread_block_J", _debug_thread_block) )->Start();
+    }
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -415,7 +441,7 @@ void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUBJUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_U_B_J, g_pwxThreadBag->GetCount());
+    v_pToolBar->ToggleTool(ID_TOOL_U_B_J, g_pwxThread_Bag->GetCount());
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_B_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -428,14 +454,14 @@ void wxFrameMain::OnToolUBJUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNDClick( wxCommandEvent& event )
 {
-  if (g_pwxThreadBag->GetCount())
-  {
-    g_pwxThreadBag->DestroyAll();
-  }
-  else
-  {
-    g_pwxThreadBag->Start(debug_thread_sample_nonblock, wxTHREAD_DETACHED, "debug_thread_sample_nonblock_D");
-  }
+    if (g_pwxThread_Bag->GetCount())
+    {
+        g_pwxThread_Bag->DestroyAll();
+    }
+    else
+    {
+        ( new wxThread_Cmd(wxTHREAD_DETACHED, "_debug_thread_nonblock_D", _debug_thread_nonblock) )->Start();
+    }
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_N_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -448,7 +474,7 @@ void wxFrameMain::OnToolUNDClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUNDUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_U_N_D, g_pwxThreadBag->GetCount());
+    v_pToolBar->ToggleTool(ID_TOOL_U_N_D, g_pwxThread_Bag->GetCount());
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_N_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -461,14 +487,14 @@ void wxFrameMain::OnToolUNDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNJClick( wxCommandEvent& event )
 {
-  if (g_pwxThreadBag->GetCount())
-  {
-    g_pwxThreadBag->DestroyAll();
-  }
-  else
-  {
-    g_pwxThreadBag->Start(debug_thread_sample_nonblock, wxTHREAD_JOINABLE, "debug_thread_sample_nonblock_J");
-  }
+    if (g_pwxThread_Bag->GetCount())
+    {
+        g_pwxThread_Bag->DestroyAll();
+    }
+    else
+    {
+        ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_thread_nonblock_J", _debug_thread_nonblock) )->Start();
+    }
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_N_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -481,7 +507,7 @@ void wxFrameMain::OnToolUNJClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 {
-  v_oToolBar->ToggleTool(ID_TOOL_U_N_J, g_pwxThreadBag->GetCount());
+    v_pToolBar->ToggleTool(ID_TOOL_U_N_J, g_pwxThread_Bag->GetCount());
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_N_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -494,7 +520,7 @@ void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 
 bool wxFrameMain::ShowToolTips()
 {
-  return true;
+    return true;
 }
 
 /*!
@@ -503,8 +529,7 @@ bool wxFrameMain::ShowToolTips()
 
 wxBitmap wxFrameMain::GetBitmapResource( const wxString& name )
 {
-  //_wx_log_nfo("wxFrameMain::GetBitmapResource(*)");
-  // Bitmap retrieval
+    // Bitmap retrieval
 ////@begin wxFrameMain bitmap retrieval
     wxUnusedVar(name);
     if (name == _T("exit.png"))
@@ -532,58 +557,25 @@ wxBitmap wxFrameMain::GetBitmapResource( const wxString& name )
 
 wxIcon wxFrameMain::GetIconResource( const wxString& name )
 {
-  _wx_log_nfo("wxFrameMain::GetIconResource(*)");
-  // Icon retrieval
+    // Icon retrieval
 ////@begin wxFrameMain icon retrieval
     wxUnusedVar(name);
     return wxNullIcon;
 ////@end wxFrameMain icon retrieval
 }
 
-bool wxFrameMain::Destroy()
-{
-  _wx_log_nfo("wxFrameMain::Destroy()");
-  if (wxThreadBag *pwxThreadBag = g_pwxThreadBag)
-    delete pwxThreadBag;
-  if (pLogChain)
-    pLogChain->SetLog(NULL);
-  // NO : wxDELETE(pLogChain);
-#ifdef USE_DEBUG_CODE
-#else // USE_DEBUG_CODE
-  if (sdl_event_loop_data.pOrbiter->m_bReload)
-    g_nExitCode = 2;
-  SDL_Event_Loop_End(sdl_event_loop_data);
-	delete g_pPlutoLogger;
-	//if( bReload )
-	//	return 2;
-	//else
-	//    return 0;
-#endif // USE_DEBUG_CODE
-  return wxFrame::Destroy();
-}
-
 wxFrameMain::~wxFrameMain()
 {
-  wxASSERT(g_pwxFrameMain == this);
-  g_pwxFrameMain = NULL;
+    _COND_ASSIGN(g_pwxFrameMain, this, NULL);
 }
 
-void wxFrameMain::OnThreadCommandEvent(wxCommandEvent& event)
+bool wxFrameMain::Destroy()
 {
-  _wx_log_nfo("wxFrameMain::OnThreadCommandEvent(*) : %s", _str_thread_event(event));
-}
-
-void wxFrameMain::OnIdle(wxIdleEvent& WXUNUSED(event))
-{
-  //_wx_log_nfo("wxFrameMain::OnIdle(*)");
-  //_wx_log_status_threads();
-#if (! defined USE_DEBUG_CODE)
-  if (sdl_event_loop_data.pOrbiter)
-  {
-    if (! SDL_Event_Process(sdl_event_loop_data))
-      Destroy();
-  }
-  wx_Sleep(0, 10);
-  ::wxWakeUpIdle();
-#endif // (! defined USE_DEBUG_CODE)
+    _WX_LOG_NFO();
+    if (wxThread_Bag *pwxThread_Bag = g_pwxThread_Bag)
+        delete pwxThread_Bag;
+    if (pLogChain)
+        pLogChain->SetLog(NULL);
+    // NO : wxDELETE(pLogChain);
+    return wxFrame::Destroy();
 }

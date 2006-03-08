@@ -6,11 +6,11 @@
         <title>wxApplication</title>
         <object class="wxMenuBar" name="ID_MENUBAR_MAIN">
             <object class="wxMenu">
-                <label>Menu</label>
+                <label>&amp;Menu</label>
                 <object class="separator">
                 </object>
                 <object class="wxMenuItem" name="wxID_EXIT">
-                    <label>Quit</label>
+                    <label>&amp;Quit</label>
                     <help>Quit Application</help>
                     <bitmap>exit.png</bitmap>
                 </object>
@@ -123,13 +123,10 @@
             <widths></widths>
         </object>
     </object>
-    <object class="wxDialog" name="ID_DIALOG_ROOMWIZARD" subclass="wxDialog_RoomWizard">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN </style>
+    <object class="wxDialog" name="ID_DIALOG_BASE" subclass="wxDialog_Base">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
-        <fg>#FFFFFF</fg>
-        <bg>#0000FF</bg>
-        <size>300,100d</size>
-        <title>Room Wizard</title>
+        <title>wx Dialog_Base</title>
         <font>
             <size>12</size>
             <family>swiss</family>
@@ -138,7 +135,15 @@
             <underlined>0</underlined>
             <face>Sans</face>
         </font>
-        <object class="wxBoxSizer" name="v_oBoxV_all">
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_ROOMWIZARD" subclass="wxDialog_RoomWizard">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <fg>#FFFFFF</fg>
+        <bg>#000080</bg>
+        <size>300,100d</size>
+        <title>Room Wizard</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
                 <flag>wxGROW</flag>
@@ -153,41 +158,34 @@
                         <underlined>0</underlined>
                         <face>Sans</face>
                     </font>
-                    <style>wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
+                    <style>wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
                     <fg>#FFFFFF</fg>
-                    <bg>#0000FF</bg>
+                    <bg>#000080</bg>
                 </object>
             </object>
         </object>
     </object>
     <object class="wxDialog" name="ID_DIALOG_WAITGRID" subclass="wxDialog_WaitGrid">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxCLIP_CHILDREN </style>
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
         <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>228,184d</size>
         <title>Wait Grid</title>
-        <font>
-            <size>12</size>
-            <family>swiss</family>
-            <style>normal</style>
-            <weight>bold</weight>
-            <underlined>0</underlined>
-            <face>Sans</face>
-        </font>
-        <object class="wxBoxSizer" name="v_oBoxV_all">
+        <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_oBoxH_top">
+                <object class="wxBoxSizer" name="v_pBoxH_top">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                         <border>10</border>
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
+                            <style>wxNO_BORDER</style>
                             <bitmap>logo_pluto.jpg</bitmap>
                         </object>
                     </object>
@@ -204,9 +202,9 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxRAISED_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
-                            <fg>#FFFFFF</fg>
-                            <bg>#0000FF</bg>
+                            <style>wxSUNKEN_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
+                            <fg>#E0E0F0</fg>
+                            <bg>#E0E0F0</bg>
                         </object>
                     </object>
                 </object>
@@ -215,7 +213,7 @@
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_oBoxH_mid">
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxGROW|wxALL</flag>
@@ -230,7 +228,7 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
+                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
                             <bg>#E0E0F0</bg>
                             <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
  Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
@@ -242,7 +240,7 @@
             <object class="sizeritem">
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
-                <object class="wxBoxSizer" name="v_oBoxH_bot">
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
@@ -257,7 +255,7 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH</style>
+                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
                             <value>50</value>
                             <range>100</range>
                         </object>
@@ -283,36 +281,37 @@
         </object>
     </object>
     <object class="wxDialog" name="ID_DIALOG_WAITLIST" subclass="wxDialog_WaitList">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxCLIP_CHILDREN </style>
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
         <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>400,300d</size>
         <title>Wait List</title>
-        <font>
-            <size>12</size>
-            <family>swiss</family>
-            <style>normal</style>
-            <weight>bold</weight>
-            <underlined>0</underlined>
-            <face>Sans</face>
-        </font>
-        <object class="wxBoxSizer" name="v_oBoxV_all">
+        <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_oBoxH_top">
+                <object class="wxBoxSizer" name="v_pBoxH_top">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                         <border>10</border>
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
+                            <style>wxNO_BORDER</style>
                             <bitmap>logo_pluto.jpg</bitmap>
                         </object>
                     </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
+                    <orient>wxVERTICAL</orient>
                     <object class="sizeritem">
                         <flag>wxGROW|wxALL</flag>
                         <border>10</border>
@@ -332,14 +331,6 @@
 </value>
                         </object>
                     </object>
-                </object>
-            </object>
-            <object class="sizeritem">
-                <flag>wxGROW|wxALL</flag>
-                <border>5</border>
-                <option>1</option>
-                <object class="wxBoxSizer" name="v_oBoxH_mid">
-                    <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxGROW|wxALL</flag>
                         <border>10</border>
@@ -353,7 +344,7 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
+                            <style>wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
                             <bg>#E0E0F0</bg>
                             <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
  Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
@@ -365,7 +356,7 @@
             <object class="sizeritem">
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
-                <object class="wxBoxSizer" name="v_oBoxH_bot">
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
@@ -380,7 +371,7 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH</style>
+                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
                             <value>50</value>
                             <range>100</range>
                         </object>
@@ -390,33 +381,52 @@
         </object>
     </object>
     <object class="wxDialog" name="ID_DIALOG_WAITUSER" subclass="wxDialog_WaitUser">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxCLIP_CHILDREN </style>
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
         <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>130,113d</size>
         <title>Wait User</title>
-        <font>
-            <size>12</size>
-            <family>swiss</family>
-            <style>normal</style>
-            <weight>bold</weight>
-            <underlined>0</underlined>
-            <face>Sans</face>
-        </font>
-        <object class="wxBoxSizer" name="v_oBoxV_all">
+        <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
-                <object class="wxBoxSizer" name="v_oBoxH_top">
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_pBoxH_top">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                         <border>10</border>
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
+                            <style>wxNO_BORDER</style>
                             <bitmap>logo_pluto.jpg</bitmap>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL</flag>
+                        <border>0</border>
+                        <option>1</option>
+                        <object class="wxBoxSizer" name="v_pBoxSpace">
+                            <orient>wxVERTICAL</orient>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>10</border>
+                        <object class="wxGauge" name="ID_GAUGE_WAITUSER">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxGA_VERTICAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
+                            <value>50</value>
+                            <range>100</range>
                         </object>
                     </object>
                 </object>
@@ -425,7 +435,7 @@
                 <flag>wxGROW|wxALL</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_oBoxH_mid">
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxGROW|wxALL</flag>
@@ -440,7 +450,7 @@
                                 <underlined>0</underlined>
                                 <face>Sans</face>
                             </font>
-                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
+                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
                             <bg>#E0E0F0</bg>
                             <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
  Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
@@ -452,7 +462,7 @@
             <object class="sizeritem">
                 <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                 <border>5</border>
-                <object class="wxBoxSizer" name="v_oBoxH_bot">
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>

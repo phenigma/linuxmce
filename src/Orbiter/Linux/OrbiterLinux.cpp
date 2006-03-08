@@ -1,3 +1,7 @@
+#include <stdlib.h>
+bool _DEBUG_SDL_ = (getenv("OLD_X11_DLG"));
+bool _DEBUG_WX_ = (! _DEBUG_SDL_);
+
 /*
   OrbiterLinux
 
@@ -14,6 +18,12 @@
   or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
 */
+
+#include "../wxAppMain/wx_all_include.cpp"
+#include "../wxAppMain/wx_all_include.h"
+#include "../wxAppMain/wxdialog_waitgrid.h"
+#include "../wxAppMain/wxdialog_waitlist.h"
+#include "../wxAppMain/wxdialog_waituser.h"
 
 #include "DCE/Logger.h"
 #include "OrbiterLinux.h"
@@ -55,7 +65,12 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
       // initializations
       desktopInScreen(0),
       XServerDisplay(NULL),
-      m_pProgressWnd(NULL)
+      m_pProgressWnd(NULL),//DEL
+      m_pWaitGrid(NULL),
+      m_bButtonPressed_WaitGrid(false),
+      m_pWaitList(NULL),
+      m_bButtonPressed_WaitList(false),
+      m_pWaitUser(NULL)
 {
   XInitThreads();
   openDisplay();
@@ -87,11 +102,24 @@ OrbiterLinux::~OrbiterLinux()
   pthread_t hackthread;
   pthread_create(&hackthread, NULL, HackThread, (void*)this);
 
-  if (m_pProgressWnd)
+  if (_DEBUG_SDL_)
   {
-    m_pProgressWnd->Terminate();
-    delete m_pProgressWnd;
-  }
+    if (m_pProgressWnd)
+    {
+      m_pProgressWnd->Terminate();
+      delete m_pProgressWnd;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if (m_pWaitGrid)
+      wxDialog_Close<wxDialog_WaitGrid>(m_pWaitGrid);
+    if (m_pWaitList)
+      wxDialog_Close<wxDialog_WaitList>(m_pWaitList);
+    if (m_pWaitUser)
+      wxDialog_Close<wxDialog_WaitUser>(m_pWaitUser);
+  } // _DEBUG_WX_
+
   KillMaintThread();
 
   delete m_pRecordHandler;
@@ -187,6 +215,10 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
   vector<int> vectButtonMaps;
   GetButtonsInObject(pObj,vectButtonMaps);
 
+  g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : name='%s' ptr=%p coord=[%d,%d,%d,%d]",
+                        m_sCurrentAppDesktopName.c_str(), pObj,
+                        rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom()
+                        ); //DEL
   resizeMoveDesktop(rectTotal.Left(), rectTotal.Top(),
                     rectTotal.Right() - rectTotal.Left(),
                     rectTotal.Bottom() - rectTotal.Top());
@@ -404,38 +436,105 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
 
 bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
 {
-  std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
+  std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
 
-  if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+  if (_DEBUG_SDL_)
   {
-    delete m_pProgressWnd;
-    m_pProgressWnd = NULL;
-    return true;
-  }
+    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+    {
+      delete m_pProgressWnd;
+      m_pProgressWnd = NULL;
+      return true;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
+    {
+      // window already closed
+      m_pWaitGrid = NULL;
+      // notify by return value
+      return true;
+    }
+  } // _DEBUG_WX_
 
-  if (nProgress != -1 && !m_pProgressWnd) {
-    // Create the progress window ...
-    m_pProgressWnd = new XProgressWnd();
-    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-    m_pProgressWnd->Run();
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
+  if (_DEBUG_SDL_)
+  {
+    if (nProgress != -1 && !m_pProgressWnd)
+    {
+      // Create the progress window ...
+      m_pProgressWnd = new XProgressWnd();
+      m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+      m_pProgressWnd->Run();
+      commandRatPoison(":set winname class");
+      commandRatPoison(":desktop off");
 
-    commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
-  } else if (nProgress != -1) {
-    // Update progress info
-    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-    m_pProgressWnd->DrawWindow();
-  } else if(m_pProgressWnd) {
-    // We are done here ...
-    m_pProgressWnd->Terminate();
-    m_pProgressWnd = NULL;
-    reinitGraphics();
-  }
+      commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+      commandRatPoison(":desktop on");
+      commandRatPoison(":keystodesktop on");
+      commandRatPoison(":keybindings off");
+      setDesktopVisible(false);
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitGrid == NULL) && (nProgress >= 0) )
+    {
+      // create new window
+      m_pWaitGrid = wxDialog_CreateUnique<wxDialog_WaitGrid>(
+        SYMBOL_WXDIALOG_WAITGRID_IDNAME,
+        SYMBOL_WXDIALOG_WAITGRID_TITLE);
+      wxDialog_Show<wxDialog_WaitGrid>(m_pWaitGrid);
+      commandRatPoison(":set winname class");
+      commandRatPoison(":desktop off");
+      commandRatPoison(string(":select ") + "dialog");
+      commandRatPoison(":desktop on");
+      commandRatPoison(":keystodesktop on");
+      commandRatPoison(":keybindings off");
+      setDesktopVisible(false);
+      return false;
+    }
+  } // _DEBUG_WX_
+  if (_DEBUG_SDL_)
+  {
+    /*else*/ if (nProgress != -1)
+    {
+      // Update progress info
+      m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+      m_pProgressWnd->DrawWindow();
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
+    {
+      // update
+      m_pWaitGrid->NewDataRefresh(sMessage, mapChildDevices, nProgress);
+      return false;
+    }
+  } // _DEBUG_WX_
+  if (_DEBUG_SDL_)
+  {
+    /*else*/ if(m_pProgressWnd)
+    {
+      // We are done here ...
+      m_pProgressWnd->Terminate();
+      m_pProgressWnd = NULL;
+      reinitGraphics();
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitGrid != NULL) && (nProgress < 0) )
+    {
+      wxDialog_Close<wxDialog_WaitGrid>(m_pWaitGrid);
+      m_pWaitGrid = NULL;
+      return false;
+    }
+  } // _DEBUG_WX_
 
   return false;
 }
@@ -444,70 +543,156 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 {
   std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
 
-  if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+  if (_DEBUG_SDL_)
   {
-    delete m_pProgressWnd;
-    m_pProgressWnd = NULL;
-    return true;
-  }
+    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+    {
+      delete m_pProgressWnd;
+      m_pProgressWnd = NULL;
+      return true;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
+    {
+      // window already closed
+      m_pWaitList = NULL;
+      // notify by return value
+      return true;
+    }
+  } // _DEBUG_WX_
 
-  if (nProgress != -1 && !m_pProgressWnd) {
-    // Create the progress window ...
-    m_pProgressWnd = new XProgressWnd();
-    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-    m_pProgressWnd->Run();
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
+  if (_DEBUG_SDL_)
+  {
+    if (nProgress != -1 && !m_pProgressWnd)
+    {
+      // Create the progress window ...
+      m_pProgressWnd = new XProgressWnd();
+      m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+      m_pProgressWnd->Run();
+      commandRatPoison(":set winname class");
+      commandRatPoison(":desktop off");
 
-    commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
-  } else if (nProgress != -1) {
-    // Update progress info
-    m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-    m_pProgressWnd->DrawWindow();
-  } else if(m_pProgressWnd) {
-    // We are done here ...
-    m_pProgressWnd->Terminate();
-    m_pProgressWnd = NULL;
-    reinitGraphics();
-  }
+      commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+      commandRatPoison(":desktop on");
+      commandRatPoison(":keystodesktop on");
+      commandRatPoison(":keybindings off");
+      setDesktopVisible(false);
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitList == NULL) && (nProgress >= 0) )
+    {
+      // create new window
+      m_pWaitList = wxDialog_CreateUnique<wxDialog_WaitList>(
+        SYMBOL_WXDIALOG_WAITLIST_IDNAME,
+        SYMBOL_WXDIALOG_WAITLIST_TITLE);
+      wxDialog_Show<wxDialog_WaitList>(m_pWaitList);
+      commandRatPoison(":set winname class");
+      commandRatPoison(":desktop off");
+      commandRatPoison(string(":select ") + "dialog");
+      commandRatPoison(":desktop on");
+      commandRatPoison(":keystodesktop on");
+      commandRatPoison(":keybindings off");
+      setDesktopVisible(false);
+      return false;
+    }
+  } // _DEBUG_WX_
+  if (_DEBUG_SDL_)
+  {
+    /*else*/ if (nProgress != -1)
+    {
+      // Update progress info
+      m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+      m_pProgressWnd->DrawWindow();
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitList != NULL) && (nProgress >= 0) )
+    {
+      // update
+      m_pWaitList->NewDataRefresh(sMessage, nProgress);
+      return false;
+    }
+  } // _DEBUG_WX_
+  if (_DEBUG_SDL_)
+  {
+    /*else*/ if(m_pProgressWnd)
+    {
+      // We are done here ...
+      m_pProgressWnd->Terminate();
+      m_pProgressWnd = NULL;
+      reinitGraphics();
+      return false;
+    }
+  } // _DEBUG_SDL_
+  if (_DEBUG_WX_)
+  {
+    if ( (m_pWaitList != NULL) && (nProgress < 0) )
+    {
+      wxDialog_Close<wxDialog_WaitList>(m_pWaitList);
+      m_pWaitList = NULL;
+      return false;
+    }
+  } // _DEBUG_WX_
 
   return false;
 }
 
 int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
-#if 0
-  return PROMPT_CANCEL;
-#else
+//#if 0
+//  return PROMPT_CANCEL;
+//#else
   map<int,string> mapPrompts;
   mapPrompts[PROMPT_CANCEL]    = "Ok";
   if (p_mapPrompts == NULL) {
     p_mapPrompts = &mapPrompts;
   }
+  std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 
-  XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
-  promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
+  if (_DEBUG_WX_)
+  {
+    m_pWaitUser = wxDialog_CreateUnique<wxDialog_WaitUser>(
+      SYMBOL_WXDIALOG_WAITUSER_IDNAME,
+      SYMBOL_WXDIALOG_WAITUSER_TITLE);
+    commandRatPoison(":set winname class");
+    commandRatPoison(":desktop off");
+    commandRatPoison(string(":select ") + "dialog");
+    commandRatPoison(":desktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
+    setDesktopVisible(false);
+    int nButtonId = wxDialog_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
+    return nButtonId;
+  } // _DEBUG_WX_
 
-  promptDlg.Init();
-  commandRatPoison(":set winname class");
-  commandRatPoison(":desktop off");
+  if (_DEBUG_SDL_)
+  {
+    XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
+    promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
+    promptDlg.Init();
 
-  commandRatPoison(string(":select ") + promptDlg.m_wndName);
-  commandRatPoison(":desktop on");
-  commandRatPoison(":keystodesktop on");
-  commandRatPoison(":keybindings off");
-  setDesktopVisible(false);
+    commandRatPoison(":set winname class");
+    commandRatPoison(":desktop off");
+    commandRatPoison(string(":select ") + promptDlg.m_wndName);
+    commandRatPoison(":desktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
+    setDesktopVisible(false);
 
-  int nUserAnswer = promptDlg.RunModal();
+    int nUserAnswer = promptDlg.RunModal();
 
-  promptDlg.DeInit();
+    promptDlg.DeInit();
 
-  return nUserAnswer;
-#endif
+    return nUserAnswer;
+  } // _DEBUG_SDL_
+//#endif
 }
 
 ScreenHandler *OrbiterLinux::CreateScreenHandler()

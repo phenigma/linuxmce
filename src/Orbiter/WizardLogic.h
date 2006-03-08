@@ -86,7 +86,7 @@ public:
 		UTILITIES
 	*/
 
-	string Installation_get() { return StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation); }
+	string Installation_get();
 	void DeleteDevicesInThisRoomOfType(int PK_DeviceCategory);
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}

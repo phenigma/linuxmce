@@ -1,15 +1,9 @@
 #ifndef WIN32
-	// wx headers
-	#include <wx/wxprec.h>
-	#ifdef __BORLANDC__
-	#pragma hdrstop
-	#endif
-	#ifndef WX_PRECOMP
-	#include <wx/wx.h>
-	#endif
-	#include "../wxAppMain/wxdialog_roomwizard.h"
+#include "../wxAppMain/wx_all_include.cpp"
+#include "../wxAppMain/wxdialog_roomwizard.h"
+#include "../wxAppMain/wx_win_thread.h"
 
-	#include "OrbiterLinux.h"
+#include "OrbiterLinux.h"
 #endif
 
 #include "OSDScreenHandler.h"
@@ -30,7 +24,7 @@
 
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
-    ScreenHandler(pOrbiter, p_MapDesignObj)
+        ScreenHandler(pOrbiter, p_MapDesignObj)
 {
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
@@ -58,7 +52,7 @@ void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 	{
 		//skip "what's your name" screen
 		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_FamilyMembers_CONST),
-                                   "", "", false, false );
+                                       "", "", false, false );
 	}
 	else
 		ScreenHandlerBase::SCREEN_UsersWizard(PK_Screen);
@@ -83,7 +77,7 @@ bool OSDScreenHandler::HandleAddUser()
 	else
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                             "ERROR: Please enter your name", TEXT_USR_ENTRY_CONST);
+                                 "ERROR: Please enter your name", TEXT_USR_ENTRY_CONST);
 		return true;
 	}
 
@@ -128,13 +122,13 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 					{
 						m_pWizardLogic->RemoveUser(nPK_User);
 						m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                                     "", TEXT_USR_ENTRY_CONST);
+                                                 "", TEXT_USR_ENTRY_CONST);
 						m_pOrbiter->CMD_Refresh("*");
 					}
 					else
 					{
 						m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                                     "ERROR: No user selected to be removed", TEXT_USR_ENTRY_CONST);
+                                                 "ERROR: No user selected to be removed", TEXT_USR_ENTRY_CONST);
 						return true;
 					}
 				}
@@ -293,7 +287,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 				long PK_RoomType = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST].c_str());
 				if(PK_RoomType)
 				{
-          m_pWizardLogic->RemoveRoomOfType(PK_RoomType);
+                    m_pWizardLogic->RemoveRoomOfType(PK_RoomType);
 					RefreshDatagrid(DESIGNOBJ_dgRoomTypes_CONST);
 				}
 			}
@@ -309,7 +303,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 					m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 					//the user removed the initial room while picking the room types; redirecting
 					m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_InWhichRoomIsTheSystem_CONST),
-                                         "", "", false, false);
+                                                   "", "", false, false);
 					return true;
 				}
 			}
@@ -326,7 +320,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 
 				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
 				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
-                              nPK_Device_TopMost, sPK_Room.c_str());
+                                      nPK_Device_TopMost, sPK_Room.c_str());
 				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
 				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
 			}
@@ -369,7 +363,7 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, pCellInfoData->m_sValue);
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, pCellInfoData->m_sText);
 			m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                               pCellInfoData->m_sText, TEXT_USR_ENTRY_CONST);
+                                     pCellInfoData->m_sText, TEXT_USR_ENTRY_CONST);
 		}
 		break;
 	}
@@ -407,7 +401,7 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 
 				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalAppServer,
-                                                         "/usr/pluto/bin/SetupMythHack.sh","mythhack",StringUtils::itos(PK_PostalCode),"","",false,false,false);
+                                                                 "/usr/pluto/bin/SetupMythHack.sh","mythhack",StringUtils::itos(PK_PostalCode),"","",false,false,false);
 				m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
 				if(atoi(sInput1.c_str())==0)
@@ -486,8 +480,8 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 
 		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-                                                                StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
-                                                                iPK_Device_ControlledVia);
+                                                                    StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
+                                                                    iPK_Device_ControlledVia);
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
 		return true;
 	}
@@ -560,7 +554,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				m_pWizardLogic->m_nPK_Command_Input_Video_On_TV = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST].c_str());
 				if( !m_pWizardLogic->m_bUsingReceiverForVideo )
 					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                    m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 2 = video
+                                              m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 2 = video
 			}
 		}
 		break;
@@ -603,8 +597,8 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 		// Delete receivers first since maybe the user is returning to this wizard
 		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
 		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-                                                                      StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
-                                                                      iPK_Device_ControlledVia);
+                                                                          StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
+                                                                          iPK_Device_ControlledVia);
 
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
 		return true;
@@ -624,7 +618,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 			{
 				// No Receiver -- I use the tv for audio
 				m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                  m_pWizardLogic->m_nPK_Device_TV,1,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 1 = audio
+                                          m_pWizardLogic->m_nPK_Device_TV,1,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 1 = audio
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
 			}
 		}
@@ -676,31 +670,31 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 		break;
 
 		case DESIGNOBJ_ReceiverInputs_CONST:
-    {
-      if(DESIGNOBJ_butAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-      {
-        string sReceiverInputs = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
-        if(sReceiverInputs == "")
-          return true;
-
-        //int PK_Device_From = 0;
-        int PK_Command_Input = atoi(sReceiverInputs.c_str());
-
-        // Set the input
-        m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                  m_pWizardLogic->m_nPK_Device_Receiver,1 /* audio */,PK_Command_Input);
-
-        // Video also goes to the receiver, and the receiver's video goes to the tv
-        if( m_pWizardLogic->m_bUsingReceiverForVideo )
         {
-          m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                    m_pWizardLogic->m_nPK_Device_Receiver,2 /* video */,PK_Command_Input);
-          m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Receiver,
-                                    m_pWizardLogic->m_nPK_Device_TV,2 /* video */,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV);
+            if(DESIGNOBJ_butAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+            {
+                string sReceiverInputs = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+                if(sReceiverInputs == "")
+                    return true;
+
+                //int PK_Device_From = 0;
+                int PK_Command_Input = atoi(sReceiverInputs.c_str());
+
+                // Set the input
+                m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+                                          m_pWizardLogic->m_nPK_Device_Receiver,1 /* audio */,PK_Command_Input);
+
+                // Video also goes to the receiver, and the receiver's video goes to the tv
+                if( m_pWizardLogic->m_bUsingReceiverForVideo )
+                {
+                    m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+                                              m_pWizardLogic->m_nPK_Device_Receiver,2 /* video */,PK_Command_Input);
+                    m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Receiver,
+                                              m_pWizardLogic->m_nPK_Device_TV,2 /* video */,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV);
+                }
+            }
         }
-      }
-    }
-    break;
+        break;
 	}
 
 	return false;
@@ -772,7 +766,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,
-                                     StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
+                                             StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
 			}
 		}
 		break;
@@ -785,7 +779,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 				if(sInput != "")
 				{
 					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
-                                    m_pWizardLogic->m_nPK_Device_AV_Installed, 2 /* video */, atoi(sInput.c_str()));
+                                              m_pWizardLogic->m_nPK_Device_AV_Installed, 2 /* video */, atoi(sInput.c_str()));
 				}
 			}
 		}
@@ -801,7 +795,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,
-                                     StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
+                                             StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
 			}
 		}
 		break;
@@ -814,7 +808,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 				if(sInput != "")
 				{
 					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
-                                    m_pWizardLogic->m_nPK_Device_AV_Installed, 1 /* audio */, atoi(sInput.c_str()));
+                                              m_pWizardLogic->m_nPK_Device_AV_Installed, 1 /* audio */, atoi(sInput.c_str()));
 				}
 			}
 		}
@@ -916,13 +910,13 @@ void OSDScreenHandler::LightsSetup_Timer()
 		if( !bLastTimeOn )
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
-                                                               sID,COMMAND_Generic_On_CONST,"");
+                                                                     sID,COMMAND_Generic_On_CONST,"");
 			event_Impl.SendMessage(CMD_Send_Command_To_Child.m_pMessage,sResponse);
 		}
 		else
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
-                                                               sID,COMMAND_Generic_Off_CONST,"");
+                                                                     sID,COMMAND_Generic_Off_CONST,"");
 			event_Impl.SendMessage(CMD_Send_Command_To_Child.m_pMessage,sResponse);
 		}
 		bLastTimeOn=!bLastTimeOn;
@@ -1000,7 +994,7 @@ bool OSDScreenHandler::LightsSetup_SelectedGrid(CallBackData *pData)
 	else if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_LightType_CONST )
 	{
 		DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
-                                 DEVICEDATA_PK_FloorplanObjectType_CONST,pDatagridCellBackData->m_sValue);
+                                     DEVICEDATA_PK_FloorplanObjectType_CONST,pDatagridCellBackData->m_sValue);
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST),"","",false,false);
 		m_nLightInDequeToAssign++;
 	}
@@ -1015,7 +1009,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 	{
 		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
-        pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Download_Config_Done_CONST )
+            pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Download_Config_Done_CONST )
 		{
 			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
 			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
@@ -1036,7 +1030,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 			return false;
 		}
 		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
-        pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Reporting_Child_Devices_CONST )
+            pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Reporting_Child_Devices_CONST )
 		{
 			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
 			if( sResult.size() )
@@ -1099,7 +1093,7 @@ bool OSDScreenHandler::AlarmPanel_Intercepted(CallBackData *pData)
 		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 
 		if(pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type == MESSAGETYPE_EVENT &&
-       pMsgInterceptorCellBackData->m_pMessage->m_dwID == EVENT_Reporting_Child_Devices_CONST )
+           pMsgInterceptorCellBackData->m_pMessage->m_dwID == EVENT_Reporting_Child_Devices_CONST )
 		{
 			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
 			if(!sResult.size())
@@ -1165,32 +1159,32 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Security_Interface_CONST);
 				m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()), sDeviceData,
-                                                                            iPK_Device_ControlledVia);
+                                                                                    iPK_Device_ControlledVia);
 // HACK!!!  This damn DSC panel doesn't seem to be able to report it's sensors automatically.  We're just going to fake it for now
-        {
-          m_pWizardLogic->AddDevice(DEVICETEMPLATE_Door_Sensor_CONST,
-                                    StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST)
-                                    + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|3",
-                                    m_pWizardLogic->m_nPK_Device_AlarmPanel);
-          m_pWizardLogic->AddDevice(DEVICETEMPLATE_Motion_Detector_CONST,
-                                    StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST)
-                                    + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|1",
-                                    m_pWizardLogic->m_nPK_Device_AlarmPanel);
-          m_pWizardLogic->AddDevice(DEVICETEMPLATE_Doorbell_button_CONST,
-                                    StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST)
-                                    + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|8",
-                                    m_pWizardLogic->m_nPK_Device_AlarmPanel);
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-          m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
+                {
+                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Door_Sensor_CONST,
+                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST)
+                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|3",
+                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
+                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Motion_Detector_CONST,
+                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST)
+                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|1",
+                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
+                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Doorbell_button_CONST,
+                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST)
+                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|8",
+                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
 
-          m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
-          m_pOrbiter->CMD_Refresh("*");
-          return true;
-        }
+                    m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
+                    m_pOrbiter->CMD_Refresh("*");
+                    return true;
+                }
 
 				m_pWizardLogic->m_bAlarmPanelCommandReceived = false;
 				m_pWizardLogic->m_bAlarmPanelIsOk = false;
@@ -1207,7 +1201,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 			if(!m_pWizardLogic->m_bAlarmPanelDetectionStarted)
 			{
 				m_pWizardLogic->m_bAlarmPanelDetectionStarted = true;
-        m_pOrbiter->StartScreenHandlerTimer(500);
+                m_pOrbiter->StartScreenHandlerTimer(500);
 
 				g_pPlutoLogger->Write(LV_WARNING, "Started detection timer for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
 
@@ -1230,7 +1224,7 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 	{
 		string sResponse;
 		DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices_(m_pOrbiter->m_dwPK_Device,
-                                                            m_pWizardLogic->m_nPK_Device_AlarmPanel);
+                                                                m_pWizardLogic->m_nPK_Device_AlarmPanel);
 
 		if(!m_pOrbiter->SendCommand(CMD_Report_Child_Devices_, &sResponse) || sResponse != "OK" )
 			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is NOT registered. We'll try again later");
@@ -1244,7 +1238,7 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 		m_pWizardLogic->m_nAlarmDeviceTimeout -= 500;
 
 		g_pPlutoLogger->Write(LV_WARNING, "Check status for device %d... Milliseconds left: %d",
-                          m_pWizardLogic->m_nPK_Device_AlarmPanel, m_pWizardLogic->m_nAlarmDeviceTimeout);
+                              m_pWizardLogic->m_nPK_Device_AlarmPanel, m_pWizardLogic->m_nAlarmDeviceTimeout);
 
 		if(m_pWizardLogic->m_bAlarmPanelIsOk)
 		{
@@ -1289,7 +1283,7 @@ bool OSDScreenHandler::AlarmPanel_DatagridSelected(CallBackData *pData)
 
 					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sSensorName);
 					m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                                   sSensorName, TEXT_USR_ENTRY_CONST);
+                                             sSensorName, TEXT_USR_ENTRY_CONST);
 					m_pOrbiter->CMD_Refresh("");
 
 					long FK_Room = m_pWizardLogic->GetRoomForDevice(sSensorId);
@@ -1377,7 +1371,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	if(DESIGNOBJ_butFinal_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 	{
 		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST),
-                                       "/home/monster/final.mpg",0,0,"");
+                                           "/home/monster/final.mpg",0,0,"");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
 
@@ -1432,7 +1426,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 				string sVOIPProvider = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 
 				DCE::CMD_PL_Add_VOIP_Account CMD_PL_Add_VOIP_Account_(m_pOrbiter->m_dwPK_Device,
-                                                              m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sPassword, sUsername);
+                                                                      m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sPassword, sUsername);
 				m_pOrbiter->SendCommand(CMD_PL_Add_VOIP_Account_);
 			}
 		}
@@ -1467,70 +1461,76 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-  ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
-  // register the RoomWizard callbacks
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
-  RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
-  RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
-  RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
+    ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
+    // register the RoomWizard callbacks
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
+    RegisterCallBack( cbOnCreateWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
+    RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
+    RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
 }
 
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
 {
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate()" );
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate()" );
 
-  PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
-  if (pPositionCallBackData == NULL)
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), NULL Data");
-    return false;
-  }
-  PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
-                         pRect.X, pRect.Y, pRect.Width, pRect.Height );
-
+    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
+    if (pPositionCallBackData == NULL)
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), NULL Data");
+        return false;
+    }
+    PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
+                           pRect.X, pRect.Y, pRect.Width, pRect.Height );
 #ifndef WIN32
-  wxDialog_RoomWizard_Show(m_pWizardLogic);
-  (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("dialog");
-  wxDialog_RoomWizard_Refresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+    wxDialog_RoomWizard *pwxDialog;
+    wxDialog_Show<wxDialog_RoomWizard>(
+        pwxDialog = wxDialog_CreateUnique<wxDialog_RoomWizard>(
+            SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME,
+            SYMBOL_WXDIALOG_ROOMWIZARD_TITLE,
+            m_pWizardLogic)
+        );
+    (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("dialog");
+    pwxDialog->NewDataRefresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
 #endif
 
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
-  return false;
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
+    return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 {
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
-
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
 #ifndef WIN32
-  wxDialog_RoomWizard_Close(true);
-  (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
+    wxDialog_RoomWizard *pwxDialog = ptr_wxWindowByName<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE);
+    pwxDialog->ExternalData_Save(m_pWizardLogic);
+    wxDialog_Close<wxDialog_RoomWizard>(pwxDialog);
+    (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
 #endif
-
-  return false;
+    return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 {
-  PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
-  if (pPositionCallBackData == NULL)
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), NULL Data");
-    return false;
-  }
-  PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
-  g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
-                         pRect.X, pRect.Y, pRect.Width, pRect.Height );
+    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
+    if (pPositionCallBackData == NULL)
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), NULL Data");
+        return false;
+    }
+    PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
+                           pRect.X, pRect.Y, pRect.Width, pRect.Height );
 
 #ifndef WIN32
-  wxDialog_RoomWizard_Refresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
+    wxDialog_RoomWizard *pwxDialog = ptr_wxWindowByName<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE);
+    pwxDialog->NewDataRefresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
 #endif
 
-  g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
-  return false;
+    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
+    return false;
 }
 //-----------------------------------------------------------------------------------------------------

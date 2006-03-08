@@ -1,7 +1,17 @@
-#ifndef _WX_DEFINES_H_
-#define _WX_DEFINES_H_
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
 
 // only for wx compatibility
+
+#ifndef _WX_LIB_COMPATIBILITY_H_
+#define _WX_LIB_COMPATIBILITY_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "wx_lib_compatibility.h"
+#endif
 
 #if ! wxCHECK_VERSION(2, 6, 0)
 #  ifdef __cplusplus
@@ -23,4 +33,4 @@ template <class T> inline void wxUnusedVar(const T& WXUNUSED(t)) { }
 //#endif
 
 #endif
-// _WX_DEFINES_H_
+// _WX_LIB_COMPATIBILITY_H_

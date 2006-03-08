@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxdialog_waituser.h"
 #endif
@@ -17,8 +23,6 @@
 ////@end includes
 
 #include "wxdialog_waituser.h"
-#include "wx_other.h"
-#include "wxthreadbag.h"
 
 ////@begin XPM images
 #include "logo_pluto.xpm"
@@ -28,52 +32,44 @@
  * wxDialog_WaitUser type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitUser, wxDialog )
-  ;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitUser, wxDialog_Base )
+;
 
 /*!
  * wxDialog_WaitUser event table definition
  */
 
-BEGIN_EVENT_TABLE( wxDialog_WaitUser, wxDialog )
+BEGIN_EVENT_TABLE( wxDialog_WaitUser, wxDialog_Base )
 
 ////@begin wxDialog_WaitUser event table entries
-  EVT_CLOSE( wxDialog_WaitUser::OnCloseWindow )
+    EVT_CLOSE( wxDialog_WaitUser::OnCloseWindow )
 
-  EVT_BUTTON( wxID_OK, wxDialog_WaitUser::OnOkClick )
+    EVT_BUTTON( wxID_OK, wxDialog_WaitUser::OnOkClick )
 
 ////@end wxDialog_WaitUser event table entries
 
-  END_EVENT_TABLE()
-  ;
+EVT_TIMER(ID_Timer_ExpireDialog, wxDialog_WaitUser::OnTimer_ExpireDialog)
 
-wxDialog_WaitUser *g_pwxDialog_WaitUser = NULL;
+END_EVENT_TABLE()
+;
+
+const E_wxDialog_Class_Type wxDialog_WaitUser::e_class_type = E_wxDialog_WaitUser;
 
 /*!
  * wxDialog_WaitUser constructors
  */
 
 wxDialog_WaitUser::wxDialog_WaitUser( )
-    : v_bInitialized(false), v_bShouldRefresh(false)
+        : v_oTimer_ExpireDialog(this, ID_Timer_ExpireDialog)
 {
-  _wx_log_nfo("wxDialog_WaitUser::wxDialog_WaitUser()");
-  if (g_pwxDialog_WaitUser != NULL)
-  {
-    _wx_log_wrn("wxDialog_WaitUser::wxDialog_WaitUser() : Object is not unique, addr=%p", g_pwxDialog_WaitUser);
-  }
-  g_pwxDialog_WaitUser = this;
+    _WX_LOG_NFO();
 }
 
 wxDialog_WaitUser::wxDialog_WaitUser( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
-    : v_bInitialized(false), v_bShouldRefresh(false)
+        : v_oTimer_ExpireDialog(this, ID_Timer_ExpireDialog)
 {
-  _wx_log_nfo("wxDialog_WaitUser::wxDialog_WaitUser(*)");
-  if (g_pwxDialog_WaitUser != NULL)
-  {
-    _wx_log_wrn("wxDialog_WaitUser::wxDialog_WaitUser(*) : Object is not unique, addr=%p", g_pwxDialog_WaitUser);
-  }
-  g_pwxDialog_WaitUser = this;
-  Create(parent, id, caption, pos, size, style);
+    _WX_LOG_NFO();
+    Create(parent, id, caption, pos, size, style);
 }
 
 /*!
@@ -82,25 +78,28 @@ wxDialog_WaitUser::wxDialog_WaitUser( wxWindow* parent, wxWindowID id, const wxS
 
 bool wxDialog_WaitUser::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
+    _WX_LOG_NFO();
 ////@begin wxDialog_WaitUser member initialisation
-  v_oBoxV_all = NULL;
-  v_oBoxH_top = NULL;
-  v_oBitmap = NULL;
-  v_oBoxH_mid = NULL;
-  v_oInfoText = NULL;
-  v_oBoxH_bot = NULL;
-  v_oButtonOk = NULL;
+    v_pBoxV_all = NULL;
+    v_pBoxH_top = NULL;
+    v_pBitmap = NULL;
+    v_pBoxSpace = NULL;
+    v_pGauge = NULL;
+    v_pBoxH_mid = NULL;
+    v_pInfoText = NULL;
+    v_pBoxH_bot = NULL;
+    v_pButtonOk = NULL;
 ////@end wxDialog_WaitUser member initialisation
 
 ////@begin wxDialog_WaitUser creation
-  SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT);
-  wxDialog::Create( parent, id, caption, pos, size, style );
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT);
+    wxDialog_Base::Create( parent, id, caption, pos, size, style );
 
-  CreateControls();
-  GetSizer()->Fit(this);
-  GetSizer()->SetSizeHints(this);
+    CreateControls();
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 ////@end wxDialog_WaitUser creation
-  return true;
+    return true;
 }
 
 /*!
@@ -109,45 +108,54 @@ bool wxDialog_WaitUser::Create( wxWindow* parent, wxWindowID id, const wxString&
 
 void wxDialog_WaitUser::CreateControls()
 {
-  _wx_log_nfo("wxDialog_WaitUser::CreateControls()");
+    _WX_LOG_NFO();
 ////@begin wxDialog_WaitUser content construction
-  wxDialog_WaitUser* itemDialog1 = this;
+    wxDialog_WaitUser* itemDialog_Base1 = this;
 
-  this->SetForegroundColour(wxColour(255, 255, 255));
-  this->SetBackgroundColour(wxColour(224, 224, 240));
-  this->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-  v_oBoxV_all = new wxBoxSizer(wxVERTICAL);
-  itemDialog1->SetSizer(v_oBoxV_all);
+    this->SetForegroundColour(wxColour(255, 255, 255));
+    this->SetBackgroundColour(wxColour(224, 224, 240));
+    v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
+    itemDialog_Base1->SetSizer(v_pBoxV_all);
 
-  v_oBoxH_top = new wxBoxSizer(wxHORIZONTAL);
-  v_oBoxV_all->Add(v_oBoxH_top, 0, wxGROW|wxALL, 5);
+    v_pBoxH_top = new wxBoxSizer(wxHORIZONTAL);
+    v_pBoxV_all->Add(v_pBoxH_top, 1, wxGROW|wxALL, 5);
 
-  wxBitmap v_oBitmapBitmap(itemDialog1->GetBitmapResource(wxT("logo_pluto.jpg")));
-  v_oBitmap = new wxStaticBitmap;
-  v_oBitmap->Create( itemDialog1, wxID_STATIC, v_oBitmapBitmap, wxDefaultPosition, itemDialog1->ConvertDialogToPixels(wxSize(126, 87)), 0 );
-  v_oBoxH_top->Add(v_oBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 10);
+    wxBitmap v_pBitmapBitmap(itemDialog_Base1->GetBitmapResource(wxT("logo_pluto.jpg")));
+    v_pBitmap = new wxStaticBitmap;
+    v_pBitmap->Create( itemDialog_Base1, wxID_STATIC, v_pBitmapBitmap, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(126, 87)), wxNO_BORDER );
+    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 10);
 
-  v_oBoxH_mid = new wxBoxSizer(wxHORIZONTAL);
-  v_oBoxV_all->Add(v_oBoxH_mid, 1, wxGROW|wxALL, 5);
+    v_pBoxSpace = new wxBoxSizer(wxVERTICAL);
+    v_pBoxH_top->Add(v_pBoxSpace, 1, wxALIGN_CENTER_VERTICAL, 0);
 
-  v_oInfoText = new wxTextCtrl;
-  v_oInfoText->Create( itemDialog1, ID_TEXTCTRL_WAITUSER, _T(" Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1\n Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2\n"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP );
-  v_oInfoText->SetBackgroundColour(wxColour(224, 224, 240));
-  v_oInfoText->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-  v_oBoxH_mid->Add(v_oInfoText, 1, wxGROW|wxALL, 10);
+    v_pGauge = new wxGauge;
+    v_pGauge->Create( itemDialog_Base1, ID_GAUGE_WAITUSER, 100, wxDefaultPosition, wxDefaultSize, wxGA_VERTICAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER );
+    v_pGauge->SetValue(50);
+    v_pGauge->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
+    v_pBoxH_top->Add(v_pGauge, 0, wxGROW|wxALL, 10);
 
-  v_oBoxH_bot = new wxBoxSizer(wxHORIZONTAL);
-  v_oBoxV_all->Add(v_oBoxH_bot, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    v_pBoxH_mid = new wxBoxSizer(wxHORIZONTAL);
+    v_pBoxV_all->Add(v_pBoxH_mid, 1, wxGROW|wxALL, 5);
 
-  v_oButtonOk = new wxButton;
-  v_oButtonOk->Create( itemDialog1, wxID_OK, _T("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
-  v_oButtonOk->SetDefault();
-  v_oButtonOk->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-  v_oBoxH_bot->Add(v_oButtonOk, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pInfoText = new wxTextCtrl;
+    v_pInfoText->Create( itemDialog_Base1, ID_TEXTCTRL_WAITUSER, _T(" Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1\n Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2\n"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER );
+    v_pInfoText->SetBackgroundColour(wxColour(224, 224, 240));
+    v_pInfoText->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
+    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 10);
+
+    v_pBoxH_bot = new wxBoxSizer(wxHORIZONTAL);
+    v_pBoxV_all->Add(v_pBoxH_bot, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+
+    v_pButtonOk = new wxButton;
+    v_pButtonOk->Create( itemDialog_Base1, wxID_OK, _T("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
+    v_pButtonOk->SetDefault();
+    v_pButtonOk->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
+    v_pBoxH_bot->Add(v_pButtonOk, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
 ////@end wxDialog_WaitUser content construction
-  v_oInfoText->SetValue("");
-  v_bInitialized = true;
+    v_pInfoText->SetValue("");
+    v_nExpireTime_ms = 0;
+    v_nCrtTime_ms = 0;
 }
 
 /*!
@@ -157,9 +165,9 @@ void wxDialog_WaitUser::CreateControls()
 void wxDialog_WaitUser::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 {
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER in wxDialog_WaitUser.
-  // Before editing this code, remove the block markers.
-  wxWindow* window = this;
-  window->Destroy();
+    // Before editing this code, remove the block markers.
+    wxDialog* dialog = wxDynamicCast(this, wxDialog);
+    dialog->EndModal(ID_DIALOG_WAITUSER);
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER in wxDialog_WaitUser.
 }
 
@@ -170,8 +178,8 @@ void wxDialog_WaitUser::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 void wxDialog_WaitUser::OnOkClick( wxCommandEvent& WXUNUSED(event) )
 {
 ////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK in wxDialog_WaitUser.
-  // Before editing this code, remove the block markers.
-  Destroy();
+    // Before editing this code, remove the block markers.
+    EndModal(wxID_OK);
 ////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK in wxDialog_WaitUser.
 }
 
@@ -181,7 +189,7 @@ void wxDialog_WaitUser::OnOkClick( wxCommandEvent& WXUNUSED(event) )
 
 bool wxDialog_WaitUser::ShowToolTips()
 {
-  return true;
+    return true;
 }
 
 /*!
@@ -190,15 +198,15 @@ bool wxDialog_WaitUser::ShowToolTips()
 
 wxBitmap wxDialog_WaitUser::GetBitmapResource( const wxString& name )
 {
-  // Bitmap retrieval
+    // Bitmap retrieval
 ////@begin wxDialog_WaitUser bitmap retrieval
-  wxUnusedVar(name);
-  if (name == _T("logo_pluto.jpg"))
-  {
-    wxBitmap bitmap(logo_pluto_xpm);
-    return bitmap;
-  }
-  return wxNullBitmap;
+    wxUnusedVar(name);
+    if (name == _T("logo_pluto.jpg"))
+    {
+        wxBitmap bitmap(logo_pluto_xpm);
+        return bitmap;
+    }
+    return wxNullBitmap;
 ////@end wxDialog_WaitUser bitmap retrieval
 }
 
@@ -208,10 +216,10 @@ wxBitmap wxDialog_WaitUser::GetBitmapResource( const wxString& name )
 
 wxIcon wxDialog_WaitUser::GetIconResource( const wxString& name )
 {
-  // Icon retrieval
+    // Icon retrieval
 ////@begin wxDialog_WaitUser icon retrieval
-  wxUnusedVar(name);
-  return wxNullIcon;
+    wxUnusedVar(name);
+    return wxNullIcon;
 ////@end wxDialog_WaitUser icon retrieval
 }
 
@@ -219,60 +227,103 @@ wxIcon wxDialog_WaitUser::GetIconResource( const wxString& name )
 
 wxDialog_WaitUser::~wxDialog_WaitUser()
 {
-  _wx_log_nfo("wxDialog_WaitUser::~wxDialog_WaitUser()");
-  if (g_pwxDialog_WaitUser == this)
-    g_pwxDialog_WaitUser = NULL;
+    _WX_LOG_NFO();
+    v_oTimer_ExpireDialog.Stop();
 }
 
-bool wxDialog_WaitUser::Destroy()
+bool wxDialog_WaitUser::ExternalData_Load(void *pExternData)
 {
-  _wx_log_nfo("wxDialog_WaitUser::Destroy()");
-  return wxDialog::Destroy();
+    _WX_LOG_NFO("ptr=%p", pExternData);
+#ifdef USE_DEBUG_CODE
+    wxUnusedVar(pExternData);
+#endif // USE_DEBUG_CODE
+#ifdef USE_RELEASE_CODE
+    v_oData_Refresh.m_pnButtonId = (int *)pExternData;
+    if (v_oData_Refresh.m_pnButtonId)
+        *v_oData_Refresh.m_pnButtonId = -1;
+#endif // USE_RELEASE_CODE
+    return true;
 }
 
-void wxDialog_WaitUser::SetExternalRefresh(const string &sInfo, int nBarPercent)
+void wxDialog_WaitUser::NewDataRefresh(const string &sInfo, int nTimeoutSeconds, map<int,string> *p_mapPrompts)
 {
-  _wx_log_nfo("wxDialog_WaitUser::SetExternalRefresh(*)");
-  if (! v_bInitialized)
-  {
-    _wx_log_wrn("Dialog is not initialized, ignoring the request");
-    return;
-  }
-  wxCriticalSectionLocker lock(v_oCriticalRefresh);
-  v_refresh_sInfo = sInfo;
-  v_refresh_nBarPercent = nBarPercent;
-  v_bShouldRefresh = true;
+    _WX_LOG_NFO("(string '%s', int %d, map<int,string>)", sInfo.c_str(), nTimeoutSeconds);
+    Data_Refresh_WaitUser data_refresh(sInfo, nTimeoutSeconds, p_mapPrompts);
+    Data_Holder_Refresh data_holder_refresh(&data_refresh);
+    _WX_LOG_DBG("%p", &data_holder_refresh);
+    SafeRefresh_NewData(data_holder_refresh);
 }
 
-void wxDialog_WaitUser::OnInternalIdle()
+void wxDialog_WaitUser::SafeRefresh_CopyData(void *pData_Refresh)
 {
-  //--_wx_log_nfo("wxDialog_WaitUser::OnInternalIdle()");
-  if ( wxIdleThreadShouldStop() )
-    Destroy();
-  if (v_bInitialized && v_bShouldRefresh && ::wxIsMainThread())
-  {
-    wxCriticalSectionLocker lock(v_oCriticalRefresh);
+    _WX_LOG_NFO();
+    _WX_LOG_DBG("%p", pData_Refresh);
+    Data_Refresh_WaitUser *pData_Refresh_WaitUser = wx_static_cast(Data_Refresh_WaitUser *, pData_Refresh);
+    v_oData_Refresh = *pData_Refresh_WaitUser;
+}
+
+void wxDialog_WaitUser::SafeRefresh_Gui()
+{
+    //_WX_LOG_NFO();
     // update info text
-    v_oInfoText->SetValue(v_refresh_sInfo);
-    v_bShouldRefresh = false;
-  }
-  wxDialog::OnInternalIdle();
+    v_pInfoText->SetValue(v_oData_Refresh.sInfo);
+    // update buttons
+    if (! v_oData_Refresh.p_mapPrompts)
+    {
+        v_pButtonOk->Show();
+    }
+    else
+    {
+        v_pButtonOk->Hide();
+        for(map<int, string>::iterator it = v_oData_Refresh.p_mapPrompts->begin(); it != v_oData_Refresh.p_mapPrompts->end(); ++it)
+        {
+            int nButtonId = it->first;
+            wxString sButtonLabel = it->second.c_str();
+            // search string in current data
+            // add item if not found
+            int idx = v_asLabels.Index(sButtonLabel);
+            if (idx == wxNOT_FOUND)
+            {
+                idx = v_asLabels.GetCount();
+                v_asLabels.Add(sButtonLabel);
+                wxButton *pButton = new wxButton;
+                pButton->Create( this, nButtonId, sButtonLabel, wxDefaultPosition, wxDefaultSize, 0 );
+                pButton->SetDefault();
+                pButton->SetFont(v_pButtonOk->GetFont());
+                v_pBoxH_bot->Add(pButton, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+            }
+        }
+    }
+    // update expired time value and restart the timer
+    bool bStartNow = (v_nExpireTime_ms == 0);
+    v_nExpireTime_ms = v_oData_Refresh.nTimeoutSeconds * 1000;
+    v_pGauge->SetRange(v_nExpireTime_ms);
+    if (bStartNow)
+    {
+        v_oTimer_ExpireDialog.Start(INTERVAL_TIMER_EXPIREDIALOG_MSEC);
+    }
+    v_pGauge->SetValue(v_nCrtTime_ms);
 }
 
-//==================================================
-
-bool wxDialog_WaitUser_Refresh(const string &sInfo, int nBarPercent)
+void wxDialog_WaitUser::OnTimer_ExpireDialog(wxTimerEvent& event)
 {
-  _wx_log_nfo("wxDialog_WaitUser_Refresh(*)");
-  if (! (g_pwxDialog_WaitUser != NULL))
-  {
-    _wx_log_wrn("Dialog is not active, ignoring SetSize request");
-    return false;
-  }
-  _wx_log_nfo("Allocated at %p", g_pwxDialog_WaitUser);
-  g_pwxDialog_WaitUser->SetExternalRefresh(sInfo, nBarPercent);
-  _wx_log_nfo("wxDialog_WaitUser_Refresh(*);;");
-  return true;
+    //_WX_LOG_NFO();
+    _COND_RET(event.GetId() == ID_Timer_ExpireDialog);
+    event.Skip();
+    if ( (! v_bInitialized) || (v_nExpireTime_ms <= 0) )
+        return;
+    int nInterval = v_oTimer_ExpireDialog.GetInterval();
+    v_nCrtTime_ms += nInterval;
+    //_WX_LOG_NFO("%d/%d [%d]", v_nCrtTime_ms, v_nExpireTime_ms, nInterval);
+    if (v_nCrtTime_ms >= v_nExpireTime_ms)
+    {
+        if (IsModal())
+            EndModal(ID_DIALOG_WAITUSER);
+        else
+            Destroy();
+    }
+    else
+    {
+        v_pGauge->SetValue(v_nCrtTime_ms);
+    }
 }
-
-//==================================================

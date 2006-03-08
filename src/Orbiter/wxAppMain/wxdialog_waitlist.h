@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #ifndef _WXDIALOG_WAITLIST_H_
 #define _WXDIALOG_WAITLIST_H_
 
@@ -11,7 +17,7 @@
 
 ////@begin includes
 ////@end includes
-#include "wx_other.h"
+#include "wxdialog_base.h"
 
 /*!
  * Forward declarations
@@ -27,7 +33,7 @@ class wxBoxSizer;
 
 ////@begin control identifiers
 #define ID_DIALOG_WAITLIST 10023
-#define SYMBOL_WXDIALOG_WAITLIST_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxSTAY_ON_TOP|wxDIALOG_NO_PARENT|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_WAITLIST_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_WAITLIST_TITLE _T("Wait List")
 #define SYMBOL_WXDIALOG_WAITLIST_IDNAME ID_DIALOG_WAITLIST
 #define SYMBOL_WXDIALOG_WAITLIST_SIZE wxSize(400, 300)
@@ -48,73 +54,85 @@ class wxBoxSizer;
  * wxDialog_WaitList class declaration
  */
 
-class wxDialog_WaitList: public wxDialog
+class wxDialog_WaitList: public wxDialog_Base
 {
-  DECLARE_DYNAMIC_CLASS( wxDialog_WaitList )
-    DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxDialog_WaitList )
+        DECLARE_EVENT_TABLE()
 
-    public:
-  /// Constructors
-  wxDialog_WaitList( );
-  wxDialog_WaitList( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITLIST_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITLIST_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITLIST_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITLIST_SIZE, long style = SYMBOL_WXDIALOG_WAITLIST_STYLE );
+        public:
+    /// Constructors
+    wxDialog_WaitList( );
+    wxDialog_WaitList( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITLIST_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITLIST_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITLIST_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITLIST_SIZE, long style = SYMBOL_WXDIALOG_WAITLIST_STYLE );
 
-  /// Creation
-  bool Create( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITLIST_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITLIST_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITLIST_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITLIST_SIZE, long style = SYMBOL_WXDIALOG_WAITLIST_STYLE );
+    /// Creation
+    bool Create( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITLIST_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITLIST_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITLIST_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITLIST_SIZE, long style = SYMBOL_WXDIALOG_WAITLIST_STYLE );
 
-  /// Creates the controls and sizers
-  void CreateControls();
+    /// Creates the controls and sizers
+    void CreateControls();
 
 ////@begin wxDialog_WaitList event handler declarations
 
-  /// wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST
-  void OnCloseWindow( wxCloseEvent& event );
+    /// wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST
+    void OnCloseWindow( wxCloseEvent& event );
 
 ////@end wxDialog_WaitList event handler declarations
 
 ////@begin wxDialog_WaitList member function declarations
 
-  /// Retrieves bitmap resources
-  wxBitmap GetBitmapResource( const wxString& name );
+    /// Retrieves bitmap resources
+    wxBitmap GetBitmapResource( const wxString& name );
 
-  /// Retrieves icon resources
-  wxIcon GetIconResource( const wxString& name );
+    /// Retrieves icon resources
+    wxIcon GetIconResource( const wxString& name );
 ////@end wxDialog_WaitList member function declarations
 
-  /// Should we show tooltips?
-  static bool ShowToolTips();
+    /// Should we show tooltips?
+    static bool ShowToolTips();
 
 ////@begin wxDialog_WaitList member variables
-  wxBoxSizer* v_oBoxV_all;
-  wxBoxSizer* v_oBoxH_top;
-  wxStaticBitmap* v_oBitmap;
-  wxTextCtrl* v_oLogText;
-  wxBoxSizer* v_oBoxH_mid;
-  wxTextCtrl* v_oInfoText;
-  wxBoxSizer* v_oBoxH_bot;
-  wxGauge* v_oGauge;
+    wxBoxSizer* v_pBoxV_all;
+    wxBoxSizer* v_pBoxH_top;
+    wxStaticBitmap* v_pBitmap;
+    wxBoxSizer* v_pBoxH_mid;
+    wxTextCtrl* v_pLogText;
+    wxTextCtrl* v_pInfoText;
+    wxBoxSizer* v_pBoxH_bot;
+    wxGauge* v_pGauge;
 ////@end wxDialog_WaitList member variables
-public:
-  ~wxDialog_WaitList();
-  bool Destroy();
+  public:
+    ~wxDialog_WaitList();
 
-protected:
-  bool v_bInitialized;
+    void NewDataRefresh(const string &sInfo, int nPercent);
 
-public:
-  // refresh when ready
-  void SetExternalRefresh(const string &sInfo, int nBarPercent);
+    static const E_wxDialog_Class_Type e_class_type;
 
-protected:
-  virtual void OnInternalIdle();
+  protected:
+    wxString v_sPrevStr; // previous string message
 
-  wxCriticalSection v_oCriticalRefresh;
-  bool v_bShouldRefresh;
-  wxString v_refresh_sInfo;
-  int v_refresh_nBarPercent;
+    struct Data_Refresh_WaitList
+    {
+        Data_Refresh_WaitList()
+                : nPercent(0)
+            {
+            }
+        Data_Refresh_WaitList(const string &sInfo, const int nPercent)
+            {
+                Set(sInfo, nPercent);
+            }
+        void Set(const string &sInfo, const int nPercent)
+            {
+                this->sInfo = sInfo;
+                this->nPercent = nPercent;
+            }
+        string sInfo;
+        int nPercent;
+    };
+
+    Data_Refresh_WaitList v_oData_Refresh;
+
+    virtual void SafeRefresh_CopyData(void *pData_Refresh);
+    virtual void SafeRefresh_Gui();
 };
-
-// call from any thread
-bool wxDialog_WaitList_Refresh(); // create a refresh event
 
 #endif
 // _WXDIALOG_WAITLIST_H_

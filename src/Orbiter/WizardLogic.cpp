@@ -372,6 +372,10 @@ void WizardLogic::AddExternalTuner(int PK_Device_Tuner)
 	}
 }
 
+string WizardLogic::Installation_get()
+{
+  return StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+}
 
 void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 {

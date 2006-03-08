@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #ifndef _WXAPPMAIN_H_
 #define _WXAPPMAIN_H_
 
@@ -13,8 +19,7 @@
 #include "wx/image.h"
 #include "wxframemain.h"
 ////@end includes
-
-#include "wx_other.h"
+#include "wx_extern_app.h"
 
 /*!
  * Forward declarations
@@ -36,22 +41,25 @@
 
 class wxAppMain: public wxApp
 {
-  DECLARE_CLASS( wxAppMain )
-    ;
-  DECLARE_EVENT_TABLE()
-    ;
+    DECLARE_CLASS( wxAppMain )
+        ;
+    DECLARE_EVENT_TABLE()
+        ;
 
-public:
-  /// Constructor
-  wxAppMain();
+  public:
+    /// Constructor
+    wxAppMain();
 
-  /// Initialises the application
-  virtual bool OnInit();
+    /// Initialises the application
+    virtual bool OnInit();
 
-  /// Called on exit
-  virtual int OnExit();
+    /// Called on exit
+    virtual int OnExit();
 
 ////@begin wxAppMain event handler declarations
+
+    /// wxEVT_IDLE event handler for ID_UNIDENTIFIED
+    void OnIdle( wxIdleEvent& event );
 
 ////@end wxAppMain event handler declarations
 
@@ -63,9 +71,17 @@ public:
 ////@end wxAppMain member variables
 
 public:
-  ~wxAppMain();
-  virtual int OnRun();
-  };
+    ~wxAppMain();
+    virtual int OnRun();
+
+protected:
+    void OnEvent_Dialog(wxCommandEvent& event);
+    void OnTimer_Debug(wxTimerEvent& event);
+    void OnTimer_ExternApp(wxTimerEvent& event);
+    wxTimer v_oTimer_Debug;
+    wxTimer v_oTimer_ExternApp;
+    ExternApp *v_pExternApp;
+};
 
 /*!
  * Application instance declaration
@@ -74,7 +90,7 @@ public:
 ////@begin declare app
 DECLARE_APP(wxAppMain)
 ////@end declare app
-  ;
+;
 
 #endif
 // _WXAPPMAIN_H_

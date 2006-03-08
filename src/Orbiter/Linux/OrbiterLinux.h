@@ -1,21 +1,21 @@
 #ifndef __CONTROLLERLINUXDESKTOP_H__
 #define __CONTROLLERLINUXDESKTOP_H__
 
-
 #include "../SDL/OrbiterSDL.h"
-
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-
 #include "utilities/linux/RatpoisonHandler.h"
-
 #include "XRecordExtensionHandler.h"
+
+//DEL
 #include "XProgressWnd.h"
 #include "XPromptUser.h"
+
+class wxDialog_WaitGrid;
+class wxDialog_WaitList;
+class wxDialog_WaitUser;
+
 #include <string>
-
-
-
 using namespace std;
 
 class OrbiterLinux : public OrbiterSDL, public RatpoisonHandler<OrbiterLinux>
@@ -44,7 +44,15 @@ private:
   int m_nProgressWidth;
   int m_nProgressHeight;
 
-  XProgressWnd *m_pProgressWnd;
+  XProgressWnd *m_pProgressWnd;//DEL
+
+  wxDialog_WaitGrid *m_pWaitGrid;
+  bool m_bButtonPressed_WaitGrid;
+
+  wxDialog_WaitList *m_pWaitList;
+  bool m_bButtonPressed_WaitList;
+
+  wxDialog_WaitUser *m_pWaitUser;
 
 	string m_sCurrentAppDesktopName;
 
