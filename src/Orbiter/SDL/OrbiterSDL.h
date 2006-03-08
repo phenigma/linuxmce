@@ -19,8 +19,25 @@ class OrbiterSDL : public Orbiter
 
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
+	/** 
+	 * OpenGL internal variable which say if is used OpenGL code at the moment of runtime
+	 */
+	bool EnableOpenGL;
 
 public:
+	/**
+	 *    Default Constructor for Orbiter SDL
+	 * @param DeviceID 
+	 * @param PK_DeviceTemplate 
+	 * @param ServerAddress 
+	 * @param sLocalDirectory 
+	 * @param bLocalMode 
+	 * @param nImageWidth Image width size in pixels
+	 * @param nImageHeight Image height size in pixels
+	 * @param bFullScreen Say if the application should be fullscreen or doesn't
+	 * @param pExternalScreenMutex 
+	 * @param UseOpenGL Boolean variable that say if it should be used OpenGL code or doesn't
+	 */
 	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
         bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false, 
         pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
@@ -62,19 +79,23 @@ public:
 	virtual void DoResetRatpoison() {}
 #endif
 
+	/**
+	 *    That function wakes up the idle status for OpenGL operations
+	 */
 	void WakeupFromCondWait();
 
 public:
 
-	bool EnableOpenGL;
-	// Protected abstract methods
+	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
+	bool PaintDesktopGL;
 
 	pthread_cond_t m_GLThreadCond;
 	class OrbiterGL3D *m_Desktop;
 	pluto_pthread_mutex_t* m_GLThreadMutex;
-	// Protected virtual methods
+	///
 	SDL_Surface * m_pScreenImage;
 
+	/// After and before render of screen frames 
 	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
 	auto_ptr<PlutoGraphic> m_spAfterGraphic;
 	

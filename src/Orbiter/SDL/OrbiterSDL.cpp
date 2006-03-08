@@ -84,28 +84,40 @@ void *HackThread2(void *p)
 #endif
 
 #ifndef DISABLE_OPENGL
-bool PaintDesktopGL;
+
+/**
+ * OpenGL drawing thread. It is in three steps: 
+ * - Init OpenGL with SDL
+ * - looping to drawing frames
+ * - end the OpenGL
+ */
 
 void *Orbiter_OpenGLThread(void *p)
 {
 	OrbiterSDL * pOrbiterSDL = (OrbiterSDL *) p;
+	// Create the OpenGL window and classes asociated with it
 	pOrbiterSDL->m_Desktop = new OrbiterGL3D(pOrbiterSDL);
 	
-	PaintDesktopGL = false;
+	pOrbiterSDL->PaintDesktopGL = false;
 
+	// OpenGL drawing operations, locked in the mutex
 	PLUTO_SAFETY_LOCK(cm, *(pOrbiterSDL->m_GLThreadMutex));
 	while(!pOrbiterSDL->m_bQuit)
 	{
 		//nothing to process. let's sleep...
 		cm.CondWait(); // This will unlock the mutex and lock it on awakening
 
+		/// Thread is waken up, for more reasons as Quit event or there is one effect pending or 
+		/// is idle event
+		
+		// Orbiter is in Quit state, end the thread
 		if(pOrbiterSDL->m_bQuit)
 			return NULL;
 
-		//g_pPlutoLogger->Write(LV_STATUS,"wake up me");
+		
 		if (!pOrbiterSDL->m_Desktop->EffectBuilder->HasEffects()) {
-			if (!PaintDesktopGL) {
-				PaintDesktopGL = true;
+			if (!pOrbiterSDL->PaintDesktopGL) {
+				pOrbiterSDL->PaintDesktopGL = true;
 				pOrbiterSDL->m_Desktop->Paint();
 			}
 			else
@@ -115,15 +127,14 @@ void *Orbiter_OpenGLThread(void *p)
 				cm.Relock();
 			}
 		}
-		else {
-			PaintDesktopGL = false;
-			
+		else 
+		{
+			pOrbiterSDL->PaintDesktopGL = false;
 			pOrbiterSDL->m_Desktop->Paint();
 		}
 	}
 	
 	delete pOrbiterSDL->m_Desktop;
-	cout<<"Quits from OpenGL"<<endl;
 	
 	return NULL;
 }	
@@ -138,23 +149,25 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
  : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth,
     nImageHeight, pExternalScreenMutex)
 {
+	// Use OpenGL if is requested
 	EnableOpenGL = UseOpenGL;
 
 #ifdef DISABLE_OPENGL
 	EnableOpenGL = false;
 #endif
 
-   	m_pScreenImage = NULL;
-   	m_bFullScreen=bFullScreen;
+	m_pScreenImage = NULL;
+	m_bFullScreen=bFullScreen;
 	if(EnableOpenGL)
 	{
 #ifndef DISABLE_OPENGL
+		/// if OpenGL is used there is created one OpenGL drawing mutex
 		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
 		
 		pthread_cond_init(&m_GLThreadCond, NULL);
 		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
 		m_Desktop = NULL;
-#endif		
+#endif
 	}
 }
 
@@ -175,6 +188,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	if(EnableOpenGL)
 	{
 #ifndef DISABLE_OPENGL
+		/// Wait OpenGL to finish
 		pthread_cond_broadcast(&m_GLThreadCond);
 		pthread_join(SDLGLthread, NULL);
 		delete m_GLThreadMutex;
@@ -189,6 +203,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	
 	if (!EnableOpenGL)
 	{
+		/// SDL 2D code, creates the SDL window
 		//initializing the engine...
 		Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
 	
@@ -255,9 +270,12 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	else
 	{
 #ifndef DISABLE_OPENGL
+		/// if OpenGL is used there is created one OpenGL drawing thread 
 		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
-	
-		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
+		/// creates 2D surface which is drawed with 2D engine the Orbiter
+		/// which lately will be used as a texture
+		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, 
+			rmask, gmask, bmask, amask);
 		if (m_pScreenImage == NULL) {
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
 		}
@@ -317,40 +335,32 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	
 		m_spAfterGraphic.reset(new SDLGraphic(m_pScreenImage));
 		
-		/*if(m_pObj_SelectedLastScreen)
+		if(m_pObj_SelectedLastScreen)
 		{
 			rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
 			rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");*/
+			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
 			rectLastSelected.X = 0;
 			rectLastSelected.Y = m_iImageHeight;
 			rectLastSelected.Width = 80;
 			rectLastSelected.Height = 80;
-		//              }
+		}
 	
 		m_pObj_SelectedLastScreen = NULL;
 		
 		g_pPlutoLogger->Write(LV_CRITICAL, "Last selected object rectangle : x %d, y %d, w %d, h %d",
 			rectLastSelected.X, rectLastSelected.Y, rectLastSelected.Width, rectLastSelected.Height);
 	
+		//Create transtition effect if there is no effect already pending
 		if(m_Desktop && !m_Desktop->EffectBuilder->HasEffects())
 		{
-			//cout<<"One effect was created!";
-
-			
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-			//SDL_SaveBMP(m_pScreenImage, "test2.bmp");
 			GL2DEffect* Transit = (GL2DEffect*) m_Desktop->EffectBuilder->
 				CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 1000);
 			
-			//cout <<"Effect pending"<<endl;
-	
-			//GL2DEffectFadesFromUnderneath* Transit = (GL2DEffectFadesFromUnderneath*) m_Desktop->EffectBuilder->
-			//	CreateEffect(GL2D_EFFECT_FADES_FROM_UNDERNEATH, 900);
-	
 			Transit->Configure(&rectLastSelected);
 		} 
 	
