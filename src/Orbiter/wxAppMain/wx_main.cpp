@@ -16,6 +16,9 @@
 #endif
 
 #include "wx_main.h"
+#if defined(__WXGTK__) || defined(__WXMOTIF__) || defined(__WXX11__)
+#include <X11/Xlib.h>
+#endif
 
 int g_nExitCode = EXIT_SUCCESS;
 
@@ -26,6 +29,13 @@ int main(int argc, char *argv[])
     _WX_LOG_WRN("!! code for launching X should be added here !!");
 #ifdef USE_RELEASE_CODE
 #endif // USE_RELEASE_CODE
+    // activate X11 GUI threads
+    {
+        if ( XInitThreads() == 0 )
+        {
+            _WX_LOG_WRN("Unable to initialize multithreaded X11 code (XInitThreads failed)");
+        }
+    }
     int nExitCode = EXIT_SUCCESS;
     // wx initialize
     {
