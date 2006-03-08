@@ -469,7 +469,7 @@ void PlutoZWSerialAPI::showZWaveNetwork() const
 		node = (*itNode).second;
 		if( node != NULL )
 		{
-			g_pPlutoLogger->Write(LV_DEBUG, "Node[%d] : BType = 0x%02x GType = 0x%02x SType = 0x%02x Level = %d",
+			g_pPlutoLogger->Write(LV_ZWAVE, "Node[%d] : BType = 0x%02x GType = 0x%02x SType = 0x%02x Level = %d",
 				node->nodeID(),
 				(unsigned)node->type().basic,
 				(unsigned)node->type().generic,

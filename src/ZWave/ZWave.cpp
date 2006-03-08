@@ -422,7 +422,7 @@ bool ZWave::ConfirmConnection(int RetryCount)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_ZWAVE,"ZWave::ConfirmConnection : zwave device is empty");
+				g_pPlutoLogger->Write(LV_WARNING,"ZWave::ConfirmConnection : zwave device is empty");
 			}
 		}
 		else
@@ -561,18 +561,18 @@ void ZWave::PoolZWaveNetwork()
 							}
 							else
 							{
-								g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : zwave node is null");
+								g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave node is null");
 							}
 						}
 						else
 						{
-							g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : zwave child device is null");
+							g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : zwave child device is null");
 						}
 					}
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_ZWAVE,"PoolZWaveNetwork : couldn't run the job");
+					g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : couldn't run the job");
 				}
 			}
 			else
