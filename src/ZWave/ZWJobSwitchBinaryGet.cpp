@@ -107,17 +107,10 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************10" );
 #endif
 				return true;				
 			}
-			else if(d->txStatusCount == 0)//buffer[0] == REQUEST
+
+			else if(buffer[1] == FUNC_ID_ZW_SEND_DATA) //buffer[0] == REQUEST
 			{
 entry:
-				if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
-				{
-#ifdef PLUTO_DEBUG
-					g_pPlutoLogger->Write(LV_DEBUG, "*******************11" );
-#endif
-					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
-					break;
-				}
 				if(length < 3)
 				{
 #ifdef PLUTO_DEBUG
@@ -180,7 +173,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 				
 				return completedOK;
 			}
-			else//buffer[0] == REQUEST
+			else if(buffer[1] == FUNC_ID_APPLICATION_COMMAND_HANDLER)//buffer[0] == REQUEST
 			{
 				if(length < 8)
 				{
@@ -191,10 +184,10 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 					goto entry;
 				}
 
-				if(FUNC_ID_APPLICATION_COMMAND_HANDLER == buffer[1] &&
+				if(FUNC_ID_APPLICATION_COMMAND_HANDLER == buffer[1] && //redundant because of last minute modifications.
 					COMMAND_CLASS_SWITCH_MULTILEVEL == buffer[5] && 
 					(char)d->nodeID == buffer[3] &&
-					BASIC_REPORT == buffer[6])
+					SWITCH_MULTILEVEL_REPORT == buffer[6])
 				{
 #ifdef PLUTO_DEBUG
 					DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData basic multilevel swich report is here");
@@ -230,6 +223,14 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 g_pPlutoLogger->Write(LV_DEBUG, "*******************22" );
 #endif
 				return true;
+			}
+			else
+			{
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_DEBUG, "*******************11" );
+#endif
+					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, buffer incorrect");
+					break;
 			}
 	}
 #ifdef PLUTO_DEBUG
