@@ -34,7 +34,7 @@ echo "Download Packages Started (see /var/log/pluto/DownloadPackages.log for deb
 touch /var/log/pluto/DownloadPackages.newlog
 mv /var/log/pluto/DownloadPackages.newlog /var/log/pluto/DownloadPackages.log > /dev/null 2>&1
 exec 6>&1
-exec > /var/log/pluto/DownloadPackges.newlog 2>&1
+exec > /var/log/pluto/DownloadPackages.newlog 2>&1
 echo "##  Updates Download Started at $(date -R)"
 
 ## Check to see if we are in offline mode (pluto.conf)
