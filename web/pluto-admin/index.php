@@ -19,6 +19,7 @@ if(isset($_SESSION['userLoggedIn']) && !isset($_SESSION['installationID'])){
 	session_destroy();
 	$section='login';
 }
+validate_installation((int)@$_SESSION['installationID'],$dbADO);
 
 switch ($section) {	
 	case 'login':

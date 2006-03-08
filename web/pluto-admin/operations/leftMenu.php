@@ -43,9 +43,9 @@ function leftMenu($output,$dbADO) {
 	';	
 	
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
-		
+
 		$selectedInstallation = isset($_REQUEST['installationNo'])?(int)$_REQUEST['installationNo']:(int)$_SESSION['installationID'];
-		
+
 		//load the selected installation into SESSION (and check if is a valid installation for this user)
 		if (in_array($selectedInstallation,$_SESSION['installationIDs'])) {
 			$_SESSION['installationID'] = $selectedInstallation;

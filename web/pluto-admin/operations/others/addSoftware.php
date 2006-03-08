@@ -96,7 +96,8 @@ function addSoftware($output,$dbADO) {
 			$url=((isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?'deb ':'').$_POST['url'];
 			$repositoryName=@$_POST['repositoryName'];
 
-			$msg=exec("/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'");
+			$cmd="/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'";
+			$msg=exec($cmd);
 			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
 			$_SESSION['packageName']=$packageName;
 			$_SESSION['url']=$_POST['url'];

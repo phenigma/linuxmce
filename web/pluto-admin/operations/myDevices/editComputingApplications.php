@@ -24,7 +24,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		$picsByKey=array_flip($fullPicArray);
 		
 		
-	$tableRows='';
+	$appsTable='<table width="100%" cellpadding="3" cellspacing="0" border="0">';
 	$appArray=getFieldsAsArray('Device_QuickStart','FK_QuickStartTemplate,PK_Device_QuickStart,Description,SortOrder,`Binary`,Arguments,EK_Picture',$dbADO,'WHERE FK_Device='.$mdID,'ORDER BY SortOrder ASC');
 	$usedTemplates=array();
 	for($i=0;$i<count(@$appArray['PK_Device_QuickStart']);$i++){
@@ -34,18 +34,35 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		
 		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
 		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
-		$tableRows.='
+		$appsTable.='
 			<tr bgcolor="'.$color.'">
-				<td>'.$pic.'</td>
-				<td>'.$TEXT_DESCRIPTION_CONST.': <B>'.$appArray['Description'][$i].'</B><br>Path to binary: <B>'.$appArray['Binary'][$i].'</B><br>Arguments: <B>'.$appArray['Arguments'][$i].'</B></td>
-				<td align="center">
+				<td rowspan="3">'.$pic.'</td>
+				<td>'.$TEXT_DESCRIPTION_CONST.': </td>
+				<td><input type="text" name="description_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Description'][$i].'"></td>
+				<td align="center" rowspan="3">
 					<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
 					<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
 					<input type="submit" class="button" name="del_'.$appArray['PK_Device_QuickStart'][$i].'" value="Delete" onClick="if(!confirm(\'Are you sure you want to delete this application?\'))return false;"></td>
 			</tr>
+			<tr bgcolor="'.$color.'">
+				<td>Path to binary: </td>
+				<td><input type="text" name="binary_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Binary'][$i].'"></td>
+			</tr>
+			<tr bgcolor="'.$color.'">
+				<td>Arguments: </td>
+				<td><input type="text" name="arguments_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Arguments'][$i].'"></td>
+			</tr>
 		';
 	}
-	$tableRows.='<input type="hidden" name="apps" value="'.@join(',',@array_values($appArray['PK_Device_QuickStart'])).'">';
+	if(count(@$appArray['PK_Device_QuickStart'])>0){
+		$appsTable.='
+			<tr>
+				<td colspan="4" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+			</tr>
+		';
+	}
+	
+	$appsTable.='</table><input type="hidden" name="apps" value="'.@join(',',@array_values($appArray['PK_Device_QuickStart'])).'">';
 	
 		
 		
@@ -96,7 +113,9 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 				<td align="center" colspan="2"><B>'.$TEXT_APPLICATION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
-			'.$tableRows.'
+			<tr>
+				<td colspan="3">'.$appsTable.'</td>
+			</tr>		
 			<tr>
 				<td>&nbsp;</td>
 			</tr>
@@ -204,6 +223,10 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 				}
 			}
 			
+			$description=cleanString($_POST['description_'.$app]);
+			$binary=cleanString($_POST['binary_'.$app]);
+			$arguments=cleanString($_POST['arguments_'.$app]);
+			$dbADO->Execute('UPDATE Device_QuickStart SET Description=?,`Binary`=?,Arguments=? WHERE PK_Device_QuickStart=?',array($description,$binary,$arguments,$app));
 		}
 		
 		$sufix=(@$err!='')?'&error='.$err:'&msg='.$TEXT_COMPUTING_APPLICATIONS_UPDATED_CONST;

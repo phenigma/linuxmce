@@ -3121,7 +3121,7 @@ function isCritical($deviceID)
 
 function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 {
-	$deviceDataBox='<table width="240" cellpadding="2" cellspacing="0">';
+	$deviceDataBox='<table width="240" cellpadding="2" cellspacing="0" border="0">';
 
 	foreach ($DeviceDataArray AS $rowDDforDevice){
 		
@@ -3133,7 +3133,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
 			$deviceDataBox.='
 				<tr>
-					<td width="270" align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'').'</td>
+					<td width="270" align="right" valign="middle"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'').'</td>
 					<td>';
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
@@ -5063,5 +5063,14 @@ function delete_command_from_cg($cgID,$device,$commands,$dbADO){
 	
 	$deleteCommandGroup_Command='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command IN ('.join(',',$commands).')';
 	$dbADO->Execute($deleteCommandGroup_Command,array($cgID,$device));
+}
+
+function validate_installation($sessionID,$dbADO){
+	if($sessionID==1){
+		$installationsArray=array_keys(getAssocArray('Installation','PK_Installation','Description',$dbADO,'INNER JOIN Installation_Users ON FK_Installation=PK_Installation WHERE FK_Users='.$_SESSION['userID'].' ORDER BY FK_Installation ASC LIMIT 0,1'));
+		if(count($installationsArray)>0 && $installationsArray[0]!=1){
+			$_SESSION['installationID']=$installationsArray[0];
+		}
+	}
 }
 ?>

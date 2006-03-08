@@ -88,7 +88,7 @@ function login($output,$dbADO) {
 								if($resRemote->RecordCount()>0){
 									$rowRemote=$resRemote->FetchRow();
 
-									$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
+									$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ? ORDER BY FK_Installation ASC";
 									$res_installations = $dbADO->Execute($query_installation,array((int)$rowRemote['PK_Users']));
 									if($res_installations->RecordCount()==0){
 										header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION_CONST);
@@ -134,7 +134,7 @@ function login($output,$dbADO) {
 
 						$row_users = $res_users->FetchRow();
 
-						$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";
+						$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ? ORDER BY FK_Installation ASC";
 						$res_installations = $dbADO->Execute($query_installation,array((int)$row_users['PK_Users']));
 						if($res_installations->RecordCount()==0){
 							header('Location: index.php?section=login&error='.$TEXT_ERROR_NO_INSTALLATION_CONST);
