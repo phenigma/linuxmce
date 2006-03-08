@@ -12,18 +12,26 @@ function editPlaylist($output,$mediadbADO) {
 	
 	$playlistInfo=getAssocArray('Playlist','PK_Playlist','Name',$mediadbADO,'WHERE PK_Playlist=',$playlistID);
 	
+	if(isset($_REQUEST['searchForFiles']) && strlen($_REQUEST['searchForFiles'])<3){
+		$_REQUEST['error']=$TEXT_ERROR_SEARCHSTRING_TOO_SHORT_CONST;
+	}
+	
+	// set Order field to PK_PlaylistEntry for the records who doesn't have it set
+	$mediadbADO->Execute('UPDATE PlaylistEntry SET `Order`=PK_PlaylistEntry WHERE `Order` IS NULL');
+	
 	$scriptInHead='
 		<script>
-		function selAllCheckboxes()
+		function selAllCheckboxes(forced)
 		{
-		   val=(document.editPlaylist.setAll.checked)?true:false;
-		   for (i = 0; i < editPlaylist.elements.length; i++)
-		   {
-		     if (editPlaylist.elements[i].type == "checkbox")
-		     {
-		         editPlaylist.elements[i].checked = val;
-		     }
-		   }
+			if($forced=0){
+				val=(document.editPlaylist.setAll.checked)?true:false;
+			}else{
+				val=(document.editPlaylist.setAll.checked)?false:true;
+				document.editPlaylist.setAll.checked=val;
+			}
+			for(i=0;i<records;i++){
+				document.getElementById("file_"+i).checked=val;
+			}
 		}
 		</script>
 	';
@@ -46,7 +54,7 @@ function editPlaylist($output,$mediadbADO) {
 					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_PATH_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DURATION_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ACTION_CONST.' *</B></td>
 				</tr>';
 		
 		// get bookmark array
@@ -97,14 +105,17 @@ function editPlaylist($output,$mediadbADO) {
 					<td>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
 					<td align="center"><input type="text" name="duration_'.$rowPlaylistEntry['PK_PlaylistEntry'].'" value="'.$rowPlaylistEntry['Duration'].'" style="width:50px;"></td>
 					<td><a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_FILE_FROM_PLAYLIST_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">'.$TEXT_DELETE_CONST.'</a>
-					<input type="button" class="button" name="plus" value="+" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
-					<input type="button" class="button" name="plus" value="-" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
+					<input type="button" class="button" name="plus" value="U" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
+					<input type="button" class="button" name="plus" value="D" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
 					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'">
 					</td>
 				</tr>';
 		}
 		if($resPlaylistEntry->RecordCount()>0){
 			$out.='
+				<tr>
+					<td align="left" colspan="6"><em>* '.$TEXT_CHANGE_POSITION_INFO_CONST.'</em></td>
+				</tr>			
 				<tr>
 					<td colspan="5" align="center">
 						<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
@@ -122,33 +133,64 @@ function editPlaylist($output,$mediadbADO) {
 				<tr>
 					<td align="center" colspan="5">
 						<B>'.$TEXT_SEARCH_FOR_FILES_CONST.':</B> 
-						<input type="text" name="searchForFiles" value="'.@$_POST['searchForFiles'].'">
+						<input type="text" name="searchForFiles" value="'.@$_REQUEST['searchForFiles'].'">
 						<input type="button" class="button" name="searchBtn" value="'.$TEXT_SEARCH_CONST.'" onClick="document.editPlaylist.action.value=\'form\';document.editPlaylist.submit();">
 						&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$TEXT_ADD_BOOKMARK_CONST.'</b> 
 						'.pulldownFromArray($bookmarksArray,'bookmark',0).'
+						<input type="submit" class="button" name="add_bookmark" value="'.$TEXT_ADD_CONST.'">
 					</td>
 				</tr>';
-		if(isset($_POST['searchForFiles']) && $_POST['searchForFiles']!=''){
-			$searchString='%'.$_POST['searchForFiles'].'%';
+		if(isset($_REQUEST['searchForFiles']) && strlen($_REQUEST['searchForFiles'])>2){
+			$searchString='%'.$_REQUEST['searchForFiles'].'%';
 			$resFiles=$mediadbADO->Execute('SELECT * FROM File WHERE Filename LIKE ?',$searchString);
 			$displayedFilesArray=array();
-			while($rowFiles=$resFiles->FetchRow()){
-				$displayedFilesArray[]=$rowFiles['PK_File'];
+			$pos=0;
+			$out.='
+				<tr bgcolor="#EBEFF9">
+					<td colspan="5" align="center"><B>'.$TEXT_SEARCH_RESULTS_CONST.'</B></td>				
+				</tr>';
+			
+			// multipage display variables
+			$filesPerPage=30;
+			$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
+			$noRecords=$resFiles->RecordCount();
+			$noPages=ceil($noRecords/$filesPerPage);
+			$linkPages=array();
+			for($i=1;$i<$noPages+1;$i++){
+				$url=(strpos($_SERVER['QUERY_STRING'],'editPlaylist')===false)?'section=editPlaylist&plID='.$playlistID.'&searchForFiles='.urlencode($_REQUEST['searchForFiles']):'';
+				$linkPages[]=($i==$page)?'<span class="normal_row">'.$i.'</span>':'<a class="red_link" href="index.php?'.$url.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
+			}
+			$linksBar=join(' ',$linkPages);
+			if($noRecords==0){
 				$out.='
 				<tr>
-					<td colspan="4"><input type="checkbox" name="file_'.$rowFiles['PK_File'].'" value="1" checked> '.$rowFiles['Path'].'/<B>'.$rowFiles['Filename'].'</B></td>
+					<td colspan="5" align="center">'.$TEXT_NO_RECORDS_CONST.'</td>				
 				</tr>';
+			}
+						
+			while($rowFiles=$resFiles->FetchRow()){
+				$pos++;
+				if($pos>($page-1)*$filesPerPage && $pos<=$page*$filesPerPage){
+					$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
+					$displayedFilesArray[]=$rowFiles['PK_File'];
+					$out.='
+					<tr bgcolor="'.$color.'">
+						<td colspan="5"><input type="checkbox" name="file_'.$rowFiles['PK_File'].'" value="1" checked id="file_'.($pos-($page-1)*$filesPerPage).'"> '.$rowFiles['Path'].'/<B>'.$rowFiles['Filename'].'</B></td>
+					</tr>';
+				}
 			}
 			if($resFiles->RecordCount()>0){
 				$out.='
-				<tr>
-					<td colspan="5"><input type="checkbox" name="setAll" onClick="selAllCheckboxes()" checked> '.$TEXT_SELECT_UNSELECT_ALL_CONST.'</td>
+				<tr bgcolor="#EBEFF9">
+					<td colspan="2" align="left"><input type="checkbox" name="setAll" onClick="selAllCheckboxes(0)" checked> <a href="javascript:selAllCheckboxes(1)">'.$TEXT_SELECT_UNSELECT_ALL_CONST.'</a></td>				
+					<td colspan="3" align="right">'.$linksBar.'</td>
 				</tr>
 				<tr>
 					<td colspan="5"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SELECTED_FILES_CONST.'">
 						<input type="hidden" name="displayedFilesArray" value="'.join(',',$displayedFilesArray).'">
 					</td>
 				</tr>
+				<script>var records='.($pos-($page-1)*$filesPerPage).';</script>
 				';
 			}
 		}
@@ -236,8 +278,8 @@ function editPlaylist($output,$mediadbADO) {
 			}
 		}
 		
-		if(isset($_POST['update'])){
-			$playlistEntries=explode(',',$_POST['playlistEntries']);
+		if(isset($_POST['update']) || isset($_POST['add_bookmark'])){
+			$playlistEntries=explode(',',@$_POST['playlistEntries']);
 			foreach ($playlistEntries AS $playlistEntry){
 				if(isset($_POST['duration_'.$playlistEntry])){
 					$duration=((int)$_POST['duration_'.$playlistEntry]>0)?(int)$_POST['duration_'.$playlistEntry]:NULL;
@@ -251,6 +293,8 @@ function editPlaylist($output,$mediadbADO) {
 				$pathArr=array_values(getAssocArray('File','PK_File','Path',$mediadbADO,'INNER JOIN Bookmark ON FK_File=PK_File WHERE PK_Bookmark='.$bookmark));
 
 				$mediadbADO->Execute('INSERT INTO PlaylistEntry (FK_Playlist,FK_Bookmark,FK_File,Path) VALUES (?,?,?,?)',array($playlistID,$bookmark,NULL,$pathArr[0]));
+				$entryID=$mediadbADO->Insert_ID();
+				$mediadbADO->Execute('UPDATE PlaylistEntry SET `Order`=? WHERE PK_Playlistentry=?',array($entryID,$entryID));
 			}
 			
 			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_PLAYLIST_ENTRIES_UPDATED_CONST);
