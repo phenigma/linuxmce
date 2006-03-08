@@ -150,7 +150,7 @@ else
 		Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
 		# Send a message to inform about the updates
-		if [[ "$Count" != 0 && MD_IsUp == "Yes" ]]; then
+		if [[ "$Count" != "0" && $MD_IsUp == "Yes" ]]; then
 			/usr/pluto/bin/NotifyUpdates.sh $MD_DeviceID
 		fi
 	done
