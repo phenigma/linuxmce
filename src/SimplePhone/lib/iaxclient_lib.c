@@ -1263,6 +1263,8 @@ bail:
 EXPORT int iaxc_audio_devices_get(struct iaxc_audio_device **devs, int *nDevs, int *input, int *output, int *ring) {
       *devs = audio.devices;
       *nDevs = audio.nDevices;
+      if(audio.selected_devices == NULL)
+          return -1;
       audio.selected_devices(&audio,input,output,ring);
       return 0;
 }

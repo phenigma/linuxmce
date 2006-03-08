@@ -358,7 +358,12 @@ void SimplePhone::registerWithAsterisk()
         exit(1);
     }
 
-    iaxc_audio_devices_get(&devices, &nDevs, &input, &output, &ring);
+    if(iaxc_audio_devices_get(&devices, &nDevs, &input, &output, &ring)<0)
+	{
+        g_pPlutoLogger->Write(LV_CRITICAL, "Could not get access to audio device, will quit now");
+        m_bQuit = 1;
+        exit(1);
+	}
 
     for(i=0; i<nDevs; i++) {
         if(devices->capabilities & IAXC_AD_INPUT) {
