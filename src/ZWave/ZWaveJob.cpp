@@ -14,6 +14,7 @@ class ZWaveJob::Private
 		PlutoZWSerialAPI * handler;
 		ZWaveJob::JobState state;
 		ZWaveJob::ZW_JOB type;
+		time_t receivingTimeout;
 		
 	private:
 };
@@ -21,7 +22,8 @@ class ZWaveJob::Private
 ZWaveJob::Private::Private(PlutoZWSerialAPI * zwAPI)
 	: handler(zwAPI),
 	  state(ZWaveJob::IDLE),
-	  type(ZWaveJob::NOTHING)
+	  type(ZWaveJob::NOTHING),
+	  receivingTimeout(0)
 {
 }
 
@@ -68,4 +70,25 @@ void ZWaveJob::setType(ZWaveJob::ZW_JOB type)
 PlutoZWSerialAPI* ZWaveJob::handler() const
 {
 	return d->handler;
+}
+
+void ZWaveJob::timeoutHandler()
+{
+	// just nothing here
+	// each job will have its implementation, if needed
+}
+
+bool ZWaveJob::hasReceivingTimeout()
+{
+	return (d->receivingTimeout != 0);
+}
+
+void ZWaveJob::setReceivingTimeout(time_t timeout)
+{
+	d->receivingTimeout = timeout;
+}
+
+time_t ZWaveJob::receivingTimeout() const
+{
+	return d->receivingTimeout;
 }

@@ -27,14 +27,24 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-	    pluto_pthread_mutex_t m_ZWaveMutex; 
+		/** mutex for ZWave tasks.*/
+	    pluto_pthread_mutex_t m_ZWaveMutex;
+		
+		/** mutex to force the pooling job to run.*/
+	    pluto_pthread_mutex_t m_PoolingMutex;
+		
+		// mutex attribute
 	    pthread_mutexattr_t m_MutexAttr;
+		
 		
 		// ZWave API
 		PlutoZWSerialAPI * m_ZWaveAPI;
 		
 		/** Flag used by the pooling thread.*/
 		static bool m_PoolStarted;
+		
+		/** Flag used to force the pooling task if ZWave has changes.*/
+		static bool m_ZWaveChanged;
 		
 		/** Pooling thread */
 		static pthread_t m_PoolThread;
@@ -50,7 +60,14 @@ namespace DCE
 		/** Starts or stops the ZWave pooling thread.*/
 		void CMD_Pool(bool start);
 		
+		/** Checks serial connection and performs ZWave initialization.*/
 		bool ConfirmConnection(int iRetryCount=0);
+		
+		/** Returns true if the changed flag is set.*/
+		bool isZWaveChanged();
+		
+		/** Set the changed flag.*/
+		void setZWaveChanged(bool);
 		
 public:
 	

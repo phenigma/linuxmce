@@ -11,7 +11,9 @@
 
 #ifndef _ZWAVE_JOB_H_
 #define _ZWAVE_JOB_H_
+
 #include <stddef.h>
+#include <time.h>
 
 class PlutoZWSerialAPI;
 
@@ -48,6 +50,20 @@ class ZWaveJob
 		
 		/** Sets the job type.*/
 		virtual void setType(ZW_JOB);
+		
+		/** Callback to handle receive timeout.*/
+		virtual void timeoutHandler();
+		
+		/** Returns true if the job needs the receiving timeout (time from the command and the answer).*/
+		virtual bool hasReceivingTimeout();
+		
+		/** Returns the current receving timeout value.*/
+		virtual time_t receivingTimeout() const;
+		
+		/** Set the job to use the receiving timeout.
+		  * 0 = no timeout
+		  */
+		virtual void setReceivingTimeout(time_t);
 		
 	protected:
 	

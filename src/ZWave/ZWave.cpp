@@ -31,16 +31,17 @@ using namespace DCE;
 #ifdef _WIN32 
 #include <windows.h> 
 #include <winbase.h> 
-#define POOL_DELAY 200 
+#define POOL_DELAY 200
 #else 
 #include <unistd.h> 
-#define POOL_DELAY 200000 
+#define POOL_DELAY 200000
 #endif
 
 #define ZW_TIMEOUT 15
 #define ZW_LONG_TIMEOUT 120
 
 bool ZWave::m_PoolStarted = false;
+bool ZWave::m_ZWaveChanged = false;
 pthread_t ZWave::m_PoolThread;
 string ZWave::zwaveSerialDevice;
 
@@ -50,11 +51,13 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 	, m_ZWaveMutex("zwave")
+	, m_PoolingMutex("zwave_pooling")
 	, m_ZWaveAPI(NULL)
 {
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_ZWaveMutex.Init( &m_MutexAttr );
+    m_PoolingMutex.Init( &m_MutexAttr );
 
 	m_ZWaveAPI = PlutoZWSerialAPI::instance();
 	if( m_ZWaveAPI == NULL )
@@ -155,6 +158,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
+				
+				setZWaveChanged(true);
 			}
 			else
 			{
@@ -175,6 +180,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
+				
+				setZWaveChanged(true);
 			}
 			else
 			{
@@ -196,6 +203,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
+				
+				setZWaveChanged(true);
 			}
 			else
 			{
@@ -468,14 +477,21 @@ void ZWave::PoolZWaveNetwork()
 {
 	g_pPlutoLogger->Write(LV_DEBUG, "PoolZWaveNetwork : begin");
 	
-	// start with 30 sec delay
+	// start with 20 sec delay
 	// so that the children will be reported
 	// before pooling the network
 	unsigned i = 1;
 	while( m_PoolStarted )
 	{
-		// 30 sec = 150 x 200 ms
-		if( i >= 150 )
+		// if ZWave has changed, then the Pooling task should be performed in the next 4 sec
+		if( isZWaveChanged() )
+		{
+			setZWaveChanged( false );
+			i = 80;
+		}
+		
+		// 20 sec = 100 x 200 ms
+		if( i >= 100 )
 		{
 			i = 0;
 		}
@@ -569,7 +585,6 @@ void ZWave::PoolZWaveNetwork()
 		}
 		i++;
 		
-		
 #ifdef _WIN32
 			Sleep(POOL_DELAY); 
 #else
@@ -648,6 +663,8 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
+				
+				setZWaveChanged(true);
 			}
 			else
 			{
@@ -668,6 +685,8 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
+				
+				setZWaveChanged(true);
 			}
 			else
 			{
@@ -757,4 +776,16 @@ string ZWave::GetZWaveSerialDevice()
 	}
 	
 	return sPort;
+}
+
+bool ZWave::isZWaveChanged()
+{
+	PLUTO_SAFETY_LOCK(zm, m_PoolingMutex);
+	return m_ZWaveChanged;
+}
+
+void ZWave::setZWaveChanged(bool changed)
+{
+	PLUTO_SAFETY_LOCK(zm, m_PoolingMutex);
+	m_ZWaveChanged = changed;
 }

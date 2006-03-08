@@ -15,9 +15,6 @@
 #define READ_DELAY 200000
 #endif
 
-// 10 sec
-#define RECEIVING_TIMEOUT 10
-
 PlutoZWSerialAPI * PlutoZWSerialAPI::ref = NULL;
 
 // -------------- Private -----------------------------------
@@ -179,6 +176,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 {
 	time_t listenTime = time(NULL);
 	time_t currentTime = listenTime;
+	time_t receivingTime = listenTime;
 	d->timeLeft = timeout;
 	
 	if( PlutoZWSerialAPI::RUNNING == d->state )
@@ -190,7 +188,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 			currentTime = time(NULL);
 			if( listenTime + timeout < currentTime )
 			{
-				g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen Timeout");
+				g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen Timeout");
 				stop();
 				return false;
 			}
@@ -203,12 +201,16 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 				memset(d->command, 0, d->commandLength);
 				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
 				{
+					// a new answer was got
+					// update the receiving timer
+					receivingTime = time(NULL);
+					
 					if( d->currentJob != NULL )
 					{
 						d->state = PlutoZWSerialAPI::RUNNING;
 						if( !d->currentJob->processData(d->command, d->commandLength) )
 						{
-							g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job returns error");
+							g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job returns error");
 							stop();
 							return false;
 						}
@@ -216,7 +218,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job is null");
+						g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job is null");
 						stop();
 						return false;
 					}
@@ -236,7 +238,7 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 							d->state = PlutoZWSerialAPI::RUNNING;
 							if( !d->currentJob->run() )
 							{
-								g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen : current job couldn't run");
+								g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job couldn't run");
 								stop();
 								return false;
 							}
@@ -266,6 +268,27 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 #ifdef PLUTO_DEBUG
 				g_pPlutoLogger->Write(LV_ZWAVE, " commandRet = %d ", commandRet);
 #endif
+				// still no answer, try to see if we have to check the receiving timeout
+				if( d->currentJob != NULL && d->currentJob->hasReceivingTimeout() )
+				{
+#ifdef PLUTO_DEBUG
+					g_pPlutoLogger->Write(LV_ZWAVE, "Check receiving timeout");
+#endif
+					if( receivingTime + d->currentJob->receivingTimeout() < currentTime )
+					{
+						d->currentJob->timeoutHandler();
+						// job stopped, we should leave listen()
+						if( ZWaveJob::STOPPED == d->currentJob->state() )
+						{
+							g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::listen : current job got timeout");
+							stop();
+							return false;
+						}
+						// a new answer should get
+						// update the receiving timer
+						receivingTime = time(NULL);
+					}
+				}
 			}
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_ZWAVE, "PlutoZWSerialAPI::listen() sleeping");		

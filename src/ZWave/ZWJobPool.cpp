@@ -22,6 +22,9 @@
 
 #include <stdio.h>
 
+// 5 sec
+#define RECEIVING_TIMEOUT 5
+
 class ZWJobPool::Private
 {
 	public:
@@ -66,6 +69,7 @@ ZWJobPool::ZWJobPool(PlutoZWSerialAPI * zwAPI)
 {
 	d = new Private();
 	setType(ZWaveJob::INITIALIZE);
+	setReceivingTimeout( 5 );
 }
 
 ZWJobPool::~ZWJobPool()
@@ -209,3 +213,27 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 	return true;
 }
 
+void ZWJobPool::timeoutHandler()
+{
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool::timeoutHandler - go to the next command");
+#endif
+
+	// go to the next job
+	delete d->currentJob;
+	d->currentJob = NULL;
+	if( d->jobsQueue.size() > 0 )
+	{
+		d->currentJob = d->jobsQueue.front();
+		d->jobsQueue.pop_front();
+		
+		if( !d->currentJob->run() )
+		{
+			setState(ZWaveJob::STOPPED);
+		}
+	}
+	else
+	{
+		setState(ZWaveJob::STOPPED);
+	}
+}

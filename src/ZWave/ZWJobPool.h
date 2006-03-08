@@ -35,6 +35,9 @@ class ZWJobPool : public ZWaveJob
 		/** It is called to process the protocol data flow.*/
 		virtual bool processData(const char * buffer, size_t length);
 		
+		/** Callback to handle receive timeout.*/
+		virtual void timeoutHandler();
+		
 	private:
 	
 		// disable the default constructor
