@@ -497,7 +497,9 @@ bool Bluetooth_Dongle::ScanningLoop()
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "The detection loop is broken. Going to reload...");
         extern Command_Impl *g_pCommand_Impl;
-        g_pCommand_Impl->OnReload();
+
+		if(NULL != g_pCommand_Impl)
+			g_pCommand_Impl->OnReload();
     }
 
     return bResult;
