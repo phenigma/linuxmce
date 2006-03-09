@@ -264,7 +264,7 @@ wxDialog_WaitGrid::~wxDialog_WaitGrid()
     _WX_LOG_NFO();
 }
 
-bool wxDialog_WaitGrid::ExternalData_Load(void *pExternData)
+bool wxDialog_WaitGrid::ExternData_Load(void *pExternData)
 {
     _WX_LOG_NFO("ptr=%p", pExternData);
 #ifdef USE_DEBUG_CODE

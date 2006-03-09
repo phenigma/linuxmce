@@ -231,7 +231,7 @@ wxDialog_WaitUser::~wxDialog_WaitUser()
     v_oTimer_ExpireDialog.Stop();
 }
 
-bool wxDialog_WaitUser::ExternalData_Load(void *pExternData)
+bool wxDialog_WaitUser::ExternData_Load(void *pExternData)
 {
     _WX_LOG_NFO("ptr=%p", pExternData);
 #ifdef USE_DEBUG_CODE

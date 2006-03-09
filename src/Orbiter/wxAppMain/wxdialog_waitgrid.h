@@ -114,7 +114,7 @@ public:
 public:
     ~wxDialog_WaitGrid();
 
-    virtual bool ExternalData_Load(void *pExternData);
+    virtual bool ExternData_Load(void *pExternData);
 
     void NewDataRefresh(const string &sInfo, const map<string, bool> &mapStrBool, int nPercent);
 

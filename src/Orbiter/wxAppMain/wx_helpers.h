@@ -42,7 +42,7 @@ wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore);
 
 // only if condition is true
 // launches the given functions
-// when the object is created, repectively destroyed
+// when the object is created, respectively destroyed
 class wxCondLocker
 {
   public:

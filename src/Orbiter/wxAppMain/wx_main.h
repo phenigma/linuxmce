@@ -11,7 +11,12 @@
 #pragma interface "wx_main.h"
 #endif
 
+// is true if USE_WX_LIB environment variable is defined
+extern bool g_USE_WX_LIB;
+
+// holds the app exit code
 extern int g_nExitCode;
+
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[]);
 #endif // USE_MAIN_CONSOLE

@@ -106,7 +106,7 @@ class wxDialog_WaitUser: public wxDialog_Base
   public:
     ~wxDialog_WaitUser();
 
-    virtual bool ExternalData_Load(void *pExternData);
+    virtual bool ExternData_Load(void *pExternData);
 
     void NewDataRefresh(const string &sInfo, int nTimeoutSeconds, map<int,string> *p_mapPrompts);
 

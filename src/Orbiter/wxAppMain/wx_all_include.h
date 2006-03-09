@@ -4,6 +4,10 @@
 // Changed by : ...
 //
 
+// DO NOT CHANGE THIS FILE
+// included automatically before other .h files
+// see the corresponding .cpp file
+
 #ifndef _WX_ALL_INCLUDE_H_
 #define _WX_ALL_INCLUDE_H_
 

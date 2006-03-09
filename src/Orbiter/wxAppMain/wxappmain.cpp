@@ -102,6 +102,20 @@ bool wxAppMain::OnInit()
 {
     _WX_LOG_NFO();
     _COND_RET(this == wxTheApp, false);
+#ifdef USE_RELEASE_CODE
+    if (g_USE_WX_LIB)
+    {
+        g_USE_EXTERN_APP_ON_THREAD = true;
+    }
+    else
+    {
+        _WX_LOG_NFO("wx deactivated");
+        v_pExternApp = new ExternApp();
+        v_pExternApp->Run();
+        wxDELETE(v_pExternApp);
+        return false;
+    }
+#endif // USE_RELEASE_CODE
 ////@begin wxAppMain initialisation
     // Remove the comment markers above and below this block
     // to make permanent changes to the code.
@@ -129,9 +143,10 @@ bool wxAppMain::OnInit()
     mainWindow->Show(false);
 #endif // USE_RELEASE_CODE
 
-#ifdef EXTERNAL_APP_ON_TIMER
-    v_oTimer_ExternApp.Start(INTERVAL_EXTERNAPP_LOOP_MSEC);
-#endif // EXTERNAL_APP_ON_TIMER
+    if (g_USE_EXTERN_APP_ON_TIMER)
+    {
+        v_oTimer_ExternApp.Start(INTERVAL_EXTERNAPP_LOOP_MSEC);
+    } // g_USE_EXTERN_APP_ON_TIMER
 #ifdef USE_DEBUG_CODE
     v_oTimer_Debug.Start(INTERVAL_TIMER_DEBUG_MSEC);
 #endif // USE_DEBUG_CODE
@@ -156,24 +171,33 @@ int wxAppMain::OnExit()
 
 void wxAppMain::OnIdle( wxIdleEvent& event )
 {
-#ifdef EXTERNAL_APP_ON_THREAD
-    if ( wxAppIsReady() && (v_pExternApp==NULL) )
+    if (g_USE_EXTERN_APP_ON_THREAD)
     {
-        v_pExternApp = new ExternApp();
-        v_pExternApp->Start();
-    }
-#endif // EXTERNAL_APP_ON_THREAD
-#ifdef EXTERNAL_APP_ON_IDLE
-    if (wxAppIsReady())
-    {
-        if (! ExternAppEventProcess())
+        if ( wxAppIsReady() && (v_pExternApp==NULL) )
         {
-            wxTheApp->GetTopWindow()->Destroy();
+            v_pExternApp = new ExternApp();
+            v_pExternApp->Start();
         }
-        wx_sleep(0, INTERVAL_EXTERNAPP_LOOP_MSEC);
-        ::wxWakeUpIdle();
-    }
-#endif // EXTERNAL_APP_ON_IDLE
+    } // g_USE_EXTERN_APP_ON_THREAD
+    if (g_USE_EXTERN_APP_ON_IDLE)
+    {
+        if ( wxAppIsReady() )
+        {
+            if (v_pExternApp==NULL)
+            {
+                v_pExternApp = new ExternApp();
+            }
+            else
+            {
+                if (! v_pExternApp->EventProcess())
+                {
+                    wxTheApp->GetTopWindow()->Destroy();
+                }
+                wx_sleep(0, INTERVAL_EXTERNAPP_LOOP_MSEC);
+            }
+            ::wxWakeUpIdle();
+        }
+    } // g_USE_EXTERN_APP_ON_IDLE
     wxApp::OnIdle(event);
 ////@begin wxEVT_IDLE event handler in wxAppMain.
     // Before editing this code, remove the block markers.
@@ -334,21 +358,22 @@ void wxAppMain::OnTimer_ExternApp(wxTimerEvent& event)
     //_WX_LOG_NFO();
     _COND_RET(event.GetId() == ID_Timer_ExternApp);
     event.Skip();
-#ifdef EXTERNAL_APP_ON_TIMER
-    static bool isRunningNow = false;
-    if (isRunningNow)
+    if (g_USE_EXTERN_APP_ON_TIMER)
     {
-        _WX_LOG_WRN("Running lazy event process");
-        return;
-    }
-    isRunningNow = true;
-    if (! v_pExternApp->EventProcess())
-    {
-        v_oTimer_ExternApp.Stop();
-        wxTheApp->GetTopWindow()->Destroy();
-    }
-    isRunningNow = false;
-#endif // EXTERNAL_APP_ON_TIMER
+        static bool isRunningNow = false;
+        if (isRunningNow)
+        {
+            _WX_LOG_WRN("Running lazy event process");
+            return;
+        }
+        isRunningNow = true;
+        if (! v_pExternApp->EventProcess())
+        {
+            v_oTimer_ExternApp.Stop();
+            wxTheApp->GetTopWindow()->Destroy();
+        }
+        isRunningNow = false;
+    } // g_USE_EXTERN_APP_ON_TIMER
 }
 
 void wxAppMain::OnTimer_Debug(wxTimerEvent& event)

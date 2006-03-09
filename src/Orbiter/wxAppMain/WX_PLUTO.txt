@@ -32,5 +32,8 @@ In Makefile:
 - added to sources section wxAppMain/*
 
 In Linux/OSDScreenHandler.*:
-- redefine methods to register the callbacks: SCREEN_AdvancedOptions, SCREEN_Media
+- redefine the following method to register the callbacks: SCREEN_RoomsWizard
 - added callbacks: RoomsWizardCreate, RoomsWizardDelete, RoomsWizardRefresh
+
+wxDialog with thread support
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~

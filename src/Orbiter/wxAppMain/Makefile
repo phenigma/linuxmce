@@ -142,7 +142,7 @@ $(OBJECTPATH)/wx_helpers.o:	wx_helpers.cpp wx/wx.h wx_helpers.h wxevent_thread.h
 $(OBJECTPATH)/wx_logger.o:	wx_logger.cpp wx/wx.h wx_logger.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_logger.cpp
 
-$(OBJECTPATH)/wx_main.o:	wx_main.cpp wx/wx.h wx_main.h
+$(OBJECTPATH)/wx_main.o:	wx_main.cpp wx/wx.h wx_main.h wx_extern_app.h wxthread_cmd.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_main.cpp
 
 $(OBJECTPATH)/wxthread_bag.o:	wxthread_bag.cpp wx/wx.h wxthread_bag.h wxthread_cmd.h wx_helpers.h wxevent_thread.h wxthread_wrapper.h wxframemain.h

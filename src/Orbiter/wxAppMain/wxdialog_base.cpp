@@ -238,14 +238,14 @@ void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dial
     v_pData_Holder_Dialog = pData_Holder_Dialog;
 }
 
-bool wxDialog_Base::ExternalData_Load(void *pExternData)
+bool wxDialog_Base::ExternData_Load(void *pExternData)
 {
     _WX_LOG_WRN("virtual method not implemented in a derived class");
     wxUnusedVar(pExternData);
     return true;
 }
 
-bool wxDialog_Base::ExternalData_Save(void *pExternData)
+bool wxDialog_Base::ExternData_Save(void *pExternData)
 {
     _WX_LOG_WRN("virtual method not implemented in a derived class");
     wxUnusedVar(pExternData);

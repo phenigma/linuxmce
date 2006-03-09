@@ -284,7 +284,7 @@ wxDialog_RoomWizard::~wxDialog_RoomWizard()
     _WX_LOG_NFO();
 }
 
-bool wxDialog_RoomWizard::ExternalData_Load(void *pExternData)
+bool wxDialog_RoomWizard::ExternData_Load(void *pExternData)
 {
     _WX_LOG_NFO("ptr=%p", pExternData);
     v_aRoomItems.Clear();
@@ -298,11 +298,11 @@ bool wxDialog_RoomWizard::ExternalData_Load(void *pExternData)
     WizardLogic *pWizardLogic = (WizardLogic *)pExternData;
     if (pWizardLogic == NULL)
     {
-        _WX_LOG_WRN("external data not initialized");
+        _WX_LOG_WRN("extern data not initialized");
     }
     else
     {
-        _WX_LOG_NFO("external data (%p)", pWizardLogic);
+        _WX_LOG_NFO("extern data (%p)", pWizardLogic);
         pWizardLogic->PreSeedRoomInfo(m_Persistent_Data.map_room_types);
         for(map<int,int>::iterator it = m_Persistent_Data.map_room_types.begin(); it != m_Persistent_Data.map_room_types.end(); ++it)
         {
@@ -318,7 +318,7 @@ bool wxDialog_RoomWizard::ExternalData_Load(void *pExternData)
     return true;
 }
 
-bool wxDialog_RoomWizard::ExternalData_Save(void *pExternData)
+bool wxDialog_RoomWizard::ExternData_Save(void *pExternData)
 {
     _WX_LOG_NFO("ptr=%p", pExternData);
     _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
@@ -327,11 +327,11 @@ bool wxDialog_RoomWizard::ExternalData_Save(void *pExternData)
     WizardLogic *pWizardLogic = (WizardLogic *)pExternData;
     if (pWizardLogic == NULL)
     {
-        _WX_LOG_WRN("external data not initialized");
+        _WX_LOG_WRN("extern data not initialized");
     }
     else
     {
-        _WX_LOG_NFO("external data (%p)", pWizardLogic);
+        _WX_LOG_NFO("extern data (%p)", pWizardLogic);
         _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
         _COND(v_aRoomItems.GetCount() > 0);
         for (size_t i=0; i<v_aRoomItems.GetCount(); i++)

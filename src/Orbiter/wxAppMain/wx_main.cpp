@@ -7,6 +7,7 @@
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wx_main.h"
 #endif
+
 #include "wx/wxprec.h"
 #ifdef __BORLANDC__
 #pragma hdrstop
@@ -16,9 +17,12 @@
 #endif
 
 #include "wx_main.h"
+#include "wx_extern_app.h"
 #if defined(__WXGTK__) || defined(__WXMOTIF__) || defined(__WXX11__)
 #include <X11/Xlib.h>
 #endif
+
+bool g_USE_WX_LIB = (getenv("USE_WX_LIB"));
 
 int g_nExitCode = EXIT_SUCCESS;
 
@@ -26,9 +30,11 @@ int g_nExitCode = EXIT_SUCCESS;
 int main(int argc, char *argv[])
 {
     _WX_LOG_NFO("STARTED");
-    _WX_LOG_WRN("!! code for launching X should be added here !!");
-#ifdef USE_RELEASE_CODE
-#endif // USE_RELEASE_CODE
+    {
+        //    _WX_LOG_WRN("!! code for launching X should be added here !!");
+        //#ifdef USE_RELEASE_CODE
+        //#endif // USE_RELEASE_CODE
+    }
     // activate X11 GUI threads
     {
         if ( XInitThreads() == 0 )

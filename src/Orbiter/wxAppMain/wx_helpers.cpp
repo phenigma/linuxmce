@@ -7,6 +7,7 @@
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wx_helpers.h"
 #endif
+
 #include "wx/wxprec.h"
 #ifdef __BORLANDC__
 #pragma hdrstop

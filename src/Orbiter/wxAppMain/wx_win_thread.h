@@ -79,7 +79,7 @@ struct Data_Holder_Dialog : Data_Holder_Base
     wxWindow *pWindow; // window on which the action should be performed
     int idWindow;      // window id
     wxString sLabel;   // window label
-    void *pExternData; // external data to be used by the window
+    void *pExternData; // extern data to be used by the window
     bool bShow;        // show/hide window
     bool bRetCode;     // return code
     bool nRetCode;     // return code
@@ -132,7 +132,7 @@ wxClassName * wxDialog_Create(int idWindow, const char *sLabel, void *pExternDat
     }
     wxClassName *pwxDialog = new wxClassName();
     _WX_LOG_NFO("Allocated at %p", pwxDialog);
-    pwxDialog->ExternalData_Load(pExternData);
+    pwxDialog->ExternData_Load(pExternData);
     pwxDialog->Create(wxTheApp->GetTopWindow(), idWindow, sLabel);
     return pwxDialog;
 }
@@ -191,6 +191,14 @@ int wxDialog_ShowModal(wxClassName *pwxDialog)
     int retCode = pwxDialog->ShowModal();
     _WX_LOG_NFO("retCode=%d, pWin=%p", retCode, pwxDialog);
     return retCode;
+}
+
+template <class wxClassName>
+bool wxDialog_Save(wxClassName *pwxDialog, void *pExternData=NULL)
+{
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
+    _COND_RET(pwxDialog != NULL, false);
+    return pwxDialog->ExternData_Save(pExternData);
 }
 
 #endif

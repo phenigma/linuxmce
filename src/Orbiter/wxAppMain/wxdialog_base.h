@@ -103,8 +103,8 @@ class wxDialog_Base: public wxDialog
 
     void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
 
-    virtual bool ExternalData_Load(void *pExternData); // load data from external object
-    virtual bool ExternalData_Save(void *pExternData); // save data to external object
+    virtual bool ExternData_Load(void *pExternData); // load data from extern object
+    virtual bool ExternData_Save(void *pExternData); // save data to extern object
 
     static const E_wxDialog_Class_Type e_class_type;
 
@@ -136,14 +136,14 @@ protected:
     void SafeRefresh_NewData(Data_Holder_Refresh &rData_Holder_Refresh);
 
     // just create a copy of this data
-    // in a member variabile
+    // in a member variable
     // to be used later by GUI refresh code
     // pointer-argument is always != NULL
     virtual void SafeRefresh_CopyData(void *pData_Refresh);
 
     // called from main thread
     // GUI refresh related code should be implemented here
-    // use the member variabile from the copy function
+    // use the member variable from the copy function
     virtual void SafeRefresh_Gui();
 
     bool v_bInitialized;

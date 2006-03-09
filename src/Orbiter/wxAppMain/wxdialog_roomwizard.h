@@ -129,8 +129,8 @@ public:
 public:
     ~wxDialog_RoomWizard();
 
-    virtual bool ExternalData_Load(void *pExternData);
-    virtual bool ExternalData_Save(void *pExternData);
+    virtual bool ExternData_Load(void *pExternData);
+    virtual bool ExternData_Save(void *pExternData);
 
     void NewDataRefresh(int x, int y, int h, int w);
 
