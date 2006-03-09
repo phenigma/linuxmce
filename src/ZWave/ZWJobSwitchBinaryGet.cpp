@@ -14,11 +14,13 @@ public:
 	Private(unsigned short nodeID);
 	unsigned short nodeID;
 	int txStatusCount;
+	unsigned char callbackID;
 };
 
 ZWJobSwitchBinaryGet::Private::Private(unsigned short nID)
 	: nodeID(nID),
-	txStatusCount(0)
+	txStatusCount(0),
+	callbackID(0)
 {
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "*******************1" );
@@ -59,7 +61,8 @@ bool ZWJobSwitchBinaryGet::run()
 	data[4] = COMMAND_CLASS_SWITCH_MULTILEVEL;
 	data[5] = SWITCH_BINARY_GET;
 	data[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	data[7] = 2;
+	d->callbackID = handler()->callbackCount();
+	data[7] = d->callbackID;
 	return handler()->sendData(data, len);
 }
 
@@ -119,7 +122,7 @@ entry:
 					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, len too small %d", length);
 					break;
 				}
-				if(length == 4 && buffer[2] != 2) //not my function ID
+				if(length == 4 && buffer[2] != d->callbackID) //not my function ID
 				{
 					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, not for me, kill the job, because nothing will come");
 					setState(ZWaveJob::STOPPED);

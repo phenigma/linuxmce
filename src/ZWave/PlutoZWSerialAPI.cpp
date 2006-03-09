@@ -22,6 +22,8 @@ class PlutoZWSerialAPI::Private
 {
 	public:
 
+		static unsigned char count;
+		
 		Private(PlutoZWSerialAPI*);
 
 		~Private();
@@ -47,6 +49,8 @@ class PlutoZWSerialAPI::Private
 
 		PlutoZWSerialAPI * parent_;
 };
+
+unsigned char PlutoZWSerialAPI::Private::count = 0;
 
 PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	: connection(NULL),
@@ -104,6 +108,17 @@ PlutoZWSerialAPI * PlutoZWSerialAPI::instance()
 	}
 	
 	return ref;
+}
+
+unsigned char PlutoZWSerialAPI::callbackCount()
+{
+	ref->d->count++;
+	if( 0 == ref->d->count )
+	{
+		ref->d->count = 1;
+	}
+	
+	return ref->d->count;
 }
 
 PlutoZWSerialAPI::PlutoZWSerialAPI()
@@ -496,3 +511,4 @@ SerialConnection* PlutoZWSerialAPI::serialConnection()
 {
 	return d->connection;
 }
+

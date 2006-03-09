@@ -30,6 +30,7 @@ public:
 	virtual void timeoutHandler();
 	
 private:
+
 	class Private;
 	Private *d;
 };

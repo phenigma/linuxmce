@@ -12,12 +12,12 @@
 class ZWJobSwitchChangeLevel::Private
 {
 public:
+
 	/**it is possible to change the level for a list of nodes*/
 	Private(unsigned char level, unsigned short nodeID);
 	unsigned char level;
 	unsigned short nodeID;
 };
-
 
 ZWJobSwitchChangeLevel::Private::Private(unsigned char l, unsigned short nID)
 	:level(l),
@@ -61,7 +61,8 @@ bool ZWJobSwitchChangeLevel::run()
 	data[5] = SWITCH_MULTILEVEL_SET;
 	data[6] = d->level;
 	data[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	data[8] = 1;
+	data[8] = handler()->callbackCount();
+	
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~4" );
 #endif
@@ -95,7 +96,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 #endif
 				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
-				break;				
+				break;
 			}
 			if(buffer[0] == RESPONSE)
 			{
@@ -103,7 +104,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~8" );
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the response is here");
 #endif
-				return true;				
+				return true;
 			}
 			else //buffer[1] == REQUEST
 			{

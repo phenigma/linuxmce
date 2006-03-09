@@ -46,6 +46,9 @@ class PlutoZWSerialAPI
 		 * @return the instance of this class*/		
 		static PlutoZWSerialAPI * instance();
 
+		/** Count number used for having distinct callback ids.*/
+		static unsigned char callbackCount();
+		
 		virtual ~PlutoZWSerialAPI();
 		
 		/**connects to port and starts the first command
