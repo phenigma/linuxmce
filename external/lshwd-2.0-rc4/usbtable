@@ -1858,6 +1858,7 @@
 0x04bb	0x0a03	"pl2303"	""
 0x04bf	0x0100	"unknown"	"TDK Corp.|MediaReader CF"
 0x04bf	0x030a	"hci_usb"	""
+0x04bf	0x0320	"hci_usb"	"TDK Corp.|Bluetooth Dongle"
 0x04c1	0x0082	"unknown"	"U.S. Robotics (3Com)|OfficeConnect Analog Modem"
 0x04c1	0x008f	"unknown"	"U.S. Robotics (3Com)|Pro ISDN TA"
 0x04c1	0x009d	"vicam"	"U.S. Robotics (3Com)|HomeConnect WebCam"

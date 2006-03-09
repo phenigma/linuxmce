@@ -1,3 +1,9 @@
+lshwd (2.0-rc4-1pluto6) unstable; urgency=high
+
+  * TDK Bluetooth support for coldpluging
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 09 Mar 2006 13:10:10 +0200
+
 lshwd (2.0-rc4-1pluto5) unstable; urgency=high
 
   * Added support for zwave computer interface
