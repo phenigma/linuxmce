@@ -27,6 +27,8 @@ public:
 	/** It is called to process the protocol data flow.*/
 	virtual bool processData(const char * buffer, size_t length);
 
+	virtual void timeoutHandler();
+	
 private:
 	class Private;
 	Private *d;

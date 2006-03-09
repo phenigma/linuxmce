@@ -32,6 +32,8 @@ typedef deque<ZWaveJob*> JobsDeque;
 typedef JobsDeque::iterator JobsDequeIterator;
 typedef JobsDeque::const_iterator JobsDequeCIterator;
 
+class SerialConnection;
+
 /**the zwave serial api singleton class*/
 class PlutoZWSerialAPI
 {
@@ -161,6 +163,8 @@ class PlutoZWSerialAPI
 		/** The time left until it gets timeout.
 		 * @return the time left*/
 		virtual time_t timeLeft() const;
+		
+		virtual SerialConnection* serialConnection();
 
 		private:
 

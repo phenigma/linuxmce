@@ -491,3 +491,8 @@ time_t PlutoZWSerialAPI::timeLeft() const
 
 	return d->timeLeft;
 }
+
+SerialConnection* PlutoZWSerialAPI::serialConnection()
+{
+	return d->connection;
+}

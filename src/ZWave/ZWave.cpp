@@ -400,6 +400,7 @@ bool ZWave::ConfirmConnection(int RetryCount)
 		m_ZWaveAPI->clearJobs();
 		
 		if( PlutoZWSerialAPI::STOPPED == m_ZWaveAPI->state() &&
+			!m_PoolStarted &&
 			( 0 == m_ZWaveAPI->nodeID() ||
 		      0 == m_ZWaveAPI->homeID() ) )
 		{

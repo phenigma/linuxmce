@@ -61,6 +61,11 @@ public:
 	*@return true if there is a full response in the buffer*/
 	virtual int hasCommand();
 	
+	/** Use CAREFULLY !
+	  * Clears serial buffer.
+	  */
+	virtual void clearSerialBuffer();
+	
 	virtual ~SerialConnection();
 
 

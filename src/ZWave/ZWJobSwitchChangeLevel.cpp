@@ -33,6 +33,7 @@ ZWJobSwitchChangeLevel::ZWJobSwitchChangeLevel(PlutoZWSerialAPI * zwAPI, unsigne
 {
 	d = new Private(level, nodeID);
 	setType(ZWaveJob::SET_SWITCH_LEVEL);
+	setReceivingTimeout( 3 );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~2" );
 #endif
@@ -142,7 +143,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~13" );
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~14" );
 #endif
 				setState(ZWaveJob::STOPPED);
-				return completedOK;				
+				return completedOK;
 			
 			}
 	}
@@ -151,4 +152,14 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~15" );
 #endif
 	//setState(ZWaveJob::STOPPED);
 	return handler()->processData(buffer, length);
+}
+
+void ZWJobSwitchChangeLevel::timeoutHandler()
+{
+	SerialConnection * connection = handler()->serialConnection();
+	if( connection != NULL )
+	{
+		connection->clearSerialBuffer();
+		run();
+	}
 }

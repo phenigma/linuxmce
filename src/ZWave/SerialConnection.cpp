@@ -463,3 +463,10 @@ SerialConnection::~SerialConnection()
 	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 2");
 #endif
 }
+
+void SerialConnection::clearSerialBuffer()
+{
+	pthread_mutex_lock( &instance->mutex_buffer );
+	buffer.clear();
+	pthread_mutex_unlock( &instance->mutex_buffer );
+}

@@ -20,6 +20,11 @@ ZWJobGetVersion::~ZWJobGetVersion()
 bool ZWJobGetVersion::run()
 {
 	setState(ZWaveJob::RUNNING);
+	
+	// hack test
+	char hack[] = "\x00\x03\x01\x02\x01\x01\x21";
+	handler()->sendData(hack, sizeof(hack)-1);
+	
 	char data[] = {REQUEST, FUNC_ID_ZW_GET_VERSION };
 	size_t len = 2;
 	return handler()->sendData(data, len);
