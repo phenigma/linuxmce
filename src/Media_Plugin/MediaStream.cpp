@@ -425,7 +425,9 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 
 	if( m_sMediaDescription.size()==0 )
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"POS %d size %d",(int) m_iDequeMediaFile_Pos,(int) m_dequeMediaFile.size());
 		MediaFile *pMediaFile = GetCurrentMediaFile();
+		g_pPlutoLogger->Write(LV_CRITICAL,"got %p",pMediaFile);
 		if( pMediaFile )
 			m_sMediaDescription = pMediaFile->m_sFilename;
 		else

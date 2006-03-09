@@ -371,6 +371,7 @@ int OrbiterGenerator::DoIt()
 
 	m_sSkin = m_pRow_Skin->Description_get();
 
+
 	// Get the UI
 	m_pRow_UI = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
@@ -625,12 +626,24 @@ m_bNoEffects = true;
 	if( !m_pRow_Size )
 		throw "Cannot determine the size";
 
+	m_sScale.Width = m_pRow_Size->ScaleX_get();
+	m_sScale.Height = m_pRow_Size->ScaleY_get();
+
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Spacing_CONST);
+	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) )
+	{
+		string::size_type pos=0;
+		m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())/2 ) / 100;
+		m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())/2 ) / 100;
+	}
+
 	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
-		+ StringUtils::itos(m_pRow_Size->ScaleX_get()) + ","
-		+ StringUtils::itos(m_pRow_Size->ScaleY_get()) + ","
+		+ StringUtils::itos(m_sScale.Width) + ","
+		+ StringUtils::itos(m_sScale.Height) + ","
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + ","
-		+ StringUtils::itos(m_iRotation) +
+		+ StringUtils::itos(m_iRotation) 
+		+ StringUtils::itos(m_rSpacing.X) + ","
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
@@ -669,8 +682,15 @@ m_bNoEffects = true;
 	mds.Device_DeviceData_get()->Commit();
 
 	// m_sizeScreen is the unscaled resolution
-	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_pRow_Size->ScaleX_get(),m_pRow_Size->Height_get() * 1000 / m_pRow_Size->ScaleY_get());
+	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_sScale.Width,m_pRow_Size->Height_get() * 1000 / m_sScale.Height);
 	m_iPK_DesignObj_Screen = GetDesignObjFromScreen(m_pRow_Screen_MainMenu)->PK_DesignObj_get();
+
+	// See if we need to reduce the scaling because of borders around the screen
+	if( m_rSpacing.X || m_rSpacing.Width )
+		m_sScale.Width = (double) m_sScale.Width * (1 - ((double) m_rSpacing.X + m_rSpacing.Width) / m_pRow_Size->Width_get());
+
+	if( m_rSpacing.Y || m_rSpacing.Height )
+		m_sScale.Height = (double) m_sScale.Height * (1 - ((double) m_rSpacing.Y + m_rSpacing.Height) / m_pRow_Size->Height_get());
 
 	int i=0;
 
@@ -1332,7 +1352,7 @@ int k=2;
 			{
 				// The scaling process will also let us know if we have any arrays within our child objects.  If so
 				// we know we cannot cache this screen.  So we pass in the top-most object throughout
-				oco->ScaleAllValues(m_pRow_Size->ScaleX_get(),m_pRow_Size->ScaleY_get(),oco);
+				oco->ScaleAllValues(m_sScale.Width,m_sScale.Height,oco);
 			}
 			if( oco->m_alMPArray.size()<=1 )
 				NumScreens++;
@@ -1414,10 +1434,10 @@ int k=2;
 				// Don't force popups to be full-screen
 				if( m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
 				{
-					oco->m_rPosition.Right(m_Width);
-					oco->m_rPosition.Bottom(m_Height);
-					oco->m_rBackgroundPosition.Right(m_Width);
-					oco->m_rBackgroundPosition.Bottom(m_Height);
+					oco->m_rPosition.Right(m_Width-m_rSpacing.Width);
+					oco->m_rPosition.Bottom(m_Height-m_rSpacing.Height);
+					oco->m_rBackgroundPosition.Right(m_Width-m_rSpacing.Width);
+					oco->m_rBackgroundPosition.Bottom(m_Height-m_rSpacing.Height);
 				}
 				else
 					oco->m_bIsPopup=true;
@@ -1824,7 +1844,7 @@ int k=2;
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]="";
 				else
 				{
-					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() / 1000));
+					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_sScale.Width / 1000));
 				}
 			}
 			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Fixed_Row_Height_CONST || 
@@ -1835,7 +1855,7 @@ int k=2;
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]="";
 				else
 				{
-					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() / 1000));
+					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_sScale.Height / 1000));
 				}
 			}
 			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_CONST || drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_FirstRow_CONST ||
@@ -2100,6 +2120,12 @@ int k=2;
 			OutputDesignObjs(oco,ArrayPage,true,ParentScreen);
 		}
 	}
+
+	// Offset for the spacing
+	ocDesignObj->m_rPosition.X += m_rSpacing.X;
+	ocDesignObj->m_rPosition.Y += m_rSpacing.Y;
+	ocDesignObj->m_rBackgroundPosition.X += m_rSpacing.X;
+	ocDesignObj->m_rBackgroundPosition.Y += m_rSpacing.Y;
 }
 
 
@@ -2164,6 +2190,9 @@ AB 1/17/2005 - text styles are shared -- this was causing it to change backgroun
 			p_DesignObjText->m_mapAltVersions[(*itatv).first] = (*itatv).second;
 		}
 	}
+	// Offset for the spacing
+	p_DesignObjText->m_rPosition.X += m_rSpacing.X;
+	p_DesignObjText->m_rPosition.Y += m_rSpacing.Y;
 }
 
 void OrbiterGenerator::OutputCriteriaNest(Row_CriteriaParmNesting *row)
@@ -2241,6 +2270,7 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 		pRow_Size->ScaleX_set(Scale);
 		pRow_Size->ScaleY_set(Scale);
 	}
+	pRow_Size->PreserveAspectRatio_set(1);
 	return pRow_Size;
 }
 
@@ -2270,7 +2300,7 @@ void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignO
 				&& ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
 			{
 				int Size=atoi(itParm->second.c_str());
-				Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_pRow_Size->ScaleX_get() : m_pRow_Size->ScaleY_get()) / 1000 * ocDesignObj->m_iScale/100;
+				Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_sScale.Width : m_sScale.Height) / 1000 * ocDesignObj->m_iScale/100;
 				oa->m_ParameterList[(*itParm).first] = StringUtils::itos(Size);
 			}
 			else

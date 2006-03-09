@@ -156,6 +156,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
 
 	if( bAddToGenerated )
     {
+if(  m_pRow_DesignObj->PK_DesignObj_get()!=1255 )
+return;
 		int Percent = ++m_pOrbiterGenerator->m_iScreensTotal * 100 / TOTAL_ESTIMATED_SCREENS;
 		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 3 )
 		{
@@ -736,14 +738,14 @@ int k=2;
         // add all the children for this page and type
         PlutoSize cgs = m_rBackgroundPosition.Size();
         PlutoPoint cgp(cgs.Width,cgs.Height);
-        PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() * m_iScale/100,m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() * m_iScale/100));
+        PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_sScale.Width * m_iScale/100,m_pOrbiterGenerator->m_sScale.Height * m_iScale/100));
         int ScaleWidth = szTargetSize.Width * 1000 / m_sOriginalSize.Width;
         int ScaleHeight = szTargetSize.Height * 1000 / m_sOriginalSize.Height;
         int ScaleFactor = min(ScaleWidth,ScaleHeight);
 
         // Adjust the width and the height so that we don't mess up the aspect ratio
-        m_rBackgroundPosition.Width = m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleX_get();
-        m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleY_get();
+        m_rBackgroundPosition.Width = m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_sScale.Width;
+        m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_sScale.Height;
         m_rPosition.Width = m_rBackgroundPosition.Width;
         m_rPosition.Height = m_rBackgroundPosition.Height;
 
@@ -855,7 +857,7 @@ int k=2;
 								// they will be offset by the parent floorplan object
 								// and they are to be centered on the point, rather than upper/left like the others.  That will be 
 								// handled when ScaleAllValues is called the second time.
-								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
+								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_sScale.Width,m_pOrbiterGenerator->m_sScale.Height,NULL);
 								m_alChildDesignObjs.push_back(pDesignObj_Generator);
 								pDesignObj_Generator->m_rBackgroundPosition.X=X;
 								pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
@@ -1415,7 +1417,7 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
     if( !pTextStyle )
     {
         pTextStyle = new TextStyle(drCorrectMatch);
-        pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_pRow_Size->ScaleY_get() / 1000;
+        pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_sScale.Height / 1000;
         pGenerator->m_mapTextStyle[drCorrectMatch->FK_Style_get()]=pTextStyle;
     }
     return pTextStyle;
