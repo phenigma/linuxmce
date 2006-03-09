@@ -6,4 +6,6 @@ $TEXT_REPOSITORY_URL_CONST='Repository URL';
 $TEXT_DEBIAN_REPOSITORY_CONST='Debian Repository';
 $TEXT_REPOSITORY_NAME_CONST='Repository Name';
 $TEXT_ADD_SOFTWARE_CONST='Add software';
+$TEXT_PACKAGE_NAME_CONST='Package name';
+$TEXT_INSTALLATION_STATUS_CONST='Installation status';
 ?>

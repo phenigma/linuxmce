@@ -181,6 +181,12 @@ function installationSettings($output,$dbADO) {
 				</tr>
 				<input type="hidden" name="oldTimeZone" value="'.$oldTimeZone[0].'">
 				';
+			}else{
+				$out.='
+				<tr>
+					<td colspan="2" align="center" bgcolor="lightblue"><B>Timezone:</B></td>
+				</tr>
+				';			
 			}		
 		$out.='
 			<tr>

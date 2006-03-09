@@ -100,7 +100,7 @@ $start_time=getmicrotime();
 			
 			$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\')">'.$description.'</a>':'<b>'.$description.'</b>';
 			if($GLOBALS['isSync'][$pos]==1)
-				$wizardLink.='<img src="include/images/sync.gif" align="middle">';
+				$wizardLink.='<img src="include/images/sync.gif" style="vertical-align: middle;">';
 	
 			$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a>':'&nbsp;';
 			

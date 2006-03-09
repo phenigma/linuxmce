@@ -82,9 +82,10 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=91;		// Main Menu
 			$orbiterDD[]=104;		// UI
 			$orbiterDD[]=111;		// Using Infrared
+			$orbiterDD[]=150;		// Spacing - Reduce image by
 
-			$excludedData['standard_roaming_orbiters']=array('state',84);
-			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
+			$excludedData['standard_roaming_orbiters']=array('state',84,150);
+			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56,150);
 			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state',25);
 			
 			$queryData='
@@ -137,10 +138,13 @@ function wizardOrbiters($output,$dbADO) {
 			$noRecords=count($displayedDevices);
 			$noPages=ceil($noRecords/$orbitersPerPage);
 			$linkPages=array();
+			$cleanUrl='index.php?'.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']);
 			for($i=1;$i<$noPages+1;$i++){
-				$linkPages[]=($i==$page)?'<span class="normal_row">'.$i.'</span>':'<a class="red_link" href="index.php?'.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
+				$linkPages[]=($i==$page)?'<span class="normal_row">['.$i.']</span>':'<a class="red_link" href="'.$cleanUrl.'&page='.$i.'">'.$i.'</a>';
 			}
-			$linksBar=join(' ',$linkPages);
+			$linksBar=(($page>1)?'<a href="'.$cleanUrl.'&page='.($page-1).'">&lt;&lt;</a> ':'');
+			$linksBar.=join(' ',$linkPages);
+			$linksBar.=($page!=$noPages && $noRecords!=0)?' <a href="'.$cleanUrl.'&page='.($page+1).'">&gt;&gt;</a>':'';
 			
 			$resDevice->MoveFirst();
 			$lastDevice=0;
@@ -256,6 +260,9 @@ function wizardOrbiters($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
 				</tr>
+				<tr>
+					<td colspan="2" align="right">'.$linksBar.'</td>
+				</tr>			
 			';
 			
 			
@@ -371,25 +378,24 @@ function wizardOrbiters($output,$dbADO) {
 						}else{
 							$deviceData=(isset($_POST['timeoutSS_'.$value]))?$_POST['timeoutSS_'.$value].','.$_POST['timeoutPO_'.$value]:NULL;
 						}
-						if(!is_null($deviceData)){
-							$oldDeviceData=$_POST['oldDeviceData_'.$value.'_'.$ddValue];
-							if($oldDeviceData!=$deviceData){
-								if($oldDeviceData=='NULL'){
-									$insertDDD='
-										INSERT INTO Device_DeviceData 
-											(FK_Device, FK_DeviceData, IK_DeviceData)
-										VALUES 
-											(?,?,?)';
-									$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
-								}
-								else{
-									$updateDDD='
-										UPDATE Device_DeviceData 
-											SET IK_DeviceData=? 
-										WHERE FK_Device=? AND FK_DeviceData=?';
-									$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
-								}
+						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+						if($oldDeviceData!=$deviceData){
+							if($oldDeviceData=='NULL'){
+								$insertDDD='
+									INSERT INTO Device_DeviceData 
+										(FK_Device, FK_DeviceData, IK_DeviceData)
+									VALUES 
+										(?,?,?)';
+								$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
 							}
+							else{
+								$updateDDD='
+									UPDATE Device_DeviceData 
+										SET IK_DeviceData=? 
+									WHERE FK_Device=? AND FK_DeviceData=?';
+								$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+							}
+
 							if($ddValue==$GLOBALS['Size']){
 								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);
 								if(count($sizeArray)>0){
@@ -450,7 +456,7 @@ function formatDDRows($rowD,$dbADO)
 		if($rowD['FK_DeviceData']!=56){
 			$ddHTML.='
 				<tr>
-					<td align="right"><b>'.((@$rowD['ShortDescription']!='')?$rowD['ShortDescription']:str_replace('PK_','',$rowD['ddDescription'])).'</b> '.((@$rowD['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowD['Tooltip'].'" border="0" align="middle">':'').'</td>
+					<td align="right"><b>'.((@$rowD['ShortDescription']!='')?$rowD['ShortDescription']:str_replace('PK_','',$rowD['ddDescription'])).'</b> '.((@$rowD['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowD['Tooltip'].'" border="0" style="vertical-align: middle;">':'').'</td>
 					<td align="left">';
 			switch($rowD['typeParam']){
 				case 'int':

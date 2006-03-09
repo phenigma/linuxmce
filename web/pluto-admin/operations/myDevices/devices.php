@@ -244,7 +244,7 @@ function devices($output,$dbADO) {
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
 					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0 && $value!=$GLOBALS['securityAlert']){
-						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
+						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" style="vertical-align: middle;"> ':'');
 						$out.=(isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'<input type="hidden" name="isDisabled_'.$rowD['PK_Device'].'_'.$value.'" value="1">':'';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':

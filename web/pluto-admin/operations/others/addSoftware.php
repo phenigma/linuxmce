@@ -97,7 +97,8 @@ function addSoftware($output,$dbADO) {
 			$repositoryName=@$_POST['repositoryName'];
 
 			$cmd="/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'";
-			$msg=exec($cmd);
+			$msg="$TEXT_DEVICE_CONST ".$_POST['deviceIP']." $TEXT_PACKAGE_NAME_CONST $packageName";
+			$msg.=' '.$TEXT_INSTALLATION_STATUS_CONST.' '.exec($cmd);
 			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
 			$_SESSION['packageName']=$packageName;
 			$_SESSION['url']=$_POST['url'];
@@ -105,7 +106,7 @@ function addSoftware($output,$dbADO) {
 			$_SESSION['repositoryName']=$repositoryName;
 		}
 		
-		header('Location: index.php?section=addSoftware&msg='.$msg);
+		header('Location: index.php?section=addSoftware&msg='.urlencode($msg));
 	}
 	
 	$output->setNavigationMenu(array($TEXT_ADD_SOFTWARE_CONST=>'index.php?section=addSoftware'));	
