@@ -88,6 +88,14 @@ XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
 XineSlaveWrapper::~XineSlaveWrapper()
 {
     stopMedia( 1 ); // any number will do.
+    
+    // disconnecting from xine lib
+    if (m_pXine)
+    {
+        xine_exit(m_pXine);
+        m_pXine = NULL;
+    }
+    
     closeWindow();
 }
 
