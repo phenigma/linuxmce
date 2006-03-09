@@ -1912,6 +1912,7 @@
 #define DESIGNOBJ_mnuDemoMedia_CONST 4829
 #define DESIGNOBJ_arrLightsMain_Vertical_CONST 4830
 #define DESIGNOBJ_dgFileList_Playlists_AutoPlay_CONST 4831
+#define DESIGNOBJ_butRebootMD_CONST 4832
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
