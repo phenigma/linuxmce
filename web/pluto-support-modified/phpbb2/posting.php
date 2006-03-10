@@ -340,11 +340,13 @@ if ( !$is_auth[$is_auth_type] )
 		case 'newtopic':
 			header("Location: ../../index.php?section=clientLoginForm");
 			$redirect = "mode=newtopic&" . POST_FORUM_URL . "=" . $forum_id;
+			exit();
 			break;
 		case 'reply':
 		case 'topicreview':
 			header("Location: ../../index.php?section=clientLoginForm");
 			$redirect = "mode=reply&" . POST_TOPIC_URL . "=" . $topic_id;
+			exit();
 			break;
 		case 'quote':
 		case 'editpost':
