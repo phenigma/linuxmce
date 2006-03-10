@@ -159,7 +159,7 @@ namespace DCE
 
 		virtual MediaFile *GetCurrentMediaFile()
 		{
-			if( m_iDequeMediaFile_Pos<0 || m_iDequeMediaFile_Pos>m_dequeMediaFile.size() )
+			if( m_iDequeMediaFile_Pos < 0 || m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"MediaFile::GetCurrentMediaFile - no file");
 				return NULL;

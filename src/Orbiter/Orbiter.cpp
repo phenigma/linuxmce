@@ -9583,7 +9583,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		pMessage = new Message();
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params: message %p", iPK_Screen);
+	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params: message %p", iPK_Screen, pMessage);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 	{
 		string sValue = it->second;
