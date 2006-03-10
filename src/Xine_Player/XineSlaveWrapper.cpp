@@ -68,6 +68,7 @@ XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
         m_pSameStream( NULL ),
         m_pDynamic_Pointer( NULL )
 {
+    m_pXine = NULL;
     m_iSpecialOneTimeSeek = 0;
     m_xine_osd_t = NULL;
     m_iPrebuffer = 0;
