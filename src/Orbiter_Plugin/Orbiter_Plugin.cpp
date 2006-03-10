@@ -2172,7 +2172,7 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 	{
 		class Pipe *pPipe = it->second;
 		DeviceData_Router *pDevice_Dest = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
-		if( pDevice_Dest )
+		if( !pDevice_Dest )
 			continue;
 		SetPipesEnable(pDevice_Dest,bOverride);
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Dest->m_dwPK_Device);
