@@ -1173,7 +1173,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 	if( CurrentSchema<PriorSchema )
 	{
 		pRepository->SetSetting("schema",StringUtils::itos(PriorSchema));  // Set it back to what it was
-		cout << "WARNING:  Not importing repository " << pRepository->Name_get() << " because it had a newer schema" << endl;
+		cout << "WARNING:  Not importing repository " << pRepository->Name_get() << " with PriorSchema " << PriorSchema << " because it had a newer schema than " << CurrentSchema << endl;
 		return;
 	}
 
