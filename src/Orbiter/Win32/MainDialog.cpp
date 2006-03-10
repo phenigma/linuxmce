@@ -5,6 +5,7 @@
 #include "Commdlg.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "SelfUpdate.h"
+#include "Win32/PopupMessage.h"
 
 #include "Simulator.h"
 
@@ -184,11 +185,17 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 	}
 	catch(string s)
 	{
+		s = "Fatal error: " + s;
 		WriteStatusOutput(s.c_str());
+		PromptUserEx(s, NULL);
+		exit(1);
 	}
 	catch(const char *s)
 	{
-		WriteStatusOutput(s);
+		string sErrorMessage = string("Fatal error: ") + s;
+		WriteStatusOutput(sErrorMessage.c_str());
+		PromptUserEx(sErrorMessage, NULL);
+		exit(1);
 	}
 
 	PostMessage(g_hwndMainDialog, WM_QUIT, 0, 0);
