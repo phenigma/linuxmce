@@ -296,15 +296,14 @@ if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
     /etc/init.d/Pluto_Start_OrbiterGen.sh
 fi
 
+if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
+    Message "Configure Device Changes"
+    /etc/init.d/Pluto_Config_Device_Changes.sh
+fi
 
 if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
     Message "Starting X Server"
     /etc/init.d/Pluto_Start_X.sh
-fi
-
-if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
-    Message "Configure Device Changes"
-    /etc/init.d/Pluto_Config_Device_Changes.sh
 fi
 
 if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
