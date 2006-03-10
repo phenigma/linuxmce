@@ -294,9 +294,9 @@ bool USB_UIRT_0038::GetConfig()
 	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
 	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
 
-#ifndef WIN32
 	char TTYPort[255];
 	TTYPort[0]=0;
+#ifndef WIN32
 	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
 		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
 	
@@ -324,7 +324,7 @@ bool USB_UIRT_0038::GetConfig()
 		}
 		else if (err == UUIRTDRV_ERR_NO_RESP)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n");
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device on %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",TTYPort );
 		}
 		else if (err == UUIRTDRV_ERR_VERSION)
 		{
