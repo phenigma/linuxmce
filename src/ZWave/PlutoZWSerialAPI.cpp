@@ -325,6 +325,10 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 
 bool PlutoZWSerialAPI::insertJob(ZWaveJob * job)
 {
+// may be, we should use it
+//	if( job == NULL )
+//		return false;
+	
 	// TODO Insert INIT job as the first job if the state is STOPPED
 	d->jobsQueue.push_back(job);
 	return true;
@@ -350,7 +354,7 @@ bool PlutoZWSerialAPI::clearJobs()
 
 bool PlutoZWSerialAPI::insertNode(ZWaveNode * node)
 {
-	if( d->nodes.end() == d->nodes.find( node->nodeID() ) )
+	if( node != NULL && d->nodes.end() == d->nodes.find( node->nodeID() ) )
 	{
 		d->nodes[ node->nodeID() ] = node;
 		return true;

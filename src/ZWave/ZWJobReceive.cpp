@@ -18,6 +18,7 @@ class ZWJobReceive::Private
 		~Private();
 		
 		ZWJobReceive::ReceivingState state;
+		unsigned char callbackID;
 	
 	private:
 };
@@ -70,7 +71,8 @@ bool ZWJobReceive::run()
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_ZW_NEW_CONTROLLER;
 	buffer[2] = NEW_CTRL_STATE_RECEIVE;
-	buffer[3] = 1; // Callback FunctionID
+	d->callbackID = handler()->callbackCount();
+	buffer[3] = d->callbackID; // Callback FunctionID
 	buffer[4] = 0;
 	
 	d->state = ZWJobReceive::START;
@@ -95,7 +97,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 			if( length >= 6 && 
 				buffer[0] == REQUEST &&
 				buffer[1] == FUNC_ID_ZW_NEW_CONTROLLER &&
-				buffer[2] == 1 )
+				buffer[2] == d->callbackID )
 			{
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 1");
@@ -142,7 +144,8 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 							buf[0] = REQUEST;
 							buf[1] = FUNC_ID_ZW_NEW_CONTROLLER;
 							buf[2] = NEW_CTRL_STATE_STOP_OK;
-							buf[3] = 1; // Callback FunctionID
+							d->callbackID = handler()->callbackCount();
+							buf[3] = d->callbackID; // Callback FunctionID
 							buf[4] = 0;
 							
 							d->state = ZWJobReceive::STOP;

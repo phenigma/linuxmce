@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		ZWave *pZWave = new ZWave(PK_Device, "localhost",true,false,pRouter);
-		if( pZWave->m_bQuit || !pZWave->GetConfig() )
+		if( pZWave == NULL || pZWave->m_bQuit || !pZWave->GetConfig() )
 		{
 			delete pZWave;
 			return NULL;
@@ -192,17 +192,19 @@ int main(int argc, char* argv[])
 	try
 	{
 		ZWave *pZWave = new ZWave(PK_Device, sRouter_IP,true,bLocalMode);
-		if(NULL == pZWave)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWave object not allocated due to insuficient memory");
-			throw new string("ZWave object not allocated due to insuficient memory");
+		
+		if(NULL == pZWave) 
+		{ 
+			g_pPlutoLogger->Write(LV_CRITICAL, "ZWave object not allocated due to insuficient memory"); 
+			throw new string("ZWave object not allocated due to insuficient memory"); 
 		}
+		
 		if ( pZWave->GetConfig() && pZWave->Connect(pZWave->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pZWave;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
-			g_pPlutoLogger->Write(LV_ZWAVE, "Connect OK");
+			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pZWave->CreateChildren();
 			if( bLocalMode )
 				pZWave->RunLocalMode();
@@ -213,7 +215,7 @@ int main(int argc, char* argv[])
 		} 
 		else 
 		{
-			g_pPlutoLogger->Write(LV_ZWAVE, "Connect() Failed");
+			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
 		if( pZWave->m_bReload )
@@ -229,7 +231,7 @@ int main(int argc, char* argv[])
 	{
 		cerr << "Exception: " << s << endl;
 	}
-	g_pPlutoLogger->Write(LV_ZWAVE, "Device: %d ending",PK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif
