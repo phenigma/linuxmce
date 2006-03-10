@@ -124,6 +124,7 @@ bool Lighting_Plugin::Register()
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
 
 	m_pListDeviceData_Router_Lights = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Lighting_Device_CONST);
 
@@ -173,6 +174,32 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 	}
 
 	return pDataGrid;
+}
+
+bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+    // This only runs as a plug-in so we can safely cast it
+    class DeviceData_Router *pDevice_RouterFrom = (class DeviceData_Router *) pDeviceFrom;
+    
+	if( pMessage->m_dwID == EVENT_Device_OnOff_CONST )
+	{
+		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST];
+		if(sLevel == "0")
+		{
+			pDevice_RouterFrom->m_sState_set("OFF/" + StringUtils::itos(GetLightingLevel(pDevice_RouterFrom,0)));
+		}
+		else if(sLevel == "1")
+		{
+			pDevice_RouterFrom->m_sState_set("ON/" + StringUtils::itos(GetLightingLevel(pDevice_RouterFrom,100)));
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
+				sLevel.c_str());
+		}
+	}
+	
+	return true;
 }
 
 bool Lighting_Plugin::LightingFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
