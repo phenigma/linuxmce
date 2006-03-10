@@ -273,7 +273,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false /*bIsMenu*/,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -706,9 +706,9 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         else if( bPreserveAspectRatio )
         {
             if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
-                scaleY=scaleX;
-            else
                 scaleX=scaleY;
+            else
+                scaleY=scaleX;
         }
 /*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */
