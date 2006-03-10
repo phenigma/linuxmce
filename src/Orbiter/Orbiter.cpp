@@ -810,14 +810,19 @@ void Orbiter::RealRedraw( void *data )
 		}
 	}
 
-	//See if maybe we just added an object that's a tab stop that wasn't there before
-	//if(!m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
-	//    HighlightFirstObject();
-
-	if(bRehighlight || (NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last))
+	if(NULL != m_pObj_Highlighted && (bRehighlight || m_pObj_Highlighted != m_pObj_Highlighted_Last))
 	{
-		m_pObj_Highlighted_Last = m_pObj_Highlighted;
-		DoHighlightObject();
+		if(m_pObj_Highlighted->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED && m_pObj_Highlighted->m_vectHighlightedGraphic.size())
+		{
+			//this is a special kind of object; it has a highlighted version - saving the surface here
+			//for un-highlighting will be too late (so we already did it in RenderObject)
+			g_pPlutoLogger->Write(LV_STATUS, "Object already highlighted %s", m_pObj_Highlighted->m_ObjectID.c_str());
+		}
+		else
+		{
+			m_pObj_Highlighted_Last = m_pObj_Highlighted;
+			DoHighlightObject();
+		}
 	}
 
 	m_vectObjs_NeedRedraw.clear();
@@ -886,13 +891,23 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 
 	PROFILE_START( ctObj )
 
-		PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
-		PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
+	PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
 	PlutoRectangle rectTotal = pObj->m_rPosition;
 	vm.Release(  );
 
 	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ) && pObj->m_vectHighlightedGraphic.size() )
+	{
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);
+
+		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting 
+		//we won't do it on RealRedraw for this kind of objects
+		if(NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last)
+		{
+			m_pObj_Highlighted_Last = m_pObj_Highlighted;
+			DoHighlightObject();
+		}
+	}
 	else if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED && pObj->m_vectSelectedGraphic.size())
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectSelectedGraphic);
 	else if(  pObj->m_GraphicToDisplay >= 1 && pObj->m_GraphicToDisplay <= int(pObj->m_vectAltGraphics.size()))
@@ -2523,7 +2538,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	if( !m_pGraphicBeforeHighlight )
 		return;
 
-	if( !bDeleteOnly && m_pObj_Highlighted )
+	if( !bDeleteOnly && m_pObj_Highlighted)
 	{
 		RenderGraphic(m_pGraphicBeforeHighlight, m_rectLastHighlight);
 		UpdateRect(m_rectLastHighlight);
