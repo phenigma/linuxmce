@@ -146,26 +146,9 @@ BOOL loadDLL(void)
 /*****************************************************************************/
 void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
 {
-#ifndef __linux
-	COORD coord;
-	HANDLE hStdOut;
-	CONSOLE_SCREEN_BUFFER_INFO conInfo;
-
-	// Move the cursor to the bottom of the screen
-	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); 
-	GetConsoleScreenBufferInfo(hStdOut, &conInfo);
-	coord.X = conInfo.srWindow.Left;
-	coord.Y = conInfo.srWindow.Bottom-1;
-	SetConsoleCursorPosition(hStdOut, coord);
-#endif
 	g_pUsbUirt->OurCallback(IREventStr);
 
 	g_pPlutoLogger->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)userData);
-
-#ifndef __linux
-	// Move the cursor back to its original position
-	SetConsoleCursorPosition(hStdOut, conInfo.dwCursorPosition);
-#endif
 }
 
 /*****************************************************************************/
@@ -178,25 +161,7 @@ void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
 /*****************************************************************************/
 void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, unsigned long carrierFreq, void *userData)
 {
-#ifndef __linux
-	COORD coord;
-	HANDLE hStdOut;
-	CONSOLE_SCREEN_BUFFER_INFO conInfo;
-
-	// Move the cursor to the bottom of the screen
-	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); 
-	GetConsoleScreenBufferInfo(hStdOut, &conInfo);
-	coord.X = conInfo.srWindow.Left;
-	coord.Y = conInfo.srWindow.Bottom-2;
-	SetConsoleCursorPosition(hStdOut, coord);
-#endif
-
-	printf("<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
-
-#ifndef __linux
-	// Move the cursor back to its original position
-	SetConsoleCursorPosition(hStdOut, conInfo.dwCursorPosition);
-#endif
+	g_pPlutoLogger->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
 }
 
 
@@ -212,40 +177,11 @@ void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, uns
 /* input.																	 */
 /*																			 */
 /*****************************************************************************/
-#ifdef __linux
-void LearnThread( LPVOID lpParameter )
-#define GetLastError(x) (errno)
-
-#else
-DWORD WINAPI LearnThread( LPVOID lpParameter )
-#endif
+void LearnThread( void *lpParameter )
 {
-	signed int *pAbortLearn = (signed int *)lpParameter;
+	USB_UIRT_0038 *pUIRT = (USB_UIRT_0038 *)lpParameter;
 
-	printf("\nCalling LearnIR...");
-	if (!fn_UUIRTLearnIR(hDrvHandle, gLearnFormat, gLearnBuffer, IRLearnCallback, (void *)0x5a5a5a5a, pAbortLearn, 0, NULL, NULL))
-	{
-		printf("\n\t*** ERROR calling UUIRTLearnIR! ***\n");
-	}
-	else
-	{
-		if (*pAbortLearn <= 0)
-		{
-			printf("...Done...IRCode = %s\n",gLearnBuffer);
-			strcpy(gIRCode, gLearnBuffer);
-			gIRCodeFormat = gLearnFormat & 0xff;
-		}
-		else
-		{
-			printf("...*** LEARN ABORTED ***\n");
-		}
-	}
-#ifdef __linux
-	*pAbortLearn = 1;
-	pthread_exit(0);
-#else
-	return 0;
-#endif
+	pUIRT->LearningThread();
 }
 
 
@@ -275,7 +211,9 @@ bool USB_UIRT_0038::GetConfig()
 {
 	if( !USB_UIRT_0038_Command::GetConfig() )
 		return false;
-	//<-dceag-getconfig-e->
+//<-dceag-getconfig-e->
+	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+		return false;
 
 	IRBase::setCommandImpl(this);
 	IRBase::setAllDevices(&(GetData()->m_AllDevices));
@@ -294,7 +232,7 @@ bool USB_UIRT_0038::GetConfig()
 	{
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==/*DEVICECATEGORY_Remote_Controls_CONST*/154 )
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_USBUIRT_Remote_Controls_CONST )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
 			string sType;
@@ -353,7 +291,25 @@ bool USB_UIRT_0038::GetConfig()
 	}
 
 #ifdef __linux
-	hDrvHandle = fnUUIRTOpenEx(devicePath,0,0,0);
+	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
+	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
+
+#ifndef WIN32
+	CallBackFn=&DoGotIRCommand;
+#endif
+	m_bIRServerRunning=true;
+
+	char TTYPort[255];
+	TTYPort[0]=0;
+	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
+#ifndef WIN32
+		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
+#else
+		strcpy(TTYPort,sComPortOnPC.c_str());
+#endif
+
+
+	hDrvHandle = fnUUIRTOpenEx(TTYPort,0,0,0);
 #else
 	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
 #endif
@@ -617,6 +573,40 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 		ReceivedCode(it->second.second,it->second.first.c_str());
 }
 
+
+void USB_UIRT_0038::LearningThread()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "\nCalling LearnIR...");
+	if (!fn_UUIRTLearnIR(hDrvHandle, UUIRTDRV_IRFMT_PRONTO, gLearnBuffer, IRLearnCallback, (void *)0x5a5a5a5a, &m_LrnAbort, 0, NULL, NULL))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"*** ERROR calling UUIRTLearnIR! ***\n");
+	}
+	else
+	{
+		if (m_LrnAbort <= 0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
+						m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,gLearnBuffer);
+			DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
+					m_iPK_Device_Learning,gLearnBuffer,m_iPK_Command_Learning);
+			SendCommand(CMD_Store_Infrared_Code);
+			getCodeMap()[longPair(m_iPK_Device_Learning, m_iPK_Command_Learning)] = gLearnBuffer;
+			if( m_iPK_Orbiter && m_iPK_Text )
+			{
+				DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,m_iPK_Orbiter,"",
+					"Learned ok",m_iPK_Text);
+				SendCommand(CMD_Set_Text);
+			}
+		}			
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "...*** LEARN ABORTED ***\n");
+		}
+	}
+	m_LrnAbort = 1;
+	pthread_exit(0);
+}
+
 void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
 {
 	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
@@ -631,14 +621,19 @@ void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,in
 	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
 
-	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
-//	pthread_t t;
-//	pthread_create(&t, NULL, Learning_Thread, (void*)this);
+//	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
+	pthread_t LearnThreadHandle;
+	m_LrnAbort = 0;
+	if (pthread_create(&LearnThreadHandle, NULL, (void*(*)(void*))LearnThread, this) != 0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Thread! ***\n");
+	}
 }
 
 void USB_UIRT_0038::StopLearning()
 {
-	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
+//	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
+	m_LrnAbort = 1;
 
 }
 
@@ -660,6 +655,8 @@ void USB_UIRT_0038::StopLearning()
 void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
 {
+	m_cCurrentScreen=(char) iValue;
+	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }
 
 
@@ -692,4 +689,8 @@ void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMes
 void USB_UIRT_0038::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c245-e->
 {
+		if( sOnOff=="1" )
+		StartLearning(iPK_Device,iPK_Command,pMessage->m_dwPK_Device_From,iPK_Text);
+	else
+		StopLearning();
 }

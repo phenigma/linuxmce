@@ -19,6 +19,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		signed int m_LrnAbort;
 		int m_iPK_Device_Learning,m_iPK_Command_Learning,m_dwPK_Device_IRPlugin; // The device and command we are learning, and the IR Plugin
 		int m_iPK_Orbiter,m_iPK_Text;
 		map<string,pair<string,int> > m_mapCodesToButtons;
@@ -60,6 +61,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_COM_Port_on_PC();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -99,6 +101,7 @@ public:
 
 	virtual void CMD_Set_Screen_Type(int iValue) { string sCMD_Result; CMD_Set_Screen_Type(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	};
