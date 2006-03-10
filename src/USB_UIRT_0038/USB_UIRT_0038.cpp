@@ -103,7 +103,11 @@ BOOL loadDLL(void)
 {
     // Get a handle to the DLL module.
  
+#ifdef WIN32
+	hinstLib = LoadLibrary("uuirtdrv");
+#else
     hinstLib = LoadLibrary("../lib/uuirtdrv"); 
+#endif
  
     // If the handle is valid, try to get the function address.
  
@@ -665,7 +669,7 @@ void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *
 void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
 {
-	SendIR(0, sText);
+	SendIR("0", sText);
 }
 
 //<-dceag-c245-b->
