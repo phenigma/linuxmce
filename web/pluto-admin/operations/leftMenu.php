@@ -105,7 +105,7 @@ function leftMenu($output,$dbADO) {
 				if(@$rebuildMenu==1){
 					// rebuild menu JS for devices
 
-					$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID";
+					$query1 = "select * from Device where FK_Device_ControlledVia IS NULL and FK_Installation = $installationID ORDER BY PK_Device ASC";
 					$res1 = $dbADO->_Execute($query1);
 					if ($res1) {
 						while ($row1 = $res1->FetchRow()) {
@@ -124,6 +124,8 @@ function leftMenu($output,$dbADO) {
 					$IDs=$last_psc_mod[0]."\n";
 					$IDs.=serialize($devices);
 					writeFile($cachedDevices,$IDs,'w');
+					// reorder devices based on PK_Device
+					asort($devicesArray);
 					$quickJumpPulldown=pulldownFromArray($devicesArray,'quickJump',0,'');
 					writeFile($cachedQuickJump,$quickJumpPulldown,'w');
 				}
@@ -311,7 +313,7 @@ function leftMenu($output,$dbADO) {
 
 function getDeviceChilds($parentID,$dbADO) {
 	global $devicesArray;
-	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID";
+	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID ORDER BY PK_Device ASC";
 	$resGP = $dbADO->Execute($queryGP);
 	$jsTree='';
 	if ($resGP) {

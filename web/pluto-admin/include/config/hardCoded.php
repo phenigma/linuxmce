@@ -181,6 +181,8 @@
 	$GLOBALS['TelecomLocalPrefix']=141;			// Telecom Local Prefix
 	$GLOBALS['TelecomPrependDigit']=142;		// Telecom Prepend Digit
 	$GLOBALS['TelecomLocalNumberLength']=143;	// Telecom Local Number Length
+	$GLOBALS['PortChannel']=12;					// Port Channel
+	$GLOBALS['PortChannelChoices']=151;			// Port Channel Choices
 	
 	// PK_FloorplanType from table FloorplanType 
 

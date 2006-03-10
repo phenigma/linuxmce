@@ -212,7 +212,7 @@ function devices($output,$dbADO) {
 				}
 
 			$out.='		</select></td>
-					<td ><select name="controlledBy_'.$rowD['PK_Device'].'">
+					<td ><select name="controlledBy_'.$rowD['PK_Device'].'" onchange="document.devices.action.value=\'externalSubmit\';document.devices.submit();">
 						<option value="0"></option>';
 
 			GetDeviceControlledVia($rowD['PK_Device'], $dbADO);
@@ -278,7 +278,16 @@ function devices($output,$dbADO) {
 							default:
 								if ($value!=$GLOBALS['Port'])
 								{
-									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+									$formElement='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+
+									// if port channel, check for controlled via options
+									if($value==$GLOBALS['PortChannel']){
+										$choicesArray=parentHasChoices($rowD['PK_Device'],$dbADO);
+										if(count($choicesArray)>0){
+											$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue);
+										}									
+									}
+									$out.=$formElement;
 								}
 								else
 								{

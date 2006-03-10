@@ -169,7 +169,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td valign="top">This device is controlled via:</td>
 					<td>
 					';
-					$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO);
+					$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO,'0,- '.$TEXT_PLEASE_SELECT_CONST.' -','onchange="document.editDeviceParams.submit();"');
 					
 					$out.='		
 					</td>
@@ -488,10 +488,18 @@ $installationID = (int)@$_SESSION['installationID'];
 			
 		while ($rowDevicedata = $resDeviceData->FetchRow()) {
 			//print_array($rowDevicedata);
-			if($rowDevicedata['PK_DD']==$GLOBALS['Port'])
+			if($rowDevicedata['PK_DD']==$GLOBALS['Port']){
 				$formElement=serialPortsPulldown('deviceData_'.$rowDevicedata['PK_DD'],stripslashes($rowDevicedata['IK_DeviceData']),$rowDevicedata['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID).' '.$rowDevicedata['ExtraInfo'];
-			else
+			}else{
 				$formElement="<textarea name=\"deviceData_".$rowDevicedata['PK_DD']."\" ".(($rowDevicedata['AllowedToModify']==1 || $rowDevicedata['DT_DD_Exists']=='')?'':'disabled')." rows=\"1\">".stripslashes($rowDevicedata['IK_DeviceData'])."</textarea> ".$rowDevicedata['ExtraInfo'];
+			}
+			if($rowDevicedata['PK_DD']==$GLOBALS['PortChannel']){
+				$choicesArray=parentHasChoices($deviceID,$dbADO);
+				if(count($choicesArray)>0){
+					$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowDevicedata['PK_DD'],$rowDevicedata['IK_DeviceData']);
+				}
+			}
+			
 				
 			$out.="
 				<tr>

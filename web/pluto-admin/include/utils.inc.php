@@ -2086,7 +2086,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 						</td>						
 					</tr>
 					<tr bgcolor="'.(($lineCount%2==1)?'#DDDDDD':'').'">
-						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="'.$TEST_COMMAND_CONST.'" onClick="document.'.$section.'.commandToTest.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();"></td>
+						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="'.$TEXT_COMMAND_CONST.'" onClick="document.'.$section.'.commandToTest.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();"></td>
 					</tr>
 					';
 		}
@@ -5073,4 +5073,24 @@ function validate_installation($sessionID,$dbADO){
 		}
 	}
 }
+
+function parentHasChoices($deviceID,$dbADO){
+	$choicesArray=array();
+	
+	$ddArray=array_values(getAssocArray('Device','FK_DeviceData','IK_DeviceData',$dbADO,'INNER JOIN Device_DeviceData ON FK_Device=FK_Device_ControlledVia WHERE PK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['PortChannelChoices']));
+	if(count($ddArray)>0){
+		$ddParts=explode("\n",$ddArray[0]);
+
+		foreach ($ddParts AS $part){
+			$items=explode("\t",trim($part));
+			if(count($items)!=2){
+				return array();
+			}
+			$choicesArray[$items[0]]=$items[1];
+		}
+	}
+	
+	return $choicesArray;
+}
+
 ?>
