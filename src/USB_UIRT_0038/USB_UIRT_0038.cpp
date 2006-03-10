@@ -16,6 +16,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 USB_UIRT_0038 *g_pUsbUirt;
 
@@ -290,25 +291,15 @@ bool USB_UIRT_0038::GetConfig()
 		return 0;
 	}
 
-#ifdef __linux
 	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
 	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
 
 #ifndef WIN32
-	CallBackFn=&DoGotIRCommand;
-#endif
-	m_bIRServerRunning=true;
-
 	char TTYPort[255];
 	TTYPort[0]=0;
 	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
-#ifndef WIN32
 		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
-#else
-		strcpy(TTYPort,sComPortOnPC.c_str());
-#endif
-
-
+	
 	hDrvHandle = fnUUIRTOpenEx(TTYPort,0,0,0);
 #else
 	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
@@ -317,7 +308,11 @@ bool USB_UIRT_0038::GetConfig()
 	{
 		DWORD err;
 
+#ifdef WIN32
 		err = GetLastError();
+#else
+		err = errno;
+#endif
 
 		if (err == UUIRTDRV_ERR_NO_DLL)
 		{
