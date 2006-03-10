@@ -632,9 +632,13 @@ m_bNoEffects = true;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Spacing_CONST);
 	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) )
 	{
-		string::size_type pos=0;
-		m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())/2 ) / 100;
-		m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())/2 ) / 100;
+		int Spacing = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+		if( Spacing>0 && Spacing<50 )
+		{
+			string::size_type pos=0;
+			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( Spacing/2 ) / 100;
+			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( Spacing/2 ) / 100;
+		}
 	}
 
 	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
