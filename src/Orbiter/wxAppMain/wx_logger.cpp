@@ -93,7 +93,10 @@ static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_
 static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_wxVLog, E_LOG_TYPE logtype)
 {
     _log_stdarg(sformat, arg_ptr, logtype);
-    _log_wxVLog(NoEsc(sformat), arg_ptr, fn_wxVLog);
+    if (g_USE_WX_LIB)
+    {
+        _log_wxVLog(NoEsc(sformat), arg_ptr, fn_wxVLog);
+    }
 }
 
 //==================================================

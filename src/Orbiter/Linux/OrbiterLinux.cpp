@@ -90,7 +90,7 @@ void *HackThread(void *p)
 {
     // For some reason X can fail to properly die????  TODO - HACK
     cout << "Inside Hacktrhead" << endl;
-    Sleep(10000);
+    Sleep(30000);
     cout << "Big problem -- this app should have died and didn't.  Send ourselves a seg fault so we log a coredump and can fix this" << endl;
     kill(getpid(), SIGSEGV);
     return NULL;
@@ -437,9 +437,10 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 {
     if (g_USE_X11_LIB)
     {
-        stringstream s_number;
-        s_number << sMessage << " : " << mapChildDevices.size();
-        sMessage = std::string(s_number.str());
+        sMessage += ": ";
+        for(map<string, bool>::const_iterator it = mapChildDevices.begin(); it != mapChildDevices.end(); ++it)
+            if(!it->second)
+                sMessage += StringUtils::Replace(it->first, "|", "# ") + ", ";
     }
     std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
     if (g_USE_X11_LIB)

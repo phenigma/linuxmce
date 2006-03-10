@@ -654,10 +654,10 @@ void OrbiterSDL::OnIdle()
 #ifndef DISABLE_OPENGL
 	if(EnableOpenGL)
 	{
-		Sleep(5);
-		WakeupFromCondWait();
+        WakeupFromCondWait();
 	}
 #endif
+    Sleep(5);
 }
 
 void OrbiterSDL::WakeupFromCondWait()

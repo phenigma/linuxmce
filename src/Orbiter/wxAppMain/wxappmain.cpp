@@ -110,7 +110,7 @@ bool wxAppMain::OnInit()
     else
     {
         _WX_LOG_NFO("wx deactivated");
-        v_pExternApp = new ExternApp();
+        v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
         v_pExternApp->Run();
         wxDELETE(v_pExternApp);
         return false;
@@ -175,7 +175,7 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
     {
         if ( wxAppIsReady() && (v_pExternApp==NULL) )
         {
-            v_pExternApp = new ExternApp();
+            v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
             v_pExternApp->Start();
         }
     } // g_USE_EXTERN_APP_ON_THREAD
@@ -185,7 +185,7 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
         {
             if (v_pExternApp==NULL)
             {
-                v_pExternApp = new ExternApp();
+                v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
             }
             else
             {

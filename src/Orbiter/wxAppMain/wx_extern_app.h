@@ -24,7 +24,7 @@ struct SDL_Event_Loop_Data;
 class ExternApp : public wxThread_Cmd
 {
 public:
-    ExternApp();
+    ExternApp(int argc, char *argv[]);
     ~ExternApp();
 
     void Run();
@@ -41,6 +41,8 @@ protected:
         E_RUN_DONE,
     };
     E_STATUS v_eStatus;
+    int argc;
+    char **argv;
 
 #ifdef USE_RELEASE_CODE
     SDL_Event_Loop_Data *v_pSDL_Event_Loop_Data;
@@ -50,6 +52,8 @@ private:
     bool CreateObjects();
     bool Initialize();
 };
+
+bool ExternApp_Run_NoWx(int argc, char *argv[]);
 
 #endif
 // _WX_EXTERN_APP_H_

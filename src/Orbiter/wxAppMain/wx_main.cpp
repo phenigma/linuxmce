@@ -29,6 +29,11 @@ int g_nExitCode = EXIT_SUCCESS;
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[])
 {
+    if (! g_USE_WX_LIB)
+    {
+        ExternApp_Run_NoWx(argc, argv);
+        return g_nExitCode;
+    }
     _WX_LOG_NFO("STARTED");
     {
         //    _WX_LOG_WRN("!! code for launching X should be added here !!");
