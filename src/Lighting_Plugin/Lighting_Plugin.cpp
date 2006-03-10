@@ -240,11 +240,12 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 	case FLOORPLANOBJECTTYPE_LIGHT_CHANDALIER_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_PICTURE_LIGHT_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST:
-		if( (OSD=pDeviceData_Router->m_sState_get())=="OFF" )
+		OSD = pDeviceData_Router->m_sState_get();
+		if(OSD.find("OFF") != string::npos)
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_OFF_CONST;
 		else
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_ON_CONST;
-		
+
 		PK_DesignObj_Toolbar=DESIGNOBJ_grpLightControls_CONST;
 	};
 }
