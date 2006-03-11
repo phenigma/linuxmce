@@ -1435,6 +1435,8 @@ int k=2;
 					m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 				}
 				OutputScreen(oco);
+
+				bool bScaledDown=false;  // Keep track of whether or not we scaled this screen down
 				// Don't force popups to be full-screen
 				if( m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
 				{
@@ -1442,6 +1444,7 @@ int k=2;
 					oco->m_rPosition.Bottom(m_Height-m_rSpacing.Height);
 					oco->m_rBackgroundPosition.Right(m_Width-m_rSpacing.Width);
 					oco->m_rBackgroundPosition.Bottom(m_Height-m_rSpacing.Height);
+					bScaledDown=true;
 				}
 				else
 					oco->m_bIsPopup=true;
@@ -1456,6 +1459,14 @@ int k=2;
 				{
 					throw "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
 				}
+
+				if( bScaledDown )
+				{
+					oco->m_rPosition.X=oco->m_rPosition.Y=oco->m_rBackgroundPosition.X=oco->m_rBackgroundPosition.Y=0;
+					oco->m_rPosition.Width=oco->m_rBackgroundPosition.Width=m_Width;
+					oco->m_rPosition.Height=oco->m_rBackgroundPosition.Height=m_Height;
+				}
+
 				// We can cache this the next time
 				Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
 				if( !pdrCachedScreen )

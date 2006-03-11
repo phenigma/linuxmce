@@ -156,6 +156,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
 
 	if( bAddToGenerated )
     {
+//if( m_pRow_DesignObj->PK_DesignObj_get()!=1255 )
+//return;
 		int Percent = ++m_pOrbiterGenerator->m_iScreensTotal * 100 / TOTAL_ESTIMATED_SCREENS;
 		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 3 )
 		{
