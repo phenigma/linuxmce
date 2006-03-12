@@ -376,26 +376,9 @@ void App_Server::SendMessageList(string messageList)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
 
-    vector<string> commands;
-    StringUtils::Tokenize(messageList, ",", commands);
-
-    g_pPlutoLogger->Write(LV_STATUS, "Command count: %d", commands.size());
-
-    if ( commands.size() == 0 )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Empty command array resulted from the string: %s", messageList.c_str());
-        return;
-    }
-
-    Message *pMessage = new Message(commands[0]);    // empty message (to only caryy the rest with him).
-	g_pPlutoLogger->Write(LV_STATUS, "Message %s to: %d type: %d id: %d",commands[0].c_str(),
-			pMessage->m_dwID,pMessage->m_dwMessage_Type,pMessage->m_dwID);
-
-	for ( unsigned int i = 1; i < commands.size(); i++ )
-	{
-		pMessage->m_vectExtraMessages.push_back(new Message(commands[i]));
-		g_pPlutoLogger->Write(LV_STATUS, "Adding Message %s ",commands[i].c_str());
-	}
+    Message *pMessage = new Message(messageList);    // empty message (to only caryy the rest with him).
+	g_pPlutoLogger->Write(LV_STATUS, "Message to: %d type: %d id: %d extra %d",
+			pMessage->m_dwID,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_vectExtraMessages.size());
 
 	QueueMessageToRouter( pMessage  );
     g_pPlutoLogger->Write(LV_STATUS, "After queing the message to the router queue!");

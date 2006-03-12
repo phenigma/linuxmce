@@ -1266,11 +1266,8 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 
 void Router::OnDisconnected(int DeviceID)
 {
-#ifdef use_mysql_thread_end
 	mysql_thread_end();
-#else
-	my_thread_end();
-#endif
+//	my_thread_end();
 
 	m_RunningDevices.erase(DeviceID);
 }
@@ -1292,11 +1289,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 
-#ifdef use_mysql_thread_init //MYSQL_VERSION_ID == 40023
 	mysql_thread_init();
-#else
-	my_thread_init();
-#endif
 
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
