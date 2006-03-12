@@ -630,6 +630,11 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile && pMediaFile->m_dwPK_CommandGroup_Stop )
+		QueueMessageToRouter(new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,
+			MESSAGETYPE_EXEC_COMMAND_GROUP,pMediaFile->m_dwPK_CommandGroup_Stop,0));
+
 /*
     if ( pMediaStream->m_pOH_Orbiter_StartedMedia == NULL )
     {
@@ -5304,7 +5309,14 @@ time_t k = time(NULL);
 void Media_Plugin::CheckStreamForTimeout(MediaStream *pMediaStream)
 {
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
-	if( !pMediaFile || pMediaFile->m_dwDuration==0 )
+	if( !pMediaFile )
+		return;
+
+	if( pMediaFile->m_dwPK_CommandGroup_Start )
+		QueueMessageToRouter(new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,
+			MESSAGETYPE_EXEC_COMMAND_GROUP,pMediaFile->m_dwPK_CommandGroup_Start,0));
+
+	if( pMediaFile->m_dwDuration==0 )
 		return;
 
 	pMediaFile->m_tTimeout = time(NULL) + pMediaFile->m_dwDuration -1; // Subtract 1 to prevent a rounding issue

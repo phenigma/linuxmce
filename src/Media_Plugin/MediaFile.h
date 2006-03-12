@@ -15,6 +15,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 	}
 
 	MediaFile(string sMRL)	{
@@ -23,6 +24,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 	}
 
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
@@ -31,6 +33,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -39,9 +42,11 @@ public:
 		m_sFilename=pMediaFile_Copy->m_sFilename;
 		m_sDescription=pMediaFile_Copy->m_sDescription;
 		m_sStartPosition=pMediaFile_Copy->m_sStartPosition;
-		m_dwPK_Bookmark=0;
-		m_dwDuration=0;
-		m_tTimeout=0;
+		m_dwPK_CommandGroup_Start=pMediaFile_Copy->m_dwPK_CommandGroup_Start;
+		m_dwPK_CommandGroup_Stop=pMediaFile_Copy->m_dwPK_CommandGroup_Stop;
+		m_dwPK_Bookmark=pMediaFile_Copy->m_dwPK_Bookmark;
+		m_dwDuration=pMediaFile_Copy->m_dwDuration;
+		m_tTimeout=pMediaFile_Copy->m_tTimeout;
 	}
 
 
@@ -52,6 +57,8 @@ public:
 		m_tTimeout=0;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
+		m_dwPK_CommandGroup_Start=pRow_PlaylistEntry->EK_CommandGroup_Start_get();
+		m_dwPK_CommandGroup_Stop=pRow_PlaylistEntry->EK_CommandGroup_Stop_get();
 		if( m_dwPK_Bookmark )
 		{
 			Row_Bookmark *pRow_Bookmark = pRow_PlaylistEntry->Table_PlaylistEntry_get()->Database_pluto_media_get()->Bookmark_get()->GetRow(m_dwPK_Bookmark);
@@ -81,7 +88,7 @@ public:
 	map< int,int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
 	int m_dwPK_File;
-	unsigned long m_dwPK_Bookmark,m_dwDuration;
+	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
 	time_t m_tTimeout;
 	string m_sPath,m_sFilename,m_sDescription;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
