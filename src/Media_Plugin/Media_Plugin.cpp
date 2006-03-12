@@ -3563,7 +3563,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
 		SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pRippingJob->m_iPK_Orbiter,
-			sMessage, "0", "1200", "1");
+			sMessage, "0", "", "1");
 		SendCommand(SCREEN_DialogGenericNoButtons);
 	}
 
