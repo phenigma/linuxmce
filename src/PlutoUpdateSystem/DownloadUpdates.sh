@@ -30,7 +30,7 @@ else
 fi
 							
 ## Start Logging this
-echo "Download Packages Started (see /var/log/pluto/DownloadPackages.log for debuging)"
+echo "Download Packages Started (see /var/log/pluto/DownloadPackages.newlog for debuging)"
 touch /var/log/pluto/DownloadPackages.newlog
 mv /var/log/pluto/DownloadPackages.newlog /var/log/pluto/DownloadPackages.log > /dev/null 2>&1
 exec 6>&1
@@ -42,6 +42,41 @@ if [[ $OfflineMode == "true" ]]; then
 	echo "## Offline mode is activated. There's no need to run, i'm exiting"
 	exit 0
 fi
+
+## Do a cleanup in /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+## Note: this code was in Start_DCERouter.sh 
+echo "## Cleaning old file from /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"
+cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+ThisVersion="$(dpkg -s pluto-dcerouter | grep Version)"
+ThisBaseVersion=$(echo "$ThisVersion" | cut -d. -f1-4)
+PermanentPkgs="pluto-kernel-upgrade"
+RemovedList="0==1"
+for File in pluto-*_*.deb; do
+        DiskVersion="$(dpkg --info "$File" | grep Version | cut -c2-)"
+        DiskBaseVersion=$(echo "$DiskVersion" | cut -d. -f1-4)
+        PkgName="$(dpkg --info "$File" | grep Package | cut -d' ' -f3)"
+        if [[ "$PermanentPkgs" == *"$PkgName"* ]]; then
+                continue # excempt permanent packages from clean-up
+        fi
+        if [[ "$ThisBaseVersion" != "$DiskBaseVersion" ]]; then
+                rm -f $File
+                RemovedList="$RemovedList || \$0 == \"Package: $PkgName\""
+        fi
+done
+
+if [ "$RemovedList" != "0==1" ]; then
+        gunzip -c Packages.gz >Packages.orig
+        awk '
+                BEGIN { Flag = 0 }
+                '"$RemovedList"' { Flag = 1 }
+                Flag == 0 { print }
+                $0 == "" { Flag = 0 }
+        ' Packages.orig >Packages.new
+        gzip -9c Packages.new >Packages.gz
+        rm Packages.new Packages.orig
+        apt-get update
+fi
+cd -
 
 
 
@@ -67,6 +102,7 @@ MD_FsPath="/usr/pluto/diskless"
 MD_Index=0
 
 ## Run apt-get update in paralel for all MDs
+echo "## Running apt-get update for MDs"
 for MD in $MD_List; do
 	MD_Index=$(( $MD_Index + 1 ))
 	MD_DeviceID=$(Field 1 "$MD")
@@ -89,6 +125,7 @@ for i in `seq 1 $MD_Index`; do
 done
 
 ## Download the updates to the core
+echo "## Downloading updates to the core"
 dpkg --forget-old-unavail
 apt-get -f -y --download-only dist-upgrade 1>/dev/null
 apt-get autoclean
@@ -98,6 +135,7 @@ for MD in $MD_List; do
 	MD_DeviceID=$(Field 1 "$MD")
 	MD_IP=$(Field 2 "$MD")
 
+	echo "## Downloading update to the MD - $MD_IP"
 	if [[ -z "MD_IP" ]]; then
 		echo "Warning: Device $MD_DeviceID is not associated to any IP address."
 		continue
