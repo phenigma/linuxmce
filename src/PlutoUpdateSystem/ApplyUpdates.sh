@@ -3,7 +3,20 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-## Failsave check
+## Failsafe check
+UpgFix=/usr/pluto/install/UpgradeFix.sh
+rm -f "$UpgFix"
+wget -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix.sh 2>/dev/null
+if [[ -f /usr/pluto/install/UpgradeFix.sh ]]; then
+	chmod +x /usr/pluto/install/UpgradeFix.sh
+	if [[ "$(tail -1 /usr/pluto/install/UpgradeFix.sh)" != "### END ###" ]]; then
+		echo "UpgradeFix download incomplete"
+		exit 1
+	fi
+	/usr/pluto/install/UpgradeFix.sh
+	exit $?
+fi
+
 wget -P /tmp http://www.plutohome.com/fallbackUpdate.txt 2> /dev/null
 if [[ -f /tmp/fallbackUpdate.txt ]]; then
 	apt-get update
