@@ -174,7 +174,7 @@ fi
 /bin/mount -a -v -t nonfs,nosmbfs,noproc > /dev/null
 
 ## Create /tmp/{.ICE-unix, .X11-unix} if they are not present
-rm -rf /tmp/* 2>/dev/null
+find /tmp -maxdepth 1 -mindepth 1 -print0 | xargs -0 rm -rf
 
 if [ ! -e /tmp/.ICE-unix ] ;then
 	mkdir -p /tmp/.ICE-unix 
