@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_media -lattr -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
-sources += exec_grab_output.cpp ../JobHandler/Job.cpp ../JobHandler/Task.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp
+sources += ../JobHandler/Job.cpp ../JobHandler/Task.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -59,4 +59,3 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
 endif
 #<-dceag-mf-e->
-

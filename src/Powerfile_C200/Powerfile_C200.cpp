@@ -12,7 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "exec_grab_output.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_main/Define_Event.h"
@@ -144,7 +144,7 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 #else
 		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "status", NULL};
 #endif
-		if (exec_output(args[0], args, sOutput))
+		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput))
 		{
 #ifdef WIN32
 			size_t size;
@@ -273,7 +273,7 @@ bool Powerfile_C200::GetConfig()
 #else
 	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
 #endif
-	if (! exec_output(args[0], args, sOutput))
+	if (! ProcessUtils::GetCommandOutput(args[0], args, sOutput))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get device names");
 		return false;
