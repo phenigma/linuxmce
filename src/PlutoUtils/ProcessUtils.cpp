@@ -15,6 +15,8 @@
 	#include <fcntl.h>
 	#include <sys/ipc.h>
 	#include <sys/sem.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
 #endif
 using namespace std;
 
@@ -300,4 +302,48 @@ void ProcessUtils::KillAllApplications()
 		vector<void *> messagesToSend;
 		KillApplication(*it, messagesToSend);
 	}
+}
+
+bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sOutput)
+{
+#ifdef WIN32
+	return true;
+#else
+	int pid;
+	int output[2];
+
+	pipe(output);
+	switch (pid = fork())
+	{
+		case 0: /* child */
+			// treat stderr too someplace?
+			close(output[0]);
+			dup2(output[1], 1);
+			execv(path, args);
+			exit(254);
+			break;
+		case -1: /* error */
+			return false;
+			break;
+		default: /* parent */
+			close(output[1]);
+			
+			char buffer[4096];
+			memset(buffer, 0, sizeof(buffer));
+			while (read(output[0], buffer, sizeof(buffer) - 1) > 0)
+			{
+				sOutput += buffer;
+				memset(buffer, 0, sizeof(buffer));
+			}
+			
+			int status;
+			waitpid(pid, &status, 0);
+			status = WEXITSTATUS(status);
+
+			if (status == 254)
+				return false;
+	}
+
+	return true;
+#endif
 }

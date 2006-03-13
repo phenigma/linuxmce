@@ -30,6 +30,9 @@ namespace ProcessUtils
 	bool SendKeysToProcess(string sAppIdentifier,string sKeys);
 
 	void KillAllApplications();  // Kill any applications we have spawned
+
+	/** Execute a command with execv and return its stdout */
+	bool GetCommandOutput(const char * path, char * args[], string & sOutput);
 };
 
 #endif // PROCESSUTILS
