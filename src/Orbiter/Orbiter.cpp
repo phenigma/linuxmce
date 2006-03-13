@@ -4769,7 +4769,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="RIP"  )
 		{
 #ifdef WIN32
-			Output += m_sIPAddress;
+			Output += "router=" + m_sIPAddress;
 #else
 			char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
 			ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
