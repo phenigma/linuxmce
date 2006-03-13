@@ -264,6 +264,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ void Orbiter_PocketFrog::StylusDown( Point stylus )
 {
 	RegionDown(stylus.x, stylus.y);
+	RecordMouseAction(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusUp( Point stylus )
@@ -351,6 +352,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 
     if(wParam == VK_SHIFT)
         m_bShiftDownOnScreenKeyboard = false;
+
+	RecordKeyboardAction(orbiterEvent.data.button.m_iPK_Button);
 
     Orbiter::ProcessEvent(orbiterEvent);
 }
