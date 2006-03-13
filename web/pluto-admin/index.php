@@ -651,7 +651,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/editPlaylist.php');
-	    editPlaylist($output,$mediadbADO);	    
+	    editPlaylist($output,$mediadbADO,$dbADO);	    
 	break;
 	case 'powerFile':
 		$output = new Template($dbADO);
@@ -942,6 +942,13 @@ switch ($section) {
 	    $output->setHelpSrc('/support/index.php?section=document&docID=166');
 	    executeScenarios($output,$dbADO);
 	break;
+	case 'pickScenario';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myScenarios/pickScenario.php');
+	    pickScenario($output,$dbADO);
+	break;
+	
 	case 'viewCameras';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
