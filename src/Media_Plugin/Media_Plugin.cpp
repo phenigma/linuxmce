@@ -3375,6 +3375,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sName = "Unknown disc";
 		bUsingUnknownDiscName=true;
 	}
+	sName = StringUtils::Replace(sName,"/","-");
+	sName = StringUtils::Replace(sName,"\\","-");
 
 	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
 	if( iPK_Users==0 )
