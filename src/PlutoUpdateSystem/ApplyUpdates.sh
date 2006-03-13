@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 ## Failsave check
 wget -P /tmp http://www.plutohome.com/fallbackUpdate.txt 2> /dev/null
