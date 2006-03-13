@@ -9,7 +9,7 @@ switch($scriptID){
 		$end='
 		<script language="JavaScript">
 		<!--
-			alert("Finished setting up diskless Media Directors");
+			alert("@MESSAGE@");
 		// -->
 		</script>';
 	break;
@@ -30,14 +30,20 @@ switch($scriptID){
 print $title.'<br>
 <pre style="background:black;color:white;">
 ';
+$message = "Finished setting up diskless Media Directors";
 for ($i = 0; $i < count($command); $i++)
 {
 	print $command[$i].'<br><br>';
 	if($command[$i]!=''){
-		system($command[$i] . '|tee -a /var/log/pluto/php-executeLog.newlog|/usr/pluto/bin/ansi2html');
+		system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.newlog|/usr/pluto/bin/ansi2html)'", $retval);
+		if ($retval != 0)
+		{
+			$message = "Failed setting up diskless Media Directors";
+			break;
+		}
 		print '<br><br>';
 	}
 }
-print $end;
+print(preg_replace("/@MESSAGE@/", $message, $end));
 ?>
 </pre>
