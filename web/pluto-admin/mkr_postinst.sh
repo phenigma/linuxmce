@@ -35,6 +35,8 @@ ln -s /usr/pluto/orbiter/orbiter_bg /var/www/pluto-admin/orbiter_bg
 mkdir -p /var/www/pluto-admin/security_images
 chmod -R 777 /var/www/pluto-admin/security_images
 
+chmod 777 /var/www/pluto-admin/cached
+
 a2dissite default || /bin/true
 
 #Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g' | grep -v '^#')
