@@ -6,7 +6,7 @@
 
 if ! TryLock "Diskless_Setup" "Diskless_Setup"; then
 	echo "Another Diskless Setup is running"
-	exit
+	exit 1
 fi
 trap 'Unlock "Diskless_Setup" "Diskless_Setup"' EXIT
 
