@@ -150,6 +150,16 @@ rm -f /usr/pluto/locks/*                 # clean up locks
 rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 dmesg -n 1
 
+## Force some config options to sysklogd
+SysLogCfg="*.*;auth,authpriv.none       /dev/tty12"
+if ! grep -qF "$SysLogCfg" /etc/syslog.conf; then
+        echo "$SysLogCfg" >>/etc/syslog.conf
+fi
+if ! grep -q '^SYSLOGD="-r"$' /etc/init.d/sysklogd; then
+	sed -i 's/^SYSLOGD=.*$/SYSLOGD="-r"/' /etc/init.d/sysklogd
+fi
+
+
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
@@ -242,8 +252,13 @@ if [[ -x /etc/init.d/ssh ]] ;then
 	/etc/init.d/ssh start &
 fi
 
-# A hack ?
+## Start RemoteAccess at this step
+if [[ -x /usr/pluto/bin/SetupRemoteAccess.sh ]]; then
+	Message "Checking/Activating Remove Access"
+	/usr/pluto/bin/SetupRemoteAccess.sh &
+fi
 
+# A hack ?
 if [ -x /etc/init.d/mysql ] ;then
     Message "Starting mysql server"
     /etc/init.d/mysql start 2>/dev/null
