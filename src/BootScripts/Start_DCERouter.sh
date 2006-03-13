@@ -18,16 +18,3 @@ while ! nc -z localhost 3450; do
 	sleep 0.1
 done
 
-/usr/pluto/bin/SetupRemoteAccess.sh &
-disown -a
-
-SysLogCfg="*.*;auth,authpriv.none	/dev/tty12"
-if ! grep -qF "$SysLogCfg" /etc/syslog.conf; then
-	echo "$SysLogCfg" >>/etc/syslog.conf
-	/etc/init.d/sysklogd reload
-fi
-
-if ! grep -q '^SYSLOGD="-r"$' /etc/init.d/sysklogd; then
-	sed -i 's/^SYSLOGD=.*$/SYSLOGD="-r"/' /etc/init.d/sysklogd
-	/etc/init.d/sysklogd restart
-fi
