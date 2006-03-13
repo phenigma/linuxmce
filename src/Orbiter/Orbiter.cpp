@@ -4768,8 +4768,12 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( m_dwPK_Device );
 		else if(  Variable=="RIP"  )
 		{
+#ifdef WIN32
+			Output += m_sIPAddress;
+#else
 			char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
 			ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
+#endif
 		}
 		else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1
 		{
