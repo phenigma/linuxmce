@@ -1,5 +1,5 @@
 <?
-function editPlaylist($output,$mediadbADO) {
+function editPlaylist($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editPlaylist.lang.php');
@@ -23,21 +23,29 @@ function editPlaylist($output,$mediadbADO) {
 		<script>
 		function selAllCheckboxes(forced)
 		{
-			if($forced=0){
+			if(forced==0){
 				val=(document.editPlaylist.setAll.checked)?true:false;
 			}else{
 				val=(document.editPlaylist.setAll.checked)?false:true;
 				document.editPlaylist.setAll.checked=val;
 			}
-			for(i=0;i<records;i++){
+			for(i=1;i<records+1;i++){
 				document.getElementById("file_"+i).checked=val;
 			}
 		}
 		</script>
 	';
 	if($action=='form'){
+		$commandGroups=getAssocArray('CommandGroup','PK_CommandGroup','Description',$dbADO);
+		
 		
 		$out.='
+		<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,\'\',attributes);
+			}
+		</script>		
+		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
@@ -51,8 +59,9 @@ function editPlaylist($output,$mediadbADO) {
 			<table cellpadding="3" cellspacing="2" align="center">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>#</B></td>
-					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_PATH_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B> / <B>'.$TEXT_PATH_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_START_COMMAND_GROUP_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_STOP_COMMAND_GROUP_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DURATION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ACTION_CONST.' *</B></td>
 				</tr>';
@@ -101,8 +110,21 @@ function editPlaylist($output,$mediadbADO) {
 			$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
 					<td>'.$pos.'</td>
-					<td>'.$filename.'</td>
-					<td>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
+					<td><B>'.$filename.'</B><br>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
+					<td>
+						<table width="100%">
+						 	<tr>
+								<td align="center">'.((!is_null($rowPlaylistEntry['EK_CommandGroup_Start']))?$commandGroups[$rowPlaylistEntry['EK_CommandGroup_Start']]:'N/A').'</td>
+								<td width="30"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=start&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.'</a></td>
+							</tr>
+						</table>
+					</td>
+					<td><table width="100%" border="0">
+						 	<tr>
+								<td align="center">'.((!is_null($rowPlaylistEntry['EK_CommandGroup_Stop']))?$commandGroups[$rowPlaylistEntry['EK_CommandGroup_Stop']]:'N/A').'</td>
+								<td width="30"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=stop&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.'</a></td>
+							</tr>
+						</table></td>
 					<td align="center"><input type="text" name="duration_'.$rowPlaylistEntry['PK_PlaylistEntry'].'" value="'.$rowPlaylistEntry['Duration'].'" style="width:50px;"></td>
 					<td><a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_FILE_FROM_PLAYLIST_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">'.$TEXT_DELETE_CONST.'</a>
 					<input type="button" class="button" name="plus" value="U" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
@@ -167,15 +189,17 @@ function editPlaylist($output,$mediadbADO) {
 					<td colspan="5" align="center">'.$TEXT_NO_RECORDS_CONST.'</td>				
 				</tr>';
 			}
-						
+
+			$fileCounter=0;		
 			while($rowFiles=$resFiles->FetchRow()){
 				$pos++;
 				if($pos>($page-1)*$filesPerPage && $pos<=$page*$filesPerPage){
+					$fileCounter++;
 					$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
 					$displayedFilesArray[]=$rowFiles['PK_File'];
 					$out.='
 					<tr bgcolor="'.$color.'">
-						<td colspan="5"><input type="checkbox" name="file_'.$rowFiles['PK_File'].'" value="1" checked id="file_'.($pos-($page-1)*$filesPerPage).'"> '.$rowFiles['Path'].'/<B>'.$rowFiles['Filename'].'</B></td>
+						<td colspan="5"><input type="checkbox" name="file_'.$rowFiles['PK_File'].'" value="1" checked id="file_'.$fileCounter.'"> '.$rowFiles['Path'].'/<B>'.$rowFiles['Filename'].'</B></td>
 					</tr>';
 				}
 			}
@@ -190,7 +214,7 @@ function editPlaylist($output,$mediadbADO) {
 						<input type="hidden" name="displayedFilesArray" value="'.join(',',$displayedFilesArray).'">
 					</td>
 				</tr>
-				<script>var records='.($pos-($page-1)*$filesPerPage).';</script>
+				<script>var records='.$fileCounter.';</script>
 				';
 			}
 		}
@@ -299,6 +323,14 @@ function editPlaylist($output,$mediadbADO) {
 			
 			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_PLAYLIST_ENTRIES_UPDATED_CONST);
 			exit();
+		}
+
+		if(isset($_REQUEST['updatedEntryID'])){
+			$entryID=(int)$_REQUEST['updatedEntryID'];
+			$cgID=((int)$_REQUEST['cgID']==0)?NULL:(int)$_REQUEST['cgID'];
+			$mode=$_REQUEST['mode'];
+			$field=($mode=='start')?'EK_CommandGroup_Start':'EK_CommandGroup_Stop';
+			$mediadbADO->Execute('UPDATE PlaylistEntry SET '.$field.'=? WHERE PK_PlaylistEntry=?',array($cgID,$entryID));
 		}
 		
 		header('Location: index.php?section=editPlaylist&plID='.$playlistID);

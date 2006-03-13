@@ -17,4 +17,7 @@ $TEXT_ADD_BOOKMARK_CONST='Add bookmark';
 $TEXT_CHANGE_POSITION_INFO_CONST='Type in the textfield the position where you want to move the file and click "GO"';
 $TEXT_SEARCH_RESULTS_CONST='Search results';
 $TEXT_ERROR_SEARCHSTRING_TOO_SHORT_CONST='Search string too short';
+$TEXT_START_COMMAND_GROUP_CONST='Start Command Group';
+$TEXT_STOP_COMMAND_GROUP_CONST='Stop Command Group';
+$TEXT_PICK_COMMAND_GROUP_CONST='Pick';
 ?>
