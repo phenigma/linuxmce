@@ -145,7 +145,7 @@ while (1 eq 1)
         {
             $SECONDS = 0;
             &write_log("Still alive...");
-            
+
             $ast_run = &check_asterisk_running();
             unless($ast_run eq 1)
             {
@@ -205,6 +205,7 @@ sub check_asterisk_running()
 
 sub check_asterisk_register()
 {
+    %VOIP_SERVERS = ();
     open(SIPLIST, "asterisk -rx 'sip show registry'|");
     my $result = 0;
     while(<SIPLIST>)
@@ -300,7 +301,7 @@ sub check_network_conditions()
     {
         `/bin/sh -c '/usr/sbin/tcpdump -vv -n not net 192.168.80.0/24 &' >> /var/log/asterisk/tcpdumps.log`;
     }
-    unless($voip_unreg == 0)
+    unless(($voip_unreg == 0) && (keys(%VOIP_SERVERS) > 0))
     {
         &write_log("Possible problems with your voip");
         foreach my $prov (keys %{$VOIP_SERVERS{'sip'}})
@@ -351,6 +352,7 @@ sub check_network_conditions()
 sub send_message()
 {
     my $msg = shift;
-    `/usr/pluto/bin/MessageSend localhost -targetType category 1 5 1 741 159 177 163 \"$msg\" 181 0 182 0 183 0`;
+# don't do it yet
+#    `/usr/pluto/bin/MessageSend localhost -targetType category 1 5 1 741 159 177 163 \"$msg\" 181 0 182 0 183 0`;
     &write_log("Will send message \n$msg\n\n");
 }
