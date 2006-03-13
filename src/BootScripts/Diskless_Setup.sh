@@ -2,6 +2,13 @@
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
+
+if ! TryLock "Diskless_Setup" "Diskless_Setup"; then
+	echo "Another Diskless Setup is running"
+	exit
+fi
+trap 'Unlock "Diskless_Setup" "Diskless_Setup"' EXIT
 
 DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
