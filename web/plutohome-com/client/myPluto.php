@@ -28,7 +28,7 @@ function myPluto($output,$dbADO,$conn) {
 			exit();
 		}
 		else{
-			header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+			header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&perm_login=1");
 			exit();
 		}
 	}
