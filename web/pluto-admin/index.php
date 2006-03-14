@@ -12,13 +12,17 @@ require('include/config/config.inc.php');
 require('include/utils.inc.php');
 require('include/template.class.inc.php');
 
+
 $section = @$_REQUEST['section'];
-if(isset($_SESSION['userLoggedIn']) && !isset($_SESSION['installationID'])){
+if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $section!='wizard'){
+
 	// invalid session, destroy it and send user to login
 	unset($_SESSION);
 	session_destroy();
-	$section='login';
+	
+	die('<script>top.location="index.php"</script>');
 }
+
 validate_installation((int)@$_SESSION['installationID'],$dbADO);
 
 switch ($section) {	
