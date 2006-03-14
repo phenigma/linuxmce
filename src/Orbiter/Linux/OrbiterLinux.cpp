@@ -232,10 +232,23 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
     if ( ! m_bYieldInput )
     {
         m_pRecordHandler->enableRecording(this, false);
+
+		//this command will add a command to a hook: when a window is switched/focused, all the hooks added for this event will be executed
+		//in this case, when xine or other will grap the keyboards, "keystodesktop on" command will be executed
+		//and orbiter will get right away to control of the keyboard
+		//
+		//Command: addhook hook command
+		//Add a command to hook. When the hook is run, command will be executed. 
+		//
+		commandRatPoison(":addhook switchwin keystodesktop on");
+
+		
         commandRatPoison(":keystodesktop on");
     }
     else
     {
+		//this command will remove a command from the hook. see above the comments.
+		commandRatPoison(":remhook switchwin keystodesktop on");
         commandRatPoison(":keystodesktop off");
 
         // patch the rectangle to match the actual resolution
