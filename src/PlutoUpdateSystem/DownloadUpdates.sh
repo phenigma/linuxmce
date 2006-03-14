@@ -3,6 +3,13 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+trap cleanExit EXIT
+
+function cleanExit {
+	echo "## !!!! DownloadUpdate.sh: Forced Exit, Cleaning up !!!"
+	rm /usr/pluto/var/Updates/DownloadUpdates.lock
+}
+
 function archiveSyncMDfromCORE {
 	local MD_Root=$1
 	

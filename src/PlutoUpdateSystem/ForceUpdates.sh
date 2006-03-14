@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#MessageSend $IP -targetType template 0 26 1 67 13 "/bin/rm"
+#MessageSend $IP -targetType template 0 26 1 67 13 "/usr/pluto/bin/ForceUpdates.sh"
 
 ## Kill all DownloadUpdates.sh scripts that are running
 DownloadUpdates_PIDS=$(pidof DownloadUpdates.sh)
