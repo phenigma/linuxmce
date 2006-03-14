@@ -369,6 +369,12 @@ public:
 	virtual void CMD_Set_Device_Relations(int iPK_Device,string sList_PK_Device,bool bReverse,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #789 - Force Update Packages */
+	/** For the system to upgrade */
+
+	virtual void CMD_Force_Update_Packages() { string sCMD_Result; CMD_Force_Update_Packages(sCMD_Result,NULL);};
+	virtual void CMD_Force_Update_Packages(string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

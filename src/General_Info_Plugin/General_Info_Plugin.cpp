@@ -21,6 +21,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -2309,4 +2310,15 @@ void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string sList_P
 		pRow_Device_Device_Related->FK_Device_Related_set(PK_Device_Related);
 	}
 	m_pDatabase_pluto_main->Device_Device_Related_get()->Commit();
+}
+//<-dceag-c789-b->
+
+	/** @brief COMMAND: #789 - Force Update Packages */
+	/** For the system to upgrade */
+
+void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message *pMessage)
+//<-dceag-c789-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Forcing package update");
+	ProcessUtils::SpawnApplication("/usr/pluto/bin/ForceUpdates.sh", "", "ForceUpdates", NULL, false);
 }
