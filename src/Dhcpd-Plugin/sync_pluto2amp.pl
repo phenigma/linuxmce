@@ -75,13 +75,7 @@ $DB_AS_HANDLE->disconnect();
 `/var/www/pluto-admin/amp/admin/retrieve_zap_conf_from_mysql.pl`;
 
 #reload asterisk
-unless(system("/usr/sbin/asterisk -r -x reload")==0)
-{
-	#force restart if couldn't reload
-	system("/etc/init.d/asterisk stop");
-	sleep(5);
-	system("/etc/init.d/asterisk start");	
-}
+`/usr/sbin/asterisk -r -x reload`;
 
 #helpers
 sub read_pluto_config()
