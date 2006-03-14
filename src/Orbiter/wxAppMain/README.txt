@@ -1,5 +1,2 @@
-please read WX_PLUTO.txt
-
-In order to activate wxWidgets code, the environment variable USE_WX_LIB must be defined, with any value.
-
-export USE_WX_LIB=
+WX_PLUTO.txt  : wxWidgets notes
+X11_PLUTO.txt : X11 notes, which also apply to SDL, GTK, wxWidgets

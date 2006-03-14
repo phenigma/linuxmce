@@ -1,8 +1,10 @@
-#ifndef WIN32
+#if (USE_WX_LIB)
 #include "../wxAppMain/wx_all_include.cpp"
 #include "../wxAppMain/wxdialog_roomwizard.h"
 #include "../wxAppMain/wx_win_thread.h"
+#endif // (USE_WX_LIB)
 
+#ifndef WIN32
 #include "OrbiterLinux.h"
 #endif
 
@@ -253,7 +255,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-    if (g_USE_WX_LIB)
+    if (USE_WX_LIB)
     {
         ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
         // register the RoomWizard callbacks
@@ -262,7 +264,7 @@ void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
         RegisterCallBack( cbOnDeleteWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
         RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
         return;
-    } // g_USE_WX_LIB
+    } // USE_WX_LIB
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
@@ -1460,7 +1462,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
     PlutoRectangle pRect = pPositionCallBackData->m_rectPosition;
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
                            pRect.X, pRect.Y, pRect.Width, pRect.Height );
-#ifndef WIN32
+#if (USE_WX_LIB)
     wxDialog_RoomWizard *pwxDialog;
     wxDialog_Show<wxDialog_RoomWizard>(
         pwxDialog = wxDialog_CreateUnique<wxDialog_RoomWizard>(
@@ -1470,7 +1472,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
         );
     (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("dialog");
     pwxDialog->NewDataRefresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
-#endif
+#endif // (USE_WX_LIB)
 
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
     return false;
@@ -1480,12 +1482,12 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
 bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 {
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
-#ifndef WIN32
+#if (USE_WX_LIB)
     wxDialog_RoomWizard *pwxDialog = ptr_wxWindowByName<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE);
     wxDialog_Save<wxDialog_RoomWizard>(pwxDialog, m_pWizardLogic);
     wxDialog_Close<wxDialog_RoomWizard>(pwxDialog);
     (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
-#endif
+#endif // (USE_WX_LIB)
     return false;
 }
 
@@ -1502,10 +1504,10 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
                            pRect.X, pRect.Y, pRect.Width, pRect.Height );
 
-#ifndef WIN32
+#if (USE_WX_LIB)
     wxDialog_RoomWizard *pwxDialog = ptr_wxWindowByName<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_TITLE);
     pwxDialog->NewDataRefresh(pRect.X, pRect.Y, pRect.Width, pRect.Height);
-#endif
+#endif // (USE_WX_LIB)
 
     g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
     return false;

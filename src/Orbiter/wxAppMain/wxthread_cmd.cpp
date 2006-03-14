@@ -149,7 +149,7 @@ bool wxThread_Cmd::IsDetached()
 
 bool wxThread_Cmd::IsCancelled()
 {
-    _WX_LOG_NFO("%s", _str_thread_status(this));
+    //_WX_LOG_NFO("%s", _str_thread_status(this));
     return v_bShouldCancel;
 }
 

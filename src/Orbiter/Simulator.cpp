@@ -60,7 +60,7 @@ void *GeneratorThread( void *p)
 {
 	while(!g_pPlutoLogger)
 		Sleep(2000);
-	
+
 	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
 
 	Simulator *pSimulator = (Simulator *)p;
@@ -271,6 +271,8 @@ Simulator::Simulator()
 	m_bUseOpenGL = false;
 	m_bLogToServer = false;
 
+    m_bUseWxWidgets = false;
+
 	m_bStopGeneratorThread = false;
 	m_dwStartGeneratorThreadDelay = 0;
 
@@ -348,6 +350,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_bFullScreen = ReadInteger("FullScreen", (int)m_bFullScreen) != 0;
 	m_bUseOpenGL = ReadInteger("UseOpenGL", (int)m_bLogToServer) != 0;
 	m_bLogToServer = ReadInteger("LogToServer", (int)m_bLogToServer) != 0;
+	m_bUseWxWidgets = ReadInteger("UseWxWidgets", (int)m_bUseWxWidgets) != 0;
 	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);
 	m_sRouterIP = ReadString("RouterIP", m_sRouterIP);
 
@@ -391,6 +394,8 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 	m_mapParameters["FullScreen"] = StringUtils::ltos(m_bFullScreen);
 	m_mapParameters["UseOpenGL"] = StringUtils::ltos(m_bUseOpenGL);
 	m_mapParameters["LogToServer"] = StringUtils::ltos(m_bLogToServer);
+
+	m_mapParameters["UseWxWidgets"] = StringUtils::ltos(m_bUseWxWidgets);
 
 	m_mapParameters["DeviceID"] = m_sDeviceID;
 	m_mapParameters["RouterIP"] = m_sRouterIP;

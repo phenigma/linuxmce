@@ -22,18 +22,20 @@
 #include <X11/Xlib.h>
 #endif
 
-bool g_USE_WX_LIB = (getenv("USE_WX_LIB"));
+// is true if USE_WX_LIB environment variable is defined
+//const bool g_USE_WX_LIB = (getenv("USE_WX_LIB"));
 
 int g_nExitCode = EXIT_SUCCESS;
 
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[])
 {
-    if (! g_USE_WX_LIB)
+#if ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
     {
         ExternApp_Run_NoWx(argc, argv);
         return g_nExitCode;
     }
+#endif // ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
     _WX_LOG_NFO("STARTED");
     {
         //    _WX_LOG_WRN("!! code for launching X should be added here !!");

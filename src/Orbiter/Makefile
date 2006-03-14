@@ -1,21 +1,44 @@
+USE_WX_LIB ?= 0
+ifneq ($(USE_WX_LIB), 0)
+USE_WX_LIB := 1
+endif
+
+ifneq ($(USE_WX_LIB), 0)
+# using wx
+
+# wx-config script name or full path
 # WX_CONFIG     := wx-config
 WX_CONFIG     := /usr/lib/wx/config/gtk2-ansi-release-2.6
 # WX_CONFIG     := /usr/lib/wx/config/gtk2-ansi-debug-2.6
-
+#
 WX_VERSION    := $(shell echo `$(WX_CONFIG) --version`)
-
-WX_CFLAGS     := $(shell $(WX_CONFIG) --cflags)
-WX_CXXFLAGS   := $(shell $(WX_CONFIG) --cxxflags)
-WX_CPPFLAGS   := $(shell $(WX_CONFIG) --cppflags)
-
+WX_CFLAGS     := $(shell $(WX_CONFIG) --cflags) -DUSE_WX_LIB=1
+WX_CXXFLAGS   := $(shell $(WX_CONFIG) --cxxflags) -DUSE_WX_LIB=1
+WX_CPPFLAGS   := $(shell $(WX_CONFIG) --cppflags) -DUSE_WX_LIB=1
 WX_LIBS       := $(shell $(WX_CONFIG) --libs)
-WX_GL_LIBS     := $(shell $(WX_CONFIG) --gl-libs)
-
+WX_GL_LIBS    := $(shell $(WX_CONFIG) --gl-libs)
 WX_LDFLAGS    := $(shell $(WX_CONFIG) --ldflags 2>/dev/null)
 WX_LD         := $(shell $(WX_CONFIG) --ld)
 WX_PARSE_LD   := $(shell $(WX_CONFIG) --ld 2>/dev/null | sed -e 's|^[^-][^ ]*||;s| -shared | |g;s| -o *$$| |;')
-
 WX_SOURCES    := $(shell ls wxAppMain/*.cpp)
+
+else
+# not using wx
+
+WX_CONFIG     :=
+WX_VERSION    :=
+WX_CFLAGS     := -DUSE_WX_LIB=0
+WX_CXXFLAGS   := -DUSE_WX_LIB=0
+WX_CPPFLAGS   := -DUSE_WX_LIB=0
+WX_LIBS       :=
+WX_GL_LIBS    :=
+WX_LDFLAGS    :=
+WX_LD         :=
+WX_PARSE_LD   :=
+WX_SOURCES    :=
+
+endif
+# use or not wx
 
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices

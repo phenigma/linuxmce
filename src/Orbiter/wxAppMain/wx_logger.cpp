@@ -21,7 +21,7 @@
 
 //==================================================
 
-char sLogPathName[] = LOG_FILE;
+const char sLogPathName[] = LOG_FILE;
 FILE * g_fpLogFile = NULL;
 
 typedef void (& type_fn_wxVLog)(const char *sformat, va_list arg_ptr);
@@ -92,11 +92,11 @@ static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_
 // log to : stderr, file, wxVLog*
 static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_wxVLog, E_LOG_TYPE logtype)
 {
+#if ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
+    return;
+#endif // ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
     _log_stdarg(sformat, arg_ptr, logtype);
-    if (g_USE_WX_LIB)
-    {
-        _log_wxVLog(NoEsc(sformat), arg_ptr, fn_wxVLog);
-    }
+    _log_wxVLog(NoEsc(sformat), arg_ptr, fn_wxVLog);
 }
 
 //==================================================
@@ -141,14 +141,20 @@ void _wx_log_verbose_(const char *sformat, ...)
     va_end(arg_ptr);
 }
 
+#ifdef USE_DEBUG_CODE
+bool g_WX_LOG_DBG = true;
+#else
+bool g_WX_LOG_DBG = (getenv("WX_LOG_DBG"));
+#endif // USE_DEBUG_CODE
+
 void _wx_log_dbg_(const char *sformat, ...)
 {
-#ifdef USE_DEBUG_CODE
+    if (! g_WX_LOG_DBG)
+        return;
     va_list arg_ptr;
     va_start(arg_ptr, sformat);
     _log_stdarg_wx(sformat, arg_ptr, wxVLogMessage, DBG);
     va_end(arg_ptr);
-#endif // USE_DEBUG_CODE
 }
 
 //==================================================
@@ -169,7 +175,9 @@ struct logger_obj
             g_fpLogFile = NULL;
         }
 };
+#if (USE_WX_LIB)
 logger_obj _global_logger_obj;
+#endif // (USE_WX_LIB)
 
 //==================================================
 

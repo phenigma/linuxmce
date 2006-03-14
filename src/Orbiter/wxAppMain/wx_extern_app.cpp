@@ -30,114 +30,86 @@ bool g_USE_EXTERN_APP_ON_THREAD = false;
 
 ExternApp::ExternApp(int argc, char *argv[])
         : wxThread_Cmd(wxTHREAD_JOINABLE, "ExternApp")
-        , v_eStatus(E_UNINITIALIZED)
         , argc(argc)
         , argv(argv)
 {
     _WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
-    v_pSDL_Event_Loop_Data = NULL;
+    v_pSDL_App_Object = NULL;
 #endif // USE_RELEASE_CODE
 }
 
 ExternApp::~ExternApp()
 {
     _WX_LOG_NFO();
-    if (v_eStatus == E_CREATE_SUCCESS)
-        Destroy();
+#ifdef USE_RELEASE_CODE
+    wxDELETE(v_pSDL_App_Object);
+#endif // USE_RELEASE_CODE
 }
 
 void ExternApp::Run()
 {
     _WX_LOG_NFO();
-    //if (! Initialize())
-    //    return;
-    while (EventProcess())
-    {
-        wx_sleep(0, INTERVAL_EXTERNAPP_LOOP_MSEC);
-    }
+    if (! Create())
+        return;
+    EventProcess();
     Destroy();
+}
+
+bool ExternApp::Create()
+{
+    _WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    v_pSDL_App_Object = new SDL_App_Object(argc, argv);
+    if (! v_pSDL_App_Object->LoadConfig())
+    {
+        _WX_LOG_ERR("error returned by : LoadConfig()");
+        wxDELETE(v_pSDL_App_Object);
+        return false;
+    }
+    if (! v_pSDL_App_Object->Create())
+    {
+        _WX_LOG_ERR("error returned by : Create()");
+        wxDELETE(v_pSDL_App_Object);
+        return false;
+    }
+#endif // USE_RELEASE_CODE
+    return true;
 }
 
 bool ExternApp::EventProcess()
 {
-    //_WX_LOG_NFO();
-    if (wxIdleThreadShouldStop())
-    {
-        _WX_LOG_NFO("Event process loop stopped");
-        return false;
-    }
+    _WX_LOG_NFO("Event Loop");
 #ifdef USE_RELEASE_CODE
-    // if created, process events
-    if (v_eStatus == E_CREATE_SUCCESS)
+    while (v_pSDL_App_Object->EventProcess())
     {
-        if (v_pSDL_Event_Loop_Data->pOrbiter)
+        if (wxIdleThreadShouldStop())
         {
-            if (! SDL_Event_Process(*v_pSDL_Event_Loop_Data))
-                return false;
+            _WX_LOG_WRN("Event process loop stopped");
+            return false;
         }
-        return true;
     }
 #endif // USE_RELEASE_CODE
-    // create the app if needed, and process events on the next iteration
-    if (v_eStatus == E_UNINITIALIZED)
-    {
-        return Initialize();
-    }
     return true;
 }
 
-bool ExternApp::Destroy()
+int ExternApp::Destroy()
 {
-    _WX_LOG_NFO();
-    _COND_RET(v_eStatus == E_CREATE_SUCCESS, false);
+    int nExitCode = 0;
 #ifdef USE_RELEASE_CODE
-    if (v_pSDL_Event_Loop_Data->pOrbiter && v_pSDL_Event_Loop_Data->pOrbiter->m_bReload)
-        g_nExitCode = 2;
-    SDL_Event_Loop_End(*v_pSDL_Event_Loop_Data);
-    if (g_pPlutoLogger)
-        delete g_pPlutoLogger;
+    v_pSDL_App_Object->Destroy();
+    wxDELETE(v_pSDL_App_Object);
 #endif // USE_RELEASE_CODE
-    v_eStatus = E_RUN_DONE;
-    return true;
+    return nExitCode;
 }
 
-bool ExternApp::CreateObjects()
-{
-    _WX_LOG_NFO();
-#ifdef USE_RELEASE_CODE
-    v_pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
-    CommandLineParams commandlineparams;
-    bool bStartedOK = ParseCommandLineParams(argc, argv, commandlineparams);
-    if (! bStartedOK)
-    {
-        _WX_LOG_ERR("error returned by : ParseCommandLineParams()");
-        return false;
-    }
-	v_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
-    if (v_pSDL_Event_Loop_Data->pOrbiter == NULL)
-    {
-        _WX_LOG_ERR("error returned by : CreateOrbiter()");
-        return false;
-    }
-#endif // USE_RELEASE_CODE
-    return true;
-}
-
-bool ExternApp::Initialize()
-{
-    _WX_LOG_NFO();
-    _COND_RET(v_eStatus == E_UNINITIALIZED, false);
-    if (CreateObjects())
-        v_eStatus = E_CREATE_SUCCESS;
-    else
-        v_eStatus = E_CREATE_ERROR;
-    return (v_eStatus == E_CREATE_SUCCESS);
-}
-
-bool ExternApp_Run_NoWx(int argc, char *argv[])
+int ExternApp_Run_NoWx(int argc, char *argv[])
 {
     _WX_LOG_NFO("wx not running");
+#ifdef USE_DEBUG_CODE
+    wxUnusedVar(argc);
+    wxUnusedVar(argv);
+#endif // USE_DEBUG_CODE
 #ifdef USE_RELEASE_CODE
     // CreateObjects
     SDL_Event_Loop_Data *pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
@@ -167,4 +139,5 @@ bool ExternApp_Run_NoWx(int argc, char *argv[])
     if (g_pPlutoLogger)
         delete g_pPlutoLogger;
 #endif // USE_RELEASE_CODE
+    return g_nExitCode;
 }

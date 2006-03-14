@@ -35,5 +35,32 @@ OrbiterSDL * CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data);
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data);
 
+class SDL_App_Object
+{
+public:
+    SDL_App_Object(int argc, char *argv[]);
+    ~SDL_App_Object();
+
+    bool Run(); // load-config, create, event-loop, destroy
+
+    bool LoadConfig();
+    //bool ShouldUseWx();
+
+    bool Create();
+    bool EventProcess();
+    int Destroy();
+
+    int m_nExitCode;
+
+protected:
+    SDL_Event_Loop_Data *m_pSDL_Event_Loop_Data;
+    int argc;
+    char **argv;
+};
+
+#if (! USE_WX_LIB)
+int main(int argc, char *argv[]);
+#endif // (! USE_WX_LIB)
+
 #endif
 // __START_ORBITER_SDL_H__

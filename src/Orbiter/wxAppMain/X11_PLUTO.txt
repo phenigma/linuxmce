@@ -1,0 +1,42 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
+==========================
+X11 integration with Pluto
+==========================
+
+    This document contains (very) short notes about threads in X11, taken from the net forums and docs.
+Please read the Xlib Programming manual and X11 tutorials.
+Code which implements the notes below was tested and it works fine.
+
+     If these notes are disregarded, then the application may appear to work fine, until a point in time when:
+- it starts to loose events;
+- appear to freeze for a time;
+- behaves unpredictably.
+
+    When working with threads in any X11 application, the following rules apply:
+- doesn't matter if the application uses wxWidgets, or GTK, or Motif, or any other library; some libraries, like QT4, already contains code for these rules, implemented in a way that is transparent to the developer.
+- if a thread doesn't call routines for updating the display, or routines for working with messages, it's ok leave that code as it is.
+- if at least one thread calls routines for updating the display, or routines for working with messages, then
+in the main thread, before starting any other thread, the following function should be called:
+   XInitThreads();
+return is (int)0 in case of success
+- in every thread that draws something in a window
+  XLockDisplay(Display *display); // call before draw
+  // draw something
+  XUnlockDisplay(Display *display); // call after draw
+
+- events must be read from a single thread, usually the main one.
+- the event-process code can be written in another thread, but mutexes (or semaphores, or conditions, etc.) should be used to be sure that the data processed is not changed before the end of the event-process
+
+- another method is to use XOpenDisplay() in the thread that owns (create, update, destroy) a window,
+and that thread must have it's own event-loop (i didn't tested if this really works smoothly)
+
+- events specified here refers to: X11 events, keyboard events
+
+  SDL, GTK, wxWidgets all have equivalent functions. Use them as appropriate instead of Xlib functions for platform compatibility.
+
+// --EOF--

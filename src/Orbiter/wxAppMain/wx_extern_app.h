@@ -18,7 +18,8 @@ extern bool g_USE_EXTERN_APP_ON_TIMER;
 extern bool g_USE_EXTERN_APP_ON_THREAD;
 
 #ifdef USE_RELEASE_CODE
-struct SDL_Event_Loop_Data;
+//--struct SDL_Event_Loop_Data;
+class SDL_App_Object;
 #endif // USE_RELEASE_CODE
 
 class ExternApp : public wxThread_Cmd
@@ -29,31 +30,20 @@ public:
 
     void Run();
 
+    bool Create();
     bool EventProcess();
-    bool Destroy();
+    int Destroy();
 
 protected:
-    enum E_STATUS
-    {
-        E_UNINITIALIZED = 0,
-        E_CREATE_SUCCESS,
-        E_CREATE_ERROR,
-        E_RUN_DONE,
-    };
-    E_STATUS v_eStatus;
     int argc;
     char **argv;
 
 #ifdef USE_RELEASE_CODE
-    SDL_Event_Loop_Data *v_pSDL_Event_Loop_Data;
+    SDL_App_Object *v_pSDL_App_Object;
 #endif // USE_RELEASE_CODE
-
-private:
-    bool CreateObjects();
-    bool Initialize();
 };
 
-bool ExternApp_Run_NoWx(int argc, char *argv[]);
+int ExternApp_Run_NoWx(int argc, char *argv[]);
 
 #endif
 // _WX_EXTERN_APP_H_

@@ -103,18 +103,7 @@ bool wxAppMain::OnInit()
     _WX_LOG_NFO();
     _COND_RET(this == wxTheApp, false);
 #ifdef USE_RELEASE_CODE
-    if (g_USE_WX_LIB)
-    {
-        g_USE_EXTERN_APP_ON_THREAD = true;
-    }
-    else
-    {
-        _WX_LOG_NFO("wx deactivated");
-        v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
-        v_pExternApp->Run();
-        wxDELETE(v_pExternApp);
-        return false;
-    }
+    g_USE_EXTERN_APP_ON_THREAD = true;
 #endif // USE_RELEASE_CODE
 ////@begin wxAppMain initialisation
     // Remove the comment markers above and below this block

@@ -50,6 +50,8 @@ public: //data
 	bool m_bUseOpenGL;
 	bool m_bLogToServer;
 
+	bool m_bUseWxWidgets;
+
 	bool m_bIsRunning;
 
 	string m_sConfigurationFile;

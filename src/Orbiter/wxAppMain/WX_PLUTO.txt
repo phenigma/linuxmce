@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 ================================
 wxWidgets integration with Pluto
 ================================
@@ -10,6 +16,11 @@ For debug builds, add
 
 sdl: needed by Orbiter
 opengl: needed by Orbiter in the future
+
+Required debian-pluto packages:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Release executables: libwxgtk2.6-0
+Debug executables, linked with debug version of the wx library: libwxgtk2.6-dbg
 
 ----------------------------------
 wxWidgets integration with Orbiter
@@ -37,3 +48,6 @@ In Linux/OSDScreenHandler.*:
 
 wxDialog with thread support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+( will be updated when the Orbiter-Wx interface will be ready )
+
+// --EOF--
