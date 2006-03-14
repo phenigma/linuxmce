@@ -204,12 +204,14 @@ Window OrbiterLinux::getWindow()
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
+	/*
     {
         if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
             SetCurrentAppDesktopName("dialog");
         else if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
             SetCurrentAppDesktopName("pluto-xine-playback-window");
     }
+	*/
 
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
@@ -256,8 +258,11 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
         m_pRecordHandler->enableRecording(this);
     }
 
+	/*
+	 *
     if(m_sCurrentAppDesktopName != "")
         commandRatPoison(":select " + m_sCurrentAppDesktopName);
+	*/
 
     stringstream commandLine;
     commandLine << ":set padding " << x << " " << y << " "
