@@ -922,12 +922,13 @@
 #define TEXT_Yes_Regen_this_CONST 1634
 #define TEXT_Yes_Regen_All_CONST 1635
 #define TEXT_No_Regen_Later_CONST 1636
-#define TEXT_no_tv_speakers_CONST 1637
+#define TEXT_I_dont_have_a_receiver_to_setup_CONST 1637
 #define TEXT_Yes_I_use_a_receiver_CONST 1638
 #define TEXT_Which_Sensors_Viewed_CONST 1639
 #define TEXT_Display_On_CONST 1640
 #define TEXT_Minimize_Pluto_Orbiter_CONST 1641
 #define TEXT_Download_finnished_CONST 1642
+#define TEXT_ForceUpgradeNow_CONST 1643
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
