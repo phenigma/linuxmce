@@ -90,7 +90,7 @@ namespace cpp {
 		inline ~DefaultLifetime() {}
 
 		//	dead reference issues
-		inline static void OnDeadReference() { throw std::logic_error("Dead Reference Detected"); }
+		inline static void OnDeadReference() { throw string("Dead Reference Detected"); }
 		inline static void ScheduleForDestruction(void (*pFun)()) { std::atexit(pFun); }
 
 	private : 
