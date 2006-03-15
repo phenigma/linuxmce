@@ -58,6 +58,11 @@ protected:
     char **argv;
 };
 
+// initialize OS stuff
+// application-specific code
+// exit if this fails
+bool Init_System();
+
 #if (! USE_WX_LIB)
 int main(int argc, char *argv[]);
 #endif // (! USE_WX_LIB)

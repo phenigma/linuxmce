@@ -73,7 +73,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
           m_bButtonPressed_WaitList(false),
           m_pWaitUser(NULL)
 {
-    XInitThreads();
     openDisplay();
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
@@ -82,10 +81,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
     m_nProgressHeight = 200;
 
     m_sCurrentAppDesktopName = "";
-
-
-    // Disable DPMS and screen saver
-    system("/usr/bin/X11/xset -display :0 -dpms s off");
 }
 
 void *HackThread(void *p)
