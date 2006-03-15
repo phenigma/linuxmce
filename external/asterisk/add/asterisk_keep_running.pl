@@ -111,7 +111,7 @@ while (1 eq 1)
                 &check_network_conditions();
                 if($TROUBLE_LEVEL == 6)
                 {
-                    &write_log("Will try to restart asterisk because of major error");
+                    &write_log("Will try to restart asterisk because of possible error");
                     system("/usr/sbin/asterisk -rx 'stop now'");
                     system("/etc/init.d/asterisk stop");
                     system("/etc/init.d/asterisk start");
@@ -142,6 +142,10 @@ while (1 eq 1)
     else
     {
         $SECONDS ++;
+        if($SECONDS % 60 == 0)
+        {
+            `chmod -R ug+rx /var/lib/asterisk/sounds/voicemail`;
+        }
         #check in about 5 minutes (may be more because not ticking when performing test)
         if($SECONDS > 300)
         {

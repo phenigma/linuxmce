@@ -101,7 +101,7 @@ for(my $i=0;defined($data[$i]);$i++)
 {
 	my $phone=$data[$i];
 	print STDERR "Will call ".$phone."\n";
-	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 414 75 $phone 81 pluto 83 997`;
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 414 75 $phone 81 plutosecurity 83 997`;
 }
 
 $statement->finish();
