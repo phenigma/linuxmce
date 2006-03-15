@@ -1771,7 +1771,7 @@
 #define DESIGNOBJ_VoipNumber_CONST 4627
 #define DESIGNOBJ_butIRGroup_CONST 4628
 #define DESIGNOBJ_IRGroup_CONST 4629
-#define DESIGNOBJ_ConfirmCodes_CONST 4630
+#define DESIGNOBJ_ConfirmIRCodes_CONST 4630
 #define DESIGNOBJ_butConfirmCodes_CONST 4631
 #define DESIGNOBJ_butTypeTVmodel_CONST 4632
 #define DESIGNOBJ_AlarmPanelModel_CONST 4633
@@ -1914,6 +1914,14 @@
 #define DESIGNOBJ_dgFileList_Playlists_AutoPlay_CONST 4831
 #define DESIGNOBJ_butRebootMD_CONST 4832
 #define DESIGNOBJ_butForceUpgradeNow_CONST 4833
+#define DESIGNOBJ_TVManufNotListed_CONST 4834
+#define DESIGNOBJ_TVModelNotListed_CONST 4835
+#define DESIGNOBJ_TVTypeNotListed_CONST 4836
+#define DESIGNOBJ_TVInputsNotListed_CONST 4837
+#define DESIGNOBJ_LearnIRCodes_CONST 4838
+#define DESIGNOBJ_TVReceiver_CONST 4839
+#define DESIGNOBJ_TVReceiverInputs_CONST 4840
+#define DESIGNOBJ_butTVModelNotListed_CONST 4842
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

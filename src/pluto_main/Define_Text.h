@@ -929,6 +929,7 @@
 #define TEXT_Minimize_Pluto_Orbiter_CONST 1641
 #define TEXT_Download_finnished_CONST 1642
 #define TEXT_ForceUpgradeNow_CONST 1643
+#define TEXT_TVManufNotListed_CONST 1644
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
