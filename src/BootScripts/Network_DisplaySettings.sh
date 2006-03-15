@@ -32,7 +32,7 @@ if [[ "$Orbiter" == y ]]; then
 	if [[ -n "$IntIf" ]]; then
 		echo "router=$RouterIP; internal=$IntIP($IntIf); external=$ExtIP($ExtIf)"
 	else
-		echo "router=$RouterIP; IP=$ExtIP"
+		echo "router=$RouterIP; this MD=$ExtIP"
 	fi
 else
 	echo "DCE Router: $DCERouter"
@@ -41,6 +41,6 @@ else
 		echo "Internal interface: $IntIf; IP: $IntIP"
 		echo "External interface: $ExtIf; IP: $ExtIP"
 	else
-		echo "IP: $ExtIP"
+		echo "this MD: $ExtIP"
 	fi
 fi
