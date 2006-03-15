@@ -6992,6 +6992,9 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
+	if(m_bQuit)
+		return;
+
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	m_iPK_MediaType=iPK_MediaType;
