@@ -4,19 +4,23 @@
 
 ## Kill all DownloadUpdates.sh scripts that are running
 DownloadUpdates_PIDS=$(pidof DownloadUpdates.sh)
-for pid in $DownloadUpdates_PIDS do;
-	kill $pid
-	wait $pid
-done
+if [[ "$DownloadUpdates_PIDS" != "" ]]; then
+	for pid in $DownloadUpdates_PIDS ;do
+		kill $pid
+		wait $pid
+	done
+fi
 
 ## If onther ForceUpdates.sh instances are running, kill them too
 ForceUpdates_PIDS=$(pidof ForceUpdates.sh)
-for pid in $ForceUpdates_PIDS do;
-	if [[ "$pid" != "$$" ]]; then
-		kill $pid
-		wait $pid
-	fi
-done
+if [[ "$ForceUpdates_PIDS" != "" ]]; then
+	for pid in $ForceUpdates_PIDS ;do
+		if [[ "$pid" != "$$" ]]; then
+			kill $pid
+			wait $pid
+		fi
+	done
+fi
 
 ## Go ahead, force that upgrade
 UpdatesOkStamp=$(date +%s)
