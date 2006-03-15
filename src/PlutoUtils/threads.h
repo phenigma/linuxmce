@@ -36,7 +36,7 @@ namespace cpp {
 
 		private : 
 			//	thread synchronization helps
-			friend LockThread;
+			friend class cpp::Threading::SingleThreaded<T>::LockThread;
 
 			inline static void Lock() {}
 			inline static void Unlock() {}
@@ -76,7 +76,7 @@ namespace cpp {
 
 		private : 
 			//	thread synchronization helps
-			friend LockThread;
+			friend class cpp::Threading::MultiThreaded<T>::LockThread;
 			static pluto_pthread_mutex_t m_Mutex;
 			//static PlutoLock m_PlutoLock;
 

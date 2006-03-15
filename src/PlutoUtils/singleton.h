@@ -177,7 +177,7 @@ namespace cpp {
 	template<typename T, typename CreationPolicy, template <typename> class LifetimePolicy, template <typename> class ThreadingModel>
 	typename Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::RefType Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::Instance() {
 		if ( Singleton::instance_ == 0 ) {
-			LockThread lock;
+			class LockThread lock;
 			if ( Singleton::instance_ == 0 ) {
 				Singleton::pFun_ = 0;
 				if ( Singleton::destroyed_ ) {
@@ -198,7 +198,7 @@ namespace cpp {
 	template<typename T, typename CreationPolicy, template <typename> class LifetimePolicy, template <typename> class ThreadingModel>
 	void Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::Destroy() {
 		if ( Singleton::instance_ != 0 ) {
-			LockThread lock;
+			class LockThread lock;
 			if ( Singleton::instance_ != 0 ) {
 				if (  Singleton::pFun_ != 0 ) {
 					Singleton::pFun_(Singleton::instance_);
@@ -213,7 +213,7 @@ namespace cpp {
 
 	template<typename T, typename CreationPolicy, template <typename> class LifetimePolicy, template <typename> class ThreadingModel>
 	void Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::Reset(typename Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType p, UserSuppliedDestroy pFun) {
-		LockThread lock;
+		class LockThread lock;
 		if ( Singleton::instance_ != 0 ) {
 			DestroyInstance(Singleton::instance_);
 		} else if ( p != 0 ) {
