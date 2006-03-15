@@ -222,11 +222,11 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 {
     if(phone_status>0)
     {
-        iaxc_millisleep(1000);
+//        iaxc_millisleep(1000);
         StopRingTone();
         DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
         SendCommand(SCREEN_DevCallInProgress_);
-        iaxc_millisleep(1000);
+//        iaxc_millisleep(1000);
         iaxc_answer_call(0);
         iaxc_select_call(0);
         sCMD_Result="OK";
@@ -247,7 +247,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 {
     StopRingTone();
     iaxc_dump_call();
-    iaxc_millisleep(1000);
+//    iaxc_millisleep(1000);
     sCMD_Result="OK";
     DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
     SendCommand(SCREEN_Main_);
@@ -268,9 +268,9 @@ int iaxCallback(iaxc_event e)
         {
             phone_status=1;
 
-            if(!strcmp(e.ev.call.remote_name,"pluto"))
+            if(!strcmp(e.ev.call.remote_name,"plutosecurity"))
             {
-                /* the call is actually an originate from asterisk */
+                /* the call is actually a speak in the house */
                 phone_status=2;
                 g_pPlutoLogger->Write(LV_STATUS, "PLUTO AUTOANSWER\n");
             }
@@ -317,17 +317,19 @@ void SimplePhone::doProccess(void)
         {
             if(event_status != phone_status)
             {
-                GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
                 DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
                 SendCommand(CMD_MH_Stop_Media_);
-                iaxc_millisleep(1000);				
-                PlayRingTone();
+	            if(phone_status>1)
+    	        {
+        	        CMD_Phone_Answer(tmp,NULL);
+            	}
+				else
+				{
+	                GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));				
+//                  iaxc_millisleep(1000);				
+    	            PlayRingTone();
+				}
             }
-            if(phone_status>1)
-            {
-                CMD_Phone_Answer(tmp,NULL);
-            }
-
         }
         if(phone_status<0)
         {
