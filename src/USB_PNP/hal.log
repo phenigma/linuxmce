@@ -1,0 +1,41 @@
+01	03/15/06 22:12:21.491		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:12:21.491		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:12:21.491		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:12:21.491		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:12:21.491		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80defd0 (m_Socket: 7)[0m
+05	03/15/06 22:12:21.491		[33;1mSocket::SendData socket is invalid[0m
+35	03/15/06 22:12:21.491		Failed to send message
+01	03/15/06 22:16:18.210		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:16:18.211		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:16:18.211		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:16:18.211		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:16:18.211		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80defd0 (m_Socket: 13)[0m
+05	03/15/06 22:16:47.050		[33;1mSocket::SendData socket is invalid[0m
+01	03/15/06 22:18:40.926		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:18:40.926		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:18:40.926		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:18:40.926		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:18:40.926		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80defd0 (m_Socket: 7)[0m
+05	03/15/06 22:18:40.927		[33;1mSocket::SendData socket is invalid[0m
+35	03/15/06 22:18:40.927		Failed to send message
+01	03/15/06 22:19:12.975		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:19:12.975		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:19:12.975		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:19:12.975		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:19:12.975		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80defd0 (m_Socket: 13)[0m
+05	03/15/06 22:19:23.110		[33;1mSocket::SendData socket is invalid[0m
+35	03/15/06 22:19:34.046		Failed to send message
+01	03/15/06 22:21:00.593		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:21:00.593		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:21:00.594		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:21:00.594		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:21:00.594		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80debe0 (m_Socket: 7)[0m
+05	03/15/06 22:21:00.594		[33;1mSocket::SendData socket is invalid[0m
+35	03/15/06 22:21:00.594		Failed to send message
+01	03/15/06 22:22:11.395		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:22:11.454		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:22:11.456		[31;1mConnect() failed, Error Code 111 (Connection refused))[0m
+01	03/15/06 22:22:11.456		[31;1mClientSocket::Connect() not successful[0m
+05	03/15/06 22:22:11.456		[33;1mvoid ClientSocket::Disconnect() on this socket: 0x80defe0 (m_Socket: 7)[0m
+05	03/15/06 22:22:11.456		[33;1mSocket::SendData socket is invalid[0m
+35	03/15/06 22:22:11.456		Failed to send message
