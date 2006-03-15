@@ -88,6 +88,13 @@ if [[ $OfflineMode == "true" ]]; then
 	fi
 fi
 
+## Check if a force upgrade was causing us to get here
+ForceUpdatesStamp=$(cat /usr/pluto/var/Updates/ForceUpdates.stamp )
+if [[ "$ForceUpdatesStamp" == "$UpdatesOkStamp" ]]; then
+	echo "- Performing a force upgrade as requested"
+	apt-get update
+fi
+
 ## If we get till here than we should start upgrading
 echo "- Previewing dist-upgrade"
 InstPkgs="$(apt-get -s -f dist-upgrade | grep "^Conf " | cut -d' ' -f2 | tr '\n' ' ')"

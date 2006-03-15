@@ -22,6 +22,7 @@ done
 UpdatesOkStamp=$(date +%s)
 touch /usr/pluto/var/Updates/UpdatesOk.flag
 echo $UpdatesOkStamp > /usr/pluto/var/Updates/UpdatesOk.flag
+echo $UpdatesOkStamp > /usr/pluto/var/Updates/ForceUpdates.stamp
 
 ## Force the reboot
 reboot
