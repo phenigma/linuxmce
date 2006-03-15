@@ -158,14 +158,18 @@ function leftMenu($output,$dbADO) {
 				<td>
 					'.$installationTxt.'
 				</td>
-			</tr>
+			</tr>';
+			if ($treeType!='scenarios'){
+				$out.='
 			<tr>
 				<td><fieldset><legend>'.$TEXT_GO_TO_DEVICE_CONST.'</legend>
 				<div align="right">
 					'.$quickJumpPulldown.' <input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();">
 				</div></fieldset>
 				</td>
-			</tr>
+			</tr>';
+			}
+			$out.='
 			</form>			
 			';		
 			
