@@ -23,6 +23,7 @@ private:
         char* deviceExtension;
         char* devicePassword;
         char* asteriskHost;
+		bool haveActiveCall;
         pthread_t iaxThread;
 public:
         // Public member variables
