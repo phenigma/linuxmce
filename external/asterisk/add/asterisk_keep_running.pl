@@ -111,6 +111,8 @@ while (1 eq 1)
                 &check_network_conditions();
                 if($TROUBLE_LEVEL == 6)
                 {
+                    &write_log("Will try to restart asterisk because of major error");
+                    system("/usr/sbin/asterisk -rx 'stop now'");
                     system("/etc/init.d/asterisk stop");
                     system("/etc/init.d/asterisk start");
                     $ast_run = &check_asterisk_running();
@@ -133,7 +135,7 @@ while (1 eq 1)
             }
             if($TROUBLE_LEVEL == 5)
             {
-                &send_message("Check if the number you dialed is correct");
+                &send_message("The number you dialed is not available");
             }
         }
     }
@@ -150,6 +152,7 @@ while (1 eq 1)
             unless($ast_run eq 1)
             {
                 &write_log("Asterisk is NOT running will try to start");
+                system("/usr/sbin/asterisk -rx 'stop now'");
                 system("/etc/init.d/asterisk start");
                 sleep(5);
                 $ast_run = &check_asterisk_running();
@@ -301,7 +304,7 @@ sub check_network_conditions()
     {
         `/bin/sh -c '/usr/sbin/tcpdump -vv -n not net 192.168.80.0/24 &' >> /var/log/asterisk/tcpdumps.log`;
     }
-    unless(($voip_unreg == 0) && (keys(%VOIP_SERVERS) > 0))
+    if(($voip_unreg != 0) && (keys(%VOIP_SERVERS) > 0))
     {
         &write_log("Possible problems with your voip");
         foreach my $prov (keys %{$VOIP_SERVERS{'sip'}})

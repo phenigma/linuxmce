@@ -72,11 +72,12 @@ run_asterisk() {
         echo "Asterisk is already running"
     else
         echo -n "Asterisk is starting "
-        nohup /bin/sh -c '/usr/sbin/safe_asterisk -U asterisk -G asterisk &' > /dev/null
-        killall -9 asterisk_keep_running.pl > /dev/null
-	touch /var/log/asterisk/full
-        nohup /bin/sh -c 'tail -f /var/log/asterisk/full | /usr/pluto/bin/asterisk_keep_running.pl &' > /dev/null
-
+        screen -d -m -S safe_asterisk /usr/sbin/safe_asterisk -U asterisk -G asterisk
+        if [ -z "`ps auxww | grep asterisk_keep_running.pl | grep -v grep`" ]
+        then
+            touch /var/log/asterisk/full
+            screen -d -m -S asterisk_keep_running /bin/sh -c 'tail -f /var/log/asterisk/full | /usr/pluto/bin/asterisk_keep_running.pl'
+        fi
         # Wait up to 5 seconds for asterisk to start
         local counter=0
         while [ "$(pidof asterisk|awk '{print length($0)}')" == "0" ]; do
@@ -116,8 +117,8 @@ stop_asterisk() {
     if [ "$pid_length" != "0" ]
     then
         /usr/sbin/asterisk -rx "stop gracefully"
+        /usr/sbin/asterisk -rx "stop now"
         echo "Asterisk Stopped"
-        killall -9 asterisk_keep_running.pl > /dev/null
     fi
 }
 
@@ -178,19 +179,15 @@ case "$1" in
     start)
         chown_asterisk
         run_asterisk
-#        run_fop
     ;;
     stop)
         stop_asterisk
-        stop_fop
     ;;
     restart)
         stop_asterisk
-        stop_fop
         sleep 1
         chown_asterisk
         run_asterisk
-#        run_fop
     ;;
     chown)
         chown_asterisk
