@@ -375,6 +375,15 @@ public:
 	virtual void CMD_Force_Update_Packages() { string sCMD_Result; CMD_Force_Update_Packages(sCMD_Result,NULL);};
 	virtual void CMD_Force_Update_Packages(string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
+	/** Get the device ID from the UID from the USB port. */
+		/** @param #206 UID */
+			/** UID from USB port */
+
+	virtual void CMD_Get_iPK_DeviceFromUID(string sUID) { string sCMD_Result; CMD_Get_iPK_DeviceFromUID(sUID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

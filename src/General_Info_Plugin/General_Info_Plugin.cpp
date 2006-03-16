@@ -21,7 +21,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/ProcessUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -31,6 +30,7 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "PlutoUtils/DatabaseUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "../PlutoUtils/md5.h"
 #include "BD/PhoneDevice.h"
 #include "CreateDevice/CreateDevice.h"
@@ -2321,4 +2321,15 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Forcing package update");
 	ProcessUtils::SpawnApplication("/usr/pluto/bin/ForceUpdates.sh", "", "ForceUpdates", NULL, false);
+}
+//<-dceag-c790-b->
+
+	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
+	/** Get the device ID from the UID from the USB port. */
+		/** @param #206 UID */
+			/** UID from USB port */
+
+void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c790-e->
+{
 }
