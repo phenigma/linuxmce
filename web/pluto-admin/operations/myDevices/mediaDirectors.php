@@ -339,6 +339,8 @@ function mediaDirectors($output,$dbADO) {
 				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec($cmd);
 				deleteDevice($value,$dbADO);
+				$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
+				exec($cmd);
 			}
 			
 			if(isset($_POST['rebuild_diskless_'.$value])){

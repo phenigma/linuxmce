@@ -57,6 +57,8 @@ function deleteCriticalDevice($output,$dbADO) {
 		}
 		
 		deleteDevice($deviceID,$dbADO);
+		$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
+		exec($cmd);
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 
 		$out.='
