@@ -20,4 +20,3 @@ rm -rf /home/diskless/"$IP"
 echo "TFTP"
 rm -rf /tftpboot/"$IP"
 rm -rf /tftpboot/pxelinux.cfg/"01-$lcdMAC"
-/usr/pluto/bin/DHCP_config.sh
