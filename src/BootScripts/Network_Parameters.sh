@@ -132,3 +132,19 @@ fi
 if [[ -n "$DHCPsetting" && -z "$IntIf" ]]; then
 	NPflagReconfNetwork="yes"
 fi
+
+# Distinct data correction for MDs and Core
+if PackageIsInstalled pluto-dcerouter; then
+	# Core always has an internal interface, even if it's an alias
+	if [[ -z "$IntIf" ]]; then
+		IntIf="$ExtIf:0"
+		IntIP=192.168.80.1
+		IntNetmask=255.255.255.0
+	fi
+else
+	# MDs don't have an internal interface and their network details aren't stored in the database
+	IntIf=
+	IntIP=
+	IntNetmask=
+	ExtractData "$(ParseInterfaces | head -1)"
+fi
