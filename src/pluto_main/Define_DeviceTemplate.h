@@ -1698,6 +1698,7 @@
 #define DEVICETEMPLATE_StealthFire_Firewire_Camera_CONST 1787
 #define DEVICETEMPLATE_Windows_XP_MC_Remote_USBUIRT_CONST 1788
 #define DEVICETEMPLATE_PWDPHD_Series_Plasma_CONST 1789
+#define DEVICETEMPLATE_Generic_Internal_Drive_CONST 1790
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
