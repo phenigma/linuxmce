@@ -45,6 +45,7 @@ public:
 	virtual int GetPK_DeviceList() { return 1754; } ;
 	virtual const char *GetDeviceDescription() { return "ZWave"; } ;
 	string Get_COM_Port_on_PC() {  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,37);}
+	string Get_UID() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,154); else return m_mapParameters[154];}
 };
 
 
@@ -140,6 +141,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
+	string DATA_Get_UID() { return GetData()->Get_UID(); }
 	//Event accessors
 	void EVENT_Device_OnOff(bool bOnOff) { GetEvents()->Device_OnOff(bOnOff); }
 	void EVENT_Reporting_Child_Devices(string sError_Message,string sText) { GetEvents()->Reporting_Child_Devices(sError_Message.c_str(),sText.c_str()); }
