@@ -3,10 +3,19 @@
 
 #include <string>
 #include <map>
+#include <list>
 using namespace std;
 //-----------------------------------------------------------------------------------------------------
 class Database_pluto_media;
 class Database_pluto_main;
+
+enum PlutoCustomTag
+{
+	pctInstallation,
+	pctFile,
+	pctPicture,
+	pctPictureUrl
+};
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -27,8 +36,8 @@ private:
     int AddFileToDatabase(int PK_MediaType);
 
 	string FileWithAttributes(bool bCreateId3File = true);
-	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl);
-	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl);
+	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl, const list<string> &listChapters);
+	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl, list<string> &listChapters);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main,

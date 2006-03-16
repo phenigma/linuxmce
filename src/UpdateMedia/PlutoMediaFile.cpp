@@ -27,6 +27,7 @@
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Define_AttributeType.h"
 
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
 
@@ -202,7 +203,9 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 	long PK_Installation, PK_File, PK_Picture;
 	string sPictureURL;
-	if(LoadPlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), PK_Installation, PK_File, PK_Picture, sPictureURL))
+	list<string> listChapters;
+	if(LoadPlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), PK_Installation, PK_File, PK_Picture, 
+		sPictureURL, listChapters))
 	{
 		if(sPictureURL != "")
 		{
@@ -222,8 +225,26 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			}
 		}
 
+		if(listChapters.size())
+		{
+			//New file, but with info about chapters
+			for(list<string>::iterator it = listChapters.begin(); it != listChapters.end(); ++it)
+			{
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+				pRow_Attribute->FK_AttributeType_set(ATTRIBUTETYPE_Chapter_CONST);
+				pRow_Attribute->Name_set(*it);
+				m_pDatabase_pluto_media->Attribute_get()->Commit();
+
+				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+				pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+			}
+
+			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+		}
+
 		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), m_nInstallationID, pRow_File->PK_File_get(), 
-			PK_Picture, sPictureURL);
+			PK_Picture, sPictureURL, listChapters);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
@@ -244,8 +265,23 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 
 	string sFileWithAttributes = FileWithAttributes();
 
+	//If this media file has chapters info, we'll get them from database and populate listChapters
+	list<string> listChapters;
+	vector<Row_Attribute *> vectRow_Attribute;
+	m_pDatabase_pluto_media->Attribute_get()->GetRows(
+		"JOIN File_Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
+		"WHERE FK_File = " + StringUtils::ltos(PK_File) + " AND "
+		"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Chapter_CONST),
+		&vectRow_Attribute);
+
+	for(vector<Row_Attribute *>::iterator it = vectRow_Attribute.begin(); it != vectRow_Attribute.end(); ++it)
+	{
+		Row_Attribute *pRow_Attribute = *it;
+        listChapters.push_back(pRow_Attribute->Name_get());
+	}
+
 	//save only PK_Installation and PK_File
-	SavePlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, m_nInstallationID, PK_File, 0, "");
+	SavePlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, m_nInstallationID, PK_File, 0, "", listChapters);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
 
@@ -284,8 +320,9 @@ int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 	{
 		long PK_Installation, PK_File, PK_Picture;
 		string sPictureURL;
+		list<string> listChapters;
 
-		if(LoadPlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, PK_Installation, PK_File, PK_Picture, sPictureURL))
+		if(LoadPlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, PK_Installation, PK_File, PK_Picture, sPictureURL, listChapters))
 		{
 			if(PK_Installation == m_nInstallationID && PK_File != 0)
 				return PK_File;
@@ -328,7 +365,8 @@ void PlutoMediaFile::SetPicAttribute(int PK_Picture, string sPictureUrl)
 	g_pPlutoLogger->Write(LV_STATUS, "SetPicAttribute %s/%s PK_Picture %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		PK_Picture);
 
-	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), 0, 0, PK_Picture, sPictureUrl);
+	list<string> vectChapters; //no new chapters
+	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), 0, 0, PK_Picture, sPictureUrl, vectChapters);
 
 #ifndef WIN32
     string sPK_Picture = StringUtils::itos(PK_Picture);
@@ -394,10 +432,13 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 	string sFileWithAttributes = m_sFile;
 	if(!IsSupported(m_sFile))
 	{
+		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
+		if(FileUtils::FileExists(m_sDirectory + "/" + sFileWithAttributes))
+			return sFileWithAttributes;
+
 		if(!bCreateId3File)
 			return "";
 
-		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
 		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
 			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
 	}
@@ -406,15 +447,17 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 }
 //-----------------------------------------------------------------------------------------------------
 bool PlutoMediaFile::SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File,
-	long PK_Picture, string sPictureUrl)
+	long PK_Picture, string sPictureUrl, const list<string> &listChapters)
 {
-	long PK_Internal_Installation;
-	long PK_Internal_File;
-	long PK_Internal_Picture;
+	long PK_Internal_Installation = 0;
+	long PK_Internal_File = 0;
+	long PK_Internal_Picture = 0;
 	string sInternal_PictureUrl;
+	list<string> listInternal_Chapters;
 
+	//Get first the tags from the file and merge them with data needed to be saved
 	if(LoadPlutoAttributes(sFullFileName, PK_Internal_Installation, PK_Internal_File, PK_Internal_Picture,
-		sInternal_PictureUrl))
+		sInternal_PictureUrl, listInternal_Chapters))
 	{
 		if(PK_Installation == 0 && PK_Internal_Installation != 0)
 			PK_Installation = PK_Internal_Installation;
@@ -429,38 +472,75 @@ bool PlutoMediaFile::SavePlutoAttributes(string sFullFileName, long PK_Installat
 			sPictureUrl = sInternal_PictureUrl;
 	}
 
+	//We'll take the new ones
+	if(listChapters.size())
+		listInternal_Chapters = listChapters;
+
+	//Serialize pluto custom tag
 	string sPlutoAttribute = 
 		StringUtils::ltos(PK_Installation) + "\t" + 
 		StringUtils::ltos(PK_File) + "\t" + 
 		StringUtils::ltos(PK_Picture) + "\t" + 
 		sPictureUrl;
 
+	//Save chapters info
+	for(list<string>::iterator it = listInternal_Chapters.begin(); it != listInternal_Chapters.end(); ++it)
+		sPlutoAttribute += "\t" + *it;
+
+	//Create/modify an 'user defined text' tag to store pluto's custom info
 	map<int,string> mapAttributes;
 	mapAttributes[Internal_UserDefinedText_CONST] = sPlutoAttribute;
+
+	//Finally, save all the attributes in the file
 	SetId3Info(sFullFileName, mapAttributes);
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
 bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File,
-	long& PK_Picture, string& sPictureUrl)
+	long& PK_Picture, string& sPictureUrl, list<string> &listChapters)
 {
+	//Get all id3 tags, if any
 	map<int,string> mapAttributes;
 	GetId3Info(sFullFileName, mapAttributes);
 
+	//Any "user defined text" tag?
 	map<int,string>::iterator it = mapAttributes.find(Internal_UserDefinedText_CONST);
 	if(it == mapAttributes.end())
 		return false;
 
+	//Tokenize it and check it's a pluto custom tag
 	string sPlutoAttribute = mapAttributes[Internal_UserDefinedText_CONST];
 	vector<string> vectData;
 	StringUtils::Tokenize(sPlutoAttribute, "\t", vectData);
-	if(vectData.size() != 4)
+	if(vectData.size() < 4)
 		return false;
 
-	PK_Installation = atoi(vectData[0].c_str());
-	PK_File = atoi(vectData[1].c_str());
-	PK_Picture = atoi(vectData[2].c_str());
-	sPictureUrl = vectData[3];
+	//Get usefull info
+	size_t nIndex = 0;
+	for(vector<string>::iterator it = vectData.begin(); it != vectData.end(); ++it)
+	{
+		switch((PlutoCustomTag)nIndex)
+		{
+			case pctInstallation:		
+				PK_Installation = atoi(it->c_str()); 
+				break;
+			case pctFile:		
+				PK_File = atoi(it->c_str()); 
+				break;
+			case pctPicture:		
+				PK_Picture = atoi(it->c_str()); 
+				break;
+			case pctPictureUrl:		
+				sPictureUrl = *it; 
+				break;
+
+			default:
+				listChapters.push_back(*it);
+		}
+
+		++nIndex;
+	}
+
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------

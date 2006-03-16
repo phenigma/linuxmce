@@ -591,7 +591,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			string sDownloadedFile = "/tmp/picture.tmp";
 #endif
 
-			string sCommand = "wget " + sURL + " -O " + sDownloadedFile;
+			string sCommand = "wget " + sURL + " -O " + sDownloadedFile + " -T 10 -t 1";
 			system(sCommand.c_str());
 
 			size_t nSize = 0;
