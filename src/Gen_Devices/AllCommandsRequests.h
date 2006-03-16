@@ -12197,5 +12197,21 @@ namespace DCE
 	public:
 		CMD_Force_Update_Packages_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,789,0); }
 	};
+	class CMD_Get_iPK_DeviceFromUID : public PreformedCommand {
+	public:
+		CMD_Get_iPK_DeviceFromUID(long DeviceIDFrom, long DeviceIDTo,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,790,1,206,sUID.c_str()); }
+	};
+	class CMD_Get_iPK_DeviceFromUID_DL : public PreformedCommand {
+	public:
+		CMD_Get_iPK_DeviceFromUID_DL(long DeviceIDFrom, string DeviceIDTo,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,790,1,206,sUID.c_str()); }
+	};
+	class CMD_Get_iPK_DeviceFromUID_DT : public PreformedCommand {
+	public:
+		CMD_Get_iPK_DeviceFromUID_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sUID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,790,1,206,sUID.c_str()); }
+	};
+	class CMD_Get_iPK_DeviceFromUID_Cat : public PreformedCommand {
+	public:
+		CMD_Get_iPK_DeviceFromUID_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,790,1,206,sUID.c_str()); }
+	};
 }
 #endif
