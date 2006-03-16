@@ -344,9 +344,12 @@ function mediaDirectors($output,$dbADO) {
 			}
 			
 			if(isset($_POST['rebuild_diskless_'.$value])){
-				// TODO: add correct command to rebuild
-				$cmd='/cmd_to_launch_here';
+				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
+				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec($cmd);
+				deleteDevice($value,$dbADO);
+				header('Location: index.php?section=setupDisklessMD');
+				exit();
 			}
 			
 		}
