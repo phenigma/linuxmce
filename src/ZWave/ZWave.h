@@ -103,6 +103,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
+	string DATA_Get_UID();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Device_OnOff(bool bOnOff);
@@ -154,8 +155,7 @@ NOEMON or CANBUS */
 
 
 	/** @brief COMMAND: #788 - StatusReport */
-	/** Test comand. Erase at the end
-Asq a report */
+	/** Test comand. Asq a report */
 		/** @param #51 Arguments */
 			/** Argument string */
 

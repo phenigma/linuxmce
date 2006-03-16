@@ -778,8 +778,7 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c788-b->
 
 	/** @brief COMMAND: #788 - StatusReport */
-	/** Test comand. Erase at the end
-Asq a report */
+	/** Test comand. Asq a report */
 		/** @param #51 Arguments */
 			/** Argument string */
 

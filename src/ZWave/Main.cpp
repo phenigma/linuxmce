@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		ZWave *pZWave = new ZWave(PK_Device, "localhost",true,false,pRouter);
-		if( pZWave == NULL || pZWave->m_bQuit || !pZWave->GetConfig() )
+		if( pZWave->m_bQuit || !pZWave->GetConfig() )
 		{
 			delete pZWave;
 			return NULL;
@@ -192,13 +192,6 @@ int main(int argc, char* argv[])
 	try
 	{
 		ZWave *pZWave = new ZWave(PK_Device, sRouter_IP,true,bLocalMode);
-		
-		if(NULL == pZWave) 
-		{ 
-			g_pPlutoLogger->Write(LV_CRITICAL, "ZWave object not allocated due to insuficient memory"); 
-			throw new string("ZWave object not allocated due to insuficient memory"); 
-		}
-		
 		if ( pZWave->GetConfig() && pZWave->Connect(pZWave->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pZWave;
