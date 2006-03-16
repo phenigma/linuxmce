@@ -1,3 +1,4 @@
+
 /*
  General_Info_Plugin
  
@@ -59,6 +60,7 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
+
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Event_Plugin/Event_Plugin.h"
@@ -1524,6 +1526,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 
 // It will be like this:
 // [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+
 Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,string sLine)
 {
 	string::size_type pos=0;
@@ -2332,4 +2335,25 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c790-e->
 {
+	vector<Row_Device *> vectRow_Devices;
+	//got the UID, got the deviceType, now look for the device id and put it in the returnValue
+	m_pDatabase_pluto_main->Device_get()->GetRows(" JOIN Device_DeviceData ON FK_Device=PK_Device " 
+		"WHERE IK_DeviceData='" + StringUtils::SQLEscape(sUID) +"'" , &vectRow_Devices);
+	if(vectRow_Devices.size() <= 0)
+	{
+		g_pPlutoLogger->Write(LV_DEBUG, "no devices with UID = %s" , sUID.c_str());
+		sCMD_Result = "";
+	}
+	else if(vectRow_Devices.size() == 1)
+	{
+		int pk = vectRow_Devices[0]->PK_Device_get();
+		sCMD_Result = StringUtils::itos(pk);
+		g_pPlutoLogger->Write(LV_DEBUG, "found device id = %s with UID = %s" , sCMD_Result.c_str(), sUID.c_str());		
+	}
+	else //vectRow_Devices.size() > 1
+	{
+		int pk = vectRow_Devices[0]->PK_Device_get();
+		sCMD_Result = StringUtils::itos(pk);
+		g_pPlutoLogger->Write(LV_DEBUG, "multiple devices found, use device id = %s with UID = %s" , sCMD_Result.c_str(), sUID.c_str());		
+	}
 }
