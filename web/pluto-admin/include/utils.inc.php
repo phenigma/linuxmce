@@ -3927,7 +3927,8 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							<script>
 								function checkEdit(targetSection) {
 									if(document.'.$formName.'.model.selectedIndex!=0){							
-										self.location=\'index.php?section=editMasterDevice&model=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+										//self.location=\'index.php?section=editMasterDevice&model=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+										windowOpen(\'index.php?section=editMasterDevice&model=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value,\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');
 									}
 								}
 		
@@ -3958,7 +3959,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							$out.='
 							<hr />
 							<em>* '.$TEXT_MODELS_COLOR_INFO_CONST.'</em><br>
-						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
+						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br /><input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 							
 							';
 							

@@ -63,10 +63,10 @@ function editMasterDevice($output,$dbADO) {
 			<input type="hidden" name="lastAction" value="">
 			<input type="hidden" name="model" value="'.$deviceID.'">
 			<input type="hidden" name="toDel" value="">
-		<h3>'.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.'</h3>
+		<h3>'.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.' #'.$deviceID.'</h3>
 			<table>
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="description" value="'.$description.'" size="40"> #'.$deviceID.'</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="description" value="'.$description.'" size="40"></td>
 				</tr>
 				<tr>
 					<td>
@@ -633,7 +633,7 @@ function editMasterDevice($output,$dbADO) {
 
 		$out.='
 				<tr>
-					<td valign="top" colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td>
+					<td valign="top" colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="javascript:self.close();"></td>
 				</tr>
 					
 			</table>
@@ -943,7 +943,7 @@ function editMasterDevice($output,$dbADO) {
 		$output->setScriptInBody("onLoad=\"javascript:eval('$onLoad');\"");
 	}
 
-	$output->setNavigationMenu(array($TEXT_DEVICE_TEMPLATES_CONST=>'index.php?section=deviceTemplates',$description=>'index.php?section=editMasterDevice&model='.$deviceID));
+	//$output->setNavigationMenu(array($TEXT_DEVICE_TEMPLATES_CONST=>'index.php?section=deviceTemplates',$description=>'index.php?section=editMasterDevice&model='.$deviceID));
 
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.' :: '.$description);

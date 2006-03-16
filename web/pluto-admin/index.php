@@ -59,7 +59,7 @@ switch ($section) {
 	break;
 	case 'editMasterDevice':
 		$output = new Template($dbADO);
-		$output->setTemplateFileType('large');
+		$output->setTemplateFileType('small');
 		$output->setHelpSrc('/support/index.php?section=document&docID=59');
 	    include_once('operations/editMasterDevice.php');
 	    editMasterDevice($output,$dbADO);
