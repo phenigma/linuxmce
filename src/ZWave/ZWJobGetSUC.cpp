@@ -44,6 +44,14 @@ bool ZWJobGetSUC::run()
 	// send	FUNC_ID_MEMORY_GET_ID
 	char buffer[10];
 	
+	// enable SUC
+	buffer[0] = REQUEST;
+	buffer[1] = FUNC_ID_ZW_ENABLE_SUC;
+	buffer[2] = 1;
+	buffer[3] = 0;
+	
+	handler()->sendData(buffer, 3);
+	
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_ZW_GET_SUC_NODE_ID;
 	buffer[2] = 0;

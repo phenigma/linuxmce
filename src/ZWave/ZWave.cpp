@@ -431,6 +431,10 @@ bool ZWave::ConfirmConnection(int RetryCount)
 			return true;
 		}
 	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ZWave::ConfirmConnection : not enough memory");
+	}
 	
 	return false;
 }
@@ -478,7 +482,7 @@ void ZWave::PoolZWaveNetwork()
 {
 	g_pPlutoLogger->Write(LV_DEBUG, "PoolZWaveNetwork : begin");
 	
-	// start with 20 sec delay
+	// start with 30 sec delay
 	// so that the children will be reported
 	// before pooling the network
 	unsigned i = 1;
@@ -491,8 +495,8 @@ void ZWave::PoolZWaveNetwork()
 			i = 80;
 		}
 		
-		// 20 sec = 100 x 200 ms
-		if( i >= 100 )
+		// 30 sec = 150 x 200 ms
+		if( i >= 150 )
 		{
 			i = 0;
 		}
@@ -721,27 +725,50 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 		m_ZWaveAPI->stop();
 	}
 	
-	if( !ConfirmConnection() )
-	{
-		sCMD_Result = "NO ZWAVE";
-		return;
-	}
+// 	if( !ConfirmConnection() )
+// 	{
+// 		sCMD_Result = "NO ZWAVE";
+// 		return;
+// 	}
 
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
-	ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
-	if( reset != NULL )
+	if( m_ZWaveAPI != NULL )
 	{
-		m_ZWaveAPI->insertJob( reset );
-		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+		// force stopping the current ZWave command
+		m_ZWaveAPI->stop();
+		// force cleaning the jobs queue
+		m_ZWaveAPI->clearJobs();
+		
+		zwaveSerialDevice = GetZWaveSerialDevice();
+		if( !zwaveSerialDevice.empty() )
 		{
-			sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+			ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
+			if( reset != NULL )
+			{
+				m_ZWaveAPI->insertJob( reset );
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				{
+					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
+					return;
+				}
+			}
+			else
+			{
+				sCMD_Result = "NOT ENOUGH MEMORY";
+				return;
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"ZWave::CMD_Reset : zwave device is empty");
 			return;
 		}
 	}
 	else
 	{
 		sCMD_Result = "NOT ENOUGH MEMORY";
+		g_pPlutoLogger->Write(LV_CRITICAL,"ZWave::CMD_Reset : not enough memory");
 		return;
 	}
 	
