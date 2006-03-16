@@ -11,8 +11,8 @@ function translationItems($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	
 	$subcategIDs=geTextCategorytDescendants($category,$dbADO);
-	$subcategs=getAssocArray('TextCategory','PK_TextCategory','Description',$dbADO,'WHERE FK_TextCategory_Parent IN ('.join(',',$subcategIDs).')');
-	$categoryToDisplay=(!in_array($_REQUEST['subcategory'],$subcategIDs))?$category:$_REQUEST['subcategory'];
+	$subcategs=getAssocArray('TextCategory','PK_TextCategory','Description',$dbADO,'WHERE FK_TextCategory_Parent IN ('.join(',',(array(0)+$subcategIDs)).')');
+	$categoryToDisplay=(!in_array(@$_REQUEST['subcategory'],$subcategIDs))?$category:$_REQUEST['subcategory'];
 	
 	$out='';
 	
@@ -66,6 +66,9 @@ function translationItems($output,$dbADO) {
 
 
 function geTextCategorytDescendants($categoryID,$dbADO){
+	if($categoryID==0){
+		return array();
+	}
 	$childsDC=array();
 	$res=$dbADO->Execute('
 		SELECT  
