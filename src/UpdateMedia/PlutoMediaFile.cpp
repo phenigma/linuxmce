@@ -114,16 +114,63 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     return PK_File;
 }
 //-----------------------------------------------------------------------------------------------------
+//This will add a record in the File table and additional attributes too in related tables
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 {
-    Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-    pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
-    pRow_File->Filename_set(m_sFile);
-    pRow_File->EK_MediaType_set(PK_MediaType);
-    pRow_File->Table_File_get()->Commit();
+	Row_File *pRow_File = NULL;
+
+	//We'll have to be sure first that we won't create duplicates; check first is there are any
+	//rows we can reuse, marked as 'Missing' (deleted before because the file was removed/moved)
+	//However, this should never happen. Added this code temporary to trace a possible logic flaw.
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path = '" + StringUtils::SQLEscape(m_sDirectory) + 
+		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
+
+	//Any luck?
+	if(vectRow_File.size())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "PlutoMediaFile::AddFileToDatabase -> there is already "
+			"a record in the database marked as missing for %s - %s file", m_sDirectory.c_str(), m_sFile.c_str());
+
+		//Get the first record and reuse it
+		pRow_File = vectRow_File[0];
+		pRow_File->Missing_set(1);
+		pRow_File->EK_MediaType_set(PK_MediaType);
+		pRow_File->Table_File_get()->Commit();
+
+		//Delete its children in 'relationated' tables.
+		//unfortunatelly, sql2cpp's generated classes don't support an efficient way to delete this rows
+		//and also be aware of the changes
+
+		//This will get a vector with desired File_Attribute's rows
+		vector<Row_File_Attribute *> vectRow_File_Attribute;
+		m_pDatabase_pluto_media->File_Attribute_get()->GetRows("FK_File = " + StringUtils::ltos(pRow_File->PK_File_get()),
+			&vectRow_File_Attribute);
+		
+        //Iterate through the vector and mark all the rows as deleted		
+		for(vector<Row_File_Attribute *>::iterator it = vectRow_File_Attribute.begin();
+			it != vectRow_File_Attribute.end(); ++it
+		)
+		{
+			Row_File_Attribute *pRow_File_Attribute = *it;
+			pRow_File_Attribute->Delete();
+		}
+
+		//If there are indeed rows to be deleted, commit the changes
+		if(vectRow_File_Attribute.size())
+			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+	}
+	else
+	{
+		//No record to reuse; we'll create a new one
+		pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
+		pRow_File->Filename_set(m_sFile);
+		pRow_File->EK_MediaType_set(PK_MediaType);
+		pRow_File->Table_File_get()->Commit();
+	}
 
 	string sFileWithAttributes = FileWithAttributes();
-
 	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
 
 	// Add attributes from ID3 tags
@@ -159,7 +206,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	{
 		if(sPictureURL != "")
 		{
-			//it's a "new" file, but we know the picture url
+			//It's a "new" file, but we know the picture url
 			//we'll download the picture and record in Picture table
 			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
 			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, FileUtils::FindExtension(sPictureURL), sPictureURL);

@@ -385,6 +385,9 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 
 	for(size_t s=0;s<vectRow_File.size();++s)
 	{
+		if(m_bAsDaemon)
+			Sleep(20);
+
 		Row_File *pRow_File = vectRow_File[s];
         string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
         bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
