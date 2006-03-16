@@ -183,6 +183,7 @@
 	$GLOBALS['TelecomLocalNumberLength']=143;	// Telecom Local Number Length
 	$GLOBALS['PortChannel']=12;					// Port Channel
 	$GLOBALS['PortChannelChoices']=151;			// Port Channel Choices
+	$GLOBALS['DisklessBoot']=9;					// Diskless boot
 	
 	// PK_FloorplanType from table FloorplanType 
 

@@ -35,7 +35,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			Device.State,
 			Device.Status,
 			DeviceTemplate.ImplementsDCE,
-			Parent.FK_DeviceTemplate AS ParentDT
+			Parent.FK_DeviceTemplate AS ParentDT,
+			Device.Disabled
 		FROM Device
 		LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
 		INNER JOIN DeviceTemplate on Device.FK_DeviceTemplate = PK_DeviceTemplate
@@ -62,6 +63,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$State=$row['State'];
 		$Status=$row['Status'];
 		$ImplementsDCE=$row['ImplementsDCE'];
+		$deviceDisabled=$row['Disabled'];
 		//$helpDocument=$row['FK_Document'];
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 
@@ -245,11 +247,11 @@ $installationID = (int)@$_SESSION['installationID'];
 				</tr>
 				<tr>
 					<td><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>Reconfigure device</td>
+					<td>'.$TEXT_RECONFIGURE_DEVICE_CONST.'</td>
 				</tr>
 				<tr>
 					<td><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>Use 5 second pings to ensure connection stays alive.</td>
+					<td>'.$TEXT_CONNECTION_KEEP_ALIVE_CONST.'</td>
 				</tr>
 				<tr>
 					<td>State</td>
@@ -259,6 +261,10 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td>Status</td>
 					<td><input type="text" name="Status" value="'.$Status.'"></td>
 				</tr>
+				<tr>
+					<td><input type="checkbox" name="deviceDisabled" value="1" '.(($deviceDisabled==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
+					<td>'.$TEXT_DISABLED_CONST.'</td>
+				</tr>					
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
@@ -551,9 +557,10 @@ $installationID = (int)@$_SESSION['installationID'];
 		$State= (isset($_POST['State']))?cleanString($_POST['State']):getStateValue('State');
 		$Status= cleanString($_POST['Status']);
 		$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
+		$deviceDisabled= (isset($_POST['deviceDisabled']))?cleanInteger($_POST['deviceDisabled']):0;
 		
-		if(isMediaDirector($deviceID,$dbADO,1) && roomIsUsed($room,$deviceID,$dbADO)){
-			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST);
+		if(isMediaDirector($deviceID,$dbADO,1) && $usedBy=roomIsUsed($room,$deviceID,$dbADO)){
+			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST.urlencode(': '.$usedBy));
 			exit();			
 		}
 
@@ -636,8 +643,11 @@ $installationID = (int)@$_SESSION['installationID'];
 				}
 			
 			
-			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=? WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$State,$Status,$deviceID));
+			$query = "
+				UPDATE Device 
+				SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=?,Disabled=? 
+				WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);
@@ -759,11 +769,12 @@ function roomIsUsed($room,$deviceID,$dbADO){
 		SELECT Room.Description, PK_Room,Device.Description AS md,PK_Device 
 		FROM Room 
 		LEFT JOIN Device ON FK_Room=PK_Room AND FK_DeviceTemplate IN ('.join(',',$mdArray).')
-		WHERE Room.FK_Installation=? AND PK_Device!=?
+		WHERE Room.FK_Installation=? AND PK_Device!=? AND PK_Room=?
 		ORDER BY Description ASC';
-	$res=$dbADO->Execute($query,array((int)$_SESSION['installationID'],$deviceID));
+	$res=$dbADO->Execute($query,array((int)$_SESSION['installationID'],$deviceID,$room));
 	if($res->RecordCount()>0){
-		return true;
+		$row=$res->FetchRow();
+		return $row['PK_Device'];
 	}
 	
 	return false;

@@ -298,7 +298,8 @@ function editCommandGroup($output,$dbADO) {
 				
 				$out.='<tr>
 					<td colspan="2"><a name="addDevice"></a>
-					 Device:'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['newDevice']),$dbADO,1,'onChange="this.form.submit();"');
+					 Device:'.
+				deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['newDevice']),$dbADO,1,'onChange="this.form.submit();"');
 				
 				if (isset($_REQUEST['newDevice']) && cleanInteger($_REQUEST['newDevice'])!=0) {
 					if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
@@ -339,7 +340,9 @@ function editCommandGroup($output,$dbADO) {
 					</td>
 				</tr>
 				</table>	
+				<em>'.$TEXT_HIGHLIGHT_INFO_CONST.'</em><br>
 				<br><br><br>
+				
 				<input type="button" class="button" name="deleteCG" value="'.$TEXT_DELETE_SCENARIO_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_SCENARION_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
 			</form>
 			<script>

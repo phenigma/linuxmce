@@ -219,8 +219,8 @@ function mediaDirectors($output,$dbADO) {
 					$buttons='
 					<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
 					<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-					<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;">
-					</td>';
+					<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST.'\'))return true;else return false;">';
+					$buttons.=(isDiskless($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']]))?'<br><input type="submit" class="button" name="rebuild_diskless_'.$rowD['PK_Device'].'" value="'.$TEXT_REBUILD_DISKLESS_IMAGE_CONST.'">':'';
 						
 					
 					$controlledByPulldown='&nbsp;';
@@ -340,6 +340,13 @@ function mediaDirectors($output,$dbADO) {
 				exec($cmd);
 				deleteDevice($value,$dbADO);
 			}
+			
+			if(isset($_POST['rebuild_diskless_'.$value])){
+				// TODO: add correct command to rebuild
+				$cmd='/cmd_to_launch_here';
+				exec($cmd);
+			}
+			
 		}
 		
 		if(isset($_POST['update']) || $cmd==1 || $action=='externalSubmit'){
@@ -549,6 +556,15 @@ function getPVRCards($pvrArray,$instalationID,$mdID,$parentID,$dbADO){
 	$out.='</table>';
 	
 	return $out;
+}
+
+function isDiskless($deviceID,$deviceData){
+	foreach ($deviceData AS $pos=>$ddArray){
+		if($ddArray['PK_Device']==$deviceID && $ddArray['FK_DeviceData']==$GLOBALS['DisklessBoot'] && $ddArray['IK_DeviceData']==1){
+			return true;
+		}
+	}
 	
+	return false;
 }
 ?>

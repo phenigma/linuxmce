@@ -1511,12 +1511,12 @@ function getChildsOfWizard($page,$dbADO)
 	return $GLOBALS['wizardChilds'];
 }
 
-function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,$extra='')
+function deviceForScenariosSelector_old($name,$selectedValue,$dbADO,$allowNoValue=1,$extra='')
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
-	
+
 	$out='
 		<select name="'.$name.'" '.$extra.'>';
 	if($allowNoValue==1){
@@ -5091,6 +5091,80 @@ function parentHasChoices($deviceID,$dbADO){
 	}
 	
 	return $choicesArray;
+}
+
+
+function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,$extra='')
+{
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
+	$out='
+		<select name="'.$name.'" '.$extra.'>';
+	if($allowNoValue==1){
+		$out.='<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
+	}
+	$out.='
+			<option value="-300" '.(($selectedValue=='-300')?'selected':'').'>[Local Orbiter]</option>';
+							
+	$query = '
+		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template,FK_Device_RouteTo
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE Device.FK_Installation = ? 
+		ORDER BY FK_Device_ControlledVia ASC,FK_Room ASC,Description ASC';
+	$res=$dbADO->Execute($query,array($_SESSION['installationID']));
+	
+	$devicesArray=array();						
+	while ($row= $res->FetchRow()) {
+		$roomName=($row['RoomName']!='')?stripslashes($row['RoomName']):'No Room';
+		
+		$devicesArray[$row['PK_Device']]['Parent']=$row['FK_Device_ControlledVia'];
+		$devicesArray[$row['PK_Device']]['Description']=$row['Description'].' ['.$roomName.']';
+		$devicesArray[$row['PK_Device']]['FK_DeviceTemplate']=$row['FK_DeviceTemplate'];
+		$devicesArray[$row['PK_Device']]['Template']=$row['Template'];
+		if(!is_null($row['FK_Device_ControlledVia'])){
+			if($row['FK_Device_ControlledVia']==$row['FK_Device_RouteTo']){
+				if(!isset($devicesArray[$row['FK_Device_ControlledVia']]['Children'])){
+					$devicesArray[$row['FK_Device_ControlledVia']]['Children'][]=$row['PK_Device'];
+				}else{
+					array_unshift($devicesArray[$row['FK_Device_ControlledVia']]['Children'],$row['PK_Device']);
+				}
+				$devicesArray[$row['PK_Device']]['Embedded']=1;
+			}else{
+				$devicesArray[$row['FK_Device_ControlledVia']]['Children'][]=$row['PK_Device'];
+				$devicesArray[$row['PK_Device']]['Embedded']=0;
+			}
+		}
+	}
+
+						
+	foreach ($devicesArray AS $deviceID=>$deviceInfo){
+		if(is_null(@$deviceInfo['Parent']) && isset($deviceInfo['Description'])){
+			$out.='<option '.($deviceID==$selectedValue?'selected':'').' value="'.$deviceID.'" title="Device template #'.$deviceInfo['FK_DeviceTemplate'].': '.$deviceInfo['Template'].'">'.$deviceInfo['Description'].'</option>';
+			$out.=getOptions($devicesArray,@$deviceInfo['Children'],$selectedValue,'&nbsp;&nbsp;|---');
+		}
+	}
+	$out.='
+		</select>';
+	return $out;
+}
+
+function getOptions($devicesArray,$childrenArray,$selectedValue,$prefix){
+	if(count($childrenArray)==0){
+		return '';
+	}
+	
+	$out='';
+	foreach ($childrenArray AS $childID){
+		$deviceInfo=$devicesArray[$childID];
+		$out.='<option '.($childID==$selectedValue?'selected':'').' value="'.$childID.'" title="Device template #'.$deviceInfo['FK_DeviceTemplate'].': '.$deviceInfo['Template'].'" '.(($deviceInfo['Embedded']==1)?'style="background:yellow;"':'').'>'.$prefix.' '.$deviceInfo['Description'].'</option>';		
+		$out.=getOptions($devicesArray,@$deviceInfo['Children'],$selectedValue,$prefix.'--- ');
+	}
+	
+	return $out;
 }
 
 ?>

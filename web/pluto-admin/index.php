@@ -14,7 +14,7 @@ require('include/template.class.inc.php');
 
 
 $section = @$_REQUEST['section'];
-if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $section!='wizard' && $section!='proxySocket'){
+if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $section!='wizard' && $section!='proxySocket' && $section!='orbitersWin'){
 
 	// invalid session, destroy it and send user to login
 	unset($_SESSION);

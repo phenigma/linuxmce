@@ -20,4 +20,7 @@ $TEXT_VIEW_CONST='View';
 $TEXT_DEVICE_RESETED_CONST='The device was reseted.';
 $TEXT_ROOM_USED_BY_ANOTHER_MD_CONST='The room is used by another media director';
 $TEXT_ERROR_DEVICE_PIPE_EXISTS_CONST='Device pipe already exist.';
+$TEXT_CONNECTION_KEEP_ALIVE_CONST='Use 5 second pings to ensure connection stays alive.';
+$TEXT_RECONFIGURE_DEVICE_CONST='Reconfigure device';
+$TEXT_DISABLED_CONST='Disabled';
 ?>
