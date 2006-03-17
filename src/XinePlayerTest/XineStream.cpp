@@ -20,4 +20,12 @@ void  XineStream::ReadInfo()
 }
 
 
-
+void XineStream::ScheduleOsdObject(XineOsdObject *pOsd, int timeOffsetShow, int timeOffsetHide)
+{
+	if (pOsd==NULL)
+		return;
+		
+	xine_osd_show( *pOsd, timeOffsetShow);
+	if (timeOffsetHide!=-1)
+		xine_osd_hide(	*pOsd, timeOffsetHide);
+}

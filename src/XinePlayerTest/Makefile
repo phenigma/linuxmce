@@ -5,7 +5,7 @@ LDLIBS = -lxine -lX11 -lXext
 
 MYNAME = XinePlayer
 
-sources = Main.cpp XinePlayer.cpp XineStream.cpp
+sources = Main.cpp XinePlayer.cpp XineStream.cpp XineOsdObject.cpp
 
 all: bin
 

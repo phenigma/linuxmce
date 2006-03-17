@@ -27,7 +27,7 @@
 #include  <list>
 #include <string>
 
-// #include "XineOSdObject"
+#include "XineOsdObject.h"
 #include "XineStream.h"
 
 class XineOsdObject;

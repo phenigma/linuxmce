@@ -3,6 +3,8 @@
 
 #include <xine.h>
 
+#include "XineOsdObject.h"
+
 class XineStream
 {	
 public:
@@ -36,6 +38,8 @@ public:
 	{
 		return m_Stream;
 	}
+	
+	void ScheduleOsdObject(XineOsdObject *pOsd, int timeOffsetShow, int timeOffsetHide=-1);
 };
 
 
