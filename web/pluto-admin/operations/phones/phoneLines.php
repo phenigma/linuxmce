@@ -12,35 +12,57 @@ function phoneLines($output,$astADO,$dbADO) {
 	$providerData=array();
 	$providerData['freeworddialup (free only)']['url']='http://www.freeworlddialup.com/';
 	$providerData['freeworddialup (free only)']['script']='create_amp_fwd.pl';
+	$providerData['freeworddialup (free only)']['keyword']='freeworddialup';
 	
 	$providerData['sipgate (try for free, pay as you go)']['url']='http://www.sipgate.co.uk/';
 	$providerData['sipgate (try for free, pay as you go)']['script']='create_amp_sipgate.pl';
+	$providerData['sipgate (try for free, pay as you go)']['keyword']='sipgate';
 	
 	$providerData['inphonex (try for free, pay as you go)']['url']='http://www.inphonex.com/';
 	$providerData['inphonex (try for free, pay as you go)']['script']='create_amp_inphonex.pl';
-
+	$providerData['inphonex (try for free, pay as you go)']['keyword']='inphonex';
+	
 	$providerData['e-fon (Switzerland)']['url']='http://www.e-fon.ch/';
 	$providerData['e-fon (Switzerland)']['script']='create_amp_efon.pl';
+	$providerData['e-fon (Switzerland)']['keyword']='efon';
 
 	$providerData['broadvoice (US number, free incoming)']['url']='http://www.broadvoice.com/';
 	$providerData['broadvoice (US number, free incoming)']['script']='create_amp_broadvoice.pl';
+	$providerData['broadvoice (US number, free incoming)']['keyword']='broadvoice';
 
 	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
 	$providerData['teliax (US number, pay incoming)']['script']='create_amp_teliax.pl';
+	$providerData['teliax (US number, pay incoming)']['keyword']='teliax-out';
 
 	$providerData['NuFone']['url']='http://www.nufone.net/';
 	$providerData['NuFone']['script']='create_amp_nufone.pl';
+	$providerData['NuFone']['keyword']='nufone-out';
+
+	$keywords=array();
+	foreach ($providerData AS $prID=>$providerArray){
+		$keywords[$providerArray['keyword']]=$prID;
+	}
+	
+	
+	if(isset($_REQUEST['provider'])){
+		$provider=$_REQUEST['provider'];
+	}
+	$editedID=@$_REQUEST['eid'];
+	if($editedID!=0 && $editedID!=''){
+		$phoneData=getPLDetails($editedID,$_REQUEST['type'],$astADO);
+		$provider=$keywords[$phoneData['Data']];
+	}
 
 	$pulldownOptions='';
 	foreach (array_keys($providerData) AS $option){
-		$pulldownOptions.='<option value="'.$option.'" '.((@$_REQUEST['provider']==$option)?'selected':'').'>'.$option.'</option>
-		';
+		$pulldownOptions.='<option value="'.$option.'" '.((@$provider==$option)?'selected':'').'>'.$option.'</option>';
 	}
-	
-	if(@$_REQUEST['provider']!=''){
+
+	if(isset($provider)){
 		$providerUrl=$providerData[$_REQUEST['provider']]['url'];
 		$providerScript=$providerData[$_REQUEST['provider']]['script'];
 		$userBox='
+		<input type="hidden" name="editedID" value="'.@$editedID.'">
 		<table align="center" cellpadding="3" cellspacing="0">
 			<tr>
 				<td>'.$TEXT_URL_CONST.': </td>
@@ -52,28 +74,28 @@ function phoneLines($output,$astADO,$dbADO) {
 			</tr>
 			<tr bgcolor="#F0F3F8">
 				<td><B>'.$TEXT_USERNAME_CONST.'</B> </td>
-				<td><input type="text" name="username" value=""></td>
+				<td><input type="text" name="username" value="'.@$phoneData['Username'].'"></td>
 			</tr>
 			<tr bgcolor="#F0F3F8">
 				<td colspan="2">'.$TEXT_PHONE_LINE_USERNAME_NOTE_CONST.'</td>
 			</tr>		
 			<tr>
 				<td><B>'.$TEXT_PASSWORD_CONST.'</B> </td>
-				<td><input type="text" name="password" value=""></td>
+				<td><input type="text" name="password" value="'.@$phoneData['Password'].'"></td>
 			</tr>
 			<tr>
 				<td colspan="2">'.$TEXT_PHONE_LINE_PASSWORD_NOTE_CONST.'</td>
 			</tr>
 			<tr bgcolor="#F0F3F8">
 				<td><B>'.$TEXT_PHONE_NUMBER_CONST.'</B> </td>
-				<td><input type="text" name="phone" value=""></td>
+				<td><input type="text" name="phone" value="'.@$phoneData['PhoneNumber'].'"></td>
 			</tr>
 			<tr bgcolor="#F0F3F8">
 				<td colspan="2">'.$TEXT_PHONE_LINE_NUMBER_NOTE_CONST.'</td>
 			</tr>
 			<tr>
 				<td><B>'.$TEXT_HOST_CONST.'</B> </td>
-				<td><input type="text" name="host" value=""> </td>
+				<td><input type="text" name="host" value="'.@$phoneData['Host'].'"> </td>
 			</tr>		
 			<tr>
 				<td colspan="2">'.$TEXT_PHONE_LINE_HOST_NOTE_CONST.'</td>
@@ -123,6 +145,11 @@ function phoneLines($output,$astADO,$dbADO) {
 	}else{
 	// process area
 		if(isset($_POST['Add'])){
+			$editedID=$_REQUEST['editedID'];
+			if($editedID!=''){
+				deletePhoneLine($editedID);
+			}
+			
 			$username=cleanString($_POST['username']);
 			$password=cleanString($_POST['password']);
 			$phone=($_POST['phone']=='')?$username:cleanString($_POST['phone']);
@@ -142,12 +169,7 @@ function phoneLines($output,$astADO,$dbADO) {
 		}
 		
 		if(isset($_REQUEST['id'])){
-			$id=str_replace('9999','',$_REQUEST['id']);
-
-			$url='http://'.$_SERVER['SERVER_ADDR'].'/pluto-admin/amp/admin/config.php';
-			$params='display=6&extdisplay=OUT_'.$id.'&action=deltrunk';
-			
-			$answer=queryExternalServer($url.'?'.$params);
+			deletePhoneLine($id);
 			
 			header('Location: index.php?section=phoneLines&msg='.$TEXT_PHONE_LINE_DELETED_CONST);
 			exit();
@@ -190,10 +212,11 @@ function phoneLinesTable($astADO){
 	
 	$count=0;
 	$res=$astADO->Execute("
-		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata 
+		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
 		FROM sip 
 		INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 		INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
+		INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
 		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex'))");
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
@@ -202,9 +225,14 @@ function phoneLinesTable($astADO){
 			<td align="center"><B>'.$TEXT_DATA_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_PASSWORD_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_USERNAME_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_HOST_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>	';
 	while($row=$res->FetchRow()){
+		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
+		$$phoneNumber=@$incomingData[0];
+	
 		$count++;
 		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
@@ -213,17 +241,27 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> <a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
+			<td>'.$row['hdata'].'</td>
+			<td>'.$phoneNumber.'</td>
+			<td align="center">
+				<a href="index.php?section=phoneLines&type=SIP&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
+				<a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
+				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a>
+			</td>
 		</tr>';
 	}
 
 	$res=$astADO->Execute("
-		SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata 
+		SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata,iaxh.data AS hdata 
 		FROM iax 
 		INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 		INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
+		INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
 		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out'))");
 	while($row=$res->FetchRow()){
+		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
+		$phoneNumber=@$incomingData[0];
+		
 		$count++;
 		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
@@ -232,7 +270,13 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> <a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
+			<td>'.$row['hdata'].'</td>
+			<td>'.$phoneNumber.'</td>
+			<td align="center">
+				<a href="index.php?section=phoneLines&type=IAX&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
+				<a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
+				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a>
+			</td>
 		</tr>';
 	}
 	
@@ -298,5 +342,48 @@ function phoneLinesLocalSettings($dbADO){
 	</form>';
 	
 	return $out;
+}
+
+function getPLDetails($id,$type,$astADO){
+	if($type=='SIP'){
+		$res=$astADO->Execute("
+			SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
+			FROM sip 
+			INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
+			INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
+			INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
+			WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex')) AND sip.id='$id'");
+	}else{
+		$res=$astADO->Execute("
+			SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata,iaxh.data AS hdata 
+			FROM iax 
+			INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
+			INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
+			INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
+			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax') OR (iax.data='efon')) AND iax.id='$id'");
+	}
+	$data=array();
+	$row=$res->FetchRow();
+	$data['Password']=$row['sdata'];
+	$data['Username']=$row['pdata'];
+	$data['Data']=$row['data'];
+	$data['Host']=$row['hdata'];
+	
+	$incomingID='from-pluto-custom,10'.substr($id,-1).',1';
+	$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\''.$incomingID.'\''));
+	$data['PhoneNumber']=@$incomingData[0];
+	
+	return $data;
+}
+
+function deletePhoneLine($id){
+	$id=str_replace('9999','',$id);
+
+	$url='http://'.$_SERVER['SERVER_ADDR'].'/pluto-admin/amp/admin/config.php';
+	$params='display=6&extdisplay=OUT_'.$id.'&action=deltrunk';
+			
+	$answer=queryExternalServer($url.'?'.$params);
+
+	return $answer;
 }
 ?>
