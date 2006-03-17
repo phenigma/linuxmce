@@ -2041,10 +2041,23 @@ void Orbiter_Plugin::GenerateVMCFiles()
 void Orbiter_Plugin::GeneratePlutoMOConfig()
 {
     const string csWapConfFile("/etc/wap.conf");
+	const string csCallerIdConfFile("/etc/pluto-callerid.conf");
     const string csPlutoMOConf("/usr/pluto/bin/PlutoMO");
+
+	string sCustomCallerID;
+	if(FileUtils::FileExists(csCallerIdConfFile))
+	{
+		FileUtils::ReadTextFile(csCallerIdConfFile, sCustomCallerID);
+		sCustomCallerID = StringUtils::Replace(sCustomCallerID, "\n", "");
+		sCustomCallerID = StringUtils::TrimSpaces(sCustomCallerID);
+	}
 
     if(FileUtils::FileExists(csWapConfFile))
     {
+		string sPlutoMOConfig;
+		FileUtils::ReadTextFile(csWapConfFile, sPlutoMOConfig);
+		sPlutoMOConfig += "?\n";
+
         for(map<string, OH_Orbiter *>::iterator iter = m_mapOH_Orbiter_Mac.begin(); iter != m_mapOH_Orbiter_Mac.end(); ++iter)
         {
             OH_Orbiter *pOH_Orbiter = (*iter).second;
@@ -2055,13 +2068,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             g_pPlutoLogger->Write(LV_STATUS, "About to generate '%s' file", sPlutoMOConfFile.c_str());
 
-            size_t iSize = 0;
-            char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
-
-            string sPlutoMOConfig = string(pWapURL) + "?\n";
-            delete []pWapURL;
-
-            //generating the list with alert types
+	        //generating the list with alert types
             vector<Row_AlertType *> vectRow_AlertType;
             m_pDatabase_pluto_security->AlertType_get()->GetRows("1 = 1", &vectRow_AlertType);
             sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
@@ -2080,12 +2087,18 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
                 Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
 
                 sPlutoMOConfig += StringUtils::ltos(pRow_AlertType->PK_AlertType_get()) + "\n";
-                string sCallerID = GenerateCallerID(pRow_AlertType->PK_AlertType_get());
+                
+				string sCallerID;
+				if(sCustomCallerID == "")
+					sCallerID = GenerateCallerID(pRow_AlertType->PK_AlertType_get());
+				else
+					sCallerID = sCustomCallerID;
+
                 sPlutoMOConfig += sCallerID + "\n";
                 sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
 
                 //TODO: need a 'Hang up true/false' field in AlertType table
-                sPlutoMOConfig += "1\n";
+                sPlutoMOConfig += "0\n";
             }
             vectRow_AlertType.clear();
 
