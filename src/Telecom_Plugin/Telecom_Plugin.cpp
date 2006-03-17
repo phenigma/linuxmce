@@ -1010,7 +1010,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 	if( bRegistered )
 	{
 		vector<Row_Users *> vectRow_Users;
-		m_pDatabase_pluto_main->Users_get()->GetRows("1",&vectRow_Users);
+		m_pDatabase_pluto_main->Users_get()->GetRows(USERS_FK_INSTALLATION_MAIN_FIELD + string("=") + StringUtils::itos(m_pRouter->iPK_Installation_get()),&vectRow_Users);
 		for(size_t s=0;s<vectRow_Users.size();++s)
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
