@@ -1854,7 +1854,8 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 		/** @param #58 IP Address */
 			/** The IP of the device */
 		/** @param #109 Data */
-			/** Extra device data to be assigned when creating the device */
+			/** Extra device data to be assigned when creating the device. It should look like this:
+devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #150 PK_DHCPDevice */
 			/** Only needed if this is a dhcp pnp device */
 		/** @param #156 PK_Device_ControlledVia */
@@ -2355,5 +2356,33 @@ void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Res
 		int pk = vectRow_Devices[0]->PK_Device_get();
 		sCMD_Result = StringUtils::itos(pk);
 		g_pPlutoLogger->Write(LV_DEBUG, "multiple devices found, use device id = %s with UID = %s" , sCMD_Result.c_str(), sUID.c_str());		
+	}
+}
+//<-dceag-c791-b->
+
+	/** @brief COMMAND: #791 - Set Enable Status */
+	/** This command will enable or disable a device. A reload router will be needed in order to take effect. */
+		/** @param #2 PK_Device */
+			/** The id of the device to be enabled/disabled */
+		/** @param #208 Enable */
+			/** If this is true ( = 1), the device will be enabled. Otherwise, the device will be disabled. */
+
+void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,Message *pMessage)
+//<-dceag-c791-e->
+{
+	//get the device row from 'Device' table
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+
+	if(NULL != pRow_Device)
+	{
+		//the device exists; setting 'Disabled' flag
+		pRow_Device->Disabled_set(bEnable ? 0 : 1);
+		pRow_Device->Table_Device_get()->Commit();
+	}
+	else
+	{
+		//no row, no valid device id; are you missing something ? 
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
+			iPK_Device);
 	}
 }

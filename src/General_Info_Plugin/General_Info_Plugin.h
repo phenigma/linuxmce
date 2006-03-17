@@ -327,7 +327,8 @@ public:
 		/** @param #58 IP Address */
 			/** The IP of the device */
 		/** @param #109 Data */
-			/** Extra device data to be assigned when creating the device */
+			/** Extra device data to be assigned when creating the device. It should look like this:
+devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #150 PK_DHCPDevice */
 			/** Only needed if this is a dhcp pnp device */
 		/** @param #156 PK_Device_ControlledVia */
@@ -384,6 +385,18 @@ public:
 
 	virtual void CMD_Get_iPK_DeviceFromUID(string sUID) { string sCMD_Result; CMD_Get_iPK_DeviceFromUID(sUID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #791 - Set Enable Status */
+	/** This command will enable or disable a device. A reload router will be needed in order to take effect. */
+		/** @param #2 PK_Device */
+			/** The id of the device to be enabled/disabled */
+		/** @param #208 Enable */
+			/** If this is true ( = 1), the device will be enabled. Otherwise, the device will be disabled. */
+
+	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable) { string sCMD_Result; CMD_Set_Enable_Status(iPK_Device,bEnable,sCMD_Result,NULL);};
+	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	private:
