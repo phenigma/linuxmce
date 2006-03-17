@@ -206,10 +206,15 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
     char tmp[1024];
     snprintf(tmp,sizeof(tmp)-1,"%s:%s@%s/%s",deviceExtension,devicePassword,asteriskHost,sPhoneExtension.c_str());
     g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
+    DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
+    SendCommand(CMD_MH_Stop_Media_);
+    iaxc_millisleep(1000);    
+    StopRingTone();    
     iaxc_call(tmp);
     sCMD_Result="OK";
     DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
     SendCommand(SCREEN_DevCallInProgress_);
+    haveActiveCall=true;    
 }
 
 //<-dceag-c335-b->
@@ -230,7 +235,7 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
         iaxc_answer_call(0);
         iaxc_select_call(0);
         sCMD_Result="OK";
-		haveActiveCall=true;
+        haveActiveCall=true;
     }
     else
     {
@@ -252,7 +257,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
     sCMD_Result="OK";
     DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
     SendCommand(SCREEN_Main_);
-	haveActiveCall=false;
+    haveActiveCall=false;
 }
 
 /* IAXCLIENT PART */
@@ -284,7 +289,7 @@ int iaxCallback(iaxc_event e)
 
 void SimplePhone::StopRingTone()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Stop RING");
+    g_pPlutoLogger->Write(LV_STATUS, "Stop RING");
     if(ringTone)
     {
         iaxc_stop_sound(ringTone->id);
@@ -304,7 +309,7 @@ void SimplePhone::PlayRingTone()
     ringTone->data = ringData;
     ringTone->repeat = -1;
     iaxc_play_sound(ringTone, 1);
-	g_pPlutoLogger->Write(LV_STATUS, "Play RING");	
+    g_pPlutoLogger->Write(LV_STATUS, "Play RING");    
 }
 
 void SimplePhone::doProccess(void)
@@ -321,16 +326,16 @@ void SimplePhone::doProccess(void)
             {
                 DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
                 SendCommand(CMD_MH_Stop_Media_);
-	            if(phone_status>1)
-    	        {
-        	        CMD_Phone_Answer(tmp,NULL);
-            	}
-				else
-				{
-	                GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));				
-                    iaxc_millisleep(1000);				
-    	            PlayRingTone();
-				}
+                if(phone_status>1)
+                {
+                    CMD_Phone_Answer(tmp,NULL);
+                }
+                else
+                {
+                    GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));                
+                    iaxc_millisleep(1000);                
+                    PlayRingTone();
+                }
             }
         }
         if(phone_status<0)
@@ -354,7 +359,7 @@ void SimplePhone::registerWithAsterisk()
     int                      input  = 0;
     int                      output = 0;
     int                      ring   = 0;
-	haveActiveCall=false;
+    haveActiveCall=false;
     if(iaxc_initialize(AUDIO_INTERNAL_ALSA,1)<0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
@@ -363,11 +368,11 @@ void SimplePhone::registerWithAsterisk()
     }
 
     if(iaxc_audio_devices_get(&devices, &nDevs, &input, &output, &ring)<0)
-	{
+    {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not get access to audio device, will quit now");
         m_bQuit = 1;
         exit(1);
-	}
+    }
 
     for(i=0; i<nDevs; i++) {
         if(devices->capabilities & IAXC_AD_INPUT) {
