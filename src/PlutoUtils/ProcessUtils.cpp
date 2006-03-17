@@ -123,9 +123,9 @@ printf("dupped arg %d %s\n",i,ps);
 			sops.sem_flg = 0;
 			semop(semSpawnApplication, &sops, 1);
 			
-            if ( execvp(args[0], args) == -1)
+            if (execvp(args[0], args) == -1)
 			{
-                exit(99);
+                _exit(99);
 			}
         }
 
