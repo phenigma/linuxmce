@@ -79,8 +79,6 @@ CleanupVideo()
 	elif [[ -n "$ATI_inst" && -z "$ATI_dev" ]]; then
 		apt-get -y remove --purge $ATI_inst
 	fi
-
-	/usr/pluto/bin/Xconfigure.sh --update-video-driver
 }
 
 CleanupVideo
