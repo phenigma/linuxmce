@@ -896,7 +896,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 777:
+				case 780:
 					{
 						string sCMD_Result="OK";
 					int iEK_Playlist=atoi(pMessage->m_mapParameters[78].c_str());

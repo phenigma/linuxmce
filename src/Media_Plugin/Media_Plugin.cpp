@@ -1136,6 +1136,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				SendCommand(CMD_Eject_Disk_Cat);
 				return true;
 			}
+
             g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
             return false;
         }
@@ -5257,29 +5258,6 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	MediaInfoChanged(pMediaStream,true);
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 }
-//<-dceag-c777-b->
-
-	/** @brief COMMAND: #777 - Remove playlist */
-	/** Removes a playlist from database */
-		/** @param #78 EK_Playlist */
-			/** The id of the playlist to be removed. */
-
-void Media_Plugin::CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Message *pMessage)
-//<-dceag-c777-e->
-{
-	vector<Row_PlaylistEntry *> vectPlaylistEntry;
-	m_pDatabase_pluto_media->PlaylistEntry_get()->GetRows("FK_Playlist = " + StringUtils::ltos(iEK_Playlist),
-		&vectPlaylistEntry);
-	for(vector<Row_PlaylistEntry *>::iterator it = vectPlaylistEntry.begin(); it != vectPlaylistEntry.end(); ++it)
-	{
-		Row_PlaylistEntry* pRow_PlaylistEntry = *it;
-		pRow_PlaylistEntry->Delete();
-	}
-
-	m_pDatabase_pluto_media->PlaylistEntry_get()->Commit();
-	m_pDatabase_pluto_media->Playlist_get()->GetRow(iEK_Playlist)->Delete();
-	m_pDatabase_pluto_media->Playlist_get()->Commit();
-}
 
 void Media_Plugin::AlarmCallback(int id, void* param)
 {
@@ -5324,4 +5302,32 @@ void Media_Plugin::CheckStreamForTimeout(MediaStream *pMediaStream)
 	pMediaFile->m_tTimeout = time(NULL) + pMediaFile->m_dwDuration -1; // Subtract 1 to prevent a rounding issue
 	int StreamID = pMediaStream->m_iStreamID_get( );
 	m_pAlarmManager->AddRelativeAlarm(pMediaFile->m_dwDuration,this,MEDIA_PLAYBACK_TIMEOUT,(void *) StreamID);
+}
+//<-dceag-c780-b->
+
+	/** @brief COMMAND: #780 - Remove playlist */
+	/** Removes a playlist from database */
+		/** @param #78 EK_Playlist */
+			/** The id of the playlist to be removed. */
+
+void Media_Plugin::CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Message *pMessage)
+//<-dceag-c780-e->
+{
+	vector<Row_PlaylistEntry *> vectPlaylistEntry;
+	m_pDatabase_pluto_media->PlaylistEntry_get()->GetRows("FK_Playlist = " + StringUtils::ltos(iEK_Playlist),
+		&vectPlaylistEntry);
+	for(vector<Row_PlaylistEntry *>::iterator it = vectPlaylistEntry.begin(); it != vectPlaylistEntry.end(); ++it)
+	{
+		Row_PlaylistEntry* pRow_PlaylistEntry = *it;
+		pRow_PlaylistEntry->Delete();
+	}
+
+	m_pDatabase_pluto_media->PlaylistEntry_get()->Commit();
+
+	Row_Playlist *pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iEK_Playlist);
+	if(NULL != pRow_Playlist)
+	{
+		pRow_Playlist->Delete();
+		m_pDatabase_pluto_media->Playlist_get()->Commit();
+	}
 }
