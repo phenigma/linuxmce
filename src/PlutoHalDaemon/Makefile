@@ -3,12 +3,12 @@ CXXFLAGS = -Wall -g -pipe
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lpthread -lmysqlclient_r -lhttp_fetcher -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
 
-APPNAME = usbpnpd
+APPNAME = pluto-hald
 VERSION = 1.0.0
 
 #sources = MessageSend.cpp ParamGet.cpp
 BaseCPP = -I$(ROOT) -I.. -I$(ROOT)/DCE
-BaseSources = hal-test.cpp
+BaseSources = pluto-hald.cpp
 
 SerClsCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 \
 	-D_LARGEFILE_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID
