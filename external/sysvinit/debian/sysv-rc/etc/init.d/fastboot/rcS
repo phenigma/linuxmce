@@ -306,6 +306,12 @@ if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
     /etc/init.d/Pluto_Start_DCERouter.sh
 fi
 
+if [ -x /usr/pluto/bin/pluto-hald ] ;then
+	Message "Starting Pluto Hal Daemon"
+	/etc/init.d/dbus-1 start
+	/usr/pluto/bin/pluto-hald
+fi
+
 if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
     Message "Starting OrbiterGen"
     /etc/init.d/Pluto_Start_OrbiterGen.sh
