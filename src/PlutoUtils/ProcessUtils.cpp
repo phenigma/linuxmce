@@ -320,7 +320,12 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 			close(output[0]);
 			dup2(output[1], 1);
 			execv(path, args);
-			exit(254);
+			_exit(254);
+			/* Rationale for _exit instead of exit:
+			 * exit calls atexit-registered functions and X registers some stuff
+			 * this causes the Orbiter to lose the connection to X
+			 * but this child doesn't register any atexit functions, nor does it make any output if exec fails
+			 */
 			break;
 		case -1: /* error */
 			return false;
@@ -340,6 +345,7 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 			waitpid(pid, &status, 0);
 			status = WEXITSTATUS(status);
 
+			close(output[0]);
 			if (status == 254)
 				return false;
 	}
