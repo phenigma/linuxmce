@@ -716,6 +716,7 @@
 #define COMMAND_Remove_playlist_CONST 780
 #define COMMAND_StatusReport_CONST 788
 #define COMMAND_Force_Update_Packages_CONST 789
+#define COMMAND_Get_iPK_DeviceFromUID_CONST 790
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

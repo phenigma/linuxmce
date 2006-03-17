@@ -1922,6 +1922,14 @@
 #define DESIGNOBJ_TVReceiver_CONST 4839
 #define DESIGNOBJ_TVReceiverInputs_CONST 4840
 #define DESIGNOBJ_butTVModelNotListed_CONST 4842
+#define DESIGNOBJ_butDemo1_CONST 4843
+#define DESIGNOBJ_butDemo2_CONST 4844
+#define DESIGNOBJ_butDemo3_CONST 4845
+#define DESIGNOBJ_butDemo4_CONST 4846
+#define DESIGNOBJ_butIRGroups_CONST 4847
+#define DESIGNOBJ_butConfirmIRCodes_CONST 4848
+#define DESIGNOBJ_butTVTypeNotListed_CONST 4849
+#define DESIGNOBJ_butTVInputsNotListed_CONST 4850
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

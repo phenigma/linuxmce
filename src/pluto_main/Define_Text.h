@@ -930,9 +930,13 @@
 #define TEXT_Download_finnished_CONST 1642
 #define TEXT_ForceUpgradeNow_CONST 1643
 #define TEXT_TVManufNotListed_CONST 1644
-#define TEXT_IR_Group_CONST 1645
-#define TEXT_TVModelNotListed_CONST 1646
-#define TEXT_LearIRCodes_CONST 1647
+#define TEXT_Monster_Demo_CONST 1645
+#define TEXT_IR_Group_CONST 1646
+#define TEXT_TVModelNotListed_CONST 1647
+#define TEXT_LearIRCodes_CONST 1648
+#define TEXT_TVReceiver_CONST 1649
+#define TEXT_ConfirmIRCodes_CONST 1650
+#define TEXT_TVTypeNotListed_CONST 1651
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
