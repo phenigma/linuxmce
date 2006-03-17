@@ -10,6 +10,9 @@
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/DeviceData_Impl.h"
 
+#include <fcntl.h>
+#include <errno.h>
+
 /*
  
  CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()); 
@@ -257,6 +260,38 @@ void initialize(LibHalContext * ctx)
 	}
 }
 
+void demonize() {
+	pid_t pid = fork();
+
+	if (pid < 0) {
+		printf("failed to fork1 for Daemon: %d\n", errno);
+		exit(-1);
+	} else if ( pid > 0) {
+		exit(0);
+	}
+
+	if (setsid() < 0) {
+		printf("error: cannot disassociate from controlling TTY: %d\n", errno);
+		exit(-1);
+	}
+
+	pid = fork();
+	if (pid < 0) {
+		printf("failed to fork2 for Daemon: %d\n", errno);
+		exit(-1);
+	} else if ( pid > 0) {
+		exit(0);
+	}
+
+	// pid is zero surely meaning we are the child
+	int i = open("/dev/null", O_RDWR );
+	dup2(i, 0);
+	dup2(i, 1);
+	dup2(i, 2);
+
+	close(i);
+}
+
 int main(int argc, char* argv[])
 {
 	LibHalFunctions funcs;
@@ -275,7 +310,7 @@ int main(int argc, char* argv[])
 	}
 	else
 		hostname = NULL;
-	
+
 	loop = g_main_loop_new (NULL, FALSE);
 	
 	funcs.main_loop_integration = mainloop_integration;
