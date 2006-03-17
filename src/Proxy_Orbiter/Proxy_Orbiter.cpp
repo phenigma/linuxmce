@@ -689,6 +689,16 @@ void Proxy_Orbiter::OnReload()
 	pthread_cond_broadcast(&m_ActionCond);
 }
 
+bool Proxy_Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button)
+{
+	//we don't have a key up and a key down event for web orbiter or small ui
+	//using repeated keys can be dangerous, since the command attached to the object
+	//with repeated key enabled will be send forever.
+
+	//no repeated keys for small ui or web orbiter
+	return false;
+}
+
 void LoadUI_From_ConfigurationData()
 {
 }

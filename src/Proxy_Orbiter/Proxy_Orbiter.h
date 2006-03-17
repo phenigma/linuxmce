@@ -90,6 +90,8 @@ namespace DCE
 		virtual void CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage);
 		virtual void OnReload();
 		virtual void CMD_Regen_Screen(string &sCMD_Result,Message *pMessage);
+
+		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button);
 		
 		bool PushRefreshEvent(bool bForce, bool bIgnoreMinimumInterval = false);
 		void *PushRefreshEventTask(void *p);
