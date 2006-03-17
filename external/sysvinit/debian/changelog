@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto24) unstable; urgency=low
+
+  * Starting pluto hal daemon 
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 17 Mar 2006 17:32:48 +0200
+
 sysvinit (2.86.ds1-1.1pluto23) unstable; urgency=low
 
   * Smarter cleanup of the /tmp directory
