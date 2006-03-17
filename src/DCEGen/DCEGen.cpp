@@ -32,6 +32,12 @@
 
 #define  VERSION "<=version=>"
 
+#ifdef WIN32
+#define EOL "\r\n"
+#else
+#define EOL "\n"
+#endif
+
 namespace DCE
 {
 	class Logger *g_pPlutoLogger;
@@ -612,7 +618,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	if (deviceInfo.m_mapCommandInfo.size()>0)
 	{
-		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)\n\t\t\t{" << endl;
+		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)"EOL"\t\t\t{" << endl;
 		fstr_DeviceCommand << "\t\t\t\tswitch(pMessage->m_dwID)" << endl;
 		fstr_DeviceCommand << "\t\t\t\t{" << endl;
 
@@ -1107,7 +1113,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 		if( !bDefinition )
 		{
-			fputs("\t/*\n\t\t\t*****DATA***** accessors inherited from base class\n",file);
+			fputs("\t/*"EOL"\t\t\t*****DATA***** accessors inherited from base class"EOL,file);
 
 			map<int,class DataInfo *>::iterator itDataInfo;
 			for(itDataInfo=pDeviceInfo->m_mapDataInfo.begin();itDataInfo!=pDeviceInfo->m_mapDataInfo.end();++itDataInfo)
@@ -1117,23 +1123,23 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 				string pID = StringUtils::itos(pRow_DeviceData->PK_DeviceData_get());
 				string pDefine = FileUtils::ValidCPPName(pRow_DeviceData->Description_get());
-				fputs(("\t" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " DATA_Get_" + pDefine  + "();\n").c_str(),file);
+				fputs(("\t" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " DATA_Get_" + pDefine  + "();"EOL).c_str(),file);
 				if(pDataInfo->m_bCanSet)
 				{
-					fputs(("\tvoid DATA_Set_" + pDefine  + "(" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " Value);\n").c_str(),file);
+					fputs(("\tvoid DATA_Set_" + pDefine  + "(" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " Value);"EOL).c_str(),file);
 				}
 			}
 
-			fputs("\n\t\t\t*****EVENT***** accessors inherited from base class\n",file);
+			fputs(EOL"\t\t\t*****EVENT***** accessors inherited from base class"EOL,file);
 			map<int,string>::iterator itEventDeclarations;
 			for(itEventDeclarations=pDeviceInfo->m_mapEventDeclarations.begin();itEventDeclarations!=pDeviceInfo->m_mapEventDeclarations.end();++itEventDeclarations)
 			{
 				//Row_Event *pRow_Event = m_dce.Event_get()->GetRow( (*itEventDeclarations).first );
-				fputs(("\tvoid EVENT_" + (*itEventDeclarations).second + ";\n").c_str(),file);
+				fputs(("\tvoid EVENT_" + (*itEventDeclarations).second + ";"EOL).c_str(),file);
 			}
 
-			fputs("\n\t\t\t*****COMMANDS***** we need to implement\n",file);
-			fputs("\t*/\n\n",file);
+			fputs(EOL"\t\t\t*****COMMANDS***** we need to implement"EOL,file);
+			fputs("\t*/"EOL EOL,file);
 		}
 
 		map<int,class CommandInfo *>::iterator it;
@@ -1145,12 +1151,12 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			Row_DeviceCommandGroup_Command *pRow_DeviceCommandGroup_Command = pCommandInfo->m_pRow_DeviceCommandGroup_Command;
 
 			if( bDefinition )
-				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-b->\n").c_str(),file);
-			fputs(("\n\t/** @brief COMMAND: #" + StringUtils::itos(pRow_Command->PK_Command_get()) + " - " + pRow_Command->Description_get() + " */\n").c_str(),file);
+				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-b->"EOL).c_str(),file);
+			fputs((EOL"\t/** @brief COMMAND: #" + StringUtils::itos(pRow_Command->PK_Command_get()) + " - " + pRow_Command->Description_get() + " */"EOL).c_str(),file);
 #ifdef linux
 			fputs(("\t/** " + StringUtils::Replace(pRow_DeviceCommandGroup_Command->Description_get(), "\r\n", "\n") + " */\n").c_str(),file);
 #else
-			fputs(("\t/** " + pRow_DeviceCommandGroup_Command->Description_get() + " */\n").c_str(),file);
+			fputs(("\t/** " + pRow_DeviceCommandGroup_Command->Description_get() + " */"EOL).c_str(),file);
 #endif
 			vector<Row_Command_CommandParameter *> vectRow_Command_CommandParameter;
 			pRow_Command->Command_CommandParameter_FK_Command_getrows(&vectRow_Command_CommandParameter);
@@ -1158,24 +1164,24 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			{
 				Row_Command_CommandParameter *pRow_Command_CommandParameter = vectRow_Command_CommandParameter[i3];
 				fputs(("\t\t/** @param #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " +
-					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + " */\n").c_str(),file);
+					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + " */"EOL).c_str(),file);
 				if( !pRow_Command_CommandParameter->Description_isNull() )
 #ifdef linux
 					fputs(("\t\t\t/** " + StringUtils::Replace(pRow_Command_CommandParameter->Description_get(), "\r\n", "\n") + " */\n").c_str(),file);
 #else
-					fputs(("\t\t\t/** " + pRow_Command_CommandParameter->Description_get() + " */\n").c_str(),file);
+					fputs(("\t\t\t/** " + pRow_Command_CommandParameter->Description_get() + " */"EOL).c_str(),file);
 #endif
 			}
-			fputs("\n",file);
+			fputs(EOL,file);
 
 			if( bDefinition )
 			{
 				fputs(("void " + Classname + "::CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In +
-					(pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage)\n").c_str(),file);
-				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-e->\n").c_str(),file);
-				fputs("{\n",file);
+					(pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage)"EOL).c_str(),file);
+				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-e->"EOL).c_str(),file);
+				fputs("{"EOL,file);
 				fputs(("\tcout << \"Need to implement command #" + StringUtils::itos(pRow_Command->PK_Command_get()) +
-					" - " + pRow_Command->Description_get() + "\" << endl;\n").c_str(),file);
+					" - " + pRow_Command->Description_get() + "\" << endl;"EOL).c_str(),file);
 				for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)
 				{
 					Row_Command_CommandParameter *pRow_Command_CommandParameter = vectRow_Command_CommandParameter[i3];
@@ -1188,17 +1194,17 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 					}
 					else
 						fputs("  (data value)\"",file);
-					fputs(" << endl;\n",file);
+					fputs(" << endl;"EOL,file);
 				}
-				fputs("}\n\n",file);
+				fputs("}"EOL EOL,file);
 			}
 			else
 			{
 				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "")
 					+ pCommandInfo->m_sParmsWithTypePointers_Out +
 					+ ") { string sCMD_Result; CMD_" + pCommandInfo->CPPName() + "(" + StringUtils::Replace(pCommandInfo->m_sParmsWithNoType_In,"&","")
-					+ (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") + "sCMD_Result,NULL);};\n").c_str(),file);
-				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage);\n\n").c_str(),file);
+					+ (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") + "sCMD_Result,NULL);};"EOL).c_str(),file);
+				fputs(("\tvirtual void CMD_" + pCommandInfo->CPPName() + "(" + pCommandInfo->m_sParmsWithType_In + (pCommandInfo->m_sParmsWithType_In.length()>0 && pCommandInfo->m_sParmsWithTypePointers_Out.length()>0 ? "," : "") + pCommandInfo->m_sParmsWithTypePointers_Out + (pCommandInfo->m_sParmsWithType_In.length() || pCommandInfo->m_sParmsWithTypePointers_Out.length() ? "," : "") + "string &sCMD_Result,Message *pMessage);"EOL EOL).c_str(),file);
 			}
 		}
 
@@ -1265,7 +1271,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			if( posStartBlock==string::npos || sHandwrittenFile[posStartBlock + Token.length() + 3] !='!' )
 			{
 				if( posStartBlock==string::npos || (posEndBlock = sHandwrittenFile.find(Token + "e->",posStartBlock))==string::npos )
-					sHandwrittenFile += "//" + sGeneratedFile.substr(pos,posTerminateEnd-pos) + "->\n";				// It's not found in the handwritten file.  Just append it.
+					sHandwrittenFile += "//" + sGeneratedFile.substr(pos,posTerminateEnd-pos) + "->"EOL;				// It's not found in the handwritten file.  Just append it.
 				else
 					sHandwrittenFile.replace(posStartBlock,posEndBlock-posStartBlock+Token.length()+1,sGeneratedFile.substr(pos,posTerminateEnd-pos));
 			}
@@ -1381,12 +1387,12 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 		if( bByReference )
 		{
 			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + "; ";
-			sAssignParmToLocal+= "pMessageOut->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"]=" +SizePrefix + sParameterName + "_Size;\n";
+			sAssignParmToLocal+= "pMessageOut->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"]=" +SizePrefix + sParameterName + "_Size;"EOL;
 		}
 		else
 		{
-			sAssignParmToLocal+= "\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"];\n";
-			sAssignParmToLocal+= string("\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"];\n";
+			sAssignParmToLocal+= "\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"];"EOL;
+			sAssignParmToLocal+= string("\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"];"EOL;
 		}
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName+",&"+SizePrefix+sParameterName+"_Size";
@@ -1401,9 +1407,9 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "int " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos(" + Prefix + sParameterName + ");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos(" + Prefix + sParameterName + ");"EOL;
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"].c_str());\n";
+			sAssignParmToLocal+= "\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"].c_str());"EOL;
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1417,9 +1423,9 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "double " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");"EOL;
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
+			sAssignParmToLocal+= "\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());"EOL;
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1433,9 +1439,9 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "bool " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");"EOL;
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]==\"1\" ? true : false);\n";
+			sAssignParmToLocal+= "\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]==\"1\" ? true : false);"EOL;
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1449,9 +1455,9 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "PlutoColor " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName +");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName +");"EOL;
 		else
-			sAssignParmToLocal+="\t\t\t\t\tpMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName+");\n";
+			sAssignParmToLocal+="\t\t\t\t\tpMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName+");"EOL;
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1465,9 +1471,9 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "string " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + ";\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + ";"EOL;
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"];\n";
+			sAssignParmToLocal+= "\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"];"EOL;
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName ;
 		else
@@ -1537,7 +1543,7 @@ void DCEGen::WriteGlobals()
 			list = commandInfo.m_sAssignParmToLocal_Out;  pos=0;
 			StringUtils::Replace(&list,"\t","");
 			fstr_DeviceCommand << "\t\t\t";
-			while( (variable=StringUtils::Tokenize(list,"\n",pos)).length()>0 )
+			while( (variable=StringUtils::Tokenize(list,EOL,pos)).length()>0 )
 			{
 				string::size_type space = variable.find(' ');
 				bool bIsData = (variable[space+1]=='*');
@@ -1558,7 +1564,7 @@ void DCEGen::WriteGlobals()
 				}
 
 			}
-			fstr_DeviceCommand << "};\n\t};" << endl;
+			fstr_DeviceCommand << "};"EOL"\t};" << endl;
 		}
 
 		// Create a constructor with long DeviceIDFrom, long DeviceIDTo
@@ -1582,7 +1588,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};\n"; // end class
+		fstr_DeviceCommand << "\t};"EOL; // end class
 
 		// Create a constructor with long DeviceIDFrom, string DeviceIDTo
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_DL : public PreformedCommand {" << endl;
@@ -1601,7 +1607,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};\n"; // end class
+		fstr_DeviceCommand << "\t};"EOL; // end class
 
 		// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_DT : public PreformedCommand {" << endl;
@@ -1620,7 +1626,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};\n"; // end class
+		fstr_DeviceCommand << "\t};"EOL; // end class
 
 		// 	Create a constructor with long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_Cat : public PreformedCommand {" << endl;
@@ -1639,7 +1645,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};\n"; // end class
+		fstr_DeviceCommand << "\t};"EOL; // end class
 
 		// If there are out parameters, create commands that don't use them.  When attaching messages to cells, for example, we will never care about the return value
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
@@ -1654,7 +1660,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};\n"; // end class
+			fstr_DeviceCommand << "\t};"EOL; // end class
 
 			// Create a constructor with long DeviceIDFrom, string DeviceIDTo
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_DL : public PreformedCommand {" << endl;
@@ -1665,7 +1671,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};\n"; // end class
+			fstr_DeviceCommand << "\t};"EOL; // end class
 
 			// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_DT : public PreformedCommand {" << endl;
@@ -1677,7 +1683,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};\n"; // end class
+			fstr_DeviceCommand << "\t};"EOL; // end class
 
 			// 	Create a constructor with long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_Cat : public PreformedCommand {" << endl;
@@ -1689,7 +1695,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};\n"; // end class
+			fstr_DeviceCommand << "\t};"EOL; // end class
 		}
 	}
 
