@@ -36,14 +36,14 @@ PUSrc = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp Proce
 sources = $(addprefix $(SerClsPfx),$(SerClsSrc)) $(addprefix $(DCEPfx),$(DCESrc)) $(addprefix $(PUPfx),$(PUSrc)) $(BaseSources)
 CPPFLAGS = $(BaseCPP) $(SerClsCPP) $(DCECPP) $(PUCPP)
 
-all: USB_PNP 
+all: pluto-hald 
 	cp $+ $(ROOT)/bin
 
-USB_PNP: $(sources:.cpp=.o)
+pluto-hald: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) USB_PNP >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) pluto-hald >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
