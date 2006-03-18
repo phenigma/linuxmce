@@ -140,7 +140,9 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
 			gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
 			
-			char buffer[1024];
+			// TODO: check for null strings
+			
+			char buffer[4096];
 			
 			
 			printf("%s | %s | %s | %s | %s | %s\n", bus, product, vendor, serial, info_udi, sysfs_path);
@@ -154,8 +156,13 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				0:OK
 				2:30
 			 * */
-			snprintf(buffer, sizeof(buffer), "MessageSend %s -targetType template -o 0 27 1 718 44 %d 156 %d 57 -1", hostname, PLUTO_ZWAVE_TEMPLATE_ID, 
-				PLUTO_CORE_DEVICE_ID);
+			snprintf( buffer, sizeof(buffer),
+				"MessageSend %s -targetType template -o 0 27 1 718 44 %d 156 %d 57 -1 109 154|%s|37|%s",
+				hostname,
+				PLUTO_ZWAVE_TEMPLATE_ID, 
+				PLUTO_CORE_DEVICE_ID,
+				info_udi,
+				sysfs_path );
 			printf("%s\n", buffer);
 //				system(buffer);
 			try
@@ -167,14 +174,15 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				//function from General_Info_Plugin
 				if(isNewDevice)
 				{
-					char *params[13];
+					char *params[15];
+					snprintf(buffer, sizeof(buffer), "154|%s", info_udi);
 
 					params[0]  =	"-targetType";
 					params[1]  =	"template";
 					params[2]  =	"-o";
-					params[3]  =	"0";
-					params[4]  =	"27";
-					params[5]  =	"1";
+					params[3]  =	"0"; // from:
+					params[4]  =	"27";// to: DEVICETEMPLATE_General_Info_Plugin_CONST
+					params[5]  =	"1"; //command
 					params[6]  =	"718";
 					params[7]  =	"44";
 					params[8]  =	PLUTO_ZWAVE_TEMPLATE_ID_STR;
@@ -182,8 +190,11 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 					params[10] =	PLUTO_CORE_DEVICE_ID_STR;
 					params[11] =	"57";
 					params[12] =	"-1";
+					params[13] =	"109"; // extra param for setting the data devices
+					params[14] =	buffer;
 					string response;
-					//sendMessage(params, 13, response);
+					
+//					sendMessage(params, 15, response);
 				}
 			}
 			catch(string ex)
