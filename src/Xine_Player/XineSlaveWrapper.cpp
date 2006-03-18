@@ -68,7 +68,6 @@ XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
         m_pSameStream( NULL ),
         m_pDynamic_Pointer( NULL )
 {
-    m_pXine = NULL;
     m_iSpecialOneTimeSeek = 0;
     m_xine_osd_t = NULL;
     m_iPrebuffer = 0;
@@ -478,8 +477,6 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         return false;
     }
 
-    g_pPlutoLogger->Write( LV_WARNING, "Enabling deinterlacer for this stream" );
-    //xine_set_param(xineStream->m_pStream, XINE_PARAM_VO_DEINTERLACE, true);	
     g_pPlutoLogger->Write( LV_STATUS, "Done with CreateStream" );
     return true;
 }
