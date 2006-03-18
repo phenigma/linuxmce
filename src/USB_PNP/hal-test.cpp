@@ -121,13 +121,16 @@ void sendMessage(char *params[], int count, string &returnValue)
 
 void myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
+
+	static char last_udi[2048];
+
 	gchar *bus = hal_device_get_property_string (ctx, udi, "info.bus");
 	if(strcmp(bus, "usb_device") == 0 && strlen(bus) == strlen("usb_device"))
 	{
-
+		strcpy(last_udi, udi); 
 		//hal_device_print (ctx, udi);
 		int usb_device_product_id = hal_device_get_property_int(ctx, udi, "usb_device.product_id");
-		int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");;
+		int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
 		
 		if(usb_device_product_id == ZWAVE_PRODUCT_ID && usb_device_vendor_id == ZWAVE_VENDOR_ID)
 		{
@@ -136,6 +139,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
 			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
 			gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
+			
 			char buffer[1024];
 			
 			
@@ -179,7 +183,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 					params[11] =	"57";
 					params[12] =	"-1";
 					string response;
-					sendMessage(params, 13, response);
+					//sendMessage(params, 13, response);
 				}
 			}
 			catch(string ex)
@@ -197,12 +201,34 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			info_udi = NULL;
 			g_free (sysfs_path);
 			sysfs_path = NULL;
-
 		}
 	}
 
+		
+//	if(/*strncmp(last_udi, udi, strlen(last_udi)) == 0 && */strncmp(&udi[strlen(udi) - 10], "usb-serial", 10) == 0)
+//	{
+//	}
 	g_free (bus);
 }
+
+
+void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
+{
+	gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
+	if(serial_port != NULL)
+	{
+		fflush(stdout);
+		gchar *parent = hal_device_get_property_string (ctx, hal_device_get_property_string(ctx, udi, "info.parent"), "info.parent");
+		printf("udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
+		g_free (parent);
+		parent = NULL;
+
+	}
+	g_free (serial_port);
+	serial_port = NULL;
+}
+
+
 
 void myDeviceRemoved(LibHalContext * ctx, const char * udi)
 {
@@ -218,7 +244,7 @@ void initialize(LibHalContext * ctx)
 	char **devices = hal_get_all_devices (ctx, &num_devices);
 	gchar *bus = NULL;
 	
-	for(i = 0; i < num_devices; i++)
+	for(i = num_devices - 1; i >= 0 ; i--)
 	{
 		char *udi = devices[i];
 		bus = hal_device_get_property_string (ctx, udi, "info.bus");
@@ -227,7 +253,8 @@ void initialize(LibHalContext * ctx)
 			int usb_device_product_id = hal_device_get_property_int(ctx, udi, "usb_device.product_id");
 			int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");;
 						
-			if(usb_device_product_id == ZWAVE_PRODUCT_ID && usb_device_vendor_id == ZWAVE_VENDOR_ID)
+			if( (usb_device_product_id == ZWAVE_PRODUCT_ID && usb_device_vendor_id == ZWAVE_VENDOR_ID) ||
+			    (usb_device_vendor_id == 0x045e && usb_device_product_id == 0x006d))
 			{
 					gchar *product = hal_device_get_property_string (ctx, udi, "info.product");
 					gchar *vendor = hal_device_get_property_string (ctx, udi, "info.vendor");
@@ -236,7 +263,6 @@ void initialize(LibHalContext * ctx)
 					gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
 					
 					printf("%s | %s | %s | %s | %s | %s\n", bus, product, vendor, serial, info_udi, sysfs_path);
-					
 					//TODO complete this one
 					system("CommandSend ");
 					
@@ -252,6 +278,15 @@ void initialize(LibHalContext * ctx)
 					sysfs_path = NULL;
 			}
 		}
+		gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
+		if(serial_port != NULL)
+		{
+			printf("udi = %s serial port = %s\n", udi, serial_port);
+			fflush(stdout);
+		}
+		g_free (serial_port);
+		serial_port = NULL;
+
 		g_free(bus);
 		bus = NULL;
 	}
@@ -281,7 +316,7 @@ int main(int argc, char* argv[])
 	funcs.main_loop_integration = mainloop_integration;
 	funcs.device_added = myDeviceAdded;
 	funcs.device_removed = myDeviceRemoved;
-	funcs.device_new_capability = NULL;
+	funcs.device_new_capability = myDeviceNewCapability;
 	funcs.device_lost_capability = NULL;
 	funcs.device_property_modified = NULL;
 	funcs.device_condition = NULL;
