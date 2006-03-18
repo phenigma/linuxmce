@@ -133,6 +133,7 @@
 #define DEVICEDATA_Block_Device_CONST 152
 #define DEVICEDATA_Directories_CONST 153
 #define DEVICEDATA_UID_CONST 154
+#define DEVICEDATA_HAL_Model_CONST 155
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
