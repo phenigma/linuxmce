@@ -2336,28 +2336,34 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c790-e->
 {
-	vector<Row_Device *> vectRow_Devices;
+	string sSQL = "select FK_Device from Device_DeviceData where IK_DeviceData = '" ;
+	sSQL += sUID + string("' and FK_DeviceData = ") + StringUtils::itos(DEVICEDATA_UID_CONST) + " limit 1";
+	
+	g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID query: %s", sSQL.c_str());
+	
 	//got the UID, got the deviceType, now look for the device id and put it in the returnValue
-	m_pDatabase_pluto_main->Device_get()->GetRows(" JOIN Device_DeviceData ON FK_Device=PK_Device " 
-		"WHERE IK_DeviceData='" + StringUtils::SQLEscape(sUID) +"'" , &vectRow_Devices);
-	if(vectRow_Devices.size() <= 0)
+	PlutoSqlResult result_set ;
+	
+	result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
+	sCMD_Result = "";
+	if(result_set.r != NULL)
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "no devices with UID = %s" , sUID.c_str());
-		sCMD_Result = "";
+		MYSQL_ROW row = NULL;
+		if( (row = mysql_fetch_row(result_set.r) ) != NULL)
+		{
+			if(row[0] != NULL)
+				sCMD_Result = row[0];
+			else
+				g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID no results");
+		}	
+		else
+			g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID no results");		
 	}
-	else if(vectRow_Devices.size() == 1)
-	{
-		int pk = vectRow_Devices[0]->PK_Device_get();
-		sCMD_Result = StringUtils::itos(pk);
-		g_pPlutoLogger->Write(LV_DEBUG, "found device id = %s with UID = %s" , sCMD_Result.c_str(), sUID.c_str());		
-	}
-	else //vectRow_Devices.size() > 1
-	{
-		int pk = vectRow_Devices[0]->PK_Device_get();
-		sCMD_Result = StringUtils::itos(pk);
-		g_pPlutoLogger->Write(LV_DEBUG, "multiple devices found, use device id = %s with UID = %s" , sCMD_Result.c_str(), sUID.c_str());		
-	}
+	else
+		g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID result set NULL");
+
 }
+
 //<-dceag-c791-b->
 
 	/** @brief COMMAND: #791 - Set Enable Status */
