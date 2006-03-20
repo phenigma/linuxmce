@@ -7,10 +7,9 @@
 
 class XineStream
 {	
+private:
+	xine_stream_t *m_pStream;
 public:
-
-	xine_stream_t *m_Stream;
-	
 	int BitRate;           
 	int SeekAble;          
 	int VideoWidth;       
@@ -27,17 +26,20 @@ public:
 	int AudioSampleRate;  
 	int AudioBitRate;     
 	
-	XineStream(xine_stream_t* pStream)
-	{
-		m_Stream = pStream;
-	}
+	
+	
+	XineStream();
+	XineStream(xine_stream_t* pStream);
+	~XineStream();
 	
 	void ReadInfo();
 	
 	operator xine_stream_t*()
 	{
-		return m_Stream;
+		return m_pStream;
 	}
+	
+	void operator =(xine_stream_t *t);
 	
 	void ScheduleOsdObject(XineOsdObject *pOsd, int timeOffsetShow, int timeOffsetHide=-1);
 };
