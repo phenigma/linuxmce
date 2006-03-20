@@ -260,7 +260,7 @@ function floorplanWizard($output,$dbADO) {
 		
 		if($action=='remove'){
 			$dbADO->Execute('DELETE FROM Floorplan WHERE FK_Installation=? AND Page=?',array($installationID,$page));
-			unlink($path.'/'.$page.'.png');
+			@unlink($path.'/'.$page.'.png');
 			header('Location: index.php?section=floorplanWizard&msg=The floorplan was deleted.');
 			exit();
 		}

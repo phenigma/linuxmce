@@ -357,7 +357,7 @@ function installationSettings($output,$dbADO) {
 			$newTimeZone=$_POST['newTimeZone'];
 			$oldTimeZone=$_POST['oldTimeZone'];
 			if($newTimeZone!=$oldTimeZone){
-				$cmdToSend='sudo -u root /usr/pluto/bin/SetTimeZone.sh '.$newTimeZone;
+				$cmdToSend='sudo -u root /usr/pluto/bin/SetTimeZone.sh '.trim($newTimeZone);
 				exec($cmdToSend);	
 			}
 			if($newLanguage!=$defLanguage){
