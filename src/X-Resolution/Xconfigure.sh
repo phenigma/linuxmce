@@ -69,6 +69,17 @@ while [[ $# -gt 0 ]]; do
 	shift
 done
 
+if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ChangeDisplayDriver.awk."
+	exit 1
+fi
+
+if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
+	# TODO: Detect incomplete/corrupt config files too
+	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file not found or empty. Forcing use of defaults."
+	Defaults=y
+fi
+
 [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
 if [[ "$Defaults" == y ]]; then
 	if [[ ! -f /usr/pluto/templates/XF86Config-4.in ]]; then
