@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 
 resHD480=848x480
@@ -70,6 +71,10 @@ done
 
 [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
 if [[ "$Defaults" == y ]]; then
+	if [[ ! -f /usr/pluto/templates/XF86Config-4.in ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/XF86Config-4.in. Can't setup defaults"
+		exit 1
+	fi
 	cat /usr/pluto/templates/XF86Config-4.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
 elif [[ -n "$UpdateVideoDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
