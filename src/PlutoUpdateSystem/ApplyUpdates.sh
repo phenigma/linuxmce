@@ -108,15 +108,23 @@ for Pkg in $RebootPkg; do
 done
 
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
-echo "- Doing dist-upgrade"
-if apt-get -V -f -y dist-upgrade; then
-	if [[ "$Count" != "0" ]]; then
-		Q="UPDATE Device SET NeedConfigure=1"
-		RunSQL "$Q"
-		if [[ "$DoReboot" == y ]]; then
-			echo "New kernel installed. Rebooting"
-			reboot
-		fi
+
+echo "- Doing dist-upgrade (this can take some time)"
+if [[ -x /usr/bin/screen ]]; then
+	screen -d -m -S BkgSS-ApplyUpdates apt-get -V -f -y dist-upgrade
+	pidScreen=$!
+	wait $pidScreen
+else
+	## Make sure we run even without screen
+	apt-get -V -f -y dist-upgrade
+fi
+
+if [[ "$Count" != "0" ]]; then
+	Q="UPDATE Device SET NeedConfigure=1"
+	RunSQL "$Q"
+	if [[ "$DoReboot" == y ]]; then
+		echo "New kernel installed. Rebooting"
+		reboot
 	fi
 fi
 
