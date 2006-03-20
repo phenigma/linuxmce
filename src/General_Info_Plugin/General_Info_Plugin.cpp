@@ -42,6 +42,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Table_Device_QuickStart.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_QuickStartTemplate.h"
 #include "pluto_main/Table_Device_MRU.h"
 #include "pluto_main/Table_UnknownDevices.h"
@@ -2315,6 +2316,7 @@ void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string sList_P
 	}
 	m_pDatabase_pluto_main->Device_Device_Related_get()->Commit();
 }
+
 //<-dceag-c789-b->
 
 	/** @brief COMMAND: #789 - Force Update Packages */
@@ -2326,6 +2328,7 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 	g_pPlutoLogger->Write(LV_WARNING, "Forcing package update");
 	ProcessUtils::SpawnApplication("/usr/pluto/bin/ForceUpdates.sh", "", "ForceUpdates", NULL, false);
 }
+
 //<-dceag-c790-b->
 
 	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
@@ -2336,9 +2339,39 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c790-e->
 {
+	sCMD_Result = "";
+	string sSQL = 	string("where IK_DeviceData = '") +
+					sUID +
+					string("' and FK_DeviceData = ") +
+					StringUtils::itos(DEVICEDATA_UID_CONST) +
+					" limit 1";
+	
+	vector<class Row_Device_DeviceData*> vectRow_Device_DeviceData;
+	vector<class Row_Device_DeviceData*>::iterator vectRow_Device_DeviceData_iterator;
+	
+	Table_Device_DeviceData *p_Table_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get();
+	if( p_Table_Device_DeviceData != NULL )
+	{
+		p_Table_Device_DeviceData->GetRows(sSQL, &vectRow_Device_DeviceData);
+		
+		Row_Device_DeviceData *pRow_Device_DeviceData = NULL;
+		for(vectRow_Device_DeviceData_iterator = vectRow_Device_DeviceData.begin(); 
+				vectRow_Device_DeviceData_iterator != vectRow_Device_DeviceData.end(); 
+				++vectRow_Device_DeviceData_iterator)
+		{
+			pRow_Device_DeviceData = * vectRow_Device_DeviceData_iterator;
+			if( pRow_Device_DeviceData != NULL )
+			{
+				sCMD_Result = StringUtils::itos( pRow_Device_DeviceData->FK_DeviceData_get() );
+			}
+			// just the first row
+			break;
+		}
+	}
+	
+#if 0
 	string sSQL = "select FK_Device from Device_DeviceData where IK_DeviceData = '" ;
 	sSQL += sUID + string("' and FK_DeviceData = ") + StringUtils::itos(DEVICEDATA_UID_CONST) + " limit 1";
-	
 	g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID query: %s", sSQL.c_str());
 	
 	//got the UID, got the deviceType, now look for the device id and put it in the returnValue
@@ -2357,11 +2390,11 @@ void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Res
 				g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID no results");
 		}	
 		else
-			g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID no results");		
+			g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID no results");
 	}
 	else
 		g_pPlutoLogger->Write(LV_DEBUG, "CMD_Get_iPK_DeviceFromUID result set NULL");
-
+#endif
 }
 
 //<-dceag-c791-b->
@@ -2390,5 +2423,45 @@ void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,stri
 		//no row, no valid device id; are you missing something ? 
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
 			iPK_Device);
+	}
+}//<-dceag-c792-b->
+
+	/** @brief COMMAND: #792 - Get All HAL Model ID */
+	/** Returns a list of HAL Model ID-s */
+
+void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage)
+//<-dceag-c792-e->
+{
+	sCMD_Result = "";
+	string sSQL = string("where FK_DeviceData = ") + StringUtils::itos(DEVICEDATA_HAL_Model_CONST);
+	
+	vector<Row_DeviceTemplate_DeviceData*> vectRow_DeviceTemplate_DeviceData;
+	vector<Row_DeviceTemplate_DeviceData*>::iterator vectRow_DeviceTemplate_DeviceData_iterator;
+	
+	Table_DeviceTemplate_DeviceData *p_Table_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get();
+	if( p_Table_DeviceTemplate_DeviceData != NULL )
+	{
+		p_Table_DeviceTemplate_DeviceData->GetRows(sSQL, &vectRow_DeviceTemplate_DeviceData);
+		
+		bool firstLine = true;
+		
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = NULL;
+		for(vectRow_DeviceTemplate_DeviceData_iterator = vectRow_DeviceTemplate_DeviceData.begin(); 
+				vectRow_DeviceTemplate_DeviceData_iterator != vectRow_DeviceTemplate_DeviceData.end(); 
+				++vectRow_DeviceTemplate_DeviceData_iterator)
+		{
+			pRow_DeviceTemplate_DeviceData = *vectRow_DeviceTemplate_DeviceData_iterator;
+			if(pRow_DeviceTemplate_DeviceData != NULL)
+			{
+				if(!firstLine)
+				{
+					sCMD_Result += "\n";
+				}
+				sCMD_Result +=	StringUtils::itos(pRow_DeviceTemplate_DeviceData->FK_DeviceTemplate_get()) +
+								" " + 
+								pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+				firstLine = false;
+			}
+		}
 	}
 }
