@@ -73,6 +73,36 @@
 		m_Stream        = xine_stream_new( m_Xine, m_AudioPort, m_VideoPort);
 		m_EventQueue    = xine_event_new_queue( m_Stream );
 		xine_event_create_listener_thread( m_EventQueue, XineEvent2, this);
+		
+		xine_post_t *test;
+		const char *const *Info;
+		xine_post_in_t *pInInfo;
+		int nPos = 0;
+		
+		test = xine_post_init( m_Xine, "tvtime",0,
+			    &m_AudioPort, &m_VideoPort );
+		if( test )
+		{
+			printf( "Succed post_init\n" );
+			Info = xine_post_list_inputs( test );
+			
+			while( Info[nPos] ) { printf("%s\n" , Info[nPos++]); }
+			printf( "\n\n" );
+			
+			Info = xine_post_list_outputs( test );
+			
+			nPos = 0;
+			while( Info[nPos] ) { printf("%s\n" , Info[nPos++]); }
+			printf( "\n\n" );
+			
+			pInInfo  =  xine_post_input( test, "video" );
+			pInInfo  =  xine_post_input( test, "parameters" );
+			pInInfo  =  xine_post_input( test, "method" );
+			pInInfo  =  xine_post_input( test, "enable" );
+
+		}
+		else
+			printf( "Failed post_init\n");
 
 		xine_port_send_gui_data( m_VideoPort, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) m_Window);
 		xine_port_send_gui_data( m_VideoPort, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
@@ -81,6 +111,54 @@
 		printf( "Screen:%d\n" , m_nScreen );
 		printf( "XinePlayer::SetOutput\n" );
 		return true;
+	}
+	
+	void XinePlayer::GetInfo()
+	{
+		string pluginDir, fontDir, homeDir;
+		const char* const* pluginList;
+		const char* descPlugin;
+		
+		homeDir = xine_get_homedir();
+		printf( "homeDir: %s \n", homeDir.c_str() );
+	
+		
+		pluginList = pluginList = xine_list_post_plugins( m_Xine );
+		int nPos = 0;
+		printf( "List post plugin:\n" );
+		while( pluginList[nPos] )
+			printf( "%d: %s \n",nPos, pluginList[nPos++] );
+		printf( "\n\n" );
+			
+		
+		pluginList = xine_list_video_output_plugins( m_Xine );
+		printf( "List video output plugin:\n" );
+		nPos = 0;
+		while( pluginList[nPos] )
+			printf( "%d: %s \n", nPos, pluginList[nPos++] );
+		printf( "\n\n" );
+		
+		
+		pluginList = xine_list_demuxer_plugins( m_Xine );
+		printf( "List demuxer plugin:\n" );
+		nPos = 0;
+		while( pluginList[nPos] )
+			printf( "%d: %s \n", nPos, pluginList[nPos++] );
+		printf( "\n\n" );
+		
+		
+		descPlugin = xine_get_post_plugin_description( m_Xine, "tvtime" );
+		printf( "Description: %s\n" , descPlugin );
+			
+		char* demux;	
+		demux = xine_get_demux_for_mime_type( m_Xine, "tvtime" );
+		printf( "Demux: %s\n" , demux );
+	
+		/*pluginDir = xine_get_plugindir();
+		fontDir = xine_get_fontdir();
+	
+		printf( "Plugin dir:\n", pluginDir );
+		printf( "fontDir:\n", fontDir ); */
 	}
 
 	bool XinePlayer::Open(char mrl[])
