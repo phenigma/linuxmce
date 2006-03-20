@@ -8,6 +8,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#include <xine.h>
+#include <xine/xineutils.h>
 
 #include "XinePlayer.h"
 
@@ -101,6 +103,9 @@ int main(int argc, char **argv)
 		pixel_aspect = 1.0;
   
 	pPlayer->Open( mrl );
+	pPlayer->GetInfo();
+	return 0;
+	
 	pPlayer->Play();
 	delete pPlayer;
   
