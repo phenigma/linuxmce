@@ -64,6 +64,8 @@ public:
 	
 	// Post init of xine	
 	bool SetOutput(Display *display,Window *window,int nScreen);
+	
+	void GetInfo();
 
 	//Osd function	
 
