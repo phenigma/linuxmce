@@ -1,3 +1,11 @@
+sysvinit (2.86.ds1-1.1pluto25) unstable; urgency=low
+
+  * Fall back to hotplug init script because of some undetected hardware.
+    This should be temporar until we can replace it's functionality with
+    udev + 2.6.15 uevent.
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 20 Mar 2006 12:31:19 +0200
+
 sysvinit (2.86.ds1-1.1pluto24) unstable; urgency=low
 
   * Starting pluto hal daemon 

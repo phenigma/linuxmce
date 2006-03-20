@@ -67,13 +67,13 @@ done
 
 ## Initializing coldplug system (lshwd or hotplug)
 Message "Loading coldplug modules"
-if [ -x /usr/bin/lshwd ] ;then
+if [ -x /etc/init.d/hotplug ] ;then
+	/etc/init.d/hotplug start
+elif [ -x /usr/bin/lshwd ] ;then
 	/usr/bin/lshwd -a > /dev/null
 	/usr/bin/lshwd
 	# mousedev doesn't autoload, so we use hotplug for input to be safe
 	/etc/hotplug/input.rc start >/dev/null
-elif [ -x /etc/init.d/hotplug ] ;then
-	/etc/init.d/hotplug start
 fi
 
 ## Enableing RAID devices
