@@ -790,7 +790,8 @@ void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMes
 
 string ZWave::GetZWaveSerialDevice()
 {
-	string sPort = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
+//	string sPort = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
+	string sPort = DATA_Get_COM_Port_on_PC();
 	
 	if(sPort.find("/dev/") == 0)
 	{

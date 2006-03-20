@@ -18,10 +18,13 @@ class ZWJobReset::Private
 		Private();
 		~Private();
 	
+		unsigned char callbackID;
+		
 	private:
 };
 
 ZWJobReset::Private::Private()
+	: callbackID(0)
 {
 }
 
@@ -61,7 +64,8 @@ bool ZWJobReset::run()
 	
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_ZW_SET_DEFAULT;
-	buffer[2] = 1; // Callback FunctionID
+	d->callbackID = handler()->callbackCount();
+	buffer[2] = d->callbackID; // Callback FunctionID
 	buffer[3] = 0;
 	
 	setState(ZWaveJob::RUNNING);
@@ -85,7 +89,7 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 			if( length >= 3 && 
 				buffer[0] == REQUEST &&
 				buffer[1] == FUNC_ID_ZW_SET_DEFAULT &&
-				buffer[2] == 1 /* completed*/ )
+				buffer[2] == d->callbackID /* completed*/ )
 			{
 				handler()->clearNodes();
 				setState( ZWaveJob::STOPPED );

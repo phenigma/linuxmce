@@ -24,7 +24,8 @@ class ZWJobReceive::Private
 };
 
 ZWJobReceive::Private::Private()
-	: state(ZWJobReceive::STOP)
+	: state(ZWJobReceive::STOP),
+	  callbackID(0)
 {
 }
 
@@ -188,6 +189,10 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				d->state = ZWJobReceive::STOP;
 				if( handler()->sendData(buf, 2) )
 					return true;
+			}
+			else
+			{
+				return handler()->processData(buffer, length);
 			}
 			break;
 	}
