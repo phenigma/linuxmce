@@ -43,7 +43,7 @@ pluto-hald: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) pluto-hald >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) PlutoHalDaemon >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
