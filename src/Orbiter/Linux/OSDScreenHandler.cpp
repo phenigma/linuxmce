@@ -255,7 +255,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-    if (USE_WX_LIB)
+#if (USE_WX_LIB)
     {
         ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
         // register the RoomWizard callbacks
@@ -265,6 +265,8 @@ void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
         RegisterCallBack( cbOnRefreshWxWidget, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
         return;
     } // USE_WX_LIB
+#endif
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");

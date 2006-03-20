@@ -1860,7 +1860,8 @@ namespace DCE
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
 #endif
-				m_pOrbiter->RedrawObjects();
+				if(!m_pOrbiter->m_bQuit)
+					m_pOrbiter->RedrawObjects();
 			}
 
 		}

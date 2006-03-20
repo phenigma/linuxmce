@@ -7257,6 +7257,10 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 /*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
 {
+	//don't simulate any event; we're reloading
+	if(m_bQuit)
+		return;
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
 #endif
@@ -7282,6 +7286,10 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 /*virtual*/ void Orbiter::SimulateKeyPress(long key)
 {
+	//don't simulate any event; we're reloading
+	if(m_bQuit)
+		return;
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
 #endif
