@@ -25,7 +25,10 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderFile="Debug_OSD/$(TargetName).pch"
+				ObjectFile="Debug_OSD/"
+				ProgramDataBaseFileName="Debug_OSD/vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -34,7 +37,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib libmySQL.lib "
-				OutputFile="../../Debug/Orbiter.exe"
+				OutputFile="../../Debug/Orbiter_OSD.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;../../lib;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs\Libraries\PocketFrog\lib\x86\Debug;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
@@ -138,6 +141,15 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\OpenGL\GL2DWidgets\basewidget.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\basicwindow.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\bezierwindow.cpp">
+			</File>
+			<File
 				RelativePath="..\CacheImageManager.cpp">
 			</File>
 			<File
@@ -150,6 +162,30 @@
 				RelativePath="..\DesignObj_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath="..\OpenGL\GL2DWidgets\DrawingWidgetsEngine.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffect.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromtop.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
+			</File>
+			<File
 				RelativePath="..\GraphicBuilder.cpp">
 			</File>
 			<File
@@ -157,6 +193,18 @@
 			</File>
 			<File
 				RelativePath="..\Win32\MainDialog.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\math3dutils.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\OpenGLProxy.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\OpenGLTextureConverter.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\OpenGLTextureConverter_PocketFrog.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter.cpp">
@@ -169,6 +217,9 @@
 			</File>
 			<File
 				RelativePath="..\OrbiterFileBrowser.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\orbitergl3dengine.cpp">
 			</File>
 			<File
 				RelativePath="..\Linux\OSDScreenHandler.cpp">
