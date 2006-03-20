@@ -125,8 +125,8 @@ OriginateCommand::handleToken(Token* ptoken) {
 	
 			/*get type and phonenum*/
 			string::size_type curpos;
-			destphonetype = StringUtils::Tokenize(data, "/", curpos);
-			destphonenum = StringUtils::Tokenize(data, "/", curpos);
+			destphonetype = StringUtils::Tokenize(data, "/|-", curpos);
+			destphonenum = StringUtils::Tokenize(data, "/|-", curpos);
 			g_pPlutoLogger->Write(LV_STATUS, "DestPhoneNum: %s, DestPhoneType: %s. (AppData: %s). ",
 								destphonenum.c_str(), destphonetype.c_str(), data.c_str());
 		}

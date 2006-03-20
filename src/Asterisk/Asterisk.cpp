@@ -247,6 +247,11 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 	if(!bIsConference)
 	{
 		int pos = sPhoneCallID.find_first_not_of(' ');
+		if(pos < 0)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Conference on unconnected channels ???");		
+			return;
+		}
 		string rest=sPhoneCallID.substr(pos,sPhoneCallID.length());
 		pos = rest.find(' ');
 		if(pos>=0)
