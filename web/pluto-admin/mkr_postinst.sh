@@ -36,6 +36,7 @@ mkdir -p /var/www/pluto-admin/security_images
 chmod -R 777 /var/www/pluto-admin/security_images
 
 chmod 777 /var/www/pluto-admin/cached
+chmod 777 /etc/pluto-callerid.conf
 
 a2dissite default || /bin/true
 

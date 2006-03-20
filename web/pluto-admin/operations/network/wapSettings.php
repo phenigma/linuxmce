@@ -19,6 +19,17 @@ function wapSettings($output,$dbADO) {
 		}
 	}
 	
+	if(!file_exists($GLOBALS['pluto_callerid.conf'])){
+		$_REQUEST['error']='ERROR: The file '.$GLOBALS['pluto_callerid.conf'].' does not exist.';
+	}else{
+		$fileArr=file($GLOBALS['pluto_callerid.conf']);
+		if($fileArr===false){
+			$_REQUEST['error']='ERROR: The file '.$GLOBALS['pluto_callerid.conf'].' could not be opened.';
+		}else{
+			$caller_id_number=trim(implode('',$fileArr));
+		}
+	}
+	
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = cleanInteger($_SESSION['installationID']);
@@ -78,6 +89,10 @@ $TEXT_WAP_NOTES_CONST.'
 			<td><input type="text" name="url" value="'.@$wapURL.'" size="50"></td>
 		</tr>
 		<tr>
+			<td>'.$TEXT_CALLER_ID_NUMBER_CONST.'</td>
+			<td><input type="text" name="caller_id_number" value="'.@$caller_id_number.'" size="50"></td>
+		</tr>
+		<tr>
 			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
 		</tr>
 	</table>
@@ -92,15 +107,24 @@ $TEXT_WAP_NOTES_CONST.'
 		
 		if(isset($_POST['save'])){
 			$url=$_POST['url'];
+			$caller_id_number=$_POST['caller_id_number'];
 			
+			// write url to wap settings file
 			$handle = @fopen($settingsFile, 'w');
-
 			if (!@fwrite($handle, $url)) {
 				header("Location: index.php?section=wapSettings&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$settingsFile);
 				exit();
 			}
 			fclose($handle);
 
+			// write callerID number to pluto_callerID.conf file
+			$handle = @fopen($GLOBALS['pluto_callerid.conf'], 'w');
+			if (!@fwrite($handle, $caller_id_number)) {
+				header("Location: index.php?section=wapSettings&error=$TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST ".$GLOBALS['pluto_callerid.conf']);
+				exit();
+			}
+			fclose($handle);
+						
 			header("Location: index.php?section=wapSettings&msg=$TEXT_WAP_GPRS_SETTINGS_UPDATED_CONST");
 			exit();
 		}

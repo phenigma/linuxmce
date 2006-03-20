@@ -6,4 +6,5 @@ $TEXT_WAP_NOTES_CONST='<p>There, you will be able to access the wap site from yo
 $TEXT_ENTER_WAP_GPRS_URL_CONST='Please enter WAP/GPRS URL';
 $TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST='Cannot write to file';
 $TEXT_WAP_GPRS_SETTINGS_UPDATED_CONST='WAP/GPRS url was updated.';
+$TEXT_CALLER_ID_NUMBER_CONST='Caller ID number';
 ?>
