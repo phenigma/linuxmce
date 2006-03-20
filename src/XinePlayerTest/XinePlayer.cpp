@@ -35,6 +35,8 @@
 		m_Display = NULL;
 		m_nScreen = 0;
 		
+		m_pPostPlugin = NULL;
+		
 		printf( "XinePlayer::XinePlayer\n" );
 	}
 	
@@ -74,42 +76,121 @@
 		m_EventQueue    = xine_event_new_queue( m_Stream );
 		xine_event_create_listener_thread( m_EventQueue, XineEvent2, this);
 		
-		xine_post_t *test;
-		const char *const *Info;
-		xine_post_in_t *pInInfo;
-		int nPos = 0;
-		
-		test = xine_post_init( m_Xine, "tvtime",0,
-			    &m_AudioPort, &m_VideoPort );
-		if( test )
-		{
-			printf( "Succed post_init\n" );
-			Info = xine_post_list_inputs( test );
-			
-			while( Info[nPos] ) { printf("%s\n" , Info[nPos++]); }
-			printf( "\n\n" );
-			
-			Info = xine_post_list_outputs( test );
-			
-			nPos = 0;
-			while( Info[nPos] ) { printf("%s\n" , Info[nPos++]); }
-			printf( "\n\n" );
-			
-			pInInfo  =  xine_post_input( test, "video" );
-			pInInfo  =  xine_post_input( test, "parameters" );
-			pInInfo  =  xine_post_input( test, "method" );
-			pInInfo  =  xine_post_input( test, "enable" );
-
-		}
-		else
-			printf( "Failed post_init\n");
-
 		xine_port_send_gui_data( m_VideoPort, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) m_Window);
 		xine_port_send_gui_data( m_VideoPort, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 		
 		printf( "Pixel aspect:%f\n", m_dPixelAspect );
 		printf( "Screen:%d\n" , m_nScreen );
 		printf( "XinePlayer::SetOutput\n" );
+		return true;
+	}
+	
+	bool XinePlayer::LoadPostPlugin(string pluginName)
+	{
+		xine_video_port_t *video[2];
+		char *stringData;
+		const char * const* postList;
+		
+		xine_post_in_t *pInInfo = NULL;
+		xine_post_api_t *pApi = NULL;
+		xine_post_api_descr_t * pApiDesc;
+		xine_post_api_parameter_t *pParam;
+		int nPos = 0;
+		
+		video[0] = m_VideoPort;
+		video[1] = NULL;
+		m_pPostPlugin = xine_post_init( m_Xine, pluginName.c_str(),0,
+			    NULL, video );
+		if( m_pPostPlugin )
+		{
+			//printf( "Succed post_init\n" );
+			//postList = xine_post_list_inputs( m_pPostPlugin );
+			//while( postList[nPos] ) { printf("%s\n" , postList[nPos++]); }
+			//printf( "\n\n" );
+			
+			postList = xine_post_list_outputs( m_pPostPlugin );
+			nPos = 0;
+			while( postList[nPos] ) { printf("%s\n" , postList[nPos++]); }
+			printf( "\n\n" );
+			
+			pInInfo  =  xine_post_input( m_pPostPlugin, "parameters" );
+			pApi = (xine_post_api_t *) pInInfo->data;
+			pApiDesc = pApi->get_param_descr();
+			pParam = pApiDesc->parameter;
+			stringData = new char[pApiDesc->struct_size];
+			pApi->get_parameters( m_pPostPlugin, (void *) stringData);
+			
+			while( pParam->type != POST_PARAM_TYPE_LAST )
+			{
+				printf( "Name:%s  Description:%s  ", pParam->name, pParam->description );
+				printf( "Offset:%d  " ,pParam->offset );
+				
+				switch( pParam->type  )
+				{
+				
+					case POST_PARAM_TYPE_INT:
+					printf( "Type:int\n" );
+					break;
+					
+					case POST_PARAM_TYPE_BOOL:
+					printf( "Type:bool\n" );
+					break;
+					
+					case POST_PARAM_TYPE_DOUBLE:
+					printf( "Type:double\n" );
+					break;
+					
+					case POST_PARAM_TYPE_CHAR:   
+					printf( "Type:char\n" );
+					break;
+					
+					case POST_PARAM_TYPE_STRING:
+					printf( "Type:string\n" );
+					break;  
+					
+					//only for tvtime change in more general
+				}
+				
+				if( !strncasecmp(pParam->name, "method", 6) && pParam->type == POST_PARAM_TYPE_INT)
+				{
+			    	*(int *)(stringData + pParam->offset) = 4;
+				}
+				
+				if( !strncasecmp(pParam->name, "enabled", 7) && pParam->type == POST_PARAM_TYPE_BOOL)
+				{
+			    	*(int *)(stringData + pParam->offset) = 1;
+				}
+				
+				if( !strncasecmp(pParam->name, "cheap_mode", 10) && pParam->type == POST_PARAM_TYPE_BOOL)
+				{
+			    	*(int *)(stringData + pParam->offset) = 0;
+				}
+				
+				if(!strncasecmp(pParam->name, "use_progressive_frame_flag", 26) && pParam->type == POST_PARAM_TYPE_BOOL)
+				{
+					*(int *)(stringData + pParam->offset) = 1;
+				}
+				
+				if( !strncasecmp(pParam->name, "pulldown", 8) && pParam->type == POST_PARAM_TYPE_INT)
+				{
+					*(int *)(stringData + pParam->offset) = 1;
+				}
+				
+				pParam++;	
+			}
+			
+			pApi->set_parameters(m_pPostPlugin, (void *) stringData );
+			delete stringData;
+			xine_post_wire_video_port( xine_get_video_source(m_Stream), m_pPostPlugin->video_input[0] );
+		}
+		else
+			printf( "Failed post_init %s\n", pluginName.c_str() );
+
+		return true;
+	}
+	
+	bool XinePlayer::SetPluginParam(string name,string value)
+	{
 		return true;
 	}
 	

@@ -58,12 +58,17 @@ private:
 	int                  m_nXPos, m_nYPos, m_nWidth, m_nHeight;
 	double               m_dPixelAspect;
 	int                  m_nRunning;
+	
+	xine_post_t *m_pPostPlugin;
 public:
 	XinePlayer();
 	~XinePlayer();
 	
 	// Post init of xine	
 	bool SetOutput(Display *display,Window *window,int nScreen);
+
+	bool LoadPostPlugin(string pluginName);
+	bool SetPluginParam(string name,string value);
 	
 	void GetInfo();
 

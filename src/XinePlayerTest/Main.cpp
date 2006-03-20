@@ -103,7 +103,10 @@ int main(int argc, char **argv)
 		pixel_aspect = 1.0;
   
 	pPlayer->Open( mrl );
-	pPlayer->GetInfo();
+	
+	
+	//pPlayer->GetInfo();
+	pPlayer->LoadPostPlugin( "tvtime" );
 	return 0;
 	
 	pPlayer->Play();

@@ -26,8 +26,6 @@ public:
 	int AudioSampleRate;  
 	int AudioBitRate;     
 	
-	
-	
 	XineStream();
 	XineStream(xine_stream_t* pStream);
 	~XineStream();
