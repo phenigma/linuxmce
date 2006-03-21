@@ -18,6 +18,7 @@
 #include "pluto_main/Define_CommandParameter.h"
 
 
+
 map<unsigned int, int> templatesMap;
 
 /*
@@ -45,7 +46,8 @@ void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection)
 }
 
 void sendMessage(char *params[], int count, string &returnValue)
-{ 
+{
+	returnValue = "";
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname);
 	if(pEvent != NULL)
 	{			
@@ -56,7 +58,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 			if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
-				throw(new string("Cannot communicate with router"));
+				throw(string("Cannot communicate with router"));
 			}
 			if( sResponse=="YES" )
 				break;
@@ -65,7 +67,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 				if( i>5 )
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
-					throw(new string("Router not ready after 30 seconds.  Aborting...."));
+					throw(string("Router not ready after 30 seconds.  Aborting...."));
 				}
 				g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
 				Sleep(5000);
@@ -73,11 +75,11 @@ void sendMessage(char *params[], int count, string &returnValue)
 			else
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
-				throw(new string("Router gave unknown response to ready request"));
+				throw(string("Router gave unknown response to ready request"));
 			}
 		}
 
-		Message *pMsg=new Message(13, params);
+		Message *pMsg=new Message(count, params);
 		if(pMsg != NULL)
 		{
 			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
@@ -92,10 +94,12 @@ void sendMessage(char *params[], int count, string &returnValue)
 						delete pResponse;
 						pResponse = NULL;
 					}								
+					cout << "Failed to send message" << endl;
 					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
 				}
 				else
 				{
+					cout << "0" << endl;
 					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
 					{
 						cout << (*it).first << ":" << (*it).second << endl;
@@ -108,15 +112,16 @@ void sendMessage(char *params[], int count, string &returnValue)
 			else
 			{
 				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int))");
+				cout << "message should have out parameters (PK_Device (int))" << ExpectedResponse << endl;
 			}
 		}
 		else
 		{
-			throw(new string("pMsg == NULL"));
+			throw(string("pMsg == NULL"));
 		}
 	}
 	else
-		throw(new string("pEvent == NULL"));
+		throw(string("pEvent == NULL"));
 }
 
 
@@ -132,7 +137,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 		//hal_device_print (ctx, udi);
 		int usb_device_product_id = hal_device_get_property_int(ctx, udi, "usb_device.product_id");
 		int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
-		
+
 		map<unsigned int, int>::iterator it;
 		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
 		if(it != templatesMap.end())
@@ -142,12 +147,12 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
 			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
 			gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
-			
+
 			// TODO: check for null strings
-			
+
 			char buffer[4096];
-			
-			
+
+
 			printf("%s | %s | %s | %s | %s | %s\n", bus, product, vendor, serial, info_udi, sysfs_path);
 			if(hostname == NULL)
 			{
@@ -178,15 +183,19 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				{
 					char *params[5];
 					
-					params[0]  =	"0";
-					params[1]  =	"4";
-					params[2]  =	"1";
-					params[3]  =	"206";
+					params[0]  =	"-targetType";
+					params[1]  =	"template";
+					params[2]  =	"-o";
+					params[3]  =	"0";
+					params[4]  =	(char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to: ;
+					params[5]  =	"1";
+					params[6]  =	(char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(); // Get_iPK_DeviceFromUID ;
 					strcpy(buffer, info_udi);
-					params[4]  =	(char *)buffer;
+					params[7]  =	(char *)buffer;
 
 					
 					sendMessage(params, 5, response);
+					StringUtils::TrimSpaces(response);
 					isNewDevice = response.empty();
 				}
 				if(isNewDevice)
@@ -458,7 +467,14 @@ int main(int argc, char* argv[])
 		}
 	}
 	else
-		hostname = NULL;
+	{
+		hostname = (char *)malloc(strlen("localhost") + 1);
+		if(hostname != NULL)
+		{
+			strcpy(hostname, "localhost");
+		}
+	}
+
 
 
 	//get the list of the templates and their corresponding product_id / vendor_id
@@ -472,8 +488,18 @@ int main(int argc, char* argv[])
 	params[5]  = "1";  // command
 	params[6]  = (char*)StringUtils::itos( COMMAND_Get_All_HAL_Model_ID_CONST ).c_str(); // command ID
 	
-	sendMessage(params, 7, response);
-	
+
+	try
+	{	
+		sendMessage(params, 7, response);
+		printf("response %s\n", response.c_str());
+	}
+	catch(string ex)
+	{
+		printf("exception %s\n", ex.c_str());
+		//return 1;
+	}
+
 	vector<string> strings;
 	StringUtils::Tokenize(response, string("\n"), strings);
 	
@@ -504,7 +530,6 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-	
 	loop = g_main_loop_new (NULL, FALSE);
 	
 	funcs.main_loop_integration = mainloop_integration;
