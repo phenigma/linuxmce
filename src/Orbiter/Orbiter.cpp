@@ -7265,6 +7265,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
 #endif
 
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
+
 	BeginPaint();
 	PlutoColor color(255, 0, 0, 100);
 	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
@@ -7293,6 +7295,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
 #endif
+
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
 	BeginPaint();
 

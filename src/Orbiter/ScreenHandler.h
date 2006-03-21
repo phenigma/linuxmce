@@ -17,6 +17,8 @@ protected:
 	map<CallBackType, ScreenHandlerCallBack> m_mapCallBack;
 	map<CallBackType, CallBackData *> m_mapCallBackData;
 
+	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
+
 	virtual void DisplayMessageOnOrbiter(int PK_Screen,
 		string sMessage, bool bPromptToResetRouter = false,
 		string sTimeout = "0", bool bCantGoBack = false, 

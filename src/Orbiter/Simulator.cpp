@@ -80,11 +80,6 @@ void *GeneratorThread( void *p)
 
 	int iTimeout = pSimulator->m_dwTimeout;
 
-#ifndef WIN32
-	iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
-	iDelayMax = max(pSimulator->m_dwDelayMax, 1000);
-#endif
-
 	if(iDelayMin == iDelayMax)
 		iDelayMax++;
 

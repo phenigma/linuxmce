@@ -10,27 +10,32 @@
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
-ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
+ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
+	ScreenHandlerBase(p_MapDesignObj), m_MapMutex("maps")
 {
 	m_pOrbiter = pOrbiter;
+
+	m_MapMutex.Init(NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
 {
+	pthread_mutex_destroy(&m_MapMutex.mutex);
+
 	m_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack,
 	CallBackData *pCallBackData)
 {
-	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack[aCallBackType] = aScreenHandlerCallBack;
 	m_mapCallBackData[aCallBackType] = pCallBackData;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
-	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack.clear();
 
 	for(map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.begin(); it != m_mapCallBackData.end(); it++)
@@ -43,14 +48,14 @@ void ScreenHandler::ResetCallBacks()
 //-----------------------------------------------------------------------------------------------------
 ScreenHandlerCallBack ScreenHandler::m_mapCallBack_Find(CallBackType aCallBackType)
 {
-	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	map<CallBackType, ScreenHandlerCallBack>::iterator it = m_mapCallBack.find(aCallBackType);
 	return it == m_mapCallBack.end() ? NULL : it->second;
 }
 //-----------------------------------------------------------------------------------------------------
 CallBackData *ScreenHandler::m_mapCallBackData_Find(CallBackType aCallBackType)
 {
-	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.find(aCallBackType);
 	return it == m_mapCallBackData.end() ? NULL : it->second;
 }
