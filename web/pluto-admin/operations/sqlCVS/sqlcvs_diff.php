@@ -253,18 +253,28 @@ function sqlcvs_diff($output,$dbADO) {
 				<input type="hidden" name="parms" value="'.$parmList.'">
 				<input type="hidden" name="fileLines" value="'.$lineNo.'">';
 		}
-		if(@count($resultArray)>0){
-			$out.='
-				<tr>
-					<td colspan="5" bgcolor="#F0F3F8"><a href="javascript:selAllCheckboxes(\''.$lineNo.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$lineNo.'\',false);">[ Uncheck all ]</a></td>
-				</tr>			
-				<tr>
-					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
-				</tr>';
+		if($retVal==0){
+			if(@count($resultArray)>0){
+				$out.='
+					<tr>
+						<td colspan="5" bgcolor="#F0F3F8"><a href="javascript:selAllCheckboxes(\''.$lineNo.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$lineNo.'\',false);">[ Uncheck all ]</a></td>
+					</tr>			
+					<tr>
+						<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
+					</tr>';
+			}else{
+				$out.='
+					<tr>
+						<td colspan="5" align="center">'.$TEXT_NO_CHANGES_CONST.' <a href="index.php?section=sqlcvs_diff">'.$TEXT_TRY_AGAIN_CONST.'</a></td>
+					</tr>';
+			}
 		}else{
 			$out.='
 				<tr>
-					<td colspan="5" align="center">'.$TEXT_NO_CHANGES_CONST.' <a href="index.php?section=sqlcvs_diff">'.$TEXT_TRY_AGAIN_CONST.'</a></td>
+					<td colspan="5" align="center">'.$TEXT_PARAMETERS_ERROR_CONST.' <a href="index.php?section=sqlcvs_diff">'.$TEXT_TRY_AGAIN_CONST.'</a></td>
+				</tr>
+				<tr>
+					<td colspan="5" align="left"><b>'.$TEXT_ERROR_DETAILS_CONST.'</b><br>'.join('<br>',$retArray).'</td>
 				</tr>';
 		}
 			$out.='

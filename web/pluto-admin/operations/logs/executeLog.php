@@ -14,8 +14,10 @@ switch($scriptID){
 		</script>';
 	break;
 	case 2:
-		$command[]=stripslashes(urldecode($_REQUEST['command']));
+		$timestamp=time();
+		$command[]=stripslashes(urldecode($_REQUEST['command'])).' 1>/dev/null 2>/tmp/sqlCVS-errors-'.$timestamp.'.log';
 		$title='sqlCVS command';
+		$showTmpFile=1;
 	break;	
 	case 3:
 		$path=stripslashes($_REQUEST['path']);
@@ -35,15 +37,21 @@ for ($i = 0; $i < count($command); $i++)
 {
 	print $command[$i].'<br><br>';
 	if($command[$i]!=''){
-		system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.newlog|/usr/pluto/bin/ansi2html)'", $retval);
-		if ($retval != 0)
-		{
-			$message = "Failed setting up diskless Media Directors";
-			break;
+		if(!isset($showTmpFile)){
+			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.newlog|/usr/pluto/bin/ansi2html)'", $retval);
+			if ($retval != 0){
+				$message = "Failed setting up diskless Media Directors";
+				break;
+			}
+			print '<br><br>';
+		}else{
+			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.newlog|/usr/pluto/bin/ansi2html)'", $retval);
+			exec('cat /tmp/sqlCVS-errors-'.$timestamp.'.log | /usr/pluto/bin/ansi2html',$retArray);
+			print 'Error log: /tmp/sqlCVS-errors-'.$timestamp.'.log<br>'.join('<br>',$retArray);
 		}
-		print '<br><br>';
 	}
 }
+
 print(preg_replace("/@MESSAGE@/", $message, $end));
 ?>
 </pre>

@@ -13,4 +13,6 @@ $TEXT_ERROR_NO_TABLE_SELECTED_CONST='You must choose at least a table from repos
 $TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST='Host or port not specified.';
 $TEXT_TABLE_CONST='Table';
 $TEXT_TRY_AGAIN_CONST='Try again';
+$TEXT_PARAMETERS_ERROR_CONST='Parameters error';
+$TEXT_ERROR_DETAILS_CONST='Error details';
 ?>
