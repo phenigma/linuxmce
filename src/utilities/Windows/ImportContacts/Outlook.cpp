@@ -33,54 +33,65 @@ using namespace Outlook;
 int OutlookWraper::readContacts(ContactsList &list)
 {
 	_ApplicationPtr pApp("Outlook.Application");
-	_NameSpacePtr pMAPI = pApp->GetNamespace("MAPI");
-	pMAPI->Logon("","",false,false);
+	_NameSpacePtr pMAPI;
 	Contact *pContactInfo = NULL;
 
-	MAPIFolderPtr InboxFolder = pMAPI->GetDefaultFolder(olFolderContacts);
-	_ItemsPtr pItems = InboxFolder->GetItems();
-	_ContactItemPtr pContact;
-	int nCount = pItems->Count;
-	int nRead = 0;
+	MAPIFolderPtr pFolder;
+	_ItemsPtr pItems;
+	_ContactItemPtr pContact;;
+	int nRead = 0, nCount = 0;
 
-	pContact = pItems->GetFirst();
-	for(int i=0;i<nCount;i++)
+	try
 	{
+		pMAPI= pApp->GetNamespace("MAPI");
+		pMAPI->Logon("","",false,false);
+		pFolder = pMAPI->GetDefaultFolder(olFolderContacts);
+		pItems = pFolder->GetItems();
+		pContact = pItems->GetFirst();
+		nCount = pItems->GetCount();
 
-		pContactInfo = new Contact;
+		for(int i=0;i<nCount;i++)
+		{
 
-		if( (char *) pContact->GetFirstName() != NULL )
-			pContactInfo->firstName = (char *) pContact->GetFirstName();
-		if( (char *) pContact->GetMiddleName() != NULL )
-			pContactInfo->middleName = (char *) pContact->GetMiddleName();
-		if( (char *) pContact->GetLastName() != NULL )
-			pContactInfo->lastName = (char *) pContact->GetLastName();
+			pContactInfo = new Contact;
 
-		if( (char *) pContact->GetCompanyName() != NULL )
-			pContactInfo->companyName = (char *) pContact->GetCompanyName();
-		if( (char *) !pContact->GetTitle() != NULL)
-			pContactInfo->title = (char *) pContact->GetTitle();
+			if( (char *) pContact->GetFirstName() != NULL )
+				pContactInfo->firstName = (char *) pContact->GetFirstName();
+			if( (char *) pContact->GetMiddleName() != NULL )
+				pContactInfo->middleName = (char *) pContact->GetMiddleName();
+			if( (char *) pContact->GetLastName() != NULL )
+				pContactInfo->lastName = (char *) pContact->GetLastName();
 
-		if( (char *) pContact->GetHomeTelephoneNumber() != NULL )
-			pContactInfo->phoneHome = (char *) pContact->GetHomeTelephoneNumber();
-		if( (char *) pContact->GetBusinessTelephoneNumber() != NULL )
-			pContactInfo->homeBusiness = (char *) pContact->GetBusinessTelephoneNumber();
-		if( (char*) pContact->GetMobileTelephoneNumber() != NULL )
-			pContactInfo->phoneMobile = (char *) pContact->GetMobileTelephoneNumber();
+			if( (char *) pContact->GetCompanyName() != NULL )
+				pContactInfo->companyName = (char *) pContact->GetCompanyName();
+			if( (char *) !pContact->GetJobTitle() != NULL)
+				pContactInfo->title = (char *) pContact->GetJobTitle();
 
-		if( (char *) pContact->GetHomeAddress() != NULL )
-			pContactInfo->homeAddress = (char *) pContact->GetHomeAddress();
-		if( (char *) pContact->GetBusinessAddress() != NULL )
-			pContactInfo->businessAddress = (char *) pContact->GetBusinessAddress();
+			if( (char *) pContact->GetHomeTelephoneNumber() != NULL )
+				pContactInfo->phoneHome = (char *) pContact->GetHomeTelephoneNumber();
+			if( (char *) pContact->GetBusinessTelephoneNumber() != NULL )
+				pContactInfo->homeBusiness = (char *) pContact->GetBusinessTelephoneNumber();
+			if( (char*) pContact->GetMobileTelephoneNumber() != NULL )
+				pContactInfo->phoneMobile = (char *) pContact->GetMobileTelephoneNumber();
 
-		if( (char *) pContact->GetEmail1Address() != NULL )
-			pContactInfo->email = (char *) pContact->GetEmail1Address();
+			if( (char *) pContact->GetHomeAddress() != NULL )
+				pContactInfo->homeAddress = (char *) pContact->GetHomeAddress();
+			if( (char *) pContact->GetBusinessAddress() != NULL )
+				pContactInfo->businessAddress = (char *) pContact->GetBusinessAddress();
+
+			if( (char *) pContact->GetEmail1Address() != NULL )
+				pContactInfo->email = (char *) pContact->GetEmail1Address();
 
 
-		list.addContact( pContactInfo );
-		nRead++;
-		pContact = pItems->GetNext();
+			list.addContact( pContactInfo );
+			nRead++;
+			pContact = pItems->GetNext();
+		}
 	}
-	nCount++;
+	catch(_com_error& ce)
+    {
+		//errDesc = (char *) ce.Description();
+		return nRead;
+	}
 	return nRead;
 }
