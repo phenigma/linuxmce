@@ -45,13 +45,97 @@ void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection)
 	dbus_connection_setup_with_g_main (dbus_connection, NULL);
 }
 
-void sendMessage(char *params[], int count, string &returnValue)
+//void sendMessage(char *params[], int count, string &returnValue)
+//{
+//	returnValue = "";
+//	
+//	printf("MessageSend %s", hostname);
+//	for(int i = 0; i < count; i++)
+//		printf(" %s", params[i]);
+//	printf("\n");
+//	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname);
+//	if(pEvent != NULL)
+//	{			
+//		for(int i=0;true;++i) // Wait up to 30 seconds
+//		{
+//			pEvent->m_pClientSocket->SendString("READY");
+//			string sResponse;
+//			if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
+//			{
+//				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
+//				throw(string("Cannot communicate with router"));
+//			}
+//			if( sResponse=="YES" )
+//				break;
+//			else if( sResponse=="NO" )
+//			{
+//				if( i>5 )
+//				{
+//					g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
+//					throw(string("Router not ready after 30 seconds.  Aborting...."));
+//				}
+//				g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
+//				Sleep(5000);
+//			}
+//			else
+//			{
+//				g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
+//				throw(string("Router gave unknown response to ready request"));
+//			}
+//		}
+//
+//		Message *pMsg=new Message(count, params);
+//		if(pMsg != NULL)
+//		{
+//			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
+//			if( ExpectedResponse == ER_ReplyMessage )
+//			{
+//				// There are out parameters, we need to get a message back in return
+//				Message *pResponse = pEvent->SendReceiveMessage( pMsg );
+//				if( !pResponse || pResponse->m_dwID != 0 )
+//				{
+//					if(pResponse)
+//					{
+//						delete pResponse;
+//						pResponse = NULL;
+//					}
+//					cout << "Failed to send message" << endl;
+//					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
+//				}
+//				else
+//				{
+//					cout << "0" << endl;
+//					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
+//					{
+//						cout << (*it).first << ":" << (*it).second << endl;
+//						returnValue = (*it).second;
+//					}
+//				}
+//				delete pResponse;
+//				pResponse = NULL;
+//			}
+//			else
+//			{
+//				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int))");
+//				cout << "message should have out parameters (PK_Device (int))" << ExpectedResponse << endl;
+//			}
+//		}
+//		else
+//		{
+//			throw(string("pMsg == NULL"));
+//		}
+//	}
+//	else
+//		throw(string("pEvent == NULL"));
+//}
+
+
+void sendMessage(string params, string &returnValue)
 {
 	returnValue = "";
 	
-	printf("MessageSend %s", hostname);
-	for(int i = 0; i < count; i++)
-		printf(" %s", params[i]);
+	printf("MessageSend %s %s", hostname, params.c_str());
+	
 	printf("\n");
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname);
 	if(pEvent != NULL)
@@ -84,7 +168,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 			}
 		}
 
-		Message *pMsg=new Message(count, params);
+		Message *pMsg=new Message(params);
 		if(pMsg != NULL)
 		{
 			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
@@ -155,31 +239,6 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 
 			// TODO: check for null strings
 
-			char buffer[4096];
-
-
-			printf("%s | %s | %s | %s | %s | %s\n", bus, product, vendor, serial, info_udi, sysfs_path);
-			if(hostname == NULL)
-			{
-				hostname = (char *)malloc(10);
-				if(hostname != NULL)
-					strcpy(hostname, "localhost");
-			}
-			/*./MessageSend 10.0.0.87 -targetType template -o 0 27 1 718 44 1754 156 1 57 -1
-				0:OK
-				2:30
-			 * */
-/*			snprintf( buffer, sizeof(buffer),
-				"MessageSend %s -targetType template -o 0 27 1 718 44 %d 156 %d 57 -1 109 154|%s",
-				hostname,
-				PLUTO_ZWAVE_TEMPLATE_ID, 
-				PLUTO_CORE_DEVICE_ID,
-				info_udi);
-				printf("%s\n", buffer);*/
-//				system(buffer);
-			char *params[15];
-			for(int i = 0; i < 15; i++)
-				params[15] = (char *)malloc(1024);
 			try
 			{
 				
@@ -188,45 +247,53 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				//find out if it is a new device by calling the command 
 				//corresponding to the void General_Info_Plugin::Get_iPK_DeviceFromUID(string UID, string deviceType, string &returnValue)
 				//function from General_Info_Plugin
-				{
-					strncmp(params[0], "-targetType", 1024);
-					strncmp(params[1], "template", 1024);
-					strncmp(params[2], "-o", 1024);
-					strncmp(params[3], "0", 1024);
-					strncmp(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to: ;
-					strncmp(params[5], "1", 1024);
-					strncmp(params[6], (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // Get_iPK_DeviceFromUID ;
-					strncmp(params[7], (char *)info_udi, 1024);
-			
-					sendMessage(params, 8, response);
-					StringUtils::TrimSpaces(response);
-					isNewDevice = response.empty();
-				}
+
+//				strncmp(params[0], "-targetType", 1024);
+//				strncmp(params[1], "template", 1024);
+//				strncmp(params[2], "-o", 1024);
+//				strncmp(params[3], "0", 1024);
+//				strncmp(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to: ;
+//				strncmp(params[5], "1", 1024);
+//				strncmp(params[6], (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // Get_iPK_DeviceFromUID ;
+//				strncmp(params[7], (char *)info_udi, 1024);
+		
+				sendMessage(string("-targetType template -o 0") +
+					StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) +
+					" 1 " +
+					StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) +
+					(char *)info_udi, response);
+				StringUtils::TrimSpaces(response);
+
+				isNewDevice = response.empty();
+
 				if(isNewDevice)
 				{
 					
-					
+					char buffer[1024];
 					char buffer2[20];
 					snprintf(buffer, sizeof(buffer), "154|%s", info_udi);
 					snprintf(buffer2, sizeof(buffer2), "%s", StringUtils::itos( (*it).second ).c_str());
 
-					strncmp(params[0], "-targetType", 1024);
-					strncmp(params[1], "template", 1024);
-					strncmp(params[2], "-o", 1024);
-					strncmp(params[3], "0", 1024); // from:
-					strncmp(params[4], "27", 1024);// to: DEVICETEMPLATE_General_Info_Plugin_CONST
-					strncmp(params[5], "1", 1024); //command
-					strncmp(params[6], "718", 1024);
-					strncmp(params[7], "44", 1024);
-					strncmp(params[8], buffer2, 1024);
-					strncmp(params[9], "156", 1024);
-					strncmp(params[10], "PLUTO_CORE_DEVICE_ID_STR", 1024);
-					strncmp(params[11], "57", 1024);
-					strncmp(params[12], "-1", 1024);
-					strncmp(params[13], "109", 1024); // extra param for setting the data devices
-					strncmp(params[14], buffer, 1024);
+//					strncmp(params[0], "-targetType", 1024);
+//					strncmp(params[1], "template", 1024);
+//					strncmp(params[2], "-o", 1024);
+//					strncmp(params[3], "0", 1024); // from:
+//					strncmp(params[4], "27", 1024);// to: DEVICETEMPLATE_General_Info_Plugin_CONST
+//					strncmp(params[5], "1", 1024); //command
+//					strncmp(params[6], "718", 1024);
+//					strncmp(params[7], "44", 1024);
+//					strncmp(params[8], buffer2, 1024);
+//					strncmp(params[9], "156", 1024);
+//					strncmp(params[10], "PLUTO_CORE_DEVICE_ID_STR", 1024);
+//					strncmp(params[11], "57", 1024);
+//					strncmp(params[12], "-1", 1024);
+//					strncmp(params[13], "109", 1024); // extra param for setting the data devices
+//					strncmp(params[14], buffer, 1024);
 				
-					sendMessage(params, 15, response);
+					sendMessage(string("-targetType template -o 0 27 1 718 44 ") + 
+							buffer2 +  " 156 PLUTO_CORE_DEVICE_ID_STR 57 -1 109 " +
+							buffer , 
+						response);
 				}
 				else
 				{
@@ -238,11 +305,11 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				g_pPlutoLogger->Write(LV_CRITICAL, "exception thrown: %s", ex.c_str());
 			}
 			
-			for(int i = 0; i < 15; i++)
-			{
-				free(params[i]);
-				params[i] = NULL;
-			}
+//			for(int i = 0; i < 15; i++)
+//			{
+//				free(params[i]);
+//				params[i] = NULL;
+//			}
 			g_free (product);
 			product = NULL;
 			g_free (vendor);
@@ -266,11 +333,6 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 
 void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
 {
-	char *params[10];
-	for(int i= 0; i < 10; i++)
-	{
-		params[i] = (char *)malloc(1024);
-	}
 		
 	gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
 	if(serial_port != NULL)
@@ -287,21 +349,22 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 			
 			
 			char buffer[20];
-			strncmp(buffer, StringUtils::itos((*it).second).c_str(), 20);
-			strncmp(params[0]  ,	"0", 1024); // from:
-			strncmp(params[1]  ,	"4", 1024);// to: DEVICETEMPLATE_General_Info_Plugin_CONST
-			strncmp(params[2]  ,	"1", 1024); //command
-			strncmp(params[3]  ,	"246", 1024); //set device data
-			strncmp(params[4]  ,	"1", 1024); //PK_Device
-			strncmp(params[5]  ,	"xxx", 1024); //get the device ID
-			strncmp(params[6]  ,	"52", 1024); //PK_DeviceData
-			strncmp(params[7]  ,	"get the device data id", 1024);
-			strncmp(params[8]  ,	"5", 1024); //value to assign
-			strncmp(params[9]  ,	serial_port, 1024);
+			strncpy(buffer, StringUtils::itos((*it).second).c_str(), 20);
+//			strncpy(params[0]  ,	"0", 1024); // from:
+//			strncpy(params[1]  ,	"4", 1024);// to: DEVICETEMPLATE_General_Info_Plugin_CONST
+//			strncpy(params[2]  ,	"1", 1024); //command
+//			strncpy(params[3]  ,	"246", 1024); //set device data
+//			strncpy(params[4]  ,	"1", 1024); //PK_Device
+//			strncpy(params[5]  ,	"xxx", 1024); //get the device ID
+//			strncpy(params[6]  ,	"52", 1024); //PK_DeviceData
+//			strncpy(params[7]  ,	"get the device data id", 1024);
+//			strncpy(params[8]  ,	"5", 1024); //value to assign
+//			strncpy(params[9]  ,	serial_port, 1024);
 
 
 			string response;
-			sendMessage(params, 10, response);
+			sendMessage(string("0  4 1 246 1 xxx 52 ") + 
+				"get the device data id" + "5" + serial_port, response);
 		}
 		g_free (parent);
 		parent = NULL;
@@ -309,11 +372,6 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 	g_free (serial_port);
 	serial_port = NULL;
 
-	for(int i= 0; i < 10; i++)
-	{
-		free(params[i]);
-		params[i] = NULL;
-	}
 }
 
 
@@ -331,9 +389,9 @@ void initialize(LibHalContext * ctx)
 	char **devices = hal_get_all_devices (ctx, &num_devices);
 	gchar *bus = NULL;
 
-	char *params[15];
-	for(int i = 0; i < 15; i++)
-		params[i] = (char *)malloc(1024);
+//	char *params[15];
+//	for(int i = 0; i < 15; i++)
+//		params[i] = (char *)malloc(1024);
 	
 //get all template IDs and producer_id vendor_id
 	for(int i = num_devices - 1; i >= 0 ; i--)
@@ -357,64 +415,98 @@ void initialize(LibHalContext * ctx)
 					
 				// check if there is a device with this UID
 
-				strncpy(params[0], "-targetType", 1024);
-				strncpy(params[1], "template", 1024);
-				strncpy(params[2], "-o", 1024);
-				strncpy(params[3], "0", 1024); // from:
-				strncpy(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
-				strncpy(params[5], "1", 1024); // command
-				strncpy(params[6], (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // command ID
-				strncpy(params[7], (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(), 1024); // param ID
-				strncpy(params[8], info_udi, 1024); // UID
-				
 				string response;
-				sendMessage(params, 9, response);
+
+//				strncpy(params[0], "-targetType", 1024);
+//				strncpy(params[1], "template", 1024);
+//				strncpy(params[2], "-o", 1024);
+//				strncpy(params[3], "0", 1024); // from:
+//				strncpy(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
+//				strncpy(params[5], "1", 1024); // command
+//				strncpy(params[6], (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // command ID
+//				strncpy(params[7], (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(), 1024); // param ID
+//				strncpy(params[8], info_udi, 1024); // UID
+//				
+//
+//				sendMessage(params, 9, response);
+
+				sendMessage(string("-targetType  template -o 0 " ) + 
+						StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+						" 1 " +
+						StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " + 
+						StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
+						info_udi, 
+					response);
 				
 				if( !response.empty() )
 				{
 					// enable the device
 
-					strncpy(params[0], "-targetType", 1024);
-					strncpy(params[1], "template", 1024);
-					strncpy(params[2], "-o", 1024);
-					strncpy(params[3], "0", 1024); // from:
-					strncpy(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
-					strncpy(params[5], "1", 1024); // command
-					strncpy(params[6], (char*)StringUtils::itos( COMMAND_Set_Enable_Status_CONST ).c_str(), 1024); // command ID
-					strncpy(params[7], (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(), 1024); // param ID
-					strncpy(params[8], (char*)response.c_str(), 1024); // device ID
-					strncpy(params[9], (char*)StringUtils::itos( COMMANDPARAMETER_Enable_CONST ).c_str(), 1024); // param ID
-					strncpy(params[10], "1", 1024); // true
-					
 					string responseEnable;
-					sendMessage(params, 11, responseEnable);
+					
+//					strncpy(params[0], "-targetType", 1024);
+//					strncpy(params[1], "template", 1024);
+//					strncpy(params[2], "-o", 1024);
+//					strncpy(params[3], "0", 1024); // from:
+//					strncpy(params[4], (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
+//					strncpy(params[5], "1", 1024); // command
+//					strncpy(params[6], (char*)StringUtils::itos( COMMAND_Set_Enable_Status_CONST ).c_str(), 1024); // command ID
+//					strncpy(params[7], (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(), 1024); // param ID
+//					strncpy(params[8], (char*)response.c_str(), 1024); // device ID
+//					strncpy(params[9], (char*)StringUtils::itos( COMMANDPARAMETER_Enable_CONST ).c_str(), 1024); // param ID
+//					strncpy(params[10], "1", 1024); // true
+//					
+//					
+//					sendMessage(params, 11, responseEnable);
+					sendMessage("-targetType template -o 0 " +
+					StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) +
+					" 1 " +
+					StringUtils::itos( COMMAND_Set_Enable_Status_CONST ) + " " +
+					StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
+					response + " " +
+					StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
+					 "1", 
+					 responseEnable);
 				}
 				else
 				{
 					// create a new device with this UID
 					char buffer[2048];
 					snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, info_udi);
-					
-					char *paramsCreate[15];
-					
-					strncpy(params[0]  , "-targetType", 1024);
-					strncpy(params[1]  , "template", 1024);
-					strncpy(params[2]  , "-o", 1024);
-					strncpy(params[3]  , "0", 1024); // from:
-					strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
-					strncpy(params[5]  , "1", 1024); // command
-					strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Create_Device_CONST ).c_str(), 1024); // command ID
-					strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ).c_str(), 1024); // 
-					strncpy(params[8]  , (char*)StringUtils::itos( (*it).second ).c_str(), 1024); // template ID
-					strncpy(params[9]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ).c_str(), 1024);
-					strncpy(params[10] , "PLUTO_CORE_DEVICE_ID_STR", 1024);
-					strncpy(params[11] , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ).c_str(), 1024);
-					strncpy(params[12] , "-1", 1024); // ask user
-					strncpy(params[13] , "109", 1024); // extra param for setting the data devices
-					strncpy(params[14] , buffer, 1024);
-				
+
 					string responseCreate;
-					sendMessage(paramsCreate, 15, responseCreate);
+
+//					strncpy(params[0]  , "-targetType", 1024);
+//					strncpy(params[1]  , "template", 1024);
+//					strncpy(params[2]  , "-o", 1024);
+//					strncpy(params[3]  , "0", 1024); // from:
+//					strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
+//					strncpy(params[5]  , "1", 1024); // command
+//					strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Create_Device_CONST ).c_str(), 1024); // command ID
+//					strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ).c_str(), 1024); // 
+//					strncpy(params[8]  , (char*)StringUtils::itos( (*it).second ).c_str(), 1024); // template ID
+//					strncpy(params[9]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ).c_str(), 1024);
+//					strncpy(params[10] , "PLUTO_CORE_DEVICE_ID_STR", 1024);
+//					strncpy(params[11] , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ).c_str(), 1024);
+//					strncpy(params[12] , "-1", 1024); // ask user
+//					strncpy(params[13] , "109", 1024); // extra param for setting the data devices
+//					strncpy(params[14] , buffer, 1024);
+//				
+//					sendMessage(paramsCreate, 15, responseCreate);
+
+					sendMessage(string("-targetType  template  -o 0 ") + 
+							StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+							" 1 " + 
+							StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
+							StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
+							StringUtils::itos( (*it).second ) + " " +
+							StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ) + 
+							" PLUTO_CORE_DEVICE_ID_STR " + 
+							StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
+							" -1 " + 
+							"109 " + 
+							buffer, 
+						responseCreate);
 				}
 					
 //					g_free (product);
@@ -447,40 +539,59 @@ void initialize(LibHalContext * ctx)
 					
 					// check if there is a device with this UID
 				
-					strncpy(params[0]  , "-targetType", 1024);
-					strncpy(params[1]  , "template", 1024);
-					strncpy(params[2]  , "-o", 1024);
-					strncpy(params[3]  , "0", 1024); // from:
-					strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
-					strncpy(params[5]  , "1", 1024); // command
-					strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // command ID
-					strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(), 1024); // param ID
-					strncpy(params[8]  , info_udi, 1024); // UID
+//					strncpy(params[0]  , "-targetType", 1024);
+//					strncpy(params[1]  , "template", 1024);
+//					strncpy(params[2]  , "-o", 1024);
+//					strncpy(params[3]  , "0", 1024); // from:
+//					strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
+//					strncpy(params[5]  , "1", 1024); // command
+//					strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(), 1024); // command ID
+//					strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(), 1024); // param ID
+//					strncpy(params[8]  , info_udi, 1024); // UID
 					
 					string response;
-					sendMessage(params, 9, response);
+
+					sendMessage("-targetType template -o 0 " + 
+							StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+							" 1 " + 
+							StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " +
+							StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
+							info_udi
+						, response);
 					
 					if( !response.empty() )
 					{
 						// set the serial port for the device
-						char *paramsSerial[13];
-						
-						strncpy(params[0]  , "-targetType", 1024);
-						strncpy(params[1]  , "template", 1024);
-						strncpy(params[2]  , "-o", 1024);
-						strncpy(params[3]  , "0", 1024); // from:
-						strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
-						strncpy(params[5]  , "1", 1024); //command
-						strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Set_Device_Data_CONST ).c_str(), 1024); //set device data
-						strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(), 1024); //PK_Device
-						strncpy(params[8]  , (char*)response.c_str(), 1024); //get the device ID
-						strncpy(params[9]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ).c_str(), 1024); //PK_DeviceData
-						strncpy(params[10] , (char*)StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ).c_str(), 1024);
-						strncpy(params[11] , (char*)StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ).c_str(), 1024); //value to assign
-						strncpy(params[12] , serial_port, 1024);
+//						char *paramsSerial[13];
+//						
+//						strncpy(params[0]  , "-targetType", 1024);
+//						strncpy(params[1]  , "template", 1024);
+//						strncpy(params[2]  , "-o", 1024);
+//						strncpy(params[3]  , "0", 1024); // from:
+//						strncpy(params[4]  , (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(), 1024); // to:
+//						strncpy(params[5]  , "1", 1024); //command
+//						strncpy(params[6]  , (char*)StringUtils::itos( COMMAND_Set_Device_Data_CONST ).c_str(), 1024); //set device data
+//						strncpy(params[7]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(), 1024); //PK_Device
+//						strncpy(params[8]  , (char*)response.c_str(), 1024); //get the device ID
+//						strncpy(params[9]  , (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ).c_str(), 1024); //PK_DeviceData
+//						strncpy(params[10] , (char*)StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ).c_str(), 1024);
+//						strncpy(params[11] , (char*)StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ).c_str(), 1024); //value to assign
+//						strncpy(params[12] , serial_port, 1024);
 						
 						string responseSerial;
-						sendMessage(paramsSerial, 13, responseSerial);
+
+//						sendMessage(paramsSerial, 13, responseSerial);
+						sendMessage("-targetType template -o 0 " + 
+								StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+								" 1 " + 
+								StringUtils::itos( COMMAND_Set_Device_Data_CONST ) + " " +
+								StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
+								response + " " +
+								StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ) + " " +
+								StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + " " +
+								StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
+								serial_port, 
+							responseSerial);
 					}
 				}
 				
@@ -497,11 +608,11 @@ void initialize(LibHalContext * ctx)
 		g_free(bus);
 		bus = NULL;
 	}
-	for(int i = 0; i < 15; i++)
-	{
-		free(params[i]);
-		params[i] = NULL;
-	}
+//	for(int i = 0; i < 15; i++)
+//	{
+//		free(params[i]);
+//		params[i] = NULL;
+//	}
 }
 
 int main(int argc, char* argv[])
@@ -549,7 +660,11 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		sendMessage((char **)params, 7, response);
+		//sendMessage((char **)params, 7, response);
+		sendMessage(string("-targetType template -o 0 ") + 
+			StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+			" 1 " +
+			StringUtils::itos( COMMAND_Get_All_HAL_Model_ID_CONST ), response);
 		printf("response %s\n", response.c_str());
 	}
 	catch(string ex)
