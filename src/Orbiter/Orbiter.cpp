@@ -5449,7 +5449,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		return;
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
-		ScreenHistory *pScreenHistory=NULL;
+	ScreenHistory *pScreenHistory=NULL;
 
 	if(m_pScreenHistory_Current && m_pScreenHistory_Current->GoBack())
 		pScreenHistory = m_pScreenHistory_Current;
@@ -5478,6 +5478,8 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			break;   // We got one to go back to
 		}
 	}
+
+	vm.Release();
 
 #ifdef DEBUG
 	DumpScreenHistory();
