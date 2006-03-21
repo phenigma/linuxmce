@@ -348,19 +348,21 @@ void initialize(LibHalContext * ctx)
 				if( !response.empty() )
 				{
 					// enable the device
-					char *paramsEnable[9];
-					paramsEnable[0]  = "-targetType";
-					paramsEnable[1]  = "template";
-					paramsEnable[2]  = "-o";
-					paramsEnable[3]  = "0"; // from:
-					paramsEnable[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
-					paramsEnable[5]  = "1"; // command
-					paramsEnable[6]  = (char*)StringUtils::itos( 1 ).c_str(); // command ID
-					paramsEnable[7]  = (char*)StringUtils::itos( 1 ).c_str(); // param ID
-					paramsEnable[8]  = info_udi; // UID
+					char *paramsEnable[11];
+					paramsEnable[0]   = "-targetType";
+					paramsEnable[1]   = "template";
+					paramsEnable[2]   = "-o";
+					paramsEnable[3]   = "0"; // from:
+					paramsEnable[4]   = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+					paramsEnable[5]   = "1"; // command
+					paramsEnable[6]   = (char*)StringUtils::itos( COMMAND_Set_Enable_Status_CONST ).c_str(); // command ID
+					paramsEnable[7]   = (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(); // param ID
+					paramsEnable[8]   = (char*)response.c_str(); // device ID
+					paramsEnable[9]   = (char*)StringUtils::itos( COMMANDPARAMETER_Enable_CONST ).c_str(); // param ID
+					paramsEnable[10]  = "1"; // true
 					
 					string responseEnable;
-					sendMessage(paramsEnable, 9, responseEnable);
+					sendMessage(paramsEnable, 11, responseEnable);
 				}
 				else
 				{
@@ -405,6 +407,7 @@ void initialize(LibHalContext * ctx)
 		else if( 0 == strcmp(bus, "usb-serial") )
 		{
 			gchar *parent = hal_device_get_property_string (ctx, hal_device_get_property_string(ctx, udi, "info.parent"), "info.parent");
+			gchar *info_udi = hal_device_get_property_string (ctx, parent, "info.udi");
 			int usb_device_product_id = hal_device_get_property_int(ctx, parent, "usb_device.product_id");
 			int usb_device_vendor_id = hal_device_get_property_int(ctx, parent, "usb_device.vendor_id");
 			
@@ -416,33 +419,54 @@ void initialize(LibHalContext * ctx)
 				if(serial_port != NULL)
 				{
 					printf("udi = %s serial port = %s\n", udi, serial_port);
-					fflush(stdout);
+					
+					// check if there is a device with this UID
+					char *params[9];
+					params[0]  = "-targetType";
+					params[1]  = "template";
+					params[2]  = "-o";
+					params[3]  = "0"; // from:
+					params[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+					params[5]  = "1"; // command
+					params[6]  = (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(); // command ID
+					params[7]  = (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(); // param ID
+					params[8]  = info_udi; // UID
+					
+					string response;
+					sendMessage(params, 9, response);
+					
+					if( !response.empty() )
+					{
+						// set the serial port for the device
+						char *paramsSerial[13];
+						
+						paramsSerial[0]  = "-targetType";
+						paramsSerial[1]  = "template";
+						paramsSerial[2]  = "-o";
+						paramsSerial[3]  = "0"; // from:
+						paramsSerial[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+						paramsSerial[5]  = "1"; //command
+						paramsSerial[6]  = (char*)StringUtils::itos( COMMAND_Set_Device_Data_CONST ).c_str(); //set device data
+						paramsSerial[7]  = (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ).c_str(); //PK_Device
+						paramsSerial[8]  = (char*)response.c_str(); //get the device ID
+						paramsSerial[9]  = (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ).c_str(); //PK_DeviceData
+						paramsSerial[10] = (char*)StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ).c_str();
+						paramsSerial[11] = (char*)StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ).c_str(); //value to assign
+						paramsSerial[12] = serial_port;
+						
+						string responseSerial;
+						sendMessage(paramsSerial, 13, responseSerial);
+					}
 				}
 				
-				//got a device with a template in the database
-				char *params[10];
-				char buffer[20];
-				strncmp(buffer, StringUtils::itos((*it).second).c_str(), sizeof(buffer));
-				params[0]  = "-targetType";
-				params[1]  = "template";
-				params[2]  = "-o";
-				params[3]  = "0"; // from:
-				params[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
-				params[5]  = "1"; //command
-				params[6]  = "246"; //set device data
-				params[7]  = "1"; //PK_Device
-				params[8]  = "xxx"; //get the device ID
-				params[9]  = "52"; //PK_DeviceData
-				params[10] = "get the device data id";
-				params[11] = "5"; //value to assign
-				params[12] = serial_port;
-			
 				g_free (serial_port);
 				serial_port = NULL;
 			}
 			
 			g_free (parent);
 			parent = NULL;
+			g_free (info_udi);
+			info_udi = NULL;
 		}
 
 		g_free(bus);
