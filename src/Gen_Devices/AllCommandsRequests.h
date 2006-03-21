@@ -12229,5 +12229,21 @@ namespace DCE
 	public:
 		CMD_Set_Enable_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,791,2,2,StringUtils::itos(iPK_Device).c_str(),208,(bEnable ? "1" : "0")); }
 	};
+	class CMD_Get_All_HAL_Model_ID : public PreformedCommand {
+	public:
+		CMD_Get_All_HAL_Model_ID(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,792,0); }
+	};
+	class CMD_Get_All_HAL_Model_ID_DL : public PreformedCommand {
+	public:
+		CMD_Get_All_HAL_Model_ID_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,792,0); }
+	};
+	class CMD_Get_All_HAL_Model_ID_DT : public PreformedCommand {
+	public:
+		CMD_Get_All_HAL_Model_ID_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,792,0); }
+	};
+	class CMD_Get_All_HAL_Model_ID_Cat : public PreformedCommand {
+	public:
+		CMD_Get_All_HAL_Model_ID_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,792,0); }
+	};
 }
 #endif

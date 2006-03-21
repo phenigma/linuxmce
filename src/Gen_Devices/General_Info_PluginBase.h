@@ -149,6 +149,7 @@ public:
 	virtual void CMD_Force_Update_Packages(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -822,6 +823,31 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Enable_Status(iPK_Device,bEnable,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 792:
+					{
+						string sCMD_Result="OK";
+						CMD_Get_All_HAL_Model_ID(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_All_HAL_Model_ID(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
