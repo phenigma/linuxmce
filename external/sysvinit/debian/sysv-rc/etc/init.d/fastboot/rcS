@@ -288,7 +288,7 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 fi
 
 if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
-    Message "Confirm Instalation"
+    Message "Confirm Installation"
     /etc/init.d/Pluto_ConfirmInstallation.sh
 fi
 
