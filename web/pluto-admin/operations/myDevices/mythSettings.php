@@ -68,22 +68,29 @@ function mythSettings($output,$dbADO) {
 			for($i=0;$i<count($sids);$i++)
 			{
 				$UnassignedChannels = getMythQAMUnassignedChannels($mythADO, $sids[$i]);
+				$UnmappedStations = getMythQAMUnmappedEPGChannels($mythADO, $sids[$i]);
 				if (count($UnassignedChannels))
 				{
-					$UnmappedStations = getMythQAMUnmappedEPGChannels($mythADO, $sids[$i]);
-					$out.='<br>'.$TEXT_MYTH_UNASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr bgcolor="lightblue"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
-					for($j=0;$j<count($UnassignedChannels);$j++)
-					{		
-						$altColor=($j%2==0)?'#F0F3F8':'#FFFFFF';
-						$out.='<tr bgcolor="'.$altColor.'"><td>'.$UnassignedChannels[$j].'</td><td>'.pulldownFromArray($UnmappedStations['name'],'stationpd_'.$UnassignedChannels[$j], '0').'</td>';
-						$out.='<td>
-						       <input type="submit" class="button" name="chanset_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_MYTH_SET_CONST.'">
-						       <input type="submit" class="button" name="mythtune_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_MYTH_TUNE_CONST.'">
-						       <input type="submit" class="button" name="remove_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_DELETE_CONST.'"></td>
-						       </tr>';
-						
+					if (count($UnmappedStations))
+					{						
+						$out.='<br>'.$TEXT_MYTH_UNASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr bgcolor="lightblue"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
+						for($j=0;$j<count($UnassignedChannels);$j++)
+						{		
+							$altColor=($j%2==0)?'#F0F3F8':'#FFFFFF';
+							$out.='<tr bgcolor="'.$altColor.'"><td>'.$UnassignedChannels[$j].'</td><td>'.pulldownFromArray($UnmappedStations['name'],'stationpd_'.$UnassignedChannels[$j], '0').'</td>';
+							$out.='<td>
+							       <input type="submit" class="button" name="chanset_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_MYTH_SET_CONST.'">
+							       <input type="submit" class="button" name="mythtune_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_MYTH_TUNE_CONST.'">
+							       <input type="submit" class="button" name="remove_'.$sids[$i].'_'.$UnassignedChannels[$j].'" value="'.$TEXT_DELETE_CONST.'"></td>
+							       </tr>';
+							
+						}
+						$out.="</table>";				
 					}
-					$out."</table>";					
+					else
+					{
+						$out.='<br>'.$TEXT_MYTH_NOSTATIONS_CONST;
+					}
 				}
 				$AssignedChannels = getMythQAMAssignedChannels($mythADO, $sids[$i]);
 				if (count($AssignedChannels))
