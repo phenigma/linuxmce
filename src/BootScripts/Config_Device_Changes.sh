@@ -83,9 +83,20 @@ CleanupVideo()
 	/usr/pluto/bin/Xconfigure.sh --update-video-driver
 }
 
-CleanupVideo
+for ((i = 1; i <= "$#"; i++)); do
+	case "${!i}" in
+		F) Force=y ;;
+		StartLocalDevice) StartLocalDevice=y ;;
+		NoVideo) NoVideo=y ;;
+		*) echo "Unrecognized parameter '${!i}' skipped." ;;
+	esac
+done
 
-if [[ "$1" != "F" ]]; then
+if [[ "$NoVideo" != "y" ]]; then
+	CleanupVideo
+fi
+
+if [[ "$Force" != "y" ]]; then
 	NeedConfigure "$PK_Device" || exit 0
 fi
 
@@ -117,7 +128,7 @@ rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"
 
-if [[ "$2" == "StartLocalDevice" ]]; then
+if [[ "$StartLocalDevice" == "y" ]]; then
         echo "Starting local devices"
         /usr/pluto/bin/Start_LocalDevices.sh
 fi
