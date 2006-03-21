@@ -5,12 +5,17 @@
 #include <string.h>
 #include <glib-2.0/glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
-#include "PlutoUtils/StringUtils.h"
 #include "DCE/DeviceData_Impl.h"
-#include "pluto_main/Define_DeviceTemplate.h"
 
+#include "PlutoUtils/StringUtils.h"
+
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 
 map<unsigned int, int> templatesMap;
@@ -23,15 +28,6 @@ map<unsigned int, int> templatesMap;
 
  */
 // -DDBUS_API_SUBJECT_TO_CHANGE -I/usr/include/hal -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include
-
-#define ZWAVE_PRODUCT_ID 0xf2d0
-#define ZWAVE_VENDOR_ID 0x0403
-
-#define PLUTO_ZWAVE_TEMPLATE_ID 1754
-#define PLUTO_CORE_DEVICE_ID 1
-
-#define PLUTO_ZWAVE_TEMPLATE_ID_STR "1754"
-#define PLUTO_CORE_DEVICE_ID_STR "1"
 
 char *hostname = NULL;
 
@@ -163,13 +159,13 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 				0:OK
 				2:30
 			 * */
-			snprintf( buffer, sizeof(buffer),
+/*			snprintf( buffer, sizeof(buffer),
 				"MessageSend %s -targetType template -o 0 27 1 718 44 %d 156 %d 57 -1 109 154|%s",
 				hostname,
 				PLUTO_ZWAVE_TEMPLATE_ID, 
 				PLUTO_CORE_DEVICE_ID,
 				info_udi);
-				printf("%s\n", buffer);
+				printf("%s\n", buffer);*/
 //				system(buffer);
 			try
 			{
@@ -211,7 +207,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 					params[7]  =	"44";
 					params[8]  =	buffer2;
 					params[9]  =	"156";
-					params[10] =	PLUTO_CORE_DEVICE_ID_STR;
+					params[10] =	"PLUTO_CORE_DEVICE_ID_STR";
 					params[11] =	"57";
 					params[12] =	"-1";
 					params[13] =	"109"; // extra param for setting the data devices
@@ -310,44 +306,135 @@ void initialize(LibHalContext * ctx)
 	{
 		char *udi = devices[i];
 		bus = hal_device_get_property_string (ctx, udi, "info.bus");
-		if(strcmp(bus, "usb_device") == 0)
+		if( 0 == strcmp(bus, "usb_device") )
 		{
 			int usb_device_product_id = hal_device_get_property_int(ctx, udi, "usb_device.product_id");
-			int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");;
-						
-			if( (usb_device_product_id == ZWAVE_PRODUCT_ID && usb_device_vendor_id == ZWAVE_VENDOR_ID) ||
-			    (usb_device_vendor_id == 0x045e && usb_device_product_id == 0x006d))
+			int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
+			
+			map<unsigned int, int>::iterator it =
+				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+			if( it != templatesMap.end() )
 			{
-					gchar *product = hal_device_get_property_string (ctx, udi, "info.product");
-					gchar *vendor = hal_device_get_property_string (ctx, udi, "info.vendor");
-					gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
+//					gchar *product = hal_device_get_property_string (ctx, udi, "info.product");
+//					gchar *vendor = hal_device_get_property_string (ctx, udi, "info.vendor");
+//					gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
 					gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
-					gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
+//					gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
 					
-					printf("%s | %s | %s | %s | %s | %s\n", bus, product, vendor, serial, info_udi, sysfs_path);
-					//TODO complete this one
-					system("CommandSend ");
+				// check if there is a device with this UID
+				char *params[9];
+				params[0]  = "-targetType";
+				params[1]  = "template";
+				params[2]  = "-o";
+				params[3]  = "0"; // from:
+				params[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+				params[5]  = "1"; // command
+				params[6]  = (char*)StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ).c_str(); // command ID
+				params[7]  = (char*)StringUtils::itos( COMMANDPARAMETER_UID_CONST ).c_str(); // param ID
+				params[8]  = info_udi; // UID
+				
+				string response;
+				sendMessage(params, 9, response);
+				
+				if( !response.empty() )
+				{
+					// enable the device
+					char *paramsEnable[9];
+					paramsEnable[0]  = "-targetType";
+					paramsEnable[1]  = "template";
+					paramsEnable[2]  = "-o";
+					paramsEnable[3]  = "0"; // from:
+					paramsEnable[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+					paramsEnable[5]  = "1"; // command
+					paramsEnable[6]  = (char*)StringUtils::itos( 1 ).c_str(); // command ID
+					paramsEnable[7]  = (char*)StringUtils::itos( 1 ).c_str(); // param ID
+					paramsEnable[8]  = info_udi; // UID
 					
-					g_free (product);
-					product = NULL;
-					g_free (vendor);
-					vendor = NULL;
-					g_free (serial);
-					serial = NULL;
+					string responseEnable;
+					sendMessage(paramsEnable, 9, responseEnable);
+				}
+				else
+				{
+					// create a new device with this UID
+					char buffer[2048];
+					snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, info_udi);
+					
+					char *paramsCreate[15];
+					
+					paramsCreate[0]  = "-targetType";
+					paramsCreate[1]  = "template";
+					paramsCreate[2]  = "-o";
+					paramsCreate[3]  = "0"; // from:
+					paramsCreate[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+					paramsCreate[5]  = "1"; // command
+					paramsCreate[6]  = (char*)StringUtils::itos( COMMAND_Create_Device_CONST ).c_str(); // command ID
+					paramsCreate[7]  = (char*)StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ).c_str(); // 
+					paramsCreate[8]  = (char*)StringUtils::itos( (*it).second ).c_str(); // template ID
+					paramsCreate[9]  = (char*)StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ).c_str();
+					paramsCreate[10] = "PLUTO_CORE_DEVICE_ID_STR";
+					paramsCreate[11] = (char*)StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ).c_str();
+					paramsCreate[12] = "-1"; // ask user
+					paramsCreate[13] = "109"; // extra param for setting the data devices
+					paramsCreate[14] = buffer;
+				
+					string responseCreate;
+					sendMessage(paramsCreate, 15, responseCreate);
+				}
+					
+//					g_free (product);
+//					product = NULL;
+//					g_free (vendor);
+//					vendor = NULL;
+//					g_free (serial);
+//					serial = NULL;
 					g_free (info_udi);
 					info_udi = NULL;
-					g_free(sysfs_path);
-					sysfs_path = NULL;
+//					g_free(sysfs_path);
+//					sysfs_path = NULL;
 			}
 		}
-		gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
-		if(serial_port != NULL)
+		else if( 0 == strcmp(bus, "usb-serial") )
 		{
-			printf("udi = %s serial port = %s\n", udi, serial_port);
-			fflush(stdout);
+			gchar *parent = hal_device_get_property_string (ctx, hal_device_get_property_string(ctx, udi, "info.parent"), "info.parent");
+			int usb_device_product_id = hal_device_get_property_int(ctx, parent, "usb_device.product_id");
+			int usb_device_vendor_id = hal_device_get_property_int(ctx, parent, "usb_device.vendor_id");
+			
+			map<unsigned int, int>::iterator it =
+				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+			if( it != templatesMap.end() )
+			{
+				gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
+				if(serial_port != NULL)
+				{
+					printf("udi = %s serial port = %s\n", udi, serial_port);
+					fflush(stdout);
+				}
+				
+				//got a device with a template in the database
+				char *params[10];
+				char buffer[20];
+				strncmp(buffer, StringUtils::itos((*it).second).c_str(), sizeof(buffer));
+				params[0]  = "-targetType";
+				params[1]  = "template";
+				params[2]  = "-o";
+				params[3]  = "0"; // from:
+				params[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to:
+				params[5]  = "1"; //command
+				params[6]  = "246"; //set device data
+				params[7]  = "1"; //PK_Device
+				params[8]  = "xxx"; //get the device ID
+				params[9]  = "52"; //PK_DeviceData
+				params[10] = "get the device data id";
+				params[11] = "5"; //value to assign
+				params[12] = serial_port;
+			
+				g_free (serial_port);
+				serial_port = NULL;
+			}
+			
+			g_free (parent);
+			parent = NULL;
 		}
-		g_free (serial_port);
-		serial_port = NULL;
 
 		g_free(bus);
 		bus = NULL;
@@ -376,15 +463,16 @@ int main(int argc, char* argv[])
 
 	//get the list of the templates and their corresponding product_id / vendor_id
 	string response;
-	char *params[] = 
-	{
-		"0",
-		"4",
-		"1",
-		"792"
-	};
+	char *params[7];
+	params[0]  = "-targetType";
+	params[1]  = "template";
+	params[2]  = "-o";
+	params[3]  = "0";  // from:
+	params[4]  = (char*)StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ).c_str(); // to: 
+	params[5]  = "1";  // command
+	params[6]  = (char*)StringUtils::itos( COMMAND_Get_All_HAL_Model_ID_CONST ).c_str(); // command ID
 	
-	sendMessage(params, 4, response);
+	sendMessage(params, 7, response);
 	
 	vector<string> strings;
 	StringUtils::Tokenize(response, string("\n"), strings);
