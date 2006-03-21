@@ -5583,7 +5583,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	}
 
 	//if the simulator is running, we won't go to pluto admin screen
-	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST) )
+	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_PVR_FS_CONST) )
 		return;
 
 	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_Remote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_RemoteOSD )
@@ -7066,7 +7066,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 {
-	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
+	//PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	if( sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->GetObj()->m_iBaseObjectID )  ) // It should be at the beginning
 	{
 		// Be sure it's not a -1 telling us to be at the main menu
@@ -9733,9 +9733,7 @@ ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
-	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
 	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
-	vm.Release();
 	if(NULL != pCallBack)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
 
