@@ -1930,6 +1930,13 @@
 #define DESIGNOBJ_butConfirmIRCodes_CONST 4848
 #define DESIGNOBJ_butTVTypeNotListed_CONST 4849
 #define DESIGNOBJ_butTVInputsNotListed_CONST 4850
+#define DESIGNOBJ_test_main_menu_CONST 4851
+#define DESIGNOBJ_hide_popup_CONST 4852
+#define DESIGNOBJ_show_popup_CONST 4853
+#define DESIGNOBJ_PopupBG_CONST 4854
+#define DESIGNOBJ_test_ff_CONST 4855
+#define DESIGNOBJ_test_but_CONST 4856
+#define DESIGNOBJ_play_test_vid_CONST 4857
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
