@@ -127,7 +127,7 @@ private:
     xine_t *m_pXine;
     xine_video_port_t *m_pXineVideo;
     xine_audio_port_t *m_pXineAudio;
-    xine_post_t *m_pXineVisualizationPlugin, *m_pDeinterlacePlugin;
+    xine_post_t *m_pXineVisualizationPlugin;
 
     map<int, XineStream *> m_mapStreams;
 
