@@ -405,7 +405,8 @@ int main(int argc, char* argv[])
 			sscanf(row.substr(0, space).c_str(), "%d", &templateID);
 			
 			vector<string> products;
-			StringUtils::Tokenize(row.substr(space+1), string(":"), products);
+			row = row.substr(space+1);
+			StringUtils::Tokenize(row, string(":"), products);
 			
 			for(vector<string>::const_iterator itProd = products.begin(); itProd != products.end(); ++itProd)
 			{
