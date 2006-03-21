@@ -68,7 +68,6 @@ XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
         m_pSameStream( NULL ),
         m_pDynamic_Pointer( NULL )
 {
-    m_pXine = NULL;
     m_iSpecialOneTimeSeek = 0;
     m_xine_osd_t = NULL;
     m_iPrebuffer = 0;
@@ -83,6 +82,7 @@ XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
     delete pConfig;
 
     m_pXineVisualizationPlugin = NULL;
+    m_pDeinterlacePlugin = NULL;
     m_bExitThread = false;
 }
 
@@ -266,6 +266,12 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
             xine_post_dispose( m_pXine, m_pXineVisualizationPlugin );
             m_pXineVisualizationPlugin = NULL;
         }
+	if (m_pDeinterlacePlugin)
+	{
+	    xine_post_wire_video_port( xine_get_video_source( xineStream->m_pStream ), m_pXineVideo );
+            xine_post_dispose( m_pXine, m_pDeinterlacePlugin );
+            m_pDeinterlacePlugin = NULL; 		
+	}
 
         // this can be null if we weren't able to open any ports in a previous atempt
         if ( xineStream->m_pStream )
@@ -346,7 +352,82 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
 
         if ( xineStream->m_bHasVideo )
         {
-            xine_post_wire_audio_port( xine_get_audio_source( xineStream->m_pStream ), m_pXineAudio );
+		if (!m_pDeinterlacePlugin)
+		{
+			xine_video_port_t **volist;
+			volist = (xine_video_port_t **)malloc(2 * sizeof(xine_video_port_t*));
+			volist[0] = m_pXineVideo;
+			volist[1] = NULL;
+
+			m_pDeinterlacePlugin = xine_post_init(m_pXine, "tvtime", 0, NULL, volist);
+		}		
+		if (m_pDeinterlacePlugin)
+		{		
+			xine_post_in_t *input_api;
+			xine_post_api_t *api;
+			xine_post_api_descr_t *desc;
+			xine_post_api_parameter_t *parm;
+			char *data;
+			
+			input_api = (xine_post_in_t *)xine_post_input(m_pDeinterlacePlugin, "parameters");
+			if (!input_api) {
+			perror("Failed to setup post plugin: ");
+			return -1;
+			}
+			
+			api = (xine_post_api_t *)input_api->data;
+			desc = api->get_param_descr();
+			parm = desc->parameter;
+			data = (char *)malloc(desc->struct_size);
+			api->get_parameters(m_pDeinterlacePlugin, (void *)data);
+			
+			while (parm->type != POST_PARAM_TYPE_LAST)
+			{
+			g_pPlutoLogger->Write(LV_STATUS,"parm: %s, %s\n", parm->name, parm->description);
+			int i = 0;
+			if(parm->enum_values != NULL)
+			    while(parm->enum_values[i] != NULL)
+			    {
+				g_pPlutoLogger->Write(LV_STATUS,"parm[%d]: %s\n", i, parm->enum_values[i]);
+				i++;
+			    }
+			if(!strncasecmp(parm->name, "method", 6) &&
+			    parm->type == POST_PARAM_TYPE_INT)
+			{
+			    *(int *)(data + parm->offset) = 4;
+			}
+			else if(!strncasecmp(parm->name, "enabled", 7) &&
+				 parm->type == POST_PARAM_TYPE_BOOL)
+			{
+			    *(int *)(data + parm->offset) = 1;
+			}
+			else if(!strncasecmp(parm->name, "cheap_mode", 10) &&
+				 parm->type == POST_PARAM_TYPE_BOOL)
+			{
+			    *(int *)(data + parm->offset) = 0;
+			}
+			else if(!strncasecmp(parm->name, "use_progressive_frame_flag", 26) &&
+				parm->type == POST_PARAM_TYPE_BOOL)
+			{
+			    *(int *)(data + parm->offset) = 1;
+			}
+			else if(!strncasecmp(parm->name, "pulldown", 8) &&
+				 parm->type == POST_PARAM_TYPE_INT)
+			{
+			    *(int *)(data + parm->offset) = 1;
+			}
+			parm++;
+			}
+			api->set_parameters(m_pDeinterlacePlugin, (void *)data);
+			free(data);
+			xine_post_wire_video_port(xine_get_video_source(xineStream->m_pStream), m_pDeinterlacePlugin->video_input[0]);
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "tvtime failed to load");
+		}
+		
+		xine_post_wire_audio_port( xine_get_audio_source( xineStream->m_pStream ), m_pXineAudio );
         }
         else
         {
@@ -594,6 +675,7 @@ bool XineSlaveWrapper::createXineLibConnection()
 
     g_pPlutoLogger->Write( LV_STATUS, "Using Video driver %s and Audio driver %s", m_sXineVideoDriverName.c_str(), m_sXineAudioDriverName.c_str() );
 
+    
     return true;
 }
 
@@ -840,8 +922,8 @@ void XineSlaveWrapper::resume()
 
         if ( !count )
         {
-            printf( "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
-            printf( "  and no other application is using the XVideo port.\n" );
+            g_pPlutoLogger->Write(LV_STATUS, "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
+            g_pPlutoLogger->Write(LV_STATUS, "  and no other application is using the XVideo port.\n" );
             return ;
         }
 
