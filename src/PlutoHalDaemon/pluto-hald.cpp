@@ -387,18 +387,33 @@ int main(int argc, char* argv[])
 	sendMessage(params, 4, response);
 	
 	vector<string> strings;
-	vector<string>::iterator it;
-	
 	StringUtils::Tokenize(response, string("\n"), strings);
 	
 	unsigned int vendor_product = 0;
 	int templateID = -1;
-	for(it = strings.begin(); it != strings.end(); it++)
+	for(vector<string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
 	{
-		printf("%s", it->c_str());
-		//should be "plugin vendorproduct\n"
-		sscanf(it->c_str(), "%d %x", &templateID, &vendor_product);
-		templatesMap[vendor_product] = templateID;
+		string row = (*it);
+		StringUtils::TrimSpaces(row);
+		printf("%s", row.c_str());
+		
+		//should be "template_id vendorproduct:vendorproduct:vendorproduct\n"
+		size_t space = row.find(' ');
+		if( space != string::npos )
+		{
+			// the first word is the Template ID
+			sscanf(row.substr(0, space).c_str(), "%d", &templateID);
+			
+			vector<string> products;
+			StringUtils::Tokenize(row.substr(space+1), string(":"), products);
+			
+			for(vector<string>::const_iterator itProd = products.begin(); itProd != products.end(); ++itProd)
+			{
+				sscanf((*itProd).c_str(), "%x", &vendor_product);
+				
+				templatesMap[vendor_product] = templateID;
+			}
+		}
 	}
 	
 	loop = g_main_loop_new (NULL, FALSE);
