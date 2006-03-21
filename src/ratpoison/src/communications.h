@@ -24,4 +24,19 @@
 
 int send_command (unsigned char interactive, unsigned char *cmd, int screen_num);
 
+/* open the log-file */
+FILE * log_file_open();
+
+/* close the log-file */
+void log_file_close();
+
+/* log string with time-stamp */
+void log_string(const char *str);
+
+/* log message and command with time-stamp */
+void log_message_command(const char *sMessage, const char *cmd/*, unsigned char interactive, int screen_num*/);
+
+void log_message_command_args(const char *sMessage, const char *cmd, const char *args);
+void log_message_command_result(const char *sMessage, const char *cmd, const char *args, const char *result);
+
 #endif /* ! _RATPOISON_COMMUNICATIONS_H */

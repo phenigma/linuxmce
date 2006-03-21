@@ -501,6 +501,12 @@ init_defaults ()
   defaults.frame_selectors = xstrdup ("");
 }
 
+void myexit()
+{
+    log_string("EXIT_SUCCESS");
+    log_file_close();
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -654,6 +660,10 @@ main (int argc, char *argv[])
   /* If no window has focus, give the key_window focus. */
   if (current_window() == NULL)
     set_window_focus (current_screen()->key_window);
+
+  log_file_open();
+  log_string("Start");
+  atexit(myexit);
 
   listen_for_events ();
 

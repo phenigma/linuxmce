@@ -1186,7 +1186,9 @@ command (int interactive, char *data)
     {
       if (!strcmp (cmd, uc->name))
     {
+      log_message_command_args("executing command:", cmd, rest);
       result = uc->func (interactive, rest);
+      log_message_command_result("done with command:", cmd, rest, result);
       goto done;
     }
     }

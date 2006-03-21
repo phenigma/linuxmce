@@ -26,9 +26,79 @@
 #include <X11/Xproto.h>
 
 #include <string.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include "ratpoison.h"
 
+/* log commands config */
+const char sLogFile[] = "/var/log/pluto/ratpoison.newlog";
+FILE * g_fpLogFile = NULL;
+
+FILE * log_file_open()
+{
+    if (g_fpLogFile)
+        log_file_close();
+    g_fpLogFile = fopen( sLogFile, "a" );
+    if (g_fpLogFile)
+        setlinebuf(g_fpLogFile);
+    return g_fpLogFile;
+}
+
+void log_file_close()
+{
+    if (g_fpLogFile)
+        fclose(g_fpLogFile);
+    g_fpLogFile = NULL;
+}
+
+void log_string(const char *str)
+{
+    struct timeval tv;
+    struct tm *t = NULL;
+    gettimeofday( &tv, NULL );
+    t = localtime(&tv.tv_sec);
+    char buff_timestamp[1024];
+    double dw_sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
+    snprintf( buff_timestamp, sizeof(buff_timestamp), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dw_sec );
+    if (g_fpLogFile)
+    {
+        fprintf(g_fpLogFile, "[%s] %s\n", buff_timestamp, str);
+    }
+    fprintf(stderr, "[%s] %s\n", buff_timestamp, str);
+}
+
+void log_message_command(const char *sMessage, const char *cmd/*, unsigned char interactive, int screen_num*/)
+{
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+             "%s [cmd='%s']", /*"(interactive=%c, screen=%d)",*/
+             sMessage, cmd/*, interactive, screen_num*/
+             );
+    log_string(buffer);
+}
+
+#define NULL_TO_STRING(x) ( (x == NULL) ? "" : x )
+
+void log_message_command_args(const char *sMessage, const char *cmd, const char *args)
+{
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+             "%s %s %s",
+             NULL_TO_STRING(sMessage), NULL_TO_STRING(cmd), NULL_TO_STRING(args)
+             );
+    log_string(buffer);
+}
+
+void log_message_command_result(const char *sMessage, const char *cmd, const char *args, const char *result)
+{
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+             "%s %s %s => %s",
+             NULL_TO_STRING(sMessage), NULL_TO_STRING(cmd), NULL_TO_STRING(args), NULL_TO_STRING(result)
+             );
+    log_string(buffer);
+}
 
 /* Sending commands to ratpoison */
 static void
