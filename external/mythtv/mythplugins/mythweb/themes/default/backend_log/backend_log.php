@@ -3,8 +3,8 @@
  * The display code for the main welcome page that lists the available mythweb
  * sections.
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/backend_log/backend_log.php $
- * @date        $Date: 2005-12-05 23:10:28 -0500 (Mon, 05 Dec 2005) $
+ * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/backend_log/backend_log.php $
+ * @date        $Date: 2005-12-06 06:10:28 +0200 (Tue, 06 Dec 2005) $
  * @version     $Revision: 8132 $
  * @author      $Author: xris $
  * @license     GPL

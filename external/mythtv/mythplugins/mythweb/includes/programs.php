@@ -3,8 +3,8 @@
  * This contains the Program class
  *
  * @url         $URL$
- * @date        $Date: 2006-02-10 02:09:02 -0500 (Fri, 10 Feb 2006) $
- * @version     $Revision: 8915 $
+ * @date        $Date: 2006-03-21 19:55:12 +0200 (Tue, 21 Mar 2006) $
+ * @version     $Revision: 9446 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -130,11 +130,13 @@
                        LEFT JOIN programrating USING (chanid, starttime)
                        LEFT JOIN oldrecorded
                                  ON oldrecorded.recstatus IN (-3, 11)
-                                    AND IF(oldrecorded.programid OR oldrecorded.seriesid,
+                                    AND IF(oldrecorded.programid AND oldrecorded.seriesid,
                                            oldrecorded.programid = program.programid
                                              AND oldrecorded.seriesid = program.seriesid,
-                                           oldrecorded.title = program.title
-                                             AND oldrecorded.subtitle = program.subtitle
+                                           oldrecorded.title AND oldrecorded.subtitle
+                                             AND oldrecorded.description
+                                             AND oldrecorded.title       = program.title
+                                             AND oldrecorded.subtitle    = program.subtitle
                                              AND oldrecorded.description = program.description
                                           )
                        LEFT JOIN channel ON program.chanid = channel.chanid
@@ -272,10 +274,23 @@ class Program {
             $this->endtime     = $data[12];  # show end-time
         // Is this a previously-recorded program?  Calculate the filesize
             if (!empty($this->filename)) {
-                $this->filesize = ($fs_high + ($fs_low < 0)) * 4294967296 + $fs_low;
+                if (function_exists('gmp_add')) {
+                // GMP functions should work better with 64 bit numbers.
+                    $size = gmp_mul('1024',
+                                    gmp_add($fs_low,
+                                            gmp_mul('4294967296',
+                                                    gmp_add($fs_high, $sizefs_low_low < 0 ? '1' : '0'))
+                                           )
+                                   );
+                    $this->filesize = gmp_strval($size);
+                }
+                else {
+                // This is inaccurate, but it's the best we can get without GMP.
+                    $this->filesize = ($fs_high + ($fs_low < 0)) * 4294967296 + $fs_low;
+                }
             }
         // Ah, a scheduled recording - let's load more information about it, to be parsed in below
-            elseif ($this->chanid) {
+           elseif ($this->chanid) {
                 unset($this->filename);
             // Kludge to avoid redefining the object, which doesn't work in php5
                 $tmp = @get_object_vars(load_one_program($this->starttime, $this->chanid));
@@ -284,7 +299,7 @@ class Program {
                         $this->$key = $value;
                     }
                 }
-            }
+           }
         // Load the remaining info we got from mythbackend
             $this->title           = $data[0];                  # program name/title
             $this->subtitle        = $data[1];                  # episode name

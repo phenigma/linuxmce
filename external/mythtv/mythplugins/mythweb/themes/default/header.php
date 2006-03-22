@@ -2,8 +2,8 @@
 /**
  * This header file is shared by all MythWeb modules.
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/header.php $
- * @date        $Date: 2006-02-10 21:48:14 -0500 (Fri, 10 Feb 2006) $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/themes/default/header.php $
+ * @date        $Date: 2006-02-11 04:48:14 +0200 (Sat, 11 Feb 2006) $
  * @version     $Revision: 8920 $
  * @author      $Author: xris $
  * @license     GPL

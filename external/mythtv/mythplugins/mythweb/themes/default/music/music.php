@@ -3,8 +3,8 @@
  * MythMusic browser.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-17 04:16:41 -0500 (Sat, 17 Dec 2005) $
- * @version     $Revision: 8298 $
+ * @date        $Date: 2006-02-28 09:59:57 +0200 (Tue, 28 Feb 2006) $
+ * @version     $Revision: 9200 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -164,10 +164,12 @@ class Theme_music {
 
     function print_header($filterPlaylist,$filterArtist,$filterAlbum,$filterGenre) {
         $this->filterPlaylist=$filterPlaylist;
-// Set the desired page title
-    $page_title = 'MythWeb - '.t('Music');
-// Print the page header
-    require_once theme_dir.'/header.php';
+    // Set the desired page title
+        global $page_title, $Modules, $headers;
+        $page_title = 'MythWeb - '.t('Music');
+    // Print the page header
+        require_once theme_dir.'/header.php';
+
         printf("<form  action=\"".root."music\" method=\"GET\" >\n");
         printf("<input type=\"hidden\" name=\"mode\" value=\"music\" />\n");
 

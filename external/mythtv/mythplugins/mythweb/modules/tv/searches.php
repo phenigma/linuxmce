@@ -3,7 +3,7 @@
  * An index for handy SQL searches in the listings data
  *
  * @url         $URL$
- * @date        $Date: 2005-12-07 23:35:19 -0500 (Wed, 07 Dec 2005) $
+ * @date        $Date: 2005-12-08 06:35:19 +0200 (Thu, 08 Dec 2005) $
  * @version     $Revision: 8169 $
  * @author      $Author: xris $
  * @license     GPL

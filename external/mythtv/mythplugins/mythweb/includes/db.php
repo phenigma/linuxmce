@@ -3,7 +3,7 @@
  * The Database class and associated statement libraries.
  *
  * @url       $URL: svn+ssh://xris@svn.siliconmechanics.com/var/svn/web/trunk/shared_code/includes/db.php $
- * @date      $Date: 2006-01-28 22:19:02 -0500 (Sat, 28 Jan 2006) $
+ * @date      $Date: 2006-01-29 05:19:02 +0200 (Sun, 29 Jan 2006) $
  * @version   $Revision: 8758 $
  * @author    $Author: xris $
  * @license   GPL

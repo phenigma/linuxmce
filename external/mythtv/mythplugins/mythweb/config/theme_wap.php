@@ -3,7 +3,7 @@
  * Configuration options for the MythWeb WAP theme
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 03:21:54 -0500 (Thu, 02 Feb 2006) $
+ * @date        $Date: 2006-02-02 10:21:54 +0200 (Thu, 02 Feb 2006) $
  * @version     $Revision: 8838 $
  * @author      $Author: xris $
  * @license     GPL

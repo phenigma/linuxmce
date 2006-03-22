@@ -3,7 +3,7 @@
  * Show all upcoming recordings.
  *
  * @url         $URL$
- * @date        $Date: 2005-12-29 14:48:49 -0500 (Thu, 29 Dec 2005) $
+ * @date        $Date: 2005-12-29 21:48:49 +0200 (Thu, 29 Dec 2005) $
  * @version     $Revision: 8421 $
  * @author      $Author: xris $
  * @license     GPL

@@ -247,7 +247,7 @@ TV::TV(void)
       browsechannum(""), browsechanid(""), browsestarttime(""),
       // Program Info for currently playing video
       recorderPlaybackInfo(NULL),
-      playbackinfo(NULL), inputFilename(""), playbackLen(0),
+      playbackinfo(NULL), playbackLen(0),
       lastProgram(NULL), jumpToProgram(false),
       // Video Players
       nvp(NULL), pipnvp(NULL), activenvp(NULL),
@@ -659,8 +659,6 @@ int TV::Playback(ProgramInfo *rcinfo)
     if (internalState != kState_None)
         return 0;
 
-    inputFilename = rcinfo->pathname;
-
     playbackLen = rcinfo->CalculateLength();
     playbackinfo = new ProgramInfo(*rcinfo);
 
@@ -844,9 +842,10 @@ void TV::HandleStateChange(void)
         }
         else
         {
-            tvchain->SetProgram(playbackinfo);
+            QString playbackURL = playbackinfo->GetPlaybackURL();
 
-            prbuffer = new RingBuffer(playbackinfo->pathname, false);
+            tvchain->SetProgram(playbackinfo);
+            prbuffer = new RingBuffer(playbackURL, false);
             prbuffer->SetLiveMode(tvchain);
         }
 
@@ -895,7 +894,14 @@ void TV::HandleStateChange(void)
     else if (TRANSITION(kState_None, kState_WatchingPreRecorded) ||
              TRANSITION(kState_None, kState_WatchingRecording))
     {
-        prbuffer = new RingBuffer(inputFilename, false);
+        QString playbackURL;
+        if ((playbackinfo->pathname.left(4) == "dvd:") ||
+            (playbackinfo->isVideo))
+            playbackURL = playbackinfo->pathname;
+        else
+            playbackURL = playbackinfo->GetPlaybackURL();
+
+        prbuffer = new RingBuffer(playbackURL, false);
         if (prbuffer->IsOpen())
         {
             gContext->DisableScreensaver();
@@ -924,7 +930,7 @@ void TV::HandleStateChange(void)
             {
                 QString message = "COMMFLAG_REQUEST ";
                 message += playbackinfo->chanid + " " +
-                           playbackinfo->startts.toString(Qt::ISODate);
+                           playbackinfo->recstartts.toString(Qt::ISODate);
                 RemoteSendMessage(message);
             }                
         }
@@ -1222,10 +1228,10 @@ void TV::SetupPlayer(bool isWatchingRecording)
     nvp->SetParentPlayer(this);
     nvp->SetRingBuffer(prbuffer);
     nvp->SetRecorder(recorder);
-    nvp->SetAudioSampleRate(gContext->GetNumSetting("AudioSampleRate"));
+    nvp->SetAudioSampleRate(gContext->GetNumSetting("AudioSampleRate", 44100));
     nvp->SetAudioDevice(gContext->GetSetting("AudioOutputDevice"));
     nvp->SetLength(playbackLen);
-    nvp->SetExactSeeks(gContext->GetNumSetting("ExactSeeking"));
+    nvp->SetExactSeeks(gContext->GetNumSetting("ExactSeeking", 0));
     nvp->SetAutoCommercialSkip(autoCommercialSkip);
     nvp->SetLiveTVChain(tvchain);
 
@@ -1296,9 +1302,9 @@ void TV::SetupPipPlayer(void)
     pipnvp->SetAsPIP();
     pipnvp->SetRingBuffer(piprbuffer);
     pipnvp->SetRecorder(piprecorder);
-    pipnvp->SetAudioSampleRate(gContext->GetNumSetting("AudioSampleRate"));
+    pipnvp->SetAudioSampleRate(gContext->GetNumSetting("AudioSampleRate", 44100));
     pipnvp->SetAudioDevice(gContext->GetSetting("AudioOutputDevice"));
-    pipnvp->SetExactSeeks(gContext->GetNumSetting("ExactSeeking"));
+    pipnvp->SetExactSeeks(gContext->GetNumSetting("ExactSeeking", 0));
     pipnvp->SetLiveTVChain(piptvchain);
 
     pipnvp->SetLength(playbackLen);
@@ -1454,6 +1460,30 @@ void TV::RunTV(void)
                 lastSignalMsg.clear();
             }
             UpdateOSDTimeoutMessage();
+
+            if (!tvchainUpdate.isEmpty())
+            {
+                tvchainUpdateLock.lock();
+                for (QStringList::Iterator it = tvchainUpdate.begin();
+                     it != tvchainUpdate.end(); ++it)
+                {
+                    if (tvchain && nvp && *it == tvchain->GetID())
+                    {
+                        tvchain->ReloadAll();
+                        if (nvp->GetTVChain())
+                            nvp->CheckTVChain();
+                    }
+                    if (piptvchain && pipnvp && *it == piptvchain->GetID())
+                    {
+                        piptvchain->ReloadAll();
+                        if (pipnvp->GetTVChain())
+                            pipnvp->CheckTVChain();
+                    }
+                }
+                tvchainUpdate.clear();
+                tvchainUpdateLock.unlock();
+            }
+
             osdlock.unlock();
         }
 
@@ -2743,7 +2773,7 @@ void TV::processNetworkControlCommand(QString command)
                 speedStr = QString("%1X").arg(normal_speed);
 
             struct StatusPosInfo posInfo;
-            nvp->calcSliderPos(posInfo);
+            nvp->calcSliderPos(posInfo, true);
 
             QDateTime respDate = mythCurrentDateTime();
             QString infoStr = "";
@@ -2806,8 +2836,10 @@ void TV::TogglePIPView(void)
         }
         else
         {
+            QString playbackURL = playbackinfo->GetPlaybackURL();
+
             piptvchain->SetProgram(playbackinfo);
-            piprbuffer = new RingBuffer(playbackinfo->pathname, false);
+            piprbuffer = new RingBuffer(playbackURL, false);
             piprbuffer->SetLiveMode(piptvchain);
         }
 
@@ -3472,8 +3504,10 @@ void TV::SwitchCards(uint chanid, QString channum)
         }
         else
         {
+            QString playbackURL = playbackinfo->GetPlaybackURL();
+
             tvchain->SetProgram(playbackinfo);
-            prbuffer = new RingBuffer(playbackinfo->pathname, false);
+            prbuffer = new RingBuffer(playbackURL, false);
             prbuffer->SetLiveMode(tvchain);
         }
 
@@ -4911,29 +4945,14 @@ void TV::customEvent(QCustomEvent *e)
         }
         else if (tvchain && message.left(12) == "LIVETV_CHAIN")
         {
-            // Get osdlock, while intended for the OSD this ensures that
-            // the nvp & pipnvp are not deleted while we are using it..
-            while (!osdlock.tryLock() && nvp)
-                usleep(2500);
-
             message = message.simplifyWhiteSpace();
             QStringList tokens = QStringList::split(" ", message);
             if (tokens[1] == "UPDATE")
             {
-                if (tvchain && nvp && tokens[2] == tvchain->GetID())
-                {
-                    tvchain->ReloadAll();
-                    if (nvp->GetTVChain())
-                        nvp->CheckTVChain();
-                }
-                if (piptvchain && pipnvp && tokens[2] == piptvchain->GetID())
-                {
-                    piptvchain->ReloadAll();
-                    if (pipnvp->GetTVChain())
-                        pipnvp->CheckTVChain();
-                }
+                tvchainUpdateLock.lock();
+                tvchainUpdate += QDeepCopy<QString>(tokens[2]);
+                tvchainUpdateLock.unlock();
             }
-            osdlock.unlock();
         }
         else if (nvp && message.left(12) == "EXIT_TO_MENU")
         {
@@ -4983,7 +5002,7 @@ void TV::customEvent(QCustomEvent *e)
             QDateTime evstartts = QDateTime::fromString(tokens[2], Qt::ISODate);
 
             if ((playbackinfo->chanid == evchanid) &&
-                (playbackinfo->startts == evstartts))
+                (playbackinfo->recstartts == evstartts))
             {
                 QString msg = "COMMFLAG_REQUEST ";
                 msg += tokens[1] + " " + tokens[2];
@@ -5000,7 +5019,7 @@ void TV::customEvent(QCustomEvent *e)
             QDateTime evstartts = QDateTime::fromString(tokens[2], Qt::ISODate);
 
             if ((playbackinfo->chanid == evchanid) &&
-                (playbackinfo->startts == evstartts))
+                (playbackinfo->recstartts == evstartts))
             {
                 QMap<long long, int> newMap;
                 QStringList mark;

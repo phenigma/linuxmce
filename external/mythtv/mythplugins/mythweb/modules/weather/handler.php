@@ -2,9 +2,9 @@
 /**
  * Handler for the Weather module.
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/weather/handler.php $
- * @date        $Date: 2005-12-16 01:55:02 -0500 (Fri, 16 Dec 2005) $
- * @version     $Revision: 8285 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/modules/weather/handler.php $
+ * @date        $Date: 2006-03-07 06:15:13 +0200 (Tue, 07 Mar 2006) $
+ * @version     $Revision: 9280 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -222,8 +222,10 @@ class WeatherSite {
 
     $data = explode("|", $data);
     for($i = 0;$i<5;$i++) {
-        $forecast = new Forecast($data[5 + $i],$data[$i]);
-        $forecast->dayofweek = $data[$i];
+	# mktime uses 0-6;  msnbc gives us 1-7;  adjust msnbc to match mktime
+	$dayofweek = $data[$i] - 1;
+        $forecast = new Forecast($data[5 + $i],$dayofweek);
+        $forecast->dayofweek = $dayofweek;
         list($forecast->DescImage,$forecast->DescText) = getImageAndDescFromId($data[15 + $i]);
         $forecast->DescImage = (strlen($forecast->DescImage) > 0) ? $forecast->DescImage : "unknown.png";
         $forecast->DescText = (strlen($forecast->DescText) > 0) ? $forecast->DescText : t('Unknown') . " (" . $data[15+$i] . ")";

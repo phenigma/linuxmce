@@ -2,7 +2,7 @@
  * A random assortment of javascript utility routines
  *
  * @url         $URL$
- * @date        $Date: 2005-10-22 13:32:26 -0400 (Sat, 22 Oct 2005) $
+ * @date        $Date: 2005-10-22 20:32:26 +0300 (Sat, 22 Oct 2005) $
  * @version     $Revision: 7561 $
  * @author      $Author: xris $
  * @license     LGPL

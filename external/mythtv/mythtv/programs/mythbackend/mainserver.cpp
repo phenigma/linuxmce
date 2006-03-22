@@ -1919,11 +1919,8 @@ void MainServer::HandleGetPendingRecordings(PlaybackSock *pbs, QString table, in
     if (m_sched) {
         if (table == "") m_sched->getAllPending(strList);
         else {
-            // We need a different connection from the scheduler proper
-            // DDCon exists, although it's designed for other purposes.
-            MSqlQueryInfo dbconn = MSqlQuery::DDCon();
-            Scheduler *sched = new Scheduler(false, encoderList,
-                                             table, &dbconn, m_sched);
+            Scheduler *sched = new Scheduler(false, encoderList, 
+                                             table, m_sched);
             sched->FillRecordListFromDB(recordid);
             sched->getAllPending(strList);
             delete sched;
@@ -2939,6 +2936,12 @@ void MainServer::HandleFileTransferQuery(QStringList &slist,
 
         long long ret = ft->Seek(curpos, pos, whence);
         encodeLongLong(retlist, ret);
+    }
+    else if (command == "SET_TIMEOUT")
+    {
+        bool fast = slist[2].toInt();
+        ft->SetTimeout(fast);
+        retlist << "ok";
     }
     else 
     {

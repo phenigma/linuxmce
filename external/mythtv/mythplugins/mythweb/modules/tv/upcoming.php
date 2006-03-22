@@ -3,8 +3,8 @@
  * View and fix scheduling conflicts.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-06 21:57:11 -0500 (Mon, 06 Feb 2006) $
- * @version     $Revision: 8887 $
+ * @date        $Date: 2006-02-28 06:54:08 +0200 (Tue, 28 Feb 2006) $
+ * @version     $Revision: 9181 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -103,8 +103,9 @@
                         continue;
                 }
             // Skip deactivated shows?
-                elseif (!$_SESSION['scheduled_recordings']['disp_deactivated']) {
-                    continue;
+                elseif ($show->recstatus != 'Recording') {
+                    if (!$_SESSION['scheduled_recordings']['disp_deactivated'])
+                        continue;
                 }
             // Assign a reference to this show to the various arrays
                 $all_shows[] =& $Scheduled_Recordings[$channum][$starttime][$key];

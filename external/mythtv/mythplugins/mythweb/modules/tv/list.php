@@ -6,7 +6,7 @@
  * This is the default viewing mode, and shows the current program listings.
  *
  * @url         $URL$
- * @date        $Date: 2005-11-11 02:25:35 -0500 (Fri, 11 Nov 2005) $
+ * @date        $Date: 2005-11-11 09:25:35 +0200 (Fri, 11 Nov 2005) $
  * @version     $Revision: 7840 $
  * @author      $Author: xris $
  * @license     GPL

@@ -353,7 +353,8 @@ void MythLineEdit::keyPressEvent(QKeyEvent *e)
                     (e->key() == Qt::Key_Enter) ||
                     (e->key() == Qt::Key_Return)))
             {
-                if (gContext->GetNumSetting("UseVirtualKeyboard", 1) == 1)
+                if ((allowVirtualKeyboard) &&
+				    (gContext->GetNumSetting("UseVirtualKeyboard", 1) == 1))
                 {
                     popup = new VirtualKeyboard(gContext->GetMainWindow(), this);
                     gContext->GetMainWindow()->detach(popup);
@@ -726,10 +727,11 @@ void MythRemoteLineEdit::keyPressEvent(QKeyEvent *e)
                 QWidget::focusNextPrevChild(true);
                 emit tryingToLooseFocus(true);
             }
-            else if (action == "SELECT" &&
-                    (e->text().isNull() ||
-                    (e->key() == Qt::Key_Enter) || 
-                    (e->key() == Qt::Key_Return)))
+            else if ((action == "SELECT") &&
+                     (!active_cycle) &&
+                     ((e->text().isNull()) ||
+                      (e->key() == Qt::Key_Enter) || 
+                      (e->key() == Qt::Key_Return)))
             {
                 if (gContext->GetNumSetting("UseVirtualKeyboard", 1) == 1)
                 {
@@ -749,7 +751,7 @@ void MythRemoteLineEdit::keyPressEvent(QKeyEvent *e)
     if (handled)
         return;
 
-    if (!handled && popup && popup->isShown())
+    if (popup && popup->isShown())
     {
         endCycle();
         QTextEdit::keyPressEvent(e);

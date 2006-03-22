@@ -3,7 +3,7 @@
  * Configure MythTV Channels
  *
  * @url         $URL$
- * @date        $Date: 2005-12-30 19:21:51 -0500 (Fri, 30 Dec 2005) $
+ * @date        $Date: 2005-12-31 02:21:51 +0200 (Sat, 31 Dec 2005) $
  * @version     $Revision: 8441 $
  * @author      $Author: xris $
  * @license     GPL

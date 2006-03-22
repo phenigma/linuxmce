@@ -7,8 +7,8 @@
 # See http://www.mythtv.org/ for information about MythTV itself.
 #
 # @url       $URL$
-# @date      $Date: 2006-01-16 18:32:30 -0500 (Mon, 16 Jan 2006) $
-# @version   $Revision: 8627 $
+# @date      $Date: 2006-03-21 09:59:48 +0200 (Tue, 21 Mar 2006) $
+# @version   $Revision: 9434 $
 # @author    $Author: xris $
 #
 
@@ -22,6 +22,7 @@
 #    AuthName           "MythTV"
 #    AuthDigestFile     /var/www/htdigest
 #    Require            valid-user
+#    BrowserMatch       "MSIE"      AuthDigestEnableQueryStringHack=On
 
 # MythTV now uses the correct file suffix for mpeg files, so all .nuv files
 # should actually be NuppleVideo.  However, apache probably doesn't know what

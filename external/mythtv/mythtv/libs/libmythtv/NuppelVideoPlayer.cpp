@@ -147,6 +147,7 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       hascommbreaktable(false),
       deleteIter(deleteMap.end()),  blankIter(blankMap.end()),
       commBreakIter(commBreakMap.end()),
+      forcePositionMapSync(false),
       // Playback (output) speed control
       decoder_lock(true),
       next_play_speed(1.0f),        next_normal_speed(true),
@@ -747,6 +748,8 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
         SetDecoder(new IvtvDecoder(this, m_playbackinfo));
         no_audio_out = true; // no audio with ivtv.
         audio_bits = 16;
+        audio_samplerate = 44100;
+        audio_channels = 2;
     }
     else if (forceVideoOutput == kVideoOutput_IVTV)
     {
@@ -1920,7 +1923,7 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
         ShowText();
         DisplaySubtitles();
     }
-    else if (osdHasSubtitles || nonDisplayedSubtitles.size() > 20)
+    else if (osdHasSubtitles)
     {
         ClearSubtitles();
     }
@@ -2199,6 +2202,7 @@ void NuppelVideoPlayer::SwitchToProgram(void)
     }
     if (IsErrored())
     {
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "SwitchToProgram failed.");
         eof = true;
         return;
     }
@@ -2284,6 +2288,7 @@ void NuppelVideoPlayer::JumpToProgram(void)
 
     if (errored || !GetDecoder())
     {
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "JumpToProgram failed.");
         errored = true;
         return;
     }
@@ -2469,6 +2474,12 @@ void NuppelVideoPlayer::StartPlaying(void)
                 SwitchToProgram();
             else if (livetvchain->NeedsToJump())
                 JumpToProgram();
+        }
+
+        if (forcePositionMapSync)
+        {
+            forcePositionMapSync = false;
+            GetDecoder()->SyncPositionMap();
         }
 
         if (IsErrored() || (nvr_enc && nvr_enc->GetErrorStatus()))
@@ -4398,6 +4409,8 @@ void NuppelVideoPlayer::SetCommBreakMap(QMap<long long, int> &newMap)
     hascommbreaktable = !commBreakMap.isEmpty();
     SetCommBreakIter();
     commBreakMapLock.unlock();
+
+    forcePositionMapSync = true;
 }
 
 bool NuppelVideoPlayer::RebuildSeekTable(bool showPercentage, StatusCallback cb, void* cbData)
@@ -4541,7 +4554,8 @@ int NuppelVideoPlayer::GetSecondsBehind(void) const
     return (int)((float)(written - played) / video_frame_rate);
 }
 
-void NuppelVideoPlayer::calcSliderPos(struct StatusPosInfo &posInfo)
+void NuppelVideoPlayer::calcSliderPos(struct StatusPosInfo &posInfo,
+                                      bool paddedFields)
 {
     posInfo.desc = "";
     posInfo.position = 0;
@@ -4588,15 +4602,23 @@ void NuppelVideoPlayer::calcSliderPos(struct StatusPosInfo &posInfo)
     int ssecs = (playbackLen - shours * 3600 - smins * 60);
 
     QString text1, text2;
-    if (shours > 0)
+    if (paddedFields)
     {
-        text1.sprintf("%d:%02d:%02d", phours, pmins, psecs);
-        text2.sprintf("%d:%02d:%02d", shours, smins, ssecs);
+        text1.sprintf("%02d:%02d:%02d", phours, pmins, psecs);
+        text2.sprintf("%02d:%02d:%02d", shours, smins, ssecs);
     }
     else
     {
-        text1.sprintf("%d:%02d", pmins, psecs);
-        text2.sprintf("%d:%02d", smins, ssecs);
+        if (shours > 0)
+        {
+            text1.sprintf("%d:%02d:%02d", phours, pmins, psecs);
+            text2.sprintf("%d:%02d:%02d", shours, smins, ssecs);
+        }
+        else
+        {
+            text1.sprintf("%d:%02d", pmins, psecs);
+            text2.sprintf("%d:%02d", smins, ssecs);
+        }
     }
 
     posInfo.desc = QObject::tr("%1 of %2").arg(text1).arg(text2);
@@ -4654,6 +4676,7 @@ void NuppelVideoPlayer::AutoCommercialSkip(void)
 
             if (commBreakIter.key() == totalFrames)
             {
+                VERBOSE(VB_IMPORTANT, LOC + "Skipping commercial to end of file");
                 eof = true;
             }
             else
@@ -4721,7 +4744,7 @@ bool NuppelVideoPlayer::DoSkipCommercials(int direction)
 
         QString message = "COMMFLAG_REQUEST ";
         message += m_playbackinfo->chanid + " " +
-                   m_playbackinfo->startts.toString(Qt::ISODate);
+                   m_playbackinfo->recstartts.toString(Qt::ISODate);
         RemoteSendMessage(message);
 
         return false;
@@ -5018,7 +5041,7 @@ void NuppelVideoPlayer::DisplaySubtitles()
                 QImage scaledImage = qImage.smoothScale(rect->w, rect->h);
 
                 OSDTypeImage* image = new OSDTypeImage();
-                image->SetPosition(QPoint(rect->x, rect->y));
+                image->SetPosition(QPoint(rect->x, rect->y), hmult, vmult);
                 image->LoadFromQImage(scaledImage);
 
                 subtitleOSD->AddType(image);

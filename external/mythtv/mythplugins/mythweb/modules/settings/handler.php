@@ -2,8 +2,8 @@
 /**
  * Handler for all MythWeb Settings routines
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/settings/handler.php $
- * @date        $Date: 2005-12-15 02:33:52 -0500 (Thu, 15 Dec 2005) $
+ * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/settings/handler.php $
+ * @date        $Date: 2005-12-15 09:33:52 +0200 (Thu, 15 Dec 2005) $
  * @version     $Revision: 8273 $
  * @author      $Author: xris $
  * @license     GPL

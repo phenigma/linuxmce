@@ -3,8 +3,8 @@
  * Display template for the Weather module
  *
  * @url         $URL$
- * @date        $Date: 2005-11-08 01:43:55 -0500 (Tue, 08 Nov 2005) $
- * @version     $Revision: 7795 $
+ * @date        $Date: 2006-03-07 06:15:13 +0200 (Tue, 07 Mar 2006) $
+ * @version     $Revision: 9280 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -93,13 +93,13 @@
                 $tomorrow = date("m/d/Y", mktime(0, 0, 0, date("m")  , date("d")+1, date("Y")));
 
                 switch($forecast->dayofweek) {
+                    case 0:  $day = t('Sunday');        break;
                     case 1:  $day = t('Monday');        break;
                     case 2:  $day = t('Tuesday');       break;
                     case 3:  $day = t('Wednesday');     break;
                     case 4:  $day = t('Thursday');      break;
                     case 5:  $day = t('Friday');        break;
                     case 6:  $day = t('Saturday');      break;
-                    case 7:  $day = t('Sunday');        break;
                     default: $day = $forecast->date;    break;
                 }
 

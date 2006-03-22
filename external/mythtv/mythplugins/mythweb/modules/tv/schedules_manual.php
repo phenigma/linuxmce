@@ -3,7 +3,7 @@
  * Schedule a custom recording by manually specifying starttime and length
  *
  * @url         $URL$
- * @date        $Date: 2006-02-10 01:15:17 -0500 (Fri, 10 Feb 2006) $
+ * @date        $Date: 2006-02-10 08:15:17 +0200 (Fri, 10 Feb 2006) $
  * @version     $Revision: 8914 $
  * @author      $Author: xris $
  *

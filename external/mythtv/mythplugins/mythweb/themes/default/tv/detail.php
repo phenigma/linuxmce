@@ -4,8 +4,8 @@
  * commands.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-30 02:16:42 -0500 (Mon, 30 Jan 2006) $
- * @version     $Revision: 8776 $
+ * @date        $Date: 2006-02-28 06:56:45 +0200 (Tue, 28 Feb 2006) $
+ * @version     $Revision: 9183 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -51,7 +51,7 @@
 <?php   } ?>
             <div id="program_title">
                 <h1>
-                    <a href="<?php echo root ?>tv/search/<?php echo urlencode($program->title) ?>&search_title=yes"><?php echo $schedule->title ?></a>
+                    <a href="<?php echo root ?>tv/search/<?php echo str_replace('%2F', '/', rawurlencode($schedule->title)) ?>?search_title=1"><?php echo $schedule->title ?></a>
                 </h1>
                 <div id="program_time">
 <?php

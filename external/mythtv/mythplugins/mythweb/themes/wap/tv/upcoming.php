@@ -4,7 +4,7 @@
  * It must define one method.   documentation will be added someday.
  *
  * @url         $URL$
- * @date        $Date: 2006-01-25 21:43:22 -0500 (Wed, 25 Jan 2006) $
+ * @date        $Date: 2006-01-26 04:43:22 +0200 (Thu, 26 Jan 2006) $
  * @version     $Revision: 8726 $
  * @author      $Author: xris $
  * @license     GPL

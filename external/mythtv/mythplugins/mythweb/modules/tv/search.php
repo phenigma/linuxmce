@@ -3,7 +3,7 @@
  * Searches the database for programs matching a particular query.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-10 21:45:02 -0500 (Fri, 10 Feb 2006) $
+ * @date        $Date: 2006-02-11 04:45:02 +0200 (Sat, 11 Feb 2006) $
  * @version     $Revision: 8919 $
  * @author      $Author: xris $
  * @license     GPL

@@ -2,8 +2,8 @@
 /**
  * Welcome page description of the Movie Times module.
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/movietimes/welcome.php $
- * @date        $Date: 2005-12-13 02:23:18 -0500 (Tue, 13 Dec 2005) $
+ * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/movietimes/welcome.php $
+ * @date        $Date: 2005-12-13 09:23:18 +0200 (Tue, 13 Dec 2005) $
  * @version     $Revision: 8252 $
  * @author      $Author: xris $
  * @license     GPL

@@ -150,7 +150,8 @@ class NuppelVideoPlayer
     // Complicated gets
     long long CalcMaxFFTime(long long ff, bool setjump = true) const;
     long long CalcRWTime(long long rw) const;
-    void      calcSliderPos(struct StatusPosInfo &posInfo);
+    void      calcSliderPos(struct StatusPosInfo &posInfo,
+                            bool paddedFields = false);
 
     /// Non-const gets
     OSD         *GetOSD(void)                 { return osd; }
@@ -543,6 +544,7 @@ class NuppelVideoPlayer
     QMap<long long, int>::Iterator deleteIter;
     QMap<long long, int>::Iterator blankIter;
     QMap<long long, int>::Iterator commBreakIter;
+    bool       forcePositionMapSync;
 
     // Playback (output) speed control
     /// Lock for next_play_speed and next_normal_speed

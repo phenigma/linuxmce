@@ -3,8 +3,8 @@
  * Utility routines used throughout mythweb
  *
  * @url         $URL$
- * @date        $Date: 2006-01-24 22:41:36 -0500 (Tue, 24 Jan 2006) $
- * @version     $Revision: 8709 $
+ * @date        $Date: 2006-03-21 10:27:25 +0200 (Tue, 21 Mar 2006) $
+ * @version     $Revision: 9437 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -276,7 +276,7 @@
         static $first_run=true;
         if($first_run) {
             $first_run=false;
-            echo '<script type="text/javascript" src="/js/debug.js"></script>';
+            echo '<script type="text/javascript" src="'.root.'js/debug.js"></script>';
         }
     // Put our data into a string
         if (is_array($data) || is_object($data))

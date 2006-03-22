@@ -3,7 +3,7 @@
  * View all recording schedules
  *
  * @url         $URL$
- * @date        $Date: 2005-12-31 17:26:52 -0500 (Sat, 31 Dec 2005) $
+ * @date        $Date: 2006-01-01 00:26:52 +0200 (Sun, 01 Jan 2006) $
  * @version     $Revision: 8456 $
  * @author      $Author: xris $
  * @license     GPL

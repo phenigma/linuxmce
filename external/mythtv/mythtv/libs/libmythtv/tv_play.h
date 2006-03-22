@@ -456,7 +456,6 @@ class TV : public QObject
     ProgramInfo *recorderPlaybackInfo; ///< info requested from recorder
     ProgramInfo *playbackinfo;  ///< info sent in via Playback()
     QMutex       pbinfoLock;
-    QString      inputFilename; ///< playbackinfo->pathname
     int          playbackLen;   ///< initial playbackinfo->CalculateLength()
     ProgramInfo *lastProgram;   ///< last program played with this player
     bool         jumpToProgram;
@@ -485,6 +484,8 @@ class TV : public QObject
     // LiveTVChain
     LiveTVChain *tvchain;
     LiveTVChain *piptvchain;
+    QStringList tvchainUpdate;
+    QMutex tvchainUpdateLock;
 
     // RingBuffers
     RingBuffer *prbuffer;

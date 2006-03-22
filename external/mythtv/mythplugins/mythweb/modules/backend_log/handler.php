@@ -2,9 +2,9 @@
 /**
  * View the logs
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/backend_log/handler.php $
- * @date        $Date: 2005-12-08 00:00:04 -0500 (Thu, 08 Dec 2005) $
- * @version     $Revision: 8171 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/modules/backend_log/handler.php $
+ * @date        $Date: 2006-02-28 09:28:00 +0200 (Tue, 28 Feb 2006) $
+ * @version     $Revision: 9196 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -16,7 +16,7 @@
 // Where to start searching from
     $_GET['start'] = intVal($_GET['start']);
     if ($_GET['start'] < 1)
-        $_GET['start'] = 1;
+        $_GET['start'] = 0;
 
 // How many entries to show?
     $_GET['show'] = intVal($_GET['show']);

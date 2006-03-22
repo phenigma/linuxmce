@@ -2,8 +2,8 @@
 /**
  * Initialization routines for the MythWeb Music module
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/modules/music/init.php $
- * @date        $Date: 2006-01-28 22:19:02 -0500 (Sat, 28 Jan 2006) $
+ * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/music/init.php $
+ * @date        $Date: 2006-01-29 05:19:02 +0200 (Sun, 29 Jan 2006) $
  * @version     $Revision: 8758 $
  * @author      $Author: xris $
  * @license     GPL

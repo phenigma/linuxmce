@@ -3,7 +3,7 @@
  * Handy predefined searches
  *
  * @url         $URL$
- * @date        $Date: 2005-12-15 22:07:00 -0500 (Thu, 15 Dec 2005) $
+ * @date        $Date: 2005-12-16 05:07:00 +0200 (Fri, 16 Dec 2005) $
  * @version     $Revision: 8278 $
  * @author      $Author: xris $
  * @license     GPL

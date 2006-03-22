@@ -4,8 +4,8 @@
  * port 6544)
  *
  * @url         $URL$
- * @date        $Date: 2005-12-08 00:00:04 -0500 (Thu, 08 Dec 2005) $
- * @version     $Revision: 8171 $
+ * @date        $Date: 2006-02-24 05:02:31 +0200 (Fri, 24 Feb 2006) $
+ * @version     $Revision: 9130 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -18,14 +18,17 @@
     $masterhost = get_backend_setting('MasterServerIP');
     $statusport = get_backend_setting('BackendStatusPort');
 
+// XML mode?
+    $xml_param = ($Path[1] == 'xml') ? '/xml' : '';
+
 // Make sure the content is interpreted as UTF-8
     header('Content-Type:  text/html; charset=UTF-8');
 
 // Load the status page
     if (function_exists('file_get_contents'))
-        $status = file_get_contents("http://$masterhost:$statusport");
+        $status = file_get_contents("http://$masterhost:$statusport$xml_param");
     else
-        $status = implode("\n", file("http://$masterhost:$statusport"));
+        $status = implode("\n", file("http://$masterhost:$statusport$xml_param"));
 
 // Extract the page title
     preg_match('#<title>(.+?)</title>#s', $status, $title);

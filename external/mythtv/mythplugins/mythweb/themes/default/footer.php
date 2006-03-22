@@ -2,8 +2,8 @@
 /**
  * This footer file is shared by all MythWeb modules.
  *
- * @url         $URL: svn+ssh://ijr@cvs.mythtv.org/var/lib/svn/tags/release-0-19/mythplugins/mythweb/themes/default/footer.php $
- * @date        $Date: 2005-11-08 01:43:55 -0500 (Tue, 08 Nov 2005) $
+ * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/themes/default/footer.php $
+ * @date        $Date: 2005-11-08 08:43:55 +0200 (Tue, 08 Nov 2005) $
  * @version     $Revision: 7795 $
  * @author      $Author: xris $
  * @license     GPL

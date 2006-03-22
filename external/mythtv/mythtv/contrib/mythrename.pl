@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Date: 2006-02-06 22:05:03 -0500 (Mon, 06 Feb 2006) $
+# $Date: 2006-02-07 05:05:03 +0200 (Tue, 07 Feb 2006) $
 # $Revision: 8888 $
 # $Author: xris $
 #
