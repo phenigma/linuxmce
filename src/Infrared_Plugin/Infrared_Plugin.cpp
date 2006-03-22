@@ -5,7 +5,6 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#include <stdlib.h>
 #include <iostream>
 using namespace std;
 using namespace DCE;
@@ -829,4 +828,54 @@ void Infrared_Plugin::CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,st
 //<-dceag-c688-e->
 {
 	(*sValue_To_Assign) = m_sRemoteMapping;
+}
+//<-dceag-c790-b->
+
+	/** @brief COMMAND: #790 - Get Sibling Remotes */
+	/** Return a list of remote remote IDs with remote data. */
+		/** @param #5 Value To Assign */
+			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
+		/** @param #206 PK_DeviceCategory */
+			/** Device category to search for remotes */
+
+void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c790-e->
+{
+// Find all our sibblings that are remote controls 
+
+	Table_Device * pTable_Device = m_pDatabase_pluto_main->Device_get();
+	
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
+	if( !pRow_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Get sibling remote called from device %d that's not in the database!", pMessage->m_dwPK_Device_From);
+		return;
+	}
+	int FK_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_get();
+	if (!FK_Device_ControlledVia)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Parent of calling device %d not found!", pMessage->m_dwPK_Device_From);
+		return;
+	}
+	vector<Row_Device *> vectRow_Device;
+	
+	string sWhere = "FK_Device_ControlledVia = "+StringUtils::itos(FK_Device_ControlledVia);
+	if (!m_pDatabase_pluto_main->Device_get()->GetRows(sWhere, &vectRow_Device))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Device GetRows Failed, WHERE %s", sWhere.c_str());
+		return;
+	}
+	(*sValue_To_Assign).empty();
+	for(int i=0;i<vectRow_Device.size();i++)
+	{
+		if (i>0)
+			(*sValue_To_Assign)+="`";
+		if (vectRow_Device[i]->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() == iPK_DeviceCategory)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",vectRow_Device[i]->PK_Device_get(), vectRow_Device[i]->Description_get().c_str());
+			string sRemoteLayout = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Remote_Layout_CONST)->IK_DeviceData_get();
+			string sConfiguration = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Configuration_CONST)->IK_DeviceData_get();
+			(*sValue_To_Assign)+=StringUtils::itos(vectRow_Device[i]->PK_Device_get())+"~"+sRemoteLayout+"~"+sConfiguration;
+		}
+	}
 }

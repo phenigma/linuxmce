@@ -108,6 +108,17 @@ public:
 	virtual void CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #790 - Get Sibling Remotes */
+	/** Return a list of remote remote IDs with remote data. */
+		/** @param #5 Value To Assign */
+			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
+		/** @param #206 PK_DeviceCategory */
+			/** Device category to search for remotes */
+
+	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Sibling_Remotes(iPK_DeviceCategory,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 
