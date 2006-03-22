@@ -23,6 +23,17 @@ function setValue {
 
 	ConfSet "OfflineMode" "$Value"
 
+	## Remove any existing /usr/pluto/var/apt.conf.offline
+	rm -f /usr/pluto/var/apt.conf.offline
+
+	## If we are in offline mode, put this file there so *apt* will know to not connect
+	## to the internet. This is not magic, a symlink in /etc/apt/apt.conf.d/ is pointing
+	## to this file. The fun part is that /usr/pluto/var is shared between mds and core
+	## resulting in a option set to all machines. 
+	if [[ "$Value" != "true" ]]; then
+		cp /usr/pluto/templates/apt.conf.offline.tmpl /usr/pluto/var/apt.conf.offline
+	fi
+	
 	## Set the options to MD's also
 	for DlDir in /usr/pluto/diskless/*; do 
 		chroot $DlDir bash -c "source /usr/pluto/bin/ConfigOps.sh && ConfSet OfflineMode $Value"
