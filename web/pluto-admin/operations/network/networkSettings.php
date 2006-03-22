@@ -11,6 +11,8 @@ function networkSettings($output,$dbADO) {
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
+	
+	$OfflineMode=exec('sudo -u root /usr/pluto/bin/OfflineMode.sh get');
 
 	$queryDevice='
 		SELECT Device.*
@@ -227,6 +229,10 @@ function networkSettings($output,$dbADO) {
 			<td colspan=3>'.$swaphtml.'</td>
 		</tr>
 		<tr>
+			<td><input type="checkbox" name="OfflineMode" value="1" '.(($OfflineMode=='true')?'checked':'').'></td>
+			<td colspan="2"><B>'.$TEXT_OFFLINEMODE_CONST.'</B></td>
+		</tr>			
+		<tr>
 			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" class="button" name="update" value="Update" onClick="validateForm()"> <input type="reset" class="button" name="reset" value="Reset"></td>
 		</tr>		
 	</table>
@@ -251,7 +257,7 @@ function networkSettings($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=networkSettings&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=networkSettings&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		$newEnableDHCP=(isset($_POST['enableDHCP']))?1:0;
@@ -308,6 +314,10 @@ function networkSettings($output,$dbADO) {
 			$cmd = "sudo -u root /usr/pluto/bin/{$commands[$i]}";
 			exec($cmd);
 		}
+		
+		$OfflineMode=(int)@$_REQUEST['OfflineMode'];
+		$OfflineMode=($OfflineMode==1)?'true':'false';
+		exec('sudo -u root /usr/pluto/bin/OfflineMode.sh set '.$OfflineMode);
 		
 		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
 	}
