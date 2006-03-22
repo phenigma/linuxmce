@@ -71,6 +71,10 @@ read
 # Set vimrc
 [[ -e /root/.vimrc ]] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
 
+# This is used so the offline apt mode (see OfflineMode.sh) can work
+mkdir -p /etc/apt/apt.conf.d/
+ln -s /usr/pluot/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+
 echo "Setting debconf front-end to Noninteractive"
 awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
 	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
