@@ -44,45 +44,50 @@ int OutlookWraper::readContacts(ContactsList &list)
 
 	try
 	{
-		pMAPI= pApp->GetNamespace("MAPI");
+		pMAPI = pApp->GetNamespace("MAPI");
+		Log::m_pLog->writeLine( "After GetNamespace");
 		pMAPI->Logon("","",false,false);
+		Log::m_pLog->writeLine( "After Logon");
 		pFolder = pMAPI->GetDefaultFolder(olFolderContacts);
+		Log::m_pLog->writeLine( "After GetFolder");
 		pItems = pFolder->GetItems();
+		Log::m_pLog->writeLine( "After GetItems");
 		pContact = pItems->GetFirst();
+		Log::m_pLog->writeLine( "After GetFirst" );
 		nCount = pItems->GetCount();
+		Log::m_pLog->writeLine( "Number of contacts" );
 
 		for(int i=0;i<nCount;i++)
 		{
 
 			pContactInfo = new Contact;
 
-			if( (char *) pContact->GetFirstName() != NULL )
-				pContactInfo->firstName = (char *) pContact->GetFirstName();
-			if( (char *) pContact->GetMiddleName() != NULL )
-				pContactInfo->middleName = (char *) pContact->GetMiddleName();
-			if( (char *) pContact->GetLastName() != NULL )
-				pContactInfo->lastName = (char *) pContact->GetLastName();
+			if( (LPCSTR) pContact->GetFirstName() != NULL )
+				pContactInfo->firstName = (LPCSTR) pContact->GetFirstName();
+			if( (LPCSTR) pContact->GetMiddleName() != NULL )
+				pContactInfo->middleName = (LPCSTR) pContact->GetMiddleName();
+			if( (LPCSTR) pContact->GetLastName() != NULL )
+				pContactInfo->lastName = (LPCSTR) pContact->GetLastName();
 
-			if( (char *) pContact->GetCompanyName() != NULL )
-				pContactInfo->companyName = (char *) pContact->GetCompanyName();
-			if( (char *) !pContact->GetJobTitle() != NULL)
-				pContactInfo->title = (char *) pContact->GetJobTitle();
+			if( (LPCSTR) pContact->GetCompanyName() != NULL )
+				pContactInfo->companyName = (LPCSTR) pContact->GetCompanyName();
+			if( (LPCSTR) !pContact->GetJobTitle() != NULL)
+				pContactInfo->title = (LPCSTR) pContact->GetJobTitle();
 
-			if( (char *) pContact->GetHomeTelephoneNumber() != NULL )
-				pContactInfo->phoneHome = (char *) pContact->GetHomeTelephoneNumber();
-			if( (char *) pContact->GetBusinessTelephoneNumber() != NULL )
-				pContactInfo->homeBusiness = (char *) pContact->GetBusinessTelephoneNumber();
-			if( (char*) pContact->GetMobileTelephoneNumber() != NULL )
-				pContactInfo->phoneMobile = (char *) pContact->GetMobileTelephoneNumber();
+			if( (LPCSTR) pContact->GetHomeTelephoneNumber() != NULL )
+				pContactInfo->phoneHome = (LPCSTR) pContact->GetHomeTelephoneNumber();
+			if( (LPCSTR) pContact->GetBusinessTelephoneNumber() != NULL )
+				pContactInfo->homeBusiness = (LPCSTR) pContact->GetBusinessTelephoneNumber();
+			if( (LPCSTR) pContact->GetMobileTelephoneNumber() != NULL )
+				pContactInfo->phoneMobile = (LPCSTR) pContact->GetMobileTelephoneNumber();
 
-			if( (char *) pContact->GetHomeAddress() != NULL )
-				pContactInfo->homeAddress = (char *) pContact->GetHomeAddress();
-			if( (char *) pContact->GetBusinessAddress() != NULL )
-				pContactInfo->businessAddress = (char *) pContact->GetBusinessAddress();
+			if( (LPCSTR) pContact->GetHomeAddress() != NULL )
+				pContactInfo->homeAddress = (LPCSTR) pContact->GetHomeAddress();
+			if( (LPCSTR) pContact->GetBusinessAddress() != NULL )
+				pContactInfo->businessAddress = (LPCSTR) pContact->GetBusinessAddress();
 
-			if( (char *) pContact->GetEmail1Address() != NULL )
-				pContactInfo->email = (char *) pContact->GetEmail1Address();
-
+			if( (LPCSTR) pContact->GetEmail1Address() != NULL )
+				pContactInfo->email = (LPCSTR) pContact->GetEmail1Address();
 
 			Log::m_pLog->m_file << *pContactInfo;
 
