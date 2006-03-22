@@ -11,7 +11,7 @@ function editCriteria($output,$dbADO) {
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 	$eventHandlerID=$_REQUEST['ehID'];
 	$GLOBALS['displayedCriteriaParms']=array();
-	
+
 	$queryEventHandler='
 		SELECT EventHandler.*,Criteria.FK_CriteriaParmNesting, Criteria.PK_Criteria, Criteria.Description AS CriteriaDescription, CriteriaList.Description AS CriteriaListDescription 
 		FROM EventHandler
@@ -20,10 +20,11 @@ function editCriteria($output,$dbADO) {
 		WHERE EventHandler.FK_Installation=? AND PK_EventHandler=?
 	';
 	$resEH=$dbADO->Execute($queryEventHandler,array($installationID,$eventHandlerID));
-	$rowEH=$resEH->FetchRow();
-	$commandGroupID = $rowEH['FK_CommandGroup'];
-	$FK_CriteriaParmNesting=$rowEH['FK_CriteriaParmNesting'];
-
+	if($resEH->RecordCount()>0){
+		$rowEH=$resEH->FetchRow();
+		$commandGroupID = $rowEH['FK_CommandGroup'];
+		$FK_CriteriaParmNesting=$rowEH['FK_CriteriaParmNesting'];
+	}
 	
 	if ($action=='form') {
 		
@@ -34,8 +35,10 @@ function editCriteria($output,$dbADO) {
 		<input type="hidden" name="section" value="editCriteria">
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
-		<input type="hidden" name="changedCP" value="">
+		<input type="hidden" name="changedCP" value="">';
 		
+		if($FK_CriteriaParmNesting>0){
+			$out.='
 		<div align="center"><h3>'.$TEXT_EDIT_CRITERIA_CONST.'</h3></div>
 		<table border="0" align="center">';
 		$out.='
@@ -54,8 +57,11 @@ function editCriteria($output,$dbADO) {
 			<tr>
 				<td colspan="6" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 			</tr>
-		
-		</table>
+		</table>';
+		}else{
+			$out.='<div class="err" align="center">'.$TEXT_CRITERIA_NOT_AVAILABLE_CONST.'</div>';
+		}
+		$out.='
 		</form>
 		';
 		
