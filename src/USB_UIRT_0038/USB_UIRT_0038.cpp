@@ -302,7 +302,15 @@ bool USB_UIRT_0038::GetConfig()
 	TTYPort[0]=0;
 #ifndef WIN32
 	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
-		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
+	{
+		if(sComPortOnPC.find("/dev/") == 0)
+		{
+			sComPortOnPC.erase(0, strlen("/dev/"));
+		}
+	
+//		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
+		strcpy(TTYPort, sComPortOnPC.c_str());
+	}
 	
 	hDrvHandle = fnUUIRTOpenEx(TTYPort,0,0,0);
 #else
