@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ImportContactsInstall", "ImportContactsInstall.vdproj", "{C64A2580-F5FA-4D69-AFEB-81E2CE53B0C5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{C64A2580-F5FA-4D69-AFEB-81E2CE53B0C5}.Debug.ActiveCfg = Debug
+		{C64A2580-F5FA-4D69-AFEB-81E2CE53B0C5}.Debug.Build.0 = Debug
+		{C64A2580-F5FA-4D69-AFEB-81E2CE53B0C5}.Release.ActiveCfg = Release
+		{C64A2580-F5FA-4D69-AFEB-81E2CE53B0C5}.Release.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
