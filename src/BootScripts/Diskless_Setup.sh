@@ -193,6 +193,16 @@ for Client in $R; do
 
 		
 		echo "* Setting local files"
+		echo -n " pluto.conf"
+		if [[ ! -f $DlPath/etc/pluto.conf ]] ;then
+			if [[ "$OfflineMode" == "" ]]; then
+				OfflineMode='false'
+			fi
+
+			pluto_conf="OfflineMode = $OfflineMode"
+			echo $pluto_conf > $DlPath/etc/pluto.conf
+		fi
+
 		echo -n " fstab"
 		cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
 		ReplaceVars $DlPath/etc/fstab.$$
