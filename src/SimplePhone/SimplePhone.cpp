@@ -251,19 +251,20 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
+    iaxc_millisleep(1000);
+    StopRingTone();
+    DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
+    SendCommand(SCREEN_Main_);
+
     if(haveActiveCall)
     {
-        StopRingTone();
         iaxc_dump_call();
-        iaxc_millisleep(1000);
         sCMD_Result="OK";
-        DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
-        SendCommand(SCREEN_Main_);
         haveActiveCall=false;
     }
     else
     {
-    	sCMD_Result="ERROR";
+        sCMD_Result="ERROR";
     }
 }
 
