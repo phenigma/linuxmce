@@ -13,7 +13,7 @@ namespace DCE
 class Infrared_Plugin_Event : public Event_Impl
 {
 public:
-	Infrared_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,39, ServerAddress, bConnectEventHandler) {};
+	Infrared_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,39, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
 	Infrared_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -44,7 +44,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Infrared_Plugin_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -95,6 +94,11 @@ public:
 		m_pData = new Infrared_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -125,6 +129,7 @@ public:
 	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_GC100(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -136,22 +141,22 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
 				switch(pMessage->m_dwID)
 				{
 				case 188:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
 						CMD_Get_Infrared_Codes(iPK_Device,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
+						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -172,9 +177,9 @@ public:
 				case 250:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					int iPK_Command_Input=atoi(pMessage->m_mapParameters[71].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_Command_Input=atoi(pMessage->m_mapParameters[71].c_str());
 						CMD_Store_Infrared_Code(iPK_Device,sValue_To_Assign.c_str(),iPK_Command_Input,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -225,13 +230,13 @@ public:
 				case 688:
 					{
 						string sCMD_Result="OK";
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Remote_Control_Mapping(&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -245,6 +250,34 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Remote_Control_Mapping(&sValue_To_Assign,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 790:
+					{
+						string sCMD_Result="OK";
+					int iPK_DeviceCategory=atoi(pMessage->m_mapParameters[206].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						CMD_Get_Sibling_Remotes(iPK_DeviceCategory,&sValue_To_Assign,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Sibling_Remotes(iPK_DeviceCategory,&sValue_To_Assign,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
