@@ -103,7 +103,7 @@ function restart($output,$dbADO) {
 		}
 
 		if(isset($_POST['reboot_core'])){
-			$command='sudo -u root reboot';
+			$command='sudo -u root /sbin/reboot';
 			exec($command);
 		}
 
@@ -121,7 +121,7 @@ function restart($output,$dbADO) {
 			if(isset($_POST['reboot_'.$mdID])){
 				// extract IP
 				$mdData=getAssocArray('Device','PK_Device','IPAddress',$dbADO,'WHERE PK_Device='.$mdID);
-				$command='ssh root@'.$mdData[$mdID].' reboot';
+				$command="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$mdData[$mdID]' 'reboot'";
 				exec($command);
 			}
 		}
