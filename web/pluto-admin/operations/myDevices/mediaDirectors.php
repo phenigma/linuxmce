@@ -183,8 +183,9 @@ function mediaDirectors($output,$dbADO) {
 					
 					$oldAudioDD=($rowD['FK_DeviceData']==$GLOBALS['AudioSettings'])?$rowD['IK_DeviceData']:$oldAudioDD;
 					if(!is_null($oldAudioDD)){
-						$oldAudioSettings[$rowD['PK_Device']]=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
-						$oldAC3[$rowD['PK_Device']]=(substr($oldAudioDD,-1)=='3')?'checked':'';
+						$oldAC3[$rowD['PK_Device']]=strstr($oldAudioDD,'3')?'checked':'';
+						$oldForce48k[$rowD['PK_Device']]=strstr($oldAudioDD,'K')?'checked':'';
+						$oldAudioSettings[$rowD['PK_Device']]=str_replace(array('3','K'), '', $oldAudioDD);
 					}
 					$oldVideoDD=($rowD['FK_DeviceData']==$GLOBALS['VideoSettings'])?$rowD['IK_DeviceData']:$oldVideoDD;
 					if(!is_null($oldVideoDD)){
@@ -260,7 +261,9 @@ function mediaDirectors($output,$dbADO) {
 											</td>
 											<td align="right">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
 											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']]).'<br>
-											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'></td>
+											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'><br>
+											'.$TEXT_FORCE_48K_CONST.' <input type="checkbox" name="force48k_'.$rowD['PK_Device'].'" value="K" '.@$oldForce48k[$rowD['PK_Device']].'>
+											</td>
 											<td align="right" valign="top">'.$TEXT_VIDEO_CARD_CONST.' '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
 											<input type="button" class="button" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>

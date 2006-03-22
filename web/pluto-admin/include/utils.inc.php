@@ -3083,7 +3083,9 @@ function getLogName($deviceID,$dtID,$dtDescription,$parentID=0)
 function processAudioSettings($deviceID,$dbADO)
 {
 	$audioSettings=($_POST['audioSettings_'.$deviceID]=='0')?'':$_POST['audioSettings_'.$deviceID];
-	$newAS=$audioSettings.@$_POST['ac3_'.$deviceID];
+	$AC3setting=@$_POST['ac3_'.$deviceID];
+	$Force48K=@$_POST['force48k_'.$deviceID];
+	$newAS=$audioSettings.@$AC3setting.@$Force48K;
 	$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
 	
 	$xinePlayerData=getFieldsAsArray('Device Xine','Xine.PK_Device AS PK_Device',$dbADO,'
