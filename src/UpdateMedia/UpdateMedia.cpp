@@ -145,6 +145,9 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
             sDirectory, sFile);
+
+        if(m_bAsDaemon)
+	        Sleep(500);
             
 		// Is it in the database?
 		int PK_File=0;
@@ -192,9 +195,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				}
 			}
 		}
-
-		if(m_bAsDaemon)
-			Sleep(50);
 	}
 
 	// Now recurse
@@ -216,6 +216,11 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		string SQL = "select count(*) from File Where Path LIKE '" + 
 			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
 
+
+        if(m_bAsDaemon)
+			Sleep(500);
+		
+
 		PlutoSqlResult allresult;
 		MYSQL_ROW row;
 		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
@@ -225,6 +230,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			if(row && atoi(row[0]) > 0 && !bRecursive)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Skipping subdir %s cause it's already scanned", sSubDir.c_str());
+				Sleep(1000); 
 				continue;
 			}
 		}
@@ -270,9 +276,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		int i = ReadDirectory(sSubDir, bRecursive);
 		if( !PK_Picture )
 			PK_Picture = i;
-
-		if(m_bAsDaemon)
-			Sleep(50);
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
@@ -287,6 +290,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 void UpdateMedia::UpdateSearchTokens()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Updating search tokens...");
+	
 	string SQL = "DELETE FROM SearchToken_Attribute";
 	m_pDatabase_pluto_media->threaded_mysql_query(SQL);
 
@@ -299,7 +304,7 @@ void UpdateMedia::UpdateSearchTokens()
 		while( ( row=mysql_fetch_row( allresult.r ) ) )
 		{
 			if(m_bAsDaemon)
-				Sleep(20);
+				Sleep(40);
 
 			string sName = row[1];
 			string::size_type pos=0;
@@ -331,10 +336,14 @@ void UpdateMedia::UpdateSearchTokens()
 			}
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Update search tokens ended.");
 }
 
 void UpdateMedia::UpdateThumbnails()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Updating thumbs...");
+	
 	string SQL = "SELECT PK_Picture,Extension FROM Picture";
 	PlutoSqlResult result;
     MYSQL_ROW row;
@@ -343,7 +352,7 @@ void UpdateMedia::UpdateThumbnails()
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
 			if(m_bAsDaemon)
-				Sleep(20);
+				Sleep(40);
 
 			time_t tModTime=0,tTnModTime=0;
 #ifndef WIN32
@@ -371,12 +380,16 @@ void UpdateMedia::UpdateThumbnails()
 				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_File WHERE FK_Picture=" + string(row[0]));
 				m_pDatabase_pluto_media->threaded_mysql_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
 			}
+
+			g_pPlutoLogger->Write(LV_STATUS, "Thumbs updated!");
 		}
 	}
 }
 
 void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Sync'ing db with directory...");
+	
     bool bRecordsModified = false;
 
 	vector<Row_File *> vectRow_File;
@@ -386,7 +399,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 	for(size_t s=0;s<vectRow_File.size();++s)
 	{
 		if(m_bAsDaemon)
-			Sleep(20);
+			Sleep(40);
 
 		Row_File *pRow_File = vectRow_File[s];
         string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
@@ -407,4 +420,6 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 
     if(bRecordsModified)
         m_pDatabase_pluto_media->File_get()->Commit();
+
+	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");
 }
