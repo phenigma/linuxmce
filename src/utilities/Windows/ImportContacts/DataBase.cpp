@@ -53,24 +53,24 @@ bool DatabaseWrapper::connect(string dns)
 	return true;
 }
 
-bool DatabaseWrapper::executeSql(string szCommand,bool bReturn)
+bool DatabaseWrapper::executeSql(string szCommand,int &afectedRows,bool bReturn)
 {
 	variant_t var;
-	BSTR sqlCommand;
+	CComBSTR sqlCommand(szCommand.size(),(LPCSTR) szCommand.c_str() );
 	HRESULT hr;
 
-	USES_CONVERSION;
-	sqlCommand = A2W( szCommand.c_str() );
-
+	afectedRows = 0;
 	try
 	{
 		if( bReturn )
-			m_pRecordset = m_pConnect->Execute( sqlCommand, &var, adOptionUnspecified );
+			m_pRecordset = m_pConnect->Execute( sqlCommand.operator BSTR(), &var, adOptionUnspecified );
 		else
-			m_pConnect->Execute( sqlCommand, &var, adExecuteNoRecords );
+			m_pConnect->Execute( sqlCommand.operator BSTR(), &var, adExecuteNoRecords );
 
 		if(  var.iVal > 0 && bReturn )
 			hr = m_pRecordset->MoveFirst();
+
+
 	}
 	catch(_com_error& ce)
     {
@@ -78,6 +78,7 @@ bool DatabaseWrapper::executeSql(string szCommand,bool bReturn)
 		return false;
     }
 
+	afectedRows = var.iVal;
 	return true;
 }
 
@@ -85,7 +86,10 @@ string DatabaseWrapper::getFieldValue(string fieldName)
 {
 	int nCount = 0;
 	_variant_t name = fieldName.c_str();
+	
 	_variant_t value;
+	_bstr_t   retVal;
+	char aux[20];
 
 	try
 	{
@@ -100,7 +104,17 @@ string DatabaseWrapper::getFieldValue(string fieldName)
 		return false;
     }
 
-	return string( (char *) value.bstrVal);
+	switch( value.vt )
+	{
+		case VT_I4:
+		return string( itoa(value.iVal,aux,10) );
+
+		case VT_BSTR:
+		//rezVal.Attach( value.bstrVal );
+		retVal = value.bstrVal;
+		_stprintf(aux, _T("%s"), retVal.operator const char *() );
+		return string( aux );
+	}
 }
 
 

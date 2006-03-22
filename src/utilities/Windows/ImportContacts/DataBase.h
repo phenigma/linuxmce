@@ -30,7 +30,7 @@ public:
 					vector<bool> isString,string &resSql);
 	bool constructSelect(string databaseName,string condition,string &resSql);
 
-	bool executeSql(string szCommand,bool bReturn=true);
+	bool executeSql(string szCommand,int &afectedRows,bool bReturn=true);
 	string getFieldValue(string fielName);
 
 	void close();
