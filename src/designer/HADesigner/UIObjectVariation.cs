@@ -58,6 +58,9 @@ namespace HADesigner
 		public int m_iLastDisplayOrder = -1;
 		private bool m_boolDontResetSelectedState = false;
 
+		private int m_intCEffectSelectNoChange = -1;
+		private int m_intCEffectSelectWithChange = -1;
+		private int m_intCEffectHighlight = -1;
 
 		private bool m_blnSelected = false;
 
@@ -74,6 +77,10 @@ namespace HADesigner
 		private int m_intCommandGroup_D_TouchIDOriginal  = -1,m_intCommandGroup_D_LoadIDOriginal  = -1,m_intCommandGroup_D_UnloadIDOriginal  = -1, m_intCommandGroup_D_StartupIDOriginal = -1, m_intCommandGroup_D_TimeoutIDOriginal = -1;
 		private int m_intCButtonOriginal = -1;
 		private bool m_boolDontResetSelectedStateOriginal = false;
+
+		private int m_intCEffectSelectNoChangeOriginal = -1;
+		private int m_intCEffectSelectWithChangeOriginal = -1;
+		private int m_intCEffectHighlightOriginal = -1;
 
 
 		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Touch;
@@ -258,6 +265,21 @@ namespace HADesigner
 			get {return m_intCButton;}
 			set {m_intCButton = value;}
 		}
+		public int CEffectNoChange
+		{
+			get {return m_intCEffectSelectNoChange;}
+			set {m_intCEffectSelectNoChange = value;}
+		}
+		public int CEffectWithChange
+		{
+			get {return m_intCEffectSelectWithChange;}
+			set {m_intCEffectSelectWithChange = value;}
+		}
+		public int CEffectHightlight
+		{
+			get {return m_intCEffectHighlight;}
+			set {m_intCEffectHighlight = value;}
+		}		
 		public bool DontResetSelectedState
 		{
 			get {return m_boolDontResetSelectedState;}
@@ -306,7 +328,10 @@ namespace HADesigner
 			{
 				return m_intUIIDOriginal != m_intUIID || m_intCommandGroup_D_TouchIDOriginal != m_intCommandGroup_D_TouchID || 
 					m_intCommandGroup_D_LoadIDOriginal != m_intCommandGroup_D_LoadID || m_intCommandGroup_D_UnloadIDOriginal != m_intCommandGroup_D_UnloadID || m_intCommandGroup_D_StartupID != m_intCommandGroup_D_StartupIDOriginal || m_intCommandGroup_D_TimeoutID != m_intCommandGroup_D_TimeoutIDOriginal || 
-					m_intCButton != m_intCButtonOriginal || m_intGotoUIDesignObjIDOriginal != m_intGotoUIDesignObjID || m_boolDontResetSelectedState!=m_boolDontResetSelectedStateOriginal;
+					m_intCButton != m_intCButtonOriginal || m_intGotoUIDesignObjIDOriginal != m_intGotoUIDesignObjID || m_boolDontResetSelectedState!=m_boolDontResetSelectedStateOriginal ||
+					m_intCEffectSelectNoChange != m_intCEffectSelectNoChangeOriginal ||
+					m_intCEffectSelectWithChange != m_intCEffectSelectWithChangeOriginal ||
+					m_intCEffectHighlight != m_intCEffectHighlightOriginal;					
 			}
 		}
 
@@ -612,6 +637,13 @@ namespace HADesigner
 
 // sean			m_intCommandGroupID = (drVariation.fFK_CommandGroup_OnActivateIsNull) ? -1 : drVariation.fFK_CommandGroup_OnActivate;
 			m_intCButton = (drVariation.fFK_ButtonIsNull) ? -1 : drVariation.fFK_Button;
+			m_intCEffectSelectNoChange = 
+				(drVariation.fFK_EffectType_Selected_NoChangeIsNull) ? 0 : drVariation.fFK_EffectType_Selected_NoChange;
+			m_intCEffectSelectWithChange = 
+				(drVariation.fFK_EffectType_Selected_WithChangeIsNull) ? 0 : drVariation.fFK_EffectType_Selected_WithChange;
+			m_intCEffectHighlight = 
+				(drVariation.fFK_EffectType_HighlightedIsNull) ? 0 : drVariation.fFK_EffectType_Highlighted;
+
 			m_boolDontResetSelectedState = (drVariation.fDontResetSelectedState==1);
 // SEAN			m_intCommandID = (drVariation.fFK_CommandIsNull) ? -1 : drVariation.fFK_Command;
 			m_intGotoUIDesignObjID = (drVariation.fFK_DesignObj_GotoIsNull) ? -1 : drVariation.fFK_DesignObj_Goto;
@@ -1013,6 +1045,21 @@ namespace HADesigner
 							else
 								drDesignObjVariation.fFK_CommandGroup_D_OnTimeout = this.CommandGroup_D_TimeoutID;
 
+							if(this.CEffectWithChange == -1)
+								drDesignObjVariation.fFK_EffectType_Selected_WithChangeSetNull();
+							else
+								drDesignObjVariation.fFK_EffectType_Selected_WithChange = this.CEffectWithChange;
+
+							if(this.CEffectNoChange == -1)
+								drDesignObjVariation.fFK_EffectType_Selected_NoChangeSetNull();
+							else
+								drDesignObjVariation.fFK_EffectType_Selected_NoChange = this.CEffectNoChange;
+
+							if(this.CEffectHightlight == -1)
+								drDesignObjVariation.fFK_EffectType_HighlightedSetNull();
+							else
+								drDesignObjVariation.fFK_EffectType_Highlighted = this.CEffectHightlight;
+
 							blnChanged = true;
 
 						
@@ -1247,9 +1294,9 @@ namespace HADesigner
 			m_intCButtonOriginal = m_intCButton;
 			m_boolDontResetSelectedStateOriginal = m_boolDontResetSelectedState;
 			m_intGotoUIDesignObjIDOriginal = m_intGotoUIDesignObjID;
+			m_intCEffectSelectNoChangeOriginal = m_intCEffectSelectNoChange;
+			m_intCEffectSelectWithChangeOriginal = m_intCEffectSelectWithChange;
+			m_intCEffectHighlightOriginal = m_intCEffectHighlight;
 		}
-
-		
-
 	}
 }

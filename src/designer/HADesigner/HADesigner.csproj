@@ -178,6 +178,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ObjectDesigner.resx"
+                    DependentUpon = "ObjectDesigner.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "ObjsBrowser2.cs"
                     SubType = "Form"
                     BuildAction = "Compile"

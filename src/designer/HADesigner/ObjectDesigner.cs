@@ -161,23 +161,6 @@ namespace HADesigner
 		private System.Windows.Forms.TabPage tabOnSelected_WithChange;
 		private System.Windows.Forms.TabPage tabOnSelected_NoChange;
 		private System.Windows.Forms.TabPage tabOnHighlighted;
-
-
-		private System.Windows.Forms.TreeView tvCommand;
-
-
-		private System.Windows.Forms.Button btnOnActivateGoto;
-
-		private System.Windows.Forms.Button btnOnActivateAddAG;
-
-		private System.Windows.Forms.Button btnOnActivateRemoveAG;
-		private System.Windows.Forms.Panel pnOnActivateParameters;
-		private System.Windows.Forms.Button btnOnActivateUp;
-		private System.Windows.Forms.Button btnOnActivateDown;
-		private System.Windows.Forms.Panel pnCommandGroupInfo;
-		private System.Windows.Forms.ListBox lbSelectedCommands;
-		private System.Windows.Forms.Label labAvailableCommands;
-		private System.Windows.Forms.Label labSelectedCommands;
 		private System.Windows.Forms.Button btnSelectDesignObjInTree;
 		private System.Windows.Forms.ComboBox cbAlignH;
 		private System.Windows.Forms.ComboBox cbAlignV;
@@ -195,13 +178,6 @@ namespace HADesigner
 		public bool m_blnInterfaceLocked = false;
 		private System.Windows.Forms.CheckBox cbAnimate;
 		private System.Windows.Forms.Button btnBGColorTSL;
-		private System.Windows.Forms.Label label8;
-		private System.Windows.Forms.Label label9;
-		private System.Windows.Forms.Label label10;
-		private System.Windows.Forms.TextBox tbMasterDeviceList;
-		private System.Windows.Forms.TextBox tbDeviceCategory;
-		private System.Windows.Forms.Label lMasterDevice;
-		private System.Windows.Forms.ComboBox cbBroadcast;
 		private System.Windows.Forms.TabPage tabChildren;
 		private System.Windows.Forms.TabPage tabButtons;
 		private System.Windows.Forms.TabControl tabAllPages;
@@ -231,12 +207,39 @@ namespace HADesigner
 		private System.Windows.Forms.CheckBox chDontMergeBG;
 		private System.Windows.Forms.CheckBox chRegenerateForEachScreen;
 		private System.Windows.Forms.CheckBox chIsTabStop;
-		private System.Windows.Forms.CheckBox chRelToSender;
 		private System.Windows.Forms.CheckBox chDontResetSelectedState;
 		private System.Windows.Forms.Label label21;
 		private System.Windows.Forms.TextBox tbVisibleStates;
 		private System.Windows.Forms.Button btnChildUp;
 		private System.Windows.Forms.Button btnChildDown;
+		private System.Windows.Forms.Panel pnEffectsSelectChange;
+		private System.Windows.Forms.Label lbEffect;
+		private System.Windows.Forms.ComboBox cbEffectsSelectChange;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Label label22;
+		private System.Windows.Forms.ComboBox cbEffectsSelectNoChange;
+		private System.Windows.Forms.Panel panel2;
+		private System.Windows.Forms.Label label23;
+		private System.Windows.Forms.ComboBox cbEffectsHighlight;
+		private System.Windows.Forms.Panel pnCommandGroupInfo;
+		private System.Windows.Forms.Label lMasterDevice;
+		private System.Windows.Forms.CheckBox chRelToSender;
+		private System.Windows.Forms.TextBox tbDeviceCategory;
+		private System.Windows.Forms.TextBox tbMasterDeviceList;
+		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.Label label8;
+		private System.Windows.Forms.ComboBox cbBroadcast;
+		private System.Windows.Forms.Button btnOnActivateGoto;
+		private System.Windows.Forms.ListBox lbSelectedCommands;
+		private System.Windows.Forms.Button btnOnActivateDown;
+		private System.Windows.Forms.TreeView tvCommand;
+		private System.Windows.Forms.Button btnOnActivateUp;
+		private System.Windows.Forms.Button btnOnActivateRemoveAG;
+		private System.Windows.Forms.Button btnOnActivateAddAG;
+		private System.Windows.Forms.Panel pnOnActivateParameters;
+		private System.Windows.Forms.Label labAvailableCommands;
+		private System.Windows.Forms.Label labSelectedCommands;
 
 		private CommonMethods m_objCommon = new CommonMethods();
 
@@ -296,6 +299,8 @@ namespace HADesigner
 			UpdateDevices();
 			UpdateChildrenDesignObjs();
 			UpdateCommandGroups();
+			UpdateEffects();
+			
 			clearLanguagesSkins();
 			this.loadAvailableStyles();
 
@@ -672,7 +677,6 @@ namespace HADesigner
 
 		private void UpdateCButtonList()
 		{
-
 			cbButton.Items.Clear();
 
 			DataRow[] drButtons = this.mds.tButton.Select(null, ButtonData.DESCRIPTION_FIELD);
@@ -681,6 +685,28 @@ namespace HADesigner
 			{
 				drButton = new ButtonDataRow(dr);
 				cbButton.Items.Add(new StringPair(Convert.ToString(drButton.fPK_Button), drButton.fDescription));
+			}
+		}
+
+		//this will populate
+		private void UpdateEffects()
+		{
+			cbEffectsSelectChange.Items.Clear();
+			cbEffectsSelectNoChange.Items.Clear();
+			cbEffectsHighlight.Items.Clear();
+
+			DataRow[] drEffects = this.mds.tEffectType.Select(null, EffectTypeData.DESCRIPTION_FIELD);
+			EffectTypeDataRow drEffect;
+			foreach(DataRow dr in drEffects)
+			{
+				drEffect = new EffectTypeDataRow(dr);
+
+				String PK_EffectType = Convert.ToString(drEffect.fPK_EffectType);
+				StringPair item = new StringPair(PK_EffectType, drEffect.fDescription);
+
+				cbEffectsSelectChange.Items.Add(item);
+				cbEffectsSelectNoChange.Items.Add(item);
+				cbEffectsHighlight.Items.Add(item);
 			}
 		}
 
@@ -729,7 +755,6 @@ namespace HADesigner
 
 
 				//select the appropriate CButton
-
 				StringPair objSelectedPair = null;
 				foreach(StringPair objPair in cbButton.Items)
 				{
@@ -748,7 +773,65 @@ namespace HADesigner
 					cbButton.SelectedItem = objSelectedPair;
 				}
 
+				//effects
 
+				//select with change
+				StringPair objSelectedPair_EffectSelectWithChange = null;
+				foreach(StringPair objPair in cbEffectsSelectChange.Items)
+				{
+					if(Convert.ToInt32(objPair.ID) == objSelectedVariation.CEffectWithChange)
+					{
+						objSelectedPair_EffectSelectWithChange = objPair;
+						break;
+					}
+				}
+				if(objSelectedPair_EffectSelectWithChange == null)
+				{
+					cbEffectsSelectChange.SelectedIndex = 0;
+				}
+				else
+				{
+					cbEffectsSelectChange.SelectedItem = objSelectedPair_EffectSelectWithChange;
+				}
+
+
+				//select no change
+				StringPair objSelectedPair_EffectSelectNoChange = null;
+				foreach(StringPair objPair in cbEffectsSelectNoChange.Items)
+				{
+					if(Convert.ToInt32(objPair.ID) == objSelectedVariation.CEffectNoChange)
+					{
+						objSelectedPair_EffectSelectNoChange = objPair;
+						break;
+					}
+				}
+				if(objSelectedPair_EffectSelectNoChange == null)
+				{
+					cbEffectsSelectNoChange.SelectedIndex = 0;
+				}
+				else
+				{
+					cbEffectsSelectNoChange.SelectedItem = objSelectedPair_EffectSelectNoChange;
+				}
+
+				//highlight
+				StringPair objSelectedPair_EffectHighlight = null;
+				foreach(StringPair objPair in cbEffectsHighlight.Items)
+				{
+					if(Convert.ToInt32(objPair.ID) == objSelectedVariation.CEffectHightlight)
+					{
+						objSelectedPair_EffectHighlight = objPair;
+						break;
+					}
+				}
+				if(objSelectedPair_EffectHighlight == null)
+				{
+					cbEffectsHighlight.SelectedIndex = 0;
+				}
+				else
+				{
+					cbEffectsHighlight.SelectedItem = objSelectedPair_EffectHighlight;
+				}
 			}
 
 		}
@@ -935,8 +1018,21 @@ namespace HADesigner
 			this.tabOnStartup = new System.Windows.Forms.TabPage();
 			this.tabOnTimeout = new System.Windows.Forms.TabPage();
 			this.tabOnSelected_WithChange = new System.Windows.Forms.TabPage();
+			this.pnEffectsSelectChange = new System.Windows.Forms.Panel();
+			this.lbEffect = new System.Windows.Forms.Label();
+			this.cbEffectsSelectChange = new System.Windows.Forms.ComboBox();
 			this.tabOnSelected_NoChange = new System.Windows.Forms.TabPage();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.label22 = new System.Windows.Forms.Label();
+			this.cbEffectsSelectNoChange = new System.Windows.Forms.ComboBox();
 			this.tabOnHighlighted = new System.Windows.Forms.TabPage();
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.label23 = new System.Windows.Forms.Label();
+			this.cbEffectsHighlight = new System.Windows.Forms.ComboBox();
+			this.tbDescription = new System.Windows.Forms.TextBox();
+			this.nudPriority = new System.Windows.Forms.NumericUpDown();
+			this.lblPriority = new System.Windows.Forms.Label();
+			this.cbAnimate = new System.Windows.Forms.CheckBox();
 			this.pnCommandGroupInfo = new System.Windows.Forms.Panel();
 			this.lMasterDevice = new System.Windows.Forms.Label();
 			this.chRelToSender = new System.Windows.Forms.CheckBox();
@@ -956,16 +1052,18 @@ namespace HADesigner
 			this.pnOnActivateParameters = new System.Windows.Forms.Panel();
 			this.labAvailableCommands = new System.Windows.Forms.Label();
 			this.labSelectedCommands = new System.Windows.Forms.Label();
-			this.tbDescription = new System.Windows.Forms.TextBox();
-			this.nudPriority = new System.Windows.Forms.NumericUpDown();
-			this.lblPriority = new System.Windows.Forms.Label();
-			this.cbAnimate = new System.Windows.Forms.CheckBox();
 			this.tabButtons.SuspendLayout();
 			this.tabAllPages.SuspendLayout();
 			this.tabParameters.SuspendLayout();
 			this.tabChildren.SuspendLayout();
-			this.pnCommandGroupInfo.SuspendLayout();
+			this.tabOnSelected_WithChange.SuspendLayout();
+			this.pnEffectsSelectChange.SuspendLayout();
+			this.tabOnSelected_NoChange.SuspendLayout();
+			this.panel1.SuspendLayout();
+			this.tabOnHighlighted.SuspendLayout();
+			this.panel2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudPriority)).BeginInit();
+			this.pnCommandGroupInfo.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panelPreview
@@ -1402,7 +1500,7 @@ namespace HADesigner
 			this.tabAllPages.Controls.Add(this.tabOnSelected_WithChange);
 			this.tabAllPages.Controls.Add(this.tabOnSelected_NoChange);
 			this.tabAllPages.Controls.Add(this.tabOnHighlighted);
-			this.tabAllPages.Location = new System.Drawing.Point(144, 576);
+			this.tabAllPages.Location = new System.Drawing.Point(152, 584);
 			this.tabAllPages.Name = "tabAllPages";
 			this.tabAllPages.SelectedIndex = 0;
 			this.tabAllPages.Size = new System.Drawing.Size(768, 216);
@@ -1822,219 +1920,111 @@ namespace HADesigner
 			// 
 			// tabOnSelected_WithChange
 			// 
+			this.tabOnSelected_WithChange.Controls.Add(this.pnEffectsSelectChange);
 			this.tabOnSelected_WithChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_WithChange.Name = "tabOnSelected_WithChange";
 			this.tabOnSelected_WithChange.Size = new System.Drawing.Size(760, 190);
 			this.tabOnSelected_WithChange.TabIndex = 7;
 			this.tabOnSelected_WithChange.Text = "OnSelected(with change)";
 			// 
+			// pnEffectsSelectChange
+			// 
+			this.pnEffectsSelectChange.Controls.Add(this.lbEffect);
+			this.pnEffectsSelectChange.Controls.Add(this.cbEffectsSelectChange);
+			this.pnEffectsSelectChange.Location = new System.Drawing.Point(8, 8);
+			this.pnEffectsSelectChange.Name = "pnEffectsSelectChange";
+			this.pnEffectsSelectChange.Size = new System.Drawing.Size(456, 168);
+			this.pnEffectsSelectChange.TabIndex = 2;
+			// 
+			// lbEffect
+			// 
+			this.lbEffect.Location = new System.Drawing.Point(16, 16);
+			this.lbEffect.Name = "lbEffect";
+			this.lbEffect.Size = new System.Drawing.Size(216, 16);
+			this.lbEffect.TabIndex = 1;
+			this.lbEffect.Text = "Effect";
+			// 
+			// cbEffectsSelectChange
+			// 
+			this.cbEffectsSelectChange.DisplayMember = "Description";
+			this.cbEffectsSelectChange.Location = new System.Drawing.Point(16, 40);
+			this.cbEffectsSelectChange.Name = "cbEffectsSelectChange";
+			this.cbEffectsSelectChange.Size = new System.Drawing.Size(264, 21);
+			this.cbEffectsSelectChange.TabIndex = 0;
+			this.cbEffectsSelectChange.ValueMember = "ID";
+			this.cbEffectsSelectChange.SelectedIndexChanged += new System.EventHandler(this.cbEffectsSelectChange_SelectedIndexChanged);
+			// 
 			// tabOnSelected_NoChange
 			// 
+			this.tabOnSelected_NoChange.Controls.Add(this.panel1);
 			this.tabOnSelected_NoChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_NoChange.Name = "tabOnSelected_NoChange";
 			this.tabOnSelected_NoChange.Size = new System.Drawing.Size(760, 190);
 			this.tabOnSelected_NoChange.TabIndex = 8;
 			this.tabOnSelected_NoChange.Text = "OnSelected(no change)";
 			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.label22);
+			this.panel1.Controls.Add(this.cbEffectsSelectNoChange);
+			this.panel1.Location = new System.Drawing.Point(8, 8);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(456, 168);
+			this.panel1.TabIndex = 3;
+			// 
+			// label22
+			// 
+			this.label22.Location = new System.Drawing.Point(16, 16);
+			this.label22.Name = "label22";
+			this.label22.Size = new System.Drawing.Size(216, 16);
+			this.label22.TabIndex = 1;
+			this.label22.Text = "Effect";
+			// 
+			// cbEffectsSelectNoChange
+			// 
+			this.cbEffectsSelectNoChange.DisplayMember = "Description";
+			this.cbEffectsSelectNoChange.Location = new System.Drawing.Point(16, 40);
+			this.cbEffectsSelectNoChange.Name = "cbEffectsSelectNoChange";
+			this.cbEffectsSelectNoChange.Size = new System.Drawing.Size(264, 21);
+			this.cbEffectsSelectNoChange.TabIndex = 0;
+			this.cbEffectsSelectNoChange.ValueMember = "ID";
+			this.cbEffectsSelectNoChange.SelectedIndexChanged += new System.EventHandler(this.cbEffectsSelectNoChange_SelectedIndexChanged);
+			// 
 			// tabOnHighlighted
 			// 
+			this.tabOnHighlighted.Controls.Add(this.panel2);
 			this.tabOnHighlighted.Location = new System.Drawing.Point(4, 22);
 			this.tabOnHighlighted.Name = "tabOnHighlighted";
 			this.tabOnHighlighted.Size = new System.Drawing.Size(760, 190);
 			this.tabOnHighlighted.TabIndex = 9;
 			this.tabOnHighlighted.Text = "OnHightlighted";
 			// 
-			// pnCommandGroupInfo
+			// panel2
 			// 
-			this.pnCommandGroupInfo.Controls.Add(this.lMasterDevice);
-			this.pnCommandGroupInfo.Controls.Add(this.chRelToSender);
-			this.pnCommandGroupInfo.Controls.Add(this.tbDeviceCategory);
-			this.pnCommandGroupInfo.Controls.Add(this.tbMasterDeviceList);
-			this.pnCommandGroupInfo.Controls.Add(this.label10);
-			this.pnCommandGroupInfo.Controls.Add(this.label9);
-			this.pnCommandGroupInfo.Controls.Add(this.label8);
-			this.pnCommandGroupInfo.Controls.Add(this.cbBroadcast);
-			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateGoto);
-			this.pnCommandGroupInfo.Controls.Add(this.lbSelectedCommands);
-			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateDown);
-			this.pnCommandGroupInfo.Controls.Add(this.tvCommand);
-			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateUp);
-			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateRemoveAG);
-			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateAddAG);
-			this.pnCommandGroupInfo.Controls.Add(this.pnOnActivateParameters);
-			this.pnCommandGroupInfo.Controls.Add(this.labAvailableCommands);
-			this.pnCommandGroupInfo.Controls.Add(this.labSelectedCommands);
-			this.pnCommandGroupInfo.Location = new System.Drawing.Point(145, 600);
-			this.pnCommandGroupInfo.Name = "pnCommandGroupInfo";
-			this.pnCommandGroupInfo.Size = new System.Drawing.Size(770, 176);
-			this.pnCommandGroupInfo.TabIndex = 0;
+			this.panel2.Controls.Add(this.label23);
+			this.panel2.Controls.Add(this.cbEffectsHighlight);
+			this.panel2.Location = new System.Drawing.Point(8, 8);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(456, 168);
+			this.panel2.TabIndex = 3;
 			// 
-			// lMasterDevice
+			// label23
 			// 
-			this.lMasterDevice.Location = new System.Drawing.Point(640, 8);
-			this.lMasterDevice.Name = "lMasterDevice";
-			this.lMasterDevice.TabIndex = 24;
+			this.label23.Location = new System.Drawing.Point(16, 16);
+			this.label23.Name = "label23";
+			this.label23.Size = new System.Drawing.Size(216, 16);
+			this.label23.TabIndex = 1;
+			this.label23.Text = "Effect";
 			// 
-			// chRelToSender
+			// cbEffectsHighlight
 			// 
-			this.chRelToSender.Location = new System.Drawing.Point(352, 32);
-			this.chRelToSender.Name = "chRelToSender";
-			this.chRelToSender.Size = new System.Drawing.Size(96, 24);
-			this.chRelToSender.TabIndex = 23;
-			this.chRelToSender.Text = "Rel to Sender";
-			this.chRelToSender.TextChanged += new System.EventHandler(this.chRelToSender_TextChanged);
-			// 
-			// tbDeviceCategory
-			// 
-			this.tbDeviceCategory.Location = new System.Drawing.Point(536, 32);
-			this.tbDeviceCategory.Name = "tbDeviceCategory";
-			this.tbDeviceCategory.Size = new System.Drawing.Size(48, 20);
-			this.tbDeviceCategory.TabIndex = 22;
-			this.tbDeviceCategory.Text = "";
-			this.tbDeviceCategory.TextChanged += new System.EventHandler(this.tbDeviceCategory_TextChanged);
-			// 
-			// tbMasterDeviceList
-			// 
-			this.tbMasterDeviceList.Location = new System.Drawing.Point(584, 8);
-			this.tbMasterDeviceList.Name = "tbMasterDeviceList";
-			this.tbMasterDeviceList.Size = new System.Drawing.Size(48, 20);
-			this.tbMasterDeviceList.TabIndex = 21;
-			this.tbMasterDeviceList.Text = "";
-			this.tbMasterDeviceList.TextChanged += new System.EventHandler(this.tbMasterDeviceList_TextChanged);
-			// 
-			// label10
-			// 
-			this.label10.Location = new System.Drawing.Point(440, 32);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(96, 23);
-			this.label10.TabIndex = 20;
-			this.label10.Text = "Device Category:";
-			this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// label9
-			// 
-			this.label9.Location = new System.Drawing.Point(496, 8);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(80, 16);
-			this.label9.TabIndex = 19;
-			this.label9.Text = "Master Device:";
-			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// label8
-			// 
-			this.label8.Location = new System.Drawing.Point(344, 16);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(64, 16);
-			this.label8.TabIndex = 18;
-			this.label8.Text = "Broadcast:";
-			// 
-			// cbBroadcast
-			// 
-			this.cbBroadcast.Items.AddRange(new object[] {
-															 "None",
-															 "Direct Siblings",
-															 "Same Computer",
-															 "Same Room",
-															 "Same House",
-															 "All Houses"});
-			this.cbBroadcast.Location = new System.Drawing.Point(408, 8);
-			this.cbBroadcast.Name = "cbBroadcast";
-			this.cbBroadcast.Size = new System.Drawing.Size(88, 21);
-			this.cbBroadcast.TabIndex = 17;
-			this.cbBroadcast.SelectedIndexChanged += new System.EventHandler(this.cbBroadcast_SelectedIndexChanged);
-			// 
-			// btnOnActivateGoto
-			// 
-			this.btnOnActivateGoto.Location = new System.Drawing.Point(160, 136);
-			this.btnOnActivateGoto.Name = "btnOnActivateGoto";
-			this.btnOnActivateGoto.Size = new System.Drawing.Size(40, 23);
-			this.btnOnActivateGoto.TabIndex = 9;
-			this.btnOnActivateGoto.Text = "Goto";
-			this.btnOnActivateGoto.Click += new System.EventHandler(this.btnOnActivateGoto_Click);
-			// 
-			// lbSelectedCommands
-			// 
-			this.lbSelectedCommands.DisplayMember = "Description";
-			this.lbSelectedCommands.Location = new System.Drawing.Point(200, 24);
-			this.lbSelectedCommands.Name = "lbSelectedCommands";
-			this.lbSelectedCommands.Size = new System.Drawing.Size(144, 147);
-			this.lbSelectedCommands.TabIndex = 8;
-			this.lbSelectedCommands.ValueMember = "CommandID";
-			this.lbSelectedCommands.SelectedIndexChanged += new System.EventHandler(this.lbSelectedCommands_SelectedIndexChanged);
-			// 
-			// btnOnActivateDown
-			// 
-			this.btnOnActivateDown.Location = new System.Drawing.Point(176, 48);
-			this.btnOnActivateDown.Name = "btnOnActivateDown";
-			this.btnOnActivateDown.Size = new System.Drawing.Size(24, 23);
-			this.btnOnActivateDown.TabIndex = 15;
-			this.btnOnActivateDown.Text = "D";
-			this.btnOnActivateDown.Click += new System.EventHandler(this.btnOnActivateDown_Click);
-			// 
-			// tvCommand
-			// 
-			this.tvCommand.AllowDrop = true;
-			this.tvCommand.ImageIndex = -1;
-			this.tvCommand.Location = new System.Drawing.Point(8, 24);
-			this.tvCommand.Name = "tvCommand";
-			this.tvCommand.SelectedImageIndex = -1;
-			this.tvCommand.Size = new System.Drawing.Size(152, 144);
-			this.tvCommand.TabIndex = 5;
-			this.tvCommand.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvCommand_AfterSelect);
-			// 
-			// btnOnActivateUp
-			// 
-			this.btnOnActivateUp.Location = new System.Drawing.Point(176, 24);
-			this.btnOnActivateUp.Name = "btnOnActivateUp";
-			this.btnOnActivateUp.Size = new System.Drawing.Size(24, 23);
-			this.btnOnActivateUp.TabIndex = 14;
-			this.btnOnActivateUp.Text = "U";
-			this.btnOnActivateUp.Click += new System.EventHandler(this.btnOnActivateUp_Click);
-			// 
-			// btnOnActivateRemoveAG
-			// 
-			this.btnOnActivateRemoveAG.Enabled = false;
-			this.btnOnActivateRemoveAG.Location = new System.Drawing.Point(160, 112);
-			this.btnOnActivateRemoveAG.Name = "btnOnActivateRemoveAG";
-			this.btnOnActivateRemoveAG.Size = new System.Drawing.Size(32, 23);
-			this.btnOnActivateRemoveAG.TabIndex = 7;
-			this.btnOnActivateRemoveAG.Text = "<<";
-			this.btnOnActivateRemoveAG.Click += new System.EventHandler(this.btnOnActivateRemoveAG_Click);
-			// 
-			// btnOnActivateAddAG
-			// 
-			this.btnOnActivateAddAG.Enabled = false;
-			this.btnOnActivateAddAG.Location = new System.Drawing.Point(160, 88);
-			this.btnOnActivateAddAG.Name = "btnOnActivateAddAG";
-			this.btnOnActivateAddAG.Size = new System.Drawing.Size(32, 23);
-			this.btnOnActivateAddAG.TabIndex = 6;
-			this.btnOnActivateAddAG.Text = ">>";
-			this.btnOnActivateAddAG.Click += new System.EventHandler(this.btnOnActivateAddAG_Click);
-			// 
-			// pnOnActivateParameters
-			// 
-			this.pnOnActivateParameters.AutoScroll = true;
-			this.pnOnActivateParameters.BackColor = System.Drawing.SystemColors.Control;
-			this.pnOnActivateParameters.Location = new System.Drawing.Point(352, 56);
-			this.pnOnActivateParameters.Name = "pnOnActivateParameters";
-			this.pnOnActivateParameters.Size = new System.Drawing.Size(392, 112);
-			this.pnOnActivateParameters.TabIndex = 13;
-			// 
-			// labAvailableCommands
-			// 
-			this.labAvailableCommands.Location = new System.Drawing.Point(16, 8);
-			this.labAvailableCommands.Name = "labAvailableCommands";
-			this.labAvailableCommands.Size = new System.Drawing.Size(112, 23);
-			this.labAvailableCommands.TabIndex = 4;
-			this.labAvailableCommands.Text = "Available Commands";
-			// 
-			// labSelectedCommands
-			// 
-			this.labSelectedCommands.Location = new System.Drawing.Point(200, 8);
-			this.labSelectedCommands.Name = "labSelectedCommands";
-			this.labSelectedCommands.Size = new System.Drawing.Size(120, 23);
-			this.labSelectedCommands.TabIndex = 10;
-			this.labSelectedCommands.Text = "Selected Commands";
+			this.cbEffectsHighlight.DisplayMember = "Description";
+			this.cbEffectsHighlight.Location = new System.Drawing.Point(16, 40);
+			this.cbEffectsHighlight.Name = "cbEffectsHighlight";
+			this.cbEffectsHighlight.Size = new System.Drawing.Size(264, 21);
+			this.cbEffectsHighlight.TabIndex = 0;
+			this.cbEffectsHighlight.ValueMember = "ID";
+			this.cbEffectsHighlight.SelectedIndexChanged += new System.EventHandler(this.cbEffectsHighlight_SelectedIndexChanged);
 			// 
 			// tbDescription
 			// 
@@ -2085,6 +2075,187 @@ namespace HADesigner
 			this.cbAnimate.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.cbAnimate.Click += new System.EventHandler(this.cbAnimate_Click);
 			// 
+			// pnCommandGroupInfo
+			// 
+			this.pnCommandGroupInfo.Controls.Add(this.lMasterDevice);
+			this.pnCommandGroupInfo.Controls.Add(this.chRelToSender);
+			this.pnCommandGroupInfo.Controls.Add(this.tbDeviceCategory);
+			this.pnCommandGroupInfo.Controls.Add(this.tbMasterDeviceList);
+			this.pnCommandGroupInfo.Controls.Add(this.label10);
+			this.pnCommandGroupInfo.Controls.Add(this.label9);
+			this.pnCommandGroupInfo.Controls.Add(this.label8);
+			this.pnCommandGroupInfo.Controls.Add(this.cbBroadcast);
+			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateGoto);
+			this.pnCommandGroupInfo.Controls.Add(this.lbSelectedCommands);
+			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateDown);
+			this.pnCommandGroupInfo.Controls.Add(this.tvCommand);
+			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateUp);
+			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateRemoveAG);
+			this.pnCommandGroupInfo.Controls.Add(this.btnOnActivateAddAG);
+			this.pnCommandGroupInfo.Controls.Add(this.pnOnActivateParameters);
+			this.pnCommandGroupInfo.Controls.Add(this.labAvailableCommands);
+			this.pnCommandGroupInfo.Controls.Add(this.labSelectedCommands);
+			this.pnCommandGroupInfo.Location = new System.Drawing.Point(160, 608);
+			this.pnCommandGroupInfo.Name = "pnCommandGroupInfo";
+			this.pnCommandGroupInfo.Size = new System.Drawing.Size(752, 184);
+			this.pnCommandGroupInfo.TabIndex = 41;
+			// 
+			// lMasterDevice
+			// 
+			this.lMasterDevice.Location = new System.Drawing.Point(640, 8);
+			this.lMasterDevice.Name = "lMasterDevice";
+			this.lMasterDevice.TabIndex = 24;
+			// 
+			// chRelToSender
+			// 
+			this.chRelToSender.Location = new System.Drawing.Point(352, 32);
+			this.chRelToSender.Name = "chRelToSender";
+			this.chRelToSender.Size = new System.Drawing.Size(96, 24);
+			this.chRelToSender.TabIndex = 23;
+			this.chRelToSender.Text = "Rel to Sender";
+			// 
+			// tbDeviceCategory
+			// 
+			this.tbDeviceCategory.Location = new System.Drawing.Point(536, 32);
+			this.tbDeviceCategory.Name = "tbDeviceCategory";
+			this.tbDeviceCategory.Size = new System.Drawing.Size(48, 20);
+			this.tbDeviceCategory.TabIndex = 22;
+			this.tbDeviceCategory.Text = "";
+			// 
+			// tbMasterDeviceList
+			// 
+			this.tbMasterDeviceList.Location = new System.Drawing.Point(584, 8);
+			this.tbMasterDeviceList.Name = "tbMasterDeviceList";
+			this.tbMasterDeviceList.Size = new System.Drawing.Size(48, 20);
+			this.tbMasterDeviceList.TabIndex = 21;
+			this.tbMasterDeviceList.Text = "";
+			// 
+			// label10
+			// 
+			this.label10.Location = new System.Drawing.Point(440, 32);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(96, 23);
+			this.label10.TabIndex = 20;
+			this.label10.Text = "Device Category:";
+			this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label9
+			// 
+			this.label9.Location = new System.Drawing.Point(496, 8);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(80, 16);
+			this.label9.TabIndex = 19;
+			this.label9.Text = "Master Device:";
+			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label8
+			// 
+			this.label8.Location = new System.Drawing.Point(344, 16);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(64, 16);
+			this.label8.TabIndex = 18;
+			this.label8.Text = "Broadcast:";
+			// 
+			// cbBroadcast
+			// 
+			this.cbBroadcast.Items.AddRange(new object[] {
+															 "None",
+															 "Direct Siblings",
+															 "Same Computer",
+															 "Same Room",
+															 "Same House",
+															 "All Houses"});
+			this.cbBroadcast.Location = new System.Drawing.Point(408, 8);
+			this.cbBroadcast.Name = "cbBroadcast";
+			this.cbBroadcast.Size = new System.Drawing.Size(88, 21);
+			this.cbBroadcast.TabIndex = 17;
+			// 
+			// btnOnActivateGoto
+			// 
+			this.btnOnActivateGoto.Location = new System.Drawing.Point(160, 136);
+			this.btnOnActivateGoto.Name = "btnOnActivateGoto";
+			this.btnOnActivateGoto.Size = new System.Drawing.Size(40, 23);
+			this.btnOnActivateGoto.TabIndex = 9;
+			this.btnOnActivateGoto.Text = "Goto";
+			// 
+			// lbSelectedCommands
+			// 
+			this.lbSelectedCommands.DisplayMember = "Description";
+			this.lbSelectedCommands.Location = new System.Drawing.Point(200, 24);
+			this.lbSelectedCommands.Name = "lbSelectedCommands";
+			this.lbSelectedCommands.Size = new System.Drawing.Size(144, 147);
+			this.lbSelectedCommands.TabIndex = 8;
+			this.lbSelectedCommands.ValueMember = "CommandID";
+			// 
+			// btnOnActivateDown
+			// 
+			this.btnOnActivateDown.Location = new System.Drawing.Point(176, 48);
+			this.btnOnActivateDown.Name = "btnOnActivateDown";
+			this.btnOnActivateDown.Size = new System.Drawing.Size(24, 23);
+			this.btnOnActivateDown.TabIndex = 15;
+			this.btnOnActivateDown.Text = "D";
+			// 
+			// tvCommand
+			// 
+			this.tvCommand.AllowDrop = true;
+			this.tvCommand.ImageIndex = -1;
+			this.tvCommand.Location = new System.Drawing.Point(8, 24);
+			this.tvCommand.Name = "tvCommand";
+			this.tvCommand.SelectedImageIndex = -1;
+			this.tvCommand.Size = new System.Drawing.Size(152, 144);
+			this.tvCommand.TabIndex = 5;
+			// 
+			// btnOnActivateUp
+			// 
+			this.btnOnActivateUp.Location = new System.Drawing.Point(176, 24);
+			this.btnOnActivateUp.Name = "btnOnActivateUp";
+			this.btnOnActivateUp.Size = new System.Drawing.Size(24, 23);
+			this.btnOnActivateUp.TabIndex = 14;
+			this.btnOnActivateUp.Text = "U";
+			// 
+			// btnOnActivateRemoveAG
+			// 
+			this.btnOnActivateRemoveAG.Enabled = false;
+			this.btnOnActivateRemoveAG.Location = new System.Drawing.Point(160, 112);
+			this.btnOnActivateRemoveAG.Name = "btnOnActivateRemoveAG";
+			this.btnOnActivateRemoveAG.Size = new System.Drawing.Size(32, 23);
+			this.btnOnActivateRemoveAG.TabIndex = 7;
+			this.btnOnActivateRemoveAG.Text = "<<";
+			// 
+			// btnOnActivateAddAG
+			// 
+			this.btnOnActivateAddAG.Enabled = false;
+			this.btnOnActivateAddAG.Location = new System.Drawing.Point(160, 88);
+			this.btnOnActivateAddAG.Name = "btnOnActivateAddAG";
+			this.btnOnActivateAddAG.Size = new System.Drawing.Size(32, 23);
+			this.btnOnActivateAddAG.TabIndex = 6;
+			this.btnOnActivateAddAG.Text = ">>";
+			// 
+			// pnOnActivateParameters
+			// 
+			this.pnOnActivateParameters.AutoScroll = true;
+			this.pnOnActivateParameters.BackColor = System.Drawing.SystemColors.Control;
+			this.pnOnActivateParameters.Location = new System.Drawing.Point(352, 56);
+			this.pnOnActivateParameters.Name = "pnOnActivateParameters";
+			this.pnOnActivateParameters.Size = new System.Drawing.Size(392, 112);
+			this.pnOnActivateParameters.TabIndex = 13;
+			// 
+			// labAvailableCommands
+			// 
+			this.labAvailableCommands.Location = new System.Drawing.Point(16, 8);
+			this.labAvailableCommands.Name = "labAvailableCommands";
+			this.labAvailableCommands.Size = new System.Drawing.Size(112, 23);
+			this.labAvailableCommands.TabIndex = 4;
+			this.labAvailableCommands.Text = "Available Commands";
+			// 
+			// labSelectedCommands
+			// 
+			this.labSelectedCommands.Location = new System.Drawing.Point(200, 8);
+			this.labSelectedCommands.Name = "labSelectedCommands";
+			this.labSelectedCommands.Size = new System.Drawing.Size(120, 23);
+			this.labSelectedCommands.TabIndex = 10;
+			this.labSelectedCommands.Text = "Selected Commands";
+			// 
 			// DesignObjDesigner
 			// 
 			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -2114,8 +2285,14 @@ namespace HADesigner
 			this.tabAllPages.ResumeLayout(false);
 			this.tabParameters.ResumeLayout(false);
 			this.tabChildren.ResumeLayout(false);
-			this.pnCommandGroupInfo.ResumeLayout(false);
+			this.tabOnSelected_WithChange.ResumeLayout(false);
+			this.pnEffectsSelectChange.ResumeLayout(false);
+			this.tabOnSelected_NoChange.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
+			this.tabOnHighlighted.ResumeLayout(false);
+			this.panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.nudPriority)).EndInit();
+			this.pnCommandGroupInfo.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -3842,6 +4019,48 @@ namespace HADesigner
 				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex-1 ] = selectedUIDesignObj;
 				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex ] = UIDesignObj_Prior;
 				lbChildrenDesignObjs.SelectedIndex--;
+			}
+		}
+
+		private void cbEffectsHighlight_SelectedIndexChanged(object sender, System.EventArgs e)
+		{
+			//get the selected variation
+			if(lbVariations.SelectedItems.Count == 1)
+			{
+				UIDesignObjVariation objSelectedVariation = (UIDesignObjVariation) lbVariations.SelectedItems[0];
+				if(cbEffectsHighlight.SelectedItem != null)
+				{
+					StringPair objPair = (StringPair) cbEffectsHighlight.SelectedItem;
+					objSelectedVariation.CEffectHightlight = Convert.ToInt32(objPair.ID);
+				}
+			}
+		}
+
+		private void cbEffectsSelectChange_SelectedIndexChanged(object sender, System.EventArgs e)
+		{
+			//get the selected variation
+			if(lbVariations.SelectedItems.Count == 1)
+			{
+				UIDesignObjVariation objSelectedVariation = (UIDesignObjVariation) lbVariations.SelectedItems[0];
+				if(cbEffectsSelectChange.SelectedItem != null)
+				{
+					StringPair objPair = (StringPair) cbEffectsSelectChange.SelectedItem;
+					objSelectedVariation.CEffectWithChange = Convert.ToInt32(objPair.ID);
+				}
+			}
+		}
+
+		private void cbEffectsSelectNoChange_SelectedIndexChanged(object sender, System.EventArgs e)
+		{
+			//get the selected variation
+			if(lbVariations.SelectedItems.Count == 1)
+			{
+				UIDesignObjVariation objSelectedVariation = (UIDesignObjVariation) lbVariations.SelectedItems[0];
+				if(cbEffectsSelectNoChange.SelectedItem != null)
+				{
+					StringPair objPair = (StringPair) cbEffectsSelectNoChange.SelectedItem;
+					objSelectedVariation.CEffectNoChange = Convert.ToInt32(objPair.ID);
+				}
 			}
 		}
 
