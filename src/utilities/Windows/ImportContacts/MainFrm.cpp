@@ -7,6 +7,7 @@
 #include "MainFrm.h"
 #include ".\mainfrm.h"
 
+#include "Log.h"
 #include "DialogConnectSettings.h"
 #include <string>
 using namespace std;
@@ -161,11 +162,13 @@ void CMainFrame::OnImportOutlook()
 	int nContactRead = 0;
 	bool bRes;
 
+	Log::m_pLog->writeLine( "Start reading from Outlook" );
 	nContactRead = m_Outlook.readContacts(list);
-
-	for(it=list.begin();it!=list.end();it++)
-		pContact = *it;
+	Log::m_pLog->writeLine( "Finish read from Outlook" );
 
 	if( nContactRead )
+	{
+		m_PlutoData.connect();
 		m_PlutoData.writeContacts( list );
+	}
 }

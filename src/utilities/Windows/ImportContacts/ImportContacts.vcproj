@@ -152,6 +152,9 @@
 				RelativePath=".\ImportContacts.cpp">
 			</File>
 			<File
+				RelativePath=".\Log.cpp">
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp">
 			</File>
 			<File
@@ -194,6 +197,9 @@
 			</File>
 			<File
 				RelativePath=".\ImportContacts.h">
+			</File>
+			<File
+				RelativePath=".\Log.h">
 			</File>
 			<File
 				RelativePath=".\MainFrm.h">

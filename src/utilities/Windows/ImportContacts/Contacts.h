@@ -2,6 +2,7 @@
 
 #include "string"
 #include "vector"
+#include "fstream"
 
 using namespace std;
 
@@ -15,6 +16,8 @@ public:
 	string homeAddress, businessAddress;
 	string email;
 };
+
+fstream& operator << (fstream& os, const Contact& contatct);
 
 class ContactsList : public vector<Contact *>
 {

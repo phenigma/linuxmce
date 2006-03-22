@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Outlook.h"
+#include "Log.h"
 
 // Define this according to the Outlook Object
 // Model version you are compiling under
@@ -82,6 +83,8 @@ int OutlookWraper::readContacts(ContactsList &list)
 			if( (char *) pContact->GetEmail1Address() != NULL )
 				pContactInfo->email = (char *) pContact->GetEmail1Address();
 
+
+			Log::m_pLog->m_file << *pContactInfo;
 
 			list.addContact( pContactInfo );
 			nRead++;

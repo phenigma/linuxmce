@@ -1,22 +1,18 @@
 #include "StdAfx.h"
 #include ".\plutoDatabase.h"
 
+#include "Log.h"
+
 PlutoDatabase::PlutoDatabase(void)
 {
-	
-	bool bRes;
-
 	m_ServerName = "10.0.0.150";
 	m_DatabaseName = "pluto_telecom";
 	m_User = "root";
 	m_Password = "";
-	m_ConnStr = "Driver={MySQL ODBC 3.51 Driver};SERVER=10.0.0.150;PORT=3306;Data Source Name=PlutoTelecom;Database=pluto_telecom;Uid=root;"; 
+	setConnectionString();
 	
-	m_pContactsTable = new DatabaseWrapper;
-	m_pPhoneTable = new DatabaseWrapper;
-
-	bRes = m_pContactsTable->connect( m_ConnStr );
-	bRes = m_pPhoneTable->connect( m_ConnStr );
+	m_pContactsTable = NULL;
+	m_pPhoneTable = NULL;
 
 	// Contact table data
 	m_ContactParam.push_back( "Name" );
@@ -59,6 +55,11 @@ void PlutoDatabase::setConnectionString(string serverName,string database,
 	m_User = user;
 	m_Password = password;
 
+	setConnectionString();
+}
+
+void PlutoDatabase::setConnectionString()
+{
 	m_ConnStr = string("Driver=") + "{MySQL ODBC 3.51 Driver}" + ";";
 	
 	if( !m_ServerName.empty() )
@@ -71,6 +72,33 @@ void PlutoDatabase::setConnectionString(string serverName,string database,
 		m_ConnStr += "Database=" + m_DatabaseName + ";";
 	if( !m_User.empty() )
 		m_ConnStr += "Uid=" + m_User + ";"; 
+}
+
+bool PlutoDatabase::connect()
+{
+	bool bRes;
+	setConnectionString();
+	m_pContactsTable = new DatabaseWrapper;
+	m_pPhoneTable = new DatabaseWrapper;
+
+	bRes = m_pContactsTable->connect( m_ConnStr );
+	if( bRes )
+		Log::m_pLog->writeLine( "Connect to Contact table" );
+	else
+	{
+		Log::m_pLog->writeLine( "Couldn't connect to Contact table" );
+		return false;
+	}
+	bRes = m_pPhoneTable->connect( m_ConnStr );
+	if( bRes )
+		Log::m_pLog->writeLine( "Connect to  Phone table" );
+	else
+	{
+		Log::m_pLog->writeLine( "Couldn't connect to Phone table" );
+		return false;
+	}
+
+	return true;
 }
 
 bool PlutoDatabase::writePhoneNumber(string phoneNumber,int nType,int nUserID)
@@ -138,13 +166,16 @@ int PlutoDatabase::writeContacts(ContactsList &list)
 	vector<Contact *>::iterator it;
 	Contact *pContact;
 	int nContact = 0;
+	string outMess;
 
 	for(it=list.begin();it!=list.end();it++)
 	{
 		pContact = *it;
 		if( existContact(pContact) != -1 )
-			MessageBox( NULL, (pContact->firstName + " " + pContact->lastName).c_str(),
-				"Already exist", MB_OK );
+		{
+			outMess = "Already exist:" +  pContact->firstName + " " + pContact->lastName;
+			Log::m_pLog->writeLine( outMess );
+		}
 		else 
 			writeContact( pContact );
 	}

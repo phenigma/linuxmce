@@ -39,6 +39,8 @@ public:
 
 	void setConnectionString(string serverName,string database,
 				string user,string password);
+	void setConnectionString();
 
+	bool connect();
 	int writeContacts(ContactsList &list);
 };

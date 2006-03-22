@@ -7,7 +7,6 @@
 #include ".\importcontacts.h"
 
 #include "Outlook.h"
-//#include "Database.h"
 #include "PlutoDatabase.h"
 
 #ifdef _DEBUG
