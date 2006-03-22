@@ -58,3 +58,17 @@ FindDevice_Category()
 	fi
 	return 1
 }
+
+XineConfSet()
+{
+	local Setting="$1"
+	local Value="$2"
+	
+	[[ -z "$Setting" || -z "$Value" ]] && return 1
+	
+	if grep -qF "$Setting" /etc/pluto/xine.conf; then
+		sed -i "s/^.*$Setting:.*$/$Setting:$Value/" /etc/pluto/xine.conf
+	else
+		echo "$Setting:$Value" >>/etc/pluto/xine.conf
+	fi
+}
