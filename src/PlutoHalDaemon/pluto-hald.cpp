@@ -18,6 +18,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 
+#define DEBUG 1
 
 map<unsigned int, int> templatesMap;
 
@@ -133,7 +134,7 @@ void sendMessage(string params, string &returnValue)
 {
 	returnValue = "";
 	
-	printf("MessageSend %s %s\n", hostname, params.c_str());
+	g_pPlutoLogger->Write(LV_DEBUG, "MessageSend %s %s\n", hostname, params.c_str());
 	
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname);
 	if(pEvent != NULL)
@@ -153,15 +154,15 @@ void sendMessage(string params, string &returnValue)
 			{
 				if( i>5 )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
+					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 30 seconds.  Aborting....");
 					throw(string("Router not ready after 30 seconds.  Aborting...."));
 				}
-				g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
+				g_pPlutoLogger->Write(LV_DEBUG,"DCERouter still loading.  Waiting 5 seconds");
 				Sleep(5000);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
+				g_pPlutoLogger->Write(LV_DEBUG,"Router gave unknown response to ready request %s",sResponse.c_str());
 				throw(string("Router gave unknown response to ready request"));
 			}
 		}
@@ -181,15 +182,13 @@ void sendMessage(string params, string &returnValue)
 						delete pResponse;
 						pResponse = NULL;
 					}
-					cout << "Failed to send message" << endl;
 					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
 				}
 				else
 				{
-					cout << "0" << endl;
 					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
 					{
-						cout << (*it).first << ":" << (*it).second << endl;
+						g_pPlutoLogger->Write(LV_DEBUG, "%ld : %s",  (*it).first , (*it).second.c_str() );
 						returnValue = (*it).second;
 					}
 				}
@@ -198,8 +197,7 @@ void sendMessage(string params, string &returnValue)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int))");
-				cout << "message should have out parameters (PK_Device (int))" << ExpectedResponse << endl;
+				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int)) ");
 			}
 		}
 		else
@@ -227,7 +225,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 		int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
 
 		map<unsigned int, int>::iterator it;
-		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 		if(it != templatesMap.end())
 		{
 			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
@@ -243,7 +241,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 								StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
 								info_udi, 
 								response );
-				printf("response myDeviceAdded: DeviceFromUID = %s\n", response.c_str());
+				g_pPlutoLogger->Write(LV_DEBUG, "response myDeviceAdded: DeviceFromUID = %s\n", response.c_str());
 				
 				if( !response.empty() )
 				{
@@ -258,7 +256,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
 									"1", 
 									responseEnable );
-					printf("responseEnable myDeviceAdded: %s\n", responseEnable.c_str());
+					g_pPlutoLogger->Write(LV_DEBUG, "responseEnable myDeviceAdded: %s\n", responseEnable.c_str());
 				}
 				else
 				{
@@ -282,11 +280,15 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									"109 " + 
 									buffer,
 									responseCreate );
-					printf("responseCreate myDeviceAdded: %s\n", responseCreate.c_str());
+					g_pPlutoLogger->Write(LV_DEBUG, "responseCreate myDeviceAdded: %s\n", responseCreate.c_str());
 					
 					string responseRestart;
-					sendMessage("0 -1001 71", responseRestart );
-					printf("responseRestart myDeviceAdded: %s\n", responseRestart.c_str());
+					sendMessage(string("-targetType template -o 0 ") + 
+							StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+							" 1 " + 
+							StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
+						responseRestart );
+					g_pPlutoLogger->Write(LV_DEBUG, "responseRestart myDeviceAdded: %s\n", responseRestart.c_str());
 					
 				}
 			}
@@ -318,13 +320,13 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 		int usb_device_product_id = hal_device_get_property_int(ctx, parent, "usb_device.product_id");
 		int usb_device_vendor_id = hal_device_get_property_int(ctx, parent, "usb_device.vendor_id");
 		
-		printf("udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
+		g_pPlutoLogger->Write(LV_DEBUG, "udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
 		
 		map<unsigned int, int>::iterator it;
-		it = templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+		it = templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 		if( it != templatesMap.end() )
 		{
-			printf("NewCapability: udi = %s serial port = %s\n", udi, serial_port);
+			g_pPlutoLogger->Write(LV_DEBUG, "NewCapability: udi = %s serial port = %s\n", udi, serial_port);
 			
 			try
 			{
@@ -337,7 +339,7 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 								StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
 								info_udi,
 								response );
-				printf("response NewCapability: DeviceFromUID = %s\n", response.c_str());
+				g_pPlutoLogger->Write(LV_DEBUG, "response NewCapability: DeviceFromUID = %s\n", response.c_str());
 				
 				if( !response.empty() )
 				{
@@ -354,7 +356,7 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 									StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
 									serial_port,
 									responseSerial );
-					printf("responseSerial NewCapability: %s\n", responseSerial.c_str());
+					g_pPlutoLogger->Write(LV_DEBUG, "responseSerial NewCapability: %s\n", responseSerial.c_str());
 				}
 			}
 			catch(string ex)
@@ -375,63 +377,41 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 
 void myDeviceRemoved(LibHalContext * ctx, const char * udi)
 {
-	printf("removed device %s\n", udi);
-	gchar *bus = hal_device_get_property_string (ctx, udi, "info.bus");
+	g_pPlutoLogger->Write(LV_DEBUG, "removed device %s\n", udi);
 	
-	if( bus != NULL &&
-		strcmp(bus, "usb_device") == 0 &&
-		strlen(bus) == strlen("usb_device") )
+	try
 	{
-		int usb_device_product_id = hal_device_get_property_int(ctx, udi, "usb_device.product_id");
-		int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
-
-		map<unsigned int, int>::iterator it;
-		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
-		if(it != templatesMap.end())
+		// check if there is a device with this UID
+		string response;
+		sendMessage(	"-targetType template -o 0 " + 
+						StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+						" 1 " +
+						StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " + 
+						StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
+						udi, 
+						response );
+		g_pPlutoLogger->Write(LV_DEBUG, "response myDeviceRemoved: DeviceFromUID = %s\n", response.c_str());
+		
+		if( !response.empty() )
 		{
-			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
-
-			try
-			{
-				// check if there is a device with this UID
-				string response;
-				sendMessage(	"-targetType template -o 0 " + 
-								StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-								" 1 " +
-								StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " + 
-								StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
-								info_udi, 
-								response );
-				printf("response myDeviceRemoved: DeviceFromUID = %s\n", response.c_str());
-				
-				if( !response.empty() )
-				{
-					// disable the device
-					string responseEnable;
-					sendMessage(	"-targetType template -o 0 " +
-									StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) +
-									" 1 " +
-									StringUtils::itos( COMMAND_Set_Enable_Status_CONST ) + " " +
-									StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
-									response + " " +
-									StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
-									"0", // false == disable
-									responseEnable );
-					printf("responseEnable myDeviceRemoved: %s\n", responseEnable.c_str());
-				}
-			}
-			catch(string ex)
-			{
-				g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
-			}
-			
-			g_free (info_udi);
-			info_udi = NULL;
+			// disable the device
+			string responseEnable;
+			sendMessage(	"-targetType template -o 0 " +
+							StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) +
+							" 1 " +
+							StringUtils::itos( COMMAND_Set_Enable_Status_CONST ) + " " +
+							StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
+							response + " " +
+							StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
+							"0", // false == disable
+							responseEnable );
+			g_pPlutoLogger->Write(LV_DEBUG, "responseEnable myDeviceRemoved: %s\n", responseEnable.c_str());
 		}
 	}
-	
-	g_free (bus);
-	bus = NULL;
+	catch(string ex)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+	}
 }
 
 /***/
@@ -445,6 +425,7 @@ void initialize(LibHalContext * ctx)
 	for(int i = num_devices - 1; i >= 0 ; i--)
 	{
 		char *udi = devices[i];
+		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
 		bus = hal_device_get_property_string (ctx, udi, "info.bus");
 		if( 0 == strcmp(bus, "usb_device") )
 		{
@@ -452,7 +433,8 @@ void initialize(LibHalContext * ctx)
 			int usb_device_vendor_id = hal_device_get_property_int(ctx, udi, "usb_device.vendor_id");
 			
 			map<unsigned int, int>::iterator it =
-				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
+			g_pPlutoLogger->Write(LV_DEBUG, "searching for %08x \n", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			if( it != templatesMap.end() )
 			{
 //					gchar *product = hal_device_get_property_string (ctx, udi, "info.product");
@@ -472,7 +454,7 @@ void initialize(LibHalContext * ctx)
 									StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
 									info_udi, 
 									response );
-					printf("response DeviceFromUID_ = %s\n", response.c_str());
+					g_pPlutoLogger->Write(LV_DEBUG, "response DeviceFromUID_ = %s\n", response.c_str());
 					
 					if( !response.empty() )
 					{
@@ -487,7 +469,7 @@ void initialize(LibHalContext * ctx)
 										StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
 										"1", 
 										responseEnable );
-						printf("responseEnable = %s\n", responseEnable.c_str());
+						g_pPlutoLogger->Write(LV_DEBUG, "responseEnable = %s\n", responseEnable.c_str());
 					}
 					else
 					{
@@ -496,7 +478,10 @@ void initialize(LibHalContext * ctx)
 						
 						char buffer[2048];
 						snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, info_udi);
-	
+						//TODO: hack to be removed
+						if(dceConfig.m_iPK_Device_Computer == 0)
+							dceConfig.m_iPK_Device_Computer = 1;
+							
 						string responseCreate;
 						sendMessage(	"-targetType  template  -o 0 " + 
 										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
@@ -511,7 +496,7 @@ void initialize(LibHalContext * ctx)
 										"109 " + 
 										buffer,
 										responseCreate );
-						printf("responseCreate = %s\n", responseCreate.c_str());
+						g_pPlutoLogger->Write(LV_DEBUG, "responseCreate = %s\n", responseCreate.c_str());
 					}
 				}
 				catch(string ex)
@@ -539,13 +524,13 @@ void initialize(LibHalContext * ctx)
 			int usb_device_vendor_id = hal_device_get_property_int(ctx, parent, "usb_device.vendor_id");
 			
 			map<unsigned int, int>::iterator it =
-				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xff) );
+				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 			if( it != templatesMap.end() )
 			{
 				gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
 				if(serial_port != NULL)
 				{
-					printf("udi = %s serial port = %s\n", udi, serial_port);
+					g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s\n", udi, serial_port);
 					
 					try
 					{
@@ -558,7 +543,7 @@ void initialize(LibHalContext * ctx)
 										StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
 										info_udi,
 										response );
-						printf("response DeviceFromUID = %s\n", response.c_str());
+						g_pPlutoLogger->Write(LV_DEBUG, "response DeviceFromUID = %s\n", response.c_str());
 						
 						if( !response.empty() )
 						{
@@ -575,7 +560,7 @@ void initialize(LibHalContext * ctx)
 											StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
 											serial_port, 
 											responseSerial );
-							printf("responseSerial %s\n", responseSerial.c_str());
+							g_pPlutoLogger->Write(LV_DEBUG, "responseSerial %s\n", responseSerial.c_str());
 						}
 					}
 					catch(string ex)
@@ -594,20 +579,24 @@ void initialize(LibHalContext * ctx)
 			info_udi = NULL;
 		}
 		
-		try
-		{
-			string responseRestart;
-			sendMessage("0 -1001 71", responseRestart );
-			printf("responseRestart %s\n", responseRestart.c_str());
-		}
-		catch(string ex)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
-		}
-		
 		g_free(bus);
 		bus = NULL;
 	}
+	try
+	{
+		string responseRestart;
+		sendMessage(string("-targetType template -o 0 ") + 
+				StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+				" 1 " + 
+				StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
+			responseRestart );
+		g_pPlutoLogger->Write(LV_DEBUG, "responseRestart %s\n", responseRestart.c_str());
+	}
+	catch(string ex)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+	}
+
 }
 
 int main(int argc, char* argv[])
@@ -646,11 +635,11 @@ int main(int argc, char* argv[])
 						" 1 " +
 						StringUtils::itos( COMMAND_Get_All_HAL_Model_ID_CONST ),
 						response );
-		printf("response %s\n", response.c_str());
+		g_pPlutoLogger->Write(LV_DEBUG, "response %s\n", response.c_str());
 	}
 	catch(string ex)
 	{
-		printf("exception %s\n", ex.c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "exception %s\n", ex.c_str());
 		//return 1;
 	}
 
@@ -663,7 +652,7 @@ int main(int argc, char* argv[])
 	{
 		string row = (*it);
 		StringUtils::TrimSpaces(row);
-		printf("%s", row.c_str());
+		g_pPlutoLogger->Write(LV_DEBUG, "%s", row.c_str());
 		
 		//should be "template_id vendorproduct:vendorproduct:vendorproduct\n"
 		size_t space = row.find(' ');
@@ -685,6 +674,12 @@ int main(int argc, char* argv[])
 		}
 	}
 	
+	for(map<unsigned int, int>::iterator it = templatesMap.begin(); it != templatesMap.end(); ++it)
+	{
+		g_pPlutoLogger->Write(LV_DEBUG, "%08x --------- %d", (*it).first, (*it).second);
+		g_pPlutoLogger->Write(LV_DEBUG, "%08x --------- %d\n", (*it).first, (*it).second);
+	}
+	
 	loop = g_main_loop_new (NULL, FALSE);
 	
 	funcs.main_loop_integration = mainloop_integration;
@@ -698,7 +693,7 @@ int main(int argc, char* argv[])
 	ctx = hal_initialize(&funcs, 0);
 	if ( ctx == NULL )
 	{
-		printf("CTX is NULL!\n");
+		g_pPlutoLogger->Write(LV_DEBUG, "CTX is NULL!\n");
 		return 1;
 	}
 	initialize(ctx);
