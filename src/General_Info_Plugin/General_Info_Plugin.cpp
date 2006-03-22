@@ -2362,7 +2362,7 @@ void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Res
 			pRow_Device_DeviceData = * vectRow_Device_DeviceData_iterator;
 			if( pRow_Device_DeviceData != NULL )
 			{
-				sCMD_Result = StringUtils::itos( pRow_Device_DeviceData->FK_DeviceData_get() );
+				sCMD_Result = StringUtils::itos( pRow_Device_DeviceData->FK_Device_get() );
 			}
 			// just the first row
 			break;
