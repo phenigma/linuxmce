@@ -269,7 +269,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 					snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, info_udi);
 
 					string responseCreate;
-					sendMessage(	"-targetType  template  -o 0 " + 
+					sendMessage(	"-targetType template -o 0 " + 
 									StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
 									" 1 " + 
 									StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
@@ -283,6 +283,11 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									buffer,
 									responseCreate );
 					printf("responseCreate myDeviceAdded: %s\n", responseCreate.c_str());
+					
+					string responseRestart;
+					sendMessage("0 -1001 71", responseRestart );
+					printf("responseRestart myDeviceAdded: %s\n", responseRestart.c_str());
+					
 				}
 			}
 			catch(string ex)
@@ -588,7 +593,18 @@ void initialize(LibHalContext * ctx)
 			g_free (info_udi);
 			info_udi = NULL;
 		}
-
+		
+		try
+		{
+			string responseRestart;
+			sendMessage("0 -1001 71", responseRestart );
+			printf("responseRestart %s\n", responseRestart.c_str());
+		}
+		catch(string ex)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+		}
+		
 		g_free(bus);
 		bus = NULL;
 	}
