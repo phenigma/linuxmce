@@ -44,3 +44,17 @@ function ClearSection {
         fi
 }
 
+## Checkes if a section exists in a file
+function CheckSectionExists {
+	local File=$1
+	local SectionName=$2
+
+	ret=false	
+	if grep -q "^## BEGIN : $SectionName" ;then
+		if grep -q "^## END : $SectionName" ;then
+			ret=true
+		fi
+	fi
+
+	echo $ret
+}
