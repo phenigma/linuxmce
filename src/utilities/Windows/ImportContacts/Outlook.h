@@ -5,6 +5,8 @@
 
 class OutlookWraper
 {
+private:
+	string errDesc;
 public:
 	int readContacts(ContactsList &list);
 };

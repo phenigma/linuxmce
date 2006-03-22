@@ -9,7 +9,7 @@ struct Contact
 {
 public:
 	string firstName, middleName, lastName;
-	string title, companyName;
+	string title, jobDescription, companyName;
 
 	string phoneHome, homeBusiness, phoneMobile;
 	string homeAddress, businessAddress;
