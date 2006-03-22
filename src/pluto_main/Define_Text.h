@@ -937,6 +937,8 @@
 #define TEXT_TVReceiver_CONST 1649
 #define TEXT_ConfirmIRCodes_CONST 1650
 #define TEXT_TVTypeNotListed_CONST 1651
+#define TEXT_List_of_all_bookmarksList_of_all_bookmar_CONST 1652
+#define TEXT_View_bookmarks_for_this_file_CONST 1653
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
