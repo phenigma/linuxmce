@@ -5,6 +5,10 @@
 #include "ImportContacts.h"
 
 #include "MainFrm.h"
+#include ".\mainfrm.h"
+
+#include <string>
+using namespace std;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,6 +22,7 @@ IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_WM_SETFOCUS()
+	ON_COMMAND(ID_IMPORT_CONNECTSETTINGS, OnImportConnectsettings)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -121,4 +126,10 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 
 	// otherwise, do default handling
 	return CFrameWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+}
+
+void CMainFrame::OnImportConnectsettings()
+{
+	string server,dataBaseName;
+	string user,password;
 }

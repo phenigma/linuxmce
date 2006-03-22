@@ -42,6 +42,8 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSetFocus(CWnd *pOldWnd);
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnImportConnectsettings();
 };
 
 
