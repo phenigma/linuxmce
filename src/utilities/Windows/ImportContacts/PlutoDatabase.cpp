@@ -5,13 +5,18 @@ PlutoDatabase::PlutoDatabase(void)
 {
 	
 	bool bRes;
-	m_connStr = "Driver={MySQL ODBC 3.51 Driver};SERVER=10.0.0.150;PORT=3306;Data Source Name=PlutoTelecom;Database=pluto_telecom;Uid=root;"; 
+
+	m_ServerName = "10.0.0.150";
+	m_DatabaseName = "pluto_telecom";
+	m_User = "root";
+	m_Password = "";
+	m_ConnStr = "Driver={MySQL ODBC 3.51 Driver};SERVER=10.0.0.150;PORT=3306;Data Source Name=PlutoTelecom;Database=pluto_telecom;Uid=root;"; 
 	
 	m_pContactsTable = new DatabaseWrapper;
 	m_pPhoneTable = new DatabaseWrapper;
 
-	bRes = m_pContactsTable->connect( m_connStr );
-	bRes = m_pPhoneTable->connect( m_connStr );
+	bRes = m_pContactsTable->connect( m_ConnStr );
+	bRes = m_pPhoneTable->connect( m_ConnStr );
 
 	// Contact table data
 	m_ContactParam.push_back( "Name" );
@@ -44,6 +49,28 @@ PlutoDatabase::~PlutoDatabase(void)
 		delete m_pContactsTable;
 	if( m_pPhoneTable )
 		delete m_pPhoneTable;
+}
+
+void PlutoDatabase::setConnectionString(string serverName,string database,
+			string user,string password)
+{
+	m_ServerName = serverName;
+	m_DatabaseName = database;
+	m_User = user;
+	m_Password = password;
+
+	m_ConnStr = string("Driver=") + "{MySQL ODBC 3.51 Driver}" + ";";
+	
+	if( !m_ServerName.empty() )
+		m_ConnStr += "SERVER=" + m_ServerName + ";";
+
+	m_ConnStr += string("PORT=") + "3306" + ";";
+	m_ConnStr += "Data Source Name=PlutoTelecom;";
+
+	if( !m_DatabaseName.empty() )
+		m_ConnStr += "Database=" + m_DatabaseName + ";";
+	if( !m_User.empty() )
+		m_ConnStr += "Uid=" + m_User + ";"; 
 }
 
 bool PlutoDatabase::writePhoneNumber(string phoneNumber,int nType,int nUserID)

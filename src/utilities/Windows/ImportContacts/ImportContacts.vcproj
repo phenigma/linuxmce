@@ -146,6 +146,9 @@
 				RelativePath=".\DataBase.cpp">
 			</File>
 			<File
+				RelativePath=".\DialogConnectSettings.cpp">
+			</File>
+			<File
 				RelativePath=".\ImportContacts.cpp">
 			</File>
 			<File
@@ -187,10 +190,16 @@
 				RelativePath=".\DataBase.h">
 			</File>
 			<File
+				RelativePath=".\DialogConnectSettings.h">
+			</File>
+			<File
 				RelativePath=".\ImportContacts.h">
 			</File>
 			<File
 				RelativePath=".\MainFrm.h">
+			</File>
+			<File
+				RelativePath=".\Outlook.h">
 			</File>
 			<File
 				RelativePath=".\PlutoDatabase.h">

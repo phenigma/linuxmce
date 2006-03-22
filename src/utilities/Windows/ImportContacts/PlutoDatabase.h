@@ -8,7 +8,10 @@ class PlutoDatabase
 {
 private:
 	DatabaseWrapper *m_pContactsTable, *m_pPhoneTable;
-	string m_connStr;
+
+	string m_ServerName, m_DatabaseName;
+	string m_User,m_Password;
+	string m_ConnStr;
 
 	// ContactTable
 	vector<string> m_ContactParam, m_ContactValues;
@@ -27,6 +30,15 @@ private:
 public:
 	PlutoDatabase(void);
 	~PlutoDatabase(void);
+
+	string getServerName(){ return m_ServerName; }
+	string getDatabaseName(){ return m_DatabaseName; }
+	string getUser(){ return m_User; }
+	string getPassword(){ return m_Password; }
+	string getConnectionString(){ return m_ConnStr; }
+
+	void setConnectionString(string serverName,string database,
+				string user,string password);
 
 	int writeContacts(ContactsList &list);
 };

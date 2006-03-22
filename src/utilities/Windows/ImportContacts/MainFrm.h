@@ -5,6 +5,10 @@
 #pragma once
 
 #include "ChildView.h"
+
+#include "Outlook.h"
+#include "PlutoDatabase.h"
+
 class CMainFrame : public CFrameWnd
 {
 	
@@ -44,6 +48,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnImportConnectsettings();
+
+public:
+	OutlookWraper m_Outlook;
+	PlutoDatabase m_PlutoData;
+	afx_msg void OnImportOutlook();
 };
 
 

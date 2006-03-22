@@ -7,6 +7,7 @@
 #include "MainFrm.h"
 #include ".\mainfrm.h"
 
+#include "DialogConnectSettings.h"
 #include <string>
 using namespace std;
 
@@ -23,6 +24,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_WM_SETFOCUS()
 	ON_COMMAND(ID_IMPORT_CONNECTSETTINGS, OnImportConnectsettings)
+	ON_COMMAND(ID_IMPORT_OUTLOOK, OnImportOutlook)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -130,6 +132,40 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 
 void CMainFrame::OnImportConnectsettings()
 {
+	CDialogConnectSettings dlg;
+
 	string server,dataBaseName;
 	string user,password;
+
+	dlg.m_ServerName = m_PlutoData.getServerName().c_str();
+	dlg.m_DatabaseName = m_PlutoData.getDatabaseName().c_str();
+	dlg.m_User = m_PlutoData.getUser().c_str();
+	dlg.m_Password = m_PlutoData.getPassword().c_str();
+
+	dlg.m_ConnectString = m_PlutoData.getConnectionString().c_str();
+
+	if( dlg.DoModal() == IDOK )
+	{
+		m_PlutoData.setConnectionString( (LPCSTR) dlg.m_ServerName, 
+			(LPCSTR) dlg.m_DatabaseName,(LPCSTR) dlg.m_User, 
+			(LPCSTR) dlg.m_Password );
+	}
+}
+
+void CMainFrame::OnImportOutlook()
+{
+	ContactsList list;
+	vector<Contact *>::iterator it;
+	Contact  *pContact = NULL;
+	
+	int nContactRead = 0;
+	bool bRes;
+
+	nContactRead = m_Outlook.readContacts(list);
+
+	for(it=list.begin();it!=list.end();it++)
+		pContact = *it;
+
+	if( nContactRead )
+		m_PlutoData.writeContacts( list );
 }

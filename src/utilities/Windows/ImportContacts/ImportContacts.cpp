@@ -19,7 +19,6 @@
 
 BEGIN_MESSAGE_MAP(CImportContactsApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	ON_COMMAND(ID_IMPORT_OUTLOOK, OnImportOutlook)
 END_MESSAGE_MAP()
 
 
@@ -120,26 +119,4 @@ void CImportContactsApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
-}
-
-
-void CImportContactsApp::OnImportOutlook()
-{
-	ContactsList list;
-	vector<Contact *>::iterator it;
-	Contact  *pContact = NULL;
-	
-	int nContactRead = 0;
-	bool bRes;
-
-	OutlookWraper out;
-	PlutoDatabase plutoData;
-
-	nContactRead = out.readContacts(list);
-
-	for(it=list.begin();it!=list.end();it++)
-		pContact = *it;
-
-	if( nContactRead )
-		plutoData.writeContacts( list );
 }
