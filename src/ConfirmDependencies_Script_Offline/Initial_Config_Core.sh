@@ -35,6 +35,14 @@ if [[ "$Type" == o || "$Type" == O ]]; then
 fi
 
 echo ""
+echo "If you have an active internet connection, Pluto can use it to perform"
+echo "various task : syncronize your computer clock, automaticaly send bug"
+echo "reports, install aditional software ..."
+echo "You can also switch from online/offline mode later by using the web"
+echo "administration interface"
+UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
+
+echo ""
 echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 echo "directors."
 DHCP=$(Ask "Run a DHCP server? [Y/n]")
@@ -97,6 +105,11 @@ deb http://deb.plutohome.com/debian/ unstable mythtv
 deb http://www.yttron.as.ro/ sarge main
 # Pluto sources - end"
 
+OfflineMode="false"
+if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
+	OfflineMode="true"
+fi
+
 PlutoConf="# Pluto config file
 MySqlHost = localhost
 MySqlUser = root
@@ -108,7 +121,9 @@ DCERouterPort = 3450
 PK_Device = 1
 Activation_Code = $Activation_Code
 PK_Installation = 1
-PK_Users = 1"
+PK_Users = 1
+OfflineMode = $OfflineMode
+"
 
 echo "$PlutoConf" >/etc/pluto.conf
 
