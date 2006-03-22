@@ -199,8 +199,8 @@ for Client in $R; do
 				OfflineMode='false'
 			fi
 
-			pluto_conf="OfflineMode = $OfflineMode"
-			echo $pluto_conf > $DlPath/etc/pluto.conf
+			pluto_conf="OfflineMode = $OfflineMode \n"
+			echo -e pluto_conf > $DlPath/etc/pluto.conf
 		fi
 
 		echo -n " fstab"
