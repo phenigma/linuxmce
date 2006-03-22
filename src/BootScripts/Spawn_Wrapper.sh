@@ -52,6 +52,12 @@ UpdateXineConf()
 		XineConfSet audio.speaker_arrangement "Stereo 2.0"
 		XineConfSet audio.alsa_front_device default
 	fi
+
+	if [[ "$AudioSetting" == *K* ]]; then
+		XineConfSet audio.synchronization.force_rate 48000
+	else
+		XineConfSet audio.synchronization.force_rate 0
+	fi
 }
 
 Spawnee="$(basename "$1")"
