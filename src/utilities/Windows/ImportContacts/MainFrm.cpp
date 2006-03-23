@@ -159,16 +159,20 @@ void CMainFrame::OnImportOutlook()
 	vector<Contact *>::iterator it;
 	Contact  *pContact = NULL;
 	
-	int nContactRead = 0;
+	int nContactNo = 0;
 	bool bRes;
 
 	Log::m_pLog->writeLine( "Start reading from Outlook" );
-	nContactRead = m_Outlook.readContacts(list);
+	nContactNo = m_Outlook.readContacts(list);
 	Log::m_pLog->writeLine( "Finish read from Outlook" );
 
-	if( nContactRead )
+	if( nContactNo )
 	{
 		m_PlutoData.connect();
-		m_PlutoData.writeContacts( list );
+		nContactNo = m_PlutoData.writeContacts( list );
 	}
+
+	Log::m_pLog->showLine( 
+		MAKE_STRING( string("Import ") << nContactNo << " contacts" ), 
+		"Message" );
 }

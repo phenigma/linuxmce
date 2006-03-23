@@ -171,13 +171,26 @@ int PlutoDatabase::writeContacts(ContactsList &list)
 	for(it=list.begin();it!=list.end();it++)
 	{
 		pContact = *it;
+		if( (pContact->firstName.empty()) && (pContact->lastName.empty()) )
+		{
+			Log::m_pLog->writeLine( "Couldn't log a contact without any name" );
+			continue;
+		}
+
 		if( existContact(pContact) != -1 )
 		{
-			outMess = "Already exist:" +  pContact->firstName + " " + pContact->lastName;
+			outMess = "Contact already exist:" +  pContact->firstName + " " + pContact->lastName;
 			Log::m_pLog->writeLine( outMess );
 		}
 		else 
-			writeContact( pContact );
+		{
+			if( writeContact( pContact ) )
+			{
+				nContact++;
+				Log::m_pLog->writeLine( "Write contact" );
+				Log::m_pLog->m_file << pContact;
+			}
+		}
 	}
 
 	return nContact;

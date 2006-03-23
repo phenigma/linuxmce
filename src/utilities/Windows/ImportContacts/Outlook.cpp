@@ -2,59 +2,35 @@
 #include "Outlook.h"
 #include "Log.h"
 
-// Define this according to the Outlook Object
-// Model version you are compiling under
-#define OUTL11// Outlook 2003
-//#define OUTL10// Outlook 2002
-//#define OUTL9// Outlook 2000
-
-#pragma warning(disable:4146)
-
-#if defined(OUTL11) // Outlook 2003
-#import "C:\Program Files\Common Files\Microsoft Shared\OFFICE11\mso.dll" \
-no_namespace
-#import "C:\Program Files\Microsoft Office\OFFICE11\msoutl.olb" \
-rename_namespace("Outlook")
-#elif defined(OUTL10) // Outlook 2002
-#import "C:\Program Files\Common Files\Microsoft Shared\OFFICE10\mso.dll" \
-no_namespace, rename("DocumentProperties", "DocProps")
-#import "C:\Program Files\Microsoft Office\OFFICE10\msoutl.olb" \
-rename_namespace("Outlook")
-#elif defined(OUTL9) // Outlook 2000
-#import "C:\Program Files\Microsoft Office\Office\mso9.dll" \
-no_namespace, rename("DocumentProperties", "DocProps")
-#import "C:\Program Files\Microsoft Office\Office\msoutl9.olb" \
-rename_namespace("Outlook")
-#endif // OUTL11
-
-#pragma warning(default:4146)
-
-using namespace Outlook;
+OutlookWraper::~OutlookWraper(void)
+{
+	m_pContact = NULL ;
+	m_pItems = NULL;
+	m_pFolder = NULL;
+	m_pMAPI = NULL;
+	//pApp = NULL;
+}
 
 int OutlookWraper::readContacts(ContactsList &list)
 {
-	_ApplicationPtr pApp("Outlook.Application");
-	_NameSpacePtr pMAPI;
-	Contact *pContactInfo = NULL;
+	_ApplicationPtr pApp( "Outlook.Application" );
 
-	MAPIFolderPtr pFolder;
-	_ItemsPtr pItems;
-	_ContactItemPtr pContact;;
-	int nRead = 0, nCount = 0;
+	Contact *pContactInfo = NULL;
+	int nCount = 0;
 
 	try
 	{
-		pMAPI = pApp->GetNamespace("MAPI");
-		Log::m_pLog->writeLine( "After GetNamespace");
-		pMAPI->Logon("","",false,false);
-		Log::m_pLog->writeLine( "After Logon");
-		pFolder = pMAPI->GetDefaultFolder(olFolderContacts);
-		Log::m_pLog->writeLine( "After GetFolder");
-		pItems = pFolder->GetItems();
-		Log::m_pLog->writeLine( "After GetItems");
-		pContact = pItems->GetFirst();
-		Log::m_pLog->writeLine( "After GetFirst" );
-		nCount = pItems->GetCount();
+		m_pMAPI = pApp->GetNamespace("MAPI");
+		Log::m_pLog->writeLine( "Outlook init after GetNamespace");
+		m_pMAPI->Logon("","",false,false);
+		Log::m_pLog->writeLine( "Outlook init after Logon");
+		m_pFolder = m_pMAPI->GetDefaultFolder(olFolderContacts);
+		Log::m_pLog->writeLine( "Outlook init after getFolder");
+		m_pItems = m_pFolder->GetItems();
+		Log::m_pLog->writeLine( "Outlook init after getItems");
+		m_pContact = m_pItems->GetFirst();
+		Log::m_pLog->writeLine( "Outlook init after getFirst" );
+		nCount = m_pItems->GetCount();
 
 		Log::m_pLog->writeLine( MAKE_STRING( string("Number of contact:") << nCount ) );
 		for(int i=0;i<nCount;i++)
@@ -62,45 +38,45 @@ int OutlookWraper::readContacts(ContactsList &list)
 
 			pContactInfo = new Contact;
 
-			if( (LPCSTR) pContact->GetFirstName() != NULL )
-				pContactInfo->firstName = (LPCSTR) pContact->GetFirstName();
-			if( (LPCSTR) pContact->GetMiddleName() != NULL )
-				pContactInfo->middleName = (LPCSTR) pContact->GetMiddleName();
-			if( (LPCSTR) pContact->GetLastName() != NULL )
-				pContactInfo->lastName = (LPCSTR) pContact->GetLastName();
+			if( (LPCSTR) m_pContact->GetFirstName() != NULL )
+				pContactInfo->firstName = (LPCSTR) m_pContact->GetFirstName();
+			if( (LPCSTR) m_pContact->GetMiddleName() != NULL )
+				pContactInfo->middleName = (LPCSTR) m_pContact->GetMiddleName();
+			if( (LPCSTR)m_pContact->GetLastName() != NULL )
+				pContactInfo->lastName = (LPCSTR) m_pContact->GetLastName();
 
-			if( (LPCSTR) pContact->GetCompanyName() != NULL )
-				pContactInfo->companyName = (LPCSTR) pContact->GetCompanyName();
-			if( (LPCSTR) !pContact->GetJobTitle() != NULL)
-				pContactInfo->title = (LPCSTR) pContact->GetJobTitle();
+			if( (LPCSTR) m_pContact->GetCompanyName() != NULL )
+				pContactInfo->companyName = (LPCSTR) m_pContact->GetCompanyName();
+			if( (LPCSTR) m_pContact->GetJobTitle() != NULL)
+				pContactInfo->title = (LPCSTR) m_pContact->GetJobTitle();
 
-			if( (LPCSTR) pContact->GetHomeTelephoneNumber() != NULL )
-				pContactInfo->phoneHome = (LPCSTR) pContact->GetHomeTelephoneNumber();
-			if( (LPCSTR) pContact->GetBusinessTelephoneNumber() != NULL )
-				pContactInfo->homeBusiness = (LPCSTR) pContact->GetBusinessTelephoneNumber();
-			if( (LPCSTR) pContact->GetMobileTelephoneNumber() != NULL )
-				pContactInfo->phoneMobile = (LPCSTR) pContact->GetMobileTelephoneNumber();
+			if( (LPCSTR) m_pContact->GetHomeTelephoneNumber() != NULL )
+				pContactInfo->phoneHome = (LPCSTR) m_pContact->GetHomeTelephoneNumber();
+			if( (LPCSTR) m_pContact->GetBusinessTelephoneNumber() != NULL )
+				pContactInfo->homeBusiness = (LPCSTR) m_pContact->GetBusinessTelephoneNumber();
+			if( (LPCSTR) m_pContact->GetMobileTelephoneNumber() != NULL )
+				pContactInfo->phoneMobile = (LPCSTR) m_pContact->GetMobileTelephoneNumber();
 
-			if( (LPCSTR) pContact->GetHomeAddress() != NULL )
-				pContactInfo->homeAddress = (LPCSTR) pContact->GetHomeAddress();
-			if( (LPCSTR) pContact->GetBusinessAddress() != NULL )
-				pContactInfo->businessAddress = (LPCSTR) pContact->GetBusinessAddress();
+			if( (LPCSTR) m_pContact->GetHomeAddress() != NULL )
+				pContactInfo->homeAddress = (LPCSTR) m_pContact->GetHomeAddress();
+			if( (LPCSTR) m_pContact->GetBusinessAddress() != NULL )
+				pContactInfo->businessAddress = (LPCSTR) m_pContact->GetBusinessAddress();
 
-			if( (LPCSTR) pContact->GetEmail1Address() != NULL )
-				pContactInfo->email = (LPCSTR) pContact->GetEmail1Address();
+			if( (LPCSTR) m_pContact->GetEmail1Address() != NULL )
+				pContactInfo->email = (LPCSTR) m_pContact->GetEmail1Address();
 
 			Log::m_pLog->m_file << *pContactInfo;
 
 			list.addContact( pContactInfo );
-			nRead++;
-			pContact = pItems->GetNext();
+			m_pContact = m_pItems->GetNext();
 		}
 	}
 	catch(_com_error& ce)
     {
-		//errDesc = (char *) ce.Description();
+		errDesc = (char *) ce.Description();
 		Log::m_pLog->writeLine( "Outlook catch");
-		return nRead;
+		return list.size();
 	}
-	return nRead;
+
+	return list.size();
 }
