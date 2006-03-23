@@ -55,8 +55,8 @@ int OutlookWraper::readContacts(ContactsList &list)
 		pContact = pItems->GetFirst();
 		Log::m_pLog->writeLine( "After GetFirst" );
 		nCount = pItems->GetCount();
-		Log::m_pLog->writeLine( "Number of contacts" );
 
+		Log::m_pLog->writeLine( MAKE_STRING( string("Number of contact:") << nCount ) );
 		for(int i=0;i<nCount;i++)
 		{
 
