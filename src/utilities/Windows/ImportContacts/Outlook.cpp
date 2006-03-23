@@ -99,6 +99,7 @@ int OutlookWraper::readContacts(ContactsList &list)
 	catch(_com_error& ce)
     {
 		//errDesc = (char *) ce.Description();
+		Log::m_pLog->writeLine( "Outlook catch");
 		return nRead;
 	}
 	return nRead;

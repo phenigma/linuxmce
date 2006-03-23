@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include ".\Database.h"
-
+#include "Log.h"
 
 DatabaseWrapper::DatabaseWrapper()
 {
@@ -13,6 +13,7 @@ DatabaseWrapper::DatabaseWrapper()
 	}
 	catch(_com_error& ce)
 	{
+		Log::m_pLog->writeLine( "Database constructor catch");
 		errDesc = (char *) ce.Description();
 	}
 }
@@ -32,6 +33,7 @@ void DatabaseWrapper::close()
 	}
 	catch( _com_error &ce )
 	{
+		Log::m_pLog->writeLine( "Database close catch");
 	}
 }
 
@@ -47,6 +49,7 @@ bool DatabaseWrapper::connect(string dns)
 	}
 	catch(_com_error& ce)
     {
+		Log::m_pLog->writeLine( "Database connect catch");
 		errDesc = (char *) ce.Description();
 		return false;
     }
@@ -74,6 +77,7 @@ bool DatabaseWrapper::executeSql(string szCommand,int &afectedRows,bool bReturn)
 	}
 	catch(_com_error& ce)
     {
+		Log::m_pLog->writeLine( "Database executeSql catch");
 		errDesc = (char *) ce.Description();
 		return false;
     }
@@ -100,6 +104,7 @@ string DatabaseWrapper::getFieldValue(string fieldName)
 	}
 	catch(_com_error& ce)
     {
+		Log::m_pLog->writeLine( "Database getFieldValue catch");
 		errDesc = (char *) ce.Description();
 		return false;
     }
