@@ -148,6 +148,11 @@ bool PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 		ipAddressDhcpStart.ParseIP(sData.substr(posComma + 1, pos2ndDash - posComma - 1));
 		ipAddressDhcpStop.ParseIP(sData.substr(pos2ndDash + 1));
 	}
+	else
+	{
+		ipAddressDhcpStart.ParseIP("0.0.0.0");
+		ipAddressDhcpStop.ParseIP("0.0.0.0");
+	}
 
 	if (ipAddressPlutoStart.BadIP() || ipAddressPlutoStop.BadIP() || 
 		(bGenericExists && (ipAddressDhcpStart.BadIP() || ipAddressDhcpStop.BadIP())))
@@ -254,6 +259,16 @@ string PlutoDHCP::GetDHCPConfig()
 	}
 
 	// The dhcp.conf stuff
+	string sDynamicPool("");
+	if (ipAddressDhcpStart.AsInt() != 0)
+	{
+		sDynamicPool =
+			"\tpool {"																					"\n"
+			"\t\t allow unknown-clients;"																"\n"
+			"\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + ";"		"\n"
+			"\t}"																						"\n"
+		;
+	}
 	string sResult = string("") +
 		"# option definitions common to all supported networks..."									"\n"
 		"#option domain-name \"fugue.com\";"														"\n"
@@ -274,10 +289,7 @@ string PlutoDHCP::GetDHCPConfig()
 		"subnet " + sInternalSubnet + " netmask " + sInternalSubnetMask + " {"						"\n"
 		"\tdefault-lease-time 86400;"																"\n"
 		"\tmax-lease-time 604800;"																	"\n"
-		"\tpool {"																					"\n"
-		"\t\t allow unknown-clients;"																"\n"
-		"\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + ";"		"\n"
-		"\t}"																						"\n"
+		+ sDynamicPool +
 		"}"																							"\n"
 		""																							"\n"
 		"option space pxelinux;"																	"\n"
