@@ -10,8 +10,14 @@ DD_BLOCK_DEVICE=152
 
 
 ## Set some variables needed for exporting nfs
-INTERNAL_SUBNET_MASK="$IntNetmask"
-INTERNAL_ADDRESS="$IntIP"
+if [[ -f /etc/diskless.conf ]] ;then
+        INTERNAL_ADDRESS="$ExtIP"
+        INTERNAL_SUBNET_MASK="$ExtNetmask"
+        exit 1
+else
+        INTERNAL_SUBNET_MASK="$IntNetmask"
+        INTERNAL_ADDRESS="$IntIP"
+fi
 
 for i in 1 2 3 4; do
 	IPDigit=$(echo $INTERNAL_ADDRESS | cut -d. -f$i)

@@ -38,7 +38,7 @@ FROM
 WHERE 
 	Drive.FK_DeviceTemplate = $TPL_GENERIC_INTERNAL_DRIVE
 	AND
-	NOT Drive.FK_Device_ControlledVia = $PK_Device
+	Drive.FK_Device_ControlledVia != $PK_Device
 "
 ExternalStorageDevices=$(RunSQL "$Q")
 
