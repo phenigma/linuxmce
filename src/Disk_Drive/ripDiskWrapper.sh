@@ -96,6 +96,7 @@ trap "/usr/pluto/bin/cdop '$sourceDevice' unlock" EXIT # unlock tray on exit
 if [[ "$diskType" == 2 ]]; then
 	if eval $command; then
 		echo "Ripping successful"
+		touch "$targetFileName.dvd.lock"
 		mv -f "$targetFileName.dvd"{.in-progress,}
 		exit 0;
 	else
@@ -122,6 +123,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 			exit 1;
 		fi
 		echo "File ripped ok; moving: $Dir/$FileName.$FinalExt.in-progress"
+		touch "$Dir/$FileName.$FinalExt.lock"
 		mv "$Dir/$FileName.$FinalExt"{.in-progress,}
 	done
 	echo "Ripping successful"
