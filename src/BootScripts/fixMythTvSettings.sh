@@ -12,6 +12,7 @@ chmod 760 /etc/mythtv/mysql.txt
 
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
+/usr/pluto/bin/sqlCVS -R 4001 -H sqlcvs.plutohome.com -n -h localhost -D pluto_myth -a -r myth -e checkin
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
 
