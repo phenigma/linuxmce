@@ -868,10 +868,11 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 	(*sValue_To_Assign).empty();
 	for(int i=0;i<vectRow_Device.size();i++)
 	{
-		if (i>0)
-			(*sValue_To_Assign)+="`";
 		if (vectRow_Device[i]->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() == iPK_DeviceCategory)
 		{
+			if ((*sValue_To_Assign).length() > 0)
+				(*sValue_To_Assign)+="`";
+
 			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",vectRow_Device[i]->PK_Device_get(), vectRow_Device[i]->Description_get().c_str());
 			string sRemoteLayout = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Remote_Layout_CONST)->IK_DeviceData_get();
 			string sConfiguration = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Configuration_CONST)->IK_DeviceData_get();
