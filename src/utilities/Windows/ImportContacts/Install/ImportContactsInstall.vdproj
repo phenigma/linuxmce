@@ -137,13 +137,24 @@
                 {
                     "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_825E9879D2994840A6B19CAC3E19756D"
                     {
-                    "Name" = "8:\\Pluto\\ImportContacts"
+                    "Name" = "8:Pluto"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
                     "Property" = "8:_0962791C9AEC45368AAB9C633DB35600"
                         "Folders"
                         {
+                            "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_2EA6AE231B604AF89E2D1164F357C2C2"
+                            {
+                            "Name" = "8:ImportContacts"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_621FF5D73BB440DABDE0A2F65F96D662"
+                                "Folders"
+                                {
+                                }
+                            }
                         }
                     }
                 }
