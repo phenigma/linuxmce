@@ -47,7 +47,7 @@ UpdateXineConf()
 	if [[ "$AudioSetting" == *3* ]]; then
 		XineConfSet audio.speaker_arrangement "Pass Through"
 		XineConfSet audio.alsa_front_device spdif
-		amixer sset 'IEC958 Playback Source' 'A/D Converter' >/dev/null
+		amixer sset 'IEC958 Playback Source' 'AC-Link' >/dev/null
 	else
 		XineConfSet audio.speaker_arrangement "Stereo 2.0"
 		XineConfSet audio.alsa_front_device default
