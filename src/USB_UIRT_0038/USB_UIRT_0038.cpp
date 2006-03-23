@@ -187,8 +187,16 @@ void LearnThread( void *lpParameter )
 	USB_UIRT_0038 *pUIRT = (USB_UIRT_0038 *)lpParameter;
 
 	pUIRT->LearningThread();
+	pthread_exit(0);
 }
 
+void LearnWatchdogThread ( void *lpParameter )
+{
+	USB_UIRT_0038 *pUIRT = (USB_UIRT_0038 *)lpParameter;
+
+	pUIRT->LearningWatchdogThread();
+	pthread_exit(0);
+}
 
 
 //<-dceag-const-b->
@@ -208,7 +216,11 @@ USB_UIRT_0038::USB_UIRT_0038(int DeviceID, string ServerAddress,bool bConnectEve
 USB_UIRT_0038::~USB_UIRT_0038()
 //<-dceag-dest-e->
 {
-	
+	if (m_LrnAbort == 0)
+	{
+	    StopLearning();
+		Sleep(1000);
+	}
 }
 
 //<-dceag-getconfig-b->
@@ -230,9 +242,49 @@ bool USB_UIRT_0038::GetConfig()
 		m_dwPK_Device_IRPlugin = 0;
 
 	m_iRepeat=1; // DATA_Get_Repeat();
+	m_LrnAbort = 1;
 
+	string sResult;
+	DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,m_dwPK_Device_IRPlugin, DEVICECATEGORY_USBUIRT_Remote_Controls_CONST, &sResult);
+	getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
+	vector<string> vectRemotes;
+
+	StringUtils::Tokenize(sResult, "`", vectRemotes); 
+	int i;
+	for(i=0;i<vectRemotes.size();i++)
+	{
+		vector<string> vectRemoteConfigs;
+		StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
+		if (vectRemoteConfigs.size() == 3)
+		{
+			vector<string> vectCodes;
+			int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+			StringUtils::Tokenize(vectRemoteConfigs[2],"\r\n",vectCodes);
+			for(size_t s=0;s<vectCodes.size();++s)
+			{
+				string::size_type pos=0;
+				string sButton = StringUtils::Tokenize(vectCodes[s]," ",pos);
+				while(pos<vectCodes[s].size())
+				{
+					string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
+					m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,PK_DeviceRemote);
+					// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
+					g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+				}
+			}
+		}
+	}
+
+
+
+
+//DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
+//							DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
+//							PK_Device, pronto_result, PK_Command);
+//						getCommandImpl()->SendCommand(CMD_Store_Infrared_Code_Cat);
 	// Find all our sibblings that are remote controls 
-	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
+/*	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
 	{
 		DeviceData_Base *pDevice = itD->second;
@@ -267,7 +319,7 @@ bool USB_UIRT_0038::GetConfig()
 				}
 			}
 		}
-	}
+	}*/
 
 #ifdef __linux
 	char devicePath[81];
@@ -302,16 +354,13 @@ bool USB_UIRT_0038::GetConfig()
 	TTYPort[0]=0;
 #ifndef WIN32
 	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
+		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
+	
+	if (TTYPort[0]==0)
 	{
-		if(sComPortOnPC.find("/dev/") == 0)
-		{
-			sComPortOnPC.erase(0, strlen("/dev/"));
-		}
-	
-//		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
-		strcpy(TTYPort, sComPortOnPC.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: The serial port device was not specified!\n");
+		return false;
 	}
-	
 	hDrvHandle = fnUUIRTOpenEx(TTYPort,0,0,0);
 #else
 	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
@@ -348,8 +397,7 @@ bool USB_UIRT_0038::GetConfig()
 		}
 
 		unLoadDLL();
-
-		return 0;
+		return false;
 	}
 
 	printf("\n");
@@ -580,6 +628,24 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 		ReceivedCode(it->second.second,it->second.first.c_str());
 }
 
+void USB_UIRT_0038::LearningWatchdogThread()
+{
+	// The UIRT wants to spend an extended period of time monitoring an IR Code,
+	// but some IR codes are short bursts.   Give UIRT "LEARNING_TIMEOUT" seconds
+	// and then return whatever was received.
+
+    time_t expire_time = time(NULL)+LEARNING_TIMEOUT;
+
+	while(time(NULL) < expire_time && m_LrnAbort==0)
+	{
+		Sleep(100);
+	}
+	if (m_LrnAbort == 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Forceful expire of learn.");
+		m_LrnAbort = -1;
+	}
+}
 
 void USB_UIRT_0038::LearningThread()
 {
@@ -611,7 +677,6 @@ void USB_UIRT_0038::LearningThread()
 		}
 	}
 	m_LrnAbort = 1;
-	pthread_exit(0);
 }
 
 void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
@@ -628,9 +693,12 @@ void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,in
 	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
 
-//	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
 	pthread_t LearnThreadHandle;
 	m_LrnAbort = 0;
+	if (pthread_create(&LearnThreadHandle, NULL, (void*(*)(void*))LearnWatchdogThread, this) != 0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Watchdog Thread! ***\n");
+	}
 	if (pthread_create(&LearnThreadHandle, NULL, (void*(*)(void*))LearnThread, this) != 0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Thread! ***\n");
@@ -639,17 +707,8 @@ void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,in
 
 void USB_UIRT_0038::StopLearning()
 {
-//	PLUTO_SAFETY_LOCK(tm,m_UIRTMutex);
 	m_LrnAbort = 1;
-
 }
-
-
-/*
-
-	COMMANDS TO IMPLEMENT
-
-*/
 
 
 //<-dceag-c687-b->

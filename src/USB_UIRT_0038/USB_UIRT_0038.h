@@ -10,7 +10,7 @@
 #include "../LIRC_DCE/IRReceiverBase.h"
 #include "IRBase/IRBase.h"
 
-#define LEARNING_TIMEOUT 10 // Stop learning after this many seconds
+#define LEARNING_TIMEOUT 7 // Stop learning after this many seconds
 	
 //<-dceag-decl-b->!
 namespace DCE
@@ -40,6 +40,7 @@ public:
 		void StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text);
 		void StopLearning();
 		void LearningThread();
+		void LearningWatchdogThread();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
