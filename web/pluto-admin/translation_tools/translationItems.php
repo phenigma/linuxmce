@@ -7,11 +7,17 @@ function translationItems($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	$category=@$_REQUEST['category'];
 	$rootcategories=getAssocArray('TextCategory','PK_TextCategory','Description',$dbADO,'WHERE FK_TextCategory_Parent IS NULL','ORDER BY Description ASC');
+
 	$categoryToDisplay=(isset($_REQUEST['subcategory']) && (int)$_REQUEST['subcategory']!=0)?(int)$_REQUEST['subcategory']:(int)@$_REQUEST['category'];
+	if($categoryToDisplay==0){
+		$categoriesIDs=array_keys($rootcategories);
+		$category=$categoriesIDs[0];
+		$categoryToDisplay=$categoriesIDs[0];
+	}
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	
 	$subcategIDs=geTextCategorytDescendants($category,$dbADO);
-	$subcategs=getAssocArray('TextCategory','PK_TextCategory','Description',$dbADO,'WHERE FK_TextCategory_Parent IN ('.join(',',(array(0)+$subcategIDs)).')');
+	$subcategs=getAssocArray('TextCategory','PK_TextCategory','Description',$dbADO,'WHERE FK_TextCategory_Parent IN ('.join(',',(array($category)+$subcategIDs)).')');
 	$categoryToDisplay=(!in_array(@$_REQUEST['subcategory'],$subcategIDs))?$category:$_REQUEST['subcategory'];
 	
 	$out='';

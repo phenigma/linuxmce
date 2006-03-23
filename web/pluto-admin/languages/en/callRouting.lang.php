@@ -1,7 +1,6 @@
 <?
 $TEXT_CALL_ROUTING_CONST='Call routing';
 $TEXT_USER_STATUS_CONST='Users\'s status';
-$TEXT_CALLER_TYPE_CONST='Caller type';
 $TEXT_TELL_USER_STATUS_VOICEMAIL_CONST='Tell the user my status first and give them the option of going straight to voicemail';
 $TEXT_ADD_NEW_STEP_CONST='Add new step';
 $TEXT_CALL_ROUTING_STEPS_CONST='Call routing steps';

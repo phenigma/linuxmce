@@ -16,7 +16,6 @@ $TEXT_PHONE_TYPE_REQUIRED_CONST='Please select phone type.';
 $TEXT_PUBLIC_CONTACT_CONST='Public contact';
 $TEXT_PRIVATE_CONTACT_CONST='Private contact';
 $TEXT_CONTACT_NAME_REQUIRED_CONST='Please type contact name.';
-$TEXT_PHONE_BOOK_CONST='Phone Book';
 $TEXT_EDIT_CONTACT_CONST='Edit contact';
 $TEXT_CONTACT_NOT_FOUND_CONST='Contact not found.';
 $TEXT_PHONE_NUMBER_UPDATED_CONST='The phone number was updated.';
