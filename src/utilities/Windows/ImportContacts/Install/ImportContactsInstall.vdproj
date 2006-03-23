@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_66BA55ECAAB64C07959B787E2D434D9F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B968536684AB4AC19A1C2DD20DB448F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -89,6 +95,26 @@
         }
         "File"
         {
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_66BA55ECAAB64C07959B787E2D434D9F"
+            {
+            "SourcePath" = "8:..\\res\\opr004XN.ico"
+            "TargetName" = "8:opr004XN.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_A84AFA66C8B149819296D2AB3B43D5A8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_B968536684AB4AC19A1C2DD20DB448F3"
             {
             "SourcePath" = "8:..\\Release\\ImportContacts.exe"
@@ -147,7 +173,7 @@
                             "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_2EA6AE231B604AF89E2D1164F357C2C2"
                             {
                             "Name" = "8:ImportContacts"
-                            "AlwaysCreate" = "11:FALSE"
+                            "AlwaysCreate" = "11:TRUE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
                             "Property" = "8:_621FF5D73BB440DABDE0A2F65F96D662"
@@ -196,9 +222,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:ImportContactsInstall"
+        "ProductName" = "8:ImportContacts"
         "ProductCode" = "8:{145BC5FB-C1D9-4A36-B6EB-2A1DB85ACE19}"
-        "PackageCode" = "8:{28B04F5A-EE4F-4D07-8EEB-B906C7D98C94}"
+        "PackageCode" = "8:{C25A7FC8-CEAF-4D71-B1F5-94DCFC806E67}"
         "UpgradeCode" = "8:{1649A830-D82F-42DF-856D-FEB2B2A202B9}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -323,7 +349,21 @@
             "Target" = "8:_B968536684AB4AC19A1C2DD20DB448F3"
             "Folder" = "8:_49FDD53624E64159870166DF9ED1C37D"
             "WorkingFolder" = "8:_A84AFA66C8B149819296D2AB3B43D5A8"
-            "Icon" = "8:"
+            "Icon" = "8:_66BA55ECAAB64C07959B787E2D434D9F"
+            "Feature" = "8:"
+            }
+            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_CC4754F130734D5C954215F943DFC7DD"
+            {
+            "Name" = "8:ImportContacts.exe"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_B968536684AB4AC19A1C2DD20DB448F3"
+            "Folder" = "8:_2EA6AE231B604AF89E2D1164F357C2C2"
+            "WorkingFolder" = "8:_A84AFA66C8B149819296D2AB3B43D5A8"
+            "Icon" = "8:_66BA55ECAAB64C07959B787E2D434D9F"
             "Feature" = "8:"
             }
         }
