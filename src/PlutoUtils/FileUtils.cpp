@@ -339,7 +339,7 @@ void FileUtils::DelFile(string sFileName)
 		::DeleteFile(sFileName.c_str());
 	#endif
 #else
-	system(("rm " + sFileName).c_str());
+	system(("rm '" + sFileName + "'").c_str());
 #endif
 }
 
