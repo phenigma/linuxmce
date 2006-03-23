@@ -37,9 +37,13 @@ fi
 echo ""
 echo "If you have an active internet connection, Pluto can use it to perform"
 echo "various task : syncronize your computer clock, automaticaly send bug"
-echo "reports, install aditional software ..."
+echo "reports, install aditional software, perform updates ..."
 echo "You can also switch from online/offline mode later by using the web"
 echo "administration interface"
+echo
+echo "Important : Keep in mind that when you don't have an active internet"
+echo "connection, this tasks can slow down your computer and an negative"
+echo "answer here would be the right choice."
 UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
 
 echo ""
