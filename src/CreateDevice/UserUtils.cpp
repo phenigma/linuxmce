@@ -22,6 +22,17 @@ bool UserUtils::AlreadyHasUsers()
 	return false;
 }
 
+bool UserUtils::AlreadyHasMasterUsers()
+{
+	string sSQL = "SELECT PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE userCanModifyInstallation=1 and FK_Installation="
+		+ StringUtils::itos(m_PK_Installation) + " LIMIT 1";
+
+	PlutoSqlResult result_set_room;
+	if( (result_set_room.r=m_pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
+		return true;
+	return false;
+}
+
 string UserUtils::GetGoodExtension(map<int,bool> &mapUsedExtensions) 
 {
 	// Don't put a condition.  If we use up more than the allowed extensions (shouldn't happen)
@@ -69,7 +80,7 @@ void UserUtils::CheckExtensions(  )
 
 int UserUtils::AddUser(string sUsername)
 {
-	bool bExistingUsers=AlreadyHasUsers();
+	bool bExistingUsers=AlreadyHasMasterUsers();
 	string sSQL;
 	
 	MYSQL_ROW row;
