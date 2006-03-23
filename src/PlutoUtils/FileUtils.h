@@ -81,6 +81,8 @@ namespace FileUtils
 	bool LaunchProcessInBackground(string sCommandLine);
     string FileChecksum( string sFileName); /** < returns file's checksum */
     string FileChecksum( char *pData, size_t iSize); /** < returns file's checksum */
+	string GetLastModifiedDateStr(string sFile); /** < returns last modified date for a file as a string */
+	time_t GetLastModifiedDate(string sFile); /** < returns last modified date for a file as time_t */
 #endif
 
 #endif //#ifndef SYMBIAN

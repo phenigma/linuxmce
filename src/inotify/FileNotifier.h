@@ -43,7 +43,7 @@ public:
 	int m_wdRootFolder;
 	string m_sRootFolder;
 	void ResetWatches();
-	string GetLastModifiedDate(string sFolder);
+	static string GetLastModifiedDate(string sFolder);
 
     pluto_pthread_mutex_t m_WatchedFilesMutex;
     string m_mapWatchedFiles_Find(int wd)	

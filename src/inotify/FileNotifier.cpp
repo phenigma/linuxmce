@@ -132,7 +132,7 @@ void *BackgroundWorkerThread(void *p)
 			string sItem = *it;
 			sItem = StringUtils::Replace(&sItem,"\\","/");  // Be sure no Windows \'s
 			sItem = FileUtils::ExcludeTrailingSlash(sItem);
-			string sModifiedDate = pFileNotifier->GetLastModifiedDate(sItem);
+			string sModifiedDate = FileUtils::GetLastModifiedDateStr(sItem);
 
 			//timestamp on db
 			string sDBModifiedDate;
@@ -261,27 +261,6 @@ void FileNotifier::Run()
 	//waiting for threads to finish
 	pthread_join(m_INotifyWorkerThreadID, NULL);
 	pthread_join(m_BackgroundWorkerThreadID, NULL);
-}
-//-----------------------------------------------------------------------------------------------------
-string FileNotifier::GetLastModifiedDate(string sFolder)
-{
-	struct stat buf;
-	memset(&buf, 0, sizeof(buf));
-
-	string sItemWithoutTrailingSlash = FileUtils::ExcludeTrailingSlash(sFolder);
-	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
-	if(!result && (buf.st_mode & S_IFDIR))
-	{
-		struct tm *tm;
-		tm = localtime(&buf.st_mtime);   // Convert time to struct tm form 
-		char acDateTime[100];
-		sprintf( acDateTime, "%04d%02d%02d%02d%02d%02d",
-			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
-
-		return acDateTime;
-	}
-
-	return "";
 }
 //-----------------------------------------------------------------------------------------------------
 

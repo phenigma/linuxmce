@@ -139,9 +139,29 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	{
         string sFile = *it;
 
-		//ignore id3 files
-		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3")
+		//ignore id3 and lock files
+		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
 			continue;
+
+		string sLockFile = sDirectory + "/" + sFile + ".lock";
+		if(FileUtils::FileExists(sLockFile))
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Found lock file %s", sLockFile.c_str());
+
+			time_t tFileTimestamp = FileUtils::GetLastModifiedDate(sLockFile);
+
+			time_t tNow = time(NULL);
+			if(tFileTimestamp == -1 || tNow - tFileTimestamp > 600) //Media_Plugin has more the enough time to add the file in the database
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "The lock file %s is old (%d seconds). Deleting it!", sLockFile.c_str(), tNow - tFileTimestamp);
+				FileUtils::DelFile(sLockFile);
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "The lock file %s is still active (%d seconds old). Ignoring the protected file!", sLockFile.c_str(), tNow - tFileTimestamp);
+				continue;
+			}
+		}
 
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
             sDirectory, sFile);

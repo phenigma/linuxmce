@@ -1045,7 +1045,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 
 void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
 {
-	if( /* true || */ FileUtils::DirExists(sDestination) )
+	if(FileUtils::DirExists(sDestination))
 	{
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
@@ -1098,6 +1098,17 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
 				m_pDatabase_pluto_media->File_get()->Commit();
+
+				string sLockFile = FileUtils::ExcludeTrailingSlash(sDestination) + "/" + FileUtils::FilenameWithoutPath(listFiles.front()) + ".lock";
+				if(FileUtils::FileExists(sLockFile))
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Lock file '%s' found. Deleting it...", sLockFile.c_str());
+					FileUtils::DelFile(sLockFile);
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "Lock file '%s' NOT found! Ripped file unprotected!", sLockFile.c_str());
+				}
 			}
 
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
@@ -1134,7 +1145,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			{
 g_pPlutoLogger->Write(LV_WARNING,"Checking file %s with extension %s",(*it).c_str(),FileUtils::FindExtension(*it).c_str());
-				if( FileUtils::FindExtension(*it)=="id3" )
+				if( FileUtils::FindExtension(*it)=="id3" || FileUtils::FindExtension(*it)=="lock")
 				{
 					listFiles.erase(it);
 g_pPlutoLogger->Write(LV_WARNING,"Removing it.  size is %d",(int) listFiles.size());

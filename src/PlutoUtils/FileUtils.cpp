@@ -970,5 +970,38 @@ string FileUtils::FileChecksum( char *pData, size_t iSize)
     return md5;
 }
 
+string FileUtils::GetLastModifiedDateStr(string sFile)
+{
+	struct stat buf;
+	memset(&buf, 0, sizeof(buf));
+
+	string sItemWithoutTrailingSlash = FileUtils::ExcludeTrailingSlash(sFile);
+	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
+	if(!result && (buf.st_mode & S_IFDIR))
+	{
+		struct tm *tm;
+		tm = localtime(&buf.st_mtime);   // Convert time to struct tm form 
+		char acDateTime[100];
+		sprintf( acDateTime, "%04d%02d%02d%02d%02d%02d",
+			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
+
+		return acDateTime;
+	}
+
+	return "";
+}
+
+time_t FileUtils::GetLastModifiedDate(string sFile)
+{
+	struct stat buf;
+	memset(&buf, 0, sizeof(buf));
+
+	string sItemWithoutTrailingSlash = FileUtils::ExcludeTrailingSlash(sFile);
+	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
+	if(!result && buf.st_mode)
+		return buf.st_mtime;
+
+	return -1;
+}
 
 #endif //not WINCE
