@@ -77,6 +77,8 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDLBluetooth::~OrbiterSDLBluetooth()
 {
+	//don't destroy anything until maint thread exists
+	KillMaintThread();
 }
 //-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
