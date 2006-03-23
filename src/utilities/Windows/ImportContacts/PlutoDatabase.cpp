@@ -101,19 +101,60 @@ bool PlutoDatabase::connect()
 	return true;
 }
 
-bool PlutoDatabase::writePhoneNumber(string phoneNumber,int nType,int nUserID)
+bool PlutoDatabase::updatesPhoneNumbers(Contact *pContact,int nUserId)
 {
-	string sqlInsert;
-	int nRows = 0;
-	char aux[20];
+	bool bRes = false;
 
-	m_PhoneValues.clear();
-	m_PhoneValues.push_back( itoa(nUserID,aux,10) );
-	m_PhoneValues.push_back( itoa(nType,aux,10) );
-	m_PhoneValues.push_back( phoneNumber );
+	if( !pContact->phoneHome.empty() )
+		if( writePhoneNumber(pContact->phoneHome, 1, nUserId) )
+			bRes = true;
 
-	m_pContactsTable->constructInsert( "PhoneNumber", m_PhoneParam, m_PhoneValues, m_PhoneType, sqlInsert );
-	return m_pContactsTable->executeSql( sqlInsert, nRows, false );
+	if( !pContact->homeBusiness.empty() )
+		if( writePhoneNumber(pContact->homeBusiness, 2, nUserId) )
+			bRes = true;
+
+	if( !pContact->phoneMobile.empty() )
+		if( writePhoneNumber(pContact->phoneMobile, 3, nUserId) )
+			bRes = true;
+
+	return bRes;
+}
+
+bool PlutoDatabase::writePhoneNumber(string phoneNumber,int nType,int nUserId)
+{
+	int nAffectedRow = 0;
+	string sqlInsert, sqlSelect, phone;
+	string condition = MAKE_STRING( string("FK_Contact='") << nUserId << "'" );
+	string update;
+
+	condition += MAKE_STRING( string(" AND ") << "FK_PhoneType=" << nType);
+	m_pPhoneTable->constructSelect("PhoneNumber", condition, sqlSelect);
+	m_pPhoneTable->executeSql( sqlSelect, nAffectedRow );
+
+	if( !nAffectedRow )     // doesn't exist in database
+	{
+		m_PhoneValues.clear();
+		m_PhoneValues.push_back( MAKE_STRING(nUserId) );
+		m_PhoneValues.push_back( MAKE_STRING(nType) );
+		m_PhoneValues.push_back( phoneNumber );	
+
+		m_pContactsTable->constructInsert( "PhoneNumber", m_PhoneParam, m_PhoneValues, m_PhoneType, sqlInsert );
+		return m_pContactsTable->executeSql( sqlInsert, nAffectedRow, false );
+	}
+	else
+	{
+		phone = m_pPhoneTable->getFieldValue( "PhoneNumber" );
+		if( phone != phoneNumber )   // exist in database but not the same
+		{
+			update = "PhoneNumber='" + phoneNumber + "'";
+			m_pPhoneTable->constructUpdate( "PhoneNumber", condition, update, sqlInsert);
+			Log::m_pLog->writeLine( MAKE_STRING( string("Update phone number:") << phoneNumber\
+				<< "  Type:" << nType) );
+			return m_pContactsTable->executeSql( sqlInsert, nAffectedRow, false );
+		}
+		else
+			return false;
+	}
 }
 
 bool PlutoDatabase::writeContact( Contact *pContact )
@@ -165,8 +206,8 @@ int PlutoDatabase::writeContacts(ContactsList &list)
 {
 	vector<Contact *>::iterator it;
 	Contact *pContact;
-	int nContact = 0;
-	string outMess;
+	int nContact = 0, nUserId;
+	m_nUpdateRows = 0;
 
 	for(it=list.begin();it!=list.end();it++)
 	{
@@ -177,10 +218,12 @@ int PlutoDatabase::writeContacts(ContactsList &list)
 			continue;
 		}
 
-		if( existContact(pContact) != -1 )
+		if( (nUserId = existContact(pContact)) != -1 )
 		{
-			outMess = "Contact already exist:" +  pContact->firstName + " " + pContact->lastName;
-			Log::m_pLog->writeLine( outMess );
+			Log::m_pLog->writeLine( string("Contact already exist:" + pContact->firstName + \
+					" " + pContact->lastName));
+			if( updatesPhoneNumbers( pContact, nUserId ) )
+				m_nUpdateRows++;
 		}
 		else 
 		{

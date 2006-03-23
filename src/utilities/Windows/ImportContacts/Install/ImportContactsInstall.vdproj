@@ -135,6 +135,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_825E9879D2994840A6B19CAC3E19756D"
+                    {
+                    "Name" = "8:\\Pluto\\ImportContacts"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_0962791C9AEC45368AAB9C633DB35600"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{58C0ADA3-3CEA-43BD-A3B3-2EA121BC8217}:_A84AFA66C8B149819296D2AB3B43D5A8"
@@ -179,18 +190,18 @@
         "PackageCode" = "8:{28B04F5A-EE4F-4D07-8EEB-B906C7D98C94}"
         "UpgradeCode" = "8:{1649A830-D82F-42DF-856D-FEB2B2A202B9}"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Pluto"
         "ARPHELPTELEPHONE" = "8:"
-        "ARPHELPLINK" = "8:"
+        "ARPHELPLINK" = "8:www.plutohome.com"
         "Title" = "8:ImportContactsInstall"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Pluto"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
-        "ARPURLINFOABOUT" = "8:"
+        "ARPCOMMENTS" = "8:Import contacts from Outlook"
+        "ARPURLINFOABOUT" = "8:www.plutohome.com"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"

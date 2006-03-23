@@ -29,6 +29,7 @@ public:
 	bool constructInsert(string databaseName,vector<string> param,vector<string> values,
 					vector<bool> isString,string &resSql);
 	bool constructSelect(string databaseName,string condition,string &resSql);
+	bool constructUpdate(string databaseName,string condition,string update,string &resSql);
 
 	bool executeSql(string szCommand,int &afectedRows,bool bReturn=true);
 	string getFieldValue(string fielName);

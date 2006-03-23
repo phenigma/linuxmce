@@ -173,6 +173,7 @@ void CMainFrame::OnImportOutlook()
 	}
 
 	Log::m_pLog->showLine( 
-		MAKE_STRING( string("Import ") << nContactNo << " contacts" ), 
+		MAKE_STRING( string("Import ") << nContactNo << " contacts\n" << \
+		"Update" << m_PlutoData.getUpdateRowsNo() << " contacts" ), 
 		"Message" );
 }

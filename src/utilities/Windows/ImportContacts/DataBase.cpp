@@ -29,7 +29,7 @@ void DatabaseWrapper::close()
 
 	try
 	{
-		m_pConnect->Close();
+		hr = m_pConnect->Close();
 	}
 	catch( _com_error &ce )
 	{
@@ -68,12 +68,15 @@ bool DatabaseWrapper::executeSql(string szCommand,int &afectedRows,bool bReturn)
 		if( bReturn )
 			m_pRecordset = m_pConnect->Execute( sqlCommand.operator BSTR(), &var, adOptionUnspecified );
 		else
+		{
 			m_pConnect->Execute( sqlCommand.operator BSTR(), &var, adExecuteNoRecords );
+			m_pRecordset = NULL;
+		}
 
 		if(  var.iVal > 0 && bReturn )
 			hr = m_pRecordset->MoveFirst();
-
-
+		else
+			m_pRecordset = NULL;
 	}
 	catch(_com_error& ce)
     {
@@ -94,6 +97,9 @@ string DatabaseWrapper::getFieldValue(string fieldName)
 	_variant_t value;
 	_bstr_t   retVal;
 	char aux[20];
+
+	if( m_pRecordset == NULL )
+		return "";
 
 	try
 	{
@@ -160,5 +166,15 @@ bool DatabaseWrapper::constructSelect(string databaseName,string condition,strin
 {
 	resSql = string("SELECT * FROM ") + databaseName.c_str() + " ";
 	resSql += string("WHERE ") + condition.c_str();
+	return true;
+}
+
+bool DatabaseWrapper::constructUpdate(string databaseName,string condition,
+									  string update,string &resSql)
+{
+	resSql = string("UPDATE ") + databaseName.c_str() + " ";
+	resSql += string("Set ") + update.c_str() + " ";
+	resSql += string("WHERE ") + condition.c_str();
+
 	return true;
 }
