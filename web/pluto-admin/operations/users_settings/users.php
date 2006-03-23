@@ -228,6 +228,13 @@ function users($output,$dbADO) {
 			// delete user if $_REQUEST['did'] is set
 			if(isset($_REQUEST['did']) && (int)$_REQUEST['did']>0){
 				$toDel=(int)$_REQUEST['did'];
+				
+				// check if you try to delete your own user
+				if($toDel==$_SESSION['userID']){
+					header('Location: index.php?section=users&error='.$TEXT_ERROR_DELETE_YOUR_USER_CONST);
+					exit();
+				}
+				
 				$cmd='sudo -u root /usr/pluto/bin/RemoveUser.sh -d '.$toDel;
 				exec($toDel);
 				

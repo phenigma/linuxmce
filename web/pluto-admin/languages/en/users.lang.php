@@ -15,4 +15,5 @@ $TEXT_NOT_ALLOWED_CONST='Not allowed!';
 $TEXT_DELETE_USER_CONST='Delete user';
 $TEXT_DELETE_USER_CONFIRMATION_CONST='Are you sure you want to delete this user? All his directories and files will be deleted too.';
 $TEXT_USER_DELETED_CONST='User deleted';
+$TEXT_ERROR_DELETE_YOUR_USER_CONST='You cannot delete your own user.';
 ?>
