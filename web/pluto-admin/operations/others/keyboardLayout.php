@@ -76,7 +76,6 @@ function keyboardLayout($output,$dbADO) {
 		foreach ($mediaDirectors AS $mdID=>$mdName){
 			
 			$cmd='sudo -u root /usr/pluto/bin/XKbLayout.sh set '.((isset($mediaDirectorsIPs[$mdID]) && $mediaDirectorsIPs[$mdID]!='')?$mediaDirectorsIPs[$mdID]:'127.0.0.1').' '.$_POST['md_'.$mdID];
-			echo $cmd.'<br>';
 			exec($cmd);
 		}
 		

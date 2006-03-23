@@ -3,6 +3,8 @@ function createUser($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createUser.lang.php');
+
+	global  $dbPlutoMainDatabase;
 	
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -218,7 +220,8 @@ function createUser($output,$dbADO) {
 			$LinuxSalt = '$1$Pluto$'; // should we generate this? :)
             $LinuxPass = crypt($userPassword, $LinuxSalt);
             
-            $cmd='sudo -u root /usr/pluto/bin/CreateDevice -U "'.$username.'"';		// this will actually create an user !!!
+            $cmd='sudo -u root /usr/pluto/bin/CreateDevice  -D '.$dbPlutoMainDatabase.' -U "'.$username.'"';
+            // this will actually create an user !!!
             $insertID=exec($cmd,$retMessage);
             
             if(@$insertID>0){
