@@ -166,6 +166,9 @@ void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
 /*****************************************************************************/
 void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, unsigned long carrierFreq, void *userData)
 {
+	// Got something from the learn., lets reset our clock. 
+	
+	g_pUsbUirt->m_tLearningStarted = clock();
 	g_pPlutoLogger->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
 }
 
@@ -628,9 +631,9 @@ void USB_UIRT_0038::LearningWatchdogThread()
 	// but some IR codes are short bursts.   Give UIRT "LEARNING_TIMEOUT" seconds
 	// and then return whatever was received.
 
-    time_t expire_time = time(NULL)+LEARNING_TIMEOUT;
+    time_t m_tLearningStarted = time(NULL);
 
-	while(time(NULL) < expire_time && m_LrnAbort==0)
+	while(time(NULL) < (m_tLearningStarted+LEARNING_TIMEOUT) && m_LrnAbort==0)
 	{
 		Sleep(100);
 	}
@@ -652,17 +655,26 @@ void USB_UIRT_0038::LearningThread()
 	{
 		if (m_LrnAbort <= 0)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
-						m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,gLearnBuffer);
-			DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
-					m_iPK_Device_Learning,gLearnBuffer,m_iPK_Command_Learning);
-			SendCommand(CMD_Store_Infrared_Code);
-			getCodeMap()[longPair(m_iPK_Device_Learning, m_iPK_Command_Learning)] = gLearnBuffer;
-			if( m_iPK_Orbiter && m_iPK_Text )
+			if (strncmp(gLearnBuffer, "0000 006D 0000 0000", 19)==0)
 			{
-				DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,m_iPK_Orbiter,"",
-					"Learned ok",m_iPK_Text);
-				SendCommand(CMD_Set_Text);
+				// No code learned. Start over.				
+				StartLearning(m_iPK_Device_Learning, m_iPK_Command_Learning, m_iPK_Orbiter, m_iPK_Text);
+				return;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
+							m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,gLearnBuffer);
+				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
+						m_iPK_Device_Learning,gLearnBuffer,m_iPK_Command_Learning);
+				SendCommand(CMD_Store_Infrared_Code);
+				getCodeMap()[longPair(m_iPK_Device_Learning, m_iPK_Command_Learning)] = gLearnBuffer;
+				if( m_iPK_Orbiter && m_iPK_Text )
+				{
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,m_iPK_Orbiter,"",
+						"Learned ok",m_iPK_Text);
+					SendCommand(CMD_Set_Text);
+				}
 			}
 		}			
 		else

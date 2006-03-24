@@ -23,7 +23,6 @@ namespace DCE
 		int m_iPK_Device_Learning,m_iPK_Command_Learning,m_dwPK_Device_IRPlugin; // The device and command we are learning, and the IR Plugin
 		int m_iPK_Orbiter,m_iPK_Text;
 		map<string,pair<string,int> > m_mapCodesToButtons;
-		time_t m_tLearningStarted;
 		string m_sLastButton;
 		timespec m_tsLastButton;
 		pluto_pthread_mutex_t m_UIRTMutex;  // This will also protect the callback map
@@ -33,6 +32,8 @@ namespace DCE
 public:
 		// Public member variables
 		bool m_bLearningIR,m_bAbortLearning; // True when the next IR code that comes in should be learned
+		time_t m_tLearningStarted;
+
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
 		virtual void OurCallback(const char *pButton);
