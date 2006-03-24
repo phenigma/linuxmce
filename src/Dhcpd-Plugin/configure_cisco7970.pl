@@ -204,20 +204,20 @@ $str_LINE .= "line => $Device_EXT\n";
 $str_LINE .= ";</pl_line_$Device_ID>\n";
 
 {
-	local $/ = undef;
-	open(FILE,"< /etc/asterisk/sccp.conf") or die "Ugly";
-	$str_FILE = <FILE>;
-	close(FILE);	
+    local $/ = undef;
+    open(FILE,"< /etc/asterisk/sccp.conf") or die "Ugly";
+    $str_FILE = <FILE>;
+    close(FILE);
 }
 
 if( $str_FILE =~ /\[devices\].+?;<pl_dev_$Device_ID>.+?;<\/pl_dev_$Device_ID>.+?\[lines\].+?;<pl_line_$Device_ID>.+?;<\/pl_line_$Device_ID>/gms)
 {
-	$str_FILE =~ s/(\[devices\].+?);<pl_dev_$Device_ID>.+?;<\/pl_dev_$Device_ID>(.+?\[lines\].+?);<pl_line_$Device_ID>.+?;<\/pl_line_$Device_ID>/$1$str_DEV$2$str_LINE/gms;
+    $str_FILE =~ s/(\[devices\].+?);<pl_dev_$Device_ID>.+?;<\/pl_dev_$Device_ID>(.+?\[lines\].+?);<pl_line_$Device_ID>.+?;<\/pl_line_$Device_ID>/$1$str_DEV$2$str_LINE/gms;
 }
 else
 {
-	$str_FILE =~ s/\[lines\]/${str_DEV}\n[lines]/gms;
-	$str_FILE .= "\n".$str_LINE;
+    $str_FILE =~ s/\[lines\]/${str_DEV}\n[lines]/gms;
+    $str_FILE .= "\n".$str_LINE;
 }
 
 $str_FILE =~ s/\n\n+/\n/gms;
@@ -231,17 +231,35 @@ close(FILE);
 
 
 ### Update Cisco 7970 Orbiter
+my $ORB_ID;
+my $ORB_CNT;
+my $DB_ROW;
 my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=192.168.80.1;user=root;password=;") or die "Could not connect to MySQL";
-my $DB_SQL = "select PK_Device from Device where FK_DeviceTemplate=1727 and FK_Device_ControlledVia=$Device_ID";
+my $DB_SQL = "select count(PK_Device) from Device where FK_DeviceTemplate=1727";
 my $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-if(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {
-	my $ORB_ID = $DB_ROW->{'PK_Device'};
-	$DB_STATEMENT->finish();
-	$DB_SQL = "update Device_DeviceData SET IK_DeviceData='$Device_IP' WHERE FK_Device='$ORB_ID' AND FK_DeviceData='118'";
-	$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    $ORB_CNT = $DB_ROW->{'count(PK_Device)'};
+    $DB_STATEMENT->finish();
+}
+$DB_SQL = "select PK_Device from Device where FK_DeviceTemplate=1727 and FK_Device_ControlledVia=$Device_ID";
+$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+{
+    $ORB_ID = $DB_ROW->{'PK_Device'};
+    $DB_STATEMENT->finish();
+    #update ip
+    $DB_SQL = "update Device_DeviceData SET IK_DeviceData='$Device_IP' WHERE FK_Device='$ORB_ID' AND FK_DeviceData='118'";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->finish();
+    #update port
+    $DB_SQL = "update Device_DeviceData SET IK_DeviceData='".(3450+$ORB_CNT)."' WHERE FK_Device='$ORB_ID' AND FK_DeviceData='119'";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->finish();
 }
 $DB_PL_HANDLE->disconnect();
 
