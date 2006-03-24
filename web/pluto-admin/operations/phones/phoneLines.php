@@ -231,7 +231,7 @@ function phoneLinesTable($astADO){
 		</tr>	';
 	while($row=$res->FetchRow()){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
-		$$phoneNumber=@$incomingData[0];
+		$phoneNumber=@$incomingData[0];
 	
 		$count++;
 		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
