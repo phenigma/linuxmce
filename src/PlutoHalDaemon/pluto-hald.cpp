@@ -137,11 +137,11 @@ void getPortIdentification(string portFromBus, string& portID)
 	size_t startPos = portFromBus.find("usb");
 	size_t endPos = portFromBus.find("/tty");
 	portID = portFromBus.substr(startPos, endPos - startPos);
-	printf("port ID = %s\n", portID.c_str());
 	g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	
 }
 
+	
 void sendMessage(string params, string &returnValue)
 {
 	returnValue = "";
