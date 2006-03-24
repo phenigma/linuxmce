@@ -1258,7 +1258,18 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		pServerSocket->SendString("OK");
 		return true;
 	}  
-    g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
+	else if( Line.substr(0,6)=="PARENT" )
+	{
+		string::size_type pos = 7;
+		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+		string sDevice_ControlledVia;
+		if( pRow_Device )
+			sDevice_ControlledVia = StringUtils::itos( pRow_Device->FK_Device_ControlledVia_get() );
+		pSocket->SendString( "PARENT " + sDevice_ControlledVia );
+        return true;
+	}
+	g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;
 }
@@ -1266,11 +1277,9 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 
 void Router::OnDisconnected(int DeviceID)
 {
-#ifdef WIN32
-	my_thread_end();
-#else
+
 	mysql_thread_end();
-#endif
+
 
 	m_RunningDevices.erase(DeviceID);
 }
@@ -1292,12 +1301,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 
-#ifdef WIN32
-	my_thread_init();
-#else
 	mysql_thread_init();
-#endif
-
 
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )

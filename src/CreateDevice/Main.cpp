@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 			<< "[-c PK_DHCPDevice] [-d PK_DeviceTemplate] [-i PK_Installation] [-I IPAddress] [-M MacAddress]" << endl
 			<< "[-C PK_Device_Controlled_Via] [-n don't call configure script]" << endl
 			<< "[-A Default Device data tab delimited as PK_DeviceData\tValue\t...]" << endl
-			<< "[-R PK_Device (if there are multiple possible controlled Via's)]" << endl
+			<< "[-R PK_Device (related to if there are multiple possible controlled Via's)]" << endl
 			<< "[-x don't call InstallNewDevice to add packages]" << endl
 			<< "[-b Install packages in background]" << endl
 			<< "[-U Username] CreateUser--not device" << endl

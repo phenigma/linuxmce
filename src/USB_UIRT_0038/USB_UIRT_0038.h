@@ -64,6 +64,8 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
+	string DATA_Get_UID();
+	string DATA_Get_HAL_Model();
 
 			*****EVENT***** accessors inherited from base class
 

@@ -135,7 +135,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
                         done = 1;
                     }
                 }
-                else if ( timeSpent < 250000 ) // wait for at most 1 sec for the reply
+                else if ( timeSpent < 1000000 ) // wait for at most 1 sec for the reply
                 {
                     usleep(25000); // read the result 20 pe second
                 }

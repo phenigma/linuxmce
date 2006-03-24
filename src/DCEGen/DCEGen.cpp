@@ -533,6 +533,11 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data" << endl;
+	fstr_DeviceCommand << "\t\t\tstring sResponse;" << endl;
+	fstr_DeviceCommand << "\t\t\tEvent_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\t\tevent_Impl.m_pClientSocket->SendString( \"PARENT \" + StringUtils::itos(m_dwPK_Device) );" << endl;
+	fstr_DeviceCommand << "\t\t\tif( event_Impl.m_pClientSocket->ReceiveString( sResponse ) && sResponse.size()>=8 )" << endl;
+	fstr_DeviceCommand << "\t\t\t\tm_pData->m_dwPK_Device_ControlledVia = atoi( sResponse.substr(7).c_str() );" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->m_bRunningWithoutDeviceData=true;" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 

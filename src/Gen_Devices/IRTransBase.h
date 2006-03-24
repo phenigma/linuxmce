@@ -98,6 +98,11 @@ public:
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			string sResponse;
+			Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+			event_Impl.m_pClientSocket->SendString( "PARENT " + StringUtils::itos(m_dwPK_Device) );
+			if( event_Impl.m_pClientSocket->ReceiveString( sResponse ) && sResponse.size()>=8 )
+				m_pData->m_dwPK_Device_ControlledVia = atoi( sResponse.substr(7).c_str() );
 			m_pData->m_bRunningWithoutDeviceData=true;
 		}
 		delete[] pConfig;

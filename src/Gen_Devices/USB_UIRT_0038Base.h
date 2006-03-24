@@ -30,6 +30,8 @@ public:
 	virtual int GetPK_DeviceList() { return 1783; } ;
 	virtual const char *GetDeviceDescription() { return "USB_UIRT_0038"; } ;
 	string Get_COM_Port_on_PC() {  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,37);}
+	string Get_UID() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,154); else return m_mapParameters[154];}
+	string Get_HAL_Model() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,155); else return m_mapParameters[155];}
 };
 
 
@@ -98,6 +100,11 @@ public:
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			string sResponse;
+			Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+			event_Impl.m_pClientSocket->SendString( "PARENT " + StringUtils::itos(m_dwPK_Device) );
+			if( event_Impl.m_pClientSocket->ReceiveString( sResponse ) && sResponse.size()>=8 )
+				m_pData->m_dwPK_Device_ControlledVia = atoi( sResponse.substr(7).c_str() );
 			m_pData->m_bRunningWithoutDeviceData=true;
 		}
 		delete[] pConfig;
@@ -125,6 +132,8 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
+	string DATA_Get_UID() { return GetData()->Get_UID(); }
+	string DATA_Get_HAL_Model() { return GetData()->Get_HAL_Model(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
@@ -141,14 +150,14 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
 				switch(pMessage->m_dwID)
 				{
 				case 191:
 					{
 						string sCMD_Result="OK";
-					string sText=pMessage->m_mapParameters[9];
+					string sText=pMessage->m_mapParameters[9];
 						CMD_Send_Code(sText.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -174,10 +183,10 @@ public:
 				case 245:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sOnOff=pMessage->m_mapParameters[8];
-					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
-					int iPK_Command=atoi(pMessage->m_mapParameters[154].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sOnOff=pMessage->m_mapParameters[8];
+					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
+					int iPK_Command=atoi(pMessage->m_mapParameters[154].c_str());
 						CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -203,7 +212,7 @@ public:
 				case 687:
 					{
 						string sCMD_Result="OK";
-					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Set_Screen_Type(iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
