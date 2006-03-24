@@ -130,6 +130,18 @@ void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection)
 //		throw(string("pEvent == NULL"));
 //}
 
+void getPortIdentification(string portFromBus, string& portID)
+{
+	//something like:
+	
+	size_t startPos = portFromBus.find("usb");
+	size_t endPos = portFromBus.find("/tty");
+	portID = portFromBus.substr(startPos, endPos - startPos);
+	printf("port ID = %s\n", portID.c_str());
+	g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
+	
+}
+
 void sendMessage(string params, string &returnValue)
 {
 	returnValue = "";
@@ -312,9 +324,11 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 
 void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
 {
-	gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
+	gchar *serial_port = hal_device_get_property_string (ctx, udi, "linux.sysfs_path");
 	if(serial_port != NULL)
 	{
+		string portID;
+		getPortIdentification(string(serial_port), portID);
 		gchar *parent = hal_device_get_property_string (ctx, hal_device_get_property_string(ctx, udi, "info.parent"), "info.parent");
 		gchar *info_udi = hal_device_get_property_string (ctx, parent, "info.udi");
 		int usb_device_product_id = hal_device_get_property_int(ctx, parent, "usb_device.product_id");
@@ -354,7 +368,7 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 									StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ) + " " +
 									StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + " " +
 									StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
-									serial_port,
+									portID,
 									responseSerial );
 					g_pPlutoLogger->Write(LV_DEBUG, "responseSerial NewCapability: %s\n", responseSerial.c_str());
 				}
@@ -527,11 +541,12 @@ void initialize(LibHalContext * ctx)
 				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 			if( it != templatesMap.end() )
 			{
-				gchar *serial_port = hal_device_get_property_string (ctx, udi, "serial.device");
+				gchar *serial_port = hal_device_get_property_string (ctx, udi, "linux.sysfs_path");
 				if(serial_port != NULL)
 				{
-					g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s\n", udi, serial_port);
-					
+					string portID;
+					getPortIdentification(string(serial_port), portID);
+					g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
 					try
 					{
 						// check if there is a device with this UID
@@ -558,7 +573,7 @@ void initialize(LibHalContext * ctx)
 											StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ) + " " +
 											StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + " " +
 											StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
-											serial_port, 
+											portID, 
 											responseSerial );
 							g_pPlutoLogger->Write(LV_DEBUG, "responseSerial %s\n", responseSerial.c_str());
 						}
