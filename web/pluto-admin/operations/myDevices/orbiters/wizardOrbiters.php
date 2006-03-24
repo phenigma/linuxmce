@@ -396,7 +396,7 @@ function wizardOrbiters($output,$dbADO) {
 								$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
 							}
 
-							if($ddValue==$GLOBALS['Size']){
+							if($ddValue==$GLOBALS['Size'] && (int)$deviceData!=0){
 								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);
 								if(count($sizeArray)>0){
 									$resX=$sizeArray['Width'][0];
