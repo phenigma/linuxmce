@@ -22,7 +22,7 @@ bool ZWJobGetInitData::run()
 {
 	setState(ZWaveJob::RUNNING);
 	char data[] = {REQUEST, FUNC_ID_SERIAL_API_GET_INIT_DATA};
-	return handler()->sendData(data, 2);	
+	return handler()->sendData(data, 2);
 }
 
 /** It is called to process the protocol data flow.*/
@@ -36,10 +36,16 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 		case ZWaveJob::IDLE:
 		case ZWaveJob::STOPPED:
 			break;
+		
 		case ZWaveJob::RUNNING:
 			if(length < 2)
 				break;
 			if(buffer[0] != RESPONSE || buffer[1] != FUNC_ID_SERIAL_API_GET_INIT_DATA)
+			{
+				return handler()->processData(buffer, length);
+			}
+			
+			if(length < 5)
 				break;
 			if(buffer[4] != MAGIC_LEN) //hard coded into docs
 				break;

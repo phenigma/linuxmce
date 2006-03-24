@@ -36,12 +36,14 @@ class ZWJobInitialize::Private
 		
 		JobsDeque jobsQueue;
 		ZWaveJob * currentJob;
+		unsigned triesCount;
 	
 	private:
 };
 
 ZWJobInitialize::Private::Private()
-	: currentJob(NULL)
+	: currentJob(NULL),
+	  triesCount(0)
 {
 }
 
@@ -72,6 +74,7 @@ ZWJobInitialize::ZWJobInitialize(PlutoZWSerialAPI * zwAPI)
 {
 	d = new Private();
 	setType(ZWaveJob::INITIALIZE);
+	setReceivingTimeout( 5 );
 }
 
 ZWJobInitialize::~ZWJobInitialize()
@@ -148,6 +151,9 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 					// check if there is a SUC
 					d->jobsQueue.push_back( new ZWJobGetSUC(handler()) );
 					
+					// We have to disable the timeout because some nodes can be offline
+					setReceivingTimeout( 0 );
+					
 					// get the information about all the nodes from the ZWave network
 					const NodesMap& nodes = handler()->getNodes();
 					ZWJobGetNodeProtocolInfo * job = NULL;
@@ -182,6 +188,8 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 				break;
 		}
 		
+		d->triesCount = 0;
+		
 		// next job
 		delete d->currentJob;
 		d->currentJob = NULL;
@@ -209,4 +217,26 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 	}
 	
 	return true;
+}
+
+void ZWJobInitialize::timeoutHandler()
+{
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize::timeoutHandler");
+#endif
+
+	if( d->currentJob != NULL && d->triesCount < 3 )
+	{
+		d->triesCount++;
+		
+		// try again the current job
+		if( !d->currentJob->run() )
+		{
+			setState(ZWaveJob::STOPPED);
+		}
+	}
+	else
+	{
+		setState(ZWaveJob::STOPPED);
+	}
 }

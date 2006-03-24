@@ -35,12 +35,14 @@ class ZWJobPool::Private
 		
 		JobsDeque jobsQueue;
 		ZWaveJob * currentJob;
+		unsigned triesCount;
 	
 	private:
 };
 
 ZWJobPool::Private::Private()
-	: currentJob(NULL)
+	: currentJob(NULL),
+	  triesCount(0)
 {
 }
 
@@ -184,6 +186,8 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 				break;
 		}
 		
+		d->triesCount = 0;
+		
 		// next job
 		delete d->currentJob;
 		d->currentJob = NULL;
@@ -215,18 +219,15 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 
 void ZWJobPool::timeoutHandler()
 {
+	if( d->currentJob != NULL && d->triesCount < 2 )
+	{
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool::timeoutHandler - go to the next command");
+	g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool::timeoutHandler - retry %u", d->triesCount);
 #endif
 
-	// go to the next job
-	delete d->currentJob;
-	d->currentJob = NULL;
-	if( d->jobsQueue.size() > 0 )
-	{
-		d->currentJob = d->jobsQueue.front();
-		d->jobsQueue.pop_front();
+		d->triesCount++;
 		
+		// restart the current job
 		if( !d->currentJob->run() )
 		{
 			setState(ZWaveJob::STOPPED);
@@ -234,6 +235,28 @@ void ZWJobPool::timeoutHandler()
 	}
 	else
 	{
-		setState(ZWaveJob::STOPPED);
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "ZWJobPool::timeoutHandler - go to the next command");
+#endif
+
+		d->triesCount = 0;
+		
+		// go to the next job
+		delete d->currentJob;
+		d->currentJob = NULL;
+		if( d->jobsQueue.size() > 0 )
+		{
+			d->currentJob = d->jobsQueue.front();
+			d->jobsQueue.pop_front();
+			
+			if( !d->currentJob->run() )
+			{
+				setState(ZWaveJob::STOPPED);
+			}
+		}
+		else
+		{
+			setState(ZWaveJob::STOPPED);
+		}
 	}
 }

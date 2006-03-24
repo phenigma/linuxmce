@@ -114,6 +114,7 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 			else
 			{
 				g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobGetNodeProtocolInfo data error");
+				return handler()->processData(buffer, length);
 			}
 			break;
 	}

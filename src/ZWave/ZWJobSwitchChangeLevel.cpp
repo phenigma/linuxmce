@@ -17,11 +17,13 @@ public:
 	Private(unsigned char level, unsigned short nodeID);
 	unsigned char level;
 	unsigned short nodeID;
+	unsigned char callbackID;
 };
 
 ZWJobSwitchChangeLevel::Private::Private(unsigned char l, unsigned short nID)
-	:level(l),
-	 nodeID(nID)
+	: level(l),
+	  nodeID(nID),
+	  callbackID(0)
 {
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~1" );
@@ -33,7 +35,7 @@ ZWJobSwitchChangeLevel::ZWJobSwitchChangeLevel(PlutoZWSerialAPI * zwAPI, unsigne
 {
 	d = new Private(level, nodeID);
 	setType(ZWaveJob::SET_SWITCH_LEVEL);
-	setReceivingTimeout( 3 );
+	setReceivingTimeout( 5 );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~2" );
 #endif
@@ -61,7 +63,8 @@ bool ZWJobSwitchChangeLevel::run()
 	data[5] = SWITCH_MULTILEVEL_SET;
 	data[6] = d->level;
 	data[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	data[8] = handler()->callbackCount();
+	d->callbackID = handler()->callbackCount();
+	data[8] = d->callbackID;
 	
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~4" );
@@ -90,7 +93,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, length too small");
 				break;
 			}
-			if(buffer[1] != FUNC_ID_ZW_SEND_DATA)
+			if(buffer[1] != FUNC_ID_ZW_SEND_DATA || buffer[2] != d->callbackID)
 			{
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
@@ -123,13 +126,14 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~10" );
 						completedOK = true;
 						break;
 					case TRANSMIT_COMPLETE_NO_ACK:
-						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "command not ack");
+						DCE::g_pPlutoLogger->Write(LV_WARNING, "command not ack, device not reachable");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~11" );
 #endif
+						completedOK = true;
 						break;
 					case TRANSMIT_COMPLETE_FAIL:
-						DCE::g_pPlutoLogger->Write(LV_ZWAVE, "failed to transmit command");
+						DCE::g_pPlutoLogger->Write(LV_WARNING, "failed to transmit command");
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~12" );
 #endif

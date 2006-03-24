@@ -152,7 +152,11 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 							d->state = ZWJobReceive::STOP;
 							
 							if( handler()->sendData(buf, 4) )
+							{
+								// let's force to get the answer in time
+								setReceivingTimeout(4);
 								return true;
+							}
 							
 							break;
 						}
@@ -201,4 +205,29 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 			g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 8");
 #endif
 	return false;
+}
+
+void ZWJobReceive::timeoutHandler()
+{
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 5");
+#endif
+
+	// TRY AGAIN :(
+	// the receiving it's done, change the controller state
+	// back to normal state (stop == not receiving)
+	char buf[10];
+	buf[0] = REQUEST;
+	buf[1] = FUNC_ID_ZW_NEW_CONTROLLER;
+	buf[2] = NEW_CTRL_STATE_STOP_OK;
+//	d->callbackID = handler()->callbackCount();
+	buf[3] = d->callbackID; // Callback FunctionID
+	buf[4] = 0;
+	
+	d->state = ZWJobReceive::STOP;
+	
+	if( !handler()->sendData(buf, 4) )
+	{
+		d->state = ZWJobReceive::STOP;
+	}
 }

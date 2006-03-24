@@ -124,9 +124,9 @@ entry:
 				}
 				if(length == 4 && buffer[2] != d->callbackID) //not my function ID
 				{
-					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, not for me, kill the job, because nothing will come");
-					setState(ZWaveJob::STOPPED);
-					return false;
+					DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchBinaryGet::processData, not for me, let's wait a bit");
+/*					setState(ZWaveJob::STOPPED);*/
+					return handler()->processData(buffer, length);
 				}
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
@@ -149,6 +149,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 #ifdef PLUTO_DEBUG
 						g_pPlutoLogger->Write(LV_DEBUG, "*******************15" );
 #endif
+						completedOK = true;
 						break;
 					
 					case TRANSMIT_COMPLETE_FAIL:
