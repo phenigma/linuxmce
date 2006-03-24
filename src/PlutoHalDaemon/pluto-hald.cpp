@@ -273,7 +273,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
 									StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
 									StringUtils::itos( (*it).second ) + " " +
-									StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ) + " " +
+									StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 									StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
 									StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
 									" -1 " + 
@@ -282,13 +282,13 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									responseCreate );
 					g_pPlutoLogger->Write(LV_DEBUG, "responseCreate myDeviceAdded: %s\n", responseCreate.c_str());
 					
-					string responseRestart;
+/*					string responseRestart;
 					sendMessage(string("-targetType template -o 0 ") + 
 							StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
 							" 1 " + 
 							StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
 						responseRestart );
-					g_pPlutoLogger->Write(LV_DEBUG, "responseRestart myDeviceAdded: %s\n", responseRestart.c_str());
+					g_pPlutoLogger->Write(LV_DEBUG, "responseRestart myDeviceAdded: %s\n", responseRestart.c_str());*/
 					
 				}
 			}
@@ -489,7 +489,7 @@ void initialize(LibHalContext * ctx)
 										StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
 										StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
 										StringUtils::itos( (*it).second ) + " " +
-										StringUtils::itos( COMMANDPARAMETER_PK_Device_ControlledVia_CONST ) + " " +
+										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 										StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
 										StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
 										" -1 " + 
@@ -582,20 +582,20 @@ void initialize(LibHalContext * ctx)
 		g_free(bus);
 		bus = NULL;
 	}
-	try
-	{
-		string responseRestart;
-		sendMessage(string("-targetType template -o 0 ") + 
-				StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-				" 1 " + 
-				StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
-			responseRestart );
-		g_pPlutoLogger->Write(LV_DEBUG, "responseRestart %s\n", responseRestart.c_str());
-	}
-	catch(string ex)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
-	}
+// 	try
+// 	{
+// 		string responseRestart;
+// 		sendMessage(string("-targetType template -o 0 ") + 
+// 				StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+// 				" 1 " + 
+// 				StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
+// 			responseRestart );
+// 		g_pPlutoLogger->Write(LV_DEBUG, "responseRestart %s\n", responseRestart.c_str());
+// 	}
+// 	catch(string ex)
+// 	{
+// 		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+// 	}
 
 }
 
