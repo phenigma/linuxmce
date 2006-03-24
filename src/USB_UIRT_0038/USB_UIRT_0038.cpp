@@ -239,10 +239,10 @@ bool USB_UIRT_0038::GetConfig()
 	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	IRReceiverBase::GetConfig(m_pData);
 	
-	#ifdef __linux
+#ifdef __linux
 	char devicePath[256];
 
-	strcpy(devicePath, DATA_Get_COM_Port_on_PC().c_str());
+	strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 	if (devicePath[0]==0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "No port specified.");
