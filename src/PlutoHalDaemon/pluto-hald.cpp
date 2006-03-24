@@ -275,8 +275,8 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 									StringUtils::itos( (*it).second ) + " " +
 									StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 									StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
-									StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
-									" -1 " + 
+/*									StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
+									" 0 " + */
 									"109 " + 
 									buffer,
 									responseCreate );
@@ -491,8 +491,8 @@ void initialize(LibHalContext * ctx)
 										StringUtils::itos( (*it).second ) + " " +
 										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 										StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
-										StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
-										" 0 " + 
+/*										StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
+										" 0 " + */
 										"109 " + 
 										buffer,
 										responseCreate );
