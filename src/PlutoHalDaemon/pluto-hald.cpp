@@ -620,6 +620,16 @@ int main(int argc, char* argv[])
 	LibHalContext * ctx = NULL;
 	GMainLoop * loop = NULL;
 	
+	FILE * lockFile = NULL;
+	
+	string lockName = "/usr/pluto/locks/pluto-hald.wait";
+	lockFile = fopen(lockName.c_str(), "w");
+	if( lockFile!= NULL )
+	{
+		fprintf(lockFile, "1");
+		fclose(lockFile);
+	}
+	
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/hal.newlog");
 	
 	if(argc >= 2)
@@ -712,6 +722,9 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	initialize(ctx);
+	
+	// remove the lock file
+	unlink(lockName.c_str());
 	
 	hal_device_property_watch_all(ctx);
 
