@@ -49,19 +49,15 @@ BEGIN_EVENT_TABLE( wxDialog_RoomWizard, wxDialog_Base )
 ////@begin wxDialog_RoomWizard event table entries
     EVT_CLOSE( wxDialog_RoomWizard::OnCloseWindow )
     EVT_SIZE( wxDialog_RoomWizard::OnSize )
-    EVT_CHAR( wxDialog_RoomWizard::OnChar )
-    EVT_KEY_UP( wxDialog_RoomWizard::OnKeyUp )
 
     EVT_GRID_CELL_LEFT_CLICK( wxDialog_RoomWizard::OnCellLeftClick )
-    EVT_CHAR( wxDialog_RoomWizard::OnChar )
-    EVT_KEY_UP( wxDialog_RoomWizard::OnKeyUp )
 
 ////@end wxDialog_RoomWizard event table entries
 
 END_EVENT_TABLE()
 ;
 
-const E_wxDialog_Class_Type wxDialog_RoomWizard::e_class_type = E_wxDialog_RoomWizard;
+const E_DIALOG_TYPE wxDialog_RoomWizard::e_dialog_type = E_Dialog_RoomWizard;
 const int idxResizableColumn = 1;
 const int nColumnCount = 4;
 
@@ -185,32 +181,6 @@ void wxDialog_RoomWizard::OnSize( wxSizeEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_SIZE event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
-}
-
-/*!
- * wxEVT_CHAR event handler for ID_DIALOG_ROOMWIZARD
- */
-
-void wxDialog_RoomWizard::OnChar( wxKeyEvent& event )
-{
-    _debug_log_ItemSelected("wxDialog_RoomWizard::OnChar(*)");
-////@begin wxEVT_CHAR event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
-    // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_CHAR event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
-}
-
-/*!
- * wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD
- */
-
-void wxDialog_RoomWizard::OnKeyUp( wxKeyEvent& event )
-{
-    _debug_log_ItemSelected("wxDialog_RoomWizard::OnKeyUp(*)");
-////@begin wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
-    // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
 }
 
 /*!
@@ -345,6 +315,12 @@ bool wxDialog_RoomWizard::ExternData_Save(void *pExternData)
     return true;
 }
 
+void wxDialog_RoomWizard::Gui_Refresh()
+{
+    //_WX_LOG_NFO();
+    SetSize(v_oData_Refresh.coord, wxSIZE_ALLOW_MINUS_ONE);
+}
+
 void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
 {
     _WX_LOG_NFO("item=%d, bool=%d", nItem, bOn);
@@ -386,22 +362,11 @@ void wxDialog_RoomWizard::eventButtonInc()
     v_pGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
 }
 
-void wxDialog_RoomWizard::_debug_log_ItemSelected(const wxString &s/* = ""*/)
-{
-    _WX_LOG_NFO();
-    wxString s_new;
-    if ( (v_nSelectedItem < 0) || (v_nSelectedItem >= (int)v_aRoomItems.GetCount()) )
-        s_new = s + wxString::Format("[%d]", v_nSelectedItem);
-    else
-        s_new = s + wxString::Format("[%d] %s = %d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].sName.c_str(), v_aRoomItems[v_nSelectedItem].nValue);
-    _wx_log_nfo(s_new);
-}
-
 void wxDialog_RoomWizard::NewDataRefresh(int x, int y, int h, int w)
 {
     _WX_LOG_NFO("(x=%d, y=%d, h=%d, w=%d)", x, y, h, w);
     Data_Refresh_Enter();
-    v_oData_Refresh.Set(x, y, h, w);
+    v_oData_Refresh.coord = wxRect( x, y, h, w );
     Data_Refresh_Leave();
 }
 
@@ -409,14 +374,8 @@ void wxDialog_RoomWizard::SafeRefresh_CopyData(void *pData_Refresh)
 {
     _WX_LOG_NFO();
     _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh_RoomWizard *pData_Refresh_RoomWizard = wx_static_cast(Data_Refresh_RoomWizard *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_RoomWizard;
-}
-
-void wxDialog_RoomWizard::SafeRefresh_Gui()
-{
-    //_WX_LOG_NFO();
-    SetSize(v_oData_Refresh.coord, wxSIZE_ALLOW_MINUS_ONE);
+    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
+    v_oData_Refresh = *pData_Refresh_Copy;
 }
 
 //==================================================

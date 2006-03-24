@@ -51,7 +51,7 @@ EVT_WINDOW_CREATE( wxDialog_Base::OnWindowCreate )
 END_EVENT_TABLE()
 ;
 
-const E_wxDialog_Class_Type wxDialog_Base::e_class_type = E_wxDialog_Undefined;
+const E_DIALOG_TYPE wxDialog_Base::e_dialog_type = E_Dialog_Undefined;
 
 /*!
  * wxDialog_Base constructors
@@ -233,11 +233,6 @@ void wxDialog_Base::Data_Refresh_Leave()
         v_oCriticalRefresh.Leave();
 }
 
-void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
-{
-    v_pData_Holder_Dialog = pData_Holder_Dialog;
-}
-
 bool wxDialog_Base::ExternData_Load(void *pExternData)
 {
     _WX_LOG_WRN("virtual method not implemented in a derived class");
@@ -252,22 +247,27 @@ bool wxDialog_Base::ExternData_Save(void *pExternData)
     return true;
 }
 
+void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
+{
+    v_pData_Holder_Dialog = pData_Holder_Dialog;
+}
+
 void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 {
     Data_Holder_Refresh *pData_Holder_Refresh = wx_static_cast(Data_Holder_Refresh *, event.GetClientData());
     _COND_RET(pData_Holder_Refresh != NULL);
     event.Skip();
-    E_DIALOG_ACTION action = (E_DIALOG_ACTION)event.GetId();
+    E_ACTION_TYPE action = (E_ACTION_TYPE)event.GetId();
     _WX_LOG_NFO("Received command event : action='%s'", _str_enum(action));
     switch (action)
     {
-        case E_Dialog_Refresh:
+        case E_Action_Refresh:
         {
             SafeRefresh_NewData(*pData_Holder_Refresh);
             break;
         }
         default:
-            _WX_LOG_ERR("unknown action : %d", action);
+            _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
     wx_semaphore_post(pData_Holder_Refresh->oSemaphore);
@@ -283,7 +283,7 @@ void wxDialog_Base::SafeRefresh_WhenIdle()
         wxCriticalSectionLocker lock(v_oCriticalRefresh);
         _COND_ASSIGN(v_eRefreshStatus, E_Refresh_ShouldUpdate, E_Refresh_WindowUpdate);
         _WX_LOG_NFO();
-        SafeRefresh_Gui();
+        Gui_Refresh();
         Refresh(false);
         Update();
         _COND_ASSIGN(v_eRefreshStatus, E_Refresh_WindowUpdate, E_Refresh_Ready);
@@ -296,7 +296,7 @@ void wxDialog_Base::SafeRefresh_NewData(Data_Holder_Refresh &rData_Holder_Refres
     {
         _WX_LOG_NFO("Switching to main thread");
         _WX_LOG_DBG("%p", &rData_Holder_Refresh);
-        wx_post_event_thread(this, wxEVTC_DIALOG, E_Dialog_Refresh, "Dialog_Refresh", &rData_Holder_Refresh);
+        wx_post_event_thread(this, wxEVTC_DIALOG, E_Action_Refresh, "Dialog_Refresh", &rData_Holder_Refresh);
         wx_semaphore_wait(rData_Holder_Refresh.oSemaphore);
         _WX_LOG_NFO("Returned from main thread");
         return;
@@ -312,7 +312,7 @@ void wxDialog_Base::SafeRefresh_CopyData(void *pData_Refresh)
     wxUnusedVar(pData_Refresh);
 }
 
-void wxDialog_Base::SafeRefresh_Gui()
+void wxDialog_Base::Gui_Refresh()
 {
     _WX_LOG_ERR("virtual method not implemented in a derived class");
 }

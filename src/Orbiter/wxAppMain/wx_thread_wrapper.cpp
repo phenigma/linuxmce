@@ -5,7 +5,7 @@
 //
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma implementation "wxthread_wrapper.h"
+#pragma implementation "wx_thread_wrapper.h"
 #endif
 
 #include "wx/wxprec.h"
@@ -16,10 +16,10 @@
 #include "wx/wx.h"
 #endif
 
-#include "wxthread_wrapper.h"
-#include "wxevent_thread.h"
-#include "wxthread_bag.h"
-#include "wxthread_cmd.h"
+#include "wx_thread_wrapper.h"
+#include "wx_event_thread.h"
+#include "wx_thread_bag.h"
+#include "wx_thread_cmd.h"
 
 wxThread_Wrapper::wxThread_Wrapper(
     wxThreadKind eKind,

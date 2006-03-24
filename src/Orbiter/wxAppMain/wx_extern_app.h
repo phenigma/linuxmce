@@ -11,14 +11,11 @@
 #pragma interface "wx_extern_app.h"
 #endif
 
-#include "wxthread_cmd.h"
+#include "wx_thread_cmd.h"
 
-extern bool g_USE_EXTERN_APP_ON_IDLE;
-extern bool g_USE_EXTERN_APP_ON_TIMER;
 extern bool g_USE_EXTERN_APP_ON_THREAD;
 
 #ifdef USE_RELEASE_CODE
-//--struct SDL_Event_Loop_Data;
 class SDL_App_Object;
 #endif // USE_RELEASE_CODE
 
@@ -31,7 +28,7 @@ public:
     void Run();
 
     bool Create();
-    bool EventProcess();
+    bool EventLoop();
     int Destroy();
 
 protected:
@@ -39,11 +36,10 @@ protected:
     char **argv;
 
 #ifdef USE_RELEASE_CODE
+public:
     SDL_App_Object *v_pSDL_App_Object;
 #endif // USE_RELEASE_CODE
 };
-
-int ExternApp_Run_NoWx(int argc, char *argv[]);
 
 #endif
 // _WX_EXTERN_APP_H_

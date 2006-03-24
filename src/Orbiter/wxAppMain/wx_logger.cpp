@@ -92,9 +92,6 @@ static void _log_wxVLog(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_
 // log to : stderr, file, wxVLog*
 static void _log_stdarg_wx(const char *sformat, va_list arg_ptr, type_fn_wxVLog fn_wxVLog, E_LOG_TYPE logtype)
 {
-#if ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
-    return;
-#endif // ( (defined USE_RELEASE_CODE) && (! USE_WX_LIB) )
     _log_stdarg(sformat, arg_ptr, logtype);
     _log_wxVLog(NoEsc(sformat), arg_ptr, fn_wxVLog);
 }
@@ -175,9 +172,7 @@ struct logger_obj
             g_fpLogFile = NULL;
         }
 };
-#if (USE_WX_LIB)
 logger_obj _global_logger_obj;
-#endif // (USE_WX_LIB)
 
 //==================================================
 

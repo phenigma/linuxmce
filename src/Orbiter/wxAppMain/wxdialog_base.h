@@ -17,7 +17,7 @@
 
 ////@begin includes
 ////@end includes
-#include "wx_win_thread.h"
+#include "wx_dialog_safe.h"
 
 /*!
  * Forward declarations
@@ -32,7 +32,7 @@
 
 ////@begin control identifiers
 #define ID_DIALOG_BASE 10024
-#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_BASE_TITLE _T("wx Dialog_Base")
 #define SYMBOL_WXDIALOG_BASE_IDNAME ID_DIALOG_BASE
 #define SYMBOL_WXDIALOG_BASE_SIZE wxDefaultSize
@@ -101,12 +101,12 @@ class wxDialog_Base: public wxDialog
     void Data_Refresh_Enter(); // before setting refresh data
     void Data_Refresh_Leave(); // after setting refresh data
 
-    void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
-
     virtual bool ExternData_Load(void *pExternData); // load data from extern object
     virtual bool ExternData_Save(void *pExternData); // save data to extern object
 
-    static const E_wxDialog_Class_Type e_class_type;
+    void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
+
+    static const E_DIALOG_TYPE e_dialog_type;
 
 protected:
     enum E_REFRESH_STATUS
@@ -144,7 +144,7 @@ protected:
     // called from main thread
     // GUI refresh related code should be implemented here
     // use the member variable from the copy function
-    virtual void SafeRefresh_Gui();
+    virtual void Gui_Refresh();
 
     bool v_bInitialized;
 

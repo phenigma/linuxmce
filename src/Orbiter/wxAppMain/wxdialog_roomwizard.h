@@ -99,12 +99,6 @@ public:
     /// wxEVT_SIZE event handler for ID_DIALOG_ROOMWIZARD
     void OnSize( wxSizeEvent& event );
 
-    /// wxEVT_CHAR event handler for ID_DIALOG_ROOMWIZARD
-    void OnChar( wxKeyEvent& event );
-
-    /// wxEVT_KEY_UP event handler for ID_DIALOG_ROOMWIZARD
-    void OnKeyUp( wxKeyEvent& event );
-
     /// wxEVT_GRID_CELL_LEFT_CLICK event handler for ID_GRID_ROOMWIZARD
     void OnCellLeftClick( wxGridEvent& event );
 
@@ -131,45 +125,31 @@ public:
 
     virtual bool ExternData_Load(void *pExternData);
     virtual bool ExternData_Save(void *pExternData);
+    virtual void Gui_Refresh();
 
     void NewDataRefresh(int x, int y, int h, int w);
 
-    static const E_wxDialog_Class_Type e_class_type;
+    static const E_DIALOG_TYPE e_dialog_type;
 
-protected:
-    struct Data_Refresh_RoomWizard
+    struct Data_Refresh
     {
-        void Set(const int x, const int y, const int h, const int w)
-            {
-                coord.x = x;
-                coord.y = y;
-                coord.height = h;
-                coord.width = w;
-            }
         wxRect coord;
     };
 
-    Data_Refresh_RoomWizard v_oData_Refresh;
-
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    virtual void SafeRefresh_Gui();
-
+protected:
     void ItemWindowSelect(int nItem, bool bOn=true);
-
     void eventButtonDec();
     void eventButtonInc();
+
+    virtual void SafeRefresh_CopyData(void *pData_Refresh);
+    Data_Refresh v_oData_Refresh;
 
     wxArray_RoomItems v_aRoomItems;
     int v_nSelectedItem; // 0 based, -1 not selected
 
-    void _debug_log_ItemSelected(const wxString &s = "");
-
 #ifdef USE_RELEASE_CODE
     struct Persistent_Data
     {
-        Persistent_Data()
-            {
-            }
         map <int, int> map_room_types;
         map <int, string> map_room_names;
     };

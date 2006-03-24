@@ -76,10 +76,8 @@ public:
 
 protected:
     void OnEvent_Dialog(wxCommandEvent& event);
-    void OnTimer_Debug(wxTimerEvent& event);
-    void OnTimer_ExternApp(wxTimerEvent& event);
-    wxTimer v_oTimer_Debug;
-    wxTimer v_oTimer_ExternApp;
+    void Extern_Event_Listener();
+
     ExternApp *v_pExternApp;
 };
 

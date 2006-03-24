@@ -4,19 +4,19 @@
 // Changed by : ...
 //
 
-#ifndef _WXTHREAD_WRAPPER_H_
-#define _WXTHREAD_WRAPPER_H_
+#ifndef _WX_THREAD_WRAPPER_H_
+#define _WX_THREAD_WRAPPER_H_
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma interface "wxthread_wrapper.h"
+#pragma interface "wx_thread_wrapper.h"
 #endif
 
-#include "wxthread_cmd.h"
+#include "wx_thread_cmd.h"
 
 class wxThread_Wrapper : public wxThread
 {
   protected:
-    // should be created by wxThread_Bag
+    // should be created by a friend class
     wxThread_Wrapper(
         wxThreadKind eKind,
         wxThread_Cmd *pwxThread_Cmd,
@@ -49,4 +49,4 @@ class wxThread_Wrapper : public wxThread
 };
 
 #endif
-// _WXTHREAD_WRAPPER_H_
+// _WX_THREAD_WRAPPER_H_

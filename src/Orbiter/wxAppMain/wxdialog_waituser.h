@@ -57,9 +57,11 @@ class wxBoxSizer;
 class wxDialog_WaitUser: public wxDialog_Base
 {
     DECLARE_DYNAMIC_CLASS( wxDialog_WaitUser )
-        DECLARE_EVENT_TABLE()
+        ;
+    DECLARE_EVENT_TABLE()
+        ;
 
-        public:
+public:
     /// Constructors
     wxDialog_WaitUser( );
     wxDialog_WaitUser( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITUSER_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITUSER_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITUSER_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITUSER_SIZE, long style = SYMBOL_WXDIALOG_WAITUSER_STYLE );
@@ -103,40 +105,18 @@ class wxDialog_WaitUser: public wxDialog_Base
     wxBoxSizer* v_pBoxH_bot;
     wxButton* v_pButtonOk;
 ////@end wxDialog_WaitUser member variables
-  public:
+public:
     ~wxDialog_WaitUser();
 
     virtual bool ExternData_Load(void *pExternData);
+    virtual void Gui_Refresh();
 
     void NewDataRefresh(const string &sInfo, int nTimeoutSeconds, map<int,string> *p_mapPrompts);
 
-    static const E_wxDialog_Class_Type e_class_type;
+    static const E_DIALOG_TYPE e_dialog_type;
 
-  protected:
-    void OnTimer_ExpireDialog(wxTimerEvent& event);
-
-    int v_nExpireTime_ms; // in milliseconds
-    int v_nCrtTime_ms;    // in milliseconds
-    wxTimer v_oTimer_ExpireDialog;
-
-    wxArrayString v_asLabels; // old and new
-
-    struct Data_Refresh_WaitUser
+    struct Data_Refresh
     {
-        Data_Refresh_WaitUser()
-                : nTimeoutSeconds(0)
-            {
-            }
-        Data_Refresh_WaitUser(const string &sInfo, const int nTimeoutSeconds, map<int,string> *p_mapPrompts)
-            {
-                Set(sInfo, nTimeoutSeconds, p_mapPrompts);
-            }
-        void Set(const string &sInfo, const int nTimeoutSeconds, map<int,string> *p_mapPrompts)
-            {
-                this->sInfo = sInfo;
-                this->nTimeoutSeconds = nTimeoutSeconds;
-                this->p_mapPrompts = p_mapPrompts;
-            }
         string sInfo;
         int nTimeoutSeconds;
         map<int, string> *p_mapPrompts;
@@ -146,9 +126,16 @@ class wxDialog_WaitUser: public wxDialog_Base
     };
 
     virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    virtual void SafeRefresh_Gui();
+    Data_Refresh v_oData_Refresh;
 
-    Data_Refresh_WaitUser v_oData_Refresh;
+protected:
+    void OnTimer_ExpireDialog(wxTimerEvent& event);
+
+    int v_nExpireTime_ms; // in milliseconds
+    int v_nCrtTime_ms;    // in milliseconds
+    wxTimer v_oTimer_ExpireDialog;
+
+    wxArrayString v_asLabels; // old and new
 };
 
 #endif

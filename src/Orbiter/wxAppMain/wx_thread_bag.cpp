@@ -5,7 +5,7 @@
 //
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma implementation "wxthread_bag.h"
+#pragma implementation "wx_thread_bag.h"
 #endif
 
 #include "wx/wxprec.h"
@@ -16,9 +16,9 @@
 #include "wx/wx.h"
 #endif
 
-#include "wxthread_bag.h"
-#include "wxevent_thread.h"
-#include "wxthread_wrapper.h"
+#include "wx_thread_bag.h"
+#include "wx_event_thread.h"
+#include "wx_thread_wrapper.h"
 #include "wxframemain.h"
 
 wxThread_Bag *g_pwxThread_Bag = NULL;
@@ -150,21 +150,10 @@ void wxThread_Bag::OnEvent_Thread(wxCommandEvent& event)
                 _WX_LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
                 Delete(pwxThread_Cmd);
                 ::wxWakeUpIdle();
+                if (event.GetString() == "ExternApp")
+                    wxTheApp->GetTopWindow()->Destroy();
                 return;
                 break;
         }
     }
-}
-
-void _wx_log_status_threads()
-{
-    if (! g_pwxThread_Bag)
-        return;
-    g_pwxFrameMain->SetStatusText(
-        wxString::Format(
-            "All[%d] Running[%d]",
-            g_pwxThread_Bag->GetCount(),
-            g_pwxThread_Bag->GetRunningCount()
-            )
-        );
 }

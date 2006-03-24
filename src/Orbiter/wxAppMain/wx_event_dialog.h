@@ -4,32 +4,30 @@
 // Changed by : ...
 //
 
-#ifndef _WXEVENT_THREAD_H_
-#define _WXEVENT_THREAD_H_
+#ifndef _WX_EVENT_DIALOG_H_
+#define _WX_EVENT_DIALOG_H_
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma interface "wxevent_thread.h"
+#pragma interface "wx_event_dialog.h"
 #endif
 
-// custom event used by : wxThread_Bag, wxThread_Cmd, wxThread_Wrapper
+// custom event used for wxDialog_Base and derived classes
 
 BEGIN_DECLARE_EVENT_TYPES()
-DECLARE_EVENT_TYPE(wxEVTC_THREAD, wxID_HIGHEST + 10)
+DECLARE_EVENT_TYPE(wxEVTC_DIALOG, ID_EVTC_DIALOG)
 END_DECLARE_EVENT_TYPES()
 ;
 
-#define EVTC_THREAD(id, fn) \
+#define EVTC_DIALOG(id, fn) \
     DECLARE_EVENT_TABLE_ENTRY( \
-        wxEVTC_THREAD, \
+        wxEVTC_DIALOG, \
         id, \
         wxID_ANY, \
         (wxObjectEventFunction)(wxEventFunction) wxStaticCastEvent( wxCommandEventFunction, &fn ), \
         (wxObject *) NULL \
     ),
 
-//
-
-const char * _str_event_thread(wxCommandEvent &event); // debug string
+const char * _str_event_dialog(wxCommandEvent &event);
 
 #endif
-// _WXEVENT_THREAD_H_
+// _WX_EVENT_DIALOG_H_

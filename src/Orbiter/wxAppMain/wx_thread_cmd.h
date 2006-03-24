@@ -4,11 +4,11 @@
 // Changed by : ...
 //
 
-#ifndef _WXTHREAD_CMD_H_
-#define _WXTHREAD_CMD_H_
+#ifndef _WX_THREAD_CMD_H_
+#define _WX_THREAD_CMD_H_
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma interface "wxthread_cmd.h"
+#pragma interface "wx_thread_cmd.h"
 #endif
 
 #include "wx_helpers.h"
@@ -90,4 +90,4 @@ const char * _str_enum(wxThread_Cmd::E_STATUS value);
 const char * _str_enum(wxThreadKind value);
 
 #endif
-// _WXTHREAD_CMD_H_
+// _WX_THREAD_CMD_H_

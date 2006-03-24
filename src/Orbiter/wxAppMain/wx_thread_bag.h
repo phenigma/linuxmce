@@ -4,14 +4,14 @@
 // Changed by : ...
 //
 
-#ifndef _WXTHREAD_BAG_H_
-#define _WXTHREAD_BAG_H_
+#ifndef _WX_THREAD_BAG_H_
+#define _WX_THREAD_BAG_H_
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma interface "wxthread_bag.h"
+#pragma interface "wx_thread_bag.h"
 #endif
 
-#include "wxthread_cmd.h"
+#include "wx_thread_cmd.h"
 
 // all the threads except main should be monitored
 
@@ -43,9 +43,7 @@ class wxThread_Bag : public wxEvtHandler
         ;
 };
 
-void _wx_log_status_threads();
-
 extern wxThread_Bag *g_pwxThread_Bag;
 
 #endif
-// _WXTHREAD_BAG_H_
+// _WX_THREAD_BAG_H_

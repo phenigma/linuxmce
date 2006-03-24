@@ -115,30 +115,14 @@ public:
     ~wxDialog_WaitGrid();
 
     virtual bool ExternData_Load(void *pExternData);
+    virtual void Gui_Refresh();
 
     void NewDataRefresh(const string &sInfo, const map<string, bool> &mapStrBool, int nPercent);
 
-    static const E_wxDialog_Class_Type e_class_type;
+    static const E_DIALOG_TYPE e_dialog_type;
 
-protected:
-    wxArrayString v_asName; // old and new
-
-    struct Data_Refresh_WaitGrid
+    struct Data_Refresh
     {
-        Data_Refresh_WaitGrid()
-                : nPercent(0)
-            {
-            }
-        Data_Refresh_WaitGrid(const string &sInfo, const map<string, bool> &mapStrBool, const int nPercent)
-            {
-                Set(sInfo, mapStrBool, nPercent);
-            }
-        void Set(const string &sInfo, const map<string, bool> &mapStrBool, const int nPercent)
-            {
-                this->sInfo = sInfo;
-                this->mapStrBool = mapStrBool;
-                this->nPercent = nPercent;
-            }
         string sInfo;
         map<string, bool> mapStrBool;
         int nPercent;
@@ -147,10 +131,11 @@ protected:
 #endif // USE_RELEASE_CODE
     };
 
-    Data_Refresh_WaitGrid v_oData_Refresh;
-
+protected:
     virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    virtual void SafeRefresh_Gui();
+    Data_Refresh v_oData_Refresh;
+
+    wxArrayString v_asName; // old and new
 };
 
 #endif

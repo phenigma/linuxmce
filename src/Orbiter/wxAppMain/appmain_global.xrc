@@ -27,9 +27,19 @@
             </object>
             <object class="separator">
             </object>
+            <object class="tool" name="ID_TOOL_DBG">
+                <help>debug</help>
+                <bitmap>exec.png</bitmap>
+                <label>dbg</label>
+                <tooltip>debug</tooltip>
+                <longhelp>debug</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="separator">
+            </object>
             <object class="tool" name="ID_TOOL_ROOMWIZARD">
                 <help>Room Wizard Dialog</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>clock.png</bitmap>
                 <label>R.W.</label>
                 <tooltip>Room Wizard</tooltip>
                 <longhelp>Room Wizard Dialog</longhelp>
@@ -168,7 +178,6 @@
     <object class="wxDialog" name="ID_DIALOG_WAITGRID" subclass="wxDialog_WaitGrid">
         <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
-        <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>228,184d</size>
         <title>Wait Grid</title>
@@ -283,7 +292,6 @@
     <object class="wxDialog" name="ID_DIALOG_WAITLIST" subclass="wxDialog_WaitList">
         <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
-        <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>400,300d</size>
         <title>Wait List</title>
@@ -383,7 +391,6 @@
     <object class="wxDialog" name="ID_DIALOG_WAITUSER" subclass="wxDialog_WaitUser">
         <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
-        <fg>#FFFFFF</fg>
         <bg>#E0E0F0</bg>
         <size>130,113d</size>
         <title>Wait User</title>

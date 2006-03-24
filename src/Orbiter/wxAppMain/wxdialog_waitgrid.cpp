@@ -52,7 +52,7 @@ BEGIN_EVENT_TABLE( wxDialog_WaitGrid, wxDialog_Base )
 END_EVENT_TABLE()
 ;
 
-const E_wxDialog_Class_Type wxDialog_WaitGrid::e_class_type = E_wxDialog_WaitGrid;
+const E_DIALOG_TYPE wxDialog_WaitGrid::e_dialog_type = E_Dialog_WaitGrid;
 const int idxResizableColumn = 1;
 const int nColumnCount = 2;
 #define S_WAITING wxString("Waiting")
@@ -113,7 +113,6 @@ void wxDialog_WaitGrid::CreateControls()
 ////@begin wxDialog_WaitGrid content construction
     wxDialog_WaitGrid* itemDialog_Base1 = this;
 
-    this->SetForegroundColour(wxColour(255, 255, 255));
     this->SetBackgroundColour(wxColour(224, 224, 240));
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
@@ -281,7 +280,7 @@ bool wxDialog_WaitGrid::ExternData_Load(void *pExternData)
 void wxDialog_WaitGrid::NewDataRefresh(const string &sInfo, const map<string, bool> &mapStrBool, int nPercent)
 {
     _WX_LOG_NFO("(string '%s', map<string, bool>, int %d)", sInfo.c_str(), nPercent);
-    Data_Refresh_WaitGrid data_refresh(sInfo, mapStrBool, nPercent);
+    Data_Refresh data_refresh = { sInfo, mapStrBool, nPercent };
     Data_Holder_Refresh data_holder_refresh(&data_refresh);
     _WX_LOG_DBG("%p", &data_holder_refresh);
     SafeRefresh_NewData(data_holder_refresh);
@@ -291,11 +290,11 @@ void wxDialog_WaitGrid::SafeRefresh_CopyData(void *pData_Refresh)
 {
     _WX_LOG_NFO();
     _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh_WaitGrid *pData_Refresh_WaitGrid = wx_static_cast(Data_Refresh_WaitGrid *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_WaitGrid;
+    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
+    v_oData_Refresh = *pData_Refresh_Copy;
 }
 
-void wxDialog_WaitGrid::SafeRefresh_Gui()
+void wxDialog_WaitGrid::Gui_Refresh()
 {
     //_WX_LOG_NFO();
     // update info text

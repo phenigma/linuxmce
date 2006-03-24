@@ -5,7 +5,7 @@
 //
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma implementation "wxthread_cmd.h"
+#pragma implementation "wx_thread_cmd.h"
 #endif
 
 #include "wx/wxprec.h"
@@ -16,9 +16,9 @@
 #include "wx/wx.h"
 #endif
 
-#include "wxthread_cmd.h"
-#include "wxthread_wrapper.h"
-#include "wxthread_bag.h"
+#include "wx_thread_cmd.h"
+#include "wx_thread_wrapper.h"
+#include "wx_thread_bag.h"
 
 wxThread_Cmd::wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_fn_void p_fn_launch/*=NULL*/)
     : v_eKind(eKind)

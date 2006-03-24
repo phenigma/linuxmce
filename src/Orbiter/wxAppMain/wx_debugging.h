@@ -11,9 +11,6 @@
 #pragma interface "wx_debugging.h"
 #endif
 
-//#define DEBUG_REFRESH_ON_TIMER
-#define DEBUG_REFRESH_ON_THREAD
-
 void _debug_thread_block();
 void _debug_thread_nonblock();
 void _debug_refresh_update();

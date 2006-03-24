@@ -57,9 +57,11 @@ class wxBoxSizer;
 class wxDialog_WaitList: public wxDialog_Base
 {
     DECLARE_DYNAMIC_CLASS( wxDialog_WaitList )
-        DECLARE_EVENT_TABLE()
+        ;
+    DECLARE_EVENT_TABLE()
+        ;
 
-        public:
+public:
     /// Constructors
     wxDialog_WaitList( );
     wxDialog_WaitList( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_WAITLIST_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_WAITLIST_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_WAITLIST_POSITION, const wxSize& size = SYMBOL_WXDIALOG_WAITLIST_SIZE, long style = SYMBOL_WXDIALOG_WAITLIST_STYLE );
@@ -99,39 +101,24 @@ class wxDialog_WaitList: public wxDialog_Base
     wxBoxSizer* v_pBoxH_bot;
     wxGauge* v_pGauge;
 ////@end wxDialog_WaitList member variables
-  public:
+public:
     ~wxDialog_WaitList();
-
+    virtual void Gui_Refresh();
     void NewDataRefresh(const string &sInfo, int nPercent);
 
-    static const E_wxDialog_Class_Type e_class_type;
+    static const E_DIALOG_TYPE e_dialog_type;
 
-  protected:
-    wxString v_sPrevStr; // previous string message
-
-    struct Data_Refresh_WaitList
+    struct Data_Refresh
     {
-        Data_Refresh_WaitList()
-                : nPercent(0)
-            {
-            }
-        Data_Refresh_WaitList(const string &sInfo, const int nPercent)
-            {
-                Set(sInfo, nPercent);
-            }
-        void Set(const string &sInfo, const int nPercent)
-            {
-                this->sInfo = sInfo;
-                this->nPercent = nPercent;
-            }
         string sInfo;
         int nPercent;
     };
 
-    Data_Refresh_WaitList v_oData_Refresh;
-
+protected:
     virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    virtual void SafeRefresh_Gui();
+    Data_Refresh v_oData_Refresh;
+
+    wxString v_sPrevStr; // previous string message
 };
 
 #endif

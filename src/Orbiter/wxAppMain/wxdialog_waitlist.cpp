@@ -49,7 +49,7 @@ BEGIN_EVENT_TABLE( wxDialog_WaitList, wxDialog_Base )
 END_EVENT_TABLE()
 ;
 
-const E_wxDialog_Class_Type wxDialog_WaitList::e_class_type = E_wxDialog_WaitList;
+const E_DIALOG_TYPE wxDialog_WaitList::e_dialog_type = E_Dialog_WaitList;
 
 /*!
  * wxDialog_WaitList constructors
@@ -105,7 +105,6 @@ void wxDialog_WaitList::CreateControls()
 ////@begin wxDialog_WaitList content construction
     wxDialog_WaitList* itemDialog_Base1 = this;
 
-    this->SetForegroundColour(wxColour(255, 255, 255));
     this->SetBackgroundColour(wxColour(224, 224, 240));
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
@@ -211,7 +210,7 @@ wxDialog_WaitList::~wxDialog_WaitList()
 void wxDialog_WaitList::NewDataRefresh(const string &sInfo, int nPercent)
 {
     _WX_LOG_NFO("(string '%s', int %d)", sInfo.c_str(), nPercent);
-    Data_Refresh_WaitList data_refresh(sInfo, nPercent);
+    Data_Refresh data_refresh = { sInfo, nPercent };
     Data_Holder_Refresh data_holder_refresh(&data_refresh);
     _WX_LOG_DBG("%p", &data_holder_refresh);
     SafeRefresh_NewData(data_holder_refresh);
@@ -221,11 +220,11 @@ void wxDialog_WaitList::SafeRefresh_CopyData(void *pData_Refresh)
 {
     _WX_LOG_NFO();
     _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh_WaitList *pData_Refresh_WaitList = wx_static_cast(Data_Refresh_WaitList *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_WaitList;
+    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
+    v_oData_Refresh = *pData_Refresh_Copy;
 }
 
-void wxDialog_WaitList::SafeRefresh_Gui()
+void wxDialog_WaitList::Gui_Refresh()
 {
     //_WX_LOG_NFO();
     // update info text

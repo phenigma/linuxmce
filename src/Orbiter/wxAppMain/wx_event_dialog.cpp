@@ -5,7 +5,7 @@
 //
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma implementation "wxevent_thread.h"
+#pragma implementation "wx_event_dialog.h"
 #endif
 
 #include "wx/wxprec.h"
@@ -16,18 +16,18 @@
 #include "wx/wx.h"
 #endif
 
-#include "wxevent_thread.h"
-#include "wxthread_cmd.h"
+#include "wx_event_dialog.h"
+#include "wx_dialog_types.h"
 
-DEFINE_EVENT_TYPE(wxEVTC_THREAD)
+DEFINE_EVENT_TYPE(wxEVTC_DIALOG)
 ;
 
-const char * _str_event_thread(wxCommandEvent &event)
+const char * _str_event_dialog(wxCommandEvent &event)
 {
     return wxString::Format(
-        "_str_event_thread(id=%d[%s], str='%s', ptr=%p, int=%ld)",
+        "_str_event_dialog(id=%d[%s], str='%s', ptr=%p, int=%ld)",
         event.GetId(),
-        _str_enum((wxThread_Cmd::E_STATUS)event.GetId()),
+        _str_enum((E_ACTION_TYPE)event.GetId()),
         event.GetString().c_str(),
         event.GetClientData(),
         event.GetInt()

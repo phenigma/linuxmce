@@ -17,9 +17,9 @@
 #endif
 
 #include "wx_helpers.h"
-#include "wxevent_thread.h"
-#include "wxthread_wrapper.h"
-#include "wxthread_bag.h"
+#include "wx_event_thread.h"
+#include "wx_thread_wrapper.h"
+#include "wx_thread_bag.h"
 
 #include "wx/regex.h"
 #include "wx/grid.h"

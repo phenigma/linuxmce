@@ -17,25 +17,31 @@
 #endif
 
 #include "wx_debugging.h"
-#include "wxevent_thread.h"
-#include "wxthread_wrapper.h"
-#include "wxthread_bag.h"
-#include "wx_win_thread.h"
+#include "wx_event_thread.h"
+#include "wx_thread_wrapper.h"
+#include "wx_thread_bag.h"
 #include "wxdialog_roomwizard.h"
 #include "wxdialog_waitgrid.h"
 #include "wxdialog_waitlist.h"
 #include "wxdialog_waituser.h"
+#include "wx_dialog_safe.h"
 
 void _debug_show_dlg()
 {
+#ifdef USE_DEBUG_CODE
     wxDialog_RoomWizard *pWin = NULL;
-    _WX_LOG_DBG("wxDialog_Show");
-    wxDialog_Show<wxDialog_RoomWizard>(pWin = wxDialog_CreateUnique<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME,SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
-    _WX_LOG_DBG("wxDialog_Close");
-    wxDialog_Close<wxDialog_RoomWizard>(pWin);
-    _WX_LOG_DBG("wxDialog_ShowModal");
-    wxDialog_ShowModal<wxDialog_RoomWizard>(pWin = wxDialog_CreateUnique<wxDialog_RoomWizard>(SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME,SYMBOL_WXDIALOG_ROOMWIZARD_TITLE));
-    wxUnusedVar(pWin);
+    _WX_LOG_DBG("Safe_Show");
+    pWin = Safe_CreateUnique<wxDialog_RoomWizard>();
+    Safe_Show<wxDialog_RoomWizard>(pWin);
+    _WX_LOG_DBG("Safe_Close");
+    Safe_Close<wxDialog_RoomWizard>(pWin);
+    _WX_LOG_DBG("Safe_Show Again");
+    pWin = Safe_CreateUnique<wxDialog_RoomWizard>();
+    Safe_Show<wxDialog_RoomWizard>(pWin);
+    _WX_LOG_DBG("Safe_ShowModal");
+    pWin = Safe_CreateUnique<wxDialog_RoomWizard>();
+    Safe_ShowModal<wxDialog_RoomWizard>(pWin);
+#endif // USE_DEBUG_CODE
 }
 
 void _debug_thread_block()
@@ -85,25 +91,27 @@ void _debug_refresh_update()
                 "str aaaa",
                 "str bbbb",
                 "str cccc",
+                "str dddd",
             };
-        static int n=WXSIZEOF(aStr);
-        static int i=0;
-        if (i >= n)
-            i = 0;
-        static int nPercent = i * 10;
-        static int nTimeoutSeconds = 5;
+        static const int n=WXSIZEOF(aStr);
+        static int iLoop=0;
+        int i = iLoop % n;
+        int nPercent = i * 100 / n;
+        int nTimeoutSeconds = 5;
         static map<string, bool> mapStrBool;
         mapStrBool["aaaa"] = (i % 2);
-        mapStrBool["bbbb"] = (i % 2);
-        mapStrBool["cccc"] = (i % 2);
+        mapStrBool["bbbb"] = (i % 3);
+        mapStrBool["cccc"] = (i % 4);
+        mapStrBool["dddd"] = (i % 5);
         static map<int,string> mapIntStr;
         mapIntStr[10] = "aaaa";
         mapIntStr[20] = "bbbb";
         mapIntStr[30] = "cccc";
-        _WX_LOG_DBG("nPercent=%d, nTimeoutSeconds=%d", nPercent, nTimeoutSeconds);
+        mapIntStr[40] = "dddd";
+        _WX_LOG_DBG("iLoop=%d, nPercent=%d, nTimeoutSeconds=%d", iLoop, nPercent, nTimeoutSeconds);
         // refresh update
         {
-            wxDialog_WaitGrid *pwxDialog = (wxDialog_WaitGrid *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITGRID_TITLE);
+            wxDialog_WaitGrid *pwxDialog = ptr_wxDialogByType<wxDialog_WaitGrid>();
             if (pwxDialog)
             {
                 _WX_LOG_DBG("wxDialog_WaitGrid");
@@ -112,7 +120,7 @@ void _debug_refresh_update()
             }
         }
         {
-            wxDialog_WaitList *pwxDialog = (wxDialog_WaitList *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITLIST_TITLE);
+            wxDialog_WaitList *pwxDialog = ptr_wxDialogByType<wxDialog_WaitList>();
             if (pwxDialog)
             {
                 _WX_LOG_DBG("wxDialog_WaitList");
@@ -121,7 +129,7 @@ void _debug_refresh_update()
             }
         }
         {
-            wxDialog_WaitUser *pwxDialog = (wxDialog_WaitUser *)wxWindow::FindWindowByName(SYMBOL_WXDIALOG_WAITUSER_TITLE);
+            wxDialog_WaitUser *pwxDialog = ptr_wxDialogByType<wxDialog_WaitUser>();
             if (pwxDialog)
             {
                 _WX_LOG_DBG("wxDialog_WaitUser");
@@ -129,7 +137,7 @@ void _debug_refresh_update()
                 pwxDialog->NewDataRefresh(aStr[i], nTimeoutSeconds, &mapIntStr);
             }
         }
-        i++;
+        iLoop++;
         if (bInThread)
         {
             wx_sleep(2);

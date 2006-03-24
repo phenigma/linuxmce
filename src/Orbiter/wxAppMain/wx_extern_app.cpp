@@ -17,11 +17,13 @@
 #endif
 
 #include "wx_extern_app.h"
-#include "wxthread_bag.h"
+#include "wx_thread_bag.h"
 
-bool g_USE_EXTERN_APP_ON_IDLE = false;
-bool g_USE_EXTERN_APP_ON_TIMER = false;
+#ifdef USE_RELEASE_CODE
+bool g_USE_EXTERN_APP_ON_THREAD = true;
+#else
 bool g_USE_EXTERN_APP_ON_THREAD = false;
+#endif // USE_RELEASE_CODE
 
 #ifdef USE_RELEASE_CODE
 #  include "../Main.h"
@@ -52,7 +54,7 @@ void ExternApp::Run()
     _WX_LOG_NFO();
     if (! Create())
         return;
-    EventProcess();
+    EventLoop();
     Destroy();
 }
 
@@ -77,7 +79,7 @@ bool ExternApp::Create()
     return true;
 }
 
-bool ExternApp::EventProcess()
+bool ExternApp::EventLoop()
 {
     _WX_LOG_NFO("Event Loop");
 #ifdef USE_RELEASE_CODE
@@ -101,43 +103,4 @@ int ExternApp::Destroy()
     wxDELETE(v_pSDL_App_Object);
 #endif // USE_RELEASE_CODE
     return nExitCode;
-}
-
-int ExternApp_Run_NoWx(int argc, char *argv[])
-{
-    _WX_LOG_NFO("wx not running");
-#ifdef USE_DEBUG_CODE
-    wxUnusedVar(argc);
-    wxUnusedVar(argv);
-#endif // USE_DEBUG_CODE
-#ifdef USE_RELEASE_CODE
-    // CreateObjects
-    SDL_Event_Loop_Data *pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
-    CommandLineParams commandlineparams;
-    bool bStartedOK = ParseCommandLineParams(argc, argv, commandlineparams);
-    if (! bStartedOK)
-    {
-        _WX_LOG_ERR("error returned by : ParseCommandLineParams()");
-        return false;
-    }
-	pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
-    if (pSDL_Event_Loop_Data->pOrbiter == NULL)
-    {
-        _WX_LOG_ERR("error returned by : CreateOrbiter()");
-        return false;
-    }
-    // EventProcess
-    if (pSDL_Event_Loop_Data->pOrbiter)
-    {
-        while (SDL_Event_Process(*pSDL_Event_Loop_Data))
-            ;
-    }
-    // Destroy
-    if (pSDL_Event_Loop_Data->pOrbiter && pSDL_Event_Loop_Data->pOrbiter->m_bReload)
-        g_nExitCode = 2;
-    SDL_Event_Loop_End(*pSDL_Event_Loop_Data);
-    if (g_pPlutoLogger)
-        delete g_pPlutoLogger;
-#endif // USE_RELEASE_CODE
-    return g_nExitCode;
 }

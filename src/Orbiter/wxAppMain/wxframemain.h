@@ -41,6 +41,7 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_SIZE wxSize(500, 300)
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
 #define ID_TOOLBAR_MAIN 10006
+#define ID_TOOL_DBG 10000
 #define ID_TOOL_ROOMWIZARD 10004
 #define ID_TOOL_WAITGRID 10009
 #define ID_TOOL_WAITLIST 10018
@@ -90,6 +91,12 @@ class wxFrameMain: public wxFrame
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
     void OnExitClick( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_DBG
+    void OnToolDbgClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_DBG
+    void OnToolDbgUpdate( wxUpdateUIEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD
     void OnToolRoomwizardClick( wxCommandEvent& event );
@@ -162,8 +169,6 @@ class wxFrameMain: public wxFrame
   public:
     virtual ~wxFrameMain();
     bool Destroy();
-
-    wxLogChain *pLogChain;
 };
 
 extern wxFrameMain *g_pwxFrameMain;
