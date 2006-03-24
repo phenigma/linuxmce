@@ -1947,8 +1947,15 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 				SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
 			}
 		}
-		else if( iPK_Room )
+		else 
 		{
+			if( !iPK_Room )
+			{
+				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
+				if( pRow_Device_ControlledVia )
+					iPK_Room = pRow_Device_ControlledVia->FK_Room_get();
+				g_pPlutoLogger->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d",iPK_Room);
+			}
 			Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
 			if( pRow_Room )
 				SetRoomForDevice(pRow_Device,pRow_Room);
