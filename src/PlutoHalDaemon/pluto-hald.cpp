@@ -139,7 +139,7 @@ void sendMessage(string params, string &returnValue)
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname);
 	if(pEvent != NULL)
 	{			
-		for(int i=0;true;++i) // Wait up to 30 seconds
+		for(int i=0;true;++i) // Wait up to 60 seconds
 		{
 			pEvent->m_pClientSocket->SendString("READY");
 			string sResponse;
@@ -152,10 +152,10 @@ void sendMessage(string params, string &returnValue)
 				break;
 			else if( sResponse=="NO" )
 			{
-				if( i>5 )
+				if( i>11 )
 				{
-					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 30 seconds.  Aborting....");
-					throw(string("Router not ready after 30 seconds.  Aborting...."));
+					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 60 seconds.  Aborting....");
+					throw(string("Router not ready after 60 seconds.  Aborting...."));
 				}
 				g_pPlutoLogger->Write(LV_DEBUG,"DCERouter still loading.  Waiting 5 seconds");
 				Sleep(5000);
@@ -294,7 +294,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			}
 			catch(string ex)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceAdded exception thrown: %s", ex.c_str());
 			}
 			
 			g_free (info_udi);
@@ -361,7 +361,7 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 			}
 			catch(string ex)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceNewCapability exception thrown: %s", ex.c_str());
 			}
 		}
 		
@@ -410,7 +410,7 @@ void myDeviceRemoved(LibHalContext * ctx, const char * udi)
 	}
 	catch(string ex)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceRemoved exception thrown: %s", ex.c_str());
 	}
 }
 
@@ -492,7 +492,7 @@ void initialize(LibHalContext * ctx)
 										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 										StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
 										StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
-										" -1 " + 
+										" 0 " + 
 										"109 " + 
 										buffer,
 										responseCreate );
@@ -501,7 +501,7 @@ void initialize(LibHalContext * ctx)
 				}
 				catch(string ex)
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+					g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: initialize_usb_device exception thrown: %s", ex.c_str());
 				}
 					
 //					g_free (product);
@@ -565,7 +565,7 @@ void initialize(LibHalContext * ctx)
 					}
 					catch(string ex)
 					{
-						g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
+						g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: initialize_usb-serial exception thrown: %s", ex.c_str());
 					}
 				}
 				
@@ -605,7 +605,7 @@ int main(int argc, char* argv[])
 	LibHalContext * ctx = NULL;
 	GMainLoop * loop = NULL;
 	
-	g_pPlutoLogger = new FileLogger("hal.log");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/hal.newlog");
 	
 	if(argc >= 2)
 	{
@@ -639,7 +639,7 @@ int main(int argc, char* argv[])
 	}
 	catch(string ex)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "exception %s\n", ex.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: MAIN exception thrown: %s", ex.c_str());
 		//return 1;
 	}
 
