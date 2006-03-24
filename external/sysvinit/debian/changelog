@@ -2,7 +2,7 @@ sysvinit (2.86.ds1-1.1pluto26) unstable; urgency=high
 
   * Waiting 60sec for pluto-hald to register its devices
 
- -- Razvan Gavril <razvan.g@plutohome.com> Fri, 24 Mar 2006 18:49:19 +0200
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 24 Mar 2006 18:49:19 +0200
 
 sysvinit (2.86.ds1-1.1pluto25) unstable; urgency=low
 
