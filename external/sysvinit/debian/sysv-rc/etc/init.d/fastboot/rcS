@@ -327,6 +327,19 @@ if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
 fi
 
 if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
+
+	Message "Waiting for devices to register to the system ..."
+	WaitTime=120
+	while [[ $WaitTime -gt 0 ]];do
+		WaitTime=$(( $WaitTime - 1))
+
+		if [[ -f /usr/pluto/locks/pluto-hald.wait ]]; then
+			sleep 0.5
+		else
+			WaitTime=-1
+		fi
+	done
+
     Message "Starting Local Devices"
     /etc/init.d/Pluto_Start_LocalDevices.sh
 fi
