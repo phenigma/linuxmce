@@ -1,12 +1,13 @@
 #ifndef __Define_EffectType_H__
 #define __Define_EffectType_H__
 
-#define EFFECTTYPE_Transition_from_main_menu_to_s_CONST 1
-#define EFFECTTYPE_Return_to_main_menu_CONST 2
-#define EFFECTTYPE_Go_to_a_media_remote_with_cove_CONST 3
-#define EFFECTTYPE_Go_to_a_fullscreen_media_play_CONST 4
-#define EFFECTTYPE_Select_a_scenario_which_does_n_CONST 5
-#define EFFECTTYPE_Highlight_a_datagrid_cell_CONST 6
+#define EFFECTTYPE_no_effect_CONST 1
+#define EFFECTTYPE_Transition_from_main_menu_to_s_CONST 2
+#define EFFECTTYPE_Return_to_main_menu_CONST 3
+#define EFFECTTYPE_Go_to_a_media_remote_with_cove_CONST 4
+#define EFFECTTYPE_Go_to_a_fullscreen_media_play_CONST 5
+#define EFFECTTYPE_Select_a_scenario_which_does_n_CONST 6
+#define EFFECTTYPE_Highlight_a_datagrid_cell_CONST 7
 
 #define EFFECTTYPE_TABLE "EffectType"
 #define EFFECTTYPE_PK_EFFECTTYPE_FIELD "PK_EffectType"
