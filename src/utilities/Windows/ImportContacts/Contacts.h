@@ -13,6 +13,8 @@ public:
 	string title, jobDescription, companyName;
 
 	string phoneHome, homeBusiness, phoneMobile;
+	string phoneFax;
+
 	string homeAddress, businessAddress;
 	string email;
 };

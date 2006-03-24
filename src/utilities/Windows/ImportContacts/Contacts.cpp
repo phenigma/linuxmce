@@ -16,13 +16,14 @@ fstream& operator << (fstream& f, const Contact& contact)
 	f << "First name:" << contact.firstName << endl;
 	f << "Last name:" << contact.lastName << endl;
 
-	//string title, jobDescription, 
+	f << contact.title << endl;
+	f << contact.jobDescription << endl;
 	f << "Company name:" << contact.companyName << endl;
 
 	f << "Home phone:" << contact.phoneHome << endl;
 	f << "Bussiness phone:" << contact.homeBusiness << endl;
 	f << "Mobile phone:" << contact.phoneMobile << endl;
-
+	f << "Fax phone" << contact.phoneFax << endl;
 
 	f << "Home address:" << contact.homeAddress << endl;
 	f << "business address:" << contact.businessAddress << endl;

@@ -56,6 +56,8 @@ int OutlookWraper::readContacts(ContactsList &list)
 				pContactInfo->homeBusiness = (LPCSTR) m_pContact->GetBusinessTelephoneNumber();
 			if( (LPCSTR) m_pContact->GetMobileTelephoneNumber() != NULL )
 				pContactInfo->phoneMobile = (LPCSTR) m_pContact->GetMobileTelephoneNumber();
+			if( (LPCSTR) m_pContact->GetBusinessFaxNumber() != NULL )
+				pContactInfo->phoneFax = (LPCSTR) m_pContact->GetBusinessFaxNumber();
 
 			if( (LPCSTR) m_pContact->GetHomeAddress() != NULL )
 				pContactInfo->homeAddress = (LPCSTR) m_pContact->GetHomeAddress();

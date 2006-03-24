@@ -184,6 +184,9 @@ bool PlutoDatabase::writeContact( Contact *pContact )
 
 	if( !pContact->phoneMobile.empty() )
 		writePhoneNumber( pContact->phoneMobile, 3, userId );
+
+	if( !pContact->phoneFax.empty() )
+		writePhoneNumber( pContact->phoneMobile, 5, userId );
 }
 
 int PlutoDatabase::existContact(Contact *pContact)
