@@ -141,22 +141,22 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
 				switch(pMessage->m_dwID)
 				{
 				case 188:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
 						CMD_Get_Infrared_Codes(iPK_Device,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
+						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -177,9 +177,9 @@ public:
 				case 250:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					int iPK_Command_Input=atoi(pMessage->m_mapParameters[71].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_Command_Input=atoi(pMessage->m_mapParameters[71].c_str());
 						CMD_Store_Infrared_Code(iPK_Device,sValue_To_Assign.c_str(),iPK_Command_Input,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -230,13 +230,13 @@ public:
 				case 688:
 					{
 						string sCMD_Result="OK";
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Remote_Control_Mapping(&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -254,17 +254,17 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 790:
+				case 793:
 					{
 						string sCMD_Result="OK";
-					int iPK_DeviceCategory=atoi(pMessage->m_mapParameters[206].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_DeviceCategory=atoi(pMessage->m_mapParameters[209].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Sibling_Remotes(iPK_DeviceCategory,&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
