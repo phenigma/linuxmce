@@ -235,6 +235,78 @@ bool USB_UIRT_0038::GetConfig()
 	IRBase::setCommandImpl(this);
 	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	IRReceiverBase::GetConfig(m_pData);
+	
+	#ifdef __linux
+	char devicePath[256];
+
+	strcpy(devicePath, DATA_Get_COM_Port_on_PC().c_str());
+	if (devicePath[0]==0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "No port specified.");
+		return false;
+	}
+#endif
+
+	if (!loadDLL())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
+		Sleep(1000);
+		return 0;
+	}
+
+	if (!fn_UUIRTGetDrvInfo(&drvVersion))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to retrieve uuirtdrv version!\n");
+		Sleep(1000);
+		unLoadDLL();
+		return 0;
+	}
+
+	if (drvVersion != 0x0100)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Invalid uuirtdrv version!\n");
+		Sleep(1000);
+		unLoadDLL();
+		return 0;
+	}
+
+#ifdef __linux
+	hDrvHandle = fnUUIRTOpenEx(devicePath,0,0,0);
+#else
+	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
+#endif
+	if (hDrvHandle == INVALID_HANDLE_VALUE)
+	{
+		DWORD err;
+
+		err = errno;//GetLastError();
+
+		if (err == UUIRTDRV_ERR_NO_DLL)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to find USB-UIRT Driver. Please make sure driver is Installed!\n");
+		}
+		else if (err == UUIRTDRV_ERR_NO_DEVICE)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device!  Please ensure device is connected to the computer!\n");
+		}
+		else if (err == UUIRTDRV_ERR_NO_RESP)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n");
+		}
+		else if (err == UUIRTDRV_ERR_VERSION)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Your USB-UIRT's firmware is not compatible with this API DLL. Please verify you are running the latest API DLL and that you're using the latest version of USB-UIRT firmware!  If problem persists, contact Technical Support!\n");
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to initialize USB-UIRT (unknown error)!\n");
+		}
+
+		unLoadDLL();
+
+		return 0;
+	}
+	
 	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
 	if( pDevice )
 		m_dwPK_Device_IRPlugin = pDevice->m_dwPK_Device;
@@ -321,92 +393,7 @@ bool USB_UIRT_0038::GetConfig()
 		}
 	}*/
 
-#ifdef __linux
-	char devicePath[81];
-	// TODO: Does this need to be a config option?
-	strcpy(devicePath, DEVICE_PATH);
-#endif
-
-	if (!loadDLL())
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
-		return 0;
-	}
-
-	if (!fn_UUIRTGetDrvInfo(&drvVersion))
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to retrieve uuirtdrv version!\n");
-		unLoadDLL();
-		return 0;
-	}
-
-	if (drvVersion != 0x0100)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Invalid uuirtdrv version!\n");
-		unLoadDLL();
-		return 0;
-	}
-
-	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
-	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
-
-	char TTYPort[255];
-	TTYPort[0]=0;
-#ifndef WIN32
-
-	 
-	if(sComPortOnPC.find("/dev/") == 0) 
-	{
-		sComPortOnPC.erase(0, strlen("/dev/"));
-	}
-	strcpy(TTYPort, sComPortOnPC.c_str());
-	//if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
-	//	strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
 	
-	if (TTYPort[0]==0)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: The serial port device was not specified!\n");
-		return false;
-	}
-	hDrvHandle = fnUUIRTOpenEx(TTYPort,0,0,0);
-#else
-	hDrvHandle = fnUUIRTOpenEx("USB-UIRT",0,0,0);
-#endif
-	if (hDrvHandle == INVALID_HANDLE_VALUE)
-	{
-		DWORD err;
-
-#ifdef WIN32
-		err = GetLastError();
-#else
-		err = errno;
-#endif
-
-		if (err == UUIRTDRV_ERR_NO_DLL)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to find USB-UIRT Driver. Please make sure driver is Installed!\n");
-		}
-		else if (err == UUIRTDRV_ERR_NO_DEVICE)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device!  Please ensure device is connected to the computer!\n");
-		}
-		else if (err == UUIRTDRV_ERR_NO_RESP)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device on %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",TTYPort );
-		}
-		else if (err == UUIRTDRV_ERR_VERSION)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Your USB-UIRT's firmware is not compatible with this API DLL. Please verify you are running the latest API DLL and that you're using the latest version of USB-UIRT firmware!  If problem persists, contact Technical Support!\n");
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to initialize USB-UIRT (unknown error)!\n");
-		}
-
-		unLoadDLL();
-		return false;
-	}
-
 	printf("\n");
 
 	// Register a callback function for IR receive...
