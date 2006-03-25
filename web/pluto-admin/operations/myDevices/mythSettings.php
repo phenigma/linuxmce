@@ -17,10 +17,29 @@ function mythSettings($output,$dbADO) {
 	
   	$mythADO= &ADONewConnection('mysql');
   	$mythADO->NConnect($dbMythServer,urlencode($dbMythUser),urlencode($dbMythPass),urlencode($dbMythDatabase));
-
+	$plutomythADO= &ADONewConnection('mysql');
+  	$plutomythADO->NConnect($dbMythServer,urlencode($dbMythUser),urlencode($dbMythPass),urlencode('pluto_myth'));
+	
   	
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
+	
+	
+	$query = "
+		SELECT Installation.*,Version.Description AS V_Desc FROM Installation 
+			LEFT JOIN Version on FK_Version	= PK_Version 
+		WHERE 
+		PK_Installation = ?
+	";
+	$selectInstallation = $dbADO->Execute($query,array($installationID));
+	
+	$zipCode = '';
+	if ($selectInstallation) {
+		$rowInstallation = $selectInstallation->FetchRow();		
+		$zipCode = $rowInstallation['Zip'];
+	}
+
+	
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$mythInputs=getMythInputs($mythADO);
 	$sids = getMythQAM($mythADO);
@@ -65,8 +84,39 @@ function mythSettings($output,$dbADO) {
 
 			$out.='<br>'.$TEXT_MYTH_PICK_MD_CONST.'&nbsp;'.pulldownFromArray($MDArray,'OutputMD', $mdk).'<br>';	
 			
+			
+			
 			for($i=0;$i<count($sids);$i++)
 			{
+				if ($zipCode == '')
+				{
+					$out.='<br><b>'.$TEXT_MYTH_INPUT_ZIP.'</b><br>';		
+				}
+				else
+				{
+					$templates = getTemplates($plutomythADO, $zipCode);
+					if (count($templates) > 1)
+					{
+						$out.='<br>'.$TEXT_MYTH_IMPORT_MULTI_LINEUP.'<br>';
+						
+						$out.=pulldownFromArray($templates,'templatepd_'.$sids[$i],'').'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT.'"><br>';					
+						$out.='<input type="checkbox" name="remove_unknown_'.$sids[$i].'" checked value="1">'.$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS.'<br>';
+
+					}
+					else if (count($templates) == 1)
+					{
+						reset($templates);
+						list($mdk, $mdv) = each($templates);
+						$out.='<br>'.$TEXT_MYTH_IMPORT_ONE_LINEUP.'<br>';
+						$out.=$mdv.'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT.'"><br>';
+						$out.='<input type="checkbox" name="remove_unknown_'.$sids[$i].'" checked value="1">'.$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS.'<br>';
+						$out.='<input type="hidden" name="providerid_'.$sids[$i].'" value="'.$mdk.'">';
+					}
+					else
+					{
+						$out.='<br>'.$TEXT_MYTH_NOIMPORT.$zipCode.'<br>';
+					}				
+				}
 				$UnassignedChannels = getMythQAMUnassignedChannels($mythADO, $sids[$i]);
 				$UnmappedStations = getMythQAMUnmappedEPGChannels($mythADO, $sids[$i]);
 				if (count($UnassignedChannels))
@@ -107,8 +157,12 @@ function mythSettings($output,$dbADO) {
 						       <input type="submit" class="button" name="remove_'.$sids[$i].'_'.$channum.'" value="'.$TEXT_DELETE_CONST.'"></td>
 						       </tr>';						
 					}
-					$out."</table>";					
-					
+					$out.='</table>';
+					if ($zipCode!='')
+					{
+						$out.='<br>'.$TEXT_MYTH_PUBLISH_LINEUP.'<br>';
+						$out.='<input type="text" size="40" name="Provider_'.$sids[$i].'" value="">&nbsp;<input type="submit" class="button" name="publish_'.$sids[$i].'" value="'.$TEXT_MYTH_PUBLISH.'">';
+					}
 				}
 				
 			}		
@@ -137,6 +191,24 @@ function mythSettings($output,$dbADO) {
 		}
 		for($i=0;$i<count($sids);$i++)
 		{
+			if (isset($_POST['import_lineup_'.$sids[$i]]))
+			{
+				$templates = getTemplates($plutomythADO, $zipCode);
+				$RemoveUnknown = (int)@$_POST['remove_unknown_'.$sids[$i]];
+
+				if (count($templates) > 1)
+				{
+					$Provider = $_POST['templatepd_'.$sids[$i]];
+				}
+				else 
+				{
+					$Provider = $_POST['providerid_'.$sids[$i]];
+				}
+				$result = importLineup($plutomythADO, $mythADO, $Provider, $zipCode, $RemoveUnknown, $sids[$i]);
+				Header('Location: index.php?section=mythSettings&msg='.urlencode($result));
+				exit();
+			}	
+			
 			$UnassignedChannels = getMythQAMUnassignedChannels($mythADO, $sids[$i]);
 			for($j=0;$j<count($UnassignedChannels);$j++)
 			{
@@ -165,7 +237,11 @@ function mythSettings($output,$dbADO) {
 				{
 					tuneChannel($mythADO, $dbADO, $channum,$sids[$i]);
 				}				
-			}	
+			}
+			if (isset($_POST['publish_'.$sids[$i]]))
+			{
+				publishLineup($plutomythADO, $mythADO, $_POST['Provider_'.$sids[$i]], $AssignedChannels, $zipCode);
+			}
 			// end process update
 		}
 		
@@ -179,6 +255,91 @@ function mythSettings($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MYTH_SETTINGS_CONST);			
 	$output->output();  		
+}
+
+function importLineup($plutomythADO, $mythADO, $PK_Provider, $zipCode, $removeunknown, $sid)
+{
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mythSettings.lang.php');
+
+	$firstchan = 1;
+	$results = "";
+
+	$rs=$plutomythADO->Execute('SELECT Callsign, Frequency, TPID FROM DTV_Channel WHERE FK_Provider = '.$PK_Provider);
+	while($row=$rs->FetchRow())
+	{
+		$rs2=$mythADO->Execute('SELECT chanid,channum FROM channel WHERE callsign=\''.$row['Callsign'].'\'');
+		if ($epgrow=$rs2->FetchRow())
+		{
+			$rs3=$mythADO->Execute('SELECT channum,chanid FROM channel LEFT JOIN dtv_multiplex ON (channel.mplexid=dtv_multiplex.mplexid)  WHERE frequency=\''.$row['Frequency'].'\' AND serviceid='.$row['TPID']);
+			if ($uarow=$rs3->FetchRow())
+			{
+				if($uarow['chanid']!=$epgrow['chanid'])
+				{
+					assignChannel($mythADO, $uarow['channum'], $epgrow['chanid']);
+					if ($firstchan > 0)
+					{
+						$mythADO->Execute('UPDATE cardinput SET startchan=\''.$epgrow['channum'].'\' WHERE sourceid='.$sid);
+						$firstchan = 0;
+					}
+					$results.=$TEXT_MYTH_IMPSET_ASSIGNED.' '.$uarow['channum'].': '.$row['Callsign'].' ('.$epgrow['channum'].')<br>';
+				}
+				else
+				{
+					if ($firstchan > 0)
+					{
+						$mythADO->Execute('UPDATE cardinput SET startchan=\''.$epgrow['channum'].'\' WHERE sourceid='.$sid);
+						$firstchan = 0;
+					}
+					$results.=$TEXT_MYTH_IMPSET_SKIPPED.' '.$uarow['channum'].' ('.$row['Callsign'].')<br>';
+				}
+			}
+			else
+			{
+				$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOCHANNEL.'<br>';
+			}							
+		}
+		else
+		{
+			$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOEPG.'<br>';
+		}			
+	}
+	if ($firstchan==1)
+	{
+		$results.=$TEXT_MYTH_IMPSET_NO_SUCCESS.'<br>';
+	} 
+	else if($removeunknown)
+	{
+		$mythADO->Execute('DELETE FROM channel WHERE sourceid='.$sid.' AND xmltvid = \'\' AND mplexid <> 0 AND mplexid <> 32767');
+	}
+	return $results;
+}
+
+function publishLineup($plutomythADO, $mythADO, $providerName, $AssignedChannels, $zipCode)
+{
+	if ($providerName == '')
+		return;
+	$rs=$plutomythADO->Execute('SELECT PK_Provider FROM PostalCode_Provider LEFT JOIN Provider ON (FK_Provider = PK_Provider) WHERE EK_PostalCode = '.$zipCode.' AND Description=\''.$providerName.'\';');
+	$PK_Provider = 0;
+	if ($providerrow=$rs->FetchRow())
+	{
+		// Found an existing entry.  Delete existing DTV entries for it.
+		$PK_Provider = $providerrow['PK_Provider'];
+		$plutomythADO->Execute('DELETE FROM DTV_Channel WHERE FK_Provider = '.$PK_Provider);
+	}
+	else
+	{
+		$plutomythADO->Execute('INSERT INTO Provider (Description, FK_ProviderType) VALUES (\''.$providerName.'\', 2)');
+		$PK_Provider = $plutomythADO->Insert_ID();
+		$plutomythADO->Execute('INSERT INTO PostalCode_Provider (EK_PostalCode, FK_Provider) VALUES ('.$zipCode.', '.$PK_Provider.')');
+	}
+	foreach($AssignedChannels['channum'] AS $chanID=>$channum)
+	{
+		$rs=$mythADO->Execute('SELECT callsign,frequency,modulation,serviceid FROM channel LEFT JOIN dtv_multiplex ON (channel.mplexid=dtv_multiplex.mplexid) WHERE chanid='.$chanID);
+		if ($chanrow=$rs->FetchRow())
+		{
+			$plutomythADO->Execute('INSERT INTO DTV_Channel (FK_Provider, Callsign, Frequency, Modulation, APID, VPID, TPID) VALUES ('.$PK_Provider.',\''.$chanrow['callsign'].'\',\''.$chanrow['frequency'].'\',\''.$chanrow['modulation'].'\',0,0,'.$chanrow['serviceid'].')');
+		}
+	}
 }
 
 function tuneChannel($mythADO, $dbADO, $chan, $sid)
@@ -214,6 +375,17 @@ function assignChannel($mythADO, $uachannum, $stationchanid)
 		$err = 'Could not find channum '.$uachannum;		
 	}
 	return $err;
+}
+
+function getTemplates($plutomythADO, $zipCode)
+{
+	$templates=array();
+	$rs=$plutomythADO->Execute('SELECT PK_Provider, Description from PostalCode_Provider LEFT JOIN Provider ON (FK_Provider = PK_Provider) WHERE EK_PostalCode = '.$zipCode.' AND FK_ProviderType=2');
+	while($row=$rs->FetchRow())
+	{
+		$templates[$row['PK_Provider']]=$row['Description'];
+	}
+	return $templates;
 }
 
 function getMythQAM($mythADO)
@@ -263,9 +435,8 @@ function getMythQAMAssignedChannels($mythADO, $sid)
 	$channels=array();
 	$rs=$mythADO->Execute('SELECT chanid, channum, name FROM channel WHERE sourceid='.$sid.' AND xmltvid <> \'\' AND mplexid<32767');
 	while($row=$rs->FetchRow()){
-		$channels['chanid'][$row['channum']]=$row['chanid'];
-		$channels['channum'][$row['channum']]=$row['channum'];
-		$channels['name'][$row['channum']]=$row['name'];
+		$channels['channum'][$row['chanid']]=$row['channum'];
+		$channels['name'][$row['chanid']]=$row['name'];
 	}
 	return $channels;
 }

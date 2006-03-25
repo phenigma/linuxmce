@@ -1,10 +1,10 @@
 <?
 $TEXT_MYTH_SETTINGS_CONST='Myth Settings';
-$TEXT_MYTH_INSTRUCTIONS_CONST='To configure Myth, please go to the computing applications sections on the orbiter and choose MythTV Setup.   Return to this page if you wish to identify HDTV channels detected on a cable system.';
+$TEXT_MYTH_INSTRUCTIONS_CONST='To configure Myth, please go to the computing applications sections on the orbiter and choose MythTV Setup.   Return to this page if you wish to identify HDTV channels detected on a cable system.<br><br>Please note, to configure HDTV QAM cable channels you <b>must create and configure a Zap2it labs account, AND complete a QAM channel scan</b> before the options will become available.';
 $TEXT_PICK_THE_TUNING_DEVICE_CONST='Pick the tuning device';
 $TEXT_MYTH_SETTINGS_UPDATED_CONST='Myth settings updated.';
 $TEXT_MYTH_NOMYTHPLAYER_CONST='Cannot locate a MythTV player on selected device.';
-$TEXT_MYTH_UNASSIGNED_CABLE_CONST='You have an HDTV tuner set up for QAM cable.   Below is the list of channels that are not assigned to the guide.   Click the tune button to view the channel to see what it is, then choose the channel from the drop-down.   You may also choose to import from a known existing channel lineup.';
+$TEXT_MYTH_UNASSIGNED_CABLE_CONST='You have an HDTV tuner set up for QAM cable.   Below is the list of channels that are not assigned to the guide.   Click the tune button to view the channel to see what it is, then choose the channel from the drop-down.';
 $TEXT_MYTH_ASSIGNED_CABLE_CONST='Here are the channels that are associated with guide information.   If you need to re-assign an incorrect channel, remove it and reload the guide data to restore it to the list of unmapped channels:';
 $TEXT_MYTH_NOSTATIONS_CONST='There are unassigned QAM cable channels, but there are no available stations in the EPG to set them to.   Please go to mythtv-setup, and be sure you have created an HDTV-only lineup with zap2it labs, and "fetch channels from listings source" under input connections.';
 $TEXT_MYTH_SET_CONST='Assign';
@@ -13,4 +13,18 @@ $TEXT_MYTH_LOAD_EPG_CONST='Load guide data.';
 $TEXT_MYTH_CHANNEL_CONST='Channel';
 $TEXT_MYTH_STATION_CONST='Station';
 $TEXT_MYTH_PICK_MD_CONST='Show video on: ';
+$TEXT_MYTH_INPUT_ZIP='To check or save pre-set cable lineups, please first input your zip code on the Installation section of this site.';
+$TEXT_MYTH_PUBLISH_LINEUP='To publish your settings for other users, please enter the name of your cable company and click Publish';
+$TEXT_MYTH_PUBLISH='Publish';
+$TEXT_MYTH_NOIMPORT='There are currently no pre-defined QAM layouts for your zip code: ';
+$TEXT_MYTH_IMPORT_ONE_LINEUP='There is an existing HDTV channel mappping for your area.   Click "Import" below to use it.';
+$TEXT_MYTH_IMPORT_MULTI_LINEUP='There are multiple HDTV chanel mappings for your area.  Please select your cable company from the list, and click "Import" to use it.';
+$TEXT_MYTH_IMPORT='Import';
+$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS='Remove unknown channels after import.';
+$TEXT_MYTH_IMPERR_ATTEMPTINGADD='Attempting to add channel: ';
+$TEXT_MYTH_IMPERR_NOCHANNEL='Channel not found on scan.';
+$TEXT_MYTH_IMPERR_NOEPG='Channel not found in EPG.';
+$TEXT_MYTH_IMPERR_NOTEMPLATE='No channels were found on this template!';
+$TEXT_MYTH_IMPSET_ASSIGNED='Assigned channel: ';
+$TEXT_MYTH_IMPSET_SKIPPED='Skipping, already assigned: ';
 ?>
