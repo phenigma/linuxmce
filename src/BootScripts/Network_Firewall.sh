@@ -40,7 +40,14 @@ ForwardPort()
 	[[ "$ExtIP" == dhcp ]] && ExtIP="0.0.0.0/0"
 	
 	echo "  Source port: $SrcPort/$Protocol; Destination: $DestIP:$DestPort$FilterMsg"
-	iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
+	case "$DestIP" in
+		127.0.0.1|0.0.0.0)
+			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j REDIRECT --to-ports "$DestPort"
+		;;
+		*)
+			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
+		;;
+	esac
 }
 
 ClearFirewall()
