@@ -52,6 +52,7 @@ configure-stamp: version-clean $(AUTOGEN)
 	dh_testdir
 
 	[ -e ${filename} ] || wget ftp://download.nvidia.com/XFree86/Linux-x86/1.0-8178/${filename}
+	chmod +x ${filename}
 	./${filename} --extract-only
 	
 	sed 's/^nvidia-graphics-drivers/nvidia-kernel/g'  debian/changelog > debian.binary/changelog
