@@ -238,7 +238,7 @@ for Client in $R; do
 
 		echo -n " Install"
 		mkdir -p $DlPath/usr/pluto/install
-		Files="ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_MD.sh ramdisk.tar.bz2"
+		Files="ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
 		for Stuff in $Files; do
 			cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 		done
