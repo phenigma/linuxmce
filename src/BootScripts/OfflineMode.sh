@@ -30,7 +30,7 @@ function setValue {
 	## to the internet. This is not magic, a symlink in /etc/apt/apt.conf.d/ is pointing
 	## to this file. The fun part is that /usr/pluto/var is shared between mds and core
 	## resulting in a option set to all machines. 
-	if [[ "$Value" != "true" ]]; then
+	if [[ "$Value" == "true" ]]; then
 		cp /usr/pluto/templates/apt.conf.offline.tmpl /usr/pluto/var/apt.conf.offline
 	fi
 	
