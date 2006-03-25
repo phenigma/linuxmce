@@ -112,6 +112,16 @@ deb http://www.yttron.as.ro/ sarge main
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
 	OfflineMode="true"
+        OfflineApt='
+Acquire::http::timeout "-1";
+Acquire::ftp::timeout "-1";
+APT::Get::Download "false";
+APT::Get::Fix-Missing "true";
+'
+        mkdir -p /etc/apt/apt.conf.d/
+        ln -s /usr/pluot/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+        echo $OfflineApt > /usr/pluto/var/apt.conf.offline
+
 fi
 
 PlutoConf="# Pluto config file
