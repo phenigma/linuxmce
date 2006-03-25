@@ -917,6 +917,7 @@ void OSDScreenHandler::LightsSetup_Timer()
 			PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
 			if( pObjStatus )
 				m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+			nd.Release();
 			NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer1" );  // Redraw anything that was changed by this command
 		}
 
