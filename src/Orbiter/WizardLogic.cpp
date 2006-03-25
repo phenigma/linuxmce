@@ -44,14 +44,18 @@ bool WizardLogic::Setup()
 		m_nPK_Command_Input_Video_On_TV=0;
 	m_bUsingReceiverForVideo=false;
 
-	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_ZWave_CONST);
+	return true;
+}
+
+void WizardLogic::LookForZWave()
+{
+	string sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_ZWave_CONST);
 	{
+		MYSQL_ROW row;
 		PlutoSqlResult result_set;
 		if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
 			m_nPK_Device_ZWave = atoi( row[0] );
 	}
-
-	return true;
 }
 
 /*

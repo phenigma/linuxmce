@@ -834,6 +834,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
+	m_pWizardLogic->LookForZWave();
 	if( !m_pWizardLogic->m_nPK_Device_ZWave )
 	{
 		// TODO: This is monster specific
