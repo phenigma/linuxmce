@@ -21,7 +21,7 @@ for i in debian/* debian.binary/*; do
 		continue
 	fi
 	[[ -d "$i" ]] && continue
-	sed -i 's/7174/'"$version"'/g; s/pkg0/pkg1/g; s/glxtokens/glxext/g' "$i"
+	sed -i 's/7174/'"$version"'/g; s/glxtokens/glxext/g' "$i"
 done
 
 sed -i 's/README\(.txt\)*/README.txt/g' debian/nvidia-glx.docs*
