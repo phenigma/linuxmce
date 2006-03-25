@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=7176
+version=7676
 changelog=$(cat <<'END'
 nvidia-graphics-drivers (1.0.$version-1) unstable; urgency=low
 
