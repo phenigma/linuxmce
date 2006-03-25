@@ -1,0 +1,346 @@
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+#include "DCEConfig.h"
+#include "Logger.h"
+#include "MantisAssign.h"
+
+MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <stdio.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#ifdef WIN32
+#include <direct.h>
+#include <conio.h>
+#define chdir _chdir  // Why, Microsoft, why?
+#define mkdir _mkdir  // Why, Microsoft, why?
+#else
+
+#endif
+
+#define  VERSION "<=version=>"
+
+using namespace std;
+using namespace DCE;
+DCEConfig dceConfig;
+
+namespace DCE
+{
+	Logger *g_pPlutoLogger;
+}
+
+void AssignWorkDays(string sUserID);
+void AssignWorkDaysForUser(string sUserID);
+int GetDuration(string sTaskID);
+time_t GetEndTime(string sTaskID,time_t tStartTime);
+time_t AssignTaskIfFits( string sTaskID, time_t tStartTime, time_t tEndTime );
+void AssignTasksFollowingID(time_t tStartTime,time_t tEndTime,list<int> &listNextTasks);
+void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks);
+time_t GetActualStartTimeAndWorkHours(string sUser,time_t tStartTime,int &Hours);
+string GetUserForTask(string sTaskID);
+void RecurseAllFollowingTasks( string sTaskID, list<int> &listNextTasks );
+void Report(string sUserID,string sStartDate,string EndDate);
+void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,string summary,int hours_estimate,int hours_actual,time_t DateTodo,int ID_After_Todo);
+void WriteDay(string sDate);
+void OutputUser(string sUser,int iHourStart,int iHourStop,string sComment);
+
+int main(int argc, char *argv[])
+{
+	g_pPlutoLogger = new FileLogger(stdout);
+
+	if( argc!=5 )
+	{
+		cout << "Usage: MantisAssign [assign or report or both] [user id or 'all'] [start date] [end date]" << endl
+			<< "dates are: yyyy-mm-dd, and are ignored if only assign is specified" << endl;
+		exit(1);
+	}
+
+	bool bAssign = string(argv[1])=="assign";
+	string sUserID = StringUtils::ToUpper(argv[2]);
+	string sStartDate = argv[3];
+	string sEndDate = argv[4];
+
+	if( string(argv[1])=="assign" || string(argv[1])=="both" )
+		AssignWorkDays(sUserID);
+
+	if( string(argv[1])=="report" || string(argv[1])=="both" )
+		Report(sUserID,sStartDate,sEndDate);
+
+	return 0;
+}
+
+void Report(string sUserID,string sStartDate,string EndDate)
+{
+	string sSQL = "select workday,user_id,hour_start,hour_stop,username,comment FROM work_day "
+		" join mantis_user_table ON mantis_user_table.id=user_id "
+		" where workday>='"
+		+ sStartDate + "' and workday<='" + EndDate + "'";
+
+	if( StringUtils::ToUpper(sUserID)!="ALL" )
+		sSQL += " AND user_id in (" + sUserID + ")";
+
+	string sLastDate;
+
+	PlutoSqlResult result_days;
+	MYSQL_ROW row;
+	if( ( result_days.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
+		while( row=mysql_fetch_row( result_days.r ) )
+		{
+			if( sLastDate!=row[0] )
+			{
+				sLastDate=row[0];
+				WriteDay(sLastDate);
+			}
+
+			OutputUser(row[4],row[2] ? atoi(row[2]) : 0,row[3] ? atoi(row[3]) : 0,row[5] ? row[5] : "");
+			sUserID=row[1];
+
+			sSQL = "select assigned_time,assigned_time.id,severity,status,resolution,summary,hours_estimate,hours_actual,date_todo,id_after_todo FROM assigned_time "
+				"JOIN mantis_bug_table on assigned_time.id=mantis_bug_table.id "
+				"WHERE handler_id=" + sUserID + " and date_format(assigned_time,'%Y-%m-%d')='" + sLastDate + "'"
+				" ORDER BY assigned_time";
+
+			PlutoSqlResult result;
+			MYSQL_ROW row;
+			if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
+				while( row=mysql_fetch_row( result.r ) )
+					OutputTask(StringUtils::SQLDateTime(string(row[0])),
+						atoi(row[1]),atoi(row[2]),atoi(row[3]),atoi(row[4]),row[5],
+						row[6] ? atoi(row[6]) : 0,row[7] ? atoi(row[7]) : 0,
+						row[8] ? StringUtils::SQLDateTime(row[8]) : 0,row[9] ? atoi(row[9]) : 0);
+		}
+}
+
+void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,string summary,int hours_estimate,int hours_actual,time_t DateTodo,int ID_After_Todo)
+{
+	struct tm *ptm = localtime(&time);
+
+	string color="0xffff";
+	if( Status==90 )
+		color="0xaabb";
+
+	cout << "<p><span color=" << color << "><h3>" << ptm->tm_hour << ":" << ptm->tm_min << " <a href=\"http://plutohome.com/support/mantis/view.php?id=" << MantisID << "\">" << summary << "</a></span></h3>"
+		<< endl << "<br>hours estimated: " << hours_estimate << " actual: " << hours_actual << "  after id: " << ID_After_Todo;
+
+	if( DateTodo )
+	{
+		ptm = localtime(&DateTodo);
+		cout << "  date: " << asctime(ptm);
+	}
+
+	cout << endl
+		<< "<br>Severity: ";
+
+	switch(Severity)
+	{
+	case 50:
+		cout << "severe";
+		break;
+	default:
+		cout << Severity;
+	}
+
+	cout << " Resolution: ";
+	
+	switch(Resolution)
+	{
+	case 10:
+		cout << "severe";
+		break;
+	default:
+		cout << Severity;
+	}
+	cout << "</p>" << endl;
+}
+
+void OutputUser(string sUser,int iHourStart,int iHourStop,string sComment)
+{
+	cout << "<p><strong>" << sUser << "</strong> " << sComment << " hours: " << iHourStart << "-" << iHourStop << "</p>" << endl;
+}
+
+void WriteDay(string sDate)
+{
+	cout << "<p><h1>" << sDate << "<h2></p>" << endl;
+}
+
+void AssignWorkDays(string sUserID)
+{
+	string sSQL = "DELETE FROM assigned_time";
+	g_MySqlHelper.threaded_mysql_query(sSQL);
+
+	if( sUserID=="ALL" )
+	{
+		sSQL = "select distinct handler_id from mantis_bug_table";
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
+			while( row=mysql_fetch_row( result.r ) )
+				AssignWorkDaysForUser(row[0]);
+	}
+	else
+		AssignWorkDaysForUser(sUserID);
+}
+
+void AssignWorkDaysForUser(string sUserID)
+{
+	list<int> listNextTasks; // This will be the list of tasks which need to be assigned because they follow
+	// a task that was already assigned.  As they are assigned, 
+	string sSQL = "select id,date_todo from mantis_bug_table where handler_id=" + sUserID + " and date_todo is not null order by date_todo";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+	{
+		string sFirstTask = row[0];
+		string sFirstDate = row[1];
+
+		while(true)
+		{
+			row=mysql_fetch_row( result.r );
+			AssignTaskByDate(sFirstTask,StringUtils::SQLDateTime(sFirstDate),row ? StringUtils::SQLDateTime(row[1]) : 0,listNextTasks); // row[1] is the stop date, ie the first date of the subsequent task
+			if( !row )
+				return;  // We've done all the tasks with a specific date in them
+			sFirstTask = row[0];
+			sFirstDate = row[1];
+		}
+	}
+}
+
+void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks)
+{
+	int Hours;
+	tFirstDate = GetActualStartTimeAndWorkHours(GetUserForTask(sFirstTask),tFirstDate,Hours);
+
+	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sFirstTask + ",'" + StringUtils::SQLDateTime(tFirstDate) + "')";
+	g_MySqlHelper.threaded_mysql_query(sSQL);
+
+	// The next task will start after this one ends
+	time_t tStartTime = GetEndTime(sFirstTask,tFirstDate);
+
+	RecurseAllFollowingTasks( sFirstTask,listNextTasks );
+	AssignTasksFollowingID(tStartTime,tEndTime,listNextTasks);
+}
+
+void AssignTasksFollowingID(time_t tStartTime,time_t tEndTime,list<int> &listNextTasks)
+{
+	for(list<int>::iterator it=listNextTasks.begin();it!=listNextTasks.end();)
+	{
+		string sTask = StringUtils::itos(*it);
+		tStartTime = AssignTaskIfFits( sTask, tStartTime, tEndTime );
+		if( tStartTime==0 )
+			return;  // Doesn't fit
+		listNextTasks.erase(it++);  // We already assigned it
+	}
+}
+
+void RecurseAllFollowingTasks( string sTaskID, list<int> &listNextTasks )
+{
+    // Add in the tasks that should follow this one
+	string sSQL = "SELECT id from mantis_bug_table where id_after_todo=" + sTaskID;
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
+		while ( row=mysql_fetch_row( result.r ) )
+		{
+			listNextTasks.push_back(atoi(row[0]));
+			RecurseAllFollowingTasks( row[0], listNextTasks );
+		}
+}
+
+time_t AssignTaskIfFits( string sTaskID, time_t tStartTime, time_t tEndTime )
+{
+	time_t tMyEndTime = GetEndTime(sTaskID,tStartTime);
+	if( tEndTime && tMyEndTime>tEndTime )
+		return 0;
+	
+	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sTaskID + ",'" + StringUtils::SQLDateTime(tStartTime) + "')";
+	g_MySqlHelper.threaded_mysql_query(sSQL);
+
+	return tMyEndTime;
+}
+
+time_t GetEndTime(string sTaskID,time_t tStartTime)
+{
+	int Duration = GetDuration(sTaskID);
+	while(true)
+	{
+		int Hours;
+		tStartTime = GetActualStartTimeAndWorkHours(GetUserForTask(sTaskID),tStartTime,Hours);
+		time_t tStopTime = tStartTime + Hours * 3600;
+		if( (tStopTime - tStartTime)/3600 >= Duration )
+			return tStartTime + Duration * 3600;
+		Duration -= Hours; // Subtract the hours for this day, and continue to the next
+		tStartTime = tStopTime;
+	}
+}
+
+int GetDuration(string sTaskID)
+{
+	string sSQL = "select hours_estimate,hours_actual from mantis_bug_table where id=" + sTaskID;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+	{
+		if( row[1] && atoi(row[1]) )
+			return atoi(row[1]);
+
+		if( row[0] && atoi(row[0]) )
+			return atoi(row[0]);
+	}
+	return 0;
+}
+
+time_t GetActualStartTimeAndWorkHours(string sUser,time_t tStartTime,int &Hours)
+{
+	// Find the first day that is after that time
+	string sSQL = "select workday,hour_start,hour_stop from work_day where user_id=" + sUser +
+		" and workday>='" + StringUtils::SQLDateTime(tStartTime) + "' order by workday";
+	
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
+	{
+		while ( row=mysql_fetch_row( result.r ) )
+		{
+			if( !row[1] || !row[2] || !atoi(row[2]) || !atoi(row[2]) )
+				continue; // This isn't a work day
+			time_t tTime = StringUtils::SQLDateTime(row[0]);
+			struct tm *ptm = localtime(&tTime);
+
+			// See if we are already after the stop time
+			ptm->tm_hour=atoi(row[2]);
+			time_t tEndOfDay = mktime(ptm);
+			if( tStartTime>=tEndOfDay )
+				continue; // Go to the next day
+
+			ptm->tm_hour=atoi(row[1]);
+			time_t tStartOfDay = mktime(ptm);
+			if( tStartTime>=tStartOfDay ) // The start time is during the day
+			{
+				Hours = (tEndOfDay-tStartTime)/3600;
+				return tStartTime;
+			}
+			Hours = atoi(row[2])-atoi(row[1]);
+			return tStartOfDay;
+		}
+	}
+	return tStartTime;
+}
+
+string GetUserForTask(string sTaskID)
+{
+	string sSQL = "select handler_id from mantis_bug_table where id=" + sTaskID;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		return row[0];
+	else
+		return "";
+}
