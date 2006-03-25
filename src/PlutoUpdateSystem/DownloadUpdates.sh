@@ -14,13 +14,13 @@ function archiveSyncMDfromCORE {
 	local MD_Root=$1
 	
 	chroot $MD_Root apt-get autoclean
-	cp -ru /var/cache/apt/archives $MD_Root/var/cache/apt/archives
+	cp -ru /var/cache/apt/archives/* $MD_Root/var/cache/apt/archives
 }
 
 function archiveSyncCOREfromMD {
 	local MD_Root=$1
 
-	cp -ru $MD_Root/var/cache/apt/archives /var/cache/apt/archives
+	cp -ru $MD_Root/var/cache/apt/archives/* /var/cache/apt/archives
 }
 
 ## This directory shoul be there, but just in case
