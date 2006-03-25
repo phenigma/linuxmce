@@ -73,7 +73,7 @@ read
 
 # This is used so the offline apt mode (see OfflineMode.sh) can work
 mkdir -p /etc/apt/apt.conf.d/
-ln -s /usr/pluot/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline 2>/dev/null
 
 echo "Setting debconf front-end to Noninteractive"
 awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}

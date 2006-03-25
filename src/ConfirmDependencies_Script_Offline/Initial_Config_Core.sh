@@ -119,7 +119,8 @@ APT::Get::Download "false";
 APT::Get::Fix-Missing "true";
 '
         mkdir -p /etc/apt/apt.conf.d/
-        ln -s /usr/pluot/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+        ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+	mkdir -p /usr/pluto/var
         echo $OfflineApt > /usr/pluto/var/apt.conf.offline
 
 fi
