@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=8178
+version=7176
 changelog=$(cat <<'END'
 nvidia-graphics-drivers (1.0.$version-1) unstable; urgency=low
 
@@ -21,7 +21,7 @@ for i in debian/* debian.binary/*; do
 		continue
 	fi
 	[[ -d "$i" ]] && continue
-	sed -i 's/7174/8178/g; s/pkg0/pkg1/g; s/glxtokens/glxext/g' "$i"
+	sed -i 's/7174/'"$version"'/g; s/pkg0/pkg1/g; s/glxtokens/glxext/g' "$i"
 done
 
 sed -i 's/README\(.txt\)*/README.txt/g' debian/nvidia-glx.docs*
