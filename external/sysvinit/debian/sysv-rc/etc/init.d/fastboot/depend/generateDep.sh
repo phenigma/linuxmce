@@ -39,6 +39,7 @@ do
     [ "$(basename $initFile)" == "Pluto_Config_Device_Changes.sh" ] && return
     [ "$(basename $initFile)" == "mysql" ] && continue
     [ "$(basename $initFile)" == "ssh" ] && continue
+    [ "$(basename $initFile)" == "sysklogd" ] && continue
     
     if [[ -x "$initFile" ]]; then
 	echo "$(basename $initFile)" >> /tmp/available.srv

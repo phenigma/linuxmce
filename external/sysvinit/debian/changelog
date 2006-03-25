@@ -1,3 +1,9 @@
+sysvinig (2.86.ds1-1.1pluto27) unstable; urgency=low
+
+  * Syslog started earlyer
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Sat, 25 Mar 2006 20:22:23 +0200
+
 sysvinit (2.86.ds1-1.1pluto26) unstable; urgency=high
 
   * Waiting 60sec for pluto-hald to register its devices

@@ -258,6 +258,10 @@ if [[ -x /usr/pluto/bin/SetupRemoteAccess.sh ]]; then
 	/usr/pluto/bin/SetupRemoteAccess.sh &
 fi
 
+if [[ -x /etc/init.d/sysklogd ]]; then
+	/etc/init.d/sysklogd
+fi
+
 # A hack ?
 if [ -x /etc/init.d/mysql ] ;then
     Message "Starting mysql server"
