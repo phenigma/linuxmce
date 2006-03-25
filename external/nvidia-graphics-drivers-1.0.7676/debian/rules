@@ -51,7 +51,7 @@ configure: configure-stamp
 configure-stamp: version-clean $(AUTOGEN)
 	dh_testdir
 
-	[ -e ${filename} ] || wget ftp://download.nvidia.com/XFree86/Linux-x86/1.0-7174/${filename}
+	[ -e ${filename} ] || wget ftp://download.nvidia.com/XFree86/Linux-x86/1.0-7676/${filename}
 	chmod +x ${filename}
 	./${filename} --extract-only
 	
@@ -137,7 +137,7 @@ install: build-stamp build-kernel-stamp
 
 	install -m 0644 $(dirname)/usr/include/GL/glx.h \
 		$(CURDIR)/debian/nvidia-glx-dev/usr/share/doc/nvidia-glx-dev/include/GL
-	install -m 0644 $(dirname)/usr/include/GL/glxtokens.h \
+	install -m 0644 $(dirname)/usr/include/GL/glxext.h \
 		$(CURDIR)/debian/nvidia-glx-dev/usr/share/doc/nvidia-glx-dev/include/GL
 
 	install -m 0644 $(dirname)/usr/lib/libGL.so.${version} \
