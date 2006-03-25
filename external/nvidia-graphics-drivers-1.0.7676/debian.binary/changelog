@@ -1,4 +1,4 @@
-nvidia-graphics-drivers (1.0.7676-1) unstable; urgency=low
+nvidia-kernel (1.0.7676-1) unstable; urgency=low
 
   * built with 7676
 
