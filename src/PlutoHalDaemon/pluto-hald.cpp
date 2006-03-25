@@ -157,7 +157,7 @@ void sendMessage(string params, string &returnValue)
 			string sResponse;
 			if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
+				g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Cannot communicate with router");
 				throw(string("Cannot communicate with router"));
 			}
 			if( sResponse=="YES" )
@@ -306,7 +306,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			}
 			catch(string ex)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceAdded exception thrown: %s", ex.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: myDeviceAdded exception thrown: %s", ex.c_str());
 			}
 			
 			g_free (info_udi);
@@ -375,7 +375,7 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 			}
 			catch(string ex)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceNewCapability exception thrown: %s", ex.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: myDeviceNewCapability exception thrown: %s", ex.c_str());
 			}
 		}
 		
@@ -424,7 +424,7 @@ void myDeviceRemoved(LibHalContext * ctx, const char * udi)
 	}
 	catch(string ex)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: myDeviceRemoved exception thrown: %s", ex.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: myDeviceRemoved exception thrown: %s", ex.c_str());
 	}
 }
 
@@ -515,7 +515,7 @@ void initialize(LibHalContext * ctx)
 				}
 				catch(string ex)
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: initialize_usb_device exception thrown: %s", ex.c_str());
+					g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: initialize_usb_device exception thrown: %s", ex.c_str());
 				}
 					
 //					g_free (product);
@@ -580,7 +580,7 @@ void initialize(LibHalContext * ctx)
 					}
 					catch(string ex)
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: initialize_usb-serial exception thrown: %s", ex.c_str());
+						g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: initialize_usb-serial exception thrown: %s", ex.c_str());
 					}
 				}
 				
@@ -664,7 +664,7 @@ int main(int argc, char* argv[])
 	}
 	catch(string ex)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "01\tERROR: MAIN exception thrown: %s", ex.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: MAIN exception thrown: %s", ex.c_str());
 		//return 1;
 	}
 
