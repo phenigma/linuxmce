@@ -331,7 +331,7 @@ namespace DCE
 			{
 				Command_Impl *pPlugIn = (*it).second;
 				vector<string> vectPendingTasks;
-				g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
+				g_pPlutoLogger->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
 				if( !pPlugIn->PendingTasks(&vectPendingTasks) )
 				{
 					if( PK_Device_Requesting )

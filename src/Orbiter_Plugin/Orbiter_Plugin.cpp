@@ -2447,13 +2447,13 @@ bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		if( *it == iPK_Device )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL, "RowOrbiter for %d", iPK_Device);			
+g_pPlutoLogger->Write(LV_STATUS, "RowOrbiter for %d", iPK_Device);			
 			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(iPK_Device);
 			if(pRow_Orbiter)
 			{
-g_pPlutoLogger->Write(LV_CRITICAL, "About to reload row for %d", iPK_Device);				
+g_pPlutoLogger->Write(LV_STATUS, "About to reload row for %d", iPK_Device);				
 				pRow_Orbiter->Reload();
-g_pPlutoLogger->Write(LV_CRITICAL, "Reloaded row for %d", iPK_Device);					
+g_pPlutoLogger->Write(LV_STATUS, "Reloaded row for %d", iPK_Device);					
 				if(pRow_Orbiter->RegenPercent_get() == 100)
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = false (scheduled)",iPK_Device);

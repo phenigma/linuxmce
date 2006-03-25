@@ -57,7 +57,7 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
             DeviceData_Router *pDeviceData_Router = *it;
             MediaDevice *pMediaDevice = m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
             if( !pMediaDevice )
-                g_pPlutoLogger->Write( LV_CRITICAL, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str() );
+                g_pPlutoLogger->Write( LV_WARNING, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str() );
             else
                 m_listMediaDevice.push_back( pMediaDevice );
         }
