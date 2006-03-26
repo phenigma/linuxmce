@@ -16,6 +16,10 @@ case "$DCERouter" in
 	*) RouterIP="$DCERouter" ;;
 esac
 
+if [[ "$ExtIP" == dhcp ]]; then
+	ExtIP="$ExtIPreal dhcp"
+fi
+
 if [[ "$Orbiter" == y ]]; then
 	if [[ -n "$IntIf" ]]; then
 		echo "router=$RouterIP; internal=$IntIP($IntIf); external=$ExtIP($ExtIf)"

@@ -141,6 +141,9 @@ if PackageIsInstalled pluto-dcerouter; then
 		IntIP=192.168.80.1
 		IntNetmask=255.255.255.0
 	fi
+	if [[ "$ExtIP" == dhcp ]]; then
+		ExtIPreal=$(ip a ls dev "$ExtIf" | grep -m 1 'inet ' | awk '{print $2}' | cut -d/ -f1)
+	fi
 else
 	# MDs don't have an internal interface and their network details aren't stored in the database
 	IntIf=
