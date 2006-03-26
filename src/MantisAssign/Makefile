@@ -7,8 +7,8 @@ CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
 LDFLAGS=-L$(ROOT)/lib
 LDLIBS=-lDCECommon -lSerializeClass -lmysqlclient_r -lPlutoUtils
 
-all: Main.o MantisAssign.o UserUtils.o
-	g++ Main.o MantisAssign.o UserUtils.o -o MantisAssign $(LDFLAGS) $(LDLIBS)
+all: Main.o 
+	g++ Main.o -o MantisAssign $(LDFLAGS) $(LDLIBS)
 	cp MantisAssign $(ROOT)/bin/
 
 clean:

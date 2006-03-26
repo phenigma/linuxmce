@@ -1,11 +1,11 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/MySQLHelper.h"
 #include "DCEConfig.h"
 #include "Logger.h"
-#include "MantisAssign.h"
 
-MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
+MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
 
 #include <iostream>
 #include <sstream>
@@ -122,11 +122,13 @@ void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,
 {
 	struct tm *ptm = localtime(&time);
 
-	string color="0xffff";
+	string color="white";
 	if( Status==90 )
-		color="0xaabb";
+		color="green";
+	if( Status==80 )
+		color="yellow";
 
-	cout << "<p><span color=" << color << "><h3>" << ptm->tm_hour << ":" << ptm->tm_min << " <a href=\"http://plutohome.com/support/mantis/view.php?id=" << MantisID << "\">" << summary << "</a></span></h3>"
+	cout << "<p><div style=\"background-color: " << color << "\"><h3>" << ptm->tm_hour << ":" << ptm->tm_min << " <a href=\"http://plutohome.com/support/mantis/view.php?id=" << MantisID << "\">" << summary << "</a></div></h3>"
 		<< endl << "<br>hours estimated: " << hours_estimate << " actual: " << hours_actual << "  after id: " << ID_After_Todo;
 
 	if( DateTodo )
