@@ -924,6 +924,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	{
 		vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_dwPK_Users];
 
+		// Put this here to debug why sometimes the user and room aren't selected when the screen first appears
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::RenderObject obj %s bound to user %d, got ptr %p",
+			pObj->m_ObjectID.c_str(),m_dwPK_Users,pvectGraphic);
+
 		if( pvectGraphic )
 			pObj->m_pvectCurrentGraphic = pvectGraphic;
 		if( pObj->m_pvectCurrentGraphic )
@@ -3147,38 +3151,51 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				CMD_Goto_Screen("", atoi(m_sInitialScreen.c_str()));
 			else
 				GotoMainMenu();
-		}
 
-		// AB 12/29/2005 -- Needed to move this up since orbiter registered may cause
-		// bind icon commands to come back, which aren't available until after the startup commands
-		// And we can't call the startup commands until the above scope is terminated so a goto a screen with NeedToRender
-		if( m_pScreenHistory_Current )
-		{
-			DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
-			for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+			// AB 3/26/2006.  The sequence here is tough.  We can't process received messages
+			// until the m_pScreenHistory_Current is valid.  Normally it's not valid until the
+			// screen goto is complete.  Previously the end of scope was here, so it did the
+			// goto screen at this point.  But this meant the onload actions for the screen 
+			// were executed before the onstartup.  So, we'll temporarily fake the current screen
+			// so the startup commands can go through.
+			m_pScreenHistory_Current=render.m_pScreenHistory_get();
+			
+			// AB 12/29/2005 -- Needed to move this up since orbiter registered may cause
+			// bind icon commands to come back, which aren't available until after the startup commands
+			// And we can't call the startup commands until the above scope is terminated so a goto a screen with NeedToRender
+			if( m_pScreenHistory_Current )
 			{
-				DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
-				if(  pObj->m_Action_StartupList.size(  )>0  )
-					ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
+				DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
+				for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+				{
+					DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
+					if(  pObj->m_Action_StartupList.size(  )>0  )
+						ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
+				}
 			}
-		}
 
-		char *pData=NULL; int iSize=0;
-		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
-			m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
-		DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
-		CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
-		if( !SendCommand( CMD_Orbiter_Registered ) )
-		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
+			char *pData=NULL; int iSize=0;
+			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
+				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
+			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
+			if( !SendCommand( CMD_Orbiter_Registered ) )
+			{
+				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
 
-			//when this happens, it's because someone did a reload router while orbiter was reloading
-			OnUnexpectedDisconnect();
-			return;
-		}
-		m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
-		m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
-		delete pData;
+				//when this happens, it's because someone did a reload router while orbiter was reloading
+				OnUnexpectedDisconnect();
+				return;
+			}
+			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
+			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
+			delete pData;
+
+			// Debug various issues with startup sequence irregularities
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::Initialize finished startup phase");
+		} // Originally this context ended before the startup actions.  This meant onload actions,
+		// like Send Orbiter Popups, were getting sent out before the orbiter registered command.  In the 
+		// case of popups, this meant popups were disabled and then immediately enabled again
 
 		if( !m_pScreenHistory_Current )
 		{
@@ -7160,6 +7177,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,Message *pMessage)
 //<-dceag-c254-e->
 {
+	// Put this here to debug why sometimes the user and room aren't selected when the screen first appears
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Bind_Icon %s %s %d (size %d)",sPK_DesignObj.c_str(),sType.c_str(),(int) bChild,(int) m_mapObj_Bound.size());
 	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
 	if( !pObj )

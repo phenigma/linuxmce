@@ -1867,6 +1867,7 @@ namespace DCE
 		}
 
 		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
+		class ScreenHistory *m_pScreenHistory_get() { return m_pScreenHistory; }
 	};
 
 	//<-dceag-end-b->
