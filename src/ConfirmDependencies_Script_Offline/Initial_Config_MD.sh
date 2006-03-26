@@ -11,6 +11,7 @@ WhereCode="in diskless.conf"
 
 echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
+echo "deb file:/usr/pluto/deb-cache/ sarge main" > /etc/apt/sources.list.offline
 apt-get update &>/dev/null
 
 # Format: OK-Device-Code

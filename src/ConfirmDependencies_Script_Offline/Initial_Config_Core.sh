@@ -108,6 +108,10 @@ deb http://deb.plutohome.com/debian/ sarge main non-free contrib
 deb http://deb.plutohome.com/debian/ unstable mythtv
 deb http://www.yttron.as.ro/ sarge main
 # Pluto sources - end"
+SourcesOffline="# Pluto sources offline - start
+deb file:/usr/pluto/deb-cache/ sarge main
+# Pluto sources offline - end"
+"
 
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
@@ -117,6 +121,8 @@ Acquire::http::timeout "-1";
 Acquire::ftp::timeout "-1";
 APT::Get::Download "false";
 APT::Get::Fix-Missing "true";
+APT::Get::quiet "1";
+Dir::Etc::sourcelist "sources.list.offline";
 '
         mkdir -p /etc/apt/apt.conf.d/
         ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
@@ -143,6 +149,7 @@ OfflineMode = $OfflineMode
 echo "$PlutoConf" >/etc/pluto.conf
 
 echo "$Sources" >/etc/apt/sources.list
+echo "$SourcesOffline" >/etc/apt/sources.list.offline
 apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
