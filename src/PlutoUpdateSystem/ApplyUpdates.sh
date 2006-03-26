@@ -4,28 +4,30 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 ## Failsafe check
-UpgFix=/usr/pluto/install/UpgradeFix.sh
-rm -f "$UpgFix"
-wget -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix.sh 2>/dev/null
-if [[ -f /usr/pluto/install/UpgradeFix.sh ]]; then
-	chmod +x /usr/pluto/install/UpgradeFix.sh
-	if [[ "$(tail -1 /usr/pluto/install/UpgradeFix.sh)" != "### END ###" ]]; then
-		echo "UpgradeFix download incomplete"
-		exit 1
+if [[ $OfflineMode == "false" ]]; then
+	UpgFix=/usr/pluto/install/UpgradeFix.sh
+	rm -f "$UpgFix"
+	wget -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix.sh 2>/dev/null
+	if [[ -f /usr/pluto/install/UpgradeFix.sh ]]; then
+		chmod +x /usr/pluto/install/UpgradeFix.sh
+		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix.sh)" != "### END ###" ]]; then
+			echo "UpgradeFix download incomplete"
+			exit 1
+		fi
+		/usr/pluto/install/UpgradeFix.sh
+		exit $?
 	fi
-	/usr/pluto/install/UpgradeFix.sh
-	exit $?
-fi
 
-wget -P /tmp http://www.plutohome.com/fallbackUpdate.txt 2> /dev/null
-if [[ -f /tmp/fallbackUpdate.txt ]]; then
-	apt-get update
-	dpkg --forget-old-unavail
-	apt-get -V -f -y dist-upgrade
+	wget -P /tmp http://www.plutohome.com/fallbackUpdate.txt 2> /dev/null
+	if [[ -f /tmp/fallbackUpdate.txt ]]; then
+		apt-get update
+		dpkg --forget-old-unavail
+		apt-get -V -f -y dist-upgrade
 
-	rm -f /tmp/fallbackUpdate.txt
-	#reboot
-	exit 0
+		rm -f /tmp/fallbackUpdate.txt
+		#reboot
+		exit 0
+	fi
 fi
 
 ## Check to see if this is a Core or a MD
