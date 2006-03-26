@@ -5,6 +5,7 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 
+//MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
 MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
 
 #include <iostream>
@@ -159,6 +160,20 @@ void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,
 	default:
 		cout << Severity;
 	}
+	
+	cout << " Status: ";
+	
+	switch(Status)
+	{
+	case 90:
+		cout << "closed";
+		break;
+	case 80:
+		cout << "resolved";
+		break;
+	default:
+		cout << Status;
+	}	
 	cout << "</p>" << endl;
 }
 
@@ -169,7 +184,7 @@ void OutputUser(string sUser,int iHourStart,int iHourStop,string sComment)
 
 void WriteDay(string sDate)
 {
-	cout << "<p><h1>" << sDate << "<h2></p>" << endl;
+	cout << "<p><h1>" << sDate << "<h1></p>" << endl;
 }
 
 void AssignWorkDays(string sUserID)
