@@ -91,6 +91,9 @@ void *GeneratorThread( void *p)
 	srand( (unsigned)time(NULL) );
 	static int Count = 0;
 
+	Sleep(60000); // Last minute add per Chris since sometmies this runs before the orbiter has connected
+	// if other devices haven't started right away
+
 #ifdef BLUETOOTH_DONGLE
 	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #elif defined(PROXY_ORBITER)
