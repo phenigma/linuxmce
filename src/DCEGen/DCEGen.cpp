@@ -331,6 +331,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "#include \"../pluto_main/Define_DeviceTemplate.h\"" << endl;
 	fstr_DeviceCommand << "#include \"../pluto_main/Define_Event.h\"" << endl;
 	fstr_DeviceCommand << "#include \"../pluto_main/Define_EventParameter.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_DeviceData.h\"" << endl;
 	fstr_DeviceCommand << endl << endl;
 
 	fstr_DeviceCommand << "/**" << endl;
@@ -470,13 +471,18 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t/**" << endl;
 	fstr_DeviceCommand << "\t* @brief Returns the id of the device template" << endl;
 	fstr_DeviceCommand << "\t*/" << endl;
-	fstr_DeviceCommand << "\tvirtual int GetPK_DeviceList() { return "  <<  StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) <<  "; } ;" << endl;
+	fstr_DeviceCommand << "\tvirtual int GetPK_DeviceList() { return "  <<  GetDeviceTemplateConstStr(p_Row_DeviceTemplate) <<  "; } ;" << endl;
 	fstr_DeviceCommand << endl;
 
 	fstr_DeviceCommand << "\t/**" << endl;
 	fstr_DeviceCommand << "\t* @brief Returns the description of the device" << endl;
 	fstr_DeviceCommand << "\t*/" << endl;
 	fstr_DeviceCommand << "\tvirtual const char *GetDeviceDescription() { return \""  << Name <<  "\"; } ;" << endl;
+	fstr_DeviceCommand << endl;
+
+	fstr_DeviceCommand << "\t/**" << endl;
+	fstr_DeviceCommand << "\t* @brief Device data access methods:" << endl;
+	fstr_DeviceCommand << "\t*/" << endl;
 	fstr_DeviceCommand << endl;
 
 	map<int,class DataInfo *>::iterator itDataInfo;
@@ -487,25 +493,25 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		string pID = StringUtils::itos(pDataInfo->m_pRow_DeviceData->PK_DeviceData_get());
 		string pDefine = FileUtils::ValidCPPName(pDataInfo->m_pRow_DeviceData->Description_get());
 		fstr_DeviceCommand << "\t" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get()  << " Get_"  <<
-			pDefine  << "() { ";
+			pDefine  << "()" << endl << "\t{" << endl;
 
 		if( pDataInfo->m_pRow_DeviceData->PK_DeviceData_get()!=DEVICEDATA_COM_Port_on_PC_CONST )
-			fstr_DeviceCommand << "if( m_bRunningWithoutDeviceData ) ";
+			fstr_DeviceCommand << "\t\tif( m_bRunningWithoutDeviceData )" << endl;
 
-		fstr_DeviceCommand << " return " << 
-			CastStringToType("m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device," + pID + ")",
+		fstr_DeviceCommand << "\t\t\treturn " << 
+			CastStringToType("m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device," + GetDeviceDataConstStr(pDataInfo->m_pRow_DeviceData) + ")",
 			pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) <<
 			";";
 		if( pDataInfo->m_pRow_DeviceData->PK_DeviceData_get()!=DEVICEDATA_COM_Port_on_PC_CONST )
-			fstr_DeviceCommand << " else return " << 
-			CastStringToType("m_mapParameters[" + pID + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";";
+			fstr_DeviceCommand << endl << "\t\telse" << endl << "\t\t\treturn " << 
+			CastStringToType("m_mapParameters[" + GetDeviceDataConstStr(pDataInfo->m_pRow_DeviceData) + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";";
 	
-		fstr_DeviceCommand << "}" << endl;
+		fstr_DeviceCommand << endl << "\t}" << endl << endl;
 
 		if(pDataInfo->m_bCanSet)
 		{
 			fstr_DeviceCommand << "\tvoid Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() <<
-				" Value) { SetParm(" << pID << "," << CastTypeToChar("Value",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << "); }" << endl;
+				" Value)" << endl << "\t{" << endl << "\t\tSetParm(" << GetDeviceDataConstStr(pDataInfo->m_pRow_DeviceData) << "," << CastTypeToChar("Value",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ");" << endl <<"\t}" << endl;
 		}
 	}
 
@@ -591,7 +597,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_pEvent_Impl = m_pEvent;" << endl;
-	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(m_dwPK_Device, " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ",m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(m_dwPK_Device, " << GetDeviceTemplateConstStr(p_Row_DeviceTemplate) << ",m_sHostName);" << endl;
 	fstr_DeviceCommand << "\t\tif( m_iInstanceID )" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pEvent->m_pClientSocket->SendString(\"INSTANCE \" + StringUtils::itos(m_iInstanceID));" << endl;
@@ -606,8 +612,8 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t"  << Name  << "_Event *GetEvents() { return ("  << Name  << "_Event *) m_pEvent; };" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Data *GetData() { return ("  << Name  << "_Data *) m_pData; };" << endl;
 	fstr_DeviceCommand << "\tconst char *GetClassName() { return \""   <<  Name   <<  "_Command\"; };" << endl;
-	fstr_DeviceCommand << "\tvirtual int PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << "; };" << endl;
-	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get_static() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
+	fstr_DeviceCommand << "\tvirtual int PK_DeviceTemplate_get() { return " << GetDeviceTemplateConstStr(p_Row_DeviceTemplate) << "; };" << endl;
+	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get_static() { return " << GetDeviceTemplateConstStr(p_Row_DeviceTemplate) <<  "; };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };" << endl;
 
@@ -704,9 +710,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\tif( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\tif( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\t\tint iRepeat=atoi(pMessage->m_mapParameters[72].c_str());" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tint iRepeat=atoi(itRepeat->second.c_str());" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tfor(int i=2;i<=iRepeat;++i)" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\t\tCMD_" << pCommandInfo->CPPName() <<  "("  << pCommandInfo->m_sParmsWithNoType_In << (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") << "sCMD_Result,pMessage);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
@@ -1446,13 +1452,13 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "char *" + (bByReference ? "*" : "") + Prefix + sParameterName + ",int " + (bByReference ? "*" : "") + SizePrefix + sParameterName + "_Size";
 		if( bByReference )
 		{
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + "; ";
-			sAssignParmToLocal+= "pMessageOut->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"]=" +SizePrefix + sParameterName + "_Size;"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapData_Parameters[" + ParameterConstName + "]=" + Prefix + sParameterName + "; ";
+			sAssignParmToLocal+= "pMessageOut->m_mapData_Lengths[" + ParameterConstName + "]=" +SizePrefix + sParameterName + "_Size;\n";
 		}
 		else
 		{
-			sAssignParmToLocal+= "\t\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"];\n";
-			sAssignParmToLocal+= string("\t\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"];\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters[" + ParameterConstName + "];\n";
+			sAssignParmToLocal+= string("\t\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths[" + ParameterConstName + "];\n";
 		}
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName+",&"+SizePrefix+sParameterName+"_Size";
@@ -1467,9 +1473,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "int " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos(" + Prefix + sParameterName + ");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters[" + ParameterConstName + "]=StringUtils::itos(" + Prefix + sParameterName + ");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"].c_str());\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters[" + ParameterConstName + "].c_str());\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1483,9 +1489,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "double " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters[" + ParameterConstName + "]=StringUtils::itos(" + Prefix + sParameterName + ");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters[" + ParameterConstName + "].c_str());\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1499,9 +1505,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "bool " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters[" + ParameterConstName + "]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]==\"1\" ? true : false);\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters[" + ParameterConstName + "]==\"1\" ? true : false);\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1515,9 +1521,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "PlutoColor " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName +");\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters[" + ParameterConstName + "]=StringUtils::itos("+Prefix + sParameterName +");\n";
 		else
-			sAssignParmToLocal+="\t\t\t\t\t\tpMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName+");\n";
+			sAssignParmToLocal+="\t\t\t\t\t\tpMessage->m_mapParameters[" + ParameterConstName + "]=StringUtils::itos("+Prefix + sParameterName+");\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1531,9 +1537,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "string " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + ";\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters[" + ParameterConstName + "]=" + Prefix + sParameterName + ";\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"];\n";
+			sAssignParmToLocal+= "\t\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters[" + ParameterConstName + "];\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName ;
 		else
@@ -1649,7 +1655,10 @@ void DCEGen::WriteGlobals()
 //int k=2;
 //}
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, " << endl;
+		fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+		fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << " /* number of parameters */";
+		fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1668,7 +1677,10 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+		fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+		fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << " /* number of parameters */";
+		fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1687,7 +1699,10 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+		fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+		fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << " /* number of parameters */";
+		fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1706,7 +1721,10 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+		fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+		fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << " /* number of parameters */";
+		fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1725,7 +1743,10 @@ void DCEGen::WriteGlobals()
 				fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 
 			fstr_DeviceCommand << ") {";
-			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+			fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+			fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size()) << " /* number of parameters */";
+			fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
 			fstr_DeviceCommand << "\t};" << endl; // end class
 
@@ -1736,7 +1757,10 @@ void DCEGen::WriteGlobals()
 			if( commandInfo.m_sParmsWithType_In.length()>0 )
 				fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 			fstr_DeviceCommand << ") {";
-			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+			fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+			fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size()) << " /* number of parameters */";
+			fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
 			fstr_DeviceCommand << "\t};" << endl; // end class
 
@@ -1748,7 +1772,10 @@ void DCEGen::WriteGlobals()
 				fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 
 			fstr_DeviceCommand << ") {";
-			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+			fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+			fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size()) << " /* number of parameters */";
+			fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
 			fstr_DeviceCommand << "\t};" << endl; // end class
 
@@ -1760,7 +1787,10 @@ void DCEGen::WriteGlobals()
 				fstr_DeviceCommand << "," << commandInfo.m_sParmsWithType_In;
 
 			fstr_DeviceCommand << ") {";
-			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << endl;
+			fstr_DeviceCommand << "\t\t\t" << GetCommandConstStr(pRow_Command) << "," << endl;
+			fstr_DeviceCommand << "\t\t\t" << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size()) << " /* number of parameters */";
+			fstr_DeviceCommand << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
 			fstr_DeviceCommand << "\t};" << endl; // end class
 		}
@@ -1883,5 +1913,11 @@ string DCEGen::GetEventConstStr(Row_Event* pRow_Event)
 {
 	string sEventConst = "EVENT_" + FileUtils::ValidCPPName(pRow_Event->Description_get()) + "_CONST";
 	return sEventConst;
+}
+//-------------------------------------------------------------------------------------------------------------------
+string DCEGen::GetDeviceDataConstStr(Row_DeviceData* pRow_DeviceData)
+{
+	string sDeviceDataConst = "DEVICEDATA_" + FileUtils::ValidCPPName(pRow_DeviceData->Description_get()) + "_CONST";
+	return sDeviceDataConst;
 }
 //-------------------------------------------------------------------------------------------------------------------

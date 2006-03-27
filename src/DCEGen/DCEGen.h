@@ -73,6 +73,11 @@ class DCEGen : public MySqlHelper
 	*/
 	string GetEventConstStr(Row_Event* pRow_Event);
 
+	/*
+	*	Returns a string with pluto_main's generated const for that device data
+	*/
+	string GetDeviceDataConstStr(Row_DeviceData* pRow_DeviceData);
+
 public:
 	map<int,int> m_mapGeneratedDevices;  // Keep track of the devices we've already generated
 	int m_dwPK_DeviceTemplate;

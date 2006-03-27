@@ -9,6 +9,7 @@
 #include "../pluto_main/Define_DeviceTemplate.h"
 #include "../pluto_main/Define_Event.h"
 #include "../pluto_main/Define_EventParameter.h"
+#include "../pluto_main/Define_DeviceData.h"
 
 
 /**
@@ -77,45 +78,265 @@ public:
 	/**
 	* @brief Returns the id of the device template
 	*/
-	virtual int GetPK_DeviceList() { return 8; } ;
+	virtual int GetPK_DeviceList() { return DEVICETEMPLATE_Orbiter_CONST; } ;
 
 	/**
 	* @brief Returns the description of the device
 	*/
 	virtual const char *GetDeviceDescription() { return "Orbiter"; } ;
 
-	string Get_Path() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,2); else return m_mapParameters[2];}
-	int Get_PK_Users() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,3).c_str()); else return atoi(m_mapParameters[3].c_str());}
-	string Get_Current_Screen() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,4); else return m_mapParameters[4];}
-	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
-	int Get_PK_Distro() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,7).c_str()); else return atoi(m_mapParameters[7].c_str());}
-	bool Get_Development() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,8)=="1" ? true : false); else return (m_mapParameters[8]=="1" ? true : false);}
-	bool Get_No_Effects() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,20)=="1" ? true : false); else return (m_mapParameters[20]=="1" ? true : false);}
-	int Get_PK_Skin() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,24).c_str()); else return atoi(m_mapParameters[24].c_str());}
-	int Get_PK_Size() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,25).c_str()); else return atoi(m_mapParameters[25].c_str());}
-	int Get_PK_Language() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,26).c_str()); else return atoi(m_mapParameters[26].c_str());}
-	string Get_FK_EntertainArea() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,27); else return m_mapParameters[27];}
-	string Get_Update_Name() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,41); else return m_mapParameters[41];}
-	string Get_Communication_file() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,43); else return m_mapParameters[43];}
-	string Get_Timeout() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,56); else return m_mapParameters[56];}
-	string Get_CacheFolder() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,57); else return m_mapParameters[57];}
-	int Get_CacheSize() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,58).c_str()); else return atoi(m_mapParameters[58].c_str());}
-	bool Get_Use_OCG_Format() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,64)=="1" ? true : false); else return (m_mapParameters[64]=="1" ? true : false);}
-	int Get_VideoFrameInterval() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,72).c_str()); else return atoi(m_mapParameters[72].c_str());}
-	int Get_ImageQuality() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,75).c_str()); else return atoi(m_mapParameters[75].c_str());}
-	void Set_ImageQuality(int Value) { SetParm(75,StringUtils::itos(Value).c_str()); }
-	bool Get_Leave_Monitor_on_for_OSD() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,84)=="1" ? true : false); else return (m_mapParameters[84]=="1" ? true : false);}
-	string Get_Ignore_State() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,87); else return m_mapParameters[87];}
-	bool Get_Dont_Auto_Jump_to_Remote() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,95)=="1" ? true : false); else return (m_mapParameters[95]=="1" ? true : false);}
-	int Get_ScreenWidth() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,100).c_str()); else return atoi(m_mapParameters[100].c_str());}
-	int Get_ScreenHeight() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,101).c_str()); else return atoi(m_mapParameters[101].c_str());}
-	int Get_Rotation() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,102).c_str()); else return atoi(m_mapParameters[102].c_str());}
-	int Get_PK_UI() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,104).c_str()); else return atoi(m_mapParameters[104].c_str());}
-	string Get_Hard_Keys_mapping() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,105); else return m_mapParameters[105];}
-	int Get_Using_Infrared() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,111).c_str()); else return atoi(m_mapParameters[111].c_str());}
-	string Get_Remote_Phone_IP() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,118); else return m_mapParameters[118];}
-	int Get_Listen_Port() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,119).c_str()); else return atoi(m_mapParameters[119].c_str());}
-	int Get_PK_Screen() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,132).c_str()); else return atoi(m_mapParameters[132].c_str());}
+	/**
+	* @brief Device data access methods:
+	*/
+
+	string Get_Path()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Path_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Path_CONST];
+	}
+
+	int Get_PK_Users()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Users_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Users_CONST].c_str());
+	}
+
+	string Get_Current_Screen()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Current_Screen_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Current_Screen_CONST];
+	}
+
+	void Set_Current_Screen(string Value)
+	{
+		SetParm(DEVICEDATA_Current_Screen_CONST,Value.c_str());
+	}
+	int Get_PK_Distro()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Distro_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Distro_CONST].c_str());
+	}
+
+	bool Get_Development()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Development_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Development_CONST]=="1" ? true : false);
+	}
+
+	bool Get_No_Effects()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_No_Effects_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_No_Effects_CONST]=="1" ? true : false);
+	}
+
+	int Get_PK_Skin()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Skin_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Skin_CONST].c_str());
+	}
+
+	int Get_PK_Size()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Size_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Size_CONST].c_str());
+	}
+
+	int Get_PK_Language()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Language_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Language_CONST].c_str());
+	}
+
+	string Get_FK_EntertainArea()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_FK_EntertainArea_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_FK_EntertainArea_CONST];
+	}
+
+	string Get_Update_Name()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Update_Name_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Update_Name_CONST];
+	}
+
+	string Get_Communication_file()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Communication_file_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Communication_file_CONST];
+	}
+
+	string Get_Timeout()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Timeout_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Timeout_CONST];
+	}
+
+	string Get_CacheFolder()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_CacheFolder_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_CacheFolder_CONST];
+	}
+
+	int Get_CacheSize()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_CacheSize_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_CacheSize_CONST].c_str());
+	}
+
+	bool Get_Use_OCG_Format()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Use_OCG_Format_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Use_OCG_Format_CONST]=="1" ? true : false);
+	}
+
+	int Get_VideoFrameInterval()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_VideoFrameInterval_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_VideoFrameInterval_CONST].c_str());
+	}
+
+	int Get_ImageQuality()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_ImageQuality_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_ImageQuality_CONST].c_str());
+	}
+
+	void Set_ImageQuality(int Value)
+	{
+		SetParm(DEVICEDATA_ImageQuality_CONST,StringUtils::itos(Value).c_str());
+	}
+	bool Get_Leave_Monitor_on_for_OSD()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Leave_Monitor_on_for_OSD_CONST]=="1" ? true : false);
+	}
+
+	string Get_Ignore_State()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_State_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Ignore_State_CONST];
+	}
+
+	bool Get_Dont_Auto_Jump_to_Remote()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Dont_Auto_Jump_to_Remote_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Dont_Auto_Jump_to_Remote_CONST]=="1" ? true : false);
+	}
+
+	int Get_ScreenWidth()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_ScreenWidth_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_ScreenWidth_CONST].c_str());
+	}
+
+	int Get_ScreenHeight()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_ScreenHeight_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_ScreenHeight_CONST].c_str());
+	}
+
+	int Get_Rotation()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Rotation_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Rotation_CONST].c_str());
+	}
+
+	int Get_PK_UI()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_UI_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_UI_CONST].c_str());
+	}
+
+	string Get_Hard_Keys_mapping()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Hard_Keys_mapping_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Hard_Keys_mapping_CONST];
+	}
+
+	int Get_Using_Infrared()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Using_Infrared_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Using_Infrared_CONST].c_str());
+	}
+
+	string Get_Remote_Phone_IP()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Remote_Phone_IP_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Remote_Phone_IP_CONST];
+	}
+
+	int Get_Listen_Port()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Listen_Port_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Listen_Port_CONST].c_str());
+	}
+
+	int Get_PK_Screen()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Screen_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_PK_Screen_CONST].c_str());
+	}
+
 };
 
 
@@ -196,7 +417,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 8,m_sHostName);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_Orbiter_CONST,m_sHostName);
 		if( m_iInstanceID )
 		{
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
@@ -209,8 +430,8 @@ public:
 	Orbiter_Event *GetEvents() { return (Orbiter_Event *) m_pEvent; };
 	Orbiter_Data *GetData() { return (Orbiter_Data *) m_pData; };
 	const char *GetClassName() { return "Orbiter_Command"; };
-	virtual int PK_DeviceTemplate_get() { return 8; };
-	static int PK_DeviceTemplate_get_static() { return 8; };
+	virtual int PK_DeviceTemplate_get() { return DEVICETEMPLATE_Orbiter_CONST; };
+	static int PK_DeviceTemplate_get_static() { return DEVICETEMPLATE_Orbiter_CONST; };
 	virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
@@ -341,13 +562,13 @@ public:
 				case COMMAND_Capture_Keyboard_To_Variable_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-						string sOnOff=pMessage->m_mapParameters[8];
-						string sType=pMessage->m_mapParameters[14];
-						string sReset=pMessage->m_mapParameters[24];
-						int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
-						bool bDataGrid=(pMessage->m_mapParameters[55]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						string sReset=pMessage->m_mapParameters[COMMANDPARAMETER_Reset_CONST];
+						int iPK_Text=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str());
+						bool bDataGrid=(pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_CONST]=="1" ? true : false);
 						CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -361,9 +582,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,pMessage);
 						}
@@ -386,9 +607,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Orbiter_Beep(sCMD_Result,pMessage);
 						}
@@ -398,8 +619,8 @@ public:
 				case COMMAND_Display_OnOff_CONST:
 					{
 						string sCMD_Result="OK";
-						string sOnOff=pMessage->m_mapParameters[8];
-						bool bAlready_processed=(pMessage->m_mapParameters[125]=="1" ? true : false);
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
+						bool bAlready_processed=(pMessage->m_mapParameters[COMMANDPARAMETER_Already_processed_CONST]=="1" ? true : false);
 						CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -413,9 +634,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,pMessage);
 						}
@@ -425,8 +646,8 @@ public:
 				case COMMAND_Go_back_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-						string sForce=pMessage->m_mapParameters[21];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
+						string sForce=pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST];
 						CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -440,9 +661,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,pMessage);
 						}
@@ -452,12 +673,12 @@ public:
 				case COMMAND_Goto_DesignObj_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sID=pMessage->m_mapParameters[10];
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-						bool bStore_Variables=(pMessage->m_mapParameters[22]=="1" ? true : false);
-						bool bCant_Go_Back=(pMessage->m_mapParameters[114]=="1" ? true : false);
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
+						bool bStore_Variables=(pMessage->m_mapParameters[COMMANDPARAMETER_Store_Variables_CONST]=="1" ? true : false);
+						bool bCant_Go_Back=(pMessage->m_mapParameters[COMMANDPARAMETER_Cant_Go_Back_CONST]=="1" ? true : false);
 						CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -471,9 +692,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,pMessage);
 						}
@@ -483,11 +704,11 @@ public:
 				case COMMAND_Show_Object_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-						string sComparisson_Operator=pMessage->m_mapParameters[6];
-						string sComparisson_Value=pMessage->m_mapParameters[7];
-						string sOnOff=pMessage->m_mapParameters[8];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+						string sComparisson_Operator=pMessage->m_mapParameters[COMMANDPARAMETER_Comparisson_Operator_CONST];
+						string sComparisson_Value=pMessage->m_mapParameters[COMMANDPARAMETER_Comparisson_Value_CONST];
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 						CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -501,9 +722,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,pMessage);
 						}
@@ -526,9 +747,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Terminate_Orbiter(sCMD_Result,pMessage);
 						}
@@ -538,8 +759,8 @@ public:
 				case COMMAND_Remove_Screen_From_History_CONST:
 					{
 						string sCMD_Result="OK";
-						string sID=pMessage->m_mapParameters[10];
-						int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+						int iPK_Screen=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Screen_CONST].c_str());
 						CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -553,9 +774,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						}
@@ -565,9 +786,9 @@ public:
 				case COMMAND_Scroll_Grid_CONST:
 					{
 						string sCMD_Result="OK";
-						string sRelative_Level=pMessage->m_mapParameters[1];
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
+						string sRelative_Level=pMessage->m_mapParameters[COMMANDPARAMETER_Relative_Level_CONST];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPK_Direction=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Direction_CONST].c_str());
 						CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -581,9 +802,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						}
@@ -593,9 +814,9 @@ public:
 				case COMMAND_Move_Highlight_CONST:
 					{
 						string sCMD_Result="OK";
-						string sRelative_Level=pMessage->m_mapParameters[1];
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
+						string sRelative_Level=pMessage->m_mapParameters[COMMANDPARAMETER_Relative_Level_CONST];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPK_Direction=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Direction_CONST].c_str());
 						CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -609,9 +830,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						}
@@ -621,9 +842,9 @@ public:
 				case COMMAND_Play_Sound_CONST:
 					{
 						string sCMD_Result="OK";
-						char *pData=pMessage->m_mapData_Parameters[19];
-						int iData_Size=pMessage->m_mapData_Lengths[19];
-						string sFormat=pMessage->m_mapParameters[20];
+						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
 						CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -637,9 +858,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,pMessage);
 						}
@@ -649,7 +870,7 @@ public:
 				case COMMAND_Refresh_CONST:
 					{
 						string sCMD_Result="OK";
-						string sDataGrid_ID=pMessage->m_mapParameters[15];
+						string sDataGrid_ID=pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 						CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -663,9 +884,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						}
@@ -688,9 +909,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Regen_Screen(sCMD_Result,pMessage);
 						}
@@ -713,9 +934,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Requires_Special_Handling(sCMD_Result,pMessage);
 						}
@@ -725,10 +946,10 @@ public:
 				case COMMAND_Seek_Data_Grid_CONST:
 					{
 						string sCMD_Result="OK";
-						string sText=pMessage->m_mapParameters[9];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-						string sDataGrid_ID=pMessage->m_mapParameters[15];
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
+						string sDataGrid_ID=pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 						CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -742,9 +963,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						}
@@ -754,8 +975,8 @@ public:
 				case COMMAND_Set_Graphic_To_Display_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sID=pMessage->m_mapParameters[10];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
 						CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -769,9 +990,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
 						}
@@ -781,9 +1002,9 @@ public:
 				case COMMAND_Set_Object_Parameter_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sValue_To_Assign=pMessage->m_mapParameters[5];
-						int iPK_DesignObjParameter=atoi(pMessage->m_mapParameters[27].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						int iPK_DesignObjParameter=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObjParameter_CONST].c_str());
 						CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -797,9 +1018,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,pMessage);
 						}
@@ -809,9 +1030,9 @@ public:
 				case COMMAND_Set_Object_Position_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -825,9 +1046,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -837,9 +1058,9 @@ public:
 				case COMMAND_Set_Object_Size_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -853,9 +1074,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -865,9 +1086,9 @@ public:
 				case COMMAND_Set_Pos_Rel_To_Parent_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -881,9 +1102,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -893,9 +1114,9 @@ public:
 				case COMMAND_Set_Size_Rel_To_Parent_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -909,9 +1130,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -921,9 +1142,9 @@ public:
 				case COMMAND_Set_Text_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sText=pMessage->m_mapParameters[9];
-						int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						int iPK_Text=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str());
 						CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -937,9 +1158,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,pMessage);
 						}
@@ -949,8 +1170,8 @@ public:
 				case COMMAND_Set_Bound_Icon_CONST:
 					{
 						string sCMD_Result="OK";
-						string sValue_To_Assign=pMessage->m_mapParameters[5];
-						string sType=pMessage->m_mapParameters[14];
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
 						CMD_Set_Bound_Icon(sValue_To_Assign.c_str(),sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -964,9 +1185,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Bound_Icon(sValue_To_Assign.c_str(),sType.c_str(),sCMD_Result,pMessage);
 						}
@@ -976,8 +1197,8 @@ public:
 				case COMMAND_Set_Variable_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-						string sValue_To_Assign=pMessage->m_mapParameters[5];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
 						CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -991,9 +1212,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,pMessage);
 						}
@@ -1003,8 +1224,8 @@ public:
 				case COMMAND_Simulate_Keypress_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_Button=pMessage->m_mapParameters[26];
-						string sName=pMessage->m_mapParameters[50];
+						string sPK_Button=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Button_CONST];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
 						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1018,9 +1239,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						}
@@ -1030,8 +1251,8 @@ public:
 				case COMMAND_Simulate_Mouse_Click_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1045,9 +1266,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -1070,9 +1291,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Stop_Sound(sCMD_Result,pMessage);
 						}
@@ -1095,9 +1316,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Store_Variables(sCMD_Result,pMessage);
 						}
@@ -1107,11 +1328,11 @@ public:
 				case COMMAND_Update_Object_Image_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sType=pMessage->m_mapParameters[14];
-						char *pData=pMessage->m_mapData_Parameters[19];
-						int iData_Size=pMessage->m_mapData_Lengths[19];
-						string sDisable_Aspect_Lock=pMessage->m_mapParameters[23];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						string sDisable_Aspect_Lock=pMessage->m_mapParameters[COMMANDPARAMETER_Disable_Aspect_Lock_CONST];
 						CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1125,9 +1346,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
 						}
@@ -1137,7 +1358,7 @@ public:
 				case COMMAND_Set_Current_User_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1151,9 +1372,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
 						}
@@ -1163,7 +1384,7 @@ public:
 				case COMMAND_Set_Entertainment_Area_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						string sPK_EntertainArea=pMessage->m_mapParameters[COMMANDPARAMETER_PK_EntertainArea_CONST];
 						CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1177,9 +1398,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						}
@@ -1189,9 +1410,9 @@ public:
 				case COMMAND_Select_Object_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-						string sTime=pMessage->m_mapParameters[102];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
 						CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1205,9 +1426,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						}
@@ -1217,8 +1438,8 @@ public:
 				case COMMAND_Surrender_to_OS_CONST:
 					{
 						string sCMD_Result="OK";
-						string sOnOff=pMessage->m_mapParameters[8];
-						bool bFully_release_keyboard=(pMessage->m_mapParameters[54]=="1" ? true : false);
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
+						bool bFully_release_keyboard=(pMessage->m_mapParameters[COMMANDPARAMETER_Fully_release_keyboard_CONST]=="1" ? true : false);
 						CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1232,9 +1453,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
 						}
@@ -1244,7 +1465,7 @@ public:
 				case COMMAND_Set_Current_Room_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						int iPK_Room=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Room_CONST].c_str());
 						CMD_Set_Current_Room(iPK_Room,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1258,9 +1479,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Current_Room(iPK_Room,sCMD_Result,pMessage);
 						}
@@ -1270,7 +1491,7 @@ public:
 				case COMMAND_Reset_Highlight_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 						CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1284,9 +1505,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						}
@@ -1296,7 +1517,7 @@ public:
 				case COMMAND_Set_Current_Location_CONST:
 					{
 						string sCMD_Result="OK";
-						int iLocationID=atoi(pMessage->m_mapParameters[65].c_str());
+						int iLocationID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_LocationID_CONST].c_str());
 						CMD_Set_Current_Location(iLocationID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1310,9 +1531,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Current_Location(iLocationID,sCMD_Result,pMessage);
 						}
@@ -1335,9 +1556,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Guide(sCMD_Result,pMessage);
 						}
@@ -1360,9 +1581,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_EnterGo(sCMD_Result,pMessage);
 						}
@@ -1372,8 +1593,8 @@ public:
 				case COMMAND_Generic_On_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
-						string sPK_Device_Pipes=pMessage->m_mapParameters[98];
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+						string sPK_Device_Pipes=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
 						CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1387,9 +1608,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
 						}
@@ -1399,7 +1620,7 @@ public:
 				case COMMAND_Generic_Off_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 						CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1413,9 +1634,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
 						}
@@ -1425,7 +1646,7 @@ public:
 				case COMMAND_Toggle_Power_CONST:
 					{
 						string sCMD_Result="OK";
-						string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 						CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1439,9 +1660,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,pMessage);
 						}
@@ -1464,9 +1685,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Move_Up(sCMD_Result,pMessage);
 						}
@@ -1489,9 +1710,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Move_Down(sCMD_Result,pMessage);
 						}
@@ -1514,9 +1735,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Move_Left(sCMD_Result,pMessage);
 						}
@@ -1539,9 +1760,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Move_Right(sCMD_Result,pMessage);
 						}
@@ -1551,7 +1772,7 @@ public:
 				case COMMAND_Continuous_Refresh_CONST:
 					{
 						string sCMD_Result="OK";
-						string sTime=pMessage->m_mapParameters[102];
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
 						CMD_Continuous_Refresh(sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1565,9 +1786,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Continuous_Refresh(sTime.c_str(),sCMD_Result,pMessage);
 						}
@@ -1590,9 +1811,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Back_Prior_Menu(sCMD_Result,pMessage);
 						}
@@ -1602,14 +1823,14 @@ public:
 				case COMMAND_Set_Now_Playing_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sValue_To_Assign=pMessage->m_mapParameters[5];
-						string sText=pMessage->m_mapParameters[9];
-						string sFilename=pMessage->m_mapParameters[13];
-						int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
-						int iValue=atoi(pMessage->m_mapParameters[48].c_str());
-						bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
+						int iValue=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str());
+						bool bRetransmit=(pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]=="1" ? true : false);
 						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,bRetransmit,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1623,9 +1844,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,bRetransmit,sCMD_Result,pMessage);
 						}
@@ -1635,9 +1856,9 @@ public:
 				case COMMAND_Bind_Icon_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sType=pMessage->m_mapParameters[14];
-						bool bChild=(pMessage->m_mapParameters[104]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						bool bChild=(pMessage->m_mapParameters[COMMANDPARAMETER_Child_CONST]=="1" ? true : false);
 						CMD_Bind_Icon(sPK_DesignObj.c_str(),sType.c_str(),bChild,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1651,9 +1872,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Bind_Icon(sPK_DesignObj.c_str(),sType.c_str(),bChild,sCMD_Result,pMessage);
 						}
@@ -1663,7 +1884,7 @@ public:
 				case COMMAND_Clear_Selected_Devices_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 						CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1677,9 +1898,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						}
@@ -1689,7 +1910,7 @@ public:
 				case COMMAND_Set_Main_Menu_CONST:
 					{
 						string sCMD_Result="OK";
-						string sText=pMessage->m_mapParameters[9];
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 						CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1703,9 +1924,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,pMessage);
 						}
@@ -1728,9 +1949,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Quit(sCMD_Result,pMessage);
 						}
@@ -1740,8 +1961,8 @@ public:
 				case COMMAND_Set_Timeout_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sTime=pMessage->m_mapParameters[102];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
 						CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1755,9 +1976,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						}
@@ -1767,7 +1988,7 @@ public:
 				case COMMAND_Keep_Screen_On_CONST:
 					{
 						string sCMD_Result="OK";
-						string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 						CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1781,9 +2002,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,pMessage);
 						}
@@ -1793,7 +2014,7 @@ public:
 				case COMMAND_Set_Mouse_Pointer_Over_Object_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 						CMD_Set_Mouse_Pointer_Over_Object(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1807,9 +2028,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Mouse_Pointer_Over_Object(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						}
@@ -1819,7 +2040,7 @@ public:
 				case COMMAND_Show_Mouse_Pointer_CONST:
 					{
 						string sCMD_Result="OK";
-						string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 						CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1833,9 +2054,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,pMessage);
 						}
@@ -1858,9 +2079,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Back_Clear_Entry(sCMD_Result,pMessage);
 						}
@@ -1870,7 +2091,7 @@ public:
 				case COMMAND_Activate_Window_CONST:
 					{
 						string sCMD_Result="OK";
-						string sName=pMessage->m_mapParameters[50];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
 						CMD_Activate_Window(sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1884,9 +2105,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Activate_Window(sName.c_str(),sCMD_Result,pMessage);
 						}
@@ -1896,8 +2117,8 @@ public:
 				case COMMAND_Send_Message_CONST:
 					{
 						string sCMD_Result="OK";
-						string sText=pMessage->m_mapParameters[9];
-						bool bGo_Back=(pMessage->m_mapParameters[144]=="1" ? true : false);
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						bool bGo_Back=(pMessage->m_mapParameters[COMMANDPARAMETER_Go_Back_CONST]=="1" ? true : false);
 						CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1911,9 +2132,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,pMessage);
 						}
@@ -1923,13 +2144,13 @@ public:
 				case COMMAND_Show_Popup_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-						string sName=pMessage->m_mapParameters[50];
-						bool bExclusive=(pMessage->m_mapParameters[126]=="1" ? true : false);
-						bool bDont_Auto_Hide=(pMessage->m_mapParameters[127]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
+						bool bExclusive=(pMessage->m_mapParameters[COMMANDPARAMETER_Exclusive_CONST]=="1" ? true : false);
+						bool bDont_Auto_Hide=(pMessage->m_mapParameters[COMMANDPARAMETER_Dont_Auto_Hide_CONST]=="1" ? true : false);
 						CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1943,9 +2164,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,pMessage);
 						}
@@ -1955,8 +2176,8 @@ public:
 				case COMMAND_Remove_Popup_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-						string sName=pMessage->m_mapParameters[50];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
 						CMD_Remove_Popup(sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1970,9 +2191,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Remove_Popup(sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						}
@@ -1995,9 +2216,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Shortcuts(sCMD_Result,pMessage);
 						}
@@ -2007,7 +2228,7 @@ public:
 				case COMMAND_Show_File_List_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						CMD_Show_File_List(iPK_MediaType,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2021,9 +2242,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_File_List(iPK_MediaType,sCMD_Result,pMessage);
 						}
@@ -2033,9 +2254,9 @@ public:
 				case COMMAND_Use_Popup_Remote_Controls_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
 						CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2049,9 +2270,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						}
@@ -2061,9 +2282,9 @@ public:
 				case COMMAND_Use_Popup_File_List_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
 						CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2077,9 +2298,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						}
@@ -2089,7 +2310,7 @@ public:
 				case COMMAND_Scale_this_object_CONST:
 					{
 						string sCMD_Result="OK";
-						int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						int iValue=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str());
 						CMD_Scale_this_object(iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2103,9 +2324,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Scale_this_object(iValue,sCMD_Result,pMessage);
 						}
@@ -2115,9 +2336,9 @@ public:
 				case COMMAND_Set_Floorplan_CONST:
 					{
 						string sCMD_Result="OK";
-						string sPK_DesignObj=pMessage->m_mapParameters[3];
-						string sType=pMessage->m_mapParameters[14];
-						bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						bool bTrueFalse=(pMessage->m_mapParameters[COMMANDPARAMETER_TrueFalse_CONST]=="1" ? true : false);
 						CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2131,9 +2352,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,pMessage);
 						}
@@ -2143,9 +2364,9 @@ public:
 				case COMMAND_Show_Floorplan_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-						string sType=pMessage->m_mapParameters[14];
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
 						CMD_Show_Floorplan(iPosition_X,iPosition_Y,sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2159,9 +2380,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Floorplan(iPosition_X,iPosition_Y,sType.c_str(),sCMD_Result,pMessage);
 						}
@@ -2171,7 +2392,7 @@ public:
 				case COMMAND_Forward_local_kb_to_OSD_CONST:
 					{
 						string sCMD_Result="OK";
-						bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
+						bool bTrueFalse=(pMessage->m_mapParameters[COMMANDPARAMETER_TrueFalse_CONST]=="1" ? true : false);
 						CMD_Forward_local_kb_to_OSD(bTrueFalse,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2185,9 +2406,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Forward_local_kb_to_OSD(bTrueFalse,sCMD_Result,pMessage);
 						}
@@ -2197,8 +2418,8 @@ public:
 				case COMMAND_Set_Mouse_Position_Relative_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
 						CMD_Set_Mouse_Position_Relative(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2212,9 +2433,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Mouse_Position_Relative(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						}
@@ -2224,7 +2445,7 @@ public:
 				case COMMAND_Simulate_Mouse_Click_At_Present_Pos_CONST:
 					{
 						string sCMD_Result="OK";
-						string sType=pMessage->m_mapParameters[14];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
 						CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2238,9 +2459,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,pMessage);
 						}
@@ -2250,12 +2471,12 @@ public:
 				case COMMAND_Update_Time_Code_CONST:
 					{
 						string sCMD_Result="OK";
-						int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						string sTime=pMessage->m_mapParameters[102];
-						string sTotal=pMessage->m_mapParameters[132];
-						string sSpeed=pMessage->m_mapParameters[133];
-						string sTitle=pMessage->m_mapParameters[134];
-						string sSection=pMessage->m_mapParameters[135];
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
+						string sTotal=pMessage->m_mapParameters[COMMANDPARAMETER_Total_CONST];
+						string sSpeed=pMessage->m_mapParameters[COMMANDPARAMETER_Speed_CONST];
+						string sTitle=pMessage->m_mapParameters[COMMANDPARAMETER_Title_CONST];
+						string sSection=pMessage->m_mapParameters[COMMANDPARAMETER_Section_CONST];
 						CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2269,9 +2490,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,pMessage);
 						}
@@ -2281,8 +2502,8 @@ public:
 				case COMMAND_Goto_Screen_CONST:
 					{
 						string sCMD_Result="OK";
-						string sID=pMessage->m_mapParameters[10];
-						int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+						int iPK_Screen=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Screen_CONST].c_str());
 						CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2296,9 +2517,9 @@ public:
 							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
 						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
 						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						}
