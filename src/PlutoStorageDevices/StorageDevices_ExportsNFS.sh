@@ -13,7 +13,6 @@ DD_BLOCK_DEVICE=152
 if [[ -f /etc/diskless.conf ]] ;then
         INTERNAL_ADDRESS="$ExtIP"
         INTERNAL_SUBNET_MASK="$ExtNetmask"
-        exit 1
 else
         INTERNAL_SUBNET_MASK="$IntNetmask"
         INTERNAL_ADDRESS="$IntIP"
