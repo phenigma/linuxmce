@@ -43,19 +43,8 @@ namespace DCE
 	class Logger *g_pPlutoLogger;
 }
 
-#ifdef WIN32
-int _tmain(int argc, _TCHAR* argv[])
-{
-
-	//	WSADATA wsaData;
-	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
-#else
 int main(int argc, char *argv[])
 {
-#endif
-
-//	return result == 0;
-
 	g_pPlutoLogger=new FileLogger("DCEGen.log");
 	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";
 	string TemplateInput="../DCEGen",TemplateOutput="",GeneratedOutput="../Gen_Devices";
@@ -679,7 +668,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	if (deviceInfo.m_mapCommandInfo.size()>0)
 	{
-		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)"EOL"\t\t\t{" << endl;
+		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)\n\t\t\t{" << endl;
 		fstr_DeviceCommand << "\t\t\t\tswitch(pMessage->m_dwID)" << endl;
 		fstr_DeviceCommand << "\t\t\t\t{" << endl;
 
@@ -1462,100 +1451,99 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		}
 		else
 		{
-			sAssignParmToLocal+= "\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"];"EOL;
-			sAssignParmToLocal+= string("\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"];"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tchar *" + Prefix + sParameterName + "=pMessage->m_mapData_Parameters["+StringUtils::itos(iParameterID)+"];\n";
+			sAssignParmToLocal+= string("\t\t\t\t\t\tint ") +SizePrefix + sParameterName + "_Size=pMessage->m_mapData_Lengths["+StringUtils::itos(iParameterID)+"];\n";
 		}
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName+",&"+SizePrefix+sParameterName+"_Size";
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName+","+SizePrefix+sParameterName+"_Size";
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t- " + ParameterConstName + ", *"+ Prefix + sParameterName + ",*"+SizePrefix+sParameterName + "_Size";
+			sPassingToMessage+=",\n\t\t\t- " + ParameterConstName + ", *"+ Prefix + sParameterName + ",*"+SizePrefix+sParameterName + "_Size";
 		else
-			sPassingToMessage+=","EOL"\t\t\t- " + ParameterConstName + ", "+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
+			sPassingToMessage+=",\n\t\t\t- " + ParameterConstName + ", "+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
 	}
 	else if (iParameterType == PARAMETERTYPE_int_CONST)
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "int " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos(" + Prefix + sParameterName + ");"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos(" + Prefix + sParameterName + ");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"].c_str());"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tint " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"].c_str());\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName + ").c_str()";
 		else
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
 	}
 	else if (iParameterType == PARAMETERTYPE_double_CONST)
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "double " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::ftos(*"+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::ftos(*"+ Prefix + sParameterName + ").c_str()";
 		else
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::ftos("+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::ftos("+ Prefix + sParameterName + ").c_str()";
 	}
 	else if (iParameterType == PARAMETERTYPE_bool_CONST)
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "bool " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=(" + Prefix + sParameterName + " ? \"1\" : \"0\");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]==\"1\" ? true : false);"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tbool " + Prefix + sParameterName + "=(pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]==\"1\" ? true : false);\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName + " ? \"1\" : \"0\")";
 		else
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", ("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", ("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
 	}
 	else if (iParameterType == PARAMETERTYPE_PlutoColor_CONST)
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "PlutoColor " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName +");"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName +");\n";
 		else
-			sAssignParmToLocal+="\t\t\t\t\tpMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName+");"EOL;
+			sAssignParmToLocal+="\t\t\t\t\t\tpMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"]=StringUtils::itos("+Prefix + sParameterName+");\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName+".m_value).c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName+".m_value).c_str()";
 		else
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
 	}
 	else
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "string " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
-			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + ";"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::itos(iParameterID)+"]=" + Prefix + sParameterName + ";\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"];"EOL;
+			sAssignParmToLocal+= "\t\t\t\t\t\tstring " + Prefix + sParameterName + "=pMessage->m_mapParameters["+StringUtils::itos(iParameterID)+"];\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName ;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName + ".c_str()";
 		if( bByReference )
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName+").c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName+").c_str()";
 		else
-			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", "+ Prefix + sParameterName+".c_str()";
+			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", "+ Prefix + sParameterName+".c_str()";
 	}
 }
-
 
 void DCEGen::WriteGlobals()
 {
@@ -1643,7 +1631,7 @@ void DCEGen::WriteGlobals()
 				}
 
 			}
-			fstr_DeviceCommand << "};"EOL"\t};" << endl;
+			fstr_DeviceCommand << "};" << endl << "\t};" << endl;
 		}
 
 		// Create a constructor with long DeviceIDFrom, long DeviceIDTo
@@ -1667,7 +1655,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};"EOL; // end class
+		fstr_DeviceCommand << "\t};" << endl; // end class
 
 		// Create a constructor with long DeviceIDFrom, string DeviceIDTo
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_DL : public PreformedCommand {" << endl;
@@ -1686,7 +1674,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};"EOL; // end class
+		fstr_DeviceCommand << "\t};" << endl; // end class
 
 		// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_DT : public PreformedCommand {" << endl;
@@ -1705,7 +1693,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};"EOL; // end class
+		fstr_DeviceCommand << "\t};" << endl; // end class
 
 		// 	Create a constructor with long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB
 		fstr_DeviceCommand << "\tclass CMD_" + Name + "_Cat : public PreformedCommand {" << endl;
@@ -1724,7 +1712,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(&commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
 		}
 		fstr_DeviceCommand << " }" << endl;
-		fstr_DeviceCommand << "\t};"EOL; // end class
+		fstr_DeviceCommand << "\t};" << endl; // end class
 
 		// If there are out parameters, create commands that don't use them.  When attaching messages to cells, for example, we will never care about the return value
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
@@ -1739,7 +1727,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};"EOL; // end class
+			fstr_DeviceCommand << "\t};" << endl; // end class
 
 			// Create a constructor with long DeviceIDFrom, string DeviceIDTo
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_DL : public PreformedCommand {" << endl;
@@ -1750,7 +1738,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};"EOL; // end class
+			fstr_DeviceCommand << "\t};" << endl; // end class
 
 			// Create a constructor with long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_DT : public PreformedCommand {" << endl;
@@ -1762,7 +1750,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};"EOL; // end class
+			fstr_DeviceCommand << "\t};" << endl; // end class
 
 			// 	Create a constructor with long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB
 			fstr_DeviceCommand << "\tclass CMD_NOREP_" + Name + "_Cat : public PreformedCommand {" << endl;
@@ -1774,7 +1762,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << ") {";
 			fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
 			fstr_DeviceCommand << " }" << endl;
-			fstr_DeviceCommand << "\t};"EOL; // end class
+			fstr_DeviceCommand << "\t};" << endl; // end class
 		}
 	}
 

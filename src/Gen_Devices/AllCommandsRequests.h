@@ -822,7 +822,7 @@ namespace DCE
 		RESP_Request_Datagrid_Contents(char **pData,int *iData_Size,int *iRow,int *iColumn) { 
 		m_pData=pData; m_iData_Size=iData_Size; m_iRow=iRow; m_iColumn=iColumn; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; *m_iRow=atoi(pMessage->m_mapParameters[32].c_str()); *m_iColumn=atoi(pMessage->m_mapParameters[33].c_str()); };
 	};
 	class CMD_Request_Datagrid_Contents : public PreformedCommand {
 	public:
@@ -946,7 +946,7 @@ namespace DCE
 		RESP_Populate_Datagrid(int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { 
 		m_iPK_Variable=iPK_Variable; m_sValue_To_Assign=sValue_To_Assign; m_bIsSuccessful=bIsSuccessful; m_iWidth=iWidth; m_iHeight=iHeight; }
 		void ParseResponse(Message *pMessage) {
-			*m_iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str()); };
+			*m_iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str()); *m_sValue_To_Assign=pMessage->m_mapParameters[5]; *m_bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false); *m_iWidth=atoi(pMessage->m_mapParameters[60].c_str()); *m_iHeight=atoi(pMessage->m_mapParameters[61].c_str()); };
 	};
 	class CMD_Populate_Datagrid : public PreformedCommand {
 	public:
@@ -1962,7 +1962,7 @@ namespace DCE
 		RESP_Request_File(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Request_File : public PreformedCommand {
 	public:
@@ -2322,7 +2322,7 @@ namespace DCE
 		RESP_Get_Video_Frame(char **pData,int *iData_Size,string *sFormat) { 
 		m_pData=pData; m_iData_Size=iData_Size; m_sFormat=sFormat; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; *m_sFormat=pMessage->m_mapParameters[20]; };
 	};
 	class CMD_Get_Video_Frame : public PreformedCommand {
 	public:
@@ -4106,7 +4106,7 @@ namespace DCE
 		RESP_Get_Infrared_Codes(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Get_Infrared_Codes : public PreformedCommand {
 	public:
@@ -5002,7 +5002,7 @@ namespace DCE
 		RESP_Request_File_And_Checksum(char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only) { 
 		m_pData=pData; m_iData_Size=iData_Size; m_sChecksum=sChecksum; m_bChecksum_Only=bChecksum_Only; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; *m_sChecksum=pMessage->m_mapParameters[91]; *m_bChecksum_Only=(pMessage->m_mapParameters[92]=="1" ? true : false); };
 	};
 	class CMD_Request_File_And_Checksum : public PreformedCommand {
 	public:
@@ -5446,7 +5446,7 @@ namespace DCE
 		RESP_Orbiter_Registered(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Orbiter_Registered : public PreformedCommand {
 	public:
@@ -5522,7 +5522,7 @@ namespace DCE
 		RESP_Text_To_Wave(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Text_To_Wave : public PreformedCommand {
 	public:
@@ -5614,7 +5614,7 @@ namespace DCE
 		RESP_Report_Playback_Position(string *sText,string *sMediaPosition) { 
 		m_sText=sText; m_sMediaPosition=sMediaPosition; }
 		void ParseResponse(Message *pMessage) {
-			*m_sText=pMessage->m_mapParameters[9]; };
+			*m_sText=pMessage->m_mapParameters[9]; *m_sMediaPosition=pMessage->m_mapParameters[42]; };
 	};
 	class CMD_Report_Playback_Position : public PreformedCommand {
 	public:
@@ -6022,7 +6022,7 @@ namespace DCE
 		RESP_Get_Capture_Video_Frame(char **pData,int *iData_Size) { 
 		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); };
+			*m_pData=pMessage->m_mapData_Parameters[19]; pMessage->m_mapData_Parameters.erase(19); *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Get_Capture_Video_Frame : public PreformedCommand {
 	public:
@@ -7294,7 +7294,7 @@ namespace DCE
 		RESP_Get_Room_Description(string *sText,int *iPK_Room) { 
 		m_sText=sText; m_iPK_Room=iPK_Room; }
 		void ParseResponse(Message *pMessage) {
-			*m_sText=pMessage->m_mapParameters[9]; };
+			*m_sText=pMessage->m_mapParameters[9]; *m_iPK_Room=atoi(pMessage->m_mapParameters[57].c_str()); };
 	};
 	class CMD_Get_Room_Description : public PreformedCommand {
 	public:
@@ -12918,7 +12918,7 @@ namespace DCE
 		RESP_Get_Orbiter_Status(string *sValue_To_Assign,string *sText,int *iValue) { 
 		m_sValue_To_Assign=sValue_To_Assign; m_sText=sText; m_iValue=iValue; }
 		void ParseResponse(Message *pMessage) {
-			*m_sValue_To_Assign=pMessage->m_mapParameters[5]; };
+			*m_sValue_To_Assign=pMessage->m_mapParameters[5]; *m_sText=pMessage->m_mapParameters[9]; *m_iValue=atoi(pMessage->m_mapParameters[48].c_str()); };
 	};
 	class CMD_Get_Orbiter_Status : public PreformedCommand {
 	public:

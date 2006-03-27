@@ -341,13 +341,13 @@ public:
 				case COMMAND_Capture_Keyboard_To_Variable_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-					string sOnOff=pMessage->m_mapParameters[8];
-					string sType=pMessage->m_mapParameters[14];
-					string sReset=pMessage->m_mapParameters[24];
-					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
-					bool bDataGrid=(pMessage->m_mapParameters[55]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
+						string sOnOff=pMessage->m_mapParameters[8];
+						string sType=pMessage->m_mapParameters[14];
+						string sReset=pMessage->m_mapParameters[24];
+						int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
+						bool bDataGrid=(pMessage->m_mapParameters[55]=="1" ? true : false);
 						CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -398,8 +398,8 @@ public:
 				case COMMAND_Display_OnOff_CONST:
 					{
 						string sCMD_Result="OK";
-					string sOnOff=pMessage->m_mapParameters[8];
-					bool bAlready_processed=(pMessage->m_mapParameters[125]=="1" ? true : false);
+						string sOnOff=pMessage->m_mapParameters[8];
+						bool bAlready_processed=(pMessage->m_mapParameters[125]=="1" ? true : false);
 						CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -425,8 +425,8 @@ public:
 				case COMMAND_Go_back_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-					string sForce=pMessage->m_mapParameters[21];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						string sForce=pMessage->m_mapParameters[21];
 						CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -452,12 +452,12 @@ public:
 				case COMMAND_Goto_DesignObj_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sID=pMessage->m_mapParameters[10];
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-					bool bStore_Variables=(pMessage->m_mapParameters[22]=="1" ? true : false);
-					bool bCant_Go_Back=(pMessage->m_mapParameters[114]=="1" ? true : false);
+						int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sID=pMessage->m_mapParameters[10];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						bool bStore_Variables=(pMessage->m_mapParameters[22]=="1" ? true : false);
+						bool bCant_Go_Back=(pMessage->m_mapParameters[114]=="1" ? true : false);
 						CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -483,11 +483,11 @@ public:
 				case COMMAND_Show_Object_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-					string sComparisson_Operator=pMessage->m_mapParameters[6];
-					string sComparisson_Value=pMessage->m_mapParameters[7];
-					string sOnOff=pMessage->m_mapParameters[8];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
+						string sComparisson_Operator=pMessage->m_mapParameters[6];
+						string sComparisson_Value=pMessage->m_mapParameters[7];
+						string sOnOff=pMessage->m_mapParameters[8];
 						CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -538,8 +538,8 @@ public:
 				case COMMAND_Remove_Screen_From_History_CONST:
 					{
 						string sCMD_Result="OK";
-					string sID=pMessage->m_mapParameters[10];
-					int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						string sID=pMessage->m_mapParameters[10];
+						int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
 						CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -565,9 +565,9 @@ public:
 				case COMMAND_Scroll_Grid_CONST:
 					{
 						string sCMD_Result="OK";
-					string sRelative_Level=pMessage->m_mapParameters[1];
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
+						string sRelative_Level=pMessage->m_mapParameters[1];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
 						CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -593,9 +593,9 @@ public:
 				case COMMAND_Move_Highlight_CONST:
 					{
 						string sCMD_Result="OK";
-					string sRelative_Level=pMessage->m_mapParameters[1];
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
+						string sRelative_Level=pMessage->m_mapParameters[1];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
 						CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -621,9 +621,9 @@ public:
 				case COMMAND_Play_Sound_CONST:
 					{
 						string sCMD_Result="OK";
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
-					string sFormat=pMessage->m_mapParameters[20];
+						char *pData=pMessage->m_mapData_Parameters[19];
+						int iData_Size=pMessage->m_mapData_Lengths[19];
+						string sFormat=pMessage->m_mapParameters[20];
 						CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -649,7 +649,7 @@ public:
 				case COMMAND_Refresh_CONST:
 					{
 						string sCMD_Result="OK";
-					string sDataGrid_ID=pMessage->m_mapParameters[15];
+						string sDataGrid_ID=pMessage->m_mapParameters[15];
 						CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -725,10 +725,10 @@ public:
 				case COMMAND_Seek_Data_Grid_CONST:
 					{
 						string sCMD_Result="OK";
-					string sText=pMessage->m_mapParameters[9];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-					string sDataGrid_ID=pMessage->m_mapParameters[15];
+						string sText=pMessage->m_mapParameters[9];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sDataGrid_ID=pMessage->m_mapParameters[15];
 						CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -754,8 +754,8 @@ public:
 				case COMMAND_Set_Graphic_To_Display_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sID=pMessage->m_mapParameters[10];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sID=pMessage->m_mapParameters[10];
 						CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -781,9 +781,9 @@ public:
 				case COMMAND_Set_Object_Parameter_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					int iPK_DesignObjParameter=atoi(pMessage->m_mapParameters[27].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sValue_To_Assign=pMessage->m_mapParameters[5];
+						int iPK_DesignObjParameter=atoi(pMessage->m_mapParameters[27].c_str());
 						CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -809,9 +809,9 @@ public:
 				case COMMAND_Set_Object_Position_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -837,9 +837,9 @@ public:
 				case COMMAND_Set_Object_Size_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -865,9 +865,9 @@ public:
 				case COMMAND_Set_Pos_Rel_To_Parent_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -893,9 +893,9 @@ public:
 				case COMMAND_Set_Size_Rel_To_Parent_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -921,9 +921,9 @@ public:
 				case COMMAND_Set_Text_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sText=pMessage->m_mapParameters[9];
-					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sText=pMessage->m_mapParameters[9];
+						int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
 						CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -949,8 +949,8 @@ public:
 				case COMMAND_Set_Bound_Icon_CONST:
 					{
 						string sCMD_Result="OK";
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					string sType=pMessage->m_mapParameters[14];
+						string sValue_To_Assign=pMessage->m_mapParameters[5];
+						string sType=pMessage->m_mapParameters[14];
 						CMD_Set_Bound_Icon(sValue_To_Assign.c_str(),sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -976,8 +976,8 @@ public:
 				case COMMAND_Set_Variable_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
+						string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1003,8 +1003,8 @@ public:
 				case COMMAND_Simulate_Keypress_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_Button=pMessage->m_mapParameters[26];
-					string sName=pMessage->m_mapParameters[50];
+						string sPK_Button=pMessage->m_mapParameters[26];
+						string sName=pMessage->m_mapParameters[50];
 						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1030,8 +1030,8 @@ public:
 				case COMMAND_Simulate_Mouse_Click_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1107,11 +1107,11 @@ public:
 				case COMMAND_Update_Object_Image_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sType=pMessage->m_mapParameters[14];
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
-					string sDisable_Aspect_Lock=pMessage->m_mapParameters[23];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sType=pMessage->m_mapParameters[14];
+						char *pData=pMessage->m_mapData_Parameters[19];
+						int iData_Size=pMessage->m_mapData_Lengths[19];
+						string sDisable_Aspect_Lock=pMessage->m_mapParameters[23];
 						CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1137,7 +1137,7 @@ public:
 				case COMMAND_Set_Current_User_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+						int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1163,7 +1163,7 @@ public:
 				case COMMAND_Set_Entertainment_Area_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						string sPK_EntertainArea=pMessage->m_mapParameters[45];
 						CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1189,9 +1189,9 @@ public:
 				case COMMAND_Select_Object_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-					string sTime=pMessage->m_mapParameters[102];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						string sTime=pMessage->m_mapParameters[102];
 						CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1217,8 +1217,8 @@ public:
 				case COMMAND_Surrender_to_OS_CONST:
 					{
 						string sCMD_Result="OK";
-					string sOnOff=pMessage->m_mapParameters[8];
-					bool bFully_release_keyboard=(pMessage->m_mapParameters[54]=="1" ? true : false);
+						string sOnOff=pMessage->m_mapParameters[8];
+						bool bFully_release_keyboard=(pMessage->m_mapParameters[54]=="1" ? true : false);
 						CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1244,7 +1244,7 @@ public:
 				case COMMAND_Set_Current_Room_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
 						CMD_Set_Current_Room(iPK_Room,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1270,7 +1270,7 @@ public:
 				case COMMAND_Reset_Highlight_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
 						CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1296,7 +1296,7 @@ public:
 				case COMMAND_Set_Current_Location_CONST:
 					{
 						string sCMD_Result="OK";
-					int iLocationID=atoi(pMessage->m_mapParameters[65].c_str());
+						int iLocationID=atoi(pMessage->m_mapParameters[65].c_str());
 						CMD_Set_Current_Location(iLocationID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1372,8 +1372,8 @@ public:
 				case COMMAND_Generic_On_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
-					string sPK_Device_Pipes=pMessage->m_mapParameters[98];
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
+						string sPK_Device_Pipes=pMessage->m_mapParameters[98];
 						CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1399,7 +1399,7 @@ public:
 				case COMMAND_Generic_Off_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[97].c_str());
 						CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1425,7 +1425,7 @@ public:
 				case COMMAND_Toggle_Power_CONST:
 					{
 						string sCMD_Result="OK";
-					string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[8];
 						CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1551,7 +1551,7 @@ public:
 				case COMMAND_Continuous_Refresh_CONST:
 					{
 						string sCMD_Result="OK";
-					string sTime=pMessage->m_mapParameters[102];
+						string sTime=pMessage->m_mapParameters[102];
 						CMD_Continuous_Refresh(sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1602,14 +1602,14 @@ public:
 				case COMMAND_Set_Now_Playing_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					string sText=pMessage->m_mapParameters[9];
-					string sFilename=pMessage->m_mapParameters[13];
-					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
-					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
-					bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
+						int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sValue_To_Assign=pMessage->m_mapParameters[5];
+						string sText=pMessage->m_mapParameters[9];
+						string sFilename=pMessage->m_mapParameters[13];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+						int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
 						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,bRetransmit,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1635,9 +1635,9 @@ public:
 				case COMMAND_Bind_Icon_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sType=pMessage->m_mapParameters[14];
-					bool bChild=(pMessage->m_mapParameters[104]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sType=pMessage->m_mapParameters[14];
+						bool bChild=(pMessage->m_mapParameters[104]=="1" ? true : false);
 						CMD_Bind_Icon(sPK_DesignObj.c_str(),sType.c_str(),bChild,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1663,7 +1663,7 @@ public:
 				case COMMAND_Clear_Selected_Devices_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
 						CMD_Clear_Selected_Devices(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1689,7 +1689,7 @@ public:
 				case COMMAND_Set_Main_Menu_CONST:
 					{
 						string sCMD_Result="OK";
-					string sText=pMessage->m_mapParameters[9];
+						string sText=pMessage->m_mapParameters[9];
 						CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1740,8 +1740,8 @@ public:
 				case COMMAND_Set_Timeout_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sTime=pMessage->m_mapParameters[102];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sTime=pMessage->m_mapParameters[102];
 						CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1767,7 +1767,7 @@ public:
 				case COMMAND_Keep_Screen_On_CONST:
 					{
 						string sCMD_Result="OK";
-					string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[8];
 						CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1793,7 +1793,7 @@ public:
 				case COMMAND_Set_Mouse_Pointer_Over_Object_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
 						CMD_Set_Mouse_Pointer_Over_Object(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1819,7 +1819,7 @@ public:
 				case COMMAND_Show_Mouse_Pointer_CONST:
 					{
 						string sCMD_Result="OK";
-					string sOnOff=pMessage->m_mapParameters[8];
+						string sOnOff=pMessage->m_mapParameters[8];
 						CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1870,7 +1870,7 @@ public:
 				case COMMAND_Activate_Window_CONST:
 					{
 						string sCMD_Result="OK";
-					string sName=pMessage->m_mapParameters[50];
+						string sName=pMessage->m_mapParameters[50];
 						CMD_Activate_Window(sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1896,8 +1896,8 @@ public:
 				case COMMAND_Send_Message_CONST:
 					{
 						string sCMD_Result="OK";
-					string sText=pMessage->m_mapParameters[9];
-					bool bGo_Back=(pMessage->m_mapParameters[144]=="1" ? true : false);
+						string sText=pMessage->m_mapParameters[9];
+						bool bGo_Back=(pMessage->m_mapParameters[144]=="1" ? true : false);
 						CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1923,13 +1923,13 @@ public:
 				case COMMAND_Show_Popup_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-					string sName=pMessage->m_mapParameters[50];
-					bool bExclusive=(pMessage->m_mapParameters[126]=="1" ? true : false);
-					bool bDont_Auto_Hide=(pMessage->m_mapParameters[127]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						string sName=pMessage->m_mapParameters[50];
+						bool bExclusive=(pMessage->m_mapParameters[126]=="1" ? true : false);
+						bool bDont_Auto_Hide=(pMessage->m_mapParameters[127]=="1" ? true : false);
 						CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -1955,8 +1955,8 @@ public:
 				case COMMAND_Remove_Popup_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
-					string sName=pMessage->m_mapParameters[50];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						string sName=pMessage->m_mapParameters[50];
 						CMD_Remove_Popup(sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2007,7 +2007,7 @@ public:
 				case COMMAND_Show_File_List_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
 						CMD_Show_File_List(iPK_MediaType,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2033,9 +2033,9 @@ public:
 				case COMMAND_Use_Popup_Remote_Controls_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
 						CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2061,9 +2061,9 @@ public:
 				case COMMAND_Use_Popup_File_List_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
 						CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2089,7 +2089,7 @@ public:
 				case COMMAND_Scale_this_object_CONST:
 					{
 						string sCMD_Result="OK";
-					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Scale_this_object(iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2115,9 +2115,9 @@ public:
 				case COMMAND_Set_Floorplan_CONST:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sType=pMessage->m_mapParameters[14];
-					bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
+						string sPK_DesignObj=pMessage->m_mapParameters[3];
+						string sType=pMessage->m_mapParameters[14];
+						bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
 						CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2143,9 +2143,9 @@ public:
 				case COMMAND_Show_Floorplan_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
-					string sType=pMessage->m_mapParameters[14];
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						string sType=pMessage->m_mapParameters[14];
 						CMD_Show_Floorplan(iPosition_X,iPosition_Y,sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2171,7 +2171,7 @@ public:
 				case COMMAND_Forward_local_kb_to_OSD_CONST:
 					{
 						string sCMD_Result="OK";
-					bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
+						bool bTrueFalse=(pMessage->m_mapParameters[119]=="1" ? true : false);
 						CMD_Forward_local_kb_to_OSD(bTrueFalse,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2197,8 +2197,8 @@ public:
 				case COMMAND_Set_Mouse_Position_Relative_CONST:
 					{
 						string sCMD_Result="OK";
-					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
-					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+						int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+						int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
 						CMD_Set_Mouse_Position_Relative(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2224,7 +2224,7 @@ public:
 				case COMMAND_Simulate_Mouse_Click_At_Present_Pos_CONST:
 					{
 						string sCMD_Result="OK";
-					string sType=pMessage->m_mapParameters[14];
+						string sType=pMessage->m_mapParameters[14];
 						CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2250,12 +2250,12 @@ public:
 				case COMMAND_Update_Time_Code_CONST:
 					{
 						string sCMD_Result="OK";
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-					string sTime=pMessage->m_mapParameters[102];
-					string sTotal=pMessage->m_mapParameters[132];
-					string sSpeed=pMessage->m_mapParameters[133];
-					string sTitle=pMessage->m_mapParameters[134];
-					string sSection=pMessage->m_mapParameters[135];
+						int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+						string sTime=pMessage->m_mapParameters[102];
+						string sTotal=pMessage->m_mapParameters[132];
+						string sSpeed=pMessage->m_mapParameters[133];
+						string sTitle=pMessage->m_mapParameters[134];
+						string sSection=pMessage->m_mapParameters[135];
 						CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -2281,8 +2281,8 @@ public:
 				case COMMAND_Goto_Screen_CONST:
 					{
 						string sCMD_Result="OK";
-					string sID=pMessage->m_mapParameters[10];
-					int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						string sID=pMessage->m_mapParameters[10];
+						int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
 						CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
