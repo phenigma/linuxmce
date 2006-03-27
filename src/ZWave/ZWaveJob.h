@@ -36,6 +36,9 @@ class ZWaveJob
 		/** It is called to perform the job.*/
 		virtual bool run() = 0;
 		
+		/** Try again the last command.*/
+		virtual bool runAgain();
+		
 		/** It is called to process the protocol data flow.*/
 		virtual bool processData(const char * buffer, size_t length) = 0;
 		
@@ -69,6 +72,9 @@ class ZWaveJob
 	
 		/** Returns the job handler.*/
 		virtual PlutoZWSerialAPI* handler() const;
+		
+		/** Return true if the 'again' flag is set.*/
+		virtual bool again() const;
 		
 	private:
 	

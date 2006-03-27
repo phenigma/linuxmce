@@ -113,7 +113,7 @@ PlutoZWSerialAPI * PlutoZWSerialAPI::instance()
 unsigned char PlutoZWSerialAPI::callbackCount()
 {
 	ref->d->count++;
-	if( 0 == ref->d->count )
+	if( ref->d->count >= 120 )
 	{
 		ref->d->count = 1;
 	}

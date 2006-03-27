@@ -61,7 +61,10 @@ bool ZWJobSwitchBinaryGet::run()
 	data[4] = COMMAND_CLASS_SWITCH_MULTILEVEL;
 	data[5] = SWITCH_BINARY_GET;
 	data[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	d->callbackID = handler()->callbackCount();
+	if( !again() || !d->callbackID )
+	{
+		d->callbackID = handler()->callbackCount();
+	}
 	data[7] = d->callbackID;
 	return handler()->sendData(data, len);
 }

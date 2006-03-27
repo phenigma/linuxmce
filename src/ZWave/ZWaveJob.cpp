@@ -15,6 +15,7 @@ class ZWaveJob::Private
 		ZWaveJob::JobState state;
 		ZWaveJob::ZW_JOB type;
 		time_t receivingTimeout;
+		bool again;
 		
 	private:
 };
@@ -23,7 +24,8 @@ ZWaveJob::Private::Private(PlutoZWSerialAPI * zwAPI)
 	: handler(zwAPI),
 	  state(ZWaveJob::IDLE),
 	  type(ZWaveJob::NOTHING),
-	  receivingTimeout(0)
+	  receivingTimeout(0),
+	  again(false)
 {
 }
 
@@ -91,4 +93,18 @@ void ZWaveJob::setReceivingTimeout(time_t timeout)
 time_t ZWaveJob::receivingTimeout() const
 {
 	return d->receivingTimeout;
+}
+
+bool ZWaveJob::runAgain()
+{
+	d->again = true;
+	bool bRet = run();
+	d->again = false;
+	
+	return bRet;
+}
+
+bool ZWaveJob::again() const
+{
+	return d->again;
 }

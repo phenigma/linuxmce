@@ -230,7 +230,7 @@ void ZWJobInitialize::timeoutHandler()
 		d->triesCount++;
 		
 		// try again the current job
-		if( !d->currentJob->run() )
+		if( !d->currentJob->runAgain() )
 		{
 			setState(ZWaveJob::STOPPED);
 		}

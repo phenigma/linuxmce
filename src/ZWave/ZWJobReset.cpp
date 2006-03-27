@@ -64,7 +64,10 @@ bool ZWJobReset::run()
 	
 	buffer[0] = REQUEST;
 	buffer[1] = FUNC_ID_ZW_SET_DEFAULT;
-	d->callbackID = handler()->callbackCount();
+	if( !again() || !d->callbackID )
+	{
+		d->callbackID = handler()->callbackCount();
+	}
 	buffer[2] = d->callbackID; // Callback FunctionID
 	buffer[3] = 0;
 	

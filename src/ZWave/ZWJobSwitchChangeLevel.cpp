@@ -63,7 +63,10 @@ bool ZWJobSwitchChangeLevel::run()
 	data[5] = SWITCH_MULTILEVEL_SET;
 	data[6] = d->level;
 	data[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	d->callbackID = handler()->callbackCount();
+	if( !again() || !d->callbackID )
+	{
+		d->callbackID = handler()->callbackCount();
+	}
 	data[8] = d->callbackID;
 	
 #ifdef PLUTO_DEBUG
@@ -165,6 +168,9 @@ void ZWJobSwitchChangeLevel::timeoutHandler()
 	if( connection != NULL )
 	{
 		connection->clearSerialBuffer();
-		run();
+		if( !runAgain() )
+		{
+			setState(ZWaveJob::STOPPED);
+		}
 	}
 }
