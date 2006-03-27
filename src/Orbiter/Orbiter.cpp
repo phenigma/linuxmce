@@ -1460,7 +1460,14 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 
 	//if we are now in main menu, we'll purge the history; this is the initial nod from the navigation "tree"
 	if(m_pScreenHistory_Current->GetObj()->m_iBaseObjectID == atoi(m_sMainMenu.c_str()))
+	{
+		list<ScreenHistory *>::iterator it_end = m_listScreenHistory.end(); //cache the end of the list
+		for(list<ScreenHistory *>::iterator it = m_listScreenHistory.begin(); it != it_end; ++it)
+			if(m_pScreenHistory_Current != *it)
+				delete *it;
+
 		m_listScreenHistory.clear();
+	}
 
 #ifdef DEBUG
 	DumpScreenHistory();
