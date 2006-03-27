@@ -11,9 +11,12 @@
 #pragma interface "wx_debugging.h"
 #endif
 
+void _debug_init();
+void * _debug_RoomWizard();
+void _debug_refresh_update();
+
 void _debug_thread_block();
 void _debug_thread_nonblock();
-void _debug_refresh_update();
 
 #endif
 // _WX_DEBUGGING_H_

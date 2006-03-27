@@ -135,25 +135,23 @@ size_t wxThread_Bag::GetRunningCount()
 void wxThread_Bag::OnEvent_Thread(wxCommandEvent& event)
 {
     _WX_LOG_NFO("Received event : %s", _str_event_thread(event));
+    wxThread_Cmd *pwxThread_Cmd = wx_static_cast(wxThread_Cmd *, event.GetClientData());
+    event.Skip();
+    _COND_RET(pwxThread_Cmd != NULL);
+    event.Skip(false);
+    int idx = v_apwxThread_Cmd.Index(pwxThread_Cmd);
+    if (idx == wxNOT_FOUND)
+        return;
+    int id = event.GetId();
+    switch (id)
     {
-        wxThread_Cmd *pwxThread_Cmd = wx_static_cast(wxThread_Cmd *, event.GetClientData());
-        if (pwxThread_Cmd == NULL)
+        case wxThread_Cmd::E_RunEnded:
+            _WX_LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
+            Delete(pwxThread_Cmd);
+            ::wxWakeUpIdle();
+            if (event.GetString() == "ExternApp")
+                wxTheApp->GetTopWindow()->Destroy();
             return;
-        event.Skip();
-        int idx = v_apwxThread_Cmd.Index(pwxThread_Cmd);
-        if (idx == wxNOT_FOUND)
-            return;
-        int id = event.GetId();
-        switch (id)
-        {
-            case wxThread_Cmd::E_RunEnded:
-                _WX_LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
-                Delete(pwxThread_Cmd);
-                ::wxWakeUpIdle();
-                if (event.GetString() == "ExternApp")
-                    wxTheApp->GetTopWindow()->Destroy();
-                return;
-                break;
-        }
+            break;
     }
 }

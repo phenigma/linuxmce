@@ -22,6 +22,7 @@ class wxThread_Cmd
     enum E_STATUS
         {
             E_Unitialized = 0, // thread object not yet created
+            E_Unused = 100,
             E_Created,         // created, not started
             E_CreateError,     // create error
             // ( event sent by thread )

@@ -41,5 +41,7 @@ public:
 #endif // USE_RELEASE_CODE
 };
 
+void Extern_Event_Listener(ExternApp *pExternApp);
+
 #endif
 // _WX_EXTERN_APP_H_

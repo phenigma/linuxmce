@@ -23,6 +23,8 @@
 ////@end includes
 
 #include "wxdialog_base.h"
+#include "wx_event_dialog.h"
+#include "wx_safe_dialog.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -44,27 +46,26 @@ BEGIN_EVENT_TABLE( wxDialog_Base, wxDialog )
     EVT_IDLE( wxDialog_Base::OnIdle )
 
 ////@end wxDialog_Base event table entries
-EVTC_DIALOG(wxID_ANY, wxDialog_Base::OnEvent_Dialog)
+    EVT_WINDOW_CREATE( wxDialog_Base::OnWindowCreate )
+    EVTC_DIALOG(wxID_ANY, wxDialog_Base::OnEvent_Dialog)
 
-EVT_WINDOW_CREATE( wxDialog_Base::OnWindowCreate )
-
-END_EVENT_TABLE()
-;
-
-const E_DIALOG_TYPE wxDialog_Base::e_dialog_type = E_Dialog_Undefined;
+    END_EVENT_TABLE()
+    ;
 
 /*!
  * wxDialog_Base constructors
  */
 
 wxDialog_Base::wxDialog_Base( )
-    : v_bInitialized(false), v_eRefreshStatus(E_Refresh_Ready), v_pData_Holder_Dialog(NULL)
+    : v_bInitialized(false)
+    , v_pData_Holder_Dialog(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
 }
 
 wxDialog_Base::wxDialog_Base( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
-    : v_bInitialized(false), v_eRefreshStatus(E_Refresh_Ready), v_pData_Holder_Dialog(NULL)
+    : v_bInitialized(false)
+    , v_pData_Holder_Dialog(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
     Create(parent, id, caption, pos, size, style);
@@ -117,7 +118,6 @@ void wxDialog_Base::CreateControls()
 void wxDialog_Base::OnIdle( wxIdleEvent& event )
 {
     //_WX_LOG_NFO();
-    SafeRefresh_WhenIdle();
     wxDialog::OnIdle(event);
 ////@begin wxEVT_IDLE event handler for ID_DIALOG_BASE in wxDialog_Base.
     // Before editing this code, remove the block markers.
@@ -170,8 +170,8 @@ bool wxDialog_Base::Destroy()
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
     if (IsModal())
     {
-        _wx_log_wrn("Dialog '%s' Is Modal!", GetLabel().c_str());
-        wxDialog::EndModal(0);
+        _WX_LOG_WRN("Dialog '%s' Is Modal!", GetLabel().c_str());
+        wxDialog::EndModal(GetReturnCode());
         return true;
     }
     if (v_pData_Holder_Dialog)
@@ -186,7 +186,7 @@ void wxDialog_Base::EndModal(int retCode)
     _WX_LOG_NFO("retCode=%d Label='%s'", retCode, GetLabel().c_str());
     if (! IsModal())
     {
-        _wx_log_wrn("Dialog '%s' Is Not Modal!", GetLabel().c_str());
+        _WX_LOG_WRN("Dialog '%s' Is Not Modal!", GetLabel().c_str());
         wxDialog::Destroy();
         return;
     }
@@ -198,6 +198,46 @@ void wxDialog_Base::EndModal(int retCode)
     return wxDialog::EndModal(retCode);
 }
 
+void wxDialog_Base::OnButton_EndModal( wxCommandEvent& event )
+{
+    //_WX_LOG_NFO("%s", _str_event(event));
+    OnButton_SetReturnCode(event);
+    EndModal(GetReturnCode());
+}
+
+void wxDialog_Base::OnButton_SetReturnCode( wxCommandEvent& event )
+{
+    _WX_LOG_NFO("%s", _str_event(event));
+    wxWindow *pwxWindow = wxDynamicCast(event.GetEventObject(), wxWindow);
+    _COND_RET(pwxWindow != NULL);
+    SetReturnCode(pwxWindow->GetId());
+}
+
+bool wxDialog_Base::Gui_DataLoad(void * WXUNUSED(pExternData))
+{
+    return true;
+}
+
+bool wxDialog_Base::Gui_DataSave(void * WXUNUSED(pExternData))
+{
+    return true;
+}
+
+void wxDialog_Base::Gui_Refresh(void * WXUNUSED(pExternData))
+{
+    _WX_LOG_ERR("virtual method not implemented in a derived class");
+}
+
+bool wxDialog_Base::IsInitialized()
+{
+    return v_bInitialized;
+};
+
+void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
+{
+    v_pData_Holder_Dialog = pData_Holder_Dialog;
+}
+
 void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
 {
     //_WX_LOG_NFO();
@@ -207,127 +247,31 @@ void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
         wxString sLabel = GetLabel();
         if (pwxDialog->GetLabel() == sLabel)
         {
-            _wx_log_nfo("Initialized : %s", sLabel.c_str());
+            _WX_LOG_NFO("Initialized : %s", sLabel.c_str());
             v_bInitialized = true;
         }
     }
 }
 
-void wxDialog_Base::Data_Refresh_Enter()
-{
-    //_WX_LOG_NFO();
-    if (! v_bInitialized)
-    {
-        _WX_LOG_WRN("Dialog is not initialized");
-    }
-    if (! ::wxIsMainThread())
-        v_oCriticalRefresh.Enter();
-    _COND_ASSIGN(v_eRefreshStatus, E_Refresh_Ready, E_Refresh_LoadingData);
-}
-
-void wxDialog_Base::Data_Refresh_Leave()
-{
-    //_WX_LOG_NFO();
-    _COND_ASSIGN(v_eRefreshStatus, E_Refresh_LoadingData, E_Refresh_ShouldUpdate);
-    if (! ::wxIsMainThread())
-        v_oCriticalRefresh.Leave();
-}
-
-bool wxDialog_Base::ExternData_Load(void *pExternData)
-{
-    _WX_LOG_WRN("virtual method not implemented in a derived class");
-    wxUnusedVar(pExternData);
-    return true;
-}
-
-bool wxDialog_Base::ExternData_Save(void *pExternData)
-{
-    _WX_LOG_WRN("virtual method not implemented in a derived class");
-    wxUnusedVar(pExternData);
-    return true;
-}
-
-void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
-{
-    v_pData_Holder_Dialog = pData_Holder_Dialog;
-}
-
 void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 {
-    Data_Holder_Refresh *pData_Holder_Refresh = wx_static_cast(Data_Holder_Refresh *, event.GetClientData());
-    _COND_RET(pData_Holder_Refresh != NULL);
+    _WX_LOG_NFO("Received event : %s", _str_event_dialog(event));
+    Data_Holder_Dialog *pData_Holder_Dialog = wx_static_cast(Data_Holder_Dialog *, event.GetClientData());
     event.Skip();
+    _COND_RET(pData_Holder_Dialog != NULL);
+    event.Skip(false);
     E_ACTION_TYPE action = (E_ACTION_TYPE)event.GetId();
     _WX_LOG_NFO("Received command event : action='%s'", _str_enum(action));
     switch (action)
     {
         case E_Action_Refresh:
         {
-            SafeRefresh_NewData(*pData_Holder_Refresh);
+            Safe_Gui_Refresh(this, pData_Holder_Dialog->pExternData);
             break;
         }
         default:
             _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
-    wx_semaphore_post(pData_Holder_Refresh->oSemaphore);
-}
-
-void wxDialog_Base::SafeRefresh_WhenIdle()
-{
-    //_WX_LOG_NFO();
-    if ( wxIdleThreadShouldStop() )
-        Destroy();
-    if (v_bInitialized && (v_eRefreshStatus == E_Refresh_ShouldUpdate))
-    {
-        wxCriticalSectionLocker lock(v_oCriticalRefresh);
-        _COND_ASSIGN(v_eRefreshStatus, E_Refresh_ShouldUpdate, E_Refresh_WindowUpdate);
-        _WX_LOG_NFO();
-        Gui_Refresh();
-        Refresh(false);
-        Update();
-        _COND_ASSIGN(v_eRefreshStatus, E_Refresh_WindowUpdate, E_Refresh_Ready);
-    }
-}
-
-void wxDialog_Base::SafeRefresh_NewData(Data_Holder_Refresh &rData_Holder_Refresh)
-{
-    if (! ::wxIsMainThread())
-    {
-        _WX_LOG_NFO("Switching to main thread");
-        _WX_LOG_DBG("%p", &rData_Holder_Refresh);
-        wx_post_event_thread(this, wxEVTC_DIALOG, E_Action_Refresh, "Dialog_Refresh", &rData_Holder_Refresh);
-        wx_semaphore_wait(rData_Holder_Refresh.oSemaphore);
-        _WX_LOG_NFO("Returned from main thread");
-        return;
-    }
-    Data_Refresh_Enter();
-    SafeRefresh_CopyData(rData_Holder_Refresh.pData_Refresh);
-    Data_Refresh_Leave();
-}
-
-void wxDialog_Base::SafeRefresh_CopyData(void *pData_Refresh)
-{
-    _WX_LOG_ERR("virtual method not implemented in a derived class");
-    wxUnusedVar(pData_Refresh);
-}
-
-void wxDialog_Base::Gui_Refresh()
-{
-    _WX_LOG_ERR("virtual method not implemented in a derived class");
-}
-
-const char * _str_enum(wxDialog_Base::E_REFRESH_STATUS value)
-{
-    switch (value)
-    {
-        CASE_const_ret_str(wxDialog_Base::E_Refresh_Ready);
-        CASE_const_ret_str(wxDialog_Base::E_Refresh_LoadingData);
-        CASE_const_ret_str(wxDialog_Base::E_Refresh_ShouldUpdate);
-        CASE_const_ret_str(wxDialog_Base::E_Refresh_WindowUpdate);
-        default:
-            _WX_LOG_ERR("unknown value %d", value);
-            break;
-    }
-    return wxString::Format("?%d?", value);
+    wx_semaphore_post(pData_Holder_Dialog->oSemaphore);
 }

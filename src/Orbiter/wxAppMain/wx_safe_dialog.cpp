@@ -5,7 +5,7 @@
 //
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-#pragma implementation "wx_dialog_safe.h"
+#pragma implementation "wx_safe_dialog.h"
 #endif
 
 #include "wx/wxprec.h"
@@ -16,11 +16,13 @@
 #include "wx/wx.h"
 #endif
 
-#include "wx_dialog_safe.h"
+#include "wx_safe_dialog.h"
 #include "wxdialog_roomwizard.h"
 #include "wxdialog_waitgrid.h"
 #include "wxdialog_waitlist.h"
 #include "wxdialog_waituser.h"
+
+wxCriticalSection g_oCriticalDialogAction;
 
 const char * Get_ClassName(E_DIALOG_TYPE e_dialog_type)
 {

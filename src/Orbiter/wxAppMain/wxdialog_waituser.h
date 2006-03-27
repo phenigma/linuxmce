@@ -36,8 +36,8 @@ class wxBoxSizer;
 #define SYMBOL_WXDIALOG_WAITUSER_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_WAITUSER_TITLE _T("Wait User")
 #define SYMBOL_WXDIALOG_WAITUSER_IDNAME ID_DIALOG_WAITUSER
-#define SYMBOL_WXDIALOG_WAITUSER_SIZE wxSize(130, 113)
-#define SYMBOL_WXDIALOG_WAITUSER_POSITION wxPoint(65, 113)
+#define SYMBOL_WXDIALOG_WAITUSER_SIZE wxSize(150, 150)
+#define SYMBOL_WXDIALOG_WAITUSER_POSITION wxPoint(768, 325)
 #define ID_GAUGE_WAITUSER 10000
 #define ID_TEXTCTRL_WAITUSER 10014
 ////@end control identifiers
@@ -77,9 +77,6 @@ public:
     /// wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER
     void OnCloseWindow( wxCloseEvent& event );
 
-    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK
-    void OnOkClick( wxCommandEvent& event );
-
 ////@end wxDialog_WaitUser event handler declarations
 
 ////@begin wxDialog_WaitUser member function declarations
@@ -108,27 +105,17 @@ public:
 public:
     ~wxDialog_WaitUser();
 
-    virtual bool ExternData_Load(void *pExternData);
-    virtual void Gui_Refresh();
-
-    void NewDataRefresh(const string &sInfo, int nTimeoutSeconds, map<int,string> *p_mapPrompts);
-
-    static const E_DIALOG_TYPE e_dialog_type;
+    virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
         string sInfo;
         int nTimeoutSeconds;
         map<int, string> *p_mapPrompts;
-#ifdef USE_RELEASE_CODE
-        int *m_pnButtonId;
-#endif // USE_RELEASE_CODE
     };
 
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    Data_Refresh v_oData_Refresh;
-
 protected:
+    void OnAnyButtonClick( wxCommandEvent& event );
     void OnTimer_ExpireDialog(wxTimerEvent& event);
 
     int v_nExpireTime_ms; // in milliseconds

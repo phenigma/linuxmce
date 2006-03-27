@@ -44,16 +44,13 @@ BEGIN_EVENT_TABLE( wxDialog_WaitUser, wxDialog_Base )
 ////@begin wxDialog_WaitUser event table entries
     EVT_CLOSE( wxDialog_WaitUser::OnCloseWindow )
 
-    EVT_BUTTON( wxID_OK, wxDialog_WaitUser::OnOkClick )
-
 ////@end wxDialog_WaitUser event table entries
 
-EVT_TIMER(ID_Timer_ExpireDialog, wxDialog_WaitUser::OnTimer_ExpireDialog)
+    EVT_BUTTON( wxID_ANY, wxDialog_Base::OnButton_EndModal )
+    EVT_TIMER(ID_Timer_ExpireDialog, wxDialog_WaitUser::OnTimer_ExpireDialog)
 
-END_EVENT_TABLE()
-;
-
-const E_DIALOG_TYPE wxDialog_WaitUser::e_dialog_type = E_Dialog_WaitUser;
+    END_EVENT_TABLE()
+    ;
 
 /*!
  * wxDialog_WaitUser constructors
@@ -171,18 +168,6 @@ void wxDialog_WaitUser::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 }
 
 /*!
- * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK
- */
-
-void wxDialog_WaitUser::OnOkClick( wxCommandEvent& WXUNUSED(event) )
-{
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK in wxDialog_WaitUser.
-    // Before editing this code, remove the block markers.
-    EndModal(wxID_OK);
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK in wxDialog_WaitUser.
-}
-
-/*!
  * Should we show tooltips?
  */
 
@@ -230,51 +215,22 @@ wxDialog_WaitUser::~wxDialog_WaitUser()
     v_oTimer_ExpireDialog.Stop();
 }
 
-bool wxDialog_WaitUser::ExternData_Load(void *pExternData)
-{
-    _WX_LOG_NFO("ptr=%p", pExternData);
-#ifdef USE_DEBUG_CODE
-    wxUnusedVar(pExternData);
-#endif // USE_DEBUG_CODE
-#ifdef USE_RELEASE_CODE
-    v_oData_Refresh.m_pnButtonId = (int *)pExternData;
-    if (v_oData_Refresh.m_pnButtonId)
-        *v_oData_Refresh.m_pnButtonId = -1;
-#endif // USE_RELEASE_CODE
-    return true;
-}
-
-void wxDialog_WaitUser::NewDataRefresh(const string &sInfo, int nTimeoutSeconds, map<int,string> *p_mapPrompts)
-{
-    _WX_LOG_NFO("(string '%s', int %d, map<int,string>)", sInfo.c_str(), nTimeoutSeconds);
-    Data_Refresh data_refresh = { sInfo, nTimeoutSeconds, p_mapPrompts };
-    Data_Holder_Refresh data_holder_refresh(&data_refresh);
-    _WX_LOG_DBG("%p", &data_holder_refresh);
-    SafeRefresh_NewData(data_holder_refresh);
-}
-
-void wxDialog_WaitUser::SafeRefresh_CopyData(void *pData_Refresh)
-{
-    _WX_LOG_NFO();
-    _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_Copy;
-}
-
-void wxDialog_WaitUser::Gui_Refresh()
+void wxDialog_WaitUser::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
+    _COND_RET(pData_Refresh);
     // update info text
-    v_pInfoText->SetValue(v_oData_Refresh.sInfo);
+    v_pInfoText->SetValue(pData_Refresh->sInfo);
     // update buttons
-    if (! v_oData_Refresh.p_mapPrompts)
+    if (! pData_Refresh->p_mapPrompts)
     {
         v_pButtonOk->Show();
     }
     else
     {
         v_pButtonOk->Hide();
-        for(map<int, string>::iterator it = v_oData_Refresh.p_mapPrompts->begin(); it != v_oData_Refresh.p_mapPrompts->end(); ++it)
+        for(map<int, string>::iterator it = pData_Refresh->p_mapPrompts->begin(); it != pData_Refresh->p_mapPrompts->end(); ++it)
         {
             int nButtonId = it->first;
             wxString sButtonLabel = it->second.c_str();
@@ -295,7 +251,7 @@ void wxDialog_WaitUser::Gui_Refresh()
     }
     // update expired time value and restart the timer
     bool bStartNow = (v_nExpireTime_ms == 0);
-    v_nExpireTime_ms = v_oData_Refresh.nTimeoutSeconds * 1000;
+    v_nExpireTime_ms = pData_Refresh->nTimeoutSeconds * 1000;
     v_pGauge->SetRange(v_nExpireTime_ms);
     if (bStartNow)
     {
@@ -307,17 +263,17 @@ void wxDialog_WaitUser::Gui_Refresh()
 void wxDialog_WaitUser::OnTimer_ExpireDialog(wxTimerEvent& event)
 {
     //_WX_LOG_NFO();
-    _COND_RET(event.GetId() == ID_Timer_ExpireDialog);
     event.Skip();
+    _COND_RET(event.GetId() == ID_Timer_ExpireDialog);
+    event.Skip(false);
     if ( (! v_bInitialized) || (v_nExpireTime_ms <= 0) )
         return;
     int nInterval = v_oTimer_ExpireDialog.GetInterval();
     v_nCrtTime_ms += nInterval;
-    //_WX_LOG_NFO("%d/%d [%d]", v_nCrtTime_ms, v_nExpireTime_ms, nInterval);
     if (v_nCrtTime_ms >= v_nExpireTime_ms)
     {
         if (IsModal())
-            EndModal(ID_DIALOG_WAITUSER);
+            EndModal(0);
         else
             Destroy();
     }

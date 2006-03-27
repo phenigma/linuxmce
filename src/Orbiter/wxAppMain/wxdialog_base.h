@@ -17,7 +17,7 @@
 
 ////@begin includes
 ////@end includes
-#include "wx_dialog_safe.h"
+#include "wx_dialog_types.h"
 
 /*!
  * Forward declarations
@@ -46,6 +46,8 @@
 #ifndef wxCLOSE_BOX
 #define wxCLOSE_BOX 0x1000
 #endif
+
+struct Data_Holder_Dialog;
 
 /*!
  * wxDialog_Base class declaration
@@ -95,66 +97,22 @@ class wxDialog_Base: public wxDialog
     ~wxDialog_Base();
     virtual bool Destroy();
     virtual void EndModal(int retCode);
+    void OnButton_EndModal( wxCommandEvent& event );
+    void OnButton_SetReturnCode( wxCommandEvent& event );
 
-    void OnWindowCreate(wxWindowCreateEvent& event);
+    virtual bool Gui_DataLoad(void *pExternData); // load data from extern object, called after create
+    virtual bool Gui_DataSave(void *pExternData); // save data to extern object, not called by default
+    virtual void Gui_Refresh(void *pExternData); // GUI refresh related code should be implemented here
 
-    void Data_Refresh_Enter(); // before setting refresh data
-    void Data_Refresh_Leave(); // after setting refresh data
-
-    virtual bool ExternData_Load(void *pExternData); // load data from extern object
-    virtual bool ExternData_Save(void *pExternData); // save data to extern object
-
+    bool IsInitialized();
     void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
 
-    static const E_DIALOG_TYPE e_dialog_type;
-
 protected:
-    enum E_REFRESH_STATUS
-        {
-            E_Refresh_Ready,
-            E_Refresh_LoadingData,
-            E_Refresh_ShouldUpdate,
-            E_Refresh_WindowUpdate,
-        };
-
-    struct Data_Holder_Refresh : Data_Holder_Base
-    {
-        Data_Holder_Refresh(void *pData_Refresh)
-                : Data_Holder_Base()
-                , pData_Refresh(pData_Refresh)
-            {
-            }
-        void *pData_Refresh;
-    };
-
+    void OnWindowCreate(wxWindowCreateEvent& event);
     void OnEvent_Dialog(wxCommandEvent& event);
-    void SafeRefresh_WhenIdle();
-
-    // should be called instead of a normal refresh-like function
-    // create a structure with all data for refresh
-    // and pass the ptr to be used in the copy function or GUI function
-    void SafeRefresh_NewData(Data_Holder_Refresh &rData_Holder_Refresh);
-
-    // just create a copy of this data
-    // in a member variable
-    // to be used later by GUI refresh code
-    // pointer-argument is always != NULL
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-
-    // called from main thread
-    // GUI refresh related code should be implemented here
-    // use the member variable from the copy function
-    virtual void Gui_Refresh();
 
     bool v_bInitialized;
-
-    wxCriticalSection v_oCriticalRefresh;
-    E_REFRESH_STATUS v_eRefreshStatus;
-
     Data_Holder_Dialog *v_pData_Holder_Dialog; // generic dialog functionality
-
-  private:
-    friend const char * _str_enum(wxDialog_Base::E_REFRESH_STATUS value);
 };
 
 #endif

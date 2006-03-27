@@ -42,8 +42,9 @@ const char * _str_enum(E_ACTION_TYPE value)
         CASE_const_ret_str(E_Action_Close);
         CASE_const_ret_str(E_Action_Create);
         CASE_const_ret_str(E_Action_Create_Unique);
+        CASE_const_ret_str(E_Action_DataLoad);
+        CASE_const_ret_str(E_Action_DataSave);
         CASE_const_ret_str(E_Action_Refresh);
-        CASE_const_ret_str(E_Action_Save);
         CASE_const_ret_str(E_Action_Show);
         CASE_const_ret_str(E_Action_ShowModal);
         default:

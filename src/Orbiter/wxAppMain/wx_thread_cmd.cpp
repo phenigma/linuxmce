@@ -70,14 +70,14 @@ bool wxThread_Cmd::Start()
     v_pwxThread_Wrapper->Create();
     if ( v_eStatus != E_Created )
     {
-        _WX_LOG_ERR("Can't create thread! : %s", _str_thread_status(this));
+        _WX_LOG_ERR("Cannot create thread : %s", _str_thread_status(this));
         return false;
     }
     v_pwxThread_Bag->Add(this);
     _WX_LOG_NFO("Starting : %s", _str_thread_status(this));
     if ( v_pwxThread_Wrapper->Run() != wxTHREAD_NO_ERROR )
     {
-        _WX_LOG_ERR("Can't start thread!");
+        _WX_LOG_ERR("Cannot start thread!");
         v_pwxThread_Bag->Delete(this);
         return false;
     }

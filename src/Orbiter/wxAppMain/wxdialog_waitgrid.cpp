@@ -52,7 +52,6 @@ BEGIN_EVENT_TABLE( wxDialog_WaitGrid, wxDialog_Base )
 END_EVENT_TABLE()
 ;
 
-const E_DIALOG_TYPE wxDialog_WaitGrid::e_dialog_type = E_Dialog_WaitGrid;
 const int idxResizableColumn = 1;
 const int nColumnCount = 2;
 #define S_WAITING wxString("Waiting")
@@ -123,7 +122,7 @@ void wxDialog_WaitGrid::CreateControls()
     wxBitmap v_pBitmapBitmap(itemDialog_Base1->GetBitmapResource(wxT("logo_pluto.jpg")));
     v_pBitmap = new wxStaticBitmap;
     v_pBitmap->Create( itemDialog_Base1, wxID_STATIC, v_pBitmapBitmap, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(126, 87)), wxNO_BORDER );
-    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 10);
+    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     v_pGrid = new wxGrid( itemDialog_Base1, ID_GRID_WAITGRID, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL );
     v_pGrid->SetForegroundColour(wxColour(224, 224, 240));
@@ -134,7 +133,7 @@ void wxDialog_WaitGrid::CreateControls()
     v_pGrid->SetColLabelSize(0);
     v_pGrid->SetRowLabelSize(0);
     v_pGrid->CreateGrid(4, 5, wxGrid::wxGridSelectRows);
-    v_pBoxH_top->Add(v_pGrid, 1, wxGROW|wxALL, 10);
+    v_pBoxH_top->Add(v_pGrid, 1, wxGROW|wxALL, 5);
 
     v_pBoxH_mid = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_mid, 1, wxGROW|wxALL, 5);
@@ -198,18 +197,15 @@ void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid. 
+    event.Skip(false);
 }
 
 /*!
  * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
  */
 
-void wxDialog_WaitGrid::OnCancelClick( wxCommandEvent& WXUNUSED(event) )
+void wxDialog_WaitGrid::OnCancelClick( wxCommandEvent& event )
 {
-#ifdef USE_RELEASE_CODE
-    if (v_oData_Refresh.m_pbButtonPressed)
-        *v_oData_Refresh.m_pbButtonPressed = true;
-#endif // USE_RELEASE_CODE
 ////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in wxDialog_WaitGrid.
     // Before editing this code, remove the block markers.
     Destroy();
@@ -263,44 +259,15 @@ wxDialog_WaitGrid::~wxDialog_WaitGrid()
     _WX_LOG_NFO();
 }
 
-bool wxDialog_WaitGrid::ExternData_Load(void *pExternData)
-{
-    _WX_LOG_NFO("ptr=%p", pExternData);
-#ifdef USE_DEBUG_CODE
-    wxUnusedVar(pExternData);
-#endif // USE_DEBUG_CODE
-#ifdef USE_RELEASE_CODE
-    v_oData_Refresh.m_pbButtonPressed = (bool *)pExternData;
-    if (v_oData_Refresh.m_pbButtonPressed)
-        *v_oData_Refresh.m_pbButtonPressed = false;
-#endif // USE_RELEASE_CODE
-    return true;
-}
-
-void wxDialog_WaitGrid::NewDataRefresh(const string &sInfo, const map<string, bool> &mapStrBool, int nPercent)
-{
-    _WX_LOG_NFO("(string '%s', map<string, bool>, int %d)", sInfo.c_str(), nPercent);
-    Data_Refresh data_refresh = { sInfo, mapStrBool, nPercent };
-    Data_Holder_Refresh data_holder_refresh(&data_refresh);
-    _WX_LOG_DBG("%p", &data_holder_refresh);
-    SafeRefresh_NewData(data_holder_refresh);
-}
-
-void wxDialog_WaitGrid::SafeRefresh_CopyData(void *pData_Refresh)
-{
-    _WX_LOG_NFO();
-    _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_Copy;
-}
-
-void wxDialog_WaitGrid::Gui_Refresh()
+void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
+    _COND_RET(pData_Refresh);
     // update info text
-    v_pInfoText->SetValue(v_oData_Refresh.sInfo);
+    v_pInfoText->SetValue(pData_Refresh->sInfo);
     // update grid
-    for(map<string, bool>::iterator it = v_oData_Refresh.mapStrBool.begin(); it != v_oData_Refresh.mapStrBool.end(); ++it)
+    for(map<string, bool>::iterator it = pData_Refresh->mapStrBool.begin(); it != pData_Refresh->mapStrBool.end(); ++it)
     {
         wxString sName = it->first.c_str();
         bool bValue = it->second;
@@ -329,5 +296,5 @@ void wxDialog_WaitGrid::Gui_Refresh()
     v_pGrid->AutoSizeRows();
     wx_Grid_Resize_Column(v_pGrid, idxResizableColumn);
     // update progress bar
-    v_pGauge->SetValue(v_oData_Refresh.nPercent);
+    v_pGauge->SetValue(pData_Refresh->nPercent);
 }

@@ -76,7 +76,6 @@ public:
 
 protected:
     void OnEvent_Dialog(wxCommandEvent& event);
-    void Extern_Event_Listener();
 
     ExternApp *v_pExternApp;
 };

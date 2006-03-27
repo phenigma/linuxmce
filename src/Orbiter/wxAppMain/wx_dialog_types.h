@@ -28,8 +28,9 @@ enum E_ACTION_TYPE
     E_Action_Close,
     E_Action_Create,
     E_Action_Create_Unique,
+    E_Action_DataLoad,
+    E_Action_DataSave,
     E_Action_Refresh,
-    E_Action_Save,
     E_Action_Show,
     E_Action_ShowModal,
 };

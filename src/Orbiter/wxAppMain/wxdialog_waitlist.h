@@ -37,7 +37,7 @@ class wxBoxSizer;
 #define SYMBOL_WXDIALOG_WAITLIST_TITLE _T("Wait List")
 #define SYMBOL_WXDIALOG_WAITLIST_IDNAME ID_DIALOG_WAITLIST
 #define SYMBOL_WXDIALOG_WAITLIST_SIZE wxSize(400, 300)
-#define SYMBOL_WXDIALOG_WAITLIST_POSITION wxPoint(200, 300)
+#define SYMBOL_WXDIALOG_WAITLIST_POSITION wxPoint(447, 325)
 #define ID_TEXTCTRL_WAITLIST 10015
 #define ID_GAUGE_WAITLIST 10013
 ////@end control identifiers
@@ -103,10 +103,7 @@ public:
 ////@end wxDialog_WaitList member variables
 public:
     ~wxDialog_WaitList();
-    virtual void Gui_Refresh();
-    void NewDataRefresh(const string &sInfo, int nPercent);
-
-    static const E_DIALOG_TYPE e_dialog_type;
+    virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
@@ -115,9 +112,6 @@ public:
     };
 
 protected:
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    Data_Refresh v_oData_Refresh;
-
     wxString v_sPrevStr; // previous string message
 };
 

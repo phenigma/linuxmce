@@ -68,7 +68,7 @@ void * wxThread_Wrapper::Entry()
         _COND_ASSIGN(v_reStatus, wxThread_Cmd::E_Created, wxThread_Cmd::E_RunStarted);
         v_rnRunningCount++;
     }
-    wx_post_event_thread(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunStarted, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
+    wx_post_event(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunStarted, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
     _WX_LOG_NFO("[%p] Before Run", v_pwxThread_Cmd);
     v_pwxThread_Cmd->Run();
     _WX_LOG_NFO("[%p] After Run", v_pwxThread_Cmd);
@@ -76,7 +76,7 @@ void * wxThread_Wrapper::Entry()
         wxCriticalSectionLocker lock(v_rCriticalSection);
         _COND_ASSIGN(v_reStatus, wxThread_Cmd::E_RunStarted, wxThread_Cmd::E_RunExiting);
     }
-    wx_post_event_thread(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunExiting, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
+    wx_post_event(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunExiting, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
     _WX_LOG_NFO("[%p] Exiting", v_pwxThread_Cmd);
     return NULL;
 }
@@ -91,7 +91,7 @@ void wxThread_Wrapper::OnExit()
         v_rnRunningCount--;
         v_rSemaphoreRunningAll.Post();
         v_rSemaphoreRunning.Post();
-        wx_post_event_thread(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunEnded, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
+        wx_post_event(g_pwxThread_Bag, wxEVTC_THREAD, wxThread_Cmd::E_RunEnded, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
     }
     wxThread::OnExit();
 }

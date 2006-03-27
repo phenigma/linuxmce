@@ -35,7 +35,7 @@ const char * _str_event(wxEvent &event);
 // can be used in threads, or in main thread
 void wx_sleep(unsigned long int n_seconds, unsigned long int n_add_milliseconds=0);
 
-void wx_post_event_thread(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_id, const char *sInfo="", void *pData=NULL, int nInt=0);
+void wx_post_event(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_id, const char *sInfo="", void *pData=NULL, int nInt=0);
 
 wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore);
 wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore);

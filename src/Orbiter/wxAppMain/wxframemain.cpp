@@ -28,6 +28,7 @@
 #include "wxdialog_waitgrid.h"
 #include "wxdialog_waitlist.h"
 #include "wxdialog_waituser.h"
+#include "wx_safe_dialog.h"
 
 ////@begin XPM images
 #include "exit.xpm"
@@ -291,7 +292,7 @@ void wxFrameMain::OnToolRoomwizardClick( wxCommandEvent& event )
         Safe_Close(pwxDialog);
     else
     {
-        pwxDialog = Safe_CreateUnique<wxDialog_RoomWizard>();
+        pwxDialog = Safe_CreateUnique<wxDialog_RoomWizard>(_debug_RoomWizard());
         Safe_Show(pwxDialog);
     }
 #endif // USE_DEBUG_CODE

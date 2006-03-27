@@ -17,6 +17,7 @@
 #endif
 
 #include "wx_helpers.h"
+#include "wx_event_dialog.h"
 #include "wx_event_thread.h"
 #include "wx_thread_wrapper.h"
 #include "wx_thread_bag.h"
@@ -57,27 +58,40 @@ const char * _str_enum(wxSemaError value)
 
 const char * _str_event(wxEvent &event)
 {
-    wxString sLabel;
     wxObject *pwxObject = event.GetEventObject();
+    wxString sEvent;
+    sEvent.Printf(
+        "event{id=%d, pObj=%p, type=%d}",
+        event.GetId(),
+        pwxObject,
+        event.GetEventType()
+        );
     wxWindow *pwxWindow = wxDynamicCast(pwxObject, wxWindow);
+    wxString sWindow;
     if (pwxWindow)
-        sLabel = pwxWindow->GetLabel();
+    {
+        sWindow.Printf(
+            ", pWin=%p{label='%s', ID=%d}",
+            pwxWindow,
+            pwxWindow->GetLabel().c_str(),
+            pwxWindow->GetId()
+            );
+    }
     wxString sCommandEvent;
     if (event.IsCommandEvent())
     {
         wxCommandEvent &cmd_event = (wxCommandEvent &)event;
         sCommandEvent.Printf(
-            ", cmd_str='%s', cmd_int=%ld",
+            ", cmd{str='%s', pData=%p, int=%ld}",
             cmd_event.GetString().c_str(),
+            cmd_event.GetClientData(),
             cmd_event.GetInt()
             );
     }
     return wxString::Format(
-        "_str_event(id=%d, pObj=%p, pWin=%p, label='%s'%s)",
-        event.GetId(),
-        pwxObject,
-        pwxWindow,
-        sLabel.c_str(),
+        "_str_event(%s%s%s)",
+        sEvent.c_str(),
+        sWindow.c_str(),
         sCommandEvent.c_str()
         );
 }
@@ -90,13 +104,18 @@ void wx_sleep(unsigned long int n_seconds, unsigned long int n_milliseconds/*=0*
         wxThread::Sleep(n_seconds * 1000 + n_milliseconds);
 }
 
-void wx_post_event_thread(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_id, const char *sInfo/*=""*/, void *pData/*=NULL*/, int nInt/*=0*/)
+void wx_post_event(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_id, const char *sInfo/*=""*/, void *pData/*=NULL*/, int nInt/*=0*/)
 {
     wxCommandEvent event( event_type, event_id );
     event.SetString(sInfo);
     event.SetClientData(pData);
     event.SetInt(nInt);
-    _WX_LOG_NFO("post_event(%s)", _str_event_thread(event));
+    if (event_type == wxEVTC_DIALOG)
+        _WX_LOG_NFO("wx_post_event(%s)", _str_event_dialog(event));
+    else if (event_type == wxEVTC_THREAD)
+        _WX_LOG_NFO("wx_post_event(%s)", _str_event_thread(event));
+    else
+        _WX_LOG_NFO("wx_post_event(%s)", _str_event(event));
     ::wxPostEvent( pDestEvtHandler, event );
 }
 

@@ -38,8 +38,8 @@ class wxGrid;
 #define SYMBOL_WXDIALOG_WAITGRID_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_WAITGRID_TITLE _T("Wait Grid")
 #define SYMBOL_WXDIALOG_WAITGRID_IDNAME ID_DIALOG_WAITGRID
-#define SYMBOL_WXDIALOG_WAITGRID_SIZE wxSize(228, 184)
-#define SYMBOL_WXDIALOG_WAITGRID_POSITION wxPoint(114, 184)
+#define SYMBOL_WXDIALOG_WAITGRID_SIZE wxSize(300, 200)
+#define SYMBOL_WXDIALOG_WAITGRID_POSITION wxPoint(0, 325)
 #define ID_GRID_WAITGRID 10016
 #define ID_TEXTCTRL_WAITGRID 10021
 #define ID_GAUGE_WAITGRID 10022
@@ -114,27 +114,16 @@ public:
 public:
     ~wxDialog_WaitGrid();
 
-    virtual bool ExternData_Load(void *pExternData);
-    virtual void Gui_Refresh();
-
-    void NewDataRefresh(const string &sInfo, const map<string, bool> &mapStrBool, int nPercent);
-
-    static const E_DIALOG_TYPE e_dialog_type;
+    virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
         string sInfo;
         map<string, bool> mapStrBool;
         int nPercent;
-#ifdef USE_RELEASE_CODE
-        bool *m_pbButtonPressed;
-#endif // USE_RELEASE_CODE
     };
 
 protected:
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    Data_Refresh v_oData_Refresh;
-
     wxArrayString v_asName; // old and new
 };
 

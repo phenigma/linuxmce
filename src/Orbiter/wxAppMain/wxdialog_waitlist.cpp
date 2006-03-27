@@ -49,8 +49,6 @@ BEGIN_EVENT_TABLE( wxDialog_WaitList, wxDialog_Base )
 END_EVENT_TABLE()
 ;
 
-const E_DIALOG_TYPE wxDialog_WaitList::e_dialog_type = E_Dialog_WaitList;
-
 /*!
  * wxDialog_WaitList constructors
  */
@@ -207,36 +205,21 @@ wxDialog_WaitList::~wxDialog_WaitList()
     _WX_LOG_NFO();
 }
 
-void wxDialog_WaitList::NewDataRefresh(const string &sInfo, int nPercent)
-{
-    _WX_LOG_NFO("(string '%s', int %d)", sInfo.c_str(), nPercent);
-    Data_Refresh data_refresh = { sInfo, nPercent };
-    Data_Holder_Refresh data_holder_refresh(&data_refresh);
-    _WX_LOG_DBG("%p", &data_holder_refresh);
-    SafeRefresh_NewData(data_holder_refresh);
-}
-
-void wxDialog_WaitList::SafeRefresh_CopyData(void *pData_Refresh)
-{
-    _WX_LOG_NFO();
-    _WX_LOG_DBG("%p", pData_Refresh);
-    Data_Refresh *pData_Refresh_Copy = wx_static_cast(Data_Refresh *, pData_Refresh);
-    v_oData_Refresh = *pData_Refresh_Copy;
-}
-
-void wxDialog_WaitList::Gui_Refresh()
+void wxDialog_WaitList::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
+    _COND_RET(pData_Refresh != NULL);
     // update info text
-    v_pInfoText->SetValue(v_oData_Refresh.sInfo);
+    v_pInfoText->SetValue(pData_Refresh->sInfo);
     // update log text
-    if (v_sPrevStr != v_oData_Refresh.sInfo)
+    if (v_sPrevStr != pData_Refresh->sInfo)
     {
         if (! v_pLogText->GetValue().IsEmpty())
             v_pLogText->AppendText("\n");
-        v_pLogText->AppendText(v_oData_Refresh.sInfo);
-        v_sPrevStr = v_oData_Refresh.sInfo;
+        v_pLogText->AppendText(pData_Refresh->sInfo);
+        v_sPrevStr = pData_Refresh->sInfo;
     }
     // update progress bar
-    v_pGauge->SetValue(v_oData_Refresh.nPercent);
+    v_pGauge->SetValue(pData_Refresh->nPercent);
 }

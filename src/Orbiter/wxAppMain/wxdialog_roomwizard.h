@@ -43,7 +43,7 @@ class WizardLogic;
 #define SYMBOL_WXDIALOG_ROOMWIZARD_TITLE _T("Room Wizard")
 #define SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME ID_DIALOG_ROOMWIZARD
 #define SYMBOL_WXDIALOG_ROOMWIZARD_SIZE wxSize(300, 100)
-#define SYMBOL_WXDIALOG_ROOMWIZARD_POSITION wxPoint(200, 300)
+#define SYMBOL_WXDIALOG_ROOMWIZARD_POSITION wxPoint(508, 200)
 #define ID_GRID_ROOMWIZARD 10001
 ////@end control identifiers
 
@@ -123,13 +123,9 @@ public:
 public:
     ~wxDialog_RoomWizard();
 
-    virtual bool ExternData_Load(void *pExternData);
-    virtual bool ExternData_Save(void *pExternData);
-    virtual void Gui_Refresh();
-
-    void NewDataRefresh(int x, int y, int h, int w);
-
-    static const E_DIALOG_TYPE e_dialog_type;
+    virtual bool Gui_DataLoad(void *pExternData);
+    virtual bool Gui_DataSave(void *pExternData);
+    virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
@@ -140,9 +136,6 @@ protected:
     void ItemWindowSelect(int nItem, bool bOn=true);
     void eventButtonDec();
     void eventButtonInc();
-
-    virtual void SafeRefresh_CopyData(void *pData_Refresh);
-    Data_Refresh v_oData_Refresh;
 
     wxArray_RoomItems v_aRoomItems;
     int v_nSelectedItem; // 0 based, -1 not selected
