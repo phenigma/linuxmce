@@ -111,7 +111,7 @@ deb http://www.yttron.as.ro/ sarge main
 SourcesOffline="# Pluto sources offline - start
 deb file:/usr/pluto/deb-cache/ sarge main
 # Pluto sources offline - end"
-"
+
 
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
