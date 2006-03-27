@@ -67,11 +67,14 @@ protected:
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,
-                 bool bLocalMode, int nImageWidth, int nImageHeight, 
-                 bool bFullScreen, 
+                 bool bLocalMode, int nImageWidth, int nImageHeight,
+                 bool bFullScreen,
                  bool bUseOpenGL);
 
     virtual ~OrbiterLinux();
+
+    //virtual void OnReload();
+    //virtual void OnQuit();
 
     void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);

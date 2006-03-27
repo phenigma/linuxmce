@@ -412,6 +412,8 @@ bool Init_System()
         return false;
     }
 
+    // TODO: start X11
+
     return true;
 }
 

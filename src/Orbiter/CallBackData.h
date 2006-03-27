@@ -63,4 +63,69 @@ public:
 	int m_nPK_Screen;
 };
 //-----------------------------------------------------------------------------------------------------
+class WaitUserGridCallBackData : public CallBackData
+{
+public:
+    string m_sMessage;
+	map<string, bool> m_mapChildDevices;
+	int m_nProgress;
+
+	WaitUserGridCallBackData(const string &sMessage, const map<string, bool> &mapChildDevices, int nProgress)
+	{
+        m_sMessage = sMessage;
+		m_mapChildDevices = mapChildDevices;
+		m_nProgress = nProgress;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+class WaitUserListCallBackData : public CallBackData
+{
+public:
+    string m_sMessage;
+	int m_nProgress;
+
+	WaitUserListCallBackData(const string &sMessage, int nProgress)
+	{
+        m_sMessage = sMessage;
+		m_nProgress = nProgress;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+class WaitUserPromptCallBackData : public CallBackData
+{
+public:
+    string m_sPrompt;
+    int m_iTimeoutSeconds;
+    map<int,string> m_mapPrompts;
+
+	WaitUserPromptCallBackData(const string &sPrompt, int iTimeoutSeconds, const map<int,string> &mapPrompts)
+	{
+        m_sPrompt = sPrompt;
+        m_iTimeoutSeconds = iTimeoutSeconds;
+        m_mapPrompts = mapPrompts;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+class RoomWizardCallBackData : public CallBackData
+{
+public:
+    class WizardLogic *m_pWizardLogic;
+
+	RoomWizardCallBackData(WizardLogic *pWizardLogic)
+	{
+        m_pWizardLogic = pWizardLogic;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+class RoomWizardRefreshCallBackData : public CallBackData
+{
+public:
+    PlutoRectangle m_pRect;
+
+	RoomWizardRefreshCallBackData(PlutoRectangle pRect)
+	{
+        m_pRect = pRect;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
 #endif

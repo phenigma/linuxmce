@@ -901,7 +901,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	{
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);
 
-		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting 
+		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting
 		//we won't do it on RealRedraw for this kind of objects
 		if(NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last)
 		{
@@ -4796,7 +4796,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += "router=" + m_sIPAddress;
 #else
 			char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
-			ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
+            ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
 #endif
 		}
 		else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1
@@ -9528,7 +9528,7 @@ bool SendPingHandler(Socket *pSocket)
 
 //DEL
 //todo: disable this to use wx custom progress bar dialogs
-#define X11_PROGRESS_BARS 0
+//#define X11_PROGRESS_BARS 0
 
 bool Orbiter::WaitForRelativesIfOSD()
 {
@@ -9615,8 +9615,9 @@ bool Orbiter::WaitForRelativesIfOSD()
 		}
 		Sleep(1000); // Sleep and try again
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD finishing progress dialog");
 	DisplayProgress("", mapChildDevices, -1);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
 	return true;
 #endif // X11_PROGRESS_BARS
 }

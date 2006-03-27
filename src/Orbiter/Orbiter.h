@@ -23,6 +23,7 @@
 #include "Floorplan.h"
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
+#include "CallBackTypes.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
@@ -49,24 +50,6 @@ namespace DCE
 		smLoadUnload
 	};
 
-	//used by screen handler class
-	enum CallBackType
-	{
-		cbDataGridSelected,
-		cbObjectSelected,
-		cbOnCreateWxWidget,
-		cbOnDeleteWxWidget,
-		cbOnRefreshWxWidget,
-		cbOnKeyDown,
-		cbOnKeyUp,
-		cbOnMouseDown,
-		cbOnMouseUp,
-		cbCapturedKeyboardBufferChanged,
-		cbOnTimer,
-		cbMessageIntercepted,
-		cbOnRenderScreen,
-		cbOnGotoScreen
-	};
 
 #define PROMPT_CANCEL -1
 

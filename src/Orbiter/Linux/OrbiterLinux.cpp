@@ -20,10 +20,13 @@
 
 #if (USE_WX_LIB)
 #include "../wxAppMain/wx_all_include.cpp"
-#include "../wxAppMain/wx_all_include.h"
+#include "../wxAppMain/wx_safe_dialog.h"
 #include "../wxAppMain/wxdialog_waitgrid.h"
 #include "../wxAppMain/wxdialog_waitlist.h"
 #include "../wxAppMain/wxdialog_waituser.h"
+#define USE_TASK_MANAGER true //del
+#include "wmtask.h"
+#include "wmtaskmanager.h"
 #endif // (USE_WX_LIB)
 
 #include "DCE/Logger.h"
@@ -44,6 +47,9 @@
 #include "pluto_main/Define_Button.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
 #include "OSDScreenHandler.h"
+
+#include "../wxAppMain/wx_dialog_types.h"
+#include "../CallBackTypes.h"
 
 using namespace std;
 
@@ -107,11 +113,11 @@ OrbiterLinux::~OrbiterLinux()
 #endif // (USE_X11_LIB)
 #if (USE_WX_LIB)
     if (m_pWaitGrid)
-        wxDialog_Close<wxDialog_WaitGrid>(m_pWaitGrid);
+        Safe_Close<wxDialog_WaitGrid>(m_pWaitGrid);
     if (m_pWaitList)
-        wxDialog_Close<wxDialog_WaitList>(m_pWaitList);
+        Safe_Close<wxDialog_WaitList>(m_pWaitList);
     if (m_pWaitUser)
-        wxDialog_Close<wxDialog_WaitUser>(m_pWaitUser);
+        Safe_Close<wxDialog_WaitUser>(m_pWaitUser);
 #endif // (USE_WX_LIB)
 
     KillMaintThread();
@@ -375,6 +381,8 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d", keysym, event.type);
 #endif
+
+	return true;
 }
 
 void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
@@ -406,9 +414,8 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
         g_pPlutoLogger->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
 
         Display *dpy = XOpenDisplay (NULL);
-        Window rootwindow = DefaultRootWindow (dpy);
 
-        if( XKeySym.first )
+		if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), True, 0 );
 
         XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XKeySym.second), True, 0 );
@@ -439,7 +446,6 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
     XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
     XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
     Display *dpy = XOpenDisplay (NULL);
-    Window rootwindow = DefaultRootWindow (dpy);
     XTestFakeButtonEvent(dpy, 1, true, 0);
     XTestFakeButtonEvent(dpy, 1, false, 0);
     XCloseDisplay(dpy);
@@ -447,22 +453,31 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
 
 bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
 {
-#if (USE_X11_LIB)
-    sMessage += ": ";
-    for(map<string, bool>::const_iterator it = mapChildDevices.begin(); it != mapChildDevices.end(); ++it)
-        if(!it->second)
-            sMessage += StringUtils::Replace(it->first, "|", "# ") + ", ";
-    std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
-#endif // (USE_X11_LIB)
-#if (USE_X11_LIB)
-    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
-    {
-        delete m_pProgressWnd;
-        m_pProgressWnd = NULL;
-        return true;
-    }
-#endif // (USE_X11_LIB)
+/////////////////////////////////////////////////////////////////
+//  WX dialogs
+/////////////////////////////////////////////////////////////////
 #if (USE_WX_LIB)
+#if (USE_TASK_MANAGER)
+	static bool bDialogRunning = false;
+	CallBackData *pData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
+	CallBackType callbackType = cbOnRefreshWxWidget;
+	if(nProgress != -1)
+	{
+		if(!bDialogRunning)
+		{
+			callbackType = cbOnCreateWxWidget;
+			bDialogRunning = true;
+		}
+		//else assuming it's a refresh
+	}
+	else
+	{
+		callbackType = cbOnDeleteWxWidget;
+		bDialogRunning = false;
+	}
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
+	TaskManager::Instance().AddTask(pTask);
+#else // (USE_TASK_MANAGER)
     if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
     {
         // window already closed
@@ -470,46 +485,23 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         // notify by return value
         return true;
     }
-#endif // (USE_WX_LIB)
-
-#if (USE_X11_LIB)
-    if (nProgress != -1 && !m_pProgressWnd)
-    {
-        // Create the progress window ...
-        m_pProgressWnd = new XProgressWnd();
-        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-        m_pProgressWnd->Run();
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-
-        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
-        return false;
-    }
-#endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
     if ( (m_pWaitGrid == NULL) && (nProgress >= 0) )
     {
         // delete previous window
         if (m_pWaitList)
         {
-            wxDialog_Close(m_pWaitList);
+            Safe_Close(m_pWaitList);
             m_pWaitList = NULL;
         }
         // delete previous window
         if (m_pWaitUser)
         {
-            wxDialog_Close(m_pWaitUser);
+            Safe_Close(m_pWaitUser);
             m_pWaitUser = NULL;
         }
         // create new window
-        m_pWaitGrid = wxDialog_CreateUnique<wxDialog_WaitGrid>(
-            SYMBOL_WXDIALOG_WAITGRID_IDNAME,
-            SYMBOL_WXDIALOG_WAITGRID_TITLE);
-        wxDialog_Show<wxDialog_WaitGrid>(m_pWaitGrid);
+        m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
+        Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
         commandRatPoison(":set winname class");
         commandRatPoison(":desktop off");
         commandRatPoison(string(":select ") + "dialog");
@@ -519,8 +511,52 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         setDesktopVisible(false);
         return false;
     }
+    if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
+    {
+        // update
+        wxDialog_WaitGrid::Data_Refresh data_refresh = { sMessage, mapChildDevices, nProgress };
+        Safe_Gui_Refresh<wxDialog_WaitGrid>(m_pWaitGrid, &data_refresh);
+        return false;
+    }
+    if ( (m_pWaitGrid != NULL) && (nProgress < 0) )
+    {
+        Safe_Close<wxDialog_WaitGrid>(m_pWaitGrid);
+        m_pWaitGrid = NULL;
+        return false;
+    }
+#endif // (USE_TASK_MANAGER)
 #endif // (USE_WX_LIB)
+
+/////////////////////////////////////////////////////////////////
+//  NON - WX dialogs
+/////////////////////////////////////////////////////////////////
 #if (USE_X11_LIB)
+    sMessage += ": ";
+    for(map<string, bool>::const_iterator it = mapChildDevices.begin(); it != mapChildDevices.end(); ++it)
+        if(!it->second)
+            sMessage += StringUtils::Replace(it->first, "|", "# ") + ", ";
+    std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
+    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+    {
+        delete m_pProgressWnd;
+        m_pProgressWnd = NULL;
+        return true;
+    }
+    if (nProgress != -1 && !m_pProgressWnd)
+    {
+        // Create the progress window ...
+        m_pProgressWnd = new XProgressWnd();
+        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+        m_pProgressWnd->Run();
+        commandRatPoison(":set winname class");
+        commandRatPoison(":desktop off");
+        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+        commandRatPoison(":desktop on");
+        commandRatPoison(":keystodesktop on");
+        commandRatPoison(":keybindings off");
+        setDesktopVisible(false);
+        return false;
+    }
     /*else*/ if (nProgress != -1)
     {
         // Update progress info
@@ -528,16 +564,6 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         m_pProgressWnd->DrawWindow();
         return false;
     }
-#endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
-    if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
-    {
-        // update
-        m_pWaitGrid->NewDataRefresh(sMessage, mapChildDevices, nProgress);
-        return false;
-    }
-#endif // (USE_WX_LIB)
-#if (USE_X11_LIB)
     /*else*/ if(m_pProgressWnd)
     {
         // We are done here ...
@@ -547,14 +573,6 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         return false;
     }
 #endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
-    if ( (m_pWaitGrid != NULL) && (nProgress < 0) )
-    {
-        wxDialog_Close<wxDialog_WaitGrid>(m_pWaitGrid);
-        m_pWaitGrid = NULL;
-        return false;
-    }
-#endif // (USE_WX_LIB)
 
     return false;
 }
@@ -563,15 +581,29 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 {
     std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
 
-#if (USE_X11_LIB)
-    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
-    {
-        delete m_pProgressWnd;
-        m_pProgressWnd = NULL;
-        return true;
-    }
-#endif // (USE_X11_LIB)
 #if (USE_WX_LIB)
+#if (USE_TASK_MANAGER)
+	static bool bDialogRunning = false;
+	CallBackData *pData = new WaitUserListCallBackData(sMessage, nProgress);
+	CallBackType callbackType = cbOnRefreshWxWidget;
+	if(nProgress != -1)
+	{
+		if(!bDialogRunning)
+		{
+			callbackType = cbOnCreateWxWidget;
+			bDialogRunning = true;
+		}
+		//else assuming it's a refresh
+	}
+	else
+	{
+		callbackType = cbOnDeleteWxWidget;
+		bDialogRunning = false;
+	}
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
+	TaskManager::Instance().AddTask(pTask);
+#else // (USE_TASK_MANAGER)
+	//TODO:
     if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
     {
         // window already closed
@@ -579,46 +611,23 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // notify by return value
         return true;
     }
-#endif // (USE_WX_LIB)
-
-#if (USE_X11_LIB)
-    if (nProgress != -1 && !m_pProgressWnd)
-    {
-        // Create the progress window ...
-        m_pProgressWnd = new XProgressWnd();
-        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
-        m_pProgressWnd->Run();
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-
-        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
-        return false;
-    }
-#endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
     if ( (m_pWaitList == NULL) && (nProgress >= 0) )
     {
         // delete previous window
         if (m_pWaitGrid)
         {
-            wxDialog_Close(m_pWaitGrid);
+            Safe_Close(m_pWaitGrid);
             m_pWaitGrid = NULL;
         }
         // delete previous window
         if (m_pWaitUser)
         {
-            wxDialog_Close(m_pWaitUser);
+            Safe_Close(m_pWaitUser);
             m_pWaitUser = NULL;
         }
         // create new window
-        m_pWaitList = wxDialog_CreateUnique<wxDialog_WaitList>(
-            SYMBOL_WXDIALOG_WAITLIST_IDNAME,
-            SYMBOL_WXDIALOG_WAITLIST_TITLE);
-        wxDialog_Show<wxDialog_WaitList>(m_pWaitList);
+        m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
+        Safe_Show<wxDialog_WaitList>(m_pWaitList);
         commandRatPoison(":set winname class");
         commandRatPoison(":desktop off");
         commandRatPoison(string(":select ") + "dialog");
@@ -628,8 +637,44 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         setDesktopVisible(false);
         return false;
     }
+    if ( (m_pWaitList != NULL) && (nProgress >= 0) )
+    {
+        // update
+        wxDialog_WaitList::Data_Refresh data_refresh = { sMessage, nProgress };
+        Safe_Gui_Refresh<wxDialog_WaitList>(m_pWaitList, &data_refresh);
+        return false;
+    }
+	if ( (m_pWaitList != NULL) && (nProgress < 0) )
+    {
+        Safe_Close<wxDialog_WaitList>(m_pWaitList);
+        m_pWaitList = NULL;
+        return false;
+    }
+#endif // (USE_TASK_MANAGER)
 #endif // (USE_WX_LIB)
+
 #if (USE_X11_LIB)
+    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+    {
+        delete m_pProgressWnd;
+        m_pProgressWnd = NULL;
+        return true;
+    }
+	if (nProgress != -1 && !m_pProgressWnd)
+    {
+        // Create the progress window ...
+        m_pProgressWnd = new XProgressWnd();
+        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+        m_pProgressWnd->Run();
+        commandRatPoison(":set winname class");
+        commandRatPoison(":desktop off");
+        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+        commandRatPoison(":desktop on");
+        commandRatPoison(":keystodesktop on");
+        commandRatPoison(":keybindings off");
+        setDesktopVisible(false);
+        return false;
+    }
     /*else*/ if (nProgress != -1)
     {
         // Update progress info
@@ -637,16 +682,6 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd->DrawWindow();
         return false;
     }
-#endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
-    if ( (m_pWaitList != NULL) && (nProgress >= 0) )
-    {
-        // update
-        m_pWaitList->NewDataRefresh(sMessage, nProgress);
-        return false;
-    }
-#endif // (USE_WX_LIB)
-#if (USE_X11_LIB)
     /*else*/ if(m_pProgressWnd)
     {
         // We are done here ...
@@ -656,23 +691,14 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         return false;
     }
 #endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
-    if ( (m_pWaitList != NULL) && (nProgress < 0) )
-    {
-        wxDialog_Close<wxDialog_WaitList>(m_pWaitList);
-        m_pWaitList = NULL;
-        return false;
-    }
-#endif // (USE_WX_LIB)
 
     return false;
 }
 
-int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
+int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string> *p_mapPrompts)
 {
-//#if 0
-//  return PROMPT_CANCEL;
-//#else
+    //return 0;
+    //return PROMPT_CANCEL;
     map<int,string> mapPrompts;
     mapPrompts[PROMPT_CANCEL]    = "Ok";
     if (p_mapPrompts == NULL) {
@@ -681,21 +707,25 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 
 #if (USE_WX_LIB)
+#if (USE_TASK_MANAGER)
+	CallBackData *pData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
+	CallBackType callbackType = cbOnCreateWxWidget;
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
+	TaskManager::Instance().AddTaskAndWait(pTask);
+#else // (USE_TASK_MANAGER)
     // delete previous window
     if (m_pWaitList)
     {
-        wxDialog_Close(m_pWaitList);
+        Safe_Close(m_pWaitList);
         m_pWaitList = NULL;
     }
     // delete previous window
     if (m_pWaitGrid)
     {
-        wxDialog_Close(m_pWaitGrid);
+        Safe_Close(m_pWaitGrid);
         m_pWaitGrid = NULL;
     }
-    m_pWaitUser = wxDialog_CreateUnique<wxDialog_WaitUser>(
-        SYMBOL_WXDIALOG_WAITUSER_IDNAME,
-        SYMBOL_WXDIALOG_WAITUSER_TITLE);
+    m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
     commandRatPoison(":set winname class");
     commandRatPoison(":desktop off");
     commandRatPoison(string(":select ") + "dialog");
@@ -703,15 +733,15 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
     commandRatPoison(":keystodesktop on");
     commandRatPoison(":keybindings off");
     setDesktopVisible(false);
-    int nButtonId = wxDialog_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
+    int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
     return nButtonId;
+#endif // (USE_TASK_MANAGER)
 #endif // (USE_WX_LIB)
 
 #if (USE_X11_LIB)
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
-
     commandRatPoison(":set winname class");
     commandRatPoison(":desktop off");
     commandRatPoison(string(":select ") + promptDlg.m_wndName);
@@ -719,14 +749,10 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
     commandRatPoison(":keystodesktop on");
     commandRatPoison(":keybindings off");
     setDesktopVisible(false);
-
     int nUserAnswer = promptDlg.RunModal();
-
     promptDlg.DeInit();
-
     return nUserAnswer;
 #endif // (USE_X11_LIB)
-//#endif
 }
 
 ScreenHandler *OrbiterLinux::CreateScreenHandler()
@@ -739,3 +765,15 @@ void OrbiterLinux::SetCurrentAppDesktopName(string sName)
     g_pPlutoLogger->Write( LV_WARNING, "OrbiterLinux::SetCurrentAppDesktopName(%s)", sName.c_str());
 	m_sCurrentAppDesktopName = sName;
 }
+
+//void OrbiterLinux::OnReload()
+//{
+//	WMTask *pTask = TaskManager::Instance().CreateTask(cbReloadOrbiter, E_Dialog_None, NULL);
+//	TaskManager::Instance().AddTask(pTask);
+//}
+
+//void OrbiterLinux::OnQuit()
+//{
+//	WMTask *pTask = TaskManager::Instance().CreateTask(cbReloadOrbiter, E_Dialog_None, NULL);
+//	TaskManager::Instance().AddTask(pTask);
+//}

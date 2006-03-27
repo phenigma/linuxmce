@@ -1,3 +1,9 @@
+# if ( USE_WX_LIB > 0 )
+#   compile & link with wx
+# else
+#   not using wx at all
+USE_WX_LIB := 1
+
 USE_WX_LIB ?= 0
 ifneq ($(USE_WX_LIB), 0)
 USE_WX_LIB := 1
@@ -20,7 +26,7 @@ WX_GL_LIBS    := $(shell $(WX_CONFIG) --gl-libs)
 WX_LDFLAGS    := $(shell $(WX_CONFIG) --ldflags 2>/dev/null)
 WX_LD         := $(shell $(WX_CONFIG) --ld)
 WX_PARSE_LD   := $(shell $(WX_CONFIG) --ld 2>/dev/null | sed -e 's|^[^-][^ ]*||;s| -shared | |g;s| -o *$$| |;')
-WX_SOURCES    := $(shell ls wxAppMain/*.cpp)
+WX_SOURCES    := $(shell ls wxAppMain/*.cpp Linux/wmtask*.cpp)
 
 else
 # not using wx
