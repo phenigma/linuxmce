@@ -21,6 +21,7 @@
 	require_once( $t_core_path.'file_api.php' );
 	require_once( $t_core_path.'date_api.php' );
 	require_once( $t_core_path.'relationship_api.php' );
+	require_once( $t_core_path.'timeline_api.php' );
 ?>
 <?php
 	$f_bug_id	= gpc_get_int( 'bug_id' );
@@ -411,6 +412,8 @@
 	}
 	# MASC RELATIONSHIP
 
+	timeline_view_box ( $f_bug_id , $t_bug);
+	
 	# File upload box
 	if ( !bug_is_readonly( $f_bug_id ) ) {
 		include( $t_mantis_dir . 'bug_file_upload_inc.php' );

@@ -61,6 +61,12 @@
 		var $description = '';
 		var $steps_to_reproduce = '';
 		var $additional_information = '';
+		
+		# timeline fields
+		var $date_todo = '';
+		var $id_after_todo = 0;
+		var $hours_estimate = 0;
+		var $hours_actual = 0;
 	}
 
 	#===================================
@@ -1398,6 +1404,11 @@
 		$p_bug_data->steps_to_reproduce	= string_display_links( $p_bug_data->steps_to_reproduce );
 		$p_bug_data->additional_information	= string_display_links( $p_bug_data->additional_information );
 
+		$p_bug_data->date_todo			= string_display( $p_bug_data->date_todo );
+		$p_bug_data->id_after_todo		= string_display( $p_bug_data->id_after_todo );
+		$p_bug_data->hours_estimate		= string_display( $p_bug_data->hours_estimate );
+		$p_bug_data->hours_actual		= string_display( $p_bug_data->hours_actual );
+		
 		return $p_bug_data;
 	}
 ?>
