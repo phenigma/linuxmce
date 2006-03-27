@@ -3182,9 +3182,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if( !SendCommand( CMD_Orbiter_Registered ) )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
+				PromptUser("Orbiter cannot register with the router. Please try again later.");
 
-				//when this happens, it's because someone did a reload router while orbiter was reloading
-				OnUnexpectedDisconnect();
+				exit(1);
 				return;
 			}
 			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;

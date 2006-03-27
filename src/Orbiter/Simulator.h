@@ -65,7 +65,7 @@ public: //methods
 	void LoadConfigurationFile(string sConfigurationFile);
 	void SaveConfigurationFile(string sConfigurationFile = "");
 
-	void StartRandomEventGenerator(long dwDelay = 0);
+	void StartRandomEventGenerator();
 	void StopRandomEventGenerator();
 	static bool IsRunning() { return NULL != m_pInstance && m_pInstance->m_bIsRunning; }
 

@@ -1,6 +1,7 @@
 #include "StartOrbiter.h"
 
 #include "PlutoUtils/CommonIncludes.h"	
+#include "Simulator.h"
 
 #ifdef POCKETFROG
 	#include "Orbiter_PocketFrog.h"
@@ -175,6 +176,9 @@ bool Run(ORBITER* pOrbiter, bool bLocalMode)
 //-----------------------------------------------------------------------------------------------------
 bool EventLoop(ORBITER* pOrbiter)
 {
+	if(Simulator::GetInstance()->m_bEnableGenerator)
+		Simulator::GetInstance()->StartRandomEventGenerator();
+
 #ifdef POCKETFROG
 	pOrbiter->Run();
 #else

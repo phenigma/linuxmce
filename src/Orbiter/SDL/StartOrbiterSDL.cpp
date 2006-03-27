@@ -254,7 +254,6 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
 {
-	//Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
 	OrbiterSDL *pCLinux =
         new OrbiterLinux(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
@@ -280,6 +279,9 @@ OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,
 		//pCLinux->Initialize_Display();
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
 		Simulator::GetInstance()->m_pOrbiter = pCLinux;
+
+		if(Simulator::GetInstance()->m_bEnableGenerator)
+			Simulator::GetInstance()->StartRandomEventGenerator();
 
 		return pCLinux;
 	}

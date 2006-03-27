@@ -38,9 +38,40 @@ public:
 	DeviceInfo(class Row_DeviceTemplate *pRow_DeviceTemplate) { m_pRow_DeviceTemplate=pRow_DeviceTemplate; }
 };
 
+//forward declarations
+class Row_EventParameter;
+class Row_CommandParameter;
+
 class DCEGen : public MySqlHelper
 {
 	string m_sGeneratedOutput,m_sTemplateInput,m_sTemplateOutput;
+
+	//helper functions
+
+	/*
+	 *	Returns a string with pluto_main's generated const for that device template
+	 */
+	string GetDeviceTemplateConstStr(Row_DeviceTemplate* pRow_DeviceTemplate);
+
+	/*
+	 *	Returns a string with pluto_main's generated const for that command
+	 */
+	string GetCommandConstStr(Row_Command* pRow_Command);
+
+	/*
+	*	Returns a string with pluto_main's generated const for that event parameter
+	*/
+	string GetEventParameterConstStr(Row_EventParameter* pRow_EventParameter);
+
+	/*
+	*	Returns a string with pluto_main's generated const for that command parameter
+	*/
+	string GetCommandParameterConstStr(Row_CommandParameter* pRow_CommandParameter);
+
+	/*
+	*	Returns a string with pluto_main's generated const for that event
+	*/
+	string GetEventConstStr(Row_Event* pRow_Event);
 
 public:
 	map<int,int> m_mapGeneratedDevices;  // Keep track of the devices we've already generated
@@ -62,7 +93,7 @@ public:
 	void CreateFunctionParms(class Row_Event *pRow_Event,int &ParmCount,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage);
 	void CreateFunctionParms(class Row_Request *pRow_Request,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage);
 	// bByReference is used for the Requests where some parameters are passed by reference instead
-	void CreateFunctionParms(int iParameterID,int iParameterType,string ParameterName,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage,bool bByReference=false);
+	void CreateFunctionParms(int iParameterID, string ParameterConstName, int iParameterType,string ParameterName,string &sParmsWithType,string &sAssignParmToLocal,string &sParmsWithNoType,string &sPassingToMessage,bool bByReference=false);
 	string GetPrefix(int PK_ParameterType); // Get the prefix to put on local variables based on this type of parameter
 	string CastTypeToChar(string s,int PK_ParameterType); // assume s is a string, cast it as the correct type
 	string CastStringToType(string s,int PK_ParameterType); // assume s is the given type, cast it to a const char

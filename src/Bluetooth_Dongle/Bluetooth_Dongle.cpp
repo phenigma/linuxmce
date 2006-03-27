@@ -841,6 +841,8 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 #else //LINUX
 			Simulator::GetInstance()->LoadConfigurationFile("/etc/BluetoothDongle.conf");
 #endif			
+			if(Simulator::GetInstance()->m_bEnableGenerator)
+				Simulator::GetInstance()->StartRandomEventGenerator();
 		}	
 
 		pBD_Orbiter->m_pOrbiter = ( Orbiter * )pOrbiter;

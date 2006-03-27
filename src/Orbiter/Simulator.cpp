@@ -67,8 +67,6 @@ void *GeneratorThread( void *p)
 
 	pSimulator->m_bIsRunning = true;
 
-	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
-
 	bool bGenerateMouseClicks = pSimulator->m_bGenerateMouseClicks;
 	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateKeyboardEvents;
 	bool bOption1 = pSimulator->m_iKeysSetToGenerate == 0;
@@ -90,9 +88,6 @@ void *GeneratorThread( void *p)
 	int x, y, delay;
 	srand( (unsigned)time(NULL) );
 	static int Count = 0;
-
-	Sleep(60000); // Last minute add per Chris since sometmies this runs before the orbiter has connected
-	// if other devices haven't started right away
 
 #ifdef BLUETOOTH_DONGLE
 	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
@@ -361,6 +356,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	#endif
 #endif
 
+/*
 	if(m_bEnableGenerator)
 	{
 		#ifdef WINCE
@@ -369,6 +365,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 			StartRandomEventGenerator(5000);
 		#endif
 	}
+*/
 }
 //------------------------------------------------------------------------------------------------------
 void Simulator::SaveConfigurationFile(string sConfigurationFile)
@@ -449,9 +446,8 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 	FileUtils::WriteVectorToFile(sConfigurationFile, vectString);
 }
 //------------------------------------------------------------------------------------------------------
-void Simulator::StartRandomEventGenerator(long dwDelay/* = 0*/)
+void Simulator::StartRandomEventGenerator()
 {
-	m_dwStartGeneratorThreadDelay = dwDelay;
 	m_bStopGeneratorThread = false;
 
 	pthread_create(&m_GeneratorThreadID, NULL, GeneratorThread, (void*)this);
