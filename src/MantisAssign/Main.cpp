@@ -5,8 +5,8 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 
-//MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
-MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
+MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
+//MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
 
 #include <iostream>
 #include <sstream>
@@ -132,7 +132,7 @@ void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,
 	cout << "<p><div style=\"background-color: " << color << "\"><h3>" << ptm->tm_hour << ":" << ptm->tm_min << " <a href=\"http://plutohome.com/support/mantis/view.php?id=" << MantisID << "\">" << summary << "</a></div></h3>"
 		<< endl << "<br>hours estimated: " << hours_estimate << " actual: " << hours_actual << "  after id: " << ID_After_Todo;
 
-	if( DateTodo )
+	if( DateTodo && DateTodo>1 )
 	{
 		ptm = localtime(&DateTodo);
 		cout << "  date: " << asctime(ptm);
@@ -209,7 +209,7 @@ void AssignWorkDaysForUser(string sUserID)
 {
 	list<int> listNextTasks; // This will be the list of tasks which need to be assigned because they follow
 	// a task that was already assigned.  As they are assigned, 
-	string sSQL = "select id,date_todo from mantis_bug_table where handler_id=" + sUserID + " and date_todo is not null order by date_todo";
+	string sSQL = "select id,date_todo from mantis_bug_table where handler_id=" + sUserID + " and date_todo is not null and date_todo>0 order by date_todo";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -249,6 +249,10 @@ void AssignTasksFollowingID(time_t tStartTime,time_t tEndTime,list<int> &listNex
 	for(list<int>::iterator it=listNextTasks.begin();it!=listNextTasks.end();)
 	{
 		string sTask = StringUtils::itos(*it);
+
+		int Hours;  // Get the correct start time
+		tStartTime = GetActualStartTimeAndWorkHours(GetUserForTask(sTask),tStartTime,Hours);
+
 		tStartTime = AssignTaskIfFits( sTask, tStartTime, tEndTime );
 		if( tStartTime==0 )
 			return;  // Doesn't fit
