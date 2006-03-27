@@ -87,6 +87,7 @@ void Report(string sUserID,string sStartDate,string EndDate)
 	if( StringUtils::ToUpper(sUserID)!="ALL" )
 		sSQL += " AND user_id in (" + sUserID + ")";
 
+	sSQL += " ORDER BY workday,username";
 	string sLastDate;
 
 	PlutoSqlResult result_days;
