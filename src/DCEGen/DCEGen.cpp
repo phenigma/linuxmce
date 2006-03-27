@@ -338,7 +338,10 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "#include \"Command_Impl.h\"" << endl;
 	fstr_DeviceCommand << "#include \"Logger.h\"" << endl;
 	fstr_DeviceCommand << "#include \"../pluto_main/Define_Command.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_CommandParameter.h\"" << endl;
 	fstr_DeviceCommand << "#include \"../pluto_main/Define_DeviceTemplate.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_Event.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_EventParameter.h\"" << endl;
 	fstr_DeviceCommand << endl << endl;
 
 	fstr_DeviceCommand << "/**" << endl;
@@ -405,7 +408,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		deviceInfo.m_mapEventDeclarations[pRow_DeviceTemplate_Event->FK_Event_get()]=EventDeclaration;
 		deviceInfo.m_mapEventParms[pRow_DeviceTemplate_Event->FK_Event_get()]=sParmsWithNoType;
 		fstr_DeviceCommand << "\t\tSendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, " << endl; 
-		fstr_DeviceCommand << "\t\t\t" + GetEventConstStr(m_dce.Event_get()->GetRow(pRow_DeviceTemplate_Event->FK_Event_get())) << endl;
+		fstr_DeviceCommand << "\t\t\t" + GetEventConstStr(m_dce.Event_get()->GetRow(pRow_DeviceTemplate_Event->FK_Event_get())) << "," << endl;
 		fstr_DeviceCommand << "\t\t\t" + sPassingToMessage;
 		fstr_DeviceCommand << "));" << endl << "\t}" << endl << endl;
 	}
@@ -859,7 +862,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	fstr_DeviceCommand << "#include \"" + Name + "Base.h\"" << endl;
 	fstr_DeviceCommand << "#include \"DeviceData_Impl.h\"" << endl;
-	fstr_DeviceCommand << "#include \"Logger.h\"" << endl << endl;
+	fstr_DeviceCommand << "#include \"Logger.h\"" << endl;
+	fstr_DeviceCommand << endl;
+
 	fstr_DeviceCommand << "using namespace DCE;" << endl;
 
 	map<int,class Row_DeviceTemplate *>::iterator itMDL;
@@ -1465,9 +1470,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName+","+SizePrefix+sParameterName+"_Size";
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t- " + ParameterConstName + ", *"+ Prefix + sParameterName + ",*"+SizePrefix+sParameterName + "_Size";
+			sPassingToMessage+=","EOL"\t\t\t- " + ParameterConstName + ", *"+ Prefix + sParameterName + ",*"+SizePrefix+sParameterName + "_Size";
 		else
-			sPassingToMessage+=",\n\t\t\t- " + ParameterConstName + ", "+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
+			sPassingToMessage+=","EOL"\t\t\t- " + ParameterConstName + ", "+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
 	}
 	else if (iParameterType == PARAMETERTYPE_int_CONST)
 	{
@@ -1481,9 +1486,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName + ").c_str()";
 		else
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
 	}
 	else if (iParameterType == PARAMETERTYPE_double_CONST)
 	{
@@ -1497,9 +1502,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::ftos(*"+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::ftos(*"+ Prefix + sParameterName + ").c_str()";
 		else
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::ftos("+ Prefix + sParameterName + ").c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::ftos("+ Prefix + sParameterName + ").c_str()";
 	}
 	else if (iParameterType == PARAMETERTYPE_bool_CONST)
 	{
@@ -1513,9 +1518,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName + " ? \"1\" : \"0\")";
 		else
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", ("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", ("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
 	}
 	else if (iParameterType == PARAMETERTYPE_PlutoColor_CONST)
 	{
@@ -1529,9 +1534,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName+".m_value).c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos(*"+ Prefix + sParameterName+".m_value).c_str()";
 		else
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
 	}
 	else
 	{
@@ -1545,9 +1550,9 @@ void DCEGen::CreateFunctionParms(int iParameterID, string ParameterConstName, in
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName + ".c_str()";
 		if( bByReference )
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName+").c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", (*"+ Prefix + sParameterName+").c_str()";
 		else
-			sPassingToMessage+=",\n\t\t\t" + ParameterConstName + ", "+ Prefix + sParameterName+".c_str()";
+			sPassingToMessage+=","EOL"\t\t\t" + ParameterConstName + ", "+ Prefix + sParameterName+".c_str()";
 	}
 }
 
@@ -1560,6 +1565,14 @@ void DCEGen::WriteGlobals()
 	fstr_DeviceCommand << "#define AllCommandsRequest_h" << endl;
 	fstr_DeviceCommand << "#include \"Message.h\"" << endl;
 	fstr_DeviceCommand << "#include \"PreformedCommand.h\"" << endl;
+	fstr_DeviceCommand << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_Command.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_CommandParameter.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_DeviceTemplate.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_Event.h\"" << endl;
+	fstr_DeviceCommand << "#include \"../pluto_main/Define_EventParameter.h\"" << endl;
+	fstr_DeviceCommand << endl;
+
 	fstr_DeviceCommand << "namespace DCE" << endl;
 	fstr_DeviceCommand << "{" << endl;
 	fstr_DeviceCommand << "\t //  Commands" << endl;
