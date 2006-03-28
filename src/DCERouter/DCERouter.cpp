@@ -1228,7 +1228,12 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		ServerSocket *pServerSocket;
 		GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
 
-		if( !pServerSocket || pServerSocket->m_Socket==INVALID_SOCKET )
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+		if (pDevice && pDevice->m_pRow_Device->Disabled_get())
+		{
+			pSocket->SendString("DEVICE_REGISTERED D");
+		}
+		else if(! pServerSocket || pServerSocket->m_Socket == INVALID_SOCKET)
 			pSocket->SendString("DEVICE_REGISTERED N");
 		else
 		{
