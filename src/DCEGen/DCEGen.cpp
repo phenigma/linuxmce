@@ -378,10 +378,12 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		Row_DeviceTemplate_Event *pRow_DeviceTemplate_Event = vectRow_DeviceTemplate_Event[i3];
 
 		string EventDeclaration;
-		if( p_Row_DeviceTemplate->CommandLine_get().size() )
-			EventDeclaration=p_Row_DeviceTemplate->CommandLine_get() + "(";
-		else
-			EventDeclaration=FileUtils::ValidCPPName(pRow_DeviceTemplate_Event->FK_Event_getrow()->Description_get()) + "(";
+		
+		//this was just an old hack:
+		//if( p_Row_DeviceTemplate->CommandLine_get().size() )
+		//	EventDeclaration=p_Row_DeviceTemplate->CommandLine_get() + "(";
+		//else
+		EventDeclaration=FileUtils::ValidCPPName(pRow_DeviceTemplate_Event->FK_Event_getrow()->Description_get()) + "(";
 
 		int ParmCount=0;
 		string sParmsWithType="";
