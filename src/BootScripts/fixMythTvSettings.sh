@@ -12,6 +12,10 @@ chmod 760 /etc/mythtv/mysql.txt
 
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
+amixer set CD playback off
+amixer set CD capture1
+# don't ask me why 'capture1' turns on cd capture...
+
 /usr/pluto/bin/sqlCVS -R 4000 -H sqlcvs.plutohome.com -n -h localhost -D pluto_myth -a -U anonymous~anonymous -r myth -e checkin
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
