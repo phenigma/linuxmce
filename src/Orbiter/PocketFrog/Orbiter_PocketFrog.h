@@ -9,6 +9,9 @@
 #include <PocketFrog.h>
 using namespace Frog;
 //-----------------------------------------------------------------------------------------------------
+
+class OrbiterGL3D;
+
 namespace DCE
 {
 
@@ -131,7 +134,6 @@ protected:
     void DumpLocks();
     string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
 
-	auto_ptr<class OrbiterGL3D> m_spGLDesktop;
 	bool m_bPaintDesktop;
 
 	void OpenGL_RenderFrame(void *data); //callback
@@ -142,9 +144,37 @@ protected:
 	PlutoRectangle m_rectLastSelected;
 
 	bool m_bUseOpenGL;
+public:
+	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
+	bool PaintDesktopGL;
+
+	pthread_cond_t m_GLThreadCond;
+	class OrbiterGL3D *m_Desktop;
+	pluto_pthread_mutex_t* m_GLThreadMutex;
+	
+	void WakeupFromCondWait();
+	void OnIdle();
+
+
+	virtual void DoHighlightObject();
+	virtual void DoHighlightObjectOpenGL();
+	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
+
+protected:
+	pthread_t SDLGLthread;
+	bool EnableOpenGL;
 };
 
 }
+
+/**
+* OpenGL drawing thread. It is in three steps: 
+* - Init OpenGL with SDL
+* - looping to drawing frames
+* - end the OpenGL
+*/
+
+void *Orbiter_OpenGLThread(void *p);
 
 
 #endif

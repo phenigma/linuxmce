@@ -195,8 +195,8 @@ int GL2DEffectFactory::GetEffectCode(int DBEffectCode)
 			return GL2D_EFFECT_FADES_FROM_TOP;
 		case EFFECT_New_screen_fades_out_from_unde_CONST:
 			return GL2D_EFFECT_FADES_FROM_UNDERNEATH;
-		case EFFECT_New_screen_genie_CONST:
-			return GL2D_EFFECT_BEZIER_TRANSIT;
+		//case EFFECT_New_screen_genie_CONST:
+		//	return GL2D_EFFECT_BEZIER_TRANSIT;
 		//Experimental effects
 		case 6:
 			return GL2D_EFFECT_BEZIER_TRANSIT_PRISM;

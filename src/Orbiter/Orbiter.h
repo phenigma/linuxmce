@@ -74,6 +74,8 @@ namespace DCE
 		}
 	};
 
+	class PendingCallBackInfo;
+
 	//<-dceag-decl-b->! custom
 	/**
 	* @brief
@@ -158,6 +160,9 @@ namespace DCE
 		pthread_cond_t m_MaintThreadCond;
 
 		//<-dceag-const-e->
+
+		map<int, PendingCallBackInfo *> m_mapPendingCallbacks; //The map with pending callbacks
+		unsigned int m_nCallbackCounter; //a pending callback counter
 
 	protected:
 
@@ -1851,6 +1856,29 @@ light, climate, media, security, telecom */
 
 		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
 		class ScreenHistory *m_pScreenHistory_get() { return m_pScreenHistory; }
+	};
+
+	//------------------------------------------------------------------------
+	// CallBackInfo
+	//------------------------------------------------------------------------
+	// Stuff the callback routines need
+	class PendingCallBackInfo
+	{
+	public:
+		PendingCallBackInfo(unsigned int nCallbackID, bool bPurgeTaskWhenScreenIsChanged = true)
+		{
+			m_nCallbackID = nCallbackID;
+			m_bStop = false;
+			m_bPurgeTaskWhenScreenIsChanged = bPurgeTaskWhenScreenIsChanged;
+		}
+
+		Orbiter *m_pOrbiter;
+		OrbiterCallBack m_fnCallBack;
+		timespec m_abstime;
+		void *m_pData;
+		unsigned int m_nCallbackID; // A unique ID
+		bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
+		bool m_bPurgeTaskWhenScreenIsChanged;
 	};
 
 	//<-dceag-end-b->

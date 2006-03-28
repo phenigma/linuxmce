@@ -109,30 +109,6 @@ extern void (*g_pReceivePingHandler)(Socket *pSocket);
 extern bool (*g_pSendPingHandler)(Socket *pSocket);
 void ReceivePingHandler(Socket *pSocket);
 bool SendPingHandler(Socket *pSocket);
-//------------------------------------------------------------------------
-// CallBackInfo
-//------------------------------------------------------------------------
-// Stuff the callback routines need
-int iCallbackCounter=0;
-class CallBackInfo
-{
-public:
-	CallBackInfo(bool bPurgeTaskWhenScreenIsChanged = true)
-	{
-		m_iCounter=iCallbackCounter++;
-		m_bStop=false;
-		m_bPurgeTaskWhenScreenIsChanged = bPurgeTaskWhenScreenIsChanged;
-	}
-
-	Orbiter *m_pOrbiter;
-	OrbiterCallBack m_fnCallBack;
-	timespec m_abstime;
-	void *m_pData;
-	int m_iCounter; // A unique ID
-	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
-	bool m_bPurgeTaskWhenScreenIsChanged;
-};
-map<int,CallBackInfo *> mapPendingCallbacks;
 
 //------------------------------------------------------------------------
 // DelayedSelectObjectInfo
@@ -215,6 +191,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput("Orbiter constructor");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+	m_nCallbackCounter = 0;
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
 	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;
@@ -301,10 +278,10 @@ Orbiter::~Orbiter()
 	KillMaintThread();
 
 	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
-	map<int,CallBackInfo *>::iterator itCallBackInfo;
-	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
+	map<int,PendingCallBackInfo *>::iterator itCallBackInfo;
+	for(itCallBackInfo = m_mapPendingCallbacks.begin(); itCallBackInfo != m_mapPendingCallbacks.end(); itCallBackInfo++)
 		delete (*itCallBackInfo).second;
-	mapPendingCallbacks.clear();
+	m_mapPendingCallbacks.clear();
 	pm.Release();
 
 	g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
@@ -4032,9 +4009,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 	if( m_bRepeatingObject )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
-		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 		{
-			CallBackInfo *pCallBackInfo = (*it).second;
+			PendingCallBackInfo *pCallBackInfo = (*it).second;
 			if( pCallBackInfo->m_fnCallBack== &Orbiter::ReselectObject )
 				pCallBackInfo->m_bStop=true;
 		}
@@ -4932,9 +4909,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			// Find if there are any selected object timeout's pending
 			PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
-			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+			for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 			{
-				CallBackInfo *pCallBackInfo = (*it).second;
+				PendingCallBackInfo *pCallBackInfo = (*it).second;
 				if( pCallBackInfo->m_fnCallBack == &Orbiter::DelayedSelectObject && !pCallBackInfo->m_bStop )
 				{
 					DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
@@ -5182,7 +5159,7 @@ void *MaintThread(void *p)
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
 	while(!pOrbiter->m_bQuit)
 	{
-		if(mapPendingCallbacks.size() == 0)
+		if(pOrbiter->m_mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
 			cm.CondWait(); // This will unlock the mutex and lock it on awakening
@@ -5190,24 +5167,24 @@ void *MaintThread(void *p)
 		else
 		{
 			// We've got stuff to check out
-			CallBackInfo *pCallBackInfoGood = NULL;
+			PendingCallBackInfo *pCallBackInfoGood = NULL;
 			timespec ts_NextCallBack,ts_now;
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
 
 			//let's choose the one which must be processed first
-			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
+			for(map<int,PendingCallBackInfo *>::iterator it=pOrbiter->m_mapPendingCallbacks.begin();it!=pOrbiter->m_mapPendingCallbacks.end();)
 			{
-				CallBackInfo *pCallBackInfo = (*it).second;
+				PendingCallBackInfo *pCallBackInfo = (*it).second;
 				if( pCallBackInfo->m_bStop )
 				{
-					mapPendingCallbacks.erase( it++ );  // This is dead anyway
+					pOrbiter->m_mapPendingCallbacks.erase( it++ );  // This is dead anyway
 					delete pCallBackInfo;
 					continue;
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
-					mapPendingCallbacks.erase( it );
+					pOrbiter->m_mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
 				}
@@ -5247,21 +5224,21 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds started with mapPendingCallbacks size: %d",
-		mapPendingCallbacks.size());
+		m_mapPendingCallbacks.size());
 #endif
 
 	if( e_PurgeExisting!=pe_NO )
 	{
-		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 		{
-			CallBackInfo *pCallBackInfo = (*it).second;
+			PendingCallBackInfo *pCallBackInfo = (*it).second;
 			if( pCallBackInfo->m_fnCallBack==fnCallBack &&
 				(e_PurgeExisting==pe_ALL || pCallBackInfo->m_pData==data) )
 				pCallBackInfo->m_bStop=true;
 		}
 	}
 
-	CallBackInfo *pCallBackInfo = new CallBackInfo( bPurgeTaskWhenScreenIsChanged );
+	PendingCallBackInfo *pCallBackInfo = new PendingCallBackInfo(m_nCallbackCounter++, bPurgeTaskWhenScreenIsChanged );
 
 	gettimeofday(&pCallBackInfo->m_abstime,NULL);
 	pCallBackInfo->m_abstime += milliseconds;
@@ -5270,7 +5247,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBackInfo->m_pData=data;
 	pCallBackInfo->m_pOrbiter=this;
 
-	mapPendingCallbacks[pCallBackInfo->m_iCounter]=pCallBackInfo;
+	m_mapPendingCallbacks[pCallBackInfo->m_nCallbackID]=pCallBackInfo;
 
 
 	cm.Release();
@@ -6391,9 +6368,9 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		DelayedSelectObjectInfo *pDelayedSelectObjectInfo = new DelayedSelectObjectInfo(pDesignObj_Orbiter,sPK_DesignObj_CurrentScreen,ts);
 
 		PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
-		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 		{
-			CallBackInfo *pCallBackInfo = (*it).second;
+			PendingCallBackInfo *pCallBackInfo = (*it).second;
 			if( pCallBackInfo->m_fnCallBack== &Orbiter::DelayedSelectObject )
 			{
 				DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
@@ -6974,13 +6951,13 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 	if( pOrbiter )
 	{
 		PLUTO_SAFETY_LOCK( pm, pOrbiter->m_MaintThreadMutex );
-		map<int,CallBackInfo *>::iterator itCallBackInfo;
-		for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
+		map<int,PendingCallBackInfo *>::iterator itCallBackInfo;
+		for(itCallBackInfo = pOrbiter->m_mapPendingCallbacks.begin(); itCallBackInfo != pOrbiter->m_mapPendingCallbacks.end();)
 		{
-			CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
+			PendingCallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
 			if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
 			{
-				mapPendingCallbacks.erase(itCallBackInfo++);
+				pOrbiter->m_mapPendingCallbacks.erase(itCallBackInfo++);
 				delete pCallBackInfo;
 			}
 			else
@@ -9825,9 +9802,9 @@ bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message 
 bool Orbiter::PendingCallbackScheduled(OrbiterCallBack fnCallBack)
 {
 	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
-	for(map<int, CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+	for(map<int, PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 	{
-		CallBackInfo *pCallBackInfo = (*it).second;
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
 		if(pCallBackInfo->m_fnCallBack == fnCallBack)
 			return true;
 	}

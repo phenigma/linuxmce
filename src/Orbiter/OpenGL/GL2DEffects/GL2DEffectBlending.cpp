@@ -3,7 +3,7 @@
 #include "gl2deffectfactory.h"
 #include "../OpenGLTextureConverter.h"
 
-#ifndef IGNORE_NV_EXTENSIONS
+#ifdef IGNORE_NV_EXTENSIONS
 #include "../nvidia/nv_shaders.h"
 #endif
 
