@@ -44,7 +44,7 @@ public:
 	* @brief Events methods for our device
 	*/
 
-	virtual void SimplePhone()
+	virtual void Incoming_Call()
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Incoming_Call_CONST,
@@ -223,7 +223,7 @@ public:
 	string DATA_Get_PhoneNumber() { return GetData()->Get_PhoneNumber(); }
 	bool DATA_Get_Speak_in_the_House() { return GetData()->Get_Speak_in_the_House(); }
 	//Event accessors
-	void EVENT_SimplePhone() { GetEvents()->Incoming_Call(); }
+	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
