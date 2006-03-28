@@ -82,7 +82,7 @@ function mythSettings($output,$dbADO) {
 			reset($MDArray);
 			list($mdk, $mdv) = each($MDArray);
 
-			$out.='<br>'.$TEXT_MYTH_PICK_MD_CONST.'&nbsp;'.pulldownFromArray($MDArray,'OutputMD', $mdk).'<br>';	
+			$out.='<br>'.$TEXT_MYTH_PICK_MD.'&nbsp;'.pulldownFromArray($MDArray,'OutputMD', $mdk).'<br>';	
 			
 			
 			
@@ -231,7 +231,7 @@ function mythSettings($output,$dbADO) {
 			{
 				if (isset($_POST['remove_'.$sids[$i].'_'.$channum]))
 				{
-					$mythADO->Execute('DELETE from channel WHERE channum=\''.$UnassignedChannels[$j].'\'');
+					$mythADO->Execute('DELETE from channel WHERE channum=\''.$channum.'\'');
 				}
 				else if (isset($_POST['mythtune_'.$sids[$i].'_'.$channum]))
 				{
@@ -353,7 +353,7 @@ function tuneChannel($mythADO, $dbADO, $chan, $sid)
 	}
 	else
 	{
-		Header('Location: index.php?section=mythSettings&msg='.$TEXT_MYTH_NOMYTHPLAYER_CONST.' (MD='.$_POST['OutputMD'].')');
+		Header('Location: index.php?section=mythSettings&msg='.$TEXT_MYTH_NOMYTHPLAYER.' (MD='.$_POST['OutputMD'].')');
 		exit();
 	}	
 }
