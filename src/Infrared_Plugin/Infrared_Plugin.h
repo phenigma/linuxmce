@@ -118,18 +118,6 @@ public:
 	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Sibling_Remotes(iPK_DeviceCategory,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
-
-	/** @brief COMMAND: #794 - Get Sibling Remotes */
-	/** Store a learned infrared code for a "Device" + "Command" pair */
-		/** @param #5 Value To Assign */
-			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
-		/** @param #210 PK_DeviceCategory */
-			/** Device category to search for remotes */
-
-	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Sibling_Remotes(iPK_DeviceCategory,sValue_To_Assign,sCMD_Result,NULL);};
-	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
-
-
 //<-dceag-h-e->
 	};
 

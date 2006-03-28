@@ -829,22 +829,23 @@ void Infrared_Plugin::CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,st
 {
 	(*sValue_To_Assign) = m_sRemoteMapping;
 }
-//<-dceag-c790-b->
 
-	/** @brief COMMAND: #790 - Get Sibling Remotes */
+//<-dceag-c793-b->
+
+	/** @brief COMMAND: #793 - Get Sibling Remotes */
 	/** Return a list of remote remote IDs with remote data. */
 		/** @param #5 Value To Assign */
 			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
-		/** @param #206 PK_DeviceCategory */
+		/** @param #209 PK_DeviceCategory */
 			/** Device category to search for remotes */
 
 void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c790-e->
+//<-dceag-c793-e->
 {
-// Find all our sibblings that are remote controls 
+	// Find all our sibblings that are remote controls 
 
 	Table_Device * pTable_Device = m_pDatabase_pluto_main->Device_get();
-	
+
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
 	if( !pRow_Device )
 	{
@@ -858,7 +859,7 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 		return;
 	}
 	vector<Row_Device *> vectRow_Device;
-	
+
 	string sWhere = "FK_Device_ControlledVia = "+StringUtils::itos(FK_Device_ControlledVia);
 	if (!m_pDatabase_pluto_main->Device_get()->GetRows(sWhere, &vectRow_Device))
 	{
@@ -880,25 +881,5 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 		}
 	}
 }
-//<-dceag-c793-b->
-
-	/** @brief COMMAND: #793 - Get Sibling Remotes */
-	/** Return a list of remote remote IDs with remote data. */
-		/** @param #5 Value To Assign */
-			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
-		/** @param #209 PK_DeviceCategory */
-			/** Device category to search for remotes */
-
-void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c793-e->
 //<-dceag-c794-b->
 
-	/** @brief COMMAND: #794 - Get Sibling Remotes */
-	/** Store a learned infrared code for a "Device" + "Command" pair */
-		/** @param #5 Value To Assign */
-			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
-		/** @param #210 PK_DeviceCategory */
-			/** Device category to search for remotes */
-
-void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c794-e->
