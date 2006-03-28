@@ -1225,15 +1225,6 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
     else if( Line.substr(0,18)=="DEVICE_REGISTERED ")
 	{
 		int PK_Device = atoi( Line.substr(18).c_str() );
-
-		this->m_mapDeviceData_Router_get->find(PK_Device);
-		DeviceData_Router *pBubu = NULL;
-		pBubu->m_pRow_Device->Disabled_get();
-
-		if( disabled )
-			pSocket->SendString("DEVICE_REGISTERED D");
-
-
 		ServerSocket *pServerSocket;
 		GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
 
