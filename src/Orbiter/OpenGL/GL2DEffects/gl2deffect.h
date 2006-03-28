@@ -3,8 +3,6 @@
 
 #include "../../DesignObj_Orbiter.h"
 
-namespace DCE {
-
 class GL2DEffectFactory;
 /**
  * That class is the base class for 2D effects using OpenGL
@@ -26,6 +24,8 @@ public:
 	 * 1.0 = StartTime+Length;
 	 */
 	float Stage(float Time) {
+		if (Length<= 0) 
+			return 1.1f;
 		return ((float)Time-(float)Start) / (float)Length;
 	} 
   
@@ -35,7 +35,5 @@ public:
 	
 	//virtual void Configure(PlutoRectangle* EffectSourceSize) = 0;
 };
-
-}
 
 #endif

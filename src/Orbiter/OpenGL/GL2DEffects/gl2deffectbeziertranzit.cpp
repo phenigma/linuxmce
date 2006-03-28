@@ -1,22 +1,13 @@
 #include "gl2deffectbeziertranzit.h"
 #include "gl2deffectfactory.h"
 
-namespace DCE {
-
 GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
 {
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
 	FullScreen.Width = (float)Effects->Widgets->GetWidth();
 	FullScreen.Height = (float)Effects->Widgets->GetHeight();
-
-	//creating a basic window that merge the effect
-	Destination = (TBasicWindow *)Effects->Widgets->CreateWidget(BASICWINDOW, 
-		0, 0, 
-		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
-		"Destination");	
-	Destination->SetVisible(true);
 
 	//create the button which keep the source of the screen (the button part)
 	Button = (TBezierWindow *)Effects->Widgets->CreateWidget(BEZIERWINDOW, 
@@ -28,8 +19,9 @@ GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEng
 
 
 GL2DBezierEffectTransit::~GL2DBezierEffectTransit() {
-	Effects->Widgets->DeleteWidget(Destination);
 	Effects->Widgets->DeleteWidget(Button);	
+
+	Button = NULL;
 }
 
 void GL2DBezierEffectTransit::Configure(PlutoRectangle* EffectSourceSize)
@@ -44,11 +36,11 @@ void GL2DBezierEffectTransit::Configure(PlutoRectangle* EffectSourceSize)
 
 void GL2DBezierEffectTransit::Paint(int Now)
 {
+	GL2DEffectTransit::Paint();
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
 		Button->SetTexture(Effects->Widgets->NewScreen);
-		Destination->SetTexture(Effects->Widgets->OldScreen);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -56,41 +48,41 @@ void GL2DBezierEffectTransit::Paint(int Now)
 		Button->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
 			
- 		Destination->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
-			
-		//Button->BezierDefinition.Divisions = 15;
+		Button->BezierDefinition.Divisions = 15;
 
 		Start = Effects->MilisecondTimmer();	
 		Configured = true;
 	}
 	
 	float Step = Stage((float)Now);
+	Button->SetAlpha(Step);
+
 	Step = 1-Step;
-	
+
+
+	FloatRect Animation;
+
 	bool FistStage = true;
 	if (Step <= 0.5)
 	{
 		Step*= 2;
-		Button->SetRectCoordinates(FullScreen);
+		Animation = ButtonSize.Interpolate(FullScreen, 1-Step);
 	}
 	else
 	{
 		FistStage = false;
 		Step = (Step - 0.5f)*2.0f;
 
-		FloatRect Animation = ButtonSize.Interpolate(FullScreen, 1-Step);
-		Button->SetRectCoordinates(Animation);
-		Button->SetAlpha(1-Step);
+		Animation = ButtonSize;
 	}
 	
-	Destination->SetRectCoordinates(FullScreen);
+	Button->SetRectCoordinates(Animation);
 
 	int i, j;
-	float Average = FullScreen.Width * 2/3;
+	float Average = Animation.Width * 2/3;
 
 	if(!FistStage)
-		Step = 1.0;
+		Step = 1.0-Step;
 
 	// bit-to-bit copy 
 	BEZIER_PATCH BezierDefinition = Button->BezierDefinition;
@@ -149,6 +141,3 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	}
 
 }
-
-} // end of namespace DCE
-

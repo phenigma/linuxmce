@@ -12,16 +12,13 @@
 #ifndef GL2DEffectSlideFromLeft_H
 #define GL2DEffectSlideFromLeft_H
 
-#include "../GL2DEffects/gl2deffect.h"
+#include "gl2deffecttransit.h"
 #include "../GL2DWidgets/basicwindow.h"
 #include "../../DesignObj_Orbiter.h"
 #include <memory>
 
-namespace DCE {
-
-class GL2DEffectSlideFromLeft : public GL2DEffect
+class GL2DEffectSlideFromLeft : public GL2DEffectTransit
 {
-	TBasicWindow* Background;
 	TBasicWindow* Destination;
 
 	FloatRect ButtonSize;
@@ -33,10 +30,8 @@ public:
 	
 	void Configure(PlutoRectangle* EffectSourceSize);
 	
-	virtual void Paint(int Now);	
+	virtual void Paint(int Time);	
 	
 };
-
-}
 
 #endif

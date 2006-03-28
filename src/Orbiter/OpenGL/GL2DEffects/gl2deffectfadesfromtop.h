@@ -12,16 +12,12 @@
 #ifndef GL2DEffectFadesFromTop_H
 #define GL2DEffectFadesFromTop_H
 
-#include "../GL2DEffects/gl2deffect.h"
+#include "gl2deffecttransit.h"
 #include "../GL2DWidgets/basicwindow.h"
 #include "../../DesignObj_Orbiter.h"
-#include <memory>
 
-namespace DCE {
-
-class GL2DEffectFadesFromTop : public GL2DEffect
+class GL2DEffectFadesFromTop : public GL2DEffectTransit
 {
-	TBasicWindow* Background;
 	TBasicWindow* Destination;
 
 	FloatRect ButtonSize;
@@ -36,7 +32,5 @@ public:
 	virtual void Paint(int Now);	
 	
 };
-
-}
 
 #endif

@@ -1,18 +1,16 @@
 #ifndef GL2D_BEZIER_TRANZIT_H
 #define GL2D_BEZIER_TRANZIT_H
 
-#include "../GL2DEffects/gl2deffect.h"
+#include "gl2deffecttransit.h"
 #include "../GL2DWidgets/bezierwindow.h"
 #include "../GL2DWidgets/basicwindow.h"
 #include "../../DesignObj_Orbiter.h"
 #include <memory>
 
-namespace DCE {
 
-class GL2DBezierEffectTransit : public GL2DEffect
+class GL2DBezierEffectTransit : public GL2DEffectTransit
 {
 	TBezierWindow* Button;	
-	TBasicWindow* Destination;
 	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;
@@ -26,7 +24,5 @@ public:
 	virtual void Paint(int Now);
 	
 };
-
-} //namespace DCE
 
 #endif

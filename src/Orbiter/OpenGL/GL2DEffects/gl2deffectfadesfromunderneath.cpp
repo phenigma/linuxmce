@@ -3,26 +3,13 @@
 #include "gl2deffectfactory.h"
 #include "../OpenGLTextureConverter.h"
 
-//remove me
-#include "SDL.h"
-#include "../../SDL/SDLGraphic.h"
-
-namespace DCE {
-
 GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
 {
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
 	FullScreen.Height = float(Effects->Widgets->GetHeight());
-
-	//creating the basic window which it stay on back
-	Background = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
-		0, 0, 
-		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
-		"Background");
-	Background->SetVisible(true);
 
 	//creating a basic window that merge the effect
 	Destination = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
@@ -34,7 +21,6 @@ GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (GL2DEffectFactory 
 
 
 GL2DEffectFadesFromUnderneath::~GL2DEffectFadesFromUnderneath() {
-	Effects->Widgets->DeleteWidget(Background);
 	Effects->Widgets->DeleteWidget(Destination);
 }
 
@@ -54,9 +40,10 @@ void GL2DEffectFadesFromUnderneath::Configure(PlutoRectangle* EffectSourceSize)
  */
 void GL2DEffectFadesFromUnderneath::Paint(int Now)
 {
+	GL2DEffectTransit::Paint();
+
 	if(!Configured) {
 		//Set up the textures for triangles
-		Background->SetTexture(Effects->Widgets->OldScreen);
 		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
@@ -65,8 +52,6 @@ void GL2DEffectFadesFromUnderneath::Paint(int Now)
 		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
 
-		Background->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
 		
 		Start = Effects->MilisecondTimmer();
 		Configured = true;
@@ -78,9 +63,5 @@ void GL2DEffectFadesFromUnderneath::Paint(int Now)
 
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
-
-	Background->SetRectCoordinates(FullScreen);
 }
-
-} // end of namespace DCE
 

@@ -12,14 +12,12 @@
 #ifndef GL2DEffectFadesFromUnderneath_H
 #define GL2DEffectFadesFromUnderneath_H
 
-#include "../GL2DEffects/gl2deffect.h"
+#include "../GL2DEffects/gl2deffecttransit.h"
 #include "../GL2DWidgets/basicwindow.h"
 #include "../../DesignObj_Orbiter.h"
 #include <memory>
 
-namespace DCE {
-
-class GL2DEffectFadesFromUnderneath : public GL2DEffect
+class GL2DEffectFadesFromUnderneath : public GL2DEffectTransit
 {
 	TBasicWindow* Background;
 	TBasicWindow* Destination;
@@ -41,7 +39,5 @@ public:
 	virtual void Paint(int Now);	
 	
 };
-
-}
 
 #endif
