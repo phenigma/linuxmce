@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib OpenGL32.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib OpenGL32.lib cg.lib cgGL.lib"
 				OutputFile="../Debug/Orbiter_SDL.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../../libs/Libraries/jpgsrc6b/vc7/Debug"
@@ -88,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib dce-r.lib zlib1-pluto-r.lib libpng-pluto-r.lib SDL_rotozoom-pluto-r.lib opengl32.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib dce-r.lib zlib1-pluto-r.lib libpng-pluto-r.lib SDL_rotozoom-pluto-r.lib opengl32.lib cg.lib cgGL.lib"
 				OutputFile="../bin/Orbiter_SDL.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release;../lib/;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Release&quot;;&quot;../../libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Release&quot;"
@@ -161,6 +161,21 @@
 				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit_prism.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectbeziertranzit_topleft.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\GL2DEffectBlending.cpp">
+			</File>
+			<File
 				RelativePath=".\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
 			</File>
 			<File
@@ -168,6 +183,18 @@
 			</File>
 			<File
 				RelativePath=".\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\GL2DEffectHighLight.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\GL2DEffectHighLightArea.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectnoeffect.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\GL2DEffects\gl2deffectselectedarea.cpp">
 			</File>
 			<File
 				RelativePath=".\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
@@ -188,6 +215,12 @@
 				RelativePath=".\OpenGL\math3dutils.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\nvidia\nv_shaders.cpp">
+			</File>
+			<File
+				RelativePath=".\nvshaderprogram.cpp">
+			</File>
+			<File
 				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
 			</File>
 			<File
@@ -195,6 +228,9 @@
 			</File>
 			<File
 				RelativePath="Orbiter.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Orbiter3DCommons.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\OrbiterBase.cpp">
@@ -262,6 +298,12 @@
 			<File
 				RelativePath=".\Win32\VirtualKeysTranslator.cpp">
 			</File>
+			<File
+				RelativePath=".\wmtask.cpp">
+			</File>
+			<File
+				RelativePath=".\wmtaskmanager.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -274,6 +316,12 @@
 			</File>
 			<File
 				RelativePath=".\Win32\MainDialog.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\nvidia\nv_combiners.h">
+			</File>
+			<File
+				RelativePath=".\nvshaderprogram.h">
 			</File>
 			<File
 				RelativePath="Orbiter.h">
