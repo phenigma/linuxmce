@@ -40,3 +40,4 @@ done
 
 PopulateSection "/etc/exports" "InternalStorageDevices" "$Exports_InternalStorageDevices"
 
+/etc/init.d/nfs-kernel-server reload

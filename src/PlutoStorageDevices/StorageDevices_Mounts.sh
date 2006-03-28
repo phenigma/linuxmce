@@ -7,8 +7,9 @@ TPL_GENERIC_INTERNAL_DRIVE=1790
 DD_BLOCK_DEVICE=152
 
 ## Add the /mnt/device into auto.master (for automount)
-AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices"
+AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout 20"
 PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
+mkdir -p /mnt/device
 
 ## Lookup our internal storage devices in the db
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate = $TPL_GENERIC_INTERNAL_DRIVE AND FK_Device_ControlledVia=$PK_Device"
@@ -19,15 +20,13 @@ for Device in $InternalOwnStorageDevices; do
 	Device_Description=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_BLOCK_DEVICE")
-
-	Fstab_InternalStorageDevices="$Fstab_InternalStorageDevices\n$Device_BlockDevice $Device_MountPoint auto defaults 0 0"
 	
-	if [[ ! -d $Device_MountPoint ]]; then
-		mkdir -p $Device_MountPoint
-	fi
+	#linux          -ro,soft,intr           ftp.example.org:/pub/linux
+	Fstab_InternalStorageDevices="$Device_ID -fstype=auto :$Device_BlockDevice"
+	#Fstab_InternalStorageDevices="$Fstab_InternalStorageDevices\n$Device_BlockDevice $Device_MountPoint auto defaults 0 0"
 done
 
-PopulateSection "/etc/auto.PlutoStorageDevice" "InternalStorageDevices" "$Fstab_InternalStorageDevices"
+PopulateSection "/etc/auto.PlutoStorageDevices" "InternalStorageDevices" "$Fstab_InternalStorageDevices"
 
 
 ## Lookup for other computers storage devices and add them to fstab
@@ -52,11 +51,11 @@ for Device in $ExternalStorageDevices; do
 	Device_MountPoint="/mnt/device/$Device_ID"
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_BLOCK_DEVICE")
 
-	Fstab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n${Device_Host}:${Device_MountPoint} $Device_MountPoint nfs rsize=8192,wsize=8192,intr,tcp 1 1"
-	
-	if [[ ! -d $Device_MountPoint ]]; then
-		mkdir $Device_MountPoint
-	fi	
+	Fstab_ExternalStorageDevices="$Device_ID -fstype=nfs,retrans=1,retry=1,sofs,intr ${Device_Host}:${Device_MountPoint}"
+	#stab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n${Device_Host}:${Device_MountPoint} $Device_MountPoint nfs rsize=8192,wsize=8192,intr,tcp 1 1"
 done
 
 PopulateSection "/etc/auto.PlutoStorageDevices" "ExternalStorageDevices" "$Fstab_ExternalStorageDevices"
+
+## Reload automounter daemon
+/etc/init.d/autofs reload
