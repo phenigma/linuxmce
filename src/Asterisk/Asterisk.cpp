@@ -419,5 +419,4 @@ void Asterisk::CreateChildren()
 		exit(1);
 	}
 	pthread_detach(voicemailThread);
-	system("/usr/bin/perl /usr/pluto/bin/sync_pluto2amp.pl");	
 }
