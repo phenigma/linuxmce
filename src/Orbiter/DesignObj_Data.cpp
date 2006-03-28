@@ -310,11 +310,16 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 			}
 		}
-
 		{
 			Write_long(long(m_vectDesignObjText.size()));
 			for(VectorDesignObjText::iterator it=m_vectDesignObjText.begin();it!=m_vectDesignObjText.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+		}
+		{
+			//effects
+			Write_long(m_FK_Effect_Selected_WithChange);
+			Write_long(m_FK_Effect_Selected_NoChange);
+			Write_long(m_FK_Effect_Highlighted);
 		}
 	}
 	else
@@ -435,7 +440,6 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				m_Action_StartupList.push_back(pDesignObjCommand);
 			}
 		}
-
 		{
 			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
@@ -475,6 +479,11 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				pDesignObjText->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 				m_vectDesignObjText.push_back(pDesignObjText);
 			}
+		}
+		{
+			m_FK_Effect_Selected_WithChange = Read_long();
+			m_FK_Effect_Selected_NoChange = Read_long();
+			m_FK_Effect_Highlighted = Read_long();
 		}
 	}
 	// We may have re-allocated the memory block and size, and the position will have changed

@@ -44,6 +44,7 @@ public:
 	int m_iPK_CommandGroup; // If this is an array and we are supposed to execute an action group, this will be non-zero.  Arrays are always customer created command groups
 	int m_iFloorplanPage;
 	map<int,bool> m_map_PK_DesignObj_SoleScreenToGen; // Only re-generate this one screen
+	map<int, int> m_mapEffects; //The map with effects
 	int m_iPK_Orbiter;
 	int m_iScreensTotal,m_iScreensToRender,m_iLastReportedPercentage;  // Keep track of screens we're going to need to render
 	PlutoRectangle m_rSpacing;
@@ -114,6 +115,9 @@ private:
 	string First2Dots(string sDesignObj);
 	class Row_Skin *TranslateSkin(Row_Skin *pRow_Skin);
 	//void PopulateScreenMap();
+
+	//this will map each effect type to an effect based on the skin
+	void PopulateEffects(map<int, int> &mapEffects, int FK_Skin);
 };
 
 #endif

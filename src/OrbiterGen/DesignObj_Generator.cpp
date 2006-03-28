@@ -716,6 +716,12 @@ int k=2;
         }
     }
 
+	//assign here the effects for each effect event for an object, based on Generator's mapping between
+	//effect type and effect for the right skin
+	m_FK_Effect_Selected_WithChange = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_WithChange_get()]; 
+	m_FK_Effect_Selected_NoChange = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_NoChange_get()]; 
+	m_FK_Effect_Highlighted = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Highlighted_get()]; 
+
     if( m_iPK_CommandGroup_Touch_Extra!=0 )
     {
         Row_CommandGroup *drAG = m_mds->CommandGroup_get()->GetRow(m_iPK_CommandGroup_Touch_Extra);

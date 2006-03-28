@@ -35,6 +35,7 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Skin.h"
+#include "pluto_main/Table_EffectType_Effect_Skin.h"
 #include "pluto_main/Table_Language.h"
 #include "pluto_main/Table_UI.h"
 #include "pluto_main/Table_Text.h"
@@ -399,6 +400,9 @@ int OrbiterGenerator::DoIt()
 		if( !pRow_Skin_For_Translation )
 			pRow_Skin_For_Translation = m_pRow_Skin;
 	}
+
+	//this will map each effect type to an effect based on the skin
+	PopulateEffects(m_mapEffects, m_pRow_Skin->PK_Skin_get());
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
 
@@ -2432,3 +2436,17 @@ Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
 		return NULL;
 }
 
+void OrbiterGenerator::PopulateEffects(map<int, int> &mapEffects, int FK_Skin)
+{
+	mapEffects.clear();
+
+	vector<Row_EffectType_Effect_Skin *> vectRow_EffectType_Effect_Skin;
+	mds.EffectType_Effect_Skin_get()->GetRows("WHERE FK_Skin = " + StringUtils::ltos(FK_Skin), &vectRow_EffectType_Effect_Skin);
+
+	vector<Row_EffectType_Effect_Skin *>::iterator it;
+	for(it = vectRow_EffectType_Effect_Skin.begin(); it != vectRow_EffectType_Effect_Skin.end(); ++it)
+	{
+		Row_EffectType_Effect_Skin *pRow = *it;
+		mapEffects[pRow->FK_EffectType_get()] = pRow->FK_Effect_get();
+	}
+}
