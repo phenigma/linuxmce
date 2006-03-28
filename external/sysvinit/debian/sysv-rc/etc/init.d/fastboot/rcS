@@ -347,3 +347,7 @@ if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
     Message "Starting Local Devices"
     /etc/init.d/Pluto_Start_LocalDevices.sh
 fi
+
+if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
+	/usr/pluto/bin/StorageDevices_Setup.sh &
+fi
