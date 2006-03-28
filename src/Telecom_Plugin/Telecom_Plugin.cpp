@@ -63,7 +63,9 @@ using namespace DCE;
 #include "SerializeClass/ShapesColors.h"
 #define MAX_TELECOM_COLORS 5
 int UniqueColors[MAX_TELECOM_COLORS];
+#include <time.h>
 
+void * startDisplayThread(void * Arg);
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -73,6 +75,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 {
 	m_pDatabase_pluto_main = NULL;
 	m_pDatabase_pluto_telecom = NULL;
+	pthread_mutex_init(&mtx_err_messages,0);
 	iCmdCounter = 0;
 }
 
@@ -172,6 +175,16 @@ bool Telecom_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::Hangup) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_PBX_Hangup_CONST);
+	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoIP_Problem) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_VoIP_Problem_Detected_CONST);
+	
+    if (pthread_create(&displayThread, NULL, startDisplayThread, (void *) this))
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Display Thread");
+        m_bQuit = 1;
+        exit(1);
+    }
+    pthread_detach(displayThread);
+	
 	return Connect(PK_DeviceTemplate_get());
 }
 
@@ -1308,3 +1321,58 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 	}
 	return 0;
 }
+
+bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	int iLevel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str());
+	string sText = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
+	g_pPlutoLogger->Write(LV_WARNING, "Received VoIP problem : level %d, description :\n%s",iLevel,sText.c_str());
+	time_t now=time(NULL);
+	pthread_mutex_lock(&mtx_err_messages);
+	if(map_err_messages.find(sText) != map_err_messages.end())
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Already have this message");	
+	}
+	else
+	{
+		map_err_messages[sText]=now;
+		g_pPlutoLogger->Write(LV_STATUS, "Will add to queue");	
+	}
+	pthread_mutex_unlock(&mtx_err_messages);
+	return true;
+}
+
+void * startDisplayThread(void * Arg)
+{
+    Telecom_Plugin *telecom_pugin = (Telecom_Plugin *) Arg;
+    g_pPlutoLogger->Write(LV_STATUS, "Started Display Thread");
+    telecom_pugin->doDisplayMessages();
+    return NULL;
+}
+void Telecom_Plugin::doDisplayMessages()
+{
+	while(!m_bQuit)
+    {
+		Sleep(1000);
+		if(1)//the orbiter is at main menu ?? how to find out??
+		{
+			pthread_mutex_lock(&mtx_err_messages);
+			string message;
+			map<string,long>::iterator it = map_err_messages.begin();
+			while(it != map_err_messages.end())
+			{
+				message += (*it).first + string("\n");
+				it++;
+			}
+			if(message.length()>0)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Will write mesaage : %s",message.c_str());
+				map_err_messages.clear();
+				SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,message,"0","0","0");
+				SendCommand(SCREEN_DialogGenericNoButtons_);
+			}
+			pthread_mutex_unlock(&mtx_err_messages);
+		}
+	}
+}
+

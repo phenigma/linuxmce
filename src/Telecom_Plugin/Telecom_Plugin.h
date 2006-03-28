@@ -11,6 +11,8 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
 #include "Orbiter/Floorplan.h"
+#include <pthread.h>
+
 class Database_pluto_main;
 class Database_pluto_telecom;
 class Row_PhoneNumber;
@@ -22,10 +24,14 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 	// Private member variables
+	pthread_t displayThread;
+	pthread_mutex_t mtx_err_messages;
 
 	// Private methods
 public:
 	// Public member variables
+	// Public methods
+	void doDisplayMessages();
 
 //<-dceag-const-b->
 public:
@@ -204,7 +210,10 @@ private:
 	bool IncomingCall( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool Hangup( class Socket *pSocket, class Message *pMessage,
-					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );						
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
+	bool VoIP_Problem( class Socket *pSocket, class Message *pMessage,
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
+													
 private:
     DeviceData_Router* find_AsteriskDevice();
     DeviceData_Router* find_Device(int iPK_Device);
@@ -217,6 +226,8 @@ private:
 	map<int,int> map_embedphone2orbiter;
 	map<int,int> map_ext2device;
 	map<int,int> map_device2ext;
+	
+	map<string,long> map_err_messages;
 		
 };	
 
