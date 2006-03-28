@@ -359,3 +359,7 @@ void SqueezeBox_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,st
 
 void SqueezeBox_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
+{
+	//TODO: implement me
+}
+
