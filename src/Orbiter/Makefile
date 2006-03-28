@@ -46,13 +46,14 @@ WX_SOURCES    :=
 endif
 # use or not wx
 
+
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
@@ -62,6 +63,7 @@ MYDEVTEMPLATEID = 8mplateID
 
 Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
+
 #<-dceag-mh-e->
 
 CXXFLAGS += -g -O0
@@ -98,6 +100,7 @@ sources += \
 	SDL/StartOrbiterSDL.cpp \
 	SDL/OpenGLTextureConverter_SDL.cpp \
 	OpenGL/orbitergl3dengine.cpp \
+	OpenGL/Orbiter3DCommons.cpp \
 	OpenGL/math3dutils.cpp \
 	OpenGL/OpenGLTextureConverter.cpp \
 	OpenGL/GL2DWidgets/DrawingWidgetsEngine.cpp \
@@ -108,8 +111,18 @@ sources += \
 	OpenGL/GL2DEffects/gl2deffecttransit.cpp \
 	OpenGL/GL2DEffects/gl2deffectfactory.cpp \
 	OpenGL/GL2DEffects/gl2deffectbeziertranzit.cpp \
+	OpenGL/GL2DEffects/gl2deffectbeziertranzit_topleft.cpp \
+	OpenGL/GL2DEffects/gl2deffectbeziertranzit_prism.cpp \
+	OpenGL/GL2DEffects/gl2deffectbeziertranzit_flow_slideleft.cpp \
+	OpenGL/GL2DEffects/gl2deffectbeziertranzit_flow_slideleft_reverse.cpp \
 	OpenGL/GL2DEffects/gl2deffectfadesfromtop.cpp \
 	OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.cpp \
+	OpenGL/GL2DEffects/GL2DEffectNoEffect.cpp \
+	OpenGL/GL2DEffects/GL2DEffectBlending.cpp \
+	OpenGL/GL2DEffects/GL2DEffectHighLightArea.cpp \
+	OpenGL/GL2DEffects/GL2DEffectHighLight.cpp \
+	OpenGL/GL2DEffects/gl2deffectselectedarea.cpp \
+	OpenGL/GL2DEffects/GL2DEffectTransitionNoEffect.cpp \
 	OpenGL/GL2DEffects/gl2deffect.cpp \
 	Linux/OSDScreenHandler.cpp \
 	WizardLogic.cpp \
