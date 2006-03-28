@@ -724,6 +724,8 @@ void OrbiterSDL::DoHighlightObject()
 
 void OrbiterSDL::DoHighlightObjectOpenGL()
 {
+#ifndef DISABLE_OPENGL
+
 	if(sbNoSelection == m_nSelectionBehaviour)
 		return;
 
@@ -801,6 +803,8 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 		Simulator::GetInstance()->m_iMilisecondsHighLight);
 	if(Effect)
 		Effect->Configure(&m_rectLastHighlight);
+
+#endif //opengl stuff
 }
 
 void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
@@ -810,6 +814,8 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 		Orbiter::SelectObject(pObj, point);
 		return;
 	}
+
+#ifndef DISABLE_OPENGL
 
 	FloatRect SelectedArea;
 	SelectedArea.Left   = (float)point.X + pObj->m_rBackgroundPosition.X;
@@ -829,4 +835,6 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 	SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
 	SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
 		Effect->Configure(&SeclectedAreaEffectSize);
+
+#endif //opengl stuff
 }  
