@@ -171,6 +171,21 @@
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
 			</File>
 			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_prism.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_topleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectBlending.cpp">
+			</File>
+			<File
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
 			</File>
 			<File
@@ -180,10 +195,25 @@
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
 			</File>
 			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLight.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLightArea.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectNoEffect.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectselectedarea.cpp">
+			</File>
+			<File
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
 			</File>
 			<File
 				RelativePath="..\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectTransitionNoEffect.cpp">
 			</File>
 			<File
 				RelativePath="..\GraphicBuilder.cpp">
@@ -208,6 +238,9 @@
 			</File>
 			<File
 				RelativePath="..\Orbiter.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\Orbiter3DCommons.cpp">
 			</File>
 			<File
 				RelativePath="..\PocketFrog\Orbiter_PocketFrog.cpp">
