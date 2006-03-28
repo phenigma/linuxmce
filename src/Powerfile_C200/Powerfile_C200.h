@@ -304,6 +304,7 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Cancel_Pending_Task(int iSlot_Number) { string sCMD_Result; CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,NULL);};
 	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 		private:
 			// corresponding devices

@@ -348,3 +348,14 @@ void SqueezeBox_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,st
 //<-dceag-c65-e->
 {
 }
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void SqueezeBox_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->

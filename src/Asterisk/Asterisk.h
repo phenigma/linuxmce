@@ -96,6 +96,7 @@ public:
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	};
 

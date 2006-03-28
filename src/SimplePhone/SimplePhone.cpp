@@ -26,7 +26,7 @@ static int call_status=0;
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 SimplePhone::SimplePhone(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : SimplePhone_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: SimplePhone_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
@@ -34,7 +34,7 @@ SimplePhone::SimplePhone(int DeviceID, string ServerAddress,bool bConnectEventHa
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
 SimplePhone::SimplePhone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-    : SimplePhone_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+	: SimplePhone_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
 }
@@ -49,8 +49,8 @@ SimplePhone::~SimplePhone()
 //<-dceag-getconfig-b->
 bool SimplePhone::GetConfig()
 {
-    if( !SimplePhone_Command::GetConfig() )
-        return false;
+	if( !SimplePhone_Command::GetConfig() )
+		return false;
 //<-dceag-getconfig-e->
 
     // Put your code here to initialize the data in this class
@@ -73,7 +73,7 @@ bool SimplePhone::Register()
 //<-dceag-createinst-b->
 SimplePhone_Command *Create_SimplePhone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 {
-    return new SimplePhone(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+	return new SimplePhone(pPrimaryDeviceCommand, pData, pEvent, pRouter);
 }
 //<-dceag-createinst-e->
 
@@ -105,7 +105,7 @@ void SimplePhone::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-sample-b->
-/*        **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
 
 **** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
 **** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
@@ -115,74 +115,74 @@ The above blocks are actually <- not <=.  We don't want a substitution here
 
 void SimplePhone::SomeFunction()
 {
-    // If this is going to be loaded into the router as a plug-in, you can implement:     virtual bool Register();
-    // to do all your registration, such as creating message interceptors
+	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
+	// to do all your registration, such as creating message interceptors
 
-    // If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-    // commands and requests, including the parameters.  See "AllCommandsRequests.h"
+	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
+	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
-    // Examples:
+	// Examples:
+	
+	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
+	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click);
 
-    // Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-    DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click);
+	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
+	// And we want a response, which will be "OK" if the command was successfull
+	string sResponse;
+	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
+	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
 
-    // Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-    // And we want a response, which will be "OK" if the command was successfull
-    string sResponse;
-    DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-    // Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-    // Note the _Cat for category
-    DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
+	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Note the _Cat for category
+	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
     SendCommand(CMD_Simulate_Mouse_Click_Cat);
 
-    // Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-    // Note the _DT.
-    DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click_DT);
+	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
+	// Note the _DT.
+	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click_DT);
 
-    // This command has a normal string parameter, but also an int as an out parameter
-    int iValue;
-    DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-    // This send command will wait for the destination device to respond since there is
-    // an out parameter
-    SendCommand(CMD_Get_Signal_Strength);
+	// This command has a normal string parameter, but also an int as an out parameter
+	int iValue;
+	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
+	// This send command will wait for the destination device to respond since there is
+	// an out parameter
+	SendCommand(CMD_Get_Signal_Strength);  
 
-    // This time we don't care about the out parameter.  We just want the command to
-    // get through, and don't want to wait for the round trip.  The out parameter, iValue,
-    // will not get set
-    SendCommandNoResponse(CMD_Get_Signal_Strength);
+	// This time we don't care about the out parameter.  We just want the command to 
+	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
+	// will not get set
+	SendCommandNoResponse(CMD_Get_Signal_Strength);  
 
-    // This command has an out parameter of a data block.  Any parameter that is a binary
-    // data block is a pair of int and char *
-    // We'll also want to see the response, so we'll pass a string for that too
+	// This command has an out parameter of a data block.  Any parameter that is a binary
+	// data block is a pair of int and char *
+	// We'll also want to see the response, so we'll pass a string for that too
 
-    int iFileSize;
-    char *pFileContents
-    string sResponse;
-    DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-    SendCommand(CMD_Request_File);
+	int iFileSize;
+	char *pFileContents
+	string sResponse;
+	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
+	SendCommand(CMD_Request_File);
 
-    // If the device processed the command (in this case retrieved the file),
-    // sResponse will be "OK", and iFileSize will be the size of the file
-    // and pFileContents will be the file contents.  **NOTE**  We are responsible
-    // free deleting pFileContents.
+	// If the device processed the command (in this case retrieved the file),
+	// sResponse will be "OK", and iFileSize will be the size of the file
+	// and pFileContents will be the file contents.  **NOTE**  We are responsible
+	// free deleting pFileContents.
 
 
-    // To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
+	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
-    // Get our IP address from our data
-    string sIP = DATA_Get_IP_Address();
+	// Get our IP address from our data
+	string sIP = DATA_Get_IP_Address();
 
-    // Set our data "Filename" to "myfile"
-    DATA_Set_Filename("myfile");
+	// Set our data "Filename" to "myfile"
+	DATA_Set_Filename("myfile");
 
-    // Fire the "Finished with file" event, which takes no parameters
-    EVENT_Finished_with_file();
-    // Fire the "Touch or click" which takes an X and Y parameter
-    EVENT_Touch_or_click(10,150);
+	// Fire the "Finished with file" event, which takes no parameters
+	EVENT_Finished_with_file();
+	// Fire the "Touch or click" which takes an X and Y parameter
+	EVENT_Touch_or_click(10,150);
 }
 */
 //<-dceag-sample-e->
@@ -195,10 +195,10 @@ void SimplePhone::SomeFunction()
 
 //<-dceag-c334-b->
 
-    /** @brief COMMAND: #334 - Phone_Initiate */
-    /** Initiates a call */
-        /** @param #83 PhoneExtension */
-            /** Extention to dial */
+	/** @brief COMMAND: #334 - Phone_Initiate */
+	/** Initiates a call */
+		/** @param #83 PhoneExtension */
+			/** Extention to dial */
 
 void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
@@ -219,8 +219,8 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 
 //<-dceag-c335-b->
 
-    /** @brief COMMAND: #335 - Phone_Answer */
-    /** Answer a call */
+	/** @brief COMMAND: #335 - Phone_Answer */
+	/** Answer a call */
 
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
@@ -245,8 +245,8 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c336-b->
 
-    /** @brief COMMAND: #336 - Phone_Drop */
-    /** Drop a call */
+	/** @brief COMMAND: #336 - Phone_Drop */
+	/** Drop a call */
 
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
@@ -440,12 +440,12 @@ void SimplePhone::CreateChildren()
 }
 //<-dceag-c28-b->
 
-    /** @brief COMMAND: #28 - Simulate Keypress */
-    /** Send a DTMF code */
-        /** @param #26 PK_Button */
-            /** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
-        /** @param #50 Name */
-            /** The application to send the keypress to. If not specified, it goes to the DCE device. */
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a DTMF code */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
 void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->

@@ -951,3 +951,14 @@ void Slim_Server_Streamer::StartSlimServer()
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
 }
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void Slim_Server_Streamer::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->

@@ -218,7 +218,7 @@ void Tira::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-b->
 
 	/** @brief COMMAND: #191 - Send Code */
-	/** Sends an I/R code to a device. */
+	/** The I/R code -- usually in Pronto format */
 		/** @param #9 Text */
 			/** The I/R code -- usually in Pronto format */
 

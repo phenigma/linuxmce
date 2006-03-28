@@ -63,7 +63,10 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_COM_Port_on_PC();
 	int DATA_Get_Repeat();
+	string DATA_Get_UID();
+	string DATA_Get_HAL_Model();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -72,21 +75,12 @@ public:
 
 
 	/** @brief COMMAND: #191 - Send Code */
-	/** Sends an I/R code to a device. */
+	/** The I/R code -- usually in Pronto format */
 		/** @param #9 Text */
 			/** The I/R code -- usually in Pronto format */
 
 	virtual void CMD_Send_Code(string sText) { string sCMD_Result; CMD_Send_Code(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #194 - Toggle Power */
-	/** Set relay state (0 or 1) */
-		/** @param #8 On/Off */
-			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
-
-	virtual void CMD_Toggle_Power(string sOnOff) { string sCMD_Result; CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #245 - Learn IR */

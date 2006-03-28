@@ -880,3 +880,25 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 		}
 	}
 }
+//<-dceag-c793-b->
+
+	/** @brief COMMAND: #793 - Get Sibling Remotes */
+	/** Return a list of remote remote IDs with remote data. */
+		/** @param #5 Value To Assign */
+			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
+		/** @param #209 PK_DeviceCategory */
+			/** Device category to search for remotes */
+
+void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c793-e->
+//<-dceag-c794-b->
+
+	/** @brief COMMAND: #794 - Get Sibling Remotes */
+	/** Store a learned infrared code for a "Device" + "Command" pair */
+		/** @param #5 Value To Assign */
+			/** Tilde delimited list, Remote DeviceID, Remote Configuration Data */
+		/** @param #210 PK_DeviceCategory */
+			/** Device category to search for remotes */
+
+void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c794-e->

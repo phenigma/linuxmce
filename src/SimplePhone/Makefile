@@ -6,11 +6,11 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lasound
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = SimplePhone
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1759
+MYDEVTEMPLATEID = 1759mplateID
 
 Gen_Dev_Files = $(GENDEV)/SimplePhoneBase.cpp
 sources = Main.cpp SimplePhone.cpp $(Gen_Dev_Files)

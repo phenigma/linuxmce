@@ -1,9 +1,9 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #64 Generic Analog Capture Card
-Maintainer = AdministratorName
-Email = 
+desc = DCE Implemenation for #64 Motion Wrapper
+Maintainer = DCE_MaintainerName
+Email = DCE_MaintainerEmail
 Depend = DCE_Dependencies
 <-dceag-p-e->
 

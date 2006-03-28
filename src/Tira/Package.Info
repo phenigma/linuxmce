@@ -1,7 +1,7 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1717 Tira
+desc = DCE Implemenation for #1717 Tira (Pluto)
 Maintainer = DCE_MaintainerName
 Email = DCE_MaintainerEmail
 Depend = DCE_Dependencies

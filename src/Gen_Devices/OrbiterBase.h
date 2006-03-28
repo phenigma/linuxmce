@@ -55,7 +55,6 @@ public:
 
 };
 
-
 /**
 * @brief OUR DATA CLASS
 */

@@ -47,6 +47,7 @@ public:
 	int DATA_Get_Priority();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat,char *pImage,int iImage_Size);
 
 			*****COMMANDS***** we need to implement
 	*/

@@ -1291,7 +1291,6 @@ void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #763 - Exit */
 	/** Exit guide */
 
-
 void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 //<-dceag-c763-e->
 {
@@ -1302,10 +1301,20 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 }
 
 //<-dceag-c102-b->
+
+	/** @brief COMMAND: #102 - Record */
+	/** Record the current show */
+
 void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
-{
 //<-dceag-c102-e->
 	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
 	sendMythCommand("key R");
 }
 
+//<-dceag-c777-b->
+
+	/** @brief COMMAND: #777 - Recorded TV Menu */
+	/**  */
+
+void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c777-e->

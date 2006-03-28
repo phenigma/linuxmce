@@ -104,6 +104,7 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
 	string DATA_Get_UID();
+	string DATA_Get_HAL_Model();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Device_OnOff(bool bOnOff);
@@ -161,6 +162,7 @@ NOEMON or CANBUS */
 
 	virtual void CMD_StatusReport(string sArguments) { string sCMD_Result; CMD_StatusReport(sArguments.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	};

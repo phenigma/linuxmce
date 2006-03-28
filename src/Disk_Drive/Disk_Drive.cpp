@@ -297,7 +297,7 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 //<-dceag-c55-b->
 
 	/** @brief COMMAND: #55 - Abort Ripping */
-	/** Starts ripping a DVD. */
+	/** Aborts ripping a DVD. */
 
 void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->

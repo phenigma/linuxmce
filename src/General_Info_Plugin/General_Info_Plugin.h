@@ -404,6 +404,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_All_HAL_Model_ID() { string sCMD_Result; CMD_Get_All_HAL_Model_ID(sCMD_Result,NULL);};
 	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

@@ -456,6 +456,13 @@ public:
 	virtual void CMD_Exit(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #777 - Recorded TV Menu */
+	/**  */
+
+	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
