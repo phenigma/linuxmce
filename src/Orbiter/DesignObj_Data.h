@@ -151,6 +151,7 @@ public:
 	bool m_bRepeatParm;
 
 	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
+	int m_FK_Effect_Selected_WithChange, m_FK_Effect_Selected_NoChange, m_FK_Effect_Highlighted;
 	DesignObjZoneList m_ZoneList;
 	VectorDesignObjText m_vectDesignObjText;
 	DesignObj_DataList m_ChildObjects;
@@ -162,6 +163,7 @@ public:
 		m_sPK_DesignObj_TiedTo="";
 		m_iRegenInterval=m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
 		m_bTabStop = m_bRepeatParm=false;
+		m_FK_Effect_Selected_WithChange = m_FK_Effect_Selected_NoChange = m_FK_Effect_Highlighted = 0;
 		return;
 	}
 

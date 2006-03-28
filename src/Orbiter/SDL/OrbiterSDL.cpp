@@ -81,6 +81,11 @@ void *HackThread2(void *p)
 	#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
 	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
 	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
+	#include "../OpenGL/Orbiter3DCommons.h" 
+	#include "../Simulator.h" 
+
+	#include "../../pluto_main/Define_Effect.h"
+
 #endif
 
 #ifndef DISABLE_OPENGL
@@ -92,33 +97,35 @@ void *HackThread2(void *p)
  * - end the OpenGL
  */
 
+
 void *Orbiter_OpenGLThread(void *p)
 {
-	OrbiterSDL * pOrbiterSDL = (OrbiterSDL *) p;
+	OrbiterSDL * pOrbiter = (OrbiterSDL*) p;
 	// Create the OpenGL window and classes asociated with it
-	pOrbiterSDL->m_Desktop = new OrbiterGL3D(pOrbiterSDL);
-	
-	pOrbiterSDL->PaintDesktopGL = false;
-
 	// OpenGL drawing operations, locked in the mutex
-	PLUTO_SAFETY_LOCK(cm, *(pOrbiterSDL->m_GLThreadMutex));
-	while(!pOrbiterSDL->m_bQuit)
+	PLUTO_SAFETY_LOCK(cm, *(pOrbiter->m_GLThreadMutex));
+
+	pOrbiter->m_Desktop = OrbiterGL3D::GetInstance();
+	pOrbiter->m_Desktop->BuildOrbiterGL(pOrbiter);
+	cm.CondWait(); // This will unlock the mutex and lock it on awakening
+	
+	pOrbiter->PaintDesktopGL = false;
+
+	while(!pOrbiter->m_bQuit)
 	{
 		//nothing to process. let's sleep...
 		cm.CondWait(); // This will unlock the mutex and lock it on awakening
 
 		/// Thread is waken up, for more reasons as Quit event or there is one effect pending or 
 		/// is idle event
-		
 		// Orbiter is in Quit state, end the thread
-		if(pOrbiterSDL->m_bQuit)
+		if(pOrbiter->m_bQuit)
 			return NULL;
 
-		
-		if (!pOrbiterSDL->m_Desktop->EffectBuilder->HasEffects()) {
-			if (!pOrbiterSDL->PaintDesktopGL) {
-				pOrbiterSDL->PaintDesktopGL = true;
-				pOrbiterSDL->m_Desktop->Paint();
+		if (!pOrbiter->m_Desktop->EffectBuilder->HasEffects()) {
+			if (!pOrbiter->PaintDesktopGL) {
+				pOrbiter->PaintDesktopGL = true;
+				pOrbiter->m_Desktop->Paint();
 			}
 			else
 			{
@@ -129,13 +136,13 @@ void *Orbiter_OpenGLThread(void *p)
 		}
 		else 
 		{
-			pOrbiterSDL->PaintDesktopGL = false;
-			pOrbiterSDL->m_Desktop->Paint();
+			pOrbiter->PaintDesktopGL = false;
+			pOrbiter->m_Desktop->Paint();
 		}
 	}
-	
-	delete pOrbiterSDL->m_Desktop;
-	
+
+	delete pOrbiter->m_Desktop;
+
 	return NULL;
 }	
 #endif
@@ -163,7 +170,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 #ifndef DISABLE_OPENGL
 		/// if OpenGL is used there is created one OpenGL drawing mutex
 		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
-		
+		SDLGLthread = 0;
+
 		pthread_cond_init(&m_GLThreadCond, NULL);
 		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
 		m_Desktop = NULL;
@@ -190,7 +198,10 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 #ifndef DISABLE_OPENGL
 		/// Wait OpenGL to finish
 		pthread_cond_broadcast(&m_GLThreadCond);
-		pthread_join(SDLGLthread, NULL);
+
+		if(SDLGLthread)
+			pthread_join(SDLGLthread, NULL);
+
 		delete m_GLThreadMutex;
 #endif
 	}
@@ -344,28 +355,50 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
 			rectLastSelected.X = 0;
-			rectLastSelected.Y = m_iImageHeight;
+			rectLastSelected.Y = 80;
 			rectLastSelected.Width = 80;
 			rectLastSelected.Height = 80;
 		}
 	
-		m_pObj_SelectedLastScreen = NULL;
+		//m_pObj_SelectedLastScreen = NULL;
 		
 		g_pPlutoLogger->Write(LV_CRITICAL, "Last selected object rectangle : x %d, y %d, w %d, h %d",
 			rectLastSelected.X, rectLastSelected.Y, rectLastSelected.Width, rectLastSelected.Height);
 	
-		//Create transtition effect if there is no effect already pending
-		if(m_Desktop && !m_Desktop->EffectBuilder->HasEffects())
+		if(m_pObj_SelectedLastScreen)
+		{
+			//m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange = rand() % 9 + 1;
+
+			//Create transtition effect if there is no effect already pending
+			if(m_Desktop && m_Desktop->EffectBuilder)
+			{
+				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					m_Desktop->EffectBuilder->GetEffectCode(m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
+					500
+					);
+				if(!Transit)
+					Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					0
+					);
+				if(Transit)
+					Transit->Configure(&rectLastSelected);
+			} 
+		}
+		else
 		{
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-			GL2DEffect* Transit = (GL2DEffect*) m_Desktop->EffectBuilder->
-				CreateEffect(GL2D_EFFECT_BEZIER_TRANSIT, 1000);
-			
-			Transit->Configure(&rectLastSelected);
-		} 
+			m_Desktop->EffectBuilder->
+				CreateEffect(
+				GL2D_EFFECT_NOEFFECT,
+				0
+				);
+		}
 	
 		glm.Release();
-		//DisplayImageOnScreen(m_pScreenImage);
 #endif
 	}
 }
@@ -431,41 +464,35 @@ g_pPlutoLogger->Write(LV_STATUS, "Rendering text...");
 			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
 	}
 
-g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
+  g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	if (!EnableOpenGL)
-	{
-		//clipping
-		if(X + Width >= m_iImageWidth)
-			Width = m_iImageWidth - X - 1;
-	
-		if(Y + Height >= m_iImageHeight)
-			Height = m_iImageHeight - Y - 1;
-	
-		sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
-	}
+	//clipping
+	if(X + Width >= m_iImageWidth)
+		Width = m_iImageWidth - X - 1;
+
+	if(Y + Height >= m_iImageHeight)
+		Height = m_iImageHeight - Y - 1;
+
+	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
 }
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity /*= 100*/)
 {
-	if (!EnableOpenGL)
-	{
-		//clipping
-		if(x + width >= m_iImageWidth)
-			width = m_iImageWidth - x - 1;
-	
-		if(y + height >= m_iImageHeight)
-			height = m_iImageHeight - y - 1;
-	
-		SDL_Rect Rectangle;
-		Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
-	
-		SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
-	}
+	//clipping
+	if(x + width >= m_iImageWidth)
+		width = m_iImageWidth - x - 1;
+
+	if(y + height >= m_iImageHeight)
+		height = m_iImageHeight - y - 1;
+
+	SDL_Rect Rectangle;
+	Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
+
+	SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -539,25 +566,30 @@ g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
 
 PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 {
-	//clipping
-	if(rect.X + rect.Width >= m_iImageWidth)
-		rect.Width = m_iImageWidth - rect.X - 1;
+	if (!EnableOpenGL)
+	{
+		//clipping
+		if(rect.X + rect.Width >= m_iImageWidth)
+			rect.Width = m_iImageWidth - rect.X - 1;
 
-	if(rect.Y + rect.Height >= m_iImageHeight)
-		rect.Height = m_iImageHeight - rect.Y - 1;
+		if(rect.Y + rect.Height >= m_iImageHeight)
+			rect.Height = m_iImageHeight - rect.Y - 1;
 
 
-	SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
+		SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+			rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
 
-	SDL_Rect SourceRect;
-	SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
-	SourceRect.w = rect.Width; SourceRect.h = rect.Height;
+		SDL_Rect SourceRect;
+		SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
+		SourceRect.w = rect.Width; SourceRect.h = rect.Height;
 
-	SDL_SetAlpha(m_pScreenImage, 0, 0);
-	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+		SDL_SetAlpha(m_pScreenImage, 0, 0);
+		SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 
-	return new SDLGraphic(pSDL_Surface);
+		return new SDLGraphic(pSDL_Surface);
+	}
+	else
+		return new SDLGraphic(this);
 }
 
 void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
@@ -675,3 +707,126 @@ void OrbiterSDL::WakeupFromCondWait()
 	pthread_cond_broadcast(&m_GLThreadCond);
 #endif
 }
+
+void OrbiterSDL::DoHighlightObject()
+{
+	if(!EnableOpenGL)
+	{
+		Orbiter::DoHighlightObject();
+	}
+	else
+	{
+#ifndef DISABLE_OPENGL
+		DoHighlightObjectOpenGL();
+#endif
+	}
+}
+
+void OrbiterSDL::DoHighlightObjectOpenGL()
+{
+	if(sbNoSelection == m_nSelectionBehaviour)
+		return;
+
+	if( m_pGraphicBeforeHighlight )
+		UnHighlightObject();
+
+	if( !m_pObj_Highlighted )
+		return;
+
+	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+
+		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
+		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+
+		if( nHColumn==-1 && nHRow==-1 )
+			return;
+
+		if(!pGrid->m_pDataGridTable)
+			return;
+
+		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+		{
+			pGrid->m_iHighlightedRow = 1;
+			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+		}
+
+		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
+		if( !pCell )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
+				m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
+			return;
+
+		}
+
+		//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
+		if(pGrid->m_iHighlightedRow == -1)
+			pGrid->m_iHighlightedRow = 0;
+
+		PlutoRectangle r;
+		GetGridCellDimensions( pGrid,  
+			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
+			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
+			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
+			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
+			r.X,  r.Y,  r.Width,  r.Height );
+
+		m_rectLastHighlight.X = max(0,r.X);
+		m_rectLastHighlight.Y = max(0,r.Y);
+		m_rectLastHighlight.Right( min(r.Right(),m_Width-1) );
+		m_rectLastHighlight.Bottom( min(r.Bottom(),m_Height-1) );
+	}
+	else
+		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
+
+	m_rectLastHighlight.X += m_pObj_Highlighted->m_pPopupPoint.X;
+	m_rectLastHighlight.Y += m_pObj_Highlighted->m_pPopupPoint.Y;
+
+	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
+	m_rectLastHighlight.Height++;
+
+	//m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
+	FloatRect HighLightArea;
+	HighLightArea.Left = (float)m_rectLastHighlight.Left();
+	HighLightArea.Top = m_Desktop->Widgets->GetHeight() - (float)m_rectLastHighlight.Top() - (float)m_rectLastHighlight.Height;
+	HighLightArea.Width =  (float)m_rectLastHighlight.Width;
+	HighLightArea.Height = (float)m_rectLastHighlight.Height;
+
+	Orbiter3DCommons::GetInstance()->SetHighLightArea(&HighLightArea);
+
+	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_HIGHLIGHT_AREA, 
+		Simulator::GetInstance()->m_iMilisecondsHighLight);
+	if(Effect)
+		Effect->Configure(&m_rectLastHighlight);
+}
+
+void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
+{
+	if (!EnableOpenGL) 
+	{
+		Orbiter::SelectObject(pObj, point);
+		return;
+	}
+
+	FloatRect SelectedArea;
+	SelectedArea.Left   = (float)point.X + pObj->m_rBackgroundPosition.X;
+	SelectedArea.Top    = (float)m_Desktop->Widgets->GetHeight() - (point.Y + pObj->m_rBackgroundPosition.Y +pObj->m_rBackgroundPosition.Height);
+	SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
+	SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
+
+	Orbiter3DCommons::GetInstance()->SetSelectedArea(&SelectedArea);
+	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_SELECT_AREA, 
+		Simulator::GetInstance()->m_iMilisecondsHighLight);
+
+	if(!Effect)
+		return;
+	PlutoRectangle SeclectedAreaEffectSize;
+	SeclectedAreaEffectSize.X = point.X + pObj->m_rBackgroundPosition.X;
+	SeclectedAreaEffectSize.Y = point.Y + pObj->m_rBackgroundPosition.Y;
+	SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
+	SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
+		Effect->Configure(&SeclectedAreaEffectSize);
+}  

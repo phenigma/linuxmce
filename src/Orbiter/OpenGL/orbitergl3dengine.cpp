@@ -26,29 +26,18 @@
 
 using namespace DCE;
 
-OrbiterGL3D::OrbiterGL3D (Orbiter * pOrbiterGL)
+#include "Orbiter3DCommons.h"
+
+OrbiterGL3D* OrbiterGL3D::Instance = NULL;
+
+OrbiterGL3D::OrbiterGL3D ()
 	: Screen3D(NULL),
+	  HighLighArea(NULL),
+	  SelectedArea(NULL),
 	  Widgets(NULL),
 	  EffectBuilder(NULL)  
 {
-	this->pOrbiterGL = pOrbiterGL;
-	FloatRect FullScreenSize(0.0f, 0.0f, float(pOrbiterGL->m_iImageWidth), float(pOrbiterGL->m_iImageHeight));
-	
-	Widgets = new DrawingWidgetsEngine(
-		pOrbiterGL->m_iImageWidth, 
-		pOrbiterGL->m_iImageHeight
-		);
-
-	InitOpenGL();
-	
-	EffectBuilder = new GL2DEffectFactory(Widgets);
-	
-	Screen3D = (TBasicWindow *)/*dynamic_cast<TBasicWindow*>*/(Widgets->CreateWidget(
-		BASICWINDOW, 
-		0, 0, 
-		(int)FullScreenSize.Width,
-		(int)FullScreenSize.Height, 
-		"None"));
+	Instance = this;
 }
 
 void OrbiterGL3D::Paint()
@@ -58,15 +47,20 @@ void OrbiterGL3D::Paint()
 	if(Screen3D == NULL)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"NULL pointer in declaration of 3D widget... something is really wrong here!");
-		exit(234);
+		exit(-1);
 	}
 	
 	EffectBuilder->Widgets->SetUpNextDisplay();
 	EffectBuilder->UpdateEffects();
 	if (EffectBuilder->HasEffects())
-		Screen3D->SetVisible(false);
+	{
+		//HighLighArea->SetVisible(false);
+		//SelectedArea->SetVisible(false);
+
+	}
 	else
 	{
+		/*
 		auto_ptr<PlutoGraphic> spPlutoGraphic;
 #ifdef POCKETFROG
 		spPlutoGraphic.reset(
@@ -82,14 +76,21 @@ void OrbiterGL3D::Paint()
 		);
 #endif
 		Widgets->ConfigureNextScreen(spPlutoGraphic.get());
+		*/
 		Widgets->SetUpNextDisplay();
+		Screen3D->SetBackgroundColor(0.8f, 0.8f, 0.8f, 1.0f);
 		Screen3D->SetTexture(Widgets->NewScreen);
 		Screen3D->SetTextureWraping(Widgets->UVRect.Left, Widgets->UVRect.Top, 
 			Widgets->UVRect.Width, Widgets->UVRect.Height);
-		
-		Screen3D->SetVisible(true);
 
-		spPlutoGraphic->Initialize();
+		Screen3D->SetVisible(true);
+		HighLighArea->SetVisible(true);
+		HighLighArea->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.2f);
+
+		SelectedArea->SetVisible(true);
+		SelectedArea->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.2f);
+
+		//spPlutoGraphic->Initialize();
 	}
 		
 	EffectBuilder->Paint();
@@ -107,6 +108,7 @@ OrbiterGL3D::~OrbiterGL3D()
 void OrbiterGL3D::BeginAnimation()
 {
 #ifdef POCKETFROG
+	/*
 	Orbiter_PocketFrog *pOrbiter_PocketFrog = dynamic_cast<Orbiter_PocketFrog *>(pOrbiterGL);
 	OpenGLProxy::GetInstance()->Attach(pOrbiter_PocketFrog->m_hWnd);
 	hdc = GetDC(pOrbiter_PocketFrog->m_hWnd);	
@@ -127,15 +129,18 @@ void OrbiterGL3D::BeginAnimation()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
+	*/
 #endif
 }
 
 void OrbiterGL3D::EndAnimation()
 {
 #ifdef POCKETFROG
+	/*
 	Orbiter_PocketFrog *pOrbiter_PocketFrog = dynamic_cast<Orbiter_PocketFrog *>(pOrbiterGL);
 	ReleaseDC(pOrbiter_PocketFrog->m_hWnd, hdc);
 	OpenGLProxy::GetInstance()->Detach();
+	*/
 #endif
 }
 
@@ -148,7 +153,7 @@ void OrbiterGL3D::Flip()
 #endif
 }
 
-void OrbiterGL3D::InitOpenGL()
+int OrbiterGL3D::InitOpenGL()
 {
 #ifndef POCKETFROG
 	//initializing the engine...
@@ -176,8 +181,10 @@ void OrbiterGL3D::InitOpenGL()
 	atexit(SDL_Quit);
 	g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
 
+	/* Sets up OpenGL double buffering */
+	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
 	Uint32 uVideoModeFlags = SDL_OPENGL;
-	uVideoModeFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
 
 	bool m_bFullScreen = false;
 #if !defined(WIN32) || defined(WINCE)
@@ -185,23 +192,51 @@ void OrbiterGL3D::InitOpenGL()
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
-	OrbiterSDL * pOrbiterSDL = (OrbiterSDL *)this->pOrbiterGL;
-	if ((pOrbiterSDL->Screen = SDL_SetVideoMode(pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight, 
+	OrbiterSDL * pOrbiter = (OrbiterSDL *)this->pOrbiterGL;
+	if ((pOrbiter->Screen = SDL_SetVideoMode(pOrbiter->m_iImageWidth, pOrbiter->m_iImageHeight, 
 		0, uVideoModeFlags)) == NULL)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, 
 			"Failed to set video mode (%d x %d): %s", 
-			pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight,
+			pOrbiter->m_iImageWidth, pOrbiter->m_iImageHeight,
 			SDL_GetError());
 		exit(1);
 	}
-	/* Sets up OpenGL double buffering */
-	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
 	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", 
-		pOrbiterSDL->m_iImageWidth, pOrbiterSDL->m_iImageHeight);
+		pOrbiter->m_iImageWidth, pOrbiter->m_iImageHeight);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
+
+#else //#ifdef POCKETFROG
+	
+		Orbiter_PocketFrog *pOrbiter = dynamic_cast<Orbiter_PocketFrog *>(pOrbiterGL); 
+		// remember the window handle (HWND)
+		HWND mhWnd = pOrbiter->m_hWnd;
+
+		// get the device context (DC)
+		this->hdc = GetDC( mhWnd );
+
+		// set the pixel format for the DC
+		PIXELFORMATDESCRIPTOR pfd;
+		ZeroMemory( &pfd, sizeof( pfd ) );
+		pfd.nSize = sizeof( pfd );
+		pfd.nVersion = 1;
+		pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL |
+			PFD_DOUBLEBUFFER;
+		pfd.iPixelType = PFD_TYPE_RGBA;
+		pfd.cColorBits = 24;
+		pfd.cDepthBits = 16;
+		pfd.iLayerType = PFD_MAIN_PLANE;
+		int format = ChoosePixelFormat( hdc, &pfd );
+		SetPixelFormat( hdc, format, &pfd );
+
+		// create the render context (RC)
+		HGLRC mhRC = wglCreateContext( hdc );
+
+		// make it the current render context
+		wglMakeCurrent( hdc, mhRC );
+		
+#endif //#ifndef POCKETFROG
 
 	/**
 	OpenGL starting code 
@@ -209,8 +244,8 @@ void OrbiterGL3D::InitOpenGL()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);  // Change Matrix Mode to Projection
 	glLoadIdentity();             // Reset View
-	glOrtho(0, pOrbiterSDL->m_iImageWidth, 0, 
-		pOrbiterSDL->m_iImageHeight, 0, pOrbiterSDL->m_iImageWidth);
+	glOrtho(0, pOrbiter->m_iImageWidth, 0, 
+		pOrbiter->m_iImageHeight, 0, pOrbiter->m_iImageWidth);
 	glMatrixMode(GL_MODELVIEW);   // Change Projection to Matrix Mode
 	glLoadIdentity();
 
@@ -222,7 +257,8 @@ void OrbiterGL3D::InitOpenGL()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-#endif //#ifndef POCKETFROG
+
+	return 1;
 }
 
 void OrbiterGL3D::ReleaseOpenGL()
@@ -232,4 +268,104 @@ void OrbiterGL3D::ReleaseOpenGL()
 #endif
 }
 
+OrbiterGL3D* OrbiterGL3D::GetInstance()
+{
+	if(Instance)
+		return Instance;
+	return new OrbiterGL3D();
+}
 
+int OrbiterGL3D::BuildOrbiterGL(Orbiter * pOrbiterGL)
+{
+	this->pOrbiterGL = pOrbiterGL;
+
+	FloatRect FullScreenSize(0.0f, 0.0f, float(pOrbiterGL->m_iImageWidth), float(pOrbiterGL->m_iImageHeight));
+
+	if (!InitOpenGL())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL cannot start! Do you have OpenGL drivers installed on your system? %s", 
+			"<<Fails on OrbiterGL3D::InitOpenGL()>>");
+		return 0;
+	}
+
+	Widgets = new DrawingWidgetsEngine(
+		pOrbiterGL->m_iImageWidth, 
+		pOrbiterGL->m_iImageHeight
+		);
+
+	if(!Widgets)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation Widgets component>>");
+		return 0;
+	}
+
+	EffectBuilder = new GL2DEffectFactory(Widgets);
+
+	if(!EffectBuilder)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation EffectBuilder component>>");
+		return 0;
+	}
+
+	Screen3D = dynamic_cast<TBasicWindow*>(Widgets->CreateWidget(
+		BASICWINDOW, 
+		0, 0, 
+		(int)FullScreenSize.Width,
+		(int)FullScreenSize.Height, 
+		"None"));
+
+	if(!Screen3D)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation Screen3D component>>");
+		return 0;
+	}
+
+	
+	this->HighLighArea = dynamic_cast<TBasicWindow*>(Widgets->CreateWidget(
+		BASICWINDOW, 
+		0, 0, 
+		(int)0,
+		(int)0, 
+		"None"));
+
+	if(!HighLighArea)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation HighLighArea component>>");
+		return 0;
+	}
+
+	this->SelectedArea= dynamic_cast<TBasicWindow*>(Widgets->CreateWidget(
+		BASICWINDOW, 
+		0, 0, 
+		(int)0,
+		(int)0, 
+		"None"));
+	if(!SelectedArea)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation SelectedArea component>>");
+		return 0;
+	}
+
+	
+	Orbiter3DCommons* Commons = Orbiter3DCommons::GetInstance();
+	if(!Commons)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, 
+			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
+			"<<Fails on creation Commons component>>");
+		return 0;
+	}
+	Commons->BuildCommons(EffectBuilder, Screen3D, HighLighArea, SelectedArea);
+	return 1;
+}

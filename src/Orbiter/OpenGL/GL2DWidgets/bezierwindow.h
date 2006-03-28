@@ -19,7 +19,7 @@
 
 /** Structure For A 3rd Degree Bezier Patch 
 */
-typedef struct bpatch {					
+typedef struct bpatch {
 	// 4x4 Grid Of Anchor Points
 	POINT_3D	anchors[4][4];				
 	// Display List For Bezier Patch

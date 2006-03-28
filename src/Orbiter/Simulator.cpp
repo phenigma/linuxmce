@@ -60,7 +60,7 @@ void *GeneratorThread( void *p)
 {
 	while(!g_pPlutoLogger)
 		Sleep(2000);
-
+	
 	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
 
 	Simulator *pSimulator = (Simulator *)p;
@@ -264,7 +264,8 @@ Simulator::Simulator()
 	m_bUseOpenGL = false;
 	m_bLogToServer = false;
 
-    m_bUseWxWidgets = false;
+	m_iMilisecondsTransition = 600;
+	m_iMilisecondsHighLight = 200;
 
 	m_bStopGeneratorThread = false;
 	m_dwStartGeneratorThreadDelay = 0;
@@ -339,11 +340,14 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_iKeysSetToGenerate = ReadInteger("KeysSetToGenerate", m_iKeysSetToGenerate);
 	m_sHomeScreen = ReadString("HomeScreen", m_sHomeScreen);
 
+	m_iMilisecondsTransition = ReadInteger("MilisecondsTransition", m_iMilisecondsTransition);
+	m_iMilisecondsHighLight = ReadInteger("MilisecondsHighLight", m_iMilisecondsHighLight);
+	
+
 	m_bTryToDetermineAutomatically = false;
 	m_bFullScreen = ReadInteger("FullScreen", (int)m_bFullScreen) != 0;
 	m_bUseOpenGL = ReadInteger("UseOpenGL", (int)m_bLogToServer) != 0;
 	m_bLogToServer = ReadInteger("LogToServer", (int)m_bLogToServer) != 0;
-	m_bUseWxWidgets = ReadInteger("UseWxWidgets", (int)m_bUseWxWidgets) != 0;
 	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);
 	m_sRouterIP = ReadString("RouterIP", m_sRouterIP);
 
@@ -385,12 +389,13 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 	m_mapParameters["KeysSetToGenerate"] = StringUtils::ltos(m_iKeysSetToGenerate);
 	m_mapParameters["HomeScreen"] = m_sHomeScreen;
 
+	m_mapParameters["MilisecondsTransition"] = StringUtils::ltos(m_iMilisecondsTransition);
+	m_mapParameters["MilisecondsHighLight"] = StringUtils::ltos(m_iMilisecondsHighLight);
+
 	m_mapParameters["TryToDetermineAutomatically"] = StringUtils::ltos(m_bTryToDetermineAutomatically);
 	m_mapParameters["FullScreen"] = StringUtils::ltos(m_bFullScreen);
 	m_mapParameters["UseOpenGL"] = StringUtils::ltos(m_bUseOpenGL);
 	m_mapParameters["LogToServer"] = StringUtils::ltos(m_bLogToServer);
-
-	m_mapParameters["UseWxWidgets"] = StringUtils::ltos(m_bUseWxWidgets);
 
 	m_mapParameters["DeviceID"] = m_sDeviceID;
 	m_mapParameters["RouterIP"] = m_sRouterIP;

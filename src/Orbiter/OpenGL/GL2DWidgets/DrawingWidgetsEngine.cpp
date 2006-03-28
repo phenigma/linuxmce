@@ -10,8 +10,6 @@
 
 #include "../OpenGLTextureConverter.h"
 
-namespace DCE {
-
 DrawingWidgetsEngine::DrawingWidgetsEngine(int Width, int Height)
 {
 	this->Width = Width;
@@ -108,6 +106,8 @@ void DrawingWidgetsEngine::SetUpNextDisplay()
 
 void DrawingWidgetsEngine::ConfigureNextScreen(PlutoGraphic* NextDisplay)
 {
+	if(!NextDisplay)
+		return;
 	if(this->NextDisplay)
 	{
 		delete this->NextDisplay;
@@ -125,5 +125,3 @@ void DrawingWidgetsEngine::ConfigureOldScreen(PlutoGraphic* LastDisplay)
 	}
 	this->LastDisplay = LastDisplay->Clone();    
 }
-
-} /// end namespace DCE

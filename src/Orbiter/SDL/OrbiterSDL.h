@@ -11,12 +11,15 @@ using namespace std;
 #include "../Orbiter.h"
 #include "../DesignObj_Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
+
+
+class OrbiterGL3D;
+
 namespace DCE
 {
 
 class OrbiterSDL : public Orbiter
 {
-
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
 	/** 
@@ -73,7 +76,10 @@ public:
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
-	
+
+	virtual void DoHighlightObject();
+	virtual void DoHighlightObjectOpenGL();
+	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 	void OnIdle();
 #ifndef WIN32
 	virtual void DoResetRatpoison() {}
@@ -90,7 +96,7 @@ public:
 	bool PaintDesktopGL;
 
 	pthread_cond_t m_GLThreadCond;
-	class OrbiterGL3D *m_Desktop;
+	OrbiterGL3D *m_Desktop;
 	pluto_pthread_mutex_t* m_GLThreadMutex;
 	///
 	SDL_Surface * m_pScreenImage;

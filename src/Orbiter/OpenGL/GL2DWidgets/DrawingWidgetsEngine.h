@@ -15,8 +15,6 @@
 
 #include "../../DesignObj_Orbiter.h"
 
-namespace DCE {
-
 class DrawingWidgetsEngine
 {
 	int Width, Height;
@@ -103,5 +101,4 @@ public:
 	
 };
 
-}
 #endif

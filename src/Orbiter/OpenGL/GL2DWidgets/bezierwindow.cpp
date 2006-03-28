@@ -7,7 +7,7 @@
 // And The Number Of Divisions
 GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 	int		u = 0, v;
-	float		py, px, pyold; 
+	double		py, px, pyold; 
 	GLuint		drawlist = glGenLists(1);			// Make The Display List
 	POINT_3D	temp[4];
 	POINT_3D	*last = (POINT_3D*)malloc(sizeof(POINT_3D)*(divs+1));
@@ -22,56 +22,71 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 	temp[3] = patch.anchors[3][3];
 
 	for (v=0;v<=divs;v++) {						// Create The First Line Of Points
-		px = ((float)v)/((float)divs);				// Percent Along Y-Axis
+		px = ((double)v)/((double)divs);				// Percent Along Y-Axis
 		// Use The 4 Points From The Derived Curve To Calculate The Points Along That Curve
 		last[v] = MathUtils::Bernstein(px, temp);
 	}
 
 
 	for (u=1;u<=divs;u++) {
-		py    = ((float)u)/((float)divs);			// Percent Along Y-Axis
-		pyold = ((float)u-1.0f)/((float)divs);			// Percent Along Old Y Axis
+		py    = ((double)u)/((double)divs);			// Percent Along Y-Axis
+		pyold = ((double)u-1.0)/((double)divs);			// Percent Along Old Y Axis
 
 		temp[0] = MathUtils::Bernstein(py, patch.anchors[0]);		// Calculate New Bezier Points
 		temp[1] = MathUtils::Bernstein(py, patch.anchors[1]);
 		temp[2] = MathUtils::Bernstein(py, patch.anchors[2]);
 		temp[3] = MathUtils::Bernstein(py, patch.anchors[3]);
 
+		glBegin(GL_TRIANGLE_STRIP);	
+
 		for (v=0;v<=divs;v++) {
 			px = ((float)v)/((float)divs);			// Percent Along The X-Axis
 
-			glBegin(GL_TRIANGLE_STRIP);				// Begin A New Triangle Strip
+			// Begin A New Triangle Strip
 
-			for (v=0;v<=divs;v++) {
-				px = ((float)v)/((float)divs);			// Percent Along The X-Axis
+			CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
+				TextureWrapper2D.Left+TextureWrapper2D.Width, 
+				1-px);
+			CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
+				TextureWrapper2D.Top+TextureWrapper2D.Height, 
+				pyold);
+			glTexCoord2f(CoordU, CoordV);			// Apply The Old Texture Coords
+			glVertex3d(last[v].x, last[v].y, last[v].z);	// Old Point
 
-				
-				CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
-					TextureWrapper2D.Left+TextureWrapper2D.Width, 
-					1-px);
-				CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
-					TextureWrapper2D.Top+TextureWrapper2D.Height, 
-					pyold);
-				glTexCoord2f(CoordU, CoordV);			// Apply The Old Texture Coords
-				glVertex3d(last[v].x, last[v].y, last[v].z);	// Old Point
+			last[v] = MathUtils::Bernstein(px, temp);			// Generate New Point
 
-				last[v] = MathUtils::Bernstein(px, temp);			// Generate New Point
-
-				CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
-					TextureWrapper2D.Left+TextureWrapper2D.Width, 
-					1-px);
-				CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
-					TextureWrapper2D.Top+TextureWrapper2D.Height, 
-					py);
-				glTexCoord2f(CoordU, CoordV);		// Apply The New Texture Coords
-				glVertex3d(last[v].x, last[v].y, last[v].z);	// New Point
-			}
-
+			CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
+				TextureWrapper2D.Left+TextureWrapper2D.Width, 
+				1-px);
+			CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
+				TextureWrapper2D.Top+TextureWrapper2D.Height, 
+				py);
+			glTexCoord2f(CoordU, CoordV);		// Apply The New Texture Coords
+			glVertex3d(last[v].x, last[v].y, last[v].z);	// New Point
 		}
-		
+		glEnd();// END The Triangle Strip
 	}
-
-	glEnd();						// END The Triangle Strip
+	
+//#define DEBUG_BEZIER_SURFACE
+#ifdef DEBUG_BEZIER_SURFACE
+	int i,j;
+	glDisable(GL_TEXTURE_2D);
+	glColor4f(1.0f,1.0f,0.0f, 0.5f); //Color of control lines for bezier patch
+	for(i=0;i<4;i++) {								// draw the horizontal lines
+		glBegin(GL_LINE_STRIP);
+		for(j=0;j<4;j++)
+			glVertex3d(patch.anchors[i][j].x, patch.anchors[i][j].y, patch.anchors[i][j].z);
+		glEnd();
+	}
+	for(i=0;i<4;i++) {								// draw the vertical lines
+		glBegin(GL_LINE_STRIP);
+		for(j=0;j<4;j++)
+			glVertex3d(patch.anchors[j][i].x, patch.anchors[j][i].y, patch.anchors[j][i].z);
+		glEnd();
+	}
+	glColor3f(1.0f,1.0f,1.0f);
+	glEnable(GL_TEXTURE_2D);
+#endif
 	free(last);							// Free The Old Vertices Array
 	return drawlist;						// Return The Display List
 }
@@ -80,7 +95,7 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 
 TBezierWindow::TBezierWindow(int Left, int Top, int Width, int Height, char* Text)
 	: TBaseWidget(Left, Top, Width, Height, Text) {
-	BezierDefinition.Divisions = 128;
+	BezierDefinition.Divisions = 15;
 }
 
 TBezierWindow::~TBezierWindow() {
@@ -145,7 +160,7 @@ void TBezierWindow::SetRectCoordinates(FloatRect Coordinates)
 					float(Left + Width), x/3.0f);
 			BezierDefinition.anchors[x][y].y = MathUtils::InterpolateValues(float(Top), 
 				float(Top + Height), y/3.0f);
-			BezierDefinition.anchors[x][y].z = 0.0f;
+			BezierDefinition.anchors[x][y].z = -250.0f;
 		}
 }
 

@@ -9,13 +9,12 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#ifndef GL3DEngine_H
-#define GL3DEngine_H
+#ifndef GL3D_ENGINE_H
+#define GL3D_ENGINE_H
 
 #include "math3dutils.h"
 #include "GL2DWidgets/basicwindow.h"
 #include "GL2DWidgets/DrawingWidgetsEngine.h"
-
 /**
 That class creates a default decorator for OpenGL operations thread.
 
@@ -25,11 +24,13 @@ That class creates a default decorator for OpenGL operations thread.
 #include "GL2DEffects/gl2deffect.h"
 #include "GL2DEffects/gl2deffectfactory.h"
 
-namespace DCE {
-
 class OrbiterGL3D {
+public: 
 	Orbiter * pOrbiterGL;
 	TBasicWindow * Screen3D;
+	TBasicWindow * HighLighArea;
+	TBasicWindow * SelectedArea;
+
 
 #ifdef POCKETFROG
 	HDC hdc;
@@ -40,11 +41,7 @@ public:
 	GL2DEffectFactory* EffectBuilder;
 	FloatRect FullScreenSize;
 	
-	/**
-	 *    Default constructor, creates one OpenGL 3D engine over one Orbiter
-	 * @param pOrbiterGL The Orbiter associated to the OpenGL
-	 */
-	OrbiterGL3D (Orbiter * pOrbiterGL);
+	int BuildOrbiterGL(Orbiter * pOrbiterGL);
 	
 	~OrbiterGL3D ();
 
@@ -54,27 +51,42 @@ public:
 	void Paint();
 	
 	/**
+	* Show the result of the animation
+	*/
+	void Flip();
+
+	/**
 	 * On pocket-frog or any OpenGL enabled on different context should be used BeginAnimation - EndAnimation
 	 */
 	void BeginAnimation();
 	void EndAnimation();
 
+	/**
+	 * Because is a singleton class, that method gets the instance 
+	 */
+	static OrbiterGL3D* GetInstance();
+
 private:
+	/**
+	*    Default constructor, creates one OpenGL 3D engine over one Orbiter
+	* @param pOrbiterGL The Orbiter associated to the OpenGL
+	*/
+	OrbiterGL3D ();
+
 	/**
 	 * Set up defaults parameters on OpenGL
 	 */
-	void InitOpenGL();
+	int InitOpenGL();
 	/**
 	 * clean up code
 	 */
 	void ReleaseOpenGL();
 	/**
-	 * Show the result of the animation
+	 * Instance of the singleton class
 	 */
-	void Flip();
-};
+	static OrbiterGL3D* Instance;
 
-}
+};
 
 #endif
 //GL3DEngine

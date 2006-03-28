@@ -20,8 +20,20 @@ public:
 	virtual ~TBaseWidget();
 	virtual void Paint();
 	
+	/**
+	* That class defines one GL Widget
+	* You may asociate size of it as top-left point and size (in pixels)
+	* @param ParamLeft - left coordinate (of top-left most point)
+	* @param ParamTop - top coordinate (of top-left most point of the widget)
+	* @param ParamWidth - width of the widget
+	* @param ParamHeight - height of the widget
+	* @param ParamText - the asociated text of the widget
+	*/
 	TBaseWidget(int Left, int Top, int Width, int Height, char* Text);
 
+	/**
+	 *	Method that gives the rectangle of the textures coordinates
+	 */
 	FloatRect GetTextureCoordinates();
 
 	// Getters
@@ -110,7 +122,4 @@ protected:
 	bool Visible; 
 	
 };
-
-
-
 #endif

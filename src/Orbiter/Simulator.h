@@ -34,6 +34,8 @@ public: //data
 	long m_dwTimeout;
 	int m_iNumberOfButtonsPerClick;
 	bool m_bGenerateMouseClicks;
+	int m_iMilisecondsTransition;
+	int m_iMilisecondsHighLight;
 	bool m_bGenerateKeyboardEvents;
 	int m_iKeysSetToGenerate;
 	string m_sHomeScreen;
@@ -49,8 +51,6 @@ public: //data
 	/** Enable/disable OpenGL drawing effects */
 	bool m_bUseOpenGL;
 	bool m_bLogToServer;
-
-	bool m_bUseWxWidgets;
 
 	bool m_bIsRunning;
 
