@@ -1,16 +1,16 @@
 /*
  sqlCVS
- 
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -23,7 +23,7 @@
 
 
 //#define C99_FORMAT_SPECIFIERS
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -118,7 +118,7 @@ string GetCommand( )
 		<< "I.	Changes a primary key and propagates ( change_key )" << endl
 		<< endl
 		<< "Z.	Change login or users" << endl
-		<< endl 
+		<< endl
 		<< "Q. Quit" << endl;
 
 	string s;
@@ -191,7 +191,7 @@ int main( int argc, char *argv[] )
 		<< " This program is distributed in the hope that it will be useful, " << endl
 		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
-		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
+		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;
 
 	bool bError=false; /** An error parsing the command line */
 
@@ -284,6 +284,9 @@ int main( int argc, char *argv[] )
 			case 'e':
 				g_GlobalConfig.m_bCheckinEveryone = true;
 				break;
+			case 'A':
+				g_GlobalConfig.m_bAllowAnonymousLogin = true;
+				break;
 			case 'n':
 				g_GlobalConfig.m_bNoPrompts = true;
 				break;
@@ -316,8 +319,8 @@ int main( int argc, char *argv[] )
 
 	if ( bError )
 	{
-		
-//                123456789012345678901234567890123456789012345678901234567890	
+
+//                123456789012345678901234567890123456789012345678901234567890
 		cout << "sqlCVS, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h MySql hostname] [-u MySql username] " << endl
 			<< "[-p MySql password] [-D MySql database] [-P mysql port] " << endl
@@ -359,7 +362,9 @@ int main( int argc, char *argv[] )
 			<< "-f filename    -- Save the output of this command to a file, usually so" << endl
 			<< "                  another program like a website can show the contents" << endl
 			<< "                  normally used with -n" << endl
-			<< "-O PK -N PK    -- For use with change_pk command" << endl;
+			<< "-O PK -N PK    -- For use with change_pk command" << endl
+			<< "-A anonymous   -- Support authorization witn anonymous~anonymous" << endl
+			<< "                  username and password - all records are commited w/o quarantine" << endl;
 
 		exit( 1 );
 	}
@@ -378,7 +383,7 @@ int main( int argc, char *argv[] )
 		WSADATA wsaData;
 		err = WSAStartup( MAKEWORD( 1, 1 ), ( LPWSADATA ) &wsaData );
 #endif
-		cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser 
+		cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser
 			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl
 			<< "Users:" << g_GlobalConfig.m_sUsers << endl;
 
@@ -429,20 +434,20 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="checkin" )
 			{
 				if( g_GlobalConfig.m_sRepository.length( ) )
-				{  
+				{
 					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
 				database.CheckIn( true );
-				// We may have updated some records because we added new records, which caused new primary keys to be 
+				// We may have updated some records because we added new records, which caused new primary keys to be
 				// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
 				database.CheckIn( false );
 			}
 			else if( g_GlobalConfig.m_sCommand=="update" )
 			{
 				if( g_GlobalConfig.m_sRepository.length( ) )
-				{  
+				{
 					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
@@ -460,7 +465,7 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="dump" )
 			{
 				if( g_GlobalConfig.m_sRepository.length( ) )
-				{  
+				{
 					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
@@ -539,12 +544,12 @@ int main( int argc, char *argv[] )
 			{
 				cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;
 			}
-		
+
 			if( database.m_bInteractiveMode )
 			{
 				cout << "To do this non-interactively, use the following command:" << endl;
-				cout << "sqlCVS -h \"" << g_GlobalConfig.m_sDBHost << "\" -u \"" << g_GlobalConfig.m_sDBUser 
-					<< "\" -p \"" << g_GlobalConfig.m_sDBPassword << "\" -D \"" << g_GlobalConfig.m_sDBName 
+				cout << "sqlCVS -h \"" << g_GlobalConfig.m_sDBHost << "\" -u \"" << g_GlobalConfig.m_sDBUser
+					<< "\" -p \"" << g_GlobalConfig.m_sDBPassword << "\" -D \"" << g_GlobalConfig.m_sDBName
 					<< "\" -P \"" << g_GlobalConfig.m_iDBPort << "\" -r \"" << g_GlobalConfig.m_sRepository ;
 				if( g_GlobalConfig.m_mapRepository.size() )
 				{
@@ -557,7 +562,7 @@ int main( int argc, char *argv[] )
 					for(MapTable::iterator it=g_GlobalConfig.m_mapTable.begin();it!=g_GlobalConfig.m_mapTable.end();++it)
 						cout << (g_GlobalConfig.m_sTable.size() || it!=g_GlobalConfig.m_mapTable.begin() ? "," : "") << (*it).first;
 				}
-				
+
 				cout << "\" -U \"" << g_GlobalConfig.m_sUsers
 					<< "\" " << g_GlobalConfig.m_sCommand << endl;
 			}
@@ -767,7 +772,7 @@ bool ParseMaskFile(Database &database)
 		if( (pos=sWhere.find("psc_id="))!=string::npos )
 			psc_id = atoi( sWhere.substr(pos+7).c_str() );
 
-		g_GlobalConfig.m_mapMaskedChanges[ make_pair<string,string> (sRepository+":"+sTable,sWhere) ] = 
+		g_GlobalConfig.m_mapMaskedChanges[ make_pair<string,string> (sRepository+":"+sTable,sWhere) ] =
 			new MaskedChange(pTable,pRepository,eToc,psc_id);
 	}
 

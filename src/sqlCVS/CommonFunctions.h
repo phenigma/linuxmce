@@ -5,7 +5,7 @@
  * @author
  *
  */
- 
+
 #ifndef CommonFunctions_h
 #define CommonFunctions_h
 
@@ -57,18 +57,18 @@ namespace sqlCVS
 	/**
 	 * @brief  class modelling the global configuration
 	 */
-	 
+
 	class GlobalConfig
 	{
 	public:
 		DCEConfig dceConfig;
 		string m_sTableType;	/**< the table type */
-		
+
 		string m_sDBHost;	/**< MySQL information: the host */
 		string m_sDBUser;	/**< MYSQL information: the user */
 		string m_sDBPassword;	/**< MYSQL information: the password */
 		string m_sDBName;	/**< MySQL information: the name */
-		
+
 		string m_sCommand;      /**< Command line */
 		string m_sRepository;   /**< Command line  */
 		string m_sTable; 	/**< Command line  */
@@ -96,11 +96,11 @@ namespace sqlCVS
 		int m_iVerifyRestrictID; /**< If doing a verify database, orphaned records will be set to this restriction */
 
 		MapRepository m_mapRepository;  /**< The repositories we're currently operating on */
-		
+
 		MapTable m_mapTable;  /**< The tables we're currently operating on */
 
 		string m_sUsers;  /**< The users specified on the command line */
-		
+
 		map<int,MapTable *> m_mapUsersTables; 	/**< This will have all the users who have made changes,
 							 * pointing to a list of the tables they modified
 							 */
@@ -114,12 +114,12 @@ namespace sqlCVS
 
 		map<int, ListChangedRow *> m_mapBatch_ChangedRow;  // Records that couldn't be checked in, by the unauthorized batch number (a negative number)
 
-		bool m_bNewDatabase,m_bVerify,m_bVerifyID,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts;
+		bool m_bNewDatabase,m_bVerify,m_bVerifyID,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts,m_bAllowAnonymousLogin;
 
 		/**
 		 * @ brief constructor
 		 */
-		 
+
 		GlobalConfig()
 		{
 			m_sTableType="InnoDB";
@@ -137,6 +137,7 @@ namespace sqlCVS
 			m_psc_batch=0;
 			m_bVerify=m_bVerifyID=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
 			m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
+			m_bAllowAnonymousLogin=false;
 		}
 
 		string GetRestrictionClause(string sTableName,vector<int> *p_vectRestrictions=NULL)
@@ -159,7 +160,7 @@ namespace sqlCVS
 
 			if( sResult.size() )
 				sResult = "(" + sTableName + ".psc_restrict in (" + sResult + ")";
-			
+
 			if( bIncludeNoRestriction && sResult.size() )
 				sResult += " OR " + sTableName + ".psc_restrict IS NULL OR " + sTableName + ".psc_restrict=0)";
 			else if( bIncludeNoRestriction )
@@ -199,13 +200,27 @@ cout << "Ready to loop.  size is: " << (int) pmapUsersPasswords->size() << endl;
 			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
 				bool bNoPassword,bSupervisor2;
-cout << "before validate user" << endl;
-				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor2 );
-cout << "validate user:" << psc_user << " bnopass: " << bNoPassword << " is sup: " << bSupervisor2 << endl;
-				if( !psc_user )
+
+				int psc_user = 0;
+
+				// if the command option enabled the "anonymous login", then the special user is allowed
+				if (m_bAllowAnonymousLogin && ((*it).first=="anonymous") && ((*it).first=="anonymous") )
 				{
-					return false;
+cout << "validate anonymous user as it is enabled in command prompt" << endl;
+					bNoPassword = false;
+					bSupervisor2 = true;
 				}
+				else
+				{
+cout << "before validate user" << endl;
+					psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor2 );
+cout << "validate user:" << psc_user << " bnopass: " << bNoPassword << " is sup: " << bSupervisor2 << endl;
+					if( !psc_user )
+					{
+						return false;
+					}
+				}
+
 				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor2 << endl;
 				bValidatedUser=true;
 				m_mapValidatedUsers[psc_user]=new ValidatedUser(psc_user,bNoPassword,bSupervisor2);
@@ -221,26 +236,26 @@ cout << "exiting validate user is sup: " << bSupervisor << endl;
 	 * @brief  class modelling the serializable strings
 	 * @todo complete documentation
 	 */
-	 
+
 	class SerializeableStrings : public SerializeClass
 	{
 	public:
 		vector<string> m_vectString;
-		
+
 		/**
 		 * @brief Sets up serialization
 		 */
-		
+
 		void SetupSerialization(int iSC_Version) {	StartSerializeList() + m_vectString; 	}
 	};
 
 	extern GlobalConfig g_GlobalConfig;
 
 	/**
-	 * @brief   brief documentation 
+	 * @brief   brief documentation
 	 * @todo complete documentation
 	 */
-	 
+
 	void NewSection();
 }
 #include <string>
