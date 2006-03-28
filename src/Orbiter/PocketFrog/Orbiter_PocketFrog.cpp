@@ -168,10 +168,11 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
 	m_bFullScreen=bFullScreen;
-	m_bUseOpenGL = bUseOpenGL;
+	EnableOpenGL = bUseOpenGL;
+	m_bUseOpenGL = EnableOpenGL;
 
 #ifdef WINCE
-	m_bUseOpenGL = false; //opengl not available for WINCE
+	EnableOpenGL = false; //opengl not available for WINCE
 #endif
 
 	m_bConnectionLost = false;
