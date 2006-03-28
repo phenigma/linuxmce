@@ -13,7 +13,7 @@ DD_DIRECTORIES=153
 DD_USERS=3
 
 ## Remove old symlinks from home
-find /home/ -lname "*/mnt/device_*" -print0 | xargs -0 rm -f
+find /home/ -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 
 ## Lookup our internal storage devices in the db
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate = $TPL_GENERIC_INTERNAL_DRIVE"
@@ -22,7 +22,7 @@ InternalOwnStorageDevices=$(RunSQL "$Q")
 for Device in $InternalOwnStorageDevices; do
 	Device_ID=$(Field 1 "$Device")
 	Device_Description=$(Field 2 "$Device")
-	Device_MountPoint="/mnt/device_$Device_ID"
+	Device_MountPoint="/mnt/device/$Device_ID"
 	
 	Device_UsePlutoDirStructure=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USE_PLUTO_DIR_STRUCTURE")
 	Device_Directories=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_DIRECTORIES")
@@ -66,9 +66,9 @@ for Device in $InternalOwnStorageDevices; do
 			
 			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description"
 			if [[ "$Device_UsePlutoDirStructure" == "1" ]]; then
-				symlinkSource="/mnt/device_$Device_ID/$userDir/$mediaDir"
+				symlinkSource="/mnt/device/$Device_ID/$userDir/$mediaDir"
 			else
-				symlinkSource="/mnt/device_$Device_ID/"
+				symlinkSource="/mnt/device/$Device_ID/"
 			fi
 			ln -s "$symlinkSource" "$symlinkDestination"
 			echo "$symlinkDestination -> $symlinkSource"
