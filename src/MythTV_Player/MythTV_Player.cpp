@@ -1307,6 +1307,7 @@ void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
 //<-dceag-c102-e->
+{
 	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
 	sendMythCommand("key R");
 }
@@ -1318,3 +1319,7 @@ void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c777-e->
+{
+	//TODO: implement me!
+}
+
