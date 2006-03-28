@@ -1,13 +1,12 @@
 #!/bin/bash
 
-for setupFile in /usr/pluto/bin/StorageDevices_*; do
+if [[ -x /etc/init.d/autofs ]]; then
+	/etc/init.d/autofs restart
+else
+	echo "WARNING: Autmount daemon doesn't exist ?!"
+fi
 
-	if [[ $(basename $setupFile) == "StorageDevices_Setup.sh" ]]; then
-		continue
-	fi
+/usr/pluto/bin/StorageDevices_ExportsNFS.sh
+/usr/pluto/bin/StorageDevices_Mounts.sh
+/usr/pluto/bin/StorageDevices_Symlinks.sh
 
-	if [[ -x $setupFile ]]; then
-		echo "* StorageDevices : $setupFile"
-		. $setupFile
-	fi
-done
