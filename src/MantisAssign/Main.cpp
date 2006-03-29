@@ -5,8 +5,9 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 
-//MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
-MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
+MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
+//MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
+map<int,bool> g_mapBugs;
 
 #include <iostream>
 #include <sstream>
@@ -235,6 +236,16 @@ void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<i
 	int Hours;
 	tFirstDate = GetActualStartTimeAndWorkHours(GetUserForTask(sFirstTask),tFirstDate,Hours);
 
+	if( g_mapBugs[atoi(sFirstTask.c_str())] )
+	{
+		cout << "******ERROR*******  Bug " << sFirstTask << " assigned twice." << endl;
+		return;
+	}
+
+	g_mapBugs[atoi(sFirstTask.c_str())]=true;
+	cout << "Bug " << sFirstTask << " assigned" << endl;
+
+	g_mapBugs[atoi(sFirstTask.c_str())]=true;
 	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sFirstTask + ",'" + StringUtils::SQLDateTime(tFirstDate) + "')";
 	g_MySqlHelper.threaded_mysql_query(sSQL);
 
@@ -282,6 +293,15 @@ time_t AssignTaskIfFits( string sTaskID, time_t tStartTime, time_t tEndTime )
 	if( tEndTime && tMyEndTime>tEndTime )
 		return 0;
 	
+	if( g_mapBugs[atoi(sTaskID.c_str())] )
+	{
+		cout << "******ERROR*******  Bug " << sTaskID << " assigned twice." << endl;
+		return 0;
+	}
+	g_mapBugs[atoi(sTaskID.c_str())]=true;
+
+	cout << "Bug " << sTaskID << " assigned" << endl;
+
 	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sTaskID + ",'" + StringUtils::SQLDateTime(tStartTime) + "')";
 	g_MySqlHelper.threaded_mysql_query(sSQL);
 
