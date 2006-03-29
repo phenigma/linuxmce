@@ -36,6 +36,7 @@ using namespace DCE;
 #include <unistd.h> 
 #define POOL_DELAY 200000
 #endif
+#define NO_POOLING
 
 #define ZW_TIMEOUT 15
 #define ZW_LONG_TIMEOUT 120
@@ -602,6 +603,7 @@ void ZWave::PoolZWaveNetwork()
 
 void ZWave::CMD_Pool(bool start)
 {
+#ifndef NO_POOLING
 	if( start )
 	{
 		if( !m_PoolStarted )
@@ -624,6 +626,7 @@ void ZWave::CMD_Pool(bool start)
 			pthread_join(m_PoolThread, NULL);
 		}
 	}
+#endif
 }
 
 //<-dceag-c760-b->

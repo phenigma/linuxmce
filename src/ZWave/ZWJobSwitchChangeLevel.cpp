@@ -35,7 +35,7 @@ ZWJobSwitchChangeLevel::ZWJobSwitchChangeLevel(PlutoZWSerialAPI * zwAPI, unsigne
 {
 	d = new Private(level, nodeID);
 	setType(ZWaveJob::SET_SWITCH_LEVEL);
-	setReceivingTimeout( 5 );
+	setReceivingTimeout( 3 );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~2" );
 #endif
