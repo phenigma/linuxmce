@@ -5,8 +5,8 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 
-MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
-//MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
+//MySqlHelper g_MySqlHelper("192.168.80.1","root","","mantis");
+MySqlHelper g_MySqlHelper("localhost","root","moscow70bogata","mantis");
 map<int,bool> g_mapBugs;
 
 #include <iostream>
