@@ -73,3 +73,5 @@ for Client in $DisklessMDs; do
 done
 
 PopulateSection "/etc/exports" "DisklessMDRoots" "$Exports_DisklessMDRoots"
+
+/usr/sbin/exportfs -ra
