@@ -5,6 +5,7 @@
 #define COMMMETHOD_RS232_CONST 2
 #define COMMMETHOD_Ethernet_CONST 3
 #define COMMMETHOD_USB_CONST 4
+#define COMMMETHOD_Firewire_CONST 5
 
 #define COMMMETHOD_TABLE "CommMethod"
 #define COMMMETHOD_PK_COMMMETHOD_FIELD "PK_CommMethod"
