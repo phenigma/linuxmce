@@ -59,8 +59,8 @@ function phoneLines($output,$astADO,$dbADO) {
 	}
 
 	if(isset($provider)){
-		$providerUrl=$providerData[$_REQUEST['provider']]['url'];
-		$providerScript=$providerData[$_REQUEST['provider']]['script'];
+		$providerUrl=@$providerData[@$_REQUEST['provider']]['url'];
+		$providerScript=@$providerData[@$_REQUEST['provider']]['script'];
 		$userBox='
 		<input type="hidden" name="editedID" value="'.@$editedID.'">
 		<table align="center" cellpadding="3" cellspacing="0">
