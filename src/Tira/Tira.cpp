@@ -234,20 +234,6 @@ sText=sTextNew;
 	SendIR("",sText);
 }
 
-//<-dceag-c194-b->
-
-	/** @brief COMMAND: #194 - Toggle Power */
-	/** Set relay state (0 or 1) */
-		/** @param #8 On/Off */
-			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
-
-void Tira::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
-//<-dceag-c194-e->
-{
-	cout << "Need to implement command #194 - Toggle Power" << endl;
-	cout << "Parm #8 - OnOff=" << sOnOff << endl;
-}
-
 //<-dceag-c245-b->
 
 	/** @brief COMMAND: #245 - Learn IR */
