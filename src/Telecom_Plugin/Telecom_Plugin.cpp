@@ -578,16 +578,18 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 			return;
 		}
- 
-		int phoneID = map_orbiter2embedphone[iPK_Device];
-		g_pPlutoLogger->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",phoneID,sPhoneExtension.c_str());
-		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID,sPhoneExtension);
+		iPK_Device = map_orbiter2embedphone[iPK_Device];
+	}
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",iPK_Device,sPhoneExtension.c_str());
+		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,iPK_Device,sPhoneExtension);
 		SendCommand(cmd);
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
 		if(!pCallData) {
 			/*create new call data*/
 			pCallData = new CallData();
-			pCallData->setOwnerDevID(phoneID);
+			pCallData->setOwnerDevID(iPK_Device);
 			CallManager::getInstance()->addCall(pCallData);
 		}
 		pCallData->setState(CallData::STATE_ORIGINATING);
