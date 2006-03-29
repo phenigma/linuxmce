@@ -1607,7 +1607,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 {
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
 
-	if(pObj != m_pScreenHistory_Current->GetObj())
+	//it's the background object? it's not our object!
+	if(NULL != pObj->m_pParentObject)
 		m_pObj_SelectedLastScreen = pObj;
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbObjectSelected);

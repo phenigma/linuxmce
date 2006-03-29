@@ -107,7 +107,11 @@ Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
 extern Command_Impl *g_pCommand_Impl;
 
 //-----------------------------------------------------------------------------------------------------
-
+//no open gl support under CE
+#ifdef WINCE
+#define DISABLE_OPENGL
+#endif
+//-----------------------------------------------------------------------------------------------------
 #ifndef DISABLE_OPENGL
 
 void *Orbiter_OpenGLThread(void *p)
@@ -259,6 +263,31 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	{
         GetDisplay()->Update();
 	}
+	else
+	{
+#ifndef DISABLE_OPENGL
+		/// if OpenGL is used there is created one OpenGL drawing mutex
+		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
+
+		pthread_cond_init(&m_GLThreadCond, NULL);
+		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
+		m_Desktop = NULL;
+
+		/// if OpenGL is used there is created one OpenGL drawing thread 
+		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
+
+		// FIXME Wait to create all OpenGL objects
+		while((!m_Desktop) || (m_Desktop && !m_Desktop->EffectBuilder))
+			Sleep(10);
+
+		m_Desktop->EffectBuilder->
+			CreateEffect(
+			GL2D_EFFECT_NOEFFECT,
+			0
+			);
+		StartAnimation();
+#endif
+
 	Initialize(gtPocketFrogGraphic);
 
 	if(m_bQuit || m_bReload)
@@ -295,37 +324,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 			r.left, r.top, r.right, r.bottom);
 	}
 #endif
-
-	if (m_bUseOpenGL)
-	{
-#ifndef DISABLE_OPENGL
-		/// if OpenGL is used there is created one OpenGL drawing mutex
-		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
-
-		pthread_cond_init(&m_GLThreadCond, NULL);
-		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
-		m_Desktop = NULL;
-
-		/// if OpenGL is used there is created one OpenGL drawing thread 
-		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
-
-		// FIXME Wait to create all OpenGL objects
-		while((!m_Desktop) || (m_Desktop && !m_Desktop->EffectBuilder))
-			Sleep(10);
-
-		m_Desktop->EffectBuilder->
-			CreateEffect(
-			GL2D_EFFECT_NOEFFECT,
-			0
-			);
-		StartAnimation();
-
-
-
-#endif
 	}
-
-
 
 	return true;
 }
@@ -931,7 +930,9 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 				m_rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
 				m_rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
 
-				m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange = rand() % 4 + 1;
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_WARNING, "Effect with change: %d", m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange);
+#endif
 
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
@@ -1180,12 +1181,28 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 /*virtual*/ void Orbiter_PocketFrog::TryToUpdate()
 {
 	CHECK_STATUS();
-
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	///FIXME
+
 	if (!m_bUseOpenGL)
 	{
 		GetDisplay()->Update();
+	}
+	else
+	{
+#ifndef WINCE
+		if(m_Desktop && m_Desktop->EffectBuilder && m_Desktop->EffectBuilder->Widgets && 
+			!m_Desktop->EffectBuilder->HasEffects())
+		{
+			if(m_spAfterGraphic.get())
+				m_spAfterGraphic->Initialize();
+
+			m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
+
+			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+			GL2DEffect* Transit = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 400);
+			StartAnimation();
+		}
+#endif
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1232,11 +1249,8 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 
 	Rect rectPocketFrog;
 	rectPocketFrog.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
-	///FIXME
-	if (!m_bUseOpenGL)
-	{
-		GetDisplay()->Update();
-	}
+
+	TryToUpdate();
 }
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter_PocketFrog::SelfUpdate()
@@ -1521,7 +1535,7 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 #endif
 	}
 }  
-
+//-----------------------------------------------------------------------------------------------------
 void Orbiter_PocketFrog::DoHighlightObject()
 {
 	if(!EnableOpenGL)
@@ -1535,7 +1549,7 @@ void Orbiter_PocketFrog::DoHighlightObject()
 #endif
 	}
 }
-
+//-----------------------------------------------------------------------------------------------------
 void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 {
 #ifndef DISABLE_OPENGL
@@ -1636,3 +1650,4 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 	StartAnimation();
 #endif
 }
+
