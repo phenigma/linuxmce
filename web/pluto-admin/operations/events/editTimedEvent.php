@@ -12,7 +12,7 @@ function editTimedEvent($output,$dbADO) {
 	$eventHandlerID=$_REQUEST['ehID'];
 	$dayNamesArray= array(1=>$TEXT_MONDAY_CONST, 2=>$TEXT_TUESDAY_CONST, 3=>$TEXT_WENSDAY_CONST, 4=>$TEXT_THURSDAY_CONST, 5=>$TEXT_FRIDAY_CONST, 6=>$TEXT_SATURDAY_CONST, 7=>$TEXT_SUNDAY_CONST);
 	$monthNamesArray = array(1=>$TEXT_JANUARY_CONST, 2=>$TEXT_FEBRUARY_CONST, 3=>$TEXT_MARCH_CONST, 4=>$TEXT_APRIL_CONST, 5=>$TEXT_MAY_CONST, 6=>$TEXT_JUNE_CONST, 7=>$TEXT_JULY_CONST, 8=>$TEXT_AUGUST_CONST, 9=>$TEXT_SEPTEMBER_CONST, 10=>$TEXT_OCTOBER_CONST, 11=>$TEXT_NOVEMBER_CONST, 12=>$TEXT_DECEMBER_CONST); 	
-	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:2;
+	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:3;
 	$section=$_REQUEST['section'];
 	
 	$queryEventHandler='
