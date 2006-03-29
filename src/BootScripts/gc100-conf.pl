@@ -312,8 +312,8 @@ sub find_gc100 {
 
 sub find_ip {
 	my ($PK_Device) = shift;
-	print "/usr/pluto/bin/PlutoDHCP -d $PK_Device -a";
-	$main_ip = `/usr/pluto/bin/PlutoDHCP -d $PK_Device -a`;
+	print "/usr/pluto/bin/PlutoDHCP.sh -d $PK_Device -a";
+	$main_ip = `/usr/pluto/bin/PlutoDHCP.sh -d $PK_Device -a`;
 	chomp($main_ip);
 	return $main_ip;
 }
