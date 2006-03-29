@@ -80,6 +80,7 @@ void UserUtils::CheckExtensions(  )
 
 int UserUtils::AddUser(string sUsername)
 {
+	StringUtils::TrimSpaces(sUsername);
 	bool bExistingUsers=AlreadyHasMasterUsers();
 	string sSQL;
 	

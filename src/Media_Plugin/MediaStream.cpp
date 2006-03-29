@@ -98,7 +98,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
         g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pMediaDevice_Source, m_pMediaHandlerInfo);
 
 	m_pMediaDevice_Source->m_iLastPlaybackSpeed = 1000;
-g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
+g_pPlutoLogger->Write( LV_STATUS, "MediaStream::MediaStream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapEntArea size %d", m_mapEntertainArea.size( ) );
 }
 
@@ -185,6 +185,7 @@ bool MediaStream::CanPlayMore()
 
 MediaStream::~MediaStream( )
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream %p %d",this,m_iStreamID);
 	for(size_t s=0;s<m_dequeMediaSection.size();++s)
 		if( m_dequeMediaSection[s] )
 			delete m_dequeMediaSection[s];

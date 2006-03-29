@@ -190,6 +190,10 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 //<-dceag-c48-e->
 {
 	static time_t tLastEject=0;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
+		(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_pDisk_Drive_Functions->m_bTrayOpen);
+
 	if( time(NULL)-tLastEject<=2 )  // It can take the drive a while to spin down and the user hits eject multiple times
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk skipping eject within last 2 seconds");
@@ -209,7 +213,6 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
-	m_pDisk_Drive_Functions->m_bTrayOpen = !m_pDisk_Drive_Functions->m_bTrayOpen;
 }
 
 //<-dceag-c49-b->

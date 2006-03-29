@@ -262,7 +262,8 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		//g_pPlutoLogger->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
 		//g_pPlutoLogger->Write(LV_WARNING, "Disk type value here: %d", *flag);
 
-        if (*flag != DISCTYPE_NONE || m_mediaInserted)
+		m_pDisk_Drive_Functions->m_bTrayOpen = false;
+		if (*flag != DISCTYPE_NONE || m_mediaInserted)
             break;
 
 		if (bFireEvent)
@@ -361,8 +362,17 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
     case CDS_NO_INFO:
         // drive doesnt support querying, so this program will never work on that drive.
         g_pPlutoLogger->Write(LV_WARNING, "%s does not support status queries.", filename);
+		break;
 
-    default:
+    case CDS_NO_DISC:
+		m_pDisk_Drive_Functions->m_bTrayOpen = false;
+		break;
+
+    case CDS_TRAY_OPEN:
+		m_pDisk_Drive_Functions->m_bTrayOpen = true;
+		break;
+
+	default:
         // g_pPlutoLogger->Write(LV_STATUS, "Nothing interesting hapened");
         // release the device
         * flag = DISCTYPE_NONE;
