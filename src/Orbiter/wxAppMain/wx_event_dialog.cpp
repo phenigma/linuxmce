@@ -21,15 +21,3 @@
 
 DEFINE_EVENT_TYPE(wxEVTC_DIALOG)
 ;
-
-const char * _str_event_dialog(wxCommandEvent &event)
-{
-    return wxString::Format(
-        "_str_event_dialog(id=%d[%s], str='%s', ptr=%p, int=%ld)",
-        event.GetId(),
-        _str_enum((E_ACTION_TYPE)event.GetId()),
-        event.GetString().c_str(),
-        event.GetClientData(),
-        event.GetInt()
-        );
-}

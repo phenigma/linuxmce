@@ -21,6 +21,7 @@
 #include "wx_event_thread.h"
 #include "wx_thread_wrapper.h"
 #include "wx_thread_bag.h"
+#include "wx_dialog_types.h"
 
 #include "wx/regex.h"
 #include "wx/grid.h"
@@ -59,13 +60,40 @@ const char * _str_enum(wxSemaError value)
 const char * _str_event(wxEvent &event)
 {
     wxObject *pwxObject = event.GetEventObject();
+    WXTYPE nType = event.GetEventType();
+    int nId = event.GetId();
+    bool bSkipped = event.GetSkipped();
     wxString sEvent;
-    sEvent.Printf(
-        "event{id=%d, pObj=%p, type=%d}",
-        event.GetId(),
-        pwxObject,
-        event.GetEventType()
-        );
+    if (nType == wxEVTC_DIALOG)
+    {
+        sEvent.Printf(
+            "event{id=%d[%s], type=%d[wxEVTC_DIALOG], pObj=%p, bSkipped=%d}",
+            nId, _str_enum((E_ACTION_TYPE)nId),
+            nType,
+            pwxObject,
+            bSkipped
+            );
+    }
+    else if (nType == wxEVTC_THREAD)
+    {
+        sEvent.Printf(
+            "event{id=%d[%s], type=%d[wxEVTC_THREAD], pObj=%p, bSkipped=%d}",
+            nId, _str_enum((wxThread_Cmd::E_STATUS)nId),
+            nType,
+            pwxObject,
+            bSkipped
+            );
+    }
+    else
+    {
+        sEvent.Printf(
+            "event{id=%d, type=%d, pObj=%p, bSkipped=%d}",
+            nId,
+            nType,
+            pwxObject,
+            bSkipped
+            );
+    }
     wxWindow *pwxWindow = wxDynamicCast(pwxObject, wxWindow);
     wxString sWindow;
     if (pwxWindow)
@@ -88,11 +116,15 @@ const char * _str_event(wxEvent &event)
             cmd_event.GetInt()
             );
     }
+    wxString sThread;
+    if (! ::wxIsMainThread())
+        sThread.Printf(", pwxThread=%p", wxThread::This());
     return wxString::Format(
-        "_str_event(%s%s%s)",
+        "%s%s%s%s",
         sEvent.c_str(),
+        sCommandEvent.c_str(),
         sWindow.c_str(),
-        sCommandEvent.c_str()
+        sThread.c_str()
         );
 }
 
@@ -110,17 +142,14 @@ void wx_post_event(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_i
     event.SetString(sInfo);
     event.SetClientData(pData);
     event.SetInt(nInt);
-    if (event_type == wxEVTC_DIALOG)
-        _WX_LOG_NFO("wx_post_event(%s)", _str_event_dialog(event));
-    else if (event_type == wxEVTC_THREAD)
-        _WX_LOG_NFO("wx_post_event(%s)", _str_event_thread(event));
-    else
-        _WX_LOG_NFO("wx_post_event(%s)", _str_event(event));
+    _WX_LOG_NFO("wx_post_event(%s)", _str_event(event));
     ::wxPostEvent( pDestEvtHandler, event );
 }
 
-wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore)
+wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore, bool bDoIt/*=true*/)
 {
+    if (! bDoIt)
+        return wxSEMA_NO_ERROR;
     wxSemaError semCode = rSemaphore.Post();
     if (semCode != wxSEMA_NO_ERROR)
     {
@@ -209,7 +238,7 @@ bool wxIdleThreadShouldStop()
 
 void wx_Clear(wxGrid *pGrid)
 {
-    _COND_RET(pGrid);
+    _COND_RET(pGrid != NULL);
     pGrid->ClearGrid();
     pGrid->DeleteCols(0, pGrid->GetNumberCols());
     pGrid->DeleteRows(0, pGrid->GetNumberRows());
@@ -217,20 +246,20 @@ void wx_Clear(wxGrid *pGrid)
 
 void wx_Align(wxGrid *pGrid, wxAlignment horiz/*=wxALIGN_CENTRE*/, wxAlignment vert/*=wxALIGN_CENTRE*/)
 {
-    _COND_RET(pGrid);
+    _COND_RET(pGrid != NULL);
     pGrid->SetDefaultCellAlignment(horiz, vert);
 }
 
 void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg)
 {
-    _COND_RET(pGrid);
+    _COND_RET(pGrid != NULL);
     pGrid->SetDefaultCellBackgroundColour(bg);
     pGrid->SetDefaultCellTextColour(fg);
 }
 
 void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg, wxColour line)
 {
-    _COND_RET(pGrid);
+    _COND_RET(pGrid != NULL);
     wx_Set_Color(pGrid, bg, fg);
     pGrid->SetGridLineColour(line);
 }

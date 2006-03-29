@@ -28,6 +28,8 @@ class wxThread_Bag : public wxEvtHandler
     size_t GetCount();
     size_t GetRunningCount();
 
+    wxThread_Cmd * ptr_ThreadItem(const wxString &sName);
+
   protected:
     // event callbacks
     void OnEvent_Thread(wxCommandEvent& event);

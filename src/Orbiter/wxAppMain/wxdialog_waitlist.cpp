@@ -24,6 +24,10 @@
 
 #include "wxdialog_waitlist.h"
 
+#ifdef USE_RELEASE_CODE
+#include "../CallBackData.h"
+#endif // USE_RELEASE_CODE
+
 ////@begin XPM images
 #include "logo_pluto.xpm"
 ////@end XPM images
@@ -208,18 +212,26 @@ wxDialog_WaitList::~wxDialog_WaitList()
 void wxDialog_WaitList::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    WaitUserListCallBackData *pData_Refresh = wx_static_cast(WaitUserListCallBackData *, pExternData);
+#endif // USE_RELEASE_CODE
+#ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
+#endif // USE_DEBUG_CODE
     _COND_RET(pData_Refresh != NULL);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->sInfo);
+    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
     // update log text
-    if (v_sPrevStr != pData_Refresh->sInfo)
+    if (v_sPrevStr != pData_Refresh->m_sMessage)
     {
         if (! v_pLogText->GetValue().IsEmpty())
             v_pLogText->AppendText("\n");
-        v_pLogText->AppendText(pData_Refresh->sInfo);
-        v_sPrevStr = pData_Refresh->sInfo;
+        v_pLogText->AppendText(pData_Refresh->m_sMessage);
+        v_sPrevStr = pData_Refresh->m_sMessage;
     }
     // update progress bar
-    v_pGauge->SetValue(pData_Refresh->nPercent);
+    v_pGauge->SetValue(pData_Refresh->m_nPercent);
+#ifdef USE_RELEASE_CODE
+    delete pData_Refresh;
+#endif // USE_RELEASE_CODE
 }

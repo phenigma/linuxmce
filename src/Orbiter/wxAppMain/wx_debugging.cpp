@@ -58,22 +58,31 @@ void * _debug_RoomWizard()
     return &_g_aRoomItems;
 };
 
-void _debug_show_dlg()
+template <class wxClassName>
+void _debug_show_dlg(void *pData=NULL)
 {
 #ifdef USE_DEBUG_CODE
-    wxDialog_RoomWizard *pWin = NULL;
+    wxClassName *pWin = NULL;
     _WX_LOG_DBG("Safe_Show");
-    pWin = Safe_CreateUnique<wxDialog_RoomWizard>(_debug_RoomWizard());
-    Safe_Show<wxDialog_RoomWizard>(pWin);
+    pWin = Safe_CreateUnique<wxClassName>(pData);
+    Safe_Show<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_Close");
-    Safe_Close<wxDialog_RoomWizard>(pWin);
+    Safe_Close<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_Show Again");
-    pWin = Safe_CreateUnique<wxDialog_RoomWizard>(_debug_RoomWizard());
-    Safe_Show<wxDialog_RoomWizard>(pWin);
+    pWin = Safe_CreateUnique<wxClassName>(pData);
+    Safe_Show<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_ShowModal");
-    pWin = Safe_CreateUnique<wxDialog_RoomWizard>(_debug_RoomWizard());
-    Safe_ShowModal<wxDialog_RoomWizard>(pWin);
+    pWin = Safe_CreateUnique<wxClassName>(pData);
+    Safe_ShowModal<wxClassName>(pWin);
 #endif // USE_DEBUG_CODE
+}
+
+void _debug_show_dlg_all()
+{
+    _debug_show_dlg<wxDialog_RoomWizard>(_debug_RoomWizard());
+    _debug_show_dlg<wxDialog_WaitGrid>();
+    _debug_show_dlg<wxDialog_WaitList>();
+    _debug_show_dlg<wxDialog_WaitUser>();
 }
 
 void _debug_refresh_update()
@@ -122,7 +131,7 @@ void _debug_refresh_update()
             {
                 _WX_LOG_DBG("wxDialog_WaitUser");
                 bOneActive = true;
-                wxDialog_WaitUser::Data_Refresh data_refresh = { _g_aStr[i], _g_nTimeoutSeconds, &_g_mapIntStr };
+                wxDialog_WaitUser::Data_Refresh data_refresh = { _g_aStr[i], _g_nTimeoutSeconds, _g_mapIntStr };
                 Safe_Gui_Refresh(pwxDialog, &data_refresh);
             }
         }
@@ -138,7 +147,7 @@ void _debug_refresh_update()
 void _debug_thread_block()
 {
     _WX_LOG_DBG();
-    _debug_show_dlg();
+    _debug_show_dlg_all();
     _WX_LOG_DBG("Loop");
     for ( int i = 0; i < 5; i++ )
     {
@@ -151,7 +160,7 @@ void _debug_thread_block()
 void _debug_thread_nonblock()
 {
     _WX_LOG_DBG();
-    _debug_show_dlg();
+    _debug_show_dlg_all();
     _WX_LOG_DBG("Loop");
     for ( int i = 0; i < 10; i++ )
     {

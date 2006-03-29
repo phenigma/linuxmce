@@ -21,15 +21,3 @@
 
 DEFINE_EVENT_TYPE(wxEVTC_THREAD)
 ;
-
-const char * _str_event_thread(wxCommandEvent &event)
-{
-    return wxString::Format(
-        "_str_event_thread(id=%d[%s], str='%s', ptr=%p, int=%ld)",
-        event.GetId(),
-        _str_enum((wxThread_Cmd::E_STATUS)event.GetId()),
-        event.GetString().c_str(),
-        event.GetClientData(),
-        event.GetInt()
-        );
-}

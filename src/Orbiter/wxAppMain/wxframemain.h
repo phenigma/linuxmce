@@ -50,6 +50,7 @@ class wxStatusBar;
 #define ID_TOOL_U_B_J 10002
 #define ID_TOOL_U_N_D 10011
 #define ID_TOOL_U_N_J 10010
+#define ID_TOOL_STOP 10001
 #define ID_TEXTCTRL_LOG 10007
 #define ID_STATUSBAR_MAIN 10008
 ////@end control identifiers
@@ -145,6 +146,12 @@ class wxFrameMain: public wxFrame
 
     /// wxEVT_UPDATE_UI event handler for ID_TOOL_U_N_J
     void OnToolUNJUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_STOP
+    void OnToolStopClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_STOP
+    void OnToolStopUpdate( wxUpdateUIEvent& event );
 
 ////@end wxFrameMain event handler declarations
 

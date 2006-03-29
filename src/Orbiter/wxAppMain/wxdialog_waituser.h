@@ -37,7 +37,7 @@ class wxBoxSizer;
 #define SYMBOL_WXDIALOG_WAITUSER_TITLE _T("Wait User")
 #define SYMBOL_WXDIALOG_WAITUSER_IDNAME ID_DIALOG_WAITUSER
 #define SYMBOL_WXDIALOG_WAITUSER_SIZE wxSize(150, 150)
-#define SYMBOL_WXDIALOG_WAITUSER_POSITION wxPoint(768, 325)
+#define SYMBOL_WXDIALOG_WAITUSER_POSITION wxPoint(748, 325)
 #define ID_GAUGE_WAITUSER 10000
 #define ID_TEXTCTRL_WAITUSER 10014
 ////@end control identifiers
@@ -102,16 +102,16 @@ public:
     wxBoxSizer* v_pBoxH_bot;
     wxButton* v_pButtonOk;
 ////@end wxDialog_WaitUser member variables
+
 public:
     ~wxDialog_WaitUser();
-
     virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
-        string sInfo;
-        int nTimeoutSeconds;
-        map<int, string> *p_mapPrompts;
+        string m_sMessage;
+        int m_nTimeoutSeconds;
+        map<int,string> m_mapPrompts;
     };
 
 protected:

@@ -175,9 +175,7 @@ bool wxDialog_Base::Destroy()
         return true;
     }
     if (v_pData_Holder_Dialog)
-    {
-        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore);
-    }
+        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
     return wxDialog::Destroy();
 }
 
@@ -193,7 +191,7 @@ void wxDialog_Base::EndModal(int retCode)
     if (v_pData_Holder_Dialog)
     {
         v_pData_Holder_Dialog->nRetCode = retCode;
-        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore);
+        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
     }
     return wxDialog::EndModal(retCode);
 }
@@ -255,11 +253,9 @@ void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
 
 void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 {
-    _WX_LOG_NFO("Received event : %s", _str_event_dialog(event));
+    _WX_LOG_NFO("Received event : %s", _str_event(event));
     Data_Holder_Dialog *pData_Holder_Dialog = wx_static_cast(Data_Holder_Dialog *, event.GetClientData());
-    event.Skip();
     _COND_RET(pData_Holder_Dialog != NULL);
-    event.Skip(false);
     E_ACTION_TYPE action = (E_ACTION_TYPE)event.GetId();
     _WX_LOG_NFO("Received command event : action='%s'", _str_enum(action));
     switch (action)
@@ -273,5 +269,5 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
             _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
-    wx_semaphore_post(pData_Holder_Dialog->oSemaphore);
+    wx_semaphore_post(pData_Holder_Dialog->oSemaphore, pData_Holder_Dialog->bInThread);
 }

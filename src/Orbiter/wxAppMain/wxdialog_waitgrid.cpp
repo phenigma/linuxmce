@@ -24,6 +24,15 @@
 
 #include "wxdialog_waitgrid.h"
 
+#ifdef USE_RELEASE_CODE
+#include "../CallBackData.h"
+#endif // USE_RELEASE_CODE
+
+const int idxResizableColumn = 1;
+const int nColumnCount = 2;
+#define S_WAITING wxString("Waiting")
+#define S_STARTED wxString("Started")
+
 ////@begin XPM images
 #include "logo_pluto.xpm"
 ////@end XPM images
@@ -51,11 +60,6 @@ BEGIN_EVENT_TABLE( wxDialog_WaitGrid, wxDialog_Base )
 
 END_EVENT_TABLE()
 ;
-
-const int idxResizableColumn = 1;
-const int nColumnCount = 2;
-#define S_WAITING wxString("Waiting")
-#define S_STARTED wxString("Started")
 
 /*!
  * wxDialog_WaitGrid constructors
@@ -197,14 +201,13 @@ void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid. 
-    event.Skip(false);
 }
 
 /*!
  * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
  */
 
-void wxDialog_WaitGrid::OnCancelClick( wxCommandEvent& event )
+void wxDialog_WaitGrid::OnCancelClick( wxCommandEvent& WXUNUSED(event) )
 {
 ////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in wxDialog_WaitGrid.
     // Before editing this code, remove the block markers.
@@ -262,12 +265,17 @@ wxDialog_WaitGrid::~wxDialog_WaitGrid()
 void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    WaitUserGridCallBackData *pData_Refresh = wx_static_cast(WaitUserGridCallBackData *, pExternData);
+#endif // USE_RELEASE_CODE
+#ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-    _COND_RET(pData_Refresh);
+#endif // USE_DEBUG_CODE
+    _COND_RET(pData_Refresh != NULL);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->sInfo);
+    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
     // update grid
-    for(map<string, bool>::iterator it = pData_Refresh->mapStrBool.begin(); it != pData_Refresh->mapStrBool.end(); ++it)
+    for(map<string, bool>::iterator it = pData_Refresh->m_mapChildDevices.begin(); it != pData_Refresh->m_mapChildDevices.end(); ++it)
     {
         wxString sName = it->first.c_str();
         bool bValue = it->second;
@@ -296,5 +304,8 @@ void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
     v_pGrid->AutoSizeRows();
     wx_Grid_Resize_Column(v_pGrid, idxResizableColumn);
     // update progress bar
-    v_pGauge->SetValue(pData_Refresh->nPercent);
+    v_pGauge->SetValue(pData_Refresh->m_nPercent);
+#ifdef USE_RELEASE_CODE
+    delete pData_Refresh;
+#endif // USE_RELEASE_CODE
 }

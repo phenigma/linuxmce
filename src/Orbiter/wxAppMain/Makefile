@@ -142,10 +142,10 @@ $(OBJECTPATH)/wx_event_dialog.o:	wx_event_dialog.cpp wx/wx.h wx_event_dialog.h w
 $(OBJECTPATH)/wx_event_thread.o:	wx_event_thread.cpp wx/wx.h wx_event_thread.h wx_thread_cmd.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_event_thread.cpp
 
-$(OBJECTPATH)/wx_extern_app.o:	wx_extern_app.cpp wx/wx.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_thread_bag.h
+$(OBJECTPATH)/wx_extern_app.o:	wx_extern_app.cpp wx/wx.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_safe_dialog.h wx_dialog_types.h wx_event_dialog.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_extern_app.cpp
 
-$(OBJECTPATH)/wx_helpers.o:	wx_helpers.cpp wx/wx.h wx_helpers.h wx_event_thread.h wx_thread_wrapper.h wx_thread_cmd.h wx_thread_bag.h
+$(OBJECTPATH)/wx_helpers.o:	wx_helpers.cpp wx/wx.h wx_helpers.h wx_event_dialog.h wx_event_thread.h wx_thread_wrapper.h wx_thread_cmd.h wx_thread_bag.h wx_dialog_types.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_helpers.cpp
 
 $(OBJECTPATH)/wx_logger.o:	wx_logger.cpp wx/wx.h wx_logger.h wx_helpers.h

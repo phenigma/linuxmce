@@ -27,9 +27,5 @@ END_DECLARE_EVENT_TYPES()
         (wxObject *) NULL \
     ),
 
-//
-
-const char * _str_event_thread(wxCommandEvent &event);
-
 #endif
 // _WX_EVENT_THREAD_H_

@@ -111,16 +111,16 @@ public:
     wxGauge* v_pGauge;
     wxButton* v_pButtonCancel;
 ////@end wxDialog_WaitGrid member variables
+
 public:
     ~wxDialog_WaitGrid();
-
     virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
-        string sInfo;
-        map<string, bool> mapStrBool;
-        int nPercent;
+        string m_sMessage;
+        map<string, bool> m_mapChildDevices;
+        int m_nPercent;
     };
 
 protected:

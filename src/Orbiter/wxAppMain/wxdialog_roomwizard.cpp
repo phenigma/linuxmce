@@ -25,10 +25,12 @@
 #include "wxdialog_roomwizard.h"
 
 #ifdef USE_RELEASE_CODE
-#include "../../DCE/Logger.h"
-using namespace DCE;
 #include "../WizardLogic.h"
+#include "../CallBackData.h"
 #endif // USE_RELEASE_CODE
+
+const int idxResizableColumn = 1;
+const int nColumnCount = 4;
 
 ////@begin XPM images
 ////@end XPM images
@@ -56,9 +58,6 @@ BEGIN_EVENT_TABLE( wxDialog_RoomWizard, wxDialog_Base )
 
 END_EVENT_TABLE()
 ;
-
-const int idxResizableColumn = 1;
-const int nColumnCount = 4;
 
 /*!
  * wxDialog_RoomWizard constructors
@@ -159,7 +158,6 @@ void wxDialog_RoomWizard::OnSize( wxSizeEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_SIZE event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
-    event.Skip(false);
 }
 
 /*!
@@ -174,7 +172,6 @@ void wxDialog_RoomWizard::OnCellLeftClick( wxGridEvent& event )
         int col=event.GetCol();
         _WX_LOG_NFO("row=%d, col=%d", row, col);
         ItemWindowSelect(row);
-        event.Skip(false);
         if (col == 0)
         {
             eventButtonDec();
@@ -315,9 +312,22 @@ bool wxDialog_RoomWizard::Gui_DataSave(void *pExternData)
 void wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    RoomWizardCallBackData *pData_Refresh = wx_static_cast(RoomWizardCallBackData *, pExternData);
+    _COND_RET(pData_Refresh != NULL);
+    SetSize(
+        pData_Refresh->m_coord.X,
+        pData_Refresh->m_coord.Y,
+        pData_Refresh->m_coord.Width,
+        pData_Refresh->m_coord.Height,
+        wxSIZE_ALLOW_MINUS_ONE);
+    delete pData_Refresh;
+#endif // USE_RELEASE_CODE
+#ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-    _COND_RET(pData_Refresh);
-    SetSize(pData_Refresh->coord, wxSIZE_ALLOW_MINUS_ONE);
+    _COND_RET(pData_Refresh != NULL);
+    SetSize(pData_Refresh->m_coord, wxSIZE_ALLOW_MINUS_ONE);
+#endif // USE_DEBUG_CODE
 }
 
 void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)

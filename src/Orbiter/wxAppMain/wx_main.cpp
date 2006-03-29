@@ -28,11 +28,6 @@ int g_nExitCode = EXIT_SUCCESS;
 int main(int argc, char *argv[])
 {
     _WX_LOG_NFO("STARTED");
-    {
-        //    _WX_LOG_WRN("!! code for launching X should be added here !!");
-        //#ifdef USE_RELEASE_CODE
-        //#endif // USE_RELEASE_CODE
-    }
     // activate X11 GUI threads
     {
         if ( XInitThreads() == 0 )

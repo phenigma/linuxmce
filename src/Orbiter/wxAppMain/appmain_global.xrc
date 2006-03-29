@@ -103,6 +103,13 @@
                 <longhelp>Unknown Joinable NonBlocking</longhelp>
                 <toggle>1</toggle>
             </object>
+            <object class="tool" name="ID_TOOL_STOP">
+                <help>stop all threads</help>
+                <bitmap>exit.png</bitmap>
+                <label>stop</label>
+                <tooltip>stop all threads</tooltip>
+                <longhelp>stop all threads</longhelp>
+            </object>
             <object class="separator">
             </object>
         </object>

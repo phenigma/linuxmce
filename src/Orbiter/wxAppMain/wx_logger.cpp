@@ -185,6 +185,14 @@ void global_wx_log_enter()
     wxLog::SetTimestamp("%H:%M:%S");
     wxLog::SetActiveTarget(new wxLogStderr);
     //wxDebugContext::SetDebugMode(true);
+    wxLog::AddTraceMask("thread");
+    wxLog::AddTraceMask("semaphore");
+    wxLog::AddTraceMask("memalloc");
+    wxLog::AddTraceMask("messages");
+    wxLog::AddTraceMask("resalloc");
+    wxLog::AddTraceMask("refcount");
+    wxLog::AddTraceMask("focus");
+    wxLog::AddTraceMask("keyevent");
 }
 
 void global_wx_log_leave()

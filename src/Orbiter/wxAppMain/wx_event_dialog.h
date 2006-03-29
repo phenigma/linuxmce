@@ -27,7 +27,5 @@ END_DECLARE_EVENT_TYPES()
         (wxObject *) NULL \
     ),
 
-const char * _str_event_dialog(wxCommandEvent &event);
-
 #endif
 // _WX_EVENT_DIALOG_H_

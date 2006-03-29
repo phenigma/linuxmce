@@ -114,6 +114,7 @@ const char * _str_enum(const CallBackType &value)
         CASE_const_ret_str(cbOnCreateWxWidget);
         CASE_const_ret_str(cbOnDeleteWxWidget);
         CASE_const_ret_str(cbOnRefreshWxWidget);
+        CASE_const_ret_str(cbOnSaveWxWidget);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;
@@ -138,35 +139,30 @@ void Extern_Event_Listener(ExternApp *pExternApp)
     CallBackType action = pTask->TaskType;
     void * pData = pTask->pCallBackData;
     _WX_LOG_NFO("Received command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
+    Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pData);
     switch (action)
     {
         case cbOnCreateWxWidget:
-        {
-            Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pData);
-            wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Create_Unique, "", &data_holder_dialog);
+            Process_Dialog_Action(e_dialog_type, E_Action_Create_Unique, &data_holder_dialog);
             switch (e_dialog_type)
             {
                 case E_Dialog_WaitUser:
-                    wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_ShowModal, "", &data_holder_dialog);
+                    Process_Dialog_Action(e_dialog_type, E_Action_ShowModal, &data_holder_dialog);
                     break;
                 default:
-                    wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Show, "", &data_holder_dialog);
+                    Process_Dialog_Action(e_dialog_type, E_Action_Show, &data_holder_dialog);
                     break;
             }
             break;
-        }
         case cbOnDeleteWxWidget:
-        {
-            Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pData);
-            wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Close, "", &data_holder_dialog);
+            Process_Dialog_Action(e_dialog_type, E_Action_Close, &data_holder_dialog);
             break;
-        }
         case cbOnRefreshWxWidget:
-        {
-            Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pData);
-            wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Refresh, "", &data_holder_dialog);
+            Process_Dialog_Action(e_dialog_type, E_Action_Refresh, &data_holder_dialog);
             break;
-        }
+        case cbOnSaveWxWidget:
+            Process_Dialog_Action(e_dialog_type, E_Action_DataSave, &data_holder_dialog);
+            break;
         default:
             _WX_LOG_ERR("bad action : %d", action);
             break;

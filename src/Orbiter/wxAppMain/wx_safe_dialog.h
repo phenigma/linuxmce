@@ -20,9 +20,11 @@ struct Data_Holder_Base
 {
     Data_Holder_Base()
         : oSemaphore(0, 1)
+        , bInThread(! ::wxIsMainThread())
         {
         }
     wxSemaphore oSemaphore; // wait until the action is finished
+    const bool bInThread; // where the object was created
 };
 
 struct Data_Holder_Dialog : Data_Holder_Base
@@ -93,9 +95,9 @@ wxClassName * ptr_wxDialogByType(E_DIALOG_TYPE e_dialog_type = E_Dialog_Undefine
 template <class wxClassName>
 bool Safe_Close(wxClassName *pwxDialog)
 {
-    _WX_LOG_NFO("pWin=%p", pwxDialog);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -156,9 +158,9 @@ wxClassName * Safe_CreateUnique(void *pExternData=NULL)
 template <class wxClassName>
 bool Safe_Gui_DataLoad(wxClassName *pwxDialog, void *pExternData=NULL)
 {
-    _WX_LOG_NFO("pWin=%p", pwxDialog);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -183,9 +185,9 @@ bool Safe_Gui_DataLoad(wxClassName *pwxDialog, void *pExternData=NULL)
 template <class wxClassName>
 bool Safe_Gui_DataSave(wxClassName *pwxDialog, void *pExternData=NULL)
 {
-    _WX_LOG_NFO("pWin=%p", pwxDialog);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -210,9 +212,9 @@ bool Safe_Gui_DataSave(wxClassName *pwxDialog, void *pExternData=NULL)
 template <class wxClassName>
 bool Safe_Gui_Refresh(wxClassName *pwxDialog, void *pExternData=NULL)
 {
-    _WX_LOG_NFO("pWin=%p", pwxDialog);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -239,9 +241,9 @@ bool Safe_Gui_Refresh(wxClassName *pwxDialog, void *pExternData=NULL)
 template <class wxClassName>
 bool Safe_Show(wxClassName *pwxDialog, bool bShow=true)
 {
-    _WX_LOG_NFO("pWin=%p, bShow=%d", pwxDialog, bShow);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p, bShow=%d", pwxDialog, bShow);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -263,9 +265,9 @@ bool Safe_Show(wxClassName *pwxDialog, bool bShow=true)
 template <class wxClassName>
 int Safe_ShowModal(wxClassName *pwxDialog)
 {
-    _WX_LOG_NFO("pWin=%p", pwxDialog);
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
+    _WX_LOG_NFO("pWin=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, 0);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -288,6 +290,8 @@ int Safe_ShowModal(wxClassName *pwxDialog)
     _WX_LOG_NFO("retCode=%d, pWin=%p", retCode, pwxDialog);
     return retCode;
 }
+
+bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Data_Holder_Dialog *pData_Holder_Dialog);
 
 #endif
 // _WX_SAFE_DIALOG_H_

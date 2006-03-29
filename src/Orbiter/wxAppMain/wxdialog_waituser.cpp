@@ -24,6 +24,10 @@
 
 #include "wxdialog_waituser.h"
 
+#ifdef USE_RELEASE_CODE
+#include "../CallBackData.h"
+#endif // USE_RELEASE_CODE
+
 ////@begin XPM images
 #include "logo_pluto.xpm"
 ////@end XPM images
@@ -218,19 +222,24 @@ wxDialog_WaitUser::~wxDialog_WaitUser()
 void wxDialog_WaitUser::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    WaitUserPromptCallBackData *pData_Refresh = wx_static_cast(WaitUserPromptCallBackData *, pExternData);
+#endif // USE_RELEASE_CODE
+#ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-    _COND_RET(pData_Refresh);
+#endif // USE_DEBUG_CODE
+    _COND_RET(pData_Refresh != NULL);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->sInfo);
+    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
     // update buttons
-    if (! pData_Refresh->p_mapPrompts)
+    if (pData_Refresh->m_mapPrompts.size() == 0)
     {
         v_pButtonOk->Show();
     }
     else
     {
         v_pButtonOk->Hide();
-        for(map<int, string>::iterator it = pData_Refresh->p_mapPrompts->begin(); it != pData_Refresh->p_mapPrompts->end(); ++it)
+        for(map<int, string>::iterator it = pData_Refresh->m_mapPrompts.begin(); it != pData_Refresh->m_mapPrompts.end(); ++it)
         {
             int nButtonId = it->first;
             wxString sButtonLabel = it->second.c_str();
@@ -251,21 +260,22 @@ void wxDialog_WaitUser::Gui_Refresh(void *pExternData)
     }
     // update expired time value and restart the timer
     bool bStartNow = (v_nExpireTime_ms == 0);
-    v_nExpireTime_ms = pData_Refresh->nTimeoutSeconds * 1000;
+    v_nExpireTime_ms = pData_Refresh->m_nTimeoutSeconds * 1000;
     v_pGauge->SetRange(v_nExpireTime_ms);
     if (bStartNow)
     {
         v_oTimer_ExpireDialog.Start(INTERVAL_TIMER_EXPIREDIALOG_MSEC);
     }
     v_pGauge->SetValue(v_nCrtTime_ms);
+#ifdef USE_RELEASE_CODE
+    delete pData_Refresh;
+#endif // USE_RELEASE_CODE
 }
 
 void wxDialog_WaitUser::OnTimer_ExpireDialog(wxTimerEvent& event)
 {
     //_WX_LOG_NFO();
-    event.Skip();
     _COND_RET(event.GetId() == ID_Timer_ExpireDialog);
-    event.Skip(false);
     if ( (! v_bInitialized) || (v_nExpireTime_ms <= 0) )
         return;
     int nInterval = v_oTimer_ExpireDialog.GetInterval();

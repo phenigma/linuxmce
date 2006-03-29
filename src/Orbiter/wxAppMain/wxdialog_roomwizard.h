@@ -120,16 +120,16 @@ public:
     wxBoxSizer* v_pBoxV_all;
     wxGrid* v_pGrid;
 ////@end wxDialog_RoomWizard member variables
+
 public:
     ~wxDialog_RoomWizard();
-
     virtual bool Gui_DataLoad(void *pExternData);
     virtual bool Gui_DataSave(void *pExternData);
     virtual void Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {
-        wxRect coord;
+        wxRect m_coord;
     };
 
 protected:
