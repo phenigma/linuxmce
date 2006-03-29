@@ -418,3 +418,7 @@ void VideoLan_Client::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,stri
 
 void VideoLan_Client::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
+{
+	//implement me
+}
+
