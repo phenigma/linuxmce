@@ -302,11 +302,19 @@ fi
 #i
 if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
 	rm -f /var/run/screen/S-root/*.BkgSS-ApplyUpdates
+	
 	Message "Updating system"
 	/usr/pluto/bin/ApplyUpdates.sh
 
 	sleep 0.1
-	done="false"
+	
+    file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
+    if [[ "$file" == "" ]]; then
+		done="true"
+	else
+		done="false"
+    fi
+	
 	while [[ "$done"=="false" ]]; do
 		file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
 		if [[ "$file" == "" ]]; then
