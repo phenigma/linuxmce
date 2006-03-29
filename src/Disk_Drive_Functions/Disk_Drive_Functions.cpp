@@ -262,7 +262,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		//g_pPlutoLogger->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
 		//g_pPlutoLogger->Write(LV_WARNING, "Disk type value here: %d", *flag);
 
-		m_pDisk_Drive_Functions->m_bTrayOpen = false;
+		m_bTrayOpen = false;
 		if (*flag != DISCTYPE_NONE || m_mediaInserted)
             break;
 
@@ -365,11 +365,11 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		break;
 
     case CDS_NO_DISC:
-		m_pDisk_Drive_Functions->m_bTrayOpen = false;
+		m_bTrayOpen = false;
 		break;
 
     case CDS_TRAY_OPEN:
-		m_pDisk_Drive_Functions->m_bTrayOpen = true;
+		m_bTrayOpen = true;
 		break;
 
 	default:
