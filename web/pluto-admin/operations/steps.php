@@ -9,10 +9,11 @@ function steps($output,$dbADO) {
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
-	$currentItem=(isset($_REQUEST['pageSetup']) && (int)$_REQUEST['pageSetup']>0)?(int)$_REQUEST['pageSetup']:$GLOBALS['InstallationPage'];
 
 	if(isset($_REQUEST['senderID']) && (int)$_REQUEST['senderID']>0){
 		$senderStep=(int)$_REQUEST['senderID'];
+
+		
 		$querySS='SELECT * FROM SetupStep WHERE FK_Installation=? AND FK_PageSetup=?';
 		$resSS=$dbADO->Execute($querySS,array($installationID,$senderStep));
 		if($resSS->RecordCount()==0){
@@ -38,14 +39,19 @@ $start_time=getmicrotime();
 			}
 			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
 		}
+	
+		function highlightMenuItem(){
+			try{
+				document.getElementById('.(int)@$_REQUEST['pageSetup'].').style.background="#CCCCCC";
+				document.getElementById("next_'.(int)@$_REQUEST['pageSetup'].'").style.display="";
+			}catch(e){
+				//do nothing
+			}
+		}
 		</script>
 	';
 	
-	$GLOBALS['pagesArray']=array();
-	$GLOBALS['descriptionArray']=array();
-	$GLOBALS['linksArray']=array();
-	$GLOBALS['levelArray']=array();
-	$GLOBALS['isSync']=array();
+
 	
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
@@ -60,58 +66,17 @@ $start_time=getmicrotime();
 					<td valign="top" colspan="3">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a><hr></td>					
 				</tr>
 		';
-	} else {
-		$out.='
-				<tr>
-					<td valign="top" colspan="3">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a><hr></td>
-				</tr>
-		';
-	}	
+	}
+		
 	if(isset($_SESSION['installationID'])){
-		$selectWizard = "
-			SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
-			FROM PageSetup 
-			LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
-			LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
-			WHERE FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))
-			ORDER BY OrderNum ASC
-			";
-		$resWizard = $dbADO->Execute($selectWizard,array($installationID,$installationID));
-		while ($rowNode = $resWizard->FetchRow()) {
-			$GLOBALS['pagesArray'][]=$rowNode['PK_PageSetup'];
-			$GLOBALS['linksArray'][]=$rowNode['pageURL'];
-			$GLOBALS['descriptionArray'][]=$rowNode['Description'];
-			$GLOBALS['levelArray'][]=0;
-			$GLOBALS['isSync'][]=(($rowNode['FK_Installation']!='')?1:0);
-			getChildPages($rowNode['PK_PageSetup'],1,$dbADO);
-		}	
+		
 		$out.='
 			<tr>
 				<td colspan="3" align="center">
 					<h3>'.$TEXT_WIZARD_CONST.'</h3>
 				</td>
 			</tr>';
-		foreach ($GLOBALS['descriptionArray'] AS $pos=>$description){
-			$fromPage=$GLOBALS['pagesArray'][$pos];
-			$toPos=(isset($GLOBALS['pagesArray'][$pos+1]) && $GLOBALS['linksArray'][$pos+1]!='')?$pos+1:$pos+2;
-			
-			$toPage=isset($GLOBALS['pagesArray'][$toPos])?$GLOBALS['pagesArray'][$toPos]:$GLOBALS['pagesArray'][$pos];
-			
-			$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\')">'.$description.'</a>':'<b>'.$description.'</b>';
-			if($GLOBALS['isSync'][$pos]==1)
-				$wizardLink.='<img src="include/images/sync.gif" style="vertical-align: middle;">';
-	
-			$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a>':'&nbsp;';
-			
-			$out.='
-				<tr bgcolor="'.(($currentItem==$GLOBALS['pagesArray'][$pos])?'#CCCCCC':'').'">
-					<td></td>
-					<td height="22">'.indent($GLOBALS['levelArray'][$pos]).$wizardLink.'</td>
-					<td align="right">'.$nextLink.'</td>
-				</tr>
-				';	
-		}
+		$out.=getLeftWizardMenu($dbADO);		
 		$out.='
 			<tr>
 				<td colspan="3" align="center">&nbsp;</td>
@@ -126,7 +91,7 @@ $start_time=getmicrotime();
 	//$out.='<br><p class="normaltext">Page generated in '.round(($end_time-$start_time),3).' s.';
 	
 	$output->setScriptInHead($scriptInHead);
-	$output->setScriptInBody('bgColor="#F0F3F8"');
+	$output->setScriptInBody('bgColor="#F0F3F8" onLoad="highlightMenuItem();"');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  
@@ -160,5 +125,105 @@ function indent($level)
 		$out.='&nbsp;&nbsp;&nbsp;&nbsp;';
 	}
 	return $out;
+}
+
+function getLastTimestamp($table,$dbADO){
+	$res=$dbADO->Execute('SELECT psc_mod FROM '.$table.' ORDER BY psc_mod desc LIMIT 0,1');
+	if(!$res){
+		return 0;
+	}
+	$row=$res->FetchRow();
+	return $row['psc_mod'];
+}
+
+function geSection($pageSetupID,$dbADO){
+	if($pageSetupID==0){
+		$pageSetupID=$GLOBALS['InstallationPage'];
+	}
+	$res=$dbADO->Execute('SELECT pageURL FROM PageSetup WHERE PK_PageSetup=?',array($pageSetupID));
+	if(!$res){
+		return '';
+	}
+	$row=$res->FetchRow();
+	return $row['pageURL'];
+}
+
+function getLeftWizardMenu($dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/steps.lang.php');
+	
+	$GLOBALS['pagesArray']=array();
+	$GLOBALS['descriptionArray']=array();
+	$GLOBALS['linksArray']=array();
+	$GLOBALS['levelArray']=array();
+	$GLOBALS['isSync']=array();
+		
+	$installationID = (int)@$_SESSION['installationID'];
+	$currentItem=(isset($_REQUEST['pageSetup']) && (int)$_REQUEST['pageSetup']>0)?(int)$_REQUEST['pageSetup']:$GLOBALS['InstallationPage'];
+		
+	$cachedLeftWizardMenu=(getcwd()).'/cached/leftWizardMenu';
+	$cachedIDs=(getcwd()).'/cached/topMenuIDs';
+	$SetupStepTimestampFile=(getcwd()).'/cached/SetupStepTimestamp';
+
+	// get existing devices to compare them with old ones
+	$devices=join(',',array_keys(getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC')));
+
+	// if cached menu exists but something changed in SetupStep table or device table, rebuild menu
+	$lastTimestamp=getLastTimestamp('SetupStep',$dbADO);
+	if(file_exists($cachedLeftWizardMenu)){
+		$oldIDs=@file($cachedIDs);
+		$oldTimestamp=@join('',@file($SetupStepTimestampFile));
+		if($devices==trim(@$oldIDs[1]) && $lastTimestamp==$oldTimestamp){
+			return join('',file($cachedLeftWizardMenu));
+		}
+	}
+
+	$selectWizard = "
+			SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
+			FROM PageSetup 
+			LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
+			LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
+			WHERE FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))
+			ORDER BY OrderNum ASC
+			";
+	$resWizard = $dbADO->Execute($selectWizard,array($installationID,$installationID));
+	while ($rowNode = $resWizard->FetchRow()) {
+		$GLOBALS['pagesArray'][]=$rowNode['PK_PageSetup'];
+		$GLOBALS['linksArray'][]=$rowNode['pageURL'];
+		$GLOBALS['descriptionArray'][]=$rowNode['Description'];
+		$GLOBALS['levelArray'][]=0;
+		$GLOBALS['isSync'][]=(($rowNode['FK_Installation']!='')?1:0);
+		getChildPages($rowNode['PK_PageSetup'],1,$dbADO);
+	}
+
+	$leftWizardMenu='';
+	foreach ($GLOBALS['descriptionArray'] AS $pos=>$description){
+		$fromPage=$GLOBALS['pagesArray'][$pos];
+		$toPos=(isset($GLOBALS['pagesArray'][$pos+1]) && $GLOBALS['linksArray'][$pos+1]!='')?$pos+1:$pos+2;
+
+		$toPage=isset($GLOBALS['pagesArray'][$toPos])?$GLOBALS['pagesArray'][$toPos]:$GLOBALS['pagesArray'][$pos];
+
+		$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\')">'.$description.'</a>':'<b>'.$description.'</b>';
+		if($GLOBALS['isSync'][$pos]==1)
+		$wizardLink.='<img src="include/images/sync.gif" style="vertical-align: middle;">';
+
+		//$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a>':'&nbsp;';
+
+		$leftWizardMenu.='
+			<tr id="'.@$GLOBALS['pagesArray'][$pos].'">
+				<td></td>
+				<td height="22">'.indent($GLOBALS['levelArray'][$pos]).$wizardLink.'</td>
+				<td align="right"><span id="next_'.@$GLOBALS['pagesArray'][$pos].'" style="display:none;"><a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a></span></td>
+			</tr>
+			';	
+	}
+	
+	// write top menu file and devices/page setup IDs
+	writeFile($cachedLeftWizardMenu,$leftWizardMenu,'w');
+	writeFile($SetupStepTimestampFile,$lastTimestamp,'w');
+	
+	return $leftWizardMenu;
 }
 ?>

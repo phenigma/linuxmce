@@ -1130,10 +1130,11 @@ function builtTopMenu($website,$dbADO)
 	if(file_exists($cachedTopMenu)){
 		$oldIDs=file($cachedIDs);
 		if($devices==trim(@$oldIDs[1])){
+			//echo 'cached '.$cachedTopMenu;
 			return join('',file($cachedTopMenu));
 		}
 	}
-		
+
 	$selectMenu = "
 		SELECT DISTINCT PageSetup.* FROM PageSetup 
 		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
@@ -1141,6 +1142,7 @@ function builtTopMenu($website,$dbADO)
 		WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND FK_Installation=?))
 		ORDER BY OrderNum";
 	$resSelectMenu = $dbADO->Execute($selectMenu,$_SESSION['installationID']);
+
 	$menuPages='';
 	$pos=0;	
 	$pagesArray=array();
@@ -2391,6 +2393,7 @@ function getDeviceNames($dbADO,$filter='')
 function setLeftMenu($dbADO)
 {
 	$jsRedirect='';
+	//return $jsRedirect;
 	$wizardPagesArray=getChildsOfWizard(1,$dbADO);
 	$toCompare='index.php?'.$_SERVER['QUERY_STRING'];
 	if(in_array($toCompare,$wizardPagesArray)){

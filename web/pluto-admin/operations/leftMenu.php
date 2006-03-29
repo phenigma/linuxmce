@@ -26,14 +26,7 @@ function leftMenu($output,$dbADO) {
 					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
 				</tr>
 		';
-	} else {
-		$out.='
-				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a></td>
-				</tr>
-		';
-	}
-	
+	} 	
 	$out.= '
 	
 				<tr>
