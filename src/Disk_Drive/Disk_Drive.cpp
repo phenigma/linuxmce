@@ -192,7 +192,7 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 	static time_t tLastEject=0;
 
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
-		(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_pDisk_Drive_Functions->m_bTrayOpen);
+		(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_bTrayOpen);
 
 	if( time(NULL)-tLastEject<=2 )  // It can take the drive a while to spin down and the user hits eject multiple times
 	{
