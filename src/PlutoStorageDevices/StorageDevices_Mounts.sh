@@ -72,8 +72,14 @@ WHERE
 BuffaloDevices=$(RunSQL "$Q")
 
 for Device in $BuffaloDevices; do
-	
+	Device_ID=$(Field 1 "$Device")
+	Device_Host=$(Field 2 "$Device")
+	Device_MountPoint="/mnt/device/$Device_ID"
+
+	Automount_Buffalo="$Aautomount_Buffolo\n$Device_ID	-fstype=smbfs	//${Device_Host}/share"
 done
+
+PopulateSection "/etc/auto.PlutoStorageDevices" "Buffalo HDHG300LAN" "$Automount_Buffalo"
 
 ## Reload automounter daemon
 /etc/init.d/autofs reload
