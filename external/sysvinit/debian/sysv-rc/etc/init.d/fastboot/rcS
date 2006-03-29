@@ -308,7 +308,7 @@ if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
 
 	sleep 0.1
 	
-    file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
+    file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
     if [[ "$file" == "" ]]; then
 		done="true"
 	else
@@ -316,7 +316,7 @@ if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
     fi
 	
 	while [[ "$done" == "false" ]]; do
-		file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
+		file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
 		if [[ "$file" == "" ]]; then
 			done="true"
 		fi
