@@ -315,7 +315,7 @@ if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
 		done="false"
     fi
 	
-	while [[ "$done"=="false" ]]; do
+	while [[ "$done" == "false" ]]; do
 		file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
 		if [[ "$file" == "" ]]; then
 			done="true"
