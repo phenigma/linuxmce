@@ -301,8 +301,18 @@ fi
 #   /etc/init.d/Pluto_Update_Packages.sh
 #i
 if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
+	rm -f /var/run/screen/S-root/*.BkgSS-ApplyUpdates
 	Message "Updating system"
 	/usr/pluto/bin/ApplyUpdates.sh
+
+	sleep 0.1
+	done="false"
+	while [[ "$done"=="false" ]]; do
+		file=$(ls /var/run/screen/S-root/*.BkgSS-ApplyUpdates 2>/dev/null);
+		if [[ "$file" == "" ]]; then
+			done="true"
+		fi
+	done
 fi
 	
 if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
