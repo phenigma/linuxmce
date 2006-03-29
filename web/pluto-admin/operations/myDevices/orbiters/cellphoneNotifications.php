@@ -210,7 +210,7 @@ function cellphoneNotifications($output,$dbADO) {
 			header("Location: index.php?section=cellphoneNotifications&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
-$dbADO->debug=true;
+
 		$oldMon=$_POST['oldMon'];
 		$mon_sequence=((int)$_POST['mon_sequence']>0)?(int)$_POST['mon_seconds']:(int)$_POST['mon_sequence'];
 		$MONDeviceData=$mon_sequence;
