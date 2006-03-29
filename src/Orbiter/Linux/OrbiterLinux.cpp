@@ -459,7 +459,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
-	CallBackData *pData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
+	CallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
 	CallBackType callbackType = cbOnRefreshWxWidget;
 	if(nProgress != -1)
 	{
@@ -467,19 +467,41 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 		{
 			callbackType = cbOnCreateWxWidget;
 			bDialogRunning = true;
+            {
+                // little hack: also delete the other dialogs
+                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
+                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
+            }
 		}
 		//else assuming it's a refresh
 	}
 	else
 	{
+        {
+            // little hack: also delete the other dialogs
+            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
+            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
+        }
 		callbackType = cbOnDeleteWxWidget;
 		bDialogRunning = false;
 	}
-	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
-	TaskManager::Instance().AddTask(pTask);
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
+	//syncthis TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
     if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
     {
+        // little hack: also delete the other dialogs
+        if (m_pWaitList)
+        {
+            Safe_Close(m_pWaitList);
+            m_pWaitList = NULL;
+        }
+        if (m_pWaitUser)
+        {
+            Safe_Close(m_pWaitUser);
+            m_pWaitUser = NULL;
+        }
         // window already closed
         m_pWaitGrid = NULL;
         // notify by return value
@@ -487,13 +509,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     }
     if ( (m_pWaitGrid == NULL) && (nProgress >= 0) )
     {
-        // delete previous window
+        // little hack: also delete the other dialogs
         if (m_pWaitList)
         {
             Safe_Close(m_pWaitList);
             m_pWaitList = NULL;
         }
-        // delete previous window
         if (m_pWaitUser)
         {
             Safe_Close(m_pWaitUser);
@@ -584,7 +605,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
-	CallBackData *pData = new WaitUserListCallBackData(sMessage, nProgress);
+	CallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
 	CallBackType callbackType = cbOnRefreshWxWidget;
 	if(nProgress != -1)
 	{
@@ -592,6 +613,11 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 		{
 			callbackType = cbOnCreateWxWidget;
 			bDialogRunning = true;
+            {
+                // little hack: also delete the other dialogs
+                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
+            }
 		}
 		//else assuming it's a refresh
 	}
@@ -599,13 +625,30 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 	{
 		callbackType = cbOnDeleteWxWidget;
 		bDialogRunning = false;
+        {
+            // little hack: also delete the other dialogs
+            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
+        }
 	}
-	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
-	TaskManager::Instance().AddTask(pTask);
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
+	//syncthis TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
 	//TODO:
     if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
     {
+        // little hack: also delete the other dialogs
+        if (m_pWaitGrid)
+        {
+            Safe_Close(m_pWaitGrid);
+            m_pWaitGrid = NULL;
+        }
+        if (m_pWaitUser)
+        {
+            Safe_Close(m_pWaitUser);
+            m_pWaitUser = NULL;
+        }
         // window already closed
         m_pWaitList = NULL;
         // notify by return value
@@ -613,13 +656,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     }
     if ( (m_pWaitList == NULL) && (nProgress >= 0) )
     {
-        // delete previous window
+        // little hack: also delete the other dialogs
         if (m_pWaitGrid)
         {
             Safe_Close(m_pWaitGrid);
             m_pWaitGrid = NULL;
         }
-        // delete previous window
         if (m_pWaitUser)
         {
             Safe_Close(m_pWaitUser);
@@ -708,22 +750,26 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
-	CallBackData *pData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
+    {
+        // little hack: also delete the other dialogs
+        TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+        TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
+    }
+	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
 	CallBackType callbackType = cbOnCreateWxWidget;
-	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pData);
+	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
-    // delete previous window
-    if (m_pWaitList)
-    {
-        Safe_Close(m_pWaitList);
-        m_pWaitList = NULL;
-    }
-    // delete previous window
+    // little hack: also delete the other dialogs
     if (m_pWaitGrid)
     {
         Safe_Close(m_pWaitGrid);
         m_pWaitGrid = NULL;
+    }
+    if (m_pWaitList)
+    {
+        Safe_Close(m_pWaitList);
+        m_pWaitList = NULL;
     }
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
     commandRatPoison(":set winname class");

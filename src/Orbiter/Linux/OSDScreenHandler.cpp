@@ -1479,15 +1479,14 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
                            plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
+    CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
     {
-        CallBackData *pData = new RoomWizardCallBackData(m_pWizardLogic);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnCreateWxWidget, E_Dialog_RoomWizard, pData);
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnCreateWxWidget, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
     (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("dialog");
     {
-        CallBackData *pData = new RoomWizardRefreshCallBackData(plutoRect);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnRefreshWxWidget, E_Dialog_RoomWizard, pData);
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnRefreshWxWidget, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -1510,14 +1509,13 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
     (dynamic_cast<OrbiterLinux *>(m_pOrbiter))->SetCurrentAppDesktopName("");
+    CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
     {
-        CallBackData *pData = new RoomWizardCallBackData(m_pWizardLogic);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnSaveWxWidget, E_Dialog_RoomWizard, pData);
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnSaveWxWidget, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
     {
-        CallBackData *pData = new RoomWizardCallBackData(m_pWizardLogic);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_RoomWizard, pData);
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -1545,9 +1543,9 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
+    CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
     {
-        CallBackData *pData = new RoomWizardRefreshCallBackData(plutoRect);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnRefreshWxWidget, E_Dialog_RoomWizard, pData);
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnRefreshWxWidget, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)

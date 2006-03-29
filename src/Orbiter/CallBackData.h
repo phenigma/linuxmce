@@ -63,18 +63,31 @@ public:
 	int m_nPK_Screen;
 };
 //-----------------------------------------------------------------------------------------------------
+class RoomWizardCallBackData : public CallBackData
+{
+public:
+    class WizardLogic *m_pWizardLogic;
+    PlutoRectangle m_coord;
+
+	RoomWizardCallBackData(WizardLogic *pWizardLogic, PlutoRectangle coord)
+	{
+        m_pWizardLogic = pWizardLogic;
+        m_coord = coord;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
 class WaitUserGridCallBackData : public CallBackData
 {
 public:
     string m_sMessage;
 	map<string, bool> m_mapChildDevices;
-	int m_nProgress;
+	int m_nPercent;
 
-	WaitUserGridCallBackData(const string &sMessage, const map<string, bool> &mapChildDevices, int nProgress)
+	WaitUserGridCallBackData(const string &sMessage, const map<string, bool> &mapChildDevices, int nPercent)
 	{
         m_sMessage = sMessage;
 		m_mapChildDevices = mapChildDevices;
-		m_nProgress = nProgress;
+		m_nPercent = nPercent;
 	}
 };
 //-----------------------------------------------------------------------------------------------------
@@ -82,49 +95,27 @@ class WaitUserListCallBackData : public CallBackData
 {
 public:
     string m_sMessage;
-	int m_nProgress;
+	int m_nPercent;
 
-	WaitUserListCallBackData(const string &sMessage, int nProgress)
+	WaitUserListCallBackData(const string &sMessage, int nPercent)
 	{
         m_sMessage = sMessage;
-		m_nProgress = nProgress;
+		m_nPercent = nPercent;
 	}
 };
 //-----------------------------------------------------------------------------------------------------
 class WaitUserPromptCallBackData : public CallBackData
 {
 public:
-    string m_sPrompt;
-    int m_iTimeoutSeconds;
+    string m_sMessage;
+    int m_nTimeoutSeconds;
     map<int,string> m_mapPrompts;
 
-	WaitUserPromptCallBackData(const string &sPrompt, int iTimeoutSeconds, const map<int,string> &mapPrompts)
+	WaitUserPromptCallBackData(const string &sMessage, int nTimeoutSeconds, const map<int,string> &mapPrompts)
 	{
-        m_sPrompt = sPrompt;
-        m_iTimeoutSeconds = iTimeoutSeconds;
+        m_sMessage = sMessage;
+        m_nTimeoutSeconds = nTimeoutSeconds;
         m_mapPrompts = mapPrompts;
-	}
-};
-//-----------------------------------------------------------------------------------------------------
-class RoomWizardCallBackData : public CallBackData
-{
-public:
-    class WizardLogic *m_pWizardLogic;
-
-	RoomWizardCallBackData(WizardLogic *pWizardLogic)
-	{
-        m_pWizardLogic = pWizardLogic;
-	}
-};
-//-----------------------------------------------------------------------------------------------------
-class RoomWizardRefreshCallBackData : public CallBackData
-{
-public:
-    PlutoRectangle m_pRect;
-
-	RoomWizardRefreshCallBackData(PlutoRectangle pRect)
-	{
-        m_pRect = pRect;
 	}
 };
 //-----------------------------------------------------------------------------------------------------
