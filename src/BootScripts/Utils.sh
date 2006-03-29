@@ -72,3 +72,20 @@ XineConfSet()
 		echo "$Setting:$Value" >>/etc/pluto/xine.conf
 	fi
 }
+
+DeviceIsDisabled()
+{
+	local PK_Device="$1"
+	local R Q
+
+	[[ -z "$PK_Device" ]] && return 1
+
+	Q="SELECT COUNT(*) FROM Device WHERE PK_Device='$PK_Device' AND Disabled=0"
+	R=$(RunSQL "$Q")
+
+	if [[ -n "$R" && "$R" -eq 0 ]]; then
+		return 0 # Device is disabled or does not exist at all
+	else
+		return 1 # Device exists and is enabled
+	fi
+}

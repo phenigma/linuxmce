@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/Utils.sh
 
 MAX_RESPAWN_COUNT=50
 
@@ -136,14 +137,21 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		sed -i "/^[^0-9]*$device_id[^0-9]*\$/ d" "$AlreadyRunning"
 		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
+		sed -i "/^$device_id$/ d" "$AlreadyRunning"
 		echo $(date) Shutdown >> "$new_log"
 		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
-		exit
+		break
 	elif [[ "$Ret" -eq 2 || "$Ret" -eq 0 ]]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
+		if DeviceIsDisabled "$device_id"; then
+			WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
+			Logging $TYPE $SEVERITY_WARNING "$module" "Device was disabled or removed. Stopping and marking as not running."
+			sed -i "/^$device_id$/ d" "$AlreadyRunning"
+			Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
+			break
+		fi
 		echo $(date) Restart >> "$new_log"
 		sleep 10
-		#/usr/pluto/bin/Start_LocalDevices.sh
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"
@@ -161,13 +169,12 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. $i $device_name"
 		fi
 		sleep 20
-		#/usr/pluto/bin/Start_LocalDevices.sh
-		i=$((i+1))
+		((i++))
 	fi
 	echo out
 done
-#if [ "$i" -eq 10 ]; then
-#	Logging $TYPE $SEVERITY_CRITICAL $module "Aborting restart of device..."
+if [[ "$i" -gt "$MAX_RESPAWN_COUNT"  ]]; then
+	Logging $TYPE $SEVERITY_CRITICAL $module "Aborting restart of device $device_id..."
 #	printf "01\tAborting restart of device $device_name\n" >> /var/log/pluto/PlutoServer.log
 #	wget -O /dev/null "www.1control.com/critical_error.php?installation=$INSTALLATION&Message=Device_${device_id}_failed"
-#fi
+fi

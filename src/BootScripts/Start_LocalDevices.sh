@@ -47,7 +47,9 @@ PerlCommand="
 	print \"\$desc\n\";
 "
 
+AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 basename=$(basename "$0")
+WaitLock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
 Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList"
 for command in $CommandList; do
 	ChildDeviceID=$(Field 1 "$command")
@@ -57,6 +59,14 @@ for command in $CommandList; do
 
 	if [[ "$ChildIgnore" -eq 1 ]]; then
 		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID ; $ChildDescription) disabled"
+		continue
+	fi
+
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "$$ Dev: $ChildDeviceID; Already Running list: $(cat $AlreadyRunning | tr '\n' ',')"
+	if grep -q "^$ChildDeviceID$" "$AlreadyRunning" 2>/dev/null; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "$$ Device $ChildDeviceID was marked as 'running'. Not starting"
+		echo "$(date) SLD Already running: $ChildDeviceID" >>/var/log/pluto/Spawn_Device.log
+		Unlock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
 		continue
 	fi
 
@@ -79,3 +89,15 @@ for command in $CommandList; do
 		popd >/dev/null
 	fi
 done
+
+Q="SELECT PK_Device FROM Device WHERE Disabled=0"
+EnabledDevices=" $(RunSQL "$Q") "
+RunningDevices="$(< "$AlreadyRunning")"
+for Device in $RunningDevices; do
+	if [[ "$EnabledDevices" != *" $Device "* ]]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Telling device '$Device' to stop"
+		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Device" 7 0
+	fi
+done
+
+Unlock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
