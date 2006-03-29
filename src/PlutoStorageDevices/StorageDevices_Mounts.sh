@@ -22,7 +22,7 @@ for Device in $InternalOwnStorageDevices; do
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_BLOCK_DEVICE")
 	
 	#linux          -ro,soft,intr           ftp.example.org:/pub/linux
-	Fstab_InternalStorageDevices="$Device_ID -fstype=auto :$Device_BlockDevice"
+	Fstab_InternalStorageDevices="$Fstab_InternalStorageDevices\n$Device_ID -fstype=auto :$Device_BlockDevice"
 	#Fstab_InternalStorageDevices="$Fstab_InternalStorageDevices\n$Device_BlockDevice $Device_MountPoint auto defaults 0 0"
 done
 
@@ -51,11 +51,29 @@ for Device in $ExternalStorageDevices; do
 	Device_MountPoint="/mnt/device/$Device_ID"
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_BLOCK_DEVICE")
 
-	Fstab_ExternalStorageDevices="$Device_ID -fstype=nfs,retrans=1,retry=1,sofs,intr ${Device_Host}:${Device_MountPoint}"
+	Fstab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n$Device_ID -fstype=nfs,retrans=1,retry=1,sofs,intr ${Device_Host}:${Device_MountPoint}"
 	#stab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n${Device_Host}:${Device_MountPoint} $Device_MountPoint nfs rsize=8192,wsize=8192,intr,tcp 1 1"
 done
 
 PopulateSection "/etc/auto.PlutoStorageDevices" "ExternalStorageDevices" "$Fstab_ExternalStorageDevices"
+
+
+TPL_BUFFALO_HDHG300LAN=1791
+## Look for Buffalo NAS mounts
+Q="
+SELECT
+	PK_Device,
+	IPaddress
+FROM
+	Device
+WHERE
+	FK_DeviceTemplate=$TPL_BUFFALO_HDHG300LAN
+"
+BuffaloDevices=$(RunSQL "$Q")
+
+for Device in $BuffaloDevices; do
+	
+done
 
 ## Reload automounter daemon
 /etc/init.d/autofs reload
