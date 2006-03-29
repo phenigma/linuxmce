@@ -1,6 +1,7 @@
 sysvinit (2.86.ds1-1.1pluto29) unstable; urgency=high
 
   * Syslog bug fixed 
+  * Wait for the screen runned by ApplyUpdates.sh
 
  -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 29 Mar 2006 08:11:36 +0300
 
