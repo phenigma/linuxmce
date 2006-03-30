@@ -323,6 +323,10 @@ class Table_PhoneLineType* tblPhoneLineType;
 bool Commit_PhoneLineType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Pipe* tblPipe;
 bool Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_PnpProtocol* tblPnpProtocol;
+bool Commit_PnpProtocol(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_PnpQueue* tblPnpQueue;
+bool Commit_PnpQueue(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_PostalCode* tblPostalCode;
 bool Commit_PostalCode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_QuickStartCategory* tblQuickStartCategory;
@@ -629,6 +633,8 @@ class Table_PaidLicense* PaidLicense_get() { if( !tblPaidLicense ) CreateTable_P
 class Table_ParameterType* ParameterType_get() { if( !tblParameterType ) CreateTable_ParameterType(); return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { if( !tblPhoneLineType ) CreateTable_PhoneLineType(); return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { if( !tblPipe ) CreateTable_Pipe(); return tblPipe; }
+class Table_PnpProtocol* PnpProtocol_get() { if( !tblPnpProtocol ) CreateTable_PnpProtocol(); return tblPnpProtocol; }
+class Table_PnpQueue* PnpQueue_get() { if( !tblPnpQueue ) CreateTable_PnpQueue(); return tblPnpQueue; }
 class Table_PostalCode* PostalCode_get() { if( !tblPostalCode ) CreateTable_PostalCode(); return tblPostalCode; }
 class Table_QuickStartCategory* QuickStartCategory_get() { if( !tblQuickStartCategory ) CreateTable_QuickStartCategory(); return tblQuickStartCategory; }
 class Table_QuickStartTemplate* QuickStartTemplate_get() { if( !tblQuickStartTemplate ) CreateTable_QuickStartTemplate(); return tblQuickStartTemplate; }
@@ -862,6 +868,8 @@ void CreateTable_PaidLicense();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_PnpProtocol();
+void CreateTable_PnpQueue();
 void CreateTable_PostalCode();
 void CreateTable_QuickStartCategory();
 void CreateTable_QuickStartTemplate();
@@ -1089,6 +1097,8 @@ void DeleteTable_PaidLicense();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_PnpProtocol();
+void DeleteTable_PnpQueue();
 void DeleteTable_PostalCode();
 void DeleteTable_QuickStartCategory();
 void DeleteTable_QuickStartTemplate();

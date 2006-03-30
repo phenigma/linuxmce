@@ -145,6 +145,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_FK_CommMethod_getrows(vector <class Row_DeviceTemplate*> *rows);
 void InfraredGroup_FK_CommMethod_getrows(vector <class Row_InfraredGroup*> *rows);
+void PnpQueue_FK_CommMethod_getrows(vector <class Row_PnpQueue*> *rows);
 
 
 		// Setup binary serialization

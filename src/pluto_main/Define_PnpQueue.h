@@ -1,0 +1,45 @@
+#ifndef __Define_PnpQueue_H__
+#define __Define_PnpQueue_H__
+
+
+#define PNPQUEUE_TABLE "PnpQueue"
+#define PNPQUEUE_PK_PNPQUEUE_FIELD "PK_PnpQueue"
+#define PNPQUEUE_PK_PNPQUEUE_TABLE_FIELD "PnpQueue.PK_PnpQueue"
+#define PNPQUEUE_DETECTEDDATE_FIELD "DetectedDate"
+#define PNPQUEUE_DETECTEDDATE_TABLE_FIELD "PnpQueue.DetectedDate"
+#define PNPQUEUE_IDENTIFIER_FIELD "Identifier"
+#define PNPQUEUE_IDENTIFIER_TABLE_FIELD "PnpQueue.Identifier"
+#define PNPQUEUE_PATH_FIELD "Path"
+#define PNPQUEUE_PATH_TABLE_FIELD "PnpQueue.Path"
+#define PNPQUEUE_SERIALNUMBER_FIELD "SerialNumber"
+#define PNPQUEUE_SERIALNUMBER_TABLE_FIELD "PnpQueue.SerialNumber"
+#define PNPQUEUE_FK_COMMMETHOD_FIELD "FK_CommMethod"
+#define PNPQUEUE_FK_COMMMETHOD_TABLE_FIELD "PnpQueue.FK_CommMethod"
+#define PNPQUEUE_FK_PNPPROTOCOL_FIELD "FK_PnpProtocol"
+#define PNPQUEUE_FK_PNPPROTOCOL_TABLE_FIELD "PnpQueue.FK_PnpProtocol"
+#define PNPQUEUE_FK_DEVICETEMPLATE_FIELD "FK_DeviceTemplate"
+#define PNPQUEUE_FK_DEVICETEMPLATE_TABLE_FIELD "PnpQueue.FK_DeviceTemplate"
+#define PNPQUEUE_FK_DEVICE_FIELD "FK_Device"
+#define PNPQUEUE_FK_DEVICE_TABLE_FIELD "PnpQueue.FK_Device"
+#define PNPQUEUE_REMOVED_FIELD "Removed"
+#define PNPQUEUE_REMOVED_TABLE_FIELD "PnpQueue.Removed"
+#define PNPQUEUE_STAGE_FIELD "Stage"
+#define PNPQUEUE_STAGE_TABLE_FIELD "PnpQueue.Stage"
+#define PNPQUEUE_PROCESSED_FIELD "Processed"
+#define PNPQUEUE_PROCESSED_TABLE_FIELD "PnpQueue.Processed"
+#define PNPQUEUE_PSC_ID_FIELD "psc_id"
+#define PNPQUEUE_PSC_ID_TABLE_FIELD "PnpQueue.psc_id"
+#define PNPQUEUE_PSC_BATCH_FIELD "psc_batch"
+#define PNPQUEUE_PSC_BATCH_TABLE_FIELD "PnpQueue.psc_batch"
+#define PNPQUEUE_PSC_USER_FIELD "psc_user"
+#define PNPQUEUE_PSC_USER_TABLE_FIELD "PnpQueue.psc_user"
+#define PNPQUEUE_PSC_FROZEN_FIELD "psc_frozen"
+#define PNPQUEUE_PSC_FROZEN_TABLE_FIELD "PnpQueue.psc_frozen"
+#define PNPQUEUE_PSC_MOD_FIELD "psc_mod"
+#define PNPQUEUE_PSC_MOD_TABLE_FIELD "PnpQueue.psc_mod"
+#define PNPQUEUE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PNPQUEUE_PSC_RESTRICT_TABLE_FIELD "PnpQueue.psc_restrict"
+
+
+#endif
+

@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -pipe -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3
+CXXFLAGS = -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3
 CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
@@ -155,6 +155,8 @@ Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
+Table_PnpProtocol.cpp \
+Table_PnpQueue.cpp \
 Table_PostalCode.cpp \
 Table_QuickStartCategory.cpp \
 Table_QuickStartTemplate.cpp \

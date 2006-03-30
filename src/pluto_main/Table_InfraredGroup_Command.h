@@ -81,10 +81,7 @@ class DECLSPECIFIER Row_InfraredGroup_Command : public TableRow, public Serializ
 long int m_FK_InfraredGroup;
 long int m_FK_Command;
 long int m_FK_DeviceTemplate;
-long int m_FK_Device;
 string m_IRData;
-long int m_FK_Users;
-long int m_FK_Installation;
 string m_OriginalKey;
 long int m_psc_id;
 long int m_psc_batch;
@@ -93,17 +90,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[12];
 	
 	public:
 		long int PK_InfraredGroup_Command_get();
 long int FK_InfraredGroup_get();
 long int FK_Command_get();
 long int FK_DeviceTemplate_get();
-long int FK_Device_get();
 string IRData_get();
-long int FK_Users_get();
-long int FK_Installation_get();
 string OriginalKey_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -117,10 +111,7 @@ long int psc_restrict_get();
 void FK_InfraredGroup_set(long int val);
 void FK_Command_set(long int val);
 void FK_DeviceTemplate_set(long int val);
-void FK_Device_set(long int val);
 void IRData_set(string val);
-void FK_Users_set(long int val);
-void FK_Installation_set(long int val);
 void OriginalKey_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -132,10 +123,7 @@ void psc_restrict_set(long int val);
 		
 		bool FK_InfraredGroup_isNull();
 bool FK_DeviceTemplate_isNull();
-bool FK_Device_isNull();
 bool IRData_isNull();
-bool FK_Users_isNull();
-bool FK_Installation_isNull();
 bool OriginalKey_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -146,10 +134,7 @@ bool psc_restrict_isNull();
 			
 		void FK_InfraredGroup_setNull(bool val);
 void FK_DeviceTemplate_setNull(bool val);
-void FK_Device_setNull(bool val);
 void IRData_setNull(bool val);
-void FK_Users_setNull(bool val);
-void FK_Installation_setNull(bool val);
 void OriginalKey_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -171,9 +156,6 @@ void psc_restrict_setNull(bool val);
 		class Row_InfraredGroup* FK_InfraredGroup_getrow();
 class Row_Command* FK_Command_getrow();
 class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
-class Row_Device* FK_Device_getrow();
-class Row_Users* FK_Users_getrow();
-class Row_Installation* FK_Installation_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -182,7 +164,7 @@ class Row_Installation* FK_Installation_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_InfraredGroup_Command+ m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_Device+ m_IRData+ m_FK_Users+ m_FK_Installation+ m_OriginalKey+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_InfraredGroup_Command+ m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_IRData+ m_OriginalKey+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -191,10 +173,7 @@ class Row_Installation* FK_Installation_getrow();
 string FK_InfraredGroup_asSQL();
 string FK_Command_asSQL();
 string FK_DeviceTemplate_asSQL();
-string FK_Device_asSQL();
 string IRData_asSQL();
-string FK_Users_asSQL();
-string FK_Installation_asSQL();
 string OriginalKey_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

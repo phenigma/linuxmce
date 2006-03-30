@@ -16,41 +16,40 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_CommMethod.h"
+#include "Table_PnpProtocol.h"
 
-#include "Table_DeviceTemplate.h"
-#include "Table_InfraredGroup.h"
+#include "Table_DHCPDevice.h"
 #include "Table_PnpQueue.h"
 
 
-void Database_pluto_main::CreateTable_CommMethod()
+void Database_pluto_main::CreateTable_PnpProtocol()
 {
-	tblCommMethod = new Table_CommMethod(this);
+	tblPnpProtocol = new Table_PnpProtocol(this);
 }
 
-void Database_pluto_main::DeleteTable_CommMethod()
+void Database_pluto_main::DeleteTable_PnpProtocol()
 {
-	if( tblCommMethod )
-		delete tblCommMethod;
+	if( tblPnpProtocol )
+		delete tblPnpProtocol;
 }
 
-bool Database_pluto_main::Commit_CommMethod(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_PnpProtocol(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	return tblCommMethod->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPnpProtocol->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
-Table_CommMethod::~Table_CommMethod()
+Table_PnpProtocol::~Table_PnpProtocol()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_CommMethod *pRow = (Row_CommMethod *) (*it).second;
+		Row_PnpProtocol *pRow = (Row_PnpProtocol *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_CommMethod *pRow = (Row_CommMethod *) (*it).second;
+		Row_PnpProtocol *pRow = (Row_PnpProtocol *) (*it).second;
 		delete pRow;
 	}
 
@@ -62,16 +61,16 @@ Table_CommMethod::~Table_CommMethod()
 }
 
 
-void Row_CommMethod::Delete()
+void Row_PnpProtocol::Delete()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-	Row_CommMethod *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_PnpProtocol *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CommMethod *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_PnpProtocol *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -81,7 +80,7 @@ void Row_CommMethod::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_CommMethod);
+			SingleLongKey key(pRow->m_PK_PnpProtocol);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -91,17 +90,17 @@ void Row_CommMethod::Delete()
 		}	
 }
 
-void Row_CommMethod::Reload()
+void Row_PnpProtocol::Reload()
 {
-	Row_CommMethod *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_PnpProtocol *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_CommMethod);
-		Row_CommMethod *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_PnpProtocol);
+		Row_PnpProtocol *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -113,14 +112,14 @@ void Row_CommMethod::Reload()
 	
 }
 
-Row_CommMethod::Row_CommMethod(Table_CommMethod *pTable):table(pTable)
+Row_PnpProtocol::Row_PnpProtocol(Table_PnpProtocol *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_CommMethod::SetDefaultValues()
+void Row_PnpProtocol::SetDefaultValues()
 {
-	m_PK_CommMethod = 0;
+	m_PK_PnpProtocol = 0;
 is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
@@ -143,118 +142,118 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_CommMethod::PK_CommMethod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PnpProtocol::PK_PnpProtocol_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_PK_CommMethod;}
-string Row_CommMethod::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_PK_PnpProtocol;}
+string Row_PnpProtocol::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-string Row_CommMethod::Define_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PnpProtocol::Define_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Define;}
-long int Row_CommMethod::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PnpProtocol::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_CommMethod::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PnpProtocol::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_CommMethod::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PnpProtocol::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_CommMethod::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_PnpProtocol::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_CommMethod::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_PnpProtocol::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
-long int Row_CommMethod::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_PnpProtocol::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_restrict;}
 
 		
-void Row_CommMethod::PK_CommMethod_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::PK_PnpProtocol_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PK_CommMethod = val; is_modified=true; is_null[0]=false;}
-void Row_CommMethod::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_PK_PnpProtocol = val; is_modified=true; is_null[0]=false;}
+void Row_PnpProtocol::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_CommMethod::Define_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::Define_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Define = val; is_modified=true; is_null[2]=false;}
-void Row_CommMethod::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[3]=false;}
-void Row_CommMethod::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[4]=false;}
-void Row_CommMethod::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[5]=false;}
-void Row_CommMethod::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[6]=false;}
-void Row_CommMethod::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[7]=false;}
-void Row_CommMethod::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_restrict = val; is_modified=true; is_null[8]=false;}
 
 		
-bool Row_CommMethod::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_CommMethod::Define_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::Define_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_CommMethod::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_CommMethod::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_CommMethod::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_CommMethod::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_CommMethod::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpProtocol::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
 
 			
-void Row_CommMethod::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_CommMethod::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_CommMethod::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_CommMethod::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_CommMethod::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_CommMethod::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_CommMethod::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpProtocol::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
 	
 
-string Row_CommMethod::PK_CommMethod_asSQL()
+string Row_PnpProtocol::PK_PnpProtocol_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -262,12 +261,12 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_CommMethod);
+sprintf(buf, "%li", m_PK_PnpProtocol);
 
 return buf;
 }
 
-string Row_CommMethod::Description_asSQL()
+string Row_PnpProtocol::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -281,7 +280,7 @@ delete[] buf;
 return s;
 }
 
-string Row_CommMethod::Define_asSQL()
+string Row_PnpProtocol::Define_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -295,7 +294,7 @@ delete[] buf;
 return s;
 }
 
-string Row_CommMethod::psc_id_asSQL()
+string Row_PnpProtocol::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -308,7 +307,7 @@ sprintf(buf, "%li", m_psc_id);
 return buf;
 }
 
-string Row_CommMethod::psc_batch_asSQL()
+string Row_PnpProtocol::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -321,7 +320,7 @@ sprintf(buf, "%li", m_psc_batch);
 return buf;
 }
 
-string Row_CommMethod::psc_user_asSQL()
+string Row_PnpProtocol::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -334,7 +333,7 @@ sprintf(buf, "%li", m_psc_user);
 return buf;
 }
 
-string Row_CommMethod::psc_frozen_asSQL()
+string Row_PnpProtocol::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -347,7 +346,7 @@ sprintf(buf, "%hi", m_psc_frozen);
 return buf;
 }
 
-string Row_CommMethod::psc_mod_asSQL()
+string Row_PnpProtocol::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -361,7 +360,7 @@ delete[] buf;
 return s;
 }
 
-string Row_CommMethod::psc_restrict_asSQL()
+string Row_PnpProtocol::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -377,29 +376,29 @@ return buf;
 
 
 
-Table_CommMethod::Key::Key(long int in_PK_CommMethod)
+Table_PnpProtocol::Key::Key(long int in_PK_PnpProtocol)
 {
-			pk_PK_CommMethod = in_PK_CommMethod;
+			pk_PK_PnpProtocol = in_PK_PnpProtocol;
 	
 }
 
-Table_CommMethod::Key::Key(Row_CommMethod *pRow)
+Table_PnpProtocol::Key::Key(Row_PnpProtocol *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_PK_CommMethod = pRow->m_PK_CommMethod;
+			pk_PK_PnpProtocol = pRow->m_PK_PnpProtocol;
 	
 }		
 
-bool Table_CommMethod::Key_Less::operator()(const Table_CommMethod::Key &key1, const Table_CommMethod::Key &key2) const
+bool Table_PnpProtocol::Key_Less::operator()(const Table_PnpProtocol::Key &key1, const Table_PnpProtocol::Key &key2) const
 {
-			if (key1.pk_PK_CommMethod!=key2.pk_PK_CommMethod)
-return key1.pk_PK_CommMethod<key2.pk_PK_CommMethod;
+			if (key1.pk_PK_PnpProtocol!=key2.pk_PK_PnpProtocol)
+return key1.pk_PK_PnpProtocol<key2.pk_PK_PnpProtocol;
 else
 return false;	
 }	
 
-bool Table_CommMethod::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Table_PnpProtocol::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -408,14 +407,14 @@ bool Table_CommMethod::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedIn
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CommMethod *pRow = (Row_CommMethod *)*i;
+		Row_PnpProtocol *pRow = (Row_PnpProtocol *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CommMethod_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PnpProtocol_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into CommMethod (`PK_CommMethod`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into PnpProtocol (`PK_PnpProtocol`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -437,11 +436,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CommMethod_
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_CommMethod=id;
+pRow->m_PK_PnpProtocol=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_CommMethod);	
+			SingleLongKey key(pRow->m_PK_PnpProtocol);	
 			cachedRows[key] = pRow;
 					
 			
@@ -458,23 +457,23 @@ pRow->m_PK_CommMethod=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_CommMethod* pRow = (Row_CommMethod*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_CommMethod);
+		Row_PnpProtocol* pRow = (Row_PnpProtocol*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_PnpProtocol);
 
-		char tmp_PK_CommMethod[32];
-sprintf(tmp_PK_CommMethod, "%li", key.pk);
+		char tmp_PK_PnpProtocol[32];
+sprintf(tmp_PK_PnpProtocol, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
+condition = condition + "`PK_PnpProtocol`=" + tmp_PK_PnpProtocol;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_CommMethod`="+pRow->PK_CommMethod_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_PnpProtocol`="+pRow->PK_PnpProtocol_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
-		string query = "update CommMethod set " + update_values_list + " where " + condition;
+		string query = "update PnpProtocol set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -496,7 +495,7 @@ update_values_list = update_values_list + "`PK_CommMethod`="+pRow->PK_CommMethod
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CommMethod* pRow = (Row_CommMethod*) (*i);
+		Row_PnpProtocol* pRow = (Row_PnpProtocol*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -509,17 +508,17 @@ update_values_list = update_values_list + "`PK_CommMethod`="+pRow->PK_CommMethod
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CommMethod* pRow = (Row_CommMethod*) (*i).second;	
+		Row_PnpProtocol* pRow = (Row_PnpProtocol*) (*i).second;	
 
-		char tmp_PK_CommMethod[32];
-sprintf(tmp_PK_CommMethod, "%li", key.pk);
+		char tmp_PK_PnpProtocol[32];
+sprintf(tmp_PK_PnpProtocol, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
+condition = condition + "`PK_PnpProtocol`=" + tmp_PK_PnpProtocol;
 
 	
-		string query = "delete from CommMethod where " + condition;
+		string query = "delete from PnpProtocol where " + condition;
 		
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -528,7 +527,7 @@ condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
 			return false;
 		}	
 		
-		pRow = (Row_CommMethod*) (*i).second;;
+		pRow = (Row_PnpProtocol*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -536,7 +535,7 @@ condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
 	return true;
 }
 
-bool Table_CommMethod::GetRows(string where_statement,vector<class Row_CommMethod*> *rows)
+bool Table_PnpProtocol::GetRows(string where_statement,vector<class Row_PnpProtocol*> *rows)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -547,13 +546,13 @@ bool Table_CommMethod::GetRows(string where_statement,vector<class Row_CommMetho
 		StringUtils::StartsWith(where_statement,"right ",true) ||
 		StringUtils::StartsWith(where_statement,"full ",true) ||
 		StringUtils::StartsWith(where_statement,"outer ",true) )
-		query = "select `CommMethod`.* from CommMethod " + where_statement;
+		query = "select `PnpProtocol`.* from PnpProtocol " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else if( where_statement.size() )
-		query = "select `CommMethod`.* from CommMethod where " + where_statement;
+		query = "select `PnpProtocol`.* from PnpProtocol where " + where_statement;
 	else
-		query = "select `CommMethod`.* from CommMethod";
+		query = "select `PnpProtocol`.* from PnpProtocol";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -578,17 +577,17 @@ bool Table_CommMethod::GetRows(string where_statement,vector<class Row_CommMetho
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_CommMethod *pRow = new Row_CommMethod(this);
+		Row_PnpProtocol *pRow = new Row_PnpProtocol(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_CommMethod = 0;
+pRow->m_PK_PnpProtocol = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_CommMethod));
+sscanf(row[0], "%li", &(pRow->m_PK_PnpProtocol));
 }
 
 if (row[1] == NULL)
@@ -683,14 +682,14 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_CommMethod);
+		SingleLongKey key(pRow->m_PK_PnpProtocol);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_CommMethod *)(*i).second;
+			pRow = (Row_PnpProtocol *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -703,11 +702,11 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 	return true;					
 }
 
-Row_CommMethod* Table_CommMethod::AddRow()
+Row_PnpProtocol* Table_PnpProtocol::AddRow()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	Row_CommMethod *pRow = new Row_CommMethod(this);
+	Row_PnpProtocol *pRow = new Row_PnpProtocol(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -715,11 +714,11 @@ Row_CommMethod* Table_CommMethod::AddRow()
 
 
 
-Row_CommMethod* Table_CommMethod::GetRow(long int in_PK_CommMethod)
+Row_PnpProtocol* Table_PnpProtocol::GetRow(long int in_PK_PnpProtocol)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	SingleLongKey row_key(in_PK_CommMethod);
+	SingleLongKey row_key(in_PK_PnpProtocol);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -732,9 +731,9 @@ Row_CommMethod* Table_CommMethod::GetRow(long int in_PK_CommMethod)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_CommMethod*) (*i).second;
+		return (Row_PnpProtocol*) (*i).second;
 	//we have to fetch row
-	Row_CommMethod* pRow = FetchRow(row_key);
+	Row_PnpProtocol* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -743,20 +742,20 @@ Row_CommMethod* Table_CommMethod::GetRow(long int in_PK_CommMethod)
 
 
 
-Row_CommMethod* Table_CommMethod::FetchRow(SingleLongKey &key)
+Row_PnpProtocol* Table_PnpProtocol::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_CommMethod[32];
-sprintf(tmp_PK_CommMethod, "%li", key.pk);
+	char tmp_PK_PnpProtocol[32];
+sprintf(tmp_PK_PnpProtocol, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
+condition = condition + "`PK_PnpProtocol`=" + tmp_PK_PnpProtocol;
 
 
-	string query = "select * from CommMethod where " + condition;		
+	string query = "select * from PnpProtocol where " + condition;		
 
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -785,17 +784,17 @@ condition = condition + "`PK_CommMethod`=" + tmp_PK_CommMethod;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_CommMethod *pRow = new Row_CommMethod(this);
+	Row_PnpProtocol *pRow = new Row_PnpProtocol(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_CommMethod = 0;
+pRow->m_PK_PnpProtocol = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_CommMethod));
+sscanf(row[0], "%li", &(pRow->m_PK_PnpProtocol));
 }
 
 if (row[1] == NULL)
@@ -896,26 +895,19 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
-void Row_CommMethod::DeviceTemplate_FK_CommMethod_getrows(vector <class Row_DeviceTemplate*> *rows)
+void Row_PnpProtocol::DHCPDevice_FK_PnpProtocol_getrows(vector <class Row_DHCPDevice*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_CommMethod`=" + StringUtils::itos(m_PK_CommMethod),rows);
+class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
+pTable->GetRows("`FK_PnpProtocol`=" + StringUtils::itos(m_PK_PnpProtocol),rows);
 }
-void Row_CommMethod::InfraredGroup_FK_CommMethod_getrows(vector <class Row_InfraredGroup*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
-pTable->GetRows("`FK_CommMethod`=" + StringUtils::itos(m_PK_CommMethod),rows);
-}
-void Row_CommMethod::PnpQueue_FK_CommMethod_getrows(vector <class Row_PnpQueue*> *rows)
+void Row_PnpProtocol::PnpQueue_FK_PnpProtocol_getrows(vector <class Row_PnpQueue*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PnpQueue *pTable = table->database->PnpQueue_get();
-pTable->GetRows("`FK_CommMethod`=" + StringUtils::itos(m_PK_CommMethod),rows);
+pTable->GetRows("`FK_PnpProtocol`=" + StringUtils::itos(m_PK_PnpProtocol),rows);
 }
 
 

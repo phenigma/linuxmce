@@ -99,6 +99,7 @@
 #define DEVICECATEGORY_Irrigation_Devices_CONST 153
 #define DEVICECATEGORY_USBUIRT_Remote_Controls_CONST 154
 #define DEVICECATEGORY_Hard_Drives_CONST 155
+#define DEVICECATEGORY_Plug_and_Play_CONST 156
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

@@ -565,6 +565,12 @@
 				RelativePath=".\Table_Pipe.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PnpProtocol.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_PnpQueue.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_PostalCode.cpp">
 			</File>
 			<File

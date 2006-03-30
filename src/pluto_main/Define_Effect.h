@@ -1,10 +1,19 @@
 #ifndef __Define_Effect_H__
 #define __Define_Effect_H__
 
-#define EFFECT_Bounce_new_screen_on_CONST 1
-#define EFFECT_Slide_new_screen_from_the_left_CONST 2
-#define EFFECT_New_screen_fades_in_from_top_CONST 3
-#define EFFECT_New_screen_fades_out_from_unde_CONST 4
+#define EFFECT_No_transit_effect_CONST 1
+#define EFFECT_Basic_transit_effect_CONST 2
+#define EFFECT_Bezier_effect_CONST 3
+#define EFFECT_Slide_from_left_CONST 4
+#define EFFECT_Slide_from_top_CONST 5
+#define EFFECT_Fades_from_top_CONST 6
+#define EFFECT_Fades_from_underneath_CONST 7
+#define EFFECT_Bezier_transit_prism_CONST 8
+#define EFFECT_Bezier_transit_top_left_CONST 9
+#define EFFECT_Bezier_transit_flow_slide_left_CONST 10
+#define EFFECT_No_select_or_hightlight_effect_CONST 12
+#define EFFECT_Basic_highlight_effect_CONST 13
+#define EFFECT_Basic_select_effect_CONST 14
 
 #define EFFECT_TABLE "Effect"
 #define EFFECT_PK_EFFECT_FIELD "PK_Effect"

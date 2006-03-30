@@ -1938,6 +1938,8 @@
 #define DESIGNOBJ_test_but_CONST 4856
 #define DESIGNOBJ_play_test_vid_CONST 4857
 #define DESIGNOBJ_icoBrightnessSensor_CONST 4858
+#define DESIGNOBJ_butLearnIRCodes_CONST 4859
+#define DESIGNOBJ_butTVReceiver_CONST 4860
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -234,9 +234,9 @@ void Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbiter*> *rows);
 void Device_QuickStart_FK_Device_getrows(vector <class Row_Device_QuickStart*> *rows);
 void Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows);
 void Device_Users_FK_Device_getrows(vector <class Row_Device_Users*> *rows);
-void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 void Package_Device_FK_Device_getrows(vector <class Row_Package_Device*> *rows);
 void PaidLicense_FK_Device_getrows(vector <class Row_PaidLicense*> *rows);
+void PnpQueue_FK_Device_getrows(vector <class Row_PnpQueue*> *rows);
 
 
 		// Setup binary serialization

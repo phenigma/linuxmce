@@ -37,6 +37,8 @@
 #define ARRAY_DEFINE_TABLE_FIELD "Array.Define"
 #define ARRAY_COMMANDGROUP_FIELD "CommandGroup"
 #define ARRAY_COMMANDGROUP_TABLE_FIELD "Array.CommandGroup"
+#define ARRAY_FK_ARRAY_PARENT_FIELD "FK_Array_Parent"
+#define ARRAY_FK_ARRAY_PARENT_TABLE_FIELD "Array.FK_Array_Parent"
 #define ARRAY_PSC_ID_FIELD "psc_id"
 #define ARRAY_PSC_ID_TABLE_FIELD "Array.psc_id"
 #define ARRAY_PSC_BATCH_FIELD "psc_batch"

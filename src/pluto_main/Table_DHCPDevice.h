@@ -81,6 +81,9 @@ class DECLSPECIFIER Row_DHCPDevice : public TableRow, public SerializeClass
 long int m_FK_DeviceTemplate;
 u_int64_t m_Mac_Range_Low;
 u_int64_t m_Mac_Range_High;
+string m_VendorModelID;
+long int m_FK_PnpProtocol;
+string m_PnpDetectionScript;
 long int m_FK_DeviceCategory;
 long int m_FK_Manufacturer;
 string m_Description;
@@ -91,13 +94,16 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[13];
+		bool is_null[16];
 	
 	public:
 		long int PK_DHCPDevice_get();
 long int FK_DeviceTemplate_get();
 u_int64_t Mac_Range_Low_get();
 u_int64_t Mac_Range_High_get();
+string VendorModelID_get();
+long int FK_PnpProtocol_get();
+string PnpDetectionScript_get();
 long int FK_DeviceCategory_get();
 long int FK_Manufacturer_get();
 string Description_get();
@@ -113,6 +119,9 @@ long int psc_restrict_get();
 void FK_DeviceTemplate_set(long int val);
 void Mac_Range_Low_set(u_int64_t val);
 void Mac_Range_High_set(u_int64_t val);
+void VendorModelID_set(string val);
+void FK_PnpProtocol_set(long int val);
+void PnpDetectionScript_set(string val);
 void FK_DeviceCategory_set(long int val);
 void FK_Manufacturer_set(long int val);
 void Description_set(string val);
@@ -125,6 +134,9 @@ void psc_restrict_set(long int val);
 
 		
 		bool FK_DeviceTemplate_isNull();
+bool VendorModelID_isNull();
+bool FK_PnpProtocol_isNull();
+bool PnpDetectionScript_isNull();
 bool FK_DeviceCategory_isNull();
 bool FK_Manufacturer_isNull();
 bool Description_isNull();
@@ -136,6 +148,9 @@ bool psc_restrict_isNull();
 
 			
 		void FK_DeviceTemplate_setNull(bool val);
+void VendorModelID_setNull(bool val);
+void FK_PnpProtocol_setNull(bool val);
+void PnpDetectionScript_setNull(bool val);
 void FK_DeviceCategory_setNull(bool val);
 void FK_Manufacturer_setNull(bool val);
 void Description_setNull(bool val);
@@ -157,6 +172,7 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
+class Row_PnpProtocol* FK_PnpProtocol_getrow();
 class Row_DeviceCategory* FK_DeviceCategory_getrow();
 class Row_Manufacturer* FK_Manufacturer_getrow();
 
@@ -167,7 +183,7 @@ class Row_Manufacturer* FK_Manufacturer_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DHCPDevice+ m_FK_DeviceTemplate+ m_Mac_Range_Low+ m_Mac_Range_High+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DHCPDevice+ m_FK_DeviceTemplate+ m_Mac_Range_Low+ m_Mac_Range_High+ m_VendorModelID+ m_FK_PnpProtocol+ m_PnpDetectionScript+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -176,6 +192,9 @@ class Row_Manufacturer* FK_Manufacturer_getrow();
 string FK_DeviceTemplate_asSQL();
 string Mac_Range_Low_asSQL();
 string Mac_Range_High_asSQL();
+string VendorModelID_asSQL();
+string FK_PnpProtocol_asSQL();
+string PnpDetectionScript_asSQL();
 string FK_DeviceCategory_asSQL();
 string FK_Manufacturer_asSQL();
 string Description_asSQL();
