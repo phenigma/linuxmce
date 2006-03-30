@@ -391,13 +391,23 @@ bool SDL_App_Object::EventProcess()
 
 int SDL_App_Object::Destroy()
 {
+    if (! m_pSDL_Event_Loop_Data)
+        return m_nExitCode;
     if (m_pSDL_Event_Loop_Data->pOrbiter && m_pSDL_Event_Loop_Data->pOrbiter->m_bReload)
+    {
         m_nExitCode = 2;
+    }
     SDL_Event_Loop_End(*m_pSDL_Event_Loop_Data);
     delete m_pSDL_Event_Loop_Data;
     m_pSDL_Event_Loop_Data = NULL;
     if (g_pPlutoLogger)
         delete g_pPlutoLogger;
+    return m_nExitCode;
+};
+
+int SDL_App_Object::GetExitCode() const
+{
+    return m_nExitCode;
 };
 
 bool Init_System()
@@ -427,7 +437,7 @@ int main(int argc, char *argv[])
         return 1;
     SDL_App_Object *pSDL_App_Object = new SDL_App_Object(argc, argv);
     pSDL_App_Object->Run();
-    nExitCode = pSDL_App_Object->m_nExitCode;
+    nExitCode = pSDL_App_Object->GetExitCode();
     delete pSDL_App_Object;
     return nExitCode;
 #else

@@ -50,12 +50,13 @@ public:
     bool EventProcess();
     int Destroy();
 
-    int m_nExitCode;
+    int GetExitCode() const;
 
 protected:
     SDL_Event_Loop_Data *m_pSDL_Event_Loop_Data;
     int argc;
     char **argv;
+    int m_nExitCode;
 };
 
 // initialize OS stuff

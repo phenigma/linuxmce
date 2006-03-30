@@ -8,7 +8,8 @@ WMTaskManager::WMTaskManager()
 {
     TaskCounter = 0;
 	ListMutex = new pluto_pthread_mutex_t("WMTaskListManager Safety Mutex");
-	ListMutex->Init(NULL, &ListMutexCond);
+    pthread_cond_init(&ListMutexCond, NULL);
+    ListMutex->Init(NULL, &ListMutexCond);
 }
 
 WMTaskManager::~WMTaskManager()
@@ -36,7 +37,7 @@ void WMTaskManager::AddTask(WMTask *pEvent)
         pEvent, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
         );
 	Events.push(pEvent);
-    ::wxWakeUpIdle();
+    //::wxWakeUpIdle();
 }
 
 void WMTaskManager::AddTaskAndWait(WMTask *pEvent)
@@ -51,7 +52,7 @@ void WMTaskManager::AddTaskAndWait(WMTask *pEvent)
         pEvent, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
         );
 	Events.push(pEvent);
-    ::wxWakeUpIdle();
+    //::wxWakeUpIdle();
     listTasksWithConfirmation.push_back(pEvent->TaskId);
 
     unsigned int TaskId = pEvent->TaskId;
@@ -69,7 +70,10 @@ void WMTaskManager::AddTaskAndWait(WMTask *pEvent)
         }
 
         if(!bOurTaskNotProcessed)
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "WMTaskManager::AddTaskAndWait END, size=%d", Events.size());
             return;
+        }
     }
 }
 
@@ -98,5 +102,6 @@ void WMTaskManager::TaskProcessed(unsigned int TaskId)
 {
 	PLUTO_SAFETY_LOCK(cm, *ListMutex);
     listTasksWithConfirmation.remove(TaskId);
-    //WakeUp();
+    g_pPlutoLogger->Write(LV_WARNING, "WMTaskManager::TaskProcessed(id %d), size=%d", TaskId, Events.size());
+    WakeUp();
 }

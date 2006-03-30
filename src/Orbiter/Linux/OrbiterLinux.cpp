@@ -206,12 +206,12 @@ Window OrbiterLinux::getWindow()
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
 	/*
-    {
-        if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-            SetCurrentAppDesktopName("dialog");
-        else if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
-            SetCurrentAppDesktopName("pluto-xine-playback-window");
-    }
+      {
+      if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
+      SetCurrentAppDesktopName("dialog");
+      else if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
+      SetCurrentAppDesktopName("pluto-xine-playback-window");
+      }
 	*/
 
     vector<int> vectButtonMaps;
@@ -261,8 +261,8 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 
 	/*
 	 *
-    if(m_sCurrentAppDesktopName != "")
-        commandRatPoison(":select " + m_sCurrentAppDesktopName);
+     if(m_sCurrentAppDesktopName != "")
+     commandRatPoison(":select " + m_sCurrentAppDesktopName);
 	*/
 
     stringstream commandLine;
@@ -468,7 +468,9 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 			callbackType = cbOnCreateWxWidget;
 			bDialogRunning = true;
             {
-                // little hack: also delete the other dialogs
+                // little hack: also delete the other dialogs (TaskManager)
+                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
+                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
                 TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
                 TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
             }
@@ -478,7 +480,9 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 	else
 	{
         {
-            // little hack: also delete the other dialogs
+            // little hack: also delete the other dialogs (TaskManager)
+            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
+            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
             TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
             TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
         }
@@ -486,12 +490,13 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 		bDialogRunning = false;
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
-	//syncthis TaskManager::Instance().AddTask(pTask);
+    // little hack: sync-this
+	//TaskManager::Instance().AddTask(pTask);
 	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
     if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
     {
-        // little hack: also delete the other dialogs
+        // little hack: also delete the other dialogs (sync-thread)
         if (m_pWaitList)
         {
             Safe_Close(m_pWaitList);
@@ -509,7 +514,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     }
     if ( (m_pWaitGrid == NULL) && (nProgress >= 0) )
     {
-        // little hack: also delete the other dialogs
+        // little hack: also delete the other dialogs (sync-thread)
         if (m_pWaitList)
         {
             Safe_Close(m_pWaitList);
@@ -614,7 +619,9 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 			callbackType = cbOnCreateWxWidget;
 			bDialogRunning = true;
             {
-                // little hack: also delete the other dialogs
+                // little hack: also delete the other dialogs (TaskManager)
+                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
                 TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
                 TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
             }
@@ -626,19 +633,22 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 		callbackType = cbOnDeleteWxWidget;
 		bDialogRunning = false;
         {
-            // little hack: also delete the other dialogs
+            // little hack: also delete the other dialogs (TaskManager)
+            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
             TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
             TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
         }
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
-	//syncthis TaskManager::Instance().AddTask(pTask);
+    // little hack: sync-this
+	//TaskManager::Instance().AddTask(pTask);
 	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
 	//TODO:
     if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
     {
-        // little hack: also delete the other dialogs
+        // little hack: also delete the other dialogs (sync-thread)
         if (m_pWaitGrid)
         {
             Safe_Close(m_pWaitGrid);
@@ -656,7 +666,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     }
     if ( (m_pWaitList == NULL) && (nProgress >= 0) )
     {
-        // little hack: also delete the other dialogs
+        // little hack: also delete the other dialogs (sync-thread)
         if (m_pWaitGrid)
         {
             Safe_Close(m_pWaitGrid);
@@ -751,7 +761,9 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
     {
-        // little hack: also delete the other dialogs
+        // little hack: also delete the other dialogs (TaskManager)
+        //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
+        //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
         TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
         TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
     }
@@ -760,7 +772,7 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
-    // little hack: also delete the other dialogs
+    // little hack: also delete the other dialogs (sync-thread)
     if (m_pWaitGrid)
     {
         Safe_Close(m_pWaitGrid);
