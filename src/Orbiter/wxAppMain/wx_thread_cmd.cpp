@@ -21,15 +21,15 @@
 #include "wx_thread_bag.h"
 
 wxThread_Cmd::wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_fn_void p_fn_launch/*=NULL*/)
-    : v_eKind(eKind)
-, v_sName(sName)
-, v_p_fn_launch(p_fn_launch)
-, v_pwxThread_Bag(NULL)
-, v_eStatus(E_Unitialized)
-, v_bShouldCancel(false)
-, v_nExitCode(0)
-, v_pwxThread_Wrapper(NULL)
-, v_oSemaphoreRunning()
+        : v_eKind(eKind)
+        , v_sName(sName)
+        , v_p_fn_launch(p_fn_launch)
+        , v_pwxThread_Bag(NULL)
+        , v_eStatus(E_Unitialized)
+        , v_bShouldCancel(false)
+        , v_nExitCode(0)
+        , v_pwxThread_Wrapper(NULL)
+        , v_oSemaphoreRunning()
 {
     _WX_LOG_NFO();
 }

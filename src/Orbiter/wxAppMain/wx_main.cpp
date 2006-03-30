@@ -18,24 +18,32 @@
 
 #include "wx_main.h"
 #include "wx_extern_app.h"
+
+#ifdef USE_RELEASE_CODE
+#  include "../SDL/StartOrbiterSDL.h"
+#endif // USE_RELEASE_CODE
+
 #if defined(__WXGTK__) || defined(__WXMOTIF__) || defined(__WXX11__)
 #include <X11/Xlib.h>
 #endif
-
-int g_nExitCode = EXIT_SUCCESS;
 
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[])
 {
     _WX_LOG_NFO("STARTED");
-    // activate X11 GUI threads
-    {
-        if ( XInitThreads() == 0 )
-        {
-            _WX_LOG_WRN("Unable to initialize multithreaded X11 code (XInitThreads failed)");
-        }
-    }
     int nExitCode = EXIT_SUCCESS;
+    //if (0) // already in Init_System
+    //{
+    //    // activate X11 GUI threads
+    //    if ( XInitThreads() == 0 )
+    //    {
+    //        _WX_LOG_WRN("Unable to initialize multithreaded X11 code (XInitThreads failed)");
+    //    }
+    //}
+#ifdef USE_RELEASE_CODE
+    if (! Init_System())
+        return 1;
+#endif // USE_RELEASE_CODE
     // wx initialize
     {
         _WX_LOG_NFO("wxEntry() begin");

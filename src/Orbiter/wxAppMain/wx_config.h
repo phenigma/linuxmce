@@ -32,6 +32,7 @@ enum E_UNIQUE_ID
     ID_UNIQUE_Unused = wxID_HIGHEST,
     ID_EVTC_DIALOG,
     ID_EVTC_THREAD,
+    ID_Timer_WakeIdle,
     ID_Timer_ExpireDialog,
 };
 
@@ -43,6 +44,7 @@ enum E_UNIQUE_ID
 
 #define WAIT_SEMAPHORE_MSEC 100
 
+#define INTERVAL_TIMER_WAKEIDLE_MSEC 200
 #define INTERVAL_TIMER_EXPIREDIALOG_MSEC 200
 
 #endif

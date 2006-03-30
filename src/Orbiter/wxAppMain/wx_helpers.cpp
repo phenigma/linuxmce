@@ -201,7 +201,7 @@ wxCondLocker::~wxCondLocker()
 }
 
 bool g_bAppInitialized = false;
-void wxAppSetReady()
+void App_SetReady()
 {
     if (! g_bAppInitialized)
     {
@@ -209,9 +209,37 @@ void wxAppSetReady()
         g_bAppInitialized = true;
     }
 }
-bool wxAppIsReady()
+bool App_IsReady()
 {
     return g_bAppInitialized = true;
+}
+
+int g_nExitCode = EXIT_SUCCESS;
+bool g_bShouldExit = false;
+
+void App_SetExitCode(int nExitCode)
+{
+    _WX_LOG_NFO("new app exit code : %d", nExitCode);
+    g_nExitCode = nExitCode;
+}
+
+int App_GetExitCode()
+{
+    return g_nExitCode;
+}
+
+void App_SetShouldExit(bool bShouldExit)
+{
+    if (bShouldExit)
+        _WX_LOG_NFO("app should exit soon");
+    else
+        _WX_LOG_NFO("app exit signal cleared");
+    g_bShouldExit = bShouldExit;
+}
+
+bool App_ShouldExit()
+{
+    return g_bShouldExit;
 }
 
 bool wxIdleThreadShouldStop()

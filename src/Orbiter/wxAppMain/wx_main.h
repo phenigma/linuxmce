@@ -11,9 +11,6 @@
 #pragma interface "wx_main.h"
 #endif
 
-// holds the app exit code
-extern int g_nExitCode;
-
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[]);
 #endif // USE_MAIN_CONSOLE

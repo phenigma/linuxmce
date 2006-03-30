@@ -77,6 +77,7 @@ BEGIN_EVENT_TABLE( wxAppMain, wxApp )
 ////@end wxAppMain event table entries
 
     EVTC_DIALOG(wxID_ANY, wxAppMain::OnEvent_Dialog)
+    EVT_TIMER(ID_Timer_WakeIdle, wxAppMain::OnTimer_WakeIdle)
 
     END_EVENT_TABLE()
     ;
@@ -87,6 +88,7 @@ BEGIN_EVENT_TABLE( wxAppMain, wxApp )
 
 wxAppMain::wxAppMain()
         : v_pExternApp(NULL)
+        , v_oTimer_WakeIdle(this, ID_Timer_WakeIdle)
 {
     global_wx_log_enter();
     _WX_LOG_NFO();
@@ -131,6 +133,7 @@ bool wxAppMain::OnInit()
 #ifdef USE_DEBUG_CODE
     _debug_init();
 #endif // USE_DEBUG_CODE
+    v_oTimer_WakeIdle.Start(INTERVAL_TIMER_WAKEIDLE_MSEC);
 
     return true;
 }
@@ -142,6 +145,7 @@ int wxAppMain::OnExit()
 {
     // NO wx log call if NO DontCreateOnDemand()
     _WX_LOG_NFO();
+    CleanUpObjects();
 ////@begin wxAppMain cleanup
     return wxApp::OnExit();
 ////@end wxAppMain cleanup
@@ -153,9 +157,10 @@ int wxAppMain::OnExit()
 
 void wxAppMain::OnIdle( wxIdleEvent& event )
 {
+    //_WX_LOG_NFO();
     if (g_USE_EXTERN_APP_ON_THREAD)
     {
-        if ( wxAppIsReady() && (v_pExternApp==NULL) )
+        if ( App_IsReady() && (v_pExternApp==NULL) )
         {
             v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
             v_pExternApp->Start();
@@ -165,6 +170,11 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
             Extern_Event_Listener(v_pExternApp);
         }
     } // g_USE_EXTERN_APP_ON_THREAD
+    if (App_ShouldExit())
+    {
+        _WX_LOG_NFO("Received Exit Signal");
+        CleanUpObjects();
+    }
 ////@begin wxEVT_IDLE event handler in wxAppMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -175,7 +185,6 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
 wxAppMain::~wxAppMain()
 {
     _WX_LOG_NFO();
-    wxDELETE(v_pExternApp);
     global_wx_log_leave();
     OnExit();
 }
@@ -184,8 +193,8 @@ int wxAppMain::OnRun()
 {
     _WX_LOG_NFO();
     wxApp::OnRun();
-    _WX_LOG_NFO("exit code : %d", g_nExitCode);
-    return g_nExitCode;
+    _WX_LOG_NFO("exit code : %d", App_GetExitCode());
+    return App_GetExitCode();
 }
 
 void wxAppMain::OnEvent_Dialog(wxCommandEvent& event)
@@ -194,4 +203,40 @@ void wxAppMain::OnEvent_Dialog(wxCommandEvent& event)
     Data_Holder_Dialog *pData_Holder_Dialog = wx_static_cast(Data_Holder_Dialog *, event.GetClientData());
     _COND_RET(pData_Holder_Dialog != NULL);
     Process_Dialog_Action(pData_Holder_Dialog->e_dialog_type, (E_ACTION_TYPE)event.GetId(), pData_Holder_Dialog);
+}
+
+void wxAppMain::OnTimer_WakeIdle(wxTimerEvent& event)
+{
+    //_WX_LOG_NFO();
+    _COND_RET(event.GetId() == ID_Timer_WakeIdle);
+    if (! App_IsReady())
+        return;
+    if (App_ShouldExit())
+        return;
+    ::wxWakeUpIdle();
+}
+
+void wxAppMain::CleanUpObjects()
+{
+    _WX_LOG_NFO();
+    v_oTimer_WakeIdle.Stop();
+    _WX_LOG_NFO("1");
+    if (v_pExternApp)
+    {
+        wx_sleep(0, 200);//del
+        _WX_LOG_NFO("1.1");
+        v_pExternApp->Destroy();
+        _WX_LOG_NFO("1.2");
+        wxDELETE(v_pExternApp);
+        _WX_LOG_NFO("1.3");
+    }
+    _WX_LOG_NFO("2");
+    wxWindow * pTopWindow = GetTopWindow();
+    _WX_LOG_NFO("3");
+    if (pTopWindow)
+    {
+        pTopWindow->Destroy();
+        SetTopWindow(NULL);
+    }
+    _WX_LOG_NFO("4");
 }

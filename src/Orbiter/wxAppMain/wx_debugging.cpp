@@ -59,7 +59,7 @@ void * _debug_RoomWizard()
 };
 
 template <class wxClassName>
-void _debug_show_dlg(void *pData=NULL)
+void _debug_show_dlg_safe(void *pData=NULL)
 {
 #ifdef USE_DEBUG_CODE
     wxClassName *pWin = NULL;
@@ -77,12 +77,45 @@ void _debug_show_dlg(void *pData=NULL)
 #endif // USE_DEBUG_CODE
 }
 
+template <class wxClassName>
+void _debug_show_dlg_pdac(void *pData=NULL)
+{
+#ifdef USE_DEBUG_CODE
+    Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), NULL, pData);
+    _WX_LOG_DBG("Safe_Show");
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Create_Unique, &data_holder_dialog);
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Show, &data_holder_dialog);
+    _WX_LOG_DBG("Safe_Close");
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Close, &data_holder_dialog);
+    _WX_LOG_DBG("Safe_Show Again");
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Create_Unique, &data_holder_dialog);
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Show, &data_holder_dialog);
+    _WX_LOG_DBG("Safe_ShowModal");
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_Create_Unique, &data_holder_dialog);
+    Process_Dialog_Action(Get_Type<wxClassName>(), E_Action_ShowModal, &data_holder_dialog);
+#endif // USE_DEBUG_CODE
+}
+
+void _debug_show_dlg_safe_all()
+{
+    _debug_show_dlg_safe<wxDialog_RoomWizard>(_debug_RoomWizard());
+    _debug_show_dlg_safe<wxDialog_WaitGrid>();
+    _debug_show_dlg_safe<wxDialog_WaitList>();
+    _debug_show_dlg_safe<wxDialog_WaitUser>();
+}
+
+void _debug_show_dlg_pdac_all()
+{
+    _debug_show_dlg_pdac<wxDialog_RoomWizard>(_debug_RoomWizard());
+    _debug_show_dlg_pdac<wxDialog_WaitGrid>();
+    _debug_show_dlg_pdac<wxDialog_WaitList>();
+    _debug_show_dlg_pdac<wxDialog_WaitUser>();
+}
+
 void _debug_show_dlg_all()
 {
-    _debug_show_dlg<wxDialog_RoomWizard>(_debug_RoomWizard());
-    _debug_show_dlg<wxDialog_WaitGrid>();
-    _debug_show_dlg<wxDialog_WaitList>();
-    _debug_show_dlg<wxDialog_WaitUser>();
+    _debug_show_dlg_safe_all();
+    //_debug_show_dlg_pdac_all();
 }
 
 void _debug_refresh_update()

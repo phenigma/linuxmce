@@ -184,5 +184,6 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
             break;
     } // switch (action)
     wx_semaphore_post(pData_Holder_Dialog->oSemaphore, pData_Holder_Dialog->bInThread);
+    _WX_LOG_NFO("DONE WITH class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     return true;
 }

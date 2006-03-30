@@ -231,7 +231,8 @@ void wxFrameMain::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 
 void wxFrameMain::OnIdle( wxIdleEvent& event )
 {
-    wxAppSetReady();
+    //_WX_LOG_NFO();
+    App_SetReady();
     wxFrame::OnIdle(event);
 ////@begin wxEVT_IDLE event handler for ID_FRAMEMAIN in wxFrameMain.
     // Before editing this code, remove the block markers.

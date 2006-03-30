@@ -82,7 +82,7 @@ bool ExternApp::Create()
 
 bool ExternApp::EventLoop()
 {
-    _WX_LOG_NFO("Event Loop");
+    _WX_LOG_NFO("Event Loop Start");
 #ifdef USE_RELEASE_CODE
     while (v_pSDL_App_Object->EventProcess())
     {
@@ -93,6 +93,7 @@ bool ExternApp::EventLoop()
         }
     }
 #endif // USE_RELEASE_CODE
+    _WX_LOG_NFO("Event Loop End");
     return true;
 }
 
@@ -100,8 +101,16 @@ int ExternApp::Destroy()
 {
     int nExitCode = 0;
 #ifdef USE_RELEASE_CODE
-    v_pSDL_App_Object->Destroy();
-    wxDELETE(v_pSDL_App_Object);
+    if (v_pSDL_App_Object)
+    {
+        _WX_LOG_NFO("1");
+        nExitCode = v_pSDL_App_Object->Destroy();
+        _WX_LOG_NFO("2");
+        SetExitCode(nExitCode);
+        _WX_LOG_NFO("3");
+        wxDELETE(v_pSDL_App_Object);
+        _WX_LOG_NFO("4");
+    }
 #endif // USE_RELEASE_CODE
     return nExitCode;
 }
@@ -134,7 +143,13 @@ void Extern_Event_Listener(ExternApp *pExternApp)
     WMTaskManager *pTaskManager = &TaskManager::Instance();
     WMTask *pTask = pTaskManager->PopTask();
     if (pTask == NULL)
+    {
+        //DEL
+        // no need to sleep with idle called from a timer
+        //_WX_LOG_NFO("NULL task, sleeping");
+        //wx_sleep(0, 100);
         return;
+    }
     E_DIALOG_TYPE e_dialog_type = pTask->DialogType;
     CallBackType action = pTask->TaskType;
     void * pData = pTask->pCallBackData;
@@ -167,6 +182,7 @@ void Extern_Event_Listener(ExternApp *pExternApp)
             _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
+    _WX_LOG_NFO("End command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     pTaskManager->TaskProcessed(pTask->TaskId);
 #endif // USE_RELEASE_CODE
 }

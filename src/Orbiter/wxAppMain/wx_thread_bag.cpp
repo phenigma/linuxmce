@@ -160,10 +160,13 @@ void wxThread_Bag::OnEvent_Thread(wxCommandEvent& event)
         case wxThread_Cmd::E_RunEnded:
             _WX_LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
             wx_sleep(0, WAIT_THREAD_EXIT_MSEC);
-            Delete(pwxThread_Cmd);
-            ::wxWakeUpIdle();
             if (event.GetString() == "ExternApp")
-                wxTheApp->GetTopWindow()->Destroy();
+            {
+                _WX_LOG_NFO("Send Exit Signals");
+                App_SetExitCode(pwxThread_Cmd->GetExitCode());
+                App_SetShouldExit(true);
+            }
+            Delete(pwxThread_Cmd);
             return;
             break;
     }

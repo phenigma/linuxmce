@@ -76,8 +76,11 @@ public:
 
 protected:
     void OnEvent_Dialog(wxCommandEvent& event);
+    void OnTimer_WakeIdle(wxTimerEvent& event);
+    void CleanUpObjects();
 
     ExternApp *v_pExternApp;
+    wxTimer v_oTimer_WakeIdle;
 };
 
 /*!
