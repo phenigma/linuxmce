@@ -2,7 +2,7 @@
 require('include/config/config.inc.php');
 require('include/utils.inc.php');
 
-$path='/home/users/vali/work/web/pluto-admin/cached/loadingTimes';
+$path=$GLOBALS['save_loading_time'].'loadingTimes';
 $GLOBALS['maximum_allowed_loading_time']=0.500;
 
 if(!file_exists($path)){
