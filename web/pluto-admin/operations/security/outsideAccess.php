@@ -10,7 +10,7 @@ function outsideAccess($output,$dbADO) {
 	$accessFile=$GLOBALS['pluto.conf'];
 	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
 	foreach ($retArray as $comf){
-		parse_str($comf);
+		parse_str(str_replace(' = ','=',$comf));
 	}
 	
 	$out='';
@@ -182,6 +182,7 @@ function outsideAccess($output,$dbADO) {
 				}
 			}else{
 				if($allowOnPort==0){
+					$dbADO->debug=true;
 					$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=? AND SourcePort=? AND DestinationPort=? AND DestinationIP=?',array('port_forward','80',$oldPort,'127.0.0.1'));
 				}elseif($port!=$oldPort){
 					$dbADO->Execute('UPDATE Firewall SET SourcePort=? WHERE RuleType=? AND SourcePort=? AND DestinationIP=?',array($port,'port_forward','80','127.0.0.1'));

@@ -12,6 +12,7 @@ require('include/config/config.inc.php');
 require('include/utils.inc.php');
 require('include/template.class.inc.php');
 
+$GLOBALS['server_start_time']=getmicrotime();
 
 $section = @$_REQUEST['section'];
 if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $section!='wizard' && $section!='proxySocket' && $section!='orbitersWin'){

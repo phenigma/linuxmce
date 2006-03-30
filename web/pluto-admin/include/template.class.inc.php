@@ -418,7 +418,21 @@ function setTemplateFileType($type) {
   }
   
   
-  function displayContent(){echo $this->content;}
+  function displayContent(){
+  	
+	$GLOBALS['server_end_time']=getmicrotime();			
+	parse_str($_SERVER['QUERY_STRING']);
+	if(isset($section) && $GLOBALS['save_loading_time']!=''){
+		$loadingTime=round(($GLOBALS['server_end_time']-$GLOBALS['server_start_time']),3);
+		$loadingTimeToLog=$section."\t".$loadingTime."\t".$_SERVER['QUERY_STRING'];
+		if($GLOBALS['display_loading_time']==1){
+			$this->content.='<p class="normaltext">'.$loadingTime.' s';
+		}
+		@writeFile($GLOBALS['save_loading_time'].'loadingTimes',$loadingTimeToLog."\n",'a');
+	}
+	
+	echo $this->content;
+  }
 
   function output() {
   	$this->displayTitle();

@@ -26,7 +26,7 @@ function keyboardLayout($output,$dbADO) {
 		
 		$coreKL=exec('/usr/pluto/bin/XKbLayout.sh get 127.0.0.1');
 
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
