@@ -443,13 +443,13 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Devic
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_DeviceTemplate, string sMacAddres,
-	string sIPAddress, string sPK_DHCPDevice)
+	string sIPAddress, int iPK_DHCPDevice)
 {
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMacAddres);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIPAddress);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPK_DHCPDevice);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::ltos(iPK_DHCPDevice));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_DeviceTemplate));
-	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), "", "", false, false );
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddres, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName)
