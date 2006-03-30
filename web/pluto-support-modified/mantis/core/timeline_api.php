@@ -27,7 +27,9 @@
 		$query.="
 				WHERE id='$p_bug_id'";
 		db_query( $query );
-
+		
+		$insertTimeAssigned="REPLACE INTO assigned_time (id,assigned_time) VALUES ('$p_bug_id','$p_date_todo')";
+		db_query($insertTimeAssigned);
 	}
 
 
@@ -56,7 +58,7 @@
 	<td><?php echo lang_get( 'this_bug' ) ?>
 		<form method="POST" action="bug_timeline_save.php">
 		<input type="hidden" name="src_bug_id" value="<?php echo $p_bug_id ?>" size="4" />
-		Date assigned: <input type="text" name="date_todo" value="<?=$t_bug->date_todo?>" size="17"/>
+		Date assigned: <input type="text" name="date_todo" value="<?=(($t_bug->date_todo!=0)?$t_bug->date_todo:'0000-00-00 00:00:00')?>" size="17"/>
 		do after task: <input type="text" name="id_after_todo" value="<?=$t_bug->id_after_todo?>" maxlength="7" size="4"/>
 		hours - estimate: <input type="text" name="hours_estimate" value="<?=$t_bug->hours_estimate?>" maxlength="7" size="4"/>
 		hours - actual: <input type="text" name="hours_actual" value="<?=$t_bug->hours_actual?>" maxlength="7" size="4"/> 
