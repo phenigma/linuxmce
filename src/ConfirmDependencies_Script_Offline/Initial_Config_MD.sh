@@ -159,7 +159,7 @@ else
 	echo "$ACTIV_MSG" | fmt
 fi
 
-/usr/pluto/bin/Initial_Config_Finish.sh
+/usr/pluto/install/Initial_Config_Finish.sh
 # At this point these scripts should be available (installation finished, didn't it?)
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
