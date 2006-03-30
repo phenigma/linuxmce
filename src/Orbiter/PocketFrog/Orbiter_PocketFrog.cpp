@@ -287,6 +287,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 			);
 		StartAnimation();
 #endif
+	}
 
 	Initialize(gtPocketFrogGraphic);
 
@@ -324,8 +325,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 			r.left, r.top, r.right, r.bottom);
 	}
 #endif
-	}
-
+	
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1645,7 +1645,9 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 				GL2D_EFFECT_HIGHLIGHT_AREA,
 				Simulator::GetInstance()->m_iMilisecondsHighLight
 			);
-	Effect->Configure(&m_rectLastHighlight);
+
+	if(NULL != Effect)
+		Effect->Configure(&m_rectLastHighlight);
 
 	StartAnimation();
 #endif
