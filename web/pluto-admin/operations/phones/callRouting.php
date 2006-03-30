@@ -255,6 +255,10 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 }
 
 function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/callRouting.lang.php');
+	
 	global 	$stepsArray;
 
 	$out='';

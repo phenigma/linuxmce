@@ -428,7 +428,7 @@ function setTemplateFileType($type) {
 		if($GLOBALS['display_loading_time']==1){
 			$this->content.='<p class="normaltext">'.$loadingTime.' s';
 		}
-		@writeFile($GLOBALS['save_loading_time'].'loadingTimes',$loadingTimeToLog."\n",'a');
+		writeFile($GLOBALS['save_loading_time'].'loadingTimes',$loadingTimeToLog."\n",'a');
 	}
 	
 	echo $this->content;
