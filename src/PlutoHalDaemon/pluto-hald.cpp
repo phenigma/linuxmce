@@ -630,7 +630,7 @@ int main(int argc, char* argv[])
 		fclose(lockFile);
 	}
 	
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/hal.newlog");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/hal.log");
 	
 	if(argc >= 2)
 	{

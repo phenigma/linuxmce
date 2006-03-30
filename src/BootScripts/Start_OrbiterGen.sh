@@ -8,7 +8,7 @@ SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
 OutDir=/usr/pluto/orbiter
 
-/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.newlog)
+/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
 installation=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
@@ -34,7 +34,7 @@ AND FK_Installation=$installation"
 
 	for OrbiterDev in $Orbiters; do
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating stand-alone Orbiter nr. $OrbiterDev"
-		/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" > >(tee -a /var/log/pluto/orbitergen.newlog) 2> >(grep -vF "WARNING: You are using the SDL dummy video driver!" >&2) || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
+		/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" > >(tee -a /var/log/pluto/orbitergen.log) 2> >(grep -vF "WARNING: You are using the SDL dummy video driver!" >&2) || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
 	done
 fi
 

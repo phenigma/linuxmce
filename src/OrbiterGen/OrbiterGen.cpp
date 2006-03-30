@@ -94,12 +94,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//	WSADATA wsaData;
 	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
-	g_pPlutoLogger=new FileLogger("/temp/orbitergen.newlog");
+	g_pPlutoLogger=new FileLogger("/temp/orbitergen.log");
 #else
 int main(int argc, char *argv[])
 {
 	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
-	g_pPlutoLogger=new FileLogger("/var/log/pluto/OrbiterGen.newlog");
+	g_pPlutoLogger=new FileLogger("/var/log/pluto/OrbiterGen.log");
 #endif
 
 

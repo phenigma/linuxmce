@@ -16,7 +16,7 @@ esac
 Cmd=/usr/pluto/install/Initial_Config_"$Suffix".sh
 
 mkdir -p /var/log/pluto
-File="/var/log/pluto/Initial_Install.newlog"
+File="/var/log/pluto/Initial_Install.log"
 : >"$File"
 exec 3>&1 4>&2
 bash -x "$Cmd" > >(tee -a "$File" >&3) 2> >(tee -a "$File" | grep -v '^++* ' >&4)

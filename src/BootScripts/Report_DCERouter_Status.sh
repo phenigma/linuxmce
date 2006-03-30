@@ -112,7 +112,7 @@ while [ -z "$Exit" ]; do
 		touch "$FNow"
 		if [ -n "$Key" ]; then
 			case "$Key" in
-				1) Tail=/var/log/pluto/DCERouter.newlog; break ;;
+				1) Tail=/var/log/pluto/DCERouter.log; break ;;
 				2) Tail=/var/log/pluto/pluto.log; break ;;
 				3) Tail=/var/log/syslog; break ;;
 				X) ConfirmExit && Exit="true"; break ;;

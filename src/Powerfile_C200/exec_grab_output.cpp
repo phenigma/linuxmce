@@ -11,6 +11,10 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
+	string sOutput;
+	char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
+	ProcessUtils::GetCommandOutput(args[0], &args[0], sOutput);
+#if 0
 	char * args_default[] = {"(unused)", "/bin/cat", "/proc/cpuinfo", NULL};
 	char ** args = args_default;
 
@@ -27,6 +31,6 @@ int main(int argc, char * argv[])
 	{
 		cout << "Execution failed" << endl;
 	}
-	
+#endif
 	return 0;
 }

@@ -3,7 +3,7 @@
 IP="$1"
 Cmd="$2"
 
-Log=/var/log/pluto/remote_command.newlog
+Log=/var/log/pluto/remote_command.log
 echo >>"$Log"
 date -R >>"$Log"
 echo "IP: $IP ; Cmd: $Cmd" >>"$Log"

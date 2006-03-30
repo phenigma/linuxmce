@@ -14,7 +14,7 @@ EnableMaxtorNFS()
 	
 	Logging "Maxtor-openmss" $SEVERITY_NORMAL "EnableMaxtorNFS" "Enabling NFS on Maxtor with IP '$IP'"
 	Logging "Maxtor-openmss" $SEVERITY_NORMAL "EnableMaxtorNFS" "Cmd: /usr/pluto/bin/Maxtor_openmss_EnableNFS \"$IP\""
-	/usr/pluto/bin/Maxtor_openmss_EnableNFS "$IP" > >(tee /var/log/pluto/Maxtor_openmss_EnableNFS.newlog) 2>&1
+	/usr/pluto/bin/Maxtor_openmss_EnableNFS "$IP" > >(tee -a /var/log/pluto/Maxtor_openmss_EnableNFS.log) 2>&1
 	Logging "Maxtor-openmss" $SEVERITY_NORMAL "EnableMaxtorNFS" "Enabled NFS on Maxtor with IP '$IP'"
 
 	return 0

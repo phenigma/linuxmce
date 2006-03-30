@@ -18,7 +18,8 @@ if [[ -z "$RepositoryURL" && -z "$RepositoryURL" && -z "$RepositoryName" ]]; the
 	NoAptSource="y"
 fi
 
-date -R >>/var/log/pluto/remote_install.newlog
+LogFile=/var/log/pluto/remote_install.log
+date -R >>"$LogFile"
 
 Result=""
 if [ -n "$IsDeb" ]; then
@@ -26,7 +27,7 @@ if [ -n "$IsDeb" ]; then
 	[[ "$RepositoryName" != *" "* ]] && RepositoryName="$RepositoryName main contrib non-free"
 	if [[ -z "$NoAptSource" ]] && ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
 		echo "$RepositoryURL $RepositoryName" |tee "/etc/apt/sources.list.test"
-		if ! apt-get -o Dir::Etc::SourceList="/etc/apt/sources.list.test" --no-list-cleanup update &> >(tee -a /var/log/pluto/remote_install.newlog); then
+		if ! apt-get -o Dir::Etc::SourceList="/etc/apt/sources.list.test" --no-list-cleanup update &> >(tee -a "$LogFile"); then
 			Result="Installation failed (from Debian repository): Source failed the test."
 			rm "/etc/apt/sources.list.test"
 		fi
@@ -37,8 +38,8 @@ if [ -n "$IsDeb" ]; then
 			cat "/etc/apt/sources.list.test" >>/etc/apt/sources.list
 			rm "/etc/apt/sources.list.test"
 		fi
-		apt-get update &> >(tee -a /var/log/pluto/remote_install.newlog)
-		apt-get -y install "$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
+		apt-get update &> >(tee -a "$LogFile")
+		apt-get -y install "$PackageName" &> >(tee -a "$LogFile")
 		RetCode="$?"
 
 		if [[ "$RetCode" != 0 ]]; then
@@ -47,10 +48,10 @@ if [ -n "$IsDeb" ]; then
 	fi
 	Unlock "InstallNewDevice" "InstallSoftware_Remote"
 else
-	wget -P /tmp "$RepositoryURL/$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
+	wget -P /tmp "$RepositoryURL/$PackageName" &> >(tee -a "$LogFile")
 	if [ "$?" -eq 0 ]; then
 		WaitLock "InstallNewDevice" "InstallSoftware_Remote"
-		dpkg -i /tmp/$PackageName || Result="Installation failed (direct link)" &> >(tee -a /var/log/pluto/remote_install.newlog)
+		dpkg -i /tmp/$PackageName || Result="Installation failed (direct link)" &> >(tee -a "$LogFile")
 		Unlock "InstallNewDevice" "InstallSoftware_Remote"
 	else
 		Result="Download failed (direct link)"

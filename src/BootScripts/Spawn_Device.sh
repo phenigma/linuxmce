@@ -35,12 +35,10 @@ Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line"
 
-log_file="/var/log/pluto/${device_id}_`basename $cmd_line`";
-valgrind_log_file="/var/log/pluto/valgrind_${device_id}_`basename $cmd_line`";
-new_log="$log_file.newlog"
-real_log="$log_file.log"
+LogFile="/var/log/pluto/${device_id}_$(basename $cmd_line).log";
+valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log";
 
-[[ -n "$VGcmd" ]] && VGcmd="$VGcmd --log-file=$valgrind_log_file "
+[[ -n "$VGcmd" ]] && VGcmd="$VGcmd --log-file=$valgrind_LogFile "
 
 if [[ -z "$cmd_line" ]]; then
 	Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Empty command line"
@@ -84,10 +82,8 @@ ReloadWatcher=0
 while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
-	Logging $TYPE $SEVERITY_NORMAL "$module" "Appending log..."
-	cat "$new_log" >> "$real_log"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
-	echo $(date) Starting > "$new_log"
+	echo $(date) Starting >>"$LogFile"
 
 	ReloadLock=/usr/pluto/locks/reload_watcher
 	if [[ -f "$ReloadLock" ]] && grep -q "$device_id" "$ReloadLock"; then
@@ -113,11 +109,11 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 	fi
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
 	if [[ "$cmd_line" != *Spawn_Device* && "$Valgrind" == *"$cmd_line"* ]]; then
-#		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
-		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" &> >(tee "$new_log")
+#		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee -a "$LogFile"
+		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" &> >(tee -a "$LogFile")
 	else
-#		(/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
-		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" &> >(tee "$new_log")
+#		(/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee -a "$LogFile"
+		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" &> >(tee -a "$LogFile")
 	fi
 
 #	Ret="$(cat /tmp/pluto_exitcode_$device_id)"
@@ -131,14 +127,14 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 #	fi
 #	screen -wipe &>/dev/null
 	
-	echo "Return code: $Ret" >>"$new_log"
+	echo "Return code: $Ret" >>"$LogFile"
 	if [[ "$Ret" -eq 3 ]]; then
 		# Abort
 		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		sed -i "/^[^0-9]*$device_id[^0-9]*\$/ d" "$AlreadyRunning"
 		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
 		sed -i "/^$device_id$/ d" "$AlreadyRunning"
-		echo $(date) Shutdown >> "$new_log"
+		echo $(date) Shutdown >>"$LogFile"
 		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		break
 	elif [[ "$Ret" -eq 2 || "$Ret" -eq 0 ]]; then
@@ -150,11 +146,11 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 			break
 		fi
-		echo $(date) Restart >> "$new_log"
+		echo $(date) Restart >>"$LogFile"
 		sleep 10
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
-		echo $(date) died >> "$new_log"
+		echo $(date) died >>"$LogFile"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 

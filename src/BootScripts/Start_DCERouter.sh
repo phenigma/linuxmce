@@ -5,9 +5,7 @@
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
 
-log_file="/var/log/pluto/DCERouter";
-new_log="$log_file.newlog"
-real_log="$log_file.log"
+LogFile="/var/log/pluto/DCERouter.log";
 
 module=DCERouter
 device_name="$module"
@@ -17,4 +15,3 @@ screen -d -m -S DCERouter /usr/pluto/bin/Spawn_DCERouter.sh
 while ! nc -z localhost 3450; do
 	sleep 0.1
 done
-

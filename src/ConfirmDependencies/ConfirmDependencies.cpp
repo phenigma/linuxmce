@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 	g_pPlutoLogger = new FileLogger("stdout");
 #else
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/ConfirmDependencies.newlog");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/ConfirmDependencies.log");
 #endif
 
 	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line

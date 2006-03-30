@@ -102,7 +102,7 @@ sub log_plugin {
 	} elsif($type eq "log") {
 		$type = "00";
 	}
-	system("echo \"$type `date` $data\" >> /var/log/pluto/dhcp_pnp.newlog");
+	system("echo \"$type `date` $data\" >> /var/log/pluto/dhcp_pnp.log");
 }
 
 sub parse {

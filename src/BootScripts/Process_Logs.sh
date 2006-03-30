@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Offlined until further decisions are made, although it seems to be disabled already
+exit 0
+
 . /usr/pluto/bin/Config_Ops.sh
 
 Param="$1"

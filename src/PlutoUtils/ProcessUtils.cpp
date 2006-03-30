@@ -104,7 +104,7 @@ printf("dupped arg %d %s\n",i,ps);
 			string sLogFile;
 			if (bLogOutput)
 			{
-				sLogFile = string("") + "/var/log/pluto/Spawn_" + sAppIdentifier + "_" + StringUtils::itos(getpid()) + ".newlog";
+				sLogFile = string("") + "/var/log/pluto/Spawn_" + sAppIdentifier + "_" + StringUtils::itos(getpid()) + ".log";
 			}
 			else
 			{

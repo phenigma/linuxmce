@@ -41,7 +41,7 @@
 
 // some environment specific stuff
 #ifndef WIN32
-    char *LoggerFileName="/var/log/pluto/PlutoServer.Logger.newlog";
+    char *LoggerFileName="/var/log/pluto/PlutoServer.Logger.log";
 #else
     #ifdef UNDER_CE
         char *LoggerFileName="\\Storage Card\\PlutoServer.Logger.txt";

@@ -39,7 +39,7 @@ extern bool g_bChangedScenarios;
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateEntArea.newlog");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateEntArea.log");
 
 	bool bError=false;
 	int iPK_EntertainArea=0;

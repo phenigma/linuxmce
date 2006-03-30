@@ -841,7 +841,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			int range_end = ranges_queue[i].second;
 			int interval_length = (range_end-range_begin)/intervals_count+1;
 
-			//cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
+			cout << "Scanning range of psc_id: [" << range_begin << ", " << range_end << "] with interval_length=" << interval_length << endl;
 
 			R_GetHashedTableStats* pReq = new R_GetHashedTableStats(m_sName, &g_GlobalConfig.m_vectRestrictions, range_begin, range_end, interval_length);
 			hash_requests.push_back(pReq);
@@ -923,7 +923,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 				if ((client_stats[interval_no].first!=server_stats[interval_no].first)||(client_stats[interval_no].second!=server_stats[interval_no].second))
 				{
 					ranges_queue.push_back(pair<int, int> (range_begin+interval_length*interval_no, range_begin+interval_length*(interval_no+1)-1));
-//					cout << "Interval: " << interval_no << " is different = range [" << (range_begin+interval_length*interval_no) << ", " << (range_begin+interval_length*(interval_no+1)-1) << "] " << endl;
+					cout << "Interval: " << interval_no << " is different = range [" << (range_begin+interval_length*interval_no) << ", " << (range_begin+interval_length*(interval_no+1)-1) << "] " << endl;
 				}
 			}
 

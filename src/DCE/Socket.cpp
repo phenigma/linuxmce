@@ -244,7 +244,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 		fclose( f );
 	}
 	else
-		system( (string("lsof >> /var/log/pluto/lsof1_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+		system( (string("lsof >>/var/log/pluto/lsof1_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 
 	SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
 	pSocketInfo->m_tCreated = time(NULL);
@@ -328,7 +328,7 @@ Socket::~Socket()
 		fclose( f );
 	}
 	else
-		system( (string("lsof >> /var/log/pluto/lsof2_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+		system( (string("lsof >>/var/log/pluto/lsof2_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 
 	delete[] m_pcSockLogFile;
 	delete[] m_pcSockLogErrorFile;
@@ -438,7 +438,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText)
 				{
 					cout << "cannot open file2: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 					cerr << "cannot open file2: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-					system( (string("lsof >> /var/log/pluto/lsof3_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+					system( (string("lsof >>/var/log/pluto/lsof3_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 				}
 
 				// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -547,7 +547,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		{
 			cout << "cannot open file6: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 			cerr << "cannot open file6: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof4_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+			system( (string("lsof >>/var/log/pluto/lsof4_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 		}
 
 		// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -593,7 +593,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 				{
 					cout << "cannot open file8: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 					cerr << "cannot open file8: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-					system( (string("lsof >> /var/log/pluto/lsof5_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+					system( (string("lsof >>/var/log/pluto/lsof5_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 				}
 
 				// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -677,7 +677,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		{
 			cout << "cannot open file10: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 			cerr << "cannot open file10: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof6_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+			system( (string("lsof >>/var/log/pluto/lsof6_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 		}
 
 		// Don't check -- if this still fails just throw an exception something is very wrong!
@@ -845,7 +845,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 		{
 			cout << "cannot open file12: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 			cerr << "cannot open file12: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof7_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+			system( (string("lsof >>/var/log/pluto/lsof7_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
@@ -906,7 +906,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 					{
 						cout << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 						cerr << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-						system( (string("lsof >> /var/log/pluto/lsof8_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+						system( (string("lsof >>/var/log/pluto/lsof8_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 					}
 					// Don't check -- if this still fails just throw an exception something is very wrong!
 					fprintf( file, "Cannot write to regular sock log\n" );
@@ -964,7 +964,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 				{
 					cout << "cannot open file16: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 					cerr << "cannot open file16: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-					system( (string("lsof >> /var/log/pluto/lsof9_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+					system( (string("lsof >>/var/log/pluto/lsof9_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 				}
 				// Don't check -- if this still fails just throw an exception something is very wrong!
 				fprintf( file, "Cannot write to regular sock log\n" );
@@ -1046,7 +1046,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 			{
 				cout << "cannot open file19: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 				cerr << "cannot open file19: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-				system( (string("lsof >> /var/log/pluto/lsof10_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+				system( (string("lsof >>/var/log/pluto/lsof10_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 			}
 			// Don't check -- if this still fails just throw an exception something is very wrong!
 			fprintf( file, "Cannot write to regular sock log\n" );
@@ -1099,7 +1099,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 		{
 			cout << "cannot open file21: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 			cerr << "cannot open file21: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof11_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+			system( (string("lsof >>/var/log/pluto/lsof11_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
@@ -1145,7 +1145,7 @@ bool Socket::SendString( string sLine )
 		{
 			cout << "cannot open file25: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
 			cerr << "cannot open file25: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof12_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+			system( (string("lsof >>/var/log/pluto/lsof12_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 		}
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );

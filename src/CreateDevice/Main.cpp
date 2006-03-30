@@ -37,7 +37,7 @@ namespace DCE
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.newlog");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.log");
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
 	string sIPAddress,sMacAddress,sDeviceData,sUserName;

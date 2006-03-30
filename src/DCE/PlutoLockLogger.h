@@ -133,7 +133,7 @@ namespace DCE
 				}
 #ifndef WIN32
 				else
-					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+					system( (string("lsof >>/var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".log").c_str() );
 #endif
 				pthread_mutex_lock(&m_pLock->mutex);
 			}

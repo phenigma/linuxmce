@@ -761,7 +761,7 @@ void gc100::Start_seriald()
 													// and also avoid introducing a busy loop like the one currently commented out below
 #endif
 
-//			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
+//			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.log 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
 			snprintf(command, 512, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);

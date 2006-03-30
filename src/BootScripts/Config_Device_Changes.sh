@@ -111,7 +111,9 @@ rm "$CUsh.$$"
 
 chmod +x "$CUsh"
 WaitLock "InstallNewDevice" "Confirm_Device_Changes" # don't step on InstallNewDevices scripts that may be running in the background
-if bash -x "$CUsh" &> >(tee /var/log/pluto/Config_Device_Changes.newlog); then
+LogFile="/var/log/pluto/Config_Device_Changes.log"
+date -R >>"$LogFile"
+if bash -x "$CUsh" &> >(tee -a "$LogFile"); then
 	Unset_NeedConfigure_Children "$PK_Device"
 fi
 Unlock "InstallNewDevice" "Confirm_Device_Changes"
