@@ -32,7 +32,7 @@
 #include "ratpoison.h"
 
 /* log commands config */
-const char sLogFile[] = "/var/log/pluto/ratpoison.newlog";
+const char sLogFile[] = "/var/log/pluto/ratpoison.log";
 FILE * g_fpLogFile = NULL;
 
 FILE * log_file_open()
