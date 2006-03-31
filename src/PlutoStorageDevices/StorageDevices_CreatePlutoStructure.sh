@@ -1,21 +1,66 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 
-DestPath="/test"
+TPL_STORAGE_DEVICES="1790, 1791"
+DD_USE_PLUTO_DIR_STRUCTURE=130
 
+
+## A list containing the plugo directories
 Directories="movies,pictures,music,documents,videos"
 countDirs=$(echo $Directories | sed 's/,/\n/g' | wc -l)
 
+## A list containin the pluto users that need to use those directories
 Q="SELECT PK_Users, UserName FROM Users"
 Users=$(RunSQL "$Q")
-for i in `seq 1 $countDirs` ;do
-	mediaDir=$(echo $Directories | cut -d',' -f$i)
-	
-	for User in $Users; do
-		User_ID=$(Field 1 "$User")
-		User_Uname=$(Field 2 "$User")
+
+## Get a list of storage devices that use the pluto dir structure
+if [[ "$1" == "" ]]; then
+	Q="
+		SELECT 
+		PK_Device 
+	FROM 
+		Device 
+		JOIN Device_DeviceData ON FK_Device = PK_Device
+	WHERE 
+		FK_DeviceTemplate IN ($TPL_STORAGE_DEVICES)
+		AND
+		FK_DeviceData = $DD_USE_PLUTO_DIR_STRUCTURE
+		AND
+		IK_DeviceData LIKE '%1%'
+		AND
+		FK_Device_ControlledVia = '$PK_Device'
+	"
+	Devices=$(RunSQL "$Q")
+else
+	Devices=$1
+fi
+
+
+for Device in $Devices; do
+	Device_ID=$(Field 1 "$Device")
+	Device_MountPoint="/mnt/device/$Device_ID"
+
+	Device_IsMounted=$(cd /mnt/device/$Device_ID && mount | grep "\/mnt\/device\/$Device_ID ")
+	if [[ "$Device_IsMounted" == "" ]]; then
+		echo "WARNING: Device $Device_ID is not mounted, skiping ..."
+		continue
+	fi
+
+	##For every directory
+	for i in `seq 1 $countDirs` ;do
+		mediaDir=$(echo $Directories | cut -d',' -f$i)
 		
-		echo "mkdir $DestPath/user_$User_ID/data/$mediaDir"
+		## For every user
+		for User in $Users; do
+			User_ID=$(Field 1 "$User")
+			User_Uname=$(Field 2 "$User")
+			
+			echo "mkdir $Device_MountPoint/user_$User_ID/data/$mediaDir"
+		done
+
+		## And one for public
+		echo "mkdir $Device_MountPoint/public/data/$mediaDir"
 	done
 done
