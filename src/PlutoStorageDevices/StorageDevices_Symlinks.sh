@@ -26,8 +26,12 @@ for Device in $InternalOwnStorageDevices; do
 	Device_MountPoint="/mnt/device/$Device_ID"
 	
 	Device_UsePlutoDirStructure=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USE_PLUTO_DIR_STRUCTURE")
+	
 	Device_Directories=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_DIRECTORIES")
+	Device_Directories=$(Field "1" "$Device_Directories")
+
 	Device_Users=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USERS")
+	Device_Users=$(Field "1" "$Device_Users")
 
 	echo -e "\n## Generating symlinks for storage device $Device_Description ($Device_ID)"
 	
@@ -67,7 +71,7 @@ for Device in $InternalOwnStorageDevices; do
 			
 			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description"
 			if [[ "$Device_UsePlutoDirStructure" == "1" ]]; then
-				symlinkSource="/mnt/device/$Device_ID/$userDir/$mediaDir"
+				symlinkSource="/mnt/device/$Device_ID/$userDir/data/$mediaDir"
 			else
 				symlinkSource="/mnt/device/$Device_ID/"
 			fi
