@@ -439,32 +439,29 @@ g_pPlutoLogger->Write(LV_STATUS, "Rendering text...");
 
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
-	if (!EnableOpenGL)
-	{
-		SDL_Rect TextLocation;
-		TextLocation.x = point.X + Text->m_rPosition.X;
-		TextLocation.y = point.Y + Text->m_rPosition.Y;
-		TextLocation.w = Text->m_rPosition.Width;
-		TextLocation.h = Text->m_rPosition.Height;
-	
-	#ifdef WIN32
-	#ifdef WINCE
-		string BasePath = "C:\\Windows\\Fonts";
-	#else
-		char pWindowsDirector[MAX_PATH];
-		GetWindowsDirectory(pWindowsDirector, MAX_PATH);
-		string BasePath = string(pWindowsDirector) + "\\Fonts";
-	#endif
-	
-	#else
-		string BasePath="/usr/share/fonts/truetype/msttcorefonts";
-	#endif //win32
-	
-		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
-			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
-	}
+	SDL_Rect TextLocation;
+	TextLocation.x = point.X + Text->m_rPosition.X;
+	TextLocation.y = point.Y + Text->m_rPosition.Y;
+	TextLocation.w = Text->m_rPosition.Width;
+	TextLocation.h = Text->m_rPosition.Height;
 
-  g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
+#ifdef WIN32
+#ifdef WINCE
+	string BasePath = "C:\\Windows\\Fonts";
+#else
+	char pWindowsDirector[MAX_PATH];
+	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
+	string BasePath = string(pWindowsDirector) + "\\Fonts";
+#endif
+
+#else
+	string BasePath="/usr/share/fonts/truetype/msttcorefonts";
+#endif //win32
+
+	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
+		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)

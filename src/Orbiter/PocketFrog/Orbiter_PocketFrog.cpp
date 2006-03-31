@@ -817,7 +817,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 
 	pObj->m_pGraphicToUndoSelect = new PocketFrogGraphic(pSurface);
 }
-
+//-----------------------------------------------------------------------------------------------------
 PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -965,7 +965,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	}
 	else
 	{
-		TryToUpdate();
+		UpdateScreen();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1066,10 +1066,11 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 
 	Rect rectUpdate;
 	rectUpdate.Set(localrect.Left(), localrect.Top(), localrect.Right(), localrect.Bottom());
-	if (!m_bUseOpenGL)
-	{
-		GetDisplay()->Update();
-	}
+
+	if(!EnableOpenGL)
+		GetDisplay()->Update(&rectUpdate);
+	else
+		UpdateScreen();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
@@ -1182,7 +1183,11 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
+	UpdateScreen();
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::UpdateScreen()
+{
 	if (!m_bUseOpenGL)
 	{
 		GetDisplay()->Update();
@@ -1250,7 +1255,7 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 	Rect rectPocketFrog;
 	rectPocketFrog.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
 
-	TryToUpdate();
+	UpdateScreen();
 }
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter_PocketFrog::SelfUpdate()

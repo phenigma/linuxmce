@@ -192,6 +192,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_nCallbackCounter = 0;
+	m_pObj_NowPlayingOnScreen = NULL;
+	m_pObj_NowPlaying_Section_OnScreen = NULL;
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
 	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;

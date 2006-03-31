@@ -72,6 +72,7 @@ public:
 	virtual void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	virtual void TryToUpdate();
+	virtual void UpdateScreen();
 
 	// Drawing routines
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
