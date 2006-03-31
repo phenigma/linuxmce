@@ -376,13 +376,13 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					m_Desktop->EffectBuilder->GetEffectCode(m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
-					500
+					Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(!Transit)
 					Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					0
+					Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(Transit)
 					Transit->Configure(&rectLastSelected);
@@ -393,7 +393,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 			m_Desktop->EffectBuilder->
 				CreateEffect(
-				GL2D_EFFECT_NOEFFECT,
+				GL2D_EFFECT_TRANSIT_NO_EFFECT,
 				0
 				);
 		}
