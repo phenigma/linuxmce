@@ -72,7 +72,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     try
     {
-         g_pPlutoLogger = new FileLogger(sLogger.c_str());
+         g_pPlutoLogger = new NullLogger();//FileLogger(sLogger.c_str());
     }
     catch(...)
     {
