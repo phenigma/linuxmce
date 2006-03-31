@@ -35,6 +35,23 @@
 #include "../Simulator.h"
 #include "../Main.h"
 
+bool Init_System()
+{
+    // Disable DPMS and screen saver
+    system("/usr/bin/X11/xset -display :0 -dpms s off");
+
+    // as soon as possible
+    if ( XInitThreads() == 0 )
+    {
+        cerr << "Unable to initialize multithreaded X11 code (XInitThreads failed)";
+        return false;
+    }
+
+    // TODO: start X11
+
+    return true;
+}
+
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
 extern Command_Impl *g_pCommand_Impl;
@@ -329,8 +346,7 @@ SDL_App_Object::SDL_App_Object(int argc, char *argv[])
 
 SDL_App_Object::~SDL_App_Object()
 {
-    if (m_pSDL_Event_Loop_Data)
-        this->Destroy();
+    Destroy();
 }
 
 bool SDL_App_Object::Run()
@@ -356,11 +372,6 @@ bool SDL_App_Object::LoadConfig()
     return  true;
 };
 
-//bool SDL_App_Object::ShouldUseWx()
-//{
-//    return Simulator::GetInstance()->m_bUseWxWidgets;
-//};
-
 bool SDL_App_Object::Create()
 {
 
@@ -379,11 +390,13 @@ bool SDL_App_Object::Create()
         g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
         return false;
     }
+    g_pPlutoLogger->Write(LV_CRITICAL, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
     return true;
 };
 
 bool SDL_App_Object::EventProcess()
 {
+    g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::EventProcess()");
     if (! m_pSDL_Event_Loop_Data->pOrbiter)
         return false;
     return SDL_Event_Process(*m_pSDL_Event_Loop_Data);
@@ -410,22 +423,10 @@ int SDL_App_Object::GetExitCode() const
     return m_nExitCode;
 };
 
-bool Init_System()
-{
-    // Disable DPMS and screen saver
-    system("/usr/bin/X11/xset -display :0 -dpms s off");
-
-    // as soon as possible
-    if ( XInitThreads() == 0 )
-    {
-        cerr << "Unable to initialize multithreaded X11 code (XInitThreads failed)";
-        return false;
-    }
-
-    // TODO: start X11
-
-    return true;
-}
+//bool SDL_App_Object::ShouldUseWx()
+//{
+//    return Simulator::GetInstance()->m_bUseWxWidgets;
+//};
 
 #if (! USE_WX_LIB)
 int main(int argc, char *argv[])

@@ -100,7 +100,7 @@ public:
     /*virtual */bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress);
 	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 
-	virtual void SetCurrentAppDesktopName(string sName);
+    void BringWindowOnTop(string sWindowName="");
 
 #ifndef WIN32
 	virtual void DoResetRatpoison() { g_pPlutoLogger->Write(LV_CRITICAL,"Need to reset ratpoison"); resetRatpoison(); }

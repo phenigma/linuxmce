@@ -133,7 +133,6 @@ void OrbiterLinux::reinitGraphics()
 
     commandRatPoison(":set winname class");
     commandRatPoison(":desktop off");
-
     commandRatPoison(string(":select ") + m_strWindowName);
     commandRatPoison(":desktop on");
     commandRatPoison(":keystodesktop on");
@@ -205,15 +204,6 @@ Window OrbiterLinux::getWindow()
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
-	/*
-      {
-      if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-      SetCurrentAppDesktopName("dialog");
-      else if(pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
-      SetCurrentAppDesktopName("pluto-xine-playback-window");
-      }
-	*/
-
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
 
@@ -243,8 +233,6 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 		//Add a command to hook. When the hook is run, command will be executed.
 		//
 		commandRatPoison(":addhook switchwin keystodesktop on");
-
-
         commandRatPoison(":keystodesktop on");
     }
     else
@@ -453,6 +441,7 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
 
 bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
 {
+    std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
 /////////////////////////////////////////////////////////////////
 //  WX dialogs
 /////////////////////////////////////////////////////////////////
@@ -460,39 +449,35 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
 	CallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
-	CallBackType callbackType = cbOnRefreshWxWidget;
+	CallBackType callbackType = cbOnWxWidgetRefresh;
 	if(nProgress != -1)
 	{
 		if(!bDialogRunning)
 		{
-			callbackType = cbOnCreateWxWidget;
+			callbackType = cbOnWxWidgetCreate;
 			bDialogRunning = true;
-            {
-                // little hack: also delete the other dialogs (TaskManager)
-                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-            }
 		}
 		//else assuming it's a refresh
 	}
 	else
 	{
-        {
-            // little hack: also delete the other dialogs (TaskManager)
-            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-        }
-		callbackType = cbOnDeleteWxWidget;
+		callbackType = cbOnWxWidgetDelete;
 		bDialogRunning = false;
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
     // little hack: sync-this
-	//TaskManager::Instance().AddTask(pTask);
-	TaskManager::Instance().AddTaskAndWait(pTask);
+    if (callbackType == cbOnWxWidgetCreate)
+    {
+        TaskManager::Instance().AddTaskAndWait(pTask);
+        BringWindowOnTop("dialog");
+    }
+    else
+    {
+        if (callbackType == cbOnWxWidgetDelete)
+            BringWindowOnTop();
+        TaskManager::Instance().AddTask(pTask);
+    }
+	//TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
     if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
     {
@@ -528,13 +513,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         // create new window
         m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
         Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-        commandRatPoison(string(":select ") + "dialog");
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
+        BringWindowOnTop("dialog");
         return false;
     }
     if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
@@ -574,13 +553,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
+        BringWindowOnTop(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -605,45 +578,31 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 
 bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 {
-    std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
+    std::cout << "== DisplayProgress waitlist( " << sMessage << ", " << nProgress << " );" << std::endl;
 
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
 	CallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
-	CallBackType callbackType = cbOnRefreshWxWidget;
+	CallBackType callbackType = cbOnWxWidgetRefresh;
 	if(nProgress != -1)
 	{
 		if(!bDialogRunning)
 		{
-			callbackType = cbOnCreateWxWidget;
+			callbackType = cbOnWxWidgetCreate;
 			bDialogRunning = true;
-            {
-                // little hack: also delete the other dialogs (TaskManager)
-                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-                //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-                TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-            }
-		}
+        }
 		//else assuming it's a refresh
 	}
 	else
 	{
-		callbackType = cbOnDeleteWxWidget;
+		callbackType = cbOnWxWidgetDelete;
 		bDialogRunning = false;
-        {
-            // little hack: also delete the other dialogs (TaskManager)
-            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-            //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-            TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitUser, NULL));
-        }
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
     // little hack: sync-this
-	//TaskManager::Instance().AddTask(pTask);
-	TaskManager::Instance().AddTaskAndWait(pTask);
+	TaskManager::Instance().AddTask(pTask);
+	//TaskManager::Instance().AddTaskAndWait(pTask);
 #else // (USE_TASK_MANAGER)
 	//TODO:
     if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
@@ -680,13 +639,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // create new window
         m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
         Safe_Show<wxDialog_WaitList>(m_pWaitList);
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-        commandRatPoison(string(":select ") + "dialog");
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
+        BringWindowOnTop("dialog");
         return false;
     }
     if ( (m_pWaitList != NULL) && (nProgress >= 0) )
@@ -718,13 +671,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        commandRatPoison(":set winname class");
-        commandRatPoison(":desktop off");
-        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-        commandRatPoison(":desktop on");
-        commandRatPoison(":keystodesktop on");
-        commandRatPoison(":keybindings off");
-        setDesktopVisible(false);
+        BringWindowOnTop(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -760,17 +707,13 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
-    {
-        // little hack: also delete the other dialogs (TaskManager)
-        //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-        //TaskManager::Instance().AddTask(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-        TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitGrid, NULL));
-        TaskManager::Instance().AddTaskAndWait(TaskManager::Instance().CreateTask(cbOnDeleteWxWidget, E_Dialog_WaitList, NULL));
-    }
 	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
-	CallBackType callbackType = cbOnCreateWxWidget;
+	CallBackType callbackType = cbOnWxWidgetCreate;
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
+    BringWindowOnTop("dialog");
+	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnWxWidgetWaitUser, E_Dialog_WaitUser, pCallBackData);
+	TaskManager::Instance().AddTaskAndWait(pTaskWait);
 #else // (USE_TASK_MANAGER)
     // little hack: also delete the other dialogs (sync-thread)
     if (m_pWaitGrid)
@@ -784,13 +727,7 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
         m_pWaitList = NULL;
     }
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
-    commandRatPoison(string(":select ") + "dialog");
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
+    BringWindowOnTop("dialog");
     int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
     return nButtonId;
 #endif // (USE_TASK_MANAGER)
@@ -800,13 +737,7 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
-    commandRatPoison(string(":select ") + promptDlg.m_wndName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
+    BringWindowOnTop(promptDlg.m_wndName);
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
     return nUserAnswer;
@@ -818,10 +749,22 @@ ScreenHandler *OrbiterLinux::CreateScreenHandler()
 	return new OSDScreenHandler(this, &m_mapDesignObj);
 }
 
-void OrbiterLinux::SetCurrentAppDesktopName(string sName)
+void OrbiterLinux::BringWindowOnTop(string sWindowName/*=""*/)
 {
-    g_pPlutoLogger->Write( LV_WARNING, "OrbiterLinux::SetCurrentAppDesktopName(%s)", sName.c_str());
-	m_sCurrentAppDesktopName = sName;
+    g_pPlutoLogger->Write( LV_WARNING, "OrbiterLinux::CommandBringWindowOnTop(%s)", sWindowName.c_str());
+    if (sWindowName == "")
+    {
+        //sWindowName = m_strWindowName;
+        reinitGraphics();
+        return;
+    }
+    commandRatPoison(":set winname class");
+    commandRatPoison(":desktop off");
+    commandRatPoison(string(":select ") + sWindowName);
+    commandRatPoison(":desktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
+    setDesktopVisible(false);
 }
 
 //void OrbiterLinux::OnReload()

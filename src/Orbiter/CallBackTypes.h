@@ -6,10 +6,11 @@ enum CallBackType
 {
     cbDataGridSelected,
     cbObjectSelected,
-    cbOnCreateWxWidget,  // create a unique dialog
-    cbOnDeleteWxWidget,  // close dialog without saving data
-    cbOnRefreshWxWidget, // refresh dialog with new data
-    cbOnSaveWxWidget,    // save data from dialog
+    cbOnWxWidgetCreate,   // create a unique dialog
+    cbOnWxWidgetDelete,   // close dialog without saving data
+    cbOnWxWidgetRefresh,  // refresh dialog with new data
+    cbOnWxWidgetSave,     // save data from dialog
+    cbOnWxWidgetWaitUser, // wait for an user action
     cbOnKeyDown,
     cbOnKeyUp,
     cbOnMouseDown,

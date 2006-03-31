@@ -816,14 +816,14 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRefreshWxWidget);
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnWxWidgetRefresh);
 		if(pCallBackData)
 		{
 			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
 			pPositionData->m_rectPosition = pObj->m_rPosition;
 		}
 
-		if(ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
+		if(ExecuteScreenHandlerCallback(cbOnWxWidgetRefresh))
 			return;
 	}
 
@@ -1503,14 +1503,14 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 {
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCreateWxWidget);
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnWxWidgetCreate);
 		if(pCallBackData)
 		{
 			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
 			pPositionData->m_rectPosition = pObj->m_rPosition;
 		}
 
-		if(ExecuteScreenHandlerCallback(cbOnCreateWxWidget))
+		if(ExecuteScreenHandlerCallback(cbOnWxWidgetCreate))
 			return;
 	}
 
@@ -1571,7 +1571,7 @@ void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
 //------------------------------------------------------------------------
 void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnDeleteWxWidget))
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnWxWidgetDelete))
 		return;
 
 	pObj->m_bOnScreen=false;
@@ -9572,7 +9572,10 @@ bool Orbiter::WaitForRelativesIfOSD()
 		if( time(NULL)>tTimeout )
 		{
 			string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
-			PromptUser(sMessage);
+            g_pPlutoLogger->Write(LV_WARNING,"Deleting progress bar dialog");
+			DisplayProgress("", mapChildDevices, -1);
+            g_pPlutoLogger->Write(LV_WARNING,"Starting prompt user");
+            PromptUser(sMessage);
 			g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
 			break;
 		}

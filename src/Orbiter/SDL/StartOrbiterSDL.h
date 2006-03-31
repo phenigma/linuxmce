@@ -22,6 +22,11 @@ struct keyboardState
   clock_t cKeyDown;
 };
 
+// initialize OS stuff
+// application-specific code
+// exit if this fails
+bool Init_System();
+
 struct SDL_Event_Loop_Data
 {
   OrbiterSDL * pOrbiter;
@@ -52,17 +57,12 @@ public:
 
     int GetExitCode() const;
 
-protected:
     SDL_Event_Loop_Data *m_pSDL_Event_Loop_Data;
+protected:
     int argc;
     char **argv;
     int m_nExitCode;
 };
-
-// initialize OS stuff
-// application-specific code
-// exit if this fails
-bool Init_System();
 
 #if (! USE_WX_LIB)
 int main(int argc, char *argv[]);

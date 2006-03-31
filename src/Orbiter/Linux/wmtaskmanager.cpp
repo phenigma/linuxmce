@@ -33,11 +33,10 @@ void WMTaskManager::AddTask(WMTask *pEvent)
 	PLUTO_SAFETY_LOCK(cm, *ListMutex);
     g_pPlutoLogger->Write(
         LV_WARNING,
-        "WMTaskManager::AddTask(pEvent %p, action %d, dialog %d, data %p), size=%d",
-        pEvent, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
+        "WMTaskManager::AddTask(pEvent %p, id=%d, action %d, dialog %d, data %p), size=%d",
+        pEvent, pEvent->TaskId, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
         );
 	Events.push(pEvent);
-    //::wxWakeUpIdle();
 }
 
 void WMTaskManager::AddTaskAndWait(WMTask *pEvent)
@@ -48,11 +47,10 @@ void WMTaskManager::AddTaskAndWait(WMTask *pEvent)
 	PLUTO_SAFETY_LOCK(cm, *ListMutex);
     g_pPlutoLogger->Write(
         LV_WARNING,
-        "WMTaskManager::AddTaskAndWait(pEvent %p, action %d, dialog %d, data %p), size=%d",
-        pEvent, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
+        "WMTaskManager::AddTaskAndWait(pEvent %p, id=%d, action %d, dialog %d, data %p), size=%d",
+        pEvent, pEvent->TaskId, pEvent->TaskType, pEvent->DialogType, pEvent->pCallBackData, Events.size()
         );
 	Events.push(pEvent);
-    //::wxWakeUpIdle();
     listTasksWithConfirmation.push_back(pEvent->TaskId);
 
     unsigned int TaskId = pEvent->TaskId;
@@ -84,7 +82,7 @@ WMTask * WMTaskManager::PopTask()
 	if(Events.size())
 	{
         //g_pPlutoLogger->Write(LV_WARNING, "WMTaskManager::PopTask->Not Empty");
-		WMTask *pEvent = Events.back();
+		WMTask *pEvent = Events.front();
 		Events.pop();
         g_pPlutoLogger->Write(LV_WARNING, "WMTaskManager::PopTask(pEvent %p), size=%d", pEvent, Events.size());
         return pEvent;
