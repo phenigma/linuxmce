@@ -49,7 +49,7 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=alertsLog&msg=Alerts types updated.");
 	}
 	
-	$output->setNavigationMenu(array($TEXT_ALERTS_LOG_CONST=>'index.php?section=modeChangesLog'));				
+	$output->setNavigationMenu(array($TEXT_ALERTS_LOG_CONST=>'index.php?section=alertsLog'));				
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERTS_LOG_CONST);			
 	$output->output();  		
@@ -155,7 +155,7 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 		while($rowD=$resD->FetchRow()){
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
-				<td align="center"><img src="include/image.php?imagepath='.$GLOBALS['SecurityPicsPath'].$rowAD['PK_Alert_Device'].'.jpg"></td>
+				<td align="center"><img src="include/image.php?imagepath='.$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png"></td>
 				<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowAD['DetectionTime']).'</td>
 				<td align="left" colspan="5"><B>Device: </B><a href="index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'">'.$rowD['Description'].'</a></td>
 			</tr>
