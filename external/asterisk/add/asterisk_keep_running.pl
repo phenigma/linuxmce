@@ -20,6 +20,7 @@ unless($ast_run eq 2)
     $ast_run = &check_asterisk_running();
     if($ast_run != 1)
     {
+        $TROUBLE_LEVEL = 7;
         &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
         &send_message("Asterisk is not running, voip will be unavailable");
         &write_log("END RUN\n\n\n");
@@ -63,6 +64,10 @@ while (1 eq 1)
             $TROUBLE_LEVEL = 4;
         }
         if($line =~ /UNREACHABLE/)
+        {
+            $TROUBLE_LEVEL = 4;
+        }
+        if($line =~ /Registration for .+? timed out/)
         {
             $TROUBLE_LEVEL = 4;
         }
@@ -118,6 +123,7 @@ while (1 eq 1)
                     $ast_run = &check_asterisk_running();
                     if($ast_run != 1)
                     {
+                        $TROUBLE_LEVEL = 7;
                         &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
                         &send_message("Asterisk is not running, voip will be unavailable");
                         &write_log("END RUN\n\n\n");
@@ -162,6 +168,7 @@ while (1 eq 1)
                 $ast_run = &check_asterisk_running();
                 if($ast_run != 1)
                 {
+                    $TROUBLE_LEVEL = 7;
                     &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
                     &send_message("Asterisk is not running, voip will be unavailable");
                     &write_log("END RUN\n\n\n");
@@ -260,6 +267,14 @@ sub check_network_ping()
     return system("/bin/ping -c 5 $host");
 }
 
+sub check_traceroute()
+{
+    my $host = shift;
+    $host="www.google.com" unless(defined $host);
+    return system("echo -n -e \"\\n\\n`date`\\n\";/usr/sbin/traceroute $host >> /var/log/asterisk/traceroute.log");
+}
+
+
 sub check_iax_ping()
 {
     my $host = shift;
@@ -280,7 +295,7 @@ sub check_iax_ping()
     my $ipaddr = gethostbyname($host);
     my $sendto = sockaddr_in($host_port,$ipaddr);
 
-    send(PING, $msg, 0, $sendto) == length($msg) or die "cannot send to $host : $host_port : $!\n";
+    send(PING, $msg, 0, $sendto) == length($msg) or return -1;
 
     my $MAXLEN = 1024;
     my $TIMEOUT = 5;
@@ -291,7 +306,7 @@ sub check_iax_ping()
 
         while (1)
         {
-            my $recvfrom = recv(PING, $msg, $MAXLEN, 0) or die "recv: $!";
+            my $recvfrom = recv(PING, $msg, $MAXLEN, 0) or return -1;
             my ($port, $ipaddr) = sockaddr_in($recvfrom);
             my $respaddr = inet_ntoa($ipaddr);
             print "Response from $respaddr : $port\n";
@@ -310,7 +325,6 @@ sub check_network_conditions()
     }
     if(($voip_unreg != 0) && (keys(%VOIP_SERVERS) > 0))
     {
-        &write_log("Possible problems with your voip");
         foreach my $prov (keys %{$VOIP_SERVERS{'sip'}})
         {
             unless($VOIP_SERVERS{'sip'}{$prov} =~ /^Registered/)
@@ -322,8 +336,9 @@ sub check_network_conditions()
                 }
                 if(&check_network_ping($host) != 0)
                 {
-                    &write_log("    HOST $host unreachable by regular ping")
+                    &write_log("    HOST $host unreachable by regular ping");
                 }
+                &check_traceroute($host);
                 &write_log("    ---");
             }
         }
@@ -338,15 +353,20 @@ sub check_network_conditions()
                 }
                 if(&check_iax_ping($host,$port) != 0)
                 {
-                    &write_log("    HOST $host unreachable by iax ping, maybe a network problem ?");
+                    &write_log("    HOST $host unreachable by iax ping, maybe a firewall ?");
                     if(&check_network_ping($host) != 0)
                     {
                         &write_log("    HOST $host unreachable by regular ping");
                     }
+                    &check_traceroute($host);
                 }
                 &write_log("    ---");
             }
         }
+    }
+    if(&check_network_ping() != 0)
+    {
+        &write_log("    Do you have a connection to the internet ?")
     }
     if($TROUBLE_LEVEL > 0)
     {
@@ -359,7 +379,6 @@ sub check_network_conditions()
 sub send_message()
 {
     my $msg = shift;
-# don't do it yet
-#    `/usr/pluto/bin/MessageSend localhost -targetType category 1 5 1 741 159 177 163 \"$msg\" 181 0 182 0 183 0`;
+    `/usr/pluto/bin/MessageSend dcerouter -targetType template 0 34 2 59 13 \"$msg\" 30 $TROUBLE_LEVEL`;
     &write_log("Will send message \n$msg\n\n");
 }

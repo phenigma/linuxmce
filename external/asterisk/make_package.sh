@@ -117,6 +117,14 @@ make clean
 make INSTALL_PREFIX=${PKGFOLDER} || exit
 make INSTALL_PREFIX=${PKGFOLDER} install || exit
 
+cd ${SRCFOLDER}/iaxyprov/
+make clean
+make all
+cp iaxyprov ${PKGFOLDER}/usr/sbin/
+cp iaxydebug ${PKGFOLDER}/usr/sbin/
+cp iaxy.conf.sample ${PKGFOLDER}/etc/asterisk/
+strip ${PKGFOLDER}/usr/sbin/iaxyprov
+strip ${PKGFOLDER}/usr/sbin/iaxydebug
 
 ### ADD AMP TO THIS PACKAGE (PROBABLY NOT BIG ENOUGH)
 #patch some stuff
