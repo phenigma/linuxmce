@@ -118,7 +118,7 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 void GL2DEffectFactory::UpdateEffects()
 {
 	int CurrentTime = MilisecondTimmer();
-	fflush(stdout);
+
 	if(Effects.empty())
 		return;
 	

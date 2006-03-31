@@ -21,7 +21,6 @@ namespace DCE {
 
 class GL2DEffectBlending : public GL2DEffectTransit
 {
-	TBasicWindow* Background;
 	TBasicWindow* Button;	
 	TBasicWindow* Destination;
 	

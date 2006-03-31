@@ -21,12 +21,6 @@ GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int T
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
 	FullScreen.Height = float(Effects->Widgets->GetHeight());
 
-	//creating the basic window which it stay on back
-	Background = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
-		0, 0, 
-		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
-		"Background");
-	//Background->SetVisible(true);
 
 	//creating a basic window that merge the effect
 	Destination = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
@@ -45,7 +39,6 @@ GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int T
 
 
 GL2DEffectBlending::~GL2DEffectBlending() {
-	Effects->Widgets->DeleteWidget(Background);
 	Effects->Widgets->DeleteWidget(Destination);
 	Effects->Widgets->DeleteWidget(Button);	
 }
@@ -100,8 +93,6 @@ void GL2DEffectBlending::Paint(int Now)
 			MaxCoordU, MaxCoordV);
 		Start = Effects->MilisecondTimmer();
 
-		Background->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
 		
 		Configured = true;
 	}
@@ -116,5 +107,4 @@ void GL2DEffectBlending::Paint(int Now)
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
 
-	Background->SetRectCoordinates(FullScreen);
 }

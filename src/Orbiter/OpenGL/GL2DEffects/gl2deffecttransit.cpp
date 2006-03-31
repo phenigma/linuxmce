@@ -36,5 +36,9 @@ void GL2DEffectTransit::Paint()
 	int Height = WinHigh->GetHeight();
 
 	g_pPlutoLogger->Write(LV_CRITICAL, "Transit higlight size: %d %d\n", Width, Height);
+
+	if(!Configured) {
+		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+	}
 	
 }
