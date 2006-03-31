@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<settings>
+	<!--This is a comment-->
+	<Title>Orbiter Configuration Wizard 0.1 beta</Title>
+	<Options>
+		<Resolution>
+			<Width>640</Width>
+			<Height>480</Height>
+			<Refresh>75</Refresh>
+		</Resolution>
+		<MasterVolume>
+			<LowerBound>0</LowerBound>
+			<UpperBound>0</UpperBound>
+			<Value>0</Value>
+		</MasterVolume>
+	</Options>
+</settings>

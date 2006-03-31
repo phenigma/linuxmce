@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<Title Value = "Orbiter Configuration Wizard 0.1 beta">
+	Orbiter Configuration Wizard
+	</Title>
+	<options>
+		<Resolution>
+			<Width>640</Width>
+			<Height>480</Height>
+		</Resolution>
+	</options>
+</settings>

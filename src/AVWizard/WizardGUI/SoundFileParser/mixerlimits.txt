@@ -1,0 +1,7 @@
+Simple mixer control 'Master',0
+  Capabilities: pvolume pswitch pswitch-joined
+  Playback channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Mono:
+  Front Left: Playback 31 [100%] [on]
+  Front Right: Playback 31 [100%] [on] 

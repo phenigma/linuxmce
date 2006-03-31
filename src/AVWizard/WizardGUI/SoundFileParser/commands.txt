@@ -1,0 +1,3 @@
+$ amixer scontrols 
+$ amixer sget Master 
+$ amixer sset Master Playback 22

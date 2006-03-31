@@ -1,0 +1,26 @@
+ SZ:    Pixels          Physical       Refresh
+*0   1280 x 1024   ( 382mm x 302mm )  *75   60
+ 1   1152 x 864    ( 382mm x 302mm )   75
+ 2   1024 x 768    ( 382mm x 302mm )   75   70   60
+ 3    832 x 624    ( 382mm x 302mm )   75
+ 4    800 x 600    ( 382mm x 302mm )   75   72   65   60   56
+ 5    640 x 480    ( 382mm x 302mm )   75   73   60
+ 6   1280 x 960    ( 382mm x 302mm )   60
+ 7   1280 x 800    ( 382mm x 302mm )   60
+ 8   1280 x 768    ( 382mm x 302mm )   60
+ 9    960 x 600    ( 382mm x 302mm )   60
+ 10   840 x 525    ( 382mm x 302mm )   60
+ 11   700 x 525    ( 382mm x 302mm )   75   70   60
+ 12   640 x 512    ( 382mm x 302mm )   75   60
+ 13   720 x 450    ( 382mm x 302mm )   60
+ 14   640 x 400    ( 382mm x 302mm )   60
+ 15   576 x 432    ( 382mm x 302mm )   75
+ 16   640 x 384    ( 382mm x 302mm )   60
+ 17   512 x 384    ( 382mm x 302mm )   75   70   60
+ 18   416 x 312    ( 382mm x 302mm )   75
+ 19   400 x 300    ( 382mm x 302mm )   75   72   60   56
+ 20   320 x 240    ( 382mm x 302mm )   75   73   60
+Current rotation - normal
+Current reflection - none
+Rotations possible - normal
+Reflections possible - none

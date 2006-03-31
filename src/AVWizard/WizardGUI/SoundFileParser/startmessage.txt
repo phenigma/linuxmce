@@ -1,0 +1,9 @@
+That wizard will set up Orbiter to work on your computer. 
+For doing that you should keep in mind that right arrow 
+will increase your settings and left arrow will decrease them.
+If you have more than one item on your display you may 
+navigate using up-down arrow. When you are agree with your
+settings you should press enter. If you are agree with 
+current settings you must press Enter key to save them 
+or Escape to restore the defaults.
+Press Enter to continue or Escape to quit
