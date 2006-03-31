@@ -44,7 +44,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 		//Set up the textures for triangles
 		ButonTop->SetTexture(Effects->Widgets->OldScreen);
 
-		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->NewScreen);
+		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -75,7 +75,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 	else
 		Step= 1-(Step - 0.5f)*2.f; 
 
-	int i, j;
+	int i;
 	float Average = Animation.Width * (2.f/3.f);
 
 	// 0 = Start, 1 = Control Start, 2 = Control end, 3 = End 
@@ -86,7 +86,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 	LeftProfile[1] = MathUtils::InterpolateValues(
 		0,
 		Animation.Width,
-		0.33*Step);
+		0.33f*Step);
 	LeftProfile[2] = LeftProfile[1];
 	LeftProfile[3] = 0.0f;
 
@@ -94,7 +94,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 	TopProfile[1] = MathUtils::InterpolateValues(
 		0,
 		Animation.Height,
-		0.33*Step);
+		0.33f*Step);
 	TopProfile[2] = TopProfile[1];
 	TopProfile[3] = 0.0f;
 

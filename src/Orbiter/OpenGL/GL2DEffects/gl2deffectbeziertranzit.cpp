@@ -1,6 +1,8 @@
 #include "gl2deffectbeziertranzit.h"
 #include "gl2deffectfactory.h"
 
+#include "../Orbiter3DCommons.h"
+
 GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
 {
@@ -20,6 +22,7 @@ GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEng
 
 GL2DBezierEffectTransit::~GL2DBezierEffectTransit() {
 	Effects->Widgets->DeleteWidget(Button);	
+
 
 	Button = NULL;
 }
@@ -82,7 +85,7 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	float Average = Animation.Width * 2/3;
 
 	if(!FistStage)
-		Step = 1.0-Step;
+		Step = 1.0f-Step;
 
 	// bit-to-bit copy 
 	BEZIER_PATCH BezierDefinition = Button->BezierDefinition;

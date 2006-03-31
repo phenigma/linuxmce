@@ -7,6 +7,8 @@
 #include "../nvidia/nv_shaders.h"
 #endif
 
+#include "../Orbiter3DCommons.h"
+
 GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
 {
@@ -24,7 +26,7 @@ GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int T
 		0, 0, 
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Background");
-	Background->SetVisible(true);
+	//Background->SetVisible(true);
 
 	//creating a basic window that merge the effect
 	Destination = (TBasicWindow*)Effects->Widgets->CreateWidget(BASICWINDOW, 
@@ -74,7 +76,8 @@ void GL2DEffectBlending::Paint(int Now)
 
 	if(!Configured) {
 		//Set up the textures for triangles
-		Background->SetTexture(Effects->Widgets->OldScreen);
+		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		//Background->SetTexture(Effects->Widgets->OldScreen);
 		Button->SetTexture(Effects->Widgets->OldScreen);
 		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
@@ -92,9 +95,6 @@ void GL2DEffectBlending::Paint(int Now)
 			ButtonSize.Width/FullScreen.Width*MaxCoordU,
 			MaxCoordV * ButtonSize.Height/FullScreen.Height
 			);
-
-			/*Button->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);*/
 			
 		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);

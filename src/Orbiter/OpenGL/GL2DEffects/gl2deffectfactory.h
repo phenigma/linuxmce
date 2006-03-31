@@ -93,9 +93,7 @@ public:
 	} 
 
 	int GetEffectCode(int DBEffectCode);
-	
-	TBasicWindow * Screen3D;
-	
+	int GetEffectHighLighCode(int DBEffectCode);	
 };
 
 

@@ -71,9 +71,9 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	if( Step < 0.5)
 		Step *= 2;
 	else
-		Step= 1-(Step - 0.5)*2; 
+		Step= 1-(Step - 0.5f)*2; 
 
-	int i, j;
+	int i;
 	float Average = Animation.Width * 2/3;
 
 	// bit-to-bit copy 
@@ -87,7 +87,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	LeftProfile[1] = MathUtils::InterpolateValues(
 		0,
 		Animation.Width,
-		0.33*Step);
+		0.33f*Step);
 	LeftProfile[2] = LeftProfile[1];
 	LeftProfile[3] = 0.0f;
 
@@ -95,7 +95,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	TopProfile[1] = MathUtils::InterpolateValues(
 		0,
 		Animation.Height,
-		0.33*Step);
+		0.33f*Step);
 	TopProfile[2] = TopProfile[1];
 	TopProfile[3] = 0.0f;
 

@@ -10,7 +10,7 @@
 
 class GL2DBezierEffectTransit : public GL2DEffectTransit
 {
-	TBezierWindow* Button;	
+	TBezierWindow* Button;
 	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;

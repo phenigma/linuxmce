@@ -67,8 +67,6 @@ void GL2DEffectSlideFromLeft::Paint(int Time)
 	float Step = Stage(float(Time));
 	
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
-
-	//Button->SetRectCoordinates(Animation);
 	
 	Destination->SetRectCoordinates(Animation);
 }

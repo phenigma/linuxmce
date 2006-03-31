@@ -44,8 +44,6 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 		//Set up the textures for triangles
 		Button->SetTexture(Effects->Widgets->NewScreen);
 		
-		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->NewScreen);
-		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
@@ -86,7 +84,7 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 	else
 		Step= (1.0f-Step)*2; 
 
-	int i, j;
+	int i;
 	float Average = Animation.Width * 2/3;
 
 	// bit-to-bit copy 
@@ -99,7 +97,7 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 	LeftProfile[1] = MathUtils::InterpolateValues(
 		Animation.Left,
 		Animation.Left + Animation.Width,
-		0.33*Step);
+		0.33f*Step);
 	LeftProfile[2] = LeftProfile[1];
 	LeftProfile[3] = 0.0f;
 
@@ -107,7 +105,7 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 	TopProfile[1] = MathUtils::InterpolateValues(
 		Animation.Top,
 		Animation.Top + Animation.Height,
-		0.33*Step);
+		0.33f*Step);
 	TopProfile[2] = TopProfile[1];
 	TopProfile[3] = 0.0f;
 
