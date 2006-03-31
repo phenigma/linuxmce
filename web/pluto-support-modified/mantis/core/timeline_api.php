@@ -13,17 +13,19 @@
 
 
 	# --------------------
-	function timeline_update( $p_bug_id, $p_date_todo, $p_id_after_todo, $p_hours_estimate, $p_hours_actual ,$update_hours_actual=0) {
+	function timeline_update( $p_bug_id, $p_date_todo, $p_id_after_todo, $p_hours_estimate, $p_hours_actual ,$master=0) {
 
 		$t_bug_table = config_get( 'mantis_bug_table' );
 
 		# Update timeline fields
 		$query = "UPDATE $t_bug_table
 				SET 
-					date_todo='$p_date_todo',
+					hours_actual='$p_hours_actual'";
+		$query.=($master==1)?
+					", date_todo='$p_date_todo',
 					id_after_todo='$p_id_after_todo',
-					hours_estimate='$p_hours_estimate'";
-		$query.=($update_hours_actual==1)?", hours_actual='$p_hours_actual'":"";
+					hours_estimate='$p_hours_estimate'"
+					:"";
 		$query.="
 				WHERE id='$p_bug_id'";
 		db_query( $query );

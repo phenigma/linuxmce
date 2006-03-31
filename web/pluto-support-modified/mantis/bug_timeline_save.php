@@ -29,11 +29,11 @@
 	$update_hours_actual=0;
 	# hardcoded to allow only Eugen or Aaron to modify it
 	$current_user=auth_get_current_user_id();
-	if($current_user==33129 || $current_user==37162){
-		$update_hours_actual=1;
+	if($current_user==33129 || $current_user==37162 || $current_user==37294){
+		$master=1;
 	}
 
-	timeline_update( $f_bug_id, $f_date_todo, $f_id_after_todo, $f_hours_estimate, $f_hours_actual,$update_hours_actual );
+	timeline_update( $f_bug_id, $f_date_todo, $f_id_after_todo, $f_hours_estimate, $f_hours_actual,$master );
 
 
 	print_header_redirect_view( $f_bug_id );
