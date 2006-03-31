@@ -15,11 +15,14 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Variable.h"
 
 #include "Gen_Devices/AllScreens.h"
 
 static int phone_status=0;
 static int call_status=0;
+static char calling_id[IAXC_EVENT_BUFSIZ]="\0";
+static char calling_nr[IAXC_EVENT_BUFSIZ]="\0";
 
 #include "RingData.h"
 
@@ -282,7 +285,8 @@ int iaxCallback(iaxc_event e)
         if(e.ev.call.state & IAXC_CALL_STATE_RINGING)
         {
             phone_status=1;
-
+			strcpy(calling_nr,e.ev.call.remote);
+			strcpy(calling_id,e.ev.call.remote_name);
             if(!strcmp(e.ev.call.remote_name,"plutosecurity"))
             {
                 /* the call is actually a speak in the house */
@@ -334,16 +338,22 @@ void SimplePhone::doProccess(void)
             {
                 DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
                 SendCommand(CMD_MH_Stop_Media_);
+				CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,calling_id);
+				SendCommand(CMD_Set_Variable_name);
+				CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,calling_nr);
+				SendCommand(CMD_Set_Variable_number);				
                 if(phone_status>1)
                 {
                     CMD_Phone_Answer(tmp,NULL);
                 }
                 else
                 {
-                    GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));                
+                    GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
                     iaxc_millisleep(1000);                
                     PlayRingTone();
                 }
+				calling_id[0]='\0';
+				calling_nr[0]='\0';
             }
         }
         if(phone_status<0)
