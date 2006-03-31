@@ -50,7 +50,7 @@ function cellphoneNotifications($output,$dbADO) {
 				<option value="1" '.(((int)@$monArray[0]>0)?'selected':'').'>'.$TEXT_ORBITERS_ONE_AT_A_TIME_CONST.'</option>
 			</select>
 			<span id="span_mon_seconds" style="display:none">
-				<input type="text" size="2" maxlength="2" name="mon_seconds" value="'.(((int)@$monArray[0]>0)?(int)@$monArray[0]:'10').'" /> seconds each
+				<input type="text" size="2" maxlength="2" name="mon_seconds" value="'.(((int)@$monArray[0]>0)?(int)@$monArray[0]:'10').'" > seconds each
 			</span>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
@@ -67,11 +67,11 @@ function cellphoneNotifications($output,$dbADO) {
 				$out.='
 				<tr>
 					<td align="center">'.pulldownFromArray($phonesPulldown,'tel_'.(6*$i+1),((!isset($monArray[6*$i+1]))?0:$monArray[6*$i+1]),'','key','- '.$TEXT_PLEASE_SELECT_CONST.' -','').'</td>
-					<td align="center"><input type="checkbox" name="monitor_mode_'.(6*$i+2).'" value="1" '.(((int)@$monArray[6*$i+2]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="security_'.(6*$i+3).'" value="1" '.(((int)@$monArray[6*$i+3]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="fire_'.(6*$i+4).'" value="1" '.(((int)@$monArray[6*$i+4]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="air_'.(6*$i+5).'" value="1" '.(((int)@$monArray[6*$i+5]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="door_intercom_'.(6*$i+6).'" value="1" '.(((int)@$monArray[6*$i+6]>0)?'checked':'').'/></td>
+					<td align="center"><input type="checkbox" name="monitor_mode_'.(6*$i+2).'" value="1" '.(((int)@$monArray[6*$i+2]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="security_'.(6*$i+3).'" value="1" '.(((int)@$monArray[6*$i+3]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="fire_'.(6*$i+4).'" value="1" '.(((int)@$monArray[6*$i+4]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="air_'.(6*$i+5).'" value="1" '.(((int)@$monArray[6*$i+5]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="door_intercom_'.(6*$i+6).'" value="1" '.(((int)@$monArray[6*$i+6]>0)?'checked':'').'></td>
 				</tr>';
 			}
 		$out.='
@@ -103,7 +103,7 @@ function cellphoneNotifications($output,$dbADO) {
 				<option value="1" '.(((int)@$opnArray[1]>0)?'selected':'').'>'.$TEXT_OTHER_ONE_AT_A_TIME_CONST.'</option>
 			</select>
 			<span id="span_opn_seconds" style="display:none">
-				<input type="text" size="2" maxlength="2" name="opn_seconds" value="'.(((int)@$opnArray[0]>0)?@$opnArray[0]:'10').'" /> '.$TEXT_SECONDS_EACH_CONST.'
+				<input type="text" size="2" maxlength="2" name="opn_seconds" value="'.(((int)@$opnArray[0]>0)?@$opnArray[0]:'10').'" > '.$TEXT_SECONDS_EACH_CONST.'
 			</span>
 		</div>
 		<input type="hidden" name="oldOpn" value="'.@join(',',$opnArray).'">
@@ -119,12 +119,12 @@ function cellphoneNotifications($output,$dbADO) {
 			for($i=0;$i<5;$i++){
 				$out.='
 				<tr>
-					<td align="center"><input type="text" name="opn_tel_'.(6*$i+2).'" value="'.@$opnArray[6*$i+2].'"/></td>
-					<td align="center"><input type="checkbox" name="opn_monitor_mode_'.(6*$i+3).'" value="1" '.(((int)@$opnArray[6*$i+3]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_security_'.(6*$i+4).'" value="1" '.(((int)@$opnArray[6*$i+4]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_fire_'.(6*$i+5).'" value="1" '.(((int)@$opnArray[6*$i+5]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_air_'.(6*$i+6).'" value="1" '.(((int)@$opnArray[6*$i+6]>0)?'checked':'').'/></td>
-					<td align="center"><input type="checkbox" name="opn_door_intercom_'.(6*$i+7).'" value="1" '.(((int)@$opnArray[6*$i+7]>0)?'checked':'').'/></td>
+					<td align="center"><input type="text" name="opn_tel_'.(6*$i+2).'" value="'.@$opnArray[6*$i+2].'"></td>
+					<td align="center"><input type="checkbox" name="opn_monitor_mode_'.(6*$i+3).'" value="1" '.(((int)@$opnArray[6*$i+3]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="opn_security_'.(6*$i+4).'" value="1" '.(((int)@$opnArray[6*$i+4]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="opn_fire_'.(6*$i+5).'" value="1" '.(((int)@$opnArray[6*$i+5]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="opn_air_'.(6*$i+6).'" value="1" '.(((int)@$opnArray[6*$i+6]>0)?'checked':'').'></td>
+					<td align="center"><input type="checkbox" name="opn_door_intercom_'.(6*$i+7).'" value="1" '.(((int)@$opnArray[6*$i+7]>0)?'checked':'').'></td>
 				</tr>';
 			}
 		$out.='
@@ -149,8 +149,8 @@ function cellphoneNotifications($output,$dbADO) {
 			for ($i=0; $i < 4; $i++){
 				$out.='
 				<tr>
-					<td><input type="text" name="nname_'.(2*$i).'" value="'.@$ntcArray[2*$i].'" /></td>
-					<td><input type="text" name="nphone_'.(2*$i+1).'" value="'.@$ntcArray[2*$i+1].'" /></td>
+					<td><input type="text" name="nname_'.(2*$i).'" value="'.@$ntcArray[2*$i].'" ></td>
+					<td><input type="text" name="nphone_'.(2*$i+1).'" value="'.@$ntcArray[2*$i+1].'" ></td>
 				</tr>';
 			}
 		$out.='
@@ -178,8 +178,8 @@ function cellphoneNotifications($output,$dbADO) {
 			for ($i=0; $i < 4; $i++){
 				$out.='
 				<tr>
-					<td><input type="text" name="ecname_'.(2*$i).'" value="'.@$ecArray[2*$i].'" /></td>
-					<td><input type="text" name="ecphone_'.(2*$i+1).'" value="'.@$ecArray[2*$i+1].'" /></td>
+					<td><input type="text" name="ecname_'.(2*$i).'" value="'.@$ecArray[2*$i].'" ></td>
+					<td><input type="text" name="ecphone_'.(2*$i+1).'" value="'.@$ecArray[2*$i+1].'" ></td>
 				</tr>';
 			}
 		$out.='
