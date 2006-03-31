@@ -150,33 +150,15 @@ void GL2DEffectFactory::UpdateEffects()
 
 void GL2DEffectFactory::ClearEffects()
 {
-	try
-	{
-		if (Effects.size() == 0)
-			return;
-	}
-	catch (...) {
-		g_pPlutoLogger->Write(LV_WARNING, "Error on GL2DEffectFactory::ClearEffects");
-	}
+	if (Effects.size() == 0)
+		return;
 
 	vector<GL2DEffect*>::iterator Effect;
+ 
+	for(Effect = Effects.begin(); Effect < Effects.end(); ++Effect)
+		delete *Effect;
 
-	for(Effect = Effects.begin(); Effect < Effects.end(); )
-		try
-		{
-			delete *Effect;
-		}	
-		catch (...) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error at deleting effect on GL2DEffectFactory::ClearEffects");
-		}
-
-	try
-	{
-		Effects.clear();
-	}	
-	catch (...) {
-		g_pPlutoLogger->Write(LV_WARNING, "Error at deleting effect on GL2DEffectFactory::ClearEffects");
-	}
+	Effects.clear();
 }
 
 void GL2DEffectFactory::Paint()
@@ -187,25 +169,35 @@ void GL2DEffectFactory::Paint()
 int GL2DEffectFactory::GetEffectCode(int DBEffectCode)
 {
 	switch(DBEffectCode) {
-		case EFFECT_Bounce_new_screen_on_CONST:
+		//transit
+		case EFFECT_No_transit_effect_CONST:
+			return GL2D_EFFECT_TRANSIT_NO_EFFECT;
+		case EFFECT_Basic_transit_effect_CONST:
 			return GL2D_EFFECT_TRANSIT;
-		case EFFECT_Slide_new_screen_from_the_left_CONST:
+		case EFFECT_Bezier_effect_CONST:
+			return GL2D_EFFECT_BEZIER_TRANSIT;
+		case EFFECT_Slide_from_left_CONST:
 			return GL2D_EFFECT_SLIDE_FROM_LEFT;
-		case EFFECT_New_screen_fades_in_from_top_CONST:
+		case EFFECT_Slide_from_top_CONST:
+			return GL2D_EFFECT_TRANSIT_NO_EFFECT; //IMPLEMENT ME!
+		case EFFECT_Fades_from_top_CONST:
 			return GL2D_EFFECT_FADES_FROM_TOP;
-		case EFFECT_New_screen_fades_out_from_unde_CONST:
+		case EFFECT_Fades_from_underneath_CONST:
 			return GL2D_EFFECT_FADES_FROM_UNDERNEATH;
-		//case EFFECT_New_screen_genie_CONST:
-		//	return GL2D_EFFECT_BEZIER_TRANSIT;
-		//Experimental effects
-		case 6:
+		case EFFECT_Bezier_transit_prism_CONST:
 			return GL2D_EFFECT_BEZIER_TRANSIT_PRISM;
-		case 7:
+		case EFFECT_Bezier_transit_top_left_CONST:
 			return GL2D_EFFECT_BEZIER_TRANSIT_TOPLEFT;
-		case 8:
+		case EFFECT_Bezier_transit_flow_slide_left_CONST:
 			return GL2D_EFFECT_BEZIER_TRANZIT_FLOW_SLIDELEFT;
-		case 9:
+		case EFFECT_No_select_or_hightlight_effect_CONST:
 			return GL2D_EFFECT_BEZIER_TRANZIT_FLOW_SLIDELEFT_REVERSE;
+
+		//select and highlight
+		case EFFECT_Basic_highlight_effect_CONST:
+			return GL2D_EFFECT_HIGHLIGHT_AREA;
+		case EFFECT_Basic_select_effect_CONST:
+			return GL2D_EFFECT_SELECT_AREA;
  	}
 
 	return 0;
