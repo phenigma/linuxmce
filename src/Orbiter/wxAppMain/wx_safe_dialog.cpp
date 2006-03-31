@@ -179,6 +179,18 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
             }
             break;
         }
+        case E_Action_WaitUser:
+        {
+            switch (e_dialog_type)
+            {
+                //case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                //case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                //case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                //case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+            }
+            break;
+        }
         default:
             _WX_LOG_ERR("bad action : %d", action);
             break;

@@ -25,6 +25,7 @@
 #include "wxdialog_base.h"
 #include "wx_event_dialog.h"
 #include "wx_safe_dialog.h"
+#include "wx_extern_app.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -57,15 +58,18 @@ BEGIN_EVENT_TABLE( wxDialog_Base, wxDialog )
  */
 
 wxDialog_Base::wxDialog_Base( )
-    : v_bInitialized(false)
-    , v_pData_Holder_Dialog(NULL)
+        : v_bInitialized(false)
+        , v_pData_Holder_Dialog(NULL)
+        , v_pExtern_Event_Data(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    wxDELETE(v_pExtern_Event_Data);
 }
 
 wxDialog_Base::wxDialog_Base( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
-    : v_bInitialized(false)
-    , v_pData_Holder_Dialog(NULL)
+        : v_bInitialized(false)
+        , v_pData_Holder_Dialog(NULL)
+        , v_pExtern_Event_Data(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
     Create(parent, id, caption, pos, size, style);
@@ -174,8 +178,18 @@ bool wxDialog_Base::Destroy()
         wxDialog::EndModal(GetReturnCode());
         return true;
     }
+    if (v_pExtern_Event_Data)
+    {
+        v_pExtern_Event_Data->nButtonId = GetReturnCode();
+        Extern_Event_Response(v_pExtern_Event_Data);
+        wxDELETE(v_pExtern_Event_Data);
+    }
     if (v_pData_Holder_Dialog)
+    {
+        v_pData_Holder_Dialog->bRetCode = true;
+        v_pData_Holder_Dialog->nRetCode = GetReturnCode();
         wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
+    }
     return wxDialog::Destroy();
 }
 
@@ -188,8 +202,15 @@ void wxDialog_Base::EndModal(int retCode)
         wxDialog::Destroy();
         return;
     }
+    if (v_pExtern_Event_Data)
+    {
+        v_pExtern_Event_Data->nButtonId = GetReturnCode();
+        Extern_Event_Response(v_pExtern_Event_Data);
+        wxDELETE(v_pExtern_Event_Data);
+    }
     if (v_pData_Holder_Dialog)
     {
+        v_pData_Holder_Dialog->bRetCode = true;
         v_pData_Holder_Dialog->nRetCode = retCode;
         wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
     }
@@ -234,6 +255,11 @@ bool wxDialog_Base::IsInitialized()
 void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
 {
     v_pData_Holder_Dialog = pData_Holder_Dialog;
+}
+
+void wxDialog_Base::Set_WaitUser(Extern_Event_Data *pExtern_Event_Data)
+{
+    v_pExtern_Event_Data = pExtern_Event_Data;
 }
 
 void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)

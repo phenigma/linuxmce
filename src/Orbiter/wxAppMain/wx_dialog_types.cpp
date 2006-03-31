@@ -47,6 +47,7 @@ const char * _str_enum(E_ACTION_TYPE value)
         CASE_const_ret_str(E_Action_Refresh);
         CASE_const_ret_str(E_Action_Show);
         CASE_const_ret_str(E_Action_ShowModal);
+        CASE_const_ret_str(E_Action_WaitUser);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;

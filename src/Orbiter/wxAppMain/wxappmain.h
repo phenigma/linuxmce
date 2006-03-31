@@ -74,6 +74,8 @@ public:
     ~wxAppMain();
     virtual int OnRun();
 
+    ExternApp * ptr_ExternApp() const;
+
 protected:
     void OnEvent_Dialog(wxCommandEvent& event);
     void OnTimer_WakeIdle(wxTimerEvent& event);

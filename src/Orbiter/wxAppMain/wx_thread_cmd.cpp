@@ -37,6 +37,7 @@ wxThread_Cmd::wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_
 wxThread_Cmd::~wxThread_Cmd()
 {
     _WX_LOG_NFO();
+    Stop();
 }
 
 bool wxThread_Cmd::Start()
@@ -88,7 +89,8 @@ bool wxThread_Cmd::Start()
 bool wxThread_Cmd::Stop()
 {
     _WX_LOG_NFO("Stopping : %s", _str_thread_status(this));
-    _COND_RET(IsRunning(), false);
+    if (! IsRunning())
+        return false;
     v_bShouldCancel = true;
     _WX_LOG_NFO("Waiting to stop : max %d ms", WAIT_THREAD_TIMEOUT_MSEC);
     bool b_wait_ok = (v_oSemaphoreRunning.WaitTimeout(WAIT_THREAD_TIMEOUT_MSEC) == wxSEMA_NO_ERROR);

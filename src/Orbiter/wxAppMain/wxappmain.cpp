@@ -158,23 +158,22 @@ int wxAppMain::OnExit()
 void wxAppMain::OnIdle( wxIdleEvent& event )
 {
     //_WX_LOG_NFO();
-    if (g_USE_EXTERN_APP_ON_THREAD)
-    {
-        if ( App_IsReady() && (v_pExternApp==NULL) )
-        {
-            v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
-            v_pExternApp->Start();
-        }
-        else
-        {
-            Extern_Event_Listener(v_pExternApp);
-        }
-    } // g_USE_EXTERN_APP_ON_THREAD
+#ifdef USE_RELEASE_CODE
     if (App_ShouldExit())
     {
         _WX_LOG_NFO("Received Exit Signal");
         CleanUpObjects();
     }
+    else if ( App_IsReady() && (v_pExternApp==NULL) )
+    {
+        v_pExternApp = new ExternApp(wxTheApp->argc, wxTheApp->argv);
+        v_pExternApp->Start();
+    }
+    else
+    {
+        Extern_Event_Listener(v_pExternApp);
+    }
+#endif // USE_RELEASE_CODE
 ////@begin wxEVT_IDLE event handler in wxAppMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -195,6 +194,14 @@ int wxAppMain::OnRun()
     wxApp::OnRun();
     _WX_LOG_NFO("exit code : %d", App_GetExitCode());
     return App_GetExitCode();
+}
+
+ExternApp * wxAppMain::ptr_ExternApp() const
+{
+    _WX_LOG_NFO();
+    if (App_ShouldExit())
+        return NULL;
+    return v_pExternApp;
 }
 
 void wxAppMain::OnEvent_Dialog(wxCommandEvent& event)
@@ -220,23 +227,15 @@ void wxAppMain::CleanUpObjects()
 {
     _WX_LOG_NFO();
     v_oTimer_WakeIdle.Stop();
-    _WX_LOG_NFO("1");
-    if (v_pExternApp)
-    {
-        wx_sleep(0, 200);//del
-        _WX_LOG_NFO("1.1");
-        v_pExternApp->Destroy();
-        _WX_LOG_NFO("1.2");
-        wxDELETE(v_pExternApp);
-        _WX_LOG_NFO("1.3");
-    }
-    _WX_LOG_NFO("2");
+    _WX_LOG_NFO("1");//del
+    wxDELETE(v_pExternApp);
+    _WX_LOG_NFO("2");//del
     wxWindow * pTopWindow = GetTopWindow();
-    _WX_LOG_NFO("3");
+    _WX_LOG_NFO("3");//del
     if (pTopWindow)
     {
         pTopWindow->Destroy();
         SetTopWindow(NULL);
     }
-    _WX_LOG_NFO("4");
+    _WX_LOG_NFO("4");//del
 }

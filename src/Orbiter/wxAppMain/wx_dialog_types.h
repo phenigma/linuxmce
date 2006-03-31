@@ -33,6 +33,7 @@ enum E_ACTION_TYPE
     E_Action_Refresh,
     E_Action_Show,
     E_Action_ShowModal,
+    E_Action_WaitUser,
 };
 const char * _str_enum(E_ACTION_TYPE value);
 

@@ -48,6 +48,7 @@
 #endif
 
 struct Data_Holder_Dialog;
+struct Extern_Event_Data;
 
 /*!
  * wxDialog_Base class declaration
@@ -106,6 +107,7 @@ class wxDialog_Base: public wxDialog
 
     bool IsInitialized();
     void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
+    void Set_WaitUser(Extern_Event_Data *pExtern_Event_Data);
 
 protected:
     void OnWindowCreate(wxWindowCreateEvent& event);
@@ -113,6 +115,7 @@ protected:
 
     bool v_bInitialized;
     Data_Holder_Dialog *v_pData_Holder_Dialog; // generic dialog functionality
+    Extern_Event_Data *v_pExtern_Event_Data;
 };
 
 #endif
