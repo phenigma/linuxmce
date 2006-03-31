@@ -20,6 +20,7 @@ Acquire::ftp::timeout "10";
 '
 
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
+cp /usr/pluto/templates/logrotate.pluto.tmpl /etc/logrotate.d/pluto
 
 sed -i 's,www\.geocities\.com/medencid/,www.yttron.as.ro/,g' /etc/apt/sources.list
 sed -i '\,/usr/pluto/bin/Update_Packages\.sh, d' /etc/crontab
