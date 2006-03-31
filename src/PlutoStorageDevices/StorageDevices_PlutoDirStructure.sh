@@ -6,6 +6,12 @@
 TPL_STORAGE_DEVICES="1790, 1791"
 DD_USE_PLUTO_DIR_STRUCTURE=130
 
+Params=("$@")
+for ((i = 0; i < ${#Params[@]}; i++)); do
+        case "${Params[$i]}" in
+                -d) ((i++)); CommaSeparatedDeviceList="${Params[$i]}" ;;
+        esac
+done
 
 ## A list containing the plugo directories
 Directories="movies,pictures,music,documents,videos"
@@ -16,7 +22,7 @@ Q="SELECT PK_Users, UserName FROM Users"
 Users=$(RunSQL "$Q")
 
 ## Get a list of storage devices that use the pluto dir structure
-if [[ "$1" == "" ]]; then
+if [[ "$CommaSeparatedDeviceList" == "" ]]; then
 	Q="
 		SELECT 
 		PK_Device 
@@ -34,7 +40,22 @@ if [[ "$1" == "" ]]; then
 	"
 	Devices=$(RunSQL "$Q")
 else
-	Devices=$1
+        Q="
+                SELECT
+                PK_Device
+        FROM
+                Device
+                JOIN Device_DeviceData ON FK_Device = PK_Device
+        WHERE
+                FK_DeviceTemplate IN ($TPL_STORAGE_DEVICES)
+                AND
+                FK_DeviceData = $DD_USE_PLUTO_DIR_STRUCTURE
+                AND
+                IK_DeviceData LIKE '%1%'
+                AND
+		PK_Device IN ($CommaSeparatedDeviceList)
+        "
+	Devices=$(RunSQL "Q")
 fi
 
 
