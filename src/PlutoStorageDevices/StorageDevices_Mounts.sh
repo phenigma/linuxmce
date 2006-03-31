@@ -7,7 +7,7 @@ TPL_GENERIC_INTERNAL_DRIVE=1790
 DD_BLOCK_DEVICE=152
 
 ## Add the /mnt/device into auto.master (for automount)
-AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=5,--ghost"
+AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=0,--ghost"
 PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
 mkdir -p /mnt/device
 
