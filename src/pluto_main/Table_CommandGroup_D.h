@@ -145,6 +145,8 @@ void DesignObjVariation_FK_CommandGroup_D_OnLoad_getrows(vector <class Row_Desig
 void DesignObjVariation_FK_CommandGroup_D_OnUnload_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_FK_CommandGroup_D_OnTimeout_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_FK_CommandGroup_D_OnStartup_getrows(vector <class Row_DesignObjVariation*> *rows);
+void DesignObjVariation_FK_CommandGroup_D_OnHighlight_getrows(vector <class Row_DesignObjVariation*> *rows);
+void DesignObjVariation_FK_CommandGroup_D_OnUnhighlight_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_Zone_FK_CommandGroup_D_getrows(vector <class Row_DesignObjVariation_Zone*> *rows);
 
 

@@ -25,6 +25,8 @@ using namespace std;
 #include "Table_CommandGroup_D.h"
 #include "Table_CommandGroup_D.h"
 #include "Table_CommandGroup_D.h"
+#include "Table_CommandGroup_D.h"
+#include "Table_CommandGroup_D.h"
 #include "Table_EffectType.h"
 #include "Table_Button.h"
 #include "Table_Criteria.h"
@@ -152,36 +154,40 @@ m_FK_CommandGroup_D_OnTimeout = 0;
 is_null[8] = true;
 m_FK_CommandGroup_D_OnStartup = 0;
 is_null[9] = true;
-m_FK_EffectType_Selected_WithChange = 0;
+m_FK_CommandGroup_D_OnHighlight = 0;
 is_null[10] = true;
-m_FK_EffectType_Selected_NoChange = 0;
+m_FK_CommandGroup_D_OnUnhighlight = 0;
 is_null[11] = true;
-m_FK_EffectType_Highlighted = 0;
+m_FK_EffectType_Selected_WithChange = 0;
 is_null[12] = true;
-m_FK_Button = 0;
+m_FK_EffectType_Selected_NoChange = 0;
 is_null[13] = true;
+m_FK_EffectType_Highlighted = 0;
+is_null[14] = true;
+m_FK_Button = 0;
+is_null[15] = true;
 m_FK_Criteria_Orbiter = 0;
 m_DontResetSelectedState = 0;
-is_null[14] = false;
-m_FK_StabilityStatus = 1;
-is_null[15] = false;
-m_RepeatMS = 0;
 is_null[16] = false;
-m_RepeatParm = 0;
+m_FK_StabilityStatus = 1;
 is_null[17] = false;
-m_PreserveTransparencies = 0;
+m_RepeatMS = 0;
 is_null[18] = false;
-is_null[19] = true;
-m_psc_id = 0;
-is_null[20] = true;
-m_psc_batch = 0;
+m_RepeatParm = 0;
+is_null[19] = false;
+m_PreserveTransparencies = 0;
+is_null[20] = false;
 is_null[21] = true;
+m_psc_id = 0;
+is_null[22] = true;
+m_psc_batch = 0;
+is_null[23] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[22] = false;
+is_null[24] = false;
 m_psc_mod = "00000000000000";
-is_null[23] = false;
-is_null[24] = true;
+is_null[25] = false;
+is_null[26] = true;
 m_psc_restrict = 0;
 
 
@@ -217,6 +223,12 @@ return m_FK_CommandGroup_D_OnTimeout;}
 long int Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_CommandGroup_D_OnStartup;}
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_CommandGroup_D_OnHighlight;}
+long int Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_CommandGroup_D_OnUnhighlight;}
 long int Row_DesignObjVariation::FK_EffectType_Selected_WithChange_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_EffectType_Selected_WithChange;}
@@ -294,54 +306,60 @@ m_FK_CommandGroup_D_OnTimeout = val; is_modified=true; is_null[7]=false;}
 void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_CommandGroup_D_OnStartup = val; is_modified=true; is_null[8]=false;}
+void Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_CommandGroup_D_OnHighlight = val; is_modified=true; is_null[9]=false;}
+void Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_CommandGroup_D_OnUnhighlight = val; is_modified=true; is_null[10]=false;}
 void Row_DesignObjVariation::FK_EffectType_Selected_WithChange_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_EffectType_Selected_WithChange = val; is_modified=true; is_null[9]=false;}
+m_FK_EffectType_Selected_WithChange = val; is_modified=true; is_null[11]=false;}
 void Row_DesignObjVariation::FK_EffectType_Selected_NoChange_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_EffectType_Selected_NoChange = val; is_modified=true; is_null[10]=false;}
+m_FK_EffectType_Selected_NoChange = val; is_modified=true; is_null[12]=false;}
 void Row_DesignObjVariation::FK_EffectType_Highlighted_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_EffectType_Highlighted = val; is_modified=true; is_null[11]=false;}
+m_FK_EffectType_Highlighted = val; is_modified=true; is_null[13]=false;}
 void Row_DesignObjVariation::FK_Button_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Button = val; is_modified=true; is_null[12]=false;}
+m_FK_Button = val; is_modified=true; is_null[14]=false;}
 void Row_DesignObjVariation::FK_Criteria_Orbiter_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Criteria_Orbiter = val; is_modified=true; is_null[13]=false;}
+m_FK_Criteria_Orbiter = val; is_modified=true; is_null[15]=false;}
 void Row_DesignObjVariation::DontResetSelectedState_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_DontResetSelectedState = val; is_modified=true; is_null[14]=false;}
+m_DontResetSelectedState = val; is_modified=true; is_null[16]=false;}
 void Row_DesignObjVariation::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_StabilityStatus = val; is_modified=true; is_null[15]=false;}
+m_FK_StabilityStatus = val; is_modified=true; is_null[17]=false;}
 void Row_DesignObjVariation::RepeatMS_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_RepeatMS = val; is_modified=true; is_null[16]=false;}
+m_RepeatMS = val; is_modified=true; is_null[18]=false;}
 void Row_DesignObjVariation::RepeatParm_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_RepeatParm = val; is_modified=true; is_null[17]=false;}
+m_RepeatParm = val; is_modified=true; is_null[19]=false;}
 void Row_DesignObjVariation::PreserveTransparencies_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PreserveTransparencies = val; is_modified=true; is_null[18]=false;}
+m_PreserveTransparencies = val; is_modified=true; is_null[20]=false;}
 void Row_DesignObjVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[19]=false;}
+m_psc_id = val; is_modified=true; is_null[21]=false;}
 void Row_DesignObjVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[20]=false;}
+m_psc_batch = val; is_modified=true; is_null[22]=false;}
 void Row_DesignObjVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[21]=false;}
+m_psc_user = val; is_modified=true; is_null[23]=false;}
 void Row_DesignObjVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[22]=false;}
+m_psc_frozen = val; is_modified=true; is_null[24]=false;}
 void Row_DesignObjVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[23]=false;}
+m_psc_mod = val; is_modified=true; is_null[25]=false;}
 void Row_DesignObjVariation::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[24]=false;}
+m_psc_restrict = val; is_modified=true; is_null[26]=false;}
 
 		
 bool Row_DesignObjVariation::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -365,36 +383,42 @@ return is_null[7];}
 bool Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_DesignObjVariation::FK_EffectType_Selected_WithChange_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_DesignObjVariation::FK_EffectType_Selected_NoChange_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_DesignObjVariation::FK_EffectType_Highlighted_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_EffectType_Selected_WithChange_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_DesignObjVariation::FK_Button_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_EffectType_Selected_NoChange_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_DesignObjVariation::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_EffectType_Highlighted_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
+bool Row_DesignObjVariation::FK_Button_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[14];}
+bool Row_DesignObjVariation::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[15];}
 bool Row_DesignObjVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[19];}
+return is_null[21];}
 bool Row_DesignObjVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[20];}
+return is_null[22];}
 bool Row_DesignObjVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[21];}
+return is_null[23];}
 bool Row_DesignObjVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[22];}
+return is_null[24];}
 bool Row_DesignObjVariation::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[24];}
+return is_null[26];}
 
 			
 void Row_DesignObjVariation::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -425,44 +449,52 @@ void Row_DesignObjVariation::FK_CommandGroup_D_OnStartup_setNull(bool val){PLUTO
 is_null[8]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_EffectType_Selected_WithChange_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_EffectType_Selected_NoChange_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_EffectType_Highlighted_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_EffectType_Selected_WithChange_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_Button_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_EffectType_Selected_NoChange_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_EffectType_Highlighted_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
+void Row_DesignObjVariation::FK_Button_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[14]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation::FK_Criteria_Orbiter_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[15]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[19]=val;
-is_modified=true;
-}
-void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[20]=val;
-is_modified=true;
-}
-void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[21]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[22]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[23]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[24]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[26]=val;
 is_modified=true;
 }
 	
@@ -584,11 +616,37 @@ sprintf(buf, "%li", m_FK_CommandGroup_D_OnStartup);
 return buf;
 }
 
-string Row_DesignObjVariation::FK_EffectType_Selected_WithChange_asSQL()
+string Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_CommandGroup_D_OnHighlight);
+
+return buf;
+}
+
+string Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_CommandGroup_D_OnUnhighlight);
+
+return buf;
+}
+
+string Row_DesignObjVariation::FK_EffectType_Selected_WithChange_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -601,7 +659,7 @@ string Row_DesignObjVariation::FK_EffectType_Selected_NoChange_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -614,7 +672,7 @@ string Row_DesignObjVariation::FK_EffectType_Highlighted_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -627,7 +685,7 @@ string Row_DesignObjVariation::FK_Button_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -640,7 +698,7 @@ string Row_DesignObjVariation::FK_Criteria_Orbiter_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -653,7 +711,7 @@ string Row_DesignObjVariation::DontResetSelectedState_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[14])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -666,7 +724,7 @@ string Row_DesignObjVariation::FK_StabilityStatus_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[15])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -679,7 +737,7 @@ string Row_DesignObjVariation::RepeatMS_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -692,7 +750,7 @@ string Row_DesignObjVariation::RepeatParm_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -705,7 +763,7 @@ string Row_DesignObjVariation::PreserveTransparencies_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[18])
+if (is_null[20])
 return "NULL";
 
 char buf[32];
@@ -718,7 +776,7 @@ string Row_DesignObjVariation::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[19])
+if (is_null[21])
 return "NULL";
 
 char buf[32];
@@ -731,7 +789,7 @@ string Row_DesignObjVariation::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[20])
+if (is_null[22])
 return "NULL";
 
 char buf[32];
@@ -744,7 +802,7 @@ string Row_DesignObjVariation::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[21])
+if (is_null[23])
 return "NULL";
 
 char buf[32];
@@ -757,7 +815,7 @@ string Row_DesignObjVariation::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[22])
+if (is_null[24])
 return "NULL";
 
 char buf[32];
@@ -770,7 +828,7 @@ string Row_DesignObjVariation::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[23])
+if (is_null[25])
 return "NULL";
 
 char *buf = new char[29];
@@ -784,7 +842,7 @@ string Row_DesignObjVariation::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[24])
+if (is_null[26])
 return "NULL";
 
 char buf[32];
@@ -831,10 +889,10 @@ bool Table_DesignObjVariation::Commit(bool bDeleteFailedModifiedRow,bool bDelete
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_EffectType_Selected_WithChange_asSQL()+", "+pRow->FK_EffectType_Selected_NoChange_asSQL()+", "+pRow->FK_EffectType_Highlighted_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->PreserveTransparencies_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_CommandGroup_D_OnHighlight_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnhighlight_asSQL()+", "+pRow->FK_EffectType_Selected_WithChange_asSQL()+", "+pRow->FK_EffectType_Selected_NoChange_asSQL()+", "+pRow->FK_EffectType_Highlighted_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->PreserveTransparencies_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_UI`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_EffectType_Selected_WithChange`, `FK_EffectType_Selected_NoChange`, `FK_EffectType_Highlighted`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `PreserveTransparencies`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_UI`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_CommandGroup_D_OnHighlight`, `FK_CommandGroup_D_OnUnhighlight`, `FK_EffectType_Selected_WithChange`, `FK_EffectType_Selected_NoChange`, `FK_EffectType_Highlighted`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `PreserveTransparencies`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -890,7 +948,7 @@ condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_EffectType_Selected_WithChange`="+pRow->FK_EffectType_Selected_WithChange_asSQL()+", `FK_EffectType_Selected_NoChange`="+pRow->FK_EffectType_Selected_NoChange_asSQL()+", `FK_EffectType_Highlighted`="+pRow->FK_EffectType_Highlighted_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `PreserveTransparencies`="+pRow->PreserveTransparencies_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_CommandGroup_D_OnHighlight`="+pRow->FK_CommandGroup_D_OnHighlight_asSQL()+", `FK_CommandGroup_D_OnUnhighlight`="+pRow->FK_CommandGroup_D_OnUnhighlight_asSQL()+", `FK_EffectType_Selected_WithChange`="+pRow->FK_EffectType_Selected_WithChange_asSQL()+", `FK_EffectType_Selected_NoChange`="+pRow->FK_EffectType_Selected_NoChange_asSQL()+", `FK_EffectType_Highlighted`="+pRow->FK_EffectType_Highlighted_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `PreserveTransparencies`="+pRow->PreserveTransparencies_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation set " + update_values_list + " where " + condition;
@@ -1101,177 +1159,199 @@ sscanf(row[8], "%li", &(pRow->m_FK_CommandGroup_D_OnStartup));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_EffectType_Selected_WithChange = 0;
+pRow->m_FK_CommandGroup_D_OnHighlight = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_EffectType_Selected_WithChange));
+sscanf(row[9], "%li", &(pRow->m_FK_CommandGroup_D_OnHighlight));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_EffectType_Selected_NoChange = 0;
+pRow->m_FK_CommandGroup_D_OnUnhighlight = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_EffectType_Selected_NoChange));
+sscanf(row[10], "%li", &(pRow->m_FK_CommandGroup_D_OnUnhighlight));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_EffectType_Highlighted = 0;
+pRow->m_FK_EffectType_Selected_WithChange = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_EffectType_Highlighted));
+sscanf(row[11], "%li", &(pRow->m_FK_EffectType_Selected_WithChange));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_FK_Button = 0;
+pRow->m_FK_EffectType_Selected_NoChange = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_FK_Button));
+sscanf(row[12], "%li", &(pRow->m_FK_EffectType_Selected_NoChange));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_FK_Criteria_Orbiter = 0;
+pRow->m_FK_EffectType_Highlighted = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_FK_Criteria_Orbiter));
+sscanf(row[13], "%li", &(pRow->m_FK_EffectType_Highlighted));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DontResetSelectedState = 0;
+pRow->m_FK_Button = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_DontResetSelectedState));
+sscanf(row[14], "%li", &(pRow->m_FK_Button));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_FK_StabilityStatus = 0;
+pRow->m_FK_Criteria_Orbiter = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_FK_StabilityStatus));
+sscanf(row[15], "%li", &(pRow->m_FK_Criteria_Orbiter));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_RepeatMS = 0;
+pRow->m_DontResetSelectedState = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_RepeatMS));
+sscanf(row[16], "%hi", &(pRow->m_DontResetSelectedState));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_RepeatParm = 0;
+pRow->m_FK_StabilityStatus = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_RepeatParm));
+sscanf(row[17], "%li", &(pRow->m_FK_StabilityStatus));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_PreserveTransparencies = 0;
+pRow->m_RepeatMS = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_PreserveTransparencies));
+sscanf(row[18], "%li", &(pRow->m_RepeatMS));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_id = 0;
+pRow->m_RepeatParm = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_id));
+sscanf(row[19], "%hi", &(pRow->m_RepeatParm));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_batch = 0;
+pRow->m_PreserveTransparencies = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_batch));
+sscanf(row[20], "%hi", &(pRow->m_PreserveTransparencies));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_user));
+sscanf(row[21], "%li", &(pRow->m_psc_id));
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[22], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-pRow->m_psc_mod = string(row[23],lengths[23]);
+sscanf(row[23], "%li", &(pRow->m_psc_user));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%li", &(pRow->m_psc_restrict));
+sscanf(row[24], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[25] == NULL)
+{
+pRow->is_null[25]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[25]=false;
+pRow->m_psc_mod = string(row[25],lengths[25]);
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[26]=false;
+sscanf(row[26], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1484,177 +1564,199 @@ sscanf(row[8], "%li", &(pRow->m_FK_CommandGroup_D_OnStartup));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_EffectType_Selected_WithChange = 0;
+pRow->m_FK_CommandGroup_D_OnHighlight = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_EffectType_Selected_WithChange));
+sscanf(row[9], "%li", &(pRow->m_FK_CommandGroup_D_OnHighlight));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_EffectType_Selected_NoChange = 0;
+pRow->m_FK_CommandGroup_D_OnUnhighlight = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_EffectType_Selected_NoChange));
+sscanf(row[10], "%li", &(pRow->m_FK_CommandGroup_D_OnUnhighlight));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_EffectType_Highlighted = 0;
+pRow->m_FK_EffectType_Selected_WithChange = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_EffectType_Highlighted));
+sscanf(row[11], "%li", &(pRow->m_FK_EffectType_Selected_WithChange));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_FK_Button = 0;
+pRow->m_FK_EffectType_Selected_NoChange = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_FK_Button));
+sscanf(row[12], "%li", &(pRow->m_FK_EffectType_Selected_NoChange));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_FK_Criteria_Orbiter = 0;
+pRow->m_FK_EffectType_Highlighted = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_FK_Criteria_Orbiter));
+sscanf(row[13], "%li", &(pRow->m_FK_EffectType_Highlighted));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DontResetSelectedState = 0;
+pRow->m_FK_Button = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_DontResetSelectedState));
+sscanf(row[14], "%li", &(pRow->m_FK_Button));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_FK_StabilityStatus = 0;
+pRow->m_FK_Criteria_Orbiter = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_FK_StabilityStatus));
+sscanf(row[15], "%li", &(pRow->m_FK_Criteria_Orbiter));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_RepeatMS = 0;
+pRow->m_DontResetSelectedState = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_RepeatMS));
+sscanf(row[16], "%hi", &(pRow->m_DontResetSelectedState));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_RepeatParm = 0;
+pRow->m_FK_StabilityStatus = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_RepeatParm));
+sscanf(row[17], "%li", &(pRow->m_FK_StabilityStatus));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_PreserveTransparencies = 0;
+pRow->m_RepeatMS = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_PreserveTransparencies));
+sscanf(row[18], "%li", &(pRow->m_RepeatMS));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_id = 0;
+pRow->m_RepeatParm = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_id));
+sscanf(row[19], "%hi", &(pRow->m_RepeatParm));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_batch = 0;
+pRow->m_PreserveTransparencies = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_batch));
+sscanf(row[20], "%hi", &(pRow->m_PreserveTransparencies));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_user));
+sscanf(row[21], "%li", &(pRow->m_psc_id));
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[22], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-pRow->m_psc_mod = string(row[23],lengths[23]);
+sscanf(row[23], "%li", &(pRow->m_psc_user));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%li", &(pRow->m_psc_restrict));
+sscanf(row[24], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[25] == NULL)
+{
+pRow->is_null[25]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[25]=false;
+pRow->m_psc_mod = string(row[25],lengths[25]);
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[26]=false;
+sscanf(row[26], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1720,6 +1822,20 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
 return pTable->GetRow(m_FK_CommandGroup_D_OnStartup);
+}
+class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnHighlight_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
+return pTable->GetRow(m_FK_CommandGroup_D_OnHighlight);
+}
+class Row_CommandGroup_D* Row_DesignObjVariation::FK_CommandGroup_D_OnUnhighlight_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
+return pTable->GetRow(m_FK_CommandGroup_D_OnUnhighlight);
 }
 class Row_EffectType* Row_DesignObjVariation::FK_EffectType_Highlighted_getrow()
 {

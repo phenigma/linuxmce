@@ -25,6 +25,8 @@ using namespace std;
 #include "Table_DesignObjVariation.h"
 #include "Table_DesignObjVariation.h"
 #include "Table_DesignObjVariation.h"
+#include "Table_DesignObjVariation.h"
+#include "Table_DesignObjVariation.h"
 #include "Table_DesignObjVariation_Zone.h"
 
 
@@ -899,6 +901,20 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
 pTable->GetRows("`FK_CommandGroup_D_OnStartup`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+}
+void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnHighlight_getrows(vector <class Row_DesignObjVariation*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
+pTable->GetRows("`FK_CommandGroup_D_OnHighlight`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+}
+void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnUnhighlight_getrows(vector <class Row_DesignObjVariation*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
+pTable->GetRows("`FK_CommandGroup_D_OnUnhighlight`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_Zone_FK_CommandGroup_D_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
