@@ -42,9 +42,9 @@ using namespace std;
 #include "Table_Device_QuickStart.h"
 #include "Table_Device_StartupScript.h"
 #include "Table_Device_Users.h"
+#include "Table_InfraredGroup_Command.h"
 #include "Table_Package_Device.h"
 #include "Table_PaidLicense.h"
-#include "Table_PnpQueue.h"
 
 
 void Database_pluto_main::CreateTable_Device()
@@ -890,7 +890,11 @@ condition = condition + "`PK_Device`=" + tmp_PK_Device;
 string update_values_list;
 update_values_list = update_values_list + "`PK_Device`="+pRow->PK_Device_asSQL()+", `Disabled`="+pRow->Disabled_asSQL()+", `FK_Room`="+pRow->FK_Room_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `FK_Device_ControlledVia`="+pRow->FK_Device_ControlledVia_asSQL()+", `IPaddress`="+pRow->IPaddress_asSQL()+", `MACaddress`="+pRow->MACaddress_asSQL()+", `IgnoreOnOff`="+pRow->IgnoreOnOff_asSQL()+", `FK_Device_RouteTo`="+pRow->FK_Device_RouteTo_asSQL()+", `NeedConfigure`="+pRow->NeedConfigure_asSQL()+", `State`="+pRow->State_asSQL()+", `Status`="+pRow->Status_asSQL()+", `PingTest`="+pRow->PingTest_asSQL()+", `EK_LicensedDevice`="+pRow->EK_LicensedDevice_asSQL()+", `IsNewDevice`="+pRow->IsNewDevice_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
-	
+FILE *file = fopen("/var/log/pluto/device.newlog","ab");
+string sTime = StringUtils::PrecisionTime();
+fprintf(file,"%s %s\n",sTime.c_str(),update_values_list.c_str());
+fclose(file);
+
 		string query = "update Device set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -1811,6 +1815,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Device_Users *pTable = table->database->Device_Users_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
+void Row_Device::InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Command*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
+pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
+}
 void Row_Device::Package_Device_FK_Device_getrows(vector <class Row_Package_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -1823,13 +1834,6 @@ void Row_Device::PaidLicense_FK_Device_getrows(vector <class Row_PaidLicense*> *
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PaidLicense *pTable = table->database->PaidLicense_get();
-pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
-}
-void Row_Device::PnpQueue_FK_Device_getrows(vector <class Row_PnpQueue*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_PnpQueue *pTable = table->database->PnpQueue_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 
