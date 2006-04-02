@@ -14,6 +14,8 @@
 #define UI_DEFINE_TABLE_FIELD "UI.Define"
 #define UI_INCLUDESTANDARDUI_FIELD "IncludeStandardUI"
 #define UI_INCLUDESTANDARDUI_TABLE_FIELD "UI.IncludeStandardUI"
+#define UI_VERSION_FIELD "Version"
+#define UI_VERSION_TABLE_FIELD "UI.Version"
 #define UI_PSC_ID_FIELD "psc_id"
 #define UI_PSC_ID_TABLE_FIELD "UI.psc_id"
 #define UI_PSC_BATCH_FIELD "psc_batch"

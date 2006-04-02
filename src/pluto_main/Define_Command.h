@@ -720,6 +720,7 @@
 #define COMMAND_Set_Enable_Status_CONST 791
 #define COMMAND_Get_All_HAL_Model_ID_CONST 792
 #define COMMAND_Get_Sibling_Remotes_CONST 793
+#define COMMAND_Set_Mouse_Behavior_CONST 794
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

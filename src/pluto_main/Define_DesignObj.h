@@ -1940,6 +1940,19 @@
 #define DESIGNOBJ_icoBrightnessSensor_CONST 4858
 #define DESIGNOBJ_butLearnIRCodes_CONST 4859
 #define DESIGNOBJ_butTVReceiver_CONST 4860
+#define DESIGNOBJ_mnuMain_Menu_2_CONST 4861
+#define DESIGNOBJ_grpActivities_CONST 4862
+#define DESIGNOBJ_grpRoom_CONST 4863
+#define DESIGNOBJ_grpNowPlaying_CONST 4864
+#define DESIGNOBJ_butCurrentMedia_CONST 4865
+#define DESIGNOBJ_butCurrentCall_CONST 4866
+#define DESIGNOBJ_butCurrentLocation_CONST 4867
+#define DESIGNOBJ_popMainMenu_CONST 4868
+#define DESIGNOBJ_butShowMenu_CONST 4869
+#define DESIGNOBJ_popMediaOptions_CONST 4870
+#define DESIGNOBJ_popFileList_CONST 4871
+#define DESIGNOBJ_butshowmovies_CONST 4872
+#define DESIGNOBJ_butMediaPopup_CONST 4873
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
