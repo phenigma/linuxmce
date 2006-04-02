@@ -958,7 +958,11 @@ m_bNoEffects = true;
 
 	m_sScreenSaveMenu = StringUtils::itos( GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver)->PK_DesignObj_get()) + ".0.0";
 	if( m_pRow_Screen_ScreenSaver!=m_pRow_Screen_MainMenu )
-		DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver),PlutoRectangle(0,0,0,0),NULL,true,false);
+	{
+		Row_DesignObj *pRow_DesignObj=GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver);
+		if(pRow_DesignObj && (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[pRow_DesignObj->PK_DesignObj_get()]==true) )
+			DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+	}
 
 	m_iLocation_Initial=0;
 	DequeLocationInfo::iterator itd;
@@ -1353,6 +1357,10 @@ int k=2;
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
+		if( m_map_PK_DesignObj_SoleScreenToGen.size() && 
+			m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObjDependancy->PK_DesignObj_get()] )
+				continue; // Don't auto-include screens if we're only generating certain screens
+
 		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + ".0")==m_htGeneratedScreens.end() )
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
@@ -1368,6 +1376,10 @@ int k=2;
 	for(itnol=alNewDesignObjLocationsToGenerate.begin();itnol!=alNewDesignObjLocationsToGenerate.end();++itnol)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = itnol->first;
+		if( m_map_PK_DesignObj_SoleScreenToGen.size() && 
+			m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObjDependancy->PK_DesignObj_get()] )
+				continue; // Don't auto-include screens if we're only generating certain screens
+
 		m_iLocation=itnol->second;
 		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + "." + StringUtils::itos(m_iLocation))==m_htGeneratedScreens.end() )
 		{

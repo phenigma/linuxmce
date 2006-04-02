@@ -834,6 +834,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 		// ContainsVideo needs this too
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		pMediaStream->m_sStartPosition = sStartingPosition;
+		pMediaStream->m_sAppName = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Name_CONST);
 
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )

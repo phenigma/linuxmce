@@ -474,7 +474,7 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, 
-				pMediaStream->m_iPK_MediaType, iDequeMediaFile, bRefreshScreen );
+				pMediaStream->m_iPK_MediaType, iDequeMediaFile, pMediaStream->m_sAppName, bRefreshScreen );
 
 			if( pMessage )
 			{
@@ -500,7 +500,7 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 		else
 		{
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 0,
-				"", "", "", "", 0, 0, bRefreshScreen );
+				"", "", "", "", 0, 0, "", bRefreshScreen );
 			if( pMessage )
 			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);

@@ -1505,11 +1505,13 @@ namespace DCE
 			/** The type of media playing */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
+		/** @param #50 Name */
+			/** The name of the window for the application to remain in the foreground */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,sName.c_str(),bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */
@@ -1774,6 +1776,19 @@ light, climate, media, security, telecom */
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #697 - Set Active Application */
+	/** Indicates if there is an active computing application, other than some media, such as a file browser. */
+		/** @param #2 PK_Device */
+			/** The media director */
+		/** @param #50 Name */
+			/** The name of the application */
+		/** @param #146 PK_QuickStartTemplate */
+			/** The quick start template */
+
+	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate) { string sCMD_Result; CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
 		/** @param #10 ID */
@@ -1783,6 +1798,19 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Goto_Screen(string sID,int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,NULL);};
 	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #795 - Set Mouse Behavior */
+	/** Indicates if the mouse should be locked to horizontal or vertical movements, how to handle range of motion, etc. */
+		/** @param #39 Options */
+			/** The following letter(s): [r/a]ramp/absolute */
+		/** @param #126 Exclusive */
+			/** If true, all existing mouse behavior will be removed */
+		/** @param #211 Direction */
+			/** a letter: [h]orizontal, [v]ertical, [b]oth */
+
+	virtual void CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection) { string sCMD_Result; CMD_Set_Mouse_Behavior(sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

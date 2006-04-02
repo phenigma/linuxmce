@@ -6993,10 +6993,12 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 			/** The type of media playing */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
+		/** @param #50 Name */
+			/** The name of the window for the application to remain in the foreground */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
 	if(m_bQuit)
@@ -9876,3 +9878,34 @@ void Orbiter::SetChildrenVisibilityContext(DesignObj_Orbiter *pObj,
 	}
 }
 //-----------------------------------------------------------------------------------------------------
+//<-dceag-c697-b->
+
+	/** @brief COMMAND: #697 - Set Active Application */
+	/** Indicates if there is an active computing application, other than some media, such as a file browser. */
+		/** @param #2 PK_Device */
+			/** The media director */
+		/** @param #50 Name */
+			/** The name of the application */
+		/** @param #146 PK_QuickStartTemplate */
+			/** The quick start template */
+
+void Orbiter::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage)
+//<-dceag-c697-e->
+{
+}
+
+//<-dceag-c795-b->
+
+	/** @brief COMMAND: #795 - Set Mouse Behavior */
+	/** Indicates if the mouse should be locked to horizontal or vertical movements, how to handle range of motion, etc. */
+		/** @param #39 Options */
+			/** The following letter(s): [r/a]ramp/absolute */
+		/** @param #126 Exclusive */
+			/** If true, all existing mouse behavior will be removed */
+		/** @param #211 Direction */
+			/** a letter: [h]orizontal, [v]ertical, [b]oth */
+
+void Orbiter::CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage)
+//<-dceag-c795-e->
+{
+}

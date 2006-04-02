@@ -122,6 +122,8 @@ namespace DCE
 		string m_sStartPosition;		/** The position to start the stream at. */
 		string m_sPlaybackSpeed;		/** Like 2x, 1/4x, etc.  Normally leave blank for normal */
 
+		string m_sAppName;				/** The name of the application (window name actually) the will render this on the media director */
+
         /** @brief constructor*/
         MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
