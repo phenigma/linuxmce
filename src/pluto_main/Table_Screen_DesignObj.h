@@ -83,6 +83,9 @@ long int m_FK_DesignObj;
 long int m_FK_UI;
 long int m_FK_Skin;
 long int m_FK_DeviceTemplate;
+short int m_AsPopup;
+long int m_Popup_X;
+long int m_Popup_Y;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -90,7 +93,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[12];
+		bool is_null[15];
 	
 	public:
 		long int PK_Screen_DesignObj_get();
@@ -99,6 +102,9 @@ long int FK_DesignObj_get();
 long int FK_UI_get();
 long int FK_Skin_get();
 long int FK_DeviceTemplate_get();
+short int AsPopup_get();
+long int Popup_X_get();
+long int Popup_Y_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -113,6 +119,9 @@ void FK_DesignObj_set(long int val);
 void FK_UI_set(long int val);
 void FK_Skin_set(long int val);
 void FK_DeviceTemplate_set(long int val);
+void AsPopup_set(short int val);
+void Popup_X_set(long int val);
+void Popup_Y_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -124,6 +133,8 @@ void psc_restrict_set(long int val);
 		bool FK_UI_isNull();
 bool FK_Skin_isNull();
 bool FK_DeviceTemplate_isNull();
+bool Popup_X_isNull();
+bool Popup_Y_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -134,6 +145,8 @@ bool psc_restrict_isNull();
 		void FK_UI_setNull(bool val);
 void FK_Skin_setNull(bool val);
 void FK_DeviceTemplate_setNull(bool val);
+void Popup_X_setNull(bool val);
+void Popup_Y_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -163,7 +176,7 @@ class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Screen_DesignObj+ m_FK_Screen+ m_FK_DesignObj+ m_FK_UI+ m_FK_Skin+ m_FK_DeviceTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Screen_DesignObj+ m_FK_Screen+ m_FK_DesignObj+ m_FK_UI+ m_FK_Skin+ m_FK_DeviceTemplate+ m_AsPopup+ m_Popup_X+ m_Popup_Y+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -174,6 +187,9 @@ string FK_DesignObj_asSQL();
 string FK_UI_asSQL();
 string FK_Skin_asSQL();
 string FK_DeviceTemplate_asSQL();
+string AsPopup_asSQL();
+string Popup_X_asSQL();
+string Popup_Y_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
