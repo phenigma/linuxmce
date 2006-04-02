@@ -197,6 +197,10 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 		delete *iA; 
 	for(iA = m_Action_UnloadList.begin(); iA != m_Action_UnloadList.end(); ++iA)
 		delete *iA; 
+	for(iA = m_Action_HighlightList.begin(); iA != m_Action_HighlightList.end(); ++iA)
+		delete *iA; 
+	for(iA = m_Action_UnhighlightList.begin(); iA != m_Action_UnhighlightList.end(); ++iA)
+		delete *iA; 
 	VectorDesignObjText::iterator iT;
 	for(iT=m_vectDesignObjText.begin(); iT != m_vectDesignObjText.end(); ++iT)
 	{

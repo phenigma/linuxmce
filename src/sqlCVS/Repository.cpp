@@ -108,6 +108,10 @@ void Repository::MatchUpTables( )
 					<< "But it no longer exists in the database." << endl
 					<< "I must delete it from the repository's database to continue." << endl;
 
+				cout << "Found an entry in " << Tablename << " for the table: " << row[0] << endl
+					<< "But it no longer exists in the database." << endl
+					<< "I must delete it from the repository's database to continue." << endl;
+
 				if( !AskYNQuestion("Delete the bad data, and cleanup the repository table?",false) )
 					throw "Repository corrupt";
 
@@ -121,6 +125,10 @@ void Repository::MatchUpTables( )
 				if( g_GlobalConfig.m_sCommand=="import" )
 					continue;
 				cerr << "Found an entry in " << Tablename << " for the table: " << row[0] << endl
+					<< "But it already exists in the repository: " << pTable->Repository_get( )->Name_get( ) << endl
+					<< "I must delete it from this repository's database to continue." << endl;
+
+				cout << "Found an entry in " << Tablename << " for the table: " << row[0] << endl
 					<< "But it already exists in the repository: " << pTable->Repository_get( )->Name_get( ) << endl
 					<< "I must delete it from this repository's database to continue." << endl;
 

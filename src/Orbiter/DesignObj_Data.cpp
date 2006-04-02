@@ -25,6 +25,8 @@ DesignObj_Data::~DesignObj_Data()
 	m_mapObjParms.clear();
 	m_Action_LoadList.clear();
 	m_Action_UnloadList.clear();
+	m_Action_HighlightList.clear();
+	m_Action_UnhighlightList.clear();
 	m_Action_TimeoutList.clear();
 	m_Action_StartupList.clear();
 	m_ZoneList.clear();
@@ -288,6 +290,16 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 		{
+			Write_long(long(m_Action_HighlightList.size()));
+			for(DesignObjCommandList::iterator it=m_Action_HighlightList.begin();it!=m_Action_HighlightList.end();++it)
+				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+		}
+		{
+			Write_long(long(m_Action_UnhighlightList.size()));
+			for(DesignObjCommandList::iterator it=m_Action_UnhighlightList.begin();it!=m_Action_UnhighlightList.end();++it)
+				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+		}
+		{
 			Write_long(long(m_Action_TimeoutList.size()));
 			for(DesignObjCommandList::iterator it=m_Action_TimeoutList.begin();it!=m_Action_TimeoutList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
@@ -421,6 +433,26 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			}
 		}
 
+		{
+			size_t count = size_t(Read_long());
+			for(size_t s=0;s<count;++s)
+			{
+				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+				pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+				m_Action_HighlightList.push_back(pDesignObjCommand);
+			}
+		}
+
+		{
+			size_t count = size_t(Read_long());
+			for(size_t s=0;s<count;++s)
+			{
+				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+				pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+				m_Action_UnhighlightList.push_back(pDesignObjCommand);
+			}
+		}
+	
 		{
 			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)

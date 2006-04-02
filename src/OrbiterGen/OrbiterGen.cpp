@@ -994,8 +994,10 @@ m_bNoEffects = true;
 	}
 
 	list<Row_DesignObj *> alNewDesignObjsToGenerate;  // Have to cache the list because I can't modify htgeneratedscreens while enumerating
+	list< pair<Row_DesignObj *,int> > alNewDesignObjLocationsToGenerate; 
 
 	map<string,listDesignObj_Generator *>::iterator itgs;
+
 	bool bKeepLooking=true;
 	while(bKeepLooking)
 	{
@@ -1011,6 +1013,21 @@ m_bNoEffects = true;
 			if( o->size()>0 )
 			{
 				DesignObj_Generator *oco = o->front();
+
+				// Be sure that if this is location specific we have added for every location
+				if( oco->m_bLocationSpecific && StringUtils::EndsWith(itgs->first,".0") )
+				{
+					DequeLocationInfo::iterator itd;
+					for(itd=m_dequeLocation.begin();itd!=m_dequeLocation.end();++itd)
+					{
+						LocationInfo *li = (*itd);
+						if( li->iLocation==0 )
+							continue;  // Only matters for non-zero locations
+
+						if( m_htGeneratedScreens.find( StringUtils::itos( oco->m_pRow_DesignObj->PK_DesignObj_get() ) + "." + StringUtils::itos( li->iLocation ) )==m_htGeneratedScreens.end() )
+							alNewDesignObjLocationsToGenerate.push_back( make_pair<Row_DesignObj *,int> (oco->m_pRow_DesignObj, li->iLocation) );
+					}
+				}
 	if( oco->m_pRow_DesignObj->PK_DesignObj_get()==1724 )
 	{
 	int k=2;
@@ -1347,6 +1364,22 @@ int k=2;
 		}
 	}
 
+	list< pair<Row_DesignObj *,int> >::iterator itnol;
+	for(itnol=alNewDesignObjLocationsToGenerate.begin();itnol!=alNewDesignObjLocationsToGenerate.end();++itnol)
+	{
+		Row_DesignObj *m_pRow_DesignObjDependancy = itnol->first;
+		m_iLocation=itnol->second;
+		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + "." + StringUtils::itos(m_iLocation))==m_htGeneratedScreens.end() )
+		{
+			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
+			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
+			if( ocDesignObj->m_bUsingCache )
+			{
+				SearchForGotos(ocDesignObj);
+			}
+		}
+	}
+
 	int NumScreens=0;
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
@@ -1614,6 +1647,8 @@ int k=2;
 
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_LoadList);
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_UnloadList);
+	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_HighlightList);
+	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_UnhighlightList);
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_StartupList);
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_TimeoutList);
 	DesignObjZoneList::iterator itZone;
@@ -1939,6 +1974,8 @@ int k=2;
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_StartupList);
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_TimeoutList);
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_UnloadList);
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_HighlightList);
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_UnhighlightList);
 
 	// It probably makes more sense to just leave all the action groups attached to buttons within the orbiters, and only export action groups
 	// associated with events to event manager.  Perhaps then all the fkid_object_goto's should be eliminated, and it is all just actions??/

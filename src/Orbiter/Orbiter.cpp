@@ -300,10 +300,7 @@ Orbiter::~Orbiter()
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 	{
 		DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
-		string dummy = (*itDesignObjOrbiter).first;
-
 		delete pObj;
-		pObj = NULL;
 	}
 	m_mapObj_All.clear();
 
@@ -2444,11 +2441,12 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	if(sbNoSelection == m_nSelectionBehaviour)
 		return;
 
-	if( m_pGraphicBeforeHighlight )
-		UnHighlightObject();
+	UnHighlightObject();
 
 	if( !m_pObj_Highlighted )
 		return;
+
+	ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_HighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -2527,6 +2525,9 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 
 /*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
 {
+	if( m_pObj_Highlighted )
+		ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_UnhighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
+
 	if( !m_pGraphicBeforeHighlight )
 		return;
 

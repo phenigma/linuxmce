@@ -118,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2640 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4870 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4861  || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -143,7 +143,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
         return;
     }
 
-	bool bLocationSpecific=false;
+	m_bLocationSpecific=false;
 	if( m_pOrbiterGenerator->m_mapDesignObj_WithArrays.find(m_pRow_DesignObjVariation_Standard->FK_DesignObj_get())!=
 		m_pOrbiterGenerator->m_mapDesignObj_WithArrays.end() ||
 		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj || m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping==m_pRow_DesignObj )
@@ -151,7 +151,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
 		bAddToGenerated = true;
 		m_bDontShare = true;
         m_iVersion = m_pOrbiterGenerator->m_iLocation;
-		bLocationSpecific=true;
+		m_bLocationSpecific=true;
     }
 
 	if( bAddToGenerated )
@@ -169,7 +169,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
 		}
 
 		cout << StringUtils::PrecisionTime() << "Generating screen: " << drDesignObj->PK_DesignObj_get() << 
-			" ver: " << m_iVersion << (bLocationSpecific ? "Y" : "N") << 
+			" ver: " << m_iVersion << (m_bLocationSpecific ? "Y" : "N") << 
 			" room: " << (m_pOrbiterGenerator->m_pRow_Room ? m_pOrbiterGenerator->m_pRow_Room->PK_Room_get() : 0) <<
 			" ea: " << (m_pOrbiterGenerator->m_pRow_EntertainArea ? m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get() : 0) <<
 			" in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
@@ -680,6 +680,27 @@ int k=2;
                 m_Action_UnloadList.push_back(oa);
             }
         }
+        // Use CGZone to build the actions for on load and unload
+        if( !drOV->FK_CommandGroup_D_OnHighlight_isNull())
+        {
+            CGZone *oz = new CGZone(drOV->FK_CommandGroup_D_OnHighlight_getrow(),this);
+            DesignObjCommandList::iterator itActions;
+            for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
+            {
+                CGCommand *oa = (CGCommand *) *itActions;
+                m_Action_HighlightList.push_back(oa);
+            }
+        }
+        if( !drOV->FK_CommandGroup_D_OnUnhighlight_isNull())
+        {
+            CGZone *oz = new CGZone(drOV->FK_CommandGroup_D_OnUnhighlight_getrow(),this);
+            DesignObjCommandList::iterator itActions;
+            for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
+            {
+                CGCommand *oa = (CGCommand *) *itActions;
+                m_Action_UnhighlightList.push_back(oa);
+            }
+        }
         if( !drOV->FK_CommandGroup_D_OnTimeout_isNull())
         {
             CGZone *oz = new CGZone(drOV->FK_CommandGroup_D_OnTimeout_getrow(),this);
@@ -1086,8 +1107,10 @@ int k=2;
     if( PK_DesignObj_Goto!=-1 )
     {
         tmpDesignObj_Goto = LookForGoto(&m_Action_LoadList);
-        if( tmpDesignObj_Goto==-1 )
-            PK_DesignObj_Goto=-1;
+        if( tmpDesignObj_Goto==0 )
+	        tmpDesignObj_Goto = LookForGoto(&m_Action_HighlightList);
+	    if( tmpDesignObj_Goto==-1 )
+		    PK_DesignObj_Goto=-1;
         else if( tmpDesignObj_Goto!=0 )
         {
             if( PK_DesignObj_Goto!=0 )

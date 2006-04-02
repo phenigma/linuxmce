@@ -78,8 +78,12 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_F2:     iPK_Button = BUTTON_F2_CONST;            break;
         case VK_F3:     iPK_Button = BUTTON_F3_CONST;            break;
         case VK_F4:     iPK_Button = BUTTON_F4_CONST;            break;
-
         case VK_F5:     iPK_Button = BUTTON_F5_CONST;            break;
+        case VK_F6:     iPK_Button = BUTTON_F6_CONST;            break;
+        case VK_F7:     iPK_Button = BUTTON_F7_CONST;            break;
+        case VK_F8:     iPK_Button = BUTTON_F8_CONST;            break;
+        case VK_F9:     iPK_Button = BUTTON_F9_CONST;            break;
+        case VK_F10:    iPK_Button = BUTTON_F10_CONST;            break;
         case VK_UP:     iPK_Button = BUTTON_Up_Arrow_CONST;      break;
         case VK_DOWN:   iPK_Button = BUTTON_Down_Arrow_CONST;    break;
         case VK_LEFT:   iPK_Button = BUTTON_Left_Arrow_CONST;    break;

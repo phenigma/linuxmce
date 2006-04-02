@@ -46,6 +46,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 	m_iStartingOffset=StartingOffset;
 	m_iPage=Page;
 	m_rBounds=rBounds;
+	m_bExpandHorizontal=(m_rBounds.Width==-1);
+	m_bExpandVertical=(m_rBounds.Height==-1);
 	m_VariableMap=&m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_mapVariable;
 
 	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
@@ -128,7 +130,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 					m_ptNextPosition.Y = ocLastDesignObj->m_rPosition.Bottom() + RowSpacing;
 
 				// See if another one of those objects won't fit and we need a new column
-				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() )
+				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || 
+					(m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() && !m_bExpandVertical)  )
 				{
 					if( MaxNumColumns>0 && ++iCurrentNumColumns>=MaxNumColumns )
 					{ CheckLastEntry(); return; }
@@ -155,7 +158,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 					m_ptNextPosition.X = ocLastDesignObj->m_rPosition.Right() + ColumnSpacing;
 
 				// See if another one of those objects won't fit and we need a new column
-				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() )
+				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || 
+					(m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() && !m_bExpandHorizontal) )  // -1 width means no limit
 				{
 					if( MaxNumRows>0 && ++iCurrentNumRows>=MaxNumRows )
 					{ CheckLastEntry(); return; }
@@ -201,6 +205,11 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 			delete ocNextDesignObj;
 			continue;
 		}
+
+		if( m_bExpandHorizontal && m_rBounds.Width < ocNextDesignObj->m_rPosition.Right() )
+			m_rBounds.Right( ocNextDesignObj->m_rPosition.Right() );
+		if( m_bExpandVertical && m_rBounds.Height < ocNextDesignObj->m_rPosition.Bottom() )
+			m_rBounds.Bottom( ocNextDesignObj->m_rPosition.Bottom() );
 
 		// In an array we want to increment the buttons
 		if( ocNextDesignObj->m_iPK_Button )

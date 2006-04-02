@@ -323,7 +323,7 @@ namespace DCE
         void DoReload();
 		bool RequestReload(int PK_Device_Requesting)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
+			g_pPlutoLogger->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
 			PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
 			g_pPlutoLogger->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
 			map<int,class Command_Impl *>::iterator it;

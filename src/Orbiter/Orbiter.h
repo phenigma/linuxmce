@@ -47,7 +47,8 @@ namespace DCE
 		smMouse,
 		smNavigation,
 		smCommand,
-		smLoadUnload
+		smLoadUnload,
+		smHighlight
 	};
 
 

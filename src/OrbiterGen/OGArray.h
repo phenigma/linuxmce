@@ -28,7 +28,7 @@ public:
 class CGArray
 {
 public:
-	bool m_bContainsMore;
+	bool m_bContainsMore,m_bExpandHorizontal,m_bExpandVertical;
 	int m_iLastVisibleArrayEntry,iScreenNum;
 	vector<class DesignObj_Generator *> m_alChildDesignObjs;
 	vector<class ArrayValue *> *m_alValues;

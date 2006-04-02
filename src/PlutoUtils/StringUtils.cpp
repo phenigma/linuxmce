@@ -678,6 +678,8 @@ string StringUtils::SQLDateTime(time_t t)
     if( t == 0 )
         t = time(NULL);
     struct tm *tm = localtime(&t);
+	if( !tm )
+		return "";
 
     sprintf( acDateTime, "%d/%d/%d %d:%d:%d",
             tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );

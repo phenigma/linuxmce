@@ -150,7 +150,7 @@ public:
 	int m_iRepeatIntervalInMS;
 	bool m_bRepeatParm;
 
-	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
+	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_HighlightList,m_Action_UnhighlightList,m_Action_TimeoutList,m_Action_StartupList;
 	int m_FK_Effect_Selected_WithChange, m_FK_Effect_Selected_NoChange, m_FK_Effect_Highlighted;
 	DesignObjZoneList m_ZoneList;
 	VectorDesignObjText m_vectDesignObjText;

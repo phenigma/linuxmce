@@ -42,7 +42,7 @@ public:
 	bool m_bDontShare,m_bUsingCache,m_bRendered,m_bPreserveAspectRatio,m_bPreserveTransparencies;
 	bool m_bCanBeHidden,m_bChildrenBehind,m_bDontMergeBackground;
 	bool m_bValuesScaled,m_bContainsFloorplans;
-	bool m_bUseOCG,m_bIsPopup;
+	bool m_bUseOCG,m_bIsPopup,m_bLocationSpecific;
 	PlutoPoint m_pFloorplanFillPoint;
 	int m_iScale,m_iScaleFromParent;  // If the user put a Scale this object command, this object and all it's children will be scaled.  m_iScaleFromParent is the scale of the parent object
 	int m_iFloorplanPage,m_iFloorplanDevice; // Only used for floorplan objects
