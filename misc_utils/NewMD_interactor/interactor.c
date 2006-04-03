@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
 	}
 	
 	tmp = 1;
-	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp) == -1))
+	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp)) == -1)
 	{
 		perror("setsockopt");
 		return 1;
