@@ -24,7 +24,7 @@ Message() {
 InitBootsplash() {
     progress=0
     kscripts=0
-    sscripts=25
+    sscripts=30
     export progress kscripts sscripts
 }
 
