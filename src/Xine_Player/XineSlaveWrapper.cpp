@@ -254,6 +254,7 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         isNewStream = true;
         xineStream = new XineStream();
         xineStream->m_pOwner = this;
+        xineStream->m_pStream = NULL;
         xineStream->m_iStreamID = streamID;
         setStreamForId( streamID, xineStream );
     }
@@ -299,6 +300,8 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         if ( ( m_pXineVideo = xine_open_video_driver( m_pXine, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
         {
             g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+            // TODO: obvious memory leak here
+            setStreamForId( streamID, NULL );
             return false;
         }
     }
@@ -307,6 +310,8 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
     if ( isNewStream && ( m_pXineAudio = xine_open_audio_driver( m_pXine, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
     {
         g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
+        // TODO: obvious memory leak here
+        setStreamForId( streamID, NULL );
         return false;
     }
 
@@ -314,14 +319,17 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
     if ( isNewStream && ( xineStream->m_pStream = xine_stream_new( m_pXine, m_pXineAudio, m_pXineVideo ) ) == NULL )
     {
         g_pPlutoLogger->Write( LV_WARNING, "Could not create stream (wanted to play: %s)", fileName.c_str() );
+        setStreamForId( streamID, NULL );
+        // TODO: obvious memory leak here
         delete xineStream;
         return false;
     }
 
     xineStream->m_iRequestingObject = iRequestingObject;
 
-    if ( isNewStream )
-        m_mapStreams[ streamID ] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
+//	old code
+//    if ( isNewStream )
+//        m_mapStreams[ streamID ] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
 
     if ( isNewStream )
     {
