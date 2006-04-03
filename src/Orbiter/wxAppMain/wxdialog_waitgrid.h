@@ -83,9 +83,6 @@ public:
     /// wxEVT_SIZE event handler for ID_DIALOG_WAITGRID
     void OnSize( wxSizeEvent& event );
 
-    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
-    void OnCancelClick( wxCommandEvent& event );
-
 ////@end wxDialog_WaitGrid event handler declarations
 
 ////@begin wxDialog_WaitGrid member function declarations
@@ -109,12 +106,11 @@ public:
     wxTextCtrl* v_pInfoText;
     wxBoxSizer* v_pBoxH_bot;
     wxGauge* v_pGauge;
-    wxButton* v_pButtonCancel;
 ////@end wxDialog_WaitGrid member variables
 
 public:
     ~wxDialog_WaitGrid();
-    virtual void Gui_Refresh(void *pExternData);
+    virtual bool Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {

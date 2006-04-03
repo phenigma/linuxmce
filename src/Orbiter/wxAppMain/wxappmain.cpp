@@ -87,7 +87,9 @@ BEGIN_EVENT_TABLE( wxAppMain, wxApp )
  */
 
 wxAppMain::wxAppMain()
-        : v_pExternApp(NULL)
+        : v_bExiting(false)
+        , v_pwxThread_Bag(NULL)
+        , v_pExternApp(NULL)
         , v_oTimer_WakeIdle(this, ID_Timer_WakeIdle)
 {
     global_wx_log_enter();
@@ -133,6 +135,8 @@ bool wxAppMain::OnInit()
 #ifdef USE_DEBUG_CODE
     _debug_init();
 #endif // USE_DEBUG_CODE
+
+    v_pwxThread_Bag = new wxThread_Bag;
     v_oTimer_WakeIdle.Start(INTERVAL_TIMER_WAKEIDLE_MSEC);
 
     return true;
@@ -145,7 +149,6 @@ int wxAppMain::OnExit()
 {
     // NO wx log call if NO DontCreateOnDemand()
     _WX_LOG_NFO();
-    CleanUpObjects();
 ////@begin wxAppMain cleanup
     return wxApp::OnExit();
 ////@end wxAppMain cleanup
@@ -162,7 +165,7 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
     if (App_ShouldExit())
     {
         _WX_LOG_NFO("Received Exit Signal");
-        CleanUpObjects();
+        Clean_Exit();
     }
     else if ( App_IsReady() && (v_pExternApp==NULL) )
     {
@@ -174,6 +177,11 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
         Extern_Event_Listener(v_pExternApp);
     }
 #endif // USE_RELEASE_CODE
+#ifdef USE_DEBUG_CODE
+    {
+        Extern_Event_Listener(v_pExternApp);
+    }
+#endif // USE_DEBUG_CODE
 ////@begin wxEVT_IDLE event handler in wxAppMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -184,6 +192,8 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
 wxAppMain::~wxAppMain()
 {
     _WX_LOG_NFO();
+    v_oTimer_WakeIdle.Stop();
+    wxDELETE(v_pwxThread_Bag);
     global_wx_log_leave();
     OnExit();
 }
@@ -192,8 +202,28 @@ int wxAppMain::OnRun()
 {
     _WX_LOG_NFO();
     wxApp::OnRun();
+    v_oTimer_WakeIdle.Stop();
     _WX_LOG_NFO("exit code : %d", App_GetExitCode());
     return App_GetExitCode();
+}
+
+void wxAppMain::Clean_Exit(bool bDestroyTopWindow/*=true*/)
+{
+    _WX_LOG_NFO();
+    if (v_bExiting)
+        return;
+    v_bExiting = true;
+    v_oTimer_WakeIdle.Stop();
+    wxGetApp().ptr_ThreadBag()->DestroyAll();
+    v_pExternApp = NULL; // object already destroyed
+    if (bDestroyTopWindow && GetTopWindow())
+        GetTopWindow()->Destroy();
+}
+
+wxThread_Bag * wxAppMain::ptr_ThreadBag() const
+{
+    //_WX_LOG_NFO();
+    return v_pwxThread_Bag;
 }
 
 ExternApp * wxAppMain::ptr_ExternApp() const
@@ -218,24 +248,7 @@ void wxAppMain::OnTimer_WakeIdle(wxTimerEvent& event)
     _COND_RET(event.GetId() == ID_Timer_WakeIdle);
     if (! App_IsReady())
         return;
-    if (App_ShouldExit())
+    if (v_bExiting)
         return;
     ::wxWakeUpIdle();
-}
-
-void wxAppMain::CleanUpObjects()
-{
-    _WX_LOG_NFO();
-    v_oTimer_WakeIdle.Stop();
-    _WX_LOG_NFO("1");//del
-    wxDELETE(v_pExternApp);
-    _WX_LOG_NFO("2");//del
-    wxWindow * pTopWindow = GetTopWindow();
-    _WX_LOG_NFO("3");//del
-    if (pTopWindow)
-    {
-        pTopWindow->Destroy();
-        SetTopWindow(NULL);
-    }
-    _WX_LOG_NFO("4");//del
 }

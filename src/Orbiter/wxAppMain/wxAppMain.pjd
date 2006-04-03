@@ -6,7 +6,7 @@
     <string name="title">""</string>
     <string name="author">""</string>
     <string name="description">""</string>
-    <long name="doc_count">99</long>
+    <long name="doc_count">98</long>
     <string name="xrc_filename">"appmain_global.xrc"</string>
     <bool name="convert_images_to_xpm">1</bool>
     <bool name="inline_images">0</bool>
@@ -1234,14 +1234,6 @@
             <string name="proxy-type">"wbBoxSizerProxy"</string>
             <string name="proxy-Orientation">"Vertical"</string>
             <string name="proxy-Member variable name">"v_pBoxV_all"</string>
-            <string name="proxy-AlignH">"Centre"</string>
-            <string name="proxy-AlignV">"Centre"</string>
-            <long name="proxy-Stretch factor">0</long>
-            <long name="proxy-Border">5</long>
-            <bool name="proxy-wxLEFT">1</bool>
-            <bool name="proxy-wxRIGHT">1</bool>
-            <bool name="proxy-wxTOP">1</bool>
-            <bool name="proxy-wxBOTTOM">1</bool>
             <bool name="proxy-wxSHAPED">0</bool>
             <bool name="proxy-wxADJUST_MINSIZE">0</bool>
             <bool name="proxy-wxFIXED_MINSIZE">0</bool>
@@ -1564,58 +1556,6 @@
                 <string name="proxy-Custom arguments">""</string>
                 <string name="proxy-Custom ctor arguments">""</string>
               </document>
-              <document>
-                <string name="title">"wxButton: wxID_CANCEL"</string>
-                <string name="type">"dialog-control-document"</string>
-                <string name="filename">""</string>
-                <string name="icon-name">"dialogcontrol"</string>
-                <long name="is-transient">0</long>
-                <long name="owns-file">1</long>
-                <long name="title-mode">0</long>
-                <long name="locked">0</long>
-                <string name="created">"20/3/2006"</string>
-                <string name="proxy-type">"wbButtonProxy"</string>
-                <string name="event-handler-0">"wxEVT_COMMAND_BUTTON_CLICKED|OnCancelClick|DESTROYWINDOW|ID_DIALOG_WAITGRID"</string>
-                <string name="proxy-Id name">"wxID_CANCEL"</string>
-                <long name="proxy-Id value">5101</long>
-                <string name="proxy-Class">"wxButton"</string>
-                <string name="proxy-Member variable name">"v_pButtonCancel"</string>
-                <string name="proxy-Label">"&amp;Cancel"</string>
-                <bool name="proxy-Default">1</bool>
-                <string name="proxy-Help text">""</string>
-                <string name="proxy-Tooltip text">""</string>
-                <string name="proxy-Background colour">""</string>
-                <string name="proxy-Foreground colour">""</string>
-                <string name="proxy-Font">"12, wxSWISS, wxNORMAL, wxBOLD, false, Sans"</string>
-                <bool name="proxy-Hidden">0</bool>
-                <bool name="proxy-Enabled">1</bool>
-                <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
-                <bool name="proxy-wxBU_LEFT">0</bool>
-                <bool name="proxy-wxBU_RIGHT">0</bool>
-                <bool name="proxy-wxBU_TOP">0</bool>
-                <bool name="proxy-wxBU_BOTTOM">0</bool>
-                <bool name="proxy-wxBU_EXACTFIT">0</bool>
-                <bool name="proxy-wxNO_BORDER">0</bool>
-                <bool name="proxy-wxWANTS_CHARS">0</bool>
-                <string name="proxy-Custom styles">""</string>
-                <long name="proxy-X">-1</long>
-                <long name="proxy-Y">-1</long>
-                <long name="proxy-Width">-1</long>
-                <long name="proxy-Height">-1</long>
-                <string name="proxy-AlignH">"Centre"</string>
-                <string name="proxy-AlignV">"Centre"</string>
-                <long name="proxy-Stretch factor">0</long>
-                <long name="proxy-Border">10</long>
-                <bool name="proxy-wxLEFT">1</bool>
-                <bool name="proxy-wxRIGHT">1</bool>
-                <bool name="proxy-wxTOP">1</bool>
-                <bool name="proxy-wxBOTTOM">1</bool>
-                <bool name="proxy-wxSHAPED">0</bool>
-                <bool name="proxy-wxADJUST_MINSIZE">0</bool>
-                <bool name="proxy-wxFIXED_MINSIZE">0</bool>
-                <string name="proxy-Custom arguments">""</string>
-                <string name="proxy-Custom ctor arguments">""</string>
-              </document>
             </document>
           </document>
         </document>
@@ -1699,14 +1639,6 @@
             <string name="proxy-type">"wbBoxSizerProxy"</string>
             <string name="proxy-Orientation">"Vertical"</string>
             <string name="proxy-Member variable name">"v_pBoxV_all"</string>
-            <string name="proxy-AlignH">"Centre"</string>
-            <string name="proxy-AlignV">"Centre"</string>
-            <long name="proxy-Stretch factor">0</long>
-            <long name="proxy-Border">5</long>
-            <bool name="proxy-wxLEFT">1</bool>
-            <bool name="proxy-wxRIGHT">1</bool>
-            <bool name="proxy-wxTOP">1</bool>
-            <bool name="proxy-wxBOTTOM">1</bool>
             <bool name="proxy-wxSHAPED">0</bool>
             <bool name="proxy-wxADJUST_MINSIZE">0</bool>
             <bool name="proxy-wxFIXED_MINSIZE">0</bool>
@@ -1724,9 +1656,9 @@
               <string name="proxy-type">"wbBoxSizerProxy"</string>
               <string name="proxy-Orientation">"Horizontal"</string>
               <string name="proxy-Member variable name">"v_pBoxH_top"</string>
-              <string name="proxy-AlignH">"Expand"</string>
+              <string name="proxy-AlignH">"Centre"</string>
               <string name="proxy-AlignV">"Centre"</string>
-              <long name="proxy-Stretch factor">1</long>
+              <long name="proxy-Stretch factor">0</long>
               <long name="proxy-Border">5</long>
               <bool name="proxy-wxLEFT">1</bool>
               <bool name="proxy-wxRIGHT">1</bool>
@@ -1940,7 +1872,7 @@
                 <long name="proxy-Height">-1</long>
                 <string name="proxy-AlignH">"Expand"</string>
                 <string name="proxy-AlignV">"Expand"</string>
-                <long name="proxy-Stretch factor">1</long>
+                <long name="proxy-Stretch factor">0</long>
                 <long name="proxy-Border">10</long>
                 <bool name="proxy-wxLEFT">1</bool>
                 <bool name="proxy-wxRIGHT">1</bool>
@@ -2118,14 +2050,6 @@
             <string name="proxy-type">"wbBoxSizerProxy"</string>
             <string name="proxy-Orientation">"Vertical"</string>
             <string name="proxy-Member variable name">"v_pBoxV_all"</string>
-            <string name="proxy-AlignH">"Centre"</string>
-            <string name="proxy-AlignV">"Centre"</string>
-            <long name="proxy-Stretch factor">0</long>
-            <long name="proxy-Border">5</long>
-            <bool name="proxy-wxLEFT">1</bool>
-            <bool name="proxy-wxRIGHT">1</bool>
-            <bool name="proxy-wxTOP">1</bool>
-            <bool name="proxy-wxBOTTOM">1</bool>
             <bool name="proxy-wxSHAPED">0</bool>
             <bool name="proxy-wxADJUST_MINSIZE">0</bool>
             <bool name="proxy-wxFIXED_MINSIZE">0</bool>
@@ -2143,7 +2067,7 @@
               <string name="proxy-type">"wbBoxSizerProxy"</string>
               <string name="proxy-Orientation">"Horizontal"</string>
               <string name="proxy-Member variable name">"v_pBoxH_top"</string>
-              <string name="proxy-AlignH">"Expand"</string>
+              <string name="proxy-AlignH">"Centre"</string>
               <string name="proxy-AlignV">"Centre"</string>
               <long name="proxy-Stretch factor">1</long>
               <long name="proxy-Border">5</long>
@@ -2276,7 +2200,7 @@
                 <long name="proxy-Height">-1</long>
                 <string name="proxy-AlignH">"Expand"</string>
                 <string name="proxy-AlignV">"Expand"</string>
-                <long name="proxy-Stretch factor">0</long>
+                <long name="proxy-Stretch factor">1</long>
                 <long name="proxy-Border">10</long>
                 <bool name="proxy-wxLEFT">1</bool>
                 <bool name="proxy-wxRIGHT">1</bool>

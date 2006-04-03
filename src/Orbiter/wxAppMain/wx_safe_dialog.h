@@ -25,7 +25,7 @@ struct Data_Holder_Base
         {
         }
     wxSemaphore oSemaphore; // wait until the action is finished
-    const bool bInThread; // where the object was created
+    bool bInThread; // where the object was created
 };
 
 struct Data_Holder_Dialog : Data_Holder_Base
@@ -56,6 +56,9 @@ struct Data_Holder_Dialog : Data_Holder_Base
     bool bRetCode;     // return code
     int  nRetCode;     // return code
 };
+
+wxSemaError wx_semaphore_post(Data_Holder_Dialog &rData_Holder_Dialog);
+wxSemaError wx_semaphore_wait(Data_Holder_Dialog &rData_Holder_Dialog);
 
 // need public access without properties
 extern wxCriticalSection g_oCriticalDialogAction; // protect critical dialog actions
@@ -107,7 +110,7 @@ bool Safe_Close(wxClassName *pwxDialog)
         _WX_LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Close, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
@@ -127,7 +130,7 @@ wxClassName * Safe_Create(void *pExternData=NULL)
         _WX_LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), NULL, pExternData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Create, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         wxClassName *pwxDialog = wx_static_cast(wxClassName *, data_holder_dialog.pWindow);
         _COND_RET(pwxDialog != NULL, NULL);
@@ -171,7 +174,7 @@ bool Safe_Gui_DataLoad(wxClassName *pwxDialog, void *pExternData=NULL)
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pExternData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_DataLoad, "", &data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
@@ -198,7 +201,7 @@ bool Safe_Gui_DataSave(wxClassName *pwxDialog, void *pExternData=NULL)
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pExternData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_DataSave, "", &data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
@@ -224,7 +227,7 @@ bool Safe_Gui_Refresh(wxClassName *pwxDialog, void *pExternData=NULL)
         _WX_LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pExternData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Refresh, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
@@ -233,10 +236,10 @@ bool Safe_Gui_Refresh(wxClassName *pwxDialog, void *pExternData=NULL)
     {
         _WX_LOG_ERR("Dialog is not initialized");
     }
-    pwxDialog->Gui_Refresh(pExternData);
+    bool retCode = pwxDialog->Gui_Refresh(pExternData);
     pwxDialog->Refresh(false);
     pwxDialog->Update();
-    return true;
+    return retCode;
 }
 
 template <class wxClassName>
@@ -253,7 +256,7 @@ bool Safe_Show(wxClassName *pwxDialog, bool bShow=true)
         _WX_LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, NULL, bShow);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Show, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
@@ -280,10 +283,10 @@ int Safe_ShowModal(wxClassName *pwxDialog)
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog);
         pwxDialog->Set_Data_Holder_Dialog(&data_holder_dialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Show, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         _WX_LOG_NFO("Waiting the user");
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Acknowledge from the user");
         return data_holder_dialog.nRetCode;
     }
@@ -308,7 +311,7 @@ bool Safe_WaitUser(wxClassName *pwxDialog, void *pExternData)
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pExternData);
         pwxDialog->Set_Data_Holder_Dialog(&data_holder_dialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_WaitUser, "", &data_holder_dialog);
-        wx_semaphore_wait(data_holder_dialog.oSemaphore);
+        wx_semaphore_wait(data_holder_dialog);
         _WX_LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }

@@ -27,7 +27,7 @@ public:
 
     bool Create();
     bool EventLoop();
-    int Destroy();
+    void Destroy();
 
 protected:
     int argc;

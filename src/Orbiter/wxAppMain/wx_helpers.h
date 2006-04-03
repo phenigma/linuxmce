@@ -37,7 +37,7 @@ void wx_sleep(unsigned long int n_seconds, unsigned long int n_add_milliseconds=
 
 void wx_post_event(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_id, const char *sInfo="", void *pData=NULL, int nInt=0);
 
-wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore, bool bDoIt=true);
+wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore);
 wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore);
 
 // only if condition is true

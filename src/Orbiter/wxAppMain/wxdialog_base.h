@@ -103,7 +103,7 @@ class wxDialog_Base: public wxDialog
 
     virtual bool Gui_DataLoad(void *pExternData); // load data from extern object, called after create
     virtual bool Gui_DataSave(void *pExternData); // save data to extern object, not called by default
-    virtual void Gui_Refresh(void *pExternData); // GUI refresh related code should be implemented here
+    virtual bool Gui_Refresh(void *pExternData); // GUI refresh related code should be implemented here
 
     bool IsInitialized();
     void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
@@ -112,6 +112,7 @@ class wxDialog_Base: public wxDialog
 protected:
     void OnWindowCreate(wxWindowCreateEvent& event);
     void OnEvent_Dialog(wxCommandEvent& event);
+    void Clean_Exit();
 
     bool v_bInitialized;
     Data_Holder_Dialog *v_pData_Holder_Dialog; // generic dialog functionality

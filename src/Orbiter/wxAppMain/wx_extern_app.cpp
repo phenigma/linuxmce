@@ -91,21 +91,14 @@ bool ExternApp::EventLoop()
     return true;
 }
 
-int ExternApp::Destroy()
+void ExternApp::Destroy()
 {
-    int nExitCode = 0;
 #ifdef USE_RELEASE_CODE
     if (! v_pSDL_App_Object)
-        return nExitCode;
-    _WX_LOG_NFO("1");//del
-    nExitCode = v_pSDL_App_Object->GetExitCode();
-    _WX_LOG_NFO("2");//del
-    SetExitCode(nExitCode);
-    _WX_LOG_NFO("3");//del
+        return;
+    SetExitCode(v_pSDL_App_Object->GetExitCode());
     wxDELETE(v_pSDL_App_Object);
-    _WX_LOG_NFO("4");//del
 #endif // USE_RELEASE_CODE
-    return nExitCode;
 }
 
 #ifdef USE_RELEASE_CODE
@@ -134,6 +127,7 @@ void Extern_Event_Listener(ExternApp *pExternApp)
 #ifdef USE_RELEASE_CODE
     if (pExternApp->v_pSDL_App_Object == NULL)
         return;
+#endif // USE_RELEASE_CODE
     WMTaskManager *pTaskManager = &TaskManager::Instance();
     WMTask *pTask = pTaskManager->PopTask();
     if (pTask == NULL)
@@ -164,14 +158,11 @@ void Extern_Event_Listener(ExternApp *pExternApp)
             break;
         case cbOnWxWidgetWaitUser:
         {
-            //Extern_Event_Data *pExtern_Event_Data = new Extern_Event_Data();
-            //pExtern_Event_Data->nEventId = pTask->TaskId;
-            //data_holder_dialog.pExternData = pExtern_Event_Data;
+            Extern_Event_Data *pExtern_Event_Data = new Extern_Event_Data();
+            pExtern_Event_Data->nEventId = pTask->TaskId;
+            data_holder_dialog.pExternData = pExtern_Event_Data;
             Process_Dialog_Action(e_dialog_type, E_Action_WaitUser, &data_holder_dialog);
-            _WX_LOG_WRN("cbOnWxWidgetWaitUser");
-            wx_sleep(5);//del
-            _WX_LOG_ERR("cbOnWxWidgetWaitUser END");
-            break;
+            return;
         }
         default:
             _WX_LOG_ERR("bad action : %d", action);
@@ -179,12 +170,13 @@ void Extern_Event_Listener(ExternApp *pExternApp)
     } // switch (action)
     _WX_LOG_NFO("End command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     pTaskManager->TaskProcessed(pTask->TaskId);
+#ifdef USE_RELEASE_CODE
 #endif // USE_RELEASE_CODE
 }
 
 void Extern_Event_Response(Extern_Event_Data *pExtern_Event_Data)
 {
-    _WX_LOG_NFO();
+    _WX_LOG_NFO("pData=%p", pExtern_Event_Data);
     _COND_RET(pExtern_Event_Data != NULL);
     ExternApp *pExternApp = wxGetApp().ptr_ExternApp();
     if (pExternApp == NULL)

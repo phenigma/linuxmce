@@ -17,6 +17,7 @@
 #endif
 
 #include "wx_thread_cmd.h"
+#include "wxappmain.h"
 #include "wx_thread_wrapper.h"
 #include "wx_thread_bag.h"
 
@@ -24,7 +25,6 @@ wxThread_Cmd::wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_
         : v_eKind(eKind)
         , v_sName(sName)
         , v_p_fn_launch(p_fn_launch)
-        , v_pwxThread_Bag(NULL)
         , v_eStatus(E_Unitialized)
         , v_bShouldCancel(false)
         , v_nExitCode(0)
@@ -42,14 +42,13 @@ wxThread_Cmd::~wxThread_Cmd()
 
 bool wxThread_Cmd::Start()
 {
-    v_pwxThread_Bag = g_pwxThread_Bag;
-    if (v_pwxThread_Bag == NULL)
+    if (wxGetApp().ptr_ThreadBag() == NULL)
     {
         _WX_LOG_ERR("wxThread_Bag object not created");
         return false;
     }
     {
-        wxCriticalSectionLocker lock(v_pwxThread_Bag->v_oCriticalSection);
+        wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
         if ( v_pwxThread_Wrapper != NULL )
         {
             _WX_LOG_ERR("Can start only once");
@@ -59,9 +58,9 @@ bool wxThread_Cmd::Start()
         v_pwxThread_Wrapper = new wxThread_Wrapper(
             v_eKind,
             this,
-            v_pwxThread_Bag->v_oCriticalSection,
-            v_pwxThread_Bag->v_nRunningCount,
-            v_pwxThread_Bag->v_oSemaphoreRunningAll,
+            wxGetApp().ptr_ThreadBag()->v_oCriticalSection,
+            wxGetApp().ptr_ThreadBag()->v_nRunningCount,
+            wxGetApp().ptr_ThreadBag()->v_oSemaphoreRunningAll,
             v_oSemaphoreRunning,
             v_eStatus,
             v_p_fn_launch
@@ -74,12 +73,12 @@ bool wxThread_Cmd::Start()
         _WX_LOG_ERR("Cannot create thread : %s", _str_thread_status(this));
         return false;
     }
-    v_pwxThread_Bag->Add(this);
+    wxGetApp().ptr_ThreadBag()->Add(this);
     _WX_LOG_NFO("Starting : %s", _str_thread_status(this));
     if ( v_pwxThread_Wrapper->Run() != wxTHREAD_NO_ERROR )
     {
         _WX_LOG_ERR("Cannot start thread!");
-        v_pwxThread_Bag->Delete(this);
+        wxGetApp().ptr_ThreadBag()->Delete(this);
         return false;
     }
     _WX_LOG_NFO("ok");
@@ -97,10 +96,10 @@ bool wxThread_Cmd::Stop()
     if (! b_wait_ok)
     {
         _WX_LOG_NFO("force stop");
-        wxCriticalSectionLocker lock(v_pwxThread_Bag->v_oCriticalSection);
+        wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
         v_pwxThread_Wrapper->Kill();
-        v_pwxThread_Bag->v_nRunningCount--;
-        v_pwxThread_Bag->v_oSemaphoreRunningAll.Post();
+        wxGetApp().ptr_ThreadBag()->v_nRunningCount--;
+        wxGetApp().ptr_ThreadBag()->v_oSemaphoreRunningAll.Post();
     }
     return true;
 }
@@ -134,14 +133,14 @@ wxThread_Cmd::E_STATUS wxThread_Cmd::GetStatus()
 
 int wxThread_Cmd::GetExitCode()
 {
-    wxCriticalSectionLocker lock(v_pwxThread_Bag->v_oCriticalSection);
+    wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
     return v_nExitCode;
 }
 
 void wxThread_Cmd::SetExitCode(int nExitCode)
 {
     _WX_LOG_NFO();
-    wxCriticalSectionLocker lock(v_pwxThread_Bag->v_oCriticalSection);
+    wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
     v_nExitCode = nExitCode;
 }
 

@@ -309,12 +309,12 @@ bool wxDialog_RoomWizard::Gui_DataSave(void *pExternData)
     return true;
 }
 
-void wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
+bool wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
     RoomWizardCallBackData *pData_Refresh = wx_static_cast(RoomWizardCallBackData *, pExternData);
-    _COND_RET(pData_Refresh != NULL);
+    _COND_RET(pData_Refresh != NULL, false);
     SetSize(
         pData_Refresh->m_coord.X,
         pData_Refresh->m_coord.Y,
@@ -325,9 +325,10 @@ void wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
 #endif // USE_RELEASE_CODE
 #ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-    _COND_RET(pData_Refresh != NULL);
+    _COND_RET(pData_Refresh != NULL, false);
     SetSize(pData_Refresh->m_coord, wxSIZE_ALLOW_MINUS_ONE);
 #endif // USE_DEBUG_CODE
+    return true;
 }
 
 void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)

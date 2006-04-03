@@ -104,7 +104,7 @@ public:
 
 public:
     ~wxDialog_WaitList();
-    virtual void Gui_Refresh(void *pExternData);
+    virtual bool Gui_Refresh(void *pExternData);
 
     struct Data_Refresh
     {

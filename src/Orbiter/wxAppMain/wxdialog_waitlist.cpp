@@ -112,7 +112,7 @@ void wxDialog_WaitList::CreateControls()
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pBoxH_top = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_top, 1, wxGROW|wxALL, 5);
+    v_pBoxV_all->Add(v_pBoxH_top, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 
     wxBitmap v_pBitmapBitmap(itemDialog_Base1->GetBitmapResource(wxT("logo_pluto.jpg")));
     v_pBitmap = new wxStaticBitmap;
@@ -131,7 +131,7 @@ void wxDialog_WaitList::CreateControls()
     v_pInfoText->Create( itemDialog_Base1, ID_TEXTCTRL_WAITLIST, _T(" Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1\n Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2\n"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER );
     v_pInfoText->SetBackgroundColour(wxColour(224, 224, 240));
     v_pInfoText->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 10);
+    v_pBoxH_mid->Add(v_pInfoText, 0, wxGROW|wxALL, 10);
 
     v_pBoxH_bot = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_bot, 0, wxGROW|wxALL, 5);
@@ -209,7 +209,7 @@ wxDialog_WaitList::~wxDialog_WaitList()
     _WX_LOG_NFO();
 }
 
-void wxDialog_WaitList::Gui_Refresh(void *pExternData)
+bool wxDialog_WaitList::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
@@ -218,7 +218,7 @@ void wxDialog_WaitList::Gui_Refresh(void *pExternData)
 #ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
 #endif // USE_DEBUG_CODE
-    _COND_RET(pData_Refresh != NULL);
+    _COND_RET(pData_Refresh != NULL, false);
     // update info text
     v_pInfoText->SetValue(pData_Refresh->m_sMessage);
     // update log text
@@ -234,4 +234,5 @@ void wxDialog_WaitList::Gui_Refresh(void *pExternData)
 #ifdef USE_RELEASE_CODE
     delete pData_Refresh;
 #endif // USE_RELEASE_CODE
+    return true;
 }

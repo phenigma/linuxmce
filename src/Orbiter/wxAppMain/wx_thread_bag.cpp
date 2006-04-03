@@ -21,8 +21,6 @@
 #include "wx_thread_wrapper.h"
 #include "wxframemain.h"
 
-wxThread_Bag *g_pwxThread_Bag = NULL;
-
 BEGIN_EVENT_TABLE( wxThread_Bag, wxEvtHandler )
 EVTC_THREAD(wxID_ANY, wxThread_Bag::OnEvent_Thread)
 END_EVENT_TABLE()
@@ -31,14 +29,12 @@ END_EVENT_TABLE()
 wxThread_Bag::wxThread_Bag()
 {
     _WX_LOG_NFO();
-    _COND_ASSIGN(g_pwxThread_Bag, NULL, this);
 }
 
 wxThread_Bag::~wxThread_Bag()
 {
     _WX_LOG_NFO();
     DestroyAll();
-    _COND_ASSIGN(g_pwxThread_Bag, this, NULL);
 }
 
 void wxThread_Bag::Add(wxThread_Cmd *pwxThread_Cmd)
@@ -80,8 +76,8 @@ void wxThread_Bag::DestroyAll()
 {
     _WX_LOG_NFO();
     {
-        // check if already empty
         wxCriticalSectionLocker lock(v_oCriticalSection);
+        // check if already empty
         if ( v_apwxThread_Cmd.IsEmpty() )
             return;
         // send stop to each thread, in normal order

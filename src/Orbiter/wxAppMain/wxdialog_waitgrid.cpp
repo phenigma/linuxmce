@@ -30,7 +30,7 @@
 
 const int idxResizableColumn = 1;
 const int nColumnCount = 2;
-#define S_WAITING wxString("Waiting")
+#define S_WAITING wxString("Not started")
 #define S_STARTED wxString("Started")
 
 ////@begin XPM images
@@ -53,8 +53,6 @@ BEGIN_EVENT_TABLE( wxDialog_WaitGrid, wxDialog_Base )
 ////@begin wxDialog_WaitGrid event table entries
     EVT_CLOSE( wxDialog_WaitGrid::OnCloseWindow )
     EVT_SIZE( wxDialog_WaitGrid::OnSize )
-
-    EVT_BUTTON( wxID_CANCEL, wxDialog_WaitGrid::OnCancelClick )
 
 ////@end wxDialog_WaitGrid event table entries
 
@@ -92,7 +90,6 @@ bool wxDialog_WaitGrid::Create( wxWindow* parent, wxWindowID id, const wxString&
     v_pInfoText = NULL;
     v_pBoxH_bot = NULL;
     v_pGauge = NULL;
-    v_pButtonCancel = NULL;
 ////@end wxDialog_WaitGrid member initialisation
 
 ////@begin wxDialog_WaitGrid creation
@@ -157,12 +154,6 @@ void wxDialog_WaitGrid::CreateControls()
     v_pGauge->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
     v_pBoxH_bot->Add(v_pGauge, 1, wxALIGN_CENTER_VERTICAL|wxALL, 10);
 
-    v_pButtonCancel = new wxButton;
-    v_pButtonCancel->Create( itemDialog_Base1, wxID_CANCEL, _T("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-    v_pButtonCancel->SetDefault();
-    v_pButtonCancel->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_bot->Add(v_pButtonCancel, 0, wxALIGN_CENTER_VERTICAL|wxALL, 10);
-
 ////@end wxDialog_WaitGrid content construction
     v_pInfoText->SetValue("");
     v_pGauge->SetValue(0);
@@ -204,27 +195,6 @@ void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
 }
 
 /*!
- * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
- */
-
-void wxDialog_WaitGrid::OnCancelClick( wxCommandEvent& WXUNUSED(event) )
-{
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in wxDialog_WaitGrid.
-    // Before editing this code, remove the block markers.
-    Destroy();
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in wxDialog_WaitGrid.
-}
-
-/*!
- * Should we show tooltips?
- */
-
-bool wxDialog_WaitGrid::ShowToolTips()
-{
-    return true;
-}
-
-/*!
  * Get bitmap resources
  */
 
@@ -255,6 +225,15 @@ wxIcon wxDialog_WaitGrid::GetIconResource( const wxString& name )
 ////@end wxDialog_WaitGrid icon retrieval
 }
 
+/*!
+ * Should we show tooltips?
+ */
+
+bool wxDialog_WaitGrid::ShowToolTips()
+{
+    return true;
+}
+
 //==================================================
 
 wxDialog_WaitGrid::~wxDialog_WaitGrid()
@@ -262,7 +241,7 @@ wxDialog_WaitGrid::~wxDialog_WaitGrid()
     _WX_LOG_NFO();
 }
 
-void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
+bool wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
@@ -271,7 +250,7 @@ void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 #ifdef USE_DEBUG_CODE
     Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
 #endif // USE_DEBUG_CODE
-    _COND_RET(pData_Refresh != NULL);
+    _COND_RET(pData_Refresh != NULL, false);
     // update info text
     v_pInfoText->SetValue(pData_Refresh->m_sMessage);
     // update grid
@@ -308,4 +287,5 @@ void wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 #ifdef USE_RELEASE_CODE
     delete pData_Refresh;
 #endif // USE_RELEASE_CODE
+    return true;
 }

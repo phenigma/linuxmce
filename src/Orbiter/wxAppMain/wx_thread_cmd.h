@@ -68,8 +68,6 @@ class wxThread_Cmd
     wxString v_sName;
     type_ptr_void_fn_void v_p_fn_launch; // ptr to void fn called when the thread runs
 
-    wxThread_Bag *v_pwxThread_Bag;
-
     E_STATUS v_eStatus;
     bool v_bShouldCancel; // changed to signal the thread should be stopped
     int v_nExitCode;

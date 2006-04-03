@@ -178,7 +178,5 @@ class wxFrameMain: public wxFrame
     bool Destroy();
 };
 
-extern wxFrameMain *g_pwxFrameMain;
-
 #endif
 // _WXFRAMEMAIN_H_

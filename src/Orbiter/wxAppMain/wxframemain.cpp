@@ -23,6 +23,7 @@
 ////@end includes
 
 #include "wxframemain.h"
+#include "wxappmain.h"
 #include "wx_thread_bag.h"
 #include "wxdialog_roomwizard.h"
 #include "wxdialog_waitgrid.h"
@@ -92,8 +93,6 @@ EVT_IDLE(wxFrameMain::OnIdle)
 END_EVENT_TABLE()
 ;
 
-wxFrameMain *g_pwxFrameMain = NULL;
-
 /*!
  * wxFrameMain constructors
  */
@@ -116,7 +115,6 @@ wxFrameMain::wxFrameMain( wxWindow* parent, wxWindowID id, const wxString& capti
 bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
     _WX_LOG_NFO();
-    _COND_ASSIGN(g_pwxFrameMain, NULL, this);
 ////@begin wxFrameMain member initialisation
     v_pToolBar = NULL;
     v_pLogTextCtrl = NULL;
@@ -207,8 +205,6 @@ void wxFrameMain::CreateControls()
     itemFrame1->SetStatusBar(v_pStatusBar);
 
 ////@end wxFrameMain content construction
-
-    new wxThread_Bag;
 }
 
 /*!
@@ -259,7 +255,7 @@ void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 void wxFrameMain::OnToolDbgClick( wxCommandEvent& event )
 {
 #ifdef USE_DEBUG_CODE
-    wxThread_Cmd *pwxThread_Cmd = g_pwxThread_Bag->ptr_ThreadItem("_debug_refresh_update");
+    wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_refresh_update");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
     else
@@ -277,7 +273,7 @@ void wxFrameMain::OnToolDbgClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolDbgUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_DBG, g_pwxThread_Bag->ptr_ThreadItem("_debug_refresh_update"));
+    v_pToolBar->ToggleTool(ID_TOOL_DBG, wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_refresh_update"));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_DBG in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -430,7 +426,7 @@ void wxFrameMain::OnToolWaituserUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUBDClick( wxCommandEvent& event )
 {
-    wxThread_Cmd *pwxThread_Cmd = g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_block_D");
+    wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_block_D");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
     else
@@ -447,7 +443,7 @@ void wxFrameMain::OnToolUBDClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUBDUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_U_B_D, g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_block_D"));
+    v_pToolBar->ToggleTool(ID_TOOL_U_B_D, wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_block_D"));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_B_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -460,7 +456,7 @@ void wxFrameMain::OnToolUBDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
 {
-    wxThread_Cmd *pwxThread_Cmd = g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_block_J");
+    wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_block_J");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
         ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_thread_block_J", _debug_thread_block) )->Start();
@@ -476,7 +472,7 @@ void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUBJUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_U_B_J, g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_block_J"));
+    v_pToolBar->ToggleTool(ID_TOOL_U_B_J, wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_block_J"));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_B_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -489,7 +485,7 @@ void wxFrameMain::OnToolUBJUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNDClick( wxCommandEvent& event )
 {
-    wxThread_Cmd *pwxThread_Cmd = g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_nonblock_D");
+    wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_nonblock_D");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
     else
@@ -506,7 +502,7 @@ void wxFrameMain::OnToolUNDClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUNDUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_U_N_D, g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_nonblock_D"));
+    v_pToolBar->ToggleTool(ID_TOOL_U_N_D, wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_nonblock_D"));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_N_D in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -519,7 +515,7 @@ void wxFrameMain::OnToolUNDUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolUNJClick( wxCommandEvent& event )
 {
-    wxThread_Cmd *pwxThread_Cmd = g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_nonblock_J");
+    wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_nonblock_J");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
     else
@@ -536,7 +532,7 @@ void wxFrameMain::OnToolUNJClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_U_N_J, g_pwxThread_Bag->ptr_ThreadItem("_debug_thread_nonblock_J"));
+    v_pToolBar->ToggleTool(ID_TOOL_U_N_J, wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_nonblock_J"));
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_U_N_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -550,8 +546,8 @@ void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 void wxFrameMain::OnToolStopClick( wxCommandEvent& event )
 {
 #ifdef USE_DEBUG_CODE
-    if (g_pwxThread_Bag->GetCount())
-        g_pwxThread_Bag->DestroyAll();
+    if (wxGetApp().ptr_ThreadBag()->GetCount())
+        wxGetApp().ptr_ThreadBag()->DestroyAll();
 #endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_STOP in wxFrameMain.
     // Before editing this code, remove the block markers.
@@ -565,7 +561,7 @@ void wxFrameMain::OnToolStopClick( wxCommandEvent& event )
 
 void wxFrameMain::OnToolStopUpdate( wxUpdateUIEvent& event )
 {
-    v_pToolBar->ToggleTool(ID_TOOL_STOP, g_pwxThread_Bag->GetCount());
+    v_pToolBar->ToggleTool(ID_TOOL_STOP, wxGetApp().ptr_ThreadBag()->GetCount());
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_STOP in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -624,13 +620,11 @@ bool wxFrameMain::ShowToolTips()
 
 wxFrameMain::~wxFrameMain()
 {
-    _COND_ASSIGN(g_pwxFrameMain, this, NULL);
 }
 
 bool wxFrameMain::Destroy()
 {
     _WX_LOG_NFO();
-    if (wxThread_Bag *pwxThread_Bag = g_pwxThread_Bag)
-        delete pwxThread_Bag;
+    wxGetApp().Clean_Exit(false);
     return wxFrame::Destroy();
 }

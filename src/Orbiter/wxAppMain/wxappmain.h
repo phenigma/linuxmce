@@ -73,14 +73,17 @@ class wxAppMain: public wxApp
 public:
     ~wxAppMain();
     virtual int OnRun();
+    void Clean_Exit(bool bDestroyTopWindow=true);
 
+    wxThread_Bag * ptr_ThreadBag() const;
     ExternApp * ptr_ExternApp() const;
 
 protected:
     void OnEvent_Dialog(wxCommandEvent& event);
     void OnTimer_WakeIdle(wxTimerEvent& event);
-    void CleanUpObjects();
 
+    bool v_bExiting;
+    wxThread_Bag *v_pwxThread_Bag;
     ExternApp *v_pExternApp;
     wxTimer v_oTimer_WakeIdle;
 };

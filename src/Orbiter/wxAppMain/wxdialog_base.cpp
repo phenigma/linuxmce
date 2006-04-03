@@ -175,45 +175,24 @@ bool wxDialog_Base::Destroy()
     if (IsModal())
     {
         _WX_LOG_WRN("Dialog '%s' Is Modal!", GetLabel().c_str());
-        wxDialog::EndModal(GetReturnCode());
+        EndModal(GetReturnCode());
         return true;
     }
-    if (v_pExtern_Event_Data)
-    {
-        v_pExtern_Event_Data->nButtonId = GetReturnCode();
-        Extern_Event_Response(v_pExtern_Event_Data);
-        wxDELETE(v_pExtern_Event_Data);
-    }
-    if (v_pData_Holder_Dialog)
-    {
-        v_pData_Holder_Dialog->bRetCode = true;
-        v_pData_Holder_Dialog->nRetCode = GetReturnCode();
-        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
-    }
+    Clean_Exit();
     return wxDialog::Destroy();
 }
 
 void wxDialog_Base::EndModal(int retCode)
 {
     _WX_LOG_NFO("retCode=%d Label='%s'", retCode, GetLabel().c_str());
+    SetReturnCode(retCode);
     if (! IsModal())
     {
         _WX_LOG_WRN("Dialog '%s' Is Not Modal!", GetLabel().c_str());
-        wxDialog::Destroy();
+        Destroy();
         return;
     }
-    if (v_pExtern_Event_Data)
-    {
-        v_pExtern_Event_Data->nButtonId = GetReturnCode();
-        Extern_Event_Response(v_pExtern_Event_Data);
-        wxDELETE(v_pExtern_Event_Data);
-    }
-    if (v_pData_Holder_Dialog)
-    {
-        v_pData_Holder_Dialog->bRetCode = true;
-        v_pData_Holder_Dialog->nRetCode = retCode;
-        wx_semaphore_post(v_pData_Holder_Dialog->oSemaphore, v_pData_Holder_Dialog->bInThread);
-    }
+    Clean_Exit();
     return wxDialog::EndModal(retCode);
 }
 
@@ -242,9 +221,10 @@ bool wxDialog_Base::Gui_DataSave(void * WXUNUSED(pExternData))
     return true;
 }
 
-void wxDialog_Base::Gui_Refresh(void * WXUNUSED(pExternData))
+bool wxDialog_Base::Gui_Refresh(void * WXUNUSED(pExternData))
 {
     _WX_LOG_ERR("virtual method not implemented in a derived class");
+    return false;
 }
 
 bool wxDialog_Base::IsInitialized()
@@ -254,11 +234,13 @@ bool wxDialog_Base::IsInitialized()
 
 void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
 {
+    _WX_LOG_NFO("pData=%p", pData_Holder_Dialog);
     v_pData_Holder_Dialog = pData_Holder_Dialog;
 }
 
 void wxDialog_Base::Set_WaitUser(Extern_Event_Data *pExtern_Event_Data)
 {
+    _WX_LOG_NFO("pData=%p", pExtern_Event_Data);
     v_pExtern_Event_Data = pExtern_Event_Data;
 }
 
@@ -295,5 +277,24 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
             _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
-    wx_semaphore_post(pData_Holder_Dialog->oSemaphore, pData_Holder_Dialog->bInThread);
+    wx_semaphore_post(*pData_Holder_Dialog);
+}
+
+void wxDialog_Base::Clean_Exit()
+{
+    _WX_LOG_NFO("retCode=%d Label='%s'", GetReturnCode(), GetLabel().c_str());
+    if (v_pExtern_Event_Data)
+    {
+        _WX_LOG_NFO("Send response to external event");
+        v_pExtern_Event_Data->nButtonId = GetReturnCode();
+        Extern_Event_Response(v_pExtern_Event_Data);
+        wxDELETE(v_pExtern_Event_Data);
+    }
+    if (v_pData_Holder_Dialog)
+    {
+        _WX_LOG_NFO("Send response to external thread");
+        v_pData_Holder_Dialog->bRetCode = true;
+        v_pData_Holder_Dialog->nRetCode = GetReturnCode();
+        wx_semaphore_post(*v_pData_Holder_Dialog);
+    }
 }

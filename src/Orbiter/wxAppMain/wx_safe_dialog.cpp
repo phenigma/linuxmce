@@ -22,6 +22,20 @@
 #include "wxdialog_waitlist.h"
 #include "wxdialog_waituser.h"
 
+wxSemaError wx_semaphore_post(Data_Holder_Dialog &rData_Holder_Dialog)
+{
+    if (! rData_Holder_Dialog.bInThread)
+        return wxSEMA_NO_ERROR;
+    return wx_semaphore_post(rData_Holder_Dialog.oSemaphore);
+}
+
+wxSemaError wx_semaphore_wait(Data_Holder_Dialog &rData_Holder_Dialog)
+{
+    if (! rData_Holder_Dialog.bInThread)
+        return wxSEMA_NO_ERROR;
+    return wx_semaphore_wait(rData_Holder_Dialog.oSemaphore);
+}
+
 wxCriticalSection g_oCriticalDialogAction;
 
 const char * Get_ClassName(E_DIALOG_TYPE e_dialog_type)
@@ -183,10 +197,10 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                //case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                //case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                //case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                //case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -195,7 +209,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
             _WX_LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
-    wx_semaphore_post(pData_Holder_Dialog->oSemaphore, pData_Holder_Dialog->bInThread);
+    wx_semaphore_post(*pData_Holder_Dialog);
     _WX_LOG_NFO("DONE WITH class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     return true;
 }

@@ -45,7 +45,5 @@ class wxThread_Bag : public wxEvtHandler
         ;
 };
 
-extern wxThread_Bag *g_pwxThread_Bag;
-
 #endif
 // _WX_THREAD_BAG_H_
