@@ -32,11 +32,12 @@ close(FILE);
 
 chomp($Device_EXT);
 
+sleep(20);
 system("rm -f /tmp/cookie");
 system("curl -c /tmp/cookie -d \"P2=admin&gnkey=0b82\" http://$Device_IP/dologin.htm > /dev/null");
 sleep(5);
-system("curl -m 3 -b /tmp/cookie -d \"P47=192.168.80.1&P48=&P32=1&P34=$Device_EXT&P35=$Device_EXT&P36=$Device_EXT\" http://$Device_IP/update.htm > /dev/null");
+system("curl -m 10 -b /tmp/cookie -d \"P47=192.168.80.1&P48=&P32=1&P34=$Device_EXT&P35=$Device_EXT&P36=$Device_EXT\" http://$Device_IP/update.htm > /dev/null");
 sleep(5);
-system("curl -m 3 -b /tmp/cookie http://$Device_IP/rs.htm > /dev/null");
+system("curl -m 10 -b /tmp/cookie http://$Device_IP/rs.htm > /dev/null");
 system("rm -f /tmp/cookie");
 
