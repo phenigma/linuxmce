@@ -9969,3 +9969,15 @@ void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool b
 	if( m_pMouseBehavior )
 		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
 }
+//<-dceag-c796-b->
+
+	/** @brief COMMAND: #796 - In Main Menu */
+	/** Checks if Orbiter is in main menu. */
+		/** @param #213 Value */
+			/** If Value is true, Orbiter is in main menu. */
+
+void Orbiter::CMD_In_Main_Menu(bool *bValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c796-e->
+{
+	*bValue = m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_MainMenu;
+}

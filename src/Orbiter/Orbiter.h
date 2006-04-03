@@ -1824,6 +1824,15 @@ light, climate, media, security, telecom */
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #796 - In Main Menu */
+	/** Checks if Orbiter is in main menu. */
+		/** @param #213 Value */
+			/** If Value is true, Orbiter is in main menu. */
+
+	virtual void CMD_In_Main_Menu(bool *bValue) { string sCMD_Result; CMD_In_Main_Menu(bValue,sCMD_Result,NULL);};
+	virtual void CMD_In_Main_Menu(bool *bValue,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 		/** temporary solution only */

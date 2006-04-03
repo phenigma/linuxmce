@@ -290,7 +290,9 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c71-e->
 {
-	size_t Length;
+	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: file %s", sFilename.c_str());
+
+	size_t Length = 0;
 	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
 	if( c==NULL && m_pRouter )
 		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
@@ -302,6 +304,8 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 
 	*iData_Size = (int) Length;
 	*pData = c;
+
+	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: ended for file %s", sFilename.c_str());
 }
 
 //<-dceag-c79-b->
@@ -376,6 +380,8 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 			*pData = NULL;
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File_And_Checksum: file %s", sFilename.c_str());
 }
 //<-dceag-c246-b->
 
