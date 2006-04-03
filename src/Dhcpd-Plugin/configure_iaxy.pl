@@ -38,7 +38,7 @@ $iaxyconf .= "codec: ulaw\n";
 $iaxyconf .= "server: 192.168.80.1\n";
 $iaxyconf .= "user: $Device_EXT\n";
 $iaxyconf .= "pass: $Device_EXT\n";
-$iaxyconf .= "register\n"
+$iaxyconf .= "register\n";
 
 open(FILE,"> /tmp/iaxy.conf");
 print FILE $iaxyconf;
