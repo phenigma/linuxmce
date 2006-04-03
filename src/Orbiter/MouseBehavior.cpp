@@ -12,6 +12,16 @@ using namespace DCE;
 #define AXIS_LOCK_BOTH	3
 
 //-----------------------------------------------------------------------------------------------------
+//class MouseSensitivity
+const int MouseSensitivity::SampleInterval = 250; // 250 ms
+const int MouseSensitivity::DiscardSamplesOlderThanSec = 1500; // 1500 ms
+const int MouseSensitivity::MinMoveToStart = 10;
+const int MouseSensitivity::MaxMoveToStart = 5;
+const int MouseSensitivity::MinMovePerSampleToChangeDir = 10;
+const int MouseSensitivity::MaxMovePerSampleToChangeDir = 5;
+const int MouseSensitivity::MinMoveAllSamplesToChangeDir = 40;
+const int MouseSensitivity::MaxMoveAllSamplesToChangeDir = 20;
+//-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
 	m_pOrbiter=pOrbiter;

@@ -15,14 +15,14 @@ namespace DCE
 	class MouseSensitivity
 	{
 	public:
-		const static int SampleInterval=250;  // 250 ms
-		const static int DiscardSamplesOlderThanSec=1500; // 1500 ms
-		const static int MinMoveToStart=10;
-		const static int MaxMoveToStart=5;
-		const static int MinMovePerSampleToChangeDir=10;
-		const static int MaxMovePerSampleToChangeDir=5;
-		const static int MinMoveAllSamplesToChangeDir=40;
-		const static int MaxMoveAllSamplesToChangeDir=20;
+		const static int SampleInterval;  
+		const static int DiscardSamplesOlderThanSec; 
+		const static int MinMoveToStart;
+		const static int MaxMoveToStart;
+		const static int MinMovePerSampleToChangeDir;
+		const static int MaxMovePerSampleToChangeDir;
+		const static int MinMoveAllSamplesToChangeDir;
+		const static int MaxMoveAllSamplesToChangeDir;
 	};
 
 	//-----------------------------------------------------------------------------------------------------

@@ -5,8 +5,10 @@
 #include <vector>
 #include <map>
 
+#ifndef WINCE
 #include <errno.h>
 #include <signal.h>
+#endif
 
 #ifdef WIN32
 	#include <pthread.h>
@@ -265,6 +267,7 @@ bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
 
 bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 {
+#ifndef WINCE
 	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	vector<int> pidsArray;
@@ -286,6 +289,7 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 		write(pPidData->in, sKeys.c_str(), (unsigned int)(sKeys.length()));
 		itPidsToData++;
 	}
+#endif
 
 	return true;
 }
@@ -297,10 +301,10 @@ void ProcessUtils::KillAllApplications()
 	for(MapIdentifierToPidData::iterator it=g_mapIdentifierToPidData.begin();it!=g_mapIdentifierToPidData.end();++it)
 		listOpenProcesses.push_back( it->first );
 	sl.Release();
-	for(list<string>::iterator it=listOpenProcesses.begin();it!=listOpenProcesses.end();++it)
+	for(list<string>::iterator itx=listOpenProcesses.begin();itx!=listOpenProcesses.end();++itx)
 	{
 		vector<void *> messagesToSend;
-		KillApplication(*it, messagesToSend);
+		KillApplication(*itx, messagesToSend);
 	}
 }
 

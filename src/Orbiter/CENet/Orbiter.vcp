@@ -890,8 +890,14 @@ DEP_CPP_DESIGN=\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -905,6 +911,7 @@ DEP_CPP_DESIGN=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -1383,8 +1390,14 @@ DEP_CPP_GRAPH=\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\OrbiterGen\Renderer.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1398,6 +1411,7 @@ DEP_CPP_GRAPH=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -1750,8 +1764,14 @@ DEP_CPP_MAIN_=\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1765,6 +1785,7 @@ DEP_CPP_MAIN_=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -1923,8 +1944,14 @@ DEP_CPP_MAIND=\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1938,6 +1965,7 @@ DEP_CPP_MAIND=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -1949,6 +1977,7 @@ DEP_CPP_MAIND=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
@@ -2133,6 +2162,292 @@ DEP_CPP_MINIL=\
 DEP_CPP_MINIL=\
 	"..\..\PlutoUtils\lzoconf.h"\
 	"..\..\PlutoUtils\minilzo.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\MouseBehavior.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_MOUSE=\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_MOUSE=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\ProcessUtils.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_MOUSE=\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_MOUSE=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\ProcessUtils.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_MOUSE=\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_MOUSE=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\ProcessUtils.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_MOUSE=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	".\wince.h"\
+	
+NODEP_CPP_MOUSE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_MOUSE=\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_MOUSE=\
+	"..\DCE\Logger.h"\
+	"..\Gen_Devices\OrbiterBase.h"\
+	"..\Message.h"\
+	"..\Orbiter\DesignObj_Data.h"\
+	"..\pluto_main\Define_DesignObjType.h"\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\PlutoUtils\Other.h"\
+	"..\PlutoUtils\ProcessUtils.h"\
+	"..\PlutoUtils\StringUtils.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\Win32\MouseBehavior_Win32.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_MOUSEB=\
+	"..\Win32\MouseBehavior_Win32.h"\
+	
+NODEP_CPP_MOUSEB=\
+	"..\Win32\DCE\Logger.h"\
+	"..\Win32\MouseBehavior.h"\
+	"..\Win32\PlutoUtils\FileUtils.h"\
+	"..\Win32\PlutoUtils\Other.h"\
+	"..\Win32\PlutoUtils\StringUtils.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_MOUSEB=\
+	"..\Win32\MouseBehavior_Win32.h"\
+	
+NODEP_CPP_MOUSEB=\
+	"..\Win32\DCE\Logger.h"\
+	"..\Win32\MouseBehavior.h"\
+	"..\Win32\PlutoUtils\FileUtils.h"\
+	"..\Win32\PlutoUtils\Other.h"\
+	"..\Win32\PlutoUtils\StringUtils.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_MOUSEB=\
+	"..\Win32\MouseBehavior_Win32.h"\
+	
+NODEP_CPP_MOUSEB=\
+	"..\Win32\DCE\Logger.h"\
+	"..\Win32\MouseBehavior.h"\
+	"..\Win32\PlutoUtils\FileUtils.h"\
+	"..\Win32\PlutoUtils\Other.h"\
+	"..\Win32\PlutoUtils\StringUtils.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_MOUSEB=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\TextStyle.h"\
+	"..\Win32\MouseBehavior_Win32.h"\
+	".\wince.h"\
+	
+NODEP_CPP_MOUSEB=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_MOUSEB=\
+	"..\Win32\MouseBehavior_Win32.h"\
+	
+NODEP_CPP_MOUSEB=\
+	"..\Win32\DCE\Logger.h"\
+	"..\Win32\MouseBehavior.h"\
+	"..\Win32\PlutoUtils\FileUtils.h"\
+	"..\Win32\PlutoUtils\Other.h"\
+	"..\Win32\PlutoUtils\StringUtils.h"\
 	
 
 !ENDIF 
@@ -2384,8 +2699,11 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_DesignObjParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_FloorplanType.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
@@ -2402,16 +2720,19 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackData.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
 	"..\Linux\OSDScreenHandler.h"\
+	"..\MouseBehavior.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
@@ -2548,7 +2869,13 @@ DEP_CPP_ORBITE=\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2812,8 +3139,15 @@ DEP_CPP_ORBITERS=\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Effect.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_HorizAlignment.h"\
 	"..\..\pluto_main\Define_Text.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
@@ -2832,9 +3166,25 @@ DEP_CPP_ORBITERS=\
 	"..\..\Splitter\TextSplitter.h"\
 	"..\..\Splitter\TextWrapper.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\OpenGL\GL2DEffects\gl2deffect.h"\
+	"..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.h"\
+	"..\OpenGL\GL2DEffects\gl2deffectfactory.h"\
+	"..\OpenGL\GL2DEffects\gl2deffectfadesfromtop.h"\
+	"..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.h"\
+	"..\OpenGL\GL2DEffects\gl2deffectslidefromleft.h"\
+	"..\OpenGL\GL2DEffects\gl2deffecttransit.h"\
+	"..\OpenGL\GL2DWidgets\basewidget.h"\
+	"..\OpenGL\GL2DWidgets\basicwindow.h"\
+	"..\OpenGL\GL2DWidgets\bezierwindow.h"\
+	"..\OpenGL\GL2DWidgets\DrawingWidgetsEngine.h"\
+	"..\OpenGL\GLDefs.h"\
+	"..\OpenGL\math3dutils.h"\
+	"..\OpenGL\Orbiter3DCommons.h"\
+	"..\OpenGL\orbitergl3dengine.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\RendererOCG.h"\
@@ -2843,6 +3193,7 @@ DEP_CPP_ORBITERS=\
 	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
+	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -3016,9 +3367,15 @@ DEP_CPP_ORBITERSD=\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_HorizAlignment.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
@@ -3034,6 +3391,7 @@ DEP_CPP_ORBITERSD=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -3179,6 +3537,81 @@ NODEP_CPP_POPUP=\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
 	".\ipapi.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\PlutoUtils\ProcessUtils.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_PROCE=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_PROCE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\PlutoUtils\PlutoUtils\CommonIncludes.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PROCE=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_PROCE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\PlutoUtils\PlutoUtils\CommonIncludes.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PROCE=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_PROCE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\PlutoUtils\PlutoUtils\CommonIncludes.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PROCE=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_PROCE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_PROCE=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_PROCE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\PlutoUtils\PlutoUtils\CommonIncludes.h"\
 	
 
 !ENDIF 
@@ -3760,6 +4193,7 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
@@ -3780,6 +4214,7 @@ DEP_CPP_SCREE=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackData.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -4313,8 +4748,14 @@ DEP_CPP_SELFU=\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -4329,6 +4770,7 @@ DEP_CPP_SELFU=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -4693,8 +5135,14 @@ DEP_CPP_SIMUL=\
 	"..\..\DCE\SocketListener.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -4710,6 +5158,7 @@ DEP_CPP_SIMUL=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\utilities\linux\RatpoisonHandler.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -5005,8 +5454,14 @@ DEP_CPP_START=\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -5020,12 +5475,14 @@ DEP_CPP_START=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
