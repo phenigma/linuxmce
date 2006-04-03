@@ -1,25 +1,61 @@
 #include "common.h"
 
-int main()
+// ./interactor <Gateway> <IP> <MAC>
+int main(int argc, char * argv[])
 {
 	int s, s2;
-	struct sockaddr_in saddr;
+	struct sockaddr_in saddr_client, saddr_server;
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
 	int bytes;
+	const char * Gateway, * myIP, * myMAC;
 
-	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(INTERACTOR_PORT);
-	saddr.sin_addr.s_addr = INADDR_ANY;
+	if (argc != 4)
+	{
+		printf("(Interactor) Wrong number of arguments: %d\n", argc);
+		return 1;
+	}
+	
+	Gateway = argv[1];
+	myIP = argv[2];
+	myMAC = argv[3];
 
+	saddr_client.sin_family = AF_INET;
+	saddr_client.sin_port = htons(INTERACTOR_PORT);
+	inet_aton(Gateway, &saddr_client.sin_addr);
+
+	saddr_server.sin_family = AF_INET;
+	saddr_server.sin_port = htons(INTERACTOR_PORT);
+	saddr_server.sin_addr.s_addr = INADDR_ANY;
+
+	// Connect to the interactor server on the Core
 	s = socket(PF_INET, SOCK_STREAM, 0);
 	if (s == -1)
 	{
-		perror("socket");
+		perror("socket1");
+		return 1;
+	}
+	
+	if (connect(s, (struct sockaddr *) &saddr_client, sizeof(saddr_client)) == -1)
+	{
+		perror("connect");
 		return 1;
 	}
 
-	if (bind(s, (struct sockaddr *) &saddr, sizeof(saddr)) == -1)
+	bytes = snprintf(buffer, 1024, "newmd %s %s\n", myIP, myMAC);
+	write(s, buffer, bytes < 1024 ? bytes : 1024);
+	
+	close(s);
+	
+	// Start interactor server on client for commands
+	s = socket(PF_INET, SOCK_STREAM, 0);
+	if (s == -1)
+	{
+		perror("socket2");
+		return 1;
+	}
+
+	if (bind(s, (struct sockaddr *) &saddr_server, sizeof(saddr_server)) == -1)
 	{
 		perror("bind");
 		return 1;
