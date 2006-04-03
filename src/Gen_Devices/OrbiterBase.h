@@ -545,7 +545,7 @@ public:
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -2560,10 +2560,11 @@ public:
 				case COMMAND_Set_Mouse_Behavior_CONST:
 					{
 						string sCMD_Result="OK";
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 						string sOptions=pMessage->m_mapParameters[COMMANDPARAMETER_Options_CONST];
 						bool bExclusive=(pMessage->m_mapParameters[COMMANDPARAMETER_Exclusive_CONST]=="1" ? true : false);
 						string sDirection=pMessage->m_mapParameters[COMMANDPARAMETER_Direction_CONST];
-						CMD_Set_Mouse_Behavior(sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,pMessage);
+						CMD_Set_Mouse_Behavior(sPK_DesignObj.c_str(),sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2580,7 +2581,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Mouse_Behavior(sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,pMessage);
+								CMD_Set_Mouse_Behavior(sPK_DesignObj.c_str(),sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -20646,36 +20646,40 @@ namespace DCE
 	};
 	class CMD_Set_Mouse_Behavior : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Behavior(long DeviceIDFrom, long DeviceIDTo,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Set_Mouse_Behavior(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Set_Mouse_Behavior_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
 			COMMANDPARAMETER_Direction_CONST, sDirection.c_str()); }
 	};
 	class CMD_Set_Mouse_Behavior_DL : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Behavior_DL(long DeviceIDFrom, string DeviceIDTo,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Mouse_Behavior_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Mouse_Behavior_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
 			COMMANDPARAMETER_Direction_CONST, sDirection.c_str()); }
 	};
 	class CMD_Set_Mouse_Behavior_DT : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Behavior_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Mouse_Behavior_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Mouse_Behavior_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
 			COMMANDPARAMETER_Direction_CONST, sDirection.c_str()); }
 	};
 	class CMD_Set_Mouse_Behavior_Cat : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Behavior_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Mouse_Behavior_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Mouse_Behavior_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
 			COMMANDPARAMETER_Direction_CONST, sDirection.c_str()); }

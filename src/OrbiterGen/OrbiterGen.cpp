@@ -389,6 +389,7 @@ int OrbiterGenerator::DoIt()
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
+	m_iUiVersion = m_pRow_UI->Version_get();
 
 	// Maybe we're using a substituted skin.  If so, for the sake of calculating the screen
 	// mapping we should use the original.

@@ -503,9 +503,9 @@ void Event_Plugin::FireSunriseSunsetEvent()
 {
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	if( m_bIsDaytime )
-		EVENT_Sunset();
-	else
 		EVENT_Sunrise();
+	else
+		EVENT_Sunset();
 
 	m_bIsDaytime=!m_bIsDaytime;
 

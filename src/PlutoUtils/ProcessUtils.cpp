@@ -353,3 +353,20 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 	return true;
 #endif
 }
+
+unsigned long ProcessUtils::g_SecondsReset=0;
+
+void ProcessUtils::ResetMsTime()
+{
+	timespec ts;
+	gettimeofday( &ts, NULL );
+	g_SecondsReset = ts.tv_sec;
+}
+
+unsigned long ProcessUtils::GetMsTime()
+{
+	timespec ts;
+	gettimeofday( &ts, NULL );
+	return (ts.tv_sec-g_SecondsReset)*1000 + (ts.tv_nsec/1000000);
+}
+
