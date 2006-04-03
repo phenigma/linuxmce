@@ -32,11 +32,18 @@ close(FILE);
 
 chomp($Device_EXT);
 
-system("rm -f /tmp/cookie");
-system("curl -c /tmp/cookie -d \"P2=admin&gnkey=0b82\" http://$Device_IP/dologin.htm > /dev/null");
-sleep(5);
-system("curl -m 3 -b /tmp/cookie -d \"P47=192.168.80.1&P48=&P32=1&P34=$Device_EXT&P35=$Device_EXT&P36=$Device_EXT\" http://$Device_IP/update.htm > /dev/null");
-sleep(5);
-system("curl -m 3 -b /tmp/cookie http://$Device_IP/rs.htm > /dev/null");
-system("rm -f /tmp/cookie");
 
+my $iaxyconf = "dhcp\n";
+$iaxyconf .= "codec: ulaw\n";
+$iaxyconf .= "server: 192.168.80.1\n";
+$iaxyconf .= "user: $Device_EXT\n";
+$iaxyconf .= "pass: $Device_EXT\n";
+$iaxyconf .= "register\n"
+
+open(FILE,"> /tmp/iaxy.conf");
+print FILE $iaxyconf;
+close(FILE);
+
+system("/usr/sbin/iaxyprov $Device_IP /tmp/iaxy.conf");
+
+unlink("/tmp/iaxy.conf");
