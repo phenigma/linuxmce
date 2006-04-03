@@ -4,8 +4,9 @@ int main()
 {
 	int s, s2;
 	struct sockaddr_in saddr;
-	int do_reboot = 0;
+	int do_quit = 0;
 	char buffer[1024], cmd[1024];
+	char remoteIP[1024], remoteMAC[1024];
 	int bytes;
 
 	saddr.sin_family = AF_INET;
@@ -31,7 +32,7 @@ int main()
 		return 1;
 	}
 	
-	while (! do_reboot)
+	while (! do_quit)
 	{
 		s2 = accept(s, NULL, NULL);
 		if (s2 == -1)
@@ -40,26 +41,26 @@ int main()
 			return 1;
 		}
 
-		while (! do_reboot && (bytes = read(s2, buffer, 1023)) > 0)
+		memset(buffer, 0, 1024);
+		while (! do_quit && (bytes = read(s2, buffer, 1023)) > 0)
 		{
 			buffer[bytes] = 0;
 			memset(cmd, 0, 1024);
 			sscanf(buffer, "%s", cmd);
-			if (strcmp(cmd, "reboot") == 0)
-				do_reboot = 1;
-			else if (strcmp(cmd, "msg") == 0)
-				printf("%s", buffer+4);
-			else if (strcmp(cmd, "shell") == 0)
+			if (strcmp(cmd, "quit") == 0)
+				do_quit = 1;
+			else if (strcmp(cmd, "newmd") == 0)
 			{
-				printf("%s\n", "Running a shell");
-				system("/bin/sh");
-				printf("\n%s\n", "Shell exited");
+				memset(remoteIP, 0, 1024);
+				memset(remoteMAC, 0, 1024);
+				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC);
+				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s", remoteIP, remoteMAC);
+				system(cmd);
 			}
 		}
 		
 		close(s2);
 	}
-	reboot(RB_AUTOBOOT);
 	
 	return 0;
 }
