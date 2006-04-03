@@ -15,7 +15,7 @@ DEVICETEMPLATE_Generic_PC_as_MD=28
 NewDevice=$(/usr/pluto/bin/CreateDevice -d "$DEVICETEMPLATE_Generic_PC_as_MD" -M "$RemoteMAC" | tail -1)
 Logging "$TYPE" "$SEVERITY_NORMAL" "Created MD with Device ID '$NewDevice'"
 
-NewIP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$New_Device" -a)
+NewIP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$NewDevice" -a)
 Logging "$TYPE" "$SEVERITY_NORMAL" "Assigned permanent IP '$NewIP' to device '$NewDevice'"
 
 WaitLock "NewPnPMD" "NewPnPMD$NewDevice"
