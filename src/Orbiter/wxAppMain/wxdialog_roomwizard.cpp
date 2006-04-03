@@ -239,7 +239,10 @@ bool wxDialog_RoomWizard::Gui_DataLoad(void *pExternData)
     v_aRoomItems = *pData;
 #endif // USE_DEBUG_CODE
 #ifdef USE_RELEASE_CODE
-    WizardLogic *pWizardLogic = (WizardLogic *)pExternData;
+    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
+    RoomWizardCallBackData *pRoomWizardCallBackData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
+    _COND_RET(pRoomWizardCallBackData, false);
+    WizardLogic *pWizardLogic = pRoomWizardCallBackData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
         _WX_LOG_WRN("extern data not initialized");
