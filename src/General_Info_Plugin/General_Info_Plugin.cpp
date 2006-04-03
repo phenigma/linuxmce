@@ -1730,19 +1730,19 @@ struct Web_DeviceData
 			/** The Mac Address */
 		/** @param #58 IP Address */
 			/** The IP Address */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** Extra device data to create the device */
 		/** @param #150 PK_DHCPDevice */
 			/** The template for the device */
 
-void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device %d mac %s data %s",
-		iPK_DHCPDevice,sMac_address.c_str(),sData.c_str());
+		iPK_DHCPDevice,sMac_address.c_str(),sData_String.c_str());
 #endif
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
@@ -1826,28 +1826,28 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 
 			bool bSeparator = false;
-			if (sData.size() > 0)
+			if (sData_String.size() > 0)
 			{
-				sData += "|";
+				sData_String += "|";
 				bSeparator = true;
 			}
 			
 			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
 			{
 				if (bSeparator)
-					sData += "|";
-				sData += it->first + "|" + it->second;
+					sData_String += "|";
+				sData_String += it->first + "|" + it->second;
 			}
 			
 			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,iPK_Device_Related,&iPK_Device);
+				sIP_Address,sData_String,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,iPK_Device_Related,&iPK_Device);
 		}
 		iPK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
 	}
 	else
 	{
 		int iPK_Device=0;
-		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
+		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData_String,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
 		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", iPK_Device, sMac_address.c_str());
 	}
 }
@@ -1866,7 +1866,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			/** The room for the device.  0=no room, -1=ask user */
 		/** @param #58 IP Address */
 			/** The IP of the device */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** Extra device data to be assigned when creating the device. It should look like this:
 devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #150 PK_DHCPDevice */
@@ -1878,7 +1878,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #201 PK_Device_Related */
 			/** Will make the new device relate to this one if possible */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
 	Row_DHCPDevice *pRow_DHCPDevice = NULL;
@@ -1896,28 +1896,28 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	}
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
-		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 	OH_Orbiter *pOH_Orbiter = NULL;
 	if( iPK_Orbiter )
 		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Orbiter);
 
-	if( !OkayToCreateDevice(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,pOH_Orbiter,sData) )
+	if( !OkayToCreateDevice(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,pOH_Orbiter,sData_String) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device exiting -- not ok to create template %d mac %s room %d ip %d data %s",
-			iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+			iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 		return;
 	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	createDevice.m_bInstallPackagesInBackground = true;
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData_String,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
-			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 	PostCreateDevice(*iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 
@@ -2112,7 +2112,7 @@ void General_Info_Plugin::DoneCheckingForUpdates()
 	}
 }
 
-bool General_Info_Plugin::OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData)
+bool General_Info_Plugin::OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData_String)
 {
 	// See if there is anything special we need to do for this type of device
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
@@ -2125,12 +2125,12 @@ bool General_Info_Plugin::OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTe
 
 	// TODO -- THIS SHOULD BE A 'REGISTER CREATE DEVICE' INTERCEPTOR WHERE YOU REGISTER A DEVICETEMPLATE/CATEGORY, AND A PRE/POST CREATE CALLBACK
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) )
-		return OkayToCreateDevice_NetworkStorage(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,pOH_Orbiter,sData);
+		return OkayToCreateDevice_NetworkStorage(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,pOH_Orbiter,sData_String);
 
 	return true;
 }
 
-bool General_Info_Plugin::OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData)
+bool General_Info_Plugin::OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData_String)
 {
 	return true;
 }

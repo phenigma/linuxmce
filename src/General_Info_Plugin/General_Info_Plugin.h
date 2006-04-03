@@ -305,13 +305,13 @@ public:
 			/** The Mac Address */
 		/** @param #58 IP Address */
 			/** The IP Address */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** Extra device data to create the device */
 		/** @param #150 PK_DHCPDevice */
 			/** The template for the device */
 
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice) { string sCMD_Result; CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,sCMD_Result,NULL);};
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { string sCMD_Result; CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,sCMD_Result,NULL);};
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #718 - Create Device */
@@ -326,7 +326,7 @@ public:
 			/** The room for the device.  0=no room, -1=ask user */
 		/** @param #58 IP Address */
 			/** The IP of the device */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** Extra device data to be assigned when creating the device. It should look like this:
 devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #150 PK_DHCPDevice */
@@ -338,8 +338,8 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 		/** @param #201 PK_Device_Related */
 			/** Will make the new device relate to this one if possible */
 
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #719 - Delete Device */
