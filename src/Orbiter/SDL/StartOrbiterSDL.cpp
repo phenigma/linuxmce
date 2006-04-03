@@ -396,7 +396,6 @@ bool SDL_App_Object::Create()
 
 bool SDL_App_Object::EventProcess()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::EventProcess()");
     if (! m_pSDL_Event_Loop_Data->pOrbiter)
         return false;
     return SDL_Event_Process(*m_pSDL_Event_Loop_Data);
