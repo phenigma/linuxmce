@@ -4827,8 +4827,14 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 #ifdef WIN32
 			Output += "router=" + m_sIPAddress;
 #else
-			char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
-            ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
+            // sometimes GetCommandOutput looses a thread
+            // only under gdb ?
+            char * sCmd = "/usr/pluto/bin/Network_DisplaySettings.sh";
+            if (FileUtils::FileExists(sCmd))
+            {
+                char * args[] = { sCmd, "--orbiter", NULL };
+                ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
+            }
 #endif
 		}
 		else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1

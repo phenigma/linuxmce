@@ -99,6 +99,8 @@ int WizardLogic::PreSeedRoomInfo( map<int, int > &mapRooms )
 	if( (result_set_room.r=mysql_query_result(sSQL)) )
 		while ((row = mysql_fetch_row(result_set_room.r)))
 		{
+            g_pPlutoLogger->Write(LV_STATUS,"Room type %d : %d", atoi(row[0]), atoi(row[1]));
+            
 			mapRooms[ atoi(row[0]) ] = atoi(row[1]);
 			iNumRooms += atoi(row[1]);
 		}
