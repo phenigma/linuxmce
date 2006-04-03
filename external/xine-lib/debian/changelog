@@ -1,3 +1,9 @@
+xine-lib (1.1.1-1pluto1) unstable; urgency=low
+
+  * Removed libxinerama-dev build dependency
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 03 Apr 2006 13:30:22 +0300
+
 xine-lib (1.1.1-1) unstable; urgency=low
 
   * New upstream release! (Closes: #326936, #353150, #332919)
