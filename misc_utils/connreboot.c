@@ -54,7 +54,7 @@ int main()
 			if (strcmp(cmd, "reboot") == 0)
 				do_reboot = 1;
 			else if (strcmp(cmd, "msg") == 0)
-				printf("%s", cmd+4);
+				printf("%s", buffer+4);
 		}
 		
 		close(s2);
