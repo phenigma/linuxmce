@@ -62,7 +62,6 @@ MYDEVTEMPLATEID = 8mplateID
 
 Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
-
 #<-dceag-mh-e->
 
 CXXFLAGS += -g -O0
@@ -93,6 +92,7 @@ sources += \
 	ScreenHandler.cpp \
 	CallBackData.cpp \
 	ScreenHistory.cpp \
+	MouseBehavior.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
 	SDL/OrbiterSDL.cpp \
@@ -148,7 +148,7 @@ Orbiter.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-
+		
 Orbiter: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

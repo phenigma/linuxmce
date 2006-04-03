@@ -227,6 +227,12 @@
 				RelativePath="..\OpenGL\math3dutils.cpp">
 			</File>
 			<File
+				RelativePath="..\MouseBehavior.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\MouseBehavior_Win32.cpp">
+			</File>
+			<File
 				RelativePath="..\PocketFrog\OpenGLProxy.cpp">
 			</File>
 			<File

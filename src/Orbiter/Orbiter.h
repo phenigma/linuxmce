@@ -91,6 +91,7 @@ namespace DCE
 		friend class NeedToRender; /** < Needs to maniuplate our variables */
 		friend class ScreenHandler;
 		friend class OSDScreenHandler;
+		friend class MouseBehavior;
 
 	public: //data
 		int m_iImageWidth; /** < image width duh */
@@ -180,6 +181,7 @@ namespace DCE
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens
 		class LocationInfo *m_pLocationInfo_Initial; // The initial location
+		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
 
 		/** flags */
 		bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
@@ -493,6 +495,13 @@ namespace DCE
 		* @brief Find the first 'tab stop' object on screen and highlight it
 		*/
 		virtual void HighlightFirstObject();
+
+		/**
+		* @brief Find an object from a given direction (ie up = start at the top and move down, down=start at the bottom and move up)
+		* finding any datagrid if there is one active if bPreferGrid is true, and that is only a child of pObj_Parent if that is not null,
+		* and use pObj_RelativeTo as a starting point if it's specified
+		*/
+		DesignObj_Orbiter *FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo);
 
 		/**
 		* @brief This is used by the following function
@@ -1802,6 +1811,8 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #795 - Set Mouse Behavior */
 	/** Indicates if the mouse should be locked to horizontal or vertical movements, how to handle range of motion, etc. */
+		/** @param #3 PK_DesignObj */
+			/** An object to lock the movement to */
 		/** @param #39 Options */
 			/** The following letter(s): [r/a]ramp/absolute */
 		/** @param #126 Exclusive */
@@ -1809,8 +1820,8 @@ light, climate, media, security, telecom */
 		/** @param #211 Direction */
 			/** a letter: [h]orizontal, [v]ertical, [b]oth */
 
-	virtual void CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection) { string sCMD_Result; CMD_Set_Mouse_Behavior(sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { string sCMD_Result; CMD_Set_Mouse_Behavior(sPK_DesignObj.c_str(),sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

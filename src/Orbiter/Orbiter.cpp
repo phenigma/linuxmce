@@ -64,6 +64,7 @@ using namespace DCE;
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
+#include "MouseBehavior.h"
 
 #ifdef TEST_OSD
 #include "Linux/OSDScreenHandler.h"
@@ -238,6 +239,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bCapsLock = false;
 	m_pCacheImageManager = NULL;
 	m_pScreenHistory_NewEntry = NULL;
+	m_pMouseBehavior = NULL;
 
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -413,6 +415,7 @@ Orbiter::~Orbiter()
 	m_mapHardKeys.clear();
 
 	delete m_pOrbiterFileBrowser_Collection;
+	delete m_pMouseBehavior;
 
 	if(m_pScreenHandler)
 		delete m_pScreenHandler;
@@ -873,7 +876,9 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	PlutoRectangle rectTotal = pObj->m_rPosition;
 	vm.Release(  );
 
-	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ) && pObj->m_vectHighlightedGraphic.size() )
+	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
+		(m_pObj_Highlighted && pObj->m_bTabStop && pObj==m_pObj_Highlighted->m_pParentObject)  // If I'm also a tab stop, and my child is a highlighted object, leave me highlighted too
+		) && pObj->m_vectHighlightedGraphic.size() )
 	{
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);
 
@@ -2555,16 +2560,61 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject()
 {
+	m_pObj_Highlighted = FindFirstObjectByDirection(1,true,NULL,NULL);
+}
+
+DesignObj_Orbiter *Orbiter::FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo)
+{
 	int Position=-1,PositionGrid=-1;  // The X+Y coordinates, we're looking for the upper left-most item, so we just add
 	DesignObj_Orbiter *pObj=NULL,*pObjGrid=NULL;  // We give preference to datagrids, so we track them separately
 	for(size_t s=0;s<m_vectObjs_TabStops.size();++s)
 	{
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
-		if( p->IsHidden() || !p->m_bOnScreen )
+		if( p->IsHidden() || !p->m_bOnScreen || (pObj_Parent && !p->ChildOf(pObj_Parent)) )
 			continue;
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
+			continue;
+
 		int OldPositionGrid = PositionGrid;
-		int ThisPosition = p->m_rPosition.X + p->m_rPosition.Y;
-		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		int ThisPosition;
+		switch(cDirection)
+		{
+		case 'u':
+			if( pObj_RelativeTo && p->m_rPosition.Y>pObj_RelativeTo->m_rPosition.Y )
+				continue;
+			ThisPosition = p->m_rPosition.Y;
+			break;
+		case 'd':
+			if( pObj_RelativeTo && p->m_rPosition.Bottom()>pObj_RelativeTo->m_rPosition.Bottom() )
+				continue;
+			ThisPosition = m_Height - p->m_rPosition.Bottom();
+			break;
+		case 'l':
+			if( pObj_RelativeTo && p->m_rPosition.X>pObj_RelativeTo->m_rPosition.X )
+				continue;
+			ThisPosition = p->m_rPosition.X;
+			break;
+		case 'r':
+			if( pObj_RelativeTo && p->m_rPosition.Right()>pObj_RelativeTo->m_rPosition.Right() )
+				continue;
+			ThisPosition = m_Width - p->m_rPosition.Right();
+			break;
+		case '1':
+			ThisPosition = p->m_rPosition.X + p->m_rPosition.Y;
+			break;
+		case '2':
+			ThisPosition = m_Width - p->m_rPosition.Right() + p->m_rPosition.Y;
+			break;
+		case '3':
+			ThisPosition = p->m_rPosition.X + m_Height - p->m_rPosition.Bottom();
+			break;
+		case '4':
+			ThisPosition = m_Width - p->m_rPosition.Right() + m_Height - p->m_rPosition.Bottom();
+			break;
+		default:
+			return NULL; // shouldn't happen
+		}
+		if( bPreferGrid && p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
 			if( ThisPosition<PositionGrid || PositionGrid==-1 )
 			{
@@ -2589,8 +2639,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 
 	if( pObjGrid )
 	{
-		m_pObj_Highlighted = pObjGrid;
-		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObjGrid;
 		// If nothing is highlighted in this grid, start with the first row/column
 		if( pDesignObj_DataGrid->m_iHighlightedColumn==-1 && pDesignObj_DataGrid->m_iHighlightedRow==-1 )
 		{
@@ -2599,9 +2648,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
 				pDesignObj_DataGrid->m_iHighlightedColumn=0;
 		}
+		return pObjGrid;
 	}
 	else
-		m_pObj_Highlighted = pObj;
+		return pObj;
+	return NULL;
 }
 //------------------------------------------------------------------------
 DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction )
@@ -5536,6 +5587,11 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" )
 	{
+		if( m_iUiVersion==2 )
+		{
+			CMD_Remove_Popup("","");
+			return; // With UI version 2, there is not 'goto remote'
+		}
 		if( m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
 			sPK_DesignObj = "<%=M%>";
 		else
@@ -8257,7 +8313,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();++it)
 		{
-			if( (*it)->m_sName==sName )
+			if( (*it)->m_sName==sName || sName.size()==0 )
 			{
 				if( (*it)->m_pObj->m_bOnScreen )
 					ObjectOffScreen((*it)->m_pObj);
@@ -8277,7 +8333,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	{
 		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();++it)
 		{
-			if( (*it)->m_sName==sName )
+			if( (*it)->m_sName==sName || sName.size()==0 )
 			{
 				if( (*it)->m_pObj->m_bOnScreen )
 					ObjectOffScreen((*it)->m_pObj);
@@ -9898,6 +9954,8 @@ void Orbiter::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_Qui
 
 	/** @brief COMMAND: #795 - Set Mouse Behavior */
 	/** Indicates if the mouse should be locked to horizontal or vertical movements, how to handle range of motion, etc. */
+		/** @param #3 PK_DesignObj */
+			/** An object to lock the movement to */
 		/** @param #39 Options */
 			/** The following letter(s): [r/a]ramp/absolute */
 		/** @param #126 Exclusive */
@@ -9905,7 +9963,9 @@ void Orbiter::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_Qui
 		/** @param #211 Direction */
 			/** a letter: [h]orizontal, [v]ertical, [b]oth */
 
-void Orbiter::CMD_Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c795-e->
 {
+	if( m_pMouseBehavior )
+		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
 }

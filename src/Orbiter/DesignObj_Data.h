@@ -171,6 +171,7 @@ public:
 	virtual ~DesignObj_Data();
 
 	class DesignObj_Data *TopMostObject() { return m_pParentObject ? m_pParentObject->TopMostObject() : this; }
+	bool ChildOf( DesignObj_Data *pObj_Parent ) { if( m_pParentObject==pObj_Parent ) return true;  else if( !pObj_Parent ) return false; else return m_pParentObject->ChildOf(pObj_Parent); }
 
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };

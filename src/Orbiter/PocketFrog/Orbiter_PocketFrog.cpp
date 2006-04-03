@@ -8,6 +8,7 @@
 #include "SelfUpdate.h"
 #include "ProgressDialog.h"
 #include "ScreenHistory.h"
+#include "Win32/MouseBehavior_Win32.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -167,6 +168,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 									   bool bFullScreen, bool bUseOpenGL) :
 		Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
+	m_pMouseBehavior = new MouseBehavior_Win32(this);
 	m_Desktop = NULL;
     m_config.orientation      = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
@@ -354,17 +356,20 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusDown( Point stylus )
 {
+	m_pMouseBehavior->Down(stylus.x, stylus.y);
 	RegionDown(stylus.x, stylus.y);
 	RecordMouseAction(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusUp( Point stylus )
 {
+	m_pMouseBehavior->Up(stylus.x, stylus.y);
 	RegionUp(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusMove( Point stylus )
 {
+	m_pMouseBehavior->Move(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::PocketFrogButtonDown(int button)
