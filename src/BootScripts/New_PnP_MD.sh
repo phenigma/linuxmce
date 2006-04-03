@@ -29,4 +29,4 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "Finished running diskless MD setup command s
 Unlock "NewPnPMD" "NewPnPMD$NewDevice"
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "Rebooting new MD"
-echo "reboot" | nc "$RemoteIP" "$Interactor_Port"
+echo "reboot" | nc -n "$RemoteIP" "$Interactor_Port"
