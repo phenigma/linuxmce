@@ -7,7 +7,7 @@ int main()
 	int do_quit = 0;
 	char buffer[1024], cmd[1024];
 	char remoteIP[1024], remoteMAC[1024];
-	int bytes;
+	int bytes, tmp;
 
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(INTERACTOR_PORT);
@@ -17,6 +17,13 @@ int main()
 	if (s == -1)
 	{
 		perror("socket");
+		return 1;
+	}
+
+	tmp = 1;
+	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp) == -1))
+	{
+		perror("setsockopt");
 		return 1;
 	}
 

@@ -7,7 +7,7 @@ int main(int argc, char * argv[])
 	struct sockaddr_in saddr_client, saddr_server;
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
-	int bytes;
+	int bytes, tmp;
 	const char * Gateway, * myIP, * myMAC;
 
 	if (argc != 4)
@@ -36,6 +36,13 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 	
+	tmp = 1;
+	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp) == -1))
+	{
+		perror("setsockopt");
+		return 1;
+	}
+
 	if (connect(s, (struct sockaddr *) &saddr_client, sizeof(saddr_client)) == -1)
 	{
 		perror("connect");
