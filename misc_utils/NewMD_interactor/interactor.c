@@ -8,6 +8,7 @@ int main(int argc, char * argv[])
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
 	int bytes, tmp;
+	long sock_flags;
 	const char * Gateway, * myIP, * myMAC;
 
 	if (argc != 4)
@@ -61,6 +62,11 @@ int main(int argc, char * argv[])
 		perror("socket2");
 		return 1;
 	}
+
+	// set close-on-exec flag
+	sock_flags = fcntl(s, F_GETFD);
+	sock_flags |= FD_CLOEXEC;
+	fcntl(s, F_SETFD, sock_flags);
 
 	if (bind(s, (struct sockaddr *) &saddr_server, sizeof(saddr_server)) == -1)
 	{

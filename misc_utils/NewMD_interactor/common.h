@@ -6,6 +6,7 @@
 #include <sys/reboot.h>
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #define INTERACTOR_PORT 7238
 #endif
