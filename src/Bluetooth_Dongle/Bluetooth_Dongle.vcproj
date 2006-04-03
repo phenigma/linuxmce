@@ -232,6 +232,9 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\MouseBehavior.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Orbiter.cpp">
 			</File>
 			<File

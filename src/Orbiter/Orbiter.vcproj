@@ -218,6 +218,9 @@
 				RelativePath=".\OpenGL\math3dutils.cpp">
 			</File>
 			<File
+				RelativePath=".\MouseBehavior.cpp">
+			</File>
+			<File
 				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
 			</File>
 			<File
