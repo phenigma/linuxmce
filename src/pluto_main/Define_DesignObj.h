@@ -1953,6 +1953,14 @@
 #define DESIGNOBJ_popFileList_CONST 4871
 #define DESIGNOBJ_butshowmovies_CONST 4872
 #define DESIGNOBJ_butMediaPopup_CONST 4873
+#define DESIGNOBJ_popDVDChapters_CONST 4874
+#define DESIGNOBJ_popSpeedControl_CONST 4875
+#define DESIGNOBJ_popVolume_CONST 4877
+#define DESIGNOBJ_popDvdOptions_CONST 4878
+#define DESIGNOBJ_butShowLights_CONST 4879
+#define DESIGNOBJ_butShowMediaTracks_CONST 4880
+#define DESIGNOBJ_butShowVolume_CONST 4881
+#define DESIGNOBJ_butShowMediaSpeed_CONST 4882
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
