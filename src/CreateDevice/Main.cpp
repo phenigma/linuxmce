@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "CreateDevice, v." << VERSION << endl
 			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
-			<< "[-c PK_DHCPDevice] [-d PK_DeviceTemplate] [-i PK_Installation] [-I IPAddress] [-M MacAddress]" << endl
+			<< "[-c PK_DHCPDevice] [-d PK_DeviceTemplate] [-i PK_Installation] [-I IPAddress/auto] [-M MacAddress]" << endl
 			<< "[-C PK_Device_Controlled_Via] [-n don't call configure script]" << endl
 			<< "[-A Default Device data tab delimited as PK_DeviceData\tValue\t...]" << endl
 			<< "[-R PK_Device (related to if there are multiple possible controlled Via's)]" << endl
@@ -160,6 +160,12 @@ int main(int argc, char *argv[])
 	{
 		cerr << "CreateDevice failed" << endl;
 		exit(1);
+	}
+	if (sIPAddress == "auto")
+	{
+		char cmd[1024];
+		snprintf(cmd, 1024, "/usr/pluto/bin/PlutoDHCP.sh -d %d -a", PK_Device);
+		system(cmd);
 	}
 	
 	cout << PK_Device << endl;
