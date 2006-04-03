@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 	funcs.device_condition 		= NULL;
 	
 	ctx = hal_initialize(&funcs, 0);
-	if ( ctx == NULL ) 
+	if ( ctx == NULL ) { 
 		return 1;
 	}
 	initialize(ctx);

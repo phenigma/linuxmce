@@ -14,10 +14,13 @@ all: pluto-hald
 	cp $+ $(ROOT)/bin
 
 pluto-hald: $(sources:.cpp=.o)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $@.cpp -c $@.o
+	$(CXX) $(LDFLAGS) $(LDLIBS) $@.o -o $@
 
-clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) PlutoHalDaemon >/dev/null
+clean:
+	rm -f pluto-hald >/dev/null
+	rm -f pluto-hald.o >/dev/null
+	rm -f *~ > /dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
