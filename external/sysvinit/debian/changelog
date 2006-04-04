@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto31) unstable; urgency=low
+
+  * FIXED: When Pluto boots up, the text on the progress bar juxtaposits (1851)
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 04 Apr 2006 11:20:25 +0300
+
 sysvinit (2.86.ds1-1.1pluto30) unstable; urgency=high
 
   * Bug with nullglob and screen wait fixed
