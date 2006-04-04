@@ -921,10 +921,10 @@ void OSDScreenHandler::LightsSetup_Timer()
 			if(NULL != pObjStatus)
 				m_pOrbiter->RenderObjectAsync(pObjStatus);
 			/*
-			PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
-			if( pObjStatus )
-				m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
-			nd.Release();
+              PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
+              if( pObjStatus )
+              m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+              nd.Release();
 			*/
 			NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer1" );  // Redraw anything that was changed by this command
 		}
@@ -953,9 +953,9 @@ void OSDScreenHandler::LightsSetup_Timer()
 			if(NULL != pObjStatus)
 				m_pOrbiter->RenderObjectAsync(pObjStatus);
 			/*
-			PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
-			if( pObjStatus )
-				m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+              PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
+              if( pObjStatus )
+              m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
 			*/
 			NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer2" );  // Redraw anything that was changed by this command
 		}
@@ -1482,7 +1482,7 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
         WMTask *pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetCreate, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTask(pTask);
+        TaskManager::Instance().AddTaskAndWait(pTask);
     }
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
@@ -1515,7 +1515,13 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
         WMTask *pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetDelete, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTask(pTask);
+        TaskManager::Instance().AddTaskAndWait(pTask);
+    }
+    {
+        //del when AppDesktop restores main window
+        OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
+        if(NULL != pOrbiterLinux)
+            pOrbiterLinux->BringWindowOnTop();
     }
 #else // (USE_TASK_MANAGER)
     wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();
