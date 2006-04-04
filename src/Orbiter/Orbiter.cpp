@@ -2106,6 +2106,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 
 	DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if(m_pObj_Highlighted == pDesignObj_DataGrid) //datagrid already highlighted. remove first old highlighting
 		UnHighlightObject();
 
@@ -2443,15 +2444,19 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::DoHighlightObject()
 {
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if(sbNoSelection == m_nSelectionBehaviour)
 		return;
-
+g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject1 %p",m_pObj_Highlighted);
 	UnHighlightObject();
+g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject2 %p",m_pObj_Highlighted);
 
 	if( !m_pObj_Highlighted )
 		return;
 
+g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject3 %p",m_pObj_Highlighted);
 	ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_HighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
+g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject4 %p",m_pObj_Highlighted);
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -2530,8 +2535,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 
 /*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
 {
-	if( m_pObj_Highlighted )
-		ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_UnhighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 
 	if( !m_pGraphicBeforeHighlight )
 		return;
@@ -2560,6 +2564,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject()
 {
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	m_pObj_Highlighted = FindFirstObjectByDirection(1,true,NULL,NULL);
 }
 
@@ -2741,6 +2746,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightNextObject( int PK_Direction )
 {
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	// Nothing is selected, select the first object
 	if(NULL == m_pObj_Highlighted || (m_pObj_Highlighted && (!m_pObj_Highlighted->m_bOnScreen || m_pObj_Highlighted->IsHidden())))
 	{
@@ -2956,10 +2962,14 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		break;
 	}
 
+	DesignObj_Orbiter *pObj_Highlighted_Before = m_pObj_Highlighted;
 	if(!pNextObject || pNextObject == m_pObj_Highlighted)
 		m_pObj_Highlighted = FindObjectToHighlight( m_pObj_Highlighted, PK_Direction );
 	else
 		m_pObj_Highlighted = pNextObject;
+
+	if( pObj_Highlighted_Before && m_pObj_Highlighted!=pObj_Highlighted_Before )
+		ExecuteCommandsInList( &pObj_Highlighted_Before->m_Action_UnhighlightList, pObj_Highlighted_Before, smHighlight, 0, 0 );
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -3826,6 +3836,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 
 	if(  PK_Button == BUTTON_Enter_CONST  )
 	{
+		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
 		{
 			SelectedObject( m_pObj_Highlighted, smNavigation );
@@ -5741,6 +5752,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 		}
 
 		//PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(  m_pObj_Highlighted==pObj && !bShow  )
 			UnHighlightObject();
 
@@ -6793,11 +6805,17 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c85-e->
 {
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if( sPK_DesignObj.c_str() )
 	{
 		DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
 		if( pObj )
 		{
+			if( m_pObj_Highlighted && m_pObj_Highlighted!=pObj )
+			{
+				UnHighlightObject();
+				ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_UnhighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
+			}
 			m_pObj_Highlighted = pObj;
 			return;
 		}
@@ -7699,6 +7717,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		BeginPaint();
 		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
 
+		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(pObj == m_pObj_Highlighted)
 			DoHighlightObject();
 
@@ -8307,8 +8326,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	int k=2;
 	}
 	*/
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if( m_pObj_Highlighted )
 		UnHighlightObject();
 
@@ -8355,8 +8373,8 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 			}
 		}
 	}
-	if( m_pObj_Highlighted )
-		HighlightFirstObject();
+//	if( m_pObj_Highlighted )
+//		HighlightFirstObject();
 	CMD_Refresh("");
 }
 
@@ -8863,6 +8881,7 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 	if(GotActivity())
 	{
 		/*
+		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
 		{
 			// Selected the highlighted object as well as it's parents.  If this was clicked, this would happen

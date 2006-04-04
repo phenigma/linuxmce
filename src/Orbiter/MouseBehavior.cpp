@@ -32,6 +32,8 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
+
+	// set a call back function for each axis
 	m_cLocked_Axis_Current = AXIS_LOCK_NONE;
 	ProcessUtils::ResetMsTime();
 	DesignObj_Orbiter *pObj=NULL;
@@ -62,9 +64,12 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 			DesignObj_Orbiter *pObj_First = m_pOrbiter->FindFirstObjectByDirection(sOptions[posHighlight+1],false,pObj,NULL);
 			if( pObj_First )
 			{
-				m_pStartMovement.X=pObj_First->m_rPosition.X + (pObj_First->m_rPosition.Width/2);
-				m_pStartMovement.Y=pObj_First->m_rPosition.Y + (pObj_First->m_rPosition.Height/2);
+				m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
+				m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
 				SetMousePosition(m_pStartMovement.X,m_pStartMovement.Y);
+				PLUTO_SAFETY_LOCK( cm, m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
+				if( m_pOrbiter->m_pObj_Highlighted && m_pOrbiter->m_pObj_Highlighted!=pObj_First )
+					m_pOrbiter->ExecuteCommandsInList( &m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
 				m_pOrbiter->m_pObj_Highlighted=pObj_First;
 				m_pOrbiter->RenderObjectAsync(m_pOrbiter->m_pObj_Highlighted);
 			}
@@ -87,6 +92,11 @@ void MouseBehavior::Up(int X,int Y)
 
 void MouseBehavior::Move(int X,int Y)
 {
+//	CS VG
+	g_pPlutoLogger->Write(LV_STATUS,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d  h:%p v:%p",
+X,Y,m_pSamples[0].X,m_pSamples[0].Y,m_pStartMovement.X,m_pStartMovement.Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,(int) m_iLockedPosition,
+m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
+
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
 
@@ -98,28 +108,36 @@ void MouseBehavior::Move(int X,int Y)
 		if( m_cLocked_Axis_Current == AXIS_LOCK_X )
 		{
 			if( m_pObj_Locked_Horizontal )
-				m_iLockedPosition = m_pObj_Locked_Horizontal->m_rPosition.Y + m_pObj_Locked_Horizontal->m_rPosition.Height/2;
+				m_iLockedPosition = m_pObj_Locked_Horizontal->m_rPosition.Y + m_pObj_Locked_Horizontal->m_pPopupPoint.Y + m_pObj_Locked_Horizontal->m_rPosition.Height/2;
 			else
 				m_iLockedPosition = Y;
 		}
 		else
 		{
 			if( m_pObj_Locked_Vertical )
-				m_iLockedPosition = m_pObj_Locked_Vertical->m_rPosition.X + m_pObj_Locked_Vertical->m_rPosition.Width/2;
+				m_iLockedPosition = m_pObj_Locked_Vertical->m_rPosition.X + m_pObj_Locked_Vertical->m_pPopupPoint.X + m_pObj_Locked_Vertical->m_rPosition.Width/2;
 			else
 				m_iLockedPosition = X;
 		}
 	}
 
+	if( m_cLocked_Axis_Current == AXIS_LOCK_X )
+		Y = m_iLockedPosition;
+	if( m_cLocked_Axis_Current == AXIS_LOCK_Y )
+		X = m_iLockedPosition;
+
+	PLUTO_SAFETY_LOCK( cm, m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	if( m_pOrbiter->m_pObj_Highlighted && 
 		(m_pOrbiter->m_pObj_Highlighted->m_rPosition.Contains(X,Y)==false || m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )
 	{
+g_pPlutoLogger->Write(LV_WARNING,"change hl doesn't contain %d,%d h:%p v:%p",X,Y,m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
 		DesignObj_Orbiter *pObj_ToHighlight=FindChildObjectAtPosition(m_cLocked_Axis_Current == AXIS_LOCK_X ? m_pObj_Locked_Horizontal : m_pObj_Locked_Vertical,X,Y);
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pOrbiter->m_pObj_Highlighted )
 		{
 			m_pOrbiter->UnHighlightObject();
+			m_pOrbiter->ExecuteCommandsInList( &m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
 			m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
 			m_pOrbiter->DoHighlightObject();
 		}
@@ -129,25 +147,7 @@ void MouseBehavior::Move(int X,int Y)
 bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 {
 	unsigned long dwTime = ProcessUtils::GetMsTime();
-	if( m_cLocked_Axis_Current == AXIS_LOCK_NONE )
-	{
-		// See if the user clearly started moving in one direction
-		int diffX = abs(m_pSamples[0].X - X);
-		int diffY = abs(m_pSamples[0].Y - Y);
-		if( diffX>MouseSensitivity::MinMoveToStart && diffY<MouseSensitivity::MaxMoveToStart )
-		{
-			m_cLocked_Axis_Current = AXIS_LOCK_X;
-			return true;
-		}
-		else if( diffY>MouseSensitivity::MinMoveToStart && diffX<MouseSensitivity::MaxMoveToStart )
-		{
-			m_cLocked_Axis_Current = AXIS_LOCK_X;
-			return true;
-		}
-		else
-			return false;
-	}
-
+	
 	if( dwTime-m_dwSamples[0]<MouseSensitivity::SampleInterval )
 	{
 		// Hardly any time has passed since the last move.  We'll only consider this to be movement in a new direction if it exceeds
@@ -155,13 +155,30 @@ bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 
 		int diffX = abs(m_pSamples[0].X - X);
 		int diffY = abs(m_pSamples[0].Y - Y);
-		if( m_cLocked_Axis_Current = AXIS_LOCK_Y && diffX>MouseSensitivity::MinMovePerSampleToChangeDir && diffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
+		if( m_cLocked_Axis_Current == AXIS_LOCK_NONE )
 		{
+			if( m_cLockedAxes & AXIS_LOCK_X && diffX>MouseSensitivity::MinMoveToStart && diffY<MouseSensitivity::MaxMoveToStart )
+			{
+	g_pPlutoLogger->Write(LV_WARNING,"start X %d,%d",diffX,diffY);
+				m_cLocked_Axis_Current = AXIS_LOCK_X;
+				return true;
+			}
+			else if( m_cLockedAxes & AXIS_LOCK_Y && diffY>MouseSensitivity::MinMoveToStart && diffX<MouseSensitivity::MaxMoveToStart )
+			{
+	g_pPlutoLogger->Write(LV_WARNING,"start Y %d,%d",diffX,diffY);
+				m_cLocked_Axis_Current = AXIS_LOCK_Y;
+				return true;
+			}
+		}
+		else if( m_cLockedAxes & AXIS_LOCK_X && m_cLocked_Axis_Current == AXIS_LOCK_Y && diffX>MouseSensitivity::MinMovePerSampleToChangeDir && diffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
+		{
+g_pPlutoLogger->Write(LV_WARNING,"fast switch X %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
-		else if( m_cLocked_Axis_Current = AXIS_LOCK_X && diffY>MouseSensitivity::MinMovePerSampleToChangeDir && diffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
+		else if( m_cLockedAxes & AXIS_LOCK_Y && m_cLocked_Axis_Current == AXIS_LOCK_X && diffY>MouseSensitivity::MinMovePerSampleToChangeDir && diffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
+g_pPlutoLogger->Write(LV_WARNING,"fast switch Y %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
@@ -172,30 +189,28 @@ bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 	ShiftSamples();
 	m_pSamples[0].X=X; m_pSamples[0].Y=Y; m_dwSamples[0]=dwTime;
 
-	int DiffX = abs(m_pSamples[0].X-m_pSamples[1].X);
-	int DiffY = abs(m_pSamples[0].Y-m_pSamples[1].Y);
-	if( m_cLocked_Axis_Current == AXIS_LOCK_X )
+	int DiffX = abs(m_pSamples[0].X-m_pSamples[1].X)+abs(m_pSamples[2].X-m_pSamples[1].X);
+	int DiffY = abs(m_pSamples[0].Y-m_pSamples[1].Y)+abs(m_pSamples[2].Y-m_pSamples[1].Y);
+g_pPlutoLogger->Write(LV_STATUS,"new sample diff %d,%d at %d,%d last %d,%d",DiffX,DiffY,m_pSamples[0].X,m_pSamples[0].Y,m_pSamples[1].X,m_pSamples[1].Y);
+
+	if( m_cLocked_Axis_Current != AXIS_LOCK_Y )
 	{
-		if( DiffY>MouseSensitivity::MinMovePerSampleToChangeDir && DiffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
+		if( m_cLockedAxes & AXIS_LOCK_Y && DiffY>MouseSensitivity::MinMovePerSampleToChangeDir && DiffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
+g_pPlutoLogger->Write(LV_WARNING,"switch Y %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
 	}
-	else
+	else if( m_cLocked_Axis_Current != AXIS_LOCK_X )
 	{
-		if( DiffX>MouseSensitivity::MinMovePerSampleToChangeDir && DiffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
+		if( m_cLockedAxes & AXIS_LOCK_X && DiffX>MouseSensitivity::MinMovePerSampleToChangeDir && DiffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
+g_pPlutoLogger->Write(LV_WARNING,"switch X %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
 	}
-
-	// This sample period we kept moving in the same direction, stay locked in the track
-	if( m_cLocked_Axis_Current == AXIS_LOCK_X && X!=m_iLockedPosition )
-		SetMousePosition(m_iLockedPosition,Y);
-	else if( m_cLocked_Axis_Current == AXIS_LOCK_Y && Y!=m_iLockedPosition )
-		SetMousePosition(m_iLockedPosition,Y);
 
 	return false;
 }
@@ -209,8 +224,8 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 		DesignObj_Orbiter *pObj_Child = FindChildObjectAtPosition(pObj,X,Y);
 		if( pObj_Child )
 			return pObj_Child;
-		if( pObj->m_bTabStop && pObj->m_rPosition.Contains(X,Y) )
-			return pObj;
 	}
+	if( pObj_Parent->m_bTabStop && (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Contains(X,Y) )
+		return pObj_Parent;
 	return NULL;
 }

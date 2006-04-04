@@ -726,6 +726,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 	if(sbNoSelection == m_nSelectionBehaviour)
 		return;
 
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if( m_pGraphicBeforeHighlight )
 		UnHighlightObject();
 
