@@ -1852,7 +1852,7 @@ function lightingDevicesTable($cgID,$dbADO)
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		';
 	}
@@ -1988,7 +1988,7 @@ function climateDevicesTable($cgID,$dbADO)
 	if(count($displayedDevices)>0){
 		$out.='
 				<tr>
-					<td colspan="9" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+					<td colspan="9" align="center"><input type="submit" class="button" name="updateDevices" value="'.$TEXT_UPDATE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>';
 	}
 	$out.='</table>
@@ -2095,7 +2095,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 
 		$out.='
 					<tr>
-						<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+						<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="'.$TEXT_UPDATE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 					</tr>';
 	}
 	$out.='<tr>
@@ -3138,7 +3138,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
 			$deviceDataBox.='
 				<tr>
-					<td width="270" align="right" valign="middle"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" style="vertical-align: middle;"> ':'').'</td>
+					<td width="270" align="right" valign="middle" title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b></td>
 					<td>';
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
@@ -3555,13 +3555,14 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
 	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate='.$dtID.') AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
 
+	$irDataArray=array();
 	$commandGrouped=array();
 	$irgNames=array();
 	for($i=0;$i<count(@$codesData['FK_InfraredGroup']);$i++){
+		$irDataArray[$codesData['PK_InfraredGroup_Command'][$i]]=$codesData['IRData'][$i];
 		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['PK_InfraredGroup_Command'][$i];
 		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
-	
 	if(session_name()=='Pluto-admin'){
 		if($deviceID>0){
 			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceTemplate ON Fk_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
@@ -3573,7 +3574,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		</tr>';
 		$GLOBALS['DT_&_Room']=0;
 	}
-	
+
 	// display table header
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
@@ -3597,7 +3598,8 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
-			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\';">':'';
+			$testCodeBtn=(session_name()=='Pluto-admin' && isset($pk_irgc))?' <input type="button" class="button" name="testCode" value="T" 
+			onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(\''.$irDataArray[$pk_irgc].'\')+\'&deviceID='.@$_REQUEST['deviceID'].'&sender='.urlencode('addModel&step=7').'\';">':'';
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
@@ -4122,13 +4124,11 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 			SELECT 
 				PK_InfraredGroup_Command,
 				FK_DeviceTemplate,
-				FK_Device,
-				InfraredGroup_Command.psc_user,
 				IRData,
 				Command.Description,
 				OriginalKey,
 				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
-				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
+				IF( FK_DeviceTemplate IS NULL,1,3) As DefaultOrder,
 				CommandCategory.Description AS CommandCategory,
 				FK_Command 
 			FROM InfraredGroup_Command 
@@ -4136,7 +4136,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
 			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
 
-	$res=$dbADO->Execute($codesQuery,array($userID,$dtID));
+	$res=$dbADO->Execute($codesQuery,array($dtID));
 	$codesArray=array();
 	while($row=$res->FetchRow()){
 		$categoryLabel=($row['CommandCategory']=='Generic')?'Power':$row['CommandCategory'];
@@ -4146,8 +4146,6 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 		$categoryLabel=($row['FK_Command']==$GLOBALS['DSPModeCommand'])?'DSP Modes':$categoryLabel;
 		
 		$codesArray[$categoryLabel]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
-		$codesArray[$categoryLabel]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
-		$codesArray[$categoryLabel]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
 		$codesArray[$categoryLabel]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
 		$codesArray[$categoryLabel]['OriginalKey'][$row['PK_InfraredGroup_Command']]=$row['OriginalKey'];
 		$codesArray[$categoryLabel]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$categoryLabel;
@@ -4284,9 +4282,10 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 		$RowColor='lightblue';
 	}
 	else{
-		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
+		$RowColor='yellow';
+		$deleteButton='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
 	}
-	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">':'';
+	
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button" name="viewParams" value="View parameters" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
 	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
@@ -4296,7 +4295,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$viewParamsButton.$deleteButton.$testButton.'</td>
+				<td align="center" width="100">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
 			</tr>
 		</table>';
 
@@ -4308,10 +4307,10 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 function createEmbeddedDeviceTemplate($name,$manufacturer,$deviceCategory,$userID,$parentID,$commandID,$mediaType,$publicADO){
 	$publicADO->Execute('
 		INSERT INTO DeviceTemplate 
-			(Description,FK_Manufacturer,FK_DeviceCategory,psc_user) 
+			(Description,FK_Manufacturer,FK_DeviceCategory) 
 		VALUES 
-			(?,?,?,?)',
-	array($name,$manufacturer,$deviceCategory,$userID));
+			(?,?,?)',
+	array($name,$manufacturer,$deviceCategory));
 	$embeddedID=$publicADO->Insert_ID();
 
 	$publicADO->Execute('
@@ -4951,7 +4950,7 @@ function irrigationHTML($devicesArray){
 	}
 	$out.='
 		<tr bgcolor="#E7E7E7">
-			<td align="center" colspan="8"><input type="submit" class="button" name="update_irrigation" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td align="center" colspan="8"><input type="submit" class="button" name="update_irrigation" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="irrigationDevices" value="'.join(',',array_keys($devicesArray)).'">';

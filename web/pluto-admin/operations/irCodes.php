@@ -7,9 +7,6 @@ function irCodes($output,$dbADO,$mediaADO) {
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
-	$time_start = getmicrotime();
-	
-
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
@@ -79,7 +76,6 @@ function irCodes($output,$dbADO,$mediaADO) {
 				Manufacturer.Description AS Manufacturer, 
 				FK_Manufacturer,
 				FK_DeviceCategory,
-				DeviceTemplate.psc_user AS User,
 				FK_InfraredGroup,
 				DeviceTemplate_AV.*,
 				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate,
@@ -100,7 +96,6 @@ function irCodes($output,$dbADO,$mediaADO) {
 				Manufacturer.Description AS Manufacturer, 
 				FK_Manufacturer,
 				FK_DeviceCategory,
-				DeviceTemplate.psc_user AS User,
 				FK_InfraredGroup,
 				DeviceTemplate_AV.*,
 				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate
@@ -124,10 +119,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
-		$owner=$rowDTData['User'];
 		$deviceParent=@$rowDTData['Parent'];
-
-		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'] )?'disabled':'';
 
 		$selectedIRGrops=array();
 		$selectedIRGrops[]=$rowDTData['FK_InfraredGroup'];
@@ -208,8 +200,6 @@ function irCodes($output,$dbADO,$mediaADO) {
 						<td>'.$TEXT_STANDARD_CODES_CONST.'</td>
 						<td width="20" bgcolor="yellow">&nbsp;</td>
 						<td>'.$TEXT_MY_CUSTOM_CODES_CONST.'</td>
-						<td width="20" bgcolor="lightyellow">&nbsp;</td>
-						<td>'.$TEXT_OTHER_USERS_CUSTOM_CODES_CONST.'</td>
 					</tr>
 				</table></td>
 			</tr>
@@ -227,7 +217,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		<iframe name="codeTester" src="" style="display:none;"></iframe>
 	<span class="normaltext"><a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">'.$TEXT_IR_CONTACT_US_CONST.'</a>.</span><br><br>		
 	';	
-		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE_CONST.'</em></span>':'');		
+
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
@@ -236,31 +226,19 @@ function irCodes($output,$dbADO,$mediaADO) {
 			$newIRGroup=(int)$_REQUEST['newIRG'];
 			
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?) AND psc_user=?',array($newIRGroup,$dtID,$infraredGroupID,$userID));
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?)',array($newIRGroup,$dtID,$infraredGroupID));
 
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();
 		}
 
-		if($action=='testCode'){
-			$irCode=stripslashes($_REQUEST['irCode']);
-			$ig_c=(int)$_REQUEST['ig_c'];
-			$owner=(int)$_REQUEST['owner'];
-			if($owner==$userID){
-				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
-			}
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 9 "'.$irCode.'"';
-			exec($commandToTest);
-			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_TEST_IR_COMMAND_SENT_CONST&label=".$GLOBALS['label'].'#test_'.$ig_c);
-			exit();
-		}		
 		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
 
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?) AND psc_user=?',array($newIRGroup,$dtID,$oldIRGroup,$userID));
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?)',array($newIRGroup,$dtID,$oldIRGroup));
 
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();
@@ -269,7 +247,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
 			$irg_c=(int)$_POST['irgroup_command'];
 			if($action!='delete'){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.','.$dtID.',IRData,'.$_SESSION['userID'].','.$_SESSION['userID'].' FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_DeviceTemplate,IRData) SELECT FK_InfraredGroup,FK_Command,'.$dtID.',IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
 				exit();
@@ -298,7 +276,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 					foreach ($commands AS $commandID){
 						if(!in_array($commandID,$displayedCommands) && !in_array($commandID,$commands_added)){	
 							$commands_added[]=$commandID;		
-							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,$dtID,'',$_SESSION['userID'],$_SESSION['userID']));
+							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_DeviceTemplate,IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID,$dtID,''));
 						}
 					}
 					if(!in_array($deviceCG,$oldCheckedDCG))
@@ -308,7 +286,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 					// delete from IRG_C
 					$commands=explode(',',$_POST['commands_'.$deviceCG]);
 					if(count($commands)>0){
-						$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_Users=? AND psc_user=?',array($_SESSION['userID'],$_SESSION['userID']));
+						$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_DeviceTemplate=?',array($dtID));
 
 					}
 					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -320,7 +298,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			foreach ($customCodesNoArray as $ig_c){
 				if(isset($_POST['irData_'.$ig_c])){
 					$irData=stripslashes($_POST['irData_'.$ig_c]);
-					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=? AND psc_user=?',array($irData,$ig_c,(int)$_SESSION['userID']));
+					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 				}
 			}
 
@@ -352,8 +330,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 
 		header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
 	}
-	$time_end = getmicrotime();
-	$out.='<br><p class="normaltext">'.$TEXT_PAGE_GENERATED_IN_CONST.' '.round(($time_end-$time_start),3).' s.';
+	
 	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$editLabel);
