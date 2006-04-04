@@ -98,7 +98,7 @@ void WMTaskManager::WakeUp()
 
 void WMTaskManager::TaskProcessed(unsigned int TaskId)
 {
-	PLUTO_SAFETY_LOCK(cm, *ListMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, *ListMutex);
     listTasksWithConfirmation.remove(TaskId);
     g_pPlutoLogger->Write(LV_WARNING, "WMTaskManager::TaskProcessed(id %d), size=%d", TaskId, Events.size());
     WakeUp();
