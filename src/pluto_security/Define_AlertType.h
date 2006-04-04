@@ -8,6 +8,7 @@
 #define ALERTTYPE_Information_CONST 5
 #define ALERTTYPE_Doorbell_CONST 6
 #define ALERTTYPE_Monitor_mode_CONST 7
+#define ALERTTYPE_BabySitter_mode_CONST 8
 
 #define ALERTTYPE_TABLE "AlertType"
 #define ALERTTYPE_PK_ALERTTYPE_FIELD "PK_AlertType"
