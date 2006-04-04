@@ -1793,7 +1793,7 @@
 #define DESIGNOBJ_butLightType_CONST 4652
 #define DESIGNOBJ_butLightName_CONST 4653
 #define DESIGNOBJ_butVoipAccount_CONST 4654
-#define DESIGNOBJ_grpShortcuts_CONST 4655
+#define DESIGNOBJ_grpFaze1_CONST 4655
 #define DESIGNOBJ_butDirectToTV_CONST 4657
 #define DESIGNOBJ_butStopVideo_CONST 4658
 #define DESIGNOBJ_Location_CONST 4659
@@ -1961,6 +1961,8 @@
 #define DESIGNOBJ_butShowMediaTracks_CONST 4880
 #define DESIGNOBJ_butShowVolume_CONST 4881
 #define DESIGNOBJ_butShowMediaSpeed_CONST 4882
+#define DESIGNOBJ_butTVReceiverInputs_CONST 4886
+#define DESIGNOBJ_grpFaze2_CONST 4887
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
