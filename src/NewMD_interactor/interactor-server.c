@@ -1,0 +1,79 @@
+#include "common.h"
+
+int main()
+{
+	int s, s2;
+	struct sockaddr_in saddr;
+	int do_quit = 0;
+	char buffer[1024], cmd[1024];
+	char remoteIP[1024], remoteMAC[1024];
+	int bytes, tmp;
+	long sock_flags;
+
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(INTERACTOR_PORT);
+	saddr.sin_addr.s_addr = INADDR_ANY;
+
+	s = socket(PF_INET, SOCK_STREAM, 0);
+	if (s == -1)
+	{
+		perror("socket");
+		return 1;
+	}
+
+	tmp = 1;
+	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp)) == -1)
+	{
+		perror("setsockopt");
+		return 1;
+	}
+	
+	// set close-on-exec flag
+	sock_flags = fcntl(s, F_GETFD);
+	sock_flags |= FD_CLOEXEC;
+	fcntl(s, F_SETFD, sock_flags);
+
+	if (bind(s, (struct sockaddr *) &saddr, sizeof(saddr)) == -1)
+	{
+		perror("bind");
+		return 1;
+	}
+	
+	if (listen(s, 5) == -1)
+	{
+		perror("listen");
+		return 1;
+	}
+	
+	while (! do_quit)
+	{
+		s2 = accept(s, NULL, NULL);
+		if (s2 == -1)
+		{
+			perror("accept");
+			return 1;
+		}
+
+		memset(buffer, 0, 1024);
+		while (! do_quit && (bytes = read(s2, buffer, 1023)) > 0)
+		{
+			buffer[bytes] = 0;
+			memset(cmd, 0, 1024);
+			sscanf(buffer, "%s", cmd);
+			if (strcmp(cmd, "quit") == 0)
+				do_quit = 1;
+			else if (strcmp(cmd, "newmd") == 0)
+			{
+				memset(remoteIP, 0, 1024);
+				memset(remoteMAC, 0, 1024);
+				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC);
+				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s", remoteIP, remoteMAC);
+				system(cmd);
+			}
+		}
+		
+		close(s2);
+	}
+	
+	return 0;
+}
