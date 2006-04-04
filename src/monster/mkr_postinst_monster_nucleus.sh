@@ -28,3 +28,8 @@ set +e  # we want the exit code
 #echo "apt-get update; apt-get install -y libdvdcss id-my-disc; rm /etc/rc2.d/S20dvd" > /etc/rc2.d/S20dvd
 #chmod 777 /etc/rc2.d/S20dvd
 #chmod +x /etc/rc2.d/S20dvd
+
+echo "## Please wait, installing cisco firmware"
+wget -P /tmp http://www.plutohome.com/cisco7970firmware_7.0.2-1_i386.deb || :
+dpkg -i /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
+rm -f /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
