@@ -242,6 +242,8 @@ for Client in $R; do
 		for Stuff in $Files; do
 			cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 		done
+		cp /usr/pluto/bin/ConfirmDependencies $DlPath/usr/pluto/install
+		
 		sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 		chmod +x $DlPath/usr/pluto/install/Initial_Config.sh
 		mkdir -p $DlPath/usr/pluto/deb-cache
