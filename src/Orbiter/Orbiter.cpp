@@ -9710,6 +9710,9 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
 		return;
 
+	if(NULL != m_pScreenHistory_Current && NULL != m_pScreenHistory_Current->GetObj())
+		FireDeleteWxWidget(m_pScreenHistory_Current->GetObj());
+
 	m_pScreenHandler->ResetCallBacks();
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
@@ -9994,15 +9997,16 @@ void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool b
 	if( m_pMouseBehavior )
 		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
 }
-//<-dceag-c796-b->
 
-	/** @brief COMMAND: #796 - In Main Menu */
-	/** Checks if Orbiter is in main menu. */
-		/** @param #213 Value */
-			/** If Value is true, Orbiter is in main menu. */
-
-void Orbiter::CMD_In_Main_Menu(bool *bValue,string &sCMD_Result,Message *pMessage)
-//<-dceag-c796-e->
+void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
 {
-	*bValue = m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_MainMenu;
+	DesignObj_DataList::iterator it;
+	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+	{
+		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
+		if(pChildObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
+			ExecuteScreenHandlerCallback(cbOnWxWidgetDelete);
+
+		FireDeleteWxWidget(pChildObj);
+	}
 }

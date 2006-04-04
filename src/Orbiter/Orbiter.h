@@ -888,6 +888,11 @@ namespace DCE
 			const map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
 
 		/**
+		* @brief when the screen is changed, before all registered callbacks are erased, any fire delete wx widget will be fired
+		*/
+		void FireDeleteWxWidget(DesignObj_Orbiter *pObj);
+
+		/**
 		* @brief A helper function we can call internally rather than the full CMD_GotoScreen
 		*/
 		void GotoScreen( string sScreen, string sID = "" ) { CMD_Goto_DesignObj( 0, sScreen, sID, "", false, false ); }
@@ -1822,15 +1827,6 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { string sCMD_Result; CMD_Set_Mouse_Behavior(sPK_DesignObj.c_str(),sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #796 - In Main Menu */
-	/** Checks if Orbiter is in main menu. */
-		/** @param #213 Value */
-			/** If Value is true, Orbiter is in main menu. */
-
-	virtual void CMD_In_Main_Menu(bool *bValue) { string sCMD_Result; CMD_In_Main_Menu(bValue,sCMD_Result,NULL);};
-	virtual void CMD_In_Main_Menu(bool *bValue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
