@@ -54,6 +54,8 @@ protected:
 };
 WX_DEFINE_ARRAY_PTR(WMTask *, wxArray_p_WMTask);
 
+const char * _str_task(WMTask *pWMTask);
+
 class WMTaskManager
 {
 public:

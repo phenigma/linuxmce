@@ -119,21 +119,21 @@ const char * _str_enum(const CallBackType &value)
 }
 #endif // USE_RELEASE_CODE
 
-void Extern_Event_Listener(ExternApp *pExternApp)
+void Extern_Event_Listener()
 {
-    //_WX_LOG_NFO();
+#ifdef USE_RELEASE_CODE
+    ExternApp *pExternApp = wxGetApp().ptr_ExternApp();
     if (pExternApp == NULL)
         return;
-#ifdef USE_RELEASE_CODE
-    if (pExternApp->v_pSDL_App_Object == NULL)
+    if (! pExternApp->IsRunning())
         return;
 #endif // USE_RELEASE_CODE
-    WMTaskManager *pTaskManager = &TaskManager::Instance();
-    WMTask *pTask = pTaskManager->PopTask();
+    _WX_LOG_DBG();
+    WMTask *pTask = TaskManager::Instance().PopTask();
     if (pTask == NULL)
     {
-        _WX_LOG_NFO("No task to process, sleeping");
-        wx_sleep(0, EXTERN_APP_EVENT_SLEEP_MSEC);
+        //_WX_LOG_NFO("No task to process, sleeping");
+        //wx_sleep(0, EXTERN_APP_EVENT_SLEEP_MSEC);
         return;
     }
     E_DIALOG_TYPE e_dialog_type = pTask->DialogType;
@@ -169,7 +169,7 @@ void Extern_Event_Listener(ExternApp *pExternApp)
             break;
     } // switch (action)
     _WX_LOG_NFO("End command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
-    pTaskManager->TaskProcessed(pTask->TaskId);
+    TaskManager::Instance().TaskProcessed(pTask->TaskId);
 #ifdef USE_RELEASE_CODE
 #endif // USE_RELEASE_CODE
 }
@@ -178,16 +178,12 @@ void Extern_Event_Response(Extern_Event_Data *pExtern_Event_Data)
 {
     _WX_LOG_NFO("pData=%p", pExtern_Event_Data);
     _COND_RET(pExtern_Event_Data != NULL);
+#ifdef USE_RELEASE_CODE
     ExternApp *pExternApp = wxGetApp().ptr_ExternApp();
     if (pExternApp == NULL)
         return;
-#ifdef USE_RELEASE_CODE
-    if (pExternApp->v_pSDL_App_Object == NULL)
+    if (! pExternApp->IsRunning())
         return;
-    WMTaskManager *pTaskManager = &TaskManager::Instance();
-    pTaskManager->TaskProcessed(pExtern_Event_Data->nEventId);
 #endif // USE_RELEASE_CODE
-#ifdef USE_DEBUG_CODE
-    wxUnusedVar(pExtern_Event_Data);
-#endif // USE_DEBUG_CODE
+    TaskManager::Instance().TaskProcessed(pExtern_Event_Data->nEventId);
 }

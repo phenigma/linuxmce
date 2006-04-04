@@ -174,12 +174,12 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
     }
     else
     {
-        Extern_Event_Listener(v_pExternApp);
+        Extern_Event_Listener();
     }
 #endif // USE_RELEASE_CODE
 #ifdef USE_DEBUG_CODE
     {
-        Extern_Event_Listener(v_pExternApp);
+        Extern_Event_Listener();
     }
 #endif // USE_DEBUG_CODE
 ////@begin wxEVT_IDLE event handler in wxAppMain.
@@ -228,7 +228,7 @@ wxThread_Bag * wxAppMain::ptr_ThreadBag() const
 
 ExternApp * wxAppMain::ptr_ExternApp() const
 {
-    _WX_LOG_NFO();
+    //_WX_LOG_NFO();
     if (App_ShouldExit())
         return NULL;
     return v_pExternApp;

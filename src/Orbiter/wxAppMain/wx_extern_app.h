@@ -50,7 +50,7 @@ struct Extern_Event_Data
     int nButtonId;
 };
 
-void Extern_Event_Listener(ExternApp *pExternApp);
+void Extern_Event_Listener();
 void Extern_Event_Response(Extern_Event_Data *pExtern_Event_Data);
 
 #endif

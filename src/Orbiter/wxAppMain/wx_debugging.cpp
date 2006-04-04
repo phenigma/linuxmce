@@ -247,6 +247,16 @@ const char * _str_enum(CallBackType value)
     return wxString::Format("?%d?", value);
 }
 
+const char * _str_task(WMTask *pWMTask)
+{
+    if (pWMTask == NULL)
+        return wxString::Format("NULL task");
+    return wxString::Format(
+        "WMTask(TaskType=%s, DialogType=%s, pCallBackData=%p, TaskId=%d)",
+        _str_enum(pWMTask->TaskType), _str_enum(pWMTask->DialogType), pWMTask->pCallBackData, pWMTask->TaskId
+        );
+}
+
 WMTask::WMTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData, size_t TaskId)
         : TaskType(TaskType)
         , DialogType(DialogType)
@@ -255,9 +265,7 @@ WMTask::WMTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pC
         , b_IsWaiting(false)
         , v_oSemaphoreTaskWait(0, 1)
 {
-    _WX_LOG_NFO("CallBackType %s, E_DIALOG_TYPE %s, CallBackData* %p, size_t %ld",
-                _str_enum(TaskType), _str_enum(DialogType), pCallBackData, TaskId
-                );
+    //_WX_LOG_NFO("New %s", _str_task(this));
 }
 
 WMTaskManager::WMTaskManager()
@@ -269,32 +277,30 @@ WMTaskManager::WMTaskManager()
 
 WMTask * WMTaskManager::CreateTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData )
 {
-    _WX_LOG_NFO("CallBackType %s, E_DIALOG_TYPE %s, CallBackData* %p",
-                _str_enum(TaskType), _str_enum(DialogType), pCallBackData
-                );
     wxMutexLocker lock(v_oMutex);
     v_nNextUniqueId++;
     WMTask *pWMTask = new WMTask(TaskType, DialogType, pCallBackData, v_nNextUniqueId);
+    _WX_LOG_NFO("CreateTask(%s)", _str_task(pWMTask));
     return pWMTask;
 }
 
 void WMTaskManager::AddTask(WMTask *pWMTask)
 {
+    _WX_LOG_NFO("AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("WMTask * %p, size=%ld", pWMTask, v_apWMTask.GetCount());
     v_apWMTask.Add(pWMTask);
 }
 
 void WMTaskManager::AddTaskAndWait(WMTask *pWMTask)
 {
-    _WX_LOG_NFO("WMTask * %p", pWMTask);
+    _WX_LOG_NFO("AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("WMTask * %p, size=%ld", pWMTask, v_apWMTask.GetCount());
     v_apWMTask.Add(pWMTask);
     pWMTask->b_IsWaiting = true;
     pWMTask->v_oSemaphoreTaskWait.Wait();
+    _WX_LOG_NFO("Returned in AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
 }
 
 WMTask *WMTaskManager::PopTask()
@@ -304,7 +310,7 @@ WMTask *WMTaskManager::PopTask()
         return NULL;
     WMTask *pWMTask = v_apWMTask[0];
     v_apWMTask.RemoveAt(0);
-    _WX_LOG_NFO("WMTask * %p, size=%ld", pWMTask, v_apWMTask.GetCount());
+    _WX_LOG_NFO("PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
@@ -321,9 +327,10 @@ void WMTaskManager::TaskProcessed(size_t nTaskId)
             if (pWMTask->b_IsWaiting)
                 pWMTask->v_oSemaphoreTaskWait.Post();
             v_apWMTask.RemoveAt(i);
+            _WX_LOG_NFO("TaskProcessed(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
         }
     }
-    _COND_RET(false);
+    _WX_LOG_ERR("No task found with id=%d, size=%d", nTaskId, v_apWMTask.GetCount());
 }
 
 WMTaskManager TaskManager::_g_WMTaskManager;

@@ -291,7 +291,10 @@ bool wxDialog_RoomWizard::Gui_DataSave(void *pExternData)
     _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
     _COND(v_aRoomItems.GetCount() > 0);
 #ifdef USE_RELEASE_CODE
-    WizardLogic *pWizardLogic = (WizardLogic *)pExternData;
+    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
+    RoomWizardCallBackData *pRoomWizardCallBackData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
+    _COND_RET(pRoomWizardCallBackData, false);
+    WizardLogic *pWizardLogic = pRoomWizardCallBackData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
         _WX_LOG_WRN("extern data not initialized");
@@ -316,7 +319,8 @@ bool wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
-    RoomWizardCallBackData *pData_Refresh = wx_static_cast(RoomWizardCallBackData *, pExternData);
+    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
+    RoomWizardCallBackData *pData_Refresh = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
     _COND_RET(pData_Refresh != NULL, false);
     SetSize(
         pData_Refresh->m_coord.X,

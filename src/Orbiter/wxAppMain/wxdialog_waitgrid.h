@@ -110,6 +110,7 @@ public:
 
 public:
     ~wxDialog_WaitGrid();
+    virtual bool Gui_DataLoad(void *pExternData);
     virtual bool Gui_Refresh(void *pExternData);
 
     struct Data_Refresh

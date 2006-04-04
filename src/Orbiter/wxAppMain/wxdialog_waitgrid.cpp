@@ -241,6 +241,12 @@ wxDialog_WaitGrid::~wxDialog_WaitGrid()
     _WX_LOG_NFO();
 }
 
+bool wxDialog_WaitGrid::Gui_DataLoad(void *pExternData)
+{
+    _WX_LOG_NFO();
+    return Gui_Refresh(pExternData);
+}
+
 bool wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();

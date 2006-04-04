@@ -209,6 +209,12 @@ wxDialog_WaitList::~wxDialog_WaitList()
     _WX_LOG_NFO();
 }
 
+bool wxDialog_WaitList::Gui_DataLoad(void *pExternData)
+{
+    _WX_LOG_NFO();
+    return Gui_Refresh(pExternData);
+}
+
 bool wxDialog_WaitList::Gui_Refresh(void *pExternData)
 {
     //_WX_LOG_NFO();
