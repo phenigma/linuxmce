@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib IRBase.lib libmySQL.lib"
 				OutputFile="../Debug/USB_UIRT_0038.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;D:\mysql\lib\debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/USB_UIRT_0038.pdb"
 				SubSystem="1"
