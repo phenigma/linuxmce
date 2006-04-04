@@ -118,6 +118,7 @@ public:
 	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Sibling_Remotes(iPK_DeviceCategory,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	};
 
