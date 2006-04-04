@@ -53,7 +53,8 @@ if($ARGV[0] eq "") {
 		}
 	}
 	$state->finish();
-	$cmd = "/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV";
+	# Send "Create Device" (718) message to General Info Plugin (template 27)
+	$cmd = "/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 58 auto 198 0 156 $PKDEV";
 	loggc("$cmd\n");
 	loggc("Creating Device...");
 	$Device_ID = `$cmd`;
