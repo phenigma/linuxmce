@@ -25,7 +25,7 @@ Exports_CommonDiskless="
 /usr/pluto/orbiter      $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync)
 /usr/pluto/keys         $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(ro,no_root_squash,no_all_squash,sync)
 /usr/pluto/deb-cache    $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(ro,no_root_squash,no_all_squash,sync)
-/usr/pluto/var/Updates  $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync)
+/usr/pluto/var          $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync)
 "
 PopulateSection "/etc/exports" "CommonDiskless" "$Exports_CommonDiskless"
 
