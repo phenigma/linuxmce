@@ -338,7 +338,7 @@ namespace DCE
 		* @brief temp hack -- see comments
 		* @todo ask - add comments
 		*/
-		void RealRedraw( void *iData );
+		virtual void RealRedraw( void *iData );
 
 		// Don't show shortcuts anymore
 		void RemoveShortcuts( void *iData );
@@ -490,6 +490,12 @@ namespace DCE
 		*/
 		virtual void DoHighlightObject();
 		virtual void UnHighlightObject( bool bDeleteOnly=false );
+
+
+		/**
+		* @brief Event on the selected cell on a DataGrid
+		*/
+		virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell);
 
 		/**
 		* @brief Find the first 'tab stop' object on screen and highlight it
