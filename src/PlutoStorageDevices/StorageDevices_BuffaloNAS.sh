@@ -26,7 +26,9 @@ if [[ "$Device_IP" == "" ]]; then
 	echo "ERROR: No IP associated with the device $Device_ID"
 fi
 
-/usr/pluto/bin/StorageDevices_Mounts.sh
-/usr/pluto/bin/StorageDevices_ExportsNFS.sh
-/usr/pluto/bin/StorageDevices_Symlinks.sh
+#/usr/pluto/bin/StorageDevices_Mounts.sh
+#/usr/pluto/bin/StorageDevices_ExportsNFS.sh
+#/usr/pluto/bin/StorageDevices_Symlinks.sh
 /usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device_ID
+
+/usr/pluto/bin/StorageDevices_Setup.sh --cascade
