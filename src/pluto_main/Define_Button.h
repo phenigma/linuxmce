@@ -144,6 +144,16 @@
 #define BUTTON_percent_CONST 200
 #define BUTTON_Alphanumeric_keys_CONST 201
 #define BUTTON_No_key_CONST 202
+#define BUTTON_Mouse_1_CONST 203
+#define BUTTON_Mouse_2_CONST 204
+#define BUTTON_Mouse_3_CONST 205
+#define BUTTON_Mouse_4_CONST 206
+#define BUTTON_Mouse_5_CONST 207
+#define BUTTON_Mouse_6_CONST 208
+#define BUTTON_Mouse_7_CONST 209
+#define BUTTON_Mouse_8_CONST 210
+#define BUTTON_Mouse_9_CONST 211
+#define BUTTON_Mouse_10_CONST 212
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
