@@ -27,7 +27,6 @@ chmod 666 /etc/pluto.conf
 
 ## Create the installation script (old activation.sh) and run it
 ok_script=0
-/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h dcerouter -u root -p '' -d $Device install > /usr/pluto/install/activation.sh
 chmod +x /usr/pluto/install/activation.sh
 /usr/pluto/install/activation.sh
 
