@@ -1260,25 +1260,10 @@ void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType des
             xineSpeed = XINE_SPEED_NORMAL;
             NewSpecialSeekSpeed = desiredSpeed;  // See above
             break;
-            case PLAYBACK_REW_64:
-            case PLAYBACK_REW_32:
-            case PLAYBACK_REW_16:
-            case PLAYBACK_REW_8:
-            case PLAYBACK_REW_4:
-            case PLAYBACK_REW_2:
-            case PLAYBACK_REW_1:
-            case PLAYBACK_REW_1_2:
-            case PLAYBACK_REW_1_4:
-            case PLAYBACK_FF_8:
-            case PLAYBACK_FF_16:
-            case PLAYBACK_FF_32:
-            case PLAYBACK_FF_64:
-            NewSpecialSeekSpeed = desiredSpeed;
-            xineSpeed = XINE_SPEED_NORMAL;
-            break;
 
-            default:
-            g_pPlutoLogger->Write( LV_WARNING, "Don't know how to handle speed: %d", desiredSpeed );
+			default:
+				NewSpecialSeekSpeed = desiredSpeed;
+				xineSpeed = XINE_SPEED_NORMAL;
             break;
     }
 
