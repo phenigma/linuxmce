@@ -13,8 +13,8 @@ my $PHONE_NR = $ARGV[2];
 
 $LINE_NAME =~ s/(\w+)[-]out/$1/;
 
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&extdisplay=OUT_$LINE_NR&action=deltrunk'");
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming'");
+system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&extdisplay=OUT_$LINE_NR&action=deltrunk' &>/dev/null ");
+system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null");
 
 system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8' > /tmp/curl.log");
 open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
@@ -28,6 +28,6 @@ while(<PAGE>)
     }
 }
 close(PAGE);
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&extdisplay=$OUT_ROUTE&action=delroute'");
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&clk_reload=true'");
+system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&extdisplay=$OUT_ROUTE&action=delroute' &>/dev/null");
+system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&clk_reload=true' &>/dev/null");
 
