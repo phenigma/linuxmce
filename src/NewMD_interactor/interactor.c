@@ -10,7 +10,7 @@ int main(int argc, char * argv[])
 	int bytes, tmp;
 	const char * Gateway, * myIP, * myMAC, * myRoom;
 
-	if (argc != 4)
+	if (argc != 5)
 	{
 		printf("(Interactor) Wrong number of arguments: %d\n", argc);
 		return 1;
