@@ -1,4 +1,8 @@
 
+## PLEASE CORECT THIS !!!! (MANTIS 2026) !!!!!!
+exit 0
+###### DONE HACK ##########
+
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
@@ -15,8 +19,7 @@ function addEntries
 }
 
 #Force the backend to make the database structure
-## PLEASE CORECT THIS !!!! (MANTIS 2026) !!!!!!
-#/etc/init.d/mythtv-backend force-reload 2>/dev/null || :
+/etc/init.d/mythtv-backend force-reload 2>/dev/null || :
 
 echo "Waiting until the schema is actually created or no more than 10 seconds"
 
