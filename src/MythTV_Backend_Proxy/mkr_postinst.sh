@@ -15,7 +15,8 @@ function addEntries
 }
 
 #Force the backend to make the database structure
-/etc/init.d/mythtv-backend force-reload 2>/dev/null
+## PLEASE CORECT THIS !!!! (MANTIS 2026) !!!!!!
+#/etc/init.d/mythtv-backend force-reload 2>/dev/null || :
 
 echo "Waiting until the schema is actually created or no more than 10 seconds"
 
