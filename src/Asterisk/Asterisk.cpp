@@ -239,7 +239,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 {
     g_pPlutoLogger->Write(LV_STATUS, "Command %s called with param: "
                                                 "PhoneExtension: %s "
-                                                "PhoneCallID: %s"
+                                                "PhoneCallID: %s "
                                                   "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
 
     AsteriskManager *manager = AsteriskManager::getInstance();
@@ -268,12 +268,18 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
     }
     else
     {
-        int pos = sPhoneCallID.find(' ');
+        int pos1 = sPhoneCallID.find_first_not_of(' ');
+		if(pos1<0)
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty channels ???");
+			return;
+        }
+		int pos=sPhoneCallID.find(' ',pos);
         if(pos>=0)
         {
             string rest1 = sPhoneCallID;
             string rest2 = sPhoneCallID;
-            rest1=sPhoneCallID.substr(0, pos);
+            rest1=sPhoneCallID.substr(pos1, pos-pos1);
             rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
             g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
             manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
