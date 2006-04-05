@@ -77,11 +77,17 @@ for Device in $Devices; do
 		for User in $Users; do
 			User_ID=$(Field 1 "$User")
 			User_Uname=$(Field 2 "$User")
+			User_UnixUname=$(Field 2 "$User" | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
+			User_UnixUname="pluto_$User_UnixUname"
 			
-			echo "mkdir $Device_MountPoint/user_$User_ID/data/$mediaDir"
+			mkdir -p $Device_MountPoint/user_$User_ID/data/$mediaDir
+			chown $User_UnixUname:$User_UnixUname $Device_MountPoint/user_$User_ID/data/$mediaDir
+			chmod 2770 $Device_MountPoint/user_$User_ID/data/$mediaDir
 		done
 
 		## And one for public
-		echo "mkdir $Device_MountPoint/public/data/$mediaDir"
+		mkdir -p $Device_MountPoint/public/data/$mediaDir
+		chown root:public $Device_MountPoint/public/data/$mediaDir
+		chmod 2775 $Device_MountPoint/public/data/$mediaDir
 	done
 done
