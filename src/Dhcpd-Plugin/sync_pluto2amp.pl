@@ -216,7 +216,7 @@ sub add_to_asterisk_db()
     $EXT_VARS{'deviceuser'}="same";
     $EXT_VARS{'password'}="";
     $EXT_VARS{'outboundcid'}="\"pl_".$DEVICE_ID."\" <$DEVICE_EXT>";
-    $EXT_VARS{'qualify'}="yes";
+    $EXT_VARS{'qualify'}="yes" if ($DEVICE_TYPE eq 'sip');
     $EXT_VARS{'vm'}="disabled";
     $EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
     $EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
