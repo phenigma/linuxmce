@@ -58,7 +58,7 @@ done
 PopulateSection "/etc/auto.PlutoStorageDevices" "ExternalStorageDevices" "$Fstab_ExternalStorageDevices"
 
 
-TPL_BUFFALO_HDHG300LAN=1791
+TPL_BUFFALO_HDHG300LAN=1794
 ## Look for Buffalo NAS mounts
 Q="
 SELECT

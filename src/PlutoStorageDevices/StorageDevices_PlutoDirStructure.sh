@@ -3,7 +3,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-TPL_STORAGE_DEVICES="1790, 1791"
+TPL_STORAGE_DEVICES="1790, 1794"
 DD_USE_PLUTO_DIR_STRUCTURE=130
 
 Params=("$@")
