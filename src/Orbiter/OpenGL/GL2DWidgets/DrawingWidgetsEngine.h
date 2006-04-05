@@ -15,6 +15,8 @@
 
 #include "../../DesignObj_Orbiter.h"
 
+#include "PlutoUtils/MultiThreadIncludes.h"
+
 class DrawingWidgetsEngine
 {
 	int Width, Height;
@@ -25,6 +27,11 @@ class DrawingWidgetsEngine
 	*/
 	void AddWidget(TBaseWidget* Widget);
 
+	/**
+	 *	Safe thread mutex
+	 */
+	pluto_pthread_mutex_t* WidgetsMutex;
+	pthread_cond_t ListMutexCond;
 public:
 	/**
 	 * Getters
@@ -37,9 +44,14 @@ public:
 		return Height;
 	}
 	/**
-		Default constructor
-	*/
+	 *	Default constructor
+	 */
 	DrawingWidgetsEngine(int Width, int Height);
+
+	/*
+	 *	Default destructor
+	 */
+	~DrawingWidgetsEngine();
 	///	Painting routines
 	/**
 	 * Clear the openGL screen using an RGB based color

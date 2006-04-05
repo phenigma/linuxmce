@@ -24,7 +24,7 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 	for (v=0;v<=divs;v++) {						// Create The First Line Of Points
 		px = ((double)v)/((double)divs);				// Percent Along Y-Axis
 		// Use The 4 Points From The Derived Curve To Calculate The Points Along That Curve
-		last[v] = MathUtils::Bernstein(px, temp);
+		last[v] = MathUtils::Bernstein((float)px, temp);
 	}
 
 
@@ -32,10 +32,10 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 		py    = ((double)u)/((double)divs);			// Percent Along Y-Axis
 		pyold = ((double)u-1.0)/((double)divs);			// Percent Along Old Y Axis
 
-		temp[0] = MathUtils::Bernstein(py, patch.anchors[0]);		// Calculate New Bezier Points
-		temp[1] = MathUtils::Bernstein(py, patch.anchors[1]);
-		temp[2] = MathUtils::Bernstein(py, patch.anchors[2]);
-		temp[3] = MathUtils::Bernstein(py, patch.anchors[3]);
+		temp[0] = MathUtils::Bernstein((float)py, patch.anchors[0]);		// Calculate New Bezier Points
+		temp[1] = MathUtils::Bernstein((float)py, patch.anchors[1]);
+		temp[2] = MathUtils::Bernstein((float)py, patch.anchors[2]);
+		temp[3] = MathUtils::Bernstein((float)py, patch.anchors[3]);
 
 		glBegin(GL_TRIANGLE_STRIP);	
 
@@ -44,23 +44,23 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 
 			// Begin A New Triangle Strip
 
-			CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
+			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
 				TextureWrapper2D.Left+TextureWrapper2D.Width, 
-				1-px);
-			CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
+				1.0f-(float)px);
+			CoordV = (float)MathUtils::InterpolateValues(TextureWrapper2D.Top, 
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
-				pyold);
+				(float)pyold);
 			glTexCoord2f(CoordU, CoordV);			// Apply The Old Texture Coords
 			glVertex3d(last[v].x, last[v].y, last[v].z);	// Old Point
 
-			last[v] = MathUtils::Bernstein(px, temp);			// Generate New Point
+			last[v] = MathUtils::Bernstein((float)px, temp);			// Generate New Point
 
-			CoordU = MathUtils::InterpolateValues(TextureWrapper2D.Left, 
+			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
 				TextureWrapper2D.Left+TextureWrapper2D.Width, 
-				1-px);
-			CoordV = MathUtils::InterpolateValues(TextureWrapper2D.Top, 
+				1-(float)px);
+			CoordV = (float)MathUtils::InterpolateValues(TextureWrapper2D.Top, 
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
-				py);
+				(float)py);
 			glTexCoord2f(CoordU, CoordV);		// Apply The New Texture Coords
 			glVertex3d(last[v].x, last[v].y, last[v].z);	// New Point
 		}

@@ -2,6 +2,8 @@
 
 #include "gl2deffectfactory.h"
 
+#include "../Orbiter3DCommons.h"
+
 GL2DEffectNoEffect::GL2DEffectNoEffect(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
 	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
 {
@@ -11,7 +13,7 @@ GL2DEffectNoEffect::GL2DEffectNoEffect(GL2DEffectFactory * EffectsEngine, int Ti
 
 GL2DEffectNoEffect::~GL2DEffectNoEffect()
 {
-
+	Orbiter3DCommons::GetInstance()->GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
 }
 
 /**
@@ -24,12 +26,12 @@ void GL2DEffectNoEffect::Paint(int Now)
 		this->Length = -1;
 		Configured = true;
 	}
-	Effects->UpdateEffects();
 }
 
 /**
  *  No code... the efect really doesn't do nothing 
  */
 void GL2DEffectNoEffect::Configure(PlutoRectangle* EffectSourceSize)
-{	
+{
+	Configured = true;
 }

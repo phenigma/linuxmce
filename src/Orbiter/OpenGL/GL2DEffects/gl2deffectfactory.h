@@ -24,8 +24,10 @@
 #define GL2D_EFFECT_TRANSIT 				(GL2D_UNIQUE_EFFECT+11)
 #define GL2D_EFFECT_BEZIER_TRANSIT 			(GL2D_UNIQUE_EFFECT+12)
 #define GL2D_EFFECT_SLIDE_FROM_LEFT 		(GL2D_UNIQUE_EFFECT+13)
-#define GL2D_EFFECT_FADES_FROM_TOP 			(GL2D_UNIQUE_EFFECT+14)
-#define GL2D_EFFECT_FADES_FROM_UNDERNEATH	(GL2D_UNIQUE_EFFECT+15)
+#define GL2D_EFFECT_SLIDE_FROM_TOP			(GL2D_UNIQUE_EFFECT+14)
+
+#define GL2D_EFFECT_FADES_FROM_TOP 			(GL2D_UNIQUE_EFFECT+18)
+#define GL2D_EFFECT_FADES_FROM_UNDERNEATH	(GL2D_UNIQUE_EFFECT+19)
 #define GL2D_EFFECT_BEZIER_TRANSIT_PRISM	(GL2D_UNIQUE_EFFECT+21)
 #define GL2D_EFFECT_BEZIER_TRANSIT_TOPLEFT	(GL2D_UNIQUE_EFFECT+22)
 #define GL2D_EFFECT_BEZIER_TRANZIT_FLOW_SLIDELEFT (GL2D_UNIQUE_EFFECT+23)
@@ -58,9 +60,24 @@ class GL2DEffectFactory {
 	 * Screenshot of the actual display
 	 */
 	OpenGLTexture SnapshotTex;
+
+	/**
+	 *	Safe thread mutex
+	 */
+	pluto_pthread_mutex_t* EffectsMutex;
+	pthread_cond_t ListMutexCond;
+
 public:
+	/**
+	 *	Default constructor, describes the widgets will be used
+	 */
 	GL2DEffectFactory (DrawingWidgetsEngine* Widgets);
-	
+
+	/**
+	 *	Default destructor
+	 */
+	~GL2DEffectFactory ();
+
 	/**
 	 * It gives the time from staring the effects GL2D engine in milisecond
 	 */

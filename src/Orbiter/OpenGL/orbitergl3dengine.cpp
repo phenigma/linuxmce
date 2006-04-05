@@ -52,47 +52,18 @@ void OrbiterGL3D::Paint()
 	
 	EffectBuilder->Widgets->SetUpNextDisplay();
 	EffectBuilder->UpdateEffects();
-	if (EffectBuilder->HasEffects())
-	{
-		//HighLighArea->SetVisible(false);
-		//SelectedArea->SetVisible(false);
 
-	}
-	else
-	{
-		/*
-		auto_ptr<PlutoGraphic> spPlutoGraphic;
-#ifdef POCKETFROG
-		spPlutoGraphic.reset(
-			new PocketFrogGraphic(
-				dynamic_cast<Orbiter_PocketFrog *>(pOrbiterGL)->GetOrbiterDisplay()->GetBackBuffer()
-			)
-		);
-#else
-		spPlutoGraphic.reset(
-			new SDLGraphic(
-				dynamic_cast<OrbiterSDL *>(pOrbiterGL)->m_pScreenImage
-			)
-		);
-#endif
-		Widgets->ConfigureNextScreen(spPlutoGraphic.get());
-		*/
-		Widgets->SetUpNextDisplay();
-		Screen3D->SetBackgroundColor(0.8f, 0.8f, 0.8f, 1.0f);
-		Screen3D->SetTexture(Widgets->NewScreen);
-		Screen3D->SetTextureWraping(Widgets->UVRect.Left, Widgets->UVRect.Top, 
-			Widgets->UVRect.Width, Widgets->UVRect.Height);
+	Screen3D->SetBackgroundColor(0.8f, 0.8f, 0.8f, 1.0f);
+	Screen3D->SetTextureWraping(Widgets->UVRect.Left, Widgets->UVRect.Top, 
+		Widgets->UVRect.Width, Widgets->UVRect.Height);
 
-		Screen3D->SetVisible(true);
-		HighLighArea->SetVisible(true);
-		HighLighArea->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.2f);
+	Screen3D->SetVisible(true);
+	HighLighArea->SetVisible(true);
+	HighLighArea->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.2f);
 
-		SelectedArea->SetVisible(true);
-		SelectedArea->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.2f);
+	SelectedArea->SetVisible(true);
+	SelectedArea->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.2f);
 
-		//spPlutoGraphic->Initialize();
-	}
-		
 	EffectBuilder->Paint();
 	Flip();
 }

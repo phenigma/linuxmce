@@ -22,7 +22,6 @@ void Orbiter3DCommons::BuildCommons (GL2DEffectFactory* Effects,
 	this->HighLight = HighLight;
 	this->Selected = Selected;
 	this->Effects = Effects;
-	this->Effects = Effects;
 	this->Widgets = Effects->Widgets;
 }
 
@@ -50,8 +49,6 @@ Orbiter3DCommons* Orbiter3DCommons::GetInstance()
 	
 	return new Orbiter3DCommons();
 }
-
-
 
 OpenGLTexture Orbiter3DCommons::GetNewScreen()
 {
