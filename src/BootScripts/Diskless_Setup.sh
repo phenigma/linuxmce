@@ -242,7 +242,11 @@ for Client in $R; do
 		for Stuff in $Files; do
 			cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 		done
-		/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h dcerouter -u root -p '' -d $PK_Device install > $DlPath/usr/pluto/install/activation.sh
+
+		echo -n "activation.sh"
+		if [[ ! -f $DlPath/usr/pluto/install/activation.sh ]]; then
+			/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h dcerouter -u root -p '' -d $PK_Device install > $DlPath/usr/pluto/install/activation.sh
+		fi
 		
 		sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 		chmod +x $DlPath/usr/pluto/install/Initial_Config.sh
