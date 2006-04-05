@@ -2,8 +2,8 @@
 #define __OrbiterSDL_H__
 
 //-----------------------------------------------------------------------------------------------------
-#include <iostream> 
-using namespace std; 
+#include <iostream>
+using namespace std;
 
 #include <SDL.h>
 
@@ -21,7 +21,7 @@ class OrbiterSDL : public Orbiter
 {
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
-	/** 
+	/**
 	 * OpenGL internal variable which say if is used OpenGL code at the moment of runtime
 	 */
 	bool EnableOpenGL;
@@ -29,19 +29,19 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 public:
 	/**
 	 *    Default Constructor for Orbiter SDL
-	 * @param DeviceID 
-	 * @param PK_DeviceTemplate 
-	 * @param ServerAddress 
-	 * @param sLocalDirectory 
-	 * @param bLocalMode 
+	 * @param DeviceID
+	 * @param PK_DeviceTemplate
+	 * @param ServerAddress
+	 * @param sLocalDirectory
+	 * @param bLocalMode
 	 * @param nImageWidth Image width size in pixels
 	 * @param nImageHeight Image height size in pixels
 	 * @param bFullScreen Say if the application should be fullscreen or doesn't
-	 * @param pExternalScreenMutex 
+	 * @param pExternalScreenMutex
 	 * @param UseOpenGL Boolean variable that say if it should be used OpenGL code or doesn't
 	 */
-	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
-        bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false, 
+	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory,
+        bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false,
         pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
 	virtual ~OrbiterSDL();
     virtual bool GetConfig();
@@ -66,6 +66,8 @@ public:
 
 	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
+    virtual void SetMousePointer(int X, int Y);
+
 	virtual void BeginPaint();
 	virtual void EndPaint();
 	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0));
@@ -77,9 +79,9 @@ public:
 	virtual void SetTime(char *ServerTimeString) {};
 
 	/**
-	 *	Override the event of selecting cell 
+	 *	Override the event of selecting cell
 	 */
-	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,  
+	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,
 		class DataGridTable *pT,  class DataGridCell *pCell);
 
 	virtual void DoSelectedCell(void* Data);
@@ -111,10 +113,10 @@ public:
 	///
 	SDL_Surface * m_pScreenImage;
 
-	/// After and before render of screen frames 
+	/// After and before render of screen frames
 	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
 	auto_ptr<PlutoGraphic> m_spAfterGraphic;
-	
+
 	SDL_Surface * Screen;
 protected:
 	pthread_t SDLGLthread;

@@ -234,10 +234,12 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             break;
 
         case SDL_MOUSEBUTTONDOWN:
+            g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEBUTTONDOWN(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
 #ifdef WIN32
             RecordMouseAction(sdlEvent.button.x, sdlEvent.button.y);
 #endif
         case SDL_MOUSEBUTTONUP:
+            g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEBUTTONUP(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
 
 #ifdef AUDIDEMO
             orbiterEvent->type = (sdlEvent.type == SDL_MOUSEBUTTONDOWN) ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
@@ -263,6 +265,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             break;
 
         case SDL_MOUSEMOTION: // not handled
+            g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEMOTION(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
         default:
             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
             break;

@@ -628,6 +628,11 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     PlutoRectangle rect(x, y, width, height);
 }
 
+/*virtual*/ void OrbiterSDL::SetMousePointer(int X, int Y)
+{
+    SDL_WarpMouse(X,Y);
+}
+
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {
 }

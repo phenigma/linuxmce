@@ -124,6 +124,7 @@ sources += \
 	OpenGL/GL2DEffects/GL2DEffectTransitionNoEffect.cpp \
 	OpenGL/GL2DEffects/gl2deffect.cpp \
 	Linux/OSDScreenHandler.cpp \
+	Linux/MouseBehavior_Linux.cpp \
 	WizardLogic.cpp \
 	../CreateDevice/UserUtils.cpp \
 	$(ROOT)/Splitter/TextSplitter.cpp \
