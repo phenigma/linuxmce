@@ -12,7 +12,6 @@ using namespace std;
 #include "../DesignObj_Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
 
-
 class OrbiterGL3D;
 
 namespace DCE
@@ -77,6 +76,17 @@ public:
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
 
+	/**
+	 *	Override the event of selecting cell 
+	 */
+	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,  
+		class DataGridTable *pT,  class DataGridCell *pCell);
+
+	virtual void DoSelectedCell(void* Data);
+
+	/**
+	 *	Override the event of hilight area
+	 */
 	virtual void DoHighlightObject();
 	virtual void DoHighlightObjectOpenGL();
 	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );

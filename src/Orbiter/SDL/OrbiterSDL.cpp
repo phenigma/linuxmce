@@ -788,7 +788,6 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
 	m_rectLastHighlight.Height++;
 
-	//m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
 	FloatRect HighLightArea;
 	HighLightArea.Left = (float)m_rectLastHighlight.Left();
 	HighLightArea.Top = m_Desktop->Widgets->GetHeight() - (float)m_rectLastHighlight.Top() - (float)m_rectLastHighlight.Height;
@@ -832,7 +831,33 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 	SeclectedAreaEffectSize.Y = point.Y + pObj->m_rBackgroundPosition.Y;
 	SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
 	SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
-		Effect->Configure(&SeclectedAreaEffectSize);
+		
+	Effect->Configure(&SeclectedAreaEffectSize);
 
 #endif //opengl stuff
 }  
+
+void OrbiterSDL::OnSelectedCell(class DesignObj_DataGrid *pObj, 
+	class DataGridTable *pT,  class DataGridCell *pCell)
+{
+	if (!EnableOpenGL) 		
+		return;
+#ifndef DISABLE_OPENGL
+	CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&OrbiterSDL::DoSelectedCell, NULL, pe_ALL);
+#endif
+}
+
+/*virtual*/ void OrbiterSDL::DoSelectedCell(void* Data)
+{
+#ifndef DISABLE_OPENGL
+	//the surface after the screen was rendered
+	if(m_spAfterGraphic.get())
+		m_spAfterGraphic->Initialize();
+
+	m_spAfterGraphic.reset(new SDLGraphic(m_pScreenImage));
+
+	m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_TRANSIT_NO_EFFECT, 
+		1);
+#endif //opengl stuff	
+}
