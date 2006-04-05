@@ -46,7 +46,16 @@ WaitLock "NewPnPMD" "NewPnPMD$NewDevice"
 Logging "$TYPE" "$SEVERITY_NORMAL" "Running diskless MD setup command suite (device '$NewDevice')"
 # Note: keep this in sync with /var/www/pluto-admin/operations/logs/executeLog.php, case 1
 FeedbackMD "Running Diskless_Setup.sh"
-/usr/pluto/bin/Diskless_Setup.sh
+if ! /usr/pluto/bin/Diskless_Setup.sh; then
+	bright="[1m"
+	color="[1;31m"
+	normal="[0m"
+
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "Diskless Setup failed"
+	FeedbackMD "${color}${bright}Diskless Setup failed${normal}"
+	Unlock "NewPnPMD" "NewPnPMD$NewDevice"
+	exit 1
+fi
 FeedbackMD "Running DHCP_config.sh"
 /usr/pluto/bin/DHCP_config.sh
 FeedbackMD "Running Diskless_ExportsNFS.sh"
@@ -56,4 +65,5 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "Finished running diskless MD setup command s
 Unlock "NewPnPMD" "NewPnPMD$NewDevice"
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "Rebooting new MD"
+FeedbackMD "Rebooting"
 echo "reboot" | nc -n "$RemoteIP" "$Interactor_Port"
