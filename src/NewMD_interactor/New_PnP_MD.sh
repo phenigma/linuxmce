@@ -7,6 +7,7 @@ Interactor_Port=7238
 
 RemoteIP="$1"
 RemoteMAC="$2"
+Room="$3"
 
 FeedbackMD()
 {

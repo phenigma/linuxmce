@@ -6,7 +6,7 @@ int main()
 	struct sockaddr_in saddr;
 	int do_quit = 0;
 	char buffer[1024], cmd[1024];
-	char remoteIP[1024], remoteMAC[1024];
+	char remoteIP[1024], remoteMAC[1024], remoteRoom[1024];
 	int bytes, tmp;
 
 	saddr.sin_family = AF_INET;
@@ -62,8 +62,9 @@ int main()
 			{
 				memset(remoteIP, 0, 1024);
 				memset(remoteMAC, 0, 1024);
-				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC);
-				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s", remoteIP, remoteMAC);
+				memset(remoteRoom, 0, 1024);
+				sscanf(buffer, "%*s %s %s %s", remoteIP, remoteMAC, remoteRoom);
+				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %s", remoteIP, remoteMAC, remoteRoom);
 				system(cmd);
 			}
 		}

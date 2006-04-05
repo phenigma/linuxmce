@@ -1,6 +1,6 @@
 #include "common.h"
 
-// ./interactor <Gateway> <IP> <MAC>
+// ./interactor <Gateway> <IP> <MAC> <Room>
 int main(int argc, char * argv[])
 {
 	int s, s2;
@@ -8,7 +8,7 @@ int main(int argc, char * argv[])
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
 	int bytes, tmp;
-	const char * Gateway, * myIP, * myMAC;
+	const char * Gateway, * myIP, * myMAC, * myRoom;
 
 	if (argc != 4)
 	{
@@ -19,6 +19,7 @@ int main(int argc, char * argv[])
 	Gateway = argv[1];
 	myIP = argv[2];
 	myMAC = argv[3];
+	myRoom = argv[4];
 
 	saddr_client.sin_family = AF_INET;
 	saddr_client.sin_port = htons(INTERACTOR_PORT);
@@ -49,7 +50,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd %s %s\n", myIP, myMAC);
+	bytes = snprintf(buffer, 1024, "newmd %s %s %s\n", myIP, myMAC, myRoom);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);
