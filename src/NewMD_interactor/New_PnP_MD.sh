@@ -30,7 +30,7 @@ FeedbackMD "Assigned permanent IP '$NewIP' to device '$NewDevice'"
 # Create room
 sqlRoom="${Room//\'/\'}"
 Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
-	VALUES(1, 9, '$sqlRoom');
+	VALUES('$PK_Installation', 9, '$sqlRoom');
 	SELECT LAST_INSERT_ID()"
 NewRoom=$(RunSQL "$Q")
 Logging "$TYPE" "$SEVERITY_NORMAL" "Created new room '$Room' with ID '$NewRoom'"
