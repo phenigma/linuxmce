@@ -144,7 +144,6 @@ protected:
 	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
 	PlutoRectangle m_rectLastSelected;
 
-	bool m_bUseOpenGL;
 public:
 	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
 	bool PaintDesktopGL;
@@ -159,6 +158,11 @@ public:
 
 	virtual void DoHighlightObject();
 	virtual void DoHighlightObjectOpenGL();
+
+	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj, 
+		class DataGridTable *pT,  class DataGridCell *pCell);
+	virtual void DoSelectedCell(void* Data);
+
 	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 
 protected:

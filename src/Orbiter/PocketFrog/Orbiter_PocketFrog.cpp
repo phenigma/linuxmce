@@ -175,7 +175,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	m_bUpdating = false;
 	m_bFullScreen=bFullScreen;
 	EnableOpenGL = bUseOpenGL;
-	m_bUseOpenGL = EnableOpenGL;
 
 #ifdef WINCE
 	EnableOpenGL = false; //opengl not available for WINCE
@@ -202,7 +201,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
 #ifndef WINCE
-	if (m_bUseOpenGL && m_spAfterGraphic.get())
+	if (EnableOpenGL && m_spAfterGraphic.get())
 		m_spAfterGraphic->Initialize();
 #endif
 }
@@ -261,7 +260,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	if(pLogoSurface)
 		delete pLogoSurface;
 
-	if (!m_bUseOpenGL)
+	if (!EnableOpenGL)
 	{
         GetDisplay()->Update();
 	}
@@ -327,7 +326,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 			r.left, r.top, r.right, r.bottom);
 	}
 #endif
-	
+
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -864,7 +863,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 #endif
 	
-	if (m_bUseOpenGL)
+	if (EnableOpenGL)
 	{
 #ifndef WINCE
 		Rect srcRect;
@@ -904,7 +903,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		m_vectPooledTextToRender.clear();
 	}
 
-	if (m_bUseOpenGL)
+	if (EnableOpenGL)
 	{
 #ifndef WINCE
 		if(m_spAfterGraphic.get())
@@ -942,13 +941,13 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					m_Desktop->EffectBuilder->GetEffectCode(m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
-					400
+					Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(!Transit)
 					Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
-					GL2D_EFFECT_NOEFFECT,
-					400
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 
 				if(Transit)
@@ -958,7 +957,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 			{
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
-					GL2D_EFFECT_NOEFFECT,
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
 					400
 					);
 			}
@@ -1193,14 +1192,19 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateScreen()
 {
-	if (!m_bUseOpenGL)
+
+	// TODO: remove me
+	return;
+
+
+	if (!EnableOpenGL)
 	{
 		GetDisplay()->Update();
 	}
 	else
-	{
+	{ 
 #ifndef WINCE
-		if(m_Desktop && m_Desktop->EffectBuilder && m_Desktop->EffectBuilder->Widgets && 
+		if(m_Desktop && m_Desktop->EffectBuilder && 
 			!m_Desktop->EffectBuilder->HasEffects())
 		{
 			if(m_spAfterGraphic.get())
@@ -1480,7 +1484,7 @@ void Orbiter_PocketFrog::StartAnimation()
 void Orbiter_PocketFrog::OnIdle()
 {
 #ifndef DISABLE_OPENGL
-	if(this->m_bUseOpenGL)
+	if(EnableOpenGL)
 	{
 		Sleep(5);
 		WakeupFromCondWait();
@@ -1532,7 +1536,9 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 				GL2D_EFFECT_HIGHLIGHT_AREA,
 				Simulator::GetInstance()->m_iMilisecondsHighLight
 			);
-		Effect->Configure(&m_rectLastHighlight);
+
+		if(!Effect)
+			return;
 
 		StartAnimation();
 
@@ -1541,7 +1547,8 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 		SeclectedAreaEffectSize.Y = point.Y + pObj->m_rBackgroundPosition.Y;
 		SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
 		SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
-		Effect->Configure(&SeclectedAreaEffectSize);
+		
+			Effect->Configure(&SeclectedAreaEffectSize);
 #endif
 	}
 }  
@@ -1656,11 +1663,36 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 				GL2D_EFFECT_HIGHLIGHT_AREA,
 				Simulator::GetInstance()->m_iMilisecondsHighLight
 			);
-
-	if(NULL != Effect)
+	if(Effect)
 		Effect->Configure(&m_rectLastHighlight);
 
 	StartAnimation();
 #endif
 }
 
+
+/*virtual*/void Orbiter_PocketFrog::OnSelectedCell(class DesignObj_DataGrid *pObj, 
+class DataGridTable *pT,  class DataGridCell *pCell)
+{
+	if (!EnableOpenGL) 		
+		return;
+#ifndef DISABLE_OPENGL
+	CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&Orbiter_PocketFrog::DoSelectedCell, NULL, pe_ALL);
+#endif
+}
+
+/*virtual*/ void Orbiter_PocketFrog::DoSelectedCell(void* Data)
+{
+#ifndef DISABLE_OPENGL
+	//the surface after the screen was rendered
+	if(m_spAfterGraphic.get())
+		m_spAfterGraphic->Initialize();
+
+	m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
+
+	m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 
+		1);
+	StartAnimation();
+#endif //opengl stuff	
+}
