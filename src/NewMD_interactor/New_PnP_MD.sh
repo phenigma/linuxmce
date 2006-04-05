@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 Interactor_Port=7238
 
@@ -25,6 +26,21 @@ FeedbackMD "Created MD with Device ID '$NewDevice'"
 NewIP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$NewDevice" -a)
 Logging "$TYPE" "$SEVERITY_NORMAL" "Assigned permanent IP '$NewIP' to device '$NewDevice'"
 FeedbackMD "Assigned permanent IP '$NewIP' to device '$NewDevice'"
+
+# Create room
+sqlRoom="${Room//\'/\'}"
+Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
+	VALUES(1, 9, '$sqlRoom');
+	SELECT LAST_INSERT_ID()"
+NewRoom=$(RunSQL "$Q")
+Logging "$TYPE" "$SEVERITY_NORMAL" "Created new room '$Room' with ID '$NewRoom'"
+FeedbackMD "Created new room '$Room' with ID '$NewRoom'"
+
+# Put machine in created room
+Q="UPDATE Device SET FK_Room='$NewRoom' WHERE PK_Device='$NewDevice'"
+RunSQL "$Q"
+Logging "$TYPE" "$SEVERITY_NORMAL" "Added new MD '$NewDevice' to room '$Room' ($NewRoom)"
+FeedbackMD "Added new MD '$NewDevice' to room '$Room' ($NewRoom)"
 
 WaitLock "NewPnPMD" "NewPnPMD$NewDevice"
 Logging "$TYPE" "$SEVERITY_NORMAL" "Running diskless MD setup command suite (device '$NewDevice')"
