@@ -74,9 +74,9 @@ public:
 	GL2DEffectFactory (DrawingWidgetsEngine* Widgets);
 
 	/**
-	 *	Default destructor
+	 *	Default no-op destructor
 	 */
-	~GL2DEffectFactory ();
+	~GL2DEffectFactory () {}
 
 	/**
 	 * It gives the time from staring the effects GL2D engine in milisecond

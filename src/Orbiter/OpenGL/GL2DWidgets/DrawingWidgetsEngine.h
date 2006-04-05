@@ -49,9 +49,9 @@ public:
 	DrawingWidgetsEngine(int Width, int Height);
 
 	/*
-	 *	Default destructor
+	 *	Default no-op destructor 
 	 */
-	~DrawingWidgetsEngine();
+	~DrawingWidgetsEngine() {} 
 	///	Painting routines
 	/**
 	 * Clear the openGL screen using an RGB based color

@@ -1192,11 +1192,6 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateScreen()
 {
-
-	// TODO: remove me
-	return;
-
-
 	if (!EnableOpenGL)
 	{
 		GetDisplay()->Update();
