@@ -1088,7 +1088,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		RenderShortcut(pObj);
 }
 //-----------------------------------------------------------------------------------------------------------
-bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
+/*virtual*/bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
 {
 	TextStyle *pTextStyle = pObj->m_pTextStyle;
 	bool bTransparentCell = false; // todo,  is transparency in PlutoColor? ( strchr( pObj->GetParameterValue( C_PARAMETER_CELL_COLOR_CONST ).c_str(  ),  ', ' )==NULL );
@@ -1160,6 +1160,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 	}
 	else
 		g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
+
 
 	return bTransparentCell;
 }
@@ -1272,6 +1273,8 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 	g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
 		pObj->m_sGridID.c_str(), int(clkAcquired-clkStart), int(clkFinished-clkAcquired));
 #endif
+
+	OnSelectedCell(pObj, pT, NULL);
 }
 //------------------------------------------------------------------------
 void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelections )
@@ -2441,6 +2444,12 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	}
 	return false;
 }
+//------------------------------------------------------------------------
+/*virtual*/ void Orbiter::OnSelectedCell(class DesignObj_DataGrid *pObj,  
+	class DataGridTable *pT,  class DataGridCell *pCell)
+{
+}
+
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::DoHighlightObject()
 {
@@ -9710,9 +9719,6 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
 		return;
 
-	if(NULL != m_pScreenHistory_Current && NULL != m_pScreenHistory_Current->GetObj())
-		FireDeleteWxWidget(m_pScreenHistory_Current->GetObj());
-
 	m_pScreenHandler->ResetCallBacks();
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
@@ -9997,16 +10003,15 @@ void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool b
 	if( m_pMouseBehavior )
 		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
 }
+//<-dceag-c796-b->
 
-void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
+	/** @brief COMMAND: #796 - In Main Menu */
+	/** Checks if Orbiter is in main menu. */
+		/** @param #213 Value */
+			/** If Value is true, Orbiter is in main menu. */
+
+void Orbiter::CMD_In_Main_Menu(bool *bValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c796-e->
 {
-	DesignObj_DataList::iterator it;
-	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
-	{
-		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
-		if(pChildObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-			ExecuteScreenHandlerCallback(cbOnWxWidgetDelete);
-
-		FireDeleteWxWidget(pChildObj);
-	}
+	*bValue = m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_MainMenu;
 }
