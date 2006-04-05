@@ -211,8 +211,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Dete
 	if (ret == 0)
 		pthread_detach(t);
 
-g_pPlutoLogger->Write(LV_STATUS,"Sleeping 200 milliseconds. It's a pthread_create bug ? Let's see...");	
-	Sleep(200);
+g_pPlutoLogger->Write(LV_STATUS,"Sleeping 300 milliseconds. It's a pthread_create bug ? Let's see...");	
+	Sleep(300);
 
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
