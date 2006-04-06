@@ -3738,7 +3738,6 @@ m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
 m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
-m_dwPK_Device_NowPlaying=21;
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
