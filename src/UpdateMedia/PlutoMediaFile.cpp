@@ -325,7 +325,12 @@ int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 		if(LoadPlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, PK_Installation, PK_File, PK_Picture, sPictureURL, listChapters))
 		{
 			if(PK_Installation == m_nInstallationID && PK_File != 0)
-				return PK_File;
+			{
+				//same installation, same file; however, it's a good record?
+				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+				if(NULL != pRow_File && pRow_File->Filename_get() == m_sFile && pRow_File->Path_get() == m_sDirectory)
+					return PK_File;
+			}
 		}
 	}
 
