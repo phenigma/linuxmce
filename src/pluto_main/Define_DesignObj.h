@@ -1963,6 +1963,7 @@
 #define DESIGNOBJ_butShowMediaSpeed_CONST 4882
 #define DESIGNOBJ_butTVReceiverInputs_CONST 4886
 #define DESIGNOBJ_grpFaze2_CONST 4887
+#define DESIGNOBJ_butLightsPopup_CONST 4890
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
