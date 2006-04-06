@@ -13,6 +13,7 @@ apt-get update &>/dev/null
 echo "
 # Pluto config file 
 MySqlHost = dcerouter
+MySqlUser = root
 MySqlPassword = 
 MySqlDBName = pluto_main
 DCERouter = dcerouter
