@@ -118,6 +118,22 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 				}
 				break;
 
+				case DESIGNOBJ_butLocation_CONST:
+				{
+					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+					map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
+					string sUsername = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+
+					if(sUsername != "")
+					{
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+						m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
+						m_pWizardLogic->AddUser(sUsername);
+					}
+				}
+				break;
+
 				case DESIGNOBJ_butRemoveUser_CONST:
 				{
 					int nPK_User = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());

@@ -62,6 +62,7 @@ namespace DCE
 
 	public:
 		MouseBehavior(Orbiter *pOrbiter);
+		virtual ~MouseBehavior() {} //no-op destructor
 
 		void Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj);
 		void ButtonDown(int PK_Button);
