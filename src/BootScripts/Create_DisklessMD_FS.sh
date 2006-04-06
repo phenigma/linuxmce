@@ -152,7 +152,7 @@ Code=$Code"
 	touch "$DlPath"/usr/pluto/install/.notdone
 fi
 
-RequiredModules="ide-cd ide-disk psmouse"
+RequiredModules="ide-cd ide-disk psmouse mousedev"
 for Module in $RequiredModules; do
 	if ! grep -q "$Module" "$DlPath"/etc/modules; then
 		echo $Module >>"$DlPath"/etc/modules
