@@ -274,7 +274,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
             g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty channels ???");
 			return;
         }
-		int pos=sPhoneCallID.find(' ',pos);
+		int pos=sPhoneCallID.find(' ',pos1);
         if(pos>=0)
         {
             string rest1 = sPhoneCallID;
@@ -283,6 +283,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
             rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
             g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
             manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+			Sleep(500);
             manager->Conference(rest2,"",sPhoneExtension,iCommandID);
         }
         else
