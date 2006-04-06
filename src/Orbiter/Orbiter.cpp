@@ -1273,8 +1273,6 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 	g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
 		pObj->m_sGridID.c_str(), int(clkAcquired-clkStart), int(clkFinished-clkAcquired));
 #endif
-
-	OnSelectedCell(pObj, pT, NULL);
 }
 //------------------------------------------------------------------------
 void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelections )
@@ -2444,12 +2442,6 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	}
 	return false;
 }
-//------------------------------------------------------------------------
-/*virtual*/ void Orbiter::OnSelectedCell(class DesignObj_DataGrid *pObj,  
-	class DataGridTable *pT,  class DataGridCell *pCell)
-{
-}
-
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::DoHighlightObject()
 {

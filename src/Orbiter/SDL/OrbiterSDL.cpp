@@ -645,6 +645,13 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 #ifndef USE_ONLY_SCREEN_SURFACE
     DisplayImageOnScreen(m_pScreenImage);
 #endif
+
+	if(EnableOpenGL)
+	{
+#ifndef DISABLE_OPENGL
+		CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&OrbiterSDL::OpenGLUpdateScreen, NULL, pe_ALL);
+#endif
+	}
 }
 
 /*virtual*/ void OrbiterSDL::OnQuit()
@@ -842,17 +849,7 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 #endif //opengl stuff
 }  
 
-void OrbiterSDL::OnSelectedCell(class DesignObj_DataGrid *pObj, 
-	class DataGridTable *pT,  class DataGridCell *pCell)
-{
-	if (!EnableOpenGL) 		
-		return;
-#ifndef DISABLE_OPENGL
-	CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&OrbiterSDL::DoSelectedCell, NULL, pe_ALL);
-#endif
-}
-
-/*virtual*/ void OrbiterSDL::DoSelectedCell(void* Data)
+/*virtual*/ void OrbiterSDL::OpenGLUpdateScreen(void* Data)
 {
 #ifndef DISABLE_OPENGL
 	//the surface after the screen was rendered

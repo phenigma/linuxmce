@@ -159,10 +159,6 @@ public:
 	virtual void DoHighlightObject();
 	virtual void DoHighlightObjectOpenGL();
 
-	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj, 
-		class DataGridTable *pT,  class DataGridCell *pCell);
-	virtual void DoSelectedCell(void* Data);
-
 	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 
 protected:

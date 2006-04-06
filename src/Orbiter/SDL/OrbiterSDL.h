@@ -79,14 +79,6 @@ public:
 	virtual void SetTime(char *ServerTimeString) {};
 
 	/**
-	 *	Override the event of selecting cell
-	 */
-	virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,
-		class DataGridTable *pT,  class DataGridCell *pCell);
-
-	virtual void DoSelectedCell(void* Data);
-
-	/**
 	 *	Override the event of hilight area
 	 */
 	virtual void DoHighlightObject();
@@ -96,6 +88,8 @@ public:
 #ifndef WIN32
 	virtual void DoResetRatpoison() {}
 #endif
+
+	void OpenGLUpdateScreen(void* Data);
 
 	/**
 	 *    That function wakes up the idle status for OpenGL operations

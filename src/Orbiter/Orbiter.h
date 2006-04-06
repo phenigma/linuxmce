@@ -491,12 +491,6 @@ namespace DCE
 		virtual void DoHighlightObject();
 		virtual void UnHighlightObject( bool bDeleteOnly=false );
 
-
-		/**
-		* @brief Event on the selected cell on a DataGrid
-		*/
-		virtual void OnSelectedCell(class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell);
-
 		/**
 		* @brief Find the first 'tab stop' object on screen and highlight it
 		*/

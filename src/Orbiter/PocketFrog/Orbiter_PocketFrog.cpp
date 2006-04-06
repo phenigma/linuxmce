@@ -1036,6 +1036,22 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::EndPaint()
 {
+	if(EnableOpenGL)
+	{
+#ifndef DISABLE_OPENGL
+		//the surface after the screen was rendered
+		if(m_spAfterGraphic.get())
+			m_spAfterGraphic->Initialize();
+
+		m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
+
+		m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+		GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 
+			1);
+		StartAnimation();
+#endif //opengl stuff
+	}
+
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "End paint...");
 #endif
@@ -1663,29 +1679,3 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 #endif
 }
 
-
-/*virtual*/void Orbiter_PocketFrog::OnSelectedCell(class DesignObj_DataGrid *pObj, 
-class DataGridTable *pT,  class DataGridCell *pCell)
-{
-	if (!EnableOpenGL) 		
-		return;
-#ifndef DISABLE_OPENGL
-	CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&Orbiter_PocketFrog::DoSelectedCell, NULL, pe_ALL);
-#endif
-}
-
-/*virtual*/ void Orbiter_PocketFrog::DoSelectedCell(void* Data)
-{
-#ifndef DISABLE_OPENGL
-	//the surface after the screen was rendered
-	if(m_spAfterGraphic.get())
-		m_spAfterGraphic->Initialize();
-
-	m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
-
-	m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 
-		1);
-	StartAnimation();
-#endif //opengl stuff	
-}
