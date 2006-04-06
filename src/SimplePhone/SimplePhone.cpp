@@ -419,9 +419,16 @@ void SimplePhone::registerWithAsterisk()
     deviceExtension = strdup(DATA_Get_PhoneNumber().c_str());
     devicePassword = deviceExtension;
     asteriskHost = strdup(dceconf.m_sDBHost.c_str());
-
-    g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);
-    iaxc_register(deviceExtension,devicePassword,asteriskHost);
+    if(strlen(deviceExtension)>0)
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);
+        iaxc_register(deviceExtension,devicePassword,asteriskHost);
+    }
+    else
+    {
+        system("/usr/pluto/bin/LaunchRemoteCmd.sh dcerouter \"/usr/pluto/bin/sync_pluto2amp.pl\"");
+        m_bQuit=true;
+    }
 }
 
 void SimplePhone::unregisterWithAsterisk()
