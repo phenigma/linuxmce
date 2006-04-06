@@ -997,6 +997,7 @@ string Xine_Player::GetPosition()
 
 	sPosition += " SUBTITLE:" + StringUtils::itos(m_pXineSlaveControl->getSubtitle());
 	sPosition += " AUDIO:" + StringUtils::itos(m_pXineSlaveControl->getAudio());
+	sPosition += " TOTAL:" + StringUtils::itos(totalTime);
 
 	return sPosition;
 }
