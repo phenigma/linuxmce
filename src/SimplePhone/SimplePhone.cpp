@@ -408,7 +408,7 @@ void SimplePhone::registerWithAsterisk()
     }
     iaxc_audio_devices_set(input,output,ring);
 
-    iaxc_set_formats(IAXC_FORMAT_GSM,IAXC_FORMAT_GSM);
+    iaxc_set_formats(IAXC_FORMAT_ALAW,IAXC_FORMAT_ALAW);
     iaxc_set_silence_threshold(-99);
     iaxc_set_event_callback(iaxCallback);
 
