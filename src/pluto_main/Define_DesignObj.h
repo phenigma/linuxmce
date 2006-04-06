@@ -1954,7 +1954,6 @@
 #define DESIGNOBJ_butshowmovies_CONST 4872
 #define DESIGNOBJ_butMediaPopup_CONST 4873
 #define DESIGNOBJ_popDVDChapters_CONST 4874
-#define DESIGNOBJ_popSpeedControl_CONST 4875
 #define DESIGNOBJ_popVolume_CONST 4877
 #define DESIGNOBJ_popDvdOptions_CONST 4878
 #define DESIGNOBJ_butShowLights_CONST 4879
@@ -1964,6 +1963,7 @@
 #define DESIGNOBJ_butTVReceiverInputs_CONST 4886
 #define DESIGNOBJ_grpFaze2_CONST 4887
 #define DESIGNOBJ_butLightsPopup_CONST 4890
+#define DESIGNOBJ_popSpeedControl_CONST 4891
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
