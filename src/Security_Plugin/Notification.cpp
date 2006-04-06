@@ -311,6 +311,7 @@ string Notification::GetAlertInfo(long nAlertType)
         case ALERTTYPE_Information_CONST:   sText += "Information";                    break;
         case ALERTTYPE_Doorbell_CONST:      sText += "Doorbell";                       break;
         case ALERTTYPE_Monitor_mode_CONST:  sText += "Monitor mode";                   break;
+		case ALERTTYPE_BabySitter_mode_CONST:  sText += "BabySitter";                  break;
 
         default: sText+= "Unknown security event";
     }

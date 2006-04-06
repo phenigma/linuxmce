@@ -340,11 +340,26 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	int PK_HouseMode = atoi(sValue_To_Assign.c_str());
 
+	if( sPassword.size()>4 )
+	{
+		string head = sPassword.substr( 0 , 4 );
+		if( head == "1119" )            //Baby sitter mode
+		{
+			sPassword = sPassword.substr( 4 , sPassword.size() - 1);
+			m_bBabySitterMode = true;
+		}
+		else
+			m_bBabySitterMode = false;
+	}
+	else
+		m_bBabySitterMode = false;
+
 	// The password can either be the password or teh PIN code, and either plain text or md5.  iPK_Users is optional
 	ostringstream sql;
 	sql << "SELECT PK_Users,Username FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
 		<< m_pRouter->iPK_Installation_get() << " AND userCanChangeHouseMode=1 AND (Password='" << sPassword 
 		<< "' OR Password='" << m_pRouter->md5(sPassword) << "' OR PINCode='" << sPassword << "' OR PINCode='" << m_pRouter->md5(sPassword) << "')";
+
 	if( iPK_Users )
 		sql << " AND PK_Users=" << iPK_Users;
 
@@ -638,6 +653,18 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 		return true;
 	}
 
+	// if the BabySitter mode is on and is a door log the alert
+	if( m_bBabySitterMode   ) 
+	{
+		int nObjectType = atoi(pDevice->m_mapParameters[DEVICEDATA_PK_FloorplanObjectType_CONST].c_str());
+		if( nObjectType == 1 )  // DOOR
+		{
+			Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_BabySitter_mode_CONST),pDevice,true,true);
+			if( pRow_Alert )
+				ProcessAlert(pRow_Alert);
+		}
+	}
+
 	// The first digit in the alert data is 0/1 for monitor mode
 	if( m_bMonitorMode && atoi(pDevice->m_mapParameters[DEVICEDATA_Alert_CONST].c_str()) )
 	{
@@ -872,6 +899,7 @@ string Security_Plugin::GetModeString(int PK_HouseMode)
 {
 	switch(PK_HouseMode)
 	{
+
 	case HOUSEMODE_Armed_away_CONST:
 		return "ARMED";
 	case HOUSEMODE_Armed_at_home_CONST:

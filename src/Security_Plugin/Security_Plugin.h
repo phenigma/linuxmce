@@ -69,6 +69,7 @@ namespace DCE
 	int m_PK_Device_TextToSpeach;
 	map<pthread_t,class Notification *> m_mapNotification; // Any pending notifications
 	bool m_bMonitorMode; // True if the user is monitoring events
+	bool m_bBabySitterMode;  // True if babySitter mode
 	map<int,class DeviceGroup *> m_mapDeviceGroup; // The device groups that are valid security zones
 	map<int,int> m_mapPK_HouseMode;  // Map the house mode to the devicegroup
 	
