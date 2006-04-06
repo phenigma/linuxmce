@@ -332,6 +332,7 @@ sub check_network_conditions()
                 my ($host,$port) = split(/[:]/,$prov);
                 if($VOIP_SERVERS{'sip'}{$prov} =~ /^Rejected/)
                 {
+                    $TROUBLE_LEVEL=7;
                     &write_log("    HOST $host rejects you, please check voip account details: username/password/payments/etc");
                 }
                 if(&check_network_ping($host) != 0)
@@ -349,6 +350,7 @@ sub check_network_conditions()
                 my ($host,$port) = split(/[:]/,$prov);
                 if($VOIP_SERVERS{'iax'}{$prov} =~ /^Rejected/)
                 {
+                    $TROUBLE_LEVEL=7;                
                     &write_log("    HOST $host rejects you, please check voip account details: username/password/payments/etc");
                 }
                 if(&check_iax_ping($host,$port) != 0)
