@@ -1321,9 +1321,6 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 		pos = channel.find('|',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('|',oldpos);
-	}
-	if(pos < 0) {
 		return -1;
 	}
 
@@ -1354,6 +1351,11 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 		g_pPlutoLogger->Write(LV_STATUS, "Will add to queue");	
 	}
 	pthread_mutex_unlock(&mtx_err_messages);
+	if((iLevel == 7) && (sText.length()>0))
+	{
+		SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,sText,"0","0","0");
+		SendCommand(SCREEN_DialogGenericNoButtons_);
+	}
 	return true;
 }
 
@@ -1383,8 +1385,9 @@ void Telecom_Plugin::doDisplayMessages()
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Will write mesaage : %s",message.c_str());
 				map_err_messages.clear();
-				SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,message,"0","0","0");
-				SendCommand(SCREEN_DialogGenericNoButtons_);
+				//Don't send it yet				
+				//SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,message,"0","0","0");
+				//SendCommand(SCREEN_DialogGenericNoButtons_);
 			}
 			pthread_mutex_unlock(&mtx_err_messages);
 		}
