@@ -64,10 +64,10 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 	switch(sOptions[0])
 	{
 	case 'L':
-		pMouseBehaviorHandler=LockedBar;
+		pMouseBehaviorHandler=&MouseBehavior::LockedBar;
 		break;
 	case 'S':
-		pMouseBehaviorHandler=SpeedControl;
+		pMouseBehaviorHandler=&MouseBehavior::SpeedControl;
 		break;
 	}
 
