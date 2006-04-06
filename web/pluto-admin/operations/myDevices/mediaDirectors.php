@@ -86,14 +86,14 @@ function mediaDirectors($output,$dbADO) {
 
 		$out.='
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ROOM_CONST.'</B></td>
 					<td align="center" colspan="4"><B>'.$TEXT_PIPES_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_CONNECTED_TO_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
@@ -288,7 +288,7 @@ function mediaDirectors($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">'.@$setupDisklessMD.'</td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">'.@$setupDisklessMD.'</td>
 				</tr>
 				<tr>
 					<td colspan="8" align="left">'.@$setupDisklessMDInfo.'</td>
@@ -350,7 +350,7 @@ function mediaDirectors($output,$dbADO) {
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
 				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec($cmd);
-				deleteDevice($value,$dbADO);
+
 				header('Location: index.php?section=setupDisklessMD');
 				exit();
 			}
