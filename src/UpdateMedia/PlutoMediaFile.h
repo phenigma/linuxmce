@@ -25,12 +25,24 @@ enum PlutoCustomTag
 class PlutoMediaFile
 {
 private:
+	
+	//info status
+	bool m_bDBAttributesSaved;
+	bool m_bPlutoInfoLoaded;
+
     Database_pluto_media *m_pDatabase_pluto_media;
     Database_pluto_main *m_pDatabase_pluto_main;
 
     string m_sDirectory;
     string m_sFile;
 	long m_nInstallationID;
+
+	//id3 loaded data
+	long m_nID3_PK_Installation;
+	long m_nID3_PK_File;
+	long m_nID3_PK_Picture;
+	string m_sID3_PictureUrl;
+	list<string> m_ID3_listChapters;
 
     //internal helper functions
     int AddFileToDatabase(int PK_MediaType);

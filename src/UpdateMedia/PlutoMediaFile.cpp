@@ -53,6 +53,15 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media,
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_sDirectory = sDirectory;
     m_sFile = sFile;
+	m_nInstallationID = 0;
+
+	m_nID3_PK_Installation = 0;
+	m_nID3_PK_File = 0;
+	m_nID3_PK_Picture = 0;
+	m_sID3_PictureUrl = "";
+		
+	m_bDBAttributesSaved = false;
+	m_bPlutoInfoLoaded = false;
 
 	m_nInstallationID = 0;
 	vector<Row_Installation *> vectRow_Installation;
@@ -66,6 +75,65 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media,
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
+	if(!m_bDBAttributesSaved && m_nID3_PK_File)
+	{
+		//we'll check if we've restore the data in db (this happens when the user copies the id3 file later
+		//and there is already an entry created in the db for that file, but without additional attributes.
+
+		if(m_sID3_PictureUrl != "")
+		{
+			vector<Row_Picture_File *> vectRow_Picture_File;
+			m_pDatabase_pluto_media->Picture_File_get()->GetRows(
+				"FK_File = " + StringUtils::ltos(m_nID3_PK_File), &vectRow_Picture_File);
+
+			if(vectRow_Picture_File.size() == 0)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Saving picture attribute in db %s", m_sID3_PictureUrl.c_str());
+
+				//we'll download the picture and record in Picture table
+				MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
+				Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, FileUtils::FindExtension(m_sID3_PictureUrl), m_sID3_PictureUrl);
+
+				if(pRow_Picture)
+				{
+					long PK_Picture = pRow_Picture->PK_Picture_get();
+
+					Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+					pRow_Picture_File->FK_File_set(m_nID3_PK_File);
+					pRow_Picture_File->FK_Picture_set(PK_Picture);
+					pRow_Picture_File->Table_Picture_File_get()->Commit();
+				}
+			}
+		}
+
+		if(m_ID3_listChapters.size())
+		{
+			vector<Row_Picture_File *> vectRow_Attribute;
+			m_pDatabase_pluto_media->Picture_File_get()->GetRows(
+				"JOIN File_Attribute ON PK_Attribute = FK_Attribute "
+				"WHERE FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Chapter_CONST) + 
+				" AND FK_File = " + StringUtils::ltos(m_nID3_PK_File), &vectRow_Attribute);
+
+			if(vectRow_Attribute.size() == 0)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Saving chapters in the db %s", m_sID3_PictureUrl.c_str());
+
+				for(list<string>::iterator it = m_ID3_listChapters.begin(); it != m_ID3_listChapters.end(); ++it)
+				{
+					Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+					pRow_Attribute->FK_AttributeType_set(ATTRIBUTETYPE_Chapter_CONST);
+					pRow_Attribute->Name_set(*it);
+					m_pDatabase_pluto_media->Attribute_get()->Commit();
+
+					Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+					pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+					pRow_File_Attribute->FK_File_set(m_nID3_PK_File);
+				}
+
+				m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+			}
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -329,7 +397,10 @@ int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 				//same installation, same file; however, it's a good record?
 				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 				if(NULL != pRow_File && pRow_File->Filename_get() == m_sFile && pRow_File->Path_get() == m_sDirectory)
+				{
+					m_nID3_PK_File = PK_File;
 					return PK_File;
+				}
 			}
 		}
 	}
@@ -362,6 +433,7 @@ int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 #endif
 
 	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found", m_sDirectory.c_str(), m_sFile.c_str());
+	m_nID3_PK_File = 0;
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -504,6 +576,15 @@ bool PlutoMediaFile::SavePlutoAttributes(string sFullFileName, long PK_Installat
 bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File,
 	long& PK_Picture, string& sPictureUrl, list<string> &listChapters)
 {
+	if(m_bPlutoInfoLoaded)
+	{
+		PK_Installation = m_nID3_PK_Installation;
+		PK_File = m_nID3_PK_File;
+		PK_Picture = m_nID3_PK_Picture;
+		sPictureUrl = m_sID3_PictureUrl;
+		listChapters = m_ID3_listChapters;
+	}
+
 	//Get all id3 tags, if any
 	map<int,string> mapAttributes;
 	GetId3Info(sFullFileName, mapAttributes);
@@ -545,6 +626,14 @@ bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installa
 
 		++nIndex;
 	}
+
+	m_bPlutoInfoLoaded = true;
+
+	m_nID3_PK_Installation = PK_Installation;
+	m_nID3_PK_File = PK_File;
+	m_nID3_PK_Picture = PK_Picture;
+	m_sID3_PictureUrl = sPictureUrl;
+	m_ID3_listChapters = listChapters;
 
 	return true;
 }
