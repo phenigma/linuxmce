@@ -172,6 +172,11 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         case SDLK_F3:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F3_CONST; break;
                         case SDLK_F4:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F4_CONST; break;
                         case SDLK_F5:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F5_CONST; break;
+                        case SDLK_F6:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F6_CONST; break;
+                        case SDLK_F7:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F7_CONST; break;
+                        case SDLK_F8:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F8_CONST; break;
+                        case SDLK_F9:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F9_CONST; break;
+                        case SDLK_F10:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F10_CONST; break;
 
                         case SDLK_UP:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
                         case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
