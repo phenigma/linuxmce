@@ -964,7 +964,7 @@ function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 	}
 	else{
 		$output.='<table>
-					<tr bgcolor="lightblue">
+					<tr class="tablehead">
 						<td align="center"><B>'.$TEXT_FILES_CONST.'</B></td>
 						<td align="center">&nbsp;</td>
 					</tr>';
@@ -3579,7 +3579,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
 		'.@$controlledByRows.'
-		<tr class="normaltext" bgcolor="lightblue">
+		<tr class="normaltext" class="tablehead">
 			<td align="center"><B>Infrared Group</B></td>';
 	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 		$out.='
@@ -4917,7 +4917,7 @@ function irrigationHTML($devicesArray){
 	}
 	$out='
 	<table cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td align="center"><B>'.$TEXT_DEVICE_CONST.' / '.$TEXT_ROOM_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_UNCHANGED_CONST.'</B></td>

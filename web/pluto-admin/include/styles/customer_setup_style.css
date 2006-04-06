@@ -9,7 +9,7 @@ body {
 }			 
 
 a {
-	text-decoration: none;
+	text-decoration: underline;
 	color: #009934;
 	font-size: 12px;
 }
@@ -139,3 +139,10 @@ textarea {
 	color: #CCCCCC;
 }
 
+.tablehead{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #4E6DA1;
+   background-color: #ADD8E6;
+   text-decoration: none;
+}

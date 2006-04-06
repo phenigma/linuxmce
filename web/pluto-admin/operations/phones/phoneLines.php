@@ -1,5 +1,6 @@
 <?
 function phoneLines($output,$astADO,$dbADO) {
+	error_reporting(E_ALL);
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
@@ -43,7 +44,6 @@ function phoneLines($output,$astADO,$dbADO) {
 		$keywords[$providerArray['keyword']]=$prID;
 	}
 	
-	
 	if(isset($_REQUEST['provider'])){
 		$provider=$_REQUEST['provider'];
 	}
@@ -63,6 +63,8 @@ function phoneLines($output,$astADO,$dbADO) {
 		$providerScript=@$providerData[@$_REQUEST['provider']]['script'];
 		$userBox='
 		<input type="hidden" name="editedID" value="'.@$editedID.'">
+		<input type="hidden" name="edited_type" value="'.@$_REQUEST['type'].'">
+		
 		<table align="center" cellpadding="3" cellspacing="0">
 			<tr>
 				<td>'.$TEXT_URL_CONST.': </td>
@@ -73,14 +75,14 @@ function phoneLines($output,$astADO,$dbADO) {
 				<td>&nbsp;</td>
 			</tr>
 			<tr bgcolor="#F0F3F8">
-				<td><B>'.$TEXT_USERNAME_CONST.'</B> </td>
+				<td><B>'.$TEXT_USERNAME_CONST.' *</B> </td>
 				<td><input type="text" name="username" value="'.@$phoneData['Username'].'"></td>
 			</tr>
 			<tr bgcolor="#F0F3F8">
 				<td colspan="2">'.$TEXT_PHONE_LINE_USERNAME_NOTE_CONST.'</td>
 			</tr>		
 			<tr>
-				<td><B>'.$TEXT_PASSWORD_CONST.'</B> </td>
+				<td><B>'.$TEXT_PASSWORD_CONST.' *</B> </td>
 				<td><input type="text" name="password" value="'.@$phoneData['Password'].'"></td>
 			</tr>
 			<tr>
@@ -101,10 +103,11 @@ function phoneLines($output,$astADO,$dbADO) {
 				<td colspan="2">'.$TEXT_PHONE_LINE_HOST_NOTE_CONST.'</td>
 			</tr>		
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="'.$TEXT_ADD_CONST.'" value="Submit"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="'.$TEXT_ADD_CONST.'" value="Submit"> <input type="reset" class="button" name="cancelBtn1" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
-		
 		</table>
+		
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("phoneLines");
  			frmvalidator.addValidation("username","req","'.$TEXT_USERNAME_REQUIRED_CONST.'");			
@@ -147,7 +150,8 @@ function phoneLines($output,$astADO,$dbADO) {
 		if(isset($_POST['Add'])){
 			$editedID=$_REQUEST['editedID'];
 			if($editedID!=''){
-				deletePhoneLine($editedID);
+				$phoneData=getPLDetails($editedID,$_REQUEST['edited_type'],$astADO);
+				deletePhoneLine($editedID,$phoneData['Data'],$phoneData['PhoneNumber']);
 			}
 			
 			$username=cleanString($_POST['username']);
@@ -169,7 +173,10 @@ function phoneLines($output,$astADO,$dbADO) {
 		}
 		
 		if(isset($_REQUEST['id'])){
-			deletePhoneLine($id);
+			$id=str_replace('9999','',$_REQUEST['id']);
+			$line_name=$_REQUEST['line_name'];
+			$phone_number=$_REQUEST['phone_number'];
+			$ret=deletePhoneLine($id,$line_name,$phone_number);
 			
 			header('Location: index.php?section=phoneLines&msg='.$TEXT_PHONE_LINE_DELETED_CONST);
 			exit();
@@ -220,7 +227,7 @@ function phoneLinesTable($astADO){
 		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex'))");
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td align="center"><B>'.$TEXT_TYPE_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_DATA_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_PASSWORD_CONST.'</B></td>
@@ -246,7 +253,7 @@ function phoneLinesTable($astADO){
 			<td align="center">
 				<a href="index.php?section=phoneLines&type=SIP&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
 				<a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
-				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a>
+				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'&line_name='.$row['data'].'&phone_number='.$phoneNumber.'\'">'.$TEXT_DELETE_CONST.'</a>
 			</td>
 		</tr>';
 	}
@@ -275,7 +282,7 @@ function phoneLinesTable($astADO){
 			<td align="center">
 				<a href="index.php?section=phoneLines&type=IAX&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
 				<a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
-				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">'.$TEXT_DELETE_CONST.'</a>
+				<a href="javascript:if(confirm(\''.$TEXT_DELETE_PHONE_LINE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'&line_name='.$row['data'].'&phone_number='.$phoneNumber.'\'">'.$TEXT_DELETE_CONST.'</a>
 			</td>
 		</tr>';
 	}
@@ -336,7 +343,7 @@ function phoneLinesLocalSettings($dbADO){
 			<td>'.$TEXT_LOCAL_NUMBER_LENGTH_CONST.' <input type="text" name="value_143" value="'.@$ddArray['143'].'" style="width:25px;"></td>
 		</tr>
 		<tr>
-			<td align="center"><input type="submit" class="button" name="update_settings" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td align="center"><input type="submit" class="button" name="update_settings" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>	
 	</table>
 	</form>';
@@ -376,14 +383,18 @@ function getPLDetails($id,$type,$astADO){
 	return $data;
 }
 
-function deletePhoneLine($id){
-	$id=str_replace('9999','',$id);
-
+function deletePhoneLine($id,$line_name,$phone_nr){
+	/*
 	$url='http://'.$_SERVER['SERVER_ADDR'].'/pluto-admin/amp/admin/config.php';
 	$params='display=6&extdisplay=OUT_'.$id.'&action=deltrunk';
 			
 	$answer=queryExternalServer($url.'?'.$params);
+	*/
+	// command to del phone line usr/pluto/bin/delete_phoneline.pl <line_nr> <line_name> <phone_nr>
+	$cmd="sudo -u root /usr/pluto/bin/delete_phoneline.pl $id $line_name $phone_nr";
 
+	$answer=exec($cmd);
+	
 	return $answer;
 }
 ?>
