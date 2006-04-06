@@ -355,14 +355,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusDown( Point stylus )
 {
-	m_pMouseBehavior->Down(stylus.x, stylus.y);
 	RegionDown(stylus.x, stylus.y);
 	RecordMouseAction(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusUp( Point stylus )
 {
-	m_pMouseBehavior->Up(stylus.x, stylus.y);
 	RegionUp(stylus.x, stylus.y);
 }
 //-----------------------------------------------------------------------------------------------------

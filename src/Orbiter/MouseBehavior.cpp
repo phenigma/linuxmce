@@ -4,6 +4,10 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
+#include "Gen_Devices/AllCommandsRequests.h"
+#include "pluto_main/Define_Button.h"
+#include "pluto_main/Define_DesignObj.h"
+
 using namespace DCE;
 
 #define AXIS_LOCK_NONE	0
@@ -21,47 +25,87 @@ const int MouseSensitivity::MinMovePerSampleToChangeDir = 10;
 const int MouseSensitivity::MaxMovePerSampleToChangeDir = 5;
 const int MouseSensitivity::MinMoveAllSamplesToChangeDir = 40;
 const int MouseSensitivity::MaxMoveAllSamplesToChangeDir = 20;
+const int MouseSensitivity::HoldTime = 750;
+
+const int MouseBehavior::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};
+
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
+	ProcessUtils::ResetMsTime();
 	m_pOrbiter=pOrbiter;
+	Clear();
+}
+
+void MouseBehavior::Clear()
+{
 	m_pObj_Locked_Vertical=m_pObj_Locked_Horizontal=NULL;
 	ResetSamples();
 	m_cLockedAxes = m_cLocked_Axis_Current = AXIS_LOCK_NONE;
+	m_pMouseBehaviorHandler_Horizontal=m_pMouseBehaviorHandler_Vertical=NULL;
+	m_iPK_Button_Mouse_Last=0;
+    m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
+	m_EMenuOnScreen=mb_None;
 }
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
+	if( sOptions.size()==0 || sDirection.size()==0 )
+	{
+		Clear();
+		return; 
+	}
 
-	// set a call back function for each axis
-	m_cLocked_Axis_Current = AXIS_LOCK_NONE;
-	ProcessUtils::ResetMsTime();
 	DesignObj_Orbiter *pObj=NULL;
 	if( sDesignObj.size() )
 		pObj = m_pOrbiter->FindObject(sDesignObj);
 
-	if( sDirection.size() )
+	MouseBehaviorHandler pMouseBehaviorHandler=NULL;
+	switch(sOptions[0])
 	{
-		if( sDirection[0]=='Y' )
-		{
-			m_pObj_Locked_Vertical=pObj;
-			m_sVerticalOptions=sOptions;
-			m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
-		}
-		else if( sDirection[0]=='X' )
-		{
-			m_pObj_Locked_Horizontal=pObj;
-			m_sHorizontalOptions=sOptions;
-			m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
-		}
-		else
-			m_cLockedAxes = AXIS_LOCK_NONE;
+	case 'L':
+		pMouseBehaviorHandler=LockedBar;
+		break;
+	case 'S':
+		pMouseBehaviorHandler=SpeedControl;
+		break;
+	}
 
-		// Means auto-highlight the object from the direction following the 'h'
-		string::size_type posHighlight;
-		if( (posHighlight=sOptions.find('h'))!=string::npos && sOptions.size()>posHighlight+1 )
+	if( sDirection[0]=='Y' )
+	{
+		m_pObj_Locked_Vertical=pObj;
+		m_pMouseBehaviorHandler_Vertical=pMouseBehaviorHandler;
+		m_sVerticalOptions=sOptions;
+		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
+	}
+	else if( sDirection[0]=='X' )
+	{
+		m_pObj_Locked_Horizontal=pObj;
+		m_pMouseBehaviorHandler_Horizontal=pMouseBehaviorHandler;
+		m_sHorizontalOptions=sOptions;
+		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
+	}
+	else
+		m_cLockedAxes = AXIS_LOCK_NONE;
+
+	// set a call back function for each axis
+	m_cLocked_Axis_Current = AXIS_LOCK_NONE;
+	m_dwSamples[0]=ProcessUtils::GetMsTime();
+	GetMousePosition(&m_pSamples[0]);
+
+	if( pMouseBehaviorHandler )
+	{
+		CALL_MEMBER_FN(*this, pMouseBehaviorHandler)(mb_SettingUp, pObj, 0, 0, 0);
+	}
+}
+
+void MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+{
+	if( eMouseBehaviorEvent==mb_SettingUp )
+	{
+		if( m_cLockedAxes==AXIS_LOCK_Y )
 		{
-			DesignObj_Orbiter *pObj_First = m_pOrbiter->FindFirstObjectByDirection(sOptions[posHighlight+1],false,pObj,NULL);
+			DesignObj_Orbiter *pObj_First = m_pOrbiter->FindFirstObjectByDirection('u',false,pObj,NULL);
 			if( pObj_First )
 			{
 				m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
@@ -75,28 +119,68 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 			}
 		}
 	}
-	else
-		m_cLockedAxes = AXIS_LOCK_NONE;
-
-	m_dwSamples[0]=ProcessUtils::GetMsTime();
-	GetMousePosition(&m_pSamples[0]);
+	else if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection || eMouseBehaviorEvent==mb_Movement )
+	{
+		LockedMove( X, Y );
+	}
 }
 
-void MouseBehavior::Down(int X,int Y)
+void MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
-}
+	if( !pObj )
+		return; // Shouldn't happen, this should be the volume control
+	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Starting speed control");
+		m_iLastSpeed=0;
+		if( m_bUseAbsoluteSeek )
+		{
+			int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
+			int X = (m_pObj_Locked_Horizontal->m_rPosition.Width * Percentage / 100) + m_pObj_Locked_Horizontal->m_rPosition.X + m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+			int Y = m_pObj_Locked_Horizontal->m_rPosition.Y + m_pObj_Locked_Horizontal->m_pPopupPoint.Y + (m_pObj_Locked_Horizontal->m_rPosition.Height/2);
+			SetMousePosition(X,Y);
+// remus -- we are using absolute seeking
+		}
+		else
+			SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+			// remus -- we are using relative seeking
+	}
+	else if( eMouseBehaviorEvent==mb_Movement )
+	{
+		int XStart = pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2;
+		if( m_iTime_Last_Mouse_Up==0 || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+		{
+			int NotchWidth = pObj->m_rPosition.Width/2/MAX_SPEEDS;
+			int Notch = abs(X-XStart) / NotchWidth;
+			if( Notch>MAX_SPEEDS-1 )
+				Notch = MAX_SPEEDS-1;
+			int Speed = m_iSpeeds[Notch];
+			if( X<XStart )
+				Speed *= -1;
+			if( Speed!=m_iLastSpeed )
+			{
+	g_pPlutoLogger->Write(LV_CRITICAL,"speed %d",Speed);
 
-void MouseBehavior::Up(int X,int Y)
-{
+				DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed);
+				m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
+				m_iLastSpeed=Speed;
+//remus  pObj->SetSpeed(Speed);
+			}
+		}
+		else  // tap and release, go to position
+		{
+			int Offset = X - pObj->m_rPosition.X-pObj->m_pPopupPoint.X;
+			double Perc = (double) Offset / pObj->m_rPosition.Width;
+			int Time = (m_CurrentMedia_Stop-m_CurrentMedia_Start * Perc) + m_CurrentMedia_Start;
+			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,"POS:" + StringUtils::itos(Time*1000));
+			m_pOrbiter->SendCommand(CMD_Set_Media_Position);
+//remus  pObj->SetSpeed(Speed);
+		}
+	}
 }
 
 void MouseBehavior::Move(int X,int Y)
 {
-//	CS VG
-	g_pPlutoLogger->Write(LV_STATUS,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d  h:%p v:%p",
-X,Y,m_pSamples[0].X,m_pSamples[0].Y,m_pStartMovement.X,m_pStartMovement.Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,(int) m_iLockedPosition,
-m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
-
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
 
@@ -119,6 +203,10 @@ m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
 			else
 				m_iLockedPosition = X;
 		}
+		if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
+			CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_ChangeDirection, m_pObj_Locked_Horizontal, 0, X, Y);
+		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
+			CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_ChangeDirection, m_pObj_Locked_Vertical, 0, X, Y);
 	}
 
 	if( m_cLocked_Axis_Current == AXIS_LOCK_X )
@@ -126,9 +214,48 @@ m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
 	if( m_cLocked_Axis_Current == AXIS_LOCK_Y )
 		X = m_iLockedPosition;
 
+	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_Movement, m_pObj_Locked_Horizontal, 0, X, Y);
+	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_Movement, m_pObj_Locked_Vertical, 0, X, Y);
+}
+
+void MouseBehavior::LockedMove( int X, int Y )
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d  h:%p v:%p",
+X,Y,m_pSamples[0].X,m_pSamples[0].Y,m_pStartMovement.X,m_pStartMovement.Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,(int) m_iLockedPosition,
+m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
+
+	if( m_cLocked_Axis_Current == AXIS_LOCK_X && m_pObj_Locked_Horizontal )
+	{
+		if( X < m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+		{
+			X = m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+			SetMousePosition(X,Y);
+		}
+		if( X > m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+		{
+			X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+			SetMousePosition(X,Y);
+		}
+	}
+	else if( m_cLocked_Axis_Current == AXIS_LOCK_Y && m_pObj_Locked_Vertical )
+	{
+		if( Y < m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+		{
+			X = m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+			SetMousePosition(X,Y);
+		}
+		if( X > m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+		{
+			X = m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+			SetMousePosition(X,Y);
+		}
+	}
+
 	PLUTO_SAFETY_LOCK( cm, m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	if( m_pOrbiter->m_pObj_Highlighted && 
-		(m_pOrbiter->m_pObj_Highlighted->m_rPosition.Contains(X,Y)==false || m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )
+		( (m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false || m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )
 	{
 g_pPlutoLogger->Write(LV_WARNING,"change hl doesn't contain %d,%d h:%p v:%p",X,Y,m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
 		DesignObj_Orbiter *pObj_ToHighlight=FindChildObjectAtPosition(m_cLocked_Axis_Current == AXIS_LOCK_X ? m_pObj_Locked_Horizontal : m_pObj_Locked_Vertical,X,Y);
@@ -159,26 +286,26 @@ bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 		{
 			if( m_cLockedAxes & AXIS_LOCK_X && diffX>MouseSensitivity::MinMoveToStart && diffY<MouseSensitivity::MaxMoveToStart )
 			{
-	g_pPlutoLogger->Write(LV_WARNING,"start X %d,%d",diffX,diffY);
+	g_pPlutoLogger->Write(LV_CRITICAL,"start X %d,%d",diffX,diffY);
 				m_cLocked_Axis_Current = AXIS_LOCK_X;
 				return true;
 			}
 			else if( m_cLockedAxes & AXIS_LOCK_Y && diffY>MouseSensitivity::MinMoveToStart && diffX<MouseSensitivity::MaxMoveToStart )
 			{
-	g_pPlutoLogger->Write(LV_WARNING,"start Y %d,%d",diffX,diffY);
+	g_pPlutoLogger->Write(LV_CRITICAL,"start Y %d,%d",diffX,diffY);
 				m_cLocked_Axis_Current = AXIS_LOCK_Y;
 				return true;
 			}
 		}
 		else if( m_cLockedAxes & AXIS_LOCK_X && m_cLocked_Axis_Current == AXIS_LOCK_Y && diffX>MouseSensitivity::MinMovePerSampleToChangeDir && diffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_WARNING,"fast switch X %d,%d",diffX,diffY);
+g_pPlutoLogger->Write(LV_CRITICAL,"fast switch X %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
 		else if( m_cLockedAxes & AXIS_LOCK_Y && m_cLocked_Axis_Current == AXIS_LOCK_X && diffY>MouseSensitivity::MinMovePerSampleToChangeDir && diffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_WARNING,"fast switch Y %d,%d",diffX,diffY);
+g_pPlutoLogger->Write(LV_CRITICAL,"fast switch Y %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
@@ -197,7 +324,7 @@ g_pPlutoLogger->Write(LV_STATUS,"new sample diff %d,%d at %d,%d last %d,%d",Diff
 	{
 		if( m_cLockedAxes & AXIS_LOCK_Y && DiffY>MouseSensitivity::MinMovePerSampleToChangeDir && DiffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_WARNING,"switch Y %d,%d",DiffX,DiffY);
+g_pPlutoLogger->Write(LV_CRITICAL,"switch Y %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
@@ -206,7 +333,7 @@ g_pPlutoLogger->Write(LV_WARNING,"switch Y %d,%d",DiffX,DiffY);
 	{
 		if( m_cLockedAxes & AXIS_LOCK_X && DiffX>MouseSensitivity::MinMovePerSampleToChangeDir && DiffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_WARNING,"switch X %d,%d",DiffX,DiffY);
+g_pPlutoLogger->Write(LV_CRITICAL,"switch X %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
@@ -228,4 +355,134 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 	if( pObj_Parent->m_bTabStop && (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Contains(X,Y) )
 		return pObj_Parent;
 	return NULL;
+}
+
+void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection)
+{
+
+}
+
+void MouseBehavior::ButtonDown(int PK_Button)
+{
+	m_iPK_Button_Mouse_Last=PK_Button;
+	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
+	m_iTime_Last_Mouse_Up=0;
+	m_bRepeatMenu=false;  // This will be true if the user was hitting the same button that activated the menu (ie tapping again to make it go away)
+
+	// Special case for the media control
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
+	{
+		m_bRepeatMenu = m_EMenuOnScreen==mb_MainMenu;
+g_pPlutoLogger->Write(LV_CRITICAL,"menu repeate %d",(int) m_bRepeatMenu);
+		if(  !m_bRepeatMenu )
+		{
+			m_EMenuOnScreen=mb_MainMenu;
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
+			Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
+		}
+	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST )
+	{
+		m_bUseAbsoluteSeek=false; // We'll set it to true later
+		string sResponse;
+		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,0);
+		m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
+
+		string sText,sMediaPosition;
+		DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
+		m_bHasTimeline = m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
+
+		m_iLastSpeed=0;
+		m_bRepeatMenu = m_EMenuOnScreen==mb_MediaControl;
+g_pPlutoLogger->Write(LV_CRITICAL,"down repeate %d",(int) m_bRepeatMenu);
+//remus m_pObj_Locked_Horizontal->HasTimeline(m_bHasTimeline);
+		if(  !m_bRepeatMenu )
+		{
+			m_EMenuOnScreen=mb_MediaControl;
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST),263,526,"","horiz",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST),0,0,"","left",false,false);
+			Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST));
+			Set_Mouse_Behavior("C",false,"Y",StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST));
+		}
+		m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
+	}
+
+	if( m_cLockedAxes == AXIS_LOCK_NONE )
+		return; // Nothing to do
+	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseDown, m_pObj_Locked_Horizontal, 0, 0, 0);
+	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseDown, m_pObj_Locked_Vertical, 0, 0, 0);
+}
+
+void MouseBehavior::ButtonUp(int PK_Button)
+{
+	m_iPK_Button_Mouse_Last=PK_Button;
+	m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
+
+	// If the user held the button for more than HoldTime, resume normal playback
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
+	{
+g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
+			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
+		if( m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime || m_bRepeatMenu )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
+		{
+			if( !m_bRepeatMenu )
+			{
+				PLUTO_SAFETY_LOCK( cm, m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
+				if(  m_pOrbiter->m_pObj_Highlighted && !m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
+					m_pOrbiter->SelectedObject( m_pOrbiter->m_pObj_Highlighted, smNavigation );
+			}
+			m_pOrbiter->CMD_Remove_Popup("","left");
+			m_pOrbiter->CMD_Remove_Popup("","horiz");
+			Set_Mouse_Behavior("",false,"","");
+			m_EMenuOnScreen=mb_None;
+		}
+	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST )
+	{
+g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
+			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
+		if( m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime || m_bRepeatMenu )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
+		{
+			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
+			m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
+			m_iLastSpeed=1000;
+			m_pOrbiter->CMD_Remove_Popup("","horiz");
+			m_pOrbiter->CMD_Remove_Popup("","left");
+			m_EMenuOnScreen=mb_None;
+			Set_Mouse_Behavior("",false,"","");
+		}
+		else if( m_bHasTimeline )
+		{
+			int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
+			m_bUseAbsoluteSeek=true;
+g_pPlutoLogger->Write(LV_CRITICAL," setting timeline position to %d",Percentage);
+//remus m_pObj_Locked_Horizontal->PositionCurrentTime(X);
+//remus m_pObj_Locked_Horizontal->SetMode(absolute_navigation);
+		}
+	}
+
+	if( m_cLockedAxes == AXIS_LOCK_NONE )
+		return; // Nothing to do
+	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseUp, m_pObj_Locked_Horizontal, 0, 0, 0);
+	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
+		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseUp, m_pObj_Locked_Vertical, 0, 0, 0);
+}
+
+bool MouseBehavior::ParsePosition(string sMediaPosition)
+{
+	m_CurrentMedia_Start=0;
+	string::size_type pos=sMediaPosition.find("POS:");
+	if( pos==string::npos )
+		return false;
+	m_CurrentMedia_Pos = atoi( sMediaPosition.substr(pos+4).c_str() ) / 1000;
+	
+	pos=sMediaPosition.find("TOTAL:");
+	if( pos==string::npos )
+		return false;
+	m_CurrentMedia_Stop = atoi( sMediaPosition.substr(pos+6).c_str() ) / 1000;
+	
+	return m_CurrentMedia_Stop>0;
 }

@@ -2454,7 +2454,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 /*virtual*/ void Orbiter::DoHighlightObject()
 {
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-	if(sbNoSelection == m_nSelectionBehaviour)
+	if(sbNoSelection == m_nSelectionBehaviour || !m_pObj_Highlighted->m_bOnScreen )
 		return;
 g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject1 %p",m_pObj_Highlighted);
 	UnHighlightObject();
@@ -3720,6 +3720,26 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 			g_pPlutoLogger->Write(LV_STATUS, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
 	}
 #endif
+// some temporary stuff
+if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
+
+if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+
+if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_3_CONST);
+
+if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
+
+if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+
+if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
+m_dwPK_Device_NowPlaying=21;
+
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
 
@@ -8270,6 +8290,8 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
+if( sPK_DesignObj.find("4883")!=string::npos )
+int k=1;
 	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s",sName.c_str());
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
@@ -9068,6 +9090,8 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 		RenderObjectAsync(m_pObj_NowPlaying_TimeLong_OnScreen);
 	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
+	if( m_pMouseBehavior )
+		m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
 }
 
 void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
