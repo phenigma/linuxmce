@@ -9693,7 +9693,9 @@ bool Orbiter::WaitForRelativesIfOSD()
             g_pPlutoLogger->Write(LV_WARNING,"Starting prompt user");
             PromptUser(sMessage);
 			g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
-			return;
+
+			//all ok
+			return true;
 		}
 
 		string sDescription = m_mapTextString[TEXT_Waiting_for_related_devices_CONST];
