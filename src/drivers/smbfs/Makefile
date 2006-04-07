@@ -29,7 +29,7 @@ uninstall:
 	/sbin/depmod -a
 clean:
 	rm -f .*.cmd *.o *.mod.c *.ko .v* *~ core
-
+	rm -rf .tmp_versions/
 endif
 
 obj-$(CONFIG_SMB_FS) += smbfs.o
