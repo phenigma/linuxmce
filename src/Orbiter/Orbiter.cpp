@@ -2566,7 +2566,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject4 %p",m_pObj_Highlig
 /*virtual*/ void Orbiter::HighlightFirstObject()
 {
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-	m_pObj_Highlighted = FindFirstObjectByDirection(1,true,NULL,NULL);
+	m_pObj_Highlighted = FindFirstObjectByDirection('1',true,NULL,NULL);
 }
 
 DesignObj_Orbiter *Orbiter::FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo)
