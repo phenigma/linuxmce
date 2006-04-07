@@ -297,6 +297,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 		//we were just loading and someone did a reload router.
 		//we'll start again
 		OnUnexpectedDisconnect();
+		return false;
     }
 
 	if (!m_bLocalMode)

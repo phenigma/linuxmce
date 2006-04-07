@@ -186,7 +186,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 			T.AddWord(line, * j);
 			AddImageWord(ImageLine, RI);
 			lastX += WW.first;
-			Space = " ";
+			//Space = " ";
 		}
 		LAttr.Width = lastX;
 		LAttr.Height = WW.second;

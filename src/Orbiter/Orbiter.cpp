@@ -9627,8 +9627,6 @@ bool SendPingHandler(Socket *pSocket)
 
 bool Orbiter::WaitForRelativesIfOSD()
 {
-	Sleep(10000);
-
 #if X11_PROGRESS_BARS
 	if( !m_bIsOSD )
 		return true;
