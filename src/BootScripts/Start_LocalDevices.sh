@@ -49,7 +49,7 @@ PerlCommand="
 
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 basename=$(basename "$0")
-WaitLock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
+WaitLock "Spawn_Device" "Start_LocalDevices_$CurrentDevice" >>/var/log/pluto/Spawn_Device.log
 Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList"
 for command in $CommandList; do
 	ChildDeviceID=$(Field 1 "$command")
@@ -66,7 +66,6 @@ for command in $CommandList; do
 	if grep -q "^$ChildDeviceID$" "$AlreadyRunning" 2>/dev/null; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "$$ Device $ChildDeviceID was marked as 'running'. Not starting"
 		echo "$(date) SLD Already running: $ChildDeviceID" >>/var/log/pluto/Spawn_Device.log
-		Unlock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
 		continue
 	fi
 
@@ -78,9 +77,9 @@ for command in $CommandList; do
 		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin."
 	elif [[ ! -x "$Path/usr/pluto/bin/$ChildCommand" ]]; then
 		Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable."
-	elif [[ "$basename" = `basename $ChildCommand` ]]; then
+	elif [[ "$basename" = "$(basename $ChildCommand)" ]]; then
 		pushd /usr/pluto/bin >/dev/null
-		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter
+		screen -d -m -S "${ChildDescription}_SLD-$ChildDeviceID" /usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter
 		popd >/dev/null
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Launching device $ChildDeviceID in screen session ($ChildDescription)"
@@ -100,4 +99,4 @@ for Device in $RunningDevices; do
 	fi
 done
 
-Unlock "Spawn_Device" "Start_LocalDevices" >>/var/log/pluto/Spawn_Device.log
+Unlock "Spawn_Device" "Start_LocalDevices_$CurrentDevice" >>/var/log/pluto/Spawn_Device.log
