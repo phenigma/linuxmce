@@ -1915,8 +1915,8 @@
 #define DESIGNOBJ_butRebootMD_CONST 4832
 #define DESIGNOBJ_butForceUpgradeNow_CONST 4833
 #define DESIGNOBJ_TVManufNotListed_CONST 4834
-#define DESIGNOBJ_TVModelNotListed_CONST 4835
-#define DESIGNOBJ_TVTypeNotListed_CONST 4836
+#define DESIGNOBJ_TVConnectionTypeNotListed_CONST 4835
+#define DESIGNOBJ_TVModelNotListed_CONST 4836
 #define DESIGNOBJ_TVInputsNotListed_CONST 4837
 #define DESIGNOBJ_LearnIRCodes_CONST 4838
 #define DESIGNOBJ_TVReceiver_CONST 4839
