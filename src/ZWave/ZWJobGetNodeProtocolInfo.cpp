@@ -54,6 +54,10 @@ bool ZWJobGetNodeProtocolInfo::run()
 		buffer[2] = (unsigned char)d->nodeID;
 		buffer[3] = 0;
 		
+		time_t currentTime = time(NULL);
+		setStartTime( currentTime );
+		setAnswerTime( currentTime );
+	
 		setState(ZWaveJob::RUNNING);
 		
 		return handler()->sendData(buffer, 3);
@@ -101,6 +105,7 @@ bool ZWJobGetNodeProtocolInfo::processData(const char * buffer, size_t length)
 					node->setGenericType(buffer[6]);
 					node->setSpecificType(buffer[7]);
 					
+					setAnswerTime( time(NULL) );
 					setState(ZWaveJob::STOPPED);
 					
 					return true;

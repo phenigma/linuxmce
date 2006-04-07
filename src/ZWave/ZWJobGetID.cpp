@@ -58,6 +58,10 @@ bool ZWJobGetID::run()
 	buffer[1] = FUNC_ID_MEMORY_GET_ID;
 	buffer[2] = 0;
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	
 	return handler()->sendData(buffer, 2);
@@ -86,6 +90,7 @@ bool ZWJobGetID::processData(const char * buffer, size_t length)
 				handler()->setHomeID(s2ul.number);
 				handler()->setNodeID(buffer[6]);
 				
+				setAnswerTime( time(NULL) );
 				setState(ZWaveJob::STOPPED);
 				
 				return true;

@@ -19,6 +19,10 @@ ZWJobGetVersion::~ZWJobGetVersion()
 
 bool ZWJobGetVersion::run()
 {
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	
 	char data[] = { REQUEST, FUNC_ID_ZW_GET_VERSION };
@@ -51,7 +55,10 @@ bool ZWJobGetVersion::processData(const char * buffer, size_t length)
 			std::string version(&(buffer[2]));
 			DCE::g_pPlutoLogger->Write(LV_DEBUG, version.c_str());
 			handler()->setVersion(version);
+			
+			setAnswerTime( time(NULL) );
 			setState(ZWaveJob::STOPPED);
+			
 			return true;
 	}
 	

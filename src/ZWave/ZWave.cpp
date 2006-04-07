@@ -36,13 +36,20 @@ using namespace DCE;
 #include <unistd.h> 
 #define POOL_DELAY 200000
 #endif
-#define NO_POOLING
+
+// ask Eugen before uncommenting the following 2 lines
+// #define NO_POOLING
+// #define NO_ASYNCH
 
 #define ZW_TIMEOUT 15
 #define ZW_LONG_TIMEOUT 120
 
+bool ZWave::m_AsynchStarted = false;
 bool ZWave::m_PoolStarted = false;
 bool ZWave::m_ZWaveChanged = false;
+bool ZWave::m_ReceiveStarted = false;
+bool ZWave::m_ReportChildrenStarted = false;
+pthread_t ZWave::m_AsynchThread;
 pthread_t ZWave::m_PoolThread;
 string ZWave::zwaveSerialDevice;
 
@@ -74,6 +81,7 @@ ZWave::~ZWave()
 //<-dceag-dest-e->
 {
 	CMD_Pool(false);
+	asynchThread(false);
 }
 
 //<-dceag-getconfig-b->
@@ -83,13 +91,6 @@ bool ZWave::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	// try to avoid trylock timeout
-	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
-	{
-		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
-		m_ZWaveAPI->stop();
-	}
-	
 	if( !ConfirmConnection() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave device %s.", zwaveSerialDevice.c_str());
@@ -126,13 +127,6 @@ bool ZWave::Register()
 void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	// try to avoid trylock timeout
-	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
-	{
-		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
-		m_ZWaveAPI->stop();
-	}
-	
 	if( !ConfirmConnection() )
 	{
 		sCMD_Result = "NO ZWAVE";
@@ -149,17 +143,24 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		if( pMessage->m_dwID == COMMAND_Generic_On_CONST )
 		{
 			g_pPlutoLogger->Write(LV_ZWAVE, "Sending ON - %d", NodeID);
-			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 100, (unsigned char)NodeID);
 			if( light != NULL )
 			{
+				light->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
+				// a small delay to not get ZWave too busy
+#ifdef _WIN32
+				Sleep(POOL_DELAY);
+#else
+				usleep(POOL_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -174,14 +175,21 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
+				light->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
+				// a small delay to not get ZWave too busy
+#ifdef _WIN32
+				Sleep(POOL_DELAY);
+#else
+				usleep(POOL_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -194,17 +202,24 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		{
 			int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
 			g_pPlutoLogger->Write(LV_ZWAVE, "Sending LEVEL - %d || %d", level, NodeID);
-			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, (level >= 100) ? 99 : level, (unsigned char)NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, (level > 100) ? 100 : level, (unsigned char)NodeID);
 			if( light != NULL )
 			{
+				light->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
+				// a small delay to not get ZWave too busy
+#ifdef _WIN32
+				Sleep(POOL_DELAY);
+#else
+				usleep(POOL_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -247,22 +262,22 @@ void ZWave::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void *DoDownloadConfiguration(void *p)
 {
 	ZWave *pZWave = (ZWave *) p;
-	pZWave->DownloadConfiguration();
+	if( pZWave != NULL )
+	{
+		pZWave->m_ReceiveStarted = true;
+		pZWave->DownloadConfiguration();
+		pZWave->m_ReceiveStarted = false;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "DoDownloadConfiguration : no ZWave object");
+	}
+	
 	return NULL;
 }
 
 void ZWave::DownloadConfiguration()
 {
-//EVENT_Download_Config_Done("");
-//return;
-
-	// try to avoid trylock timeout
-	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
-	{
-		g_pPlutoLogger->Write(LV_ZWAVE, "Force ZWave to stop.");
-		m_ZWaveAPI->stop();
-	}
-	
 	if( !ConfirmConnection() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
@@ -270,6 +285,8 @@ void ZWave::DownloadConfiguration()
 		return;
 	}
 
+	CMD_Pool(false);
+		
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::DownloadConfiguration trying to get list of devices");
 	
@@ -277,14 +294,25 @@ void ZWave::DownloadConfiguration()
 	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 	if( receive != NULL && init != NULL )
 	{
+		receive->setRunningTimeout( ZW_LONG_TIMEOUT );
 		m_ZWaveAPI->insertJob( receive );
-		m_ZWaveAPI->insertJob( init );
 		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
+			!m_ZWaveAPI->listen( ZW_LONG_TIMEOUT ) )
 		{
 			EVENT_Download_Config_Done("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS");
 			return;
 		}
+		m_ZWaveAPI->waitForJob(receive, ZW_LONG_TIMEOUT);
+		
+		init->setRunningTimeout( ZW_LONG_TIMEOUT );
+		m_ZWaveAPI->insertJob( init );
+		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
+			!m_ZWaveAPI->listen( ZW_LONG_TIMEOUT ) )
+		{
+			EVENT_Download_Config_Done("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS");
+			return;
+		}
+		m_ZWaveAPI->waitForJob(init, ZW_LONG_TIMEOUT);
 	}
 	else
 	{
@@ -299,6 +327,8 @@ void ZWave::DownloadConfiguration()
 	
 	EVENT_Download_Config_Done("");
 	CMD_Report_Child_Devices();
+	
+	CMD_Pool(true);
 }
 
 void ZWave::ReportChildDevices()
@@ -311,38 +341,47 @@ EVENT_Reporting_Child_Devices("",
 );
 return;
 */
-	// try to avoid trylock timeout
+// commented because we are using the asynchron task management
+/*	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
 		g_pPlutoLogger->Write(LV_ZWAVE, "Force ZWave to stop.");
 		m_ZWaveAPI->stop();
-	}
+	}*/
 	
-	if( !ConfirmConnection() )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Cannot connect to ZWave");
-		EVENT_Reporting_Child_Devices("Cannot connect to ZWave", "");
-		return;
-	}
-
+	static bool firstTime = true;
+	
+	CMD_Pool(false);
+		
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::ReportChildDevices trying to get list of devices");
 	
-	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
-	if( init != NULL )
+	if( firstTime )
 	{
-		m_ZWaveAPI->insertJob( init );
-		if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-			!m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
-		{
-			EVENT_Reporting_Child_Devices("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS", "");
-			return;
-		}
+		// first time, the initialization is already made by the ConfirmConnection
+		firstTime = false;
 	}
 	else
 	{
-		EVENT_Reporting_Child_Devices("NOT ENOUGH MEMORY", "");
-		return;
+		ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
+		if( init != NULL )
+		{
+			init->setRunningTimeout( ZW_LONG_TIMEOUT );
+			m_ZWaveAPI->insertJob( init );
+			if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
+				!m_ZWaveAPI->listen( ZW_LONG_TIMEOUT ) )
+			{
+				EVENT_Reporting_Child_Devices("DEVICE DIDN'T RESPOND OR ZWAVE ERRORS", "");
+				return;
+			}
+		}
+		else
+		{
+			EVENT_Reporting_Child_Devices("NOT ENOUGH MEMORY", "");
+			return;
+		}
+		
+		m_ZWaveAPI->waitForJob(init, ZW_LONG_TIMEOUT);
 	}
 	
 	std::string sResponse;
@@ -387,6 +426,8 @@ return;
 	g_pPlutoLogger->Write(LV_ZWAVE,"%s", sResponse.c_str());
 	
 	EVENT_Reporting_Child_Devices("", sResponse);
+	
+	CMD_Pool(true);
 }
 
 bool ZWave::ConfirmConnection(int RetryCount)
@@ -395,30 +436,34 @@ bool ZWave::ConfirmConnection(int RetryCount)
 	
 	if( m_ZWaveAPI != NULL )
 	{
-		// force stopping the current ZWave command
-		m_ZWaveAPI->stop();
-		// force cleaning the jobs queue
-		m_ZWaveAPI->clearJobs();
-		
-		if( PlutoZWSerialAPI::STOPPED == m_ZWaveAPI->state() &&
-			!m_PoolStarted &&
+		if( PlutoZWSerialAPI::STOPPED == m_ZWaveAPI->state() ||
 			( 0 == m_ZWaveAPI->nodeID() ||
 		      0 == m_ZWaveAPI->homeID() ) )
 		{
+			// force stopping the current ZWave command
+			m_ZWaveAPI->stop();
+			// force cleaning the jobs queue
+			m_ZWaveAPI->clearJobs();
+		
 			zwaveSerialDevice = GetZWaveSerialDevice();
 			if( !zwaveSerialDevice.empty() )
 			{
 				ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 				if( init != NULL )
 				{
+					init->setRunningTimeout( ZW_TIMEOUT );
 					m_ZWaveAPI->insertJob( init );
 					if( m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) &&
-						m_ZWaveAPI->listen(ZW_TIMEOUT) )
+						m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 					{
-						// start ZWave pooling
-						CMD_Pool(true);
+						asynchThread(true);
 						
-						return true;
+						if( m_ZWaveAPI->waitForJob(init, ZW_TIMEOUT) )
+						{
+							// start ZWave pooling
+							CMD_Pool(true);
+							return true;
+						}
 					}
 				}
 			}
@@ -429,11 +474,15 @@ bool ZWave::ConfirmConnection(int RetryCount)
 		}
 		else
 		{
+			// start ZWave pooling
+			CMD_Pool(true);
 			return true;
 		}
 	}
 	else
 	{
+		CMD_Pool(false);
+		asynchThread(false);
 		g_pPlutoLogger->Write(LV_CRITICAL,"ZWave::ConfirmConnection : not enough memory");
 	}
 	
@@ -443,7 +492,17 @@ bool ZWave::ConfirmConnection(int RetryCount)
 void *DoReportChildDevices(void *p)
 {
 	ZWave *pZWave = (ZWave *) p;
-	pZWave->ReportChildDevices();
+	if( pZWave != NULL )
+	{
+		pZWave->m_ReportChildrenStarted = true;
+		pZWave->ReportChildDevices();
+		pZWave->m_ReportChildrenStarted = false;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "DoReportChildDevices : no ZWave object");
+	}
+	
 	return NULL;
 }
 
@@ -455,8 +514,22 @@ void *DoReportChildDevices(void *p)
 void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
 {
-	pthread_t t;
-	pthread_create(&t, NULL, DoReportChildDevices, (void*)this);
+	if( !m_ReportChildrenStarted )
+	{
+		pthread_t t;
+		if( !pthread_create(&t, NULL, DoReportChildDevices, (void*)this) )
+		{
+			// may be a debug line here
+		}
+		else
+		{
+			sCMD_Result = "Threading error";
+		}
+	}
+	else
+	{
+		sCMD_Result = "Please wait, there is a running report child devices.";
+	}
 }
 //<-dceag-c757-b->
 
@@ -468,20 +541,70 @@ void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c757-e->
 {
-	pthread_t t;
-	pthread_create(&t, NULL, DoDownloadConfiguration, (void*)this);
+	if( !m_ReceiveStarted )
+	{
+		pthread_t t;
+		if( !pthread_create(&t, NULL, DoDownloadConfiguration, (void*)this) )
+		{
+			// may be a debug line here
+		}
+		else
+		{
+			sCMD_Result = "Threading error";
+		}
+	}
+	else
+	{
+		sCMD_Result = "Please wait, there is a running download configuration.";
+	}
+}
+
+void *DoAsynch(void *p)
+{
+	ZWave *pZWave = (ZWave *) p;
+	if( pZWave != NULL )
+	{
+		pZWave->AsynchZWave();
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "DoAsynch : no ZWave object");
+	}
+	
+	return NULL;
+}
+
+void ZWave::AsynchZWave()
+{
+	while( m_AsynchStarted )
+	{
+		m_ZWaveAPI->listenAsynchron();
+#ifdef _WIN32
+		Sleep(POOL_DELAY); 
+#else
+		usleep(POOL_DELAY); 
+#endif
+	}
 }
 
 void *DoPooling(void *p)
 {
 	ZWave *pZWave = (ZWave *) p;
-	pZWave->PoolZWaveNetwork();
+	if( pZWave != NULL )
+	{
+		pZWave->PoolZWaveNetwork();
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "DoPooling : no ZWave object");
+	}
+	
 	return NULL;
 }
 
 void ZWave::PoolZWaveNetwork()
 {
-	g_pPlutoLogger->Write(LV_DEBUG, "PoolZWaveNetwork : begin");
+	g_pPlutoLogger->Write(LV_WARNING, "PoolZWaveNetwork : begin");
 	
 	// start with 30 sec delay
 	// so that the children will be reported
@@ -489,11 +612,11 @@ void ZWave::PoolZWaveNetwork()
 	unsigned i = 1;
 	while( m_PoolStarted )
 	{
-		// if ZWave has changed, then the Pooling task should be performed in the next 4 sec
+		// if ZWave has changed, then the Pooling task should be performed in the next 5 sec
 		if( isZWaveChanged() )
 		{
 			setZWaveChanged( false );
-			i = 80;
+			i = 125; // 150 - 125 = 25 * 200 ms = 5 sec
 		}
 		
 		// 30 sec = 150 x 200 ms
@@ -509,10 +632,13 @@ void ZWave::PoolZWaveNetwork()
 			ZWJobPool * pool = new ZWJobPool(m_ZWaveAPI);
 			if( pool != NULL )
 			{
+				pool->setRunningTimeout( ZW_LONG_TIMEOUT );
 				m_ZWaveAPI->insertJob( pool );
 				if( m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) &&
-					m_ZWaveAPI->listen(ZW_LONG_TIMEOUT) )
+					m_ZWaveAPI->listen( ZW_LONG_TIMEOUT ) )
 				{
+					m_ZWaveAPI->waitForJob(pool, ZW_LONG_TIMEOUT);
+					
 					// checking the current state for each children
 					DeviceData_Impl *pChildDevice = NULL;
 					for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
@@ -598,7 +724,37 @@ void ZWave::PoolZWaveNetwork()
 #endif
 	}
 	
-	g_pPlutoLogger->Write(LV_DEBUG,"PoolZWaveNetwork : end");
+	g_pPlutoLogger->Write(LV_WARNING,"PoolZWaveNetwork : end");
+}
+
+void ZWave::asynchThread(bool start)
+{
+#ifndef NO_ASYNCH
+	if( start )
+	{
+		if( !m_AsynchStarted )
+		{
+			if( !pthread_create(&m_AsynchThread, NULL, DoAsynch, (void*)this) )
+			{
+				m_AsynchStarted = true;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"asynchThread : couldn't create the thread");
+			}
+		}
+	}
+	else
+	{
+		if( m_AsynchStarted )
+		{
+			m_ZWaveAPI->stop();
+			m_ZWaveAPI->clearJobs();
+			m_AsynchStarted = false;
+			pthread_join(m_AsynchThread, NULL);
+		}
+	}
+#endif
 }
 
 void ZWave::CMD_Pool(bool start)
@@ -661,17 +817,24 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		if( iPK_Command == COMMAND_Generic_On_CONST )
 		{
 			g_pPlutoLogger->Write(LV_ZWAVE,"Sending ON - %s", sID.c_str());
-			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 99, (unsigned char)NodeID);
+			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 100, (unsigned char)NodeID);
 			if( light != NULL )
 			{
+				light->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
+				// a small delay to not get ZWave too busy
+#ifdef _WIN32
+				Sleep(POOL_DELAY); 
+#else
+				usleep(POOL_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -686,14 +849,21 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
+				light->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen(ZW_TIMEOUT) )
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
+				// a small delay to not get ZWave too busy
+#ifdef _WIN32
+				Sleep(POOL_DELAY); 
+#else
+				usleep(POOL_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -721,19 +891,16 @@ NOEMON or CANBUS */
 void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
-	// try to avoid trylock timeout
+// commented because we are using asynchron tasks management
+/*	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
 		g_pPlutoLogger->Write(LV_ZWAVE,"Force ZWave to stop.");
 		m_ZWaveAPI->stop();
-	}
+	}*/
 	
-// 	if( !ConfirmConnection() )
-// 	{
-// 		sCMD_Result = "NO ZWAVE";
-// 		return;
-// 	}
-
+	CMD_Pool(false);
+		
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 
 	if( m_ZWaveAPI != NULL )
@@ -749,8 +916,10 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 			ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
 			if( reset != NULL )
 			{
+				reset->setRunningTimeout( ZW_TIMEOUT );
 				m_ZWaveAPI->insertJob( reset );
-				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) || !m_ZWaveAPI->listen(ZW_TIMEOUT) )
+				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
+					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
@@ -774,6 +943,8 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_CRITICAL,"ZWave::CMD_Reset : not enough memory");
 		return;
 	}
+	
+	CMD_Pool(true);
 	
 	sCMD_Result = "OK";
 }

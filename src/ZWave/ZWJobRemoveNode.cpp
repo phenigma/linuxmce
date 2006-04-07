@@ -184,10 +184,12 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 				return false;
 			}
 			
+			setAnswerTime( time(NULL) );
 			return true;
 		}
 		else
 		{
+			setAnswerTime( time(NULL) );
 			setState(ZWaveJob::STOPPED);
 			return true;
 		}
@@ -196,6 +198,7 @@ bool ZWJobRemoveNode::processData(const char* buffer, size_t length)
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_ZWAVE, "----- REMOVE_NODE ---- 7");
 #endif
+	setAnswerTime( time(NULL) );
 	return true;
 }
 
@@ -209,6 +212,10 @@ bool ZWJobRemoveNode::run()
 		return false;
 	}
 	((ZWJobSetLearnNodeState*)d->currentJob)->setMode( LEARN_NODE_STATE_DELETE );
+	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );
 	

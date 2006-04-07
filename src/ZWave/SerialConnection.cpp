@@ -283,9 +283,6 @@ int SerialConnection::receiveCommand(char *b, size_t *len)
  */
 int SerialConnection::hasCommand()
 {
-#ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() entry point");
-#endif
 	if( !isConnected() )
 	{
 		g_pPlutoLogger->Write(LV_ZWAVE, "SerialConnection::hasCommand() is not connected");
@@ -293,9 +290,6 @@ int SerialConnection::hasCommand()
 	}
 	
 	int returnValue = 0;
-#ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() lock mutex_buffer");
-#endif
 	pthread_mutex_lock( &instance->mutex_buffer );
 	while( 0 < buffer.size() && buffer.front() == SERIAL_ACK )
 	{
@@ -305,10 +299,12 @@ int SerialConnection::hasCommand()
 		buffer.pop_front();
 	}
 	
-	if(buffer.size() < 3)
+	size_t bufferSize = buffer.size();
+	if(bufferSize < 3)
 	{
+		if( 0 < bufferSize )
 #ifdef PLUTO_DEBUG
-		g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
+			g_pPlutoLogger->Write(LV_DEBUG, "size too small %d", buffer.size());
 #endif
 		pthread_mutex_unlock( &instance->mutex_buffer );
 		return 0;
@@ -321,7 +317,7 @@ int SerialConnection::hasCommand()
 #endif
 		std::deque<char>::iterator i = buffer.begin();
 		unsigned int len = *(++i) ;
-		if(buffer.size() >= len + 2) //SOF+LEN+CHECK
+		if(bufferSize >= len + 2) //SOF+LEN+CHECK
 		{
 			i += len;
 			char checkSum = *i;

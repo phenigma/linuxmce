@@ -20,6 +20,10 @@ ZWJobGetInitData::~ZWJobGetInitData(void)
 /** It is called to perform the job.*/
 bool ZWJobGetInitData::run()
 {
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	char data[] = {REQUEST, FUNC_ID_SERIAL_API_GET_INIT_DATA};
 	return handler()->sendData(data, 2);
@@ -64,6 +68,7 @@ bool ZWJobGetInitData::processData(const char * buffer, size_t length)
 						handler()->insertNode(new ZWaveNode(handler()->homeID(), node_index));
 				}
 			}
+			setAnswerTime( time(NULL) );
 			setState(ZWaveJob::STOPPED);
 			return true;
 	}

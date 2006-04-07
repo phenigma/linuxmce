@@ -104,6 +104,10 @@ bool ZWJobLightLevel::run()
 	g_pPlutoLogger->Write(LV_DEBUG, "==============8" );
 #endif
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState( ZWaveJob::RUNNING );
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobLightLevel running");
@@ -215,6 +219,8 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "==============23" );
 #endif
+			setAnswerTime( time(NULL) );
+			
 			return true;
 		}
 		else
@@ -223,11 +229,14 @@ g_pPlutoLogger->Write(LV_DEBUG, "==============13" );
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "==============24" );
 #endif
+			setAnswerTime( time(NULL) );
+			
 			return true;
 		}
 	}
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "==============25" );
 #endif
+	setAnswerTime( time(NULL) );
 	return true;
 }

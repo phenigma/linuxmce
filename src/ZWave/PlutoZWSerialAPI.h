@@ -42,6 +42,12 @@ class PlutoZWSerialAPI
 		 * regarding to serial connection*/
 		enum SerialState { STOPPED, IDLE, RUNNING, WAITTING };
 		
+		/** The jobs can be managed synchron or asynchron.
+		  * synchron  = succesive asks and answers
+		  * asynchron = the asks and answer doesn't have to follow any time rules
+		  */
+		enum ListenType { SYNCHRON, ASYNCHRON };
+		
 		/**get an instance of this class
 		 * @return the instance of this class*/		
 		static PlutoZWSerialAPI * instance();
@@ -61,6 +67,16 @@ class PlutoZWSerialAPI
 		 * @return true if succesfull*/
 		virtual bool listen(time_t timeout);
 		
+		/**listen for responses, but it can manage asynchronly the jobs
+		 * @param timeout the listen timeout
+		 * @return true if succesfull*/
+		virtual bool listenAsynchron();
+		
+		/** It waits until the job is finished.
+		  * @return true is the job was finished in time (no timeout)
+		  */
+		virtual bool waitForJob(ZWaveJob * job, time_t timeout);
+		
 		/**disconnects from the serial port
 		 * @return true if succesfull*/
 		virtual bool stop();
@@ -68,6 +84,9 @@ class PlutoZWSerialAPI
 		/**get the state of the serial connection
 		 * @return the state*/
 		virtual SerialState state() const;
+		
+		/** Get the type of jobs management.*/
+		virtual ListenType listenType() const;
 		
 		/**insert a job
 		 * @param job the job to be inserted

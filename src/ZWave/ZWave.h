@@ -40,11 +40,17 @@ namespace DCE
 		// ZWave API
 		PlutoZWSerialAPI * m_ZWaveAPI;
 		
+		/** Flag used by the asynch thread.*/
+		static bool m_AsynchStarted;
+		
 		/** Flag used by the pooling thread.*/
 		static bool m_PoolStarted;
 		
 		/** Flag used to force the pooling task if ZWave has changes.*/
 		static bool m_ZWaveChanged;
+		
+		/** Asynchron jobs management thread */
+		static pthread_t m_AsynchThread;
 		
 		/** Pooling thread */
 		static pthread_t m_PoolThread;
@@ -56,6 +62,9 @@ namespace DCE
 		
 		/** Returns the serial/USB device.*/
 		string GetZWaveSerialDevice();
+		
+		/** Starts or stops the ZWave asynchron jobs management thread.*/
+		void asynchThread(bool start);
 		
 		/** Starts or stops the ZWave pooling thread.*/
 		void CMD_Pool(bool start);
@@ -73,7 +82,16 @@ public:
 	
 		// Public member variables
 		
+		/** Flag used by the receiving configuration thread.*/
+		static bool m_ReceiveStarted;
+		
+		/** Flag used by the reporting children thread.*/
+		static bool m_ReportChildrenStarted;
+		
 		// Public methods
+		
+		/** Listening asynchronly for ZWave answers.*/
+		void AsynchZWave();
 		
 		/** Get the nodes state, one by one.*/
 		void PoolZWaveNetwork();

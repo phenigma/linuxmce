@@ -10,10 +10,14 @@
 #include <windows.h>
 #include <winbase.h>
 #define READ_DELAY 200
+#define WAIT_DELAY 400
 #else
 #include <unistd.h>
 #define READ_DELAY 200000
+#define WAIT_DELAY 400000
 #endif
+
+#include "PlutoUtils/MultiThreadIncludes.h" 
 
 PlutoZWSerialAPI * PlutoZWSerialAPI::ref = NULL;
 
@@ -28,10 +32,17 @@ class PlutoZWSerialAPI::Private
 
 		~Private();
 
+		/** mutex for the asynchron mode.*/
+	    pluto_pthread_mutex_t asynchMutex;
+		
+		// mutex attribute
+	    pthread_mutexattr_t mutexAttr;
+		
 		SerialConnection * connection;
 		JobsDeque jobsQueue;
 		NodesMap nodes;
 		PlutoZWSerialAPI::SerialState state;
+		PlutoZWSerialAPI::ListenType listenType;
 		
 		unsigned long homeID;
 		unsigned short nodeID;
@@ -44,6 +55,7 @@ class PlutoZWSerialAPI::Private
 		ZWaveJob * currentJob;
 		char command[65536];
 		size_t commandLength;
+		bool unknown;
 
 	private:
 
@@ -53,8 +65,10 @@ class PlutoZWSerialAPI::Private
 unsigned char PlutoZWSerialAPI::Private::count = 0;
 
 PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
-	: connection(NULL),
+	: asynchMutex("zwave_asynchron"),
+	  connection(NULL),
 	  state(PlutoZWSerialAPI::STOPPED),
+	  listenType(PlutoZWSerialAPI::ASYNCHRON),
 	  homeID(0L),
 	  nodeID(0),
 	  sucID(0),
@@ -63,8 +77,13 @@ PlutoZWSerialAPI::Private::Private(PlutoZWSerialAPI * parent)
 	  timeLeft(0),
 	  currentJob(NULL),
 	  commandLength(0),
+	  unknown(false),
 	  parent_(parent)
 {
+	pthread_mutexattr_init( &mutexAttr );
+	pthread_mutexattr_settype( &mutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	asynchMutex.Init( &mutexAttr );
+	
 	memset(command, 0, sizeof(command));
 	
 	connection = SerialConnection::getInstance();
@@ -141,24 +160,69 @@ PlutoZWSerialAPI::SerialState PlutoZWSerialAPI::state() const
 	return d->state;
 }
 
+PlutoZWSerialAPI::ListenType PlutoZWSerialAPI::listenType() const
+{
+	return d->listenType;
+}
+
 bool PlutoZWSerialAPI::start(const char *port)
 {
+	PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+	
 	if( d->state == PlutoZWSerialAPI::STOPPED )
 	{
 		if( d->jobsQueue.size() )
 		{
 			if( !d->connection->connect(port) )
 			{
-				d->currentJob = d->jobsQueue.front();
-				d->jobsQueue.pop_front();
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++ ZWave is connected");
+#endif
 				d->state = PlutoZWSerialAPI::RUNNING;
-				if( d->currentJob->run() )
+				
+				if( PlutoZWSerialAPI::SYNCHRON == d->listenType )
 				{
-					return true;
+					d->currentJob = d->jobsQueue.front();
+					d->jobsQueue.pop_front();
+					if( d->currentJob != NULL && d->currentJob->run() )
+					{
+						return true;
+					}
 				}
 			}
 		}
 	}
+	
+	if( d->state != PlutoZWSerialAPI::STOPPED && PlutoZWSerialAPI::ASYNCHRON == d->listenType )
+	{
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++ run the idle jobs");
+#endif
+		ZWaveJob * job = NULL;
+		bool sent = true;
+		for(JobsDequeIterator it=d->jobsQueue.begin(); it!=d->jobsQueue.end(); ++it)
+		{
+			job = (*it);
+			if( job != NULL && ZWaveJob::IDLE == job->state() )
+			{
+				if( !job->run() )
+				{
+					sent = false;
+					break;
+				}
+			}
+		}
+		
+		if( sent )
+		{
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++ ZWave jobs are running");
+#endif
+			return true;
+		}
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING, "PlutoZWSerialAPI::start : connection problems");
 	
 	// it wasn't possible to start it, then just reset it
 	stop();
@@ -169,18 +233,18 @@ bool PlutoZWSerialAPI::start(const char *port)
 
 bool PlutoZWSerialAPI::stop()
 {
+	PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+	
 	if( d->state != PlutoZWSerialAPI::STOPPED )
 	{
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_DEBUG, "-------- 3");
-		g_pPlutoLogger->Flush();
 #endif
 		d->connection->disconnect();
 		d->state = PlutoZWSerialAPI::STOPPED;
 		d->timeLeft = 0;
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_DEBUG, "-------- 4");
-		g_pPlutoLogger->Flush();
 #endif
 	}
 	
@@ -189,6 +253,13 @@ bool PlutoZWSerialAPI::stop()
 
 bool PlutoZWSerialAPI::listen(time_t timeout)
 {
+	if( PlutoZWSerialAPI::ASYNCHRON == d->listenType )
+	{
+		return true;
+	}
+	
+	d->listenType = PlutoZWSerialAPI::SYNCHRON;
+	
 	time_t listenTime = time(NULL);
 	time_t currentTime = listenTime;
 	time_t receivingTime = listenTime;
@@ -323,8 +394,164 @@ bool PlutoZWSerialAPI::listen(time_t timeout)
 	return true;
 }
 
+bool PlutoZWSerialAPI::listenAsynchron()
+{
+	d->listenType = PlutoZWSerialAPI::ASYNCHRON;
+
+	if( PlutoZWSerialAPI::RUNNING == d->state )
+	{
+		d->state = PlutoZWSerialAPI::WAITTING;
+		while( d->connection->isConnected() )
+		{
+			int commandRet = d->connection->hasCommand();
+			if( commandRet == 1 )
+			{
+				d->commandLength = sizeof(d->command);
+				memset(d->command, 0, d->commandLength);
+				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
+				{
+#ifdef PLUTO_DEBUG
+		g_pPlutoLogger->Write(LV_ZWAVE, "-------------------------- jobs number: %u", d->jobsQueue.size());
+#endif
+					PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+					d->state = PlutoZWSerialAPI::RUNNING;
+					ZWaveJob * job = NULL;
+					for(JobsDequeIterator it=d->jobsQueue.begin(); it!=d->jobsQueue.end(); ++it)
+					{
+						job = (*it);
+						if( job != NULL && ZWaveJob::STOPPED != job->state() )
+						{
+							d->unknown = false;
+							if( job->processData(d->command, d->commandLength) && !d->unknown )
+							{
+								if( ZWaveJob::STOPPED == job->state() )
+								{
+									delete job;
+									d->jobsQueue.erase(it);
+								}
+								// if the answer is for this job, than that's all to process
+								break;
+							}
+						}
+					}
+					d->state = PlutoZWSerialAPI::WAITTING;
+				}
+				else
+				{
+					// print the error
+					g_pPlutoLogger->Write(LV_WARNING, "ZWave Command Error");
+				
+					stop();
+					return false;
+				}
+			}
+			else
+			{
+				// just a bit more delay
+#ifdef _WIN32
+				Sleep(READ_DELAY);
+#else
+				usleep(READ_DELAY);
+#endif
+			}
+			
+			// check the timeout and closed jobs
+			{
+				PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+				time_t currentTime = time(NULL);
+				ZWaveJob * job = NULL;
+				JobsDequeIterator it=d->jobsQueue.begin();
+				while( it!=d->jobsQueue.end() )
+				{
+					job = (*it);
+					if( job != NULL && ZWaveJob::STOPPED != job->state() )
+					{
+						if( currentTime - job->startTime() > job->runningTimeout() )
+						{
+							job->setState( ZWaveJob::STOPPED );
+						}
+						else if( job->hasReceivingTimeout() && 
+								 currentTime - job->answerTime() > job->receivingTimeout() )
+						{
+							job->timeoutHandler();
+						}
+					}
+					
+					// remove the closed jobs
+					if( job == NULL || ZWaveJob::STOPPED == job->state() )
+					{
+						g_pPlutoLogger->Write(LV_WARNING, "-------------------------- Job Timeout _________");
+						
+						delete job;
+						it = d->jobsQueue.erase(it);
+					}
+					else
+					{
+						++it;
+					}
+				}
+			}
+#ifdef _WIN32
+			Sleep(READ_DELAY);
+#else
+			usleep(READ_DELAY);
+#endif
+		}
+	}
+	else
+	{
+#ifdef _WIN32
+		Sleep(WAIT_DELAY);
+#else
+		usleep(WAIT_DELAY);
+#endif
+	}
+	
+	return true;
+}
+
+bool PlutoZWSerialAPI::waitForJob(ZWaveJob * job, time_t timeout)
+{
+	time_t waittingTime = time(NULL);
+	time_t currentTime = waittingTime;
+	bool found = false;
+	while( currentTime - waittingTime <= timeout )
+	{
+		{
+			PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+			
+			found = false;
+			for(JobsDequeIterator it=d->jobsQueue.begin(); it!=d->jobsQueue.end(); ++it)
+			{
+				if( job == (*it) )
+				{
+					found = true;
+					break;
+				}
+			}
+		}
+		
+		// if it's not in queue then it's finished
+		if( !found )
+		{
+			return true;
+		}
+		
+#ifdef _WIN32
+		Sleep(READ_DELAY);
+#else
+		usleep(READ_DELAY);
+#endif
+		currentTime = time(NULL);
+	}
+	
+	return false;
+}
+
 bool PlutoZWSerialAPI::insertJob(ZWaveJob * job)
 {
+	PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+	
 // may be, we should use it
 //	if( job == NULL )
 //		return false;
@@ -336,6 +563,8 @@ bool PlutoZWSerialAPI::insertJob(ZWaveJob * job)
 
 bool PlutoZWSerialAPI::clearJobs()
 {
+	PLUTO_SAFETY_LOCK(am, d->asynchMutex);
+	
 	delete d->currentJob;
 	d->currentJob = NULL;
 	
@@ -475,7 +704,12 @@ bool PlutoZWSerialAPI::sendData(char *buffer, size_t length)
 
 bool PlutoZWSerialAPI::processData(const char * buffer, size_t length)
 {
-	SerialConnection::printDataBuffer( buffer, length, "Unknown command:");
+	if( d->listenType == PlutoZWSerialAPI::SYNCHRON )
+	{
+		SerialConnection::printDataBuffer( buffer, length, "Unknown command:");
+	}
+	
+	d->unknown = true;
 	
 	return true;
 }

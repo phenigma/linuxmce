@@ -194,15 +194,18 @@ bool ZWJobAddNode::processData(const char* buffer, size_t length)
 				return false;
 			}
 			
+			setAnswerTime( time(NULL) );
 			return true;
 		}
 		else
 		{
+			setAnswerTime( time(NULL) );
 			setState(ZWaveJob::STOPPED);
 			return true;
 		}
 	}
 	
+	setAnswerTime( time(NULL) );
 	return true;
 }
 
@@ -216,6 +219,10 @@ bool ZWJobAddNode::run()
 		return false;
 	}
 	((ZWJobSetLearnNodeState*)d->currentJob)->setMode( LEARN_NODE_STATE_NEW );
+	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );
 	

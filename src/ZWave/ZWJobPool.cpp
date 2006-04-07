@@ -140,6 +140,10 @@ bool ZWJobPool::run()
 		return false;
 	}
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState( ZWaveJob::RUNNING );
 	
 	return d->currentJob->run();
@@ -202,6 +206,7 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 				return false;
 			}
 			
+			setAnswerTime( time(NULL) );
 			return true;
 		}
 		else
@@ -209,16 +214,20 @@ bool ZWJobPool::processData(const char* buffer, size_t length)
 #ifdef PLUTO_DEBUG
 			g_pPlutoLogger->Write(LV_DEBUG, "----- POOL ---- 3");
 #endif
+			setAnswerTime( time(NULL) );
 			setState(ZWaveJob::STOPPED);
 			return true;
 		}
 	}
 	
+	setAnswerTime( time(NULL) );
 	return true;
 }
 
 void ZWJobPool::timeoutHandler()
 {
+	setAnswerTime( time(NULL) );
+	
 	if( d->currentJob != NULL && d->triesCount < 2 )
 	{
 #ifdef PLUTO_DEBUG

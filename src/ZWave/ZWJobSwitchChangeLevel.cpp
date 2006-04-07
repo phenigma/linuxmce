@@ -35,7 +35,7 @@ ZWJobSwitchChangeLevel::ZWJobSwitchChangeLevel(PlutoZWSerialAPI * zwAPI, unsigne
 {
 	d = new Private(level, nodeID);
 	setType(ZWaveJob::SET_SWITCH_LEVEL);
-	setReceivingTimeout( 3 );
+	setReceivingTimeout( 4 );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~2" );
 #endif
@@ -52,7 +52,12 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~3" );
 
 bool ZWJobSwitchChangeLevel::run()
 {
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
+	
 	size_t len = 9;
 	char data[9];
 	data[0] = REQUEST;
@@ -96,20 +101,27 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~6" );
 				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, length too small");
 				break;
 			}
+			// short answer, we have to wait for more
+			// 01 13 01
+			if(buffer[0] == RESPONSE && buffer[1] == FUNC_ID_ZW_SEND_DATA && buffer[2] == 1)
+			{
+				setAnswerTime( time(NULL) );
+				return true;
+			}
+			// is it an answer for us ?
 			if(buffer[1] != FUNC_ID_ZW_SEND_DATA || buffer[2] != d->callbackID)
 			{
 #ifdef PLUTO_DEBUG
-g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~7" );
-#endif
 				DCE::g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobSwitchChangeLevel::processData, buffer incorrect");
+#endif
 				break;
 			}
 			if(buffer[0] == RESPONSE)
 			{
 #ifdef PLUTO_DEBUG
-g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~8" );
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchChangeLevel::processData the response is here");
 #endif
+				setAnswerTime( time(NULL) );
 				return true;
 			}
 			else //buffer[1] == REQUEST
@@ -150,6 +162,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~13" );
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~14" );
 #endif
+				setAnswerTime( time(NULL) );
 				setState(ZWaveJob::STOPPED);
 				return completedOK;
 			
@@ -164,6 +177,8 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~15" );
 
 void ZWJobSwitchChangeLevel::timeoutHandler()
 {
+	setAnswerTime( time(NULL) );
+	
 	SerialConnection * connection = handler()->serialConnection();
 	if( connection != NULL )
 	{

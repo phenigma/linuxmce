@@ -51,6 +51,10 @@ bool ZWJobSwitchBinaryGet::run()
 #ifdef PLUTO_DEBUG
 	g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
 #endif
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	size_t len = 8;
 	char data[8];
@@ -111,7 +115,8 @@ bool ZWJobSwitchBinaryGet::processData(const char * buffer, size_t length)
 				DCE::g_pPlutoLogger->Write(LV_DEBUG, "ZWJobSwitchBinaryGet::processData the response is here");
 g_pPlutoLogger->Write(LV_DEBUG, "*******************10" );
 #endif
-				return true;				
+				setAnswerTime( time(NULL) );
+				return true;
 			}
 
 			else if(buffer[1] == FUNC_ID_ZW_SEND_DATA) //buffer[0] == REQUEST
@@ -178,6 +183,8 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 					setState(ZWaveJob::STOPPED);
 				}
 				
+				setAnswerTime( time(NULL) );
+				
 				return completedOK;
 			}
 			else if(buffer[1] == FUNC_ID_APPLICATION_COMMAND_HANDLER)//buffer[0] == REQUEST
@@ -225,6 +232,7 @@ g_pPlutoLogger->Write(LV_DEBUG, "*******************13" );
 					goto entry;
 				}
 
+				setAnswerTime( time(NULL) );
 				setState(ZWaveJob::STOPPED);
 #ifdef PLUTO_DEBUG
 g_pPlutoLogger->Write(LV_DEBUG, "*******************22" );

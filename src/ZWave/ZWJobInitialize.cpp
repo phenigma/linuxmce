@@ -74,7 +74,7 @@ ZWJobInitialize::ZWJobInitialize(PlutoZWSerialAPI * zwAPI)
 {
 	d = new Private();
 	setType(ZWaveJob::INITIALIZE);
-	setReceivingTimeout( 5 );
+	setReceivingTimeout( 4 );
 }
 
 ZWJobInitialize::~ZWJobInitialize()
@@ -96,6 +96,10 @@ bool ZWJobInitialize::run()
 	// add jobs
 	//d->currentJob = d->jobsQueue.front();
 	//d->jobsQueue.pop_front();
+	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );
 	
@@ -204,6 +208,7 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 				return false;
 			}
 			
+			setAnswerTime( time(NULL) );
 			return true;
 		}
 		else
@@ -212,10 +217,12 @@ bool ZWJobInitialize::processData(const char * buffer, size_t length)
 			g_pPlutoLogger->Write(LV_DEBUG, "----- INIT ---- 3");
 #endif
 			setState(ZWaveJob::STOPPED);
+			setAnswerTime( time(NULL) );
 			return true;
 		}
 	}
 	
+	setAnswerTime( time(NULL) );
 	return true;
 }
 
@@ -225,6 +232,8 @@ void ZWJobInitialize::timeoutHandler()
 	g_pPlutoLogger->Write(LV_WARNING, "ZWJobInitialize::timeoutHandler");
 #endif
 
+	setAnswerTime( time(NULL) );
+	
 	if( d->currentJob != NULL && d->triesCount < 3 )
 	{
 		d->triesCount++;

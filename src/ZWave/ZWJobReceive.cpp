@@ -76,6 +76,10 @@ bool ZWJobReceive::run()
 	buffer[3] = d->callbackID; // Callback FunctionID
 	buffer[4] = 0;
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	d->state = ZWJobReceive::START;
 	setState(ZWaveJob::RUNNING);
 	
@@ -153,6 +157,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 							
 							if( handler()->sendData(buf, 4) )
 							{
+								setAnswerTime( time(NULL) );
 								// let's force to get the answer in time
 								setReceivingTimeout(4);
 								return true;
@@ -171,6 +176,7 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 					}
 				}
 				
+				setAnswerTime( time(NULL) );
 				return true;
 			}
 			else if( length >= 6 &&
@@ -192,7 +198,10 @@ bool ZWJobReceive::processData(const char * buffer, size_t length)
 				
 				d->state = ZWJobReceive::STOP;
 				if( handler()->sendData(buf, 2) )
+				{
+					setAnswerTime( time(NULL) );
 					return true;
+				}
 			}
 			else
 			{
@@ -213,6 +222,8 @@ void ZWJobReceive::timeoutHandler()
 	g_pPlutoLogger->Write(LV_DEBUG, "----- RECEIVE ---- 5");
 #endif
 
+	setAnswerTime( time(NULL) );
+	
 	// TRY AGAIN :(
 	// the receiving it's done, change the controller state
 	// back to normal state (stop == not receiving)

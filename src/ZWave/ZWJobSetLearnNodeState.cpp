@@ -127,6 +127,7 @@ bool ZWJobSetLearnNodeState::processData(const char* buffer, size_t length)
 						break;
 				}
 				
+				setAnswerTime( time(NULL) );
 				return true;
 			}
 			break;
@@ -147,6 +148,10 @@ bool ZWJobSetLearnNodeState::run()
 	buffer[2] = mode();
 	buffer[3] = 1; // Callback FunctionID
 	buffer[4] = 0;
+	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
 	
 	setState(ZWaveJob::RUNNING);
 	

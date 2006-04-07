@@ -71,6 +71,10 @@ bool ZWJobReset::run()
 	buffer[2] = d->callbackID; // Callback FunctionID
 	buffer[3] = 0;
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	
 	return handler()->sendData(buffer, 3);
@@ -95,6 +99,7 @@ bool ZWJobReset::processData(const char * buffer, size_t length)
 				buffer[2] == d->callbackID /* completed*/ )
 			{
 				handler()->clearNodes();
+				setAnswerTime( time(NULL) );
 				setState( ZWaveJob::STOPPED );
 				return true;
 			}

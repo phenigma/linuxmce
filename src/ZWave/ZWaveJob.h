@@ -68,6 +68,22 @@ class ZWaveJob
 		  */
 		virtual void setReceivingTimeout(time_t);
 		
+		/** Returns the current running timeout value.*/
+		virtual time_t runningTimeout() const;
+		
+		/** Set the job to use the running timeout.
+		  * 0 = no timeout
+		  */
+		virtual void setRunningTimeout(time_t);
+		
+		/** Returns the start time value.*/
+		virtual time_t startTime() const;
+		
+		/** Returns the answer time value.
+		  * The time when the job got the last answer.
+		  */
+		virtual time_t answerTime() const;
+		
 	protected:
 	
 		/** Returns the job handler.*/
@@ -75,6 +91,14 @@ class ZWaveJob
 		
 		/** Return true if the 'again' flag is set.*/
 		virtual bool again() const;
+		
+		/** Set the start time.*/
+		virtual void setStartTime(time_t);
+		
+		/** Set the answer time.
+		  * The time when the job got the last answer.
+		  */
+		virtual void setAnswerTime(time_t);
 		
 	private:
 	

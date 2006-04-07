@@ -56,6 +56,10 @@ bool ZWJobGetSUC::run()
 	buffer[1] = FUNC_ID_ZW_GET_SUC_NODE_ID;
 	buffer[2] = 0;
 	
+	time_t currentTime = time(NULL);
+	setStartTime( currentTime );
+	setAnswerTime( currentTime );
+	
 	setState(ZWaveJob::RUNNING);
 	
 	return handler()->sendData(buffer, 2);
@@ -80,6 +84,7 @@ bool ZWJobGetSUC::processData(const char * buffer, size_t length)
 			{
 				handler()->setSucID(buffer[2]);
 				
+				setAnswerTime( time(NULL) );
 				setState(ZWaveJob::STOPPED);
 				
 				return true;
