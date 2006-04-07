@@ -57,7 +57,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			<input type="hidden" name="jumpFromTo" value="">
 		
 			<table cellpadding="3" cellspacing="2" align="center">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>#</B></td>
 					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B> / <B>'.$TEXT_PATH_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_START_COMMAND_GROUP_CONST.'</B></td>
@@ -107,6 +107,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			$pos++;
 			$filename=(($rowPlaylistEntry['Filename']!='')?$rowPlaylistEntry['Filename']:$rowPlaylistEntry['FileFilename']);
 			$filename=(!is_null($rowPlaylistEntry['FK_Bookmark']))?$bookmarksArray[$rowPlaylistEntry['FK_Bookmark']]:$filename;
+			$editFileLink=(!is_null($rowPlaylistEntry['FK_File']))?'<a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">'.$TEXT_EDIT_CONST.'</a>':'';
 			$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
 					<td>'.$pos.'</td>
@@ -126,7 +127,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 							</tr>
 						</table></td>
 					<td align="center"><input type="text" name="duration_'.$rowPlaylistEntry['PK_PlaylistEntry'].'" value="'.$rowPlaylistEntry['Duration'].'" style="width:50px;"></td>
-					<td><a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_FILE_FROM_PLAYLIST_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">'.$TEXT_DELETE_CONST.'</a>
+					<td>'.$editFileLink.' <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_FILE_FROM_PLAYLIST_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">'.$TEXT_DELETE_CONST.'</a>
 					<input type="button" class="button" name="plus" value="U" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
 					<input type="button" class="button" name="plus" value="D" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
 					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'">
@@ -141,6 +142,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 				<tr>
 					<td colspan="5" align="center">
 						<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
+						<input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
 						<input type="hidden" class="button" name="playlistEntries" value="'.join(',',$playlistEntries).'">
 					</td>
 				</tr>
