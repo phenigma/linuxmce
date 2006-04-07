@@ -335,11 +335,13 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
+    g_pPlutoLogger->Write(LV_STATUS, "SDL_Event_Loop_End()");
     if (sdl_event_loop_data.pOrbiter == NULL)
         return false;
     bool bReload = sdl_event_loop_data.pOrbiter->m_bReload;
-    g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance End of SDL loop with reload: %s",(bReload ? "Y" : "N"));
+    g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance, End of SDL loop with reload: %s", (bReload ? "Y" : "N"));
     delete sdl_event_loop_data.pOrbiter;
+    sdl_event_loop_data.pOrbiter = NULL;
     g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
     return bReload;
 }
@@ -361,7 +363,7 @@ bool SDL_App_Object::Run()
 {
     if (! LoadConfig())
     {
-        m_nExitCode = 1;
+        SetExitCode(1);
         return false;
     }
     if (! Create())
@@ -389,7 +391,7 @@ bool SDL_App_Object::Create()
     if (! bStartedOK)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : ParseCommandLineParams()");
-        m_nExitCode = 1;
+        SetExitCode(1);
         return false;
     }
 	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
@@ -404,25 +406,32 @@ bool SDL_App_Object::Create()
 
 bool SDL_App_Object::EventProcess()
 {
-    if (! m_pSDL_Event_Loop_Data->pOrbiter)
+    if ( (m_pSDL_Event_Loop_Data == NULL) || (m_pSDL_Event_Loop_Data->pOrbiter == NULL) )
+    {
+        SetExitCode(1);
         return false;
-    return SDL_Event_Process(*m_pSDL_Event_Loop_Data);
+    }
+    if (! SDL_Event_Process(*m_pSDL_Event_Loop_Data))
+    {
+        SetExitCode(m_pSDL_Event_Loop_Data->pOrbiter->m_bReload ? 2 : 0);
+        g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
+        return false;
+    }
+    return true;
 };
 
-int SDL_App_Object::Destroy()
+void SDL_App_Object::Destroy()
 {
-    if (! m_pSDL_Event_Loop_Data)
-        return m_nExitCode;
-    if (m_pSDL_Event_Loop_Data->pOrbiter && m_pSDL_Event_Loop_Data->pOrbiter->m_bReload)
-    {
-        m_nExitCode = 2;
-    }
+    if (m_pSDL_Event_Loop_Data == NULL)
+        return;
+    g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::Destroy()");
     SDL_Event_Loop_End(*m_pSDL_Event_Loop_Data);
     delete m_pSDL_Event_Loop_Data;
     m_pSDL_Event_Loop_Data = NULL;
     if (g_pPlutoLogger)
         delete g_pPlutoLogger;
-    return m_nExitCode;
+    g_pPlutoLogger = NULL;
+    return;
 };
 
 int SDL_App_Object::GetExitCode() const
@@ -430,16 +439,15 @@ int SDL_App_Object::GetExitCode() const
     return m_nExitCode;
 };
 
-//bool SDL_App_Object::ShouldUseWx()
-//{
-//    return Simulator::GetInstance()->m_bUseWxWidgets;
-//};
+void SDL_App_Object::SetExitCode(int nExitCode)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "ExitCode: %d -> %d", m_nExitCode, nExitCode);
+    m_nExitCode = nExitCode;
+};
 
 #if (! USE_WX_LIB)
 int main(int argc, char *argv[])
 {
-#if 1
-    // use the defined class
     int nExitCode = 0;
     if (! Init_System())
         return 1;
@@ -448,36 +456,6 @@ int main(int argc, char *argv[])
     nExitCode = pSDL_App_Object->GetExitCode();
     delete pSDL_App_Object;
     return nExitCode;
-#else
-    // do not use the defined class
-    int nExitCode = 0;
-    if (! Init_System())
-        return 1;
-	Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
-    SDL_Event_Loop_Data *pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
-    CommandLineParams commandlineparams;
-    bool bStartedOK = ParseCommandLineParams(argc, argv, commandlineparams);
-    if (! bStartedOK)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : ParseCommandLineParams()");
-        return 1;
-    }
-	pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
-    if (pSDL_Event_Loop_Data->pOrbiter == NULL)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
-        return 1;
-    }
-    while (SDL_Event_Process(*pSDL_Event_Loop_Data))
-        ;
-    if (pSDL_Event_Loop_Data->pOrbiter && pSDL_Event_Loop_Data->pOrbiter->bReload)
-        nExitCode = 2;
-    SDL_Event_Loop_End(*pSDL_Event_Loop_Data);
-    delete pSDL_Event_Loop_Data;
-    pSDL_Event_Loop_Data = NULL;
-    if (g_pPlutoLogger)
-        delete g_pPlutoLogger;
-    return nExitCode;
-#endif
 }
+
 #endif // (! USE_WX_LIB)

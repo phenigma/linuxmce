@@ -223,20 +223,19 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 			{
 				case KeyPress: case KeyRelease: // key related events types
 					orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
-					// g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
-					orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
-					// orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
+                    g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail); //del
+                    orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
 					break;
 
-				case MotionNotify:
+                case MotionNotify:
 					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 					m_iMouseX = pxEvent->u.keyButtonPointer.rootX;
 					m_iMouseY = pxEvent->u.keyButtonPointer.rootY;
-					// g_pPlutoLogger->Write(LV_WARNING, "Mouse move at position: %d, %d", m_iMouseX, m_iMouseY);
+                    g_pPlutoLogger->Write(LV_WARNING, "Mouse move at position: %d, %d", m_iMouseX, m_iMouseY); //del
 					break;
 
 				case ButtonPress:  case ButtonRelease: // mouse button related event types
-					// g_pPlutoLogger->Write(LV_WARNING, "Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up");
+                    g_pPlutoLogger->Write(LV_WARNING, "Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up"); //del
 					orbiterEvent->type = pxEvent->u.u.type == ButtonPress ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
 					orbiterEvent->data.region.m_iButton = pxEvent->u.u.detail;
 					orbiterEvent->data.region.m_iX = m_iMouseX;

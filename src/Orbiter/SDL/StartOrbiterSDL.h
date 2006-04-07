@@ -49,13 +49,13 @@ public:
     bool Run(); // load-config, create, event-loop, destroy
 
     bool LoadConfig();
-    //bool ShouldUseWx();
 
     bool Create();
     bool EventProcess();
-    int Destroy();
+    void Destroy();
 
     int GetExitCode() const;
+    void SetExitCode(int nExitCode);
 
     SDL_Event_Loop_Data *m_pSDL_Event_Loop_Data;
 protected:
