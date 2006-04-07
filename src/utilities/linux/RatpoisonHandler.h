@@ -26,16 +26,37 @@ class RatpoisonHandler
         Atom atoms[3];
 		bool m_bIsRatpoisonAvailable;
 
+        // recursive mutex, sync ratpoison commands
+        pluto_pthread_mutex_t commandMutexRec;
+        pthread_mutexattr_t m_MutexAttrRec;
+
     public:
+
+        RatpoisonHandler()
+                : commandMutexRec("command mutex")
+        {
+            pthread_mutexattr_init( &m_MutexAttrRec );
+            pthread_mutexattr_settype( &m_MutexAttrRec,  PTHREAD_MUTEX_RECURSIVE_NP );
+            commandMutexRec.Init(&m_MutexAttrRec);
+        }
+
+        virtual ~RatpoisonHandler()
+        {
+            pthread_mutex_destroy(&commandMutexRec.mutex);
+            pthread_mutexattr_destroy(&m_MutexAttrRec);
+        }
+
 
         bool makeActive(string windowName)
         {
+            PLUTO_SAFETY_LOCK(cm, commandMutexRec);
             return commandRatPoison(string(":select ") + windowName);
         }
 
     protected:
 		bool grabMousePointer()
 		{
+            PLUTO_SAFETY_LOCK(cm, commandMutexRec);
 			Display *display = static_cast<T>(this)->getDisplay();
 			Windows *window = static_cast<T>(this)->getWindow();
 
@@ -49,6 +70,7 @@ class RatpoisonHandler
 
 		void resetRatpoison()
 		{
+            PLUTO_SAFETY_LOCK(cm, commandMutexRec);
 g_pPlutoLogger->Write(LV_CRITICAL, "**NOT** Reseting ratpoison...");
 return; // Sometimes it's reporting that ratpoison is dead when it really isn't.  10-8-2005 AB TODO
 			int PID_Ratpoison=0;
@@ -78,6 +100,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
 
         bool commandRatPoison(string command)
         {
+            PLUTO_SAFETY_LOCK(cm, commandMutexRec);
             Display *display = static_cast<T*>(this)->getDisplay();
 
 			if ( display == NULL )
