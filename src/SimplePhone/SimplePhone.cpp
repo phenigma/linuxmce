@@ -382,6 +382,7 @@ void SimplePhone::registerWithAsterisk()
     int                      output = 0;
     int                      ring   = 0;
     haveActiveCall=false;
+	
     if(iaxc_initialize(AUDIO_INTERNAL_ALSA,1)<0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
@@ -412,7 +413,7 @@ void SimplePhone::registerWithAsterisk()
     }
     iaxc_audio_devices_set(input,output,ring);
 
-    iaxc_set_formats(IAXC_FORMAT_ALAW,IAXC_FORMAT_ALAW);
+    iaxc_set_formats(IAXC_FORMAT_ALAW,IAXC_FORMAT_ALAW|IAXC_FORMAT_ULAW|IAXC_FORMAT_GSM);
     iaxc_set_silence_threshold(-99);
     iaxc_set_event_callback(iaxCallback);
 

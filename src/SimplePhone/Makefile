@@ -19,7 +19,7 @@ sources = Main.cpp SimplePhone.cpp $(Gen_Dev_Files)
 CXXFLAGS += -Ilib
 CPPFLAGS += -Ilib
 LDFLAGS += -L./lib
-XTRALDLIBS = -liaxclient -lm
+XTRALDLIBS = -liaxclient -lm -lasound
 
 Gen_Dev_Files +=
 sources +=
