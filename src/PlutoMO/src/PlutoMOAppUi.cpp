@@ -49,21 +49,21 @@
 char CPlutoMOAppUi::GetCurrentDrive()
 {
 	bool bRes = false;
-	char cDrive;
+	char cDrive = 'c';
 
 	TUint attr;
 	RFs iFsSession;
 
 	User::LeaveIfError(iFsSession.Connect()); 
-	string sCurrentFolder = "x:\\system\\Apps\\PlutoMO";
+	string sApplicationFilePath = "x:\\system\\Apps\\PlutoMO\\PlutoMO.app";
 
 	//search for app folder
 	for(cDrive = 'c'; cDrive <= 'z'; cDrive++)
 	{
-		sCurrentFolder.SetAt(cDrive, 0);
+		attr = 0;
+		sApplicationFilePath.SetAt(cDrive, 0);
 
-		iFsSession.Att(sCurrentFolder.Des(), attr);
-		if(attr & KEntryAttDir)
+		if(KErrNone == iFsSession.Att(sApplicationFilePath.Des(), attr))
 			break;
 	}
 
