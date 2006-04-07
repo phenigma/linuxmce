@@ -265,7 +265,7 @@ WMTask::WMTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pC
         , b_IsWaiting(false)
         , v_oSemaphoreTaskWait(0, 1)
 {
-    //_WX_LOG_NFO("New %s", _str_task(this));
+    _WX_LOG_NFO("New %s", _str_task(this));
 }
 
 WMTaskManager::WMTaskManager()
@@ -280,7 +280,7 @@ WMTask * WMTaskManager::CreateTask(CallBackType TaskType, E_DIALOG_TYPE DialogTy
     wxMutexLocker lock(v_oMutex);
     v_nNextUniqueId++;
     WMTask *pWMTask = new WMTask(TaskType, DialogType, pCallBackData, v_nNextUniqueId);
-    _WX_LOG_NFO("CreateTask(%s)", _str_task(pWMTask));
+    _WX_LOG_NFO("CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
@@ -305,9 +305,11 @@ void WMTaskManager::AddTaskAndWait(WMTask *pWMTask)
 
 WMTask *WMTaskManager::PopTask()
 {
+    //_WX_LOG_NFO();
     wxMutexLocker lock(v_oMutex);
     if (v_apWMTask.IsEmpty())
         return NULL;
+    _WX_LOG_NFO("In PopTask()");
     WMTask *pWMTask = v_apWMTask[0];
     v_apWMTask.RemoveAt(0);
     _WX_LOG_NFO("PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());

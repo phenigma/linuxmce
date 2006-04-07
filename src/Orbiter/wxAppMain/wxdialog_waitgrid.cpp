@@ -195,6 +195,15 @@ void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
 }
 
 /*!
+ * Should we show tooltips?
+ */
+
+bool wxDialog_WaitGrid::ShowToolTips()
+{
+    return true;
+}
+
+/*!
  * Get bitmap resources
  */
 
@@ -223,15 +232,6 @@ wxIcon wxDialog_WaitGrid::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     return wxNullIcon;
 ////@end wxDialog_WaitGrid icon retrieval
-}
-
-/*!
- * Should we show tooltips?
- */
-
-bool wxDialog_WaitGrid::ShowToolTips()
-{
-    return true;
 }
 
 //==================================================

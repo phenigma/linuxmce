@@ -215,15 +215,21 @@ bool App_IsReady()
 int g_nExitCode = EXIT_SUCCESS;
 bool g_bShouldExit = false;
 
+int App_GetExitCode()
+{
+    //_WX_LOG_NFO("ExitCode == %d", g_nExitCode);
+    return g_nExitCode;
+}
+
 void App_SetExitCode(int nExitCode)
 {
-    _WX_LOG_NFO("new app exit code : %d", nExitCode);
+    _WX_LOG_NFO("ExitCode: %d -> %d", g_nExitCode, nExitCode);
     g_nExitCode = nExitCode;
 }
 
-int App_GetExitCode()
+bool App_ShouldExit()
 {
-    return g_nExitCode;
+    return g_bShouldExit;
 }
 
 void App_SetShouldExit(bool bShouldExit)
@@ -233,11 +239,6 @@ void App_SetShouldExit(bool bShouldExit)
     else
         _WX_LOG_NFO("app exit signal cleared");
     g_bShouldExit = bShouldExit;
-}
-
-bool App_ShouldExit()
-{
-    return g_bShouldExit;
 }
 
 bool wxIdleThreadShouldStop()

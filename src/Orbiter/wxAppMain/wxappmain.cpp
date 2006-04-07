@@ -203,7 +203,7 @@ int wxAppMain::OnRun()
     _WX_LOG_NFO();
     wxApp::OnRun();
     v_oTimer_WakeIdle.Stop();
-    _WX_LOG_NFO("exit code : %d", App_GetExitCode());
+    _WX_LOG_NFO("ExitCode == %d", App_GetExitCode());
     return App_GetExitCode();
 }
 

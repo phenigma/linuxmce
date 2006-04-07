@@ -32,9 +32,9 @@ class wxThread_Cmd
             E_RunExiting,      // started, but cancelled
             // ( event sent by thread )
             // inside OnExit
-            E_RunEnded,        // finished, Exit_Code can be read
+            E_RunEnded,        // finished, exit code should be set by now
             // special case for bad thread
-            E_RunDestroyed,    // started, dissapeared
+            E_RunDestroyed,    // started, destroyed
             // used only in events
             E_EventIdle,
         };

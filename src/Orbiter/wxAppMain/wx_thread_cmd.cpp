@@ -134,13 +134,14 @@ wxThread_Cmd::E_STATUS wxThread_Cmd::GetStatus()
 int wxThread_Cmd::GetExitCode()
 {
     wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
+    _WX_LOG_NFO("ExitCode == %d", v_nExitCode);
     return v_nExitCode;
 }
 
 void wxThread_Cmd::SetExitCode(int nExitCode)
 {
-    _WX_LOG_NFO();
     wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
+    _WX_LOG_NFO("ExitCode: %d -> %d", v_nExitCode, nExitCode);
     v_nExitCode = nExitCode;
 }
 

@@ -93,6 +93,7 @@ bool ExternApp::EventLoop()
 
 void ExternApp::Destroy()
 {
+    _WX_LOG_NFO();
 #ifdef USE_RELEASE_CODE
     if (! v_pSDL_App_Object)
         return;

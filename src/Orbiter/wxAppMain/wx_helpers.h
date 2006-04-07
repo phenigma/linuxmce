@@ -62,11 +62,11 @@ bool App_IsReady();
 // set ready status
 void App_SetReady();
 
-void App_SetExitCode(int nExitCode); // set application exit code
 int App_GetExitCode();               // get application exit code
+void App_SetExitCode(int nExitCode); // set application exit code
 
-void App_SetShouldExit(bool bShouldExit); // set signal : app should exit
 bool App_ShouldExit();                 // get signal : app should exit
+void App_SetShouldExit(bool bShouldExit); // set signal : app should exit
 
 // should be called from the thread
 // return true if the thread should be stopped

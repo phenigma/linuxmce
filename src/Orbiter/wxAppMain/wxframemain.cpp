@@ -569,6 +569,15 @@ void wxFrameMain::OnToolStopUpdate( wxUpdateUIEvent& event )
 }
 
 /*!
+ * Should we show tooltips?
+ */
+
+bool wxFrameMain::ShowToolTips()
+{
+    return true;
+}
+
+/*!
  * Get bitmap resources
  */
 
@@ -607,15 +616,6 @@ wxIcon wxFrameMain::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     return wxNullIcon;
 ////@end wxFrameMain icon retrieval
-}
-
-/*!
- * Should we show tooltips?
- */
-
-bool wxFrameMain::ShowToolTips()
-{
-    return true;
 }
 
 wxFrameMain::~wxFrameMain()
