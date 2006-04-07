@@ -47,6 +47,7 @@
 #include "pluto_main/Define_Button.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
 #include "OSDScreenHandler.h"
+#include "MouseBehavior_Linux.h"
 
 #include "../wxAppMain/wx_dialog_types.h"
 #include "../CallBackTypes.h"
@@ -80,6 +81,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
           m_pWaitUser(NULL)
 {
     openDisplay();
+	m_pMouseBehavior = new MouseBehavior_Linux(this);
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
