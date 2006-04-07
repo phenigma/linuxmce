@@ -118,8 +118,11 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4870 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4861  || 
-//   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
+if( m_pOrbiterGenerator->m_iLocation )
+int k=2;
+
+if( m_pRow_DesignObj->PK_DesignObj_get()==4870 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4891  || 
+//   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
 {
@@ -924,12 +927,12 @@ int k=2;
         for(size_t s2=0;s2<vectovo.size();++s2)
         {
             Row_DesignObjVariation_DesignObj * drOVO = vectovo[s2];
-if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
+if( drOVO->PK_DesignObjVariation_DesignObj_get()==4891 )
 {
     int k=2;
 }
             drDesignObj = drOVO->FK_DesignObj_Child_getrow();
-if( drDesignObj->PK_DesignObj_get()==4271 )
+if( drDesignObj->PK_DesignObj_get()==4891 )
 {
 int k=2;
 }

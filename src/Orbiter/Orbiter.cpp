@@ -3605,6 +3605,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 	{
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
+if( pObj->m_ObjectID.find("4870")!=string::npos )
+int k=2;
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
@@ -8288,8 +8290,13 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-if( sPK_DesignObj.find("4883")!=string::npos )
-int k=1;
+if( sPK_DesignObj.find("4870")!=string::npos )
+{
+		DesignObj_Orbiter *pObj_Popup1 = FindObject("4870");
+		DesignObj_Orbiter *pObj_Popup2 = FindObject("4870.0");
+		DesignObj_Orbiter *pObj_Popup3 = FindObject("4870.0.0");
+	int k=1;
+}
 	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s",sName.c_str());
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );

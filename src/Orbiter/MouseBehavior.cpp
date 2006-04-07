@@ -50,6 +50,8 @@ void MouseBehavior::Clear()
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
+					  sOptions.c_str(),(int) bExclusive,sDirection.c_str(),sDesignObj.c_str());
 	if( sOptions.size()==0 || sDirection.size()==0 )
 	{
 		Clear();
@@ -127,11 +129,13 @@ void MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignOb
 
 void MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
+					  (int) eMouseBehaviorEvent,pObj,X,Y);
 	if( !pObj )
 		return; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Starting speed control");
+		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
 		m_iLastSpeed=0;
 		if( m_bUseAbsoluteSeek )
 		{
@@ -159,7 +163,7 @@ void MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,Design
 				Speed *= -1;
 			if( Speed!=m_iLastSpeed )
 			{
-	g_pPlutoLogger->Write(LV_CRITICAL,"speed %d",Speed);
+	g_pPlutoLogger->Write(LV_FESTIVAL,"speed %d",Speed);
 
 				DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed);
 				m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -222,7 +226,7 @@ void MouseBehavior::Move(int X,int Y)
 
 void MouseBehavior::LockedMove( int X, int Y )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d  h:%p v:%p",
+	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d  h:%p v:%p",
 X,Y,m_pSamples[0].X,m_pSamples[0].Y,m_pStartMovement.X,m_pStartMovement.Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,(int) m_iLockedPosition,
 m_pObj_Locked_Horizontal,m_pObj_Locked_Vertical);
 
@@ -286,26 +290,26 @@ bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 		{
 			if( m_cLockedAxes & AXIS_LOCK_X && diffX>MouseSensitivity::MinMoveToStart && diffY<MouseSensitivity::MaxMoveToStart )
 			{
-	g_pPlutoLogger->Write(LV_CRITICAL,"start X %d,%d",diffX,diffY);
+	g_pPlutoLogger->Write(LV_FESTIVAL,"start X %d,%d",diffX,diffY);
 				m_cLocked_Axis_Current = AXIS_LOCK_X;
 				return true;
 			}
 			else if( m_cLockedAxes & AXIS_LOCK_Y && diffY>MouseSensitivity::MinMoveToStart && diffX<MouseSensitivity::MaxMoveToStart )
 			{
-	g_pPlutoLogger->Write(LV_CRITICAL,"start Y %d,%d",diffX,diffY);
+	g_pPlutoLogger->Write(LV_FESTIVAL,"start Y %d,%d",diffX,diffY);
 				m_cLocked_Axis_Current = AXIS_LOCK_Y;
 				return true;
 			}
 		}
 		else if( m_cLockedAxes & AXIS_LOCK_X && m_cLocked_Axis_Current == AXIS_LOCK_Y && diffX>MouseSensitivity::MinMovePerSampleToChangeDir && diffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"fast switch X %d,%d",diffX,diffY);
+g_pPlutoLogger->Write(LV_FESTIVAL,"fast switch X %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
 		else if( m_cLockedAxes & AXIS_LOCK_Y && m_cLocked_Axis_Current == AXIS_LOCK_X && diffY>MouseSensitivity::MinMovePerSampleToChangeDir && diffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"fast switch Y %d,%d",diffX,diffY);
+g_pPlutoLogger->Write(LV_FESTIVAL,"fast switch Y %d,%d",diffX,diffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
@@ -318,13 +322,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"fast switch Y %d,%d",diffX,diffY);
 
 	int DiffX = abs(m_pSamples[0].X-m_pSamples[1].X)+abs(m_pSamples[2].X-m_pSamples[1].X);
 	int DiffY = abs(m_pSamples[0].Y-m_pSamples[1].Y)+abs(m_pSamples[2].Y-m_pSamples[1].Y);
-g_pPlutoLogger->Write(LV_STATUS,"new sample diff %d,%d at %d,%d last %d,%d",DiffX,DiffY,m_pSamples[0].X,m_pSamples[0].Y,m_pSamples[1].X,m_pSamples[1].Y);
+g_pPlutoLogger->Write(LV_FESTIVAL,"new sample diff %d,%d at %d,%d last %d,%d",DiffX,DiffY,m_pSamples[0].X,m_pSamples[0].Y,m_pSamples[1].X,m_pSamples[1].Y);
 
 	if( m_cLocked_Axis_Current != AXIS_LOCK_Y )
 	{
 		if( m_cLockedAxes & AXIS_LOCK_Y && DiffY>MouseSensitivity::MinMovePerSampleToChangeDir && DiffX<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"switch Y %d,%d",DiffX,DiffY);
+g_pPlutoLogger->Write(LV_FESTIVAL,"switch Y %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			return true;
 		}
@@ -333,7 +337,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"switch Y %d,%d",DiffX,DiffY);
 	{
 		if( m_cLockedAxes & AXIS_LOCK_X && DiffX>MouseSensitivity::MinMovePerSampleToChangeDir && DiffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"switch X %d,%d",DiffX,DiffY);
+g_pPlutoLogger->Write(LV_FESTIVAL,"switch X %d,%d",DiffX,DiffY);
 			m_cLocked_Axis_Current = AXIS_LOCK_X;
 			return true;
 		}
@@ -373,7 +377,7 @@ void MouseBehavior::ButtonDown(int PK_Button)
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
 	{
 		m_bRepeatMenu = m_EMenuOnScreen==mb_MainMenu;
-g_pPlutoLogger->Write(LV_CRITICAL,"menu repeate %d",(int) m_bRepeatMenu);
+g_pPlutoLogger->Write(LV_FESTIVAL,"menu repeate %d",(int) m_bRepeatMenu);
 		if(  !m_bRepeatMenu )
 		{
 			m_EMenuOnScreen=mb_MainMenu;
@@ -394,7 +398,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"menu repeate %d",(int) m_bRepeatMenu);
 
 		m_iLastSpeed=0;
 		m_bRepeatMenu = m_EMenuOnScreen==mb_MediaControl;
-g_pPlutoLogger->Write(LV_CRITICAL,"down repeate %d",(int) m_bRepeatMenu);
+g_pPlutoLogger->Write(LV_FESTIVAL,"down repeate %d",(int) m_bRepeatMenu);
 //remus m_pObj_Locked_Horizontal->HasTimeline(m_bHasTimeline);
 		if(  !m_bRepeatMenu )
 		{
@@ -423,7 +427,7 @@ void MouseBehavior::ButtonUp(int PK_Button)
 	// If the user held the button for more than HoldTime, resume normal playback
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
+g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
 			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
 		if( m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime || m_bRepeatMenu )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 		{
@@ -441,7 +445,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
+g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
 			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
 		if( m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime || m_bRepeatMenu )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 		{
@@ -457,7 +461,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"up repeate %d hold: %s (up %d dn  %d diff %d)
 		{
 			int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
 			m_bUseAbsoluteSeek=true;
-g_pPlutoLogger->Write(LV_CRITICAL," setting timeline position to %d",Percentage);
+g_pPlutoLogger->Write(LV_FESTIVAL," setting timeline position to %d",Percentage);
 //remus m_pObj_Locked_Horizontal->PositionCurrentTime(X);
 //remus m_pObj_Locked_Horizontal->SetMode(absolute_navigation);
 		}
