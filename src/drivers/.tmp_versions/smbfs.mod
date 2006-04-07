@@ -1,0 +1,2 @@
+/home/users/rgavril/smbfs/smbfs.ko
+/home/users/rgavril/smbfs/proc.o /home/users/rgavril/smbfs/dir.o /home/users/rgavril/smbfs/cache.o /home/users/rgavril/smbfs/sock.o /home/users/rgavril/smbfs/inode.o /home/users/rgavril/smbfs/file.o /home/users/rgavril/smbfs/ioctl.o /home/users/rgavril/smbfs/getopt.o /home/users/rgavril/smbfs/symlink.o /home/users/rgavril/smbfs/smbiod.o /home/users/rgavril/smbfs/request.o
