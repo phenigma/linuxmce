@@ -649,7 +649,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	if(EnableOpenGL)
 	{
 #ifndef DISABLE_OPENGL
-		CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&OrbiterSDL::OpenGLUpdateScreen, NULL, pe_ALL);
+		CallMaintenanceInMiliseconds(0, (DCE::OrbiterCallBack)&OrbiterSDL::OpenGLUpdateScreen, NULL, pe_NO);
 #endif
 	}
 }
@@ -859,7 +859,7 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 	m_spAfterGraphic.reset(new SDLGraphic(m_pScreenImage));
 
 	m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_TRANSIT_NO_EFFECT, 
+	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 
 		1);
 #endif //opengl stuff	
 }

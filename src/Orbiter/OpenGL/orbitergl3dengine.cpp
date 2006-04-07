@@ -42,8 +42,6 @@ OrbiterGL3D::OrbiterGL3D ()
 
 void OrbiterGL3D::Paint()
 {
-	srand((unsigned int)time(NULL));
-
 	if(Screen3D == NULL)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"NULL pointer in declaration of 3D widget... something is really wrong here!");
