@@ -193,9 +193,16 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_nCallbackCounter = 0;
+	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
+
+	//initialize
 	m_pObj_NowPlayingOnScreen = NULL;
 	m_pObj_NowPlaying_Section_OnScreen = NULL;
-	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
+	m_pObj_NowPlaying_TimeShort_OnScreen = NULL;
+	m_pObj_NowPlaying_TimeLong_OnScreen = NULL; 
+	m_pObj_NowPlaying_Speed_OnScreen = NULL;
+	m_pMouseBehavior = NULL;
+
 	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;
 	m_iImageWidth=iImageWidth;
@@ -9620,6 +9627,8 @@ bool SendPingHandler(Socket *pSocket)
 
 bool Orbiter::WaitForRelativesIfOSD()
 {
+	Sleep(10000);
+
 #if X11_PROGRESS_BARS
 	if( !m_bIsOSD )
 		return true;
