@@ -181,7 +181,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         case SDLK_UP:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
                         case SDLK_DOWN:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
                         case SDLK_LEFT:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
-                        case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
+//  TEMP FOR GO MOUSE !!!!                        case SDLK_RIGHT:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
 
                         case SDLK_KP_ENTER: case SDLK_RETURN: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;
                         case SDLK_SPACE:		orbiterEvent->data.button.m_iPK_Button = BUTTON_space_CONST; break;
@@ -199,8 +199,17 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         case SDLK_SEMICOLON:	orbiterEvent->data.button.m_iPK_Button = BUTTON_semicolumn_CONST; break;
                         case SDLK_QUOTE:     orbiterEvent->data.button.m_iPK_Button = BUTTON_single_quote_CONST; break;
                         case SDLK_QUOTEDBL:    orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
+                      
+// Temporary for the go mouse
 
-                        default:
+			// Speed control
+			case SDLK_FIRST:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F8_CONST; break;
+			// Menu
+			case SDLK_RIGHT:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F6_CONST; break;
+			// Ambiance
+			case SDLK_END:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F7_CONST; break;
+                        
+			default:
                             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
                             g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
                     };
