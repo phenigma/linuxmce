@@ -3752,6 +3752,10 @@ m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	if ( event.type == Orbiter::Event::REGION_UP )
 		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
 
+	if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
+		m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
+	
+
 	return false;
 }
 

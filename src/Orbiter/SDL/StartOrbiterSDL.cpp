@@ -271,6 +271,11 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
         case SDL_MOUSEMOTION: // not handled
             g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEMOTION(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
+            orbiterEvent->type = Orbiter::Event::MOUSE_MOVE;
+            orbiterEvent->data.region.m_iX = sdlEvent.button.x;
+            orbiterEvent->data.region.m_iY = sdlEvent.button.y;
+			break;
+
         default:
             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
             break;

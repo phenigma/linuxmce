@@ -719,7 +719,8 @@ namespace DCE
 				BUTTON_DOWN,
 				BUTTON_UP,
 				REGION_DOWN,
-				REGION_UP
+				REGION_UP,
+				MOUSE_MOVE
 			} EventType;
 
 			EventType type;
