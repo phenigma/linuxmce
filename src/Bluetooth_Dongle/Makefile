@@ -43,6 +43,8 @@ sources += \
 	../Orbiter/ScreenHandler.cpp \
 	../Orbiter/CallBackData.cpp \
 	../Orbiter/MouseBehavior.cpp \
+	../Orbiter/MouseGovernor.cpp \
+	../Orbiter/MouseIterator.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

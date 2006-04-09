@@ -39,6 +39,8 @@ sources += \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/MouseBehavior.cpp \
+	../Orbiter/MouseGovernor.cpp \
+	../Orbiter/MouseIterator.cpp \
 	../Orbiter/CallBackData.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
