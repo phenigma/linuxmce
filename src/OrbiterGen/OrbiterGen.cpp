@@ -1366,6 +1366,11 @@ int k=2;
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
 			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
+			if( m_iUiVersion==2 )
+			{
+				ocDesignObj->m_bIsPopup=true;
+				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+			}
 			if( ocDesignObj->m_bUsingCache )
 			{
 				SearchForGotos(ocDesignObj);
@@ -1768,7 +1773,7 @@ fclose(file);
 
 void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==1389 )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4878 )
 int k=2;
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)

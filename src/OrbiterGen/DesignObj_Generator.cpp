@@ -121,7 +121,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4889 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4891  || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4878 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4891  || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -1003,7 +1003,7 @@ int k=2;
         }
     }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4667 )
+if( m_pRow_DesignObj->PK_DesignObj_get()==4878 )
 int k=2;
     // Don't stretch out the floorplan objects
     if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
@@ -1019,7 +1019,10 @@ int k=2;
                 if( m_rPosition.Width>0 )
                     m_rPosition = PlutoRectangle::Union(m_rPosition,oco->m_rPosition);
                 else
-                    m_rPosition  = oco->m_rPosition ;
+				{
+					m_rPosition.Width = oco->m_rPosition.Right();
+					m_rPosition.Height = oco->m_rPosition.Bottom();
+				}
             }
         }
     }
