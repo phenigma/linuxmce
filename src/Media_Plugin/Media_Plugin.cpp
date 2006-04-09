@@ -136,7 +136,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 		{
 			// Since there's no other a/v device for volume adjustments, we'll send it to an app server
 			vector<DeviceData_Router *> vectDeviceData_Router;
-			m_pDeviceData_Router->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
+			pDeviceData_Router_Source->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
 			if( vectDeviceData_Router.size() )
 				m_pDevice_Audio = vectDeviceData_Router[0];
 		}
@@ -146,6 +146,11 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 
 	if( pPipe_Video )
 		m_pDevice_Video = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Video,2));
+
+	if( !m_pDevice_Audio )
+		m_pDevice_Audio = m_pDeviceData_Router;
+	if( !m_pDevice_Video )
+		m_pDevice_Video = m_pDeviceData_Router;
 }
 
 int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe)
@@ -159,8 +164,11 @@ int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe)
 		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find( pRow_Device_Device_Pipe->FK_Device_To_get() );
 		if( pDeviceData_Router )
 		{
-			Pipe *pPipe = pDeviceData_Router->m_mapPipe_Available_Find(PK_Pipe);
-			return FindUltimateDestinationViaPipe(pPipe,PK_Pipe);
+			Pipe *pPipe2 = pDeviceData_Router->m_mapPipe_Available_Find(PK_Pipe);
+			if( pPipe2 )
+				return FindUltimateDestinationViaPipe(pPipe2,PK_Pipe);
+			else
+				return pRow_Device_Device_Pipe->FK_Device_To_get();
 		}
 	}
 	return pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
