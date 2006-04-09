@@ -237,15 +237,40 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::VolumeControl %d %p %d,%d",
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
-		SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+		if( m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume && m_iTime_Last_Mouse_Up==0 )
+		{
+			m_bUsingDiscreteAudio=true;
+			m_iLastNotch = atoi(m_pOrbiter->GetEvents()->GetCurrentDeviceData(m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
+			int X = pObj->m_rPosition.Width * m_iLastNotch / 100;
+			SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+X,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+		}
+		else
+		{
+			m_bUsingDiscreteAudio=false;
+			SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+			m_iLastNotch = 0;
+		}
 	}
 	else if( eMouseBehaviorEvent==mb_Movement )
 	{
-		int XStart = pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2;
-		if( m_iTime_Last_Mouse_Up==0 || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+		if( m_bUsingDiscreteAudio )
 		{
-			int NotchWidth = pObj->m_rPosition.Width/2/MAX_SPEEDS;
-			int Notch = abs(X-XStart) / NotchWidth;
+			int Notch = (X - pObj->m_rPosition.X - pObj->m_pPopupPoint.X) / (pObj->m_rPosition.Width/100);
+			if( Notch!=m_iLastNotch )
+			{
+				DCE::CMD_Set_Volume CMD_Set_Volume(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
+				m_pOrbiter->SendCommand(CMD_Set_Volume);
+				m_iLastNotch = Notch;
+			}
+		}
+		else
+		{
+			int XStart = pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2;
+			if( m_iTime_Last_Mouse_Up==0 || !m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+			{
+				int NotchWidth = pObj->m_rPosition.Width/2/100;
+				int Notch = abs(X-XStart) / NotchWidth;
+			}
 		}
 	}
 	return false;

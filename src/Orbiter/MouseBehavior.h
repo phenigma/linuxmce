@@ -59,6 +59,7 @@ namespace DCE
 		bool m_bRepeatMenu;
 
 		bool m_bHasTimeline;  // Will be set to true if we don't have total time and position within media
+		bool m_bUsingDiscreteAudio; // The user is adjusting the volume to a discrete level
 		bool m_bUseAbsoluteSeek; // If true, we are seeking to an absolute position
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 

@@ -55,6 +55,9 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	bool DATA_Get_Discrete_Volume();
+	int DATA_Get_Volume_Level();
+	void DATA_Set_Volume_Level(int Value);
 
 			*****EVENT***** accessors inherited from base class
 

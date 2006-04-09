@@ -136,6 +136,7 @@
 #define DEVICEDATA_HAL_Model_CONST 155
 #define DEVICEDATA_Name_CONST 156
 #define DEVICEDATA_Discrete_Volume_CONST 157
+#define DEVICEDATA_Volume_Level_CONST 158
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
