@@ -458,7 +458,6 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			pCell = new DataGridCell(row[0]);
-			pCell->
 			pDataGrid->SetData(0,iRow++,pCell);
 			pCell = new DataGridCell(row[1]);
 			pDataGrid->SetData(1,iRow++,pCell);
