@@ -3,7 +3,7 @@
 # else
 #   not using wx at all
 
-USE_WX_LIB ?= 1
+USE_WX_LIB = 0
 ifneq ($(USE_WX_LIB), 0)
 USE_WX_LIB := 1
 endif
