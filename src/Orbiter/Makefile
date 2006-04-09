@@ -93,6 +93,8 @@ sources += \
 	CallBackData.cpp \
 	ScreenHistory.cpp \
 	MouseBehavior.cpp \
+	MouseGovernor.cpp \
+	MouseIterator.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
 	SDL/OrbiterSDL.cpp \

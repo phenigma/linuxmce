@@ -43,6 +43,8 @@ namespace DCE
 
 	protected:
 		Orbiter *m_pOrbiter;
+		class MouseGovernor *m_pMouseGovernor;
+		class MouseIterator *m_pMouseIterator;
 		DesignObj_Orbiter *m_pObj_Locked_Horizontal,*m_pObj_Locked_Vertical;
 		MouseBehaviorHandler m_pMouseBehaviorHandler_Horizontal,m_pMouseBehaviorHandler_Vertical;
 	    unsigned long m_dwSamples[4];
@@ -65,7 +67,7 @@ namespace DCE
 
 	public:
 		MouseBehavior(Orbiter *pOrbiter);
-		virtual ~MouseBehavior() {} //no-op destructor
+		virtual ~MouseBehavior();
 
 		void Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj);
 		bool ButtonDown(int PK_Button);     // Return true means don't process this anymore

@@ -233,6 +233,12 @@
 				RelativePath="..\Win32\MouseBehavior_Win32.cpp">
 			</File>
 			<File
+				RelativePath="..\MouseGovernor.cpp">
+			</File>
+			<File
+				RelativePath="..\MouseIterator.cpp">
+			</File>
+			<File
 				RelativePath="..\PocketFrog\OpenGLProxy.cpp">
 			</File>
 			<File

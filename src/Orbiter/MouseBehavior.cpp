@@ -4,6 +4,8 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
+#include "MouseGovernor.h"
+#include "MouseIterator.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
@@ -34,7 +36,15 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
 	ProcessUtils::ResetMsTime();
 	m_pOrbiter=pOrbiter;
+	m_pMouseGovernor = new MouseGovernor(this);
+	m_pMouseIterator = new MouseIterator(this);
 	Clear();
+}
+
+MouseBehavior::~MouseBehavior()
+{
+	delete m_pMouseGovernor;
+	delete m_pMouseIterator;
 }
 
 void MouseBehavior::Clear()
@@ -46,6 +56,7 @@ void MouseBehavior::Clear()
 	m_iPK_Button_Mouse_Last=0;
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_EMenuOnScreen=mb_None;
+	m_pMouseGovernor->SetBuffer(0);
 }
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
@@ -97,6 +108,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_cLockedAxes = AXIS_LOCK_NONE;
 
 	// set a call back function for each axis
+	m_pMouseGovernor->SetBuffer(0);
 	m_cLocked_Axis_Current = AXIS_LOCK_NONE;
 	m_dwSamples[0]=ProcessUtils::GetMsTime();
 	GetMousePosition(&m_pSamples[0]);
@@ -147,6 +159,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
+		m_pMouseGovernor->SetBuffer(5000);
 		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
 		m_iLastSpeed=0;
 		if( m_bUseAbsoluteSeek )
@@ -282,6 +295,9 @@ void MouseBehavior::Move(int X,int Y)
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
 
+	if( !m_pMouseGovernor->Move(X,Y) )
+		return; // We're being buffered
+
 	if( CheckForChangeInDirection(X,Y) )
 	{
 		m_pStartMovement.X=X;
@@ -301,6 +317,7 @@ void MouseBehavior::Move(int X,int Y)
 			else
 				m_iLockedPosition = X;
 		}
+		m_pMouseGovernor->SetBuffer(0);
 		if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
 			CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_ChangeDirection, m_pObj_Locked_Horizontal, 0, X, Y);
 		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
@@ -428,7 +445,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"switch Y %d,%d",DiffX,DiffY);
 			return true;
 		}
 	}
-	else if( m_cLocked_Axis_Current != AXIS_LOCK_X )
+	if( m_cLocked_Axis_Current != AXIS_LOCK_X )
 	{
 		if( m_cLockedAxes & AXIS_LOCK_X && DiffX>MouseSensitivity::MinMovePerSampleToChangeDir && DiffY<MouseSensitivity::MaxMovePerSampleToChangeDir )
 		{
