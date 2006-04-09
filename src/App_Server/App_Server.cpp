@@ -101,9 +101,6 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_AppMutex.Init(&m_MutexAttr);
 	m_bLastMute=false;
-	m_iLastVolume=DATA_Get_Volume_Level();
-	if( !m_iLastVolume )
-		m_iLastVolume=50;
 
 #ifndef WIN32
 	g_pAppServer = this;
@@ -124,6 +121,9 @@ bool App_Server::GetConfig()
 	if( !App_Server_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	m_iLastVolume=DATA_Get_Volume_Level();
+	if( !m_iLastVolume )
+		m_iLastVolume=50;
 	return true;
 }
 
