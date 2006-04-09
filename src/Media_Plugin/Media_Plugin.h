@@ -45,6 +45,8 @@ class Database_pluto_media;
 class Row_EntertainArea;
 class MediaFile;
 
+#define NUM_UI_VERSIONS	2
+
 namespace DCE
 {
 
@@ -89,16 +91,18 @@ private:
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 
+	map<int,int> m_mapOrbiterUiVersion;
+
 	// Keep track of which users,media types want to be prompted to resume.  Valid char values are 'N' (never resume), 'A' (always resume), 'P' or anything else (prompt)
 	map< pair<int,int>,char > m_mapPromptResume;
 
 	// When deciding what remote control to use, we will look in these 4 maps in this order,
 	// first for a specific remote for this orbiter/source device/mediatype combination, then for this
 	// orbiter/media type, then for the source device/media type, lastly any remote for the media type
-	map< pair<int,pair<int,int> >, class RemoteControlSet *> m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl;
-	map< pair<int,int>, class RemoteControlSet *> m_mapOrbiter_MediaType_RemoteControl;
-	map< pair<int,int>, class RemoteControlSet *> m_mapDeviceTemplate_MediaType_RemoteControl;
-	map< int, class RemoteControlSet *> m_mapMediaType_RemoteControl;
+	map< pair<int,pair<int,int> >, class RemoteControlSet *> m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[NUM_UI_VERSIONS];
+	map< pair<int,int>, class RemoteControlSet *> m_mapOrbiter_MediaType_RemoteControl[NUM_UI_VERSIONS];
+	map< pair<int,int>, class RemoteControlSet *> m_mapDeviceTemplate_MediaType_RemoteControl[NUM_UI_VERSIONS];
+	map< int, class RemoteControlSet *> m_mapMediaType_RemoteControl[NUM_UI_VERSIONS];
 
     class Datagrid_Plugin *m_pDatagrid_Plugin;
 
@@ -138,22 +142,26 @@ protected:
 
 	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
 	{
+		int UIVersion = 1;
 		// We're going to look in 4 places, from most specific to least specific
 		if( PK_Orbiter )
 		{
+			UIVersion = m_mapOrbiterUiVersion[PK_Orbiter];
+			if( !UIVersion )
+				UIVersion = 1;
 			// The first 2 maps will see if the user directly specified a remote control to use for the given remote
 			map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
 			pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
 				PK_Orbiter,
 				make_pair< int,int > ( iPK_DeviceTemplate, PK_MediaType ) );
-			if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.end() )
+			if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[UIVersion-1].find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[UIVersion-1].end() )
 				return it1->second;
 
 			map< pair<int,int>, class RemoteControlSet *>::iterator it2;
 			pair<int,int> p2 = make_pair< int,int > (
 				PK_Orbiter,
 				PK_MediaType );
-			if( (it2=m_mapOrbiter_MediaType_RemoteControl.find(p2))!=m_mapOrbiter_MediaType_RemoteControl.end() )
+			if( (it2=m_mapOrbiter_MediaType_RemoteControl[UIVersion-1].find(p2))!=m_mapOrbiter_MediaType_RemoteControl[UIVersion-1].end() )
 				return it2->second;
 		}
 
@@ -163,7 +171,7 @@ protected:
 			iPK_DeviceTemplate,
 			PK_MediaType );
 
-		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].end() )
 			return it3->second;
 
 		// Next if a remote is specified for this particular type of orbiter
@@ -173,16 +181,16 @@ protected:
 			if( pDevice )
 			{
 				p3.first = pDevice->m_dwPK_DeviceTemplate;
-				if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+				if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].end() )
 					return it3->second;
 			}
 		}
 
-		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1].end() )
 			return it3->second;
 
 		map< int, class RemoteControlSet *>::iterator it4;
-		if( (it4=m_mapMediaType_RemoteControl.find(PK_MediaType))!=m_mapMediaType_RemoteControl.end() )
+		if( (it4=m_mapMediaType_RemoteControl[UIVersion-1].find(PK_MediaType))!=m_mapMediaType_RemoteControl[UIVersion-1].end() )
 			return it4->second;
 
 		return NULL;

@@ -59,6 +59,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Room.h"
+#include "pluto_main/Table_UI.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
@@ -4264,7 +4265,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 		Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
 		if( !pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() )
 			continue;  // This applies to a particular skin.  Come back and check these against the orbiters below
-		m_mapDeviceTemplate_MediaType_RemoteControl[ 
+		m_mapDeviceTemplate_MediaType_RemoteControl[pRow_DeviceTemplate_MediaType_DesignObj->UIVersion_get()-1][ 
 			make_pair<int,int> ( pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
 				pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() )
 			] 
@@ -4278,7 +4279,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 		Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
 		if( !pRow_MediaType_DesignObj->FK_Skin_isNull() )
 			continue;  // This applies to a particular skin.  Come back and check these against the orbiters below
-		m_mapMediaType_RemoteControl[pRow_MediaType_DesignObj->FK_MediaType_get()]
+		m_mapMediaType_RemoteControl[pRow_MediaType_DesignObj->UIVersion_get()-1][pRow_MediaType_DesignObj->FK_MediaType_get()]
 			= new RemoteControlSet(pRow_MediaType_DesignObj);
 	}
 
@@ -4286,13 +4287,21 @@ void Media_Plugin::PopulateRemoteControlMaps()
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
+		int UiVersion=1;
+		if( pOH_Orbiter->m_dwPK_UI )
+		{
+			Row_UI *Row_UI = m_pDatabase_pluto_main->UI_get()->GetRow(pOH_Orbiter->m_dwPK_UI);
+			if( Row_UI )
+				UiVersion = Row_UI->Version_get();
+		}
+		m_mapOrbiterUiVersion[pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = UiVersion;
 		for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
 		{
 			Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
 			if( pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() || pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_get()!=pOH_Orbiter->m_dwPK_Skin )
 				continue;  // No skin to overwrite for this orbiter
 
-			m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[ 
+			m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[pRow_DeviceTemplate_MediaType_DesignObj->UIVersion_get()-1][ 
 				make_pair< int, pair<int,int> > ( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 					make_pair< int, int > (
 						pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
@@ -4307,7 +4316,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 			if( pRow_MediaType_DesignObj->FK_Skin_isNull() || pRow_MediaType_DesignObj->FK_Skin_get()!=pOH_Orbiter->m_dwPK_Skin )
 				continue;  // No skin to overwrite for this orbiter
 int k=2;
-			m_mapOrbiter_MediaType_RemoteControl[
+			m_mapOrbiter_MediaType_RemoteControl[pRow_MediaType_DesignObj->UIVersion_get()-1][
 				make_pair<int,int> (pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 					pRow_MediaType_DesignObj->FK_MediaType_get() )
 				]
@@ -4321,16 +4330,17 @@ int k=2;
 	for(size_t s=0;s<vectRow_RemoteControl.size();++s)
 	{
 		Row_RemoteControl *pRow_RemoteControl = vectRow_RemoteControl[s];
+		int UIVersion=1;
 		if( pRow_RemoteControl->FK_Orbiter_isNull() )
 		{
 			if( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_isNull() )
 			{
 				if( !pRow_RemoteControl->FK_MediaType_DesignObj_isNull() ) // Be sure they're not both null
-					m_mapMediaType_RemoteControl[pRow_RemoteControl->FK_MediaType_DesignObj_getrow()->FK_MediaType_get()]
+					m_mapMediaType_RemoteControl[UIVersion-1][pRow_RemoteControl->FK_MediaType_DesignObj_getrow()->FK_MediaType_get()]
 						= new RemoteControlSet(pRow_RemoteControl->FK_MediaType_DesignObj_getrow());
 			}
 			else
-				m_mapDeviceTemplate_MediaType_RemoteControl[ 
+				m_mapDeviceTemplate_MediaType_RemoteControl[UIVersion-1][ 
 					make_pair<int,int> ( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
 						pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() )
 					] 
@@ -4338,17 +4348,20 @@ int k=2;
 		}
 		else
 		{
+			UIVersion = m_mapOrbiterUiVersion[pRow_RemoteControl->FK_Orbiter_get()-1];
+			if( UIVersion==0 )
+				UIVersion=1;
 			if( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_isNull() )
 			{
 				if( !pRow_RemoteControl->FK_MediaType_DesignObj_isNull() ) // Be sure they're not both null
-					m_mapOrbiter_MediaType_RemoteControl[
+					m_mapOrbiter_MediaType_RemoteControl[UIVersion-1][
 						make_pair<int,int> (pRow_RemoteControl->FK_Orbiter_get(),
 							pRow_RemoteControl->FK_MediaType_DesignObj_getrow()->FK_MediaType_get() )
 						]
 						= new RemoteControlSet(pRow_RemoteControl->FK_MediaType_DesignObj_getrow());
 			}
 			else
-				m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[ 
+				m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[UIVersion-1][ 
 					make_pair< int, pair<int,int> > ( pRow_RemoteControl->FK_Orbiter_get(),
 						make_pair< int, int > (
 							pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),

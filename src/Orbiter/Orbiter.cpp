@@ -8525,13 +8525,6 @@ void Orbiter::RemoveShortcuts( void *data )
 void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c401-e->
 {
-	if( m_iUiVersion==2 ) // TODO - temp hack 
-	{
-		CMD_Show_Popup("4871",50,50,"","mediabrowser",false,false);
-		return;
-	}
-
-
 	if( !m_pOrbiterFileBrowser_Collection )
 		return; // Should never happen
 
@@ -8552,6 +8545,11 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 	{
 		CMD_Remove_Popup(pObj_Popop_FileList->m_ObjectID,"filelist");
 		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj_Popup),m_Popop_FileList_X,m_Popop_FileList_Y,pObj_Popop_FileList->m_ObjectID,"filelist",false,false);
+	}
+	else if( m_iUiVersion==2 ) // TODO - temp hack in x & y values......
+	{
+		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj),50,50,"","mediabrowser",false,false);
+		return;
 	}
 	else
 		GotoScreen(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj));
