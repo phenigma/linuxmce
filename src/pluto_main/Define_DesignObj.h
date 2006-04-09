@@ -1965,6 +1965,12 @@
 #define DESIGNOBJ_grpFaze2_CONST 4887
 #define DESIGNOBJ_butLightsPopup_CONST 4890
 #define DESIGNOBJ_popSpeedControl_CONST 4891
+#define DESIGNOBJ_butShowMediaPopup_CONST 4892
+#define DESIGNOBJ_butShowLightsPopup_CONST 4893
+#define DESIGNOBJ_popRoom_CONST 4894
+#define DESIGNOBJ_arrLocations2_CONST 4895
+#define DESIGNOBJ_butLocations2_CONST 4896
+#define DESIGNOBJ_butShowMediaBrowser_CONST 4897
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
