@@ -26,7 +26,7 @@ const int MouseSensitivity::MaxMovePerSampleToChangeDir = 5;
 const int MouseSensitivity::MinMoveAllSamplesToChangeDir = 40;
 const int MouseSensitivity::MaxMoveAllSamplesToChangeDir = 20;
 const int MouseSensitivity::HoldTime = 750;
-
+const int MouseSensitivity::IgnoreMouseAfterReposition=10;
 const int MouseBehavior::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};
 
 //-----------------------------------------------------------------------------------------------------
@@ -71,6 +71,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	case 'S':
 		pMouseBehaviorHandler=&MouseBehavior::SpeedControl;
 		break;
+	case 'G':
+		pMouseBehaviorHandler=&MouseBehavior::LightControl;
+		break;
+	case 'V':
+		pMouseBehaviorHandler=&MouseBehavior::VolumeControl;
+		break;
 	}
 
 	if( sDirection[0]=='Y' )
@@ -101,7 +107,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	}
 }
 
-void MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+bool MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
 	if( eMouseBehaviorEvent==mb_SettingUp )
 	{
@@ -125,14 +131,20 @@ void MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignOb
 	{
 		LockedMove( X, Y );
 	}
+	else if( eMouseBehaviorEvent==mb_MouseDown && Parm==BUTTON_Mouse_1_CONST && m_pOrbiter->m_pObj_Highlighted )
+	{
+		m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+		return true; // We handled this, do nothing more
+	}
+	return false;
 }
 
-void MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+bool MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 					  (int) eMouseBehaviorEvent,pObj,X,Y);
 	if( !pObj )
-		return; // Shouldn't happen, this should be the volume control
+		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
@@ -181,6 +193,62 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 //remus  pObj->SetSpeed(Speed);
 		}
 	}
+	return false;
+}
+
+bool MouseBehavior::LightControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+{
+	if( !pObj )
+		return false; // Shouldn't happen, this should be the volume control
+	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
+	{
+		m_iLastNotch=0;
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::LightControl starting %d %p %d,%d",
+					  (int) eMouseBehaviorEvent,pObj,X,Y);
+		SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+	}
+	else if( eMouseBehaviorEvent==mb_Movement )
+	{
+		// 22 notches, -100, -90, -0, +0, +10 ... +100
+		int YStart = pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2;
+		int NotchHeight = pObj->m_rPosition.Height/22;
+		int Notch = (YStart-Y) / NotchHeight;
+		if( Notch>11 )
+			Notch = 11;
+		if( Notch!=m_iLastNotch )
+		{
+			string sLevel = (Notch>m_iLastNotch ? "+" : "") + StringUtils::itos((Notch-m_iLastNotch)*10);
+			DCE::CMD_Set_Level CMD_Set_Level(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LightingPlugIn,sLevel);
+			m_pOrbiter->SendCommand(CMD_Set_Level);
+			g_pPlutoLogger->Write(LV_FESTIVAL,"Lights now at %d (st %d now %d)",Notch,YStart,Y);
+			m_iLastNotch=Notch;
+			
+		}
+	}
+	return false;
+}
+
+bool MouseBehavior::VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+{
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::VolumeControl %d %p %d,%d",
+					  (int) eMouseBehaviorEvent,pObj,X,Y);
+	if( !pObj )
+		return false; // Shouldn't happen, this should be the volume control
+	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
+	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
+		SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
+	}
+	else if( eMouseBehaviorEvent==mb_Movement )
+	{
+		int XStart = pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2;
+		if( m_iTime_Last_Mouse_Up==0 || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+		{
+			int NotchWidth = pObj->m_rPosition.Width/2/MAX_SPEEDS;
+			int Notch = abs(X-XStart) / NotchWidth;
+		}
+	}
+	return false;
 }
 
 void MouseBehavior::Move(int X,int Y)
@@ -211,6 +279,7 @@ void MouseBehavior::Move(int X,int Y)
 			CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_ChangeDirection, m_pObj_Locked_Horizontal, 0, X, Y);
 		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
 			CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_ChangeDirection, m_pObj_Locked_Vertical, 0, X, Y);
+		return;
 	}
 
 	if( m_cLocked_Axis_Current == AXIS_LOCK_X )
@@ -366,7 +435,7 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 
 }
 
-void MouseBehavior::ButtonDown(int PK_Button)
+bool MouseBehavior::ButtonDown(int PK_Button)
 {
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
@@ -374,7 +443,7 @@ void MouseBehavior::ButtonDown(int PK_Button)
 	m_bRepeatMenu=false;  // This will be true if the user was hitting the same button that activated the menu (ie tapping again to make it go away)
 
 	// Special case for the media control
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST )
 	{
 		m_bRepeatMenu = m_EMenuOnScreen==mb_MainMenu;
 g_pPlutoLogger->Write(LV_FESTIVAL,"menu repeate %d",(int) m_bRepeatMenu);
@@ -385,7 +454,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"menu repeate %d",(int) m_bRepeatMenu);
 			Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
 		}
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST )
 	{
 		m_bUseAbsoluteSeek=false; // We'll set it to true later
 		string sResponse;
@@ -403,6 +472,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"down repeate %d",(int) m_bRepeatMenu);
 		if(  !m_bRepeatMenu )
 		{
 			m_EMenuOnScreen=mb_MediaControl;
+			DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_CONST);  // Temp until the widget is done and can set this
+			pObj->m_rPosition.Width=964;
+			pObj->m_rPosition.Height=90;
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST),263,526,"","horiz",false,false);
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST),0,0,"","left",false,false);
 			Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST));
@@ -410,22 +482,37 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"down repeate %d",(int) m_bRepeatMenu);
 		}
 		m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST )
+	{
+		m_bRepeatMenu = m_EMenuOnScreen==mb_Ambiance;
+g_pPlutoLogger->Write(LV_FESTIVAL,"down ambiance repeate %d",(int) m_bRepeatMenu);
+//remus m_pObj_Locked_Horizontal->HasTimeline(m_bHasTimeline);
+		if(  !m_bRepeatMenu )
+		{
+			m_EMenuOnScreen=mb_Ambiance;
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popVolume_CONST),263,526,"","horiz",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST),0,0,"","left",false,false);
+			Set_Mouse_Behavior("V",false,"X",StringUtils::itos(DESIGNOBJ_popVolume_CONST));
+			Set_Mouse_Behavior("G",false,"Y",StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST));
+		}
+	}
 
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
-		return; // Nothing to do
+		return false; // Nothing to do
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
-		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseDown, m_pObj_Locked_Horizontal, 0, 0, 0);
+		return CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseDown, m_pObj_Locked_Horizontal, PK_Button, 0, 0);
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
-		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseDown, m_pObj_Locked_Vertical, 0, 0, 0);
+		return CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseDown, m_pObj_Locked_Vertical, PK_Button, 0, 0);
+	return false;
 }
 
-void MouseBehavior::ButtonUp(int PK_Button)
+bool MouseBehavior::ButtonUp(int PK_Button)
 {
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
 
 	// If the user held the button for more than HoldTime, resume normal playback
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_1_CONST )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
 			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
@@ -443,7 +530,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)
 			m_EMenuOnScreen=mb_None;
 		}
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
 			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
@@ -466,13 +553,26 @@ g_pPlutoLogger->Write(LV_FESTIVAL," setting timeline position to %d",Percentage)
 //remus m_pObj_Locked_Horizontal->SetMode(absolute_navigation);
 		}
 	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST )
+	{
+g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)",(int) m_bRepeatMenu,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime ? "Y" : "N",
+			m_iTime_Last_Mouse_Up,m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down		  );
+		if( m_iTime_Last_Mouse_Up-m_iTime_Last_Mouse_Down>MouseSensitivity::HoldTime || m_bRepeatMenu )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
+		{
+			m_pOrbiter->CMD_Remove_Popup("","horiz");
+			m_pOrbiter->CMD_Remove_Popup("","left");
+			m_EMenuOnScreen=mb_None;
+			Set_Mouse_Behavior("",false,"","");
+		}
+	}
 
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
-		return; // Nothing to do
+		return false; // Nothing to do
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseBehaviorHandler_Horizontal )
-		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseUp, m_pObj_Locked_Horizontal, 0, 0, 0);
+		return CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Horizontal)(mb_MouseUp, m_pObj_Locked_Horizontal, PK_Button, 0, 0);
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseBehaviorHandler_Vertical )
-		CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseUp, m_pObj_Locked_Vertical, 0, 0, 0);
+		return CALL_MEMBER_FN(*this, m_pMouseBehaviorHandler_Vertical)(mb_MouseUp, m_pObj_Locked_Vertical, PK_Button, 0, 0);
+	return false;
 }
 
 bool MouseBehavior::ParsePosition(string sMediaPosition)

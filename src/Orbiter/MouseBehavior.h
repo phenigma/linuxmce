@@ -8,6 +8,7 @@ using namespace std;
 
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
+#include "PlutoUtils/ProcessUtils.h"
 using namespace DCE;
 
 #define MAX_SPEEDS		17
@@ -26,6 +27,7 @@ namespace DCE
 		const static int MinMoveAllSamplesToChangeDir;
 		const static int MaxMoveAllSamplesToChangeDir;
 		const static int HoldTime;
+		const static int IgnoreMouseAfterReposition;;
 	};
 
 	//-----------------------------------------------------------------------------------------------------
@@ -37,7 +39,7 @@ namespace DCE
 	{
 		typedef enum EMouseBehaviorEvent { mb_SettingUp, mb_StartMove, mb_ChangeDirection, mb_Movement, mb_MouseUp, mb_MouseDown };
 		typedef enum EMenuOnScreen { mb_None, mb_MainMenu, mb_MediaControl, mb_Ambiance };
-		typedef void ( MouseBehavior::*MouseBehaviorHandler ) ( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		typedef bool ( MouseBehavior::*MouseBehaviorHandler ) ( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 
 	protected:
 		Orbiter *m_pOrbiter;
@@ -50,7 +52,7 @@ namespace DCE
 		int m_iLockedPosition; // Either the X or Y
 		char m_cLockedAxes,m_cLocked_Axis_Current;  // one of the #define AXIS_LOCK to indicate which axes are locked
 		const static int m_iSpeeds[MAX_SPEEDS];
-		int m_iLastSpeed;
+		int m_iLastSpeed,m_iLastNotch;
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		EMenuOnScreen m_EMenuOnScreen;
@@ -65,8 +67,8 @@ namespace DCE
 		virtual ~MouseBehavior() {} //no-op destructor
 
 		void Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj);
-		void ButtonDown(int PK_Button);
-		void ButtonUp(int PK_Button);
+		bool ButtonDown(int PK_Button);     // Return true means don't process this anymore
+		bool ButtonUp(int PK_Button);   // Return true means don't process this anymore
 		void Move(int X,int Y);
 		bool CheckForChangeInDirection(int X,int Y);
 		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y);
@@ -80,8 +82,10 @@ namespace DCE
 		virtual void GetMousePosition(PlutoPoint *p) { }
 
 		// Handlers for special mouse functions
-		void LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-		void SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		bool LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		bool SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		bool LightControl( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		bool VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 
 		void LockedMove( int X, int Y ); // LockedBar and move event
 

@@ -72,6 +72,10 @@ namespace DCE
 			m_sName = sName;
 			m_Position = Position;    
 			m_bDontAutohide = false;
+g_pPlutoLogger->Write(LV_CRITICAL,"create popup 6 now %p",this);
+		}
+		~PlutoPopup() {
+g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		}
 	};
 
@@ -210,7 +214,8 @@ namespace DCE
 		int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD,m_iPK_DesignObj_Guide;
 		string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 		int m_iPK_MediaType;
-		int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
+		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio;  /** < set by the media engine, this is whatever media device is currently playing */
+		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume;
 		PlutoPopup *m_pActivePopup;
 
 		int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
@@ -1506,8 +1511,6 @@ namespace DCE
 
 	/** @brief COMMAND: #242 - Set Now Playing */
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
-		/** @param #2 PK_Device */
-			/** The currently active media device */
 		/** @param #3 PK_DesignObj */
 			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote, guide */
 		/** @param #5 Value To Assign */
@@ -1522,11 +1525,13 @@ namespace DCE
 			/** The track number or position in the playlist */
 		/** @param #50 Name */
 			/** The name of the window for the application to remain in the foreground */
+		/** @param #103 List PK Device */
+			/** (comma-delimited list): The current source device, video device, the current audio device, 1/0 if audio device supports discrete volume */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,sName.c_str(),bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,sName.c_str(),sList_PK_Device.c_str(),bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

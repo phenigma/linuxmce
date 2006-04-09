@@ -1954,6 +1954,7 @@
 #define DESIGNOBJ_butshowmovies_CONST 4872
 #define DESIGNOBJ_butMediaPopup_CONST 4873
 #define DESIGNOBJ_popDVDChapters_CONST 4874
+#define DESIGNOBJ_popLightsInRoom_CONST 4876
 #define DESIGNOBJ_popVolume_CONST 4877
 #define DESIGNOBJ_popDvdOptions_CONST 4878
 #define DESIGNOBJ_butShowLights_CONST 4879

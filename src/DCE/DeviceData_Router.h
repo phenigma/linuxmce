@@ -142,6 +142,7 @@ namespace DCE
 		bool m_bForceReloadOnFirstConnect;
 
 		map<int, class Pipe *> m_mapPipe_Available; // The available pipes
+		Pipe *m_mapPipe_Available_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Available.find(PK_Pipe); return it==m_mapPipe_Available.end() ? NULL : (*it).second; }
 		map<int, class Pipe *> m_mapPipe_Active; // The currently activated pipes
 		Pipe *m_mapPipe_Active_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Active.find(PK_Pipe); return it==m_mapPipe_Active.end() ? NULL : (*it).second; }
 

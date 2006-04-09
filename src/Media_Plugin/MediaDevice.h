@@ -16,7 +16,8 @@ namespace DCE
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
 		bool m_bDontSendOffIfOSD_ON;  // This allows that only the OSD can turn it off
 		class DeviceData_Router *m_pDeviceData_Router,          /**< The device in the router */
-			*m_pDevice_App_Server_Volume, /**< Used if this is a media director, and there is no destination device in the audio path, and there is an app server to adjust the volume in the PC */
+			*m_pDevice_Audio, /**< If this is inside a media director, and there is no destination device in the audio path, this will point app server to adjust the volume in the PC */
+			*m_pDevice_Video, /**< The destination video device */
 			*m_pDevice_Media_ID;   
 
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
@@ -25,12 +26,15 @@ namespace DCE
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 		map<int, Row_MediaType *> m_mapMediaType;
 		class CommandGroup *m_pCommandGroup; // A command group used to turn this device on
+		class Router *m_pRouter;
 
 		// These will only be used if this is a disk drive.  If so, we'll keep track of the orbiter
 		// that reset the drive so that when the drive later fires a media inserted we know which 
 		// orbiter originated the request
 		class OH_Orbiter *m_pOH_Orbiter_Reset;
 		time_t m_tReset;
+
+		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe);
 	};
 
 	typedef list<MediaDevice *> ListMediaDevice;

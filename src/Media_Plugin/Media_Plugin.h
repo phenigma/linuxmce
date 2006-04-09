@@ -472,9 +472,17 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 			if( StringUtils::StartsWith(sFilename,"<%=") )
 				sFilename="";  // It's just a stock message--the user will have to pick
 
-			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
+			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
+				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "");
+
+			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
+				sMediaDevices += ",1";
+
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, 
-				pMediaStream->m_iPK_MediaType, iDequeMediaFile, pMediaStream->m_sAppName, bRefreshScreen );
+				pMediaStream->m_iPK_MediaType, iDequeMediaFile, pMediaStream->m_sAppName, 
+				sMediaDevices, bRefreshScreen );
 
 			if( pMessage )
 			{
@@ -499,8 +507,8 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 		}
 		else
 		{
-			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 0,
-				"", "", "", "", 0, 0, "", bRefreshScreen );
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
+				"", "", "", "", 0, 0, "", "", bRefreshScreen );
 			if( pMessage )
 			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);

@@ -109,6 +109,7 @@ static bool MediaHandlerComparer(MediaHandlerInfo *x, MediaHandlerInfo *y)
 
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 {
+	m_pRouter=pRouter;
 	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	m_pOH_Orbiter_OSD = NULL;
@@ -116,34 +117,53 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pOH_Orbiter_Reset=NULL;
 	m_pCommandGroup=NULL;
 	m_tReset=0;
-	m_pDevice_App_Server_Volume=m_pDevice_Media_ID=NULL;
+	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 
-	// See if this is an M/D
-	if( m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+	DeviceData_Router *pDeviceData_Router_Source = m_pDeviceData_Router;  // The source is ourselves unless we're a software source and then it's the MD
+	if( (m_pDeviceData_Router->m_pDevice_ControlledVia && m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) ||
+		(m_pDeviceData_Router->m_pDevice_ControlledVia && m_pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia && m_pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) )
+			if( m_pDeviceData_Router->m_pDevice_MD )
+				pDeviceData_Router_Source = (DeviceData_Router *) m_pDeviceData_Router->m_pDevice_MD;
+
+	// and has a pipe for audio -- if so, we won't adjust the PC's volume
+	Pipe *pPipe_Audio = pDeviceData_Router_Source->m_mapPipe_Available_Find(1);
+	Pipe *pPipe_Video = pDeviceData_Router_Source->m_mapPipe_Available_Find(2);
+
+	if( !pPipe_Audio )
 	{
-		// and has a pipe for audio -- if so, we won't adjust the PC's volume
-		bool bFoundPipe=false;
-        for(map<int,Pipe *>::iterator it=m_pDeviceData_Router->m_mapPipe_Available.begin();it!=m_pDeviceData_Router->m_mapPipe_Available.end();++it)
-        {
-            Pipe *pPipe = (*it).second;
-			if( pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==1 )
-			{
-				bFoundPipe=true;
-				break;
-			}
-		}
-		if( !bFoundPipe )
+		if( pDeviceData_Router_Source->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
 		{
 			// Since there's no other a/v device for volume adjustments, we'll send it to an app server
 			vector<DeviceData_Router *> vectDeviceData_Router;
 			m_pDeviceData_Router->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
 			if( vectDeviceData_Router.size() )
-				m_pDevice_App_Server_Volume = vectDeviceData_Router[0];
+				m_pDevice_Audio = vectDeviceData_Router[0];
 		}
 	}
+	else
+		m_pDevice_Audio = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Audio,1));
 
-	// do stuff with this
+	if( pPipe_Video )
+		m_pDevice_Video = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Video,2));
+}
+
+int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe)
+{
+	string sSQL = "FK_Device_From=" + StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()) + " AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
+	vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
+	pPipe->m_pRow_Device_Device_Pipe->Table_Device_Device_Pipe_get()->GetRows(sSQL,&vectRow_Device_Device_Pipe);
+	if( vectRow_Device_Device_Pipe.size() )
+	{
+		Row_Device_Device_Pipe *pRow_Device_Device_Pipe = vectRow_Device_Device_Pipe[0];
+		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find( pRow_Device_Device_Pipe->FK_Device_To_get() );
+		if( pDeviceData_Router )
+		{
+			Pipe *pPipe = pDeviceData_Router->m_mapPipe_Available_Find(PK_Pipe);
+			return FindUltimateDestinationViaPipe(pPipe,PK_Pipe);
+		}
+	}
+	return pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
 }
 
 //<-dceag-const-b->! custom// i get
@@ -1288,10 +1308,10 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						)
 					{
 						MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD); // We have an app server to control the volume
-						if( pMediaDevice && pMediaDevice->m_pDevice_App_Server_Volume )  // We have an MD and it uses appserver for the volume
+						if( pMediaDevice && pMediaDevice->m_pDevice_Audio )  // We have an MD and it uses appserver for the volume
 						{
 							Message *pNewMessage = new Message( pMessage );
-							pNewMessage->m_dwPK_Device_To = pMediaDevice->m_pDevice_App_Server_Volume->m_dwPK_Device;
+							pNewMessage->m_dwPK_Device_To = pMediaDevice->m_pDevice_Audio->m_dwPK_Device;
 							QueueMessageToRouter( pNewMessage );
 						}
 					}

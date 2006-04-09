@@ -210,7 +210,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bStartingUp=true;
 	m_pLocationInfo = NULL;
 	m_dwPK_Users = 0;
-	m_dwPK_Device_NowPlaying = 0;
+	m_dwPK_Device_NowPlaying_Video = m_dwPK_Device_NowPlaying_Audio = m_dwPK_Device_NowPlaying = 0;
+	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = false;
 	m_pOrbiterFileBrowser_Collection=NULL;
 	m_bForward_local_kb_to_OSD=false;
 	m_bYieldScreen=false;
@@ -1377,6 +1378,7 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 			ObjectOffScreen( pPlutoPopup->m_pObj );
 			if( m_pActivePopup==pPlutoPopup )
 				m_pActivePopup=NULL;
+g_pPlutoLogger->Write(LV_CRITICAL,"active popup 1 now NULL");
 		}
 
 		if(
@@ -3605,8 +3607,23 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 	{
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
-if( pObj->m_ObjectID.find("4870")!=string::npos )
+if( pObj->m_ObjectID.find("4890")!=string::npos )
+{
+	DesignObjCommandList::iterator it;
+	for(it=pObj->m_Action_HighlightList.begin();it!=pObj->m_Action_HighlightList.end();++it)
+	{
+		DesignObjCommand *pDesignObjCommand = *it;
+		map<int,string>::iterator it2;
+		for(it2=pDesignObjCommand->m_ParameterList.begin();it2!=pDesignObjCommand->m_ParameterList.end();++it2)
+		{
+			int i=it2->first;
+			string s=it2->second;
+		int k=2;
+		}
+
+	}
 int k=2;
+}
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
@@ -3723,22 +3740,22 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 #endif
 // some temporary stuff
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_3_CONST);
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
@@ -4159,6 +4176,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 bool Orbiter::RegionUp( int x,  int y )
 {
+	if( m_pMouseBehavior && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )
+		return true;
+
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseUp);
 	if(pCallBackData)
 	{
@@ -4175,6 +4195,8 @@ bool Orbiter::RegionUp( int x,  int y )
 }
 bool Orbiter::RegionDown( int x,  int y )
 {
+	if( m_pMouseBehavior && m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
+		return true;
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseDown);
 	if(pCallBackData)
 	{
@@ -4221,6 +4243,7 @@ bool Orbiter::RegionDown( int x,  int y )
 		DesignObj_Orbiter* pTopMostObject = m_pScreenHistory_Current->GetObj();
 		PlutoPoint RelativePoint(x, y);
 		m_pActivePopup = NULL;
+g_pPlutoLogger->Write(LV_CRITICAL,"active popup 2 now NULL");
 
 		if( m_pScreenHistory_Current )
 		{
@@ -4234,6 +4257,7 @@ bool Orbiter::RegionDown( int x,  int y )
 					pTopMostObject = pPopup->m_pObj;
 					RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
 					m_pActivePopup = pPopup;
+g_pPlutoLogger->Write(LV_CRITICAL,"active popup 3 now %p",m_pActivePopup);
 					break;
 				}
 			}
@@ -4251,6 +4275,7 @@ bool Orbiter::RegionDown( int x,  int y )
 					pTopMostObject = pPopup->m_pObj;
 					RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
 					m_pActivePopup = pPopup;
+g_pPlutoLogger->Write(LV_CRITICAL,"active popup 4 now %p",m_pActivePopup);
 					break;
 				}
 			}
@@ -4447,6 +4472,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 
 	if(  pDesignObjCommandList->size(  )==0  )
 		return;
+
+if( pObj->m_iBaseObjectID==4890 )
+	int k=2;
 
 	if( pObj->m_iRepeatIntervalInMS && m_bWeCanRepeat )
 	{
@@ -4893,6 +4921,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
 		else if(  Variable=="MDH"  )
 			Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
+		else if(  Variable=="L:0" && m_pLocationInfo  )
+			Output += StringUtils::itos(m_pLocationInfo->iLocation);
 		else if(  Variable=="LD" && m_pLocationInfo  )
 			Output += m_pLocationInfo->Description;
 		else if(  Variable=="LDGC"  )
@@ -4909,6 +4939,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			Output += m_sNowPlaying;
 			m_pObj_NowPlayingOnScreen=pObj;
+g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActivePopup);
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
 				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
@@ -7092,8 +7123,6 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 
 	/** @brief COMMAND: #242 - Set Now Playing */
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
-		/** @param #2 PK_Device */
-			/** The currently active media device */
 		/** @param #3 PK_DesignObj */
 			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote, guide */
 		/** @param #5 Value To Assign */
@@ -7108,10 +7137,12 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 			/** The track number or position in the playlist */
 		/** @param #50 Name */
 			/** The name of the window for the application to remain in the foreground */
+		/** @param #103 List PK Device */
+			/** (comma-delimited list): The current source device, video device, the current audio device, 1/0 if audio device supports discrete volume */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
 	if(m_bQuit)
@@ -7122,12 +7153,16 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_iPK_MediaType=iPK_MediaType;
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
 	m_sNowPlaying_Section = SubstituteVariables(sText, NULL, 0, 0);
-	m_dwPK_Device_NowPlaying = iPK_Device;
+	string::size_type pos=0;
+	m_dwPK_Device_NowPlaying = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
+	m_dwPK_Device_NowPlaying_Video = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
+	m_dwPK_Device_NowPlaying_Audio = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
+	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s %s",sValue_To_Assign.c_str(),sPK_DesignObj.c_str());
 #endif
-	string::size_type pos=0;
+	pos=0;
 	m_iPK_DesignObj_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
@@ -8294,14 +8329,14 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-if( sPK_DesignObj.find("4870")!=string::npos )
+if( sPK_DesignObj.find("4871")!=string::npos )
 {
 		DesignObj_Orbiter *pObj_Popup1 = FindObject("4870");
 		DesignObj_Orbiter *pObj_Popup2 = FindObject("4870.0");
 		DesignObj_Orbiter *pObj_Popup3 = FindObject("4870.0.0");
 	int k=1;
 }
-	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s",sName.c_str());
+	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
@@ -8385,7 +8420,10 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
 
 				if( m_pActivePopup==(*it) )
+				{
 					m_pActivePopup=NULL;
+					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 6 now %p",m_pActivePopup);
+				}
 
 				delete *it;
 				pObj->m_listPopups.erase(it);
@@ -8405,7 +8443,10 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
 
 				if( m_pActivePopup==(*it) )
+				{
 					m_pActivePopup=NULL;
+					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 7 now %p",m_pActivePopup);
+				}
 
 				delete *it;
 				m_listPopups.erase(it);
@@ -8424,6 +8465,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"hide popups");
 #endif
+	m_pActivePopup=NULL;
 	if( pObj )
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
@@ -8483,6 +8525,13 @@ void Orbiter::RemoveShortcuts( void *data )
 void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c401-e->
 {
+	if( m_iUiVersion==2 ) // TODO - temp hack 
+	{
+		CMD_Show_Popup("4871",50,50,"","mediabrowser",false,false);
+		return;
+	}
+
+
 	if( !m_pOrbiterFileBrowser_Collection )
 		return; // Should never happen
 

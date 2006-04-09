@@ -203,11 +203,11 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 // Temporary for the go mouse
 
 			// Speed control
-			case SDLK_FIRST:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F8_CONST; break;
+			case SDLK_FIRST:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F6_CONST; break;
 			// Menu
-			case SDLK_RIGHT:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F6_CONST; break;
+			case SDLK_RIGHT:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F7_CONST; break;
 			// Ambiance
-			case SDLK_END:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F7_CONST; break;
+			case SDLK_END:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F8_CONST; break;
                         
 			default:
                             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
