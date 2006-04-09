@@ -90,6 +90,7 @@ long int m_FK_DesignObj_Alt_Popup;
 long int m_FK_DesignObj_Alt_OSD;
 string m_Description;
 long int m_FK_Skin;
+long int m_UIVersion;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -97,7 +98,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[19];
+		bool is_null[20];
 	
 	public:
 		long int PK_MediaType_DesignObj_get();
@@ -113,6 +114,7 @@ long int FK_DesignObj_Alt_Popup_get();
 long int FK_DesignObj_Alt_OSD_get();
 string Description_get();
 long int FK_Skin_get();
+long int UIVersion_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -134,6 +136,7 @@ void FK_DesignObj_Alt_Popup_set(long int val);
 void FK_DesignObj_Alt_OSD_set(long int val);
 void Description_set(string val);
 void FK_Skin_set(long int val);
+void UIVersion_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -152,6 +155,7 @@ bool FK_DesignObj_Alt_Popup_isNull();
 bool FK_DesignObj_Alt_OSD_isNull();
 bool Description_isNull();
 bool FK_Skin_isNull();
+bool UIVersion_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -169,6 +173,7 @@ void FK_DesignObj_Alt_Popup_setNull(bool val);
 void FK_DesignObj_Alt_OSD_setNull(bool val);
 void Description_setNull(bool val);
 void FK_Skin_setNull(bool val);
+void UIVersion_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -202,7 +207,7 @@ class Row_Skin* FK_Skin_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_MediaType_DesignObj+ m_FK_MediaType+ m_FK_DesignObj+ m_FK_DesignObj_Popup+ m_FK_DesignObj_FileList+ m_FK_DesignObj_FileList_Popup+ m_FK_DesignObj_Guide+ m_FK_DesignObj_OSD+ m_FK_DesignObj_Alt+ m_FK_DesignObj_Alt_Popup+ m_FK_DesignObj_Alt_OSD+ m_Description+ m_FK_Skin+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_MediaType_DesignObj+ m_FK_MediaType+ m_FK_DesignObj+ m_FK_DesignObj_Popup+ m_FK_DesignObj_FileList+ m_FK_DesignObj_FileList_Popup+ m_FK_DesignObj_Guide+ m_FK_DesignObj_OSD+ m_FK_DesignObj_Alt+ m_FK_DesignObj_Alt_Popup+ m_FK_DesignObj_Alt_OSD+ m_Description+ m_FK_Skin+ m_UIVersion+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -220,6 +225,7 @@ string FK_DesignObj_Alt_Popup_asSQL();
 string FK_DesignObj_Alt_OSD_asSQL();
 string Description_asSQL();
 string FK_Skin_asSQL();
+string UIVersion_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
