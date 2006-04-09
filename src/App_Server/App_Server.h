@@ -33,6 +33,7 @@ public:
 	    pluto_pthread_mutex_t m_AppMutex; // Other classes may need this
 		pthread_mutexattr_t m_MutexAttr;
 		bool m_bLastMute;
+		int m_iLastVolume;
 
         // Private methods
         bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);

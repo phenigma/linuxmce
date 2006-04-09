@@ -236,12 +236,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::VolumeControl %d %p %d,%d",
 		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
-		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
 		if( m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume && m_iTime_Last_Mouse_Up==0 )
 		{
 			m_bUsingDiscreteAudio=true;
 			m_iLastNotch = atoi(m_pOrbiter->GetEvents()->GetCurrentDeviceData(m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
 			int X = pObj->m_rPosition.Width * m_iLastNotch / 100;
+g_pPlutoLogger->Write(LV_FESTIVAL,"Starting discrete volume control notch: %d  X %d",m_iLastNotch,X);
 			SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+X,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
 		}
 		else
@@ -255,9 +255,10 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::VolumeControl %d %p %d,%d",
 	{
 		if( m_bUsingDiscreteAudio )
 		{
-			int Notch = (X - pObj->m_rPosition.X - pObj->m_pPopupPoint.X) / (pObj->m_rPosition.Width/100);
+			int Notch = (X - pObj->m_rPosition.X - pObj->m_pPopupPoint.X) * 100 / pObj->m_rPosition.Width;
 			if( Notch!=m_iLastNotch )
 			{
+g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 				DCE::CMD_Set_Volume CMD_Set_Volume(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
 				m_pOrbiter->SendCommand(CMD_Set_Volume);
 				m_iLastNotch = Notch;

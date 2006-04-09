@@ -101,6 +101,10 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_AppMutex.Init(&m_MutexAttr);
 	m_bLastMute=false;
+	m_iLastVolume=DATA_Get_Volume_Level();
+	if( !m_iLastVolume )
+		m_iLastVolume=50;
+
 #ifndef WIN32
 	g_pAppServer = this;
     signal(SIGCHLD, sh); /* install handler */
@@ -514,6 +518,10 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
+	m_iLastVolume+=iRepeat_Command;
+	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
+	DATA_Set_Volume_Level(m_iLastVolume,true);
+
 #ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
@@ -523,7 +531,7 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "+").c_str(), NULL);
+		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
 		exit(99);
 	}
 #endif	
@@ -546,6 +554,9 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
+	m_iLastVolume-=iRepeat_Command;
+	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
+	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
 	int pid = fork();
@@ -556,7 +567,7 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "-").c_str(), NULL);
+		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
 		exit(99);
 	}
 #endif
@@ -575,12 +586,15 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c313-e->
 {
-	bool bRelative = false;
 	if ( sLevel.size()>1 && sLevel[0] == '+' || sLevel[0] == '-')
-		bRelative = true;
+		m_iLastVolume += atoi(sLevel.c_str());
+	else
+		m_iLastVolume = atoi(sLevel.c_str());
 
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
+	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
+	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
 	int pid = fork();
@@ -591,7 +605,7 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "")).c_str(), NULL);
+		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
 		exit(99);
 	}
 #endif
