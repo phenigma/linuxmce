@@ -74,6 +74,7 @@ void MouseGovernor::Run()
 
 bool MouseGovernor::Move(int X, int Y)
 {
+	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
 	if( m_dwBufferMs==0 )
 		return true; // Not governing the mouse now
 
@@ -94,6 +95,7 @@ bool MouseGovernor::Move(int X, int Y)
 
 void MouseGovernor::SetBuffer(int MS)
 {
+	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::SetBuffer %d",MS);
 	m_dwBufferMs=MS;
 	m_dwTime_Last_Reported_Mouse=0;

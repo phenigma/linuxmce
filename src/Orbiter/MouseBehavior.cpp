@@ -57,6 +57,7 @@ void MouseBehavior::Clear()
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor->SetBuffer(0);
+	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0);
 }
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
@@ -159,7 +160,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
-		m_pMouseGovernor->SetBuffer(5000);
+		m_pMouseGovernor->SetBuffer(2000);
 		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
 		m_iLastSpeed=0;
 		if( m_bUseAbsoluteSeek )
@@ -215,6 +216,7 @@ bool MouseBehavior::LightControl( EMouseBehaviorEvent eMouseBehaviorEvent,Design
 		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
+		m_pMouseGovernor->SetBuffer(2000);
 		m_iLastNotch=0;
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::LightControl starting %d %p %d,%d",
 					  (int) eMouseBehaviorEvent,pObj,X,Y);
@@ -243,14 +245,13 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::LightControl starting %d %p %d
 
 bool MouseBehavior::VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::VolumeControl %d %p %d,%d",
-					  (int) eMouseBehaviorEvent,pObj,X,Y);
 	if( !pObj )
 		return false; // Shouldn't happen, this should be the volume control
 	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
 	{
 		if( m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume && m_iTime_Last_Mouse_Up==0 )
 		{
+			m_pMouseGovernor->SetBuffer(2000);
 			m_bUsingDiscreteAudio=true;
 			m_iLastNotch = atoi(m_pOrbiter->GetEvents()->GetCurrentDeviceData(m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
 			int X = pObj->m_rPosition.Width * m_iLastNotch / 100;
@@ -282,8 +283,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 			int XStart = pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2;
 			if( m_iTime_Last_Mouse_Up==0 || !m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 			{
-				int NotchWidth = pObj->m_rPosition.Width/2/100;
-				int Notch = abs(X-XStart) / NotchWidth;
+				int NotchWidth = pObj->m_rPosition.Width/14; // Allow for 7 repeat levels in each direction
+				int Notch = (X-XStart) / NotchWidth;
+				if( Notch!=m_iLastNotch )
+				{
+g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume iterator to : %d  X %d",Notch,X);
+					m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500);
+					m_iLastNotch = Notch;
+				}
 			}
 		}
 	}
@@ -434,7 +441,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"fast switch Y %d,%d",diffX,diffY);
 
 	int DiffX = abs(m_pSamples[0].X-m_pSamples[1].X)+abs(m_pSamples[2].X-m_pSamples[1].X);
 	int DiffY = abs(m_pSamples[0].Y-m_pSamples[1].Y)+abs(m_pSamples[2].Y-m_pSamples[1].Y);
-g_pPlutoLogger->Write(LV_FESTIVAL,"new sample diff %d,%d at %d,%d last %d,%d",DiffX,DiffY,m_pSamples[0].X,m_pSamples[0].Y,m_pSamples[1].X,m_pSamples[1].Y);
+//g_pPlutoLogger->Write(LV_FESTIVAL,"new sample diff %d,%d at %d,%d last %d,%d",DiffX,DiffY,m_pSamples[0].X,m_pSamples[0].Y,m_pSamples[1].X,m_pSamples[1].Y);
 
 	if( m_cLocked_Axis_Current != AXIS_LOCK_Y )
 	{

@@ -286,6 +286,9 @@ Orbiter::~Orbiter()
 	if(Simulator::IsRunning())
 		StopSimulatorThread();
 
+	delete m_pMouseBehavior;
+	m_pMouseBehavior=NULL;
+
 	// Be sure we get the maint thread to cleanly exit
 	KillMaintThread();
 
@@ -423,7 +426,6 @@ Orbiter::~Orbiter()
 	m_mapHardKeys.clear();
 
 	delete m_pOrbiterFileBrowser_Collection;
-	delete m_pMouseBehavior;
 
 	if(m_pScreenHandler)
 		delete m_pScreenHandler;

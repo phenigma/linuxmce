@@ -37,6 +37,9 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MouseBehavior
 	{
+		friend class MouseIterator;
+		friend class MouseGovernor;
+
 		typedef enum EMouseBehaviorEvent { mb_SettingUp, mb_StartMove, mb_ChangeDirection, mb_Movement, mb_MouseUp, mb_MouseDown };
 		typedef enum EMenuOnScreen { mb_None, mb_MainMenu, mb_MediaControl, mb_Ambiance };
 		typedef bool ( MouseBehavior::*MouseBehaviorHandler ) ( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
