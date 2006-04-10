@@ -605,9 +605,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"down repeate %d",(int) m_bRepeatMenu);
 			pObj->m_rPosition.Width=964;
 			pObj->m_rPosition.Height=90;
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST),263,526,"","horiz",false,false);
-x			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(4898 /*DESIGNOBJ_popDVDChapters_CONST*/),0,0,"","left",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST),0,0,"","left",false,false);
 			Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST));
-			Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(4898 /*DESIGNOBJ_popDVDChapters_CONST*/));
+			Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST));
 		}
 		m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 	}
