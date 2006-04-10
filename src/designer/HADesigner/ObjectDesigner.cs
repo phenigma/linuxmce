@@ -875,6 +875,7 @@ namespace HADesigner
 
 					//clear the parameters
 					pnOnActivateParameters.Controls.Clear();
+					pnOnActivateParameters.Visible = true;
 
 					tbMasterDeviceList.Text="";
 					tbDeviceCategory.Text="";
@@ -2186,6 +2187,7 @@ namespace HADesigner
 			this.lbSelectedCommands.Size = new System.Drawing.Size(144, 147);
 			this.lbSelectedCommands.TabIndex = 8;
 			this.lbSelectedCommands.ValueMember = "CommandID";
+			this.lbSelectedCommands.SelectedIndexChanged += new System.EventHandler(this.lbSelectedCommands_SelectedIndexChanged);
 			// 
 			// btnOnActivateDown
 			// 
