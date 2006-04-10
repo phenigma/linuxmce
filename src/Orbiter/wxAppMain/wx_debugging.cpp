@@ -272,15 +272,17 @@ WMTaskManager::WMTaskManager()
         : v_oMutex(wxMUTEX_RECURSIVE)
         , v_nNextUniqueId(0)
 {
-    _WX_LOG_NFO();
+    _WX_LOG_NFO("Del");
 }
 
 WMTask * WMTaskManager::CreateTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData )
 {
+    _WX_LOG_NFO("LOCK CreateTask()");
     wxMutexLocker lock(v_oMutex);
+    _WX_LOG_NFO("INTO CreateTask()");
     v_nNextUniqueId++;
     WMTask *pWMTask = new WMTask(TaskType, DialogType, pCallBackData, v_nNextUniqueId);
-    _WX_LOG_NFO("CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_NFO("DONE CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
@@ -288,37 +290,50 @@ void WMTaskManager::AddTask(WMTask *pWMTask)
 {
     _WX_LOG_NFO("AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
+    _WX_LOG_NFO("LOCK AddTask()");
     wxMutexLocker lock(v_oMutex);
+    _WX_LOG_NFO("INTO AddTask()");
     v_apWMTask.Add(pWMTask);
+    _WX_LOG_NFO("DONE AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
 }
 
 void WMTaskManager::AddTaskAndWait(WMTask *pWMTask)
 {
     _WX_LOG_NFO("AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
-    wxMutexLocker lock(v_oMutex);
-    v_apWMTask.Add(pWMTask);
-    pWMTask->b_IsWaiting = true;
+    {
+        _WX_LOG_NFO("LOCK AddTaskAndWait()");
+        wxMutexLocker lock(v_oMutex);
+        _WX_LOG_NFO("INTO AddTaskAndWait()");
+        v_apWMTask.Add(pWMTask);
+        pWMTask->b_IsWaiting = true;
+    }
+    _WX_LOG_NFO("WAIT AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     pWMTask->v_oSemaphoreTaskWait.Wait();
-    _WX_LOG_NFO("Returned in AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_NFO("DONE AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
 }
 
 WMTask *WMTaskManager::PopTask()
 {
     //_WX_LOG_NFO();
+    _WX_LOG_NFO("LOCK PopTask()");
     wxMutexLocker lock(v_oMutex);
+    _WX_LOG_NFO("INTO PopTask()");
     if (v_apWMTask.IsEmpty())
         return NULL;
-    _WX_LOG_NFO("In PopTask()");
+    _WX_LOG_NFO("INTO PopTask()");
     WMTask *pWMTask = v_apWMTask[0];
     v_apWMTask.RemoveAt(0);
-    _WX_LOG_NFO("PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_NFO("DONE PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
 void WMTaskManager::TaskProcessed(size_t nTaskId)
 {
+    _WX_LOG_NFO("TaskProcessed(%d)", nTaskId);
+    _WX_LOG_NFO("LOCK TaskProcessed()");
     wxMutexLocker lock(v_oMutex);
+    _WX_LOG_NFO("INTO TaskProcessed()");
     size_t n = v_apWMTask.GetCount();
     for (size_t i=0; i<n; i++)
     {

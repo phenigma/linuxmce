@@ -118,7 +118,7 @@ $(OBJECTPATH)/wxdialog_base.o:	wxdialog_base.cpp wx/wx.h wxdialog_base.h wx_dial
 $(OBJECTPATH)/wxdialog_roomwizard.o:	wxdialog_roomwizard.cpp wx/wx.h wxdialog_roomwizard.h wxdialog_base.h wx_dialog_types.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_roomwizard.cpp
 
-$(OBJECTPATH)/wxdialog_slidermedia.o:	wxdialog_slidermedia.cpp wx/wx.h wxdialog_slidermedia.h
+$(OBJECTPATH)/wxdialog_slidermedia.o:	wxdialog_slidermedia.cpp wx/wx.h wxdialog_slidermedia.h wxdialog_base.h wx_dialog_types.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_slidermedia.cpp
 
 $(OBJECTPATH)/wxdialog_waitgrid.o:	wxdialog_waitgrid.cpp wx/wx.h wxdialog_waitgrid.h wxdialog_base.h wx_dialog_types.h logo_pluto.xpm

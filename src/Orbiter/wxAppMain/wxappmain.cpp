@@ -129,8 +129,9 @@ bool wxAppMain::OnInit()
 
     SetTopWindow(mainWindow);
 #ifdef USE_RELEASE_CODE
-    mainWindow->Raise();
-    mainWindow->Show(false);
+    //del: fix mainframe problem
+    //mainWindow->Raise();
+    //mainWindow->Show(false);
 #endif // USE_RELEASE_CODE
 #ifdef USE_DEBUG_CODE
     _debug_init();
