@@ -974,6 +974,8 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 			{
 				fwrite(pData,iData_Size,1,pFile);
 				fclose(pFile);
+
+				g_pPlutoLogger->Write(LV_CRITICAL,"Security plugin write photo to %s",sFile.c_str());
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Unable to write photo to %s",sFile.c_str());
