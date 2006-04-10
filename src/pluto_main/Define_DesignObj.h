@@ -1971,6 +1971,8 @@
 #define DESIGNOBJ_arrLocations2_CONST 4895
 #define DESIGNOBJ_butLocations2_CONST 4896
 #define DESIGNOBJ_butShowMediaBrowser_CONST 4897
+#define DESIGNOBJ_popMythChannels_CONST 4898
+#define DESIGNOBJ_butShowMythChannels_CONST 4899
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
