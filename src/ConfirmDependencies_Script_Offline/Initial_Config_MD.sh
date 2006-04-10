@@ -32,10 +32,6 @@ chmod +x /usr/pluto/install/activation.sh
 /usr/pluto/install/activation.sh
 
 
-## Run Install finish script (shared core and mds) 
-/usr/pluto/install/Initial_Config_Finish.sh
-
-
 # Replace Initial_Config.sh entry with regular one in inittab (OMFG Hack)
 awk '
 	/1:23:once/ { next }
@@ -47,6 +43,10 @@ mv -f /etc/inittab.new /etc/inittab
 ## Clean up after us
 apt-get clean
 rm -f /dead.letter /root/dead.letter
+
+
+## Run Install finish script (shared core and mds) 
+/usr/pluto/install/Initial_Config_Finish.sh
 
 
 ## Ok, let them have it :) !

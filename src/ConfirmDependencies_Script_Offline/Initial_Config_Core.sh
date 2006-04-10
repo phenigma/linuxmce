@@ -305,8 +305,10 @@ exec 1>&3 3>&-
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/generateRcScripts.sh
-/usr/pluto/install/Initial_Config_Finish.sh
 
 sed -i 's/^ide-generic$/#&/g' /etc/modules
+
+/usr/pluto/install/Initial_Config_Finish.sh
+
 #init q
 exit 0
