@@ -475,7 +475,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
-    if(width <= 0 || height <= 0)
+    if(width <= 0 || height <= 0 || y >= m_iImageHeight || x >= m_iImageWidth)
         return;
 
     //clipping

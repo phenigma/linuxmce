@@ -221,6 +221,12 @@
 				RelativePath=".\MouseBehavior.cpp">
 			</File>
 			<File
+				RelativePath=".\MouseGovernor.cpp">
+			</File>
+			<File
+				RelativePath=".\MouseIterator.cpp">
+			</File>
+			<File
 				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
 			</File>
 			<File

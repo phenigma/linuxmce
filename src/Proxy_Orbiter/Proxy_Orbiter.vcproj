@@ -151,6 +151,12 @@
 				RelativePath="..\Orbiter\MouseBehavior.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\MouseGovernor.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\MouseIterator.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Orbiter.cpp">
 			</File>
 			<File
