@@ -436,10 +436,10 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	
 	MythTvMediaStream *pMythTvMediaStream = NULL;
 
-    if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
+	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
 	    return new DataGridTable();
 
-    DataGridTable *pDataGrid = new DataGridTable();
+    	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	if( !m_pMySqlHelper_Myth || !m_pMySqlHelper_Myth->m_bConnected )
 		return pDataGrid;
@@ -447,9 +447,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	string::size_type pos=0;
 	string sPK_PostalCode = StringUtils::Tokenize(Parms,",",pos);
 	bool bInternalTuner = StringUtils::Tokenize(Parms,",",pos)=="1";
-	string sSQL = "SELECT channel.chanid, channum, callsign, title, description FROM channel LEFT JOIN program on (channel.chanid=program.chanid) WHERE NOW() > program.starttime AND NOW() < program.endtime";
+	string sSQL = "SELECT channel.chanid, channum, callsign, title, description, icon FROM channel LEFT JOIN program on (channel.chanid=program.chanid) WHERE NOW() > program.starttime AND NOW() < program.endtime ORDER BY CAST(channum AS SIGNED)";
 	PlutoSqlResult result_set;
-    MYSQL_ROW row;
+	MYSQL_ROW row;
 	pCell = new DataGridCell("None","0");
 	pDataGrid->SetData(0,0,pCell);
 	int iRow=0;
@@ -457,17 +457,24 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	{
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
-			pCell = new DataGridCell(row[0]);
-			pDataGrid->SetData(0,iRow++,pCell);
-			pCell = new DataGridCell(row[1]);
-			pDataGrid->SetData(1,iRow++,pCell);
-			pCell = new DataGridCell(row[2]);
-			pDataGrid->SetData(2,iRow++,pCell);
+			pCell = new DataGridCell(row[1]+string("\n")+row[2], row[1]);
+			pCell->m_PK_StyleDetail=16;
+			size_t fSize;
+			char *fLogo;
+			fLogo=FileUtils::ReadFileIntoBuffer(row[5], fSize);
+			pDataGrid->SetData(0,iRow,pCell);
+			pCell = new DataGridCell("");
+			if (fLogo)		
+				pCell->SetImage(fLogo, fSize, GR_JPG);
+	
+			pDataGrid->SetData(1,iRow,pCell);
 			pCell = new DataGridCell(row[3]);
-			pDataGrid->SetData(3,iRow++,pCell);
-		
+			pCell->m_PK_StyleDetail=16;
+			pDataGrid->SetData(2,iRow++,pCell);
+						
 		}
 	}
+	
     return pDataGrid;
 }
 
