@@ -78,26 +78,25 @@ function mediaDirectors($output,$dbADO) {
 	<input type="hidden" name="section" value="mediaDirectors">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-		
-	<div align="center"><h3>'.$TEXT_MEDIA_DIRECTORS_CONST.'</h3></div>';
+	';
 		
 		$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
 		$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
 
 		$out.='
-		<table align="center" border="0" cellpadding="2" cellspacing="0">
+		<table align="center" border="0" cellpadding="0" cellspacing="0">
 				<tr class="tablehead">
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ROOM_CONST.'</B></td>
-					<td align="center" colspan="4"><B>'.$TEXT_PIPES_CONST.'</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_PIPES_CONST.'</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_INPUT_CONST.'</B></td>
+					<td align="center" rowspan="2">&nbsp;</td>
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>
 				<tr class="tablehead">
-					<td align="center"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_CONNECTED_TO_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
-					<td align="center"><B>&nbsp;</B></td>
 				</tr>		
 					';
 				if(count($avDTIDArray)==0)
@@ -218,31 +217,31 @@ function mediaDirectors($output,$dbADO) {
 					$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
 	
 					$buttons='
-					<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
-					<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-					<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST.'\'))return true;else return false;">';
-					$buttons.=(isDiskless($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']]))?'<br><input type="submit" class="button" name="rebuild_diskless_'.$rowD['PK_Device'].'" value="'.$TEXT_REBUILD_DISKLESS_IMAGE_CONST.'">':'';
+					<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+					<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+					<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST.'\'))return true;else return false;">';
+					$buttons.=(isDiskless($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']]))?'<br><input type="submit" class="button_fixed" name="rebuild_diskless_'.$rowD['PK_Device'].'" value="'.$TEXT_REBUILD_DISKLESS_IMAGE_CONST.'">':'';
 						
 					
 					$controlledByPulldown='&nbsp;';
 						
 					$out.='
 					<tr>
-						<td align="center" bgcolor="#F0F3F8"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
+						<td align="center" class="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 						<td  align="right">'.$roomPulldown.'</td>
-						<td bgcolor="#F0F3F8">A: '.@$devicePipes['1']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['input'].'</td>
-						<td bgcolor="#F0F3F8" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
+						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
+						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
-						<td align="center" rowspan="2" valign="top" bgcolor="#F0F3F8">'.$buttons.'</td>
+						<td align="center" rowspan="2" valign="top" class="alternate_back">'.$buttons.'</td>
 					</tr>
 					<tr>			
-						<td align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].'</td>
+						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].'</td>
 						<td align="right">'.$controlledByPulldown.'</td>
-						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
+						<td class="alternate_back">V: '.@$devicePipes['2']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
 
 					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
@@ -252,20 +251,24 @@ function mediaDirectors($output,$dbADO) {
 						$out.='
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
 							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
-							<tr class="normaltext">
-								<td colspan="7">
-									<table border="0">
+							<tr>
+								<td colspan="8"><img src="include/images/spacer.gif" border="0" height="10"></td>
+							</tr>						
+								<td colspan="8">
+									<table border="0" width="100%">
 										<tr>
-											<td valign="top" rowspan="2">'.$TEXT_PVR_CAPTURE_CARD_CONST.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],0,'None').'<br>
+											<td valign="top" rowspan="2" class="alternate_back">'.$TEXT_PVR_CAPTURE_CARD_CONST.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],0,'None').'<br>
 											'.getPVRCards(array_keys($pvrArray),$_SESSION['installationID'],$rowD['PK_Device'],(int)$rowD['FK_Device_ControlledVia'],$dbADO).'
 											</td>
-											<td align="right">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
+											<td valign="top" rowspan="2"></td>
+											<td align="right" class="alternate_back">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
 											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']]).'<br>
 											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'><br>
 											'.$TEXT_FORCE_48K_CONST.' <input type="checkbox" name="force48k_'.$rowD['PK_Device'].'" value="K" '.@$oldForce48k[$rowD['PK_Device']].'>
 											</td>
-											<td align="right" valign="top">'.$TEXT_VIDEO_CARD_CONST.' '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
-											<input type="button" class="button" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
+											<td valign="top" rowspan="2"></td>
+											<td align="right" valign="top" class="alternate_back">'.$TEXT_VIDEO_CARD_CONST.' '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
+											<input type="button" class="button_fixed" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
 										</tr>
 									</table>
@@ -276,7 +279,7 @@ function mediaDirectors($output,$dbADO) {
 							<tr>
 								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"><hr></td>
 							</tr>';
-						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="'.$TEXT_SETUP_DISKLESS_MD_CONST.' *" onClick="self.location=\'index.php?section=setupDisklessMD\';">';
+						$setupDisklessMD=' <input type="button" class="button_fixed" name="setupDisklessMD" value="'.$TEXT_SETUP_DISKLESS_MD_CONST.' *" onClick="self.location=\'index.php?section=setupDisklessMD\';">';
 						$setupDisklessMDInfo='* '.$TEXT_DISKLESS_MD_NOTICE_CONST;
 					}
 				}
@@ -286,21 +289,18 @@ function mediaDirectors($output,$dbADO) {
 				<input type="hidden" name="displayedDevices" value="'.join(',',array_keys($displayedDevices)).'">';
 
 			if($resDevice->RecordCount()!=0){
-				$out.='
-				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">'.@$setupDisklessMD.'</td>
-				</tr>
-				<tr>
-					<td colspan="8" align="left">'.@$setupDisklessMDInfo.'</td>
-				</tr>';
+				$update_buttons='<input type="submit" class="button_fixed" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button_fixed" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">'.@$setupDisklessMD;
 			}
 			$out.='
 				<tr>
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_MD_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center">'.@$update_buttons.' <input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_MD_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
+				<tr>
+					<td colspan="8" align="left">'.@$setupDisklessMDInfo.'</td>
+				</tr>			
 			</table>
 	</form>
 	';
@@ -479,7 +479,9 @@ function mediaDirectors($output,$dbADO) {
 		header("Location: index.php?section=mediaDirectors&msg=$TEXT_MD_UPDATED_CONST&error=".@$err.@$anchor);		
 	}
 
-	$output->setScriptCalendar('null');
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_MEDIA_DIRECTORS_CONST);
+
 	$output->setNavigationMenu(array($TEXT_MEDIA_DIRECTORS_CONST=>'index.php?section=mediaDirectors'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MEDIA_DIRECTORS_CONST);
