@@ -1,5 +1,6 @@
 #include "MouseIterator.h"
 #include "MouseBehavior.h"
+#include "MouseGovernor.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -98,12 +99,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending vol : %d",m_dwParm);
 		if( m_dwParm<0 )
 		{
 			DCE::CMD_Vol_Down CMD_Vol_Down(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,m_dwParm*-1);
-			m_pOrbiter->SendCommand(CMD_Vol_Down);
+			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Down.m_pMessage);
 		}
 		else if( m_dwParm>0 )
 		{
 			DCE::CMD_Vol_Up CMD_Vol_Up(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,m_dwParm);
-			m_pOrbiter->SendCommand(CMD_Vol_Up);
+			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Up.m_pMessage);
 		}
 		break;
 	};

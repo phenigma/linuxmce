@@ -65,6 +65,7 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 #include "MouseBehavior.h"
+#include "MouseGovernor.h"
 
 #ifdef TEST_OSD
 #include "Linux/OSDScreenHandler.h"
@@ -1645,7 +1646,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 #ifdef DEBUG
 			g_pPlutoLogger->Write( LV_WARNING,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
 #endif
-			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y ) )
+			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y, selectionMethod ) )
 				return;
 		}
 		else if( pObj->m_pDataGridTable )
@@ -1662,7 +1663,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 				pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->HasMoreUp() ? 1 : 0) : 0);
 			if(pCell)
 			{
-				SelectedGrid(pDesignObj_DataGrid, pCell);
+				SelectedGrid(pDesignObj_DataGrid, pCell, selectionMethod);
 				RenderObjectAsync(pDesignObj_DataGrid);
 			}
 		}
@@ -1809,7 +1810,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	}
 }
 //------------------------------------------------------------------------
-bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  int Y )
+bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  int Y, SelectionMethod selectionMethod )
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	if ( !pDesignObj_DataGrid->m_pDataGridTable )
@@ -1919,7 +1920,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 					if(pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
 						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow + 1;
 
-					SelectedGrid( pDesignObj_DataGrid,  pCell );
+					SelectedGrid( pDesignObj_DataGrid,  pCell, selectionMethod );
 					bFinishLoop = true;
 					bFoundSelection = true; // Is this correct????  Hacked in this time
 					RenderObjectAsync(pDesignObj_DataGrid);
@@ -1931,7 +1932,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 	return bFoundSelection;
 }
 //------------------------------------------------------------------------
-bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
+bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell, SelectionMethod selectionMethod )
 {
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbDataGridSelected);
 	if(pCallBackData)
@@ -2023,7 +2024,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		else
 		{
 			//#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
-			QueueMessageToRouter( pMessage );
+			if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
+				m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
+			else
+				QueueMessageToRouter( pMessage );
 
 			//          QueueMessageToRouter( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
 			//          pMessage=NULL;  // Send message will delete the messages.  It's okay--it's just a copy anyway
@@ -4759,7 +4763,9 @@ if( pObj->m_iBaseObjectID==4890 )
 			}
 			else
 			{
-				if( !m_pcRequestSocket->SendMessage( pMessage ) )
+				if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
+					m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
+				else if( !m_pcRequestSocket->SendMessage( pMessage ) )
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
 			}
 			pMessage = NULL;

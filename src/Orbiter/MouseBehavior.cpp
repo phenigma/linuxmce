@@ -9,6 +9,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "DataGrid.h"
 
 using namespace DCE;
 
@@ -89,6 +90,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	case 'V':
 		pMouseBehaviorHandler=&MouseBehavior::VolumeControl;
 		break;
+	case 'T':
+		pMouseBehaviorHandler=&MouseBehavior::MediaTracks;
+		break;
 	}
 
 	if( sDirection[0]=='Y' )
@@ -152,6 +156,85 @@ bool MouseBehavior::LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignOb
 	return false;
 }
 
+bool MouseBehavior::MediaTracks( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
+{
+	if( !pObj || pObj->m_ChildObjects.size()==0 )
+		return false; // Shouldn't happen, this should be the volume control
+
+	DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(pObj->m_ChildObjects.begin());
+	PLUTO_SAFETY_LOCK( cm, m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
+	PLUTO_SAFETY_LOCK( dng, m_pOrbiter->m_DatagridMutex );
+	if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
+		return false; // Also shouldn't happen
+	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj_Child;
+	if( !pObj_Grid->m_pDataGridTable )
+		return false; // Again shouldn't happen
+
+	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
+	if( eMouseBehaviorEvent==mb_StartMove || eMouseBehaviorEvent==mb_ChangeDirection )
+	{
+		m_pMouseGovernor->SetBuffer(2000);
+
+		if( m_iTime_Last_Mouse_Up )
+		{
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* %d %p %d,%d",
+					  (int) eMouseBehaviorEvent,pObj,X,Y);
+			m_bUsingDiscreteMode=true;
+			int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
+			double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
+			int Y = CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y;
+			int X = pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2);
+			SetMousePosition(X,Y);
+		}
+		else
+		{
+			m_bUsingDiscreteMode=false;
+		}
+	}
+	else if( eMouseBehaviorEvent==mb_Movement )
+	{
+		if( m_bUsingDiscreteMode )
+		{
+			double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
+			int YDiff = Y - pObj_Grid->m_rPosition.Y - pObj_Grid->m_pPopupPoint.Y;
+			int Row = YDiff / RowHeight;
+			if( Row>Rows-1 )
+				Row=Rows-1;
+			pObj_Grid->m_iHighlightedRow = 1;
+			pObj_Grid->m_GridCurRow = Row;
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
+			delete pObj_Grid->m_pDataGridTable;
+			pObj_Grid->m_pDataGridTable=NULL;
+			pObj_Grid->bReAcquire=true;
+			NeedToRender render( m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
+			m_pOrbiter->m_pObj_Highlighted=pObj_Grid;
+			m_pOrbiter->RenderObjectAsync(pObj_Grid);
+			m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
+		}
+	}
+	else if( eMouseBehaviorEvent==mb_MouseDown && Parm==BUTTON_Mouse_1_CONST && m_pOrbiter->m_pObj_Highlighted )
+	{
+		m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
+		m_pOrbiter->CMD_Remove_Popup("","left");
+		m_pOrbiter->CMD_Remove_Popup("","horiz");
+		Set_Mouse_Behavior("",false,"","");
+		m_EMenuOnScreen=mb_None;
+
+		return true; // We handled this, do nothing more
+		/*
+		DataGridCell *pCell = pObj_Grid->m_pDataGridTable->GetData(
+			pObj_Grid->m_iHighlightedColumn!=-1 ? pObj_Grid->m_iHighlightedColumn + pObj_Grid->m_GridCurCol : pObj_Grid->m_GridCurCol,
+			pObj_Grid->m_iHighlightedRow!=-1 ? pObj_Grid->m_iHighlightedRow + pObj_Grid->m_GridCurRow - (pObj_Grid->HasMoreUp() ? 1 : 0) : 0);
+		if(pCell)
+		{
+			m_pOrbiter->SelectedGrid(pObj_Grid, pCell);
+			return true; // We handled this, do nothing more
+		}
+		*/
+	}
+	return false;
+}
+
 bool MouseBehavior::SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y )
 {
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
@@ -163,7 +246,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 		m_pMouseGovernor->SetBuffer(2000);
 		g_pPlutoLogger->Write(LV_FESTIVAL,"Starting speed control");
 		m_iLastSpeed=0;
-		if( m_bUseAbsoluteSeek )
+		if( m_bUsingDiscreteMode )
 		{
 			int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
 			int X = (m_pObj_Locked_Horizontal->m_rPosition.Width * Percentage / 100) + m_pObj_Locked_Horizontal->m_rPosition.X + m_pObj_Locked_Horizontal->m_pPopupPoint.X;
@@ -190,9 +273,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 			if( Speed!=m_iLastSpeed )
 			{
 	g_pPlutoLogger->Write(LV_FESTIVAL,"speed %d",Speed);
-
 				DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed);
-				m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
+				m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 				m_iLastSpeed=Speed;
 //remus  pObj->SetSpeed(Speed);
 			}
@@ -203,7 +285,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::SpeedControl %d %p %d,%d",
 			double Perc = (double) Offset / pObj->m_rPosition.Width;
 			int Time = (m_CurrentMedia_Stop-m_CurrentMedia_Start * Perc) + m_CurrentMedia_Start;
 			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,"POS:" + StringUtils::itos(Time*1000));
-			m_pOrbiter->SendCommand(CMD_Set_Media_Position);
+			m_pMouseGovernor->SendMessage(CMD_Set_Media_Position.m_pMessage);
 //remus  pObj->SetSpeed(Speed);
 		}
 	}
@@ -234,7 +316,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::LightControl starting %d %p %d
 		{
 			string sLevel = (Notch>m_iLastNotch ? "+" : "") + StringUtils::itos((Notch-m_iLastNotch)*10);
 			DCE::CMD_Set_Level CMD_Set_Level(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LightingPlugIn,sLevel);
-			m_pOrbiter->SendCommand(CMD_Set_Level);
+			m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 			g_pPlutoLogger->Write(LV_FESTIVAL,"Lights now at %d (st %d now %d)",Notch,YStart,Y);
 			m_iLastNotch=Notch;
 			
@@ -252,7 +334,7 @@ bool MouseBehavior::VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,Desig
 		if( m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume && m_iTime_Last_Mouse_Up==0 )
 		{
 			m_pMouseGovernor->SetBuffer(2000);
-			m_bUsingDiscreteAudio=true;
+			m_bUsingDiscreteMode=true;
 			m_iLastNotch = atoi(m_pOrbiter->GetEvents()->GetCurrentDeviceData(m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
 			int X = pObj->m_rPosition.Width * m_iLastNotch / 100;
 g_pPlutoLogger->Write(LV_FESTIVAL,"Starting discrete volume control notch: %d  X %d",m_iLastNotch,X);
@@ -260,21 +342,21 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Starting discrete volume control notch: %d  X
 		}
 		else
 		{
-			m_bUsingDiscreteAudio=false;
+			m_bUsingDiscreteMode=false;
 			SetMousePosition(pObj->m_rPosition.X+pObj->m_pPopupPoint.X+pObj->m_rPosition.Width/2,pObj->m_rPosition.Y+pObj->m_pPopupPoint.Y+pObj->m_rPosition.Height/2);
 			m_iLastNotch = 0;
 		}
 	}
 	else if( eMouseBehaviorEvent==mb_Movement )
 	{
-		if( m_bUsingDiscreteAudio )
+		if( m_bUsingDiscreteMode )
 		{
 			int Notch = (X - pObj->m_rPosition.X - pObj->m_pPopupPoint.X) * 100 / pObj->m_rPosition.Width;
 			if( Notch!=m_iLastNotch )
 			{
 g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 				DCE::CMD_Set_Volume CMD_Set_Volume(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
-				m_pOrbiter->SendCommand(CMD_Set_Volume);
+				m_pMouseGovernor->SendMessage(CMD_Set_Volume.m_pMessage);
 				m_iLastNotch = Notch;
 			}
 		}
@@ -301,9 +383,6 @@ void MouseBehavior::Move(int X,int Y)
 {
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
-
-	if( !m_pMouseGovernor->Move(X,Y) )
-		return; // We're being buffered
 
 	if( CheckForChangeInDirection(X,Y) )
 	{
@@ -506,7 +585,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"menu repeate %d",(int) m_bRepeatMenu);
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST )
 	{
-		m_bUseAbsoluteSeek=false; // We'll set it to true later
+		m_bUsingDiscreteMode=false; // We'll set it to true later
 		string sResponse;
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,0,0);
 		m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
@@ -526,9 +605,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"down repeate %d",(int) m_bRepeatMenu);
 			pObj->m_rPosition.Width=964;
 			pObj->m_rPosition.Height=90;
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST),263,526,"","horiz",false,false);
-			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST),0,0,"","left",false,false);
+x			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(4898 /*DESIGNOBJ_popDVDChapters_CONST*/),0,0,"","left",false,false);
 			Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST));
-			Set_Mouse_Behavior("C",false,"Y",StringUtils::itos(DESIGNOBJ_popDVDChapters_CONST));
+			Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(4898 /*DESIGNOBJ_popDVDChapters_CONST*/));
 		}
 		m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 	}
@@ -597,7 +676,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"up repeate %d hold: %s (up %d dn  %d diff %d)
 		else if( m_bHasTimeline )
 		{
 			int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
-			m_bUseAbsoluteSeek=true;
+			m_bUsingDiscreteMode=true;
 g_pPlutoLogger->Write(LV_FESTIVAL," setting timeline position to %d",Percentage);
 //remus m_pObj_Locked_Horizontal->PositionCurrentTime(X);
 //remus m_pObj_Locked_Horizontal->SetMode(absolute_navigation);

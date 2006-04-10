@@ -48,7 +48,8 @@ namespace DCE
 		smNavigation,
 		smCommand,
 		smLoadUnload,
-		smHighlight
+		smHighlight,
+		smMouseGovernor
 	};
 
 
@@ -447,13 +448,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief
 		* @todo ask
 		*/
-		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, int iX, int iY );
+		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, int iX, int iY, SelectionMethod selectionMethod );
 
 		/**
 		* @brief
 		* @todo ask
 		*/
-		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell );
+		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell, SelectionMethod selectionMethod );
 
 		/**
 		* @brief

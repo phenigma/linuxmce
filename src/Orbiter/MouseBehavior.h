@@ -37,6 +37,7 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MouseBehavior
 	{
+		friend class Orbiter;
 		friend class MouseIterator;
 		friend class MouseGovernor;
 
@@ -64,8 +65,7 @@ namespace DCE
 		bool m_bRepeatMenu;
 
 		bool m_bHasTimeline;  // Will be set to true if we don't have total time and position within media
-		bool m_bUsingDiscreteAudio; // The user is adjusting the volume to a discrete level
-		bool m_bUseAbsoluteSeek; // If true, we are seeking to an absolute position
+		bool m_bUsingDiscreteMode; // The user is adjusting to a discrete/absolute level
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 
 	public:
@@ -90,6 +90,7 @@ namespace DCE
 		// Handlers for special mouse functions
 		bool LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 		bool SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
+		bool MediaTracks( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 		bool LightControl( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 		bool VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 
