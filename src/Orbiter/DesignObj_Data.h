@@ -163,7 +163,7 @@ public:
 		m_sPK_DesignObj_TiedTo="";
 		m_iRegenInterval=m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
 		m_bTabStop = m_bRepeatParm=false;
-		m_FK_Effect_Selected_WithChange = m_FK_Effect_Selected_NoChange = m_FK_Effect_Highlighted = NULL;
+		m_FK_Effect_Selected_WithChange = m_FK_Effect_Selected_NoChange = m_FK_Effect_Highlighted = 0;
 		return;
 	}
 
