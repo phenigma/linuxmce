@@ -160,10 +160,19 @@ CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *
 	for(size_t s=0;s<vectRow_CriteriaParm.size();++s)
 	{
 		Row_CriteriaParm *pRow_CriteriaParm = vectRow_CriteriaParm[s];
-		pCriteriaParmNesting->m_vectCriteriaParm.push_back( new CriteriaParm(
-			pRow_CriteriaParm->PK_CriteriaParm_get(),pRow_CriteriaParm->FK_CriteriaParmList_get(),
-			pRow_CriteriaParm->FK_CriteriaParmList_getrow()->FK_ParameterType_get(),pRow_CriteriaParm->Operator_get(),
-			pRow_CriteriaParm->Value_get(),pRow_CriteriaParm->Parm_get()) );
+
+		if(NULL != pRow_CriteriaParm->FK_CriteriaParmList_getrow())
+		{
+			pCriteriaParmNesting->m_vectCriteriaParm.push_back( new CriteriaParm(
+				pRow_CriteriaParm->PK_CriteriaParm_get(),pRow_CriteriaParm->FK_CriteriaParmList_get(),
+				pRow_CriteriaParm->FK_CriteriaParmList_getrow()->FK_ParameterType_get(),pRow_CriteriaParm->Operator_get(),
+				pRow_CriteriaParm->Value_get(),pRow_CriteriaParm->Parm_get()) );
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "In CriteriaParm we have a wrong value for FK_CriteriaParmList. "
+				"PK_CriteriaParam is %d", pRow_CriteriaParm->PK_CriteriaParm_get());
+		}
 	}
 
 	return pCriteriaParmNesting;

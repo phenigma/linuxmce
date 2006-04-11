@@ -1343,7 +1343,6 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 	m_pObj_NowPlaying_TimeShort_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
 	m_pObj_NowPlaying_Speed_OnScreen=NULL;
-
 	dg.Release(  );
 
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -1474,12 +1473,12 @@ void Orbiter::ObjectOnScreenWrapper(  )
 
 	// ObjectOnSCreen will reset the hidden flags,  and CheckSpecial may set an object to hidden,  so do them in this order
 	VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
-	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	m_vectObjs_NeedRedraw.clear(  );
 	nd.Release();
 
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	m_vectObjs_Selected.clear(  );
 	m_vectObjs_TabStops.clear(  );
 	m_mapDevice_Selected.clear(  );
@@ -2406,14 +2405,14 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
 		pObj->m_iPK_Button == PK_Button ||
 		pObj->m_iPK_Button == BUTTON_Any_key_CONST ||
 		(
-		pObj->m_iPK_Button == BUTTON_Alphanumeric_keys_CONST &&
-		(
-		(PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST) ||
-		(PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST) ||
-		(PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST)
+			pObj->m_iPK_Button == BUTTON_Alphanumeric_keys_CONST &&
+			(
+				(PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST) ||
+				(PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST) ||
+				(PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST)
+			)
 		)
-		)
-		)
+	)
 	{
 		SelectedObject( pObj, smKeyboard );
 		return true;
@@ -5668,7 +5667,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 //<-dceag-c5-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s",sPK_DesignObj.c_str());
 #endif
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
