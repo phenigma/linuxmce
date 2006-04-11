@@ -709,7 +709,14 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if(pPBXDevice) {
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
-		
+		if(pCallData->getID().find("C000")==0)
+		{
+			if(!bIsConference)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Transfer command called, but call is already in the conference, will continue this way");
+				bIsConference=true;				
+			}
+		}
 		if(bIsConference)
 		{
 			if(pCallData->getID().find("C000")!=0) // not in the conference yet?
