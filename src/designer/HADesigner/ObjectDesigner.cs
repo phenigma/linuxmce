@@ -2206,6 +2206,7 @@ namespace HADesigner
 			this.tvCommand.SelectedImageIndex = -1;
 			this.tvCommand.Size = new System.Drawing.Size(152, 144);
 			this.tvCommand.TabIndex = 5;
+			this.tvCommand.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvCommand_AfterSelect);
 			// 
 			// btnOnActivateUp
 			// 
