@@ -229,7 +229,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	mediaURL = sFileToPlay;
 
-	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+	if ( FileUtils::FindExtension(mediaURL)=="dvd" )
 		mediaURL = "dvd:/" + mediaURL;
 
 	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
