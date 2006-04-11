@@ -196,6 +196,16 @@ public:
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #796 - PL_Join_Call */
+	/** Will join you to an existing call */
+		/** @param #86 CallID */
+			/** Call ID to join to */
+		/** @param #103 List PK Device */
+			/** Devices which will be added to the call */
+
+	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device) { string sCMD_Result; CMD_PL_Join_Call(sCallID.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 
 private:

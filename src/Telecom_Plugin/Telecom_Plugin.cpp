@@ -1147,7 +1147,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			if(find(text_list.begin(), text_list.end(), ext_txt) == text_list.end())
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
-				pCell = new DataGridCell(ext_txt,"");
+				pCell = new DataGridCell(ext_txt,channels);
 				pCell->m_pMessage=NULL;
 				for(list<int>::iterator it2=ext_list.begin();it2!=ext_list.end();it2++)
 				{
@@ -1424,3 +1424,17 @@ void Telecom_Plugin::doDisplayMessages()
 	}
 }
 
+//<-dceag-c796-b->
+
+	/** @brief COMMAND: #796 - PL_Join_Call */
+	/** Will join you to an existing call */
+		/** @param #86 CallID */
+			/** Call ID to join to */
+		/** @param #103 List PK Device */
+			/** Devices which will be added to the call */
+
+void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c796-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Command PL_Join_Call (call=%s, devices=%s)",sCallID.c_str(),sList_PK_Device.c_str());
+}
