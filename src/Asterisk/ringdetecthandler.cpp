@@ -86,62 +86,66 @@ RingDetectHandler::handleToken(Token* ptoken) {
 	{
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 		bool success=false;
-		list<map<string,string>::iterator> delete_list;
-		for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
+		int pos = channel.find("AsyncGoto");
+		if(pos < 0) //Don't hangup if it's conference transfer
 		{
-			string exten=(*it).first;
-			string newchan=(*it).second;
-			int pos = newchan.find(channel);
-			if( pos >=0)
+			list<map<string,string>::iterator> delete_list;		
+			for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());
-				newchan = newchan.substr(0,pos)+newchan.substr(pos+channel.length(),newchan.length());
-				g_pPlutoLogger->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
-				(*it).second = newchan;
-				
-				if ((*it).second.find_first_not_of(' ')<0)
+				string exten=(*it).first;
+				string newchan=(*it).second;
+				pos = newchan.find(channel);
+				if( pos >=0)
 				{
-					delete_list.push_back(it);
-					g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty");
-				}
-				else
-				{
-					pos=newchan.find(MARK_DIALING);
-					if(pos>=0)
+					g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());
+					newchan = newchan.substr(0,pos)+newchan.substr(pos+channel.length(),newchan.length());
+					g_pPlutoLogger->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
+					(*it).second = newchan;
+
+					if ((*it).second.find_first_not_of(' ')<0)
 					{
-						int newpos = newchan.find(' ',pos+1);
-						newchan=newchan.substr(0,pos)+newchan.substr(newpos,newchan.length());
-						if((newpos=newchan.find_first_not_of(' '))<0)
+						delete_list.push_back(it);
+						g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty");
+					}
+					else
+					{
+						pos=newchan.find(MARK_DIALING);
+						if(pos>=0)
 						{
-							delete_list.push_back(it);
-							g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
-						}
-						else
-						{
-							g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+							int newpos = newchan.find(' ',pos+1);
+							newchan=newchan.substr(0,pos)+newchan.substr(newpos,newchan.length());
+							if((newpos=newchan.find_first_not_of(' '))<0)
+							{
+								delete_list.push_back(it);
+								g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
+							}
+							else
+							{
+								g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+							}
 						}
 					}
+					success=true;
 				}
-				
-				success=true;
+				AsteriskManager* manager = AsteriskManager::getInstance();
+				string ringphoneid;
+				Utils::ParseChannel(channel, &ringphoneid);
+				g_pPlutoLogger->Write(LV_STATUS, "Will notify hangup on %s",ringphoneid.c_str());
+				manager->NotifyHangup(ringphoneid);
 			}
-			AsteriskManager* manager = AsteriskManager::getInstance();
-			g_pPlutoLogger->Write(LV_STATUS, "Will notify hangup on %s",exten.c_str());
-			manager->NotifyHangup(exten);
-		}
-		for(list<map<string,string>::iterator>::iterator it=delete_list.begin();it!=delete_list.end();it++)
-		{
-			map_ringext.erase(*it);
-		}
-		
-		if(!success)
-		{
-			if(channel.find("Local")<0)
+			for(list<map<string,string>::iterator>::iterator it=delete_list.begin();it!=delete_list.end();it++)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+				map_ringext.erase(*it);
 			}
-			return 0;
-		}
+			if(!success)
+			{
+				if(channel.find("Local")<0)
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+				}
+				return 0;
+			}
+		}		
 	}
 
 	if((ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL || ptoken->getKey(TOKEN_EVENT) == EVENT_NEWSTATE ) && (ptoken->getKey(TOKEN_STATE) == STATE_RINGING || ptoken->getKey(TOKEN_STATE) == STATE_RING)) 
@@ -261,7 +265,26 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		AsteriskManager* manager = AsteriskManager::getInstance();
 		manager->NotifyRing("", ringphoneid, map_ringext[ringphoneid]);
 	}
-	
+	if((ptoken->getKey(TOKEN_EVENT) == EVENT_NEWEXTEN) && ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF)
+	{
+		string channel = ptoken->getKey(TOKEN_CHANNEL);
+		string extension = ptoken->getKey(TOKEN_EXTENSION);
+		string ringphoneid;
+		if(Utils::ParseChannel(channel, &ringphoneid)) {
+			g_pPlutoLogger->Write(LV_CRITICAL, "Could not extract phone id from channels");
+			return 0;
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Conference event in room %s with channel %s", extension.c_str(),channel.c_str());		
+		if(map_ringext.find(extension) == map_ringext.end())
+		{
+			map_ringext[extension] = string("C")+extension;
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Change from %s",map_ringext[extension].c_str());
+		map_ringext[extension] += string(" ")+channel;
+		g_pPlutoLogger->Write(LV_STATUS, "         to %s",map_ringext[extension].c_str());
+		AsteriskManager* manager = AsteriskManager::getInstance();
+		manager->NotifyRing("", ringphoneid, map_ringext[extension]);
+	}
 	return 0;
 }
 

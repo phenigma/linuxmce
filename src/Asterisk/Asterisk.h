@@ -15,6 +15,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		pthread_t voicemailThread;
+		std::map <int,int> dev2ext;
 		// Private methods
 public:
 		// Public member variables

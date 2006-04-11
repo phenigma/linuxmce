@@ -58,7 +58,7 @@ ConferenceCommand::handleStartup() {
 	transtok.setKey(TOKEN_ACTION, ACTION_REDIRECT);
 	transtok.setKey(TOKEN_CHANNEL, channel1);
 	transtok.setKey(TOKEN_EXTRACHANNEL, channel2);
-	transtok.setKey(TOKEN_EXTENSION, extennum);
+	transtok.setKey(TOKEN_EXTEN, extennum);
 	
 	transtok.setKey(TOKEN_CONTEXT, "trusted");
 	transtok.setKey("Priority", "1");

@@ -26,6 +26,8 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+
+#include "utils.h"
 using namespace ASTERISK;
 
 //<-dceag-const-b->
@@ -240,7 +242,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
     g_pPlutoLogger->Write(LV_STATUS, "Command %s called with param: "
                                                 "PhoneExtension: %s "
                                                 "PhoneCallID: %s "
-                                                  "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
+                                                "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
 
     AsteriskManager *manager = AsteriskManager::getInstance();
 
@@ -249,29 +251,40 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
         int pos = sPhoneCallID.find_first_not_of(' ');
         if(pos < 0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on unconnected channels ???");        
+            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on empty channel ???");        
             return;
         }
-        string rest=sPhoneCallID.substr(pos,sPhoneCallID.length());
-        pos = rest.find(' ');
-        if(pos>=0)
+        string stripped=sPhoneCallID.substr(pos,sPhoneCallID.length());
+		pos = stripped.find(' ');
+        if(pos<0)
         {
-            rest=rest.substr(0, pos);
-        }
+            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on unconnected channel ???");        
+            return;
+		}
+		string p1=stripped.substr(0, pos);
+		string p2=stripped.substr(pos+1,sPhoneCallID.length());		
+		string devext=string("/")+StringUtils::itos(dev2ext[pMessage->m_dwPK_Device_From]);
+		string rest=p1;
+		string hang=p2;
+		pos=p1.find(devext);
+		g_pPlutoLogger->Write(LV_STATUS, "before tranfer dev %s p1=%s p2=%s",devext.c_str(),p1.c_str(),p2.c_str());		
+		if(pos>=0)
+		{
+			rest=p2;
+			hang=p1;
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Will tranfer %s to %s and hangup %s",rest.c_str(),sPhoneExtension.c_str(),hang.c_str());
         manager->Transfer(rest,sPhoneExtension,iCommandID);
-        if(pos >=0)
-        {
-            rest = sPhoneCallID.substr(pos+1,sPhoneCallID.length());
-            CMD_PBX_Hangup(iCommandID,rest,sCMD_Result,NULL);
-			/* This is correct behavior, the second party must hangup */
-        }
+		//This sleep should be enough, but it may depend on system load.
+		Sleep(500);
+        CMD_PBX_Hangup(iCommandID,hang,sCMD_Result,NULL);
     }
     else
     {
         int pos1 = sPhoneCallID.find_first_not_of(' ');
 		if(pos1<0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty channels ???");
+            g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty channel ???");
 			return;
         }
 		int pos=sPhoneCallID.find(' ',pos1);
@@ -283,6 +296,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
             rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
             g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
             manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+			//This sleep should be enough, but it may depend on system load.
 			Sleep(500);
             manager->Conference(rest2,"",sPhoneExtension,iCommandID);
         }
@@ -407,10 +421,10 @@ void Asterisk::CreateChildren()
     MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
     PlutoSqlResult result_set;
     MYSQL_ROW row=NULL;
-    char *sql_buff="SELECT PK_Users,Extension FROM Users";
-    if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+    char *sql_buff1="SELECT PK_Users,Extension FROM Users";
+    if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff1)) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
+        g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff1);
         return;
     }    
     while((row = mysql_fetch_row(result_set.r)))
@@ -420,6 +434,20 @@ void Asterisk::CreateChildren()
             ext2user[atoi(row[1])] = atoi(row[0]);
         }
     }
+    char *sql_buff2="SELECT FK_Device,IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=31";
+    if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff2)) == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff2);
+        return;
+    }    
+    while((row = mysql_fetch_row(result_set.r)))
+    {
+        if(row[1])
+        {
+            dev2ext[atoi(row[0])] = atoi(row[1]);
+        }
+    }
+	
     if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");

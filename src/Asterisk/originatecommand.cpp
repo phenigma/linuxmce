@@ -70,7 +70,7 @@ OriginateCommand::handleStartup() {
 	LOCKED_OP(
 	origtok.setKey(TOKEN_ACTION, ACTION_ORIGINATE);
 	origtok.setKey(TOKEN_CHANNEL, phonetype + "/" + phonenum );
-	origtok.setKey(TOKEN_EXTENSION, extennum);
+	origtok.setKey(TOKEN_EXTEN, extennum);
 	origtok.setKey(TOKEN_CONTEXT, "trusted");
 	origtok.setKey(TOKEN_PRIORITY, "1");
 //	origtok.setKey("Timeout", "45000");

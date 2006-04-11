@@ -163,13 +163,9 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 
 }}
 
-$EXT_BUFFER .= "\n;Device conference rooms\n";
-$EXT_BUFFER .= "exten =>00,1,Hangup\n";
-foreach my $phone (sort (values(%PHONES)))
-{
-    $EXT_BUFFER .= "exten =>0$phone,1,Conference(0$phone/S/1)\n";
-    $EXT_BUFFER .= "exten =>0$phone,2,Hangup\n";
-}
+$EXT_BUFFER .= "\n;Conference rooms\n";
+$EXT_BUFFER .= "exten => _000.,1,Conference(\${EXTEN}/S/1)\n";
+$EXT_BUFFER .= "exten => _000.,2,Hangup\n";
 
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";

@@ -52,7 +52,7 @@ TransferCommand::handleStartup() {
 	LOCKED_OP(
 	transtok.setKey(TOKEN_ACTION, ACTION_REDIRECT);
 	transtok.setKey(TOKEN_CHANNEL, channel );
-	transtok.setKey(TOKEN_EXTENSION, extennum);
+	transtok.setKey(TOKEN_EXTEN, extennum);
 	transtok.setKey(TOKEN_CONTEXT, "trusted");
 	transtok.setKey("Priority", "1");
 	);
