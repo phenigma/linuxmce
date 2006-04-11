@@ -77,6 +77,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	m_pDatabase_pluto_telecom = NULL;
 	pthread_mutex_init(&mtx_err_messages,0);
 	iCmdCounter = 0;
+	next_conf_room = 1;
 }
 
 //<-dceag-getconfig-b->
@@ -708,22 +709,37 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if(pPBXDevice) {
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
+		
 		if(bIsConference)
 		{
-			DeviceData_Router *pDeviceData = find_Device(pCallData->getOwnerDevID());
-			string room="0";
-			room += pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-			/*send transfer command to PBX*/
-			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
-			SendCommand(cmd_PBX_Transfer);
-			Sleep(2000);
-			DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"pluto",room);
-			SendCommand(cmd_invite);
+			if(pCallData->getID().find("C000")!=0) // not in the conference yet?
+			{
+				DeviceData_Router *pDeviceData = find_Device(pCallData->getOwnerDevID());
+				string room="000"+StringUtils::itos(next_conf_room);
+				next_conf_room++;
+
+				/*send transfer command to PBX*/
+				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+				SendCommand(cmd_PBX_Transfer);
+				//allow things to settle a bit
+				Sleep(2000);
+				DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"conference",room);
+				SendCommand(cmd_invite);
+			}
+			else
+			{
+				string chan_list = pCallData->getID();
+				int pos=chan_list.find(' ');
+				string room=chan_list.substr(1,pos-1);
+				//just send invite into proper room
+				DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"conference",room);
+				SendCommand(cmd_invite);
+			}
 		}
 		else
 		{
 			/*send transfer command to PBX*/
-			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+			CMD_PBX_Transfer cmd_PBX_Transfer(pCallData->getOwnerDevID(), pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 			SendCommand(cmd_PBX_Transfer);
 		}
 	}
@@ -1096,16 +1112,23 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], calllerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
-				if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
+				if(chan.find("C000")!=0)
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"   chan add");
-					ext_txt+=((*it)->getCallerID())+string(" ");
+					g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], callerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
+					if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
+					{
+						g_pPlutoLogger->Write(LV_STATUS,"   chan add");
+						ext_txt+=((*it)->getCallerID())+string(" ");
+					}
+					else
+					{
+						ext_txt+= "UNKNOWN ";
+						g_pPlutoLogger->Write(LV_STATUS,"   chan skip");
+					}
 				}
 				else
 				{
-					ext_txt+= "UNKNOWN ";
-					g_pPlutoLogger->Write(LV_STATUS,"   chan skip");
+					g_pPlutoLogger->Write(LV_STATUS,"   this is a conference");
 				}
 			}
 			oldpos=pos+1;

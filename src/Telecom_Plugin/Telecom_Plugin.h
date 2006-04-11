@@ -228,6 +228,7 @@ private:
 	map<int,int> map_device2ext;
 	
 	map<string,long> map_err_messages;
+	unsigned long next_conf_room;
 		
 };	
 
