@@ -1,0 +1,103 @@
+//
+// Authors : Chirila Remus, Cristian Miron
+//
+// Changed by : ...
+//
+
+=======================================
+Pluto requirements for a window manager
+=======================================
+
+-----------------------------------
+Requirements for the window manager
+-----------------------------------
+- light on resources
+- stable
+- used by many users
+- updated frequently
+- allow font-aliasing
+- follow some X11 standards
+- does not block/crash if it receives bad commands
+
+- allow an X11 hook to be set for a window, which will always receive
+  keyboard and mouse events
+- allow the X11 hook to be removed
+- can be configured to not display visible task-bars, icons for
+  minimized windows, or other widgets
+- allow border-less windows
+- configurable keys
+- send correct refresh events to every window type
+
+-------------------------------------------------
+Requirements for a control application or library
+-------------------------------------------------
+- can be the window manager itself
+- can be an external application/library, that controls the window
+  manager
+- use the X11 standards with the window manager
+- display the window list, even the hidden ones, or the ones in
+  another desktop
+- does not block/crash if it receives bad commands
+
+--------------------------------------------------------------
+Requirements for both (window manager and control application)
+--------------------------------------------------------------
+- position a window
+- resize a window
+-- make a window full-screen
+- hide/show a window
+- activate/deactivate a window (also known as window-focus: the window
+  will use the keyboard and mouse)
+- change the window layer ( or the Z-order if the layer is not
+  supported )
+-- allow on-top windows
+-- allow on-desktop windows
+
+
+-----------------------
+Conclusions after tests
+-----------------------
+    After tests with Orbiter, Xine, App-Server, etc. the following window
+managers were chosen:
+
+    Control application : wmctrl
+http://www.sweb.cz/tripie/utils/wmctrl/
+The wmctrl program is a UNIX/Linux command line tool to interact with
+an EWMH/NetWM compatible X Window Manager.
+
+
+    Window manager : icewm or window-maker
+Both follows the EWMH/NetWM specifications.
+Icewm is lighter on resources, and have less dependencies than Windowmaker.
+Configuration files for both is in text format.
+http://www.icewm.org/
+http://www.gnu.org/software/windowmaker/windowmaker.html
+
+
+    A good thing is that in this configuration we can always change
+between Icewm and Windowmaker (or another one), without changing any
+code. If we don't use any wrapper for Icewm or Windowmaker, then it is
+possible, provided that the configuration for the window manager is
+properly written.
+
+
+============================
+Pluto implementation (draft)
+============================
+
+A wrapper will be created for wmctrl.
+This wrapper will log it's actions and the results to a log file
+and/or stderr.
+
+Public functions:
+
+       SetVisible(true/false)
+       SetLayer(normal/below/above)
+       SetPosition(x, y, w, h)
+       SetFullScreen(true/false)
+
+       ListWindows()
+       GetWindowParams()
+       GetDesktopSize()
+
+// --EOF--
