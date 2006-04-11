@@ -31,5 +31,14 @@ set +e  # we want the exit code
 
 echo "## Please wait, installing cisco firmware"
 wget -P /tmp http://www.plutohome.com/cisco7970firmware_7.0.2-1_i386.deb || :
-dpkg -i /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
+
+rm -rf /tmp/cisco
+mkdir -p /tmp/cisco
+
+dpkg -x /tmp/cisco7970firmware_7.0.2-1_i386.deb /tmp/cisco
+pushd /tmp/cisco
+	cp -Ruf * /
+popd
+
 rm -f /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
+rm -rf /tmp/cisco
