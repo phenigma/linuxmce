@@ -228,11 +228,11 @@ function mediaDirectors($output,$dbADO) {
 					$out.='
 					<tr>
 						<td align="center" class="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-						<td  align="right">'.$roomPulldown.'</td>
+						<td  align="center">'.$roomPulldown.'</td>
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
-						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
+						<td class="alternate_back" rowspan="2" align="right"><input type="button" class="button" name="edit_pipes" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
 						<td align="center" rowspan="2" valign="top" class="alternate_back">'.$buttons.'</td>
 					</tr>
@@ -257,7 +257,7 @@ function mediaDirectors($output,$dbADO) {
 								<td colspan="8">
 									<table border="0" width="100%">
 										<tr>
-											<td valign="top" rowspan="2" class="alternate_back">'.$TEXT_PVR_CAPTURE_CARD_CONST.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],0,'None').'<br>
+											<td valign="top" rowspan="2" class="alternate_back">'.$TEXT_PVR_CAPTURE_CARD_CONST.' '.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],0,'None').'<br>
 											'.getPVRCards(array_keys($pvrArray),$_SESSION['installationID'],$rowD['PK_Device'],(int)$rowD['FK_Device_ControlledVia'],$dbADO).'
 											</td>
 											<td valign="top" rowspan="2"></td>
@@ -546,7 +546,7 @@ function getPVRCards($pvrArray,$instalationID,$mdID,$parentID,$dbADO){
 	$res=$dbADO->Execute('SELECT PK_Device,Description FROM Device WHERE FK_Installation=? AND (FK_Device_ControlledVia=? '.$filterParent.') AND FK_DeviceTemplate IN ('.join(',',$pvrArray).')',array($instalationID,$mdID));
 	$pvrCards=array();
 	if($res->RecordCount()==0){
-		return '<div align="right">'.$TEXT_NO_PVR_CARDS_CONST.'</div>';
+		return '<div align="left">'.$TEXT_NO_PVR_CARDS_CONST.'</div>';
 	}
 	while($row=$res->fetchRow()){
 		$pvrCards[$row['PK_Device']]=$row['Description'];
@@ -560,7 +560,7 @@ function getPVRCards($pvrArray,$instalationID,$mdID,$parentID,$dbADO){
 		$out.='
 			<tr bgcolor="'.$color.'">
 				<td>'.$description.'</td>
-				<td><a href="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_PVR_CARD_CONST.'\'))self.location=\'index.php?section=mediaDirectors&action=delCard&delCard='.$pid.'\';">'.$TEXT_DELETE_CONST.'</a></td>
+				<td align="right"><input type="button" class="button" name="del_pvr" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PVR_CARD_CONST.'\'))self.location=\'index.php?section=mediaDirectors&action=delCard&delCard='.$pid.'\';"></td>
 			</tr>';
 	}
 	$out.='</table>';

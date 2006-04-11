@@ -30,11 +30,11 @@ function addParameter($output,$dbADO) {
 			<h3>'.$TEXT_ADD_PARAMETER_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_PARAMETER_NAME_CONST.':</td>
+					<td>'.$TEXT_PARAMETER_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="ParameterName" value=""></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.' *</td>
 					<td>
 						<select name="ParameterType" >
 						'.$paramsSelect.'
@@ -46,6 +46,7 @@ function addParameter($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addParameter"); 			
 			frmvalidator.addValidation("ParameterName","req","'.$TEXT_PARAMETER_NAME_REQUIRED_CONST.'");

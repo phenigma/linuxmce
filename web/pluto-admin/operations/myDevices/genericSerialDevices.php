@@ -79,12 +79,11 @@ function genericSerialDevices($output,$dbADO) {
 	<input type="hidden" name="section" value="genericSerialDevices">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">	
-				
-	<div align="center"><h3>'.$TEXT_GENERIC_SERIAL_DEVICES_CONST.'</h3></div>';
+	';
 			
 		$out.='
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ROOM_CONST.'</b>
@@ -202,7 +201,7 @@ function genericSerialDevices($output,$dbADO) {
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 						
 						if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
-							$deviceDataBox.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" style="vertical-align: middle;"> ':'');
+							$deviceDataBox.='<span title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> </span>';
 							switch($DDTypesToDisplay[$key]){
 								case 'int':
 									if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
@@ -305,7 +304,7 @@ function genericSerialDevices($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>';
 			}
 			$out.='
@@ -433,6 +432,8 @@ function genericSerialDevices($output,$dbADO) {
 		header("Location: index.php?section=genericSerialDevices&msg=$TEXT_GSD_DEVICES_UPDATED_CONST".@$anchor);		
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_GENERIC_SERIAL_DEVICES_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_GENERIC_SERIAL_DEVICES_CONST=>'index.php?section=genericSerialDevices'));
 	$output->setBody($out);

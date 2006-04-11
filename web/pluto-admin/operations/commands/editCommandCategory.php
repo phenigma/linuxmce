@@ -43,14 +43,14 @@ function editCommandCategory($output,$dbADO) {
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="ccID" value="'.$ccID.'">		
 		<input type="hidden" name="from" value="'.$from.'">
-		
+			<h3>'.$TEXT_EDIT_COMMAND_CATEGORY_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="CommandCategoryDescription" value="'.$rowCC['Description'].'"></td>
 				</tr>				
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.'</td>
 					<td>
 						<select name="parentCateg" >
 						'.$commandsCategsTxt.'
@@ -62,6 +62,7 @@ function editCommandCategory($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editCommandCategory"); 			
 			frmvalidator.addValidation("CommandCategoryDescription","req","'.$TEXT_VALIDATE_COMMAND_CATEGORY_NAME_CONST.'");

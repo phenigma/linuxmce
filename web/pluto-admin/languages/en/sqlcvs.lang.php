@@ -15,4 +15,5 @@ $TEXT_TABLE_CONST='Table';
 $TEXT_TRY_AGAIN_CONST='Try again';
 $TEXT_PARAMETERS_ERROR_CONST='Parameters error';
 $TEXT_ERROR_DETAILS_CONST='Error details';
+$TEXT_DATABASE_CONST='Database';
 ?>

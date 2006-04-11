@@ -47,14 +47,14 @@ function editEventParameterFromEvent($output,$dbADO) {
 			<table>	
 				<tr>
 					<td>
-						'.$TEXT_PARAMETER_TYPE_CONST.':</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
+						'.$TEXT_PARAMETER_TYPE_CONST.' *</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
 					</td>
 				</tr>		
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
+					<td>'.$TEXT_DESCRIPTION_CONST.' *</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
 				</tr>		
 				<tr>
-					<td>'.$TEXT_COMMENTS_CONST.':</td><td><textarea name="eventParameterComments" cols="40" rows="4">'.$eventParameter_Comments.'</textarea></td>
+					<td>'.$TEXT_COMMENTS_CONST.'</td><td><textarea name="eventParameterComments" cols="40" rows="4">'.$eventParameter_Comments.'</textarea></td>
 				</tr>		
 				<tr>
 					<td colspan="2" align="center">						
@@ -63,6 +63,7 @@ function editEventParameterFromEvent($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editEventParameterFromEvent");			
  			frmvalidator.addValidation("eventParameterDescription","req","'.$TEXT_VALIDATION_PARAMETER_NAME_CONST.'");

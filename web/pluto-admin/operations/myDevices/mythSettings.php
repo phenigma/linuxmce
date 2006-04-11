@@ -51,7 +51,6 @@ function mythSettings($output,$dbADO) {
 		
 		<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>
 		<div class="confirm"><B>'.(isset($_GET['msg'])?stripslashes($_GET['msg']):'').'</B></div>
-		<h3>'.$TEXT_MYTH_SETTINGS_CONST.'</h3>
 			
 	<form method="post" action="index.php" name="mythSettings">
 		<input type="hidden" name="section" value="mythSettings">
@@ -123,7 +122,7 @@ function mythSettings($output,$dbADO) {
 				{
 					if (count($UnmappedStations))
 					{						
-						$out.='<br>'.$TEXT_MYTH_UNASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr bgcolor="lightblue"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
+						$out.='<br>'.$TEXT_MYTH_UNASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr class="tablehead"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
 						for($j=0;$j<count($UnassignedChannels);$j++)
 						{		
 							$altColor=($j%2==0)?'#F0F3F8':'#FFFFFF';
@@ -145,7 +144,7 @@ function mythSettings($output,$dbADO) {
 				$AssignedChannels = getMythQAMAssignedChannels($mythADO, $sids[$i]);
 				if (count($AssignedChannels))
 				{
-					$out.='<br>'.$TEXT_MYTH_ASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr bgcolor="lightblue"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
+					$out.='<br>'.$TEXT_MYTH_ASSIGNED_CABLE_CONST.'<table cellspacing="0" cellpadding="3"><tr class="tablehead"><td>'.$TEXT_MYTH_CHANNEL_CONST.'</td><td>'.$TEXT_MYTH_STATION_CONST.'</td><td></td>';
 					$j=0;
 					foreach($AssignedChannels['channum'] AS $chanID=>$channum)
 					{		
@@ -250,6 +249,8 @@ function mythSettings($output,$dbADO) {
 	}
 	
 	
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_MYTH_SETTINGS_CONST);
 	
 	$output->setNavigationMenu(array($TEXT_MY_DEVICES_CONST=>'index.php?section=myDevices',$TEXT_MYTH_SETTINGS_CONST=>"index.php?section=mythSettings"));
 	$output->setBody($out);

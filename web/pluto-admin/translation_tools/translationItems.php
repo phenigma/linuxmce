@@ -107,7 +107,7 @@ function subcategoriesHTML($categoryToDisplay,$dbADO){
 	
 	$textsArray=getAssocArray('Text','PK_Text','Description',$dbADO,'WHERE FK_TextCategory IN ('.join(',',$subcategIDs).')','ORDER BY Description ASC');
 	$out='<table cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td align="center"><B>'.$TEXT_ITEM_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';

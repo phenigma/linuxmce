@@ -73,7 +73,6 @@ $start_time=getmicrotime();
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>'.$TEXT_AV_EQUIPMENT_CONST.'</h3></div>
 	
 	<div id="preloader" style="display:;">
 		<table width="100%">
@@ -110,14 +109,14 @@ $start_time=getmicrotime();
 		$out.='
 		'.$TEXT_CHOOSE_ENTERTAIN_AREA_CONST.': '.pulldownFromArray($entAreas,'entArea',$_SESSION['selectedEntArea'],'onchange="document.avWizard.action.value=\'form\';document.avWizard.submit();"','key',$TEXT_UNASSIGNED_CONST).'
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ROOM_CONTROLLED_BY_CONST.'</B></td>
 					<td align="center" colspan="4"><B>'.$TEXT_PIPES_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>
 					<td align="center" rowspan="2"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>		
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_CONNECTED_TO_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
@@ -248,10 +247,10 @@ $start_time=getmicrotime();
 				$roomPulldown.='</select>';
 	
 				$buttons='
-						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
-						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
-						<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;"></td>';
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
+						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;"></td>';
 	
 				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
@@ -322,7 +321,7 @@ $start_time=getmicrotime();
 		if($resDevice->RecordCount()!=0){
 			$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+					<td colspan="8" align="center"><input type="submit" class="button_fixed" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button_fixed" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 				<tr>
 					<td colspan="8" align="left">&nbsp;</td>
@@ -333,7 +332,7 @@ $start_time=getmicrotime();
 					<td colspan="8">* '.$TEXT_FLOORPLAN_NOTE_CONST.'</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 			<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">
@@ -461,6 +460,9 @@ $start_time=getmicrotime();
 
 		header("Location: index.php?section=avWizard&msg=$TEXT_DEVICES_WAS_UPDATED_CONST&type=$type".@$anchor);
 	}
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_AV_EQUIPMENT_CONST);
 
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_AV_EQUIPMENT_CONST=>'index.php?section=avWizard'));

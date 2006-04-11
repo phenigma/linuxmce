@@ -15,8 +15,6 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 	}
 		$installationID = cleanInteger($_SESSION['installationID']);
 	
-	$out.='<div align="center"><h3>'.$TEXT_ALERTS_LOG_CONST.'</h3></div>';
-	
 	if ($action=='form') {
 		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
@@ -49,6 +47,8 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=alertsLog&msg=Alerts types updated.");
 	}
 	
+	$output->setMenuTitle($TEXT_SECURITY_CONST.' |');
+	$output->setPageTitle($TEXT_ALERTS_LOG_CONST);
 	$output->setNavigationMenu(array($TEXT_ALERTS_LOG_CONST=>'index.php?section=alertsLog'));				
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERTS_LOG_CONST);			
@@ -105,7 +105,7 @@ function headerAlertLog()
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
 	
 	$output='<table border="0" align="center">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_ALERT_TYPE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DETECTION_TIME_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_EXPIRATION_TIME_CONST.'</B></td>

@@ -104,6 +104,9 @@ function packagesList($output,$dbADO) {
 	$rs->Close();
 	$out.='</table>';
 	$out.="<br><br>&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a>";
+	
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_PACKAGES_CONST);
 	$output->setNavigationMenu(array($TEXT_PACKAGES_CONST=>'index.php?section=packagesList'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PACKAGES_CONST);			

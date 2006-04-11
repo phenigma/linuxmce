@@ -17,11 +17,12 @@ if($action=='form') {
 	$queryArray = 'SELECT * FROM Array WHERE PK_Array=?';	
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
-
+	$page_title=$rowArray['Description'];
+	
 	$out.=setLeftMenu($dbADO).'
 	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-	<h2 align="center">'.$rowArray['Description'].'</h2>';
+	';
 
 	$out.='
 	<form action="index.php" method="POST" name="lightingScenarios">
@@ -80,7 +81,7 @@ if($action=='form') {
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':$color).'">
 				<td><input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
 					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
-				 '.$TEXT_DESCRIPTION_CONST.': '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<textarea style="width:200px;" name="commandGroup_'.$rowCG['PK_CommandGroup'].'">'.$rowCG['Description'].'</textarea> '.$TEXT_HINT_CONST.': <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.nl2br($rowCG['Description']).': </b>'.$TEXT_HINT_CONST.': <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
+				 '.$TEXT_DESCRIPTION_CONST.': '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<B>'.$rowCG['Description'].'</B> '.$TEXT_HINT_CONST.': <b>'.$rowCG['Hint'].'</b>':'<b>'.nl2br($rowCG['Description']).': </b>'.$TEXT_HINT_CONST.': <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td>
 					<a href="#" onclick="document.lightingScenarios.action.value=\'testScenario\';document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.submit();">'.$TEXT_TEST_CONST.'</a>
@@ -95,7 +96,7 @@ if($action=='form') {
 	if(count($displayedCommandGroups)>0){
 		$out.='
 		<tr>
-			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -140,12 +141,14 @@ if($action=='form') {
 	
 	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
+		/*
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
 			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
+		*/
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
 			header('Location: index.php?section=scenarioWizard&from=lightingScenarios&cgID='.$_REQUEST['editedCgID'].'&roomID='.$_REQUEST['roomID']);
@@ -195,6 +198,8 @@ if($action=='form') {
 	header("Location: index.php?section=lightingScenarios&msg=".@$msg);
 }
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_LIGHTING_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_LIGHTING_SCENARIOS_CONST=>'index.php?section=lightingScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

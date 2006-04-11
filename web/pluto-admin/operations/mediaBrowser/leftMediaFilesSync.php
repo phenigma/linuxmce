@@ -24,26 +24,23 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		<input type="hidden" name="action" value="search">
 		<input type="hidden" name="startPath" value="'.urlencode($startPath).'">
 		
-		<table border=0 align="left">				
+	<table border="0" cellpading="2" cellspacing="0" width="100%">
+			<tr>
+				<td colspan="3" align="center" height="133" class="left_frame_logo">
+					<a href="index.php" target="_top"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center" height="9" bgcolor="black"><img src="include/images/spacer.gif" border="0"></td>
+			</tr>
+	';
+	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
+		$out.='
 				<tr>
-					<td colspan="2">
-						<a href="index.php" target="_top"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"><a>
-					</td>
-				</tr>';
-		
-		if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
-			$out.='
-					<tr>
-						<td valign="top"  colspan="2"><a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
-					</tr>
-			';
-		} else {
-			$out.='
-					<tr>
-						<td valign="top"  colspan="2"><a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a></td>
-					</tr>
-			';
-		}
+					<td valign="center" colspan="3" class="left_menu" height="30">'.((@$_SESSION['userLoggedIn']==true)?'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a>':'').'</td>					
+				</tr>
+		';
+	}
 		
 		$linksTree='';
 		$pathsArray=explode('/',$startPath);
@@ -64,10 +61,10 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 
 		$out.='
 			<tr>
-				<td colspan="2">'.$linksTree.'</td>
+				<td colspan="2" class="left_menu">'.$linksTree.'</td>
 			</tr>
 			<tr>
-				<td colspan="2"><input type="checkbox" name="UpdateMediaDaemon" value="1" '.((get_update_media_daemon_status($dbADO)==1)?'checked':'').' onClick="document.leftMediaFilesSync.submit();"> '.$TEXT_UPDATE_MEDIA_DAEMON_CONST.'</td>
+				<td colspan="2" class="left_menu"><input type="checkbox" name="UpdateMediaDaemon" value="1" '.((get_update_media_daemon_status($dbADO)==1)?'checked':'').' onClick="document.leftMediaFilesSync.submit();"> '.$TEXT_UPDATE_MEDIA_DAEMON_CONST.'</td>
 			</tr>		
 			</table>
 		</form>';

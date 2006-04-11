@@ -25,7 +25,7 @@ function phoneExtensions($output,$dbADO) {
 			<input type="hidden" name="section" value="phoneExtensions">
 			<input type="hidden" name="action" value="update">
 		<table align="center" cellpadding="3">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>Phone Name</B></td>
 				<td><B>Device Template</B></td>
 				<td><B>Phone Number</B></td>

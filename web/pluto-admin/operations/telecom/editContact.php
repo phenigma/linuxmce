@@ -73,7 +73,7 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 			<td colspan="2"><h3>'.$TEXT_EDIT_CONTACT_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>'.$TEXT_NAME_CONST.'</B></td>
+			<td><B>'.$TEXT_NAME_CONST.' *</B></td>
 			<td><input type="text" name="Name" value="'.$cData['Name'][0].'"></td>
 		</tr>	
 		<tr>
@@ -89,9 +89,10 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'" '.((!is_null($cData['EK_Users'][0]))?'checked':'').'></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="editContact" value="'.$TEXT_SAVE_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="editContact" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>
 	</table>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editContact");
  			frmvalidator.addValidation("Name","req","'.$TEXT_CONTACT_NAME_REQUIRED_CONST.'");

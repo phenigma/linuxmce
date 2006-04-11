@@ -53,11 +53,9 @@ function core($output,$dbADO) {
 	}
 	</script>
 	
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div class="confirm" align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	
-	<h3>'.$TEXT_CORE_GENERAL_INFO_CONST.'</h3>
-		
 <form method="post" action="index.php" name="core">
 	<input type="hidden" name="section" value="core">
 	<input type="hidden" name="action" value="update">
@@ -69,7 +67,7 @@ function core($output,$dbADO) {
 		<td>'.getInstallWizardDeviceTemplates(5,$dbADO,$coreDCERouterID,$coreDistro,$CoreOS).'</td>
 	</tr>	
 	<tr>
-		<td align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+		<td align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 	</tr>	
 </table>
 </form>';
@@ -113,6 +111,9 @@ function core($output,$dbADO) {
 		
 		Header('Location: index.php?section=core&msg='.$TEXT_CORE_OPTIONAL_DEVICES_UPDATED_CONST);
 	}
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_CORE_GENERAL_INFO_CONST);
 	
 	$output->setNavigationMenu(array("My Devices"=>'index.php?section=myDevices',"Core"=>"index.php?section=core"));
 	$output->setBody($out);

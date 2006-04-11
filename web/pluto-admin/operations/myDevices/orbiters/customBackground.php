@@ -36,7 +36,7 @@ function customBackground($output,$dbADO) {
 		$out.='	
 		'.$TEXT_EXISTING_BACKGROUNDS_CONST.':
 		<table>
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>'.$TEXT_ROOM_CONST.'</B></td>
 				<td><B>'.$TEXT_PICTURE_CONST.'</B></td>
 				<td><B>'.$TEXT_ACTION_CONST.'</B></td>

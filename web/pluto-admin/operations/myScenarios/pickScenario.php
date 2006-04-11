@@ -34,7 +34,7 @@ function pickScenario($output,$dbADO) {
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_SCENARIO_DESCRIPTION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SCENARIO_TYPE_CONST.'</B></td>
 				<td align="center">&nbsp;</td>

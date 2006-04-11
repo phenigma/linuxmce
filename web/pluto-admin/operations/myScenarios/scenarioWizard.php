@@ -23,7 +23,7 @@ if($action=='form') {
 		$rowRoom=$resRoom->FetchRow();
 	}
 	
-	$queryCG='SELECT Description FROM CommandGroup WHERE PK_CommandGroup=?';
+	$queryCG='SELECT Description,Hint FROM CommandGroup WHERE PK_CommandGroup=?';
 	$resCG=$dbADO->Execute($queryCG,$cgID);
 	$rowCG=$resCG->FetchRow();
 
@@ -37,6 +37,7 @@ if($action=='form') {
 	$out.='
 		<div align="left" class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
 		<div align="left" class="err"><B>'.stripslashes(@$_GET['err']).'</B></div>	
+		<h3>'.$TEXT_EDIT_SCENARIO_CONST.' #'.$cgID.'</h3>
 		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').' enctype="multipart/form-data">
 			<input type="hidden" name="section" value="scenarioWizard">
 			<input type="hidden" name="action" value="add">	
@@ -45,10 +46,17 @@ if($action=='form') {
 			<input type="hidden" name="from" value="'.$from.'">
 			<input type="hidden" name="oldWizard" value="'.$wizard.'">
 	
-			<table>
-			<tr bgcolor="#D1D9EA">
-				<td>Scenario name: <B>'.$rowCG['Description'].'</B></td>
-				<td>Using Wizard: <select name="wizard" onChange="document.scenarioWizard.submit();">
+			<table width="300">
+			<tr>
+				<td><B>'.$TEXT_SCENARIO_NAME_CONST.'</B></td>
+				<td><textarea name="description" style="width:100%">'.$rowCG['Description'].'</textarea></td>
+			</tr>	
+			<tr>
+				<td><B>'.$TEXT_HINT_CONST.'</B> </td>
+				<td><input type="text" name="hint" value="'.$rowCG['Hint'].'" style="width:100%"></td>
+			</tr>	
+			<tr class="tablehead">
+				<td colspan="2">Using Wizard: <select name="wizard" onChange="document.scenarioWizard.submit();">
 					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>
 					<option value="1" '.(($wizard==1)?'selected':'').'>'.$TEXT_CLIMATE_WIZARD_CONST.'</option>
 					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_IRRIGATION_WIZARD_CONST.'</option>
@@ -89,6 +97,11 @@ if($action=='form') {
 	}
 	$oldWizard=(int)$_POST['oldWizard'];
 	$wizard=(int)$_POST['wizard'];
+
+	$cgDescription=cleanString(@$_POST['description']);
+	$cgHint=cleanString(@$_POST['hint']);
+	$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
+	$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$cgID));
 
 	switch($oldWizard){
 		case 0:

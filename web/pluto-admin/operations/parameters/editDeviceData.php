@@ -41,11 +41,11 @@ function editDeviceData($output,$dbADO) {
 		<h3>'.$TEXT_EDIT_DEVICE_DATA_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_PARAMETER_NAME_CONST.':</td>
+					<td>'.$TEXT_PARAMETER_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="ParameterName" value="'.$ddDescription.'"></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.' *</td>
 					<td>
 						<select name="ParameterType" >
 						'.$paramsSelect.'
@@ -57,6 +57,7 @@ function editDeviceData($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editDeviceData"); 			
 			frmvalidator.addValidation("ParameterName","req","'.$TEXT_PARAMETER_NAME_REQUIRED_CONST.'");

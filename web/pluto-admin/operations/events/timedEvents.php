@@ -52,9 +52,8 @@ function timedEvents($output,$dbADO) {
 		<input type="hidden" name="section" value="timedEvents">
 		<input type="hidden" name="action" value="add">
 		
-		<div align="center"><h3>'.$TEXT_TIMED_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center" cellpading="3">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td align="center">&nbsp;</td>
 			</tr>
@@ -107,7 +106,7 @@ function timedEvents($output,$dbADO) {
 				<td colspan="2">'.$TEXT_ABSOLUTE_TEXT_CONST.'</td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>';
 		$out.='
 		</table>
@@ -152,7 +151,9 @@ function timedEvents($output,$dbADO) {
 		$ehID=$dbADO->Insert_ID();
 		header("Location: index.php?section=editTimedEvent&ehID=".$ehID);
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_TIMED_EVENTS_CONST);
 	$output->setNavigationMenu(array($TEXT_TIMED_EVENTS_CONST=>'index.php?section=timedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_TIMED_EVENTS_CONST);			

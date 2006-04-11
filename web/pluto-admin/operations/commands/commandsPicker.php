@@ -31,7 +31,7 @@ function commandsPicker($output,$dbADO) {
 			<input type="hidden" name="commandGroupID" value="'.$GLOBALS['commandGroupID'].'">
 		
 		<table cellpadding="3" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</b></td>

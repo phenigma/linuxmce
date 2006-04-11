@@ -55,9 +55,8 @@ function advancedEvents($output,$dbADO) {
 		<input type="hidden" name="section" value="advancedEvents">
 		<input type="hidden" name="action" value="add">
 		
-		<div align="center"><h3>'.$TEXT_ADVANCED_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center" cellpading="3">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_EVENT_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_FK_EVENT_CONST.'</B></td>
@@ -104,7 +103,7 @@ function advancedEvents($output,$dbADO) {
 		if(count($displayedEH)!=0)
 			$out.='
 			<tr bgcolor="#E7E7E7">
-				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="'.$TEXT_SAVE_CONST.'"></td>
+				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>';
 		$out.='
 			<tr>
@@ -131,6 +130,8 @@ function advancedEvents($output,$dbADO) {
 		header("Location: index.php?section=advancedEvents&msg=$TEXT_THE_EVENT_DESCRIPTION_WAS_UPDATED_CONST");
 	}
 
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_ADVANCED_EVENTS_CONST);
 	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_CONST=>'index.php?section=advancedEvents'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADVANCED_EVENTS_CONST);			

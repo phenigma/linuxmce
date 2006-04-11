@@ -66,7 +66,7 @@ function editMasterDevice($output,$dbADO) {
 		<h3>'.$TEXT_EDIT_DEVICE_TEMPLATE_CONST.' #'.$deviceID.'</h3>
 			<table>
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="description" value="'.$description.'" size="40"></td>
+					<td>'.$TEXT_DESCRIPTION_CONST.' *</td><td><input type="text" name="description" value="'.$description.'" size="40"></td>
 				</tr>
 				<tr>
 					<td>
@@ -77,7 +77,7 @@ function editMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td><td>
+					<td>'.$TEXT_DEVICE_CATEGORY_CONST.' *</td><td>
 						<select name="MasterDeviceCategory">
 						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 		';
@@ -93,7 +93,7 @@ function editMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 			<tr>
-				<td>'.$TEXT_MANUFACTURER_CONST.':</td><td>
+				<td>'.$TEXT_MANUFACTURER_CONST.' *</td><td>
 					<select name="Manufacturer">
 						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 		';
@@ -638,6 +638,7 @@ function editMasterDevice($output,$dbADO) {
 					
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editMasterDevice");
  			frmvalidator.addValidation("description","req","'.$TEXT_DESCRIPTION_REQUIRED_CONST.'");

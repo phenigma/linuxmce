@@ -45,7 +45,7 @@ function telecomScenarios($output,$dbADO) {
 
 	if($action=='form') {
 
-		$out.=setLeftMenu($dbADO).'<h2>'.$TEXT_TELECOM_SCENARIOS_CONST.'</h2>';
+		$out.=setLeftMenu($dbADO);
 
 		$out.='
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
@@ -104,7 +104,7 @@ function telecomScenarios($output,$dbADO) {
 				<tr>
 					<td colspan="3"><B>'.$TEXT_SPEED_DIAL_CONST.'</B></td>
 				</tr>
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_PHONE_CONST.'</B></td>
@@ -163,7 +163,7 @@ function telecomScenarios($output,$dbADO) {
 			if($resCG->RecordCount()>0){
 				$out.='
 				<tr>
-					<td align="center" colspan="4"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_SPEED_DIAL_CONST.'"></td>
+					<td align="center" colspan="4"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_SPEED_DIAL_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>';
 			}
 			$out.='
@@ -194,15 +194,15 @@ function telecomScenarios($output,$dbADO) {
 					<td colspan="2" align="center"><B>'.$TEXT_ADD_SPEED_DIAL_CONST.'</B></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.': </td>
+					<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
 					<td><textarea style="width:200px;" rows="2" name="description"></textarea></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_NUMBER_CONST.': </td>
+					<td>'.$TEXT_NUMBER_CONST.' *</td>
 					<td><input type="text" name="number" value=""></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_PHONE_CONST.': </td>
+					<td>'.$TEXT_PHONE_CONST.' *</td>
 					<td>';
 				if(count($phonesDTArray)==0)
 					$phonesDTArray[]=0;
@@ -224,7 +224,7 @@ function telecomScenarios($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td align="center" colspan="2"><input type="submit" class="button" name="addSpeedDial" value="'.$TEXT_ADD_SPEED_DIAL_CONST.'"></td>
+					<td align="center" colspan="2"><input type="submit" class="button" name="addSpeedDial" value="'.$TEXT_ADD_SPEED_DIAL_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 			</table>
 			<script>
@@ -318,6 +318,8 @@ function telecomScenarios($output,$dbADO) {
 		header("Location: index.php?section=telecomScenarios&msg=$TEXT_TELECOM_SCENARIO_UPDATED_CONST");
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_TELECOM_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_TELECOM_SCENARIOS_CONST=>'index.php?section=telecomScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

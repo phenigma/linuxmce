@@ -313,7 +313,9 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				';
 		
 	}
-	
+
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_MEDIA_BROWSER_CONST);
 	$output->setReloadLeftFrame(false);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

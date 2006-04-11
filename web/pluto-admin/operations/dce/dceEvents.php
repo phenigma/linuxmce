@@ -28,7 +28,7 @@ function dceEvents($output,$dbADO) {
 			<tr>
 				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$TEXT_ADD_EVENT_CATEGORY_CONST.'</B></a></td>
 			</tr>		
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center" width="120"><B>'.$TEXT_EVENT_CATEGORY_CONST.'</B></td>
 				<td align="center"><B>#</b></td>
 				<td align="center"><B>'.$TEXT_EVENT_DESCRIPTION_CONST.'</b></td>
@@ -77,7 +77,9 @@ function dceEvents($output,$dbADO) {
 			
 		header('Location: index.php?section=dceEvents');
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle('DCE '.$TEXT_EVENTS_CONST);
 	$output->setNavigationMenu(array($TEXT_EVENTS_CONST=>'index.php?section=dceEvents'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

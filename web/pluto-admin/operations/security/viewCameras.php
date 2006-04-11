@@ -50,7 +50,6 @@ function viewCameras($output,$dbADO) {
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-	<div align="center"><h3>'.$TEXT_VIEW_CAMERAS_CONST.'</h3></div>
 	<form action="index.php" method="POST" name="viewCameras">
 	<input type="hidden" name="section" value="viewCameras">
 	<input type="hidden" name="action" value="update">		
@@ -138,7 +137,9 @@ function viewCameras($output,$dbADO) {
 		}
 		
 	}
-	
+
+	$output->setMenuTitle($TEXT_SECURITY_CONST.' |');
+	$output->setPageTitle($TEXT_VIEW_CAMERAS_CONST);
 	$output->setNavigationMenu(array($TEXT_VIEW_CAMERAS_CONST=>'index.php?section=viewCameras'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

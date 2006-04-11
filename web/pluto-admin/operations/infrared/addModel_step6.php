@@ -19,7 +19,7 @@
 	if($action=='form'){
 		$inputSelectedTxt='
 				<table border="0" class="normaltext" align="center" cellpadding="3" cellspacing="0">
-					<tr bgcolor="lightblue">
+					<tr class="tablehead">
 						<td align="center"><B>DSP Modes</b><br> (check all that apply)</td>
 					</tr>			
 			';

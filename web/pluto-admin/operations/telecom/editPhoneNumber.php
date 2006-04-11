@@ -71,7 +71,7 @@ function phoneNumberForm($telecomADO,$userID){
 	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
-	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO);
+	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO,'ORDER By Name ASC');
 	$PhoneTypes=getAssocArray('PhoneType','PK_PhoneType','Description',$telecomADO);
 	$id=(int)@$_REQUEST['id'];
 	if($id<=0){
@@ -96,11 +96,11 @@ function phoneNumberForm($telecomADO,$userID){
 			<td colspan="2"><h3>'.$TEXT_EDIT_PHONE_NUMBER_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>'.$TEXT_CONTACT_CONST.'</B></td>
+			<td><B>'.$TEXT_CONTACT_CONST.' *</B></td>
 			<td>'.pulldownFromArray($contacts,'contact',$pnData['FK_Contact'][0]).'</td>
 		</tr>	
 		<tr>
-			<td><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>
+			<td><B>'.$TEXT_PHONE_TYPE_CONST.' *</B></td>
 			<td>'.pulldownFromArray($PhoneTypes,'PhoneType',$pnData['FK_PhoneType'][0]).'</td>
 		</tr>	
 		<tr>
@@ -124,9 +124,10 @@ function phoneNumberForm($telecomADO,$userID){
 			<td><input type="text" name="DialAs" value="'.$pnData['DialAs'][0].'"></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="editPhoneNumber" value="'.$TEXT_SAVE_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="editPhoneNumber" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>	
 	</table>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 	<script>
 	 	var frmvalidator = new formValidator("editPhoneNumber");
 		frmvalidator.addValidation("contact","dontselect=0","'.$TEXT_CONTACT_REQUIRED_CONST.'");

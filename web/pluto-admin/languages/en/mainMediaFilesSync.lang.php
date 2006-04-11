@@ -26,4 +26,5 @@ $TEXT_ERROR_INVALID_SUBDIRECTORY_NAME_CONST='Invalid subdirectory name.';
 $TEXT_SUBDIRECTORY_WAS_CREATED_CONST='The subdirectory was created.';
 $TEXT_SYNCHRONIZE_COMMAND_SENT_CONST='The command to resynchronize directory was sent.';
 $TEXT_FILE_ADDED_TO_DATABASE_CONST='File added to database.';
+$TEXT_MEDIA_FILES_SYNC_CONST='Media Files Sync';
 ?>

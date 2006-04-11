@@ -62,6 +62,9 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 		
 		header('Location: index.php?section=callRouting');
 	}
+
+	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
+	$output->setPageTitle($TEXT_CALL_ROUTING_CONST);
 	$output->setScriptInHead(@$scriptInHead);
 	$output->setNavigationMenu(array($TEXT_CALL_ROUTING_CONST=>'index.php?section=callRouting'));
 	$output->setScriptCalendar('null');
@@ -79,7 +82,7 @@ function getUsersRoutingTable($dbADO,$telecomADO){
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-		<h3 align="center">Call routing</h3>';
+		';
 	$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);	
 	$userModes=getAssocArray('UserMode','PK_UserMode','Description',$dbADO,'','ORDER BY Description ASC');
 	
@@ -88,7 +91,7 @@ function getUsersRoutingTable($dbADO,$telecomADO){
 	foreach ($users AS $userID=>$userName){
 		$out.='
 		<tr>
-			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$userName.'</B></td>
+			<td colspan="2" align="center" class="tablehead"><B>'.$userName.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td><B>'.$TEXT_USER_MODE_CONST.'</B></td>
@@ -142,7 +145,6 @@ function addStepForm($dbADO,$telecomADO){
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-		<h3 align="center">'.$TEXT_CALL_ROUTING_CONST.'</h3>
 		
 		<form action="index.php" method="POST" name="callRouting">
 			<input type="hidden" name="section" value="callRouting">
@@ -216,7 +218,7 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 	$pos=0;
 	$out='
 	<table width="100%" cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td colspan="3" align="center"><B><B>STEP</B></td>
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>

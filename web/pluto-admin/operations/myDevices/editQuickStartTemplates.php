@@ -144,7 +144,7 @@ function getQuickStartTree($dbADO){
 		<input type="hidden" name="deleteCategory" value="">
 		<input type="hidden" name="deleteTemplate" value="">
 	<table cellpadding="3" cellspacing="0" align="center">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td colspan="9"><B>Quick start templates</B></td>
 		</tr>';
 	foreach ($nodes['root_node'] AS $rootNode){

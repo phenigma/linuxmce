@@ -275,6 +275,8 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		}
 	}
 	
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_MEDIA_FILES_SYNC_CONST);
 	$output->setReloadLeftFrame(false);	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

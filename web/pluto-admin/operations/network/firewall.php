@@ -53,12 +53,9 @@ function firewall($output,$dbADO) {
 	<form action="index.php" method="POST" name="firewall">
 	<input type="hidden" name="section" value="firewall">
 	<input type="hidden" name="action" value="add">
-	<div align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 		
 	<table border="0" align="center">
-		<tr>
-			<td colspan="7" align="center"><h3>'.$TEXT_FIREWALL_RULES_CONST.'</h3></td>
-		</tr>
 		<tr>
 			<td colspan="7" align="center">'.((@$DisableFirewall!=1)?'':'<h3 class="err">'.$TEXT_FIREWALL_DISABLED_WARNING_CONST.'</h3>').'</td>
 		</tr>
@@ -119,7 +116,7 @@ function firewall($output,$dbADO) {
 			<td align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="7" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+			<td colspan="7" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>		
 		<tr>
 			<td colspan="7" align="left">* '.$TEXT_OPTIONAL_FIELD_CONST.'</td>
@@ -165,8 +162,11 @@ function firewall($output,$dbADO) {
 		
 		header("Location: index.php?section=firewall&msg=$TEXT_FIREWALL_RULES_UPDATED_CONST");
 	}
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_FIREWALL_RULES_CONST);
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array($TEXT_FIREWALL_RULES_CONST=>'index.php?section=firewallRules'));	
+	$output->setNavigationMenu(array($TEXT_FIREWALL_RULES_CONST=>'index.php?section=firewall'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FIREWALL_RULES_CONST);
 	$output->output();

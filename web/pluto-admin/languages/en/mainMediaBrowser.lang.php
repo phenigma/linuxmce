@@ -8,4 +8,5 @@ $TEXT_ATTRIBUTE_EXIST_NOTICE_CONST='The attribute already exists. Do you want to
 $TEXT_YES_MERGE_CONST='Yes, merge them';
 $TEXT_ERROR_THIS_IS_NOT_JPEG_CONST='The file is not a jpg file';
 $TEXT_ERROR_UPLOAD_FAILED_CONST='Upload failed, check the rights for /mediapics directory.';
+$TEXT_MEDIA_BROWSER_CONST='Media Browser';
 ?>

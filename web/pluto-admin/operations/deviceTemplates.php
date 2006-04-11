@@ -16,7 +16,8 @@ function deviceTemplates($output,$dbADO) {
 	
 	$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates'));
 	
-
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_DEVICE_TEMPLATES_CONST);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DEVICE_TEMPLATES_CONST);			

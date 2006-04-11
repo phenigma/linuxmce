@@ -20,17 +20,16 @@ function deviceStatus($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">'.$TEXT_DEVICE_STATUS_CONST.'</h3>
 			<form action="index.php" method="POST" name="deviceStatus">
 			<input type="hidden" name="section" value="deviceStatus">
 			<input type="hidden" name="action" value="update">
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
-			<tr>
-				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+			<tr class="tablehead">
+				<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_STATE_CONST.'</B></td>
-				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_STATUS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_STATUS_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_IP_ADDRESS_CONST.'</B></td>
-				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
 			</tr>';
 		$queryDevices='
 			SELECT PK_Device, Device.Description AS DeviceName, State,Status, IPaddress,MACaddress,Room.Description AS RoomName, 
@@ -75,7 +74,9 @@ function deviceStatus($output,$dbADO) {
 			
 		header('Location: index.php?section=deviceStatus');
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_DEVICE_STATUS_CONST);
 	$output->setNavigationMenu(array($TEXT_DEVICE_STATUS_CONST=>'index.php?section=deviceStatus'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

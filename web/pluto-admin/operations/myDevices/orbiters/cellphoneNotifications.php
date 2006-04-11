@@ -26,7 +26,7 @@ function cellphoneNotifications($output,$dbADO) {
 	<input type="hidden" name="section" value="cellphoneNotifications">
 	<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h2>'.$TEXT_CELLPHONE_NOTIFICATIONS_CONST.'</h2>
+	<div align="center">
 	<p>'.$TEXT_CELLPHONE_NOTIFICATION_INFO_CONST.'</p>
 			<h3>'.$TEXT_MOBILE_ORBITER_NOTIFICATIONS_CONST.'</h3>
 			<p>'.$TEXT_MOBILE_ORBITER_NOTIFICATIONS_INFO_CONST.'</p>
@@ -54,7 +54,7 @@ function cellphoneNotifications($output,$dbADO) {
 			</span>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_ORBITER_PHONE_CONST.' #</B></td>
 				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SECURITY_CONST.'</B></td>
@@ -108,7 +108,7 @@ function cellphoneNotifications($output,$dbADO) {
 		</div>
 		<input type="hidden" name="oldOpn" value="'.@join(',',$opnArray).'">
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_ORBITER_PHONE_CONST.' #</B></td>
 				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SECURITY_CONST.'</B></td>
@@ -134,7 +134,7 @@ function cellphoneNotifications($output,$dbADO) {
 			<p>'.$TEXT_NEIGHBOURS_TO_CALL_INFO_CONST.'</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_NAME_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 			</tr>';
@@ -163,7 +163,7 @@ function cellphoneNotifications($output,$dbADO) {
 			<p>'.$TEXT_EMERGENCY_CALLS_INFO_CONST.'</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_NAME_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 			</tr>';
@@ -187,7 +187,7 @@ function cellphoneNotifications($output,$dbADO) {
 		</table>';
 		
 		if(!is_null($deviceID)){
-			$out.='<div align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></div>';
+			$out.='<div align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></div>';
 		}
 	$out.='</form>';
 	$scriptInHead='
@@ -276,6 +276,8 @@ function cellphoneNotifications($output,$dbADO) {
 		exit();	
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_CELLPHONE_NOTIFICATIONS_CONST);
 	$output->setScriptInHead($scriptInHead);
 	$output->setScriptInBody('onLoad="form_change()"');
 	$output->setNavigationMenu(array($TEXT_CELLPHONE_NOTIFICATIONS_CONST=>'index.php?section=cellphoneNotifications'));

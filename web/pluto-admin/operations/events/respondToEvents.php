@@ -52,9 +52,8 @@ function respondToEvents($output,$dbADO) {
 		<input type="hidden" name="section" value="respondToEvents">
 		<input type="hidden" name="action" value="add">
 		
-		<div align="center"><h3>'.$TEXT_RESPOND_TO_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_EVENT_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
@@ -93,11 +92,11 @@ function respondToEvents($output,$dbADO) {
 				<td colspan="3">&nbsp;</td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B>:</td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.' *</B></td>
 				<td colspan="2"><input type="text" name="Description" value=""></td>
 			</tr>		
 			<tr>
-				<td><B>'.$TEXT_NEW_EVENT_CONST.'</B>: </td>
+				<td><B>'.$TEXT_NEW_EVENT_CONST.' *</B></td>
 				<td colspan="2"><select name="cannedEvent">
 					<option value="0">- '.$TEXT_PLEASE_SELECT_AN_EVENT_CONST.' -</option>';
 
@@ -108,11 +107,12 @@ function respondToEvents($output,$dbADO) {
 			</select></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_ADD_CONST.'"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_ADD_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>';
 		$out.='
 		</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("respondToEvents");			
  			frmvalidator.addValidation("Description","req","'.$TEXT_EVENT_DESCRIPTION_REQUIRED_CONST.'");
@@ -153,7 +153,9 @@ function respondToEvents($output,$dbADO) {
 		$ehID=$dbADO->Insert_ID();
 		header("Location: index.php?section=editRespondToEvent&ehID=".$ehID);
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_RESPOND_TO_EVENTS_CONST);
 	$output->setNavigationMenu(array($TEXT_RESPOND_TO_EVENTS_CONST=>'index.php?section=respondToEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESPOND_TO_EVENTS_CONST);			

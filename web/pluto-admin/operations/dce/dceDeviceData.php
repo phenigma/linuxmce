@@ -20,13 +20,12 @@ function dceDeviceData($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">'.$TEXT_DEVICE_DATA_CONST.'</h3>
 			<form action="index.php" method="POST" name="dceDeviceData">
 			<input type="hidden" name="section" value="dceDeviceData">
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="3" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td><B>'.$TEXT_TYPE_CONST.'</B></td>
 				<td><B>'.$TEXT_USED_BY_CONST.'</B></td>
@@ -66,7 +65,9 @@ function dceDeviceData($output,$dbADO) {
 			
 		header('Location: index.php?section=dceDeviceData');
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle('DCE '.$TEXT_DEVICE_DATA_CONST);
 	$output->setNavigationMenu(array($TEXT_DEVICE_DATA_CONST=>'index.php?section=dceDeviceData'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

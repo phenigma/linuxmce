@@ -34,8 +34,7 @@ if($action=='form') {
 	$rowArray=$resArray->FetchRow();
 
 	$out.=setLeftMenu($dbADO).'
-	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-	<h2 align="center">'.$rowArray['Description'].' *</h2>';
+	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>';
 
 	$out.='
 	<form action="index.php" method="POST" name="mobileScenarios">
@@ -68,7 +67,7 @@ if($action=='form') {
 		$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':$color).'">
-				<td>Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<textarea style="width:200px;" name="commandGroup_'.$rowCG['PK_CommandGroup'].'">'.$rowCG['Description'].'</textarea> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.nl2br($rowCG['Description']).': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
+				<td>Description: <B>'.$rowCG['Description'].'</B> Hint: <B>'.$rowCG['Hint'].'</B></td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td>
@@ -83,7 +82,7 @@ if($action=='form') {
 	if(count($displayedCommandGroups)>0){
 		$out.='
 		<tr>
-			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -113,12 +112,14 @@ if($action=='form') {
 
 	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
+		/*
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
 			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
+		*/
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		
 		if(@(int)$_REQUEST['editedCgID']!=0){
@@ -141,6 +142,8 @@ if($action=='form') {
 	exit();
 }
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_MOBILE_ORBITER_SCENARIOS_CONST.' *');
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_MOBILE_ORBITER_SCENARIOS_CONST=>'index.php?section=mobileScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

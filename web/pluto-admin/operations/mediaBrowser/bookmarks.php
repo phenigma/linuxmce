@@ -30,13 +30,12 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 
-		<h3 align="center">Bookmarks</h3>
 		<form action="index.php" method="POST" name="bookmarks">
 			<input type="hidden" name="section" value="bookmarks">
 			<input type="hidden" name="action" value="update">
 		
 		<table celspacing="0" cellpadding="3" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>'.$TEXT_ICON_CONST.'</B></td>
 				<td><B>'.$TEXT_MEDIA_PROVIDER_CONST.'</B></td>
 				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
@@ -76,7 +75,9 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 		$suffix=(isset($error))?'&error='.$error:'&msg='.@$msg;
 		header('Location: index.php?section=bookmarks&type='.$type.$suffix);
 	}
-	
+
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_BOOKMARKS_CONST);
 	$output->setNavigationMenu(array($TEXT_BOOKMARKS_CONST=>'index.php?section=bookmarks&type='.$type));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

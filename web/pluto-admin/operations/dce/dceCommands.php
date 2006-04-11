@@ -20,13 +20,13 @@ function dceCommands($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">'.$TEXT_COMMANDS_CONST.'</h3>
+			
 			<form action="index.php" method="POST" name="dceCommands">
 			<input type="hidden" name="section" value="dceCommands">
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="3" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
 				<td align="center"><B>#</b></td>
 				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
@@ -52,7 +52,9 @@ function dceCommands($output,$dbADO) {
 			
 		header('Location: index.php?section=dceCommands');
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle('DCE '.$TEXT_COMMANDS_CONST);
 	$output->setNavigationMenu(array($TEXT_COMMANDS_CONST=>'index.php?section=dceCommands'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

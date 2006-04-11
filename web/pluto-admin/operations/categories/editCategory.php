@@ -51,7 +51,7 @@ $categSelected = (int)$_REQUEST['categSelected'];
 	<input type="hidden" name="categSelected" value="'.$categSelected.'">	
 	
 	<table>
-	<tr><td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="categoryDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>'.$TEXT_DESCRIPTION_CONST.' *</td><td><input type="text" name="categoryDescription" value="'.$description.'" size="40"></td></tr>
 	<tr><td>'.$TEXT_PARENT_CONST.':</td><td>
 	<select name="parentID">
 		<option value="0">-'.$TEXT_IS_A_TOP_LEVEL_CATEGORY_CONST.'-</option>
@@ -77,6 +77,7 @@ $categSelected = (int)$_REQUEST['categSelected'];
  			frmvalidator.addValidation("categoryDescription","req","'.$TEXT_PLEASE_ENTER_A_DESCRIPTION_CONST.'");
 		</script>
 	</table>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 	';
 	
 	} else {

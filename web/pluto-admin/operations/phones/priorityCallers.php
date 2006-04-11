@@ -41,6 +41,8 @@ function priorityCallers($output,$dbADO,$telecomADO) {
 		header('Location: index.php?section=priorityCallers');
 	}
 
+	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
+	$output->setPageTitle($TEXT_PRIORITY_CALLERS_CONST);
 	$output->setNavigationMenu(array($TEXT_PRIORITY_CALLERS_CONST=>'index.php?section=priorityCallers'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
@@ -65,7 +67,6 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-		<h3 align="center">'.$TEXT_PRIORITY_CALLERS_CONST.'</h3>
 
 		<form action="index.php" method="POST" name="priorityCallers">
 			<input type="hidden" name="section" value="priorityCallers">
@@ -82,7 +83,7 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 	
 		$out.='
 		<tr>
-			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$username.'</B></td>
+			<td colspan="2" align="center" class="tablehead"><B>'.$username.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
@@ -108,7 +109,7 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 	}
 	$out.='	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="usersArray" value="'.join(',',array_keys($users)).'">

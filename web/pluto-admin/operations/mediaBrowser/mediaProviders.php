@@ -37,13 +37,12 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 
-		<h3 align="center">'.$TEXT_MEDIA_PROVIDERS_CONST.'</h3>
 		<form action="index.php" method="POST" name="mediaProviders">
 			<input type="hidden" name="section" value="mediaProviders">
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="3" cellspacing="0" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td colspan="3" align="center"><B>'.$TEXT_MEDIA_PROVIDERS_CONST.'</B></td>
 			</tr>		
 			<tr bgcolor="#F0F3F8">
@@ -56,7 +55,7 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 				<td colspan="3" align="center">&nbsp;</td>
 			</tr>		
 
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td colspan="3" align="center"><B>'.$TEXT_ADD_MEDIA_PROVIDER_CONST.'</B></td>
 			</tr>		
 			<tr>
@@ -68,7 +67,7 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 				<td colspan="2">'.pulldownFromArray($mtArray,'type',0).'</td>
 			</tr>		
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_MEDIA_PROVIDER_CONST.'"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_MEDIA_PROVIDER_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>		
 		</table>
 		
@@ -91,7 +90,9 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 		$suffix=(isset($error))?'&error='.$error:'&msg='.@$msg;
 		header('Location: index.php?section=mediaProviders'.$suffix);
 	}
-	
+
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_MEDIA_PROVIDERS_CONST);
 	$output->setNavigationMenu(array($TEXT_MEDIA_PROVIDERS_CONST=>'index.php?section=mediaProviders'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

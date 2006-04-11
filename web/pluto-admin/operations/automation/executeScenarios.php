@@ -20,14 +20,13 @@ function executeScenarios($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">'.$TEXT_EXECUTE_SCENARIOS_CONST.'</h3>
 			<p align="center">'.$TEXT_EXECUTE_SCENARIOS_EXPLANATION_CONST.'</p>
 			<form action="index.php" method="POST" name="executeScenarios">
 			<input type="hidden" name="section" value="executeScenarios">
 			<input type="hidden" name="action" value="update">
 		
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_SCENARIO_DESCRIPTION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SCENARIO_TYPE_CONST.'</B></td>
 				<td align="center">&nbsp;</td>
@@ -125,7 +124,9 @@ function executeScenarios($output,$dbADO) {
 		
 		header('Location: index.php?section=executeScenarios');
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_EXECUTE_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_EXECUTE_SCENARIOS_CONST=>'index.php?section=executeScenarios'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

@@ -44,10 +44,9 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	<input type="hidden" name="section" value="securitySettings">
 	<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h3>'.$TEXT_REACTION_TO_SENSORS_CONST.'</h3></div>
 	<p align="center">'.$TEXT_REACTION_TO_SENSORS_NOTE_CONST.'</p>
 		<table align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td></td>
 				<td align="center"><B>'.$TEXT_MONITOR_MODE_CONST.'</B></td>';
 			foreach($properties AS $label){
@@ -134,7 +133,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				<td colspan="13" align="left">* '.$TEXT_REACTION_TO_SENSORS_NOTIFICATION_CONST.'</td>
 			</tr>		
 			<tr>
-				<td colspan="13" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+				<td colspan="13" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		</table>
 		</form>
@@ -163,7 +162,8 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 		
 		header("Location: index.php?section=securitySettings&msg=$TEXT_SECURITY_SETTINGS_UPDATED_CONST");		
 	}
-
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_REACTION_TO_SENSORS_CONST);
 	$output->setNavigationMenu(array($TEXT_REACTION_TO_SENSORS_CONST=>'index.php?section=securitySettings'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

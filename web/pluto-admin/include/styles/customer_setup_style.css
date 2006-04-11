@@ -1,22 +1,23 @@
 body {
 	font-family: Arial, Verdana,  Helvetica, sans-serif;
 	font-size: 12px;
-	color: #4E6CA6;
-	margin-left: 5px;
+	color: #000000;
+	margin-left: 0px;
 	margin-top: 0px;
 	margin-right: 0px;
 	margin-bottom: 0px; 
+	background-color: #EFEFEF;	
 }			 
 
 a {
 	text-decoration: underline;
-	color: #009934;
+	color: #009108;
 	font-size: 12px;
 }
 
 a:hover {
 	text-decoration: underline;
-	color: #009934;
+	color: #46B801;
 	font-size: 12px;
 }
 
@@ -35,23 +36,36 @@ a.white_link:hover{
 td {
 	font-family: Arial, Verdana,  Helvetica, sans-serif;
 	font-size: 12px;
-	color: #4E6CA6;
 }
 
 input {
    font-family: Arial, Verdana,  Helvetica, sans-serif;
    font-size: 12px;
-   color: #4E6CA6;
-   background-color: #E7ECF2;
-   border: 1px solid #AFBAD0;
+   color: #000000;
+   background-color: #FFFFFF;
+   border: 1px solid #009108;
 }
-
+select {
+   font-family: Arial, Verdana,  Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+   background-color: #FFFFFF;
+   width:150px;
+}
 input.button {
    font-family: Arial, Verdana,  Helvetica, sans-serif;
    font-size: 12px;
    color: #E7ECF2;
-   background-color: #4E6CA6;
+   background-color: #00A008;
    border: 1px solid #AFBAD0;
+}
+input.button_fixed {
+   font-family: Arial, Verdana,  Helvetica, sans-serif;
+   font-size: 12px;
+   color: #E7ECF2;
+   background-color: #00A008;
+   border: 1px solid #AFBAD0;
+   width:120px;
 }
 
 textarea {
@@ -108,14 +122,14 @@ textarea {
    color: #4E6DA1;
 }
 
-.menu_left:link {
+.menu_left_link:link {
    font-family: Arial, Verdana, Helvetica, sans-serif;
    font-size: 12px;
    font-weight: bold;
    color: #4E6DA1;
 }
 
-.menu_left:hover {
+.menu_left_link:hover {
    font-family: Arial, Verdana, Helvetica, sans-serif;
    font-size: 12px;
    font-weight: bold;
@@ -142,7 +156,57 @@ textarea {
 .tablehead{
    font-family: Arial, Verdana, Helvetica, sans-serif;
    font-size: 12px;
-   color: #4E6DA1;
-   background-color: #ADD8E6;
+   color: #FFFFFF;
+   background-color: #009108;
    text-decoration: none;
+}
+.left_menu{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   background-color: #DEDEDE;
+   padding-left: 10px;
+}
+.menu_title{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 16px;
+   color: #000000;
+   font-weight: bold;
+}
+.page_title{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 16px;
+   color: #FE0000;
+   font-weight: bold;
+}
+.main_content {
+	padding-top: 5px;
+	padding-left: 5px;
+	font-family: Arial, Verdana,  Helvetica, sans-serif;
+	font-size: 12px;
+	color: #000000;
+}
+.main_top{
+	background-color: #FFFFFF;
+}
+.top_menu_back{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   background-color: #00A008;
+}
+.alternate_back{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   background-color: #DEDEDE;
+}
+.right_frame_logo{
+	background-image: url(../images/right_frame_pluto_logo.jpg);
+	background-repeat:no-repeat;
+	background-position: bottom left;
+	background-color: #FFFFFF;
+}
+.left_frame_logo{
+	background-image: url(../images/left_frame_pluto_logo.jpg);
+	background-repeat:no-repeat;
+	background-position: bottom left;
+	background-color: #FFFFFF;
 }

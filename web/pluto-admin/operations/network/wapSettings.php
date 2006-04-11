@@ -35,8 +35,6 @@ function wapSettings($output,$dbADO) {
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
 	
-	$out.='<div align="left"><h3>'.$TEXT_WAP_GPRS_SETTINGS_CONST.'</h3></div>';
-	
 	if ($action=='form') {
 		if(!isset($wapURL) || $wapURL==''){
 			$coreFields=getFieldsAsArray('Device','IPAddress',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_Installation='.$installationID.' AND FK_DeviceCategory='.$GLOBALS['CategoryCore']);
@@ -93,7 +91,7 @@ $TEXT_WAP_NOTES_CONST.'
 			<td><input type="text" name="caller_id_number" value="'.@$caller_id_number.'" size="50"></td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>
 	</table>
 	</form>
@@ -131,7 +129,9 @@ $TEXT_WAP_NOTES_CONST.'
 
 		header("Location: index.php?section=wapSettings");
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_WAP_GPRS_SETTINGS_CONST);
 	$output->setNavigationMenu(array($TEXT_WAP_GPRS_SETTINGS_CONST=>'index.php?section=wapSettings'));		
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_WAP_GPRS_SETTINGS_CONST);

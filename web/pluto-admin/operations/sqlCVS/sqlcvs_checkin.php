@@ -47,7 +47,6 @@ function sqlcvs_checkin($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_checkin">
 		<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h3>'.$TEXT_SQLCVS_CHECKIN_CONST.'</h3></div>
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
@@ -167,7 +166,9 @@ function sqlcvs_checkin($output,$dbADO) {
 		</script>';
 		
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_SQLCVS_CHECKIN_CONST);
 	$output->setNavigationMenu(array($TEXT_SQLCVS_CHECKIN_CONST=>'index.php?section=sqlcvs_checkin'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

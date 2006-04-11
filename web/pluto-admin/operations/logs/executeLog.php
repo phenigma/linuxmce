@@ -46,8 +46,12 @@ for ($i = 0; $i < count($command); $i++)
 			print '<br><br>';
 		}else{
 			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html)'", $retval);
-			exec('cat /tmp/sqlCVS-errors-'.$timestamp.'.log | /usr/pluto/bin/ansi2html',$retArray);
-			print 'Error log: /tmp/sqlCVS-errors-'.$timestamp.'.log<br>'.join('<br>',$retArray);
+			if($retval==0){
+				print 'Status: success';
+			}else{
+				exec('cat /tmp/sqlCVS-errors-'.$timestamp.'.log | /usr/pluto/bin/ansi2html',$retArray);
+				print 'Error log: /tmp/sqlCVS-errors-'.$timestamp.'.log<br>'.join('<br>',$retArray);
+			}
 		}
 	}
 }

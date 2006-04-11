@@ -33,11 +33,11 @@ function addCommandGroup($output,$dbADO) {
 		
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_GROUP_NAME_CONST.':</td>
+					<td>'.$TEXT_COMMAND_GROUP_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="CommandGroupDescription" value=""></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td>
+					<td>'.$TEXT_DEVICE_CATEGORY_CONST.' *</td>
 					<td>
 						<select name="deviceCategs" >
 						'.$deviceCategsTxt.'
@@ -49,6 +49,7 @@ function addCommandGroup($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addCommandGroup"); 			
 			frmvalidator.addValidation("CommandGroupDescription","req","'.$TEXT_VALIDATE_COMMAND_GROUP_CONST.'");

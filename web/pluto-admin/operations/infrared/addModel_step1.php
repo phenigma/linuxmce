@@ -35,19 +35,19 @@
 				<td>'.$categArray[$dcID].'</td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_Q1_MODEL_NAME_CONST.':</B></td>
+				<td><B>'.$TEXT_Q1_MODEL_NAME_CONST.' *</B></td>
 				<td colspan="3"><input type="text" name="description" value=""></td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_Q1_CONTROL_CONST.':</B></td>
+				<td><B>'.$TEXT_Q1_CONTROL_CONST.'</B></td>
 				<td colspan="3">'.$commMethodRadioButtons.'</td>
 			</tr>
 			<tr>
-				<td colspan="4" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_NEXT_CONST.'"></td>
+				<td colspan="4" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_NEXT_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CANCEL_CONST.' & '.$TEXT_CLOSE_CONST.'" onclick="self.close();"></td>
 			</tr>
 		</table><br>
 		</form>
-		
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 			var frmvalidator = new formValidator("addModel");
  			frmvalidator.addValidation("description","req","'.$TEXT_DEVICE_TEMPLATE_NAME_REQUIRED_CONST.'");

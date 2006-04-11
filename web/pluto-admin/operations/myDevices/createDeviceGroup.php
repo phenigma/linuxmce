@@ -23,14 +23,14 @@ function createDeviceGroup($output,$dbADO) {
 		<input type="hidden" name="lastAction" value="">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
-			<h3 align="center">'.$TEXT_CREATE_DEVICE_GROUP_CONST.'</h3>		
+			<h3>'.$TEXT_CREATE_DEVICE_GROUP_CONST.'</h3>		
 			<table>			
 				<tr>
-					<td>Description:</td>
+					<td>Description *</td>
 					<td><input type="text" size="15" name="'.$TEXT_DESCRIPTION_CONST.'" value=""></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_PARENT_CONST.':</td>
+					<td>'.$TEXT_PARENT_CONST.'</td>
 					<td>
 						<select name="parentID" >
 						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
@@ -49,7 +49,7 @@ function createDeviceGroup($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
-				
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>		
 		<script>
 		 	var frmvalidator = new formValidator("createDeviceGroup");
  			frmvalidator.addValidation("Description","req","'.$TEXT_DEVICE_GROUP_DESCRIPTION_CONFIRMATION_CONST.'");			

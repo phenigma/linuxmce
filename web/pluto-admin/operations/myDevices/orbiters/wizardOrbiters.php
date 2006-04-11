@@ -42,7 +42,6 @@ function wizardOrbiters($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="page" value="'.$page.'">			
 		
-	<h3  align="left">'.$TEXT_ORBITES_CONST.'</h3>
 	'.$TEXT_DOWNLOAD_CONST.' <a href="index.php?section=orbitersWin">'.$TEXT_ORBITER_WIN_INSTALLER_CONST.'</a><br>
 	'.$TEXT_PRIVACY_SETTINGS_CONST.': <a href="index.php?section=usersOrbiters">'.$TEXT_RESTRICT_ACCES_TO_USERS_CONST.'</a>
 		<div id="preloader" style="display:;">
@@ -243,19 +242,19 @@ function wizardOrbiters($output,$dbADO) {
 					<td colspan="2" align="right">'.$linksBar.'</td>
 				</tr>			
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_MOBILE_PHONE_ORBITERS_CONST.'</B></td>
+					<td class="tablehead" colspan="2" align="center"><B>'.$TEXT_MOBILE_PHONE_ORBITERS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['mobile_orbiters'],'mobile_orbiters',$properties).'</td>
 				</tr>
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_ON_SCREEN_DISPLAYS_FOR_MEDIA_DIRECTORS_CONST.'</B></td>
+					<td class="tablehead" colspan="2" align="center"><B>'.$TEXT_ON_SCREEN_DISPLAYS_FOR_MEDIA_DIRECTORS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['on_screen_orbiters'],'on_screen_orbiters',$properties).'</td>
 				</tr>
 				<tr>
-					<td bgcolor="lightblue" colspan="2" align="center"><B>'.$TEXT_STANDARD_ROAMING_ORBITERS_CONST.'</B></td>
+					<td class="tablehead" colspan="2" align="center"><B>'.$TEXT_STANDARD_ROAMING_ORBITERS_CONST.'</B></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
@@ -434,6 +433,9 @@ function wizardOrbiters($output,$dbADO) {
 		header("Location: index.php?section=wizardOrbiters&page=".$_REQUEST['page']."&msg=".urlencode($TEXT_ORBITERS_UPDATED_CONST.$commandMessage)."&regen=".@$regen.@$suffix);		
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_ORBITES_CONST);
+
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_ORBITES_CONST=>'index.php?section=wizardOrbiters'));
 	$output->setBody($out);
@@ -533,6 +535,7 @@ function displayButtons($orbiter,$RegenInProgress){
 					<input type="submit" class="button" name="fullRegen_'.$orbiter.'" value="'.$TEXT_FULL_REGEN_CONST.'"  >&nbsp;&nbsp;
 					<input type="button" class="button" name="customBg" value="'.$TEXT_CUSTOM_BACKGROUND_CONST.'"  onclick="windowOpen(\'index.php?section=customBackground&oID='.$orbiter.'\',\'width=600,height=400,scrollbars=1,resizable=1\');">&nbsp;&nbsp;
 					<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  >&nbsp;&nbsp;
+					<input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">&nbsp;&nbsp;
 					<input type="button" class="button" name="edit_'.$orbiter.'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$orbiter.'\';">&nbsp;&nbsp;
 					<input type="submit" class="button" name="delete_'.$orbiter.'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(!confirm(\''.$TEXT_CONFIRM_DELETE_ORBITER_CONST.'\'))return false;">
 				</td>

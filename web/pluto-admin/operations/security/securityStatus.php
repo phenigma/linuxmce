@@ -45,7 +45,6 @@ function securityStatus($output,$dbADO) {
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-	<div align="center"><h3>'.$TEXT_SECURITY_STATUS_CONST.'</h3></div>
 	<form action="index.php" method="POST" name="securityStatus">
 	<input type="hidden" name="section" value="securityStatus">
 	<input type="hidden" name="action" value="update">		
@@ -65,7 +64,7 @@ function securityStatus($output,$dbADO) {
 			<tr>
 				<td align="center" colspan="7">&nbsp;</td>
 			</tr>
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ALARM_MODE_CONST.'</B></td>
@@ -175,7 +174,7 @@ function securityStatus($output,$dbADO) {
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td align="center" colspan="7"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+				<td align="center" colspan="7"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>';
 	}
 
@@ -207,7 +206,9 @@ function securityStatus($output,$dbADO) {
 			header("Location: index.php?section=securityStatus&msg=$TEXT_SECURITY_STATUS_UPDATED_CONST");
 		}
 	}
-	
+
+	$output->setMenuTitle($TEXT_SECURITY_CONST.' |');
+	$output->setPageTitle($TEXT_SECURITY_STATUS_CONST);
 	$output->setNavigationMenu(array($TEXT_SECURITY_STATUS_CONST=>'index.php?section=securityStatus'));				
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

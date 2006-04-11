@@ -155,7 +155,7 @@ function bootSequence($output,$dbADO) {
 		$out.='
 			<input type="hidden" name="displayedSS" value="'.@join(',',$displayedSS).'">
 			<tr> 
-				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"  > <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		</table>
 		</form>
@@ -185,6 +185,8 @@ function bootSequence($output,$dbADO) {
 		
 	}
 
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_BOOT_SEQUENCE_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_BOOT_SEQUENCE_CONST=>'index.php?section=bootSequence'));	
 	$output->setBody($out);

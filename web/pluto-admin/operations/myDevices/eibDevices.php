@@ -130,7 +130,6 @@ function eibDevices($output,$dbADO,$eibADO) {
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="type" value="'.$type	.'">	
 		
-	<div align="center"><h3>EIB '.strtoupper($type).'</h3></div>
 	<table align="center" cellpadding="3" cellspacing="0" border="0">
 		<tr>
 			<td colspan="3" align="center"><table align="center" border="0">
@@ -337,6 +336,8 @@ function eibDevices($output,$dbADO,$eibADO) {
 		}
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle('EIB '.strtoupper($type));
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array('EIB '.strtoupper($type)=>'index.php?section=eibDevices&type='.$type));
 	$output->setBody($out);

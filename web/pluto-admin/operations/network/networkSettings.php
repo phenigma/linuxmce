@@ -321,6 +321,9 @@ function networkSettings($output,$dbADO) {
 		
 		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
 	}
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_NETWORK_SETTINGS_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_NETWORK_SETTINGS_CONST=>'index.php?section=networkSettings'));	
 	$output->setBody($out);

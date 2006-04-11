@@ -42,6 +42,18 @@
   		
   		// set it to path with write permission to enable loading time logging orr leave blank to disable
   		$GLOBALS['save_loading_time']='/home/users/vali/work/web/pluto-admin/cached/';
+  		// todo: remove
+  		// setting get get parameter &red=1 set css style to red stylesheet and preserve it, set to 0 to return to pluto
+  		if(isset($_REQUEST['red'])){
+  			if((int)$_REQUEST['red']!=1){
+  				$_SESSION['cssFile']='include/styles/customer_setup_style.css';
+  				$_SESSION['jsForMenu']='scripts/menu_settings.js';
+  			}else{
+  				$_SESSION['cssFile']='include/styles/customer_setup_style_red.css';
+  				$_SESSION['jsForMenu']='scripts/menu_settings_red.js';
+  			}
+  		}
+  		
   	}
 	
   	

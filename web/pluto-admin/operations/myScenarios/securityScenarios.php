@@ -22,8 +22,7 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	$out.=setLeftMenu($dbADO).'
-	<h2 align="center">'.$rowArray['Description'].'</h2>';
+	$out.=setLeftMenu($dbADO);
 
 	$out.='
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -102,7 +101,7 @@ if($action=='form') {
 			if($resCV->RecordCount()==0){
 				$out.='
 				<tr bgcolor="#DDDDDD">
-					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
+					<td>'.nl2br($rowCG['Description']).'</td>
 					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=testScenario">'.$TEXT_TEST_CONST.'</a></td>
 					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">'.$TEXT_EDIT_SIMPLE_MODE_CONST.'</a></td>
 					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">'.$TEXT_EDIT_WIZARD_MODE_CONST.'</a></td>
@@ -112,7 +111,7 @@ if($action=='form') {
 			}else{
 				$out.='
 				<tr bgcolor="#FF9F9F">
-					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
+					<td>'.$rowCG['Description'].'</td>
 					<td align="center" colspan="3">'.$TEXT_INVALID_SECURITY_SCENARIO_CONST.'</td>
 					<td align="center">
 						<a href="#" onClick="javascript:if(confirm(\''.$TEXT_KEEP_INVALID_SECURITY_SCENARIO_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">'.$TEXT_KEEP_CONST.'</a> 
@@ -129,7 +128,7 @@ if($action=='form') {
 		if(count($displayedRooms)!=0){
 			$out.='
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>';
 		}
 			$out.='
@@ -153,7 +152,7 @@ if($action=='form') {
 				<td colspan="2"><h3>'.$TEXT_NEW_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'</h3></td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_DESCRIPTION_CONST.': </B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.' *</B></td>
 				<td><textarea name="description" style="width:200px;"></textarea></td>
 			</tr>
 			<tr>
@@ -183,6 +182,7 @@ if($action=='form') {
 				<td align="center" colspan="2"><input type="submit" class="button" name="addScenario" value="'.$TEXT_NEW_QUAD_CAMERA_SECURITY_SCENARIO_CONST.'"  > <input type="button" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
 			</tr>
 		</table>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			<script>
 		 		var frmvalidator = new formValidator("securityScenarios");
  				frmvalidator.addValidation("description","req","'.$TEXT_SECURITY_SCENARIO_DESCRIPTION_REQUIRED_CONST.'");			
@@ -450,13 +450,14 @@ if($action=='form') {
 		
 		
 		// Update CommandGroups description
+		/*
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $commandGroup){
 			$description=@$_POST['commandGroup_'.$commandGroup];
 			$updateCommandGroup='UPDATE CommandGroup SET Description=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCommandGroup,array($description,$commandGroup));
 		}
-		
+		*/
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg=$TEXT_SECURITY_SCENARIO_UPDATED_CONST;
 	}
@@ -464,6 +465,8 @@ if($action=='form') {
 	header("Location: index.php?section=securityScenarios&msg=$msg");
 }
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_SECURITY_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_SECURITY_SCENARIOS_CONST=>'index.php?section=securityScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

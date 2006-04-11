@@ -7,4 +7,6 @@ $TEXT_WIZARD_LIGHTING_SCENARIOS_CONST='Lighting Scenarios';
 $TEXT_WIZARD_CLIMATE_SCENARIOS_CONST='Climate Scenarios';
 $TEXT_WIZARD_MOBILE_ORBITER_SCENARIOS_CONST='Mobile Orbiter Scenarios';
 $TEXT_WIZARD_Sleeping_Scenarios_SCENARIOS_CONST='Sleeping Scenarios';
+$TEXT_EDIT_SCENARIO_CONST='Edit scenario';
+$TEXT_SCENARIO_NAME_CONST='Scenario name';
 ?>

@@ -134,6 +134,8 @@ $myDevicesJsArray
 	//$action=='showBasicInfo'?('Add top level device'=>'index.php?section=editMasterDevice&model='.$deviceID):''
 
 	$output->setNavigationMenu(array($TEXT_MY_DEVICES_CONST=>'index.php?section=myDevices'));
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_DEVICES_CONST);
 
 	$output->setScriptCalendar('null');
 

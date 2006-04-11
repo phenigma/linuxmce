@@ -23,7 +23,7 @@ function editDHCP($output,$dbADO) {
 		<input type="hidden" name="dhcpID" value="'.$dhcpID.'">
 		
 		<table cellpadding="3" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>
 				<td><B>'.$TEXT_PARAMETERS_CONST.'</B></td>
 				<td><B>'.$TEXT_ACTION_CONST.'</B></td>

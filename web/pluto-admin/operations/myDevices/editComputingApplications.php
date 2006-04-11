@@ -109,7 +109,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		<tr>
 			<td valign="top">'.$tree.'</td>
 			<td valign="top"><table cellpadding="3" cellspacing="0" align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center" colspan="2"><B>'.$TEXT_APPLICATION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
@@ -119,7 +119,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			<tr>
 				<td>&nbsp;</td>
 			</tr>
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td colspan="3"><B>'.$TEXT_ADD_NEW_APPLICATION_CONST.'</B></td>
 			</tr>
 			<tr>
@@ -264,7 +264,7 @@ function getQuickStartTree($usedTemplates,$dbADO){
 	$out='
 		<input type="hidden" name="qst" value="">
 	<table cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td colspan="2"><B>'.$TEXT_QUICK_START_TEMPLATES_CONST.'</B></td>
 		</tr>';
 	foreach ($nodes['root_node'] AS $rootNode){

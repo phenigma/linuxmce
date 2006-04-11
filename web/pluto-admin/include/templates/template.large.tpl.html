@@ -16,7 +16,6 @@
  {ScriptValidateSrc}
  
 
-
 <script type="text/javascript">
 function submitEnter(myfield,e)
 {
@@ -34,16 +33,19 @@ function submitEnter(myfield,e)
 	else
 	   return true;
 }
-</script>
 
-{ScriptInHead}
-
-<script>
 function showSteps()
 {
 	top.treeframe.location='index.php?section=wizard';
 }
 
+
+</script>
+
+{ScriptInHead}
+
+<!-- Menu colors and settings -->
+<script>
 function menuSettings(menuObject)
 {
 	//////////////////////////Start Menu Data/////////////////////////////////
@@ -51,97 +53,9 @@ function menuSettings(menuObject)
     //Unique Menu Id
 	menuObject.uid = 499627
 
-
-/**********************************************************************************************
-
-                               Icon Images
-
-**********************************************************************************************/
-
-
-    //Inline positioned icon images (flow with the item text)
-
-	menuObject.rel_icon_image0 = "scripts/menu/squares_0.gif"
-	menuObject.rel_icon_rollover0 = "scripts/menu/squares_0_hl.gif"
-	menuObject.rel_icon_image_wh0 = "13,8"
-
-/**********************************************************************************************
-
-                              Global - Menu Container Settings
-
-**********************************************************************************************/
-
-
-	menuObject.menu_background_color = "#dde4ef"
-	menuObject.menu_border_color = "#000000"
-	menuObject.menu_border_width = 1
-	menuObject.menu_padding = "0,0,0,0"
-	menuObject.menu_border_style = "solid"
-	menuObject.divider_caps = false
-	menuObject.divider_width = 1
-	menuObject.divider_height = 1
-	menuObject.divider_background_color = "#000000"
-	menuObject.divider_border_style = "none"
-	menuObject.divider_border_width = 0
-	menuObject.divider_border_color = "#000000"
-	menuObject.menu_is_horizontal = false
-	menuObject.menu_width = "150"
-	menuObject.menu_xy = "-100,-2"
-	menuObject.menu_scroll_direction = 0
-	menuObject.menu_scroll_reverse_on_hide = true
-	menuObject.menu_scroll_delay = 0
-	menuObject.menu_scroll_step = 5
-
-
-
-
-/**********************************************************************************************
-
-                              Global - Menu Item Settings
-
-**********************************************************************************************/
-
-
-	menuObject.icon_rel = 0
-	menuObject.menu_items_background_color_roll = "#c9c8c7"
-	menuObject.menu_items_text_color = "#333333"
-	menuObject.menu_items_text_decoration = "none"
-	menuObject.menu_items_font_family = "Arial"
-	menuObject.menu_items_font_size = "11px"
-	menuObject.menu_items_font_style = "normal"
-	menuObject.menu_items_font_weight = "normal"
-	menuObject.menu_items_text_align = "left"
-	menuObject.menu_items_padding = "4,5,4,5"
-	menuObject.menu_items_border_style = "solid"
-	menuObject.menu_items_border_color = "#000000"
-	menuObject.menu_items_border_width = 0
-	menuObject.menu_items_width = 110
-
+	set_menu(menuObject);
 	
-/**********************************************************************************************
-
-                              Main Menu Settings
-
-**********************************************************************************************/
-
-        menuObject.menu_background_color_main = "#c0c0c0"
-        menuObject.menu_items_background_color_main = "#4e6ca6"
-        menuObject.menu_items_text_color_main = "#ffffff"
-        menuObject.menu_items_text_color_roll_main = "#000000"
-        menuObject.menu_border_color_main = "#000000"
-        menuObject.menu_items_font_family_main = "Arial"
-        menuObject.menu_items_font_family_roll_main = "Arial"
-        menuObject.menu_items_font_weight_main = "bold"
-        menuObject.menu_items_font_weight_roll_main = "bold"
-        menuObject.menu_items_font_style_main = "normal"
-        menuObject.menu_items_font_style_roll_main = "normal"
-        menuObject.menu_items_font_size_main = "11px"
-        menuObject.menu_items_font_size_roll_main = "11px"
-        menuObject.menu_items_text_decoration_roll_main = "none"
-        menuObject.menu_padding_main = "0,0,0,0"
-        menuObject.menu_is_horizontal_main = true
-
-        {TopMenu}
+   {TopMenu}
 		
 }///////////////////////// END Menu Data /////////////////////////////////////////
 
@@ -149,9 +63,9 @@ function menuSettings(menuObject)
 </HEAD>
 
 <BODY {ScriptInBody}>
-<table width="100%" style="background-color:#4e6ca6;z-index:100;" cellpadding="0" cellspacing="0">
+<table width="100%" style="z-index:100;" cellpadding="0" cellspacing="0" border="0">
 	<tr>
-		<td height="25">
+		<td height="25" class="top_menu_back">
 <!---------------------------------NavStudio Menu Tags-----------------------------------------
 
    *** The tags directly below these comments are responsible for generating the menu system.
@@ -167,25 +81,29 @@ function menuSettings(menuObject)
 
 <!-----------------------------------End Menu Tags-------------------------------------------->
 		</td>
-		<td width="60" align="right"><a href="{HelpSrc}" target="_top"><img src="include/images/help.jpg" border="0"></a></td>
+		<td width="60" align="right" class="top_menu_back"><a href="{HelpSrc}" target="_top" class="white_link">Help</a>&nbsp;</td>
 	<tr>
 </table>
 <div style="display:none">
 <a href="http://www.opencube.com">DHTML Menu / JavaScript Menu Powered By OpenCube</a>
 </div>
-<br />
-<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH="100%" HEIGHT="100%">
+<TABLE CELLPADDING=0 CELLSPACING=0 WIDTH="100%" border="0">
 <TR>
-<TD ROWSPAN=1 COLSPAN=2 WIDTH="100%" HEIGHT=47 valign="top">
-&nbsp;&nbsp;&nbsp;<span>{NavigationMenu} 
-</TD>
+	<TD COLSPAN=2 valign="top" height="25" align="right" class="main_top">
+		&nbsp;&nbsp;&nbsp;<span>{NavigationMenu}	</TD>
+</tr>
+<tr>
+	<TD width="140" height="86" align="left" valign="bottom" class="right_frame_logo" style="width:138px;">&nbsp;</td>
+	<TD width="757" align="left" valign="bottom" class="main_top"><span class="menu_title" width="100%">{MenuTitle} </span><span class="page_title">{PageTitle}</span></td>
 </TR>
+<tr>
+	<td colspan="2" align="center" height="9" bgcolor="black"><img src="include/images/spacer.gif" border="0"></td>
+</tr>
 <TR>
-<TD ROWSPAN=1 COLSPAN=1 WIDTH="100%" HEIGHT="100%" valign="top">
-<!-- content area-->	
-{Body}
-<!-- end content area-->
-</TD>
+	<TD COLSPAN=2 HEIGHT="100%" valign="top" class="main_content main_background">
+	<!-- content area-->	
+	{Body}
+	<!-- end content area-->	</TD>
 </TR>
 </TABLE>
 </BODY>

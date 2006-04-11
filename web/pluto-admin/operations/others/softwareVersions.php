@@ -16,7 +16,6 @@ function softwareVersions($output,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 			
-			<h3 align="left">'.$TEXT_SOFTWARE_VERSIONS_CONST.'</h3>
 			<form action="index.php" method="POST" name="softwareVersions">
 			<input type="hidden" name="section" value="softwareVersions">
 			<input type="hidden" name="action" value="form">
@@ -71,7 +70,9 @@ function softwareVersions($output,$dbADO) {
 		
 		header('Location: index.php?section=softwareVersions&msg='.$msg);
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_SOFTWARE_VERSIONS_CONST);
 	$output->setNavigationMenu(array($TEXT_SOFTWARE_VERSIONS_CONST=>'index.php?section=softwareVersions'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

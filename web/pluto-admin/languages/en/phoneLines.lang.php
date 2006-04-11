@@ -18,4 +18,5 @@ $TEXT_PREPEND_DIGIT_CONST='Also prepend a digit (1 for US/Canada, 0 for Europe)'
 $TEXT_LOCAL_NUMBER_LENGTH_CONST='Local Number Length';
 $TEXT_ERROR_TELECOM_PLUGIN_NOT_FOUND_CONST='Telecom plugin not found.';
 $TEXT_PHONE_SETTINGS_UPDATED_CONST='Phone lines local settings were updated';
+$TEXT_PHONES_SETUP_CONST='Phones setup';
 ?>

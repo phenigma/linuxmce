@@ -36,7 +36,7 @@ function infraredCommands($output,$publicADO) {
 			<input type="hidden" name="dtID" value="'.$GLOBALS['dtID'].'">
 		
 		<table cellpadding="3" align="center" class="normaltext">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
 				<td><B>#</B></td>
 				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
@@ -44,8 +44,8 @@ function infraredCommands($output,$publicADO) {
 			</tr>
 		';
 		$GLOBALS['oldCheckedCommands']=array();
-		$queryOld='SELECT DISTINCT FK_Command FROM InfraredGroup_Command WHERE (FK_Device=? OR FK_Device IS NULL) AND FK_DeviceTemplate=?';
-		$resOld=$publicADO->Execute($queryOld,array($GLOBALS['deviceID'],$GLOBALS['dtID']));
+		$queryOld='SELECT DISTINCT FK_Command FROM InfraredGroup_Command WHERE FK_DeviceTemplate=?';
+		$resOld=$publicADO->Execute($queryOld,array($GLOBALS['dtID']));
 		while($row=$resOld->FetchRow()){
 			$GLOBALS['oldCheckedCommands'][]=$row['FK_Command'];
 		}
@@ -104,7 +104,7 @@ function infraredCommands($output,$publicADO) {
 			if(isset($_POST['command_'.$commandID])){
 				$GLOBALS['infraredGroup']=($GLOBALS['infraredGroup']==0)?NULL:$GLOBALS['infraredGroup'];
 				if(!in_array($commandID,$oldCheckedCommands)){
-					$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,psc_user) VALUES (?,?,?,?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['deviceID'],$GLOBALS['dtID'],$_SESSION['userID'],$_SESSION['userID']));
+					$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_DeviceTemplate) VALUES (?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['dtID']));
 					
 					$igcID=$publicADO->Insert_ID();
 				}

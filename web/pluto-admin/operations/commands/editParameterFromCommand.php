@@ -32,21 +32,22 @@ function editParameterFromCommand($output,$dbADO) {
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="commandParameterID" value="'.$parameterID.'">	
 		<input type="hidden" name="from" value="'.$from.'">
-		
+			<h3>'.$TEXT_EDIT_PARAMETER_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.':</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
 					<td><input type="text" size="15" name="Description" value="'.stripslashes($descriptionParam).'"></td>
 				</tr>				
 				<tr>
-					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.' *</td>
 					<td><select name="paramType">'.$parameterTypes.'</select></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editParameterFromCommand");
  			frmvalidator.addValidation("Description","req","'.$TEXT_PLEASE_ENTER_A_DESCRIPTION_CONST.'");

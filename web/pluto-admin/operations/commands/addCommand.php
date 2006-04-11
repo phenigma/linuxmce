@@ -41,7 +41,7 @@ function addCommand($output,$dbADO) {
 		<input type="hidden" name="from" value="'.$from.'">
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_NAME_CONST.':</td>
+					<td>'.$TEXT_COMMAND_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="CommandDescription" value=""></td>
 				</tr>				
 				<tr>
@@ -49,7 +49,7 @@ function addCommand($output,$dbADO) {
 					<td><input type="checkbox" name="AVCommand" value="1"></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_CONST.' *</td>
 					<td>
 						<select name="commandCategs" >
 						'.$commandsCategsTxt.'
@@ -76,6 +76,7 @@ function addCommand($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addCommand"); 			
 			frmvalidator.addValidation("CommandDescription","req","'.$TEXT_VALIDATE_COMMAND_CONST.'");

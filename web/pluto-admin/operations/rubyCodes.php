@@ -151,12 +151,10 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 				<td colspan="3" align="center"><table>
 					<tr>
 						<td><B>'.$TEXT_LEGEND_CONST.':</B> </td>
-						<td width="20" bgcolor="lightblue">&nbsp;</td>
+						<td width="20" class="tablehead">&nbsp;</td>
 						<td>'.$TEXT_STANDARD_CODES_CONST.'</td>
 						<td width="20" bgcolor="yellow">&nbsp;</td>
 						<td>'.$TEXT_MY_CUSTOM_CODES_CONST.'</td>
-						<td width="20" bgcolor="lightyellow">&nbsp;</td>
-						<td>'.$TEXT_OTHER_USERS_CUSTOM_CODES_CONST.'</td>
 					</tr>
 				</table></td>
 			</tr>
@@ -172,7 +170,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		</form>
 		<iframe name="codeTester" src="" style="display:none;"></iframe><br>		
 	';	
-		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* '.$TEXT_EDIT_BY_OWNER_NOTE_CONST.'</em></span>':'');		
+		
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;

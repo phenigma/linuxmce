@@ -60,7 +60,7 @@ function getPhoneLineDetails($id,$type,$astADO){
 		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex')) AND sip.id='$id'");
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td align="center"><B>Type</B></td>
 			<td align="center"><B>Data</B></td>
 			<td align="center"><B>Password</B></td>

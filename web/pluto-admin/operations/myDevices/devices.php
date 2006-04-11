@@ -15,6 +15,7 @@ function devices($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 
 	$extraCategoryArray=array();
+	$title=strtoupper(str_replace('_',' ',$type));
 	switch($type){
 		case 'interfaces':
 			$deviceCategory=$GLOBALS['rootInterfaces'];
@@ -113,8 +114,6 @@ function devices($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
-		
 		<div id="preloader" style="display:;">
 			<table width="100%">
 				<tr>
@@ -125,7 +124,7 @@ function devices($output,$dbADO) {
 		
 		<div id="content" style="display:none;">
 		<table align="center" cellpadding="3" cellspacing="0">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_Type_of_Device_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ROOM_CONST.'</B></td>
@@ -244,7 +243,7 @@ function devices($output,$dbADO) {
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
 					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0 && $value!=$GLOBALS['securityAlert']){
-						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" style="vertical-align: middle;"> ':'');
+						$out.='<b><span title="'.@$rowDDforDevice['Tooltip'].'">'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</span></b> ';
 						$out.=(isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'<input type="hidden" name="isDisabled_'.$rowD['PK_Device'].'_'.$value.'" value="1">':'';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':
@@ -316,7 +315,7 @@ function devices($output,$dbADO) {
 				$zoneBtn=($type=='security')?' <input type="button" class="button" name="gotoZones" value="Security Zones" onClick="self.location=\'index.php?section=zones&type=security\'">':'';
 				$out.='
 				<tr>
-					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"> '.$zoneBtn.'</td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> '.$zoneBtn.'</td>
 				</tr>';
 			}
 			$addGC100Btn=($type=='interfaces')?' <input type="submit" class="button" name="addGC100" value="Add gc100">':'';
@@ -432,6 +431,9 @@ function devices($output,$dbADO) {
 		}
 		header("Location: index.php?section=devices&type=$type&msg=".urlencode($msg));
 	}
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($title);
 
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array(((isset($title))?$title:strtoupper(str_replace('_',' ',$type)))=>'index.php?section=devices&type='.$type));

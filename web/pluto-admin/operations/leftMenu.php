@@ -15,10 +15,14 @@ function leftMenu($output,$dbADO) {
 	$out.= '	
 			<table border=0 align="left">				
 			<tr>
-				<td>
-					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"></a>
+				<td class="left_frame_logo" height="133">
+					<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
 				</td>
-			</tr>';
+			</tr>
+			<tr>
+				<td colspan="3" align="center" height="9" bgcolor="black"><img src="include/images/spacer.gif" border="0"></td>
+			</tr>	
+	';
 	
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
@@ -27,13 +31,6 @@ function leftMenu($output,$dbADO) {
 				</tr>
 		';
 	} 	
-	$out.= '
-	
-				<tr>
-					<td valign="top" nowrap>'.($currentSection=='deviceTemplates'?'&raquo;':'').'<a href="index.php?section=deviceTemplates" target="basefrm">'.$TEXT_DEVICE_TEMPLATES_CONST.'</a></td>
-				</tr>
-			
-	';	
 	
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 

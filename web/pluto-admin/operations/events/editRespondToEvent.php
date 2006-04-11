@@ -182,7 +182,7 @@ function editRespondToEvent($output,$dbADO) {
 			$out.='
 			<input type="hidden" name="displayedCE_CP" value="'.join(',',$displayedCE_CP).'">
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_UPDATE_CONST.'"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 			<tr>
 				<td colspan="3" align="center">'.$TEXT_RESPOND_TO_EVENT_NOTES_CONST.'</td>

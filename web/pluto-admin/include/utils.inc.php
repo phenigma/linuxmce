@@ -1125,8 +1125,9 @@ function builtTopMenu($website,$dbADO)
 	// get existing devices to compare them with old ones
 	$devices=join(',',array_keys(getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC')));
 
+
+	 // if something changed in Device table, or the cached menu does not exist, rebuild menu
 	
-	// if something changed in Device table, or the cached menu does not exist, rebuild menu
 	if(file_exists($cachedTopMenu)){
 		$oldIDs=file($cachedIDs);
 		if($devices==trim(@$oldIDs[1])){
@@ -1156,6 +1157,7 @@ function builtTopMenu($website,$dbADO)
 		$pos++;
 	}
 	// write top menu file and devices/page setup IDs
+	
 	writeFile($cachedTopMenu,$menuPages,'w');
 	$IDs="#Devices IDs\n";
 	$IDs.=$devices;
@@ -1181,9 +1183,11 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website,$_SESSION['installationID']));
 	$menuPages='';
 	$pos=0;	
-	if($resSelectMenu->RecordCount()>0)
-		$menuPages.='menuObject.menu_items_background_color_roll'.$level.' = "#FFFFFF"
+	if($resSelectMenu->RecordCount()>0){
+		$suffix=(substr($level,-1)=='_')?substr($level,0,-1):$level;
+		$menuPages.='menuObject.menu_items_text_color_roll'.$suffix.' = "#FFFFFF"
 		';
+	}
 	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
 		$menuPages.='
 			menuObject.item'.$level.$pos.' = "'.$rowSelectMenu['Description'].'"
@@ -1663,7 +1667,7 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 		}
 
 		$out.='
-			<tr class="normaltext">
+			<tr class="alternate_back">
 				<td align="center"><b>'.$displayCategory.'</b></td>
 				<td>&nbsp;&nbsp;&nbsp;&nbsp;'.$row['Template'].'</td>';
 		$query='
@@ -3126,7 +3130,7 @@ function isCritical($deviceID)
 
 function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 {
-	$deviceDataBox='<table width="240" cellpadding="2" cellspacing="0" border="0">';
+	$deviceDataBox='<table width="100%" cellpadding="2" cellspacing="0" border="0">';
 
 	foreach ($DeviceDataArray AS $rowDDforDevice){
 		
@@ -3138,7 +3142,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
 			$deviceDataBox.='
 				<tr>
-					<td width="270" align="right" valign="middle" title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b></td>
+					<td align="left" valign="middle" title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b></td>
 					<td>';
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
@@ -3191,11 +3195,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 	if($isIPBased==1){
 		$deviceDataBox.='
 			<tr>
-				<td align="right"><B>IP</B></td>
+				<td align="left"><B>IP</B></td>
 				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'"></td>
 			</tr>
 			<tr>
-				<td align="right"><B>MAC</B></td>
+				<td align="left"><B>MAC</B></td>
 				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
 	}

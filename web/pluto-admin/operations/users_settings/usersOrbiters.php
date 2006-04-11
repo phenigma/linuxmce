@@ -45,7 +45,7 @@ function usersOrbiters($output,$dbADO) {
 		$checkedArray[$rowUsersOrbiters['FK_Users']][]=$rowUsersOrbiters['FK_Device'];
 	}
 	
-	$out.='<h3>'.$TEXT_PRIVACY_SETTINGS_CONST.'</h3>
+	$out.='
 	<p>'.$TEXT_PRIVACY_SETTINGS_INFO_CONST.'</p>';
 
 	if ($action=='form') {
@@ -109,8 +109,9 @@ function usersOrbiters($output,$dbADO) {
 	}
 
 	
-
-	$output->setNavigationMenu(array($TEXT_PRIVACY_SETTINGS_CONST=>'index.php?section=usersOrbiters'));	
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_USER_ORBITER_CONST);
+	$output->setNavigationMenu(array($TEXT_USER_ORBITER_CONST=>'index.php?section=usersOrbiters'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_CONST);			
 	$output->output();  		

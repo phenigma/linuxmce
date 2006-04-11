@@ -34,15 +34,14 @@ function videoLinks($output,$dbADO) {
 	if ($action == 'form') {
 		$out.=setLeftMenu($dbADO).'
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 	<form action="index.php" method="POST" name="videoLinks">
 	<input type="hidden" name="section" value="videoLinks">
 	<input type="hidden" name="action" value="add">	
 		
-	<div align="center"><h3>'.$TEXT_SECURITY_VIDEO_LINKS_CONST.'</h3></div>
 	<p align="center">'.$TEXT_VIDEO_LINKS_NOTE_CONST.'</p>
 		<table align="center">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td><B>'.$TEXT_INTERCOM_CAMERA_CONST.'</B></td>';
 		$colCount=0;
 		foreach($displayedCols AS $key=>$label){
@@ -67,7 +66,7 @@ function videoLinks($output,$dbADO) {
 			<input type="hidden" name="cameraIDArray" value="'.join(',',$cameraIDArray).'">
 			<input type="hidden" name="intercomIDArray" value="'.join(',',$intercomIDArray).'">
 			<tr>
-				<td align="center" colspan="'.($colCount+1).'"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"  ></td>
+				<td align="center" colspan="'.($colCount+1).'"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		</table>
 		</form>
@@ -108,6 +107,8 @@ function videoLinks($output,$dbADO) {
 		header("Location: index.php?section=videoLinks&msg=$TEXT_VIDEO_LINKS_UPDATED_CONST");		
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_SECURITY_VIDEO_LINKS_CONST);
 	$output->setNavigationMenu(array($TEXT_SECURITY_VIDEO_LINKS_CONST=>'index.php?section=videoLinks'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

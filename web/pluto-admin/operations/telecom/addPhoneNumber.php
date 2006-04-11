@@ -101,11 +101,11 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 			<td colspan="2"><h3>'.$TEXT_ADD_PHONE_NUMBER_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>'.$TEXT_CONTACT_CONST.'</B></td>
+			<td><B>'.$TEXT_CONTACT_CONST.' *</B></td>
 			<td>'.pulldownFromArray($contacts,'contact',0).'</td>
 		</tr>	
 		<tr>
-			<td><B>'.$TEXT_PHONE_TYPE_CONST.'</B></td>
+			<td><B>'.$TEXT_PHONE_TYPE_CONST.' *</B></td>
 			<td>'.pulldownFromArray($PhoneTypes,'PhoneType',0).'</td>
 		</tr>	
 		<tr>
@@ -129,8 +129,10 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 			<td><input type="text" name="DialAs" value=""></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="addPhoneNumber" value="'.$TEXT_ADD_PHONE_NUMBER_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="addPhoneNumber" value="'.$TEXT_ADD_PHONE_NUMBER_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>	
+		</table>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 	<script>
 		 	var frmvalidator = new formValidator("addPhoneNumber");
 			frmvalidator.addValidation("contact","dontselect=0","'.$TEXT_CONTACT_REQUIRED_CONST.'");
@@ -146,7 +148,7 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 			<td colspan="2"><h3>'.$TEXT_ADD_CONTACT_CONST.'</h3></td>
 		</tr>
 		<tr>
-			<td><B>'.$TEXT_NAME_CONST.'</B></td>
+			<td><B>'.$TEXT_NAME_CONST.' *</B></td>
 			<td><input type="text" name="Name" value=""></td>
 		</tr>	
 		<tr>
@@ -162,9 +164,10 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'"></td>
 		</tr>	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="addContact" value="'.$TEXT_ADD_CONTACT_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="addContact" value="'.$TEXT_ADD_CONTACT_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>
 	</table>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addPhoneNumber");
  			frmvalidator.addValidation("Name","req","'.$TEXT_CONTACT_NAME_REQUIRED_CONST.'");

@@ -15,8 +15,6 @@ function modeChangesLog($output,$securitydbADO,$dbADO) {
 	}
 		$installationID = cleanInteger($_SESSION['installationID']);
 	
-	$out.='<div align="center"><h3>'.$TEXT_MODE_CHANGES_LOG_CONST.'</h3></div>';
-	
 	if ($action=='form') {
 		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
@@ -37,7 +35,9 @@ function modeChangesLog($output,$securitydbADO,$dbADO) {
 				
 		header("Location: index.php?section=modeChangesLog");
 	}
-	
+
+	$output->setMenuTitle($TEXT_SECURITY_CONST.' |');
+	$output->setPageTitle($TEXT_MODE_CHANGES_LOG_CONST);
 	$output->setNavigationMenu(array($TEXT_MODE_CHANGES_LOG_CONST=>'index.php?section=modeChangesLog'));			
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MODE_CHANGES_LOG_CONST);			
@@ -94,7 +94,7 @@ function headerModeChangeLog()
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/modeChangesLog.lang.php');
 	
 	$output='<table border="0" align="center">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_CHANGE_TIME_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_HOUSE_MODE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ZONE_CONST.'</B></td>

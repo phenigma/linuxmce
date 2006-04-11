@@ -17,8 +17,6 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 	$deviceNames=getDeviceNames($dbADO);
 	$securityPlugIn=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
 	
-	$out.='<div align="center"><h3>'.$TEXT_ALERT_TYPES_CONST.'</h3></div>';
-	
 	if ($action=='form') {
 		$out.=setLeftMenu($dbADO).'<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
@@ -27,7 +25,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="deviceToRemove" value="">
 			<table border="0" align="center">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DELAY_BEFORE_ALARM_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_EXIT_DELAY_CONST.'</B></td>
@@ -74,7 +72,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 					<td align="left" colspan="5">* '.$TEXT_PICK_DEVICE_INFO_CONST.'</td>
 				</tr>		
 				<tr>
-					<td align="center" colspan="5"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+					<td align="center" colspan="5"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>		
 			</table>
 			<input type="hidden" name="oldDevices" value="'.join(',',$devicesList).'">
@@ -108,6 +106,8 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 		header("Location: index.php?section=alertTypes&msg=$TEXT_ALERTS_TYPES_UPDATED_CONST");
 	}
 	
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_ALERT_TYPES_CONST);
 	$output->setNavigationMenu(array($TEXT_ALERT_TYPES_CONST=>'index.php?section=alertTypes'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ALERT_TYPES_CONST);

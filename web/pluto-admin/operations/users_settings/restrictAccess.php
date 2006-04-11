@@ -25,7 +25,7 @@ function restrictAccess($output,$dbADO) {
 	$orbitersArray=getDevicesArrayFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
 	$addToRoom=(int)@$_REQUEST['addToRoom'];
 	
-	$out.='<h3'.$TEXT_RESTRICT_ACCESS_CONST.'</h3>
+	$out.='
 	<p>'.$TEXT_RESTRICT_ACCESS_INFO_CONST.'</p>';
 
 	if ($action=='form') {
@@ -68,7 +68,7 @@ function restrictAccess($output,$dbADO) {
 			
 			$out.='
 			<tr>
-				<td bgcolor="lightblue" colspan="2"><B>'.$roomName.'</B></td>
+				<td class="tablehead" colspan="2"><B>'.$roomName.'</B></td>
 			</tr>
 			<tr>
 				<td>'.$roomLabel.'</td>
@@ -135,8 +135,8 @@ function restrictAccess($output,$dbADO) {
 			exit(0);
 		}
 		
-		$user=((int)$_POST['user']>0)?(int)$_POST['user']:NULL;
-		$orbiter=((int)$_POST['orbiter']>0)?(int)$_POST['orbiter']:NULL;
+		$user=((int)@$_POST['user']>0)?(int)$_POST['user']:NULL;
+		$orbiter=((int)@$_POST['orbiter']>0)?(int)$_POST['orbiter']:NULL;
 		if($addToRoom!=0){
 			$dbADO->Execute('INSERT INTO Room_Users (FK_Room,FK_Users,FK_Orbiter) VALUES (?,?,?)',array($addToRoom,$user,$orbiter));
 		}
@@ -173,7 +173,8 @@ function restrictAccess($output,$dbADO) {
 	}
 
 	
-
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_RESTRICT_ACCESS_CONST);
 	$output->setNavigationMenu(array($TEXT_RESTRICT_ACCESS_CONST=>'index.php?section=restrictAccess'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_RESTRICT_ACCESS_CONST);

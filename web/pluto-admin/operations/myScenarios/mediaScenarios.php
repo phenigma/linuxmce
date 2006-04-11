@@ -53,7 +53,7 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="GoTo" value="">
 			
 			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-			<div align="center"><h2>'.$TEXT_MEDIA_SCENARIOS_CONST.'</h2></div>
+			
 		<a href="index.php?section=sortScenarios&sortBy=EntertainArea">'.$TEXT_SORT_SCENARIOS_CONST.'</a>
 			<table>
 				<tr>
@@ -363,6 +363,8 @@ function mediaScenarios($output,$dbADO) {
 	if(@$_REQUEST['GoTo']=='addMS')
 		$jumpTo=';self.location=\'#addMS\'';
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_MEDIA_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_MEDIA_SCENARIOS_CONST=>'index.php?section=mediaScenarios'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MEDIA_SCENARIOS_CONST);	

@@ -88,7 +88,7 @@ function zones($output,$dbADO) {
 	<div align="center"><h3>'.$title.' '.$TEXT_ZONES_CONST.'</h3></div>
 		
 	<table align="center" cellpadding="2" cellspacing="1">
-		<tr bgcolor="lightblue">
+		<tr class="tablehead">
 			<td align="center"><B>'.$TEXT_ZONE_NAME_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_DEVICES_IN_ZONE_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ADD_DEVICE_TO_ZONE_CONST.'</B></td>

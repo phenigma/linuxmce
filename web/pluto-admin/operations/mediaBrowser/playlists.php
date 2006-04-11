@@ -16,13 +16,12 @@ function playlists($output,$mediadbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			
-			<h3>'.$TEXT_PLAYLISTS_CONST.'</h3>
 			<form action="index.php" method="POST" name="playlists">
 			<input type="hidden" name="section" value="playlists">
 			<input type="hidden" name="action" value="update">
 		
 			<table cellpadding="3" cellspacing="0" border="0">
-				<tr bgcolor="lightblue">
+				<tr class="tablehead">
 					<td align="center"><B>#</B></td>
 					<td align="center"><B>'.$TEXT_PLAYLIST_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
@@ -72,7 +71,9 @@ function playlists($output,$mediadbADO) {
 			header('Location: index.php?section=playlists&msg='.$TEXT_PLAYLIST_DELETED_CONST);
 		}
 	}
-	
+
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_PLAYLISTS_CONST);
 	$output->setNavigationMenu(array($TEXT_PLAYLISTS_CONST=>'index.php?section=playlists'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

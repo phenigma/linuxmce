@@ -64,7 +64,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.':</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
 					<td>
 						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_FOR_CG_CONST.'" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
 					</td>
@@ -112,10 +112,11 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editCommandGroupFromMasterDevice");
  			frmvalidator.addValidation("deviceCategory","dontselect=0","'.$TEXT_CATEGORY_REQUIRED_CONST.'"); 			

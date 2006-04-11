@@ -112,40 +112,40 @@ function installationSettings($output,$dbADO) {
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<table width="300">			
 				<tr>
-					<td colspan="2" align="center" bgcolor="lightblue"><B>'.$TEXT_LOCATION_CONST.'</B>:</td>
+					<td colspan="2" align="center" class="tablehead"><B>'.$TEXT_LOCATION_CONST.'</B>:</td>
 				</tr>		
 				<tr>
-					<td width="100"><B>'.$TEXT_DESCRIPTION_CONST.'</B>:</td>
+					<td width="100"><B>'.$TEXT_DESCRIPTION_CONST.'&nbsp;*</B></td>
 					<td><input type="text" size="30" name="Description" value="'.$rowInstallation['Description'].'"></td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_NAME_CONST.'</B>:</td>
+					<td><B>'.$TEXT_NAME_CONST.'</B></td>
 					<td><input type="text" size="30" name="Name" value="'.$rowInstallation['Name'].'"></td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_ADDRESS_CONST.'</B>:</td>
+					<td><B>'.$TEXT_ADDRESS_CONST.'</B></td>
 					<td><input type="text" size="30" name="Address" value="'.$rowInstallation['Address'].'"></td>
 				</tr>
 				<tr>
 					<td colspan="2">'.$TEXT_ADDRESS_INFO_CONST.'</td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_CITY_CONST.'</B>:</td>
+					<td><B>'.$TEXT_CITY_CONST.'</B></td>
 					<td><input type="text" size="30" name="City" value="'.$rowInstallation['City'].'"></td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_STATE_CONST.'</B>:</td>
+					<td><B>'.$TEXT_STATE_CONST.'</B></td>
 					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_COUNTRY_CONST.'</B>:</td>
+					<td><B>'.$TEXT_COUNTRY_CONST.'</B></td>
 					<td>'.generatePullDown('countryID','Country','PK_Country','Description',$selectedCountry,$dbADO,'','onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
 				</tr>';
 				if($selectedCountry>0){
 					$selectedRegion=(isset($_POST['region']))?(int)$_POST['region']:(int)@$selectedRegion;	
 					$out.='
 					<tr>
-						<td><B>'.$TEXT_REGION_CONST.'</B>:</td>
+						<td><B>'.$TEXT_REGION_CONST.'</B></td>
 						<td>'.generatePullDown('region','Region','PK_Region','Region',@$selectedRegion,$dbADO,'WHERE FK_Country='.$selectedCountry,'onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
 					</tr>';
 					
@@ -153,7 +153,7 @@ function installationSettings($output,$dbADO) {
 						$output->setScriptInHead(getCitiesCoordsArray($dbADO,' WHERE FK_Region='.$selectedRegion));
 					$out.='
 					<tr>
-						<td><B>'.$TEXT_CITY_CONST.'</B>:</td>
+						<td><B>'.$TEXT_CITY_CONST.'</B></td>
 						<td>'.generatePullDown('city_coords','City','PK_City','City',@$selectedCity,$dbADO,'WHERE FK_Region='.$selectedRegion,'onChange="setCoordinates()"').'</td>
 					</tr>';
 					
@@ -162,12 +162,12 @@ function installationSettings($output,$dbADO) {
 				$out.='		
 				<tr>
 					<td colspan="2">
-						<B>'.$TEXT_LONGITUDE_CONST.'</B>: <input type="text" size="5" name="Longitude" value="'.@$Longitude.'">
-						<B>'.$TEXT_LATITUDE_CONST.'</B>: <input type="text" size="5" name="Latitude" value="'.@$Latitude.'">
+						<B>'.$TEXT_LONGITUDE_CONST.'</B> <input type="text" size="5" name="Longitude" value="'.@$Longitude.'">
+						<B>'.$TEXT_LATITUDE_CONST.'</B> <input type="text" size="5" name="Latitude" value="'.@$Latitude.'">
 					</td>
 				</tr>
 				<tr>
-					<td><B>'.$TEXT_ZIP_CODE_CONST.'</B>:</td>
+					<td><B>'.$TEXT_ZIP_CODE_CONST.'</B></td>
 					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
 				</tr>
 				<tr>
@@ -177,14 +177,14 @@ function installationSettings($output,$dbADO) {
 				
 				$out.='
 				<tr>
-					<td colspan="2" align="center" bgcolor="lightblue">Current timezone: <B>'.$oldTimeZone[1].'</B></td>
+					<td colspan="2" align="center" class="tablehead">Current timezone <B>'.$oldTimeZone[1].'</B></td>
 				</tr>
 				<input type="hidden" name="oldTimeZone" value="'.$oldTimeZone[0].'">
 				';
 			}else{
 				$out.='
 				<tr>
-					<td colspan="2" align="center" bgcolor="lightblue"><B>Timezone:</B></td>
+					<td colspan="2" align="center" class="tablehead"><B>Timezone</B></td>
 				</tr>
 				';			
 			}		
@@ -275,7 +275,7 @@ function installationSettings($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" bgcolor="lightblue"><B>'.$TEXT_MISCELANEOUS_CONST.'</B>:</td>
+					<td colspan="2" align="center" class="tablehead"><B>'.$TEXT_MISCELANEOUS_CONST.'</B>:</td>
 				</tr>
 				<tr>
 					<td align="left" colspan="2"><B>'.$TEXT_RIPPING_FORMAT_CONST.': </B>'.pulldownFromArray($ripFormats,'rip',$pulldownValue,'onChange="setOptions();"').'</td>
@@ -284,15 +284,16 @@ function installationSettings($output,$dbADO) {
 					<td align="left" colspan="2">'.rippingSettings($selectedRipFormat).'</td>
 				</tr>		
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 			</table>
+			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		</form>
 		
 		<script>
 		 	var frmvalidator = new formValidator("installationSettings");
  			frmvalidator.addValidation("Description","req","'.$TEXT_INSTALLATION_DESCRIPTION_REQUIRED_CONST.'");
-			//frmvalidator.addValidation("Name","req","Please enter a name");			
+			frmvalidator.addValidation("Zip","numeric","'.$TEXT_NUMERIC_ONLY_CONST.'");			
 		</script>
 		';
 	} else {
@@ -376,6 +377,9 @@ function installationSettings($output,$dbADO) {
 		}
 				
 	}
+	
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_INSTALLATION_SETTINGS_CONST);
 	
 	$output->setNavigationMenu(array($TEXT_INSTALLATION_SETTINGS_CONST=>"index.php?section=installationSettings"));
 	

@@ -158,7 +158,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	<fieldset>
 	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
 	<table>
-	<tr><td>'.$TEXT_DESCRIPTION_CONST.'</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>'.$TEXT_DESCRIPTION_CONST.' *</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
@@ -266,7 +266,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td>'.$TEXT_DISABLED_CONST.'</td>
 				</tr>					
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 	</table>
 	</fieldset>
@@ -526,6 +526,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	</table>
 	</fieldset>
 	</form>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 	<script>
 		 	var frmvalidator = new formValidator("editDeviceParams");
  			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");

@@ -30,7 +30,6 @@ function addSoftware($output,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 			
-			<h3 align="left">'.$TEXT_ADD_SOFTWARE_CONST.'</h3>
 			<form action="index.php" method="POST" name="addSoftware">
 			<input type="hidden" name="section" value="addSoftware">
 			<input type="hidden" name="action" value="add">
@@ -76,7 +75,7 @@ function addSoftware($output,$dbADO) {
 				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'" '.((@$_SESSION['debianRepository']!=1)?'disabled':'').'></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SOFTWARE_CONST.'"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SOFTWARE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		</table>
 		</form>';
@@ -108,7 +107,9 @@ function addSoftware($output,$dbADO) {
 		
 		header('Location: index.php?section=addSoftware&msg='.urlencode($msg));
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_ADD_SOFTWARE_CONST);
 	$output->setNavigationMenu(array($TEXT_ADD_SOFTWARE_CONST=>'index.php?section=addSoftware'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

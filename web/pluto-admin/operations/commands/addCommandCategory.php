@@ -39,13 +39,14 @@ function addCommandCategory($output,$dbADO) {
 		<input type="hidden" name="section" value="addCommandCategory">
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="from" value="'.$from.'">
+			<h3>'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.' *</td>
 					<td><input type="text" size="15" name="CommandCategoryDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.' *</td>
 					<td>
 						<select name="parentCateg" >
 						'.$commandsCategsTxt.'
@@ -57,6 +58,7 @@ function addCommandCategory($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addCommandCategory"); 			
 			frmvalidator.addValidation("CommandCategoryDescription","req","'.$TEXT_VALIDATE_COMMAND_CATEGORY_CONST.'");

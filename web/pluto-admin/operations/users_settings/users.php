@@ -19,8 +19,6 @@ function users($output,$dbADO) {
 
 	$installationID = cleanInteger($_SESSION['installationID']);
 
-	$out.='<h3>'.$TEXT_USERS_CONST.'</h3>';
-
 	$out.='<p>'.$TEXT_USERS_NOTE_CONST.'</p>';
 
 
@@ -40,6 +38,9 @@ function users($output,$dbADO) {
 			}
 		</script>
 		
+		<div class=\"confirm\" align=\"center\"><B>".@$_GET['msg']."</B></div>
+		<div class=\"err\" align=\"center\">".@$_GET['error']."</div>
+			
 		<table border='0' cellpadding='3' cellspacing='1'>
 			<form action='index.php' method='post' name='users'>
 			<input type='hidden' name='section' value='users'>
@@ -87,7 +88,7 @@ function users($output,$dbADO) {
 				$out.='<tr valign="top" bgcolor="#'.$color.'">
 						<td>
 							<table width="100%">
-								<tr bgcolor="lightblue">
+								<tr class="tablehead">
 									<td align="center"><B>'.$rowUser['UserName'].'</B></td>
 								</tr>
 								<tr>
@@ -206,7 +207,7 @@ function users($output,$dbADO) {
 				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">'.$TEXT_CREATE_NEW_USER_CONST.'</a><p>
 				</td>
 			</tr>
-			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
+			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td></tr>
 				<input type="hidden" name="displayedUsers" value="'.join(",",$displayedUsers).'">
 			</form>
 
@@ -293,7 +294,7 @@ function users($output,$dbADO) {
 				$resLastUser=$dbADO->Execute('SELECT FK_Users FROM Installation_Users WHERE userCanModifyInstallation=1 AND FK_Installation =?',array($installationID));
 				$rowLastUser=$resLastUser->FetchRow();
 				if($resLastUser && $resLastUser->RecordCount()==1 && $userCanModifyInstallation==0 && $rowLastUser['FK_Users']==$user){
-					header("Location: index.php?section=users&msg=At least one user could be able to modify installation!&lastAction=".$locationGoTo);
+					header("Location: index.php?section=users&error=At least one user could be able to modify installation!&lastAction=".$locationGoTo);
 					exit();
 				}
 
@@ -312,7 +313,7 @@ function users($output,$dbADO) {
 				header("Location: index.php?section=users&msg=$TEXT_USERS_PAGE_SAVED_CONST&lastAction=".$locationGoTo);
 			}
 		} else {
-			header("Location: index.php?section=users&msg=$TEXT_NOT_ALLOWED_CONST&lastAction=".$locationGoTo);
+			header("Location: index.php?section=users&error=$TEXT_NOT_ALLOWED_CONST&lastAction=".$locationGoTo);
 		}
 
 	}
@@ -323,6 +324,8 @@ function users($output,$dbADO) {
 		$output->setScriptInBody("onLoad=\"javascript:eval('$onLoad');\"");
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_USERS_CONST);
 	$output->setNavigationMenu(array($TEXT_SETTINGS_CONST=>'index.php?section=installationSettings',$TEXT_USERS_CONST=>'index.php?section=users'));
 
 	$output->setBody($out);

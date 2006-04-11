@@ -178,7 +178,7 @@ function editTimedEvent($output,$dbADO) {
 				<td>If you would like to use this event as an alarm clock, choose what rooms this event should act as an alarm clock in. It will appear on the Orbiters\' sleeping menu and you can change the time on the Orbiter.</td>
 			</tr>
 			<tr bgcolor="#E7E7E7">
-				<td colspan="2" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="continue" value="Update"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
@@ -216,7 +216,7 @@ function editTimedEvent($output,$dbADO) {
 			switch($timedEventType){
 				case 1:
 					$oldInterval=@$_POST['oldInterval'];
-					$intervalNumber=isset($_POST['intervalNumber'])?$_POST['intervalNumber']:0;
+					$intervalNumber=isset($_POST['intervalNumber'])?(int)$_POST['intervalNumber']:0;
 					$intervalType=(@$_POST['intervalType']==1)?'h':'m';
 					$newInterval=$intervalNumber.$intervalType;
 					if($oldInterval!=$newInterval){
@@ -252,7 +252,7 @@ function editTimedEvent($output,$dbADO) {
 
 				break;
 				case 3:
-					$dayOfMonths=@$_POST['dayOfMonths'];
+					$dayOfMonths=(int)@$_POST['dayOfMonths'];
 					$dayOfMonthTime=isset($_POST['dayOfMonthTime'])?$_POST['dayOfMonthTime']:date('h:i');
 					$oldDayOfMonth=@$_POST['oldDayOfMonth'];
 					$newDayOfMonth=$dayOfMonths.$dayOfMonthTime;

@@ -21,7 +21,6 @@ function phoneBook($output,$telecomADO) {
 	<form action="index.php" method="POST" name="phoneBook">
 	<input type="hidden" name="section" value="phoneBook">
 	<input type="hidden" name="action" value="form">	
-	<h3 align="center">'.$TEXT_PHONE_BOOK_CONST.'</h3>
 		'.phonesTable($telecomADO,$userID,$page).'
 	</form>
 	';
@@ -37,6 +36,8 @@ function phoneBook($output,$telecomADO) {
 		header("Location: index.php?section=phoneBook&msg=".@$msg);
 	}
 
+	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
+	$output->setPageTitle($TEXT_PHONE_BOOK_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook'));
 	$output->setBody($out);
@@ -117,7 +118,7 @@ function phonesTable($telecomADO,$userID,$page){
 				<td colspan="2">Records '.$start.'-'.$end.' of '.$totalRecords.'</td>
 				<td colspan="10" align="right">'.$pageLinks.'</td>
 			</tr>
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_CONTACT_NAME_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_COMPANY_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_TITLE_CONST.'</B></td>

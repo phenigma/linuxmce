@@ -22,6 +22,7 @@ function userHome($output,$dbADO) {
 	
 	$out.=$content;
 
+	$output->setMenuTitle('Welcome to Pluto Admin');
 	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
 	$output->setScriptInHead($scriptInHead);

@@ -37,7 +37,6 @@ function restart($output,$dbADO) {
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-		<h3 align="center">'.$TEXT_RESTART_CONST.'</h3>
 		<form action="index.php" method="POST" name="restart" onSubmit="return confirmAction();">
 		<input type="hidden" name="section" value="restart">
 		<input type="hidden" name="action" value="update">
@@ -139,7 +138,9 @@ function restart($output,$dbADO) {
 
 		header('Location: index.php?section=restart&msg='.$TEXT_COMMAND_SENT_CONST.' '.$command);
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_RESTART_CONST);
 	$output->setNavigationMenu(array($TEXT_RESTART_CONST=>'index.php?section=restart'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

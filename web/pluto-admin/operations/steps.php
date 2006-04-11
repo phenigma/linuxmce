@@ -25,7 +25,7 @@ function steps($output,$dbADO) {
 $start_time=getmicrotime();		
 	$scriptInHead ='
 		<script>
-		function setMenuItem(mainUrl,selfPage,sender)
+		function setMenuItem(mainUrl,selfPage,sender,anchor)
 		{
 			if(mainUrl!=\'\'){
 				if(top.basefrm.document.forms[0] && top.basefrm.document.forms[0].action){
@@ -37,7 +37,7 @@ $start_time=getmicrotime();
 			else{
 				top.basefrm.location=\'index.php?section=installationSettings\';
 			}
-			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
+			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender+\'#\'+anchor;				
 		}
 	
 		function highlightMenuItem(){
@@ -55,15 +55,18 @@ $start_time=getmicrotime();
 	
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
-				<td colspan="3" align="center">
-					<a href="index.php?section=wizard"><img src="include/images/logo_pluto.jpg?rand='.rand(1000,9999).'" border="0"></a>
+				<td colspan="3" align="center" height="133" class="left_frame_logo">
+					<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
 				</td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center" height="9" bgcolor="black"><img src="include/images/spacer.gif" border="0"></td>
 			</tr>
 	';
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
 				<tr>
-					<td valign="top" colspan="3">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a><hr></td>					
+					<td valign="center" colspan="3" class="left_menu" height="30">'.((@$_SESSION['userLoggedIn']==true)?'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a>':'').'</td>					
 				</tr>
 		';
 	}
@@ -72,17 +75,19 @@ $start_time=getmicrotime();
 		
 		$out.='
 			<tr>
-				<td colspan="3" align="center">
-					<h3>'.$TEXT_WIZARD_CONST.'</h3>
+				<td colspan="3" align="left" class="left_menu">
+					<span class="menu_title">'.$TEXT_WIZARD_CONST.'</span>
 				</td>
-			</tr>';
-		$out.=getLeftWizardMenu($dbADO);		
-		$out.='
-			<tr>
-				<td colspan="3" align="center">&nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><a href="index.php?section=leftMenu"><B>'.$TEXT_SHOW_DEVICES_TREE_CONST.'</B></a></td>
+				<td colspan="3" align="left" class="left_menu">'.getLeftWizardMenu($dbADO).'</td>
+			</tr>';
+		$out.='
+			<tr>
+				<td colspan="3" align="center" class="left_menu">&nbsp;</td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center" class="left_menu"><a href="index.php?section=leftMenu"><B>'.$TEXT_SHOW_DEVICES_TREE_CONST.'</B></a></td>
 			</tr>';
 	}
 		$out.='
@@ -91,7 +96,7 @@ $start_time=getmicrotime();
 	//$out.='<br><p class="normaltext">Page generated in '.round(($end_time-$start_time),3).' s.';
 	
 	$output->setScriptInHead($scriptInHead);
-	$output->setScriptInBody('bgColor="#F0F3F8" onLoad="highlightMenuItem();"');
+	$output->setScriptInBody(' onLoad="highlightMenuItem();"');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  
@@ -170,6 +175,7 @@ function getLeftWizardMenu($dbADO){
 	$devices=join(',',array_keys(getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC')));
 
 	// if cached menu exists but something changed in SetupStep table or device table, rebuild menu
+	/*
 	$lastTimestamp=getLastTimestamp('SetupStep',$dbADO);
 	if(file_exists($cachedLeftWizardMenu)){
 		$oldIDs=@file($cachedIDs);
@@ -178,7 +184,8 @@ function getLeftWizardMenu($dbADO){
 			return join('',file($cachedLeftWizardMenu));
 		}
 	}
-
+*/
+	
 	$selectWizard = "
 			SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
 			FROM PageSetup 
@@ -198,31 +205,48 @@ function getLeftWizardMenu($dbADO){
 		getChildPages($rowNode['PK_PageSetup'],1,$dbADO);
 	}
 
-	$leftWizardMenu='';
+	$leftWizardMenu='<table cellpadding="0" cellspacing="0" width="100%" border="0">';
 	foreach ($GLOBALS['descriptionArray'] AS $pos=>$description){
 		$fromPage=$GLOBALS['pagesArray'][$pos];
 		$toPos=(isset($GLOBALS['pagesArray'][$pos+1]) && $GLOBALS['linksArray'][$pos+1]!='')?$pos+1:$pos+2;
 
 		$toPage=isset($GLOBALS['pagesArray'][$toPos])?$GLOBALS['pagesArray'][$toPos]:$GLOBALS['pagesArray'][$pos];
 
-		$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\')">'.$description.'</a>':'<b>'.$description.'</b>';
-		if($GLOBALS['isSync'][$pos]==1)
-		$wizardLink.='<img src="include/images/sync.gif" style="vertical-align: middle;">';
-
-		//$nextLink=($currentItem==@$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a>':'&nbsp;';
-
+		$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\',\''.$GLOBALS['pagesArray'][$pos].'\')">'.$description.'</a>':'<b>'.$description.'</b>';
+		$pic=($GLOBALS['isSync'][$pos]==1)?'<img src="include/images/pluto_dot.gif" style="vertical-align: middle;">':'<img src="include/images/spacer.gif" style="vertical-align: middle;" width="5">';
 		$leftWizardMenu.='
 			<tr id="'.@$GLOBALS['pagesArray'][$pos].'">
-				<td></td>
-				<td height="22">'.indent($GLOBALS['levelArray'][$pos]).$wizardLink.'</td>
-				<td align="right"><span id="next_'.@$GLOBALS['pagesArray'][$pos].'" style="display:none;"><a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">'.$TEXT_NEXT_CONST.'</a></span></td>
+				<td>'.indent($GLOBALS['levelArray'][$pos]).' '.$pic.'&nbsp;&nbsp;'.$wizardLink.'</td>
+				<td align="right"><span id="next_'.@$GLOBALS['pagesArray'][$pos].'" style="display:none;"><a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\',\''.$GLOBALS['pagesArray'][$pos].'\')">'.$TEXT_NEXT_CONST.'</a></span></td>
 			</tr>
 			';	
+
+		/*	
+		if($GLOBALS['levelArray'][$pos]==0){
+		$leftWizardMenu.='
+			<tr id="'.@$GLOBALS['pagesArray'][$pos].'">
+				<td>'.indent($GLOBALS['levelArray'][$pos]).'</td>
+				<td colspan="2">'.$wizardLink.'</td>
+				<td align="right"><span id="next_'.@$GLOBALS['pagesArray'][$pos].'" style="display:none;"><a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\',\''.$GLOBALS['pagesArray'][$pos].'\')">'.$TEXT_NEXT_CONST.'</a></span></td>
+			</tr>
+			';	
+		}else{
+			$leftWizardMenu.='
+			<tr id="'.@$GLOBALS['pagesArray'][$pos].'">
+				<td>'.indent($GLOBALS['levelArray'][$pos]).'</td>
+				<td>'.$pic.'</td>
+				<td>'.$wizardLink.'</td>
+				<td align="right"><span id="next_'.@$GLOBALS['pagesArray'][$pos].'" style="display:none;"><a href="#" onClick="setMenuItem(\''.@$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\',\''.$GLOBALS['pagesArray'][$pos].'\')">'.$TEXT_NEXT_CONST.'</a></span></td>
+			</tr>
+			';	
+		}
+		*/
 	}
-	
+	$leftWizardMenu.='</table>';
+
 	// write top menu file and devices/page setup IDs
-	writeFile($cachedLeftWizardMenu,$leftWizardMenu,'w');
-	writeFile($SetupStepTimestampFile,$lastTimestamp,'w');
+	//writeFile($cachedLeftWizardMenu,$leftWizardMenu,'w');
+	//writeFile($SetupStepTimestampFile,$lastTimestamp,'w');
 	
 	return $leftWizardMenu;
 }

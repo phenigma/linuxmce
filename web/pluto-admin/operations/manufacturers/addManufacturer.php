@@ -13,16 +13,17 @@ function addManufacturer($output,$dbADO) {
 		<input type="hidden" name="section" value="addManufacturer">
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
-		
+			<h3>'.$TEXT_ADD_MANUFACTURER_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_MANUFACTURER_CONST.':</td><td><input type="text" maxlength="50" name="manufacturerDescription" value="'.@$_SESSION['addManufacturer']['manufacturerDescription'].'"></td>
+					<td>'.$TEXT_MANUFACTURER_CONST.' *</td><td><input type="text" maxlength="50" name="manufacturerDescription" value="'.@$_SESSION['addManufacturer']['manufacturerDescription'].'"></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addManufacturer");
  			frmvalidator.addValidation("manufacturerDescription","req","'.$TEXT_VALIDATE_MANUFACTURER_NAME_CONST.'");

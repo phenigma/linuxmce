@@ -290,7 +290,7 @@ if ($action == 'form') {
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
 			<TD align="center" bgColor="#DFFFFE" height="15" width=120 valign="middle"><B>Inputs</B></TD>
-          	<TD align="center" bgColor=lightblue height="15" valign="middle"><B>'.$rowD['Description'].'</B></TD>
+          	<TD align="center" class="tablehead" height="15" valign="middle"><B>'.$rowD['Description'].'</B></TD>
 			<TD align="center" bgColor="#DFFFFE" height="15" width="110" valign="middle"><B>Outputs</B></TD>
         </TR>
         <TR> 

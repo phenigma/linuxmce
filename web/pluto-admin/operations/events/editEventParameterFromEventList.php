@@ -42,11 +42,11 @@ function editEventParameterFromEvent($output,$dbADO) {
 			<table>	
 				<tr>
 					<td>
-						Parameter Type:</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
+						Parameter Type *</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
 					</td>
 				</tr>		
 				<tr>
-					<td>Description:</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
+					<td>Description *</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
 				</tr>		
 				<tr>
 					<td>Comments:</td><td><textarea name="eventParameterComments" cols="40" rows="4">'.$eventParameter_Comments.'</textarea></td>
@@ -58,6 +58,7 @@ function editEventParameterFromEvent($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editEventParameterFromEvent");			
  			frmvalidator.addValidation("eventParameterDescription","req","Please enter a name for this Event Parameter !");

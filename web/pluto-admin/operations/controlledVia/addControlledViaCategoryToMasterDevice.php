@@ -36,7 +36,7 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 		
 			<table>			
 				<tr>
-					<td>'.$TEXT_CONTROLLED_VIA_CATEGORY_CONST.':</td>
+					<td>'.$TEXT_CONTROLLED_VIA_CATEGORY_CONST.' *</td>
 					<td>
 						<select name="controlledVia">
 						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
@@ -77,6 +77,7 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>					
 		<script>
 		 	var frmvalidator = new formValidator("addControlledViaCategoryToMasterDevice");
  			frmvalidator.addValidation("controlledVia","dontselect=0","'.$TEXT_PLEASE_SELECT_A_DEVICE_CONST.'"); 

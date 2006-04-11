@@ -28,11 +28,11 @@ function addDirectoryFile($output,$dbADO) {
 			<h3>'.$TEXT_ADD_FILE_TO_DIRECTORY_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_FILE_CONST.':</td>
+					<td>'.$TEXT_FILE_CONST.' *</td>
 					<td><input type="text" size="15" name="File" value=""></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_SEARCH_CONST.':</td>
+					<td>'.$TEXT_SEARCH_CONST.'</td>
 					<td><textarea name="Search" rows="10" colls="30"></textarea></td>
 				</tr>
 				<tr>
@@ -40,6 +40,7 @@ function addDirectoryFile($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addDirectoryFile");
  			frmvalidator.addValidation("File","req","'.$TEXT_FILENAME_REQUIRED_CONST.'");

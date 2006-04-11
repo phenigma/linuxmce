@@ -148,6 +148,7 @@ function createUser($output,$dbADO) {
 						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  > <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 					</tr>
 			</table>
+			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			</form>
 			';
 			

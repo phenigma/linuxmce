@@ -40,8 +40,6 @@ function outsideAccess($output,$dbADO) {
 	$rowAccessOnPort=$resAllowPort->FetchRow();
 	$port=$rowAccessOnPort['SourcePort'];
 	
-	$out.='<div align="left"><h3>'.$TEXT_OUTSIDE_ACCESS_CONST.'</h3></div>';
-	
 	if ($action=='form') {
 		
 
@@ -122,7 +120,7 @@ function outsideAccess($output,$dbADO) {
 			<td colspan="2">'.$TEXT_OUTSIDE_ACCESS_NOTES_CONST.'</td>
 		</tr>		
 		<tr>
-			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>
 	</table>
 		<input type="hidden" name="oldAllow80" value="'.$allowAccessOn80.'">
@@ -231,7 +229,9 @@ function outsideAccess($output,$dbADO) {
 
 		header("Location: index.php?section=outsideAccess");
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_OUTSIDE_ACCESS_CONST);
 	$output->setNavigationMenu(array($TEXT_OUTSIDE_ACCESS_CONST=>'index.php?section=outsideAccess'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_OUTSIDE_ACCESS_CONST);			

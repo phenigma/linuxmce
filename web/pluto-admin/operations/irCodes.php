@@ -196,7 +196,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				<td colspan="3" align="center"><table>
 					<tr>
 						<td><B>'.$TEXT_LEGEND_CONST.':</B> </td>
-						<td width="20" bgcolor="lightblue">&nbsp;</td>
+						<td width="20" class="tablehead">&nbsp;</td>
 						<td>'.$TEXT_STANDARD_CODES_CONST.'</td>
 						<td width="20" bgcolor="yellow">&nbsp;</td>
 						<td>'.$TEXT_MY_CUSTOM_CODES_CONST.'</td>

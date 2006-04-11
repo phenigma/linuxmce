@@ -66,7 +66,7 @@ function editCommandGroup($output,$dbADO) {
 				<h2>'.$TEXT_EDIT_MY_SCENARIO_CONST.'</h2>
 				<table border="0">
 						<tr>
-							<td>'.$TEXT_DESCRIPTION_CONST.'</td>
+							<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
 							<td><textarea name="description" style="width:100%;" rows="3">'.$rowCommandGroupDetails['Description'].'</textarea></td>
 						</tr>
 						<tr>
@@ -345,6 +345,7 @@ function editCommandGroup($output,$dbADO) {
 				
 				<input type="button" class="button" name="deleteCG" value="'.$TEXT_DELETE_SCENARIO_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_SCENARION_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
 			</form>
+			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");
  				frmvalidator.addValidation("description","req","'.$TEXT_SCENARION_DESCRIPTION_REQUIRED_CONST.'");

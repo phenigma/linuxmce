@@ -45,12 +45,12 @@
 		}
 			$out.='
 			<tr>
-				<td><B>What is the name or model #:</B></td>
+				<td><B>What is the name or model # *</B></td>
 				<td colspan="3"><input type="text" name="description" value=""> <input type="submit" class="button" name="add" value="Add"></td>
 			</tr>
 		</table><br>
 		</form>
-		
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 			var frmvalidator = new formValidator("addModel");
  			frmvalidator.addValidation("description","req","Please type the name of the model.");

@@ -29,7 +29,7 @@ function keyboardLayout($output,$dbADO) {
 		$out.=setLeftMenu($dbADO).'
 		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
 			<h3 align="left">'.$TEXT_KEYBOARD_LAYOUT_CONST.'</h3>
 			<form action="index.php" method="POST" name="keyboardLayout">
@@ -37,14 +37,14 @@ function keyboardLayout($output,$dbADO) {
 			<input type="hidden" name="action" value="add">
 		
 		<table cellpadding="2" cellspacing="0">
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td colspan="2 align="center""><B>'.$TEXT_CORE_CONST.'</B></td>
 			</tr>		
 			<tr>
 				<td>'.$TEXT_CORE_CONST.'</td>
 				<td>'. keyboardLayoutPulldown($keyboardLayoutsArray,$coreKL,'core_KL').'</td>
 			</tr>
-			<tr bgcolor="lightblue">
+			<tr class="tablehead">
 				<td colspan="2 align="center""><B>'.$TEXT_MEDIA_DIRECTORS_CONST.'</B></td>
 			</tr>';
 		foreach ($mediaDirectors AS $mdID=>$mdName){
@@ -57,7 +57,7 @@ function keyboardLayout($output,$dbADO) {
 		}
 		$out.='
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 		</table>
 		
@@ -81,8 +81,11 @@ function keyboardLayout($output,$dbADO) {
 		
 		header('Location: index.php?section=keyboardLayout&msg='.$TEXT_KEYBOARD_LAYOUTS_UPDATED_CONST);
 	}
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_KEYBOARD_LAYOUT_CONST);
 	
-	$output->setNavigationMenu(array($TEXT_KEYBOARD_LAYOUT_CONST=>'index.php?section=users'));
+	$output->setNavigationMenu(array($TEXT_KEYBOARD_LAYOUT_CONST=>'index.php?section=keyboardLayout'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_KEYBOARD_LAYOUT_CONST);

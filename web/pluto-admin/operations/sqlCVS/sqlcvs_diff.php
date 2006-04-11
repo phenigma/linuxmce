@@ -1,13 +1,25 @@
 <?
 function sqlcvs_diff($output,$dbADO) {
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+	
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/sqlcvs.lang.php');
 	
 	global $dbPlutoMainDatabase;
-	/* @var $dbADO ADOConnection */
-	/* @var $rs ADORecordSet */
-
+	global 	$dbMythType, $dbMythUser, $dbMythPass, $dbMythServer;
+	$dbPlutoMythDatabase='pluto_myth_devel';
+	$databasesArray=array($dbPlutoMainDatabase=>'pluto_main',$dbPlutoMythDatabase=>'pluto_myth');
+	
+	$database=(isset($_REQUEST['database']))?$_REQUEST['database']:$dbPlutoMainDatabase;
+	if($database==$dbPlutoMainDatabase){
+		$sqlcvsADO=$dbADO;
+	}else{
+	  	$sqlcvsADO= &ADONewConnection('mysql');
+	  	$sqlcvsADO->NConnect($dbMythServer,urlencode($dbMythUser),urlencode($dbMythPass),urlencode($dbPlutoMythDatabase));
+	}
+	
 	$out='
 	<script>
 	function windowOpen(locationA,attributes) {
@@ -18,8 +30,8 @@ function sqlcvs_diff($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
 
-	$tablesArray=$dbADO->MetaTables('TABLES');	
-		
+	$tablesArray=$sqlcvsADO->MetaTables('TABLES');	
+
 	if ($action == 'form') {
 		
 		$out.='
@@ -53,27 +65,30 @@ function sqlcvs_diff($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_diff">
 		<input type="hidden" name="action" value="choose">	
 		
-	<div align="center"><h3>'.$TEXT_SQLCVS_DIFF_CONST.'</h3></div>
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
-			<td><input type="text" name="host" value=""></td>
+			<td><input type="text" name="host" value="'.@$_REQUEST['host'].'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
-			<td><input type="text" name="port" value="3999"></td>
+			<td><input type="text" name="port" value="'.(($database==$dbPlutoMainDatabase)?'3999':'4000').'"></td>
 		</tr>		
 		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
-			<td><input type="text" name="username" value=""></td>
+			<td><input type="text" name="username" value="'.@$_REQUEST['username'].'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.':</B></td>
-			<td><input type="text" name="password" value=""></td>
+			<td><input type="text" name="password" value="'.@$_REQUEST['password'].'"></td>
 		</tr>
 		<tr>
+			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
+			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_diff.action.value=\'form\';document.sqlcvs_diff.submit();"','key','').'</td>
+		</tr>		
+		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
+			<td><input type="submit" class="button" name="submitBtn" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 		';
 	
@@ -92,7 +107,7 @@ function sqlcvs_diff($output,$dbADO) {
 				<td colspan="2">&nbsp;</td>
 				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
 			</tr>			';
-			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
+			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
 			foreach ($fieldsArray AS $key=>$value){
 				$out.='
 			<tr>
@@ -107,7 +122,7 @@ function sqlcvs_diff($output,$dbADO) {
 	$out.='	
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
+			<td><input type="submit" class="button" name="submitBtn" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 	</table>
 	</form>
@@ -132,7 +147,7 @@ function sqlcvs_diff($output,$dbADO) {
 				if(isset($_POST['table_'.$cleanTable])){
 					$rParmArray[]=$cleanTable;	
 				}
-				$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
+				$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
 				foreach ($fieldsArray AS $key=>$value){
 					if(isset($_POST[$cleanTable.'_'.$value])){
 						if(!in_array($cleanTable,$rParmArray)){
@@ -154,10 +169,10 @@ function sqlcvs_diff($output,$dbADO) {
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
-		
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -f /tmp/tmp_sqlcvs_file diff';
+
 		exec($cmd,$retArray,$retVal);
-		
+echo $retVal.' '.$cmd;		
 		$out.='
 		<script>
 		function selAllCheckboxes(noItems,val)
@@ -190,8 +205,12 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="text" name="password" value="'.$password.'"></td>
 		</tr>
 		<tr>
+			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
+			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_diff.action.value=\'form\';document.sqlcvs_diff.submit();"','key','').'</td>
+		</tr>		
+		<tr>
 			<td>&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
+			<td><input type="submit" class="button" name="submitBtn" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>
 		</table>
 		<table width="700" cellpadding="3" cellspacing="0" border="0">';
@@ -217,7 +236,7 @@ function sqlcvs_diff($output,$dbADO) {
 					<tr>
 						<td colspan="5"><B>'.$TEXT_TABLE_CONST.': '.$lineTable.'</B></td>
 					</tr>';
-					$cols=array_values($dbADO->MetaColumnNames($lineTable));
+					$cols=array_values($sqlcvsADO->MetaColumnNames($lineTable));
 					$out.='
 					<tr>
 						<td width="20">&nbsp;</td>
@@ -229,7 +248,7 @@ function sqlcvs_diff($output,$dbADO) {
 					
 				}
 
-				$lineValues=getFieldsAsArray($lineTable,$cols[0].','.$cols[1].','.$cols[2],$dbADO,str_replace('WHERE:','',$items[4]));
+				$lineValues=getFieldsAsArray($lineTable,$cols[0].','.$cols[1].','.$cols[2],$sqlcvsADO,str_replace('WHERE:','',$items[4]));
 				$out.='
 					<tr>
 						<td><input type="checkbox" name="line_'.$lineNo.'" value="1" checked></td>';
@@ -313,7 +332,7 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
 //		unlink('/tmp/tmp_sqlcvs_file');
 
 		
@@ -330,6 +349,8 @@ function sqlcvs_diff($output,$dbADO) {
 		
 	}
 
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_SQLCVS_DIFF_CONST);
 	$output->setNavigationMenu(array($TEXT_SQLCVS_DIFF_CONST=>'index.php?section=sqlcvs_diff'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

@@ -39,7 +39,7 @@ function ripStatus($output,$mediadbADO,$dbADO){
 	}else{
 		$slotStatusArray=explode('~',$status);
 		$tableHeadRow='
-			<tr bgColor="lightblue">
+			<tr class="tablehead">
 				<td align="center"><B>Slot</B></td>
 				<td align="center"><B>Disc</B></td>
 				<td align="center"><B>Status</B></td>

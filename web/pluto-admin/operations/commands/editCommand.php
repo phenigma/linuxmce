@@ -60,14 +60,14 @@ function editCommand($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="commandID" value="'.$commandID.'">
 		<input type="hidden" name="from" value="'.$from.'">
-		
+			<h3>'.$TEXT_EDIT_COMMAND_CONST.' #'.$commandID.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CONST.' *	</td>
 					<td><input type="text" size="25" name="commandDescription" value="'.stripslashes($commandDescription).'"></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_CONST.':</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_CONST.' *</td>
 					<td>
 						<select name="commandCategs" >
 						'.$commandsCategsTxt.'
@@ -159,11 +159,12 @@ function editCommand($output,$dbADO) {
 				</tr>
 				
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 		
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editCommand"); 			
 			frmvalidator.addValidation("commandDescription","req","'.$TEXT_VALIDATE_COMMAND_GROUP_NAME_CONST.'");

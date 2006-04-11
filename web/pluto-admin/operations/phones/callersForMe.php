@@ -45,6 +45,8 @@ function callersForMe($output,$dbADO,$telecomADO) {
 		header('Location: index.php?section=callersForMe');
 	}
 
+	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
+	$output->setPageTitle($TEXT_CALLERS_FOR_ME_CONST);
 	$output->setNavigationMenu(array($TEXT_CALLERS_FOR_ME_CONST=>'index.php?section=callersForMe'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
@@ -69,7 +71,6 @@ function getCallersForMeTable($dbADO,$telecomADO){
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-		<h3 align="center">'.$TEXT_CALLERS_FOR_ME_CONST.'</h3>
 
 		<form action="index.php" method="POST" name="callersForMe">
 			<input type="hidden" name="section" value="callersForMe">
@@ -86,7 +87,7 @@ function getCallersForMeTable($dbADO,$telecomADO){
 
 		$out.='
 		<tr>
-			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$username.'</B></td>
+			<td colspan="2" align="center" class="tablehead"><B>'.$username.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td align="center"><B>Phone number</B></td>
@@ -113,7 +114,7 @@ function getCallersForMeTable($dbADO,$telecomADO){
 	if(count($idArray)>0){
 	$out.='	
 		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+			<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 		</tr>';
 	}
 	$out.='

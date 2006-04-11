@@ -40,7 +40,7 @@
   
   
   var $scriptValidateSrc = '';
-  var $scriptAnotherJS=''; //can be a list of js files,separated with commas [,]    
+  var $scriptAnotherJS='scripts/menu_settings.js'; //can be a list of js files,separated with commas [,]    
   var $scriptCalendar = '';
   var $scriptInBody;
   var $scriptInHead;
@@ -60,8 +60,10 @@
   
   var $leftFrameSrc = 'index.php?section=wizard';
   var $rightFrameSrc = 'index.php?section=deviceTemplates';
-
+  
   var $reloadLeftFrame=true;
+  var $MenuTitle = '';
+  var $PageTitle = '';
   
   var $dbADO;
   function Template($myDbADO) {
@@ -216,6 +218,14 @@ function setTemplateFileType($type) {
   	$this->reloadLeftFrame = $reloadLeftFrame;
   }
   
+  function setMenuTitle($MenuTitle) {
+  	$this->MenuTitle = $MenuTitle;
+  }
+
+  function setPageTitle($PageTitle) {
+  	$this->PageTitle = $PageTitle;
+  }
+
   function setBody($myBody) {
   	$this->body = $myBody;
   	if($this->reloadLeftFrame==true && $this->templateType=='large'){
@@ -393,6 +403,8 @@ function setTemplateFileType($type) {
 		$topMenu='';
 	}
 	$this->content = str_replace("{TopMenu}", $topMenu, $this->content);
+	$this->content = str_replace("{MenuTitle}", $this->MenuTitle, $this->content );
+	$this->content = str_replace("{PageTitle}", $this->PageTitle,$this->content);
   }
   
   function displayBottomMenu(){
@@ -435,6 +447,14 @@ function setTemplateFileType($type) {
   }
 
   function output() {
+  	// todo: remove
+  	
+	if($GLOBALS['inDebug']==1 && isset($_SESSION['cssFile'])){
+		$this->setCssFile($_SESSION['cssFile']);
+		$this->setScriptAnotherJS($_SESSION['jsForMenu']);
+	}
+  	
+  	
   	$this->displayTitle();
    	$this->displayMetaTags();
    	$this->displayCssFile();

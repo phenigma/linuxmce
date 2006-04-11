@@ -25,7 +25,6 @@ function rooms($output,$dbADO) {
 		$fotArray[$rowFOT['PK_FloorplanObjectType']]=$rowFOT['Description'];
 	}
 
-	$out.='<h3>'.$TEXT_ROOMS_CONST.'</h3>';
 
 	if ($action=='form') {
 		$queryRooms = '
@@ -84,9 +83,9 @@ function rooms($output,$dbADO) {
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="lastAction" value="">
 		<tr>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_ROOM_DESCRIPTION_CONST.'</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_ROOM_DESCRIPTION_CONST.' *</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_ROOM_TYPE_CONST.'</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_PICTURE_CONST.' *</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_PICTURE_CONST.' **</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_DONT_SHOW_ROOM_ON_ORBITERS_CONST.'</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>'.$TEXT_ENTERTAIN_AREAS_CONST.'</B></td>
 		</tr>
@@ -146,16 +145,15 @@ function rooms($output,$dbADO) {
 				<td colspan="4" align="center"> &nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="4" align="center"> '.pulldownFromArray($roomTypes,'roomType',0).'<input type="submit" class="button" name="add" value="'.$TEXT_ADD_ROOM_CONST.'"> <input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"></td>
+				<td colspan="4" align="center"> '.pulldownFromArray($roomTypes,'roomType',0).' <input type="submit" class="button" name="add" value="'.$TEXT_ADD_ROOM_CONST.'"> <input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 			</tr>
 			<tr>
-				<td colspan="4" align="left">* '.$TEXT_PICTURES_RESTRICTION_WARNING_CONST.'</td>
+				<td colspan="4" align="left"><em>* '.$TEXT_REQUIRED_FIELDS_CONST.'<br>** '.$TEXT_PICTURES_RESTRICTION_WARNING_CONST.'</em></td>
 			</tr>
 		
 			<input type="hidden" name="displayedEntertainArea" value="'.join(",",$displayedEntertainArea).'">
 			<input type="hidden" name="displayedRooms" value="'.join(",",$displayedRooms).'">
 			</form>
-		
 		<script>
 		 	var frmvalidator = new formValidator("rooms"); 		
 			'.$roomsFormValidation.'
@@ -286,6 +284,9 @@ function rooms($output,$dbADO) {
 	if (strlen($onLoad)>2) {
 		$output->setScriptInBody("onLoad=\"javascript:eval('$onLoad');\"");
 	}
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_ROOMS_CONST);
 
 	$output->setNavigationMenu(array($TEXT_ROOMS_CONST=>'index.php?section=rooms'));
 	$output->setBody($out);

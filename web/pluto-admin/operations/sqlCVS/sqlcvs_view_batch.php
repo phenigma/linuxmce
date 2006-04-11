@@ -31,10 +31,9 @@ function sqlcvs_view_batch($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_view_batch">
 		<input type="hidden" name="action" value="rep">	
 		
-	<div align="center"><h3>'.$TEXT_SQLCVS_VIEW_BATCH_CONST.'</h3></div>
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
-			<td colspan="3">'.$TEXT_CHOOSE_REPOSITORY_CONST.'</td>
+			<td colspan="3">'.$TEXT_CHOOSE_REPOSITORY_CONST.' *</td>
 			<td>'.pulldownFromArray($repositories,'repository','').'</td>
 		</tr>
 		';
@@ -46,6 +45,7 @@ function sqlcvs_view_batch($output,$dbADO) {
 		</tr>		
 	</table>
 	</form>
+	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 	<script>
 		var frmvalidator = new formValidator("sqlcvs_view_batch");
  		frmvalidator.addValidation("repository","dontselect=0","'.$TEXT_REPOSITORY_REQUIRED_CONST.'"); 
@@ -95,6 +95,8 @@ function sqlcvs_view_batch($output,$dbADO) {
 		
 	}
 
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_SQLCVS_VIEW_BATCH_CONST);
 	$output->setNavigationMenu(array($TEXT_SQLCVS_VIEW_BATCH_CONST=>'index.php?section=sqlcvs_view_batch'));	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

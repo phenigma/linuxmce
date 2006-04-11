@@ -1,6 +1,6 @@
 <?
 function phoneLines($output,$astADO,$dbADO) {
-	error_reporting(E_ALL);
+
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
@@ -204,7 +204,9 @@ function phoneLines($output,$astADO,$dbADO) {
 		
 		header('Location: index.php?section=phoneLines');
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_PHONE_LINES_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_PHONE_LINES_CONST=>'index.php?section=phoneLines'));
 	$output->setBody($out);
@@ -326,8 +328,6 @@ function phoneLinesLocalSettings($dbADO){
 	$ddArray=getAssocArray('Device_DeviceData','FK_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$telecomPlugin);
 
 	$out='
-	<h3 align="center">'.$TEXT_LOCAL_PHONE_LINES_SETTINGS_CONST.'</h3>
-	
 	<form action="index.php" method="POST" name="phoneSettings">
 	<input type="hidden" name="section" value="phoneLines">
 	<input type="hidden" name="action" value="update">

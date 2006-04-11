@@ -23,10 +23,10 @@ function addDirectory($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
-		
+		<h3>'.$TEXT_ADD_DIRECTORY_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_DIRECTORY_DESCRIPTION_CONST.':</td>
+					<td>'.$TEXT_DIRECTORY_DESCRIPTION_CONST.' *</td>
 					<td><input type="text" size="15" name="Description" value=""></td>
 				</tr>
 				<tr>
@@ -34,6 +34,7 @@ function addDirectory($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("addDirectory");
  			frmvalidator.addValidation("Description","req","'.$TEXT_DIRECTORY_DESCRIPTION_REQUIRED_CONST.'");

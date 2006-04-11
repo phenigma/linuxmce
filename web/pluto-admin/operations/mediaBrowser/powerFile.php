@@ -108,8 +108,12 @@ function powerFile($output,$mediadbADO,$dbADO) {
 		
 		$suffix=(isset($error))?'&error='.$error:'&msg='.@$msg;
 		header('Location: index.php?section=powerFile'.$suffix);
+		exit();
 	}
 	
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_POWERFILE_CONST);
+
 	$output->setScriptInHead(@$scriptInHead);	
 	$output->setNavigationMenu(array($TEXT_POWERFILE_CONST=>'index.php?section=powerFile'));
 	$output->setScriptCalendar('null');

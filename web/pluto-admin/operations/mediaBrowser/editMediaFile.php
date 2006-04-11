@@ -122,7 +122,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				</table></td>
 			</tr>			
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
+				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
 				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
 				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
 				</td>
@@ -169,7 +169,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$out.='<option value="'.$attributeID.'" '.(($attributeID==@$_POST['newAttributeType'])?'selected':'').'>'.$attributeName.'</option>';
 			}
 			$out.='</select></td>
-				<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.'</B><br><input type="text" name="newAttributeName" value=""></td>
+				<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.' *</B><br><input type="text" name="newAttributeName" value=""></td>
 			</tr>';
 			if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
 				$newAttributeType=(int)$_POST['newAttributeType'];
@@ -197,6 +197,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		</form>';
 		if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
 			$out.='
+			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			<script>
 			 	var frmvalidator = new formValidator("editMediaFile");			
 	 			frmvalidator.addValidation("newAttributeName","req","'.$TEXT_ATTRIBUTE_NAME_VALIDATION_CONST.'");

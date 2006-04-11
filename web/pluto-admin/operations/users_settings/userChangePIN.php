@@ -37,7 +37,7 @@ function userChangePIN($output,$dbADO) {
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>'.$TEXT_NEW_PIN_CONST.'</td>
+						<td>'.$TEXT_NEW_PIN_CONST.' *</td>
 						<td>
 							<input type="text" name="newPIN" value="">
 						</td>
@@ -46,6 +46,7 @@ function userChangePIN($output,$dbADO) {
 						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 					</tr>
 			</table>
+			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			</form>
 			';
 			

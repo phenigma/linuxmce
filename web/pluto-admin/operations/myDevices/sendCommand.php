@@ -105,7 +105,7 @@ function sendCommand($output,$dbADO) {
 			}
 			$out.='
 				<tr bgcolor="#DDDDDD">
-					<td  align="center" colspan="3"><input type="submit" class="button" name="send" value="'.$TEXT_SEND_MESSAGE_CONST.'"> <input type="reset" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'"></td>
+					<td  align="center" colspan="3"><input type="submit" class="button" name="send" value="'.$TEXT_SEND_MESSAGE_CONST.'"> <input type="reset" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 				<input type="hidden" name="parmsArray" value="'.urlencode(serialize($parmsArray)).'">
 				';

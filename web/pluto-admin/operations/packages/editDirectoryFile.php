@@ -33,7 +33,7 @@ function editDirectoryFile($output,$dbADO) {
 			<h3>'.$TEXT_EDIT_DIRECTORY_FILE_CONST.'</h3>
 			<table>			
 				<tr>
-					<td>'.$TEXT_FILE_CONST.':</td>
+					<td>'.$TEXT_FILE_CONST.' *</td>
 					<td><input type="text" size="15" name="File" value="'.$rowPackage_Directory_File['File'].'"></td>
 				</tr>
 				<tr>
@@ -45,6 +45,7 @@ function editDirectoryFile($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("editDirectoryFile");
  			frmvalidator.addValidation("File","req","'.$TEXT_FILENAME_REQUIRED_CONST.'");

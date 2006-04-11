@@ -42,7 +42,7 @@ function usersRooms($output,$dbADO) {
 		$checkedArray[$rowUsersRooms['FK_Users']][]=$rowUsersRooms['FK_Room'];
 	}
 	
-	$out.='<h3>'.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST.'</h3>
+	$out.='
 	<p>'.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_NOTE_CONST.'</p>';
 
 	if ($action=='form') {
@@ -106,7 +106,8 @@ function usersRooms($output,$dbADO) {
 	}
 
 	
-
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_USER_ROOM_CONST);
 	$output->setNavigationMenu(array($TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST=>'index.php?section=usersRooms'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_PRIVACY_SETTINGS_USERS_ROOMS_CONST);			

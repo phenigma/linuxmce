@@ -64,11 +64,11 @@ function setResolution($output,$dbADO) {
 $out.='
 <table>
 	<tr>
-		<td><B>'.$TEXT_RESOLUTION_CONST.'</B></td>
+		<td><B>'.$TEXT_RESOLUTION_CONST.' *</B></td>
 		<td>'.pulldownFromArray($videoSettingsArray,'resolution',@$oldResolution).'</td>
 	</tr>
 	<tr>
-		<td><B>'.$TEXT_REFRESH_CONST.'</B></td>
+		<td><B>'.$TEXT_REFRESH_CONST.' *</B></td>
 		<td>'.pulldownFromArray($refreshArray,'refresh',@$oldRefresh).'</td>
 	</tr>
 	<tr>
@@ -80,6 +80,7 @@ $out.='
 	</tr>
 </table>		
 		</form>
+		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 			var frmvalidator = new formValidator("setResolution");
  			frmvalidator.addValidation("resolution","dontselect=0","'.$TEXT_RESOLUTION_REQUIRED_CONST.'");

@@ -43,6 +43,8 @@ if ($action == 'showBasicInfo') {
 		$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setScriptCalendar('null');
 	
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_MY_SCENARIOS_CONST);
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_MY_SCENARIOS_CONST);			
 	$output->output(); 
