@@ -628,13 +628,6 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     PlutoRectangle rect(x, y, width, height);
 }
 
-/*virtual*/ void OrbiterSDL::SetMousePointer(int X, int Y)
-{
-	//Commented this because it's blocking and orbiter goes into a deadlock. 
-	//See mantis http://plutohome.com/support/mantis/view.php?id=2049 for details.
-    //SDL_WarpMouse(X,Y);
-}
-
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {
 }

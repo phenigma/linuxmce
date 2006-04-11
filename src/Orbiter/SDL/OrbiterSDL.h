@@ -66,8 +66,6 @@ public:
 
 	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
-    virtual void SetMousePointer(int X, int Y);
-
 	virtual void BeginPaint();
 	virtual void EndPaint();
 	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0));
