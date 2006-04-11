@@ -42,11 +42,11 @@ class PlutoZWSerialAPI
 		 * regarding to serial connection*/
 		enum SerialState { STOPPED, IDLE, RUNNING, WAITTING };
 		
-		/** The jobs can be managed synchron or asynchron.
-		  * synchron  = succesive asks and answers
-		  * asynchron = the asks and answer doesn't have to follow any time rules
+		/** The jobs can be managed synchronous or asynchronous.
+		  * synchronous  = succesive asks and answers
+		  * asynchronous = the asks and answer doesn't have to follow any time rules
 		  */
-		enum ListenType { SYNCHRON, ASYNCHRON };
+		enum ListenType { SYNCHRONOUS, ASYNCHRONOUS };
 		
 		/**get an instance of this class
 		 * @return the instance of this class*/		
@@ -67,10 +67,10 @@ class PlutoZWSerialAPI
 		 * @return true if succesfull*/
 		virtual bool listen(time_t timeout);
 		
-		/**listen for responses, but it can manage asynchronly the jobs
+		/**listen for responses, but it can manage asynchronously the jobs
 		 * @param timeout the listen timeout
 		 * @return true if succesfull*/
-		virtual bool listenAsynchron();
+		virtual bool listenAsynchronous();
 		
 		/** It waits until the job is finished.
 		  * @return true is the job was finished in time (no timeout)

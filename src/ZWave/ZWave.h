@@ -49,7 +49,7 @@ namespace DCE
 		/** Flag used to force the pooling task if ZWave has changes.*/
 		static bool m_ZWaveChanged;
 		
-		/** Asynchron jobs management thread */
+		/** Asynchronous jobs management thread */
 		static pthread_t m_AsynchThread;
 		
 		/** Pooling thread */
@@ -63,7 +63,7 @@ namespace DCE
 		/** Returns the serial/USB device.*/
 		string GetZWaveSerialDevice();
 		
-		/** Starts or stops the ZWave asynchron jobs management thread.*/
+		/** Starts or stops the ZWave asynchronous jobs management thread.*/
 		void asynchThread(bool start);
 		
 		/** Starts or stops the ZWave pooling thread.*/
@@ -90,7 +90,7 @@ public:
 		
 		// Public methods
 		
-		/** Listening asynchronly for ZWave answers.*/
+		/** Listening asynchronously for ZWave answers.*/
 		void AsynchZWave();
 		
 		/** Get the nodes state, one by one.*/

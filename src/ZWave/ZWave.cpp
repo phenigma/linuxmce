@@ -38,7 +38,7 @@ using namespace DCE;
 #endif
 
 // ask Eugen before uncommenting the following 2 lines
-// #define NO_POOLING
+#define NO_POOLING
 // #define NO_ASYNCH
 
 #define ZW_TIMEOUT 15
@@ -156,11 +156,11 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				}
 				
 				// a small delay to not get ZWave too busy
-#ifdef _WIN32
+/*#ifdef _WIN32
 				Sleep(POOL_DELAY);
 #else
 				usleep(POOL_DELAY); 
-#endif
+#endif*/
 				setZWaveChanged(true);
 			}
 			else
@@ -185,11 +185,11 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				}
 				
 				// a small delay to not get ZWave too busy
-#ifdef _WIN32
+/*#ifdef _WIN32
 				Sleep(POOL_DELAY);
 #else
 				usleep(POOL_DELAY); 
-#endif
+#endif*/
 				setZWaveChanged(true);
 			}
 			else
@@ -215,11 +215,11 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				}
 				
 				// a small delay to not get ZWave too busy
-#ifdef _WIN32
+/*#ifdef _WIN32
 				Sleep(POOL_DELAY);
 #else
 				usleep(POOL_DELAY); 
-#endif
+#endif*/
 				setZWaveChanged(true);
 			}
 			else
@@ -341,7 +341,7 @@ EVENT_Reporting_Child_Devices("",
 );
 return;
 */
-// commented because we are using the asynchron task management
+// commented because we are using the asynchronous task management
 /*	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
@@ -578,7 +578,7 @@ void ZWave::AsynchZWave()
 {
 	while( m_AsynchStarted )
 	{
-		m_ZWaveAPI->listenAsynchron();
+		m_ZWaveAPI->listenAsynchronous();
 #ifdef _WIN32
 		Sleep(POOL_DELAY); 
 #else
@@ -616,7 +616,7 @@ void ZWave::PoolZWaveNetwork()
 		if( isZWaveChanged() )
 		{
 			setZWaveChanged( false );
-			i = 125; // 150 - 125 = 25 * 200 ms = 5 sec
+			i = 100; // 150 - 100 = 50 * 200 ms = 10 sec
 		}
 		
 		// 30 sec = 150 x 200 ms
@@ -830,11 +830,11 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 				}
 				
 				// a small delay to not get ZWave too busy
-#ifdef _WIN32
+/*#ifdef _WIN32
 				Sleep(POOL_DELAY); 
 #else
 				usleep(POOL_DELAY); 
-#endif
+#endif*/
 				setZWaveChanged(true);
 			}
 			else
@@ -859,11 +859,11 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 				}
 				
 				// a small delay to not get ZWave too busy
-#ifdef _WIN32
+/*#ifdef _WIN32
 				Sleep(POOL_DELAY); 
 #else
 				usleep(POOL_DELAY); 
-#endif
+#endif*/
 				setZWaveChanged(true);
 			}
 			else
@@ -891,7 +891,7 @@ NOEMON or CANBUS */
 void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
-// commented because we are using asynchron tasks management
+// commented because we are using asynchronous tasks management
 /*	// try to avoid trylock timeout
 	if( TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft() )
 	{
