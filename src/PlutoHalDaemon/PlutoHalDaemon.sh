@@ -1,23 +1,22 @@
 #!/bin/bash
 
-## Make sure the had / dbus-1 are started
-/etc/init.d/dbus-1 start
+## If run in background
+if [[ "$1" == "background" ]]; then
 
-## Start our daemon in a screen
-screen -d -m -S "PlutoHalDaemon.sh" /usr/pluto/bin/pluto-hald dcerouter
+	while [[ "1" == "1" ]];do
+		pidHal=$(pidof hald)
+		if [[ $pidHal == "" ]];then
+			/etc/init.d/dbus-1 start
+		fi
 
-while [[ "1" == "1" ]];do
+		pidPlutoHal=$(pidof pluto-hald)
+		if [[ $pidPlutoHal == "" ]]; then
+			/usr/pluto/bin/pluto-hald dcerouter
+		fi
+	done
 
-	sleep 10
-
-	pidHal=$(pidof hald)
-	if [[ $pidHal == "" ]];then
-		/etc/init.d/dbus-1 restart
-	fi
-	
-
-	pidPlutoHal=$(pidof pluto-hald)
-	if [[ $pidPlutoHal == "" ]]; then
-		screen -d -m -S "PlutoHalDaemon.sh" /usr/pluto/bin/pluto-hald dcerouter
-	fi
-done
+## If not run in background
+else
+	## Start this script in background
+	screen -d -m -S "PlutoHalDaemon.sh" /usr/pluto/bin/PlutoHalDaemon.sh background
+fi
