@@ -2114,6 +2114,7 @@ namespace HADesigner
 			this.chRelToSender.Size = new System.Drawing.Size(96, 24);
 			this.chRelToSender.TabIndex = 23;
 			this.chRelToSender.Text = "Rel to Sender";
+			this.chRelToSender.TextChanged += new System.EventHandler(this.chRelToSender_TextChanged);
 			// 
 			// tbDeviceCategory
 			// 
@@ -2122,6 +2123,7 @@ namespace HADesigner
 			this.tbDeviceCategory.Size = new System.Drawing.Size(48, 20);
 			this.tbDeviceCategory.TabIndex = 22;
 			this.tbDeviceCategory.Text = "";
+			this.tbDeviceCategory.TextChanged += new System.EventHandler(this.tbDeviceCategory_TextChanged);
 			// 
 			// tbMasterDeviceList
 			// 
@@ -2130,6 +2132,7 @@ namespace HADesigner
 			this.tbMasterDeviceList.Size = new System.Drawing.Size(48, 20);
 			this.tbMasterDeviceList.TabIndex = 21;
 			this.tbMasterDeviceList.Text = "";
+			this.tbMasterDeviceList.TextChanged += new System.EventHandler(this.tbMasterDeviceList_TextChanged);
 			// 
 			// label10
 			// 
@@ -2170,6 +2173,7 @@ namespace HADesigner
 			this.cbBroadcast.Name = "cbBroadcast";
 			this.cbBroadcast.Size = new System.Drawing.Size(88, 21);
 			this.cbBroadcast.TabIndex = 17;
+			this.cbBroadcast.SelectedIndexChanged += new System.EventHandler(this.cbBroadcast_SelectedIndexChanged);
 			// 
 			// btnOnActivateGoto
 			// 
@@ -2178,6 +2182,7 @@ namespace HADesigner
 			this.btnOnActivateGoto.Size = new System.Drawing.Size(40, 23);
 			this.btnOnActivateGoto.TabIndex = 9;
 			this.btnOnActivateGoto.Text = "Goto";
+			this.btnOnActivateGoto.Click += new System.EventHandler(this.btnOnActivateGoto_Click);
 			// 
 			// lbSelectedCommands
 			// 
@@ -2196,6 +2201,7 @@ namespace HADesigner
 			this.btnOnActivateDown.Size = new System.Drawing.Size(24, 23);
 			this.btnOnActivateDown.TabIndex = 15;
 			this.btnOnActivateDown.Text = "D";
+			this.btnOnActivateDown.Click += new System.EventHandler(this.btnOnActivateDown_Click);
 			// 
 			// tvCommand
 			// 
@@ -2215,6 +2221,7 @@ namespace HADesigner
 			this.btnOnActivateUp.Size = new System.Drawing.Size(24, 23);
 			this.btnOnActivateUp.TabIndex = 14;
 			this.btnOnActivateUp.Text = "U";
+			this.btnOnActivateUp.Click += new System.EventHandler(this.btnOnActivateUp_Click);
 			// 
 			// btnOnActivateRemoveAG
 			// 
@@ -2224,6 +2231,7 @@ namespace HADesigner
 			this.btnOnActivateRemoveAG.Size = new System.Drawing.Size(32, 23);
 			this.btnOnActivateRemoveAG.TabIndex = 7;
 			this.btnOnActivateRemoveAG.Text = "<<";
+			this.btnOnActivateRemoveAG.Click += new System.EventHandler(this.btnOnActivateRemoveAG_Click);
 			// 
 			// btnOnActivateAddAG
 			// 
@@ -2233,6 +2241,7 @@ namespace HADesigner
 			this.btnOnActivateAddAG.Size = new System.Drawing.Size(32, 23);
 			this.btnOnActivateAddAG.TabIndex = 6;
 			this.btnOnActivateAddAG.Text = ">>";
+			this.btnOnActivateAddAG.Click += new System.EventHandler(this.btnOnActivateAddAG_Click);
 			// 
 			// pnOnActivateParameters
 			// 
