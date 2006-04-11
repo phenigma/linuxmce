@@ -267,7 +267,6 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 		string rest=p1;
 		string hang=p2;
 		pos=p1.find(devext);
-		g_pPlutoLogger->Write(LV_STATUS, "before tranfer dev %s p1=%s p2=%s",devext.c_str(),p1.c_str(),p2.c_str());		
 		if(pos>=0)
 		{
 			rest=p2;
