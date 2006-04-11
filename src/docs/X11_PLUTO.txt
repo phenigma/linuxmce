@@ -17,14 +17,18 @@ taken from the net forums and docs.
 sure some thread code does not call X functions correctly.
 
 
+
     If these notes are disregarded, then the application may appear to
 work fine, until a point in time when:
 - it starts to loose events;
 - appear to freeze for a time;
-- behaves unpredictably.
+- behaves unpredictably;
+- in gdb, the application may appear to be locked after a call to XSync().
+
+
 
     When working with threads in any X11 application, the following
-rules apply:
+notes apply:
 
 - it doesn't matter if the application uses wxWidgets, or GTK, or
   Motif, or any other library; some libraries, like QT4, already
@@ -56,7 +60,7 @@ rules apply:
 
     Events specified here refers to: X11 events, keyboard events
 
-    SDL, GTK, wxWidgets all have equivalent functions. Use them as
+    QT, GTK, wxWidgets all have equivalent functions. Use them as
 appropriate instead of Xlib functions for platform compatibility.
 
 // --EOF--
