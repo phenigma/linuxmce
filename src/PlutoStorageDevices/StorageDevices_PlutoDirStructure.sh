@@ -55,7 +55,7 @@ else
                 AND
 		PK_Device IN ($CommaSeparatedDeviceList)
         "
-	Devices=$(RunSQL "Q")
+	Devices=$(RunSQL "$Q")
 fi
 
 
