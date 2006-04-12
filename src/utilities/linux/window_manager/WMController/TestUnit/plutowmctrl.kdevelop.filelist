@@ -1,0 +1,5 @@
+# KDevelop Custom Project File List
+Makefile
+pluto_wmctrl.cpp
+wmctrl.cpp
+wmctrl.h

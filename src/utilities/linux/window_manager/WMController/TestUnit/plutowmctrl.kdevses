@@ -1,0 +1,55 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE KDevPrjSession>
+<KDevPrjSession>
+ <DocsAndViews NumberOfDocuments="9" >
+  <Doc0 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/wmctrl.cpp" >
+   <View0 line="268" Type="Source" />
+  </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/wmctrl.h" >
+   <View0 line="53" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/Makefile" >
+   <View0 line="9" Type="Source" />
+  </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/WindowManager.h" >
+   <View0 line="25" Type="Source" />
+  </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/WindowManager.cpp" >
+   <View0 line="22" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/main.c" >
+   <View0 line="218" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:/usr/X11R6/include/X11/Xlib.h" >
+   <View0 line="506" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:/home/ender/wmctrl-1.07/pluto-wmctrl/Main.cpp" >
+   <View0 line="10" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:/home/ender/src/Orbiter/Linux/wmtaskmanager.h" >
+   <View0 line="71" Type="Source" />
+  </Doc8>
+ </DocsAndViews>
+ <pluginList>
+  <kdevdebugger>
+   <breakpointList/>
+  </kdevdebugger>
+  <kdevbookmarks>
+   <bookmarks>
+    <bookmark url="/home/ender/wmctrl-1.07/pluto-wmctrl/wmctrl.cpp" >
+     <mark line="475" />
+    </bookmark>
+   </bookmarks>
+  </kdevbookmarks>
+  <kdevrbdebugger>
+   <breakpointList/>
+   <watchExpressions/>
+  </kdevrbdebugger>
+  <kdevvalgrind>
+   <executable path="" params="" />
+   <valgrind path="" params="" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
+  </kdevvalgrind>
+ </pluginList>
+</KDevPrjSession>
