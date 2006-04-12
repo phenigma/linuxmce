@@ -182,3 +182,45 @@ void Plug_And_Play::SomeFunction()
 */
 
 
+//<-dceag-c797-b->
+
+	/** @brief COMMAND: #797 - PlugAndPlayAddDevice */
+	/** Adds or enables the newly discovered device */
+		/** @param #9 Text */
+			/** The MessageSend parameters for creating the discovered device */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device template ID for the discovered device */
+		/** @param #70 Tokens */
+			/** Extra parameters in the form of | (pipe) separated tokens */
+		/** @param #214 PNPSerialNo */
+			/** The serial number of the device, computed by the PNP discovery daemons */
+		/** @param #215 PK_PnpProtocol */
+			/** The PNP protocol of the daemon that discovered the device */
+
+void Plug_And_Play::CMD_PlugAndPlayAddDevice(string sText,int iPK_DeviceTemplate,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol,string &sCMD_Result,Message *pMessage)
+//<-dceag-c797-e->
+{
+	//clear the result string
+	sCMD_Result.clear();
+	
+	//check the queue to see if the device is not in processing
+	
+	//check the device table to see if there is already a device with the specified serial no
+	
+	
+	
+}
+//<-dceag-c798-b->
+
+	/** @brief COMMAND: #798 - PlugAndPlayRemoveDevice */
+	/** Disables the newly discovered device */
+		/** @param #214 PNPSerialNo */
+			/** The serial number detected by the PNP discovery layers */
+
+void Plug_And_Play::CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD_Result,Message *pMessage)
+//<-dceag-c798-e->
+{
+	//clear the result string
+	sCMD_Result.clear();
+	
+}

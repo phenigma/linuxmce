@@ -2,7 +2,7 @@
 #ifndef Plug_And_Play_h
 #define Plug_And_Play_h
 
-//	DCE Implemenation for #1794 Plug And Play
+//	DCE Implemenation for #1791 Plug And Play
 
 #include "Gen_Devices/Plug_And_PlayBase.h"
 //<-dceag-d-e->
@@ -49,6 +49,32 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #797 - PlugAndPlayAddDevice */
+	/** Adds or enables the newly discovered device */
+		/** @param #9 Text */
+			/** The MessageSend parameters for creating the discovered device */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device template ID for the discovered device */
+		/** @param #70 Tokens */
+			/** Extra parameters in the form of | (pipe) separated tokens */
+		/** @param #214 PNPSerialNo */
+			/** The serial number of the device, computed by the PNP discovery daemons */
+		/** @param #215 PK_PnpProtocol */
+			/** The PNP protocol of the daemon that discovered the device */
+
+	virtual void CMD_PlugAndPlayAddDevice(string sText,int iPK_DeviceTemplate,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol) { string sCMD_Result; CMD_PlugAndPlayAddDevice(sText.c_str(),iPK_DeviceTemplate,sTokens.c_str(),sPNPSerialNo.c_str(),iPK_PnpProtocol,sCMD_Result,NULL);};
+	virtual void CMD_PlugAndPlayAddDevice(string sText,int iPK_DeviceTemplate,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #798 - PlugAndPlayRemoveDevice */
+	/** Disables the newly discovered device */
+		/** @param #214 PNPSerialNo */
+			/** The serial number detected by the PNP discovery layers */
+
+	virtual void CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo) { string sCMD_Result; CMD_PlugAndPlayRemoveDevice(sPNPSerialNo.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

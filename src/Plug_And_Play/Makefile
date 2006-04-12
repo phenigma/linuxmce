@@ -10,7 +10,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Plug_And_Play
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1794mplateID
+MYDEVTEMPLATEID = 1791mplateID
 
 Gen_Dev_Files = $(GENDEV)/Plug_And_PlayBase.cpp
 sources = Main.cpp Plug_And_Play.cpp $(Gen_Dev_Files)
