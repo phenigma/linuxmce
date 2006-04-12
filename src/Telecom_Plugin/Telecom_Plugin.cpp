@@ -65,6 +65,7 @@ using namespace DCE;
 int UniqueColors[MAX_TELECOM_COLORS];
 #include <time.h>
 
+#define CONFERENCE_PREFIX "C000"
 void * startDisplayThread(void * Arg);
 
 //<-dceag-const-b->
@@ -709,7 +710,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if(pPBXDevice) {
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
-		if(pCallData->getID().find("C000")==0)
+		if(pCallData->getID().find(CONFERENCE_PREFIX)==0)
 		{
 			if(!bIsConference)
 			{
@@ -719,9 +720,8 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		}
 		if(bIsConference)
 		{
-			if(pCallData->getID().find("C000")!=0) // not in the conference yet?
+			if(pCallData->getID().find(CONFERENCE_PREFIX)!=0) // not in the conference yet?
 			{
-				DeviceData_Router *pDeviceData = find_Device(pCallData->getOwnerDevID());
 				string room="000"+StringUtils::itos(next_conf_room);
 				next_conf_room++;
 
@@ -1119,7 +1119,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			}
 			else
 			{
-				if(chan.find("C000")!=0)
+				if(chan.find(CONFERENCE_PREFIX)!=0)
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], callerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
 					if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
@@ -1164,6 +1164,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 						}
 					}
 				}
+				//kaka here, don't send message
 		        pCell->m_AltColor = UniqueColors[Row%MAX_TELECOM_COLORS];
 				pDataGrid->SetData(0,Row,pCell);
 				text_list.push_back(ext_txt);
@@ -1437,4 +1438,135 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 //<-dceag-c796-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Command PL_Join_Call (call=%s, devices=%s)",sCallID.c_str(),sList_PK_Device.c_str());
+	list <int> dev_join_list;
+	list <int> dev_gts_list;
+	int pos = 0, oldpos = 0;
+	do
+	{
+		pos = sList_PK_Device.find(',',oldpos);
+		string device;
+		if(pos < 0)
+		{
+			device = sList_PK_Device.substr(oldpos, sList_PK_Device.length());
+		}
+		else
+		{
+			device = sList_PK_Device.substr(oldpos, pos - oldpos);
+		}
+		int idev=atoi(device.c_str());
+		if(map_device2ext[idev] == 0)
+		{
+			idev=map_orbiter2embedphone[idev];
+		}
+		if(map_device2ext[idev] == 0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Ignoring device %s(%d) as has no extension",device.c_str(),idev);
+			oldpos=pos+1;
+			continue;
+		}
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(idev);
+		if(pCallData)
+		{
+			if(pCallData->getID() == sCallID)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Device #%d is already connected to this call",idev);
+				if(map_embedphone2orbiter[idev] != 0)
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Add #%d in GTS list",idev);
+					dev_gts_list.push_back(idev);
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Device #%d has some other call '%s'",idev,pCallData->getID().c_str());
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Add #%d in JOIN list",idev);
+			dev_join_list.push_back(idev);
+		}
+		oldpos=pos+1;
+	}
+	while(pos>=0);
+	
+	pos = oldpos = 0;
+	do
+	{
+		pos = sCallID.find(' ',oldpos);
+		string chan;		
+		if(pos < 0)
+		{
+			chan = sCallID.substr(oldpos, sCallID.length());
+		}
+		else
+		{
+			if(pos==oldpos)
+			{
+				oldpos=pos+1;
+				continue;
+			}
+			chan = sCallID.substr(oldpos, pos - oldpos);
+		}
+		int ext;
+		string sext;
+		if(ParseChannel(chan,&ext,&sext)==0)
+		{
+			if(find(dev_gts_list.begin(), dev_gts_list.end(), ext) == dev_gts_list.end())
+			{
+				int idev = map_ext2device[ext];
+				if(map_embedphone2orbiter[idev] != 0)
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Add #%d in GTS list",idev);
+					dev_gts_list.push_back(idev);
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Don't add #%d in GSD list",idev);
+				}
+			}
+		}
+		oldpos=pos+1;
+	}
+	while(pos>=0);
+	
+	list<int>::iterator it;
+	
+	for(it=dev_gts_list.begin();it!=dev_gts_list.end();it++)
+	{
+		SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,map_embedphone2orbiter[(*it)]);
+	    SendCommand(SCREEN_DevCallInProgress_);
+	}
+	
+	string room;
+	
+	if(sCallID.find(CONFERENCE_PREFIX) != 0) //not a conference
+	{
+		room="000"+StringUtils::itos(next_conf_room);
+		next_conf_room++;
+		g_pPlutoLogger->Write(LV_STATUS, "Will create conference room %d",room.c_str());
+	    DeviceData_Router* pPBXDevice = find_AsteriskDevice();
+	    if(pPBXDevice) {
+			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
+			SendCommand(cmd_PBX_Transfer);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Could not found Asterisk device");
+			return;
+		}
+	}
+	else
+	{
+		pos=sCallID.find(' ');
+		room=sCallID.substr(1,pos-1);
+		g_pPlutoLogger->Write(LV_STATUS, "Will join into conference room %d",room.c_str());		
+	}
+	Sleep(2000);
+	for(it=dev_join_list.begin();it!=dev_join_list.end();it++)
+	{
+		DCE::CMD_PL_External_Originate cmd_invite((*it),m_dwPK_Device,StringUtils::itos(map_device2ext[(*it)]),"conference",room);
+		SendCommand(cmd_invite);
+		Sleep(200);		
+	}
 }
