@@ -74,6 +74,8 @@ done
 
 PopulateSection "/etc/exports" "DisklessMDRoots" "$Exports_DisklessMDRoots"
 
-/usr/sbin/exportfs -ra
-
-/etc/init.d/nfs-kernel-server restart
+## Check and start/reload the nfs-kernel-server
+if [[ "$(pidof rpc.mountd)" == "" ]] ;then
+        /etc/init.d/nfs-kernel-server restart
+fi
+/etc/init.d/nfs-kernel-server reload
