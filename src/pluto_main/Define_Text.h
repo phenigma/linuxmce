@@ -940,6 +940,8 @@
 #define TEXT_List_of_all_bookmarksList_of_all_bookmar_CONST 1652
 #define TEXT_View_bookmarks_for_this_file_CONST 1653
 #define TEXT_ManufNotListed_CONST 1654
+#define TEXT_What_Delay_CONST 1655
+#define TEXT_How_to_tune_CONST 1656
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
