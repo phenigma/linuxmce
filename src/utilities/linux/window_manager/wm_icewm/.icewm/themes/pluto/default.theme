@@ -1,0 +1,12 @@
+BorderSizeX=4
+BorderSizeY=4
+CornerSizeX=20
+CornerSizeY=20
+DlgBorderSizeX=2
+DlgBorderSizeY=2
+
+TitleBarHeight=0
+TitleBarJustify=0
+TitleButtonsLeft=""
+TitleButtonsRight=""
+TitleButtonsSupported="xmirhsd"
