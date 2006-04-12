@@ -1,0 +1,184 @@
+--- wmctrl-1.07.orig/debian/control
++++ wmctrl-1.07/debian/control
+@@ -0,0 +1,20 @@
++Source: wmctrl
++Section: x11
++Priority: optional
++Maintainer: Decklin Foster <decklin@red-bean.com>
++Build-Depends: debhelper (>= 4.0.0), xlibs-dev, libglib2.0-dev (>= 2.4.0)
++Standards-Version: 3.6.1
++
++Package: wmctrl
++Architecture: any
++Depends: ${shlibs:Depends}
++Description: control an EWMH/NetWM compatible X Window Manager
++ Wmctrl is a command line tool to interact with an
++ EWMH/NetWM compatible X Window Manager (examples include
++ enligthenment, icewm, kwin, metacity, and sawfish).
++ .
++ Wmctrl provides command line access to almost all the features
++ defined in the EWMH specification. For example it can maximize
++ windows, make them sticky, set them to be always on top. It can
++ switch and resize desktops and perform many other useful
++ operations.
+--- wmctrl-1.07.orig/debian/rules
++++ wmctrl-1.07/debian/rules
+@@ -0,0 +1,91 @@
++#!/usr/bin/make -f
++# -*- makefile -*-
++# Sample debian/rules that uses debhelper.
++# This file was originally written by Joey Hess and Craig Small.
++# As a special exception, when this file is copied by dh-make into a
++# dh-make output file, you may use that output file without restriction.
++# This special exception was added by Craig Small in version 0.37 of dh-make.
++
++# Uncomment this to turn on verbose mode.
++#export DH_VERBOSE=1
++
++
++# These are used for cross-compiling and for saving the configure script
++# from having to guess our platform (since we know it already)
++DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
++DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
++
++
++CFLAGS = -Wall -g
++
++ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
++	CFLAGS += -O0
++else
++	CFLAGS += -O2
++endif
++
++config.status: configure
++	dh_testdir
++	# Add here commands to configure the package.
++	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
++
++
++build: build-stamp
++
++build-stamp:  config.status
++	dh_testdir
++
++	# Add here commands to compile the package.
++	$(MAKE)
++
++	touch build-stamp
++
++clean:
++	dh_testdir
++	dh_testroot
++	rm -f build-stamp 
++
++	# Add here commands to clean up after the build process.
++	-$(MAKE) distclean
++
++	dh_clean 
++
++install: build
++	dh_testdir
++	dh_testroot
++	dh_clean -k 
++	dh_installdirs
++
++	# Add here commands to install the package into debian/wmctrl.
++	$(MAKE) install DESTDIR=$(CURDIR)/debian/wmctrl
++
++
++# Build architecture-independent files here.
++binary-indep: build install
++# We have nothing to do by default.
++
++# Build architecture-dependent files here.
++binary-arch: build install
++	dh_testdir
++	dh_testroot
++	dh_installchangelogs ChangeLog
++	dh_installdocs
++	dh_installexamples
++#	dh_install
++#	dh_installmenu
++#	dh_installlogrotate
++#	dh_installinit
++#	dh_installinfo
++	dh_link
++	dh_strip
++	dh_compress
++	dh_fixperms
++#	dh_makeshlibs
++	dh_installdeb
++	dh_shlibdeps
++	dh_gencontrol
++	dh_md5sums
++	dh_builddeb
++
++binary: binary-indep binary-arch
++.PHONY: build clean binary-indep binary-arch binary install 
+--- wmctrl-1.07.orig/debian/watch
++++ wmctrl-1.07/debian/watch
+@@ -0,0 +1,2 @@
++version=2
++http://sweb.cz/tripie/utils/wmctrl/dist/ wmctrl-(.*)\.tar\.gz debian uupdate
+--- wmctrl-1.07.orig/debian/changelog
++++ wmctrl-1.07/debian/changelog
+@@ -0,0 +1,33 @@
++wmctrl (1.07-1) unstable; urgency=low
++
++  * New upstream release
++
++ -- Decklin Foster <decklin@red-bean.com>  Sat, 29 Jan 2005 09:45:14 -0500
++
++wmctrl (1.06-1) unstable; urgency=low
++
++  * New upstream release
++    - debian/wmctrl.1: merged upstream.
++  * debian/watch: added trailing / to directory (Thanks, Shyamal).
++  * debian/control: lowercase first letter of description.
++
++ -- Decklin Foster <decklin@red-bean.com>  Sat, 22 Jan 2005 14:04:09 -0500
++
++wmctrl (1.05-2) unstable; urgency=low
++
++  * Adopting package created by Debian user Shyamal Prasad
++    <shyamal@member.fsf.org>.
++  * Removed debian/{pre,post}{inst,rm}.ex and config.{sub,guess}, and do not
++    generate config.{sub,guess} in clean.
++  * Removed example cruft in copyright and watch.
++  * Install ChangeLog as the upstream changelog, not a doc. Do not install
++    NEWS, since it is empty.
++
++ -- Decklin Foster <decklin@red-bean.com>  Mon, 13 Dec 2004 10:41:11 -0500
++
++wmctrl (1.05-1) unstable; urgency=low
++
++  * Initial Release. Added man page wmctrl.1 (closes: #285397)
++
++ -- Shyamal Prasad <shyamal@member.fsf.org>  Thu, 12 Dec 2004 18:59:40 -0800
++
+--- wmctrl-1.07.orig/debian/wmctrl.docs
++++ wmctrl-1.07/debian/wmctrl.docs
+@@ -0,0 +1 @@
++README
+--- wmctrl-1.07.orig/debian/compat
++++ wmctrl-1.07/debian/compat
+@@ -0,0 +1 @@
++4
+--- wmctrl-1.07.orig/debian/copyright
++++ wmctrl-1.07/debian/copyright
+@@ -0,0 +1,15 @@
++This package was debianized by Shyamal Prasad <shyamal@member.fsf.org> on
++Thu, 12 Dec 2004 18:59:40 -0800.
++
++It was downloaded from http://sweb.cz/tripie/utils/wmctrl/
++
++Upstream Author: Tomas Styblo <tripie@cpan.org>
++
++Copyright (C) 2003, Tomas Styblo <tripie@cpan.org>
++
++You are free to distribute this software under the terms of the GNU
++General Public License.
++
++On Debian systems, the complete text of the GNU General Public License
++can be found in the file `/usr/share/common-licenses/GPL'.
++
