@@ -207,6 +207,12 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 //<-dceag-c334-e->
 {
     char tmp[1024];
+    if(haveActiveCall)
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Already have a call");
+        sCMD_Result="ERROR";
+        return;
+    }
     snprintf(tmp,sizeof(tmp)-1,"%s:%s@%s/%s",deviceExtension,devicePassword,asteriskHost,sPhoneExtension.c_str());
     g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
     DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
@@ -382,7 +388,7 @@ void SimplePhone::registerWithAsterisk()
     int                      output = 0;
     int                      ring   = 0;
     haveActiveCall=false;
-	
+    
     if(iaxc_initialize(AUDIO_INTERNAL_ALSA,1)<0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
