@@ -236,6 +236,10 @@ void Command_Impl::CreateChildren()
 	{
 		DeviceData_Impl *pDeviceData_Impl_Child = m_pData->m_vectDeviceData_Impl_Children[i];
 
+		// This device was marked as disabled
+		if (pDeviceData_Impl_Child->m_bDisabled)
+			continue;
+		
 		// This device has it's own executible. Try to spawn it. If that fails, we will try to create it ourselves
 		if( pDeviceData_Impl_Child->m_bImplementsDCE && !pDeviceData_Impl_Child->m_bIsEmbedded )
 		{
@@ -433,7 +437,10 @@ void Command_Impl::SetDeviceCategories(DeviceData_Impl *pData)
 {
 	m_pData->m_pDeviceCategory = pData->m_AllDevices.m_mapDeviceCategory_Find(m_pData->m_dwPK_DeviceCategory);
 	for( int i=0; i < (int)m_pData->m_vectDeviceData_Impl_Children.size(); i++ )
+	{
 		m_pData->m_vectDeviceData_Impl_Children[i]->m_pDeviceCategory = pData->m_AllDevices.m_mapDeviceCategory_Find(m_pData->m_vectDeviceData_Impl_Children[i]->m_dwPK_DeviceCategory);
+		m_pData->m_vectDeviceData_Impl_Children[i]->m_bDisabled = pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_vectDeviceData_Impl_Children[i]->m_dwPK_Device)->m_bDisabled != 0;
+	}
 }
 
 
@@ -1070,4 +1077,3 @@ Message *Command_Impl::GetLocalModeResponse()
 {
 	return NULL;
 }
-

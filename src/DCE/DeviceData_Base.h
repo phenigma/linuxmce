@@ -219,6 +219,7 @@ namespace DCE
 		long m_dwPK_Device_ControlledVia; /** < the specifies how the device is controlled @todo ask */
 		unsigned long m_dwPK_DeviceCategory; /** < the device category */
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
+		bool m_bDisabled; /** < specifies if device is disabled */
 
 		long m_dwPK_Device_MD,m_dwPK_Device_Core; /** < the ID of the MD and Core, if there is one */
 
@@ -298,7 +299,7 @@ namespace DCE
 		 */
 		DeviceData_Base( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_DeviceTemplate, unsigned long dwPK_Device_ControlledVia,
 				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn,
-				string sDescription, string sIPAddress, string sMacAddress, bool bInheritsMacFromPC)
+				string sDescription, string sIPAddress, string sMacAddress, bool bInheritsMacFromPC, bool bDisabled)
 		{
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = NULL;
@@ -318,6 +319,7 @@ namespace DCE
 			m_sMacAddress = sMacAddress;
 			m_bInheritsMacFromPC = bInheritsMacFromPC;
 			m_bDeviceData_Impl = false;
+			m_bDisabled = bDisabled;
 		}
 
 		/**
@@ -500,4 +502,3 @@ namespace DCE
 }
 
 #endif
-
