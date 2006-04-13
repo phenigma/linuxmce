@@ -62,7 +62,8 @@ Q="
 		PK_Device, 
 		IPaddress, 
 		MACaddress, 
-		Device.Description
+		Device.Description,
+		Device.NeedConfigure
 	FROM 
 		Device
 		JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
@@ -83,6 +84,7 @@ for Client in $R; do
 	IP=$(Field 2 "$Client")
 	MAC=$(Field 3 "$Client")
 	Description=$(Field 4 "$Client")
+	NeedConfigure=$(Field 5 "$Client")
 
 		
 	## Allocating IP for moon
@@ -120,7 +122,7 @@ for Client in $R; do
 	Diskless=$(RunSQL "$Q")
 
 	## If is a diskless md
-	if [[ -n "$Diskless" ]]; then
+	if [[ -n "$Diskless" && $NeedConfigure=="1" ]]; then
 		echo "* Diskless filesystem"
 
 		Q="
@@ -282,6 +284,10 @@ for Client in $R; do
 		mv $DlPath/var/cache/debconf/config.dat.$$ $DlPath/var/cache/debconf/config.dat
 
 		echo 
+
+		## Dome configuring this MD
+		Q="UPDATE Device SET NeedConfigure = 0 WHERE PK_Device=$PK_Device"
+		RunSQL "$Q"
 	fi
 
 	echo "* Adding to hosts"
