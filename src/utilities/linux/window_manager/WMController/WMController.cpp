@@ -13,18 +13,18 @@ WMControllerImpl::~WMControllerImpl()
 bool WMControllerImpl::Init()
 {
 	m_pDisplay = XOpenDisplay(NULL);
-	
-	if (NULL == m_pDisplay) 
+
+	if (NULL == m_pDisplay)
 	{
 		printf("Cannot open display! (did you forget to use a 'export DISPLAY' ?) \n");
 		return false;
     }
-	
-	init_charset(true); //use UTF8 
-	
+
+	init_charset(true); //use UTF8
+
 	return true;
 }
-//-------------------------------------------------------------------------------------------------------------	
+//-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::Fini()
 {
 	if(NULL != m_pDisplay)
@@ -32,7 +32,7 @@ bool WMControllerImpl::Fini()
 		XCloseDisplay(m_pDisplay);
 		return true;
 	}
-	
+
 	printf("Cannot close NULL display!\n");
 	return false;
 }
@@ -43,18 +43,18 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 
 	if(!Init())
 		return false;
-	
+
 	string sParam = bVisible ? "0" : "1";
-		
+
 	action_window_str(
-		m_pDisplay, 
-		't', //mode 
-		const_cast<char *>(sWindowName.c_str()), 
+		m_pDisplay,
+		't', //mode
+		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
 		false //full window title match
 	);
-		
+
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -64,36 +64,36 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 
 	if(!Init())
 		return false;
-	
+
 	string sParam;
 	switch(aLayer)
 	{
 		case wlNormal:
 			sParam = "remove,above,below";
 			break;
-			
+
 		case wlAbove:
 			sParam = "add,above";
 			break;
-			
+
 		case wlBelow:
 			sParam = "add,below";
 			break;
-		
+
 		default:
 			printf("Unknown layer!");
 			return false;
 	}
-		
+
 	action_window_str(
-		m_pDisplay, 
+		m_pDisplay,
 		'b',  //mode
-		const_cast<char *>(sWindowName.c_str()), 
+		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
 		false //full window title match
 	);
-		
+
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -103,20 +103,20 @@ bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int 
 
 	if(!Init())
 		return false;
-	
+
 	char pParam[128];
 	sprintf(pParam, "0,%d,%d,%d,%d", x, y, w, h);
 	string sParam(pParam);
-		
+
 	action_window_str(
-		m_pDisplay, 
-		'e', //mode 
-		const_cast<char *>(sWindowName.c_str()), 
+		m_pDisplay,
+		'e', //mode
+		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
-		false //full window title match	
+		false //full window title match
 	);
-		
+
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -126,20 +126,43 @@ bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen
 
 	if(!Init())
 		return false;
-	
+
 	string sParam = bFullScreen ? "add,fullscreen" : "remove,fullscreen";
-		
+
 	action_window_str(
-		m_pDisplay, 
-		'b', //mode 
-		const_cast<char *>(sWindowName.c_str()), 
+		m_pDisplay,
+		'b', //mode
+		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
 		false //full window title match
 	);
-		
+
 	return Fini();
 }
+
+//-------------------------------------------------------------------------------------------------------------
+bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
+{
+	printf("SetMaximized, window name: %s, fullscreen: %d\n", sWindowName.c_str(), bMaximized);
+
+	if(!Init())
+		return false;
+
+	string sParam = bMaximized ? "add,maximized_horz,maximized_vert" : "remove,maximized_horz,maximized_vert";
+
+	action_window_str(
+		m_pDisplay,
+		'b', //mode
+		const_cast<char *>(sWindowName.c_str()),
+		const_cast<char *>(sParam.c_str()),
+		true,  //use class name
+		false //full window title match
+	);
+
+	return Fini();
+}
+
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 {
@@ -147,18 +170,18 @@ bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 
 	if(!Init())
 		return false;
-		
+
 	string sParam;
-	
+
 	action_window_str(
-		m_pDisplay, 
-		'a', //mode 
-		const_cast<char *>(sWindowName.c_str()), 
+		m_pDisplay,
+		'a', //mode
+		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
 		false //full window title match
 	);
-		
+
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -170,7 +193,7 @@ bool WMControllerImpl::ListWindows()
 		return false;
 
 	list_windows(m_pDisplay, true, true, true);
-		
+
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -179,7 +202,7 @@ bool WMControllerImpl::GetWindowParams(const string& sWindowName, string& sWindo
 	printf("GetWindowParams, window name: %s, \n", sWindowName.c_str());
 	printf("Not implemented!");
 	sWindowParams = "Not implemented!";
-	
+
 	return true;
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -201,6 +224,6 @@ bool WMControllerImpl::VerboseEnabled()
 //-------------------------------------------------------------------------------------------------------------
 void WMControllerImpl::SetVerbose(bool Value)
 {
-	m_bVerboseEnabled = Value;	
+	m_bVerboseEnabled = Value;
 }
 //-------------------------------------------------------------------------------------------------------------

@@ -14,21 +14,22 @@ void Tokenize(string &Input, string Tokens, vector<string> &vect_strings);
 
 int main(int argc, char *argv[])
 {
- 	int opt;	
-	
-	
+ 	int opt;
+
+
 	string sWindowName; //-r win : window class name
 	bool bListWindows = false;	//-l : list windows
 	bool bActivateWindow = false; //-a : activate window
 	string sPosition; //-p x,y,h,w : position
 	string sVisible; //-s 1 or 0 : show/hide
 	string sVerbose;//-v 1 or 0 : verbose
-	string sFullScreen;	 //-f 1 or 0 : fullscreen?	
-	string sLayer; //-z above|below|normal : layer
-	
-    while ((opt = getopt(argc, argv, "alr:p:s:z:f:v:")) != -1) 
+	string sFullScreen;	 //-f 1 or 0 : fullscreen?
+    string sMaximized; // -m 1 or 0 : maximized
+    string sLayer; //-z above|below|normal : layer
+
+    while ((opt = getopt(argc, argv, "alr:p:s:z:f:v:m:")) != -1)
 	{
-        switch (opt) 
+        switch (opt)
 		{
             case 'r':
 				sWindowName = optarg;
@@ -41,20 +42,23 @@ int main(int argc, char *argv[])
 				break;
 			case 'a':
 				bActivateWindow = true;
-				break;				
+				break;
 			case 's':
 				sVisible = optarg;
 				break;
-			case 'v':
+            case 'm':
+				sMaximized = optarg;
+				break;
+            case 'v':
 				sVerbose = optarg;
-				break;				
+				break;
 			case 'z':
 				sLayer = optarg;
 				break;
 			case 'f':
 				sFullScreen = optarg;
 				break;
-				
+
 			default:
 				printf("Unknown option\n\n");
 				printf("Usage: plutowmctrl <options>\n"
@@ -64,9 +68,10 @@ int main(int argc, char *argv[])
 					"\t-p x,y,h,w\t\t the position\n"
 					"\t-s 0|1\t\t\t show|hide\n"
 					"\t-v 0|1\t\t\t verbose\n"
+					"\t-m 0|1\t\t\t maximize\n"
 					"\t-a \t\t\t activate window \n"
-					"\t-f 0|1\t\t\t fullscreen or not\n"					
-					"\t-z above|normal|below\t the layer (z order)\n"
+					"\t-f 0|1\t\t\t fullscreen or not\n"
+					"\t-z a[bove]|n[ormal]|b[elow]\t the layer (z order)\n"
 				);
 				return -1;
 		}
@@ -86,7 +91,7 @@ int main(int argc, char *argv[])
 		{
 			WMController::Instance().ActivateWindow(sWindowName);
 		}
-	
+
 		if(sPosition != "")
 		{
 			vector<string> vectItems;
@@ -99,23 +104,31 @@ int main(int argc, char *argv[])
 			else
 				printf("ERROR: You need 4 params for position!\n");
 		}
-		
+
 		if(sVisible == "1" || sVisible == "0")
 		{
 			WMController::Instance().SetVisible(sWindowName, sVisible == "1");
 		}
 
+		if(sMaximized == "1" || sMaximized == "0")
+		{
+			WMController::Instance().SetMaximized(sWindowName, sMaximized == "1");
+		}
+
 		if(sFullScreen == "1" || sFullScreen == "0")
 		{
 			WMController::Instance().SetFullScreen(sWindowName, sFullScreen == "1");
-		}		
-				
+		}
+
 		if(sLayer != "")
 		{
-			WMController::Instance().SetLayer(sWindowName, 
-				sLayer == "above" ? wlAbove : 
-					sLayer == "below" ? wlBelow : 
-						sLayer == "normal" ? wlNormal : wlUnknown);
+			WMController::Instance().SetLayer(
+                sWindowName,
+                ( sLayer == "above" || sLayer == "a" ) ? wlAbove :
+                ( sLayer == "below" || sLayer == "b" ) ? wlBelow :
+                ( sLayer == "normal" || sLayer == "n" ) ? wlNormal :
+                wlUnknown
+                );
 		}
 	}
 
@@ -142,7 +155,7 @@ void Tokenize(string &Input, string Tokens, vector<string> &vect_strings)
 				pPtr++;
 
 		// We're stopped on a token, terminate this string and skip over any more tokens
-		while( *pPtr && 
+		while( *pPtr &&
 			( *pPtr==pTokens[0] ||
 			  (Size>1 && *pPtr==pTokens[1]) ||
 			  (Size>2 && *pPtr==pTokens[2]) ) )

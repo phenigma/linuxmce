@@ -23,7 +23,7 @@ enum WindowLayer
 class WMControllerImpl
 {
 private:
-	
+
 	bool m_bVerboseEnabled;
 	Display *m_pDisplay;
 
@@ -39,12 +39,13 @@ public:
 	bool SetLayer(const string& sWindowName, WindowLayer aLayer);
 	bool SetPosition(const string& sWindowName, int x, int y, int w, int h);
 	bool SetFullScreen(const string& sWindowName, bool bFullScreen);
+	bool SetMaximized(const string& sWindowName, bool bMaximized);
 	bool ActivateWindow(const string& sWindowName);
 
 	bool ListWindows();
 	bool GetWindowParams(const string& sWindowName, string& sWindowParams);
 	bool GetDesktopSize(int& x, int& y, int& w, int& h);
-	
+
 	bool VerboseEnabled();
 	void SetVerbose(bool Value);
 };
