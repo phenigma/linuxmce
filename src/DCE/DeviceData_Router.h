@@ -200,7 +200,7 @@ namespace DCE
 		DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)
 			: DeviceData_Impl(pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRoom ? pRoom->m_dwPK_Room : 0,
 			pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
-			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get(),pRow_Device->FK_DeviceTemplate_getrow()->InheritsMacFromPC_get()==1, pRow_Device->Disabled_get() )
+			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get(),pRow_Device->FK_DeviceTemplate_getrow()->InheritsMacFromPC_get()==1, pRow_Device->Disabled_get()==1 )
 		{
 			m_pRow_Device=pRow_Device;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
