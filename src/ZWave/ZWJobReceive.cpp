@@ -77,7 +77,10 @@ bool ZWJobReceive::run()
 	buffer[4] = 0;
 	
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	d->state = ZWJobReceive::START;

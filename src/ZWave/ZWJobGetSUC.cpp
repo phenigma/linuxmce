@@ -57,7 +57,10 @@ bool ZWJobGetSUC::run()
 	buffer[2] = 0;
 	
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState(ZWaveJob::RUNNING);

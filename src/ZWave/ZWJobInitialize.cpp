@@ -98,7 +98,11 @@ bool ZWJobInitialize::run()
 	//d->jobsQueue.pop_front();
 	
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );

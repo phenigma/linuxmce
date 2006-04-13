@@ -142,7 +142,10 @@ bool ZWJobPool::run()
 	}
 	
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );

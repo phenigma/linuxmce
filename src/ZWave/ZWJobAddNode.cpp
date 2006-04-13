@@ -221,7 +221,10 @@ bool ZWJobAddNode::run()
 	((ZWJobSetLearnNodeState*)d->currentJob)->setMode( LEARN_NODE_STATE_NEW );
 	
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState( ZWaveJob::RUNNING );
