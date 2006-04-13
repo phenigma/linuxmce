@@ -244,7 +244,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
 	
 	#ifdef USE_ONLY_SCREEN_SURFACE
-		Uint32 uVideoModeFlags = SDL_SWSURFACE;
+		Uint32 uVideoModeFlags = SDL_SWSURFACE | SDL_RESIZABLE;
 	
 	#if !defined(WIN32) || defined(WINCE)
 		if(m_bFullScreen)

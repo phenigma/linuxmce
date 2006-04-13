@@ -153,7 +153,7 @@ int OrbiterGL3D::InitOpenGL()
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-	Uint32 uVideoModeFlags = SDL_OPENGL;
+	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
 
 #if !defined(WIN32) || defined(WINCE)
 	if(bFullScreen)
