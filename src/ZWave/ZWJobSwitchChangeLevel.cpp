@@ -53,7 +53,10 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~3" );
 bool ZWJobSwitchChangeLevel::run()
 {
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState(ZWaveJob::RUNNING);
@@ -88,10 +91,8 @@ bool ZWJobSwitchChangeLevel::processData(const char * buffer, size_t length)
 		default:
 		case ZWaveJob::IDLE:
 		case ZWaveJob::STOPPED:
-#ifdef PLUTO_DEBUG
-g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~5" );
-#endif
-			break;
+			return true;
+			
 		case ZWaveJob::RUNNING:
 			if(length < 2)
 			{
@@ -177,6 +178,10 @@ g_pPlutoLogger->Write(LV_DEBUG, "~~~~~~~~~~~~~~15" );
 
 void ZWJobSwitchChangeLevel::timeoutHandler()
 {
+#ifdef PLUTO_DEBUG
+g_pPlutoLogger->Write(LV_WARNING, "~~~~~~~~~~~~~~16" );
+#endif
+
 	setAnswerTime( time(NULL) );
 	
 	SerialConnection * connection = handler()->serialConnection();

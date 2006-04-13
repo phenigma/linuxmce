@@ -137,6 +137,7 @@ bool ZWJobPool::run()
 	else
 	{
 		g_pPlutoLogger->Write(LV_ZWAVE, "ZWJobPool no lights available!");
+		setState(ZWaveJob::STOPPED);
 		return false;
 	}
 	

@@ -30,17 +30,20 @@ using namespace DCE;
 
 #ifdef _WIN32 
 #include <windows.h> 
-#include <winbase.h> 
-#define POOL_DELAY 200
+#include <winbase.h>
+#define COMMANDS_DELAY 100
+#define POOL_DELAY     200
 #else 
 #include <unistd.h> 
-#define POOL_DELAY 200000
+#define COMMANDS_DELAY 100000
+#define POOL_DELAY     200000
 #endif
 
 // ask Eugen before uncommenting the following 2 lines
-#define NO_POOLING
+// #define NO_POOLING
 // #define NO_ASYNCH
 
+#define ZW_SHORT_TIMEOUT 5
 #define ZW_TIMEOUT 15
 #define ZW_LONG_TIMEOUT 120
 
@@ -146,21 +149,21 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 100, (unsigned char)NodeID);
 			if( light != NULL )
 			{
-				light->setRunningTimeout( ZW_TIMEOUT );
+				light->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
 				// a small delay to not get ZWave too busy
-/*#ifdef _WIN32
-				Sleep(POOL_DELAY);
+#ifdef _WIN32
+				Sleep(COMMANDS_DELAY);
 #else
-				usleep(POOL_DELAY); 
-#endif*/
+				usleep(COMMANDS_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -175,21 +178,21 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
-				light->setRunningTimeout( ZW_TIMEOUT );
+				light->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
 				// a small delay to not get ZWave too busy
-/*#ifdef _WIN32
-				Sleep(POOL_DELAY);
+#ifdef _WIN32
+				Sleep(COMMANDS_DELAY);
 #else
-				usleep(POOL_DELAY); 
-#endif*/
+				usleep(COMMANDS_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -205,21 +208,21 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, (level > 100) ? 100 : level, (unsigned char)NodeID);
 			if( light != NULL )
 			{
-				light->setRunningTimeout( ZW_TIMEOUT );
+				light->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
 				// a small delay to not get ZWave too busy
-/*#ifdef _WIN32
-				Sleep(POOL_DELAY);
+#ifdef _WIN32
+				Sleep(COMMANDS_DELAY);
 #else
-				usleep(POOL_DELAY); 
-#endif*/
+				usleep(COMMANDS_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -290,6 +293,11 @@ void ZWave::DownloadConfiguration()
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::DownloadConfiguration trying to get list of devices");
 	
+	// force stopping the current ZWave command
+	m_ZWaveAPI->stop();
+	// force cleaning the jobs queue
+	m_ZWaveAPI->clearJobs();
+	
 	ZWJobReceive * receive = new ZWJobReceive(m_ZWaveAPI);
 	ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 	if( receive != NULL && init != NULL )
@@ -351,8 +359,6 @@ return;
 	
 	static bool firstTime = true;
 	
-	CMD_Pool(false);
-		
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	g_pPlutoLogger->Write(LV_ZWAVE, "ZWave::ReportChildDevices trying to get list of devices");
 	
@@ -363,6 +369,8 @@ return;
 	}
 	else
 	{
+		CMD_Pool(false);
+		
 		ZWJobInitialize * init = new ZWJobInitialize(m_ZWaveAPI);
 		if( init != NULL )
 		{
@@ -381,7 +389,8 @@ return;
 			return;
 		}
 		
-		m_ZWaveAPI->waitForJob(init, ZW_LONG_TIMEOUT);
+		if( m_ZWaveAPI->waitForJob(init, ZW_LONG_TIMEOUT) )
+			CMD_Pool(true);
 	}
 	
 	std::string sResponse;
@@ -426,8 +435,6 @@ return;
 	g_pPlutoLogger->Write(LV_ZWAVE,"%s", sResponse.c_str());
 	
 	EVENT_Reporting_Child_Devices("", sResponse);
-	
-	CMD_Pool(true);
 }
 
 bool ZWave::ConfirmConnection(int RetryCount)
@@ -604,7 +611,7 @@ void *DoPooling(void *p)
 
 void ZWave::PoolZWaveNetwork()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "PoolZWaveNetwork : begin");
+	g_pPlutoLogger->Write(LV_ZWAVE, "PoolZWaveNetwork : begin");
 	
 	// start with 30 sec delay
 	// so that the children will be reported
@@ -628,6 +635,10 @@ void ZWave::PoolZWaveNetwork()
 		if( !i /*&& TRYLOCK_TIMEOUT_WARNING <= m_ZWaveAPI->timeLeft()*/ )
 		{
 			PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+			
+			// try to run it when there are no jobs in queue
+			// let's wait to have the queue empty
+			m_ZWaveAPI->waitForJob(NULL, ZW_LONG_TIMEOUT);
 			
 			ZWJobPool * pool = new ZWJobPool(m_ZWaveAPI);
 			if( pool != NULL )
@@ -820,21 +831,21 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 100, (unsigned char)NodeID);
 			if( light != NULL )
 			{
-				light->setRunningTimeout( ZW_TIMEOUT );
+				light->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
 				// a small delay to not get ZWave too busy
-/*#ifdef _WIN32
-				Sleep(POOL_DELAY); 
+#ifdef _WIN32
+				Sleep(COMMANDS_DELAY); 
 #else
-				usleep(POOL_DELAY); 
-#endif*/
+				usleep(COMMANDS_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -849,21 +860,21 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 			ZWJobSwitchChangeLevel * light = new ZWJobSwitchChangeLevel(m_ZWaveAPI, 0, (unsigned char)NodeID);
 			if( light != NULL )
 			{
-				light->setRunningTimeout( ZW_TIMEOUT );
+				light->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( light );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;
 				}
 				
 				// a small delay to not get ZWave too busy
-/*#ifdef _WIN32
-				Sleep(POOL_DELAY); 
+#ifdef _WIN32
+				Sleep(COMMANDS_DELAY); 
 #else
-				usleep(POOL_DELAY); 
-#endif*/
+				usleep(COMMANDS_DELAY); 
+#endif
 				setZWaveChanged(true);
 			}
 			else
@@ -916,10 +927,11 @@ void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 			ZWJobReset * reset = new ZWJobReset(m_ZWaveAPI);
 			if( reset != NULL )
 			{
-				reset->setRunningTimeout( ZW_TIMEOUT );
+				reset->setRunningTimeout( ZW_SHORT_TIMEOUT );
 				m_ZWaveAPI->insertJob( reset );
 				if( !m_ZWaveAPI->start( zwaveSerialDevice.c_str() ) ||
-					!m_ZWaveAPI->listen( ZW_TIMEOUT ) )
+					!m_ZWaveAPI->listen( ZW_SHORT_TIMEOUT ) || 
+					!m_ZWaveAPI->waitForJob( reset, ZW_SHORT_TIMEOUT ) )
 				{
 					sCMD_Result = "DEVICE DIDN'T RESPOND OR ZWAVE ERRORS";
 					return;

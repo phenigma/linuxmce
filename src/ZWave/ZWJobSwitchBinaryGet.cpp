@@ -52,7 +52,10 @@ bool ZWJobSwitchBinaryGet::run()
 	g_pPlutoLogger->Write(LV_DEBUG, "*******************4" );
 #endif
 	time_t currentTime = time(NULL);
-	setStartTime( currentTime );
+	if( !again() )
+	{
+		setStartTime( currentTime );
+	}
 	setAnswerTime( currentTime );
 	
 	setState(ZWaveJob::RUNNING);

@@ -78,6 +78,9 @@ public:
 	static pthread_mutex_t mutex_serial;
 	static pthread_mutex_t mutex_buffer;
 	static pthread_t write_thread;
+	
+	static bool ack;
+	
 private:
 	/**static instance of this class*/
 	static SerialConnection* instance;

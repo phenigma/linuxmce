@@ -1,7 +1,6 @@
 #include "SerialConnection.h"
 #include "main.h"
 
-//#define DEBUG_EUGEN 1
 #ifdef _WIN32 
 #include <windows.h> 
 #include <winbase.h> 
@@ -10,12 +9,16 @@
 #include <unistd.h>
 #define SC_READ_DELAY 200000 
 #endif
+// leave it bigger than 200 ms
+#define SC_READ_TIMEOUT 200
 
 SerialConnection* SerialConnection::instance = NULL;
 
 pthread_mutex_t SerialConnection::mutex_serial;
 pthread_mutex_t SerialConnection::mutex_buffer;
 pthread_t SerialConnection::write_thread;
+
+bool SerialConnection::ack = true;
 
 SerialConnection::SerialConnection()
 	: serialPort(NULL)
@@ -187,6 +190,10 @@ int SerialConnection::send(char *b, size_t len)
 				
 				serialPort->Write(paddedBuffer, len);
 				serialPort->Flush();
+				
+				// this flag is set false, then we have to wait for this flag to be true to send another command
+				// important flag
+				ack = false;
 			}
 			catch(...)
 			{
@@ -296,6 +303,10 @@ int SerialConnection::hasCommand()
 #ifdef PLUTO_DEBUG
 		g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection::hasCommand() popping ACK");
 #endif
+		// we got a new ACK, we can send another command
+		// it's an important flag
+		ack = true;
+		
 		buffer.pop_front();
 	}
 	
@@ -379,8 +390,6 @@ void *SerialConnection::receiveFunction(void *)
 
 	unsigned uRead = 0;
 	
-	//g_pPlutoLogger->Flush();
-	//printf("entry point receiveFUnction");
 	if(instance->serialPort != NULL)
 	{
 		char mybuf[1024];
@@ -393,7 +402,7 @@ void *SerialConnection::receiveFunction(void *)
 			if( instance != NULL && instance->isConnected() )
 			{
 				uRead++;
-				len = instance->serialPort->Read(mybuf, sizeof(mybuf), 200);
+				len = instance->serialPort->Read(mybuf, sizeof(mybuf), SC_READ_TIMEOUT);
 			}
 			else
 			{
@@ -438,25 +447,26 @@ void *SerialConnection::receiveFunction(void *)
 void SerialConnection::printDataBuffer(const char *buffer, const size_t length, const char *classID)
 {
 #ifdef PLUTO_DEBUG
-	char log_buf[1024 * 5];
+	char log_buf[5120]; // 1024 * 5
 	memset(log_buf, 0, sizeof(log_buf));
-	for(unsigned int ww = 0; ww < length && ww < sizeof(log_buf); ww++)
-		sprintf(&(log_buf[ww*5]), "0x%02x ", buffer[ww]);
+	unsigned int ww5 = 0;
+	for(unsigned int ww = 0; ww < length && ww5 < sizeof(log_buf); ww++)
+	{
+		sprintf(&(log_buf[ww5]), "0x%02x ", buffer[ww]);
+		ww5 += 5;
+	}
 	g_pPlutoLogger->Write(LV_DEBUG, "%s len = %d buf = %s", classID, length, log_buf);
 #endif
 }
 
 SerialConnection::~SerialConnection()
 {
-#ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 1");
-#endif
 	if( serialPort != NULL )
 	{
 		disconnect();
 	}
 #ifdef PLUTO_DEBUG
-	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection ------------- 2");
+	g_pPlutoLogger->Write(LV_DEBUG, "SerialConnection --- destructor");
 #endif
 }
 
