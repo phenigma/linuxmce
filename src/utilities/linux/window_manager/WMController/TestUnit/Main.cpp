@@ -19,13 +19,14 @@ int main(int argc, char *argv[])
 	
 	string sWindowName; //-r win : window class name
 	bool bListWindows = false;	//-l : list windows
+	bool bActivateWindow = false; //-a : activate window
 	string sPosition; //-p x,y,h,w : position
 	string sVisible; //-s 1 or 0 : show/hide
 	string sVerbose;//-v 1 or 0 : verbose
 	string sFullScreen;	 //-f 1 or 0 : fullscreen?	
 	string sLayer; //-z above|below|normal : layer
 	
-    while ((opt = getopt(argc, argv, "lr:p:s:z:f:v:")) != -1) 
+    while ((opt = getopt(argc, argv, "alr:p:s:z:f:v:")) != -1) 
 	{
         switch (opt) 
 		{
@@ -38,6 +39,9 @@ int main(int argc, char *argv[])
 			case 'l':
 				bListWindows = true;
 				break;
+			case 'a':
+				bActivateWindow = true;
+				break;				
 			case 's':
 				sVisible = optarg;
 				break;
@@ -77,6 +81,11 @@ int main(int argc, char *argv[])
 
 	if(sWindowName != "")
 	{
+		if(bActivateWindow)
+		{
+			WMController::Instance().ActivateWindow(sWindowName);
+		}
+	
 		if(sPosition != "")
 		{
 			vector<string> vectItems;

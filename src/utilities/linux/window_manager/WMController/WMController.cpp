@@ -141,10 +141,25 @@ bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen
 	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
-bool ActivateWindow(const string& sWindowName)
+bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 {
-	printf("Not implemented!");
-	return true;
+	printf("ActivateWindow, window name: %s\n", sWindowName.c_str());
+
+	if(!Init())
+		return false;
+		
+	string sParam;
+	
+	action_window_str(
+		m_pDisplay, 
+		'a', //mode 
+		const_cast<char *>(sWindowName.c_str()), 
+		const_cast<char *>(sParam.c_str()),
+		true,  //use class name
+		false //full window title match
+	);
+		
+	return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::ListWindows()
@@ -162,6 +177,7 @@ bool WMControllerImpl::ListWindows()
 bool WMControllerImpl::GetWindowParams(const string& sWindowName, string& sWindowParams)
 {
 	printf("GetWindowParams, window name: %s, \n", sWindowName.c_str());
+	printf("Not implemented!");
 	sWindowParams = "Not implemented!";
 	
 	return true;
@@ -169,6 +185,7 @@ bool WMControllerImpl::GetWindowParams(const string& sWindowName, string& sWindo
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::GetDesktopSize(int& x, int& y, int& w, int& h)
 {
+	printf("Not implemented!");
 	x = 0;
 	y = 0;
 	w = 0;
