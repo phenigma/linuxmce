@@ -1989,6 +1989,8 @@
 #define DESIGNOBJ_butTVWhatDelays_CONST 4913
 #define DESIGNOBJ_butTVHowToTune_CONST 4914
 #define DESIGNOBJ_butSQLOnOffCodes_CONST 4915
+#define DESIGNOBJ_appTVWhatDelay_CONST 4916
+#define DESIGNOBJ_appTVHowToTune_CONST 4917
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

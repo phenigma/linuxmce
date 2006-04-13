@@ -722,6 +722,8 @@
 #define COMMAND_Get_Sibling_Remotes_CONST 793
 #define COMMAND_Set_Mouse_Behavior_CONST 795
 #define COMMAND_PL_Join_Call_CONST 796
+#define COMMAND_PlugAndPlayAddDevice_CONST 797
+#define COMMAND_PlugAndPlayRemoveDevice_CONST 798
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
