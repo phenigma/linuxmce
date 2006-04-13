@@ -24,6 +24,7 @@ class WMControllerImpl
 {
 private:
 	
+	bool m_bVerboseEnabled;
 	Display *m_pDisplay;
 
 	//helper functions
@@ -43,6 +44,9 @@ public:
 	bool ListWindows();
 	bool GetWindowParams(const string& sWindowName, string& sWindowParams);
 	bool GetDesktopSize(int& x, int& y, int& w, int& h);
+	
+	bool VerboseEnabled();
+	void SetVerbose(bool Value);
 };
 //-------------------------------------------------------------------------------------------------------------
 typedef Singleton<WMControllerImpl, CreateUsingNew<WMControllerImpl>, DefaultLifetime, MultiThreaded> WMController;

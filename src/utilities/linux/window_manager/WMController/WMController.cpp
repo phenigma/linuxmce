@@ -2,7 +2,7 @@
 #include "wmctrl.h"
 
 //-------------------------------------------------------------------------------------------------------------
-WMControllerImpl::WMControllerImpl(): m_pDisplay(NULL)
+WMControllerImpl::WMControllerImpl(): m_pDisplay(NULL), m_bVerboseEnabled(false)
 {
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -175,5 +175,15 @@ bool WMControllerImpl::GetDesktopSize(int& x, int& y, int& w, int& h)
 	h = 0;
 
 	return true;
+}
+//-------------------------------------------------------------------------------------------------------------
+bool WMControllerImpl::VerboseEnabled()
+{
+	return m_bVerboseEnabled;
+}
+//-------------------------------------------------------------------------------------------------------------
+void WMControllerImpl::SetVerbose(bool Value)
+{
+	m_bVerboseEnabled = Value;	
 }
 //-------------------------------------------------------------------------------------------------------------

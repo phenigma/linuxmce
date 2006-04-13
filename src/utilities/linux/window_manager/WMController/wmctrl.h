@@ -20,8 +20,6 @@
 #define SELECT_WINDOW_MAGIC ":SELECT:"
 #define ACTIVE_WINDOW_MAGIC ":ACTIVE:"
 
-#define p_verbose(...) fprintf(stderr, __VA_ARGS__);
-
 gboolean wm_supports (Display *disp, const gchar *prop);
 Window *get_client_list (Display *disp, unsigned long *size);
 int client_msg(Display *disp, Window win, char *msg,

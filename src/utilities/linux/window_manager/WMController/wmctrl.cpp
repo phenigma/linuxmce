@@ -31,6 +31,14 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define _NET_WM_STATE_ADD           1    /* add/set property */
 #define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
 
+#include "WMController.h"
+
+#define p_verbose(...) \
+{ \
+	if(WMController::Instance().VerboseEnabled()) \
+		fprintf(stdout, __VA_ARGS__); \
+}
+
 static gboolean envir_utf8;
 
 void init_charset (bool force_utf8) {/*{{{*/
@@ -55,7 +63,7 @@ void init_charset (bool force_utf8) {/*{{{*/
     if (force_utf8) {
         envir_utf8 = TRUE;
     }
-    //p_verbose("envir_utf8: %d\n", envir_utf8);
+    p_verbose("envir_utf8: %d\n", envir_utf8);
 }/*}}}*/
 
 int client_msg(Display *disp, Window win, char *msg, /* {{{ */
