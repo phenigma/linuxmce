@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 					"\t-p x,y,h,w\t\t the position\n"
 					"\t-s 0|1\t\t\t show|hide\n"
 					"\t-v 0|1\t\t\t verbose\n"
+					"\t-a \t\t\t activate window \n"
 					"\t-f 0|1\t\t\t fullscreen or not\n"					
 					"\t-z above|normal|below\t the layer (z order)\n"
 				);
