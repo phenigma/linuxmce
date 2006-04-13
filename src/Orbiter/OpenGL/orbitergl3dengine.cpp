@@ -156,7 +156,8 @@ int OrbiterGL3D::InitOpenGL()
 	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
 
 #if !defined(WIN32) || defined(WINCE)
-	if(bFullScreen)
+	//TODO: Ciprian, fix ME!
+	//if(bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
