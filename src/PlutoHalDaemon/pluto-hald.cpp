@@ -136,9 +136,13 @@ void getPortIdentification(string portFromBus, string& portID)
 	
 	size_t startPos = portFromBus.find("usb");
 	size_t endPos = portFromBus.find("/tty");
-	portID = portFromBus.substr(startPos, endPos - startPos);
-	g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	
+	if( startPos != string::npos && endPos != string::npos &&
+		endPos > startPos )
+	{
+		portID = portFromBus.substr(startPos, endPos - startPos);
+		g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
+	}
 }
 
 	
@@ -327,8 +331,6 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 	gchar *serial_port = hal_device_get_property_string (ctx, udi, "linux.sysfs_path");
 	if(serial_port != NULL)
 	{
-		string portID;
-		getPortIdentification(string(serial_port), portID);
 		gchar *parent = hal_device_get_property_string (ctx, hal_device_get_property_string(ctx, udi, "info.parent"), "info.parent");
 		gchar *info_udi = hal_device_get_property_string (ctx, parent, "info.udi");
 		int usb_device_product_id = hal_device_get_property_int(ctx, parent, "usb_device.product_id");
@@ -341,6 +343,9 @@ void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *ca
 		if( it != templatesMap.end() )
 		{
 			g_pPlutoLogger->Write(LV_DEBUG, "NewCapability: udi = %s serial port = %s\n", udi, serial_port);
+			
+			string portID;
+			getPortIdentification(string(serial_port), portID);
 			
 			try
 			{
