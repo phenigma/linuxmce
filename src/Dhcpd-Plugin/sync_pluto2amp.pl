@@ -40,6 +40,8 @@ else
     &set_embed_phones();
 }
 
+&check_and_fix_duplicates();
+
 foreach my $I (@DEVICES)
 {
     $DEVICE_ID = $I;
@@ -56,18 +58,17 @@ foreach my $I (@DEVICES)
             &find_next_extension();
             &update_device_data();
         }
-    	print "Processing #$DEVICE_ID ($DEVICE_EXT)\n";
+        print "Processing #$DEVICE_ID ($DEVICE_EXT)\n";
         $DEVICE_PORT = 4569 if($DEVICE_TYPE =~ /^iax/i);
         $DEVICE_PORT = 5060 if($DEVICE_TYPE =~ /^sip/i);
         &update_asterisk_db();
+        #export the extension for other scripts
+        `echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`;
     }
 }
 
 $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
-
-#export the extension for other scripts
-`echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`;
 
 #run AMP's scripts to generate asterisk's config
 `/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
@@ -99,6 +100,66 @@ sub read_pluto_config()
         }
     }
     close(CONF);
+}
+
+sub check_and_fix_duplicates()
+{
+    my $DB_SQL;
+    my $DB_STATEMENT;
+    my $DB_ROW;
+    my %TEMPL_MOD = ();
+    my %DEV_TEMPL = ();
+    my %DEV_EXTEN = ();
+
+
+    $DB_SQL = "select FK_DeviceTemplate, AllowedToModify from DeviceTemplate_DeviceData where FK_DeviceData=31";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+    {
+        $TEMPL_MOD{$DB_ROW->{'FK_DeviceTemplate'}}=$DB_ROW->{'AllowedToModify'};
+    }
+    $DB_STATEMENT->finish();
+    $DB_SQL = "select FK_Device,FK_DeviceTemplate,IK_DeviceData from Device_DeviceData,Device where FK_DeviceData=31 and FK_Device=PK_Device";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+    {
+        $DEV_EXTEN{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'IK_DeviceData'};
+        $DEV_TEMPL{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'FK_DeviceTemplate'};
+    }
+    $DB_STATEMENT->finish();
+
+    foreach my $i (keys %DEV_EXTEN)
+    {
+        foreach my $j (keys %DEV_EXTEN)
+        {
+            if(($i ne $j) && ($DEV_EXTEN{$i} eq $DEV_EXTEN{$j}) && ($DEV_EXTEN{$i} ne "0"))
+            {
+                print "Conflict for extension ".$DEV_EXTEN{$i}." between #$i and #$j\n";
+                if($TEMPL_MOD{$DEV_TEMPL{$i}} == 1)
+                {
+                    $DEV_EXTEN{$i} = 0;
+                }
+                elsif($TEMPL_MOD{$DEV_TEMPL{$j}} == 1)
+                {
+                    $DEV_EXTEN{$j} = 0;
+                }
+                else
+                {
+                    print "Conflict can't be solved\n";
+                    exit;
+                }
+            }
+        }
+    }
+    foreach my $i (keys %DEV_EXTEN)
+    {
+        $DEVICE_ID = $i;
+        &read_pluto_device_data();
+        $DEVICE_EXT = $DEV_EXTEN{$i};
+        &update_device_data();
+    }
 }
 
 sub read_pluto_device_data()
