@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 		{
 			WMController::Instance().SetLayer(
                 sWindowName,
-                ( sLayer == "above" || sLayer == "a" ) ? wlAbove :
-                ( sLayer == "below" || sLayer == "b" ) ? wlBelow :
-                ( sLayer == "normal" || sLayer == "n" ) ? wlNormal :
-                wlUnknown
+                ( sLayer == "above" || sLayer == "a" ) ? LayerAbove :
+                ( sLayer == "below" || sLayer == "b" ) ? LayerBelow :
+                ( sLayer == "normal" || sLayer == "n" ) ? LayerNormal :
+                LayerUnknown
                 );
 		}
 	}

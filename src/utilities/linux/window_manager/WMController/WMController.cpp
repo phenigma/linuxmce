@@ -57,6 +57,20 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 
 	return Fini();
 }
+
+//-------------------------------------------------------------------------------------------------------------
+void WMControllerImpl::SetLayerInternal(const string& sWindowName, const string& sCommand)
+{
+	action_window_str(
+		m_pDisplay,
+		'b',  //mode
+		const_cast<char *>(sWindowName.c_str()),
+		const_cast<char *>(sCommand.c_str()),
+		true,  //use class name
+		false //full window title match
+	);
+}
+
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 {
@@ -68,16 +82,19 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 	string sParam;
 	switch(aLayer)
 	{
-		case wlNormal:
-			sParam = "remove,above,below";
+		case LayerNormal:
+            SetLayerInternal(sWindowName, "remove,above");
+            SetLayerInternal(sWindowName, "remove,below");
 			break;
 
-		case wlAbove:
-			sParam = "add,above";
+		case LayerAbove:
+            SetLayerInternal(sWindowName, "remove,below");
+            SetLayerInternal(sWindowName, "add,above");
 			break;
 
-		case wlBelow:
-			sParam = "add,below";
+		case LayerBelow:
+            SetLayerInternal(sWindowName, "remove,above");
+            SetLayerInternal(sWindowName, "add,below");
 			break;
 
 		default:
@@ -85,16 +102,7 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 			return false;
 	}
 
-	action_window_str(
-		m_pDisplay,
-		'b',  //mode
-		const_cast<char *>(sWindowName.c_str()),
-		const_cast<char *>(sParam.c_str()),
-		true,  //use class name
-		false //full window title match
-	);
-
-	return Fini();
+    return Fini();
 }
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int w, int h)
@@ -144,7 +152,7 @@ bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
 {
-	printf("SetMaximized, window name: %s, fullscreen: %d\n", sWindowName.c_str(), bMaximized);
+	printf("SetMaximized, window name: %s, maximized: %d\n", sWindowName.c_str(), bMaximized);
 
 	if(!Init())
 		return false;

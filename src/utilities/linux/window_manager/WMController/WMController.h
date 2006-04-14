@@ -3,22 +3,24 @@
 
 #include <X11/Xlib.h>
 
-#include "../../../../../PlutoUtils/MultiThreadIncludes.h"
-#include "../../../../../PlutoUtils/singleton.h"
+#include "../../../../PlutoUtils/MultiThreadIncludes.h"
+#include "../../../../PlutoUtils/singleton.h"
 using namespace cpp;
 using namespace cpp::Threading;
 
 #include <map>
 #include <string>
 using namespace std;
+
 //-------------------------------------------------------------------------------------------------------------
 enum WindowLayer
 {
-	wlNormal,
-	wlBelow,
-	wlAbove,
-	wlUnknown
+	LayerUnknown,
+	LayerBelow,
+	LayerNormal,
+	LayerAbove,
 };
+
 //-------------------------------------------------------------------------------------------------------------
 class WMControllerImpl
 {
@@ -30,6 +32,8 @@ private:
 	//helper functions
 	bool Init();
 	bool Fini();
+
+    void SetLayerInternal(const string& sWindowName, const string& sCommand);
 
 public:
 	WMControllerImpl();
