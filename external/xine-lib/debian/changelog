@@ -1,3 +1,9 @@
+xine-lib (1.1.1-1pluto2) unstable; urgency=low
+
+  * Added XvMC library dependencies
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 12 Apr 2006 11:31:54 +0300
+
 xine-lib (1.1.1-1pluto1) unstable; urgency=low
 
   * Removed libxinerama-dev build dependency
