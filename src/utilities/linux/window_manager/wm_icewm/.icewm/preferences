@@ -62,22 +62,22 @@ LimitPosition=1 # 0/1
 LimitByDockLayer=1 # 0/1
 
 #  Consider border frames when maximizing horizontally
-ConsiderHBorder=0 # 0/1
+ConsiderHBorder=1 # 0/1
 
 #  Consider border frames when maximizing vertically
-ConsiderVBorder=0 # 0/1
+ConsiderVBorder=1 # 0/1
 
 #  Center maximized windows which can't fit the screen (like terminals)
-CenterMaximizedWindows=0 # 0/1
+CenterMaximizedWindows=1 # 0/1
 
 #  Maximized windows can be resized
-SizeMaximized=0 # 0/1
+SizeMaximized=1 # 0/1
 
 #  Show position status window during move/resize
 ShowMoveSizeStatus=1 # 0/1
 
 #  Show name of current workspace while switching
-ShowWorkspaceStatus=1 # 0/1
+ShowWorkspaceStatus=0 # 0/1
 
 #  Display mini-icons on desktop for minimized windows
 MinimizeToDesktop=0 # 0/1
@@ -194,13 +194,13 @@ TaskBarKeepBelow=0 # 0/1
 TaskBarAutoHide=0 # 0/1
 
 #  Show clock on task bar
-TaskBarShowClock=1 # 0/1
+TaskBarShowClock=0 # 0/1
 
 #  Show APM status on task bar
 TaskBarShowAPMStatus=0 # 0/1
 
 #  Show APM status on task bar in time-format
-TaskBarShowAPMTime=1 # 0/1
+TaskBarShowAPMTime=0 # 0/1
 
 #  Show mailbox status on task bar
 TaskBarShowMailboxStatus=0 # 0/1
@@ -506,7 +506,7 @@ KeyWinOccupyAll=""
 KeyWinLower=""
 
 #
-KeyWinClose="Ctrl+Shift+F4"
+KeyWinClose=""
 
 #
 KeyWinRestore=""
@@ -575,7 +575,7 @@ KeyWinArrangeNW=""
 KeyWinArrangeC=""
 
 #
-KeySysSwitchNext="Ctrl+Alt+Tab"
+KeySysSwitchNext=""
 
 #
 KeySysSwitchLast=""
@@ -587,22 +587,22 @@ KeySysWinNext=""
 KeySysWinPrev=""
 
 #
-KeySysWinMenu="Ctrl+Shift+Esc"
+KeySysWinMenu=""
 
 #
 KeySysDialog="Alt+Ctrl+Shift+Del"
 
 #
-KeySysMenu="Alt+Ctrl+Shift+Esc"
+KeySysMenu=""
 
 #
-KeySysWindowList="Alt+Ctrl+Esc"
+KeySysWindowList="Alt+Ctrl+Shift+End"
 
 #
 KeySysWinListMenu=""
 
 #
-KeySysAddressBar="Alt+Ctrl+Space"
+KeySysAddressBar=""
 
 #
 KeySysWorkspacePrev=""
@@ -750,10 +750,10 @@ TitleBarJoinRight=0 # 0/1
 ShowMenuButtonIcon=1 # 0/1
 
 #  Horizontal window border
-BorderSizeX=1 # [0-128]
+BorderSizeX=0 # [0-128]
 
 #  Vertical window border
-BorderSizeY=1 # [0-128]
+BorderSizeY=0 # [0-128]
 
 #  Horizontal dialog window border
 DlgBorderSizeX=1 # [0-128]
@@ -1187,7 +1187,7 @@ DesktopBackgroundCenter=0 # 0/1
 SupportSemitransparency=1 # 0/1
 
 #  Desktop background scaled to full screen
-DesktopBackgroundScaled=0 # 0/1
+DesktopBackgroundScaled=1 # 0/1
 
 #  Desktop background color
 DesktopBackgroundColor="rgb:00/20/40"
@@ -1203,5 +1203,9 @@ DesktopTransparencyImage=""
 
 #
 
+# ==================================================
 # again, override options for debug
 # ShowTaskBar=1
+# BorderSizeX=5
+# BorderSizeY=5
+# EOF
