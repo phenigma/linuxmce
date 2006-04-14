@@ -20,7 +20,6 @@ namespace DCE
 class OrbiterSDL : public Orbiter
 {
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
-	bool m_bFullScreen;
 	/**
 	 * OpenGL internal variable which say if is used OpenGL code at the moment of runtime
 	 */
@@ -96,7 +95,8 @@ public:
 
 public:
 
-	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
+	/// Used to stop the animation if is no effec pending but to draw once the background 
+	///(safeing drawing)
 	bool PaintDesktopGL;
 
 	pthread_cond_t m_GLThreadCond;
@@ -110,6 +110,7 @@ public:
 	auto_ptr<PlutoGraphic> m_spAfterGraphic;
 
 	SDL_Surface * Screen;
+	bool m_bFullScreen;
 protected:
 	pthread_t SDLGLthread;
 };
