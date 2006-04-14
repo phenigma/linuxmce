@@ -155,13 +155,12 @@ int OrbiterGL3D::InitOpenGL()
 
 	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
 
+	OrbiterSDL * pOrbiter = (OrbiterSDL *)this->pOrbiterGL;
 #if !defined(WIN32) || defined(WINCE)
-	//TODO: Ciprian, fix ME!
-	//if(bFullScreen)
+	if(pOrbiter->m_bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
-
-	OrbiterSDL * pOrbiter = (OrbiterSDL *)this->pOrbiterGL;
+	
 	if ((pOrbiter->Screen = SDL_SetVideoMode(pOrbiter->m_iImageWidth, pOrbiter->m_iImageHeight, 
 		0, uVideoModeFlags)) == NULL)
 	{
