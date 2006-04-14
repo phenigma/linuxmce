@@ -291,6 +291,7 @@ namespace DCE
 			m_bDeviceData_Impl = m_bIsPlugIn = false;
 			m_dwPK_Device=m_dwPK_Installation=m_dwPK_DeviceTemplate=m_dwPK_Device_ControlledVia=m_dwPK_DeviceCategory=
 				m_dwPK_Room=m_dwPK_Device_MD=m_dwPK_Device_Core=0;
+			m_bDisabled = false;
 		}
 
 		/**
