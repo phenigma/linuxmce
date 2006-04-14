@@ -1,7 +1,7 @@
+// Window Message Task Manager
+
 #ifndef WM_TASK_MANAGER_H
 #define WM_TASK_MANAGER_H
-
-// Window Message Task Manager
 
 #include "wmtask.h"
 

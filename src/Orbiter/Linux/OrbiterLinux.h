@@ -1,11 +1,13 @@
-#ifndef __CONTROLLERLINUXDESKTOP_H__
-#define __CONTROLLERLINUXDESKTOP_H__
+#ifndef __ORBITERLINUX_H__
+#define __ORBITERLINUX_H__
 
 #include "../SDL/OrbiterSDL.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include "utilities/linux/RatpoisonHandler.h"
+//#include "utilities/linux/RatpoisonHandler.h"
 #include "XRecordExtensionHandler.h"
+
+#include "win_list_manager.h"
 
 // should be deleted
 #include "XProgressWnd.h"
@@ -18,15 +20,13 @@ class wxDialog_WaitUser;
 #include <string>
 using namespace std;
 
-class OrbiterLinux : public OrbiterSDL, public RatpoisonHandler<OrbiterLinux>
+class OrbiterLinux : public OrbiterSDL/*, public RatpoisonHandler<OrbiterLinux>*/
 {
 private:
 	XRecordExtensionHandler *m_pRecordHandler;
 
     string m_strWindowName;
     string m_strDisplayName;
-
-    int desktopInScreen;
 
     Display *XServerDisplay;
 
@@ -48,21 +48,19 @@ private:
 
     wxDialog_WaitGrid *m_pWaitGrid;
     bool m_bButtonPressed_WaitGrid;
-
     wxDialog_WaitList *m_pWaitList;
     bool m_bButtonPressed_WaitList;
-
     wxDialog_WaitUser *m_pWaitUser;
-
-	string m_sCurrentAppDesktopName;
 
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
 
-    virtual bool resizeMoveDesktop(int x, int y, int width, int height);
-    virtual bool setDesktopVisible(bool visible = true);
     virtual void setInputFocusToMe(void *);
+
+    WinListManager m_WinListManager;
+
+    bool m_bOrbiterReady; // ready to process events
 
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
@@ -72,9 +70,6 @@ public:
                  bool bUseOpenGL);
 
     virtual ~OrbiterLinux();
-
-    //virtual void OnReload();
-    //virtual void OnQuit();
 
     void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);
@@ -91,7 +86,7 @@ public:
 	// overridden to handle turning on and off the mouse pointer
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
-	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
@@ -100,13 +95,7 @@ public:
     /*virtual */bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress);
 	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 
-    void BringWindowOnTop(string sWindowName="");
-
-#ifndef WIN32
-	virtual void DoResetRatpoison() { g_pPlutoLogger->Write(LV_CRITICAL,"Need to reset ratpoison"); resetRatpoison(); }
-#endif
-
 	virtual class ScreenHandler *CreateScreenHandler();
 };
 
-#endif // __CONTROLLERLINUXDESKTOP_H__
+#endif // __ORBITERLINUX_H__

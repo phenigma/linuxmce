@@ -47,7 +47,14 @@ bool Init_System()
         return false;
     }
 
-    // TODO: start X11
+    // TODO: properly check for X11 & WM
+    // start X11
+    if (0)
+    {
+        string sCmd = "/usr/pluto/bin/Start_X.sh";//; /usr/pluto/bin/Start_WM.sh";
+        g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
+        system(sCmd.c_str());
+    }
 
     return true;
 }

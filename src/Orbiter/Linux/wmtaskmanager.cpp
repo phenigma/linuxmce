@@ -1,3 +1,5 @@
+// Window Message Task Manager
+
 #include "../wxAppMain/wx_all_include.cpp"
 #include "wmtaskmanager.h"
 #include "../../DCE/Logger.h"

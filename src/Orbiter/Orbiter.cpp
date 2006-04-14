@@ -8113,6 +8113,7 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c366-e->
 {
+    g_pPlutoLogger->Write(LV_WARNING, "Orbiter::CMD_Activate_Window(%s)", sName.c_str());
 }
 
 bool Orbiter::OkayToDeserialize(int iSC_Version)

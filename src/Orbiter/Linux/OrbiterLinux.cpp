@@ -71,14 +71,15 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
           m_strDisplayName(getenv("DISPLAY")),
 
           // initializations
-          desktopInScreen(0),
           XServerDisplay(NULL),
           m_pProgressWnd(NULL),
           m_pWaitGrid(NULL),
           m_bButtonPressed_WaitGrid(false),
           m_pWaitList(NULL),
           m_bButtonPressed_WaitList(false),
-          m_pWaitUser(NULL)
+          m_pWaitUser(NULL),
+          m_WinListManager(m_strWindowName),
+          m_bOrbiterReady(false)
 {
     openDisplay();
 	m_pMouseBehavior = new MouseBehavior_Linux(this);
@@ -87,8 +88,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
-
-    m_sCurrentAppDesktopName = "";
 }
 
 void *HackThread(void *p)
@@ -130,16 +129,11 @@ OrbiterLinux::~OrbiterLinux()
 
 void OrbiterLinux::reinitGraphics()
 {
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
     if ( ! XServerDisplay && ! openDisplay() )
         return;
 
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
-    commandRatPoison(string(":select ") + m_strWindowName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
+    m_WinListManager.ShowSdlWindow(false);
 
     OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
     CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL );
@@ -148,7 +142,7 @@ void OrbiterLinux::reinitGraphics()
 void OrbiterLinux::setInputFocusToMe(void *)
 {
     if ( ! m_bYieldInput )
-        commandRatPoison(":keystodesktop on");
+        //commandRatPoison(":keystodesktop on");
 
     CallMaintenanceInMiliseconds( 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL, pe_ALL ); // do this every 7 seconds
 }
@@ -206,72 +200,53 @@ Window OrbiterLinux::getWindow()
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
+    m_bOrbiterReady = true;
+    
+    //Orbiter::RenderDesktop(pObj, rectTotal, point);
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
 
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : name='%s' ptr=%p coord=[%d,%d,%d,%d]",
-                          m_sCurrentAppDesktopName.c_str(), pObj,
-                          rectTotal.Left(), rectTotal.Top(), rectTotal.Right(), rectTotal.Bottom()
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d]",
+                          pObj,
+                          rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height
                           );
-    resizeMoveDesktop(rectTotal.Left(), rectTotal.Top(),
-                      rectTotal.Right() - rectTotal.Left(),
-                      rectTotal.Bottom() - rectTotal.Top());
+    m_WinListManager.ShowSdlWindow(false);
+    string sWindowName;
+    if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : '%s', variable 6: %s", sWindowName.c_str(),
+                              m_mapVariable[6].c_str());
+        WMController::Instance().ListWindows();
 
-    desktopInScreen = true;
+        if (m_WinListManager.IsEmpty())
+        {
+            // we have only xine
+            sWindowName = "xine";
+        }
+        else
+        {
+            // only one external app
+            sWindowName = m_WinListManager.GetExternApplicationName();
+        }
+
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : sWindowName='%s'", sWindowName.c_str());
+        if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : maximized");
+            m_WinListManager.MaximizeWindow(sWindowName);
+        }
+        else
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : position");
+            m_WinListManager.PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+        }
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
+    }
+    m_pRecordHandler->enableRecording(this, m_bYieldInput);
     return true;
 }
 
 // public interface implementations below
-bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
-{
-    if ( ! m_bYieldInput )
-    {
-        m_pRecordHandler->enableRecording(this, false);
-		//this command will add a command to a hook: when a window is switched/focused, all the hooks added for this event will be executed
-		//in this case, when xine or other will grap the keyboards, "keystodesktop on" command will be executed
-		//and orbiter will get right away to control of the keyboard
-		//
-		//Command: addhook hook command
-		//Add a command to hook. When the hook is run, command will be executed.
-		//
-		commandRatPoison(":addhook switchwin keystodesktop on");
-        commandRatPoison(":keystodesktop on");
-    }
-    else
-    {
-		//this command will remove a command from the hook. see above the comments.
-		commandRatPoison(":remhook switchwin keystodesktop on");
-        commandRatPoison(":keystodesktop off");
-
-        // patch the rectangle to match the actual resolution
-        width = m_nDesktopWidth;
-        height = m_nDesktopHeight;
-        m_pRecordHandler->enableRecording(this);
-    }
-
-	/*
-	 *
-     if(m_sCurrentAppDesktopName != "")
-     commandRatPoison(":select " + m_sCurrentAppDesktopName);
-	*/
-
-    stringstream commandLine;
-    commandLine << ":set padding " << x << " " << y << " "
-                << m_nDesktopWidth - x - width << " " << m_nDesktopHeight - y - height;
-
-    commandRatPoison(commandLine.str());
-    commandRatPoison(":redisplay");
-
-    return true;
-}
-
-bool OrbiterLinux::setDesktopVisible(bool visible)
-{
-    if ( ! visible )
-        return resizeMoveDesktop(m_nDesktopWidth, m_nDesktopHeight, 10, 10);
-    else
-        return resizeMoveDesktop(0, 0, m_nDesktopWidth - m_iImageWidth, m_nDesktopHeight - m_iImageHeight);
-}
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
@@ -288,37 +263,16 @@ void OrbiterLinux::RenderScreen()
         return;
     }
 
-    desktopInScreen = false;
+    m_WinListManager.SetExternApplicationName("");
+    m_WinListManager.HideAllWindows();
 
     OrbiterSDL::RenderScreen();
 
-    if ( false == desktopInScreen )
-        setDesktopVisible(false);
+    if(m_bOrbiterReady)
+        m_WinListManager.ShowSdlWindow(m_WinListManager.IsEmpty());
 
     XFlush(XServerDisplay);
 }
-
-/**
-   void OrbiterLinux::RenderObject(
-   DesignObj_Controller *pObj, DesignObj_Controller *pObjAttr,
-   int XOffset, int YOffset)
-   {
-   if ( pObj->m_ObjectType == C_DESIGNOBJTYPE_APP_DESKTOP_CONST )
-   {
-   desktopInScreen = true;
-
-   resizeMoveDesktop(
-   pObj->m_rPosition.Left(),
-   pObj->m_rPosition.Top(),
-   pObj->m_rPosition.Width,
-   pObj->m_rPosition.Height);
-
-   return;
-   }
-
-   ControllerImageSDL::RenderObject(pObj, pObjAttr, XOffset, YOffset);
-   }
-*/
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
@@ -378,12 +332,6 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
 {
     // not need this anymore
-    // in Xine_Player : pointer_hide, pointer_show
-    //bool bShow = sOnOff=="1";
-    //if ( bShow )
-    //    commandRatPoison(":banish off");
-    //else
-    //    commandRatPoison(":banish on");
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -391,9 +339,10 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
     g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
 }
 
-void OrbiterLinux::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
+void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
-    commandRatPoison(string(":select ") + sName);
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
+    m_WinListManager.SetExternApplicationName(sWindowName);
 }
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
@@ -470,12 +419,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     if (callbackType == cbOnWxWidgetCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        BringWindowOnTop("dialog");
+        m_WinListManager.MaximizeWindow("dialog");
     }
     else
     {
         if (callbackType == cbOnWxWidgetDelete)
-            BringWindowOnTop();
+            m_WinListManager.HideAllWindows();
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -491,7 +440,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         // create new window
         m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
         Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
-        BringWindowOnTop("dialog");
+        m_WinListManager.MaximizeWindow("dialog");
         return false;
     }
     if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
@@ -531,7 +480,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        BringWindowOnTop(m_pProgressWnd->m_wndName);
+        m_WinListManager.MaximizeWindow(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -581,12 +530,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     if (callbackType == cbOnWxWidgetCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        BringWindowOnTop("dialog");
+        m_WinListManager.MaximizeWindow("dialog");
     }
     else
     {
         if (callbackType == cbOnWxWidgetDelete)
-            BringWindowOnTop();
+            m_WinListManager.HideAllWindows();
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -603,7 +552,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // create new window
         m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
         Safe_Show<wxDialog_WaitList>(m_pWaitList);
-        BringWindowOnTop("dialog");
+        m_WinListManager.MaximizeWindow("dialog");
         return false;
     }
     if ( (m_pWaitList != NULL) && (nProgress >= 0) )
@@ -635,7 +584,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        BringWindowOnTop(m_pProgressWnd->m_wndName);
+        m_WinListManager.MaximizeWindow(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -672,14 +621,14 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
 	WMTask *pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
-    BringWindowOnTop("dialog");
+    m_WinListManager.MaximizeWindow("dialog");
 	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnWxWidgetWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
-    BringWindowOnTop();
+    m_WinListManager.HideAllWindows();
 #else // (USE_TASK_MANAGER)
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
-    BringWindowOnTop("dialog");
+    m_WinListManager.MaximizeWindow("dialog");
     int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
     return nButtonId;
 #endif // (USE_TASK_MANAGER)
@@ -689,7 +638,7 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
-    BringWindowOnTop(promptDlg.m_wndName);
+    m_WinListManager.MaximizeWindow(promptDlg.m_wndName);
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
     return nUserAnswer;
@@ -700,33 +649,3 @@ ScreenHandler *OrbiterLinux::CreateScreenHandler()
 {
 	return new OSDScreenHandler(this, &m_mapDesignObj);
 }
-
-void OrbiterLinux::BringWindowOnTop(string sWindowName/*=""*/)
-{
-    g_pPlutoLogger->Write( LV_WARNING, "OrbiterLinux::CommandBringWindowOnTop(%s)", sWindowName.c_str());
-    if (sWindowName == "")
-    {
-        //sWindowName = m_strWindowName;
-        reinitGraphics();
-        return;
-    }
-    commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
-    commandRatPoison(string(":select ") + sWindowName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
-}
-
-//void OrbiterLinux::OnReload()
-//{
-//	WMTask *pTask = TaskManager::Instance().CreateTask(cbReloadOrbiter, E_Dialog_None, NULL);
-//	TaskManager::Instance().AddTask(pTask);
-//}
-
-//void OrbiterLinux::OnQuit()
-//{
-//	WMTask *pTask = TaskManager::Instance().CreateTask(cbReloadOrbiter, E_Dialog_None, NULL);
-//	TaskManager::Instance().AddTask(pTask);
-//}

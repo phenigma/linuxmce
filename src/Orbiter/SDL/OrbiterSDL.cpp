@@ -59,7 +59,6 @@ void *HackThread2(void *p)
         g_pPlutoLogger->Write(LV_CRITICAL,"Another stupid problem since the kernel upgrade.  SDL_SetVideoMode can just hang on init.  It happened. Kill ourselves");
 #ifndef WIN32
         kill(getpid(), SIGSEGV);
-        pOrbiterSDL->DoResetRatpoison();
 #endif
     }
     return NULL;
@@ -229,10 +228,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				printf("Failed to initialize SDL %s\n", SDL_GetError());
 		#endif //WINCE
 	
+        // TODO: move in StartOrbiterSDL.cpp : init_system()
 		#ifndef WIN32 //linux
-			string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
-			g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and ratpoison: %s", sCmd.c_str());
-			system(sCmd.c_str());
+                string sCmd = "/usr/pluto/bin/Start_X.sh";//; /usr/pluto/bin/Start_WM.sh";
+                g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
+                system(sCmd.c_str());
 		#endif //linux
 		
 			exit(1);

@@ -4,7 +4,7 @@
 #   not using wx at all
 
 # deactivating wx:
-# export USE_WX_LIB=0 ; make 
+# export USE_WX_LIB=0 ; make
 # or USE_WX_LIB=0 in Makefile
 # USE_WX_LIB = 0
 
@@ -73,7 +73,11 @@ CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DxPHONEKEYS -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
 CPPFLAGS += -DENABLE_OPENGL
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lGL
+XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lGL
+
+# wmctrl wrapper
+CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+XTRALDLIBS += -lSM -lICE -lX11 -lXmu -lglib-2.0
 
 CFLAGS += $(WX_CFLAGS)
 CXXFLAGS += $(WX_CXXFLAGS)
@@ -83,6 +87,9 @@ XTRALDLIBS += $(WX_LIBS)
 Gen_Dev_Files +=
 sources += \
 	$(WX_SOURCES) \
+	../utilities/linux/window_manager/WMController/WMController.cpp \
+	../utilities/linux/window_manager/WMController/wmctrl.cpp \
+	Linux/win_list_manager.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	Simulator.cpp \
@@ -156,7 +163,7 @@ Orbiter.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Orbiter: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

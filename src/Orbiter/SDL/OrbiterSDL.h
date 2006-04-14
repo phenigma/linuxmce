@@ -82,9 +82,6 @@ public:
 	virtual void DoHighlightObjectOpenGL();
 	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 	void OnIdle();
-#ifndef WIN32
-	virtual void DoResetRatpoison() {}
-#endif
 
 	void OpenGLUpdateScreen(void* Data);
 
