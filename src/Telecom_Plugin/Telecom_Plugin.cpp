@@ -1148,23 +1148,6 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
 				pCell = new DataGridCell(ext_txt,channels);
-				pCell->m_pMessage=NULL;
-				for(list<int>::iterator it2=ext_list.begin();it2!=ext_list.end();it2++)
-				{
-					if(map_embedphone2orbiter[map_ext2device[(*it2)]] != 0)
-					{
-						SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,map_embedphone2orbiter[map_ext2device[(*it2)]]);
-						if(!pCell->m_pMessage)
-						{
-							pCell->m_pMessage = SCREEN_DevCallInProgress_.m_pMessage;
-						}
-						else
-						{
-							pCell->m_pMessage->m_vectExtraMessages.push_back(SCREEN_DevCallInProgress_.m_pMessage);
-						}
-					}
-				}
-				//kaka here, don't send message
 		        pCell->m_AltColor = UniqueColors[Row%MAX_TELECOM_COLORS];
 				pDataGrid->SetData(0,Row,pCell);
 				text_list.push_back(ext_txt);
