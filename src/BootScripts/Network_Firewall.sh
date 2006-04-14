@@ -135,3 +135,5 @@ for Port in $R; do
 	[[ "$Port2" -eq 0 ]] && Port2="$Port1"
 	OpenPort "$Protocol" "$Port1:$Port2" "$SrcIP"
 done
+
+iptables --append FORWARD -o ppp+ --protocol tcp --tcp-flags SYN,RST SYN --jump TCPMSS --clamp-mss-to-pmtu
