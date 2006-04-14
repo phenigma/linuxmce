@@ -437,7 +437,7 @@ bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"connected");
+g_pPlutoLogger->Write(LV_STATUS,"connected");
 	string sResponse;
 	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
 	{
