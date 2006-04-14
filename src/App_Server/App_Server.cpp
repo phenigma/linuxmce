@@ -256,35 +256,36 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 	if( bExclusive )
 		CMD_Kill_Application(sName,bRetransmit);
 
-	if ( bShow_logo )
-	{
-		// Popup a black window so the user doesn't see some other program that may be running while he's
-		// waiting for this one to appear
-#ifndef WIN32
-		Display *XServerDisplay;
-	    if( (XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) != NULL)
-	    {
-		    int iCurrentScreen   = XDefaultScreen(XServerDisplay);
-			static Window w=0;
-			if( w )
-				XDestroyWindow(XServerDisplay,w);
+    // we don't need this anymore
+//  if ( bShow_logo )
+//	{
+//		// Popup a black window so the user doesn't see some other program that may be running while he's
+//		// waiting for this one to appear
+//#ifndef WIN32
+//		Display *XServerDisplay;
+//	    if( (XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) != NULL)
+//	    {
+//		    int iCurrentScreen   = XDefaultScreen(XServerDisplay);
+//			static Window w=0;
+//			if( w )
+//				XDestroyWindow(XServerDisplay,w);
 
-			w = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
-							0, 0, (DisplayWidth(XServerDisplay, iCurrentScreen)), DisplayHeight(XServerDisplay, iCurrentScreen),
-							1, 0, 0);
+//			w = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
+//							0, 0, (DisplayWidth(XServerDisplay, iCurrentScreen)), DisplayHeight(XServerDisplay, iCurrentScreen),
+//							1, 0, 0);
 
-			XClassHint		classHint;
-			classHint.res_name = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
-			classHint.res_class = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
-			XSetClassHint ( XServerDisplay, w, &classHint );
+//			XClassHint		classHint;
+//			classHint.res_name = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
+//			classHint.res_class = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
+//			XSetClassHint ( XServerDisplay, w, &classHint );
 
-			XMapWindow(XServerDisplay, w);
+//			XMapWindow(XServerDisplay, w);
 
-			XSync(XServerDisplay, True);
-			g_pPlutoLogger->Write(LV_STATUS,"Window %d",(int) w);
-		}
-#endif
-	}
+//			XSync(XServerDisplay, True);
+//			g_pPlutoLogger->Write(LV_STATUS,"Window %d",(int) w);
+//		}
+//#endif
+//	}
 
 	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess)) )
     {
