@@ -448,6 +448,13 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 					dwPK_Device,
 					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
 					pMediaStream->m_iPK_MediaType);
+				if( !pRemoteControlSet )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying Cannot find a remote for %d %d %d",
+						dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+						pMediaStream->m_iPK_MediaType);
+					return;
+				}
 				pMediaStream->m_mapRemoteControlSet[dwPK_Device]=pRemoteControlSet;
 			}
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_Remote ? pRemoteControlSet->m_iPK_DesignObj_Alt_Remote : pRemoteControlSet->m_iPK_DesignObj_Remote) + ","

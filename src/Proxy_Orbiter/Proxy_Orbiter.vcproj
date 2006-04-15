@@ -151,6 +151,24 @@
 				RelativePath="..\Orbiter\MouseBehavior.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\LightMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\SpeedMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\VolumeMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\MediaMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\LockedMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\KeyboardMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\MouseGovernor.cpp">
 			</File>
 			<File

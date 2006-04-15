@@ -105,6 +105,12 @@ sources += \
 	CallBackData.cpp \
 	ScreenHistory.cpp \
 	MouseBehavior.cpp \
+	LightMouseHandler.cpp \
+	SpeedMouseHandler.cpp \
+	VolumeMouseHandler.cpp \
+	MediaMouseHandler.cpp \
+	LockedMouseHandler.cpp \
+	KeyboardMouseHandler.cpp \
 	MouseGovernor.cpp \
 	MouseIterator.cpp \
 	SDL/SDLRendererOCGHelper.cpp \

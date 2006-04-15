@@ -39,6 +39,12 @@ sources += \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/MouseBehavior.cpp \
+	../Orbiter/LightMouseHandler.cpp \
+	../Orbiter/SpeedMouseHandler.cpp \
+	../Orbiter/VolumeMouseHandler.cpp \
+	../Orbiter/MediaMouseHandler.cpp \
+	../Orbiter/LockedMouseHandler.cpp \
+	../Orbiter/KeyboardMouseHandler.cpp \
 	../Orbiter/MouseGovernor.cpp \
 	../Orbiter/MouseIterator.cpp \
 	../Orbiter/CallBackData.cpp \
