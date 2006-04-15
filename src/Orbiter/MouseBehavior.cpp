@@ -157,6 +157,7 @@ void MouseBehavior::Move(int X,int Y)
 				m_iLockedPosition = m_pObj_Locked_Horizontal->m_rPosition.Y + m_pObj_Locked_Horizontal->m_pPopupPoint.Y + m_pObj_Locked_Horizontal->m_rPosition.Height/2;
 			else
 				m_iLockedPosition = Y;
+g_pPlutoLogger->Write(LV_CRITICAL,"Direction now X, y locked to %d",m_iLockedPosition);
 		}
 		else
 		{
@@ -164,6 +165,7 @@ void MouseBehavior::Move(int X,int Y)
 				m_iLockedPosition = m_pObj_Locked_Vertical->m_rPosition.X + m_pObj_Locked_Vertical->m_pPopupPoint.X + m_pObj_Locked_Vertical->m_rPosition.Width/2;
 			else
 				m_iLockedPosition = X;
+g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPosition);
 		}
 		m_pMouseGovernor->SetBuffer(0);
 		if( cLocked_Axis_Before==AXIS_LOCK_X && m_pMouseHandler_Horizontal )

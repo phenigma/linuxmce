@@ -4517,7 +4517,8 @@ if( pObj->m_iBaseObjectID==4890 )
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
 #endif
-
+if( PK_Command==44 )
+int k=2;
 		if(  PK_Command==COMMAND_Restart_DCERouter_CONST && Simulator::GetInstance()->IsRunning() )
 			continue;  // While in stress-test simulator, don't try to reset the router
 		else if(  PK_Command==COMMAND_Requires_Special_Handling_CONST  )

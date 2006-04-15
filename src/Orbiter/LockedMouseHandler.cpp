@@ -70,8 +70,8 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 
 void LockedMouseHandler::Move(int X,int Y)
 {
-	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
-X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
+//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
+//X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
 	if( m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_X && m_pMouseBehavior->m_pObj_Locked_Horizontal )
 	{
@@ -101,13 +101,18 @@ X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouse
 	}
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
-		( (m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false || m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )
+//	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
+//		( (m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false || m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )
+	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || 
+		(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false )
 	{
-g_pPlutoLogger->Write(LV_WARNING,"change hl doesn't contain %d,%d h:%p v:%p",X,Y,m_pMouseBehavior->m_pObj_Locked_Horizontal,m_pMouseBehavior->m_pObj_Locked_Vertical);
 		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_X ? m_pMouseBehavior->m_pObj_Locked_Horizontal : m_pMouseBehavior->m_pObj_Locked_Vertical,X,Y);
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 
+g_pPlutoLogger->Write(LV_CRITICAL,"change hl doesn't contain %d,%d h:%p v:%p old obj to hl: %s, new: %s",
+X,Y,m_pMouseBehavior->m_pObj_Locked_Horizontal,m_pMouseBehavior->m_pObj_Locked_Vertical,
+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted ? m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str() : "NONE",
+pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
 			m_pMouseBehavior->m_pOrbiter->UnHighlightObject();

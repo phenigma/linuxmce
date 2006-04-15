@@ -7,6 +7,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
+#include "pluto_main/Define_Button.h"
 
 using namespace DCE;
 
@@ -128,13 +129,29 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 		break;
 	case if_Keyboard:
 		if( m_dwParm==-2 )
-			m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Up_CONST);
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
 		else if( m_dwParm==-1 )
-			m_pOrbiter->CMD_Move_Up();
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
 		else if( m_dwParm==1 )
-			m_pOrbiter->CMD_Move_Down();
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
 		else if( m_dwParm==2 )
-			m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Down_CONST);
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
 		break;
 	case if_MediaTracks:
 		{
