@@ -685,7 +685,7 @@ cout << " psc_id: " << (row[0] ? atoi( row[0] ) : 0) << endl;
 
 			if( row[1] && atoi(row[1])<1 )
 			{
-				cout << "Not checking in changes to table: " << m_sName << " psc_id: " << row[0] << " because it's batch: " << row[1] << " is still unauthorized" << endl;
+				cout << "Not checking in changes to table: " << m_sName << " psc_id: " << (row[0]?row[0]:"NULL") << " because it's batch: " << row[1] << " is still unauthorized" << endl;
 				continue;
 			}
 
