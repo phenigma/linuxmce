@@ -3762,6 +3762,12 @@ m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
 m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
 
+// The cancel button
+if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
+m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
 

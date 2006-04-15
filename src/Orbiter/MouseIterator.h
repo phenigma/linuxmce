@@ -15,6 +15,11 @@ namespace DCE
 	{
 	private:
 		friend class MouseBehavior;
+		friend class VolumeMouseHandler;
+		friend class LightMouseHandler;
+		friend class MediaMouseHandler;
+		friend class KeyboardMouseHandler;
+
 		class MouseBehavior *m_pMouseBehavior;
 		class Orbiter *m_pOrbiter;
 		bool m_bQuit,m_bThreadRunning;
@@ -22,7 +27,7 @@ namespace DCE
 		pthread_cond_t m_IteratorCond;
 
 		// Pointers to keep track of states
-		enum EIteratorFunction { if_None, if_Volume } m_EIteratorFunction;
+		enum EIteratorFunction { if_None, if_Volume, if_Light, if_MediaTracks, if_Keyboard } m_EIteratorFunction;
 		int m_dwParm; // Parm for the function
 		int m_dwFrequency_Ms;  // Frequency for doing the iteration in milliseconds
 		int m_dwTime_Last_Iterated;  // When we last did our iteration

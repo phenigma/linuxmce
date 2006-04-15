@@ -99,6 +99,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class MouseBehavior;
 		friend class MouseIterator;
 		friend class MouseGovernor;
+		friend class LightMouseHandler;
+		friend class SpeedMouseHandler;
+		friend class VolumeMouseHandler;
+		friend class MediaMouseHandler;
+		friend class LockedMouseHandler;
 
 	public: //data
 		int m_iImageWidth; /** < image width duh */

@@ -121,3 +121,9 @@ void MouseGovernor::SetBuffer(int MS)
 	m_dwTime_Last_SentMessage=0;
 }
 
+void MouseGovernor::Purge()
+{
+	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
+	delete m_pMessage;
+	m_pMessage=NULL;
+}

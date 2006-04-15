@@ -218,6 +218,15 @@
 				RelativePath="..\GraphicBuilder.cpp">
 			</File>
 			<File
+				RelativePath="..\KeyboardMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\LightMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\LockedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Win32\main.cpp">
 			</File>
 			<File
@@ -225,6 +234,9 @@
 			</File>
 			<File
 				RelativePath="..\OpenGL\math3dutils.cpp">
+			</File>
+			<File
+				RelativePath="..\MediaMouseHandler.cpp">
 			</File>
 			<File
 				RelativePath="..\MouseBehavior.cpp">
@@ -302,6 +314,9 @@
 				RelativePath="..\Simulator.cpp">
 			</File>
 			<File
+				RelativePath="..\SpeedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Win32\StartOrbiter.cpp">
 			</File>
 			<File
@@ -309,6 +324,9 @@
 			</File>
 			<File
 				RelativePath="..\Win32\VirtualKeysTranslator.cpp">
+			</File>
+			<File
+				RelativePath="..\VolumeMouseHandler.cpp">
 			</File>
 		</Filter>
 		<Filter

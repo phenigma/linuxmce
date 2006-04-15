@@ -11,10 +11,36 @@ using namespace std;
 #include "PlutoUtils/ProcessUtils.h"
 using namespace DCE;
 
-#define MAX_SPEEDS		17
+#define AXIS_LOCK_NONE	0
+#define AXIS_LOCK_X		1
+#define AXIS_LOCK_Y		2
+#define AXIS_LOCK_BOTH	3
 
 namespace DCE
 {
+	// A pure virtual base class for the call-backs
+	class MouseHandler
+	{
+		friend class MouseBehavior;
+
+	protected:
+		int m_iLastNotch,m_iCancelLevel;  // Notch = last position on a locked vert/horiz bar.  CancelLevel = if doing discrete movement, cancel returns to this value
+		string m_sCancelLevel; // Same as m_i for cases where a string is better
+		bool m_bTapAndRelease; // The user is adjusting to a discrete/absolute level
+		DesignObj_Orbiter *m_pObj;
+		MouseBehavior *m_pMouseBehavior;
+
+		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; }
+		virtual ~MouseHandler() {}
+
+		virtual void Start() {}  // This is now active (ie the user started moving in the direction this is locked onto)
+		virtual void Stop() {}  // The user is now moving in another direction using a different mouse handler
+
+		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
+		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
+		virtual void Move(int X,int Y) {}
+	};
+
 	class MouseSensitivity
 	{
 	public:
@@ -40,33 +66,30 @@ namespace DCE
 		friend class Orbiter;
 		friend class MouseIterator;
 		friend class MouseGovernor;
+		friend class LightMouseHandler;
+		friend class SpeedMouseHandler;
+		friend class VolumeMouseHandler;
+		friend class MediaMouseHandler;
+		friend class LockedMouseHandler;
+		friend class KeyboardMouseHandler;
 
-		typedef enum EMouseBehaviorEvent { mb_SettingUp, mb_StartMove, mb_ChangeDirection, mb_Movement, mb_MouseUp, mb_MouseDown };
 		typedef enum EMenuOnScreen { mb_None, mb_MainMenu, mb_MediaControl, mb_Ambiance };
-		typedef bool ( MouseBehavior::*MouseBehaviorHandler ) ( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
 
 	protected:
 		Orbiter *m_pOrbiter;
 		class MouseGovernor *m_pMouseGovernor;
 		class MouseIterator *m_pMouseIterator;
 		DesignObj_Orbiter *m_pObj_Locked_Horizontal,*m_pObj_Locked_Vertical;
-		MouseBehaviorHandler m_pMouseBehaviorHandler_Horizontal,m_pMouseBehaviorHandler_Vertical;
+		MouseHandler *m_pMouseHandler_Horizontal,*m_pMouseHandler_Vertical;
 	    unsigned long m_dwSamples[4];
 		PlutoPoint m_pSamples[4];
 		PlutoPoint m_pStartMovement;
 		string m_sHorizontalOptions,m_sVerticalOptions;
 		int m_iLockedPosition; // Either the X or Y
 		char m_cLockedAxes,m_cLocked_Axis_Current;  // one of the #define AXIS_LOCK to indicate which axes are locked
-		const static int m_iSpeeds[MAX_SPEEDS];
-		int m_iLastSpeed,m_iLastNotch;
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		EMenuOnScreen m_EMenuOnScreen;
-		bool m_bRepeatMenu;
-
-		bool m_bHasTimeline;  // Will be set to true if we don't have total time and position within media
-		bool m_bUsingDiscreteMode; // The user is adjusting to a discrete/absolute level
-		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 
 	public:
 		MouseBehavior(Orbiter *pOrbiter);
@@ -87,17 +110,7 @@ namespace DCE
 		virtual void SetMousePosition(int X,int Y) { m_pSamples[0].X=X; m_pSamples[0].Y=Y; }
 		virtual void GetMousePosition(PlutoPoint *p) { }
 
-		// Handlers for special mouse functions
-		bool LockedBar( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-		bool SpeedControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-		bool MediaTracks( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-		bool LightControl( EMouseBehaviorEvent eMouseBehaviorEvent ,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-		bool VolumeControl( EMouseBehaviorEvent eMouseBehaviorEvent,DesignObj_Orbiter *pObj, int Parm,int X, int Y );
-
-		void LockedMove( int X, int Y ); // LockedBar and move event
-
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
-		bool ParsePosition(string sMediaPosition);
 	};
 
 }

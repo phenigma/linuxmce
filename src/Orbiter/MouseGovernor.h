@@ -33,6 +33,7 @@ namespace DCE
 		void SendMessage(Message *pMessage);  // Called when there's a message to send which may need to be blocked
 		void DoSendMessage(Message *pMessage);  // Actually send the message
 		void SetBuffer(int MS);
+		void Purge();
 	};
 }
 //-----------------------------------------------------------------------------------------------------
