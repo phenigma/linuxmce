@@ -1234,6 +1234,8 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 		sendMythCommand("key S");
 	else
 		sendMythCommand("jump guidegrid");
+
+	LockOrbiterPointer();
 }
 //<-dceag-c367-b->
 
@@ -1321,5 +1323,27 @@ void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c777-e->
 {
 	//TODO: implement me!
+}
+
+void MythTV_Player::LockOrbiterPointer()
+{
+	DCE::CMD_Set_Mouse_Behavior CMD_Set_Mouse_Behavior(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","K",false,"X");
+	DCE::CMD_Set_Mouse_Behavior CMD_Set_Mouse_Behavior2(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","K",false,"Y");
+	DCE::CMD_Remove_Popup CMD_Remove_Popup(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","horiz");
+	DCE::CMD_Remove_Popup CMD_Remove_Popup2(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","left");
+
+	CMD_Set_Mouse_Behavior.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Mouse_Behavior2.m_pMessage);
+	CMD_Set_Mouse_Behavior.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Popup.m_pMessage);
+	CMD_Set_Mouse_Behavior.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Popup2.m_pMessage);
+	SendCommand(CMD_Set_Mouse_Behavior);
+}
+
+void MythTV_Player::ReleaseOrbiterPointer()
+{
+	DCE::CMD_Remove_Popup CMD_Remove_Popup(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","horiz");
+	DCE::CMD_Remove_Popup CMD_Remove_Popup2(m_dwPK_Device,m_pData->m_dwPK_Device_ControlledVia,"","left");
+
+	CMD_Remove_Popup.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Popup2.m_pMessage);
+	SendCommand(CMD_Remove_Popup);
 }
 

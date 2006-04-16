@@ -76,6 +76,9 @@ public:
 		virtual void CreateChildren();
 
 		virtual void ProcessExited(int pid, int status);
+
+		void LockOrbiterPointer();
+		void ReleaseOrbiterPointer();
     //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
