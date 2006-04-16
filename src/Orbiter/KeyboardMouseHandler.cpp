@@ -15,8 +15,8 @@ using namespace DCE;
 void KeyboardMouseHandler::Start()
 {
 	m_bHorizontal = m_pMouseBehavior->m_pMouseHandler_Horizontal==this;
-	m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + (m_pObj->m_rPosition.Width/2),
-		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2));
+	m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
+		m_pMouseBehavior->m_pOrbiter->m_Height/2);
 }
 
 void KeyboardMouseHandler::Stop()
@@ -41,12 +41,13 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y)
 {
-	int NotchSize = (double) m_bHorizontal ? m_pObj->m_rPosition.Width / 20 : m_pObj->m_rPosition.Height / 20;
+	int NotchSize = (double) m_bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
 	int Notch;
 	if( m_bHorizontal )
-		Notch = (X-m_pObj->m_rPosition.X-m_pObj->m_pPopupPoint.X)/NotchSize - 10;
+		Notch = X/NotchSize - 10;
 	else
-		Notch = (Y-m_pObj->m_rPosition.Y-m_pObj->m_pPopupPoint.Y)/NotchSize - 10;
+		Notch = Y/NotchSize - 10;
+g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) m_bHorizontal,X,Y);
 
 	if( Notch<-10 )
 		Notch = -10;
@@ -75,10 +76,20 @@ void KeyboardMouseHandler::Move(int X,int Y)
 if( Frequency<1 )
 int k=2;
 g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
-			if( bPage )
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 2 : -2,Frequency);
+			if( m_bHorizontal )
+			{
+				if( bPage )
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'L' : 'R',Frequency);
+				else
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'l' : 'r',Frequency);
+			}
 			else
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 1 : -1,Frequency);
+			{
+				if( bPage )
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'D' : 'U',Frequency);
+				else
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'd' : 'u',Frequency);
+			}
 		}
 		m_iLastNotch=Notch;
 //remus  m_pObj->SetSpeed(Speed);

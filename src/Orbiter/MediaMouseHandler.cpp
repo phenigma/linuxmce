@@ -60,13 +60,16 @@ void MediaMouseHandler::Stop()
 
 bool MediaMouseHandler::ButtonDown(int PK_Button)
 {
+	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
+		return false; // Shouldn't happen, this should be the volume control
+
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 
 		if( PK_Button==BUTTON_Mouse_1_CONST )
-			m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smMouseGovernor);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject((DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin()),smNavigation);
 
 		m_pMouseBehavior->Clear();
 		return false; // this is now invalid
@@ -76,11 +79,14 @@ bool MediaMouseHandler::ButtonDown(int PK_Button)
 
 bool MediaMouseHandler::ButtonUp(int PK_Button)
 {
+	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
+		return false; // Shouldn't happen, this should be the volume control
+
 	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-		m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smMouseGovernor);
+		m_pMouseBehavior->m_pOrbiter->SelectedObject((DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin()),smNavigation);
 		m_pMouseBehavior->Clear();
 		return false; // this is now invalid
 	}

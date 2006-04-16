@@ -23,6 +23,9 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class LockedMouseHandler : public MouseHandler
 	{
+		DesignObj_Orbiter *m_pObj_Highlighted;
+		bool m_bFirstTime; // Will be true the first time movement is locked onto this handler, false for subsequent times
+
 	public:
 		LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
 

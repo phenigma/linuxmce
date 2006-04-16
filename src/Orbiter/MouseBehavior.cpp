@@ -118,6 +118,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_pMouseHandler_Vertical=pMouseHandler;
 		m_sVerticalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
+		if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
+			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
 	else if( sDirection[0]=='X' )
 	{
@@ -127,13 +129,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_pMouseHandler_Horizontal=pMouseHandler;
 		m_sHorizontalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
+		if( m_cLocked_Axis_Current==AXIS_LOCK_X )
+			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
 	else
 		m_cLockedAxes = AXIS_LOCK_NONE;
 
 	// set a call back function for each axis
 	m_pMouseGovernor->SetBuffer(0);
-	m_cLocked_Axis_Current = AXIS_LOCK_NONE;
 	m_dwSamples[0]=ProcessUtils::GetMsTime();
 	GetMousePosition(&m_pSamples[0]);
 }

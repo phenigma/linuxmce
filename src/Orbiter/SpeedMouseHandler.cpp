@@ -27,14 +27,6 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMou
 	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 	m_iCancelLevel = m_CurrentMedia_Pos;
 
-	m_CurrentMedia_Start=0;
-	m_CurrentMedia_Pos = 3600;
-	m_CurrentMedia_Stop = 7200;
-	m_bHasTimeline=true;
-
-	
-
-
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 }

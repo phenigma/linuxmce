@@ -16,9 +16,12 @@ using namespace DCE;
 LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,pMouseBehavior)
 {
+	m_pObj_Highlighted = NULL;
+	m_bFirstTime=true;
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
 	{
-		DesignObj_Orbiter *pObj_First = m_pMouseBehavior->m_pOrbiter->FindFirstObjectByDirection('u',false,m_pObj,NULL);
+		DesignObj_Orbiter *pObj_First = m_pMouseBehavior->m_pOrbiter->FindObject(
+			StringUtils::itos(DESIGNOBJ_popMainMenu_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
 		if( pObj_First )
 		{
 			m_pMouseBehavior->m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
@@ -27,7 +30,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted!=pObj_First )
 				m_pMouseBehavior->m_pOrbiter->ExecuteCommandsInList( &m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
-			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
+			m_pObj_Highlighted=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 		}
 	}
@@ -35,6 +38,15 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 
 void LockedMouseHandler::Start()
 {
+	if( m_bFirstTime )
+		m_bFirstTime=false;
+	else if( m_pObj_Highlighted )
+	{
+		m_pMouseBehavior->m_pStartMovement.X=m_pObj_Highlighted->m_rPosition.X + m_pObj_Highlighted->m_pPopupPoint.X + (m_pObj_Highlighted->m_rPosition.Width/2);
+		m_pMouseBehavior->m_pStartMovement.Y=m_pObj_Highlighted->m_rPosition.Y + m_pObj_Highlighted->m_pPopupPoint.Y + (m_pObj_Highlighted->m_rPosition.Height/2);
+		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
+	}
+
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;
 	else
@@ -118,7 +130,7 @@ pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 			m_pMouseBehavior->m_pOrbiter->UnHighlightObject();
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 				m_pMouseBehavior->m_pOrbiter->ExecuteCommandsInList( &m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
-			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
+			m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
 			m_pMouseBehavior->m_pOrbiter->DoHighlightObject();
 		}
 	}

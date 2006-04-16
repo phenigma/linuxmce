@@ -4517,7 +4517,7 @@ if( pObj->m_iBaseObjectID==4890 )
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
 #endif
-if( PK_Command==44 )
+if( PK_Command==35 )
 int k=2;
 		if(  PK_Command==COMMAND_Restart_DCERouter_CONST && Simulator::GetInstance()->IsRunning() )
 			continue;  // While in stress-test simulator, don't try to reset the router
@@ -7193,7 +7193,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
 		{
 			DesignObj_DataGrid* pDesignObj = *it;
-			if(pDesignObj->m_sGridID.size()>6 && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
+			if(pDesignObj->m_sGridID.size()>6 && pDesignObj->m_bOnScreen && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
 			{
 				PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
 

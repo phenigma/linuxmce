@@ -128,29 +128,71 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 		}
 		break;
 	case if_Keyboard:
-		if( m_dwParm==-2 )
+		switch( m_dwParm )
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
-			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-		}
-		else if( m_dwParm==-1 )
-		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
-			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-		}
-		else if( m_dwParm==1 )
-		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
-			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-		}
-		else if( m_dwParm==2 )
-		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
-			m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			case 'U':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'D':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'u':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'd':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'L':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'R':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'l':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
+
+			case 'r':
+			{
+				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+					StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
+				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			}
+			break;
 		}
 		break;
 	case if_MediaTracks:
