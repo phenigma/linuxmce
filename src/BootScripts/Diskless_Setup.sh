@@ -122,7 +122,7 @@ for Client in $R; do
 	Diskless=$(RunSQL "$Q")
 
 	## If is a diskless md
-	if [[ -n "$Diskless" && $NeedConfigure=="1" ]]; then
+	if [[ -n "$Diskless" && "$NeedConfigure" == "1" ]]; then
 		echo "* Diskless filesystem"
 
 		Q="
