@@ -7,6 +7,8 @@
 #include "Gen_Devices/Plug_And_PlayBase.h"
 //<-dceag-d-e->
 
+class Database_pluto_main;
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -77,6 +79,10 @@ public:
 	virtual void CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
+
+private: 
+	Database_pluto_main *m_pDatabase_pluto_main;
+	
 	};
 
 //<-dceag-end-b->
