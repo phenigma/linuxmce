@@ -68,7 +68,7 @@ for Client in $DisklessMDs; do
 	IsDiskless=$(RunSQL "$Q")
 
 	if [ -n "$IsDiskless" ]; then
-		Exports_DisklessMDRoots="$Exports_DisklessMDRoot\n$DisklessMD_Root $DisklessMD_IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)"
+		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root $DisklessMD_IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)"
 	fi
 done
 
