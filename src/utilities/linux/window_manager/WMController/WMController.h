@@ -8,7 +8,10 @@
 using namespace cpp;
 using namespace cpp::Threading;
 
+#include "wmctrl.h"
+
 #include <map>
+#include <list>
 #include <string>
 using namespace std;
 
@@ -46,7 +49,7 @@ public:
 	bool SetMaximized(const string& sWindowName, bool bMaximized);
 	bool ActivateWindow(const string& sWindowName);
 
-	bool ListWindows();
+	bool ListWindows(list<WinInfo> &listWinInfo);
 	bool GetWindowParams(const string& sWindowName, string& sWindowParams);
 	bool GetDesktopSize(int& x, int& y, int& w, int& h);
 

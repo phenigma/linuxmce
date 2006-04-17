@@ -1,6 +1,6 @@
 
 /* license {{{ */
-/* 
+/*
 
 wmctrl
 A command line tool to interact with an EWMH/NetWM compatible X Window Manager.
@@ -43,9 +43,9 @@ static gboolean envir_utf8;
 
 void init_charset (bool force_utf8) {/*{{{*/
     const gchar *charset; /* unused */
-    gchar *lang = getenv("LANG") ? g_ascii_strup(getenv("LANG"), -1) : NULL; 
+    gchar *lang = getenv("LANG") ? g_ascii_strup(getenv("LANG"), -1) : NULL;
     gchar *lc_ctype = getenv("LC_CTYPE") ? g_ascii_strup(getenv("LC_CTYPE"), -1) : NULL;
-    
+
     /* this glib function doesn't work on my system ... */
     envir_utf8 = g_get_charset(&charset);
 
@@ -59,7 +59,7 @@ void init_charset (bool force_utf8) {/*{{{*/
 
     g_free(lang);
     g_free(lc_ctype);
-    
+
     if (force_utf8) {
         envir_utf8 = TRUE;
     }
@@ -67,7 +67,7 @@ void init_charset (bool force_utf8) {/*{{{*/
 }/*}}}*/
 
 int client_msg(Display *disp, Window win, char *msg, /* {{{ */
-        unsigned long data0, unsigned long data1, 
+        unsigned long data0, unsigned long data1,
         unsigned long data2, unsigned long data3,
         unsigned long data4) {
     XEvent event;
@@ -84,7 +84,7 @@ int client_msg(Display *disp, Window win, char *msg, /* {{{ */
     event.xclient.data.l[2] = data2;
     event.xclient.data.l[3] = data3;
     event.xclient.data.l[4] = data4;
-    
+
     if (XSendEvent(disp, DefaultRootWindow(disp), False, mask, &event)) {
         return EXIT_SUCCESS;
     }
@@ -96,11 +96,11 @@ int client_msg(Display *disp, Window win, char *msg, /* {{{ */
 
 gchar *get_output_str (gchar *str, gboolean is_utf8) {/*{{{*/
     gchar *out;
-   
+
     if (str == NULL) {
         return NULL;
     }
-    
+
     if (envir_utf8) {
         if (is_utf8) {
             out = g_strdup(str);
@@ -136,7 +136,7 @@ int wm_info (Display *disp) {/*{{{*/
     gboolean name_is_utf8 = TRUE;
     gchar *name_out;
     gchar *class_out;
-    
+
     if (! (sup_window = (Window *)get_property(disp, DefaultRootWindow(disp),
                     XA_WINDOW, "_NET_SUPPORTING_WM_CHECK", NULL))) {
         if (! (sup_window = (Window *)get_property(disp, DefaultRootWindow(disp),
@@ -157,7 +157,7 @@ int wm_info (Display *disp) {/*{{{*/
         }
     }
     name_out = get_output_str(wm_name, name_is_utf8);
-  
+
     /* WM_CLASS */
     if (! (wm_class = get_property(disp, *sup_window,
             XInternAtom(disp, "UTF8_STRING", False), "WM_CLASS", NULL))) {
@@ -168,31 +168,31 @@ int wm_info (Display *disp) {/*{{{*/
         }
     }
     class_out = get_output_str(wm_class, name_is_utf8);
-  
+
 
     /* WM_PID */
     if (! (wm_pid = (unsigned long *)get_property(disp, *sup_window,
                     XA_CARDINAL, "_NET_WM_PID", NULL))) {
         p_verbose("Cannot get pid of the window manager (_NET_WM_PID).\n");
     }
-    
+
     /* _NET_SHOWING_DESKTOP */
     if (! (showing_desktop = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
                     XA_CARDINAL, "_NET_SHOWING_DESKTOP", NULL))) {
         p_verbose("Cannot get the _NET_SHOWING_DESKTOP property.\n");
     }
-    
+
     /* print out the info */
     printf("Name: %s\n", name_out ? name_out : "N/A");
     printf("Class: %s\n", class_out ? class_out : "N/A");
-    
+
     if (wm_pid) {
         printf("PID: %lu\n", *wm_pid);
     }
     else {
         printf("PID: N/A\n");
     }
-    
+
     if (showing_desktop) {
         printf("Window manager's \"showing the desktop\" mode: %s\n",
                 *showing_desktop == 1 ? "ON" : "OFF");
@@ -200,20 +200,20 @@ int wm_info (Display *disp) {/*{{{*/
     else {
         printf("Window manager's \"showing the desktop\" mode: N/A\n");
     }
-    
+
     g_free(name_out);
     g_free(sup_window);
     g_free(wm_name);
 	g_free(wm_class);
     g_free(wm_pid);
     g_free(showing_desktop);
-    
+
     return EXIT_SUCCESS;
 }/*}}}*/
 
 int showing_desktop (Display *disp, char *param) {/*{{{*/
     unsigned long state;
-    
+
     if (strcmp(param, "on") == 0) {
         state = 1;
     }
@@ -225,16 +225,16 @@ int showing_desktop (Display *disp, char *param) {/*{{{*/
         return EXIT_FAILURE;
     }
 
-    return client_msg(disp, DefaultRootWindow(disp), "_NET_SHOWING_DESKTOP", 
+    return client_msg(disp, DefaultRootWindow(disp), "_NET_SHOWING_DESKTOP",
         state, 0, 0, 0, 0);
 }/*}}}*/
 
 int change_viewport (Display *disp, char *param) {/*{{{*/
     unsigned long x, y;
     const char *argerr = "The -o option expects two integers separated with a comma.\n";
-   
+
     if (sscanf(param, "%lu,%lu", &x, &y) == 2) {
-        return client_msg(disp, DefaultRootWindow(disp), "_NET_DESKTOP_VIEWPORT", 
+        return client_msg(disp, DefaultRootWindow(disp), "_NET_DESKTOP_VIEWPORT",
             x, y, 0, 0, 0);
     }
     else {
@@ -246,9 +246,9 @@ int change_viewport (Display *disp, char *param) {/*{{{*/
 int change_geometry (Display *disp, char *param) {/*{{{*/
     unsigned long x, y;
     const char *argerr = "The -g option expects two integers separated with a comma.\n";
-   
+
     if (sscanf(param, "%lu,%lu", &x, &y) == 2) {
-        return client_msg(disp, DefaultRootWindow(disp), "_NET_DESKTOP_GEOMETRY", 
+        return client_msg(disp, DefaultRootWindow(disp), "_NET_DESKTOP_GEOMETRY",
             x, y, 0, 0, 0);
     }
     else {
@@ -264,21 +264,21 @@ int change_number_of_desktops (Display *disp, char *param) {/*{{{*/
         fputs("The -n option expects an integer.\n", stderr);
         return EXIT_FAILURE;
     }
-    
-    return client_msg(disp, DefaultRootWindow(disp), "_NET_NUMBER_OF_DESKTOPS", 
+
+    return client_msg(disp, DefaultRootWindow(disp), "_NET_NUMBER_OF_DESKTOPS",
         n, 0, 0, 0, 0);
 }/*}}}*/
 
 int switch_desktop (Display *disp, char *param) {/*{{{*/
     int target = -1;
-    
-    target = atoi(param); 
+
+    target = atoi(param);
     if (target == -1) {
         fputs("Invalid desktop ID.\n", stderr);
         return EXIT_FAILURE;
     }
-    
-    return client_msg(disp, DefaultRootWindow(disp), "_NET_CURRENT_DESKTOP", 
+
+    return client_msg(disp, DefaultRootWindow(disp), "_NET_CURRENT_DESKTOP",
             (unsigned long)target, 0, 0, 0, 0);
 }/*}}}*/
 
@@ -297,7 +297,7 @@ void window_set_title (Display *disp, Window win, /* {{{ */
         }
         title_local = g_strdup(title);
     }
-    
+
     if (mode == 'T' || mode == 'N') {
         /* set name */
         if (title_local) {
@@ -307,7 +307,7 @@ void window_set_title (Display *disp, Window win, /* {{{ */
         else {
             XDeleteProperty(disp, win, XA_WM_NAME);
         }
-        XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_NAME", False), 
+        XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_NAME", False),
                 XInternAtom(disp, "UTF8_STRING", False), 8, PropModeReplace,
                 reinterpret_cast<const unsigned char*>(title_utf8), strlen(title_utf8));
     }
@@ -321,23 +321,27 @@ void window_set_title (Display *disp, Window win, /* {{{ */
         else {
             XDeleteProperty(disp, win, XA_WM_ICON_NAME);
         }
-        XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_ICON_NAME", False), 
+        XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_ICON_NAME", False),
                 XInternAtom(disp, "UTF8_STRING", False), 8, PropModeReplace,
                 reinterpret_cast<const unsigned char*>(title_utf8), strlen(title_utf8));
     }
-    
+
     g_free(title_utf8);
     g_free(title_local);
-    
+
 }/*}}}*/
 
 int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
     unsigned long *cur_desktop = NULL;
+    fprintf(stderr, "::window_to_desktop\n");
     Window root = DefaultRootWindow(disp);
-   
+    fprintf(stderr, "::window_to_desktop 2\n");
+
     if (desktop == -1) {
+        fprintf(stderr, "::window_to_desktop 3\n");
         if (! (cur_desktop = (unsigned long *)get_property(disp, root,
                 XA_CARDINAL, "_NET_CURRENT_DESKTOP", NULL))) {
+            fprintf(stderr, "::window_to_desktop 4\n");
             if (! (cur_desktop = (unsigned long *)get_property(disp, root,
                     XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
                 fputs("Cannot get current desktop properties. "
@@ -346,9 +350,12 @@ int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
                 return EXIT_FAILURE;
             }
         }
+        fprintf(stderr, "::window_to_desktop 5\n");
         desktop = *cur_desktop;
     }
+    fprintf(stderr, "::window_to_desktop 6\n");
     g_free(cur_desktop);
+    fprintf(stderr, "::window_to_desktop 7\n");
 
     return client_msg(disp, win, "_NET_WM_DESKTOP", (unsigned long)desktop,
             0, 0, 0, 0);
@@ -368,15 +375,15 @@ int activate_window (Display *disp, Window win, /* {{{ */
     }
 
     if (switch_desktop && desktop) {
-        if (client_msg(disp, DefaultRootWindow(disp), 
-                    "_NET_CURRENT_DESKTOP", 
+        if (client_msg(disp, DefaultRootWindow(disp),
+                    "_NET_CURRENT_DESKTOP",
                     *desktop, 0, 0, 0, 0) != EXIT_SUCCESS) {
             p_verbose("Cannot switch desktop.\n");
         }
         g_free(desktop);
     }
 
-    client_msg(disp, win, "_NET_ACTIVE_WINDOW", 
+    client_msg(disp, win, "_NET_ACTIVE_WINDOW",
             0, 0, 0, 0, 0);
     XMapRaised(disp, win);
 
@@ -384,7 +391,7 @@ int activate_window (Display *disp, Window win, /* {{{ */
 }/*}}}*/
 
 int close_window (Display *disp, Window win) {/*{{{*/
-    return client_msg(disp, win, "_NET_CLOSE_WINDOW", 
+    return client_msg(disp, win, "_NET_CLOSE_WINDOW",
             0, 0, 0, 0, 0);
 }/*}}}*/
 
@@ -402,7 +409,7 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 
     if ((p1 = strchr(arg, ','))) {
         gchar *tmp_prop1, *tmp1;
-        
+
         *p1 = '\0';
 
         /* action */
@@ -431,7 +438,7 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
                 return EXIT_FAILURE;
             }
             tmp_prop2 = g_strdup_printf("_NET_WM_STATE_%s", tmp2 = g_ascii_strup(p2, -1));
-            p_verbose("State 2: %s\n", tmp_prop2); 
+            p_verbose("State 2: %s\n", tmp_prop2);
             prop2 = XInternAtom(disp, tmp_prop2, False);
             g_free(tmp2);
             g_free(tmp_prop2);
@@ -443,13 +450,13 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
             return EXIT_FAILURE;
         }
         tmp_prop1 = g_strdup_printf("_NET_WM_STATE_%s", tmp1 = g_ascii_strup(p1, -1));
-        p_verbose("State 1: %s\n", tmp_prop1); 
+        p_verbose("State 1: %s\n", tmp_prop1);
         prop1 = XInternAtom(disp, tmp_prop1, False);
         g_free(tmp1);
         g_free(tmp_prop1);
 
-        
-        return client_msg(disp, win, "_NET_WM_STATE", 
+
+        return client_msg(disp, win, "_NET_WM_STATE",
             action, (unsigned long)prop1, (unsigned long)prop2, 0, 0);
     }
     else {
@@ -476,7 +483,7 @@ gboolean wm_supports (Display *disp, const gchar *prop) {/*{{{*/
             return TRUE;
         }
     }
-    
+
     g_free(list);
     return FALSE;
 }/*}}}*/
@@ -485,7 +492,7 @@ int window_move_resize (Display *disp, Window win, char *arg) {/*{{{*/
     signed long grav, x, y, w, h;
     unsigned long grflags;
     const char *argerr = "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
-    
+
     if (!arg || strlen(arg) == 0) {
         fputs(argerr, stderr);
         return EXIT_FAILURE;
@@ -500,17 +507,17 @@ int window_move_resize (Display *disp, Window win, char *arg) {/*{{{*/
         fputs("Value of gravity mustn't be negative. Use zero to use the default gravity of the window.\n", stderr);
         return EXIT_FAILURE;
     }
-    
+
     grflags = grav;
     if (x != -1) grflags |= (1 << 8);
     if (y != -1) grflags |= (1 << 9);
     if (w != -1) grflags |= (1 << 10);
     if (h != -1) grflags |= (1 << 11);
-   
+
     p_verbose("grflags: %lu\n", grflags);
-   
+
     if (wm_supports(disp, "_NET_MOVERESIZE_WINDOW")){
-        return client_msg(disp, win, "_NET_MOVERESIZE_WINDOW", 
+        return client_msg(disp, win, "_NET_MOVERESIZE_WINDOW",
             grflags, (unsigned long)x, (unsigned long)y, (unsigned long)w, (unsigned long)h);
     }
     else {
@@ -544,11 +551,11 @@ int action_window (Display *disp, Window win, char mode, char *param) {/*{{{*/
         case 'b':
             /* change state of a window => -r -b */
             return window_state(disp, win, param);
-        
+
         case 't':
             /* move the window to the specified desktop => -r -t */
             return window_to_desktop(disp, win, atoi(param));
-        
+
         case 'R':
             /* move the window to the current desktop and activate it => -r */
             if (window_to_desktop(disp, win, -1) == EXIT_SUCCESS) {
@@ -588,7 +595,7 @@ int action_window_str (Display *disp, char mode, char *param_window, char *param
     Window *client_list;
     unsigned long client_list_size;
     int i;
-    
+
     if (strcmp(SELECT_WINDOW_MAGIC, param_window) == 0) {
         activate = Select_Window(disp);
         if (activate) {
@@ -611,9 +618,9 @@ int action_window_str (Display *disp, char mode, char *param_window, char *param
     }
     else {
         if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
-            return EXIT_FAILURE; 
+            return EXIT_FAILURE;
         }
-        
+
         for (i = 0; i < int(client_list_size / sizeof(Window)); i++) {
  			gchar *match_utf8;
  			if (show_class) {
@@ -636,7 +643,7 @@ int action_window_str (Display *disp, char mode, char *param_window, char *param
                     }
                     match_cf = g_utf8_casefold(match, -1);
                 }
-                
+
                 if (!match || !match_cf) {
                     continue;
                 }
@@ -689,7 +696,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
     int ret = EXIT_FAILURE;
     gchar **names = NULL;
     gboolean names_are_utf8 = TRUE;
-    
+
     if (! (num_desktops = (unsigned long *)get_property(disp, root,
             XA_CARDINAL, "_NET_NUMBER_OF_DESKTOPS", NULL))) {
         if (! (num_desktops = (unsigned long *)get_property(disp, root,
@@ -700,7 +707,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             goto cleanup;
         }
     }
-    
+
     if (! (cur_desktop = (unsigned long *)get_property(disp, root,
             XA_CARDINAL, "_NET_CURRENT_DESKTOP", NULL))) {
         if (! (cur_desktop = (unsigned long *)get_property(disp, root,
@@ -712,13 +719,13 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
         }
     }
 
-    if (wa_desktop_titles_invalid_utf8 || 
-            (list = get_property(disp, root, 
-            XInternAtom(disp, "UTF8_STRING", False), 
+    if (wa_desktop_titles_invalid_utf8 ||
+            (list = get_property(disp, root,
+            XInternAtom(disp, "UTF8_STRING", False),
             "_NET_DESKTOP_NAMES", &desktop_list_size)) == NULL) {
         names_are_utf8 = FALSE;
-        if ((list = get_property(disp, root, 
-            XA_STRING, 
+        if ((list = get_property(disp, root,
+            XA_STRING,
             "_WIN_WORKSPACE_NAMES", &desktop_list_size)) == NULL) {
             p_verbose("Cannot get desktop names properties. "
                   "(_NET_DESKTOP_NAMES or _WIN_WORKSPACE_NAMES)"
@@ -726,19 +733,19 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             /* ignore the error - list the desktops without names */
         }
     }
- 
+
     /* common size of all desktops */
     if (! (desktop_geometry = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
                     XA_CARDINAL, "_NET_DESKTOP_GEOMETRY", &desktop_geometry_size))) {
         p_verbose("Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");
     }
-     
+
     /* desktop viewport */
     if (! (desktop_viewport = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
                     XA_CARDINAL, "_NET_DESKTOP_VIEWPORT", &desktop_viewport_size))) {
         p_verbose("Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
     }
-     
+
     /* desktop workarea */
     if (! (desktop_workarea = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
                     XA_CARDINAL, "_NET_WORKAREA", &desktop_workarea_size))) {
@@ -747,7 +754,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             p_verbose("Cannot get _NET_WORKAREA property.\n");
         }
     }
-     
+
     /* prepare the array of desktop names */
     names = (gchar **)g_malloc0(*num_desktops * sizeof(char *));
     if (list) {
@@ -770,7 +777,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             /* only one value - use it for all desktops */
             p_verbose("WM provides _NET_DESKTOP_GEOMETRY value common for all desktops.\n");
             for (i = 0; i < int(*num_desktops); i++) {
-                desktop_geometry_str[i] = g_strdup_printf("%lux%lu", 
+                desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
                 desktop_geometry[0], desktop_geometry[1]);
             }
         }
@@ -779,7 +786,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             p_verbose("WM provides separate _NET_DESKTOP_GEOMETRY value for each desktop.\n");
             for (i = 0; i < int(*num_desktops); i++) {
                 if (i < int(desktop_geometry_size / sizeof(*desktop_geometry) / 2)) {
-                    desktop_geometry_str[i] = g_strdup_printf("%lux%lu", 
+                    desktop_geometry_str[i] = g_strdup_printf("%lux%lu",
                         desktop_geometry[i*2], desktop_geometry[i*2+1]);
                 }
                 else {
@@ -793,7 +800,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             desktop_geometry_str[i] = g_strdup("N/A");
         }
     }
- 
+
     /* prepare desktop viewport strings */
     desktop_viewport_str = (gchar **)g_malloc0((*num_desktops + 1) * sizeof(char *));
     if (desktop_viewport && desktop_viewport_size > 0) {
@@ -802,7 +809,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             p_verbose("WM provides _NET_DESKTOP_VIEWPORT value only for the current desktop.\n");
             for (i = 0; i < int(*num_desktops); i++) {
                 if (i == int(*cur_desktop)) {
-                    desktop_viewport_str[i] = g_strdup_printf("%lu,%lu", 
+                    desktop_viewport_str[i] = g_strdup_printf("%lu,%lu",
                         desktop_viewport[0], desktop_viewport[1]);
                 }
                 else {
@@ -814,7 +821,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             /* seperate values for each of desktops */
             for (i = 0; i < int(*num_desktops); i++) {
                 if (i < int(desktop_viewport_size / sizeof(*desktop_viewport) / 2)) {
-                    desktop_viewport_str[i] = g_strdup_printf("%lu,%lu", 
+                    desktop_viewport_str[i] = g_strdup_printf("%lu,%lu",
                         desktop_viewport[i*2], desktop_viewport[i*2+1]);
                 }
                 else {
@@ -828,7 +835,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             desktop_viewport_str[i] = g_strdup("N/A");
         }
     }
- 
+
     /* prepare desktop workarea strings */
     desktop_workarea_str = (gchar **)g_malloc0((*num_desktops + 1) * sizeof(char *));
     if (desktop_workarea && desktop_workarea_size > 0) {
@@ -837,7 +844,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             p_verbose("WM provides _NET_WORKAREA value only for the current desktop.\n");
             for (i = 0; i < int(*num_desktops); i++) {
                 if (i == int(*cur_desktop)) {
-                    desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu", 
+                    desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu",
                         desktop_workarea[0], desktop_workarea[1],
                         desktop_workarea[2], desktop_workarea[3]);
                 }
@@ -850,7 +857,7 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             /* seperate values for each of desktops */
             for (i = 0; i < int(*num_desktops); i++) {
                 if (i < int(desktop_workarea_size / sizeof(*desktop_workarea) / 4)) {
-                    desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu", 
+                    desktop_workarea_str[i] = g_strdup_printf("%lu,%lu %lux%lu",
                         desktop_workarea[i*4], desktop_workarea[i*4+1],
                         desktop_workarea[i*4+2], desktop_workarea[i*4+3]);
                 }
@@ -865,24 +872,24 @@ int list_desktops (Display *disp, bool wa_desktop_titles_invalid_utf8) {/*{{{*/
             desktop_workarea_str[i] = g_strdup("N/A");
         }
     }
- 
+
     /* print the list */
     for (i = 0; i < int(*num_desktops); i++) {
         gchar *out = get_output_str(names[i], names_are_utf8);
         printf("%-2d %c DG: %-*s  VP: %-*s  WA: %-*s  %s\n", i, i == int(*cur_desktop) ? '*' : '-',
-                longest_str(desktop_geometry_str), desktop_geometry_str[i], 
-                longest_str(desktop_viewport_str), desktop_viewport_str[i], 
-                longest_str(desktop_workarea_str), desktop_workarea_str[i], 
+                longest_str(desktop_geometry_str), desktop_geometry_str[i],
+                longest_str(desktop_viewport_str), desktop_viewport_str[i],
+                longest_str(desktop_workarea_str), desktop_workarea_str[i],
                 out ? out : "N/A");
         g_free(out);
     }
-    
+
     p_verbose("Total number of desktops: %lu\n", *num_desktops);
     p_verbose("Current desktop ID (counted from zero): %lu\n", *cur_desktop);
-    
+
     ret = EXIT_SUCCESS;
     goto cleanup;
-    
+
 cleanup:
     g_free(names);
     g_free(num_desktops);
@@ -894,14 +901,14 @@ cleanup:
     g_free(desktop_workarea);
     g_strfreev(desktop_workarea_str);
     g_free(list);
-    
+
     return ret;
 }/*}}}*/
 
 int longest_str (gchar **strv) {/*{{{*/
     int max = 0;
     int i = 0;
-    
+
     while (strv && strv[i]) {
         if (int(strlen(strv[i])) > max) {
             max = strlen(strv[i]);
@@ -915,9 +922,9 @@ int longest_str (gchar **strv) {/*{{{*/
 Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
     Window *client_list;
 
-    if ((client_list = (Window *)get_property(disp, DefaultRootWindow(disp), 
+    if ((client_list = (Window *)get_property(disp, DefaultRootWindow(disp),
                     XA_WINDOW, "_NET_CLIENT_LIST", size)) == NULL) {
-        if ((client_list = (Window *)get_property(disp, DefaultRootWindow(disp), 
+        if ((client_list = (Window *)get_property(disp, DefaultRootWindow(disp),
                         XA_CARDINAL, "_WIN_CLIENT_LIST", size)) == NULL) {
             fputs("Cannot get client list properties. \n"
                   "(_NET_CLIENT_LIST or _WIN_CLIENT_LIST)"
@@ -929,28 +936,29 @@ Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
     return client_list;
 }/*}}}*/
 
-int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_class) {/*{{{*/
+int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_class, list<WinInfo> &listWinInfo) {/*{{{*/
     Window *client_list;
     unsigned long client_list_size;
     int i;
     int max_client_machine_len = 0;
-    
+
     if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
-        return EXIT_FAILURE; 
+        return EXIT_FAILURE;
     }
-    
+
     /* find the longest client_machine name */
     for (i = 0; i < int(client_list_size / sizeof(Window)); i++) {
         gchar *client_machine;
         if ((client_machine = get_property(disp, client_list[i],
                 XA_STRING, "WM_CLIENT_MACHINE", NULL))) {
-            max_client_machine_len = strlen(client_machine);    
+            max_client_machine_len = strlen(client_machine);
         }
         g_free(client_machine);
     }
-    
+
     /* print the list */
     for (i = 0; i < int(client_list_size / sizeof(Window)); i++) {
+        WinInfo itemWinInfo;
         gchar *title_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
         gchar *title_out = get_output_str(title_utf8, TRUE);
         gchar *client_machine;
@@ -971,7 +979,7 @@ int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_cl
         /* client machine */
         client_machine = get_property(disp, client_list[i],
                 XA_STRING, "WM_CLIENT_MACHINE", NULL);
-       
+
         /* pid */
         pid = (unsigned long *)get_property(disp, client_list[i],
                 XA_CARDINAL, "_NET_WM_PID", NULL);
@@ -981,35 +989,51 @@ int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_cl
                           &wwidth, &wheight, &bw, &depth);
         XTranslateCoordinates (disp, client_list[i], junkroot, junkx, junky,
                                &x, &y, &junkroot);
-      
-        /* special desktop ID -1 means "all desktops", so we 
+
+        /* special desktop ID -1 means "all desktops", so we
            have to convert the desktop value to signed long */
-        printf("0x%.8lx %2ld", client_list[i], 
+        printf("0x%.8lx %2ld", client_list[i],
                 desktop ? (signed long)*desktop : 0);
+        itemWinInfo.lDesktop = desktop ? (signed long)*desktop : 0;
+
         if (show_pid) {
            printf(" %-6lu", pid ? *pid : 0);
         }
+        itemWinInfo.ulPid = pid ? *pid : 0;
+
         if (show_geometry) {
            printf(" %-4d %-4d %-4d %-4d", x, y, wwidth, wheight);
         }
+
+        itemWinInfo.x = x;
+        itemWinInfo.y = y;
+        itemWinInfo.w = wwidth;
+        itemWinInfo.h = wheight;
+
 		if (show_class) {
 		   printf(" %-20s ", class_out ? class_out : "N/A");
 		}
+        itemWinInfo.sClassName = class_out ? class_out : "";
 
         printf(" %*s %s\n",
               max_client_machine_len,
               client_machine ? client_machine : "N/A",
               title_out ? title_out : "N/A"
 		);
+        itemWinInfo.sClientMachine = client_machine ? client_machine : "";
+        itemWinInfo.sTitle = title_out ? title_out : "";
+
         g_free(title_utf8);
         g_free(title_out);
         g_free(desktop);
         g_free(client_machine);
         g_free(class_out);
         g_free(pid);
+
+        listWinInfo.push_back(itemWinInfo);
     }
     g_free(client_list);
-   
+
     return EXIT_SUCCESS;
 }/*}}}*/
 
@@ -1031,7 +1055,7 @@ gchar *get_window_class (Display *disp, Window win) {/*{{{*/
     }
 
     g_free(wm_class);
-    
+
     return class_utf8;
 }/*}}}*/
 
@@ -1041,7 +1065,7 @@ gchar *get_window_title (Display *disp, Window win) {/*{{{*/
     gchar *net_wm_name;
 
     wm_name = get_property(disp, win, XA_STRING, "WM_NAME", NULL);
-    net_wm_name = get_property(disp, win, 
+    net_wm_name = get_property(disp, win,
             XInternAtom(disp, "UTF8_STRING", False), "_NET_WM_NAME", NULL);
 
     if (net_wm_name) {
@@ -1058,7 +1082,7 @@ gchar *get_window_title (Display *disp, Window win) {/*{{{*/
 
     g_free(wm_name);
     g_free(net_wm_name);
-    
+
     return title_utf8;
 }/*}}}*/
 
@@ -1072,21 +1096,21 @@ gchar *get_property (Display *disp, Window win, /*{{{*/
     unsigned long tmp_size;
     unsigned char *ret_prop;
     gchar *ret;
-    
+
     xa_prop_name = XInternAtom(disp, prop_name, False);
-    
+
     /* MAX_PROPERTY_VALUE_LEN / 4 explanation (XGetWindowProperty manpage):
      *
      * long_length = Specifies the length in 32-bit multiples of the
      *               data to be retrieved.
      */
     if (XGetWindowProperty(disp, win, xa_prop_name, 0, MAX_PROPERTY_VALUE_LEN / 4, False,
-            xa_prop_type, &xa_ret_type, &ret_format,     
+            xa_prop_type, &xa_ret_type, &ret_format,
             &ret_nitems, &ret_bytes_after, &ret_prop) != Success) {
         p_verbose("Cannot get %s property.\n", prop_name);
         return NULL;
     }
-  
+
     if (xa_ret_type != xa_prop_type) {
         p_verbose("Invalid type of %s property.\n", prop_name);
         XFree(ret_prop);
@@ -1102,7 +1126,7 @@ gchar *get_property (Display *disp, Window win, /*{{{*/
     if (size) {
         *size = tmp_size;
     }
-    
+
     XFree(ret_prop);
     return ret;
 }/*}}}*/
@@ -1151,7 +1175,7 @@ Window Select_Window(Display *dpy) {/*{{{*/
                     buttons--;
                 break;
         }
-    } 
+    }
 
     XUngrabPointer(dpy, CurrentTime);      /* Done with pointer */
 
@@ -1159,7 +1183,7 @@ Window Select_Window(Display *dpy) {/*{{{*/
                 &dummy, &dummy, &dummy, &dummy) && target_win != root) {
         target_win = XmuClientWindow (dpy, target_win);
     }
-    
+
     return(target_win);
 }/*}}}*/
 
@@ -1167,8 +1191,8 @@ Window get_active_window(Display *disp) {/*{{{*/
     char *prop;
     unsigned long size;
     Window ret = (Window)0;
-    
-    prop = get_property(disp, DefaultRootWindow(disp), XA_WINDOW, 
+
+    prop = get_property(disp, DefaultRootWindow(disp), XA_WINDOW,
                         "_NET_ACTIVE_WINDOW", &size);
     if (prop) {
         ret = *((Window*)prop);

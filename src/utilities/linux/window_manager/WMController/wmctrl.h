@@ -20,13 +20,39 @@
 #define SELECT_WINDOW_MAGIC ":SELECT:"
 #define ACTIVE_WINDOW_MAGIC ":ACTIVE:"
 
+#include <string>
+#include <list>
+using namespace std;
+
+struct WinInfo
+{
+    WinInfo()
+            : lDesktop(0)
+            , ulPid(0)
+            , x(0)
+            , y(0)
+            , w(0)
+            , h(0)
+        {
+        }
+    signed long lDesktop;
+    unsigned long ulPid;
+    int x;
+    int y;
+    int w;
+    int h;
+    string sClassName;
+    string sClientMachine;
+    string sTitle;
+};
+
 gboolean wm_supports (Display *disp, const gchar *prop);
 Window *get_client_list (Display *disp, unsigned long *size);
 int client_msg(Display *disp, Window win, char *msg,
         unsigned long data0, unsigned long data1,
         unsigned long data2, unsigned long data3,
         unsigned long data4);
-int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_class);
+int list_windows (Display *disp, bool show_pid, bool show_geometry, bool show_class, list<WinInfo> &listWinInfo);
 int list_desktops (Display *disp,  bool wa_desktop_titles_invalid_utf8);
 int showing_desktop (Display *disp, char *param);
 int change_viewport (Display *disp, char *param);
@@ -55,4 +81,3 @@ Window Select_Window(Display *dpy);
 Window get_active_window(Display *dpy);
 
 #endif
-

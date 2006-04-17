@@ -83,7 +83,10 @@ int main(int argc, char *argv[])
 	}
 
 	if(bListWindows)
-		WMController::Instance().ListWindows();
+    {
+        list<WinInfo> dummy;
+		WMController::Instance().ListWindows(dummy);
+    }
 
 	if(sWindowName != "")
 	{
