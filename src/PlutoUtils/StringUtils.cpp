@@ -655,6 +655,7 @@ time_t StringUtils::SQLDateTime( string sSQLDate )
         t.tm_min = atoi( &pcDate[14] );
         t.tm_sec = atoi( &pcDate[17] );
     }
+	t.tm_isdst=-1;
     return mktime( &t );
 }
 
@@ -667,6 +668,7 @@ time_t StringUtils::MakeTime( int Year, int Month, int Day, int Hour, int Minute
     t.tm_hour = Hour;
     t.tm_min = Minute;
     t.tm_sec = Second;
+	t.tm_isdst=-1;
     return mktime( &t );
 }
 

@@ -138,7 +138,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highli
 		if( Notch!=m_iLastNotch )
 		{
 			if( Notch==0 )
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0);
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 			else
 			{
 				int Frequency;
@@ -158,9 +158,9 @@ if( Frequency<1 )
 int k=2;
 g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
 				if( bPage )
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 2 : -2,Frequency);
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 2 : -2,Frequency,NULL);
 				else
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 1 : -1,Frequency);
+					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 1 : -1,Frequency,NULL);
 			}
 			m_iLastNotch=Notch;
 //remus  m_pObj->SetSpeed(Speed);

@@ -21,7 +21,7 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class KeyboardMouseHandler : public MouseHandler
 	{
-		bool m_bHorizontal;
+		char m_cDirection;
 	public:
 		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) {}
 
@@ -31,8 +31,11 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y);
-	};
 
+		void DoIteration();
+		void IterateObject();
+		void IterateExternalApp();
+	};
 }
 //-----------------------------------------------------------------------------------------------------
 #endif

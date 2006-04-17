@@ -59,9 +59,21 @@ void MouseBehavior::Clear()
 		m_pOrbiter->CMD_Remove_Popup("","left");
 		m_pOrbiter->CMD_Remove_Popup("","horiz");
 	}
+
+	/* there's a logic flaw that when popups are put on screen they're added to the following
+	vect's, but not removed when the popup is removed, although they are marked as m_bOnScreen=false.
+	These were created as vect's because the concept of popups didn't exist in the beginning.
+	Perhaps they should be changed to something else that's easier to remove entries from.
+	For now, with the new UI, we know that whenever the mouse behavior is reset we will
+	have no grids or tab stops on screen.  Reset them so the list doesn't grow indefinately. */
+	m_pOrbiter->m_vectObjs_GridsOnScreen.clear();
+	m_pOrbiter->m_vectObjs_TabStops.clear();
+
 	m_pObj_Locked_Vertical=m_pObj_Locked_Horizontal=NULL;
 	ResetSamples();
 	m_cLockedAxes = m_cLocked_Axis_Current = AXIS_LOCK_NONE;
+	if( m_pMouseHandler_Vertical && m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
+		m_pMouseHandler_Vertical=NULL; // Only delete it once
 	delete m_pMouseHandler_Horizontal;
 	delete m_pMouseHandler_Vertical;
 	m_pMouseHandler_Horizontal=m_pMouseHandler_Vertical=NULL;
@@ -69,7 +81,7 @@ void MouseBehavior::Clear()
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor->SetBuffer(0);
-	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0);
+	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 }
 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
@@ -112,10 +124,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		break;
 	}
 #endif
-	if( sDirection[0]=='Y' )
+	if( sDirection[0]=='Y' || sDirection[0]=='B' )
 	{
 		if( m_pMouseHandler_Vertical )
+		{
+			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Horizontal=NULL; // We're deleting it
 			delete m_pMouseHandler_Vertical;
+		}
 		m_pObj_Locked_Vertical=pObj;
 		m_pMouseHandler_Vertical=pMouseHandler;
 		m_sVerticalOptions=sOptions;
@@ -123,10 +139,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
 			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
-	else if( sDirection[0]=='X' )
+	if( sDirection[0]=='X' || sDirection[0]=='B' )
 	{
 		if( m_pMouseHandler_Horizontal )
+		{
+			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Vertical=NULL; // We're deleting it
 			delete m_pMouseHandler_Horizontal;
+		}
 		m_pObj_Locked_Horizontal=pObj;
 		m_pMouseHandler_Horizontal=pMouseHandler;
 		m_sHorizontalOptions=sOptions;
@@ -134,8 +154,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		if( m_cLocked_Axis_Current==AXIS_LOCK_X )
 			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
-	else
-		m_cLockedAxes = AXIS_LOCK_NONE;
 
 	// set a call back function for each axis
 	m_pMouseGovernor->SetBuffer(0);
@@ -191,9 +209,29 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 		X = m_iLockedPosition;
 
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
-		m_pMouseHandler_Horizontal->Move( X, Y);
+	{
+		if( m_pMouseHandler_Horizontal->m_pObj && !m_pMouseHandler_Horizontal->m_pObj->m_bOnScreen )
+		{
+			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Vertical=NULL;
+			delete m_pMouseHandler_Horizontal;
+			m_pMouseHandler_Horizontal=NULL;
+		}
+		else
+			m_pMouseHandler_Horizontal->Move(X, Y);
+	}
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
-		m_pMouseHandler_Vertical->Move( X, Y);
+	{
+		if( m_pMouseHandler_Horizontal->m_pObj && !m_pMouseHandler_Horizontal->m_pObj->m_bOnScreen )
+		{
+			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Horizontal=NULL;
+			delete m_pMouseHandler_Vertical;
+			m_pMouseHandler_Vertical=NULL;
+		}
+		else
+			m_pMouseHandler_Vertical->Move(X, Y);
+	}
 }
 
 bool MouseBehavior::CheckForChangeInDirection(int X,int Y)

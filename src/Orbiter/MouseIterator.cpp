@@ -1,6 +1,7 @@
 #include "MouseIterator.h"
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
+#include "KeyboardMouseHandler.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -31,6 +32,7 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 	m_bThreadRunning=true;
 	m_EIteratorFunction=if_None;
 	m_dwTime_Last_Iterated=0;
+	m_pMouseHandler=NULL;
 
 	pthread_t pthread_id; 
 	if(pthread_create( &pthread_id, NULL, IteratorThread, (void*)this) )
@@ -87,10 +89,11 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"awoke");
 	m_bThreadRunning=false;
 }
 
-void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms)
+void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms,MouseHandler *pMouseHandler)
 {
 	PLUTO_SAFETY_LOCK(sm,m_pOrbiter->m_ScreenMutex);
 	PLUTO_SAFETY_LOCK(m,m_IteratorMutex);
+	m_pMouseHandler=pMouseHandler;
 	m_EIteratorFunction=eIteratorFunction;
 	m_dwParm=dwParm;
 	m_dwFrequency_Ms=dwFrequency_Ms;
@@ -128,75 +131,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 		}
 		break;
 	case if_Keyboard:
-		switch( m_dwParm )
 		{
-			case 'U':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-			case 'D':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-			case 'u':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-			case 'd':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-//TODO: remove this when we'll have these record in the database from Iasi.
-#if 0 
-			case 'L':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-			case 'R':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-#endif
-
-			case 'l':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-
-			case 'r':
-			{
-				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-					StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
-				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
-			}
-			break;
-		}
+			// Since there's quite a bit of logic here, call back the keyboard handler
+			// and we'll put the logic there
+			KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseHandler;
+			pKeyboardMouseHandler->DoIteration();
+		}			
 		break;
 	case if_MediaTracks:
 		{

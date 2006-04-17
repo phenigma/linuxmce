@@ -21,6 +21,7 @@ namespace DCE
 		friend class KeyboardMouseHandler;
 
 		class MouseBehavior *m_pMouseBehavior;
+		class MouseHandler *m_pMouseHandler;
 		class Orbiter *m_pOrbiter;
 		bool m_bQuit,m_bThreadRunning;
 		pluto_pthread_mutex_t m_IteratorMutex;
@@ -37,7 +38,7 @@ namespace DCE
 		virtual ~MouseIterator();
 
 		void Run(); // Runs in a separate thread
-		void SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms);
+		void SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms,MouseHandler *pMouseHandler);
 		void DoIteration();
 	};
 }

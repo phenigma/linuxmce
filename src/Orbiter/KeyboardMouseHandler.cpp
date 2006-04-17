@@ -14,7 +14,7 @@ using namespace DCE;
 
 void KeyboardMouseHandler::Start()
 {
-	m_bHorizontal = m_pMouseBehavior->m_pMouseHandler_Horizontal==this;
+	m_cDirection=0;
 	m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
 		m_pMouseBehavior->m_pOrbiter->m_Height/2);
 }
@@ -41,13 +41,14 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y)
 {
-	int NotchSize = (double) m_bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
+	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
+	int NotchSize = (double) bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
 	int Notch;
-	if( m_bHorizontal )
+	if( bHorizontal )
 		Notch = X/NotchSize - 10;
 	else
 		Notch = Y/NotchSize - 10;
-g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) m_bHorizontal,X,Y);
+g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) bHorizontal,X,Y);
 
 	if( Notch<-10 )
 		Notch = -10;
@@ -57,7 +58,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) m
 	if( Notch!=m_iLastNotch )
 	{
 		if( Notch==0 )
-			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0);
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 		else
 		{
 			int Frequency;
@@ -66,32 +67,171 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) m
 			{
 				bPage=true;
 				if( Notch>0 )
-					Frequency = (6-(Notch-5))*100;
+					Frequency = (6-(Notch-5))*400;
 				else
-					Frequency = (6+(Notch+5))*100;
+					Frequency = (6+(Notch+5))*400;
 			}
 			else
-				Frequency = (6-abs(Notch))*100;
+				Frequency = (6-abs(Notch))*400;
 
-if( Frequency<1 )
-int k=2;
 g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
-			if( m_bHorizontal )
+			if( bHorizontal )
 			{
 				if( bPage )
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'L' : 'R',Frequency);
+					m_cDirection = Notch > 0 ? 'R' : 'L';
 				else
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'l' : 'r',Frequency);
+					m_cDirection = Notch > 0 ? 'r' : 'l';
 			}
 			else
 			{
 				if( bPage )
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'D' : 'U',Frequency);
+					m_cDirection = Notch > 0 ? 'D' : 'U';
 				else
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,Notch > 0 ? 'd' : 'u',Frequency);
+					m_cDirection = Notch > 0 ? 'd' : 'u';
 			}
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Keyboard,0,Frequency,this);
 		}
 		m_iLastNotch=Notch;
-//remus  m_pObj->SetSpeed(Speed);
+	}
+}
+
+void KeyboardMouseHandler::DoIteration()
+{
+g_pPlutoLogger->Write(LV_FESTIVAL,"Direction %c",m_cDirection);
+	if( m_pObj )
+		IterateObject();
+	else
+		IterateExternalApp();
+}
+
+void KeyboardMouseHandler::IterateObject()
+{
+	switch( m_cDirection )
+	{
+		case 'U':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+		}
+		break;
+
+		case 'D':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+		}
+		break;
+
+		case 'u':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+		}
+		break;
+
+		case 'd':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+		}
+		break;
+
+		case 'L':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
+		}
+		break;
+
+		case 'R':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
+		}
+		break;
+
+		case 'l':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
+		}
+		break;
+
+		case 'r':
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
+		}
+		break;
+	}
+}
+
+void KeyboardMouseHandler::IterateExternalApp()
+{
+	switch( m_cDirection )
+	{
+		case 'U':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'D':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'u':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'd':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'L':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'R':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'l':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
+
+		case 'r':
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
+		break;
 	}
 }

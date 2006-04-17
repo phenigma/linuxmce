@@ -44,10 +44,10 @@ int GetDuration(string sTaskID);
 time_t GetEndTime(string sTaskID,time_t tStartTime);
 time_t AssignTaskIfFits( string sTaskID, time_t tStartTime, time_t tEndTime );
 void AssignTasksFollowingID(time_t tStartTime,time_t tEndTime,list<int> &listNextTasks);
-void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks);
+void AssignTaskByDate(string sFirstTask,string sUserID,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks);
 time_t GetActualStartTimeAndWorkHours(string sUser,time_t tStartTime,int &Hours);
 string GetUserForTask(string sTaskID);
-void RecurseAllFollowingTasks( string sTaskID, list<int> &listNextTasks );
+void RecurseAllFollowingTasks( string sTaskID, string sUserID,list<int> &listNextTasks );
 void Report(string sUserID,string sStartDate,string EndDate);
 void OutputTask(time_t time,int MantisID,int Severity,int Status,int Resolution,string summary,int hours_estimate,int hours_actual,time_t DateTodo,int ID_After_Todo);
 void WriteDay(string sDate);
@@ -222,7 +222,7 @@ void AssignWorkDaysForUser(string sUserID)
 		while(true)
 		{
 			row=mysql_fetch_row( result.r );
-			AssignTaskByDate(sFirstTask,StringUtils::SQLDateTime(sFirstDate),row ? StringUtils::SQLDateTime(row[1]) : 0,listNextTasks); // row[1] is the stop date, ie the first date of the subsequent task
+			AssignTaskByDate(sFirstTask,sUserID,StringUtils::SQLDateTime(sFirstDate),row ? StringUtils::SQLDateTime(row[1]) : 0,listNextTasks); // row[1] is the stop date, ie the first date of the subsequent task
 			if( !row )
 				return;  // We've done all the tasks with a specific date in them
 			sFirstTask = row[0];
@@ -231,7 +231,7 @@ void AssignWorkDaysForUser(string sUserID)
 	}
 }
 
-void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks)
+void AssignTaskByDate(string sFirstTask,string sUserID,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks)
 {
 	int Hours;
 	tFirstDate = GetActualStartTimeAndWorkHours(GetUserForTask(sFirstTask),tFirstDate,Hours);
@@ -239,12 +239,13 @@ void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<i
 	if( g_mapBugs[atoi(sFirstTask.c_str())] )
 	{
 		cout << "******ERROR*******  Bug " << sFirstTask << " assigned twice." << endl;
-		return;
+		exit(1);
 	}
 
 	g_mapBugs[atoi(sFirstTask.c_str())]=true;
 	cout << "Bug " << sFirstTask << " assigned" << endl;
-
+if( sFirstTask=="1978" )
+int k=2;
 	g_mapBugs[atoi(sFirstTask.c_str())]=true;
 	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sFirstTask + ",'" + StringUtils::SQLDateTime(tFirstDate) + "')";
 	g_MySqlHelper.threaded_mysql_query(sSQL);
@@ -252,7 +253,7 @@ void AssignTaskByDate(string sFirstTask,time_t tFirstDate,time_t tEndTime,list<i
 	// The next task will start after this one ends
 	time_t tStartTime = GetEndTime(sFirstTask,tFirstDate);
 
-	RecurseAllFollowingTasks( sFirstTask,listNextTasks );
+	RecurseAllFollowingTasks( sFirstTask,sUserID,listNextTasks );
 	AssignTasksFollowingID(tStartTime,tEndTime,listNextTasks);
 }
 
@@ -272,18 +273,23 @@ void AssignTasksFollowingID(time_t tStartTime,time_t tEndTime,list<int> &listNex
 	}
 }
 
-void RecurseAllFollowingTasks( string sTaskID, list<int> &listNextTasks )
+void RecurseAllFollowingTasks( string sTaskID, string sUserID, list<int> &listNextTasks )
 {
     // Add in the tasks that should follow this one
-	string sSQL = "SELECT id from mantis_bug_table where id_after_todo=" + sTaskID;
+	string sSQL = "SELECT id,handler_id from mantis_bug_table where id_after_todo=" + sTaskID;
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
 		while ( row=mysql_fetch_row( result.r ) )
 		{
+			if( !row[1] || atoi(row[1])!=atoi(sUserID.c_str()) )
+			{
+				cout << "******ERROR*******  Bug " << row[0] << " follows a bug assigned to a different user than: " << sUserID << endl;
+				exit(1);
+			}
 			listNextTasks.push_back(atoi(row[0]));
-			RecurseAllFollowingTasks( row[0], listNextTasks );
+			RecurseAllFollowingTasks( row[0], sUserID, listNextTasks );
 		}
 }
 
@@ -301,6 +307,8 @@ time_t AssignTaskIfFits( string sTaskID, time_t tStartTime, time_t tEndTime )
 	g_mapBugs[atoi(sTaskID.c_str())]=true;
 
 	cout << "Bug " << sTaskID << " assigned" << endl;
+if( sTaskID=="1978" )
+int k=2;
 
 	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sTaskID + ",'" + StringUtils::SQLDateTime(tStartTime) + "')";
 	g_MySqlHelper.threaded_mysql_query(sSQL);

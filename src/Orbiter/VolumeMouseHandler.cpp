@@ -96,7 +96,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 		if( Notch!=m_iLastNotch )
 		{
 			DrawSquare(m_iLastNotch,PlutoColor::Blue());
-			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500);
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500,this);
 			m_iLastNotch = Notch;
 			DrawSquare(m_iLastNotch,PlutoColor::White());
 		}

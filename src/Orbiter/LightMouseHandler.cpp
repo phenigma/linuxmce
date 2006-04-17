@@ -93,7 +93,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting light to : %d  X %d",Notch,X);
 		else
 		{
 			DrawSquare(5-m_iLastNotch,PlutoColor::Blue());
-			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500);
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500,NULL);
 			m_iLastNotch = Notch;
 			DrawSquare(5-m_iLastNotch,PlutoColor::White());
 		}
