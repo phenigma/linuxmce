@@ -1198,23 +1198,27 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 	while((row = mysql_fetch_row(result_set.r)))
 	{
 		int ext;
-		string sext=row[0];				
-		g_pPlutoLogger->Write(LV_STATUS,"   sext1='%s'",sext.c_str());
-		if(sext == "")
+		string sext=row[0];
+		string sext2=row[1];
+		if((sext2.find_first_not_of("0123456789")==sext2.npos) && (sext2.find("000")!=0))
 		{
-			ParseChannel(row[4],&ext,&sext);
-			g_pPlutoLogger->Write(LV_STATUS,"   sext2='%s'",sext.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"   sext1='%s'",sext.c_str());
 			if(sext == "")
 			{
-				sext="Unknown";
+				ParseChannel(row[4],&ext,&sext);
+				g_pPlutoLogger->Write(LV_STATUS,"   sext2='%s'",sext.c_str());
+				if(sext == "")
+				{
+					sext="Unknown";
+				}
 			}
+			string text = sext+string(" to ")+string(row[1])+string(" at ")+string(row[2])+string("(")+string(sec2str(atoi(row[3])))+string(")");
+			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
+			pCell = new DataGridCell(text,sext2);
+			pCell->m_pMessage=NULL;
+			pDataGrid->SetData(0,Row,pCell);
+			Row++;
 		}
-		string text = sext+string(" to ")+string(row[1])+string(" at ")+string(row[2])+string("(")+string(sec2str(atoi(row[3])))+string(")");
-		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
-		pCell = new DataGridCell(text,"");
-		pCell->m_pMessage=NULL;
-		pDataGrid->SetData(0,Row,pCell);
-		Row++;
 	}
 
 	return pDataGrid;
