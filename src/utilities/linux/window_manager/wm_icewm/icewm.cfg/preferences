@@ -491,10 +491,10 @@ DateFormat="%c"
 AcpiIgnoreBatteries=""
 
 #  Mouse binding for window move
-MouseWinMove="Ctrl+Alt+Pointer_Button1"
+MouseWinMove="Ctrl+Alt+Shift+Pointer_Button1"
 
 #  Mouse binding for window resize
-MouseWinSize="Ctrl+Alt+Pointer_Button3"
+MouseWinSize="Ctrl+Alt+Shift+Pointer_Button3"
 
 #
 KeyWinRaise=""
@@ -596,7 +596,7 @@ KeySysDialog="Alt+Ctrl+Shift+Del"
 KeySysMenu=""
 
 #
-KeySysWindowList="Alt+Ctrl+Shift+End"
+KeySysWindowList="Alt+Ctrl+Shift+Esc"
 
 #
 KeySysWinListMenu=""
