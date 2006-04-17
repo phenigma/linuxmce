@@ -31,8 +31,9 @@
 using namespace std;
 using namespace EMBRUBY;
 
-#define DEFAULT_POOL_TIME		500
+#define DEFAULT_POOL_TIME		20
 #define DEFAULT_DELAY_TIME		2000
+//this one is in seconds
 #define DEFAULT_RESPONSE_TIME	20
 
 namespace DCE {
@@ -285,7 +286,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 		if( pMessage->m_bRespondedToMessage )
 			return 0;
 		mm.Release();
-		Sleep(100);
+		Sleep(DEFAULT_POOL_TIME);
 	}
 	PLUTO_SAFETY_LOCK(mm,m_MsgMutex);
 	if( !pMessage->m_bRespondedToMessage )
