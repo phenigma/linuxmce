@@ -3,6 +3,7 @@
 #ifndef __WM_LIST_MANAGER__
 #define __WM_LIST_MANAGER__
 
+#include "SerializeClass/ShapesColors.h"
 #include "utilities/linux/window_manager/WMController/WMController.h"
 #include <string>
 #include <list>
@@ -24,14 +25,23 @@ public:
     string GetExternApplicationName();
     void SetExternApplicationName(const string &sName);
 
+    void GetExternApplicationPosition(PlutoRectangle &coord);
+    void SetExternApplicationPosition(const PlutoRectangle &coord);
+
     bool IsEmpty();
+
+    bool IsWindowAvailable(const string &sClassName);
 
 protected:
     pthread_mutexattr_t m_WindowsMutexAttr;
 	pluto_pthread_mutex_t m_WindowsMutex;
 
     list<string> m_listVisibleWindows;
+
     string m_sExternApplicationName;
+    PlutoRectangle m_coordExternalApplication;
+    unsigned long m_pidExternalApplication;
+
     string m_sSdlWindowName;
 };
 

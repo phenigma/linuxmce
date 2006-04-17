@@ -90,8 +90,35 @@ void WinListManager::SetExternApplicationName(const string &sWindowName)
     m_sExternApplicationName = sWindowName;
 }
 
+void WinListManager::GetExternApplicationPosition(PlutoRectangle &coord)
+{
+    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    coord = m_coordExternalApplication;
+}
+
+void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
+{
+    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
+    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    m_coordExternalApplication = coord;
+}
+
 bool WinListManager::IsEmpty()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     return (m_listVisibleWindows.size() == 0);
+}
+
+bool WinListManager::IsWindowAvailable(const string &sClassName)
+{
+    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    list<WinInfo> listWinInfo;
+    if (! WMController::Instance().ListWindows(listWinInfo))
+        return false;
+    for (list<WinInfo>::iterator it = listWinInfo.begin(); it !=  listWinInfo.end(); ++it)
+    {
+        if (it->sClassName == sClassName)
+            return true;
+    }
+    return false;
 }

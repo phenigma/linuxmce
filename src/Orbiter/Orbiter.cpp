@@ -7164,10 +7164,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Set Now Playing' with window %s", sName.c_str());
-	CMD_Activate_Window(sName);
 #endif
 
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+	CMD_Activate_Window(sName);
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	m_iPK_MediaType=iPK_MediaType;
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);

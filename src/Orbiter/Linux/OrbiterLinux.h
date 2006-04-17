@@ -55,12 +55,14 @@ private:
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
+    virtual void ActivateExternalWindowAsync(void *);
 
     virtual void setInputFocusToMe(void *);
 
     WinListManager m_WinListManager;
 
     bool m_bOrbiterReady; // ready to process events
+    bool m_bIsExclusiveMode; // it's alone on the desktop
 
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,

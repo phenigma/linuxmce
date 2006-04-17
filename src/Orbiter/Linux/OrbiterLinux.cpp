@@ -79,7 +79,9 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
           m_bButtonPressed_WaitList(false),
           m_pWaitUser(NULL),
           m_WinListManager(m_strWindowName),
-          m_bOrbiterReady(false)
+          m_bOrbiterReady(false),
+          m_bIsExclusiveMode(true)
+
 {
     openDisplay();
 	m_pMouseBehavior = new MouseBehavior_Linux(this);
@@ -201,7 +203,8 @@ Window OrbiterLinux::getWindow()
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
 {
     m_bOrbiterReady = true;
-    
+    m_bIsExclusiveMode = false;
+
     //Orbiter::RenderDesktop(pObj, rectTotal, point);
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
@@ -211,39 +214,44 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
                           rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height
                           );
     m_WinListManager.ShowSdlWindow(false);
-    string sWindowName;
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : '%s', variable 6: %s", sWindowName.c_str(),
-                              m_mapVariable[6].c_str());
-        WMController::Instance().ListWindows();
-
-        if (m_WinListManager.IsEmpty())
         {
-            // we have only xine
-            sWindowName = "xine";
+            // TODO : Set now playing is not sent in video wizard
+            // we'll assume this is a xine for now
+            if (m_WinListManager.GetExternApplicationName() == "")
+                m_WinListManager.SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
         }
-        else
-        {
-            // only one external app
-            sWindowName = m_WinListManager.GetExternApplicationName();
-        }
+        m_WinListManager.SetExternApplicationPosition(rectTotal);
+        ActivateExternalWindowAsync(NULL);
+    }
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
+    m_pRecordHandler->enableRecording(this, m_bYieldInput);
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
+    return true;
+}
 
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : sWindowName='%s'", sWindowName.c_str());
+/*virtual*/ void OrbiterLinux::ActivateExternalWindowAsync(void *)
+{
+    string sWindowName = m_WinListManager.GetExternApplicationName();
+    PlutoRectangle rectTotal;
+    m_WinListManager.GetExternApplicationPosition(rectTotal);
+    bool bIsWindowAvailable = m_WinListManager.IsWindowAvailable(sWindowName);
+    if (bIsWindowAvailable)
+    {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : maximized");
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
             m_WinListManager.MaximizeWindow(sWindowName);
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : position");
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
             m_WinListManager.PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
     }
-    m_pRecordHandler->enableRecording(this, m_bYieldInput);
-    return true;
+    else
+        CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterLinux::ActivateExternalWindowAsync, NULL, pe_ALL );
 }
 
 // public interface implementations below
@@ -263,13 +271,13 @@ void OrbiterLinux::RenderScreen()
         return;
     }
 
-    m_WinListManager.SetExternApplicationName("");
     m_WinListManager.HideAllWindows();
 
+    m_bIsExclusiveMode = true;
     OrbiterSDL::RenderScreen();
 
     if(m_bOrbiterReady)
-        m_WinListManager.ShowSdlWindow(m_WinListManager.IsEmpty());
+        m_WinListManager.ShowSdlWindow(m_bIsExclusiveMode);
 
     XFlush(XServerDisplay);
 }
