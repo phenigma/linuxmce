@@ -942,6 +942,15 @@
 #define TEXT_ManufNotListed_CONST 1654
 #define TEXT_What_Delay_CONST 1655
 #define TEXT_How_to_tune_CONST 1656
+#define TEXT_DoYouHaveMultipleInputs_CONST 1657
+#define TEXT_Single_Input_CONST 1658
+#define TEXT_Multiple_Inputs_CONST 1659
+#define TEXT_DSPModes_CONST 1660
+#define TEXT_noDSPModes_CONST 1661
+#define TEXT_yes_I_have_DSPModes_CONST 1662
+#define TEXT_DiscreteCodesDSPModes_CONST 1663
+#define TEXT_ToggleCodesDSPModes_CONST 1664
+#define TEXT_ModelNotListed_CONST 1665
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

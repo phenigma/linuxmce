@@ -154,6 +154,8 @@
 #define BUTTON_Mouse_8_CONST 210
 #define BUTTON_Mouse_9_CONST 211
 #define BUTTON_Mouse_10_CONST 212
+#define BUTTON_Scroll_Left_CONST 213
+#define BUTTON_Scroll_Right_CONST 214
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
