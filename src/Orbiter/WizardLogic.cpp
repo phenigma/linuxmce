@@ -8,6 +8,7 @@
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/DatabaseUtils.h"
+#include "Simulator.h"
 
 WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
@@ -22,7 +23,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect("dcerouter", "root", "", "pluto_main") )
+	if( !MySQLConnect(Simulator::GetInstance()->m_sRouterIP, "root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
