@@ -7162,6 +7162,11 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	if(m_bQuit)
 		return;
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Set Now Playing' with window %s", sName.c_str());
+	CMD_Activate_Window(sName);
+#endif
+
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	m_iPK_MediaType=iPK_MediaType;
@@ -8120,7 +8125,9 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c366-e->
 {
-    g_pPlutoLogger->Write(LV_WARNING, "Orbiter::CMD_Activate_Window(%s)", sName.c_str());
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Activate Window' for %s", sName.c_str());
+#endif
 }
 
 bool Orbiter::OkayToDeserialize(int iSC_Version)
