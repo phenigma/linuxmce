@@ -162,6 +162,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 			}
 			break;
 
+//TODO: remove this when we'll have these record in the database from Iasi.
+#if 0 
 			case 'L':
 			{
 				DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
@@ -177,6 +179,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 				m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 			}
 			break;
+#endif
 
 			case 'l':
 			{

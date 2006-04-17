@@ -88,6 +88,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		pObj = m_pOrbiter->FindObject(sDesignObj);
 
 	MouseHandler *pMouseHandler=NULL;
+//we need to add this to all projects
+#if 0
 	switch(sOptions[0])
 	{
 	case 'L':
@@ -109,7 +111,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		pMouseHandler=new KeyboardMouseHandler(pObj,this);
 		break;
 	}
-
+#endif
 	if( sDirection[0]=='Y' )
 	{
 		if( m_pMouseHandler_Vertical )
