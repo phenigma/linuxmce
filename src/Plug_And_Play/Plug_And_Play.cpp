@@ -12,12 +12,16 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/DatabaseUtils.h"
+#include "pluto_main/Database_pluto_main.h"
+#include "DCE/DeviceData_Router.h"
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Plug_And_Play::Plug_And_Play(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Plug_And_Play_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_pDatabase_pluto_main = NULL;
 }
 
 //<-dceag-const2-b->
@@ -26,13 +30,14 @@ Plug_And_Play::Plug_And_Play(Command_Impl *pPrimaryDeviceCommand, DeviceData_Imp
 	: Plug_And_Play_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
+	m_pDatabase_pluto_main = NULL;
 }
 
 //<-dceag-dest-b->
 Plug_And_Play::~Plug_And_Play()
 //<-dceag-dest-e->
 {
-	
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-getconfig-b->
@@ -44,6 +49,15 @@ bool Plug_And_Play::GetConfig()
 
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
+/*
+	m_pDatabase_pluto_main = new Database_pluto_main();
+	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		m_bQuit=true;
+		return false;
+	}
+	*/
 	return true;
 }
 
