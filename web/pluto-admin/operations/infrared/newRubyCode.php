@@ -71,12 +71,12 @@ function newRubyCode($output,$dbADO) {
 					FROM InfraredGroup_Command_Preferred
 					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
 					WHERE FK_Command=? AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL',array($commandID,$dtID));
-			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? AND FK_Device=? AND FK_DeviceTemplate=? AND FK_Users=?',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID']));
+			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? AND FK_DeviceTemplate=?',array($infraredGroupID,$commandID, $dtID));
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData,$_SESSION['userID']));
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_DeviceTemplate,IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID, $dtID,$irData));
 			$igcID=$dbADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){
