@@ -80,62 +80,64 @@ TokenPool::_Run() {
 
 	while(1) {
 		if(!sock.isConnected()) {
-			if(!bFirstConnect) {
+			if(bFirstConnect) {
 				g_pPlutoLogger->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
 				sleep(POOL_RECONNECT_PERIOD);
 			} else {
 				bFirstConnect = false;
 			}
-			
 			/*connect to asterisk manager*/
 			if(!sock.Connect() && !handleConnect(&sock)) {
+			
 			} else {
-				break;
+				continue;
 			}
 		}
-	
-		/*first try process a send item*/
-		bool dosend = false;
+		else
+		{
+			/*first try process a send item*/
+			bool dosend = false;
 
-		
-		/*get the req from queue*/
-		_sendrequest req;
-		sqm.Lock();
-		if(sendqueue.size() > 0) {
-			req = *sendqueue.begin();
-			sendqueue.pop_front();
-			dosend = true;
-		}
-		sqm.Unlock();
 
-		if(dosend) {
-			errcode = sock.sendToken(&req.token);
-            if(errcode != 0) {
-			    g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while sending token. Disconnecting.");
-				break;
-			} else {
+			/*get the req from queue*/
+			_sendrequest req;
+			sqm.Lock();
+			if(sendqueue.size() > 0) {
+				req = *sendqueue.begin();
+				sendqueue.pop_front();
+				dosend = true;
 			}
-		}	
-		
-		/*receive*/
-		 bool doreceive = sock.isReceivable();
-         if(doreceive) {
-			g_pPlutoLogger->Write(LV_STATUS, "Receiving token.");
-			Token token;
-            errcode = sock.recvToken(&token);
-	        if(errcode != 0) {
-		        g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
-				break;
-		    }
+			sqm.Unlock();
 
-			/*process received token*/
-			g_pPlutoLogger->Write(LV_STATUS, "Notification of new token.");
-			if(handleToken(&token)) {
-				break;
-			}
-		 } else {
-			g_pPlutoLogger->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
-			sleep(POOL_SLEEP_PERIOD);
+			if(dosend) {
+				errcode = sock.sendToken(&req.token);
+            	if(errcode != 0) {
+			    	g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while sending token. Disconnecting.");
+					break;
+				} else {
+				}
+			}	
+
+			/*receive*/
+			 bool doreceive = sock.isReceivable();
+        	 if(doreceive) {
+				g_pPlutoLogger->Write(LV_STATUS, "Receiving token.");
+				Token token;
+            	errcode = sock.recvToken(&token);
+	        	if(errcode != 0) {
+		        	g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
+					break;
+		    	}
+
+				/*process received token*/
+				g_pPlutoLogger->Write(LV_STATUS, "Notification of new token.");
+				if(handleToken(&token)) {
+					break;
+				}
+			 } else {
+				g_pPlutoLogger->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
+				sleep(POOL_SLEEP_PERIOD);
+			 }
 		 }
 	}
 
