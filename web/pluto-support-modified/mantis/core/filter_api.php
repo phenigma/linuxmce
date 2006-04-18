@@ -893,10 +893,16 @@
 			$rows[$i]['date_closed']='N/A';
 		}
 
+		if ( count( $t_id_array ) > 0 ) {
+			$t_where = "WHERE bug_id in (" . implode( ", ", $t_id_array ) . ")";
+		} else {
+			$t_where = "WHERE 1 != 1";
+		}
+
 		$query3="
 			SELECT DISTINCT bug_id,date_modified
 			FROM mantis_bug_history_table 
-			WHERE field_name='status' AND new_value=80 AND bug_id in (" . implode( ", ", $t_id_array ) . ") 
+			$t_where AND field_name='status' AND new_value=80  
 			ORDER BY date_modified DESC";
 		$result3 = db_query( $query3);
 
@@ -912,7 +918,7 @@
 		$query4="
 			SELECT DISTINCT bug_id,date_modified
 			FROM mantis_bug_history_table 
-			WHERE field_name='status' AND new_value=90 AND bug_id in (" . implode( ", ", $t_id_array ) . ") 
+			$t_where AND field_name='status' AND new_value=90  
 			ORDER BY date_modified DESC";
 		$result4 = db_query( $query4);
 
