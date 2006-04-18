@@ -843,237 +843,6 @@ DEP_CPP_MINIL=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\MouseBehavior.cpp
-DEP_CPP_MOUSE=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Button.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObj.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\GraphicFormat.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
-	"..\CENet\wince.h"\
-	"..\DesignObj_Data.h"\
-	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\MouseBehavior.h"\
-	"..\MouseGovernor.h"\
-	"..\MouseIterator.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
-	"..\TextStyle.h"\
-	
-NODEP_CPP_MOUSE=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=..\Win32\MouseBehavior_Win32.cpp
-DEP_CPP_MOUSEB=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\GraphicFormat.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
-	"..\CENet\wince.h"\
-	"..\DesignObj_Data.h"\
-	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\MouseBehavior.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
-	"..\TextStyle.h"\
-	"..\Win32\MouseBehavior_Win32.h"\
-	
-NODEP_CPP_MOUSEB=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=..\MouseGovernor.cpp
-DEP_CPP_MOUSEG=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\GraphicFormat.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
-	"..\CENet\wince.h"\
-	"..\DesignObj_Data.h"\
-	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\MouseBehavior.h"\
-	"..\MouseGovernor.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
-	"..\TextStyle.h"\
-	
-NODEP_CPP_MOUSEG=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=..\MouseIterator.cpp
-DEP_CPP_MOUSEI=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\GraphicFormat.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
-	"..\CENet\wince.h"\
-	"..\DesignObj_Data.h"\
-	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\MouseBehavior.h"\
-	"..\MouseIterator.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
-	"..\TextStyle.h"\
-	
-NODEP_CPP_MOUSEI=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\PlutoUtils\MultiThreadIncludes.cpp
 DEP_CPP_MULTI=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
@@ -1199,6 +968,7 @@ DEP_CPP_ORBIT=\
 	"..\GraphicBuilder.h"\
 	"..\Linux\OSDScreenHandler.h"\
 	"..\MouseBehavior.h"\
+	"..\MouseGovernor.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
@@ -2011,11 +1781,15 @@ DEP_CPP_SIMUL=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\PlutoUtils\threads.h"\
+	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\Proxy_Orbiter\Proxy_Orbiter.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\..\utilities\linux\RatpoisonHandler.h"\
+	"..\..\utilities\linux\window_manager\WMController\WMController.h"\
+	"..\..\utilities\linux\window_manager\WMController\wmctrl.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
 	"..\CENET\OrbiterSDL_WinCE.h"\
@@ -2024,6 +1798,7 @@ DEP_CPP_SIMUL=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\Linux\OrbiterLinux.h"\
+	"..\Linux\win_list_manager.h"\
 	"..\Linux\X3DButton.h"\
 	"..\Linux\X3DWindow.h"\
 	"..\Linux\XProgressWnd.h"\

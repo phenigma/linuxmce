@@ -64,8 +64,11 @@ using namespace DCE;
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
+#endif
 
 #ifdef TEST_OSD
 #include "Linux/OSDScreenHandler.h"
@@ -202,7 +205,10 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_TimeShort_OnScreen = NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen = NULL; 
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
+#endif
 
 	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;
@@ -248,7 +254,10 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bCapsLock = false;
 	m_pCacheImageManager = NULL;
 	m_pScreenHistory_NewEntry = NULL;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
+#endif
 
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -287,8 +296,10 @@ Orbiter::~Orbiter()
 	if(Simulator::IsRunning())
 		StopSimulatorThread();
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	delete m_pMouseBehavior;
 	m_pMouseBehavior=NULL;
+#endif
 
 	// Be sure we get the maint thread to cleanly exit
 	KillMaintThread();
@@ -2025,10 +2036,12 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		}
 		else
 		{
+#ifdef ENABLE_MOUSE_BEHAVIOR
 			//#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
 			if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
 				m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
 			else
+#endif
 				QueueMessageToRouter( pMessage );
 
 			//          QueueMessageToRouter( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
@@ -3702,6 +3715,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	}
 #endif
 // some temporary stuff
+#ifdef ENABLE_MOUSE_BEHAVIOR
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
 m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
 
@@ -3725,6 +3739,7 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
 m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+#endif
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
@@ -3738,9 +3753,10 @@ m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
 	if ( event.type == Orbiter::Event::REGION_UP )
 		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
 		m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
-	
+#endif	
 
 	return false;
 }
@@ -4145,8 +4161,10 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 bool Orbiter::RegionUp( int x,  int y )
 {
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )
 		return true;
+#endif
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseUp);
 	if(pCallBackData)
@@ -4164,8 +4182,11 @@ bool Orbiter::RegionUp( int x,  int y )
 }
 bool Orbiter::RegionDown( int x,  int y )
 {
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior && m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
 		return true;
+#endif
+
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseDown);
 	if(pCallBackData)
 	{
@@ -4727,9 +4748,12 @@ int k=2;
 			}
 			else
 			{
+#ifdef ENABLE_MOUSE_BEHAVIOR
 				if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
 					m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
-				else if( !m_pcRequestSocket->SendMessage( pMessage ) )
+				else 
+#endif
+					if( !m_pcRequestSocket->SendMessage( pMessage ) )
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
 			}
 			pMessage = NULL;
@@ -9126,8 +9150,11 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 		RenderObjectAsync(m_pObj_NowPlaying_TimeLong_OnScreen);
 	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior )
 		m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+#endif
 }
 
 void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
@@ -10065,8 +10092,10 @@ void Orbiter::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_Qui
 void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c795-e->
 {
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior )
 		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
+#endif
 }
 
 void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)

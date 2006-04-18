@@ -42,15 +42,6 @@ sources += \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/ScreenHandler.cpp \
 	../Orbiter/CallBackData.cpp \
-	../Orbiter/MouseBehavior.cpp \
-	../Orbiter/LightMouseHandler.cpp \
-	../Orbiter/SpeedMouseHandler.cpp \
-	../Orbiter/VolumeMouseHandler.cpp \
-	../Orbiter/MediaMouseHandler.cpp \
-	../Orbiter/LockedMouseHandler.cpp \
-	../Orbiter/KeyboardMouseHandler.cpp \
-	../Orbiter/MouseGovernor.cpp \
-	../Orbiter/MouseIterator.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="\mysql\include;.;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../PocketFrog;../../../libs/Libraries/PocketFrog;../../../libs/CrossPlatform/lpng127/contrib/visupng"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;TEST_OSD"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;TEST_OSD;ENABLE_MOUSE_BEHAVIOR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -43,11 +43,11 @@
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				AssemblyDebug="1"
-				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
-				GenerateMapFile="TRUE"
+				ProgramDatabaseFile="$(OutDir)/Orbiter_OSD.pdb"
+				GenerateMapFile="FALSE"
 				MapFileName="OrbiterMapFile"
-				MapExports="TRUE"
-				MapLines="TRUE"
+				MapExports="FALSE"
+				MapLines="FALSE"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -219,6 +219,15 @@
 				RelativePath="..\GraphicBuilder.cpp">
 			</File>
 			<File
+				RelativePath="..\KeyboardMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\LightMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\LockedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Win32\main.cpp">
 			</File>
 			<File
@@ -228,25 +237,10 @@
 				RelativePath="..\OpenGL\math3dutils.cpp">
 			</File>
 			<File
-				RelativePath="..\MouseBehavior.cpp">
-			</File>
-			<File
-				RelativePath="..\LightMouseHandler.cpp">
-			</File>
-			<File
-				RelativePath="..\SpeedMouseHandler.cpp">
-			</File>
-			<File
-				RelativePath="..\VolumeMouseHandler.cpp">
-			</File>
-			<File
 				RelativePath="..\MediaMouseHandler.cpp">
 			</File>
 			<File
-				RelativePath="..\LockedMouseHandler.cpp">
-			</File>
-			<File
-				RelativePath="..\KeyboardMouseHandler.cpp">
+				RelativePath="..\MouseBehavior.cpp">
 			</File>
 			<File
 				RelativePath="..\Win32\MouseBehavior_Win32.cpp">
@@ -324,6 +318,9 @@
 				RelativePath="..\Simulator.cpp">
 			</File>
 			<File
+				RelativePath="..\SpeedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Win32\StartOrbiter.cpp">
 			</File>
 			<File
@@ -334,6 +331,9 @@
 			</File>
 			<File
 				RelativePath="..\Win32\VirtualKeysTranslator.cpp">
+			</File>
+			<File
+				RelativePath="..\VolumeMouseHandler.cpp">
 			</File>
 			<File
 				RelativePath="..\WizardLogic.cpp">

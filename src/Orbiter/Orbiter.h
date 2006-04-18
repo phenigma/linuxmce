@@ -96,6 +96,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class NeedToRender; /** < Needs to maniuplate our variables */
 		friend class ScreenHandler;
 		friend class OSDScreenHandler;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		friend class MouseBehavior;
 		friend class MouseIterator;
 		friend class MouseGovernor;
@@ -105,6 +107,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class MediaMouseHandler;
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
+#endif
 
 	public: //data
 		int m_iImageWidth; /** < image width duh */
@@ -194,7 +197,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens
 		class LocationInfo *m_pLocationInfo_Initial; // The initial location
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
+#endif
 
 		/** flags */
 		bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
