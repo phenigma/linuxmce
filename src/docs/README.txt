@@ -2,6 +2,8 @@
   - example directory with svn:eol-style defaults
   - in ./svn_config_dir/README.txt : the real location/platform
   - copy this on your system, and change it accordingly
+  - remember that for the files not covered by those rules, nothing will apply
+  - do NOT write a rule '*' for all files
 
 /pluto/trunk/src/docs/X11_PLUTO.txt
   - X11 notes, which also apply to SDL, GTK, wxWidgets
