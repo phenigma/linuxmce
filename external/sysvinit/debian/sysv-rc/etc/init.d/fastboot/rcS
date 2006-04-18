@@ -270,6 +270,17 @@ if [ -x /etc/init.d/mysql ] ;then
 fi
 
 
+##########################################
+#### Starting Pluto Specific services ####
+##########################################
+
+## Check to see if pluto finished installing else exit
+## works only on MDs
+if [[ grep -q "^1:23:once:/usr/pluto/install/Initial_Config.sh" /etc/inittab ]] ;then
+	Message "Installing Pluto System"
+	exit 0
+fi
+
 # assure some settings
 if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
 	/usr/pluto/bin/Report_Machine_Status.sh  &
@@ -370,3 +381,4 @@ fi
 if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
 	/usr/pluto/bin/StorageDevices_Setup.sh &
 fi
+
