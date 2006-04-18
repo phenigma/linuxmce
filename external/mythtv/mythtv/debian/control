@@ -2,7 +2,7 @@ Source: mythtv
 Section: graphics
 Priority: optional
 Maintainer: Radu Cristescu <radu.c@plutohome.com>
-Build-Depends: debhelper (>> 3.0.0), libqt3-mt-dev, libmysqlclient14-dev | libmysqlclient-dev, libfreetype6-dev, libvorbis-dev, liblame-dev, liblircclient-dev, libartsc0-dev, libasound2-dev, libxinerama-dev | xlibs-static-dev (<< 6.8.1-1), libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1), libxext-dev | xlibs-static-dev (<< 6.8.1-1), libdvb-dev, g++-3.3 | g++-3.4
+Build-Depends: debhelper (>> 3.0.0), libqt3-mt-dev, libmysqlclient14-dev | libmysqlclient-dev, libfreetype6-dev, libvorbis-dev, liblame-dev, liblircclient-dev, libartsc0-dev, libasound2-dev, libxinerama-dev | xlibs-static-dev (<< 6.8.1-1), libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1), libxext-dev | xlibs-static-dev (<< 6.8.1-1), libdvb-dev, g++-3.3 | g++-3.4, dpatch
 Standards-Version: 3.5.4
 Bugs: mailto:radu.c@plutohome.com
 
