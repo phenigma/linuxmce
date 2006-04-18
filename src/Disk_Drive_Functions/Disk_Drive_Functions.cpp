@@ -362,13 +362,16 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
     case CDS_NO_INFO:
         // drive doesnt support querying, so this program will never work on that drive.
         g_pPlutoLogger->Write(LV_WARNING, "%s does not support status queries.", filename);
+        	* flag = DISCTYPE_NONE;
 		break;
 
     case CDS_NO_DISC:
 		m_bTrayOpen = false;
+        	* flag = DISCTYPE_NONE;
 		break;
 
     case CDS_TRAY_OPEN:
+        	* flag = DISCTYPE_NONE;
 		m_bTrayOpen = true;
 		break;
 
