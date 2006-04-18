@@ -1212,12 +1212,15 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 					sext="Unknown";
 				}
 			}
-			string text = sext+string(" to ")+string(row[1])+string(" at ")+string(row[2])+string("(")+string(sec2str(atoi(row[3])))+string(")");
-			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
-			pCell = new DataGridCell(text,sext2);
-			pCell->m_pMessage=NULL;
-			pDataGrid->SetData(0,Row,pCell);
-			Row++;
+			if(sext != sext2)
+			{
+				string text = sext+string(" to ")+sext2+string(" at ")+string(row[2])+string("(")+string(sec2str(atoi(row[3])))+string(")");
+				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
+				pCell = new DataGridCell(text,sext2);
+				pCell->m_pMessage=NULL;
+				pDataGrid->SetData(0,Row,pCell);
+				Row++;
+			}
 		}
 	}
 
