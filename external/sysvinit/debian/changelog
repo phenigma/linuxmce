@@ -1,3 +1,10 @@
+sysvinit (2.86.ds1-1.1pluto33) unstable; urgency=low
+
+  * Fixed mantis 2050: Don't run the pluto startup script if the md didn't
+    finish installing 
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 18 Apr 2006 11:47:24 +0300
+
 sysvinit (2.86.ds1-1.1pluto32) unstable; urgency=low
 
   * Progress bar fix for mantis 1851 (the other didn't work)
