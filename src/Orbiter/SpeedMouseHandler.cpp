@@ -42,7 +42,7 @@ void SpeedMouseHandler::Start()
 	if( m_bHasTimeline && m_bTapAndRelease )
 	{
 		m_iLastNotch=0;
-		int Percentage = (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
+		int Percentage = m_CurrentMedia_Pos==0 ? 0 : (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
 		int X = (m_pObj->m_rPosition.Width * Percentage / 100) + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
 		int Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);

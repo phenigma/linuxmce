@@ -28,10 +28,8 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 			m_pMouseBehavior->m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
 			m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted!=pObj_First )
-				m_pMouseBehavior->m_pOrbiter->ExecuteCommandsInList( &m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
 			m_pObj_Highlighted=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+			m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
 		}
 	}
 }
@@ -127,11 +125,8 @@ m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted ? m_pMouseBehavior->m_pOrbiter-
 pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
-			m_pMouseBehavior->m_pOrbiter->UnHighlightObject();
-			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-				m_pMouseBehavior->m_pOrbiter->ExecuteCommandsInList( &m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_Action_UnhighlightList, m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
 			m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
-			m_pMouseBehavior->m_pOrbiter->DoHighlightObject();
+			m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
 		}
 	}
 

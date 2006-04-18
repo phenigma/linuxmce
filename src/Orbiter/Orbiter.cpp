@@ -1585,6 +1585,9 @@ void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
 //------------------------------------------------------------------------
 void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
+	if( m_pObj_Highlighted==pObj )
+		m_pObj_Highlighted = NULL;  // Otherwise an object on popup removed from the screen may remain highlighted
+		
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnWxWidgetDelete))
 		return;
 
@@ -2474,51 +2477,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject3 %p",m_pObj_Highlig
 g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject4 %p",m_pObj_Highlighted);
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-	{
-		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
-		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-
-		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
-
-		if( nHColumn==-1 && nHRow==-1 )
-			return;
-
-		if(!pGrid->m_pDataGridTable)
-			return;
-
-		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
-		{
-			pGrid->m_iHighlightedRow = 1;
-			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
-		}
-
-		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
-		if( !pCell )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
-				m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
-			return;
-
-		}
-
-		//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
-		if(pGrid->m_iHighlightedRow == -1)
-			pGrid->m_iHighlightedRow = 0;
-
-		PlutoRectangle r;
-		GetGridCellDimensions( pGrid,
-			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan,
-			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
-			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
-			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow,
-			r.X,  r.Y,  r.Width,  r.Height );
-
-		m_rectLastHighlight.X = max(0,r.X);
-		m_rectLastHighlight.Y = max(0,r.Y);
-		m_rectLastHighlight.Right( min(r.Right(),m_Width-1) );
-		m_rectLastHighlight.Bottom( min(r.Bottom(),m_Height-1) );
-	}
+		GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pObj_Highlighted,m_rectLastHighlight);
 	else
 		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
 
@@ -2774,13 +2733,12 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		return;
 	}
 
-	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && m_pObj_Highlighted->m_pDataGridTable )
 	{
 		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
-		if( !pDesignObj_DataGrid->m_pDataGridTable )
-			return;
+
 		switch( PK_Direction )
 		{
 		case DIRECTION_Up_CONST:
@@ -2809,8 +2767,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 				bScrolledOutsideGrid=true;
 			// Continue only if we're not already highlighting the last cell
 			else if(
-				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow <
-					pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&
+				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow +1 <
+					pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&  // I just added the +1 on 17Apr06 because it was scrolling past the bottom, scroll right already did this
 				pDesignObj_DataGrid->m_MaxRow > 1
 				)  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
 			{
@@ -10122,4 +10080,50 @@ void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
 
 		FireDeleteWxWidget(pChildObj);
 	}
+}
+
+void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect)
+{
+	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+
+	int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
+	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+
+	if( nHColumn==-1 && nHRow==-1 || !pGrid->m_pDataGridTable)
+	{
+		rect.X=rect.Y=rect.Width=rect.Height=0;
+		return;
+	}
+
+	if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+	{
+		pGrid->m_iHighlightedRow = 1;
+		nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+	}
+
+	DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
+	if( !pCell )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
+			m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
+		return;
+
+	}
+
+	//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
+	if(pGrid->m_iHighlightedRow == -1)
+		pGrid->m_iHighlightedRow = 0;
+
+	PlutoRectangle r;
+	GetGridCellDimensions( pGrid,
+		pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan,
+		pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
+		pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
+		pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow,
+		r.X,  r.Y,  r.Width,  r.Height );
+
+	rect.X = max(0,r.X);
+	rect.Y = max(0,r.Y);
+	rect.Right( min(r.Right(),m_Width-1) );
+	rect.Bottom( min(r.Bottom(),m_Height-1) );
 }

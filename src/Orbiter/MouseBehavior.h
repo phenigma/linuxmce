@@ -27,10 +27,11 @@ namespace DCE
 		int m_iLastNotch,m_iCancelLevel;  // Notch = last position on a locked vert/horiz bar.  CancelLevel = if doing discrete movement, cancel returns to this value
 		string m_sCancelLevel; // Same as m_i for cases where a string is better
 		bool m_bTapAndRelease; // The user is adjusting to a discrete/absolute level
+		bool m_bLockAxis; // True, the default, means the framework will report Move's with the locked axis fixed over the locked object
 		DesignObj_Orbiter *m_pObj;
 		MouseBehavior *m_pMouseBehavior;
 
-		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; }
+		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; }
 		virtual ~MouseHandler() {}
 
 		virtual void Start() {}  // This is now active (ie the user started moving in the direction this is locked onto)
@@ -105,6 +106,7 @@ namespace DCE
 		void ResetSamples() { m_dwSamples[0]=m_dwSamples[1]=m_dwSamples[2]=m_dwSamples[3]=0; }
 		void ShiftSamples() { m_dwSamples[2]=m_dwSamples[1]; m_pSamples[2]=m_pSamples[1]; m_dwSamples[1]=m_dwSamples[0]; m_pSamples[1]=m_pSamples[0]; }
 		void Clear();
+		void HighlightObject(DesignObj_Orbiter *pObj);
 
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pSamples[0].X=X; m_pSamples[0].Y=Y; g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y); }

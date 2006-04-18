@@ -164,6 +164,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d   (%d)",X,Y,m_pOrbiter->m_pObj_Highlighted && m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST ? ((DesignObj_DataGrid *)m_pOrbiter->m_pObj_Highlighted)->m_iHighlightedRow : -999);
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
@@ -203,13 +204,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 		return;
 	}
 
-	if( m_cLocked_Axis_Current == AXIS_LOCK_X )
-		Y = m_iLockedPosition;
-	if( m_cLocked_Axis_Current == AXIS_LOCK_Y )
-		X = m_iLockedPosition;
+
 
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 	{
+		if( m_pMouseHandler_Horizontal->m_bLockAxis )
+			Y = m_iLockedPosition;
 		if( m_pMouseHandler_Horizontal->m_pObj && !m_pMouseHandler_Horizontal->m_pObj->m_bOnScreen )
 		{
 			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
@@ -222,7 +222,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 	}
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 	{
-		if( m_pMouseHandler_Horizontal->m_pObj && !m_pMouseHandler_Horizontal->m_pObj->m_bOnScreen )
+		if( m_pMouseHandler_Vertical->m_bLockAxis )
+			X = m_iLockedPosition;
+		if( m_pMouseHandler_Vertical->m_pObj && !m_pMouseHandler_Vertical->m_pObj->m_bOnScreen )
 		{
 			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
 				m_pMouseHandler_Horizontal=NULL;
@@ -391,4 +393,13 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 		return m_pMouseHandler_Vertical->ButtonUp(PK_Button);
 	return false;
+}
+
+void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
+{
+	m_pOrbiter->UnHighlightObject();
+	if( pObj )
+		m_pOrbiter->ExecuteCommandsInList( &pObj->m_Action_UnhighlightList, pObj, smHighlight, 0, 0 );
+	m_pOrbiter->DoHighlightObject();
+//			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }

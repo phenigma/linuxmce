@@ -22,8 +22,9 @@ namespace DCE
 	class KeyboardMouseHandler : public MouseHandler
 	{
 		char m_cDirection;
+		int m_dwPK_Direction_ScrollGrid;
 	public:
-		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) {}
+		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=false; m_dwPK_Direction_ScrollGrid=0; }
 
 		void Start();
 		void Stop();
@@ -31,10 +32,17 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y);
+		void MoveExternalApp(int X,int Y);
 
 		void DoIteration();
 		void IterateObject();
 		void IterateExternalApp();
+
+		void SelectFirstObject();
+		int GetDirectionAwayFromHighlight(int X,int Y);
+		void PositionMouseAtObjectEdge(int PK_Direction);
+		PlutoRectangle GetHighlighedObjectCoordinates();
+		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

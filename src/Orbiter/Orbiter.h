@@ -944,6 +944,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		// Report our current EntArea/Room to orbiter plugin
 		void FireEntAreaRoomCommands();
 
+		// Get the coordinates for the highlighted cell within this grid
+		void GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect);
+
 		void GotoMainMenu();
 
 		// Plugins
