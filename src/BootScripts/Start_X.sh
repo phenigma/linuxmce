@@ -3,9 +3,10 @@
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting X server"
 
-#screen -d -m -S XWindowSystem X -ac -allowMouseOpenFail vt7
+# Start X11
 screen -d -m -S XWindowSystem xinit /usr/bin/icewm-session -- :0 -ac -allowMouseOpenFail vt7
-#sleep 1
 
-# Disable DPMS and screen saver
-#xset -display :0 -dpms s off
+# Start everouter for gyration mouse
+if [[ -x /usr/pluto/bin/StartGyrationEvrouter.sh ]]; then
+	screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
+fi
