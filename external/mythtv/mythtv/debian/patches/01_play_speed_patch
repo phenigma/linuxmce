@@ -1,3 +1,26 @@
+#!/bin/sh -e
+##
+## 01_play_speed_patch
+##
+
+. debian/patches/patch-opts
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+case "$1" in
+       -patch) patch $patch_opts -p2 < $0;;
+       -unpatch) patch $patch_opts -p2 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
 diff -Nau release-0-19-fixes/mythtv/libs/libmythtv/tv_play.cpp 019fixes-pluto/mythtv/libs/libmythtv/tv_play.cpp
 --- release-0-19-fixes/mythtv/libs/libmythtv/tv_play.cpp	2006-04-18 01:15:43.000000000 -0400
 +++ 019fixes-pluto/mythtv/libs/libmythtv/tv_play.cpp	2006-04-18 01:09:12.000000000 -0400
