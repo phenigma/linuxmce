@@ -46,7 +46,7 @@ struct WinInfo
     string sTitle;
 };
 
-boolean wm_supports (Display *disp, const gchar *prop);
+gboolean wm_supports (Display *disp, const gchar *prop);
 Window *get_client_list (Display *disp, unsigned long *size);
 int client_msg(Display *disp, Window win, char *msg,
         unsigned long data0, unsigned long data1,
