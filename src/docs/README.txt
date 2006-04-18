@@ -1,7 +1,7 @@
 ./svn_config_dir/
   - example directory with svn:eol-style defaults
   - in ./svn_config_dir/README.txt : the real location/platform
-  - copy this on your system, and change it accordingly
+  - copy 'config' on your system in the proper place (or the entire directory)
   - remember that for the files not covered by those rules, nothing will apply
   - do NOT write a rule '*' for all files
 
