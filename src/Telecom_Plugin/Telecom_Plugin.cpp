@@ -787,6 +787,53 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 
 void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
 {
+	int devid=pDeviceData_Router->m_dwPK_Device;
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+	std::list<CallData*>::iterator it = calls->begin();
+	std::list<string> uniq_chan;
+	int count = 0;
+	while(it != calls->end())
+	{
+		string channels = (*it)->getID();
+		int pos = 0, oldpos = 0;
+		do
+		{
+			pos = channels.find(' ',oldpos);
+			string chan;
+			int ext;
+			string sext;
+			if(pos < 0)
+			{
+				chan = channels.substr(oldpos, channels.length());
+			}
+			else
+			{
+				if(pos==oldpos)
+				{
+					oldpos=pos+1;
+					continue;
+				}
+				chan = channels.substr(oldpos, pos - oldpos);
+			}
+			if(ParseChannel(chan,&ext,&sext)==0)
+			{
+				if(map_ext2device[ext]==devid)
+				{
+					Color = UniqueColors[count%MAX_TELECOM_COLORS];
+					return;
+				}
+			}
+			oldpos=pos+1;
+		}
+		while(pos>=0);
+		it++;
+		if(find(uniq_chan.begin(), uniq_chan.end(), channels) == uniq_chan.end())
+		{
+			uniq_chan.push_back(channels);
+			count++;
+		}
+	}
+	Color = PlutoColor::Black().m_Value;
 }
 
 //<-dceag-c414-b->
@@ -1512,7 +1559,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Don't add #%d in GSD list",idev);
+					g_pPlutoLogger->Write(LV_STATUS, "Don't add #%d in GTS list",idev);
 				}
 			}
 		}
@@ -1528,35 +1575,37 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 	    SendCommand(SCREEN_DevCallInProgress_);
 	}
 	
-	string room;
-	
-	if(sCallID.find(CONFERENCE_PREFIX) != 0) //not a conference
+	if(!dev_join_list.empty())
 	{
-		room="000"+StringUtils::itos(next_conf_room);
-		next_conf_room++;
-		g_pPlutoLogger->Write(LV_STATUS, "Will create conference room %d",room.c_str());
-	    DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-	    if(pPBXDevice) {
-			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
-			SendCommand(cmd_PBX_Transfer);
+		string room;	
+		if(sCallID.find(CONFERENCE_PREFIX) != 0) //not a conference
+		{
+			room="000"+StringUtils::itos(next_conf_room);
+			next_conf_room++;
+			g_pPlutoLogger->Write(LV_STATUS, "Will create conference room %d",room.c_str());
+	    	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
+	    	if(pPBXDevice) {
+				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
+				SendCommand(cmd_PBX_Transfer);
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Could not found Asterisk device");
+				return;
+			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Could not found Asterisk device");
-			return;
+			pos=sCallID.find(' ');
+			room=sCallID.substr(1,pos-1);
+			g_pPlutoLogger->Write(LV_STATUS, "Will join into conference room %d",room.c_str());		
 		}
-	}
-	else
-	{
-		pos=sCallID.find(' ');
-		room=sCallID.substr(1,pos-1);
-		g_pPlutoLogger->Write(LV_STATUS, "Will join into conference room %d",room.c_str());		
-	}
-	Sleep(2000);
-	for(it=dev_join_list.begin();it!=dev_join_list.end();it++)
-	{
-		DCE::CMD_PL_External_Originate cmd_invite((*it),m_dwPK_Device,StringUtils::itos(map_device2ext[(*it)]),"conference",room);
-		SendCommand(cmd_invite);
-		Sleep(200);		
+		Sleep(2000);
+		for(it=dev_join_list.begin();it!=dev_join_list.end();it++)
+		{
+			DCE::CMD_PL_External_Originate cmd_invite((*it),m_dwPK_Device,StringUtils::itos(map_device2ext[(*it)]),"conference",room);
+			SendCommand(cmd_invite);
+			Sleep(200);		
+		}
 	}
 }
