@@ -1,3 +1,10 @@
+mythtv (0.19-7) unstable; urgency=low
+
+  * Built against Upstream release 0.19 with fixes from release-0-19-fixes
+    revision 9730
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 18 Apr 2006 13:01:12 +0300
+
 mythtv (0.19-6.1) unstable; urgency=low
 
   * Linked against Unichrome's XvMC Wrapper library
