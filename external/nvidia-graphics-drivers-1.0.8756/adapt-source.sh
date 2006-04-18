@@ -1,12 +1,13 @@
 #!/bin/bash
 
-version=8178
+version=8756
+changedate="$(date -R)"
 changelog=$(cat <<'END'
 nvidia-graphics-drivers (1.0.$version-1) unstable; urgency=low
 
   * built with $version
 
- -- Radu Cristescu <radu.c@plutohome.com>  Mon, 13 Feb 2006 19:56:00 +0200
+ -- Radu Cristescu <radu.c@plutohome.com>  $changedate
 
 END
 )
@@ -21,7 +22,7 @@ for i in debian/* debian.binary/*; do
 		continue
 	fi
 	[[ -d "$i" ]] && continue
-	sed -i 's/7174/8178/g; s/glxtokens/glxext/g' "$i"
+	sed -i 's/8178/'"$version"'/g; s/glxtokens/glxext/g' "$i"
 done
 
 sed -i 's/README\(.txt\)*/README.txt/g' debian/nvidia-glx.docs*
