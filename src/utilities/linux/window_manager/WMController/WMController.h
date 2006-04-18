@@ -9,28 +9,19 @@ using namespace cpp;
 using namespace cpp::Threading;
 
 #include "wmctrl.h"
+#include "WindowLayer.h"
 
 #include <map>
 #include <list>
 #include <string>
 using namespace std;
-
-//-------------------------------------------------------------------------------------------------------------
-enum WindowLayer
-{
-	LayerUnknown,
-	LayerBelow,
-	LayerNormal,
-	LayerAbove,
-};
-
 //-------------------------------------------------------------------------------------------------------------
 class WMControllerImpl
 {
 private:
 
+	Display *m_pDisplay;	
 	bool m_bVerboseEnabled;
-	Display *m_pDisplay;
 
 	//helper functions
 	bool Init();

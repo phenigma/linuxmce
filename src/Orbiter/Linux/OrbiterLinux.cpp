@@ -432,8 +432,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     else
     {
         if (callbackType == cbOnWxWidgetDelete)
+		{
             m_WinListManager.HideAllWindows();
-        TaskManager::Instance().AddTask(pTask);
+			TaskManager::Instance().AddTaskAndWait(pTask);
+		}
+		else
+        	TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
     if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
@@ -543,8 +547,12 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     else
     {
         if (callbackType == cbOnWxWidgetDelete)
+		{
             m_WinListManager.HideAllWindows();
-        TaskManager::Instance().AddTask(pTask);
+			TaskManager::Instance().AddTaskAndWait(pTask);
+		}
+		else
+        	TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
 	//TODO:
@@ -633,7 +641,6 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnWxWidgetWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
-    m_WinListManager.HideAllWindows();
 #else // (USE_TASK_MANAGER)
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
     m_WinListManager.MaximizeWindow("dialog");

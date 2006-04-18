@@ -13,13 +13,14 @@ bool WMControllerImpl::Init()
 {
     printf("WMControllerImpl::Init()\n");
 	m_pDisplay = XOpenDisplay(NULL);
-
+	
 	if (NULL == m_pDisplay)
 	{
 		printf("WMControllerImpl::Init() : Cannot open display! (did you forget to use a 'export DISPLAY' ?) \n");
 		return false;
     }
 
+    XLockDisplay(m_pDisplay);	
 	init_charset(true); //use UTF8
 
     printf("Done WMControllerImpl::Init()\n");
@@ -31,6 +32,7 @@ bool WMControllerImpl::Fini()
     fprintf(stderr, "WMControllerImpl::Fini()\n");
 	if(NULL != m_pDisplay)
 	{
+		XUnlockDisplay(m_pDisplay);	
 		XCloseDisplay(m_pDisplay);
         fprintf(stderr, "Done WMControllerImpl::Fini()\n");
 		return true;
@@ -42,6 +44,9 @@ bool WMControllerImpl::Fini()
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 {
+	//list<WinInfo> listWinInfo;
+	//ListWindows(listWinInfo);
+
 	fprintf(stderr, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 
 	if(!Init())
