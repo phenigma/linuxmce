@@ -3,6 +3,8 @@
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/LockUtils.sh
 
+AllowMark=0x01
+
 OpenPort()
 {
 	local Protocol Port FilterIP
@@ -42,6 +44,7 @@ ForwardPort()
 	echo "  Source port: $SrcPort/$Protocol; Destination: $DestIP:$DestPort$FilterMsg"
 	case "$DestIP" in
 		127.0.0.1|0.0.0.0)
+			iptables -t mangle -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j MARK --set-mark "$AllowMark"
 			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j REDIRECT --to-ports "$DestPort"
 		;;
 		*)
@@ -85,6 +88,7 @@ iptables -t nat -F PREROUTING
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -m mark --mark "$AllowMark" -j ACCEPT
 if [[ -n "$IntIP" ]]; then
 	#TODO: use 4 byte netmask in these calculations
 	IntNet="$(echo "$IntIP" | cut -d. -f-3).0"
