@@ -16,6 +16,8 @@ export QTDIR=$(shell for qtdir in /usr/share/qt3 /usr/share/qt; do if test -d $$
 
 CCVARS=CC=gcc CXX=g++ LINK=g++
 
+include /usr/share/dpatch/dpatch.make
+
 config.mak: configure
 	dh_testdir
 
@@ -55,9 +57,9 @@ build-indep-stamp:
 
 	touch build-indep-stamp
 
-build: build-arch build-indep
+build: patch build-arch build-indep
 
-clean:
+clean: unpatch
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp 
@@ -155,4 +157,4 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install patch unpatch
