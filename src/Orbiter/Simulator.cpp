@@ -43,12 +43,12 @@ using namespace DCE;
 	#endif
 
 #else //linux stuff
-	#include "Linux/OrbiterLinux.h"
-
     #ifdef BLUETOOTH_DONGLE
 		#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
     #elif defined(PROXY_ORBITER)
         #include "Proxy_Orbiter/Proxy_Orbiter.h"
+	#else //non bluetooth or proxy
+		#include "Linux/OrbiterLinux.h"
 	#endif
 #endif //WIN32
 
