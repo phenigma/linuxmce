@@ -6,8 +6,8 @@
  * *after* the database connection has been established.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @date        $Date: 2006-04-03 18:52:53 +0300 (Mon, 03 Apr 2006) $
+ * @version     $Revision: 9616 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -19,8 +19,8 @@
 
 // Start the session
     session_name('mythweb_id');
-    session_set_cookie_params(60 * 60 * 30, '/');       // 30 day timeout on cookies
-    ini_set('session.gc_maxlifetime', 60 * 60 * 30);    // ... and sessions
+    session_set_cookie_params(60 * 60 * 24 * 365, '/');     // 1 year timeout on cookies
+    ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 30);   // 30 day timeout on sessions
     session_set_save_handler('sess_do_nothing', 'sess_do_nothing', 'sess_read', 'sess_write', 'sess_destroy', 'sess_gc');
     session_start();
 

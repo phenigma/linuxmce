@@ -1,5 +1,5 @@
 /* -*- Mode: c++ -*-
- * $Id: scanwizardhelpers.h 9331 2006-03-12 03:33:48Z danielk $
+ * $Id: scanwizardhelpers.h 9685 2006-04-12 14:21:41Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -272,11 +272,13 @@ class ScanFrequencyTable: public ComboBoxSetting, public TransientStorage
   public:
     ScanFrequencyTable()
     {
-        addSelection(QObject::tr("Broadcast"),        "us",            true);
-        addSelection(QObject::tr("Cable")    +" 78+", "uscablehigh",   false);
-        addSelection(QObject::tr("Cable HRC")+" 67+", "uscablehrchigh",false);
-        addSelection(QObject::tr("Cable"),            "uscable",       false);
-        addSelection(QObject::tr("Cable HRC"),        "ushrc",         false);
+        addSelection(QObject::tr("Broadcast"),        "us",          true);
+        addSelection(QObject::tr("Cable")    +" 78+", "uscablehigh", false);
+        addSelection(QObject::tr("Cable HRC")+" 67+", "ushrchigh",   false);
+        addSelection(QObject::tr("Cable IRC")+" 67+", "usirchigh",   false);
+        addSelection(QObject::tr("Cable"),            "uscable",     false);
+        addSelection(QObject::tr("Cable HRC"),        "ushrc",       false);
+        addSelection(QObject::tr("Cable IRC"),        "usirc",       false);
 
         setLabel(QObject::tr("Frequency Table"));
         setHelpText(QObject::tr("Frequency table to use.") + " " +

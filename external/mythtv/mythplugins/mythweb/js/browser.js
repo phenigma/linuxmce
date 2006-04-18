@@ -15,9 +15,9 @@
  * support for anything earlier than version 4 browsers because of their lack
  * of the RegExp object.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/js/browser.js $
- * @date        $Date: 2006-02-02 05:34:43 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8826 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/js/browser.js $
+ * @date        $Date: 2006-04-02 13:04:22 +0300 (Sun, 02 Apr 2006) $
+ * @version     $Revision: 9609 $
  * @author      $Author: xris $
  * @copyright   Silicon Mechanics
  * @license     LGPL
@@ -215,14 +215,18 @@
     browser.is_css = (document.body  && document.body.style)
     browser.is_w3c = (browser.is_css && browser.getElementById)
 
-// Cookie support
-    var tmp = document.cookie;
-	document.cookie = 'cookies=true';
-	browser.cookies = (document.cookie) ? true : false;
-    document.cookie = tmp;
+// Cookie support -- only create a cookie if there isn't one already.  It seems
+// that doing this can override the exipiration info in existing cookies.
+    browser.cookies = (document.cookie) ? true : false;
+    if (!browser.cookies) {
+        var tmp = document.cookie;
+        document.cookie = 'cookie_test=true';
+        browser.cookies = (document.cookie) ? true : false;
+        document.cookie = tmp;
+    }
 
 // Java support
-	browser.java = navigator.javaEnabled();
+    browser.java = navigator.javaEnabled();
 
 /****************************** Plugin Support ******************************/
 

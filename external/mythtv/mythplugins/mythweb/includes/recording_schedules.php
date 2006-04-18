@@ -3,8 +3,8 @@
  * The Schedule object and a couple of related subroutines.
  *
  * @url         $URL$
- * @date        $Date: 2006-02-07 04:57:11 +0200 (Tue, 07 Feb 2006) $
- * @version     $Revision: 8887 $
+ * @date        $Date: 2006-03-23 07:02:51 +0200 (Thu, 23 Mar 2006) $
+ * @version     $Revision: 9469 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -68,10 +68,14 @@
 // Cleanup
     mysql_free_result($result);
 
-// Load all of the scheduled recordings.  We will need them at some point, so we
-// might as well get it overwith here.
+// Initialize
     global $Scheduled_Recordings, $Num_Conflicts, $Num_Scheduled;
     $Scheduled_Recordings = array();
+    $Num_Conflicts        = 0;
+    $Num_Scheduled        = 0;
+
+// Load all of the scheduled recordings.  We will need them at some point, so we
+// might as well get it overwith here.
     foreach (get_backend_rows('QUERY_GETALLPENDING', 2) as $key => $program) {
     // The offset entry
         if ($key === 'offset') {

@@ -3,8 +3,8 @@
  * Routines that allow mythweb to communicate with mythbackend
  *
  * @url         $URL$
- * @date        $Date: 2006-01-17 23:43:30 +0200 (Tue, 17 Jan 2006) $
- * @version     $Revision: 8634 $
+ * @date        $Date: 2006-03-23 07:02:51 +0200 (Thu, 23 Mar 2006) $
+ * @version     $Revision: 9469 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -14,10 +14,6 @@
 
 // The character string used by the backend to separate records
     define('backend_sep', '[]:[]');
-
-// A couple of global variables to keep duplicate queries to a minimum
-    $Scheduled_Recordings = array();
-    $Recorded_Programs    = array();
 
 // MYTH_PROTO_VERSION is defined in libmyth in mythtv/libs/libmyth/mythcontext.h
 // and should be the current MythTV protocol version.

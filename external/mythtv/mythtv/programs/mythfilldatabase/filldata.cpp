@@ -337,7 +337,7 @@ void UpdateSourceIcons(int sourceid)
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("SELECT ch.chanid, nim.url "
-            "FROM channel ch, callsignnetworkmap csm "
+            "FROM (channel ch, callsignnetworkmap csm) "
             "RIGHT JOIN networkiconmap nim ON csm.network = nim.network "
             "WHERE ch.callsign = csm.callsign AND "
             "(icon = :NOICON OR icon = '') AND ch.sourceid = :SOURCEID");
@@ -3851,7 +3851,6 @@ int main(int argc, char *argv[])
              VERBOSE(VB_IMPORTANT, "Failed to fetch some program info");
              gContext->LogEntry("mythfilldatabase", LP_WARNING,
                                 "Failed to fetch some program info", "");
-             return FILLDB_EXIT_DB_ERROR;
         }
         else
             VERBOSE(VB_IMPORTANT, "Data fetching complete.");

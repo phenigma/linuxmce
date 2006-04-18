@@ -7,7 +7,7 @@
  * This plays MythTV audio through the default output device on OS X.
  *
  * = REVISION
- * $Id: audiooutputca.cpp 7441 2005-10-11 00:30:51Z ijr $
+ * $Id: audiooutputca.cpp 9721 2006-04-16 07:23:48Z nigel $
  *
  * = AUTHORS
  * Jeremiah Morris
@@ -107,8 +107,10 @@ bool AudioOutputCA::OpenDevice()
     bzero(&conv_in_desc, sizeof(AudioStreamBasicDescription));
     conv_in_desc.mSampleRate       = audio_samplerate;
     conv_in_desc.mFormatID         = kAudioFormatLinearPCM;
-    conv_in_desc.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger
-                                     | kLinearPCMFormatFlagIsBigEndian;
+    conv_in_desc.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger;
+#ifdef WORDS_BIGENDIAN
+    conv_in_desc.mFormatFlags     |= kLinearPCMFormatFlagIsBigEndian;
+#endif
     conv_in_desc.mBytesPerPacket   = audio_bytes_per_sample;
     conv_in_desc.mFramesPerPacket  = 1;
     conv_in_desc.mBytesPerFrame    = audio_bytes_per_sample;
