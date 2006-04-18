@@ -276,7 +276,7 @@ fi
 
 ## Check to see if pluto finished installing else exit
 ## works only on MDs
-if [[ grep -q "^1:23:once:/usr/pluto/install/Initial_Config.sh" /etc/inittab ]] ;then
+if grep -q "^1:23:once:/usr/pluto/install/Initial_Config.sh" /etc/inittab ;then
 	Message "Installing Pluto System"
 	exit 0
 fi
