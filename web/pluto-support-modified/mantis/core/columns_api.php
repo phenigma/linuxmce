@@ -579,4 +579,52 @@
 		}
 		echo '</td>';
 	}
+	
+	# --------------------
+	# $p_columns_target: see COLUMNS_TARGET_* in constant_inc.php
+	function print_column_date_submitted( $p_row, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
+		global $t_filter;
+
+		$t_last_updated = date( config_get( 'short_date_format' ), $p_row['last_updated'] );
+
+		echo '<td class="center">';
+		if ( $p_row['last_updated'] > strtotime( '-'.$t_filter['highlight_changed'].' hours' ) ) {
+			printf( '<span class="bold">%s</span>', $t_last_updated );
+		} else {
+			echo $t_last_updated;
+		}
+		echo '</td>';
+	}	
+	
+	# --------------------
+	# $p_columns_target: see COLUMNS_TARGET_* in constant_inc.php
+	function print_column_date_resolved( $p_row, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
+		global $t_filter;
+
+		$t_date_resolved = ($p_row['date_resolved']=='N/A')?'N/A':date( config_get( 'short_date_format' ), $p_row['date_resolved'] );
+
+		echo '<td class="center">';
+		if ( $p_row['date_resolved'] > strtotime( '-'.$t_filter['highlight_changed'].' hours' ) ) {
+			printf( '<span class="bold">%s</span>', $t_date_resolved );
+		} else {
+			echo $t_date_resolved;
+		}
+		echo '</td>';
+	}		
+	
+	# --------------------
+	# $p_columns_target: see COLUMNS_TARGET_* in constant_inc.php
+	function print_column_date_closed( $p_row, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
+		global $t_filter;
+
+		$t_date_closed = ($p_row['date_closed']=='N/A')?'N/A':date( config_get( 'short_date_format' ), $p_row['date_closed'] );
+
+		echo '<td class="center">';
+		if ( $p_row['date_closed'] > strtotime( '-'.$t_filter['highlight_changed'].' hours' ) ) {
+			printf( '<span class="bold">%s</span>', $t_date_closed);
+		} else {
+			echo $t_date_closed;
+		}
+		echo '</td>';
+	}	
 ?>

@@ -740,6 +740,7 @@
 						$t_from
 						$t_id_join
 						$t_id_where";
+
 			if ( ( $i == 0 ) || ( !is_blank( $t_textsearch_wherejoin_clause ) ) ) {
 				$result = db_query( $query );
 				$row_count = db_num_rows( $result );
@@ -884,7 +885,46 @@
 			array_push( $rows, $row );
 			bug_add_to_cache( $row );
 		}
+		
+		$row_ids=array();
+		for($i=0;$i<count($rows);$i++){
+			$row_ids[$rows[$i]['id']]=$i;
+			$rows[$i]['date_resolved']='N/A';
+			$rows[$i]['date_closed']='N/A';
+		}
 
+		$query3="
+			SELECT DISTINCT bug_id,date_modified
+			FROM mantis_bug_history_table 
+			WHERE field_name='status' AND new_value=80 AND bug_id in (" . implode( ", ", $t_id_array ) . ") 
+			ORDER BY date_modified DESC";
+		$result3 = db_query( $query3);
+
+		$row_count = db_num_rows( $result3 );
+		for ( $i=0 ; $i < $row_count ; $i++ ) {
+			$row = db_fetch_array( $result3 );
+			$bug_pos=isset($row_ids[$row['bug_id']])?$row_ids[$row['bug_id']]:-1;
+
+			if($bug_pos>-1 && $rows[$bug_pos]['date_resolved']=='N/A')
+				$rows[$bug_pos]['date_resolved'] = db_unixtimestamp ( $row['date_modified'] );
+		}		
+
+		$query4="
+			SELECT DISTINCT bug_id,date_modified
+			FROM mantis_bug_history_table 
+			WHERE field_name='status' AND new_value=90 AND bug_id in (" . implode( ", ", $t_id_array ) . ") 
+			ORDER BY date_modified DESC";
+		$result4 = db_query( $query4);
+
+		$row_count = db_num_rows( $result4 );
+		for ( $i=0 ; $i < $row_count ; $i++ ) {
+			$row = db_fetch_array( $result4 );
+			$bug_pos=isset($row_ids[$row['bug_id']])?$row_ids[$row['bug_id']]:-1;
+
+			if($bug_pos>-1 && $rows[$bug_pos]['date_closed']=='N/A')
+				$rows[$bug_pos]['date_closed'] = db_unixtimestamp ( $row['date_modified'] );
+		}		
+		
 		return $rows;
 	}
 

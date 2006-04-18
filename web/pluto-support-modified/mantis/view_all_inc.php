@@ -116,7 +116,6 @@
 	function write_bug_rows ( $p_rows )
 	{
 		global $t_columns, $t_filter;
-
 		$t_in_stickies = ( 'on' == $t_filter['sticky_issues'] );
 
 		mark_time( 'begin loop' );
@@ -137,10 +136,9 @@
 <?php
 				$t_in_stickies = false;
 			}
-
+			
 			# choose color based on status
 			$status_color = get_status_color( $t_row['status'] );
-
 			echo '<tr bgcolor="', $status_color, '" border="1">';
 
 			foreach( $t_columns as $t_column ) {

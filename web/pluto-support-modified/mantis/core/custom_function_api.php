@@ -203,6 +203,9 @@
 			$t_columns[] = 'status';
 			$t_columns[] = 'last_updated';
 			$t_columns[] = 'summary';
+			$t_columns[] = 'date_submitted';
+			$t_columns[] = 'date_resolved';
+			$t_columns[] = 'date_closed';
 		}
 
 		return $t_columns;
