@@ -1,3 +1,9 @@
+nvidia-graphics-drivers (1.0.8756-1) unstable; urgency=low
+
+  * built with 8756
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 18 Apr 2006 10:43:21 +0300
+
 nvidia-graphics-drivers (1.0.8178-4) unstable; urgency=low
 
   * added diversions for xorg
