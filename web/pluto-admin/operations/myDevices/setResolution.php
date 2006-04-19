@@ -135,7 +135,7 @@ if((ereg('Failed',$answer))){
 }else{
 	preg_match("/Current resolution: *([0-9]+) *x *([0-9]+) *@ *([0-9]+) *Hz/",$answer,$matches);
 	if(count($matches)!=4){
-		$answer='<span class="err">'.$TEXT_ERROR_RESOLUTION_FAILED_CONST.' '.$answer.'</span>';
+		$answer='<span class="err">'.$TEXT_ERROR_RESOLUTION_FAILED_CONST.' Reason: '.$answer.'</span>';
 		$noUpdate=1;
 	}
 	$out.='
