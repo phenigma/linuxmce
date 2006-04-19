@@ -2664,14 +2664,15 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
 			continue;
 
+		PlutoRectangle rectCurrent=pObjCurrent->m_rPosition+pObjCurrent->m_pPopupPoint;
+		PlutoRectangle rect=p->m_rPosition+p->m_pPopupPoint;
+
 		bool bSkip=false;
 		list<class PlutoPopup*>::reverse_iterator it;
 		for(it=m_pScreenHistory_Current->GetObj()->m_listPopups.rbegin();it!=m_pScreenHistory_Current->GetObj()->m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
-			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
-
-			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(pos2) && p->TopMostObject()!=pPopup->m_pObj )
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
 			{
 				bSkip=true;
 				break;
@@ -2684,9 +2685,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		for(it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
-			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
-
-			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(pos2) && p->TopMostObject()!=pPopup->m_pObj )
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
 			{
 				bSkip=true;
 				break;
@@ -2695,6 +2694,11 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 
 		if( bSkip )
 			continue;
+
+		// It looks funny if you move down and select an object that may have a center point lower, but the top is higher
+		if( (PK_Direction==DIRECTION_Down_CONST && rect.Top()<rectCurrent.Top()) ||
+			(PK_Direction==DIRECTION_Right_CONST && rect.Left()<rectCurrent.Left()) )
+				continue;
 
 		int Direction_Primary,Direction_Secondary,Distance;
 		PlutoPoint pp=p->m_pMidPoint+p->m_pPopupPoint;
@@ -2731,19 +2735,20 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	return pObjCurrent;
 }
 //------------------------------------------------------------------------
-/*virtual*/ void Orbiter::HighlightNextObject( int PK_Direction )
+/*virtual*/ bool Orbiter::HighlightNextObject( int PK_Direction )
 {
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	// Nothing is selected, select the first object
 	if(NULL == m_pObj_Highlighted || (m_pObj_Highlighted && (!m_pObj_Highlighted->m_bOnScreen || m_pObj_Highlighted->IsHidden())))
 	{
+		m_pObj_Highlighted=NULL;
 		if(sbNoSelection != m_nSelectionBehaviour)
 			HighlightFirstObject();
 
 		if(m_pObj_Highlighted)
 			RenderObjectAsync(m_pObj_Highlighted);
 
-		return;
+		return m_pObj_Highlighted!=NULL;
 	}
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && m_pObj_Highlighted->m_pDataGridTable )
@@ -2917,7 +2922,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 					break;
 			}
 
-			return; // We just moved around within the grid
+			return true; // We just moved around within the grid
 		}
 	}
 
@@ -2950,7 +2955,11 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 
 	DesignObj_Orbiter *pObj_Highlighted_Before = m_pObj_Highlighted;
 	if(!pNextObject || pNextObject == m_pObj_Highlighted)
+	{
 		m_pObj_Highlighted = FindObjectToHighlight( m_pObj_Highlighted, PK_Direction );
+		if( m_pObj_Highlighted==pObj_Highlighted_Before )
+			return false;
+	}
 	else
 		m_pObj_Highlighted = pNextObject;
 
@@ -2980,6 +2989,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 
 	if(m_pObj_Highlighted)
 		RenderObjectAsync(m_pObj_Highlighted);
+
+	return true;
 }
 
 
@@ -3739,6 +3750,15 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
 m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+
+// Temporary hack to hide and show the cursor
+if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F5_CONST )
+{
+	static bool bShowCursor=true;
+	bShowCursor=!bShowCursor;
+	ShowCursor(bShowCursor);
+}
+m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 #endif
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )

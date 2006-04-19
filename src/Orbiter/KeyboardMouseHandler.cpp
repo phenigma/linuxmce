@@ -15,14 +15,31 @@ using namespace DCE;
 void KeyboardMouseHandler::Start()
 {
 	m_cDirection=0;
+	m_dwPK_Direction_ScrollGrid = 0;
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
+
 	if( !m_pObj )
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
 			m_pMouseBehavior->m_pOrbiter->m_Height/2);
-	else if ( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	else
 	{
-		SelectFirstObject();
+		if ( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		{
+			SelectFirstObject();
+			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+				m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+		}
 		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-			m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+		{
+			PlutoRectangle rect = GetHighlighedObjectCoordinates();
+			m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
+				rect.Y + rect.Height/2 );
+
+			if( m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X )
+				m_pMouseBehavior->m_iLockedPosition = rect.Y + rect.Height/2;
+			else
+				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
+		}
 	}
 }
 
@@ -61,33 +78,88 @@ void KeyboardMouseHandler::Move(int X,int Y)
 		return; // Shouldn't have happened
 	}
 
+	if( m_dwPK_Direction_ScrollGrid )
+	{
+		ScrollGrid(m_dwPK_Direction_ScrollGrid,X,Y);
+		return;
+	}
+
 	int PK_Direction = GetDirectionAwayFromHighlight(X,Y);
 	if( PK_Direction )
 	{
 		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-		int HighlightedRow=-1;
 
 		// Let's see if we've been highlighting a datagrid and moved past the top or bottom
 		// If so, we're going to engage special behavior where we start the iterator to do scroll
 		if( pObj_Before->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
+			if( (pObj_Before->m_rPosition + pObj_Before->m_pPopupPoint).Contains(X,Y) )
+			{
+				DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObj_Before;
+
+				// We're still inside the grid, just highlight whatever cell is underneath us, figure that out
+				int Row_Before = pDesignObj_DataGrid->m_iHighlightedRow;
+				int Column_Before = pDesignObj_DataGrid->m_iHighlightedColumn;
+
+				int DeltaY=0,DeltaX=0;
+				if ( pDesignObj_DataGrid->m_FirstRowHeight > 0 && ( pDesignObj_DataGrid->m_GridCurRow == 0 || pDesignObj_DataGrid->m_bKeepRowHeader )  )
+					DeltaY = pDesignObj_DataGrid->m_FirstRowHeight - pDesignObj_DataGrid->m_FixedRowHeight;
+				if ( pDesignObj_DataGrid->m_FirstColumnWidth > 0 && ( pDesignObj_DataGrid->m_GridCurCol == 0 || pDesignObj_DataGrid->m_bKeepColHeader )  )
+					DeltaX = pDesignObj_DataGrid->m_FirstColumnWidth - pDesignObj_DataGrid->m_FixedColumnWidth;
+
+				int X2 = X - pObj_Before->m_pPopupPoint.X - DeltaX;
+				int Y2 = Y - pObj_Before->m_pPopupPoint.Y - DeltaY;
+				
+				int Row = Y2 / (pDesignObj_DataGrid->m_FixedRowHeight+1);
+				int Column = X2 / (pDesignObj_DataGrid->m_FixedColumnWidth+1);
+				if( pDesignObj_DataGrid->m_iHighlightedRow!=-1 )
+					pDesignObj_DataGrid->m_iHighlightedRow = Row;
+				if( pDesignObj_DataGrid->m_iHighlightedColumn!=-1 )
+					pDesignObj_DataGrid->m_iHighlightedColumn = Column;
+
+				if( pDesignObj_DataGrid->m_iHighlightedRow!=Row_Before || pDesignObj_DataGrid->m_iHighlightedColumn!=Column_Before )
+				{
+					m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pDesignObj_DataGrid);
+
+//m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
+					m_pMouseBehavior->m_pOrbiter->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
+				}
+				return;
+			}
+
 			if( (PK_Direction==DIRECTION_Up_CONST || PK_Direction==DIRECTION_Down_CONST) &&
 				MovedPastTopBottomOfDataGrid((DesignObj_DataGrid *) pObj_Before,PK_Direction,Y) )
-					return; // We're no iterator mode
-
-            HighlightedRow = ((DesignObj_DataGrid *) pObj_Before)->m_iHighlightedRow;
+					return; // We're now iterator mode
 		}
-		m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
+		
+		if( !m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction) )
+		{
+			// We're off in no-mans land, and not moving toward any selectable object, get back on the highlighted object
+			PlutoRectangle rect = GetHighlighedObjectCoordinates();
+			m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
+				rect.Y + rect.Height/2 );
+			return;
+		}
+
 		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
-			(pObj_Before!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || 
-			(pObj_Before->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && ((DesignObj_DataGrid *) pObj_Before)->m_iHighlightedRow!=HighlightedRow)) )
+			pObj_Before!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
 g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s after direction %d",
 					  pObj_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(),PK_Direction);
 			m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
-			PositionMouseAtObjectEdge(PK_Direction);
-			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pDataGridTable==NULL )
-				m_pMouseBehavior->m_pOrbiter->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
+
+			// If we're just moving within the same object, don't reposition the mouse.  It's a grid anyway.
+			// But if we're moving to another object, we don't want to be trapped inside 'dead' space, so move to the 
+			// edge of that object
+			if( pObj_Before!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+			{
+				PositionMouseAtObjectEdge(PK_Direction);
+				PlutoRectangle rect = GetHighlighedObjectCoordinates();
+				if( m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X )
+					m_pMouseBehavior->m_iLockedPosition = rect.Y + rect.Height/2;
+				else
+					m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
+			}
 		}
 	}
 }
@@ -298,6 +370,11 @@ void KeyboardMouseHandler::SelectFirstObject()
 		PlutoRectangle rect = GetHighlighedObjectCoordinates();
 		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
 			rect.Y + rect.Height/2 );
+
+		if( m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X )
+			m_pMouseBehavior->m_iLockedPosition = rect.Y + rect.Height/2;
+		else
+			m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 	}
 }
 
@@ -380,34 +457,100 @@ PlutoRectangle KeyboardMouseHandler::GetHighlighedObjectCoordinates()
 
 bool KeyboardMouseHandler::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y)
 {
-return false;
-
-// Get this to work so moving past the bottom causes it to start the iterator and begin first scrolling
-// at up to 5 speeds, and then paging at up to 5 speeds by continually moving in the same direction.  As
-// soon as the direction changes, or the user moves back to the top, reset everything.
+	// Moving past the bottom causes it to start the iterator and begin first scrolling
+	// at up to 5 speeds, and then paging at up to 5 speeds by continually moving in the same direction.  As
+	// soon as the direction changes, or the user moves back to the top, reset everything.
 	if( PK_Direction==DIRECTION_Up_CONST )
 	{
 		if( Y >=pObj->m_rPosition.Y )
 			return false;  // We've still got room to go up
 		m_dwPK_Direction_ScrollGrid = DIRECTION_Up_CONST;
-		return true;
+
+		// Move to the bottom of the grid, since all up movements are now setting the iterator
+		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y );
+	}
+	else
+	{
+		// Down is trickier since the last visible cell may not extend all the way to the bottom (the top cell is always the top)
+		// So get the coorindates of the last visible cell
+		PlutoRectangle r;
+		m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( pObj,
+			1, // col span
+			1, // row span
+			0, // column
+			pObj->m_MaxRow - 1 /* 0 based */, // We only care about the position of the last visible row, whether or not anything is there
+			r.X,  r.Y,  r.Width,  r.Height );
+
+		r = r + pObj->m_pPopupPoint;
+
+		if( Y<r.Bottom() )
+			return false;
+
+		m_dwPK_Direction_ScrollGrid = DIRECTION_Down_CONST;
+
+		// Move to the top of the grid, since all up movements are now setting the iterator
+		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y );
 	}
 
-	// Down is trickier since the last visible cell may not extend all the way to the bottom (the top cell is always the top)
-	// So get the coorindates of the last visible cell
-	PlutoRectangle r;
-	m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( pObj,
-		1, // col span
-		1, // row span
-		0, // column
-		pObj->m_MaxRow + pObj->m_GridCurRow, // We only care about the position of the last visible row, whether or not anything is there
-		r.X,  r.Y,  r.Width,  r.Height );
+	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
+	m_iLastNotch = 0; // Start with no movement
 
-
-	if( Y<r.Bottom() )
-		return false;
-
-	m_dwPK_Direction_ScrollGrid = DIRECTION_Down_CONST;
 	return true;
 }
 
+void KeyboardMouseHandler::ScrollGrid(int dwPK_Direction,int X,int Y)
+{
+	if( dwPK_Direction==DIRECTION_Down_CONST && Y < m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y )
+	{
+		// We moved past the top
+		m_dwPK_Direction_ScrollGrid = 0;
+
+		PlutoRectangle r;
+		m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
+			1, // col span
+			1, // row span
+			0, // column
+			m_pObj_ScrollingGrid->m_MaxRow - 1 /* 0 based */, // We only care about the position of the last visible row, whether or not anything is there
+			r.X,  r.Y,  r.Width,  r.Height );
+
+		// Move back to the bottom of the grid, since all up movements are now setting the iterator
+		m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , r.Bottom() + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
+
+		return;
+	}
+	// 20 notches, -10 to +10.  >5 do pages
+	int NotchWidth = m_pObj_ScrollingGrid->m_rPosition.Height/20;
+	int Notch = (Y-m_pObj_ScrollingGrid->m_rPosition.Y-m_pObj_ScrollingGrid->m_pPopupPoint.Y)/NotchWidth;
+	if( Notch<0 )
+		Notch = 0;
+	if( Notch>20 )
+		Notch = 20;
+
+	if( Notch!=m_iLastNotch )
+	{
+		if( Notch==0 )
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
+		else
+		{
+			int Frequency;
+			bool bPage=false;
+			if( Notch>10 )
+			{
+				bPage=true;
+				Frequency = (21-Notch)*100;
+			}
+			else
+				Frequency = (11-Notch)*100;
+
+if( Frequency<1 )
+int k=2;
+g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
+			if( bPage )
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 2 : -2,Frequency,NULL);
+			else
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 1 : -1,Frequency,NULL);
+		}
+		m_iLastNotch=Notch;
+//remus  m_pObj_ScrollingGrid->SetSpeed(Speed);
+	}
+}

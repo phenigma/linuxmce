@@ -529,9 +529,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		DesignObj_Orbiter *FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction );
 
 		/**
-		* @brief Given a direction ( UDLR ) find the object
+		* @brief Given a direction ( UDLR ) find the object.  Return false if we couldn't find anything and left the highlighted object unchanged
 		*/
-		virtual void HighlightNextObject( int dwPK_Direction );
+		virtual bool HighlightNextObject( int dwPK_Direction );
 
 		/**
 		* @brief Returns false if a screen was specified and it's not the current one

@@ -23,8 +23,10 @@ namespace DCE
 	{
 		char m_cDirection;
 		int m_dwPK_Direction_ScrollGrid;
+		DesignObj_DataGrid *m_pObj_ScrollingGrid;
+
 	public:
-		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=false; m_dwPK_Direction_ScrollGrid=0; }
+		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_ScrollingGrid=NULL; }
 
 		void Start();
 		void Stop();
@@ -43,6 +45,7 @@ namespace DCE
 		void PositionMouseAtObjectEdge(int PK_Direction);
 		PlutoRectangle GetHighlighedObjectCoordinates();
 		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
+		void ScrollGrid(int dwPK_Direction,int X,int Y);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

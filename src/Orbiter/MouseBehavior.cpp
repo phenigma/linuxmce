@@ -341,6 +341,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			Clear();
 		else
 		{
+			m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
 			m_EMenuOnScreen=mb_MainMenu;
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
 			Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
