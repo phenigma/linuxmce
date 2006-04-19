@@ -134,7 +134,7 @@ sub check_and_fix_duplicates()
     {
         foreach my $j (keys %DEV_EXTEN)
         {
-            if(($i ne $j) && ($DEV_EXTEN{$i} eq $DEV_EXTEN{$j}) && ($DEV_EXTEN{$i} ne "0"))
+            if(($i ne $j) && ($DEV_EXTEN{$i} eq $DEV_EXTEN{$j}) && ($DEV_EXTEN{$i} ne "0") && (length($DEV_EXTEN{$i})>0))
             {
                 print "Conflict for extension ".$DEV_EXTEN{$i}." between #$i and #$j\n";
                 if($TEMPL_MOD{$DEV_TEMPL{$i}} == 1)
