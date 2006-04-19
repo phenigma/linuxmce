@@ -82,7 +82,7 @@ using namespace DCE;
 void WriteStatusOutput(const char *) {} //do nothing
 #endif
 
-#define  VERSION "<=version=>"
+#define  VERSION "2.0.0.39.06041822"
 extern const char *g_szCompile_Date;
 extern Command_Impl *g_pCommand_Impl;
 
@@ -3756,7 +3756,9 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 {
 	static bool bShowCursor=true;
 	bShowCursor=!bShowCursor;
+#ifdef WIN32 //undefined under linux?	
 	ShowCursor(bShowCursor);
+#endif	
 }
 m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 #endif
