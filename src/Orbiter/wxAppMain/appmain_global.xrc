@@ -12,7 +12,7 @@
                 <object class="wxMenuItem" name="wxID_EXIT">
                     <label>&amp;Quit</label>
                     <help>Quit Application</help>
-                    <bitmap>exit.png</bitmap>
+                    <bitmap>exit.xpm</bitmap>
                 </object>
             </object>
         </object>
@@ -20,7 +20,7 @@
             <style>wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN </style>
             <object class="tool" name="wxID_EXIT">
                 <help>Quit Application</help>
-                <bitmap>exit.png</bitmap>
+                <bitmap>exit.xpm</bitmap>
                 <label>Quit</label>
                 <tooltip>Quit Application</tooltip>
                 <longhelp>Quit Application</longhelp>
@@ -29,7 +29,7 @@
             </object>
             <object class="tool" name="ID_TOOL_DBG">
                 <help>debug</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>exec.xpm</bitmap>
                 <label>dbg</label>
                 <tooltip>debug</tooltip>
                 <longhelp>debug</longhelp>
@@ -39,7 +39,7 @@
             </object>
             <object class="tool" name="ID_TOOL_ROOMWIZARD">
                 <help>Room Wizard Dialog</help>
-                <bitmap>clock.png</bitmap>
+                <bitmap>clock.xpm</bitmap>
                 <label>R.W.</label>
                 <tooltip>Room Wizard</tooltip>
                 <longhelp>Room Wizard Dialog</longhelp>
@@ -47,7 +47,7 @@
             </object>
             <object class="tool" name="ID_TOOL_WAITGRID">
                 <help>Dialog Wait Grid</help>
-                <bitmap>clock.png</bitmap>
+                <bitmap>clock.xpm</bitmap>
                 <label>W.G.</label>
                 <tooltip>Wait Grid</tooltip>
                 <longhelp>Dialog Wait Grid</longhelp>
@@ -55,7 +55,7 @@
             </object>
             <object class="tool" name="ID_TOOL_WAITLIST">
                 <help>Dialog Wait List</help>
-                <bitmap>clock.png</bitmap>
+                <bitmap>clock.xpm</bitmap>
                 <label>W.L.</label>
                 <tooltip>Wait List</tooltip>
                 <longhelp>Dialog Wait List</longhelp>
@@ -63,7 +63,7 @@
             </object>
             <object class="tool" name="ID_TOOL_WAITUSER">
                 <help>Dialog Wait User</help>
-                <bitmap>clock.png</bitmap>
+                <bitmap>clock.xpm</bitmap>
                 <label>W.U.</label>
                 <tooltip>Wait User</tooltip>
                 <longhelp>Dialog Wait User</longhelp>
@@ -73,7 +73,7 @@
             </object>
             <object class="tool" name="ID_TOOL_U_B_D">
                 <help>Unknown Detached Blocking</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>exec.xpm</bitmap>
                 <label>U B D</label>
                 <tooltip>U B D</tooltip>
                 <longhelp>Unknown Detached Blocking</longhelp>
@@ -81,7 +81,7 @@
             </object>
             <object class="tool" name="ID_TOOL_U_B_J">
                 <help>Unknown Joinable Blocking</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>exec.xpm</bitmap>
                 <label>U B J</label>
                 <tooltip>U B J</tooltip>
                 <longhelp>Unknown Joinable Blocking</longhelp>
@@ -89,7 +89,7 @@
             </object>
             <object class="tool" name="ID_TOOL_U_N_D">
                 <help>Unknown Detached NonBlocking</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>exec.xpm</bitmap>
                 <label>U N D</label>
                 <tooltip>U N D</tooltip>
                 <longhelp>Unknown Detached NonBlocking</longhelp>
@@ -97,7 +97,7 @@
             </object>
             <object class="tool" name="ID_TOOL_U_N_J">
                 <help>Unknown Joinable NonBlocking</help>
-                <bitmap>exec.png</bitmap>
+                <bitmap>exec.xpm</bitmap>
                 <label>U N J</label>
                 <tooltip>U N J</tooltip>
                 <longhelp>Unknown Joinable NonBlocking</longhelp>
@@ -105,7 +105,7 @@
             </object>
             <object class="tool" name="ID_TOOL_STOP">
                 <help>stop all threads</help>
-                <bitmap>exit.png</bitmap>
+                <bitmap>exit.xpm</bitmap>
                 <label>stop</label>
                 <tooltip>stop all threads</tooltip>
                 <longhelp>stop all threads</longhelp>
@@ -222,7 +222,7 @@
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
                             <style>wxNO_BORDER</style>
-                            <bitmap>logo_pluto.jpg</bitmap>
+                            <bitmap>logo_pluto.xpm</bitmap>
                         </object>
                     </object>
                     <object class="sizeritem">
@@ -319,7 +319,7 @@
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
                             <style>wxNO_BORDER</style>
-                            <bitmap>logo_pluto.jpg</bitmap>
+                            <bitmap>logo_pluto.xpm</bitmap>
                         </object>
                     </object>
                 </object>
@@ -417,7 +417,7 @@
                         <object class="wxStaticBitmap" name="wxID_STATIC">
                             <size>126,87d</size>
                             <style>wxNO_BORDER</style>
-                            <bitmap>logo_pluto.jpg</bitmap>
+                            <bitmap>logo_pluto.xpm</bitmap>
                         </object>
                     </object>
                     <object class="sizeritem">

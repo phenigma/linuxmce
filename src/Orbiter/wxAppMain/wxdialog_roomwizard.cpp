@@ -137,7 +137,6 @@ void wxDialog_RoomWizard::CreateControls()
 
 void wxDialog_RoomWizard::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 {
-    _WX_LOG_NFO();
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;

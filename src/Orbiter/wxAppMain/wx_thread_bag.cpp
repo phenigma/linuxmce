@@ -97,7 +97,7 @@ void wxThread_Bag::DestroyAll()
     if (b_wait_ok)
         return;
     _WX_LOG_WRN("Deleting threads that are still running : %d", v_apwxThread_Cmd.GetCount());
-    // delete each thread, in reverse order
+    // remove each thread, in reverse order
     {
         v_oCriticalSection.Enter();
         while (! v_apwxThread_Cmd.IsEmpty())

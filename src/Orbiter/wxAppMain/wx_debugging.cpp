@@ -86,29 +86,29 @@ void _debug_show_dlg_pdac(void *pCallBackData=NULL)
 #ifdef USE_DEBUG_CODE
     _WX_LOG_DBG("PDAC_START");
     WMTask *pTask = NULL;
-    _WX_LOG_DBG("cbOnWxWidgetCreate");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetCreate, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogCreate");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetRefresh 1");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetRefresh, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogRefresh 1");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetRefresh 2");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetRefresh, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogRefresh 2");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetDelete");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetDelete, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogDelete");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetCreate Again");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetCreate, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogCreate Again");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTaskAndWait(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetRefresh 3");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetRefresh, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogRefresh 3");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetRefresh 4");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetRefresh, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogRefresh 4");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnWxWidgetWaitUser");
-    pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetWaitUser, Get_Type<wxClassName>(), pCallBackData);
+    _WX_LOG_DBG("cbOnDialogWaitUser");
+    pTask = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
     _WX_LOG_DBG("PDAC_END");
 #endif // USE_DEBUG_CODE
@@ -234,12 +234,12 @@ const char * _str_enum(CallBackType value)
 {
     switch (value)
     {
-        CASE_const_ret_str(cbOnWxWidget_Unused);
-        CASE_const_ret_str(cbOnWxWidgetCreate);
-        CASE_const_ret_str(cbOnWxWidgetDelete);
-        CASE_const_ret_str(cbOnWxWidgetRefresh);
-        CASE_const_ret_str(cbOnWxWidgetSave);
-        CASE_const_ret_str(cbOnWxWidgetWaitUser);
+        CASE_const_ret_str(cbOnDialog_Unused);
+        CASE_const_ret_str(cbOnDialogCreate);
+        CASE_const_ret_str(cbOnDialogDelete);
+        CASE_const_ret_str(cbOnDialogRefresh);
+        CASE_const_ret_str(cbOnDialogSave);
+        CASE_const_ret_str(cbOnDialogWaitUser);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;
@@ -265,89 +265,94 @@ WMTask::WMTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pC
         , b_IsWaiting(false)
         , v_oSemaphoreTaskWait(0, 1)
 {
-    _WX_LOG_NFO("New %s", _str_task(this));
+    //_WX_LOG_DBG("New %s", _str_task(this));
 }
 
 WMTaskManager::WMTaskManager()
         : v_oMutex(wxMUTEX_RECURSIVE)
         , v_nNextUniqueId(0)
 {
-    _WX_LOG_NFO("Del");
+    _WX_LOG_DBG();
 }
 
 WMTask * WMTaskManager::CreateTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData )
 {
-    _WX_LOG_NFO("LOCK CreateTask()");
+    //_WX_LOG_DBG("LOCK CreateTask()");
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("INTO CreateTask()");
+    //_WX_LOG_DBG("INTO CreateTask()");
     v_nNextUniqueId++;
     WMTask *pWMTask = new WMTask(TaskType, DialogType, pCallBackData, v_nNextUniqueId);
-    _WX_LOG_NFO("DONE CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("DONE CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
 void WMTaskManager::AddTask(WMTask *pWMTask)
 {
-    _WX_LOG_NFO("AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
-    _WX_LOG_NFO("LOCK AddTask()");
+    //_WX_LOG_DBG("LOCK AddTask()");
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("INTO AddTask()");
+    //_WX_LOG_DBG("INTO AddTask()");
     v_apWMTask.Add(pWMTask);
-    _WX_LOG_NFO("DONE AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("DONE AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
 }
 
 void WMTaskManager::AddTaskAndWait(WMTask *pWMTask)
 {
-    _WX_LOG_NFO("AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     _COND_RET(pWMTask);
     {
-        _WX_LOG_NFO("LOCK AddTaskAndWait()");
+        //_WX_LOG_DBG("LOCK AddTaskAndWait()");
         wxMutexLocker lock(v_oMutex);
-        _WX_LOG_NFO("INTO AddTaskAndWait()");
+        //_WX_LOG_DBG("INTO AddTaskAndWait()");
         v_apWMTask.Add(pWMTask);
         pWMTask->b_IsWaiting = true;
     }
-    _WX_LOG_NFO("WAIT AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("WAIT AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     pWMTask->v_oSemaphoreTaskWait.Wait();
-    _WX_LOG_NFO("DONE AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("DONE AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
 }
 
 WMTask *WMTaskManager::PopTask()
 {
-    //_WX_LOG_NFO();
-    _WX_LOG_NFO("LOCK PopTask()");
+    //_WX_LOG_DBG();
+    //_WX_LOG_DBG("LOCK PopTask()");
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("INTO PopTask()");
+    //_WX_LOG_DBG("INTO PopTask()");
     if (v_apWMTask.IsEmpty())
         return NULL;
-    _WX_LOG_NFO("INTO PopTask()");
+    _WX_LOG_DBG("NOT EMPTY PopTask()");
     WMTask *pWMTask = v_apWMTask[0];
     v_apWMTask.RemoveAt(0);
-    _WX_LOG_NFO("DONE PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+    _WX_LOG_DBG("DONE PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
     return pWMTask;
 }
 
 void WMTaskManager::TaskProcessed(size_t nTaskId)
 {
-    _WX_LOG_NFO("TaskProcessed(%d)", nTaskId);
-    _WX_LOG_NFO("LOCK TaskProcessed()");
+    _WX_LOG_DBG("TaskProcessed(%d)", nTaskId);
+    _WX_LOG_DBG("LOCK TaskProcessed()");
     wxMutexLocker lock(v_oMutex);
-    _WX_LOG_NFO("INTO TaskProcessed()");
+    _WX_LOG_DBG("INTO TaskProcessed()");
     size_t n = v_apWMTask.GetCount();
     for (size_t i=0; i<n; i++)
     {
         WMTask *pWMTask = v_apWMTask[i];
         if (pWMTask->TaskId == nTaskId)
         {
+            _WX_LOG_DBG("ITEM TaskProcessed() : i=%d", i);
             _COND(i == 0);
             if (pWMTask->b_IsWaiting)
+            {
+                _WX_LOG_DBG("WAIT TaskProcessed() : i=%d", i);
                 pWMTask->v_oSemaphoreTaskWait.Post();
+                _WX_LOG_DBG("CONT TaskProcessed() : i=%d", i);
+            }
             v_apWMTask.RemoveAt(i);
-            _WX_LOG_NFO("TaskProcessed(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
+            _WX_LOG_DBG("Done TaskProcessed(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
         }
     }
-    _WX_LOG_ERR("No task found with id=%d, size=%d", nTaskId, v_apWMTask.GetCount());
+    //--_WX_LOG_ERR("No task found with id=%d, size=%d", nTaskId, v_apWMTask.GetCount());
 }
 
 WMTaskManager TaskManager::_g_WMTaskManager;

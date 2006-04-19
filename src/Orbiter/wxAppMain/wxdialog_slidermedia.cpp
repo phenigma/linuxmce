@@ -99,30 +99,30 @@ void wxDialog_SliderMedia::CreateControls()
 }
 
 /*!
- * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG
+ * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SLIDERMEDIA
  */
 
-void wxDialog_SliderMedia::OnCloseWindow( wxCloseEvent& event )
+void wxDialog_SliderMedia::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 {
-    _WX_LOG_NFO();
-////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG in wxDialog_SliderMedia.
+////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SLIDERMEDIA in wxDialog_SliderMedia.
     // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG in wxDialog_SliderMedia.
+    wxWindow* window = this;
+    window->Destroy();
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SLIDERMEDIA in wxDialog_SliderMedia.
 }
 
 /*!
- * wxEVT_SIZE event handler for ID_DIALOG
+ * wxEVT_SIZE event handler for ID_DIALOG_SLIDERMEDIA
  */
 
 void wxDialog_SliderMedia::OnSize( wxSizeEvent& event )
 {
     //_WX_LOG_NFO();
     wxDialog_Base::OnSize(event);
-////@begin wxEVT_SIZE event handler for ID_DIALOG in wxDialog_SliderMedia.
+////@begin wxEVT_SIZE event handler for ID_DIALOG_SLIDERMEDIA in wxDialog_SliderMedia.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_SIZE event handler for ID_DIALOG in wxDialog_SliderMedia.
+////@end wxEVT_SIZE event handler for ID_DIALOG_SLIDERMEDIA in wxDialog_SliderMedia.
 }
 
 /*!

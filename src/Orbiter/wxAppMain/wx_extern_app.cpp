@@ -107,11 +107,11 @@ const char * _str_enum(const CallBackType &value)
 {
     switch (value)
     {
-        CASE_const_ret_str(cbOnWxWidgetCreate);
-        CASE_const_ret_str(cbOnWxWidgetDelete);
-        CASE_const_ret_str(cbOnWxWidgetRefresh);
-        CASE_const_ret_str(cbOnWxWidgetSave);
-        CASE_const_ret_str(cbOnWxWidgetWaitUser);
+        CASE_const_ret_str(cbOnDialogCreate);
+        CASE_const_ret_str(cbOnDialogDelete);
+        CASE_const_ret_str(cbOnDialogRefresh);
+        CASE_const_ret_str(cbOnDialogSave);
+        CASE_const_ret_str(cbOnDialogWaitUser);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;
@@ -144,20 +144,20 @@ void Extern_Event_Listener()
     Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pData);
     switch (action)
     {
-        case cbOnWxWidgetCreate:
+        case cbOnDialogCreate:
             Process_Dialog_Action(e_dialog_type, E_Action_Create_Unique, &data_holder_dialog);
             Process_Dialog_Action(e_dialog_type, E_Action_Show, &data_holder_dialog);
             break;
-        case cbOnWxWidgetDelete:
+        case cbOnDialogDelete:
             Process_Dialog_Action(e_dialog_type, E_Action_Close, &data_holder_dialog);
             break;
-        case cbOnWxWidgetRefresh:
+        case cbOnDialogRefresh:
             Process_Dialog_Action(e_dialog_type, E_Action_Refresh, &data_holder_dialog);
             break;
-        case cbOnWxWidgetSave:
+        case cbOnDialogSave:
             Process_Dialog_Action(e_dialog_type, E_Action_DataSave, &data_holder_dialog);
             break;
-        case cbOnWxWidgetWaitUser:
+        case cbOnDialogWaitUser:
         {
             Extern_Event_Data *pExtern_Event_Data = new Extern_Event_Data();
             pExtern_Event_Data->nEventId = pTask->TaskId;

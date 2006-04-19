@@ -25,12 +25,12 @@ void _debug_thread_nonblock();
 
 enum CallBackType
 {
-    cbOnWxWidget_Unused = 0,
-    cbOnWxWidgetCreate,   // create a unique dialog
-    cbOnWxWidgetDelete,   // close dialog without saving data
-    cbOnWxWidgetRefresh,  // refresh dialog with new data
-    cbOnWxWidgetSave,     // save data from dialog
-    cbOnWxWidgetWaitUser, // wait for an user action
+    cbOnDialog_Unused = 0,
+    cbOnDialogCreate,   // create a unique dialog
+    cbOnDialogDelete,   // close dialog without saving data
+    cbOnDialogRefresh,  // refresh dialog with new data
+    cbOnDialogSave,     // save data from dialog
+    cbOnDialogWaitUser, // wait for an user action
 };
 
 const char * _str_enum(CallBackType value);

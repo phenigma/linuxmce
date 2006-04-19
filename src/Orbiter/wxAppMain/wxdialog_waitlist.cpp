@@ -154,7 +154,6 @@ void wxDialog_WaitList::CreateControls()
 
 void wxDialog_WaitList::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
 {
-    _WX_LOG_NFO();
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST in wxDialog_WaitList.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;

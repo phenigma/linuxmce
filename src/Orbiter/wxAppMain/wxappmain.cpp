@@ -129,7 +129,7 @@ bool wxAppMain::OnInit()
 
     SetTopWindow(mainWindow);
 #ifdef USE_RELEASE_CODE
-    // hide main window, not all wm support this
+    // hide main window, not all window managers support this
     // not handled by the external app
     mainWindow->Raise();
     mainWindow->Show(false);
