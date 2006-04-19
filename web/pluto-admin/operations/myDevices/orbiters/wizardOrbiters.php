@@ -178,8 +178,8 @@ function wizardOrbiters($output,$dbADO) {
 					if(!in_array('dt',$excludedData[$orbiterGroupDisplayed])){
 						$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dt']='
 								<tr>
-									<td align="right"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
-									<td align="left" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
+									<td align="right" width="200"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+									<td align="left" width="400" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 								</tr>
 								';
 					}
@@ -458,7 +458,7 @@ function formatDDRows($rowD,$dbADO)
 		if($rowD['FK_DeviceData']!=56){
 			$ddHTML.='
 				<tr>
-					<td align="right"><b>'.((@$rowD['ShortDescription']!='')?$rowD['ShortDescription']:str_replace('PK_','',$rowD['ddDescription'])).'</b> '.((@$rowD['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowD['Tooltip'].'" border="0" style="vertical-align: middle;">':'').'</td>
+					<td align="right" title="'.@$rowD['Tooltip'].'"><b>'.((@$rowD['ShortDescription']!='')?$rowD['ShortDescription']:str_replace('PK_','',$rowD['ddDescription'])).'</b></td>
 					<td align="left">';
 			switch($rowD['typeParam']){
 				case 'int':
@@ -570,7 +570,7 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 	foreach ($content AS $orbiter=>$valueArray){
 		$pos++;
 		$color=($pos%2==1)?'#EEEEEE':'#FFFFFF';
-		$out.='<table width="100%" bgcolor="'.$color.'">
+		$out.='<table width="100%" bgcolor="'.$color.'" border="0">
 			<tr>';
 			foreach ($valueArray AS $row){
 				$out.=$row;

@@ -9,11 +9,20 @@ function login($output,$dbADO) {
 	$actionX = cleanString(@$_REQUEST['action']);
 
 	$loginFormBig= '
-	<h1 align="center">'.((isset($_REQUEST['msg']))?$_REQUEST['msg']:$TEXT_WELCOME_MSG_CONST).'</h1>
-	<div align="center"></div>	
+
 	<form name="form1" id="form1" method="post" action="'.$_SERVER['PHP_SELF'].'">
 	<input type="hidden" name="section" value="login">
 	  <table border="0" align="center" cellpadding="5" cellspacing="0">
+		<tr>
+			<td colspan="2" align="center" height="133" class="left_frame_logo">
+				<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<B>'.((isset($_SESSION['logout_msg']))?$_SESSION['logout_msg']:$TEXT_WELCOME_MSG_CONST).'</B>
+			</td>
+		</tr>		
 	    <tr> 
 	      <td>'.$TEXT_USERNAME_CONST.'</td>
 	      <td>
@@ -42,7 +51,7 @@ function login($output,$dbADO) {
 	</form>
 	<p align="center" class="err"><B>'.(isset($_GET['error'])?strip_tags(stripslashes($_GET['error'])):'').'</B></p>	
 	';
-
+	unset($_SESSION['logout_msg']);
 
 	if (isset($_POST['submitX'])) {
 
@@ -163,8 +172,7 @@ function login($output,$dbADO) {
 							$_SESSION['installationID'] = $installations[0];
 						}
 
-						header("Location: index.php?section=userHome");
-						exit(0);
+						die('<script>top.location=\'index.php\';</script>');
 
 					}
 				} else {
@@ -180,26 +188,29 @@ function login($output,$dbADO) {
 	} elseif ($actionX=='logout') {
 		$_SESSION = array();
 		session_destroy();
-
+		$_SESSION['logout_msg']=$TEXT_LOGOUT_MSG_CONST;
+		
 		$scriptInHead='
 		<script>
-			parent.frames[\'basefrm\'].location.href="index.php?section=login&msg='.$TEXT_LOGOUT_MSG_CONST.'"
-			if (parent.frames[\'treeframe\']) {
-				parent.frames[\'treeframe\'].location.href=\'index.php?section=wizard&rightSection=login\';
-			}		
-		</script>
-	';
+			top.location.href="index.php?section=login"
+		</script>';
+		
 		$output->setScriptInHead($scriptInHead);
 	} elseif (@$_SESSION['userLoggedIn']==false) {
 		$output->setScriptInBody("onload=\"document.form1.username.focus();\"");
 		$out.=$loginFormBig;
 	} else {
-		header("Location: index.php?section=userHome");
+		$scriptInHead='
+		<script>
+			top.location.href=\'index.php\';
+		</script>
+	';
+		$output->setScriptInHead($scriptInHead);
 		exit(0);
 	}
 
 
-
+	$output->setScriptInBody('style="background:#FFFFFF"');
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

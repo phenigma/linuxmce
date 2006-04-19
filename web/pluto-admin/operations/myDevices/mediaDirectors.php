@@ -234,7 +234,7 @@ function mediaDirectors($output,$dbADO) {
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
 						<td class="alternate_back" rowspan="2" align="right"><input type="button" class="button" name="edit_pipes" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
-						<td align="center" rowspan="2" valign="top" class="alternate_back">'.$buttons.'</td>
+						<td align="center" rowspan="2" valign="center" class="alternate_back">'.$buttons.'</td>
 					</tr>
 					<tr>			
 						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].'</td>
@@ -277,8 +277,11 @@ function mediaDirectors($output,$dbADO) {
 	
 						$out.='
 							<tr>
-								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"><hr></td>
-							</tr>';
+								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+							</tr>
+							<tr>
+								<td colspan="8" bgcolor="black" height="5"><img src="include/images/spacer.gif" border="0"></td>
+							</tr>						';
 						$setupDisklessMD=' <input type="button" class="button_fixed" name="setupDisklessMD" value="'.$TEXT_SETUP_DISKLESS_MD_CONST.' *" onClick="self.location=\'index.php?section=setupDisklessMD\';">';
 						$setupDisklessMDInfo='* '.$TEXT_DISKLESS_MD_NOTICE_CONST;
 					}

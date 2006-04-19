@@ -231,13 +231,13 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 		$oldValues=substr(@$row['Routing'],strpos(@$row['Routing'],',')+1);	
 		
 		$pos++;
-		$moveDownBtn=($pos!=$res->RecordCount())?'<br><input type="button" class="button" name="move_down" value="'.$TEXT_MOVE_DOWN_CONST.'" onClick="self.location=\'index.php?section=callRouting&action=move&userID='.$userID.'&mode='.$selectedUserMode.'&pr='.$selectedCaller.'&mdid='.$row['PK_UserRouting'].'&oldOrder='.$row['StepOrder'].'\'">':'';
+		$moveDownBtn=($pos!=$res->RecordCount())?'<br><input type="button" class="button_fixed" name="move_down" value="'.$TEXT_MOVE_DOWN_CONST.'" onClick="self.location=\'index.php?section=callRouting&action=move&userID='.$userID.'&mode='.$selectedUserMode.'&pr='.$selectedCaller.'&mdid='.$row['PK_UserRouting'].'&oldOrder='.$row['StepOrder'].'\'">':'';
 		$out.='
 		<tr>
 			<td width="50"><B>Step '.$pos.'</B></td>
 			<td>'.pulldownFromArray($stepsArray,'routing_'.$row['PK_UserRouting'],$selectedStep,'onChange="changeOptions(\''.$row['PK_UserRouting'].'\')"','key','').'</td>
 			<td>'.step_options($selectedStep,$row['EK_Users'],$dbADO,$row['PK_UserRouting'],$oldValues).'</td>
-			<td align="center"><input type="button" class="button" name="del" value="Delete" onclick="if(confirm(\''.$TEXT_DELETE_STEP_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callRouting&action=del&userID='.$userID.'&mode='.$selectedUserMode.'&pr='.$selectedCaller.'&did='.$row['PK_UserRouting'].'\'"> '.$moveDownBtn.'</td>
+			<td align="center"><input type="button" class="button_fixed" name="del" value="'.$TEXT_DELETE_CONST.'" onclick="if(confirm(\''.$TEXT_DELETE_STEP_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callRouting&action=del&userID='.$userID.'&mode='.$selectedUserMode.'&pr='.$selectedCaller.'&did='.$row['PK_UserRouting'].'\'"> '.$moveDownBtn.'</td>
 		</tr>
 		<tr>
 			<td colspan="4" align="center"><hr></td>

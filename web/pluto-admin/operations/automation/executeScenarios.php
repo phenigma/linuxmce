@@ -20,16 +20,16 @@ function executeScenarios($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<p align="center">'.$TEXT_EXECUTE_SCENARIOS_EXPLANATION_CONST.'</p>
+			
 			<form action="index.php" method="POST" name="executeScenarios">
 			<input type="hidden" name="section" value="executeScenarios">
 			<input type="hidden" name="action" value="update">
 		
-		<table cellpadding="4" cellspacing="0" border="0" align="center">
+		<table cellpadding="4" cellspacing="1" border="0" align="center">
 			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_SCENARIO_DESCRIPTION_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SCENARIO_TYPE_CONST.'</B></td>
-				<td align="center">&nbsp;</td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
 		';
 		$queryEntAreas='
@@ -46,7 +46,7 @@ function executeScenarios($output,$dbADO) {
 		while($rowEntAreas=$resEntAreas->FetchRow()){
 			if($rowEntAreas['FK_Room']!=$initRoom){
 				$out.='
-				<tr bgcolor="#D1D9EA">
+				<tr class="alternate_back">
 					<td colspan="3" align="left"><B>'.$TEXT_ROOM_CONST.': '.$rowEntAreas['RoomName'].'</B></td>
 				</tr>';
 				$queryCG_R='
@@ -57,19 +57,27 @@ function executeScenarios($output,$dbADO) {
 					WHERE FK_Installation=? AND FK_Room=?
 					ORDER BY FK_Array ASC, ScenarioName ASC';
 				$resCG_R=$dbADO->Execute($queryCG_R,array($installationID,$rowEntAreas['FK_Room']));
+				if($resCG_R->RecordCount()==0){
+				$out.='
+					<tr class="regular">
+						<td colspan="3" align="left">'.$TEXT_NO_RECORDS_CONST.'</td>
+					</tr>';
+				}			
+				$pos=0;	
 				while($rowCG_R=$resCG_R->FetchRow()){
+					$pos++;
 					$displayedCG[]=$rowCG_R['PK_CommandGroup'];
 					$out.='
-						<tr>
-							<td><a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_R['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG_R['ScenarioName'].'</a></td>
+						<tr class="'.(($pos%2==0)?'alternate_back':'').'">
+							<td><B>'.$rowCG_R['ScenarioName'].'</B></td>
 							<td>'.$rowCG_R['ScenarioType'].'</td>
-							<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
+							<td align="center"><input type="button" class="button_fixed" value="'.$TEXT_TEST_CONST.'" onClick="self.location=\'index.php?section=executeScenarios&action=execute&cgID='.$rowCG_R['PK_CommandGroup'].'\'"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'"> <input type="button" class="button_fixed" value="'.$TEXT_EDIT_CONST.'" onclick="self.location=\'index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'\'"></td>
 						</tr>';
 				}
 				$initRoom=$rowEntAreas['FK_Room'];
 			}
 			$out.='
-				<tr bgcolor="#EEEEEE">
+				<tr class="alternate_back">
 					<td colspan="3" align="left"><B>'.$TEXT_ENTERTAIN_AREA_CONST.': '.$rowEntAreas['Description'].'</B></td>
 				</tr>';
 			$queryCG_E='
@@ -79,18 +87,26 @@ function executeScenarios($output,$dbADO) {
 				INNER JOIN Array ON FK_Array=PK_Array
 				WHERE FK_Installation=? AND FK_EntertainArea=?';
 			$resCG_E=$dbADO->Execute($queryCG_E,array($installationID,$rowEntAreas['PK_EntertainArea']));
+			if($resCG_E->RecordCount()==0){
+			$out.='
+				<tr class="regular">
+					<td colspan="3" align="left">'.$TEXT_NO_RECORDS_CONST.'</td>
+				</tr>';
+			}
+			$pos=0;
 			while($rowCG_E=$resCG_E->FetchRow()){
+				$pos++;
 				$displayedCG[]=$rowCG_E['PK_CommandGroup'];
 				$out.='
-					<tr>
-						<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_E['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG_E['ScenarioName'].'</a></td>
+					<tr class="'.(($pos%2==0)?'alternate_back':'').'">
+						<td><B>'.$rowCG_E['ScenarioName'].'</B></td>
 						<td>'.$rowCG_E['ScenarioType'].'</td>
-						<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_E['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
+						<td align="center"><input type="button" class="button_fixed" value="'.$TEXT_TEST_CONST.'" onClick="self.location=\'index.php?section=executeScenarios&action=execute&cgID='.$rowCG_E['PK_CommandGroup'].'\'"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_E['PK_CommandGroup'].'"> <input type="button" class="button_fixed" value="'.$TEXT_EDIT_CONST.'" onclick="self.location=\'index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'\'"></td>
 					</tr>';
 			}
 		}
 		$out.='
-			<tr bgcolor="#D1D9EA">
+			<tr class="alternate_back">
 				<td colspan="3" align="left"><B>'.$TEXT_UNASSIGNED_TO_ROOM_OR_EA_CONST.'</B></td>
 			</tr>';		
 		if(count($displayedCG)==0)
@@ -101,12 +117,20 @@ function executeScenarios($output,$dbADO) {
 			INNER JOIN Array ON FK_Array=PK_Array
 			WHERE FK_Installation=? AND PK_CommandGroup NOT IN ('.join(',',$displayedCG).')';
 		$resCG=$dbADO->Execute($queryCG,$installationID);
-		while($rowCG=$resCG->FetchRow()){
+		if($resCG->RecordCount()==0){
 			$out.='
-				<tr>
-					<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG['ScenarioName'].'</a></td>
+				<tr class="regular">
+					<td colspan="3" align="left">'.$TEXT_NO_RECORDS_CONST.'</td>
+				</tr>';
+			}		
+		$pos=0;
+		while($rowCG=$resCG->FetchRow()){
+			$pos++;
+			$out.='
+				<tr class="'.(($pos%2==0)?'alternate_back':'').'">
+					<td><B>'.$rowCG['ScenarioName'].'</B></td>
 					<td>'.$rowCG['ScenarioType'].'</td>
-					<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
+					<td align="center"><input type="button" class="button_fixed" value="'.$TEXT_TEST_CONST.'" onClick="self.location=\'index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'\'"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'"> <input type="button" class="button_fixed" value="'.$TEXT_EDIT_CONST.'" onclick="self.location=\'index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'\'"></td>
 				</tr>';
 		}
 		$out.='

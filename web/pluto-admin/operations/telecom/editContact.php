@@ -45,6 +45,8 @@ function editContact($output,$telecomADO) {
 		header("Location: index.php?section=phoneBook&msg=".@$msg);
 	}
 
+	$output->setMenuTitle($TEXT_PHONE_BOOK_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_CONTACT_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook',$TEXT_EDIT_CONTACT_CONST=>'index.php?section=editContact&cid='.$cid));
 	$output->setBody($out);
@@ -67,11 +69,9 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 	$cData=getFieldsAsArray('Contact','Name,Company,Title,EK_Users',$telecomADO,'WHERE PK_Contact='.$cid);
 	
 	$out='
+	<a href="index.php?section=phoneBook">'.$TEXT_PHONE_BOOK_CONST.'</a>
 	<input type="hidden" name="cid" value="'.$cid.'">	
 	<table celspacing="0" cellpadding="3" align="center">
-		<tr>
-			<td colspan="2"><h3>'.$TEXT_EDIT_CONTACT_CONST.'</h3></td>
-		</tr>
 		<tr>
 			<td><B>'.$TEXT_NAME_CONST.' *</B></td>
 			<td><input type="text" name="Name" value="'.$cData['Name'][0].'"></td>

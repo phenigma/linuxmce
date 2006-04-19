@@ -1077,7 +1077,6 @@ function deleteDevice($PK_Device,$dbADO)
 		$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
 		$dbADO->_Execute($queryDelDevice);
 	}
-
 }
 
 function addDeviceToEntertainArea($deviceID,$entArea,$dbADO)
@@ -1786,7 +1785,7 @@ function lightingDevicesTable($cgID,$dbADO)
 				<td align="center"><B>'.$TEXT_UNCHANGED_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ON_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_OFF_CONST.'</B></td>
-				<td align="center"><B>'.$TEXT_SET_LEVEL_CONST.'</B></td>
+				<td align="center" colspan="2"><B>'.$TEXT_SET_LEVEL_CONST.'</B></td>
 			</tr>';
 
 	$lightingDevicesArray=getValidLightingObjectsArray($_SESSION['installationID'],$dbADO);
@@ -1847,7 +1846,8 @@ function lightingDevicesTable($cgID,$dbADO)
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="1" '.(($selectedCommand==1)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="2" '.(($selectedCommand==2)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="3" '.(($selectedCommand==3)?'checked':'').'></td>
-				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'> <input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.scenarioWizard.command_'.$rowGetRoomsDevice['PK_Device'].'[3].checked=true\');"></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'></td>
+				<td align="center"><input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.scenarioWizard.command_'.$rowGetRoomsDevice['PK_Device'].'[3].checked=true\');"></td>
 			</tr>
 			<input type="hidden" name="oldCommand_'.$rowGetRoomsDevice['PK_Device'].'" value="'.$selectedCommand.'">
 			<input type="hidden" name="oldDimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'">		
@@ -1983,7 +1983,7 @@ function climateDevicesTable($cgID,$dbADO)
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="3" '.(($selectedCommand==3)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'></td>
 				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="5" '.(($selectedCommand==5)?'checked':'').'></td>
-				<td align="center"><input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.climateScenarios.command_'.$rowGetRoomsDevice['PK_Device'].'[5].checked=true\');"></td>
+				<td align="center"><input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.scenarioWizard.command_'.$rowGetRoomsDevice['PK_Device'].'[4].checked=true\');"></td>
 			</tr>
 			<input type="hidden" name="oldCommand_'.$rowGetRoomsDevice['PK_Device'].'" value="'.$selectedCommand.'">
 			<input type="hidden" name="oldDimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'">		
@@ -3128,58 +3128,86 @@ function isCritical($deviceID)
 	}
 }
 
-function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
+function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specificFloorplanType=0,$boolJsValidation=0,$default='input')
 {
-	$deviceDataBox='<table width="100%" cellpadding="2" cellspacing="0" border="0">';
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+		
+	$jsValidation='';
+	$deviceDataBox='<table cellpadding="2" cellspacing="0" border="0">';
 
 	foreach ($DeviceDataArray AS $rowDDforDevice){
-		
 		if(!in_array($rowDDforDevice['FK_DeviceData'],$GLOBALS['DeviceDataToDisplay']))
 			$GLOBALS['DeviceDataToDisplay'][]=$rowDDforDevice['FK_DeviceData'];
 
 		$ddValue=$rowDDforDevice['IK_DeviceData'];
 
 		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
+			$formElementName='deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'];
 			$deviceDataBox.='
 				<tr>
 					<td align="left" valign="middle" title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b></td>
-					<td>';
+					<td align="right">';
+			$itemDisabled=((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'');
+			$defaultFormElement=($default=='input')?'<input type="text" name="'.$formElementName.'" value="'.@$ddValue.'" '.$itemDisabled.'>':'<textarea name="'.$formElementName.'" '.$itemDisabled.' rows="1">'.@$ddValue.'</textarea>';
+			
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
 				if(in_array($rowDDforDevice['dd_Description'],$GLOBALS['DeviceDataLinkedToTables'])){
 					$tableName=str_replace('PK_','',$rowDDforDevice['dd_Description']);
 					$filterQuery='';
+					$tableFields='*';
 					switch($tableName){
 						case 'Device':
-						$filterQuery=" WHERE FK_Installation='".$installationID."'";
+							$filterQuery=" WHERE FK_Installation='".$installationID."'";
+							$orderQuery=' ORDER BY Description ASC';
 						break;
 						case 'FloorplanObjectType':
-						$filterQuery=" WHERE FK_FloorplanType='".@$specificFloorplanType."'";
+							$filterQuery=($specificFloorplanType!=0)?" WHERE FK_FloorplanType='".@$specificFloorplanType."'":'';
+							$orderQuery=' ORDER BY Description ASC';
+						break;
+						case 'Users':
+							$tableFields='*, Users.UserName AS Description';
+							$filterQuery='';
+							$orderQuery=' ORDER BY Username ASC';
+						break;
+						default:
+							$filterQuery='';
+							$orderQuery=' ORDER BY Description ASC';
+						break;
 					}
 
-					$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
+					$queryTable="SELECT $tableFields FROM $tableName $filterQuery $orderQuery";
 					$resTable=$dbADO->Execute($queryTable);
-					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
+					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.$itemDisabled.'>
 												<option value="0"></option>';
 					while($rowTable=$resTable->FetchRow()){
 						$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
-						$deviceDataBox.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['dd_Description'].'</option>';
+						$deviceDataBox.='<option value="'.$rowTable[$rowDDforDevice['dd_Description']].'" '.(($rowTable[$rowDDforDevice['dd_Description']]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['Description'].'</option>';
 					}
 					$deviceDataBox.='</select>';
 				}
-				else
-					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+				else{
+					$deviceDataBox.=$defaultFormElement;
+				}
+				$jsValidation.=($boolJsValidation==1)?"frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n":'';
 				break;
 				case 'bool':
-					$deviceDataBox.='<input type="checkbox" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+					$deviceDataBox.='<input type="checkbox" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.$itemDisabled.'>';
 				break;
 				default:
-				if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
-					$deviceDataBox.=@$ddValue;
-					$deviceDataBox.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');">Edit</a>';
-				}else{
-					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
-				}
+					if ($rowDDforDevice['FK_DeviceData']!=$GLOBALS['Port']){
+
+						// if port channel, check for controlled via options
+						if($rowDDforDevice['FK_DeviceData']==$GLOBALS['PortChannel']){
+							$choicesArray=parentHasChoices($deviceID,$dbADO);
+							if(count($choicesArray)>0){
+								$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowD['PK_Device'].'_'.$rowDDforDevice['FK_DeviceData'],$ddValue);
+							}									
+						}
+						$deviceDataBox.=$defaultFormElement;
+					}else{
+						$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID);
+					}
 			}
 			$GLOBALS['mdDistro']=($rowDDforDevice['FK_DeviceData']==$GLOBALS['rootPK_Distro'])?@$ddValue:0;
 
@@ -3205,7 +3233,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 	}
 	$deviceDataBox.='</table>';
 	
-	return $deviceDataBox;
+	return $deviceDataBox.'<script>'.$jsValidation.'</script>';
 }
 
 function formatNonEditDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
@@ -4287,10 +4315,10 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	}
 	else{
 		$RowColor='yellow';
-		$deleteButton='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
+		$deleteButton='<input type="button" class="button_fixed" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
 	}
 	
-	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button" name="viewParams" value="View parameters" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
+	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
 	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
@@ -5176,4 +5204,39 @@ function getOptions($devicesArray,$childrenArray,$selectedValue,$prefix){
 	return $out;
 }
 
+function getSpecificFloorplanType($dcID,$dbADO){
+	$ancestors=getAncestorsForCategory($dcID,$dbADO);
+	
+	// child of Environment > Lights 
+	if(in_array($GLOBALS['rootLights'],$ancestors)){
+		return $GLOBALS['LightingFoorplanType'];
+	}
+
+	// child of Climate 
+	if(in_array($GLOBALS['rootClimate'],$ancestors)){
+		return $GLOBALS['ClimateFoorplanType'];
+	}
+
+	// child of Security
+	if(in_array($GLOBALS['rootSecurity'],$ancestors)){
+		return $GLOBALS['SecurityFoorplanType'];
+	}
+
+	// child of cameras
+	if(in_array($GLOBALS['rootCameras'],$ancestors)){
+		return $GLOBALS['SecurityFoorplanType'];
+	}
+
+	// child of phones
+	if(in_array($GLOBALS['rootPhones'],$ancestors)){
+		return $GLOBALS['PhonesFoorplanType'];
+	}
+
+	// child of cameras
+	if(in_array($GLOBALS['IrrigationDevices'],$ancestors)){
+		return $GLOBALS['ClimateFoorplanType'];
+	}
+	
+	return 0;
+}
 ?>

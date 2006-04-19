@@ -104,7 +104,7 @@ function headerAlertLog()
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
 	
-	$output='<table border="0" align="center">
+	$output='<table border="0" align="center" cellspacing="0" cellpadding="0">
 				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_ALERT_TYPE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DETECTION_TIME_CONST.'</B></td>
@@ -138,7 +138,7 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	}
 
 	$out='
-		<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
+		<tr class="'.(($art_index%2==0)?'alternate_back':'').'">
 			<td align="center">'.$row['Description'].'</td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['DetectionTime']).'</td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ExpirationTime']).'</td>
@@ -167,7 +167,7 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	$resNotifications=$securitydbADO->Execute($queryNotifications,$row['PK_Alert']);
 	while($rowNotification=$resNotifications->FetchRow()){
 		$out.='
-		<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
+		<tr class="'.(($art_index%2==0)?'alternate_back':'').'">
 			<td align="center"><B>Notification</B></td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowNotification['NotificationTime']).'</td>
 			<td align="left" colspan="2"><B>Info: </B>'.$rowNotification['Info'].'</td>

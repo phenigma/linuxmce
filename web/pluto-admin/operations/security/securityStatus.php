@@ -76,7 +76,7 @@ function securityStatus($output,$dbADO) {
 		foreach($roomArray as $roomID=>$roomName){
 			$out.='
 				<tr>
-					<td colspan="7" align="center" bgcolor="#EEEEEE"><B>'.$roomName.'</B></td>
+					<td colspan="7" align="center" class="alternate_back"><B>'.$roomName.'</B></td>
 				</tr>';
 			$queryDevice='
 				SELECT 

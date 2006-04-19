@@ -43,14 +43,14 @@ input {
    font-size: 12px;
    color: #000000;
    background-color: #FFFFFF;
-   border: 1px solid #009108;
+   border: 1px solid #000000;
 }
 select {
    font-family: Arial, Verdana,  Helvetica, sans-serif;
    font-size: 12px;
    color: #000000;
    background-color: #FFFFFF;
-   width:150px;
+   width:130px;
 }
 input.button {
    font-family: Arial, Verdana,  Helvetica, sans-serif;
@@ -71,9 +71,10 @@ input.button_fixed {
 textarea {
    font-family: Arial, Verdana,  Helvetica, sans-serif;
    font-size: 12px;
-   color: #4E6CA6;
-   background-color: #E7ECF2;
-   border: 1px solid #AFBAD0;
+   color: #000000;
+   background-color: #FFFFFF;
+   border: 1px solid #000000;
+   width:130px;
 }
 
 .menu_on {
@@ -159,6 +160,19 @@ textarea {
    color: #FFFFFF;
    background-color: #009108;
    text-decoration: none;
+}
+
+.tablehead td{
+	padding:3px;
+}
+.regular{
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+   text-decoration: none;
+}
+.regular td{
+	padding:3px;
 }
 .left_menu{
    font-family: Arial, Verdana, Helvetica, sans-serif;

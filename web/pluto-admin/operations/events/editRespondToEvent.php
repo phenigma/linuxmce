@@ -57,8 +57,8 @@ function editRespondToEvent($output,$dbADO) {
 		<table border="0" align="center" width="800">
 		';
 		$out.='
-			<tr bgcolor="#E7E7E7">
-				<td>'.$TEXT_DESCRIPTION_CONST.':</td>
+			<tr class="alternate_back">
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td><input type="text" name="description" value="'.$rowEH['Description'].'"></td>
 			</tr>';
 		$queryCannedEvents='SELECT * FROM CannedEvents ORDER By Description ASC';
@@ -229,7 +229,7 @@ function editRespondToEvent($output,$dbADO) {
 			header("Location: index.php?section=editRespondToEvent&ehID=".$eventHandlerID."&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
-		$description=$_POST['description'];
+		$description=cleanString($_POST['description']);
 		$cannedEvent=(int)$_POST['cannedEvent'];
 		$displayedCE_CPArray=explode(',',$_POST['displayedCE_CP']);
 		foreach($displayedCE_CPArray AS $elem){
@@ -297,7 +297,9 @@ function editRespondToEvent($output,$dbADO) {
 		header("Location: index.php?section=editRespondToEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
 		exit();
 	}
-	
+
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_RESPOND_TO_EVENT_CONST);
 	$output->setNavigationMenu(array($TEXT_RESPOND_TO_EVENTS_CONST=>'index.php?section=respondToEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			

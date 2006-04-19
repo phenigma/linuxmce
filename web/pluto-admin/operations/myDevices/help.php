@@ -43,7 +43,7 @@ function help($output,$dbADO) {
 	<form action="index.php" method="POST" name="help">
 	<input type="hidden" name="section" value="help">
 	<input type="hidden" name="action" value="add">	
-	
+	<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'">'.$TEXT_BACK_CONST.'</a>
 	<p>'.$TEXT_HELP_DOCUMENTS_CONST.' <B>'.$deviceName.'</B>. '.$TEXT_HELP_DOCUMENTS_INFO_CONST.'<br><br>
 	'.$documents.'
 	</form>
@@ -60,6 +60,8 @@ function help($output,$dbADO) {
 
 	}
 
+	$output->setMenuTitle($TEXT_HELP_CONST.' |');
+	$output->setPageTitle($TEXT_DEVICE_CONST.' #'.$deviceID.': '.$deviceName);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_HELP_CONST);

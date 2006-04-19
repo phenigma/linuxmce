@@ -23,7 +23,7 @@ function deviceStatus($output,$dbADO) {
 			<form action="index.php" method="POST" name="deviceStatus">
 			<input type="hidden" name="section" value="deviceStatus">
 			<input type="hidden" name="action" value="update">
-		<table cellpadding="4" cellspacing="0" border="0" align="center">
+		<table cellpadding="4" cellspacing="1" border="0" align="center">
 			<tr class="tablehead">
 				<td align="center"><B>'.$TEXT_DEVICE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_STATE_CONST.'</B></td>
@@ -48,21 +48,18 @@ function deviceStatus($output,$dbADO) {
 			$pos++;
 			if($rowDevices['RoomName']!=$initRoom){
 				$out.='
-				<tr bgcolor="#D1D9EA">
+				<tr class="tablehead">
 					<td colspan="5"><B>'.(($rowDevices['RoomName']=='')?$TEXT_UNASSIGNED_T_A_ROOM_CONST:$rowDevices['RoomName']).'</B></td>
 				</tr>';
 				$initRoom=$rowDevices['RoomName'];
 			}
 			$out.='
-				<tr bgcolor="'.(($pos%2==0)?'#EBEFF9':'').'">
-					<td bgcolor="#EEEEEE"><a href="index.php?section=editDeviceParams&deviceID='.$rowDevices['PK_Device'].'">'.$rowDevices['DeviceName'].'</a></td>
+				<tr class="'.(($pos%2==0)?'alternate_back':'').'">
+					<td title="'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowDevices['TemplateName'].' '.$TEXT_MANUFACTURER_CONST.': '.$rowDevices['ManufName'].' Device Category: '.$rowDevices['CategoryName'].'"><a href="index.php?section=editDeviceParams&deviceID='.$rowDevices['PK_Device'].'">'.$rowDevices['DeviceName'].'</a></td>
 					<td>'.$rowDevices['State'].'</td>
-					<td bgcolor="#EEEEEE">'.$rowDevices['Status'].'</td>
+					<td>'.$rowDevices['Status'].'</td>
 					<td>'.$rowDevices['IPaddress'].'</td>
-					<td bgcolor="#EEEEEE">'.$rowDevices['MACaddress'].'</td>
-				</tr>
-				<tr>
-					<td colspan="5">'.$TEXT_DEVICE_TEMPLATE_CONST.': <B>'.$rowDevices['TemplateName'].'</B> '.$TEXT_MANUFACTURER_CONST.': <B>'.$rowDevices['ManufName'].'</B> Device Category: <B>'.$rowDevices['CategoryName'].'</B></td>
+					<td>'.$rowDevices['MACaddress'].'</td>
 				</tr>
 			';
 		}

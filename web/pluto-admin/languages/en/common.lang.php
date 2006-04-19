@@ -153,4 +153,5 @@ $TEXT_WIZARD_CONST='Wizard';
 $TEXT_SECURITY_CONST='Security';
 $TEXT_FILES_AND_MEDIA_CONST='Files & Media';
 $TEXT_TELECOM_CONST='Telecom';
+$TEXT_WARNING_NUMERICAL_ONLY_CONST='Please enter a numerical value.';
 ?>

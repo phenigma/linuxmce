@@ -142,7 +142,7 @@ function formatmodeChangesLog($row, $art_index,$securitydbADO,$dbADO)
 	}
 	
 	$out='
-		<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
+		<tr class="'.(($art_index%2==0)?'alternate_back':'').'">
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ChangeTime']).'</td>
 			<td align="center">'.$houseMode.'</td>
 			<td align="center">'.$deviceGroup.'</td>

@@ -18,14 +18,17 @@ function sortScenarios($output,$dbADO) {
 
 	$areasArray=getAssocArray($sortBy,'PK_'.$sortBy,'Description',$dbADO,'','');
 	$areasArray['']='Not assigned';
-
+	
+	if(isset($_REQUEST['from'])){
+		$backLink='<a href="index.php?section='.$_REQUEST['from'].'">'.$TEXT_BACK_CONST.'</a>';
+	}
+	
 	if($action=='form') {
 
 
 		$out.=setLeftMenu($dbADO).'
 	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
-	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-	<h2 align="center">'.$TEXT_SORT_SCENARIOS_CONST.'</h2>';
+	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>';
 
 		$out.='
 	<form action="index.php" method="POST" name="sortScenarios">
@@ -34,7 +37,7 @@ function sortScenarios($output,$dbADO) {
 		<input type="hidden" name="'.$sortBy.'ID" value="">
 		<input type="hidden" name="editedCgID" value="">	
 		<input type="hidden" name="sortBy" value="'.$sortBy.'">
-	
+	'.@$backLink.'
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
 		if(count($areasArray)==0){
 			$out.=$TEXT_NO_ROOMS_IN_INSTALLATION_CONST;
@@ -145,6 +148,8 @@ function sortScenarios($output,$dbADO) {
 		header("Location: index.php?section=sortScenarios&msg=".@$msg.'&sortBy='.$sortBy);
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_SORT_SCENARIOS_CONST);
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$TEXT_SORT_SCENARIOS_CONST=>'index.php?section=sortScenarios&sortBy='.$sortBy));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

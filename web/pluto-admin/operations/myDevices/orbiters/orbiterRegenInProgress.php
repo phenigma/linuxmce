@@ -16,7 +16,7 @@ function orbiterRegenInProgress($output,$dbADO){
 	$row=$orbiterData->FetchRow();
 	if($row['RegenInProgress']==1){
 		$out='
-		<table border="0">
+		<table border="0" align="center">
 			<tr>
 				<td colspan="2" align="center">'.percentBox($row['RegenPercent']).'</td>
 			</tr>		
@@ -24,7 +24,7 @@ function orbiterRegenInProgress($output,$dbADO){
 				<td align="center" colspan="2">'.$TEXT_REGEN_STATUS_CONST.': '.$row['RegenStatus'].'</td>
 			</tr>		
 			<tr>
-				<td colspan="2" align="center"><B><font color="red">'.$TEXT_ORBITER_GENERATION_IN_PROCESS_CONST.'</font></B></td>
+				<td colspan="2" align="center"><B><span class="confirm">'.$TEXT_ORBITER_GENERATION_IN_PROCESS_CONST.'</span></B></td>
 			</tr>	
 		</table>
 		<script>
@@ -63,9 +63,9 @@ function percentBox($percent){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/orbiterRegenInProgress.lang.php');
 	
 	$out='
-	<table width="250" cellpadding="0" cellspacing="0">
+	<table width="250" cellpadding="0" cellspacing="0" border="0">
 		<tr>
-			<td width="50">'.$TEXT_PERCENT_CONST.'</td>
+			<td width="80">'.$TEXT_PERCENT_CONST.': '.$percent.'%</td>
 			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>
 			<td bgcolor="lightblue" width="'.(200-2*$percent).'">&nbsp;</td>
 		</tr>

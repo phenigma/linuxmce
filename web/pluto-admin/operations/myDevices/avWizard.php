@@ -262,21 +262,21 @@ $start_time=getmicrotime();
 				if(@$childOf[$rowD['PK_Device']]==''){
 					$out.='
 					<tr>
-						<td align="center" bgcolor="#F0F3F8"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
+						<td align="center" calss="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 						<td  align="right">'.$roomPulldown.'</td>
-						<td bgcolor="#F0F3F8">A: '.@$devicePipes['1']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['input'].'</td>
-						<td bgcolor="#F0F3F8" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">Edit</a></td>
+						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
+						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">Edit</a></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
-						<td bgcolor="#F0F3F8" align="center" rowspan="2" valign="top">'.$buttons.'</td>
+						<td class="alternate_back" align="center" rowspan="2" valign="center">'.$buttons.'</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+						<td align="center" class="alternate_back" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td align="right">'.$controlledByPulldown.'</td>
-						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
+						<td class="alternate_back">V: '.@$devicePipes['2']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
 					if(isset($embededRows[$rowD['PK_Device']])){
 						foreach($embededRows[$rowD['PK_Device']] as $tuner){
@@ -285,30 +285,26 @@ $start_time=getmicrotime();
 					}
 					$out.='
 					<tr>
-						<td><hr></td>
-						<td><hr></td>
-						<td colspan="4"><hr></td>
-						<td><hr></td>
-						<td><hr></td>
+						<td colspan="8" height="3" bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
 					</tr>';						
 				}else{
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
 					<tr>
-						<td align="center" bgcolor="#F0F3F8"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
+						<td align="center" class="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 						<td align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
-						<td bgcolor="#F0F3F8">A: '.@$devicePipes['1']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['input'].'</td>
-						<td bgcolor="#F0F3F8" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
+						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
+						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
 						<td valign="top" align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
-						<td bgcolor="#F0F3F8" align="center" rowspan="2" valign="top">&nbsp;</td>
+						<td class="alternate_back" align="center" rowspan="2" valign="top">&nbsp;</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+						<td align="center" class="alternate_back" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td>&nbsp;</td>
-						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
-						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
+						<td class="alternate_back">V: '.@$devicePipes['2']['output'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['to'].'</td>
+						<td class="alternate_back">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
 
 				}
@@ -319,20 +315,14 @@ $start_time=getmicrotime();
 				<input type="hidden" name="displayedDevices" value="'.join(',',array_keys($displayedDevices)).'">';
 
 		if($resDevice->RecordCount()!=0){
-			$out.='
-				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button_fixed" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button_fixed" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-				</tr>
-				<tr>
-					<td colspan="8" align="left">&nbsp;</td>
-				</tr>';
+			$updateBtns='<input type="submit" class="button_fixed" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button_fixed" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">';
 		}
 		$out.='
 				<tr>
 					<td colspan="8">* '.$TEXT_FLOORPLAN_NOTE_CONST.'</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.@$updateBtns.'</td>
 				</tr>
 			</table>
 			<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">

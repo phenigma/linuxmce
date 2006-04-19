@@ -1,6 +1,6 @@
 <?
 $TEXT_GENERIC_SERIAL_DEVICES_CONST='Generic Serial Devices';
-$TEXT_RUBY_SOURCE_CODE_CONST='Ruby Source Code';
+$TEXT_RUBY_SOURCE_CODE_CONST='Ruby Codes';
 $TEXT_DELETE_GCD_CONFIRMATION_CONST='Are you sure you want to delete this device?';
 $TEXT_ADD_GSD_DEVICE_CONST='Add device';
 $TEXT_GSD_DEVICE_DESCRIPTION_REQUIRED_CONST='Please enter a device description';

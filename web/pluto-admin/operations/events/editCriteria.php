@@ -30,7 +30,7 @@ function editCriteria($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editCriteria">
 		<input type="hidden" name="section" value="editCriteria">
 		<input type="hidden" name="action" value="update">
@@ -86,7 +86,7 @@ function editCriteria($output,$dbADO) {
 		
 		$changedCP=(int)@$_POST['changedCP'];
 		if($changedCP>0){
-			$newCPL=$_POST['CriteriaParmID_'.$changedCP];
+			$newCPL=((int)@$_POST['CriteriaParmID_'.$changedCP]>0)?(int)$_POST['CriteriaParmID_'.$changedCP]:NULL;
 			$newParm=($newCPL==$GLOBALS['PK_EventParameterParmList'])?(isset($_POST['CriteriaParmParm_'.$changedCP])?(int)$_POST['CriteriaParmParm_'.$changedCP]:NULL):NULL;
 			$dbADO->Execute('UPDATE CriteriaParm SET FK_CriteriaParmList=?, Parm=?,Value=NULL, Operator=1 WHERE PK_CriteriaParm=?',array($newCPL,$newParm,$changedCP));
 		}
@@ -126,7 +126,7 @@ function editCriteria($output,$dbADO) {
 		
 		
 		if(isset($_REQUEST['parentCPN'])){
-			$parentCPN=(int)$_REQUEST['parentCPN'];
+			$parentCPN=((int)$_REQUEST['parentCPN']>0)?(int)$_REQUEST['parentCPN']:NULL;
 			$dbADO->Execute('INSERT INTO CriteriaParmNesting (FK_CriteriaParmNesting_Parent,IsAnd,IsNot) VALUES (?,0,0)',$parentCPN);
 		}
 		

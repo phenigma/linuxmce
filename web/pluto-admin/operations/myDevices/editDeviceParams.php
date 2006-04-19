@@ -31,6 +31,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			DeviceTemplate.ManufacturerURL,
 			DeviceTemplate.InternalURLSuffix,
 			DeviceTemplate.FK_DeviceCategory,
+			DeviceTemplate.IsIPBased,
+			DeviceTemplate.FK_DeviceCategory,
 			Device.PingTest,
 			Device.State,
 			Device.Status,
@@ -64,6 +66,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$Status=$row['Status'];
 		$ImplementsDCE=$row['ImplementsDCE'];
 		$deviceDisabled=$row['Disabled'];
+		$IsIPBased=$row['IsIPBased'];
+		$dcID=$row['FK_DeviceCategory'];
 		//$helpDocument=$row['FK_Document'];
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 
@@ -98,20 +102,6 @@ $installationID = (int)@$_SESSION['installationID'];
 			$deviceDataToShow[]=$row['FK_DeviceData'];
 	}
 
-	$deviceData="
-		SELECT
-			DeviceData.Description as DD_desc,
-			DeviceData.PK_DeviceData as PK_DD,
-			ParameterType.Description as PT_Desc,
-			Device_DeviceData.IK_DeviceData as IK_DeviceData,
-			AllowedToModify,DeviceTemplate_DeviceData.FK_DeviceTemplate AS DT_DD_Exists,DeviceTemplate_DeviceData.Description AS ExtraInfo
-		FROM Device_DeviceData 
-			INNER JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
-			INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
-			INNER JOIN Device ON FK_Device=PK_Device
-			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData
-		 WHERE FK_Device = $deviceID";
-	$resDeviceData = $dbADO->_Execute($deviceData);
 	$childsNo = getChildsNo($deviceID,$dbADO);
 	
 	if(isCritical($DeviceTemplate)){
@@ -155,6 +145,11 @@ $installationID = (int)@$_SESSION['installationID'];
 		</tr>
 	</table>
 	<form method="post" action="index.php" name="editDeviceParams">
+	<script>
+		 	var frmvalidator = new formValidator("editDeviceParams");
+ 			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
+		</script>
+		
 	<fieldset>
 	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
 	<table>
@@ -483,8 +478,57 @@ $installationID = (int)@$_SESSION['installationID'];
 			<input type="hidden" value="editDeviceParams" name="section">
 			<input type="hidden" value="add" name="action">
 			<input type="hidden" value="'.$deviceID.'" name="deviceID">			
-	<table>
+
 	';
+	$GLOBALS['DeviceDataToDisplay']=array();
+	$queryDevice='
+		SELECT 
+			PK_Device,
+			Device.Description,
+			IPaddress,
+			MACaddress,
+			FK_Device_ControlledVia,
+			FK_Device_RouteTo,
+			FK_Room,
+			Device.FK_DeviceTemplate,
+			DeviceTemplate.Description AS TemplateName, 
+			DeviceCategory.Description AS CategoryName, 
+			Manufacturer.Description AS ManufacturerName, 
+			IsIPBased, 
+			FK_DeviceCategory,
+			DeviceData.Description AS dd_Description, 
+			Device_DeviceData.FK_DeviceData,
+			ParameterType.Description AS typeParam, 
+			Device_DeviceData.IK_DeviceData,
+			ShowInWizard,ShortDescription,
+			AllowedToModify,
+			DeviceTemplate_DeviceData.Description AS Tooltip 
+		FROM DeviceData 
+		INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
+		INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
+		INNER JOIN Device ON FK_Device=PK_Device
+		LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+		LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
+		INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
+		INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
+		WHERE PK_Device=?';
+	$resDevice=$dbADO->Execute($queryDevice,$deviceID);
+	$firstDevice=0;
+	$deviceDataArray=array();
+	while($rowD=$resDevice->FetchRow()){
+		$displayedDevices[]=$rowD['PK_Device'];
+					
+		// fill in the device data array
+		if($rowD['PK_Device']!=$firstDevice){
+			$firstDevice=$rowD['PK_Device'];
+			$deviceDataArray[$firstDevice]=array();
+		}else{
+			$deviceDataArray[$firstDevice][]=$rowD;
+		}					
+	}
+	
+/*	
 	$deviceData = array();
 	$deviceData[]=0;
 	if ($resDeviceData) {	
@@ -515,22 +559,18 @@ $installationID = (int)@$_SESSION['installationID'];
 			$deviceData[]=$rowDevicedata['PK_DD'];
 		}
 	}
-	
+	*/
 		$validOrbiters=getValidOrbitersArray($installationID,$dbADO);
 		$validComputers=getValidComputersArray($installationID,$dbADO);
-	
-	$out.=(($resDeviceData && $resDeviceData->RecordCount()>0)?'
-		<input type="hidden" name="selectedData" value="'.(join(",",$deviceData)).'">
-		<tr><td><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
+
+	$out.=((count($deviceDataArray)>0)?formatDeviceData($deviceID,$deviceDataArray[$deviceID],$dbADO,$IsIPBased,getSpecificFloorplanType($dcID,$dbADO),1,'textarea').'
+		<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">
+		<input type="submit" class="button" name="submitX" value="Save"  >
 	':'').'	
-	</table>
 	</fieldset>
 	</form>
 	<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
-	<script>
-		 	var frmvalidator = new formValidator("editDeviceParams");
- 			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
-		</script>
+
 	
 	<br />';
 	
@@ -601,15 +641,17 @@ $installationID = (int)@$_SESSION['installationID'];
 		}
 
 		// save the Device Data values
-		$selectedDate = cleanString(@$_POST['selectedData']);
+		$selectedDate = cleanString(@$_POST['DeviceDataToDisplay']);
 		$selectedDateArray = explode(",",$selectedDate);
 		if (!is_array($selectedDateArray)) {$selectedDateArray=array();$selectedDateArray[]=0;}
 
 		foreach ($selectedDateArray as $elem) {
-			$value = @$_POST['deviceData_'.$elem];
+			if(isset($_POST['oldDeviceData_'.$deviceID.'_'.$elem])){
+				$value = @$_POST['deviceData_'.$deviceID.'_'.$elem];
+				echo "[$value]";
 				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
 				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
-				if ($res && $res->RecordCount()==1 && isset($_POST['deviceData_'.$elem])) {
+				if ($res && $res->RecordCount()==1) {
 					
 					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
@@ -626,12 +668,12 @@ $installationID = (int)@$_SESSION['installationID'];
 					}
 				}
 				
-			// set simlink for security plugin path	
-			if($elem==$GLOBALS['Path'] && $DeviceTemplate==$GLOBALS['SecurityPlugin']){
-				exec('sudo -u root /usr/pluto/bin/SetWebLinks.sh \''.$value.'\' \'/var/www/pluto-admin/security_images\'',$retArray);
-				$error=@join('',$retArray);
+				// set simlink for security plugin path	
+				if($elem==$GLOBALS['Path'] && $DeviceTemplate==$GLOBALS['SecurityPlugin']){
+					exec('sudo -u root /usr/pluto/bin/SetWebLinks.sh \''.$value.'\' \'/var/www/pluto-admin/security_images\'',$retArray);
+					$error=@join('',$retArray);
+				}
 			}
-			
 		}	
 		if (trim($description)!='') {		
 			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	
@@ -735,7 +777,10 @@ foreach ($parentsForMenuArray as $parent) {
 
 
 eval("\$c=array(\$navMenuString);");
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_DEVICE_CONST.' #'.$deviceID.': '.$description);
+
 	$output->setNavigationMenu($c);
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			

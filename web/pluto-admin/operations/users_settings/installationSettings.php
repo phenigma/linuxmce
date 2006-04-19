@@ -138,18 +138,23 @@ function installationSettings($output,$dbADO) {
 					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
 				</tr>
 				<tr>
+					<td colspan="2" class="tablehead" align="center"><B>'.$TEXT_LONGITUDE_CONST.'/'.$TEXT_LATITUDE_CONST.'</B></td>
+				</tr>
+				<tr>
 					<td><B>'.$TEXT_COUNTRY_CONST.'</B></td>
 					<td>'.generatePullDown('countryID','Country','PK_Country','Description',$selectedCountry,$dbADO,'','onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
 				</tr>';
 				if($selectedCountry>0){
 					$selectedRegion=(isset($_POST['region']))?(int)$_POST['region']:(int)@$selectedRegion;	
+					$regionsArray=getAssocArray('Region','PK_Region','Region',$dbADO,'WHERE FK_Country='.$selectedCountry);
+
 					$out.='
 					<tr>
 						<td><B>'.$TEXT_REGION_CONST.'</B></td>
-						<td>'.generatePullDown('region','Region','PK_Region','Region',@$selectedRegion,$dbADO,'WHERE FK_Country='.$selectedCountry,'onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
+						<td>'.pulldownFromArray($regionsArray,'region',@$selectedRegion,'onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
 					</tr>';
-					
-					if($selectedRegion>0){
+
+					if($selectedRegion>0 && in_array($selectedRegion,array_keys($regionsArray))){
 						$output->setScriptInHead(getCitiesCoordsArray($dbADO,' WHERE FK_Region='.$selectedRegion));
 					$out.='
 					<tr>

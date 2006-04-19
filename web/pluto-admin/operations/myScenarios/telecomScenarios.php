@@ -108,7 +108,7 @@ function telecomScenarios($output,$dbADO) {
 					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_NUMBER_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_PHONE_CONST.'</B></td>
-					<td align="center">&nbsp;</td>
+					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>';
 
 			if($resCG->RecordCount()==0){
@@ -136,7 +136,7 @@ function telecomScenarios($output,$dbADO) {
 				$rowSelDevice=$resSelDevice->FetchRow();
 				$out.='
 				<tr bgColor="#F0F3F8">
-					<td align="center"><textarea style="width:200px;" name="description_'.$rowSpeedDial['PK_CommandGroup'].'">'.$rowSpeedDial['Description'].'</textarea></td>
+					<td align="center"><textarea name="description_'.$rowSpeedDial['PK_CommandGroup'].'">'.$rowSpeedDial['Description'].'</textarea></td>
 					<td align="center"><input type="text" name="number_'.$rowSpeedDial['PK_CommandGroup'].'" value="'.$rowNumber['IK_CommandParameter'].'"></td>
 					<td align="center">';
 				if(count($phonesDTArray)==0)
@@ -149,7 +149,7 @@ function telecomScenarios($output,$dbADO) {
 						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND Device.FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$out.='<select name="phone_'.$rowSpeedDial['PK_CommandGroup'].'">
-						<option value="0"></option>';
+						<option value="0">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 				while($rowDevice=$resDevice->FetchRow()){
 					$out.='<option value="'.$rowDevice['PK_Device'].'" '.(($rowDevice['PK_Device']==$rowSelDevice['IK_CommandParameter'])?'selected':'').'>'.$rowDevice['Description'].' ['.$rowDevice['Room'].']</option>';
 				}
@@ -195,7 +195,7 @@ function telecomScenarios($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
-					<td><textarea style="width:200px;" rows="2" name="description"></textarea></td>
+					<td><textarea rows="2" name="description"></textarea></td>
 				</tr>
 				<tr>
 					<td>'.$TEXT_NUMBER_CONST.' *</td>
@@ -214,7 +214,7 @@ function telecomScenarios($output,$dbADO) {
 						FK_DeviceTemplate IN ('.join(',',array_keys($phonesDTArray)).') AND Device.FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$out.='<select name="phone">
-						<option value="0"></option>';
+						<option value="0">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 				while($rowDevice=$resDevice->FetchRow()){
 					$out.='<option value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].' ['.$rowDevice['Room'].']</option>';
 				}
@@ -229,7 +229,7 @@ function telecomScenarios($output,$dbADO) {
 			</table>
 			<script>
 		 		var frmvalidator = new formValidator("telecomScenarios");
- 				frmvalidator.addValidation("description","req","'.$TEXT_TELECOM_SCENARIOS_description_required_CONST.'");			
+ 				frmvalidator.addValidation("description","req","'.$TEXT_TELECOM_SCENARIOS_DESCRIPTION_REQUIRED_CONST.'");			
 				frmvalidator.addValidation("number","req","'.$TEXT_TELECOM_SCENARIOS_NUMBER_REQUIRED_CONST.'");			
 				frmvalidator.addValidation("phone","dontselect=0","'.$TEXT_TELECOM_SCENARIOS_PHONE_REQUIRED_CONST.'");			
 			</script>

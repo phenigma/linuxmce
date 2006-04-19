@@ -35,9 +35,9 @@ if($action=='form') {
 		$scenarioImg='&nbsp;';		
 
 	$out.='
-		<div align="left" class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
-		<div align="left" class="err"><B>'.stripslashes(@$_GET['err']).'</B></div>	
-		<h3>'.$TEXT_EDIT_SCENARIO_CONST.' #'.$cgID.'</h3>
+		<div align="center" class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
+		<div align="center" class="err"><B>'.stripslashes(@$_GET['err']).'</B></div>	
+	
 		<form action="index.php" method="POST" name="scenarioWizard" '.(($wizard==0)?'onSubmit="return validateForm();"':'').' enctype="multipart/form-data">
 			<input type="hidden" name="section" value="scenarioWizard">
 			<input type="hidden" name="action" value="add">	
@@ -46,17 +46,25 @@ if($action=='form') {
 			<input type="hidden" name="from" value="'.$from.'">
 			<input type="hidden" name="oldWizard" value="'.$wizard.'">
 	
-			<table width="300">
-			<tr>
+			<table width="300" align="center">
+			<tr class="alternate_back">
 				<td><B>'.$TEXT_SCENARIO_NAME_CONST.'</B></td>
 				<td><textarea name="description" style="width:100%">'.$rowCG['Description'].'</textarea></td>
 			</tr>	
 			<tr>
 				<td><B>'.$TEXT_HINT_CONST.'</B> </td>
 				<td><input type="text" name="hint" value="'.$rowCG['Hint'].'" style="width:100%"></td>
+			</tr>
+			<tr class="alternate_back">
+				<td>&nbsp;</td>
+				<td>'.$scenarioImg.'</td>
+			</tr>		
+			<tr>
+				<td><B>'.$TEXT_PICTURE_CONST.'</B> </td>
+				<td><input type="file" name="pic" value=""></td>
 			</tr>	
-			<tr class="tablehead">
-				<td colspan="2">Using Wizard: <select name="wizard" onChange="document.scenarioWizard.submit();">
+			<tr class="alternate_back">
+				<td colspan="2"><B>'.$TEXT_EDIT_SCENARIO_USING_WIZARD_CONST.'</B> <select name="wizard" onChange="document.scenarioWizard.submit();">
 					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>
 					<option value="1" '.(($wizard==1)?'selected':'').'>'.$TEXT_CLIMATE_WIZARD_CONST.'</option>
 					<option value="2" '.(($wizard==2)?'selected':'').'>'.$TEXT_IRRIGATION_WIZARD_CONST.'</option>
@@ -65,9 +73,8 @@ if($action=='form') {
 				</td>
 			</tr>
 		</table>
-		<table>
+		<table align="center">
 			<tr>
-				<td align="center" valign="top">'.$scenarioImg.'<input type="file" name="pic" value=""></td>
 				<td>';
 	switch ($wizard){
 		case 0:
@@ -189,6 +196,9 @@ if($action=='form') {
 			$backLabel=$TEXT_BACK_CONST;
 		break;
 	}
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_SCENARIO_CONST.' #'.$cgID);
 	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array($TEXT_MY_SCENARIOS_CONST=>'index.php?section=myScenarios',$backLabel=>'index.php?section='.$from));
 	$output->setScriptCalendar('null');

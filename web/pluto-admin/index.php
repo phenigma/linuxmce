@@ -20,8 +20,8 @@ if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $se
 	// invalid session, destroy it and send user to login
 	unset($_SESSION);
 	session_destroy();
-	
-	die('<script>top.location="index.php"</script>');
+
+	die('<script>top.location="index.php?section=login"</script>');
 }
 
 validate_installation((int)@$_SESSION['installationID'],$dbADO);
@@ -1417,7 +1417,7 @@ switch ($section) {
 		$output->setTemplateFileType('homeWithFrames');
 		
 		$output->setLeftFrameSrc('index.php?section=wizard&rightSection=login');
-		$output->setRightFrameSrc('index.php?section=login');
+		$output->setRightFrameSrc('index.php?section=userHome');
 		
 		$output->setBody('');		
 		

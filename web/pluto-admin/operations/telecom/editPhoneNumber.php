@@ -56,6 +56,8 @@ function editPhoneNumber($output,$telecomADO) {
 		header("Location: index.php?section=phoneBook&msg=".@$msg);
 	}
 
+	$output->setMenuTitle($TEXT_PHONE_BOOK_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_PHONE_NUMBER_CONST);
 	$output->setScriptCalendar('null');
 	$output->setNavigationMenu(array($TEXT_PHONE_BOOK_CONST=>'index.php?section=phoneBook',$TEXT_EDIT_PHONE_NUMBER_CONST=>'index.php?section=editPhoneNumber&id='.$id));
 	$output->setBody($out);
@@ -90,11 +92,9 @@ function phoneNumberForm($telecomADO,$userID){
 			document.editPhoneNumber.DialAs.value=dialAs;
 		}
 	</script>	
+	<a href="index.php?section=phoneBook">'.$TEXT_PHONE_BOOK_CONST.'</a>
 	<input type="hidden" name="id" value="'.$id.'">
 	<table celspacing="0" cellpadding="3" align="center">
-		<tr>
-			<td colspan="2"><h3>'.$TEXT_EDIT_PHONE_NUMBER_CONST.'</h3></td>
-		</tr>
 		<tr>
 			<td><B>'.$TEXT_CONTACT_CONST.' *</B></td>
 			<td>'.pulldownFromArray($contacts,'contact',$pnData['FK_Contact'][0]).'</td>

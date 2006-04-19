@@ -3,6 +3,8 @@ function incomingCallsSettings($output,$dbADO,$telecomADO,$asteriskADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/incomingCallsSettings.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -19,8 +21,7 @@ function incomingCallsSettings($output,$dbADO,$telecomADO,$asteriskADO) {
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-		<h3 align="center">'.$TEXT_INCOMMING_CALLS_SETTINGS_CONST.'</h3>
-
+		<a href="index.php?section=phoneLines">'.$TEXT_BACK_CONST.'</a>
 		<form action="index.php" method="POST" name="incomingCallsSettings">
 			<input type="hidden" name="section" value="incomingCallsSettings">
 			<input type="hidden" name="action" value="update">
@@ -43,8 +44,10 @@ function incomingCallsSettings($output,$dbADO,$telecomADO,$asteriskADO) {
 		
 		header('Location: index.php?section=incomingCallsSettings&id='.$id.'&type='.$type.'&msg='.$TEXT_ICS_UPDATED_CONST);
 	}
-	
-	$output->setScriptCalendar('null');
+
+	$output->setMenuTitle($TEXT_PHONE_LINES_CONST.' |');
+	$output->setPageTitle($TEXT_INCOMMING_CALLS_SETTINGS_CONST);
+	$output->setNavigationMenu(array($TEXT_PHONE_LINES_CONST=>'index.php?section=phoneLines',$TEXT_INCOMMING_CALLS_SETTINGS_CONST=>'index.php?section=incomingCallsSettings&type='.$type.'&id='.$id));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
