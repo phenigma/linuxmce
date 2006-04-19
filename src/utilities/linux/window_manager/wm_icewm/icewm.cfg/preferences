@@ -62,10 +62,10 @@ LimitPosition=1 # 0/1
 LimitByDockLayer=1 # 0/1
 
 #  Consider border frames when maximizing horizontally
-ConsiderHBorder=1 # 0/1
+ConsiderHBorder=0 # 0/1
 
 #  Consider border frames when maximizing vertically
-ConsiderVBorder=1 # 0/1
+ConsiderVBorder=0 # 0/1
 
 #  Center maximized windows which can't fit the screen (like terminals)
 CenterMaximizedWindows=1 # 0/1
@@ -377,10 +377,10 @@ ButtonRaiseMask=1 # [0-255]
 DesktopWinMenuButton=0 # [0-20]
 
 #  Desktop mouse-button click to show the window list
-DesktopWinListButton=2 # [0-20]
+DesktopWinListButton=0 # [0-20]
 
 #  Desktop mouse-button click to show the root menu
-DesktopMenuButton=3 # [0-20]
+DesktopMenuButton=0 # [0-20]
 
 #  TitleBar mouse-button double click to maximize the window
 TitleBarMaximizeButton=1 # [0-5]
@@ -747,7 +747,7 @@ TitleBarJoinLeft=0 # 0/1
 TitleBarJoinRight=0 # 0/1
 
 #  Show application icon over menu button
-ShowMenuButtonIcon=1 # 0/1
+ShowMenuButtonIcon=0 # 0/1
 
 #  Horizontal window border
 BorderSizeX=0 # [0-128]
@@ -756,16 +756,16 @@ BorderSizeX=0 # [0-128]
 BorderSizeY=0 # [0-128]
 
 #  Horizontal dialog window border
-DlgBorderSizeX=1 # [0-128]
+DlgBorderSizeX=0 # [0-128]
 
 #  Vertical dialog window border
-DlgBorderSizeY=1 # [0-128]
+DlgBorderSizeY=0 # [0-128]
 
 #  Resize corner width
-CornerSizeX=24 # [0-64]
+CornerSizeX=0 # [0-64]
 
 #  Resize corner height
-CornerSizeY=24 # [0-64]
+CornerSizeY=0 # [0-64]
 
 #  Title bar height
 TitleBarHeight=1 # [0-128]
@@ -819,13 +819,13 @@ ThemeAuthor=""
 ThemeDescription=""
 
 #  Titlebar buttons from left to right (x=close,  m=max,  i=min,  h=hide, r=rollup,       s=sysmenu,      d=depth)
-TitleButtonsLeft="s"
+TitleButtonsLeft=""
 
 #  Titlebar buttons from right to left (x=close,  m=max,  i=min,  h=hide, r=rollup,       s=sysmenu,      d=depth)
-TitleButtonsRight="xmi"
+TitleButtonsRight=""
 
 #  Titlebar buttons supported by theme (x,m,i,r,h,s,d)
-TitleButtonsSupported="xmirhsd"
+TitleButtonsSupported=""
 
 #
 TitleFontName="-*-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
