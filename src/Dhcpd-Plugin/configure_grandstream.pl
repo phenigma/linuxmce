@@ -32,7 +32,7 @@ close(FILE);
 
 chomp($Device_EXT);
 
-sleep(20);
+sleep(10);
 system("rm -f /tmp/cookie");
 system("curl -c /tmp/cookie -d \"P2=admin&gnkey=0b82\" http://$Device_IP/dologin.htm > /dev/null");
 sleep(5);

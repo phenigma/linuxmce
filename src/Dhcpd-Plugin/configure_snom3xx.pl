@@ -32,5 +32,9 @@ close(FILE);
 
 chomp($Device_EXT);
 
+sleep(10);
 system("curl -d \"user_active1=on&user_realname1=$Device_EXT&user_name1=$Device_EXT&user_pass1=$Device_EXT&user_host1=192.168.80.1&user_pname1=$Device_EXT&Settings=Save\" \"http://$Device_IP/line_login.htm?l=1\" > /dev/null");
+sleep(3);
+system("curl -d \"user_expiry1=60&Settings=Save\" \"http://$Device_IP/line_sip.htm?l=1\" > /dev/null");
+sleep(3);
 system("curl -d \"REBOOT=Yes\" http://$Device_IP/confirm.htm > /dev/null");
