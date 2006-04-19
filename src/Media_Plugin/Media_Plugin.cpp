@@ -1157,7 +1157,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 		}
 
 		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
-        {
+		{
 			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
 				&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 			{
@@ -1167,10 +1167,10 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				return true;
 			}
 
-            g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
-            return false;
-        }
-        pEntertainArea=pOH_Orbiter->m_pEntertainArea;
+			g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+			return false;
+        	}
+		pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
 		// Add some stuff to the message parameters
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
