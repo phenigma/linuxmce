@@ -49,8 +49,9 @@
 #include "OSDScreenHandler.h"
 #include "MouseBehavior_Linux.h"
 
-#include "../wxAppMain/wx_dialog_types.h"
 #include "../CallBackTypes.h"
+
+#include "../dialog_types.h"
 
 using namespace std;
 
@@ -408,30 +409,30 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
 	CallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
-	CallBackType callbackType = cbOnWxWidgetRefresh;
+	CallBackType callbackType = cbOnDialogRefresh;
 	if(nProgress != -1)
 	{
 		if(!bDialogRunning)
 		{
-			callbackType = cbOnWxWidgetCreate;
+			callbackType = cbOnDialogCreate;
 			bDialogRunning = true;
 		}
 		//else assuming it's a refresh
 	}
 	else
 	{
-		callbackType = cbOnWxWidgetDelete;
+		callbackType = cbOnDialogDelete;
 		bDialogRunning = false;
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
-    if (callbackType == cbOnWxWidgetCreate)
+    if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
         m_WinListManager.MaximizeWindow("dialog");
     }
     else
     {
-        if (callbackType == cbOnWxWidgetDelete)
+        if (callbackType == cbOnDialogDelete)
 		{
             m_WinListManager.HideAllWindows();
 			TaskManager::Instance().AddTaskAndWait(pTask);
@@ -523,30 +524,30 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
 	CallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
-	CallBackType callbackType = cbOnWxWidgetRefresh;
+	CallBackType callbackType = cbOnDialogRefresh;
 	if(nProgress != -1)
 	{
 		if(!bDialogRunning)
 		{
-			callbackType = cbOnWxWidgetCreate;
+			callbackType = cbOnDialogCreate;
 			bDialogRunning = true;
         }
 		//else assuming it's a refresh
 	}
 	else
 	{
-		callbackType = cbOnWxWidgetDelete;
+		callbackType = cbOnDialogDelete;
 		bDialogRunning = false;
 	}
 	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
-    if (callbackType == cbOnWxWidgetCreate)
+    if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
         m_WinListManager.MaximizeWindow("dialog");
     }
     else
     {
-        if (callbackType == cbOnWxWidgetDelete)
+        if (callbackType == cbOnDialogDelete)
 		{
             m_WinListManager.HideAllWindows();
 			TaskManager::Instance().AddTaskAndWait(pTask);
@@ -635,10 +636,10 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
-	WMTask *pTask = TaskManager::Instance().CreateTask(cbOnWxWidgetCreate, E_Dialog_WaitUser, pCallBackData);
+	WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
     m_WinListManager.MaximizeWindow("dialog");
-	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnWxWidgetWaitUser, E_Dialog_WaitUser, pCallBackData);
+	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 #else // (USE_TASK_MANAGER)

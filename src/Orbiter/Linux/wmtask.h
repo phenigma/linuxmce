@@ -4,7 +4,7 @@
 // Window Message Task
 
 #include "../CallBackTypes.h"
-#include "../wxAppMain/wx_dialog_types.h"
+#include "../dialog_types.h"
 
 class CallBackData;
 

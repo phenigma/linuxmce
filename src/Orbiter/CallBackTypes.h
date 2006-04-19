@@ -4,13 +4,14 @@
 //used by screen handler class
 enum CallBackType
 {
+    cbUnused,
     cbDataGridSelected,
     cbObjectSelected,
-    cbOnWxWidgetCreate,   // create a unique dialog
-    cbOnWxWidgetDelete,   // close dialog without saving data
-    cbOnWxWidgetRefresh,  // refresh dialog with new data
-    cbOnWxWidgetSave,     // save data from dialog
-    cbOnWxWidgetWaitUser, // wait for an user action
+    cbOnDialogCreate,   // create a unique dialog
+    cbOnDialogDelete,   // close dialog without saving data
+    cbOnDialogRefresh,  // refresh dialog with new data
+    cbOnDialogSave,     // save data from dialog
+    cbOnDialogWaitUser, // wait for an user action
     cbOnKeyDown,
     cbOnKeyUp,
     cbOnMouseDown,

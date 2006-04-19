@@ -838,14 +838,14 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnWxWidgetRefresh);
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogRefresh);
 		if(pCallBackData)
 		{
 			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
 			pPositionData->m_rectPosition = pObj->m_rPosition;
 		}
 
-		if(ExecuteScreenHandlerCallback(cbOnWxWidgetRefresh))
+		if(ExecuteScreenHandlerCallback(cbOnDialogRefresh))
 			return;
 	}
 
@@ -1528,14 +1528,14 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 {
 	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnWxWidgetCreate);
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogCreate);
 		if(pCallBackData)
 		{
 			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
 			pPositionData->m_rectPosition = pObj->m_rPosition;
 		}
 
-		if(ExecuteScreenHandlerCallback(cbOnWxWidgetCreate))
+		if(ExecuteScreenHandlerCallback(cbOnDialogCreate))
 			return;
 	}
 
@@ -1599,7 +1599,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 	if( m_pObj_Highlighted==pObj )
 		m_pObj_Highlighted = NULL;  // Otherwise an object on popup removed from the screen may remain highlighted
 		
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnWxWidgetDelete))
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnDialogDelete))
 		return;
 
 	pObj->m_bOnScreen=false;
@@ -10127,7 +10127,7 @@ void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
 	{
 		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
 		if(pChildObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-			ExecuteScreenHandlerCallback(cbOnWxWidgetDelete);
+			ExecuteScreenHandlerCallback(cbOnDialogDelete);
 
 		FireDeleteWxWidget(pChildObj);
 	}
