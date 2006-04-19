@@ -16,6 +16,12 @@
 #ifndef POCKETFROG_FRAMEWORK_GAME_H
 #define POCKETFROG_FRAMEWORK_GAME_H
 
+#ifdef WINCE
+//other defs
+#endif
+
+#define WM_MOUSEWHEEL 0x020A
+
 #include "../../PocketFrog.h"
 
 #include <atlbase.h>
@@ -27,7 +33,15 @@ extern CComModule _Module;
 namespace Frog
 {
 
-
+enum MouseButton
+{
+	mbLeft,
+	mbRight,
+	mbMiddle,
+	mbCustom1,
+	mbCustom2,
+	mbCustom3
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -43,9 +57,14 @@ class Game : public CWindowImpl<Game>
         MESSAGE_HANDLER( WM_KEYDOWN,     OnKeyDown )
         MESSAGE_HANDLER( WM_KEYUP,       OnKeyUp )
         MESSAGE_HANDLER( WM_LBUTTONDOWN, OnMouseEvent )
-        MESSAGE_HANDLER( WM_MOUSEMOVE,   OnMouseEvent )
         MESSAGE_HANDLER( WM_LBUTTONUP,   OnMouseEvent )
-        MESSAGE_HANDLER( WM_ACTIVATE,    OnActivate )
+		MESSAGE_HANDLER( WM_RBUTTONDOWN, OnMouseEvent )
+		MESSAGE_HANDLER( WM_RBUTTONUP,   OnMouseEvent )
+		MESSAGE_HANDLER( WM_MBUTTONDOWN, OnMouseEvent )
+		MESSAGE_HANDLER( WM_MBUTTONUP,   OnMouseEvent )
+		MESSAGE_HANDLER( WM_MOUSEMOVE,   OnMouseEvent )
+		MESSAGE_HANDLER( WM_MOUSEWHEEL,  OnMouseEvent )
+		MESSAGE_HANDLER( WM_ACTIVATE,    OnActivate )
         MESSAGE_HANDLER( WM_SETFOCUS,    OnSetFocus )
         MESSAGE_HANDLER( WM_KILLFOCUS,   OnKillFocus )
 		MESSAGE_HANDLER( WM_PAINT,		 OnPaint )
@@ -84,9 +103,10 @@ protected:
     virtual void ButtonUp( int button );
 
     // Stylus events
-    virtual void StylusDown( Point p );
+    virtual void StylusDown( Point p, MouseButton aMouseButton );
     virtual void StylusMove( Point p );
-    virtual void StylusUp( Point p );
+    virtual void StylusUp( Point p, MouseButton aMouseButton );
+	virtual void StylusWheel( Point p, int delta);
     
     // Splashscreen
     virtual void SplashScreen();

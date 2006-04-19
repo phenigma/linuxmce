@@ -328,23 +328,25 @@ void Game::ButtonUp( int button )
 
 
 
-void Game::StylusDown( Point p )
+void Game::StylusDown( Point p, MouseButton aMouseButton )
 {
-	Shutdown();
+
 }
-
-
 
 void Game::StylusMove( Point p )
 {
+
 }
 
-
-
-void Game::StylusUp( Point p )
+void Game::StylusUp( Point p, MouseButton aMouseButton )
 {
+
 }
 
+void Game::StylusWheel( Point p, int delta )
+{
+
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -423,9 +425,14 @@ LRESULT Game::OnMouseEvent( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandl
 
     switch(msg)
     {
-    case WM_LBUTTONDOWN: StylusDown( P ); break;
-    case WM_MOUSEMOVE:   StylusMove( P ); break;
-    case WM_LBUTTONUP:   StylusUp( P );   break;
+		case WM_LBUTTONDOWN: StylusDown( P, mbLeft );				break;
+		case WM_LBUTTONUP:   StylusUp( P, mbLeft );					break;
+		case WM_RBUTTONDOWN: StylusDown( P, mbRight );				break;
+		case WM_RBUTTONUP:   StylusUp( P, mbRight );				break;
+		case WM_MBUTTONDOWN: StylusDown( P, mbMiddle );				break;
+		case WM_MBUTTONUP:   StylusUp( P, mbMiddle );				break;
+		case WM_MOUSEMOVE:   StylusMove( P );						break;
+		case WM_MOUSEWHEEL:	 StylusWheel( P , static_cast<signed short>(HIWORD(wparam))); break;
     }
     
     return 0;
