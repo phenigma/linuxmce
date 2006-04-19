@@ -383,10 +383,10 @@ DesktopWinListButton=0 # [0-20]
 DesktopMenuButton=0 # [0-20]
 
 #  TitleBar mouse-button double click to maximize the window
-TitleBarMaximizeButton=1 # [0-5]
+TitleBarMaximizeButton=0 # [0-5]
 
 #  TitleBar mouse-button double click to rollup the window
-TitleBarRollupButton=2 # [0-5]
+TitleBarRollupButton=0 # [0-5]
 
 #  Preselect to Cancel (0) or the OK (1) button in message boxes
 MsgBoxDefaultAction=1 # [0-1]
@@ -747,7 +747,7 @@ TitleBarJoinLeft=0 # 0/1
 TitleBarJoinRight=0 # 0/1
 
 #  Show application icon over menu button
-ShowMenuButtonIcon=0 # 0/1
+ShowMenuButtonIcon=1 # 0/1
 
 #  Horizontal window border
 BorderSizeX=0 # [0-128]
@@ -768,7 +768,7 @@ CornerSizeX=0 # [0-64]
 CornerSizeY=0 # [0-64]
 
 #  Title bar height
-TitleBarHeight=1 # [0-128]
+TitleBarHeight=0 # [0-128]
 
 #  Justification of the window title
 TitleBarJustify=0 # [0-100]
