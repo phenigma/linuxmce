@@ -37,6 +37,8 @@ function sortScenarios($output,$dbADO) {
 		<input type="hidden" name="'.$sortBy.'ID" value="">
 		<input type="hidden" name="editedCgID" value="">	
 		<input type="hidden" name="sortBy" value="'.$sortBy.'">
+		<input type="hidden" name="from" value="'.$_REQUEST['from'].'">
+		
 	'.@$backLink.'
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
 		if(count($areasArray)==0){

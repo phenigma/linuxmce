@@ -63,7 +63,7 @@ function editTimedEvent($output,$dbADO) {
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		<input type="hidden" name="oldWizard" value="'.$wizard.'">
 		
-		<div align="center"><h3>'.$TEXT_EDIT_TIMED_EVENT_CONST.'</h3></div>
+		<a href="index.php?section=timedEvents">'.$TEXT_BACK_CONST.'</a>
 		<table border="0" align="center" width="700">
 		';
 		$out.='
@@ -339,7 +339,9 @@ function editTimedEvent($output,$dbADO) {
 		
 		header('Location: index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated');
 	}
-	
+
+	$output->setMenuTitle($TEXT_TIMED_EVENTS_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_TIMED_EVENT_CONST.' #'.$eventHandlerID);
 	$output->setNavigationMenu(array("Timed Events"=>'index.php?section=timedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			

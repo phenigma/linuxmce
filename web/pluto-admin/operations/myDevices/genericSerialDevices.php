@@ -191,11 +191,11 @@ function genericSerialDevices($output,$dbADO) {
 					$buttons='	
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br> ';
-					$buttons.=' <input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');">';
+						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>';
+					$buttons.='<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');">';
 					if($rowD['FK_DeviceTemplate']==$GLOBALS['CanBus']){
-						$buttons.=' <br><input type="submit" class="button_fixed" name="reinit_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_CANBUS_CONST.'" >';
-						$buttons.=' <br><input type="submit" class="button_fixed" name="reinit_noemon_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_NOEMON_CONST.'" >';
+						$buttons.='<br><input type="submit" class="button_fixed" name="reinit_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_CANBUS_CONST.'" >';
+						$buttons.='<br><input type="submit" class="button_fixed" name="reinit_noemon_'.$rowD['PK_Device'].'" value="'.$TEXT_REINIT_NOEMON_CONST.'" >';
 					}
 					
 					$out.='</td>';

@@ -262,7 +262,7 @@ $start_time=getmicrotime();
 				if(@$childOf[$rowD['PK_Device']]==''){
 					$out.='
 					<tr>
-						<td align="center" calss="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
+						<td align="center" class="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 						<td  align="right">'.$roomPulldown.'</td>
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>

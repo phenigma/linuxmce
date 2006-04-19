@@ -224,6 +224,9 @@ function telecomScenarios($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
+					<td align="left" colspan="2"><em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em></td>
+				</tr>
+				<tr>
 					<td align="center" colspan="2"><input type="submit" class="button" name="addSpeedDial" value="'.$TEXT_ADD_SPEED_DIAL_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
 				</tr>
 			</table>

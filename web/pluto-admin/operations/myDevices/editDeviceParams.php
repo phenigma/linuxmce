@@ -513,6 +513,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 		INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
 		WHERE PK_Device=?';
+
 	$resDevice=$dbADO->Execute($queryDevice,$deviceID);
 	$firstDevice=0;
 	$deviceDataArray=array();
@@ -523,11 +524,12 @@ $installationID = (int)@$_SESSION['installationID'];
 		if($rowD['PK_Device']!=$firstDevice){
 			$firstDevice=$rowD['PK_Device'];
 			$deviceDataArray[$firstDevice]=array();
+			$deviceDataArray[$firstDevice][]=$rowD;
 		}else{
 			$deviceDataArray[$firstDevice][]=$rowD;
 		}					
 	}
-	
+
 /*	
 	$deviceData = array();
 	$deviceData[]=0;
