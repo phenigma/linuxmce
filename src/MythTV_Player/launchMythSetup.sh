@@ -1,9 +1,13 @@
 #!/bin/bash
 
+. /usr/pluto/bin/LockUtils.sh
+
+# Lock the MythBackend lock to prevent backend restarting
+WaitLock "MythBackend" "launchMythSetup" nolog
 
 MYTH_SETUP_PIDS=`pidof mythtv-setup`;
 
-if [ "$MYTH_SETUP_PIDS" != "" ]; then 
+if [[ -n "$MYTH_SETUP_PIDS" ]]; then 
 	killall mythtv-setup
 fi;
 
@@ -13,7 +17,7 @@ echo -e "\n\n" | mythtv-setup
 
 /etc/init.d/mythtv-backend force-reload
 
-PID=`pidof mmythfilldatabase`;
+PID=`pidof mythfilldatabase`;
 
 if [ "$PID" != "" ] ; then 
 	kill -9 $PID;
@@ -24,3 +28,4 @@ fi;
 # sleep 1;
 
 # /usr/pluto/bin/ratpoison -c "select mythtv-setup";
+Unlock "MythBackend" "launchMythSetup" nolog
