@@ -265,6 +265,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //		Display *XServerDisplay;
 //	    if( (XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) != NULL)
 //	    {
+//	    	XLockDisplay(XServerDisplay);
 //		    int iCurrentScreen   = XDefaultScreen(XServerDisplay);
 //			static Window w=0;
 //			if( w )
@@ -282,6 +283,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //			XMapWindow(XServerDisplay, w);
 
 //			XSync(XServerDisplay, True);
+//	    	XUnlockDisplay(XServerDisplay);
 //			g_pPlutoLogger->Write(LV_STATUS,"Window %d",(int) w);
 //		}
 //#endif
