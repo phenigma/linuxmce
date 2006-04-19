@@ -17,7 +17,7 @@
 
 #include "XineSlaveWrapper.h"
 //#include "SlimServerClient.h"
-#include "utilities/linux/RatpoisonHandler.h"
+//#include "utilities/linux/RatpoisonHandler.h"
 
 //<-dceag-decl-b->! custom
 
@@ -25,7 +25,7 @@ class SlimServerClient;
 
 namespace DCE
 {
-	class Xine_Player : public Xine_Player_Command, public RatpoisonHandler<Xine_Player>
+	class Xine_Player : public Xine_Player_Command/*, public RatpoisonHandler<Xine_Player>*/
 	{
 	//<-dceag-decl-e->
 	private:

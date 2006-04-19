@@ -217,7 +217,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		return;
 	}
 
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison
+    //makeActive(m_pXineSlaveControl->getRenderingWindowName());
 
 	if ( sFilename.substr(0, strlen("slim://")).compare("slim://") == 0)
 	{
@@ -648,7 +649,9 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison	
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	
 	m_pXineSlaveControl->simulateMouseClick(iPosition_X, iPosition_Y);
 }
 
@@ -668,7 +671,8 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
         return;
     }
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_SELECT);
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Enter_CONST);
 }
@@ -692,7 +696,8 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_UP);
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
 }
@@ -716,7 +721,8 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_DOWN);
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Down_Arrow_CONST);
 }
@@ -742,7 +748,8 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 		return;
 
 	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	// this is using ratpoison
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_LEFT);
 }
 
@@ -765,7 +772,8 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	//this is using ratpoison
+	//makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_RIGHT);
 //	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
 }
