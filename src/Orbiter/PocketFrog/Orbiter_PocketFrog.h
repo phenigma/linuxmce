@@ -64,9 +64,11 @@ public:
     virtual void GameLoop();
 	virtual void ShowWindowCustom();
 
-    virtual void StylusDown( Point stylus );
-    virtual void StylusUp( Point stylus );
-    virtual void StylusMove( Point stylus );
+	virtual void StylusDown( Point p, MouseButton aMouseButton );
+	virtual void StylusMove( Point p );
+	virtual void StylusUp( Point p, MouseButton aMouseButton );
+	virtual void StylusWheel( Point p, int delta);
+
 	virtual bool PocketFrogButtonDown(int button);
 	virtual bool PocketFrogButtonUp(int button); 
 	virtual void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);

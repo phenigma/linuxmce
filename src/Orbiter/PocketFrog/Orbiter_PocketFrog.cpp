@@ -360,21 +360,39 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 {
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::StylusDown( Point stylus )
+/*virtual*/ void Orbiter_PocketFrog::StylusDown( Point p, MouseButton aMouseButton )
 {
-	RegionDown(stylus.x, stylus.y);
-	RecordMouseAction(stylus.x, stylus.y);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> Orbiter_PocketFrog::StylusDown(%d, %d, button: %d)",
+		p.x, p.y, aMouseButton);
+#endif
+
+	RegionDown(p.x, p.y);
+	RecordMouseAction(p.x, p.y);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::StylusUp( Point stylus )
+/*virtual*/ void Orbiter_PocketFrog::StylusUp( Point p, MouseButton aMouseButton )
 {
-	RegionUp(stylus.x, stylus.y);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> Orbiter_PocketFrog::StylusUp(%d, %d, button: %d)",
+		p.x, p.y, aMouseButton);
+#endif
+
+	RegionUp(p.x, p.y);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::StylusMove( Point stylus )
+/*virtual*/ void Orbiter_PocketFrog::StylusMove( Point p )
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	m_pMouseBehavior->Move(stylus.x, stylus.y);
+	m_pMouseBehavior->Move(p.x, p.y);
+#endif
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::StylusWheel( Point p, int delta)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> Orbiter_PocketFrog::StylusWheel(%d, %d, delta: %d)",
+		p.x, p.y, delta);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
