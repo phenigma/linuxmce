@@ -82,7 +82,7 @@ using namespace DCE;
 void WriteStatusOutput(const char *) {} //do nothing
 #endif
 
-#define  VERSION "2.0.0.39.06041822"
+#define  VERSION "<=version=>"
 extern const char *g_szCompile_Date;
 extern Command_Impl *g_pCommand_Impl;
 
