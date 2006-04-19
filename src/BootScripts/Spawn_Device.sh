@@ -145,6 +145,11 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 			Logging $TYPE $SEVERITY_WARNING "$module" "Device was disabled or removed. Stopping and marking as not running."
 			sed -i "/^$device_id$/ d" "$AlreadyRunning"
+			if [[ "$cmd_line" == *gc100* ]]; then
+				Logging $TYPE $SEVERITY_STATUS "$module" "Device is gc100. Updating available serial ports"
+				rm -f /dev/ttyS_"$device_id"_*
+				/usr/pluto/bin/UpdateAvailableSerialPorts.sh
+			fi
 			Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 			break
 		fi
