@@ -1009,18 +1009,6 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 	if( iField_psc_id!=-1 )
 	{
-		sSQL.str( "" );
-		sSQL << "ALTER TABLE `" << sTableName << "` drop index `psc_id`";
-		m_pDatabase->threaded_mysql_query( sSQL.str( ), true);
-
-		sSQL.str( "" );
-		sSQL << "ALTER TABLE `" << sTableName << "` add unique `psc_id` ( `psc_id` )";
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
-		{
-			cerr << "SQL Failed: " << sSQL.str( ) << endl;
-			throw "Database error";
-		}
-
 		// If this has an auto-increment field, it's possible the user added
 		// some records locally with an ID that will conflict with a new import.  If so
 		// we have to relocate those records.  We'll keep a list of all such records
