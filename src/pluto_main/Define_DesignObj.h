@@ -2017,7 +2017,8 @@
 #define DESIGNOBJ_butDiscreteCodesDSPModes_CONST 4945
 #define DESIGNOBJ_butToggleCodesDSPModes_CONST 4946
 #define DESIGNOBJ_appTVDSPModesOrder_CONST 4947
-#define DESIGNOBJ_appSpeedControl_CONST 4949
+#define DESIGNOBJ_dgFileList2_CONST 4949
+#define DESIGNOBJ_appSpeedControl_CONST 4950
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
