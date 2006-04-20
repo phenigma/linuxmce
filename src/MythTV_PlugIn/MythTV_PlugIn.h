@@ -22,7 +22,7 @@
 
 class Database_FakeEPG;
 class Row_Listing;
-
+class EPGGrid;
 class MythTvWrapper;
 class MySqlHelper;
 
@@ -37,7 +37,7 @@ namespace DCE
         // friend class MythTvStream;
 		MySqlHelper *m_pMySqlHelper_Myth;
 		map<int, int> m_mapMythInputsToDevices;
-
+		EPGGrid *m_pEPGGrid;
 		DeviceData_Router *m_pMythBackend_ProxyDevice;
 
 		/** Private member variables */

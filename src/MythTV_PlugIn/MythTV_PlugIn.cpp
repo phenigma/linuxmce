@@ -27,6 +27,7 @@ using namespace DCE;
 #include "../pluto_main/Table_EventParameter.h"
 
 #include "DataGrid.h"
+#include "EPGGrid.h"
 #include "MythTvMediaStream.h"
 #ifndef WIN32
 //#include "MythTvWrapper.h"
@@ -41,7 +42,8 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pMythBackend_ProxyDevice = NULL;
+	m_pEPGGrid = NULL;
+    	m_pMythBackend_ProxyDevice = NULL;
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 //	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
@@ -59,6 +61,7 @@ bool MythTV_PlugIn::GetConfig()
 #else
 	m_pMySqlHelper_Myth = new MySqlHelper("192.168.80.1","root","","mythconverg");
 #endif
+	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 	return true;
 }
 
@@ -432,11 +435,13 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Current Shows datagrid called");
-	
-	MythTvMediaStream *pMythTvMediaStream = NULL;
+	return m_pEPGGrid;
 
-	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
+//	g_pPlutoLogger->Write(LV_STATUS, "Current Shows datagrid called");
+	
+//s	MythTvMediaStream *pMythTvMediaStream = NULL;
+
+/*	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
 	    return new DataGridTable();
 
     	DataGridTable *pDataGrid = new DataGridTable();
@@ -458,7 +463,6 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			pCell = new DataGridCell(row[1]+string("\n")+row[2], row[1]);
-			pCell->m_PK_StyleDetail=16;
 			size_t fSize;
 			char *fLogo;
 			fLogo=FileUtils::ReadFileIntoBuffer(row[5], fSize);
@@ -469,13 +473,11 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	
 			pDataGrid->SetData(1,iRow,pCell);
 			pCell = new DataGridCell(row[3]);
-			pCell->m_PK_StyleDetail=16;
 			pDataGrid->SetData(2,iRow++,pCell);
-						
 		}
 	}
 	
-    return pDataGrid;
+    return pDataGrid;*/
 }
 
 bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
