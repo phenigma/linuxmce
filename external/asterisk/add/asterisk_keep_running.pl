@@ -23,8 +23,6 @@ unless($ast_run eq 2)
         $TROUBLE_LEVEL = 7;
         &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
         &send_message("Asterisk is not running, voip will be unavailable");
-        &write_log("END RUN\n\n\n");
-        exit(1);
     }
 }
 sleep(5);
@@ -126,8 +124,6 @@ while (1 eq 1)
                         $TROUBLE_LEVEL = 7;
                         &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
                         &send_message("Asterisk is not running, voip will be unavailable");
-                        &write_log("END RUN\n\n\n");
-                        exit(1);
                     }
                     unless($LOG_MESSAGE eq "")
                     {
@@ -171,8 +167,6 @@ while (1 eq 1)
                     $TROUBLE_LEVEL = 7;
                     &write_log("Asterisk STILL NOT running, check /var/log/asterisk/full for details");
                     &send_message("Asterisk is not running, voip will be unavailable");
-                    &write_log("END RUN\n\n\n");
-                    exit(1);
                 }
             }
             $LOG_MESSAGE = "";
@@ -365,10 +359,6 @@ sub check_network_conditions()
                 &write_log("    ---");
             }
         }
-    }
-    if(&check_network_ping() != 0)
-    {
-        &write_log("    Do you have a connection to the internet ?")
     }
     if($TROUBLE_LEVEL > 0)
     {
