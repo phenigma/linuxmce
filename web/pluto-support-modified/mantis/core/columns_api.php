@@ -585,13 +585,13 @@
 	function print_column_date_submitted( $p_row, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
 		global $t_filter;
 
-		$t_last_updated = date( config_get( 'short_date_format' ), $p_row['last_updated'] );
+		$t_date_submitted = date( config_get( 'short_date_format' ), $p_row['date_submitted'] );
 
 		echo '<td class="center">';
 		if ( $p_row['last_updated'] > strtotime( '-'.$t_filter['highlight_changed'].' hours' ) ) {
-			printf( '<span class="bold">%s</span>', $t_last_updated );
+			printf( '<span class="bold">%s</span>', $t_date_submitted);
 		} else {
-			echo $t_last_updated;
+			echo $t_date_submitted;
 		}
 		echo '</td>';
 	}	

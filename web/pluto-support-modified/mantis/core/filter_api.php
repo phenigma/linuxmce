@@ -851,6 +851,22 @@
 			$t_order_array[] = 'date_submitted DESC';
         }
 
+        $t_group='';
+		if (  in_array( 'date_resolved', $t_sort_fields ) ) {
+			$t_join.=' LEFT JOIN mantis_bug_history_table resolved_table ON mantis_bug_table.id=resolved_table.bug_id AND resolved_table.field_name=\'status\' AND resolved_table.new_value=80';
+			$t_select_clauses[]='resolved_table.date_modified AS date_resolved';
+			$t_group='GROUP BY resolved_table.bug_id';
+			$t_order_array[]="resolved_table.date_modified DESC";
+        }
+
+   		if (  in_array( 'date_closed', $t_sort_fields ) ) {
+			$t_join.=' LEFT JOIN mantis_bug_history_table closed_table ON mantis_bug_table.id=closed_table.bug_id AND closed_table.field_name=\'status\' AND closed_table.new_value=90';
+			$t_select_clauses[]='closed_table.date_modified AS date_closed';
+			$t_group=($t_group=='')?'GROUP BY closed_table.bug_id':$t_group.',closed_table.bug_id';
+			$t_order_array[]="closed_table.date_modified DESC";
+        }
+
+
 		$t_order = " ORDER BY " . implode( ', ', $t_order_array );
 		$t_select	= implode( ', ', array_unique( $t_select_clauses ) );
 
@@ -858,6 +874,7 @@
 					$t_from
 					$t_join
 					$t_where
+					$t_group
 					$t_order";
 
 		# Figure out the offset into the db query
