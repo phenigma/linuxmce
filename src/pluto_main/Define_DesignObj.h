@@ -2019,6 +2019,16 @@
 #define DESIGNOBJ_appTVDSPModesOrder_CONST 4947
 #define DESIGNOBJ_dgFileList2_CONST 4949
 #define DESIGNOBJ_appSpeedControl_CONST 4950
+#define DESIGNOBJ_grpOther_CONST 4951
+#define DESIGNOBJ_butFloorplans_CONST 4952
+#define DESIGNOBJ_butSettings_CONST 4953
+#define DESIGNOBJ_popFloorplan_CONST 4960
+#define DESIGNOBJ_popAdvanced_CONST 4961
+#define DESIGNOBJ_popAudioOptions_CONST 4962
+#define DESIGNOBJ_popCDOptions_CONST 4963
+#define DESIGNOBJ_popVideoOptions_CONST 4964
+#define DESIGNOBJ_popCDTracks_CONST 4965
+#define DESIGNOBJ_popSpeedControl_temp_CONST 4966
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
