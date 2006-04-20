@@ -26,7 +26,7 @@ static pid_t * my_motion_pid = NULL;
 
 void StartMotion(pid_t * pid)
 {
-	if (pid == NULL)
+	if (pid != NULL)
 		my_motion_pid = pid;
 	if (my_motion_pid == NULL)
 	{
