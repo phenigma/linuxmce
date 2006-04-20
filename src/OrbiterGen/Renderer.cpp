@@ -160,8 +160,6 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 {
 	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
-if( pDesignObj_Generator->m_ObjectID.find("2071")==string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
-return;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 	if( pDesignObj_Generator->m_ObjectID.find("4878")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
