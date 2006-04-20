@@ -126,50 +126,6 @@ RingDetectHandler::handleToken(Token* ptoken) {
 								g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
 							}
 						}
-						else
-						{
-							pos = exten.find("000");
-							g_pPlutoLogger->Write(LV_STATUS, "exten=%s confpos=%d",exten.c_str(),pos);							
-							if(pos==0)
-							{
-								g_pPlutoLogger->Write(LV_STATUS, "Hangup from conference");
-								pos = newchan.find(' ');
-								if(pos<0)
-								{
-									g_pPlutoLogger->Write(LV_STATUS, "Already empty conference");								
-									delete_list.push_back(it);
-								}
-								newpos=newchan.find_first_not_of(' ', pos);
-								if(newpos<0)
-								{
-									g_pPlutoLogger->Write(LV_STATUS, "Already empty conference");								
-									delete_list.push_back(it);
-								}
-								pos = newchan.find(' ', newpos);
-								string first_channel;
-								if(pos<0)
-								{
-									first_channel = newchan.substr(newpos,newchan.length());
-								}
-								else
-								{
-									first_channel = newchan.substr(newpos,pos-newpos);
-								}
-								newpos=newchan.find_first_not_of(' ', pos);
-								
-								if(first_channel!="" && newpos<0)
-								{
-									string first_channel_id;
-									Utils::ParseChannel(first_channel, &first_channel_id);
-									g_pPlutoLogger->Write(LV_STATUS, "Also notify hangup on %s",first_channel_id.c_str());
-									manager->NotifyHangup(first_channel_id);
-									manager->Hangup(first_channel,0);
-									delete_list.push_back(it);
-									g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty conference");
-								}
-							}
-							
-						}
 					}
 					success=true;
 				}
