@@ -38,17 +38,17 @@ void MediaMouseHandler::Start()
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
+		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),
+			pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y + (pObj_Grid->m_rPosition.Height/2));
+	}
+	else
+	{
+		m_bTapAndRelease=false;
 		int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
 		int Y = CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y;
 		int X = pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);
-	}
-	else
-	{
-		m_bTapAndRelease=false;
-		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),
-			pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y + (pObj_Grid->m_rPosition.Height/2));
 	}
 	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_Grid;
 }
@@ -108,7 +108,7 @@ void MediaMouseHandler::Move(int X,int Y)
 		return; // Again shouldn't happen
 
 	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
-	if( m_bTapAndRelease )
+	if( m_bTapAndRelease==false )  // Discrete positioning
 	{
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
 		int YDiff = Y - pObj_Grid->m_rPosition.Y - pObj_Grid->m_pPopupPoint.Y;

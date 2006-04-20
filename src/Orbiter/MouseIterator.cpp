@@ -126,7 +126,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Sending vol : %d",m_dwParm);
 	case if_Light:
 g_pPlutoLogger->Write(LV_FESTIVAL,"Sending light : %d",m_dwParm);
 		{
-			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(m_dwParm*10));
+			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,(m_dwParm>0 ? "+" : "") + StringUtils::itos(m_dwParm*10));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 		}
 		break;

@@ -18,6 +18,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 {
 	m_pObj_Highlighted = NULL;
 	m_bFirstTime=true;
+	m_bActivatedObject = false;
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
 	{
 		DesignObj_Orbiter *pObj_First = m_pMouseBehavior->m_pOrbiter->FindObject(
@@ -36,6 +37,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 
 void LockedMouseHandler::Start()
 {
+	m_bActivatedObject = false;
 	if( m_bFirstTime )
 		m_bFirstTime=false;
 	else if( m_pObj_Highlighted )
@@ -58,7 +60,10 @@ void LockedMouseHandler::Stop()
 bool LockedMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST )
+	{
+		m_bActivatedObject = true;
 		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+	}
 
 	return false; // Keep processing
 }
@@ -69,7 +74,10 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 	{
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 		if(  m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
+		{
+			m_bActivatedObject = true;
 			m_pMouseBehavior->m_pOrbiter->SelectedObject( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smNavigation );
+		}
 		else
 			m_pMouseBehavior->Clear();   // ** WARNING -- this will be deleted exit immediately
 		return false;

@@ -27,6 +27,7 @@ namespace DCE
 
 	public:
 		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_ScrollingGrid=NULL; }
+		virtual EMouseHandler TypeOfMouseHandler() { return mh_Keyboard; }
 
 		void Start();
 		void Stop();

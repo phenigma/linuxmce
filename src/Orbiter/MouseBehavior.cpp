@@ -42,6 +42,8 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor = new MouseGovernor(this);
 	m_pMouseIterator = new MouseIterator(this);
+	m_iPK_Button_Mouse_Last=0;
+    m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	Clear();
 }
 
@@ -77,8 +79,6 @@ void MouseBehavior::Clear()
 	delete m_pMouseHandler_Horizontal;
 	delete m_pMouseHandler_Vertical;
 	m_pMouseHandler_Horizontal=m_pMouseHandler_Vertical=NULL;
-	m_iPK_Button_Mouse_Last=0;
-    m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor->SetBuffer(0);
 	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
@@ -361,10 +361,15 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen!=mb_Ambiance )
 	{
 		m_EMenuOnScreen=mb_Ambiance;
-		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popVolume_CONST),263,526,"","horiz",false,false);
-		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST),0,0,"","left",false,false);
-		Set_Mouse_Behavior("V",false,"X",StringUtils::itos(DESIGNOBJ_popVolume_CONST));
-		Set_Mouse_Behavior("G",false,"Y",StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST));
+		DesignObj_Orbiter *pObj_Lights = m_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
+		DesignObj_Orbiter *pObj_Volume = m_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
+		if( pObj_Lights && pObj_Volume )
+		{
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popVolume_CONST),pObj_Lights->m_rPosition.Width + m_pOrbiter->m_Width/20,m_pOrbiter->m_Height*.95 - pObj_Volume->m_rPosition.Height,"","horiz",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST),m_pOrbiter->m_Width/20,0,"","left",false,false);
+			Set_Mouse_Behavior("V",false,"X",StringUtils::itos(DESIGNOBJ_popVolume_CONST));
+			Set_Mouse_Behavior("G",false,"Y",StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST));
+		}
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen==mb_MediaControl && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) )
@@ -375,7 +380,13 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return false; // Nothing to do
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
-		return m_pMouseHandler_Horizontal->ButtonDown(PK_Button);
+	{
+		MouseHandler::EMouseHandler eMouseHandler = m_pMouseHandler_Horizontal->TypeOfMouseHandler();
+		bool bResult = m_pMouseHandler_Horizontal->ButtonDown(PK_Button);
+		if( m_pMouseHandler_Horizontal && m_pMouseHandler_Horizontal->TypeOfMouseHandler()==MouseHandler::mh_Locked && ((LockedMouseHandler *)m_pMouseHandler_Horizontal)->m_bActivatedObject )
+			Clear();  // Whenever the user chooses something on a horizontal menu, it's always a destination and we need to clear the menus
+		return bResult;
+	}
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 		return m_pMouseHandler_Vertical->ButtonDown(PK_Button);
 	return false;

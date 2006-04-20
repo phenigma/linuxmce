@@ -1033,10 +1033,6 @@ m_bNoEffects = true;
 							alNewDesignObjLocationsToGenerate.push_back( make_pair<Row_DesignObj *,int> (oco->m_pRow_DesignObj, li->iLocation) );
 					}
 				}
-	if( oco->m_pRow_DesignObj->PK_DesignObj_get()==1724 )
-	{
-	int k=2;
-	}
 				if( oco->m_bUsingCache )
 				{
 					// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
@@ -1061,8 +1057,6 @@ m_bNoEffects = true;
 				{
 					Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
 					alNewDesignObjsToGenerate.push_back(m_pRow_DesignObjDependancy);
-if( m_pRow_DesignObjDependancy->PK_DesignObj_get()==4438 )
-int k=2;
 				}
 			}
 		}
@@ -1094,8 +1088,6 @@ int k=2;
 			{
 				Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
 				alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
 			}
 			catch(...)
 			{}
@@ -1118,8 +1110,6 @@ int k=2;
 			{
 				Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
 				alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
 			}
 			catch(...)
 			{}
@@ -1129,11 +1119,7 @@ int k=2;
 	vector<Row_DesignObj *> vectRow_DesignObj_AlwaysInclude;
 	mds.DesignObj_get()->GetRows("AlwaysInclude=1",&vectRow_DesignObj_AlwaysInclude);
 	for(size_t s=0;s<vectRow_DesignObj_AlwaysInclude.size();++s)
-{
 		alNewDesignObjsToGenerate.push_back(vectRow_DesignObj_AlwaysInclude[s]);
-if( vectRow_DesignObj_AlwaysInclude[s]->PK_DesignObj_get()==4438 )
-int k=2;
-}
 
 	// Find all records for objects used as remotes for devices within this installation.  Ignore remotes
 	// that only apply to devices that are orbiters (FK_DeviceCategory NOT IN (2,3,5)) unless it's for this orbiter
@@ -1158,22 +1144,15 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}				}
+				}
 				if( row[1] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[1] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}
 				}
 				if( row[2] )
 				{
@@ -1181,11 +1160,8 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[2] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 				if( row[3] )
 				{
@@ -1193,22 +1169,16 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[3] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}				}
+				}
 				if( row[4] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[4]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[4] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 			}
 			catch(...)
@@ -1233,22 +1203,15 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}				}
+				}
 				if( row[1] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[1] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 				if( row[2] )
@@ -1257,22 +1220,15 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[2] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}				}
+				}
 				if( row[3] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[3] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 			}
@@ -1297,11 +1253,8 @@ int k=2;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_designobj: " << row[0] << endl;
 					else
-{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
-}				}
+				}
 			}
 			catch(...)
 			{}
@@ -1322,8 +1275,6 @@ int k=2;
 			cerr << "Cannot find 'first time' menu" << endl;
 		else
 		{
-if( drNewDesignObj->PK_DesignObj_get()==4438 )
-int k=2;
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 			if( bUseVideoWizard )
 				m_sInitialScreen=StringUtils::itos(SCREEN_VideoWizard_CONST);
@@ -1342,16 +1293,12 @@ int k=2;
 		for(size_t s=0;s<vectros.size();++s)
 		{
 			Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
-if( m_pRow_DesignObjDependancy->PK_DesignObj_get()==4438 )
-int k=2;
 			alNewDesignObjsToGenerate2.push_back(m_pRow_DesignObjDependancy);
 		}
 	}
 
 	for(itno=alNewDesignObjsToGenerate2.begin();itno!=alNewDesignObjsToGenerate2.end();++itno)
 	{
-if( (*itno)->PK_DesignObj_get()==4438 )
-int k=2;
 		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
 	}
 
@@ -1359,7 +1306,7 @@ int k=2;
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
 		if( m_map_PK_DesignObj_SoleScreenToGen.size() && 
-			m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObjDependancy->PK_DesignObj_get()] )
+			m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObjDependancy->PK_DesignObj_get()]==false )
 				continue; // Don't auto-include screens if we're only generating certain screens
 
 		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + ".0")==m_htGeneratedScreens.end() )
@@ -1476,8 +1423,6 @@ int k=2;
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
-if( oco->m_pRow_DesignObj->PK_DesignObj_get()==1270 )
-int k=2;
 			if( !oco->m_bUsingCache )
 			{
 				int Percent = m_iScreensToRender++ * 100 / m_iScreensTotal;
@@ -1553,13 +1498,6 @@ int k=2;
 			m_ScreenMap[ oco->m_ObjectID ] = oco;
 		}
 	}
-for(ScreenMap::iterator it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
-{
-string x = it->first;
-DesignObj_Data *pdo = it->second;
-if( x.find("1270")!=string::npos )
-int k=2;
-}
 	/*
 	fstr_Orbiter << StringUtils::itos((int) m_mapUsedOrbiterCriteria.size()) << "|";
 	for(map<int,int>::iterator itucc=m_mapUsedOrbiterCriteria.begin();itucc!=m_mapUsedOrbiterCriteria.end();++itucc)
@@ -1658,11 +1596,6 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data)
 {
-if( pDesignObj_Data->m_ObjectID.find("3407")!=string::npos )
-{
-int k=2;
-}
-
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_LoadList);
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_UnloadList);
 	SearchForGotos(pDesignObj_Data,&pDesignObj_Data->m_Action_HighlightList);
@@ -1683,31 +1616,12 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands)
 {
-if( pDesignObj_Data->m_ObjectID.find("1981.9.9.3557")!=string::npos )
-{
-int k=2;
-map<string,listDesignObj_Generator *>::iterator itgs;
-for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
-{
-	string x = itgs->first;
-	listDesignObj_Generator *o = (*itgs).second;
-	if( o->size() )
-	{
-		DesignObj_Generator *oco = o->front();
-		int k=2;
-	}
-	else
-		int k=2;
-}
-}
 	DesignObjCommandList::iterator itActions;
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
 		CGCommand *oca = (CGCommand *) *itActions;
 		if( oca->m_PK_Command == COMMAND_Goto_DesignObj_CONST || oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST || oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
 		{
-if( oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
-int k=2;
             map<int, string>::iterator itParm;
 			if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
 				itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_Screen_CONST);
@@ -1773,8 +1687,6 @@ fclose(file);
 
 void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4878 )
-int k=2;
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
 	{
@@ -1795,10 +1707,6 @@ int k=2;
 
 void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int ArrayPage,bool bIsChild,string ParentScreen)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2217 )
-{
-int k=2;
-}
 	ocDesignObj->m_bChild=bIsChild;
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();
@@ -1879,10 +1787,6 @@ int k=2;
 	ocDesignObj->m_bAnimate = ocDesignObj->m_pRow_DesignObj->Animate_get()==1;
 
 	int NumParms=0;
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==1510 )
-{
-int k=2;
-}
 	vector<Row_DesignObjVariation_DesignObjParameter *> vectovp;
 	ocDesignObj->m_pRow_DesignObjVariation->DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(&vectovp);
 	for(size_t s=0;s<vectovp.size();++s)
@@ -2225,10 +2129,6 @@ void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_Des
 	if( p_DesignObjText->m_rPosition.Bottom()>m_sScaledSize.Height )
 		p_DesignObjText->m_rPosition.Bottom(m_sScaledSize.Height);
 
-if( p_DesignObjText->m_PK_Text==740 )
-{
-	int k=2;
-}
 	if( p_DesignObjText->m_iPK_HorizAlignment==0 ) // Wasn't already set
 	{
 		if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )

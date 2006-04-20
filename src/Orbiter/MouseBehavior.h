@@ -34,12 +34,17 @@ namespace DCE
 		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; }
 		virtual ~MouseHandler() {}
 
+
 		virtual void Start() {}  // This is now active (ie the user started moving in the direction this is locked onto)
 		virtual void Stop() {}  // The user is now moving in another direction using a different mouse handler
 
 		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y) {}
+
+	public:
+		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
+		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
 
 	class MouseSensitivity

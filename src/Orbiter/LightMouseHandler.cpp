@@ -18,14 +18,14 @@ void LightMouseHandler::Start()
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
-		m_iLastNotch=5;
-		DrawSquare(10-m_iLastNotch,PlutoColor::White());
+		m_iLastNotch=0;
+		DrawSquare(5-m_iLastNotch,PlutoColor::White());
 	}
 	else
 	{
 		m_bTapAndRelease=false;
-		m_iLastNotch=0;
-		DrawSquare(5-m_iLastNotch,PlutoColor::White());
+		m_iLastNotch=5;
+		DrawSquare(10-m_iLastNotch,PlutoColor::White());
 	}
 
 	g_pPlutoLogger->Write(LV_FESTIVAL,"LightMouseHandler::LightControl starting");
@@ -49,10 +49,13 @@ bool LightMouseHandler::ButtonDown(int PK_Button)
 
 bool LightMouseHandler::ButtonUp(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_2_CONST && m_bTapAndRelease )
+	if( PK_Button==BUTTON_Mouse_2_CONST )
 	{
-		DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
-		m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Level.m_pMessage);
+		if( !m_bTapAndRelease )
+		{
+			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
+			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Level.m_pMessage);
+		}
 		m_pMouseBehavior->Clear(); // this will be deleted
 		return false; // Keep processing
 	}
@@ -76,13 +79,13 @@ void LightMouseHandler::Move(int X,int Y)
 		Notch=10;
 
 	if( m_bTapAndRelease )
-		Notch = 10-Notch;  // Higher number at top
-	else
 		Notch = 5-Notch;  // Higher number at top
+	else
+		Notch = 10-Notch;  // Higher number at top
 
 	if( Notch!=m_iLastNotch )
 	{
-		if( m_bTapAndRelease )
+		if( m_bTapAndRelease==false )
 		{
 g_pPlutoLogger->Write(LV_FESTIVAL,"Setting light to : %d  X %d",Notch,X);
 			DrawSquare(10-m_iLastNotch,PlutoColor::Blue());
@@ -94,7 +97,10 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting light to : %d  X %d",Notch,X);
 		else
 		{
 			DrawSquare(5-m_iLastNotch,PlutoColor::Blue());
-			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500,NULL);
+			if( Notch==0 )
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
+			else
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500,NULL);
 			m_iLastNotch = Notch;
 			DrawSquare(5-m_iLastNotch,PlutoColor::White());
 		}

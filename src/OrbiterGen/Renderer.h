@@ -62,9 +62,9 @@ public:
 	static RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
 	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will
 	// fill the target space, and any excess will be cropped
-	static RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
-	static RendererImage *CreateFromFile(FILE * File, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
-	static RendererImage *CreateFromRWops(SDL_RWops * rw, bool bFreeRWops = true, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
+	static RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cUseAxis=0,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
+	static RendererImage *CreateFromFile(FILE * File, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cUseAxis=0,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
+	static RendererImage *CreateFromRWops(SDL_RWops * rw, bool bFreeRWops = true, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cUseAxis=0,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);  // if cUseAxis is 'X' or 'Y', then that axis will be used whether it's a crop or not
 	static void CompositeImage(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
 	static RendererImage * DuplicateImage(RendererImage * pRendererImage);
 	void RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos);

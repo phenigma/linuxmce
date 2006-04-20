@@ -1928,9 +1928,11 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 
 				if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
 				{
-					pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
 
-					if(pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
+					if( pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
+						pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
+
+					if(pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos && pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
 						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow + 1;
 
 					SelectedGrid( pDesignObj_DataGrid,  pCell, selectionMethod );
@@ -2696,8 +2698,10 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			continue;
 
 		// It looks funny if you move down and select an object that may have a center point lower, but the top is higher
-		if( (PK_Direction==DIRECTION_Down_CONST && rect.Top()<rectCurrent.Top()) ||
-			(PK_Direction==DIRECTION_Right_CONST && rect.Left()<rectCurrent.Left()) )
+		if( (PK_Direction==DIRECTION_Down_CONST && rect.Top()<=rectCurrent.Top()) ||
+			(PK_Direction==DIRECTION_Up_CONST && rect.Top()>=rectCurrent.Top()) ||
+			(PK_Direction==DIRECTION_Right_CONST && rect.Left()<=rectCurrent.Left()) ||
+			(PK_Direction==DIRECTION_Left_CONST && rect.Left()>=rectCurrent.Left()) )
 				continue;
 
 		int Direction_Primary,Direction_Secondary,Distance;
@@ -2768,13 +2772,16 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 				)
 			{
 				pDesignObj_DataGrid->m_iHighlightedRow--;
-				if(pDesignObj_DataGrid->m_iHighlightedRow < 0 || (pDesignObj_DataGrid->m_iHighlightedRow == 0 && pDesignObj_DataGrid->HasMoreUp()))
+				if(pDesignObj_DataGrid->m_iHighlightedRow < 0 || (pDesignObj_DataGrid->m_iHighlightedRow == 0 && pDesignObj_DataGrid->HasMoreUp() && pDesignObj_DataGrid->m_iUpRow!=-1 ))
 				{
 					// Save which row in the actual table we are pointing to,  so we can point there again after doing the scroll
 					int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
 					CMD_Scroll_Grid( "", "", PK_Direction );
 					pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
+
+					if( pDesignObj_DataGrid->m_iHighlightedRow > pDesignObj_DataGrid->m_MaxRow - 1 )
+						pDesignObj_DataGrid->m_iHighlightedRow = pDesignObj_DataGrid->m_MaxRow - 1;
 				}
 			}
 			else
@@ -2796,7 +2803,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 				{
 					dg.Release();
 					CMD_Scroll_Grid( "", "", PK_Direction );
-					pDesignObj_DataGrid->m_iHighlightedRow = 1;
+					pDesignObj_DataGrid->m_iHighlightedRow = 0;
 				}
 			}
 			else
@@ -3760,7 +3767,6 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 	ShowCursor(bShowCursor);
 #endif	
 }
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 #endif
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
@@ -5966,9 +5972,17 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 			}
 			else
 			{
-				if(  iPK_Direction == DIRECTION_Up_CONST && pObj_Datagrid->m_GridCurRow>0  )
+				int CurrentRow = pObj_Datagrid->m_GridCurRow;
+				int CurrentCol = pObj_Datagrid->m_GridCurCol;
+				if(  iPK_Direction == DIRECTION_Up_CONST )
 				{
-					CalculateGridUp( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
+					if( pObj_Datagrid->m_GridCurRow>0 ) // Don't bother calculating if we're already at the top, we're just going to move up anyway
+						CalculateGridUp( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
+					if( CurrentRow==pObj_Datagrid->m_GridCurRow )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
+					{
+						CMD_Move_Up();
+						return;
+					}
 					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST]=NULL;
 					delete pObj_Datagrid->m_pDataGridTable;
 #ifdef DEBUG
@@ -5980,6 +5994,11 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 				else if(  iPK_Direction == DIRECTION_Down_CONST  )
 				{
 					CalculateGridDown( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
+					if( CurrentRow==pObj_Datagrid->m_GridCurRow )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
+					{
+						CMD_Move_Down();
+						return;
+					}
 					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST]=NULL;
 					delete pObj_Datagrid->m_pDataGridTable;
 #ifdef DEBUG
@@ -5991,6 +6010,11 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 				else if(  iPK_Direction == DIRECTION_Left_CONST  )
 				{
 					CalculateGridLeft( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
+					if( CurrentCol==pObj_Datagrid->m_GridCurCol )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
+					{
+						CMD_Move_Left();
+						return;
+					}
 					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST]=NULL;
 					delete pObj_Datagrid->m_pDataGridTable;
 #ifdef DEBUG
@@ -6002,6 +6026,11 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 				else if(  iPK_Direction == DIRECTION_Right_CONST  )
 				{
 					CalculateGridRight( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
+					if( CurrentCol==pObj_Datagrid->m_GridCurCol )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
+					{
+						CMD_Move_Right();
+						return;
+					}
 					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST]=NULL;
 					delete pObj_Datagrid->m_pDataGridTable;
 #ifdef DEBUG
@@ -8355,13 +8384,7 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-if( sPK_DesignObj.find("4871")!=string::npos )
-{
-		DesignObj_Orbiter *pObj_Popup1 = FindObject("4870");
-		DesignObj_Orbiter *pObj_Popup2 = FindObject("4870.0");
-		DesignObj_Orbiter *pObj_Popup3 = FindObject("4870.0.0");
-	int k=1;
-}
+
 	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
@@ -8574,6 +8597,8 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 	}
 	else if( m_iUiVersion==2 ) // TODO - temp hack in x & y values......
 	{
+		if( m_pMouseBehavior )
+			m_pMouseBehavior->Clear();
 		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj),50,50,"","mediabrowser",false,false);
 		return;
 	}

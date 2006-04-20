@@ -26,7 +26,8 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMou
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
 	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 	m_iCancelLevel = m_CurrentMedia_Pos;
-
+m_bHasTimeline=true;
+m_CurrentMedia_Start=0;m_CurrentMedia_Stop=7200;m_CurrentMedia_Pos=3600;
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 }
@@ -34,12 +35,12 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMou
 void SpeedMouseHandler::Start()
 {
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
-	if( m_bHasTimeline && m_pMouseBehavior->m_iTime_Last_Mouse_Up )
+	if( !m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;
 	else
-		m_bTapAndRelease=false;
+		m_bTapAndRelease=false;  // Can only do this if we have the timeline, and the user is holding down
 
-	if( m_bHasTimeline && m_bTapAndRelease )
+	if( m_bHasTimeline && m_bTapAndRelease==false )
 	{
 		m_iLastNotch=0;
 		int Percentage = m_CurrentMedia_Pos==0 ? 0 : (m_CurrentMedia_Stop-m_CurrentMedia_Start)/m_CurrentMedia_Pos;
@@ -93,7 +94,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 void SpeedMouseHandler::Move(int X,int Y)
 {
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
-	if( !m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 	{
 		int NotchWidth = m_pObj->m_rPosition.Width/2/MAX_SPEEDS;
 		int Notch = abs(X-XStart) / NotchWidth;
@@ -111,7 +112,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"speed %d",Speed);
 //remus  m_pObj->SetSpeed(Speed);
 		}
 	}
-	else  // tap and release, go to position
+	else  // holding down, go to position
 	{
 		int Offset = X - m_pObj->m_rPosition.X-m_pObj->m_pPopupPoint.X;
 		double Perc = (double) Offset / m_pObj->m_rPosition.Width;

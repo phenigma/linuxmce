@@ -160,6 +160,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 {
 	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
+if( pDesignObj_Generator->m_ObjectID.find("2071")==string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+return;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 	if( pDesignObj_Generator->m_ObjectID.find("4878")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
@@ -273,7 +275,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false /*bIsMenu*/,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? 'Y' : 0, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -578,12 +580,12 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 }
 
 // load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,PlutoRectangle offset,bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,char cUseAxis,PlutoRectangle offset,bool bUseAntiAliasing)
 {
 	FILE * File;
 
 	File = fopen(sFilename.c_str(), "rb");
-	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, offset,bUseAntiAliasing);
+	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, cUseAxis, offset,bUseAntiAliasing);
     if (Result == NULL)
     {
         throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
@@ -593,7 +595,7 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
 	return Result;
 }
 
-RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, PlutoRectangle offset, bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, char cUseAxis,PlutoRectangle offset, bool bUseAntiAliasing)
 {
     SDL_Surface * SurfaceFromFile=NULL;
     //  try
@@ -696,7 +698,11 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         float scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
         float scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
 
-        if( bPreserveAspectRatio && bCrop )
+		if( cUseAxis=='Y' )
+			scaleX = scaleY;
+		else if( cUseAxis=='X' )
+			scaleY = scaleX;
+        else if( bPreserveAspectRatio && bCrop )
         {
             if( scaleY>scaleX )  // Take the greater scale, ie cropping the edges
                 scaleX=scaleY;
@@ -731,10 +737,10 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
     return RIFromFile;
 }
 
-RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,PlutoRectangle offset, bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,char cUseAxis,PlutoRectangle offset, bool bUseAntiAliasing)
 {
 	SDL_RWops * rw = SDL_RWFromFP(File, 0);
-	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, offset, bUseAntiAliasing);
+	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, cUseAxis, offset, bUseAntiAliasing);
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)

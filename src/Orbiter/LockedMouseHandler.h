@@ -27,7 +27,10 @@ namespace DCE
 		bool m_bFirstTime; // Will be true the first time movement is locked onto this handler, false for subsequent times
 
 	public:
+		bool m_bActivatedObject; // Set to true whenever an object was activated
+
 		LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
+		virtual EMouseHandler TypeOfMouseHandler() { return mh_Locked; }
 
 		void Start();
 		void Stop();

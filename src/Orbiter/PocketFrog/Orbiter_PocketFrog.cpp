@@ -518,7 +518,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-g_pPlutoLogger->Write(LV_CORPCLIENT,"orbiter_PocketFrog::HollowRectangle %d,%d - %d,%d",x,y,width,height);
 	if(width <= 0 || height <= 0 || y >= m_iImageHeight || x >= m_iImageWidth)
 		return;
 
