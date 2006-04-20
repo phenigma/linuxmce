@@ -22,6 +22,47 @@ using namespace DCE;
 
 #define SNAPSHOT_SLEEP_TIME	100
 
+static pid_t * my_motion_pid = NULL;
+
+void StartMotion(pid_t * pid)
+{
+	if (pid == NULL)
+		my_motion_pid = pid;
+	if (my_motion_pid == NULL)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "StartMotion called with NULL parameter, but no previous call with non-NULL parameter");
+		return;
+	}
+		
+	* my_motion_pid = fork();
+	if(* my_motion_pid)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "In parent process.");
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
+		g_pPlutoLogger->Write(LV_STATUS, "Launching motion...");
+		execl("/usr/bin/motion", NULL, NULL);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch motion motion!");
+		_exit(1);
+	}
+}
+
+void sighandler(int sig)
+{
+	pid_t pid;
+	
+	switch (sig)
+	{
+		case SIGCHLD:
+			pid = wait(NULL);
+			if (my_motion_pid != NULL && pid == * my_motion_pid)
+				StartMotion(NULL);
+			break;
+	}
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Motion_Wrapper::Motion_Wrapper(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -329,19 +370,10 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 		}
 	}
 
+	signal(SIGCHLD, sighandler);
+	StartMotion(&motionpid_);
 	g_pPlutoLogger->Write(LV_STATUS, "Forking to launch motion process...");
-	motionpid_ = fork();
-	if(motionpid_) {
-		g_pPlutoLogger->Write(LV_STATUS, "In parent process.");
-	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
-		g_pPlutoLogger->Write(LV_STATUS, "Launching motion...");
-		if(execl("/usr/bin/motion", NULL, NULL)) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch motion motion!");
-			exit(1);
-		}
-	}
-							
+
 	return Motion_Wrapper_Command::Connect(iPK_DeviceTemplate);
 }
 
