@@ -763,6 +763,10 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 			p_sResponse = &sResponse;
 
 		bool bResult;
+
+		int Type = pPreformedCommand.m_pMessage->m_dwMessage_Type;
+		int ID = pPreformedCommand.m_pMessage->m_dwID;
+		int PK_Device_To = pPreformedCommand.m_pMessage->m_dwPK_Device_To;
 		
 		if( m_bLocalMode )
 		{
@@ -778,15 +782,16 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 			bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
 
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s",
-					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str());
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s type %d id %d to %d",
+					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
 #endif
 		if( !bResult )
 		{
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with confirmation.  Going to quit");
+			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
+				Type,ID,PK_Device_To);
 			OnQuit();
 		}
 		return bResult && *p_sResponse == "OK";
@@ -798,6 +803,10 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",i
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse;
 
+	int Type = pPreformedCommand.m_pMessage->m_dwMessage_Type;
+	int ID = pPreformedCommand.m_pMessage->m_dwID;
+	int PK_Device_To = pPreformedCommand.m_pMessage->m_dwPK_Device_To;
+		
 	if( m_bLocalMode )
 	{
 #ifndef WINCE
@@ -809,8 +818,8 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",i
 	else
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d",
-iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0));
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d type %d id %d to %d",
+iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
 #endif
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
@@ -821,7 +830,8 @@ iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  Going to quit");
+			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
+				Type,ID,PK_Device_To);
 			OnQuit();
 		}
 
