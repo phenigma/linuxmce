@@ -2029,6 +2029,12 @@
 #define DESIGNOBJ_popVideoOptions_CONST 4964
 #define DESIGNOBJ_popCDTracks_CONST 4965
 #define DESIGNOBJ_popSpeedControl_temp_CONST 4966
+#define DESIGNOBJ_mnuMenu2_CONST 4967
+#define DESIGNOBJ_mnuAmbiance_CONST 4968
+#define DESIGNOBJ_mnuSpeed_CONST 4969
+#define DESIGNOBJ_butGotoMenu2_CONST 4970
+#define DESIGNOBJ_butGotoSpeed_CONST 4971
+#define DESIGNOBJ_butGotoAmbiance_CONST 4972
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
