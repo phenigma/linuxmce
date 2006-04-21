@@ -366,7 +366,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		{
 			m_EMenuOnScreen=mb_MainMenu;
 			NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-			m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_main2_CONST);
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
 			/*
 			m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
@@ -378,7 +378,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	{
 		m_EMenuOnScreen=mb_MediaControl;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_speed_CONST);
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnuspeed_CONST);
 /*
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
 		pObj->m_rPosition.Width=964;
@@ -393,7 +393,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	{
 		m_EMenuOnScreen=mb_Ambiance;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_ambiance_CONST);
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnuambiance_CONST);
 /*
 		DesignObj_Orbiter *pObj_Lights = m_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
 		DesignObj_Orbiter *pObj_Volume = m_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
