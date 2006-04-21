@@ -29,6 +29,8 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class SpeedMouseHandler : public MouseHandler
 	{
+		friend class MouseBehavior;
+
 		bool m_bHasTimeline;
 		const static int m_iSpeeds[MAX_SPEEDS];
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now

@@ -347,7 +347,13 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 
 void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection)
 {
-
+	if( m_pMouseHandler_Horizontal && m_pMouseHandler_Horizontal->TypeOfMouseHandler()==MouseHandler::mh_Speed )
+	{
+		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler_Horizontal;
+		pSpeedMouseHandler->m_CurrentMedia_Stop = atoi(sTotal.c_str());
+		pSpeedMouseHandler->m_CurrentMedia_Pos = atoi(sTime.c_str());
+		pSpeedMouseHandler->Update();
+	}
 }
 
 bool MouseBehavior::ButtonDown(int PK_Button)

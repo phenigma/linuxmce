@@ -9161,9 +9161,6 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 {
 	m_sNowPlaying_Speed = sSpeed;
 
-	if( !m_pObj_NowPlaying_TimeShort_OnScreen && !m_pObj_NowPlaying_TimeLong_OnScreen && !m_pObj_NowPlaying_Speed_OnScreen )
-		return;
-
 	string::size_type tabTime = sTime.find('\t');
 	string::size_type tabTotal = sTotal.find('\t');
 
