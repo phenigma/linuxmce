@@ -55,6 +55,9 @@ typedef struct
 }
 MWMHints;
 
+// for original xine library - comment this when using a patched one
+#define xine_seek(A, B, C) xine_play(A, B, C)
+
 // Since xine can't handle speeds other than 1x,2x,4x, we'll create our own
 // thread to handle special seek speeds by doing lots of searches
 // If g_iSpecialSeekSpeed==0, that means we don't need a special speed--thread will sleep
