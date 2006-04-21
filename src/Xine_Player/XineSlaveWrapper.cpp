@@ -2195,7 +2195,8 @@ void XineSlaveWrapper::DisplayOSDText( string sText )
         if ( m_xine_osd_t )
             xine_osd_free( m_xine_osd_t );
         m_xine_osd_t = NULL;
-        g_iSpecialSeekSpeed = 0;
+	// this is already done in main changePlayback
+        //g_iSpecialSeekSpeed = 0;
         return ;
     }
 
@@ -2219,12 +2220,14 @@ void XineSlaveWrapper::StartSpecialSeek( int Speed )
     if ( xineStream == NULL )
         return ;
 
+    xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
+
     int totalTime;
     gettimeofday( &m_tsLastSpecialSeek, NULL );
     getStreamPlaybackPosition( 1, m_posLastSpecialSeek, totalTime );
 
     g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
-    xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 2 * 90000 );
+    xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
     m_iPrebuffer = xine_get_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER );
     g_iSpecialSeekSpeed = Speed;
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
@@ -2238,6 +2241,8 @@ void XineSlaveWrapper::StopSpecialSeek()
 
     if ( xineStream == NULL )
         return ;
+
+    xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
 
     g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
     g_iSpecialSeekSpeed = 0;
@@ -2300,7 +2305,8 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
         timespec ts1,ts2,tsElapsed;
         gettimeofday( &ts1, NULL );
 
-        xine_play( xineStream->m_pStream, 0, pos );
+        //xine_play( xineStream->m_pStream, 0, pos );
+	xine_seek( xineStream->m_pStream, 0, pos );
 
         gettimeofday( &ts2, NULL );
         tsElapsed = ts2-ts1;
@@ -2325,7 +2331,8 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
         else
         {
             g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
-            xine_play( xineStream->m_pStream, 0, pos );
+	    xine_seek( xineStream->m_pStream, 0, pos );
+            //xine_play( xineStream->m_pStream, 0, pos );
         }
     }
 }
