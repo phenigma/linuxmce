@@ -10,6 +10,12 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 
+#ifndef WIN32
+#	include "Linux/wmtask.h"
+#	include "Linux/wmtaskmanager.h"
+#	include "CallBackData.h"
+#endif
+
 using namespace DCE;
 
 const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};
@@ -17,6 +23,8 @@ const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8
 SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) 
 	: MouseHandler(pObj,pMouseBehavior)
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");	
+
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0);
@@ -176,5 +184,41 @@ void SpeedMouseHandler::Update()
 
 	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: %d 2: %s 3: %d 4: %d/%d/%d 5: %d",
 		Style,SpeedOptions,Speed,m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos,SeekPosition);
+		
+#ifndef WIN32
+    {
+		PlutoRectangle plutoRect = m_pObj->m_rPosition;
+    	g_pPlutoLogger->Write( LV_WARNING, "SpeedControl: Refresh, x=%d, y=%d, w=%d, h=%d",
+                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
+		
+		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
+
+		//translate Aaron's defines to Remus's enums
+		switch(Style)
+		{
+			case SPEED_STYLE_TIMELINE_IDLE:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME; break;
+			case SPEED_STYLE_TIMELINE_SPEED:	pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME_SEEK; 	break;
+			case SPEED_STYLE_TIMELINE_SEEK:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME_SPEED; 	break;
+			case SPEED_STYLE_SPEED_ONLY:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::SPEED; 		break;
+			
+			default: 
+				pSpeedControlData->m_eStyle = SpeedControlCallBackData::UNUSED; 
+				break;
+		}
+		
+		pSpeedControlData->m_nSpeed = Speed;
+		pSpeedControlData->m_nTimeStart = m_CurrentMedia_Start;
+		pSpeedControlData->m_nTimeEnd = m_CurrentMedia_Stop;
+		pSpeedControlData->m_nTimeNow = m_CurrentMedia_Pos;
+		pSpeedControlData->m_nSeekToPos = SeekPosition;
+
+		//for now SpeedOptions == "FULL"; Remus will receive all the speeds
+		for(int i = 0; i < sizeof(m_iSpeeds) / sizeof(m_iSpeeds[0]); ++i)
+			pSpeedControlData->m_listSpeeds.push_back(m_iSpeeds[i]);
+		
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_SpeedControl, pSpeedControlData);
+        TaskManager::Instance().AddTask(pTask);
+	}
+#endif
 }
 

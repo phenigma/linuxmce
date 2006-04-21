@@ -38,6 +38,8 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	{
 		//do something here; unable to connect to db
 	}
+	
+	m_bSpeedControlCreated = false;
 }
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::~OSDScreenHandler()
@@ -1577,5 +1579,73 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 
     g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
     return false;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OSDScreenHandler::SCREEN_tempmnuspeed(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+
+	ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
+	
+	// register the RoomWizard callbacks
+	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
+	RegisterCallBack( cbOnDialogCreate, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCreate, new PositionCallBackData() );
+	RegisterCallBack( cbOnDialogDelete, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlDelete, new PositionCallBackData() );
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
+{
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate()" );
+
+    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
+    if (pPositionCallBackData == NULL)
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::SpeedControlCreate(), NULL Data");
+        return false;
+    }
+	
+    PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate(), x=%d, y=%d, w=%d, h=%d",
+                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
+#ifndef WIN32
+    {
+		//we only need the give the control the position
+		//additional info will be available on update (refresh)
+		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
+	
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, 		pSpeedControlData);
+        TaskManager::Instance().AddTaskAndWait(pTask);
+	}
+#endif
+
+	m_bSpeedControlCreated = true;
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
+{
+	if(!m_bSpeedControlCreated)
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "OSDScreenHandler::SpeedControlDelete() ignoring... The wx control is not created yet");
+		return false;
+	}
+
+    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlDelete() data %p", pData );
+
+#ifndef WIN32
+    {
+		//no data to attach
+		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(PlutoRectangle(0, 0, 0, 0));
+	
+        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, 		pSpeedControlData);
+        TaskManager::Instance().AddTaskAndWait(pTask);
+	}
+#endif
+
+	m_bSpeedControlCreated = false;
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------

@@ -428,7 +428,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        m_WinListManager.MaximizeWindow("dialog");
+        m_WinListManager.MaximizeWindow("dialog.dialog");
     }
     else
     {
@@ -453,7 +453,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         // create new window
         m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
         Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
-        m_WinListManager.MaximizeWindow("dialog");
+        m_WinListManager.MaximizeWindow("dialog.dialog");
         return false;
     }
     if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
@@ -543,7 +543,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        m_WinListManager.MaximizeWindow("dialog");
+        m_WinListManager.MaximizeWindow("dialog.dialog");
     }
     else
     {
@@ -569,7 +569,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // create new window
         m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
         Safe_Show<wxDialog_WaitList>(m_pWaitList);
-        m_WinListManager.MaximizeWindow("dialog");
+        m_WinListManager.MaximizeWindow("dialog.dialog");
         return false;
     }
     if ( (m_pWaitList != NULL) && (nProgress >= 0) )
@@ -638,13 +638,13 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
 	WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
-    m_WinListManager.MaximizeWindow("dialog");
+    m_WinListManager.MaximizeWindow("dialog.dialog");
 	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 #else // (USE_TASK_MANAGER)
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
-    m_WinListManager.MaximizeWindow("dialog");
+    m_WinListManager.MaximizeWindow("dialog.dialog");
     int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
     return nButtonId;
 #endif // (USE_TASK_MANAGER)
@@ -659,9 +659,11 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
     promptDlg.DeInit();
     return nUserAnswer;
 #endif // (USE_X11_LIB)
+
+	return 0;
 }
 
-ScreenHandler *OrbiterLinux::CreateScreenHandler()
+/*virtual*/ ScreenHandler *OrbiterLinux::CreateScreenHandler()
 {
 	return new OSDScreenHandler(this, &m_mapDesignObj);
 }

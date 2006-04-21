@@ -141,6 +141,16 @@ public:
     int m_nSeekToPos;
     PlutoRectangle m_coord;
 
+	SpeedControlCallBackData(PlutoRectangle coord) : 
+		m_eStyle(UNUSED),
+		m_nSpeed(0),
+    	m_nTimeStart(0),
+    	m_nTimeEnd(0),
+    	m_nTimeNow(0),
+    	m_nSeekToPos(0),
+		m_coord (coord)
+		{}
+		
 	SpeedControlCallBackData(
         Style eStyle,
         list<int> listSpeeds,
@@ -158,6 +168,7 @@ public:
             m_nTimeEnd = nTimeEnd;
             m_nTimeNow = nTimeNow;
             m_nSeekToPos = nSeekToPos;
+			m_coord = PlutoRectangle(0, 0, 0, 0);
         }
 };
 

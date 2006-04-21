@@ -48,9 +48,8 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
-    WMController::Instance().SetVisible(sWindowName, false);
-    //WMController::Instance().SetMaximized(sWindowName, true);
-    WMController::Instance().SetFullScreen(sWindowName, true);
+	WMController::Instance().SetVisible(sWindowName, false);
+	WMController::Instance().SetFullScreen(sWindowName, true);
     ShowWindow(sWindowName);
 }
 
@@ -59,7 +58,6 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
     WMController::Instance().SetVisible(sWindowName, false);
-    //WMController::Instance().SetMaximized(sWindowName, false);
     WMController::Instance().SetFullScreen(sWindowName, false);
     WMController::Instance().SetPosition(sWindowName, x, y, w, h);
     ShowWindow(sWindowName);
