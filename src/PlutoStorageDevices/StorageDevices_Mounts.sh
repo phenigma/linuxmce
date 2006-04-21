@@ -76,7 +76,7 @@ for Device in $BuffaloDevices; do
 	Device_Host=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
 
-	Automount_Buffalo="$Aautomount_Buffolo\n$Device_ID	-fstype=smbfs,guest	://${Device_Host}/share"
+	Automount_Buffalo="$Aautomount_Buffolo\n$Device_ID	-fstype=smbfs,guest,dmask=777,fmask=777	://${Device_Host}/share"
 done
 
 PopulateSection "/etc/auto.PlutoStorageDevices" "Buffalo HDHG300LAN" "$Automount_Buffalo"
