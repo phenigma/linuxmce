@@ -8,6 +8,9 @@ enum E_DIALOG_TYPE
     E_Dialog_WaitGrid,
     E_Dialog_WaitList,
     E_Dialog_WaitUser,
+    E_Dialog_SpeedControl,
+    E_Dialog_VolumeControl,
+    E_Dialog_LightControl,
     E_Dialog_None,
 };
 
