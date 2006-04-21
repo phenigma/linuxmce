@@ -6,7 +6,7 @@
 #include "PlutoUtils/Other.h"
 #include "MouseGovernor.h"
 #include "MouseIterator.h"
-#include "screenhistory.h"
+#include "ScreenHistory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
