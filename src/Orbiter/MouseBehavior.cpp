@@ -364,21 +364,16 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	m_iTime_Last_Mouse_Up=0;
 
 	// Special case for the media control
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST  )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen!=mb_MainMenu )
 	{
-		if( m_EMenuOnScreen==mb_MainMenu )
-			Clear();
-		else
-		{
-			m_EMenuOnScreen=mb_MainMenu;
-			NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-			m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
-			/*
-			m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
-			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
-			Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
-			*/
-		}
+		m_EMenuOnScreen=mb_MainMenu;
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
+		/*
+		m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
+		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
+		Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
+		*/
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen!=mb_MediaControl )
 	{
@@ -413,8 +408,19 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 */
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen==mb_MediaControl && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) )
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen==mb_MainMenu) )
 	{
+		Clear();
+	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
+	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"Canel button on menu %d",(int) m_EMenuOnScreen);
+		if( m_EMenuOnScreen==mb_None )
+		{
+			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
+			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
+		}
 		Clear();
 	}
 

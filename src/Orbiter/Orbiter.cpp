@@ -4318,6 +4318,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"active popup 4 now %p",m_pActivePopup);
 //------------------------------------------------------------------------
 bool Orbiter::GotActivity(  )
 {
+	if( m_iUiVersion==2 )
+		return true; // No concept of screen saver in the new UI
+
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
@@ -5694,7 +5697,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	{
 		if( m_iUiVersion==2 )
 		{
-			CMD_Remove_Popup("","");
+			CMD_Goto_Screen("",SCREEN_Main_CONST);
 			return; // With UI version 2, there is not 'goto remote'
 		}
 		if( m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
@@ -9846,6 +9849,14 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	if( m_iUiVersion==2 )
+	{
+		if( iPK_Screen==SCREEN_DialogAskToResume_CONST )
+			iPK_Screen=SCREEN_Main_CONST;  // temp, no way to handle this.  TODO
+		else if( iPK_Screen!=SCREEN_Main_CONST && iPK_Screen!=SCREEN_tempmnumain2_CONST && iPK_Screen!=SCREEN_tempmnuambiance_CONST && iPK_Screen!=SCREEN_tempmnuspeed_CONST )
+			return;  // For now we don't do any other screens
+	}
+
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
 	if(pCallBackData)
 	{
