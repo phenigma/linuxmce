@@ -182,9 +182,26 @@ void SpeedMouseHandler::Update()
 	if( Style==SPEED_STYLE_TIMELINE_SEEK && m_bIsActive )
 		SeekPosition = m_iLastNotch;
 
+	static unsigned long m_ulLastTimeControlUpdated = 0;
+	unsigned long ulCurrentTimeControlUpdated = ProcessUtils::GetMsTime();
+	
+	if(ulCurrentTimeControlUpdated - m_ulLastTimeControlUpdated < 50)
+	{
+		//we don't want to fill the queue with very lots tasks, because the speed control
+		//might not be able to process all of them
+		//only 20 per seconds should be enough
+		g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update ignored. Only %ul ms passed since "
+			"the speed control was updated", ulCurrentTimeControlUpdated - m_ulLastTimeControlUpdated);
+		return;
+	}
+	
+	//update the time - will update the control right now
+	m_ulLastTimeControlUpdated = ulCurrentTimeControlUpdated;
+		
 	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: %d 2: %s 3: %d 4: %d/%d/%d 5: %d",
 		Style,SpeedOptions,Speed,m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos,SeekPosition);
 		
+		//for now, available only for linux; taskmanager will be included in windows version in few days
 #ifndef WIN32
     {
 		PlutoRectangle plutoRect = m_pObj->m_rPosition;
