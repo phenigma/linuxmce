@@ -4190,7 +4190,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 bool Orbiter::RegionUp( int x,  int y )
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if( m_pMouseBehavior && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )
+	if( m_pMouseBehavior && x && y && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )  // if x & y are 0, it's being called from Orbiter::NeedToChangeScreen
 		return true;
 #endif
 
@@ -8384,7 +8384,6 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-
 	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
@@ -8597,9 +8596,13 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 	}
 	else if( m_iUiVersion==2 ) // TODO - temp hack in x & y values......
 	{
+		CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_popFileList_CONST),"","",false,false);
+
+/*
 		if( m_pMouseBehavior )
 			m_pMouseBehavior->Clear();
 		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj),50,50,"","mediabrowser",false,false);
+*/
 		return;
 	}
 	else

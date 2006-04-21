@@ -14,6 +14,12 @@ using namespace DCE;
 
 #define MAX_SPEEDS		17
 
+#define SPEED_STYLE_TIMELINE_IDLE	1
+#define SPEED_STYLE_TIMELINE_SPEED	2
+#define SPEED_STYLE_TIMELINE_SEEK	3
+#define SPEED_STYLE_SPEED_ONLY		4
+
+
 namespace DCE
 {
 	//-----------------------------------------------------------------------------------------------------
@@ -39,6 +45,7 @@ namespace DCE
 		void Move(int X,int Y);
 
 		bool ParsePosition(string sMediaPosition);
+		void Update();
 	};
 
 }

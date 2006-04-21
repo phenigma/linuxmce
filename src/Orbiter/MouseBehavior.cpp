@@ -6,9 +6,11 @@
 #include "PlutoUtils/Other.h"
 #include "MouseGovernor.h"
 #include "MouseIterator.h"
+#include "screenhistory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Screen.h"
 
 #include "SpeedMouseHandler.h"
 #include "LightMouseHandler.h"
@@ -58,8 +60,13 @@ void MouseBehavior::Clear()
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_EMenuOnScreen!=mb_None )
 	{
-		m_pOrbiter->CMD_Remove_Popup("","left");
-		m_pOrbiter->CMD_Remove_Popup("","horiz");
+//		m_pOrbiter->CMD_Remove_Popup("","left");
+//		m_pOrbiter->CMD_Remove_Popup("","horiz");
+	}
+	if( m_pOrbiter->m_pScreenHandler && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_Main_CONST )  // Will be NULL during initialization
+	{
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
 
 	/* there's a logic flaw that when popups are put on screen they're added to the following
@@ -68,8 +75,8 @@ void MouseBehavior::Clear()
 	Perhaps they should be changed to something else that's easier to remove entries from.
 	For now, with the new UI, we know that whenever the mouse behavior is reset we will
 	have no grids or tab stops on screen.  Reset them so the list doesn't grow indefinately. */
-	m_pOrbiter->m_vectObjs_GridsOnScreen.clear();
-	m_pOrbiter->m_vectObjs_TabStops.clear();
+//	m_pOrbiter->m_vectObjs_GridsOnScreen.clear();
+//	m_pOrbiter->m_vectObjs_TabStops.clear();
 
 	m_pObj_Locked_Vertical=m_pObj_Locked_Horizontal=NULL;
 	ResetSamples();
@@ -100,7 +107,11 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		pObj = m_pOrbiter->FindObject(sDesignObj);
 
 	MouseHandler *pMouseHandler=NULL;
-//we need to add this to all projects
+	if( !pObj && sOptions[0]!='K' )  // Only the keyboard handler does not require an object
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior options %s, obj %s invalid",sOptions.c_str(),sDesignObj.c_str());
+		return;
+	}
 
 	switch(sOptions[0])
 	{
@@ -193,14 +204,26 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 		}
 		m_pMouseGovernor->SetBuffer(0);
 		if( cLocked_Axis_Before==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
+		{
+			m_pMouseHandler_Horizontal->m_bIsActive=false;
 			m_pMouseHandler_Horizontal->Stop();
+		}
 		else if( cLocked_Axis_Before==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
+		{
+			m_pMouseHandler_Vertical->m_bIsActive=false;
 			m_pMouseHandler_Vertical->Stop();
+		}
 
 		if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
+		{
+			m_pMouseHandler_Horizontal->m_bIsActive=true;
 			m_pMouseHandler_Horizontal->Start();
+		}
 		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
+		{
+			m_pMouseHandler_Vertical->m_bIsActive=true;
 			m_pMouseHandler_Vertical->Start();
+		}
 		return;
 	}
 
@@ -341,26 +364,37 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			Clear();
 		else
 		{
-			m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
 			m_EMenuOnScreen=mb_MainMenu;
+			NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_main2_CONST);
+			/*
+			m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
 			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
 			Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
+			*/
 		}
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen!=mb_MediaControl )
 	{
 		m_EMenuOnScreen=mb_MediaControl;
-		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_CONST);  // Temp until the widget is done and can set this
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_speed_CONST);
+/*
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
 		pObj->m_rPosition.Width=964;
 		pObj->m_rPosition.Height=90;
-		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST),263,526,"","horiz",false,false);
+		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_temp_CONST),263,526,"","horiz",false,false);
 		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup),0,0,"","left",false,false);
-		Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_CONST));
+		Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_temp_CONST));
 		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup));
+*/
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen!=mb_Ambiance )
 	{
 		m_EMenuOnScreen=mb_Ambiance;
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_temp_mnu_ambiance_CONST);
+/*
 		DesignObj_Orbiter *pObj_Lights = m_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
 		DesignObj_Orbiter *pObj_Volume = m_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
 		if( pObj_Lights && pObj_Volume )
@@ -370,6 +404,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			Set_Mouse_Behavior("V",false,"X",StringUtils::itos(DESIGNOBJ_popVolume_CONST));
 			Set_Mouse_Behavior("G",false,"Y",StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST));
 		}
+*/
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen==mb_MediaControl && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) )

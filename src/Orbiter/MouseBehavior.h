@@ -30,8 +30,9 @@ namespace DCE
 		bool m_bLockAxis; // True, the default, means the framework will report Move's with the locked axis fixed over the locked object
 		DesignObj_Orbiter *m_pObj;
 		MouseBehavior *m_pMouseBehavior;
+		bool m_bIsActive; // Means this handler is currently being used
 
-		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; }
+		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; m_bIsActive=false; }
 		virtual ~MouseHandler() {}
 
 
