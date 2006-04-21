@@ -118,5 +118,95 @@ public:
         m_mapPrompts = mapPrompts;
 	}
 };
+
 //-----------------------------------------------------------------------------------------------------
+class SpeedControlCallBackData : public CallBackData
+{
+public:
+    enum Style
+    {
+        UNUSED,
+        TIME,
+        TIME_SEEK,
+        TIME_SPEED,
+        SPEED,
+    };
+
+    Style m_eStyle;
+    list<int> m_listSpeeds; // only for TIME, TIME_SPEED
+    int m_nSpeed;
+    int m_nTimeStart;
+    int m_nTimeEnd;
+    int m_nTimeNow;
+    int m_nSeekToPos;
+    PlutoRectangle m_coord;
+
+	SpeedControlCallBackData(
+        Style eStyle,
+        list<int> listSpeeds,
+        int nSpeed,
+        int nTimeStart,
+        int nTimeEnd,
+        int nTimeNow,
+        int nSeekToPos
+        )
+        {
+            m_eStyle = eStyle;
+            m_listSpeeds = listSpeeds;
+            m_nSpeed = nSpeed;
+            m_nTimeStart = nTimeStart;
+            m_nTimeEnd = nTimeEnd;
+            m_nTimeNow = nTimeNow;
+            m_nSeekToPos = nSeekToPos;
+        }
+};
+
+//-----------------------------------------------------------------------------------------------------
+class VolumeControlCallBackData : public CallBackData
+{
+public:
+    enum Style
+    {
+        UNUSED,
+        RULER,
+        SPEED,
+    };
+
+    Style m_eStyle;
+    int m_nPositions;
+    int m_nCrtPosition;
+    PlutoRectangle m_coord;
+
+	VolumeControlCallBackData(
+        Style eStyle,
+        int nPositions,
+        int nCrtPosition
+        )
+        {
+            m_eStyle = eStyle;
+            m_nPositions = nPositions;
+            m_nCrtPosition = nCrtPosition;
+        }
+};
+
+//-----------------------------------------------------------------------------------------------------
+class LightControlCallBackData : public CallBackData
+{
+public:
+    int m_nPositions;
+    int m_nCrtPosition;
+    PlutoRectangle m_coord;
+
+	LightControlCallBackData(
+        int nPositions,
+        int nCrtPosition
+        )
+        {
+            m_nPositions = nPositions;
+            m_nCrtPosition = nCrtPosition;
+        }
+};
+
+//-----------------------------------------------------------------------------------------------------
+
 #endif
