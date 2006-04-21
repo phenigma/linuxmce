@@ -358,6 +358,7 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d",(int) PK_Button);
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
@@ -366,6 +367,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	// Special case for the media control
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen!=mb_MainMenu )
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 		m_EMenuOnScreen=mb_MainMenu;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
@@ -377,6 +379,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen!=mb_MediaControl )
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 		m_EMenuOnScreen=mb_MediaControl;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnuspeed_CONST);
@@ -392,6 +395,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen!=mb_Ambiance )
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 		m_EMenuOnScreen=mb_Ambiance;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnuambiance_CONST);
@@ -411,6 +415,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen==mb_MainMenu) )
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
 		Clear();
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )

@@ -66,8 +66,10 @@ void SpeedMouseHandler::Stop()
 
 bool SpeedMouseHandler::ButtonDown(int PK_Button)
 {
+	g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonDown %d",PK_Button);
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonDown cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -84,8 +86,10 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 
 bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
+	g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonUp %d",PK_Button);
 	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
+		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonUp cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -109,7 +113,7 @@ void SpeedMouseHandler::Move(int X,int Y)
 			Speed *= -1;
 		if( Speed!=m_iLastNotch )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"speed %d",Speed);
+g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::Move speed %d",Speed);
 			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed);
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Speed;
@@ -121,6 +125,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"speed %d",Speed);
 		int Offset = X - m_pObj->m_rPosition.X-m_pObj->m_pPopupPoint.X;
 		double Perc = (double) Offset / m_pObj->m_rPosition.Width;
 		m_iLastNotch = (m_CurrentMedia_Stop-m_CurrentMedia_Start) * Perc + m_CurrentMedia_Start;
+g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::Move seek %d",m_iLastNotch);
 		DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,"POS:" + StringUtils::itos(m_iLastNotch*1000));
 		m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Media_Position.m_pMessage);
 		Update();
