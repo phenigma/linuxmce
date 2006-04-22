@@ -2035,6 +2035,7 @@
 #define DESIGNOBJ_butGotoMenu2_CONST 4970
 #define DESIGNOBJ_butGotoSpeed_CONST 4971
 #define DESIGNOBJ_butGotoAmbiance_CONST 4972
+#define DESIGNOBJ_icoModeBabySitter_CONST 4973
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

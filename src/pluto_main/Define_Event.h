@@ -59,6 +59,10 @@
 #define EVENT_Device_Configured_CONST 57
 #define EVENT_Playback_Started_CONST 58
 #define EVENT_VoIP_Problem_Detected_CONST 59
+#define EVENT_PnP_Set_Device_Template_CONST 60
+#define EVENT_PnP_Pre_Config_Response_CONST 61
+#define EVENT_PnP_Do_Config_Response_CONST 62
+#define EVENT_PnP_Post_Config_Response_CONST 63
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
