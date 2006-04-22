@@ -82,6 +82,7 @@ class DECLSPECIFIER Row_MediaType_AttributeType : public TableRow, public Serial
 long int m_FK_AttributeType;
 short int m_Identifier;
 short int m_CombineAsOne;
+short int m_MediaSortOption;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -89,13 +90,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 	public:
 		long int EK_MediaType_get();
 long int FK_AttributeType_get();
 short int Identifier_get();
 short int CombineAsOne_get();
+short int MediaSortOption_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -108,6 +110,7 @@ long int psc_restrict_get();
 void FK_AttributeType_set(long int val);
 void Identifier_set(short int val);
 void CombineAsOne_set(short int val);
+void MediaSortOption_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -117,6 +120,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool CombineAsOne_isNull();
+bool MediaSortOption_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -125,6 +129,7 @@ bool psc_restrict_isNull();
 
 			
 		void CombineAsOne_setNull(bool val);
+void MediaSortOption_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -150,7 +155,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_EK_MediaType+ m_FK_AttributeType+ m_Identifier+ m_CombineAsOne+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_EK_MediaType+ m_FK_AttributeType+ m_Identifier+ m_CombineAsOne+ m_MediaSortOption+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -159,6 +164,7 @@ void psc_restrict_setNull(bool val);
 string FK_AttributeType_asSQL();
 string Identifier_asSQL();
 string CombineAsOne_asSQL();
+string MediaSortOption_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
