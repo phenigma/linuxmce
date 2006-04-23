@@ -270,16 +270,24 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
             xine_post_dispose( m_pXine, m_pXineVisualizationPlugin );
             m_pXineVisualizationPlugin = NULL;
         }
-	if (m_pDeinterlacePlugin)
-	{
-	    xine_post_wire_video_port( xine_get_video_source( xineStream->m_pStream ), m_pXineVideo );
-            xine_post_dispose( m_pXine, m_pDeinterlacePlugin );
-            m_pDeinterlacePlugin = NULL; 		
-	}
+		if (m_pDeinterlacePlugin)
+		{
+			xine_post_wire_video_port( xine_get_video_source( xineStream->m_pStream ), m_pXineVideo );
+				xine_post_dispose( m_pXine, m_pDeinterlacePlugin );
+				m_pDeinterlacePlugin = NULL; 		
+		}
 
         // this can be null if we weren't able to open any ports in a previous atempt
         if ( xineStream->m_pStream )
+		{
+	        if ( g_iSpecialSeekSpeed || xineStream->m_pOwner->m_iSpecialOneTimeSeek )
+			{
+				g_iSpecialSeekSpeed=0;
+				xineStream->m_pOwner->m_iSpecialOneTimeSeek=0;
+		        usleep( 300000 );  // Wait to be sure we're not in the middle of a special seek
+			}
             xine_close( xineStream->m_pStream );
+		}
 
         g_pPlutoLogger->Write( LV_STATUS, "Closed!" );
 
@@ -2233,7 +2241,7 @@ void XineSlaveWrapper::StartSpecialSeek( int Speed )
     xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
     m_iPrebuffer = xine_get_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER );
     g_iSpecialSeekSpeed = Speed;
-    xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
+//    xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
     DisplaySpeedAndTimeCode();
     g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
 }

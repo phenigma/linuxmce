@@ -19,6 +19,15 @@ MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMou
 
 void MediaMouseHandler::Start()
 {
+	if( m_pMouseBehavior->m_pMouseHandler_Horizontal && m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj )
+	{
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start media" );
+		m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_bHidden = true;
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+		if( m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject )
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject);
+	}
+
 	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
 		return; // Shouldn't happen, this should be the volume control
 

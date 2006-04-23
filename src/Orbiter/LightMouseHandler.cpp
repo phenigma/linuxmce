@@ -14,6 +14,15 @@ using namespace DCE;
 
 void LightMouseHandler::Start()
 {
+	if( m_pMouseBehavior->m_pMouseHandler_Horizontal && m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj )
+	{
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start light" );
+		m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_bHidden = true;
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+		if( m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject )
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject);
+	}
+
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{

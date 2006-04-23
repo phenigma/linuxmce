@@ -23,7 +23,7 @@ namespace DCE
 	{
 		friend class MouseBehavior;
 
-	protected:
+	public:
 		int m_iLastNotch,m_iCancelLevel;  // Notch = last position on a locked vert/horiz bar.  CancelLevel = if doing discrete movement, cancel returns to this value
 		string m_sCancelLevel; // Same as m_i for cases where a string is better
 		bool m_bTapAndRelease; // The user is adjusting to a discrete/absolute level
@@ -43,7 +43,6 @@ namespace DCE
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y) {}
 
-	public:
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
@@ -97,6 +96,7 @@ namespace DCE
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		EMenuOnScreen m_EMenuOnScreen;
+		bool m_bMouseHandler_Horizontal_Exclusive,m_bMouseHandler_Vertical_Exclusive;
 
 	public:
 		MouseBehavior(Orbiter *pOrbiter);

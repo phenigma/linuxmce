@@ -91,33 +91,6 @@ void LockedMouseHandler::Move(int X,int Y)
 //	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
 //X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
-	if( m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_X && m_pMouseBehavior->m_pObj_Locked_Horizontal )
-	{
-		if( X < m_pMouseBehavior->m_pObj_Locked_Horizontal->m_rPosition.X+m_pMouseBehavior->m_pObj_Locked_Horizontal->m_pPopupPoint.X )
-		{
-			X = m_pMouseBehavior->m_pObj_Locked_Horizontal->m_rPosition.X+m_pMouseBehavior->m_pObj_Locked_Horizontal->m_pPopupPoint.X;
-			m_pMouseBehavior->SetMousePosition(X,Y);
-		}
-		if( X > m_pMouseBehavior->m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pMouseBehavior->m_pObj_Locked_Horizontal->m_pPopupPoint.X )
-		{
-			X = m_pMouseBehavior->m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pMouseBehavior->m_pObj_Locked_Horizontal->m_pPopupPoint.X;
-			m_pMouseBehavior->SetMousePosition(X,Y);
-		}
-	}
-	else if( m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_Y && m_pMouseBehavior->m_pObj_Locked_Vertical )
-	{
-		if( Y < m_pMouseBehavior->m_pObj_Locked_Vertical->m_rPosition.Y+m_pMouseBehavior->m_pObj_Locked_Vertical->m_pPopupPoint.Y )
-		{
-			X = m_pMouseBehavior->m_pObj_Locked_Vertical->m_rPosition.Y+m_pMouseBehavior->m_pObj_Locked_Vertical->m_pPopupPoint.Y;
-			m_pMouseBehavior->SetMousePosition(X,Y);
-		}
-		if( X > m_pMouseBehavior->m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pMouseBehavior->m_pObj_Locked_Vertical->m_pPopupPoint.Y )
-		{
-			X = m_pMouseBehavior->m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pMouseBehavior->m_pObj_Locked_Vertical->m_pPopupPoint.Y;
-			m_pMouseBehavior->SetMousePosition(X,Y);
-		}
-	}
-
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 //	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
 //		( (m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false || m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ChildObjects.size()) )

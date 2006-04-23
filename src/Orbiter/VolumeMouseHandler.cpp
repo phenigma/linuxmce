@@ -15,6 +15,16 @@ using namespace DCE;
 void VolumeMouseHandler::Start()
 {
 m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
+
+	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
+	{
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
+		m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_bHidden = true;
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+		if( m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject )
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject);
+	}
+
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;

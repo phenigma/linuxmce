@@ -37,6 +37,7 @@ namespace DCE
 
 	public:
 		SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
+		~SpeedMouseHandler();
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Speed; }
 
 		void Start();

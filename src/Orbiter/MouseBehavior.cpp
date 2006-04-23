@@ -150,6 +150,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		}
 		m_pObj_Locked_Vertical=pObj;
 		m_pMouseHandler_Vertical=pMouseHandler;
+		m_bMouseHandler_Vertical_Exclusive=bExclusive;
 		m_sVerticalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
 		if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
@@ -165,6 +166,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		}
 		m_pObj_Locked_Horizontal=pObj;
 		m_pMouseHandler_Horizontal=pMouseHandler;
+		m_bMouseHandler_Horizontal_Exclusive=bExclusive;
 		m_sHorizontalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
 		if( m_cLocked_Axis_Current==AXIS_LOCK_X )
@@ -232,8 +234,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 		return;
 	}
 
-
-
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 	{
 		if( m_pMouseHandler_Horizontal->m_bLockAxis )
@@ -246,7 +246,19 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 			m_pMouseHandler_Horizontal=NULL;
 		}
 		else
+		{
+			if( X < m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+			{
+				X = m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+				SetMousePosition(X,Y);
+			}
+			if( X > m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+			{
+				X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+				SetMousePosition(X,Y);
+			}
 			m_pMouseHandler_Horizontal->Move(X, Y);
+		}
 	}
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 	{
@@ -260,13 +272,28 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 			m_pMouseHandler_Vertical=NULL;
 		}
 		else
+		{
+			if( Y < m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+			{
+				X = m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+				SetMousePosition(X,Y);
+			}
+			if( X > m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+			{
+				X = m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+				SetMousePosition(X,Y);
+			}
 			m_pMouseHandler_Vertical->Move(X, Y);
+		}
 	}
 }
 
 bool MouseBehavior::CheckForChangeInDirection(int X,int Y)
 {
 	unsigned long dwTime = ProcessUtils::GetMsTime();
+	if( (m_cLocked_Axis_Current == AXIS_LOCK_Y && m_bMouseHandler_Vertical_Exclusive) ||
+		(m_cLocked_Axis_Current == AXIS_LOCK_X && m_bMouseHandler_Horizontal_Exclusive) )
+			return false;
 	
 	if( dwTime-m_dwSamples[0]<MouseSensitivity::SampleInterval )
 	{

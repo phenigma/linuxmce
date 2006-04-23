@@ -8443,6 +8443,8 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	if( !bSuccessful )
 		return; // Popup must have already been there
 
+	ResetState(pObj_Popup);
+
 	VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
 	ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, pObj_Popup, &pt );
 	HandleNewObjectsOnScreen( &vectDesignObj_Orbiter_OnScreen );

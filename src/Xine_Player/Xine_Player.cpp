@@ -987,6 +987,14 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
+	if(	sMediaPosition.substr(0,5)==" POS:" && sMediaPosition.size()<15 ) // See if there's only a POS and nothing else.  If so, just do a seek
+	{
+		int Position = atoi(sMediaPosition.substr(5).c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() just a seek within current called for filename: %s (%s) with slave %p. to pos %d", m_sCurrentFile.c_str(),sMediaPosition.c_str(),m_pXineSlaveControl,Position);
+		m_pXineSlaveControl->Seek(Position,0);
+		m_pXineSlaveControl->DisplaySpeedAndTimeCode();
+		return;
+	}
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s (%s) with slave %p.", m_sCurrentFile.c_str(),sMediaPosition.c_str(),m_pXineSlaveControl);
 	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
 }
