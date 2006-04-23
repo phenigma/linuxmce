@@ -42,7 +42,7 @@ void KeyboardMouseHandler::Start()
 				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 		}
 		m_pObj_MediaBrowser_Scrolling_Speed = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoSpeedOptions_CONST));
-		m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_grpAlpha_CONST));
+		m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
 		if( m_pObj_MediaBrowser_Scrolling_Speed && !m_pObj_MediaBrowser_Scrolling_Speed->m_bOnScreen )
 			m_pObj_MediaBrowser_Scrolling_Speed = NULL;
 		if( m_pObj_MediaBrowser_Alpha && !m_pObj_MediaBrowser_Alpha->m_bOnScreen )

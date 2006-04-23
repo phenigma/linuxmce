@@ -110,7 +110,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		" obj id %s ", pObj, sDesignObj.c_str());
 		
 	MouseHandler *pMouseHandler=NULL;
-	if( !pObj && sOptions[0] =='K' )  // Only the keyboard handler does not require an object
+	if( !pObj && sOptions[0] !='K' )  // Only the keyboard handler does not require an object
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior options %s, obj %s invalid",sOptions.c_str(),sDesignObj.c_str());
 		return;

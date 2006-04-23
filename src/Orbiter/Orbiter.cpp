@@ -644,6 +644,7 @@ void Orbiter::RenderScreen( )
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	// Temporary nasty hack! TODO -- temp
 	if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST &&
 		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
@@ -653,6 +654,7 @@ void Orbiter::RenderScreen( )
 			pKeyboardMouseHandler->TempHack_DrawSpeedSquare(pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid,pKeyboardMouseHandler->m_iLastNotch,PlutoColor::White());
 		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------
