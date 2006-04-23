@@ -1977,11 +1977,8 @@
 #define DESIGNOBJ_popMythRecordings_CONST 4901
 #define DESIGNOBJ_popMythOptions_CONST 4902
 #define DESIGNOBJ_butShowMythOptions_CONST 4903
-#define DESIGNOBJ_butActor_CONST 4907
-#define DESIGNOBJ_butDirector_CONST 4909
 #define DESIGNOBJ_grpMediaOptions_CONST 4910
-#define DESIGNOBJ_grpAlpha_CONST 4911
-#define DESIGNOBJ_butA_CONST 4912
+#define DESIGNOBJ_icoAlpha_CONST 4911
 #define DESIGNOBJ_TVWhatDelays_CONST 4913
 #define DESIGNOBJ_TVHowToTune_CONST 4914
 #define DESIGNOBJ_TVConfirmOnOffDiscrete_CONST 4915
@@ -2036,7 +2033,10 @@
 #define DESIGNOBJ_butGotoSpeed_CONST 4971
 #define DESIGNOBJ_butGotoAmbiance_CONST 4972
 #define DESIGNOBJ_icoSpeedOptions_CONST 4973
+#define DESIGNOBJ_arrMediaTypeSort_CONST 4974
+#define DESIGNOBJ_butMediaTypeSort_CONST 4975
 #define DESIGNOBJ_grpMediaSortOptions_CONST 4976
+#define DESIGNOBJ_icoModeBabySitter_CONST 4977
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
