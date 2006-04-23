@@ -1223,7 +1223,7 @@ int XineSlaveWrapper::translate_point( int gui_x, int gui_y, int *video_x, int *
 /**
     \fn XineSlaveWrapper::changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed)
  */
-void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType desiredSpeed )
+void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType desiredSpeed, bool ReportOnOSD )
 {
     XineStream * pStream;
     g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
@@ -1270,7 +1270,7 @@ void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType des
             break;
     }
 
-    if ( desiredSpeed == PLAYBACK_FF_1 )
+    if ( ReportOnOSD==false )
        DisplayOSDText( "" );
     else
        DisplaySpeedAndTimeCode();
@@ -2132,8 +2132,8 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
     if ( xineStream == NULL )
         return ;
 
-    int Whole = g_iSpecialSeekSpeed / 1000;
-    int Fraction = g_iSpecialSeekSpeed % 1000;
+    int Whole = xineStream->m_iPlaybackSpeed / 1000;
+    int Fraction = xineStream->m_iPlaybackSpeed % 1000;
     string sSpeed;
 
     if ( Fraction < 0 )
@@ -2177,9 +2177,9 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
     else
         sSpeed += StringUtils::itos( seconds );
 
-    if ( ( g_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
-        DisplayOSDText("");
-    else
+//    if ( ( g_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
+//        DisplayOSDText("");
+//    else
         DisplayOSDText( sSpeed );
 }
 

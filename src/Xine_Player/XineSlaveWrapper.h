@@ -284,8 +284,8 @@ public:
      * @brief change the stream playback speed.
      */
 
-    void changePlaybackSpeed( int iStreamID, PlayBackSpeedType newSpeed );
-
+    void changePlaybackSpeed( int iStreamID, PlayBackSpeedType newSpeed, bool ReportOnOSD );
+ 
     /**
      * @brief get current playback speed
      */

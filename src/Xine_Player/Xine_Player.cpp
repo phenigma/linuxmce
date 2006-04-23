@@ -365,8 +365,10 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 			/** The media needing the playback speed change. */
 		/** @param #43 MediaPlaybackSpeed */
 			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
+		/** @param #220 Report */
+			/** If true, report this speed to the user on the OSD */
 
-void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,bool bReport,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
@@ -380,7 +382,7 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)iMediaPlaybackSpeed);
+	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)iMediaPlaybackSpeed, bReport);
 }
 
 //<-dceag-c63-b->

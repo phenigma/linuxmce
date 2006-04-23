@@ -27,7 +27,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");
 
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
-	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0);
+	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
 
 	string sText,sMediaPosition;
@@ -79,7 +79,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonDown cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
-		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
+		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		if( PK_Button==BUTTON_Mouse_2_CONST && m_bHasTimeline )
 		{
@@ -99,7 +99,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonUp cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
-		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000);
+		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		m_pMouseBehavior->Clear();
 		return false; // this is now invalid
@@ -122,7 +122,7 @@ void SpeedMouseHandler::Move(int X,int Y)
 		if( Speed!=m_iLastNotch )
 		{
 g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::Move speed %d",Speed);
-			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed);
+			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed,true);
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Speed;
 			Update();
