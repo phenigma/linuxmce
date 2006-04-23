@@ -62,6 +62,8 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_DesignObj.h"
 #include "pluto_main/Define_VertAlignment.h"
+#include "pluto_media/Table_MediaType_AttributeType.h"
+#include "pluto_media/Table_AttributeType.h"
 
 #define TOTAL_ESTIMATED_SCREENS 200
 
@@ -121,7 +123,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4878 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4891  || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4861 ||  m_pRow_DesignObj->PK_DesignObj_get()==4970 ) // || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -155,6 +157,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// || m_pRow_DesignObj->PK_Desig
 		m_bDontShare = true;
         m_iVersion = m_pOrbiterGenerator->m_iLocation;
 		m_bLocationSpecific=true;
+		if( m_pOrbiterGenerator->m_dwMediaType )
+			m_iVersion = m_pOrbiterGenerator->m_dwMediaType;
     }
 
 	if( bAddToGenerated )
@@ -1628,6 +1632,22 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             break;
         }
 
+		case ARRAY_Media_Type_Sorts_CONST:
+			{
+				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;
+				m_pOrbiterGenerator->m_Database_pluto_media.MediaType_AttributeType_get()->GetRows("EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + " AND MediaSortOption IS NOT NULL ORDER BY MediaSortOption",&vectRow_MediaType_AttributeType);
+				for(vector<Row_MediaType_AttributeType *>::iterator it=vectRow_MediaType_AttributeType.begin();it!=vectRow_MediaType_AttributeType.end();++it)
+				{
+					Row_MediaType_AttributeType *pRow_MediaType_AttributeType = *it;
+					Row_AttributeType *pRow_AttributeType = pRow_MediaType_AttributeType->FK_AttributeType_getrow();
+					if( !pRow_AttributeType )
+						continue; // Shouldn't happen 
+
+	                alArray->push_back(new ArrayValue(StringUtils::itos(pRow_AttributeType->PK_AttributeType_get()),
+						pRow_AttributeType->Description_get(),NULL,0,0,0,VARIABLE_Sort_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+				}
+			}
+			break;
 
         case ARRAY_Phone_Users_CONST:
         case ARRAY_All_Users_CONST:

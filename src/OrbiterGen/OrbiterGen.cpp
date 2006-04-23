@@ -286,6 +286,12 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
+	if( !m_Database_pluto_media.Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,"pluto_media",m_iMySQLPort) )
+	{
+		cout << "Failed to connect to pluto_media database" << endl;
+		exit(1);
+	}
+
 	m_pRow_Device = mds.Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
 		throw "No orbiter info for device: "; 
@@ -1323,6 +1329,31 @@ m_bNoEffects = true;
 				SearchForGotos(ocDesignObj);
 			}
 		}
+	}
+
+	// Now include all the media sort options if this it UI version 2
+	if( m_pRow_UI->Version_get()==2 && (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
+	{
+		Row_DesignObj *pRow_DesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_grpMediaSortOptions_CONST);
+		string sSQL = "select DISTINCT EK_MediaType FROM MediaType_AttributeType where MediaSortOption is not null";
+		PlutoSqlResult result_set_array;
+		MYSQL_ROW row;
+		if( (result_set_array.r=m_Database_pluto_media.mysql_query_result(sSQL)) )
+		{
+			while ((row = mysql_fetch_row(result_set_array.r)))
+			{
+				m_dwMediaType = atoi(row[0]);
+				m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
+				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+				ocDesignObj->m_bIsPopup=true;
+				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+				if( ocDesignObj->m_bUsingCache )
+				{
+					SearchForGotos(ocDesignObj);
+				}
+			}
+		}
+		m_dwMediaType=0;
 	}
 
 	list< pair<Row_DesignObj *,int> >::iterator itnol;

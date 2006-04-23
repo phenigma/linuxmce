@@ -92,6 +92,31 @@ public:
 
 	void RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid, int PK_DeviceTemplate );
 
+	DataGridGeneratorCallBack *GetCallBack(int iPK_DataGrid, int PK_DeviceTemplate)
+	{
+		DataGridGeneratorCallBack *pCB=NULL;
+		map<int, DatagridGeneratorCallBackMap *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
+		if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
+		{
+			if( itGridCB->second->size()==1 )
+				pCB = itGridCB->second->begin()->second;
+			else
+			{
+				DatagridGeneratorCallBackMap *pDatagridGeneratorCallBackMap = itGridCB->second;
+				DatagridGeneratorCallBackMap::iterator itCB;
+				if( (itCB=pDatagridGeneratorCallBackMap->find(PK_DeviceTemplate))==pDatagridGeneratorCallBackMap->end() )
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
+					pCB = pDatagridGeneratorCallBackMap->begin()->second;
+				}
+				else
+					pCB = itCB->second;
+			}
+		}
+		return pCB;
+	}
+
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

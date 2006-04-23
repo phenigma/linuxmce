@@ -42,6 +42,7 @@
 #define VARIABLE_PK_Users_CONST 39
 #define VARIABLE_Caller_name_CONST 40
 #define VARIABLE_Caller_number_CONST 41
+#define VARIABLE_Sort_CONST 42
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

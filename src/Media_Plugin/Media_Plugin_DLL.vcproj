@@ -153,7 +153,13 @@
 				RelativePath="Media_Plugin.cpp">
 			</File>
 			<File
+				RelativePath="Media_Plugin_Grids.cpp">
+			</File>
+			<File
 				RelativePath="Media_Plugin.def">
+			</File>
+			<File
+				RelativePath=".\Media_Plugin_Grids.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">

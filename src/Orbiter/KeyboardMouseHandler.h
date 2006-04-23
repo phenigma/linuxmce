@@ -24,9 +24,9 @@ namespace DCE
 		char m_cDirection;
 		int m_dwPK_Direction_ScrollGrid;
 		DesignObj_DataGrid *m_pObj_ScrollingGrid;
-
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Scrolling_Speed,*m_pObj_MediaBrowser_Alpha;
 	public:
-		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_ScrollingGrid=NULL; }
+		KeyboardMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) { m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_MediaBrowser_Alpha=m_pObj_MediaBrowser_Scrolling_Speed=m_pObj_ScrollingGrid=NULL; }
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Keyboard; }
 
 		void Start();
@@ -47,6 +47,11 @@ namespace DCE
 		PlutoRectangle GetHighlighedObjectCoordinates();
 		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
 		void ScrollGrid(int dwPK_Direction,int X,int Y);
+
+
+friend class Orbiter; // Temporary hack
+void TempHack_DrawSpeedSquare(int dwPK_Direction,int Notch,PlutoColor plutoColor);
+void TempHack_DrawAlphaSquare();
 	};
 }
 //-----------------------------------------------------------------------------------------------------

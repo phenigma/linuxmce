@@ -162,7 +162,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("4878")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("4973")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -710,9 +710,15 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         else if( bPreserveAspectRatio )
         {
             if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
-                scaleX=scaleY;
+			{
+				if( scaleY/scaleX<0.94 )  // If we're this close, then it's probably just a rounding error during scaling.  A 6% distortion won't be noticeable, it's more important to fit the target size exactly
+	                scaleX=scaleY;
+			}
             else
-                scaleY=scaleX;
+			{
+				if( scaleX/scaleY<0.94 )
+	                scaleY=scaleX;
+			}
         }
 /*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */

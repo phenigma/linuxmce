@@ -97,6 +97,11 @@ void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,i
 	m_EIteratorFunction=eIteratorFunction;
 	m_dwParm=dwParm;
 	m_dwFrequency_Ms=dwFrequency_Ms;
+	if( m_dwFrequency_Ms<0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MouseIterator::SetIterator frequency <0");
+		m_dwFrequency_Ms = 1000;  // shouldn't happen
+	}
 	switch(eIteratorFunction)
 	{
 	case if_Volume:

@@ -62,6 +62,7 @@
 #define DATAGRID_Floorplan_Telecom_Streams_CONST 60
 #define DATAGRID_Recent_Calls_CONST 61
 #define DATAGRID_Speed_Dial_CONST 62
+#define DATAGRID_Media_Browser_CONST 63
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

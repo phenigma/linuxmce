@@ -65,6 +65,10 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+
+	// Temporary nasty hack! TODO -- temp
+#include "KeyboardMouseHandler.h"
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
@@ -639,6 +643,16 @@ void Orbiter::RenderScreen( )
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
+
+	// Temporary nasty hack! TODO -- temp
+	if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST &&
+		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+	{
+		KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+		if( pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid && pKeyboardMouseHandler->m_iLastNotch!=-999 )
+			pKeyboardMouseHandler->TempHack_DrawSpeedSquare(pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid,pKeyboardMouseHandler->m_iLastNotch,PlutoColor::White());
+		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -2487,6 +2501,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject2 %p",m_pObj_Highlig
 	if( !m_pObj_Highlighted )
 		return;
 
+if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
+	int k=2;
+
 g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject3 %p",m_pObj_Highlighted);
 	ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_HighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
 g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject4 %p",m_pObj_Highlighted);
@@ -2755,8 +2772,13 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		return m_pObj_Highlighted!=NULL;
 	}
 
-	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && m_pObj_Highlighted->m_pDataGridTable )
+	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
+		if( !m_pObj_Highlighted->m_pDataGridTable )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::HighlightNextObject !m_pObj_Highlighted->m_pDataGridTable");
+			return false;
+		}
 		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
@@ -10189,13 +10211,6 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 	}
 
 	DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
-	if( !pCell )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
-			m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
-		return;
-
-	}
 
 	//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
 	if(pGrid->m_iHighlightedRow == -1)
@@ -10203,8 +10218,8 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 
 	PlutoRectangle r;
 	GetGridCellDimensions( pGrid,
-		pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan,
-		pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
+		pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : (pCell ? pCell->m_Colspan : 1),
+		pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : (pCell ? pCell->m_Rowspan : 1),
 		pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
 		pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow,
 		r.X,  r.Y,  r.Width,  r.Height );

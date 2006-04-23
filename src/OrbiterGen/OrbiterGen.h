@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_media/Database_pluto_media.h"
 #include "DesignObj_Generator.h"
 #include "Orbiter/OrbiterData.h"
 #include "PlutoUtils/MySQLHelper.h"
@@ -13,6 +14,7 @@ class OrbiterGenerator : public OrbiterData, public MySqlHelper
 {
 public:
 	Database_pluto_main mds;
+	Database_pluto_media m_Database_pluto_media;
 
 	class Row_Orbiter * m_pRow_Orbiter;
 	class Row_Device * m_pRow_Device;
@@ -26,7 +28,7 @@ public:
 	bool m_bNoEffects,m_bUseOCG;
 	bool m_bIgnoreSelected, m_bIgnoreHighlighted, m_bIgnoreAlt;
 
-
+	int m_dwMediaType;
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;
 	map<int,int> m_mapUsedOrbiterCriteria;
@@ -82,6 +84,7 @@ public:
 		m_sFloorPlanData="";
 		m_iNumFloorplanItems=0;
 		Counter=0;
+		m_dwMediaType=0;
 		m_iID_Array="0";
 		m_bDontAutoRegenArrays=false;
 		m_iPK_DesignObj_Screen=0;

@@ -24,6 +24,7 @@ INTERNAL_LIBS_NAMES += pluto_main pluto_media
 
 Gen_Dev_Files += 
 sources += \
+	Media_Plugin_Grids.cpp \
 	MediaHandlerInfo.cpp \
 	MediaAttributes.cpp \
 	MediaAttributes_LowLevel.cpp \
