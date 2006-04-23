@@ -364,7 +364,7 @@ bool SlimServerClient::pauseDataReader()
 bool SlimServerClient::unpauseDataReader()
 {
 	PLUTO_SAFETY_LOCK(xineSlaveMutex, *m_pXineSlaveMutex);
-	m_pXineSlave->changePlaybackSpeed(m_iStreamID, XineSlaveWrapper::PLAYBACK_FF_1);
+	m_pXineSlave->changePlaybackSpeed(m_iStreamID, XineSlaveWrapper::PLAYBACK_FF_1, false);
 	return true;
 }
 

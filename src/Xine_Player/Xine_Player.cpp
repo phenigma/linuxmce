@@ -213,7 +213,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	// If no file is specified, treat it as an 'unpause'
 	if( sFilename.size()==0 )
 	{
-		m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)1000);
+		m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)1000,false);
 		return;
 	}
 
