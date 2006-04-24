@@ -23,5 +23,5 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
 {
-	SDL_ShowCursor(bShowCursor ? SDL_ENABLE : SDL_DISABLE);
+	SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 }
