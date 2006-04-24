@@ -117,6 +117,7 @@ namespace DCE
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pSamples[0].X=X; m_pSamples[0].Y=Y; g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y); }
 		virtual void GetMousePosition(PlutoPoint *p) { }
+		virtual void ShowMouse(bool bShow) { }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
 	};

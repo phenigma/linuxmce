@@ -20,3 +20,8 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 	MouseBehavior::SetMousePosition(X,Y);
     SDL_WarpMouse(X,Y);
 }
+
+void MouseBehavior_Linux::ShowMouse(bool bShow)
+{
+	SDL_ShowCursor(bShowCursor ? SDL_ENABLE : SDL_DISABLE);
+}

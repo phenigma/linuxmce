@@ -3795,9 +3795,7 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 {
 	static bool bShowCursor=true;
 	bShowCursor=!bShowCursor;
-#ifdef WIN32 //undefined under linux?	
-	ShowCursor(bShowCursor);
-#endif	
+	m_pMouseBehavior->ShowMouse(bShowCursor);
 }
 #endif
 

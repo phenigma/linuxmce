@@ -21,6 +21,7 @@ namespace DCE
 	public:
 		MouseBehavior_Linux(Orbiter *pOrbiter);
 		virtual void SetMousePosition(int X,int Y);
+		virtual void ShowMouse(bool bShow);
 	};
 }
 //-----------------------------------------------------------------------------------------------------
