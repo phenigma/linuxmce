@@ -49,6 +49,10 @@ namespace DCE
 
 		bool ParsePosition(string sMediaPosition);
 		void Update();
+
+		void DrawInfo();
+		string FormatTime(int Time);
+		int ParseTime(string sTime);
 	};
 
 }

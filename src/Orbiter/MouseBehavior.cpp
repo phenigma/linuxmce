@@ -382,8 +382,15 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 	if( m_pMouseHandler_Horizontal && m_pMouseHandler_Horizontal->TypeOfMouseHandler()==MouseHandler::mh_Speed )
 	{
 		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler_Horizontal;
-		pSpeedMouseHandler->m_CurrentMedia_Stop = atoi(sTotal.c_str());
-		pSpeedMouseHandler->m_CurrentMedia_Pos = atoi(sTime.c_str());
+		int Stop = pSpeedMouseHandler->ParseTime(sTotal);
+		int Current = pSpeedMouseHandler->ParseTime(sTime);
+		if( Stop==pSpeedMouseHandler->m_CurrentMedia_Stop && Current==pSpeedMouseHandler->m_CurrentMedia_Pos )
+			return;
+		pSpeedMouseHandler->m_CurrentMedia_Stop = Stop;
+		pSpeedMouseHandler->m_CurrentMedia_Pos = Current;
+NeedToRender render( m_pOrbiter, "start speed" );
+m_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
+
 		pSpeedMouseHandler->Update();
 	}
 }

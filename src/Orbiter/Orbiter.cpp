@@ -68,6 +68,7 @@ using namespace DCE;
 
 	// Temporary nasty hack! TODO -- temp
 #include "KeyboardMouseHandler.h"
+#include "SpeedMouseHandler.h"
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
@@ -653,6 +654,13 @@ void Orbiter::RenderScreen( )
 		if( pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid && pKeyboardMouseHandler->m_iLastNotch!=-999 )
 			pKeyboardMouseHandler->TempHack_DrawSpeedSquare(pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid,pKeyboardMouseHandler->m_iLastNotch,PlutoColor::White());
 		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
+	}
+
+	if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuSpeed_CONST &&
+		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+	{
+		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+		pSpeedMouseHandler->DrawInfo();
 	}
 #endif
 }
