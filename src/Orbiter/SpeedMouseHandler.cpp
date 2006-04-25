@@ -329,7 +329,7 @@ void SpeedMouseHandler::DrawInfo()
 	if( m_bHasTimeline )
 	{
 		DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Time_CONST);
-		if( m_CurrentMedia_Pos>0 )
+		if( pText && m_CurrentMedia_Pos>0 )
 		{
 			float Percent = ((float) m_CurrentMedia_Pos) / (m_CurrentMedia_Stop-m_CurrentMedia_Start);
 			int Offset = m_pObj->m_rPosition.Width * Percent - 5;
@@ -344,10 +344,12 @@ void SpeedMouseHandler::DrawInfo()
 		}
 
 		pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Start_Time_CONST);
-		pText->m_sText = FormatTime(m_CurrentMedia_Start);
+		if( pText )
+			pText->m_sText = FormatTime(m_CurrentMedia_Start);
 
 		pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Stop_Time_CONST);
-		pText->m_sText = FormatTime(m_CurrentMedia_Stop);
+		if( pText )
+			pText->m_sText = FormatTime(m_CurrentMedia_Stop);
 	}
 }
 
