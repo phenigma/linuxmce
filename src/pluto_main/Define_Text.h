@@ -951,9 +951,6 @@
 #define TEXT_DiscreteCodesDSPModes_CONST 1663
 #define TEXT_ToggleCodesDSPModes_CONST 1664
 #define TEXT_ModelNotListed_CONST 1665
-#define TEXT_Current_Time_CONST 1666
-#define TEXT_Stop_Time_CONST 1667
-#define TEXT_Start_Time_CONST 1668
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
