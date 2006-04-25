@@ -340,22 +340,20 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 
 void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
 {
-    // not need this anymore
-}
-
-void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
-{
-    g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
-}
-
-void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
-{
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
+	if( sOnOff!="X" )
+		return;
 Display *dpy = XOpenDisplay (NULL);
 Window win = DefaultRootWindow (dpy);
-g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE");
 
+SDL_SysWMinfo sdlinfo;
+SDL_VERSION(&sdlinfo.version);
+int r2=SDL_GetWMInfo(&sdlinfo);
+Window w2 = sdlinfo.info.x11.wmwindow;
+Window w3 = sdlinfo.info.x11.window;
+Window w4 = sdlinfo.info.x11.fswindow;
+g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE window %d, r2: %d, w2: %d w3: %d w5: %d",(int) win,r2,(int) w2,(int) w3,(int) w4);
 
+win = w3;
 Pixmap blank;
 XColor dummy;
 char data[1] = {0};
@@ -369,10 +367,11 @@ XFreePixmap (dpy, blank);
 
 int iresult=XGrabPointer(dpy, win,
 			 True,
-			 0,
-			 GrabModeAsync, GrabModeAsync,
-			 win,
-			 cursor,
+0,//ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, //			 0,
+			 GrabModeSync, GrabModeSync,
+//			 GrabModeAsync, GrabModeAsync,
+			 None, //win,
+			 None, //cursor,
 			 CurrentTime);
       g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iresult);
 /*
@@ -390,6 +389,17 @@ NULL, cursor, CurrentTime)
       Cursor cursor; 
       Time time; 
 */
+    // not need this anymore
+}
+
+void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+{
+    g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
+}
+
+void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
+{
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_WinListManager.SetExternApplicationName(sWindowName);
 }
 
