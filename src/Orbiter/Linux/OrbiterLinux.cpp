@@ -351,7 +351,46 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
-    m_WinListManager.SetExternApplicationName(sWindowName);
+Display *dpy = XOpenDisplay (NULL);
+Window win = DefaultRootWindow (dpy);
+g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE");
+
+
+Pixmap blank;
+XColor dummy;
+char data[1] = {0};
+Cursor cursor;
+
+/* make a blank cursor */
+blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+if(blank == None) fprintf(stderr, "error: out of memory.\n");
+cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+XFreePixmap (dpy, blank);
+
+int iresult=XGrabPointer(dpy, win,
+			 True,
+			 0,
+			 GrabModeAsync, GrabModeAsync,
+			 win,
+			 cursor,
+			 CurrentTime);
+      g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iresult);
+/*
+
+/*int XGrabPointer(dpy, rootwindow, true, 
+ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask				 
+, GrabModeAsync, GrabModeAsync, 
+NULL, cursor, CurrentTime)
+      Display *display;
+      Window grab_window;
+      Bool owner_events;
+      unsigned int event_mask;	
+      int pointer_mode, keyboard_mode; 
+      Window confine_to; 
+      Cursor cursor; 
+      Time time; 
+*/
+	m_WinListManager.SetExternApplicationName(sWindowName);
 }
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
