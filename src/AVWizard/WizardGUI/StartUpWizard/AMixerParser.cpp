@@ -1,0 +1,157 @@
+#include "AMixerParser.h"
+
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+
+AMixerParser* AMixerParser::Instance = NULL;
+
+AMixerParser::AMixerParser(void)
+{
+}
+
+AMixerParser::~AMixerParser(void)
+{
+}
+
+AMixerOptions* AMixerParser::ParseConfig(std::string FileName)
+{
+	
+#ifdef WIN32
+	if(FileName == "")
+		FileName = "mixercontrols.txt";
+#else
+	if(FileName == "")
+	    FileName = "/tmp/mixercontrols.txt";
+	char Command[1024];
+	sprintf (Command, "amixer scontrols > %s", FileName.c_str());
+	system(Command);
+#endif
+	std::ifstream FInput;
+
+	char Buffer[1024];
+
+	AMixerOptions* Mixer = new AMixerOptions();
+
+	FInput.open(FileName.c_str());
+	if(!FInput)
+		return NULL;
+
+	while(!FInput.eof())
+	{
+		FInput.getline(Buffer, 1024);
+		BuildOptions(Mixer, Buffer);	
+	}
+
+	return NULL;
+}
+
+void AMixerParser::BuildOptions(AMixerOptions* Options, char* Line)
+{
+	if(Line == NULL) 
+		return;
+	if(strlen(Line) == 0)
+		return;
+
+	char* MixerName = strtok(Line, "'");
+
+	MixerName = strtok(NULL, "'");
+
+	std::cout<<MixerName<<std::endl;
+
+}
+
+void AMixerParser::GetControlLowerAndUpper(char* Line, int& LowerBound, int& UpperBound)
+{
+	char* Token = strtok (Line, " ");
+	Token = strtok(NULL, " ");
+	Token = strtok(NULL, " ");
+	sscanf(Token, "%d", &LowerBound);
+	Token = strtok(NULL, " ");
+	Token = strtok(NULL, " ");
+	sscanf(Token, "%d", &UpperBound);
+}
+
+void AMixerParser::GetControlValue(char* Line, int& Value)
+{
+	char* Token = strtok (Line, " ");
+	Token = strtok(NULL, " ");
+	Token = strtok(NULL, " ");
+	Token = strtok(NULL, " ");
+	sscanf(Token, "%d", &Value);
+}
+
+
+
+bool AMixerParser::GetControlLimits(char* Line, int& LowerBound, int& UpperBound, int& Value)
+{
+	int ParseMode = 0;
+	//That line may content the Lower/Upper bound information
+	if(strstr(Line, "Limits: ") != NULL)
+		ParseMode = 1;
+
+	//That line may content the current control value
+	if(strstr(Line, "Front Left: Playback ") != NULL)
+		ParseMode = 2;
+
+	if (!ParseMode)
+		return false;
+
+	switch(ParseMode) {
+	case 1:
+		GetControlLowerAndUpper(Line, LowerBound, UpperBound);
+		break;
+	case 2:
+		GetControlValue(Line, Value);
+		break;
+	}
+
+	return true;
+}
+
+bool AMixerParser::GetControlOptions(char* ControlName, int& LowerBound, int& UpperBound, int& Value)
+{
+	char FileName[32];
+#ifdef WIN32
+	strcpy(FileName, "mixerlimits.txt");
+#else
+	strcpy(FileName, "/tmp/mixerlimits.txt");
+
+	char Command[1024];
+	sprintf (Command, "amixer sget %s > %s", ControlName, FileName);
+	system(Command);
+#endif
+
+	char Buffer[1024];
+	std::ifstream FInput;
+	FInput.open(FileName);
+	if(!FInput)
+		return false;
+
+	while(!FInput.eof())
+	{
+		FInput.getline(Buffer, 1024);
+		GetControlLimits(Buffer, LowerBound, UpperBound, Value);	
+	}
+
+	FInput.close();
+	return true;
+}
+
+AMixerParser* AMixerParser::GetInstance()
+{
+	if(Instance == NULL)
+		Instance = new AMixerParser();
+	return Instance;
+}
+
+void AMixerParser::CleanUp()
+{
+	if(Instance != NULL)
+	{
+		delete Instance;
+		Instance = NULL;
+	}
+}
+

@@ -1,6 +1,5 @@
 #include "WM_Event.h"
 
-
 void WM_Event::Quit()
 {
 	this->Type = WMET_QUIT;
@@ -26,6 +25,16 @@ void WM_Event::DownKey()
 	this->Type = WMET_DOWN_KEY;	
 }		
 
+void WM_Event::EnterKey()
+{
+	this->Type = WMET_ENTER_KEY;	
+}
+
+void WM_Event::EscapeKey()
+{
+	this->Type = WMET_ESCAPE_KEY;
+}
+
 void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 {
 	switch(Event.type)
@@ -49,7 +58,10 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 					RightKey();
 					break;
 				case SDLK_ESCAPE:
-					Quit();
+					EscapeKey();
+					break;
+				case SDLK_RETURN:
+					EnterKey();
 					break;
 				default:
 					Type = 0;

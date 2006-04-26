@@ -1,9 +1,10 @@
-#include "resolutionrefreshscreen.h"
+#include "ResolutionRefreshScreen.h"
 
-ResolutionRefreshScreen::ResolutionRefreshScreen(void)
+ResolutionRefreshScreen::ResolutionRefreshScreen(SDLFrontEnd* FrontEnd, std::string Name)
+	: WizardPage(FrontEnd, Name)
 {
 }
 
-ResolutionRefreshScreen::~ResolutionRefreshScreen(void)
+ResolutionRefreshScreen::~ResolutionRefreshScreen()
 {
 }

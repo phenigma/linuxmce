@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef SCREEN_MANAGER_H
 #define SCREEN_MANAGER_H
 

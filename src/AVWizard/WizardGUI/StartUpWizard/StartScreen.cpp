@@ -1,6 +1,7 @@
-#include ".\startscreen.h"
+#include "StartScreen.h"
 
-StartScreen::StartScreen(void)
+StartScreen::StartScreen(SDLFrontEnd* FrontEnd, std::string Name)
+	: WizardPage(FrontEnd, Name)
 {
 }
 

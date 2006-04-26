@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef Wizard_H_
 #define Wizard_H_
 
@@ -15,19 +18,45 @@
 #define WIZARD_DESELECTED_FONT_SIZE		30
 #define WIZARD_DESELECTED_LABEL_SIZE	20
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+
 /**
  *	For now may change only the resolution and the refresh
  */
-#define WIZARD_NO_POSSIBLE_ACTIONS 2
+#include "WizardPage.h"
 
-#include "WizardGUI.h"
+#include "SettingsDictionaryTree.h"
 
+/**
+ *	Singleton class that consist all the wizard, is singleton because 
+ *	is the core class of the AVWizard
+ */
 class Wizard
 {
+
+	/**
+	 *	Current video mode that runs the wizard
+	 */
+	int Width;
+	int Height;
+	bool FullScreen;
+
+	/**
+	 *	SettingsDictionary that keeps the options of command line
+	 */
+	SettingsDictionary CommandLineOptions;
+
+	/**
+	 *	Index to current page in the wizard
+	 */
+	int CurrentPage;
 	/**
 	 *	The current page of the wizard
 	 */
-	WizardGUI Pages;
+	WizardPage* MainPage;
 	
 	/**
 	 * Quit attribute is true if the application is pending to quit
@@ -46,9 +75,7 @@ class Wizard
 	/**
 	 * Last pending event definition
 	 */
-	 
 	WM_Event Event;
-	
 	/**
 	 * Treat the current keys and window events
 	 */
@@ -76,19 +103,51 @@ class Wizard
 	 * Change WizardChangeType mode to the next one
 	 */
 	void DoChangeActionAfter();
+	/**
+	 *	Apply the current settings from the current screen
+	 */
+	void DoApplyScreen(SettingsDictionary* Settings);
+	/**
+	 *	Apply the current settings from the current screen
+	 */
+	void DoCancelScreen();
 	
 	void EvaluateEvent(WM_Event& Event);
 
 	void PaintStatus();
 
-public:
-	
+	/**
+	 *	Private constructor, because is a signleton class	
+	 */
 	Wizard();
+
+	static Wizard* Instance;
+
+public:
+	/**
+	 *	SettingsDictionary that keep global AVWizard Settings
+	 */
+	SettingsDictionaryTree* AVWizardOptions;
+
 	virtual ~Wizard();
-	
-	void StartSDLVideoMode(int Width, int Height, bool FullScreen);
-	
+	static Wizard* GetInstance();
+	void CleanUp();
+
+	int ParseCommandLineParameters(int argc, char** argv);
+
+	void StartSDLVideoMode();
+
+	void Configure();
+
 	void MainLoop();
+
+	/**
+	 *	Generate an custom event
+	 */
+	void GenerateCustomEvent(WM_Event Event);
+
+	void CreateDialogs();
+
 };
 
 #endif /*Wizard_H_*/

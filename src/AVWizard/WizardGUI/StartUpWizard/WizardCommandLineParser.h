@@ -1,0 +1,122 @@
+/**
+ *	Class that handle the command line parsing
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
+#ifndef WizardCommandLineParser_H_
+#define WizardCommandLineParser_H_
+
+#include <map>
+#include <string>
+#include <vector>
+
+#include "SettingsDictionary.h"
+
+/**
+ *	Argument type = --help
+ */
+#define ARGUMENT_GET_HELP	1
+/**
+ *	Argument type = -step
+ */
+#define ARGUMENT_STEP		2
+/**
+ *	Argument type = -set
+ */
+#define ARGUMENT_SET		3
+/**
+ *	Argument type = -get
+ */
+#define ARGUMENT_GET		4
+
+/**
+ *	Error mode: argument type not known
+ */
+
+#define ARGUMENT_ERROR_TYPE_NOT_FOUND 1
+/**
+ *	Singleton that parte the command line
+ */
+class WizardCommandLineParser
+{
+
+	//<ArgumentName, KindOfArgument> ArgumentTypes;
+	std::map <std::string, int> ArgumentTypes;
+
+	/**
+	 *	The version of AV wizard
+	 */
+	std::string Version;
+
+	/**
+	 *	Offers basic help for user
+	 */
+	void PrintCommandLineHelp();
+
+	/**
+	 *	Singleton class = private constructor, to use that object use GetInstance() static method
+	 */
+	WizardCommandLineParser();
+
+	/**
+	 *	Instance to the current object
+	 */
+	static WizardCommandLineParser* Instance;
+
+	/**
+	 *	Get argument type
+	 *	@return Function return 0 if is an unknown argument type
+	 */
+	int GetArgumentType(std::string ArgumentName);
+	
+public:
+	/**
+	 *	Default FileName where AVWizarg gets the config
+	 */
+	std::string ConfigFileDefault;
+
+	int StartStep;
+
+	/**
+	 *	NeedQuit is true if it gets commands as Get/Set or --help
+	 */
+	bool NeedQuit;
+
+	/**
+	 *	Parse the command line arguments
+	 */
+	void ParseArguments(std::vector<std::string> Arguments, SettingsDictionary& Options);
+
+	/**
+	 *	Default destructor	
+	 */
+	virtual ~WizardCommandLineParser(void);
+
+	/**
+	 *	Singleton based methods
+	 */
+	static WizardCommandLineParser* GetInstance();
+
+	/**
+	 *	CleanUp the command line resources
+	 */
+	void CleanUp();
+
+	/**
+	 *	Display coresponding message if cannot parse parameter
+	 */
+	void DisplayParseCommandError(std::string Argument, int ErrorMode);
+
+	/**
+	 *	Overloading function to create a vector with string from 
+	 *	application's parameters
+	 */
+	std::vector<std::string> CommandLineSplit(std::string CommandLine);
+
+	/**
+	 *	Overloading function to create a vector with string from 
+	 *	application's parameters
+	 */
+	std::vector<std::string> CommandLineSplit(int Argc, char** Args);
+};
+
+#endif

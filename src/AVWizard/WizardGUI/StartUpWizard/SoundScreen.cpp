@@ -1,6 +1,7 @@
-#include ".\soundscreen.h"
+#include "SoundScreen.h"
 
-SoundScreen::SoundScreen(void)
+SoundScreen::SoundScreen(SDLFrontEnd* FrontEnd, std::string Name)
+	: WizardPage(FrontEnd, Name)
 {
 }
 

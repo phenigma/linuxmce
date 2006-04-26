@@ -44,7 +44,7 @@ ScreenModes::~ScreenModes()
 void ScreenModes::DeleteAllResolutions()
 {
 	std::vector<Resolution>::iterator Item;
-	for(Item = Resolutions.begin(); Item<Resolutions.end();)
+	for(Item = Resolutions.begin(); Item!=Resolutions.end();)
 		Item = Resolutions.erase(Item);
 }
 
@@ -53,7 +53,7 @@ int ScreenModes::GetResolutionIndex(int Width, int Height)
 	int Result = 0;
 
 	std::vector<Resolution>::iterator Item;
-	for(Item = Resolutions.begin(); Item<Resolutions.end();Item++, Result++)
+	for(Item = Resolutions.begin(); Item!=Resolutions.end();Item++, Result++)
 		if(
 			((*Item).GetWidth() == Width) &&
 			((*Item).GetHeight() == Height)
@@ -78,7 +78,7 @@ void ScreenModes::SetDefault(int Width, int Height, int Refresh)
 void ScreenModes::ToString()
 {
 	std::vector<Resolution>::iterator Item;
-	for (Item = Resolutions.begin(); Item < Resolutions.end(); Item++)
+	for (Item = Resolutions.begin(); Item != Resolutions.end(); ++Item)
 		(*Item).ToString();
 }
 

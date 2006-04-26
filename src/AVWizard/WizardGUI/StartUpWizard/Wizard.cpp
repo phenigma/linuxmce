@@ -9,15 +9,28 @@
 #include <unistd.h>
 #endif
 
+#include "WizardCommandLineParser.h"
+#include "AVWizardConfParser.h"
+
+#include "WizardPagesFactory.h"
+
 #include <iostream>
 
 Wizard::Wizard()
 	: Quit(false),
 	  StatusChange(true)	
 {
-	Manager.ParseConfig();
-	WizardChangeType = WIZARD_CHANGE_RESOLUTION;
+	AVWizardConfParser ConfigurationParser;
+	this->AVWizardOptions = ConfigurationParser.ParseFile();
 	FrontEnd = new SDLFrontEnd();
+	this->Width = 640;
+	this->Height = 480;
+
+	this->FullScreen = false;
+	MainPage = NULL;
+	CurrentPage = 1;
+	AVWizardOptions->GetDictionary()->SetName("AVSettings");
+	AVWizardOptions->GetDictionary()->SetType("Config_file");
 }
 
 Wizard::~Wizard()
@@ -39,7 +52,7 @@ void Wizard::MainLoop()
 #ifdef DEBUG
 		std::cout<<"Event: "<<Count<<std::endl;
 #endif
-		while (this->FrontEnd->HasEventPending())
+		while (!(Quit) && (FrontEnd->HasEventPending()))
 		{
 #ifdef DEBUG
 			Count ++;
@@ -51,102 +64,108 @@ void Wizard::MainLoop()
 #ifdef DEBUG
 		Count = 0;
 #endif
-		if(StatusChange)
-			PaintStatus();
-		else
+		if(!Quit)
 		{
-		#ifdef WIN32
-			Sleep(10);
-		#else
-			usleep(10000);
-		#endif
+			if(StatusChange)
+				PaintStatus();
+			else
+			{
+			#ifdef WIN32
+				Sleep(10);
+			#else
+				usleep(10000);
+			#endif
+			}
 		}
 	}
-}
-
-void Wizard::TreatEvents()
-{
-	StatusChange = true;
-	switch(Event.Type)
-	{
-		case WMET_QUIT:
-			Quit = true;
-			break;
-		case WMET_LEFT_KEY:
-			DoDecreaseAction();
-			break;
-		case WMET_RIGHT_KEY:
-			DoIncreaseAction();
-			break;
-		case WMET_UP_KEY:
-			DoChangeActionBefore();
-			break;
-		case WMET_DOWN_KEY:
-			DoChangeActionAfter();
-			break;
-		default:
-			StatusChange = false;
-			return;
-	};
 }
 
 void Wizard::DoDecreaseAction()
 {
 	StatusChange = true;
-	switch(WizardChangeType) 
-	{
-	case WIZARD_CHANGE_RESOLUTION:
-		Manager.SetupLowerResolution();
-		break;
-	default:
-		Manager.SetupLowerRefresh();
-	}
+	MainPage->DoDecreaseSetting();
 }
 
 void Wizard::DoIncreaseAction()
 {
 	StatusChange = true;
-	switch(WizardChangeType) 
-	{
-	case WIZARD_CHANGE_RESOLUTION:
-		Manager.SetupHigherResolution();
-		break;
-	default:
-		Manager.SetupHigherRefresh();
-	}
+	MainPage->DoIncreaseSetting();
 }
 
 void Wizard::DoChangeActionBefore()
 {
+	MainPage->DoPreviousFocusItem();
 	StatusChange = true;
-	// the domain is 1..n, we resize it to 0.. n-1
-	WizardChangeType -= 1;
-	WizardChangeType--;
-	WizardChangeType += WIZARD_NO_POSSIBLE_ACTIONS;
-	WizardChangeType %= WIZARD_NO_POSSIBLE_ACTIONS;
-	// the domain is 0..n-1, we resize it to 1..n
-	WizardChangeType += 1;
 }
 
 void Wizard::DoChangeActionAfter()
 {
+	MainPage->DoNextFocusItem();
 	StatusChange = true;
-	// the domain is 1..n, we resize it to 0.. n-1
-	WizardChangeType -= 1;
-	WizardChangeType++;
-	WizardChangeType += WIZARD_NO_POSSIBLE_ACTIONS;
-	WizardChangeType %= WIZARD_NO_POSSIBLE_ACTIONS;
-	// the domain is 0..n-1, we resize it to 1..n
-	WizardChangeType += 1;
 }
 
-void Wizard::StartSDLVideoMode(int Width, int Height, bool FullScreen)
+void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 {
-	FrontEnd->StartVideoMode(Width, Height, FullScreen);
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+
+	if(MainPage == NULL)
+		return;
+	MainPage->DoApplySetting(Settings);
+	delete MainPage;
+	MainPage = NULL;
+	CurrentPage ++ ;
+	if(CurrentPage == 9)
+	{
+		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+		WM_Event Event;
+		Event.Quit();
+		GenerateCustomEvent(Event);
+	}
+	CreateDialogs();
+	if(MainPage == NULL)
+	{
+#ifdef DEBUG
+		std::cout<<"Warning, XML asociated page doesn't exist!"<<std::endl;
+#endif
+	}
+	else
+	{
+		MainPage->GetPageLayout()->Paint();
+		FrontEnd->Flip();
+	}	
+}
+
+void Wizard::DoCancelScreen()
+{
+	if(MainPage == NULL)
+		return;
+	MainPage->DoCancelSetting();
+	delete MainPage;
+	MainPage = NULL;
+	CurrentPage -- ;
+	if(CurrentPage == 0)
+	{
+		WM_Event Event;
+		Event.Quit();
+		GenerateCustomEvent(Event);
+	}
+	CreateDialogs();
+	if(MainPage == NULL)
+	{
+#ifdef DEBUG
+		std::cout<<"Warning, XML asociated page doesn't exist!"<<std::endl;
+#endif
+	}
+	else
+	{
+		//MainPage->GetPageLayout()->Paint();
+		//FrontEnd->Flip();
+	}	
 }
 
 void Wizard::EvaluateEvent(WM_Event& Event)
 {
+	StatusChange = true;
 	switch(Event.Type) {
 	case WMET_QUIT:
 		Quit = true;
@@ -163,53 +182,90 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 	case WMET_DOWN_KEY:
 		DoChangeActionAfter();
 		break;
+	case WMET_ENTER_KEY:
+		DoApplyScreen(AVWizardOptions->GetDictionary());
+		break;
+	case WMET_ESCAPE_KEY:
+		DoCancelScreen();	
 	}
 }
 
 void Wizard::PaintStatus()
 {
-	FrontEnd->PaintBackground();
-
-	TColorDesc Black(0, 0, 0), Yellow (255, 255, 0), White(255, 255, 255);
-
-	char ResolutionOutput[128], RefreshOutput[128], Buffer[128];
-
-	sprintf(ResolutionOutput, "%dx%d", Manager.GetModes()->GetCurrentWidth(), Manager.GetModes()->GetCurrentHeight());
-	sprintf(RefreshOutput, "%d Hz", Manager.GetModes()->GetCurrentRefresh());
-
-	int IncrementLabelSelected = WIZARD_SELECTED_LABEL_SIZE+15;
-	int IncrementLabelDeselected = WIZARD_DESELECTED_LABEL_SIZE+10;
-	
-	switch(WizardChangeType) 
-	{
-	case WIZARD_CHANGE_RESOLUTION:
-		sprintf(Buffer, "<%s>", ResolutionOutput);
-		sprintf(ResolutionOutput, "%s", Buffer);
-
-		FrontEnd->TextOutput("Screen resolution", 320, 240, 
-			WIZARD_SELECTED_LABEL_SIZE, Yellow, Black, 1);
-		FrontEnd->TextOutput(ResolutionOutput, 320, 240+IncrementLabelSelected, 
-			WIZARD_SELECTED_FONT_SIZE, Yellow, Black, 1);
-		FrontEnd->TextOutput("Screen refresh", 320, 370, 
-			WIZARD_DESELECTED_LABEL_SIZE, White, Black, 1);
-		FrontEnd->TextOutput(RefreshOutput, 320, 370+IncrementLabelDeselected, 
-			WIZARD_DESELECTED_FONT_SIZE, White, Black, 1);
-		break;
-	default:
-		sprintf(Buffer, "<%s>", RefreshOutput);
-		sprintf(RefreshOutput, "%s", Buffer);
-
-		FrontEnd->TextOutput("Screen resolution", 320, 240, 
-			WIZARD_DESELECTED_LABEL_SIZE, White, Black, 1);
-		FrontEnd->TextOutput(ResolutionOutput, 320, 240+IncrementLabelDeselected, 
-			WIZARD_DESELECTED_FONT_SIZE, White, Black, 1);
-		FrontEnd->TextOutput("Screen refresh", 320, 340, 
-			WIZARD_SELECTED_LABEL_SIZE, Yellow, Black, 1);
-		FrontEnd->TextOutput(RefreshOutput, 320, 340+IncrementLabelSelected, 
-			WIZARD_SELECTED_FONT_SIZE, Yellow, Black, 1);
-	}
-
+	if(MainPage)
+		MainPage->GetPageLayout()->Paint();
 	FrontEnd->Flip();
 
 	StatusChange = false;
+}
+
+int Wizard::ParseCommandLineParameters(int argc, char** argv)
+{
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+
+	std::vector<std::string> Arguments = CmdLineParser->CommandLineSplit(argc, argv);
+	CmdLineParser->ParseArguments(Arguments, *(AVWizardOptions->GetDictionary()));
+
+	if (CmdLineParser->NeedQuit)
+	{
+		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+		exit(0);
+	}
+
+	if(CmdLineParser->StartStep != -1)
+	{
+		CurrentPage = CmdLineParser->StartStep;
+	}
+
+	CmdLineParser->CleanUp();
+	CmdLineParser = NULL;
+
+
+	return 0;
+}
+
+void Wizard::CreateDialogs()
+{
+	WizardPagesFactory* Factory = WizardPagesFactory::GetInstance();
+
+	Factory->SetSDLFrontEnd(FrontEnd);
+
+	if(MainPage!= NULL)
+	{
+		delete MainPage;
+		MainPage = NULL;
+	}
+
+	MainPage = Factory->CreatePredefinedWizardPage(CurrentPage);
+	if(MainPage)
+		MainPage->SetWizard(this);
+	Factory->CleanUp();
+}
+
+/*static*/ Wizard* Wizard::Instance = NULL;
+
+/*static*/ Wizard* Wizard::GetInstance()
+{
+	if(Instance == NULL)
+		Instance = new Wizard();
+	return Instance;
+}
+
+void Wizard::CleanUp()
+{
+	if(Instance != NULL)
+	{
+		delete Instance;
+		Instance = NULL;
+	}
+}
+
+void Wizard::StartSDLVideoMode()
+{
+	FrontEnd->StartVideoMode(Width, Height, FullScreen);
+}
+
+void Wizard::GenerateCustomEvent(WM_Event Event)
+{
+	EvaluateEvent(Event);
 }

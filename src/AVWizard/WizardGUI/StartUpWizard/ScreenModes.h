@@ -1,10 +1,16 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
+
 #ifndef ScreenModes_H
 #define ScreenModes_H
 
 #include <vector>
 
 #include "Resolution.h"
-
+/**
+ *	Helper function that store the current resolutions
+ */
 class ScreenModes
 {
 	std::vector<Resolution> Resolutions;

@@ -1,10 +1,14 @@
-#pragma once
+#ifndef StartScreen_H_
+#define StartScreen_H_
+
 #include "WizardPage.h"
 
 class StartScreen :
 	public WizardPage
 {
 public:
-	StartScreen(void);
+	StartScreen(SDLFrontEnd* FrontEnd, std::string Name);
 	virtual ~StartScreen(void);
 };
+
+#endif

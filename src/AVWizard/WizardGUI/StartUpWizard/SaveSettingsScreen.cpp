@@ -1,6 +1,7 @@
-#include "savesettingsscreen.h"
+#include "SaveSettingsScreen.h"
 
-SaveSettingsScreen::SaveSettingsScreen(void)
+SaveSettingsScreen::SaveSettingsScreen(SDLFrontEnd* FrontEnd, std::string Name)
+	: WizardPage(FrontEnd, Name)
 {
 }
 

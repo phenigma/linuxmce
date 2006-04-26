@@ -1,22 +1,35 @@
 #include <stdio.h>
+#include <iostream>
+//---------------------------------------------------------------------------
+#ifdef WIN32
+#include <windows.h>
+#include <process.h>
+#include <atlbase.h>
+#endif
 
 #include "Wizard.h"
-
-int main()
+//---------------------------------------------------------------------------
+#include "PageFileParser.h"
+//---------------------------------------------------------------------------
+#include "WizardWidgetPage.h"
+#include "WizardWidgetsFactory.h"
+//---------------------------------------------------------------------------
+#include "GenerateWizardConfigDefaults.h"
+//---------------------------------------------------------------------------
+bool IsConsole = false;
+//---------------------------------------------------------------------------
+int main(int argc, char *argv[])
 {
-#ifdef DEBUG
-	std::cout<<"Before start"<<std::endl;
-#endif
-	Wizard m_Wizard;
+	GenerateWizardConfigDefaults Generator;
+	Generator.GenerateDefaults();
+	Generator.GenerateDefaultPages("", "wiz_pixmaps");
 
-#ifdef DEBUG
-	std::cout<<"SDL"<<std::endl;
-#endif
-	m_Wizard.StartSDLVideoMode(640, 480, false);	
-#ifdef DEBUG
-	std::cout<<"Before Loop"<<std::endl;
-#endif
-	m_Wizard.MainLoop();	
+	Wizard* m_Wizard = Wizard::GetInstance();
+	m_Wizard->ParseCommandLineParameters(argc, argv);
+	m_Wizard->StartSDLVideoMode();
+	m_Wizard->CreateDialogs();
+	m_Wizard->MainLoop();	
+	m_Wizard->CleanUp();
 
 	return 0;
 }

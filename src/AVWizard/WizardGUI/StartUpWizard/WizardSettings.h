@@ -1,3 +1,7 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
+
 #ifndef WIZARD_SETTINGS_H_
 #define WIZARD_SETTINGS_H_
 
@@ -25,6 +29,9 @@ class WizardSettings
 	 */
 	int MasterVolumeLow, MasterVolumeHigh, MasterVolumeValue;
 
+	/**
+	 *		
+	 */
 	SettingsDictionary Dictionary;
 
 	void ProcessNode(xmlTextReaderPtr Reader);

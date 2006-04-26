@@ -1,9 +1,6 @@
 #include "SDLFrontEnd.h"
 
-
 #include <iostream>
-
-#include "SDL_image.h"
 
 SDLFrontEnd::SDLFrontEnd()
 	: IsEventWaiting (false)
@@ -13,11 +10,14 @@ SDLFrontEnd::SDLFrontEnd()
 		exit(2);
 	}
 
-	Background = IMG_Load("back.png");
+	CurrentFont = NULL;
+	Screen = NULL;
 }
 
 SDLFrontEnd::~SDLFrontEnd()
 {
+	if(CurrentFont!= NULL)
+		TTF_CloseFont(CurrentFont);
 	TTF_Quit();
 }
 
@@ -62,23 +62,49 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		exit(1);
 	}
 	
+	SDL_WM_SetCaption("AVWizard", "AVWizard");
+
 	return 0;
 }
 
 void SDLFrontEnd::Flip()
 {
-	//SDL_FillRect(Screen, NULL, 0xffffff);
 	SDL_Flip(Screen);
 }
 
 void SDLFrontEnd::PaintBackground()
 {
-	SDL_UpperBlit(Background, NULL, Screen, NULL);
+	SDL_FillRect(Screen, NULL, 0xffffff);
+	//SDL_UpperBlit(Background, NULL, Screen, NULL);
 }
 
-int SDLFrontEnd::PaintFont(TTF_Font *Font, 
-						   char* Text, 
-						   int Top, int Left, int nPixelHeight, 
+int SDLFrontEnd::TextOutWidth(std::string Text)
+{
+	SDL_Color SDL_color;
+	SDL_color.r = 0;
+	SDL_color.g = 0;
+	SDL_color.b = 0;
+	SDL_color.unused = 0;
+
+	SDL_Surface * RenderedText = NULL;
+	try
+	{
+		RenderedText = TTF_RenderText_Blended(CurrentFont, Text.c_str(), SDL_color);
+	}
+	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
+	{
+		std::cout<<"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!"<<std::endl;
+		return -1;
+	}
+	int Result = 0;
+	if (RenderedText != NULL)
+		Result = RenderedText->w;
+
+	return Result;
+}
+
+int SDLFrontEnd::PaintFont(char* Text, 
+						   int Top, int Left, 
 						   TColorDesc Color,
 						   int Mode)
 {
@@ -89,15 +115,11 @@ int SDLFrontEnd::PaintFont(TTF_Font *Font,
 	SDL_color.b = Color.GetBlue();
 	SDL_color.unused = 255;
 
-	/* Underline combined with anything crashes */
-	int style = TTF_STYLE_BOLD;
-	
-	TTF_SetFontStyle(Font, style);
 
 	SDL_Surface * RenderedText = NULL;
 	try
 	{
-		RenderedText = TTF_RenderText_Blended(Font, Text, SDL_color);
+		RenderedText = TTF_RenderText_Blended(CurrentFont, Text, SDL_color);
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
@@ -141,25 +163,33 @@ int SDLFrontEnd::PaintFont(TTF_Font *Font,
 	return Result;
 }
 
-int SDLFrontEnd::TextOutput(char* Text, int Left, int Top, float FontSize, TColorDesc Color, 
-						 TColorDesc BackColor, int Mode)
+int SDLFrontEnd::TextOutput(char* Text, int Left, int Top, TColorDesc Color, int Mode)
 {
-	int nPixelHeight = (int)FontSize;
-
-#ifdef WIN32
-	strcpy(FontName, "C:\\WINDOWS\\Fonts\\verdana.ttf");
-#else
-	strcpy(FontName, "/usr/share/fonts/truetype/msttcorefonts/verdana.ttf");
-#endif
-	//set up the font
-	TTF_Font *Font = TTF_OpenFont(FontName, nPixelHeight);
-
-	int Result = 0;
-		Result = PaintFont(Font, Text, Top+2, Left+2, nPixelHeight, BackColor, Mode);
-	if (Result!= -1)
-		Result = PaintFont(Font, Text, Top, Left, nPixelHeight, Color, Mode);
-	TTF_CloseFont(Font);
-	
-	return Result;
+	return PaintFont(Text, Top, Left, Color, Mode);
 }
 
+void SDLFrontEnd::Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect)
+{
+	SDL_BlitSurface(Surface, &SrcRect, Screen, &DestRect);
+}
+
+bool SDLFrontEnd::SetCurrentFont(std::string FontName, int FontHeight, int Style)
+{
+	TTF_Font *Font;
+	//set up the font
+	Font = TTF_OpenFont(FontName.c_str(), FontHeight);
+
+	if(Font!= NULL)
+	{
+		if(CurrentFont!= NULL)
+			TTF_CloseFont(CurrentFont);
+		CurrentFont = Font;
+	}
+	else
+		return false;
+
+	int style = Style;//;
+
+	TTF_SetFontStyle(CurrentFont, style);
+	return true;
+}

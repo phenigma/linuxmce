@@ -84,7 +84,6 @@ bool ScreenManager::SetupHigherResolution()
 bool ScreenManager::SetupLowerResolution()
 {
 	int ResID = Modes->GetDefaultResolutionIndex();
-	int Count = Modes->GetResolutionCount();
 	if (ResID<=0)
 		return false;
 
@@ -98,3 +97,4 @@ bool ScreenManager::SetupLowerResolution()
 
 	return true;
 }
+
