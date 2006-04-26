@@ -183,30 +183,21 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		));
 
 	Page->AddChild(CreateControlButton(
-		"Btn4_3",
+		"Btn1",
 		" 4:3 ",
 		55,
 		440,
 		true
 		));
 
-	SettingsDictionaryTree* ControlChild = Page->GetChildRecursive("Btn4_3");
-	SettingsDictionary* ControlProperty = ControlChild->GetDictionary();
-
-	ControlProperty->Set("OnEnter", "$call '4_3.sh';$next");
-	ControlProperty->Set("OnCancel", "$previous");
-
-	ControlProperty->Set("OnEnter", "$call '16_9.sh';$next");
-	ControlProperty->Set("OnCancel", "$previous");
-
-
 	Page->AddChild(CreateControlButton(
-		"Btn16_9",
+		"Btn2",
 		" 16:9 ",
 		585,
 		440,
 		true
 		));
+
 
 	Page->SaveToXMLFile(PageNames[0]);
 }

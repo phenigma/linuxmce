@@ -17,6 +17,8 @@ class WizardPageVideoRatio :
 
 	WizardWidgetButton* Selected;
 	int RatioMode;
+
+	void SearchSelectedItem();
 public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 

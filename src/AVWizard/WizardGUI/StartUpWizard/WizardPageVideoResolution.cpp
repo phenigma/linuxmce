@@ -48,7 +48,11 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 	bool IsSelectedResolutionListBox = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionSelected"));
 	ResListBox->SetFocus(IsSelectedResolutionListBox);
-	ResListBox->SetFocus(!IsSelectedResolutionListBox);
+	RefreshListBox->SetFocus(!IsSelectedResolutionListBox);
+	if(IsSelectedResolutionListBox)
+		Selected = ResListBox;
+	else
+		Selected = RefreshListBox;
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
