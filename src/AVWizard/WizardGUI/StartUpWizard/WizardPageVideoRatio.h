@@ -3,9 +3,19 @@
 
 #include "WizardPage.h"
 
+#include "WizardWidgetButton.h"
+
+#include <map>
+#include <string>
+
 class WizardPageVideoRatio :
 	public WizardPage
 {
+	std::map<std::string, int> Buttons;
+
+	std::string OutputValue;
+
+	WizardWidgetButton* Selected;
 	int RatioMode;
 public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

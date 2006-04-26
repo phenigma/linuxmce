@@ -2,6 +2,8 @@
 
 #include "ConfigureCommons.h"
 
+#include "GUIWizardUtils.h"
+
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -38,13 +40,13 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
 		(Page->GetChildRecursive("ListBox1"));
 
-	Dictionary->Set("VideoResolution", ResListBox->GetCaption());
+	AVWizardSettings->Set("VideoResolution", ResListBox->GetCaption());
 
 	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
 		(Page->GetChildRecursive("ListBox2"));
 
 
-	bool IsSelectedResolutionListBox = Utils::StringToInt32(Selected->Get("ResolutionSelected"));
+	bool IsSelectedResolutionListBox = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionSelected"));
 	ResListBox->SetFocus(IsSelectedResolutionListBox);
 	ResListBox->SetFocus(!IsSelectedResolutionListBox);
 }

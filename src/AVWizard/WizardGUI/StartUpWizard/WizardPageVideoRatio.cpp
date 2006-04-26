@@ -2,10 +2,14 @@
 
 #include "Wizard.h"
 
+#include "GUIWizardUtils.h"
+
 WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
-
+	Buttons["16_9"] = 1;
+	Buttons["4_3"] = 2;
+	OutputValue = "4_3";
 }
 
 WizardPageVideoRatio::~WizardPageVideoRatio(void)
@@ -49,16 +53,26 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 void WizardPageVideoRatio::DoIncreaseSetting()
 {
-	RatioMode = 1;
-	WM_Event Event;
-	Event.EnterKey();
-	MainWizard->GenerateCustomEvent(Event);
+	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
+	int ButtonIndex = Utils::StringToInt32(IndexText);
+	if(ButtonIndex == 2)
+		return;
+	Selected->SetFocus(false);
+	ButtonIndex++;
+	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
+	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
+	Selected->SetFocus(true);	
 }
 
 void WizardPageVideoRatio::DoDecreaseSetting()
 {
-	RatioMode = 0;
-	WM_Event Event;
-	Event.EnterKey();
-	MainWizard->GenerateCustomEvent(Event);
+	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
+	int ButtonIndex = Utils::StringToInt32(IndexText);
+	if(ButtonIndex == 1)
+		return;
+	Selected->SetFocus(false);
+	ButtonIndex--;
+	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
+	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
+	Selected->SetFocus(true);
 }
