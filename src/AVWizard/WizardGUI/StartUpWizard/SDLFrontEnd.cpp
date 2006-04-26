@@ -46,7 +46,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 {
 	int Flags = 0;
 	//Test if SDL inits nicely
-	if (SDL_Init(SDL_INIT_VIDEO)== -1)
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
 		std::cout<<"SDL library cannot init properly!"<<std::endl;
 		exit(-1);
