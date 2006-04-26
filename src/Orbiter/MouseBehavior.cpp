@@ -63,12 +63,13 @@ void MouseBehavior::Clear()
 //		m_pOrbiter->CMD_Remove_Popup("","left");
 //		m_pOrbiter->CMD_Remove_Popup("","horiz");
 	}
+/*
 	if( m_pOrbiter->m_pScreenHandler && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_Main_CONST )  // Will be NULL during initialization
 	{
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
-
+*/
 	/* there's a logic flaw that when popups are put on screen they're added to the following
 	vect's, but not removed when the popup is removed, although they are marked as m_bOnScreen=false.
 	These were created as vect's because the concept of popups didn't exist in the beginning.
@@ -193,7 +194,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d   (%d)",X,Y,m_pOrbiter->m_pObj_Highlighted && m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST ? ((DesignObj_DataGrid *)m_pOrbiter->m_pObj_Highlighted)->m_iHighlightedRow : -999);
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d   (%d) locked %d current %d",
+			X,Y,m_pOrbiter->m_pObj_Highlighted && m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST ? ((DesignObj_DataGrid *)m_pOrbiter->m_pObj_Highlighted)->m_iHighlightedRow : -999,
+			(int) m_cLockedAxes,(int) m_cLocked_Axis_Current);
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
@@ -201,6 +204,7 @@ void MouseBehavior::Move(int X,int Y)
 	char cLocked_Axis_Before = m_cLocked_Axis_Current;
 	if( CheckForChangeInDirection(X,Y) )
 	{
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move Direction changed");
 		m_pStartMovement.X=X;
 		m_pStartMovement.Y=Y;
 
@@ -247,10 +251,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 	{
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move will do x");
 		if( m_pMouseHandler_Horizontal->m_bLockAxis )
 			Y = m_iLockedPosition;
 		if( m_pMouseHandler_Horizontal->m_pObj && !m_pMouseHandler_Horizontal->m_pObj->m_bOnScreen )
 		{
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::not on screen");
 			if( m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal )
 				m_pMouseHandler_Vertical=NULL;
 			delete m_pMouseHandler_Horizontal;
@@ -268,6 +274,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Direction now Y, x locked to %d",m_iLockedPos
 				X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
 				SetMousePosition(X,Y);
 			}
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move calling handler");
 			m_pMouseHandler_Horizontal->Move(X, Y);
 		}
 	}

@@ -3821,6 +3821,8 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 
 /*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL, "HandleButtonEvent button %d", PK_Button);
+	
 	if( !PK_Button || !m_pScreenHistory_Current )
 		return false;
 

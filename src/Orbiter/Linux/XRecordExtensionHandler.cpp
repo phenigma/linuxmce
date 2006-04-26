@@ -222,16 +222,36 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 			switch ( pxEvent->u.u.type )
 			{
 				case KeyPress: case KeyRelease: // key related events types
-					orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
-                    g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail); //del
-                    orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
+					static int nOldKey = 0;
+					static long lOldTime = 0;
+
+					if(nOldKey > 0 && lOldTime > 0 && pxEvent->u.keyButtonPointer.time - lOldTime < 1000 && nOldKey == pxEvent->u.u.detail)
+					{
+						g_pPlutoLogger->Write(LV_CRITICAL, "ignoring key %d - it's a repeated key", pxEvent->u.u.detail);
+						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
+					}
+					else
+					{
+	                    orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
+    	                g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d, time %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail,
+								pxEvent->u.keyButtonPointer.time - lOldTime); //del
+        	            orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
+					}
+
+					nOldKey = pxEvent->u.u.detail;
+                    lOldTime = pxEvent->u.keyButtonPointer.time;
+										
 					break;
 
                 case MotionNotify:
-					orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 					m_iMouseX = pxEvent->u.keyButtonPointer.rootX;
 					m_iMouseY = pxEvent->u.keyButtonPointer.rootY;
                     g_pPlutoLogger->Write(LV_WARNING, "Mouse move at position: %d, %d", m_iMouseX, m_iMouseY); //del
+
+		            orbiterEvent->type = Orbiter::Event::MOUSE_MOVE;
+		            orbiterEvent->data.region.m_iX = m_iMouseX;
+		            orbiterEvent->data.region.m_iY = m_iMouseY;
+					
 					break;
 
 				case ButtonPress:  case ButtonRelease: // mouse button related event types

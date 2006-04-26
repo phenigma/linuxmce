@@ -88,9 +88,12 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 	m_pMouseBehavior = new MouseBehavior_Linux(this);
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
-
+	m_pRecordHandler->enableRecording(this, true);
+	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
+
+	SDL_ShowCursor(SDL_DISABLE);
 }
 
 void *HackThread(void *p)
@@ -226,8 +229,8 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         m_WinListManager.SetExternApplicationPosition(rectTotal);
         ActivateExternalWindowAsync(NULL);
     }
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
-    m_pRecordHandler->enableRecording(this, m_bYieldInput);
+    //g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", 1/*m_bYieldInput*/);
+    //m_pRecordHandler->enableRecording(this, true /*m_bYieldInput*/);
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
     return true;
 }
@@ -305,7 +308,11 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_F3:     event.data.button.m_iPK_Button = BUTTON_F3_CONST; break;
         case XK_F4:     event.data.button.m_iPK_Button = BUTTON_F4_CONST; break;
         case XK_F5:     event.data.button.m_iPK_Button = BUTTON_F5_CONST; break;
-
+		case XK_F6:     event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F7:     event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		
+						
         case XK_0: case XK_KP_0:    event.data.button.m_iPK_Button = BUTTON_0_CONST; break;
         case XK_1: case XK_KP_1:    event.data.button.m_iPK_Button = BUTTON_1_CONST; break;
         case XK_2: case XK_KP_2:    event.data.button.m_iPK_Button = BUTTON_2_CONST; break;
@@ -342,6 +349,8 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	if( sOnOff!="X" )
 		return;
+
+	/*
 Display *dpy = XOpenDisplay (NULL);
 Window win = DefaultRootWindow (dpy);
 
@@ -359,7 +368,7 @@ XColor dummy;
 char data[1] = {0};
 Cursor cursor;
 
-/* make a blank cursor */
+// make a blank cursor 
 blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
 if(blank == None) fprintf(stderr, "error: out of memory.\n");
 cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
@@ -374,9 +383,9 @@ int iresult=XGrabPointer(dpy, win,
 			 None, //cursor,
 			 CurrentTime);
       g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iresult);
-/*
 
-/*int XGrabPointer(dpy, rootwindow, true, 
+
+int XGrabPointer(dpy, rootwindow, true, 
 ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask				 
 , GrabModeAsync, GrabModeAsync, 
 NULL, cursor, CurrentTime)

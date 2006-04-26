@@ -1588,7 +1588,7 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 
-	ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
+	ScreenHandler::SCREEN_tempmnuspeed(PK_Screen);
 	
 	// register the RoomWizard callbacks
 	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );

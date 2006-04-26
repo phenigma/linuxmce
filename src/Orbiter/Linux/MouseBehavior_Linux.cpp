@@ -18,7 +18,9 @@ MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
 	MouseBehavior::SetMousePosition(X,Y);
-    SDL_WarpMouse(X,Y);
+
+	//this is crashing with: Xlib: unexpected async reply (sequence 0x273)!
+    //SDL_WarpMouse(X,Y);
 }
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
