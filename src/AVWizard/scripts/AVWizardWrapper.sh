@@ -1,1 +1,20 @@
 #!/bin/bash
+
+. /usr/pluto/bin/AVWizard-Common.sh
+
+Done=0
+while [[ "$Done" -eq 0 ]]; do
+	$Wiz
+	Ret=$?
+	case "$Ret" in
+		0|1) exit $Ret ;;
+	esac
+	WizStep=$($Wiz -get CurrentStep)
+	Video_Ratio=$($Wiz -get Video_Radio)
+	Video_Resolution=$($Wiz -get Video_Resolution)
+	Video_Refresh=$($Wiz -get Video_Refresh)
+
+	case "$WizStep" in
+		1) "$BaseDir"/Xconfigure.sh --defaults ;;
+	esac
+done

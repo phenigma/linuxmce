@@ -1,12 +1,8 @@
 #!/bin/bash
 
-BaseDir=/usr/pluto/bin
-BaseDir=.
+. /usr/pluto/bin/AVWizard-Common.sh
 
-Wiz="$BaseDir"/AVWizard
 AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
-
-Wiz=echo
 
 GetAudioMixerSettings()
 {
@@ -16,23 +12,34 @@ GetAudioMixerSettings()
 	eval "$Settings"
 }
 
-Done=0
-while [[ "$Done" -eq 0 ]]; do
-	$Wiz -set Video_Ratio 4_3
-	$Wiz -set Video_Resolution 640x480
-	$Wiz -set Video_Refresh 60
-	"$BaseDir"/Xconfigure.sh --defaults --resolution '640x480@60'
+CleanUp()
+{
+	rm -f /tmp/*.xml
+}
+
+SetDefaults()
+{
+	export DISPLAY=:0
+	$Wiz -set Video_Ratio '4_3'
+	$Wiz -set Video_Resolution '640x480'
+	$Wiz -set Video_Refresh '60'
+	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
 	"$BaseDir"/Start_X.sh
-	$Wiz -set Video_Output VGA
+	$Wiz -set Video_Output 'VGA' #TODO: parse X log and extract autodetected output
 	$Wiz -set AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
-	$Wiz -set AudioVolumeMin $AudioVolumeMin
-	$Wiz -set AudioVolumeMax $AudioVolumeMax
-	$Wiz -set AudioVolumeCurrent $AudioVolumeCurrent
-	$Wiz -set AudioVolumeIncrement 1
-	$Wiz -set DolbyTest 0
-	$Wiz -set DTSTest 0
+	$Wiz -set AudioVolumeMin "$AudioVolumeMin"
+	$Wiz -set AudioVolumeMax "$AudioVolumeMax"
+	$Wiz -set AudioVolumeCurrent "$AudioVolumeCurrent"
+	$Wiz -set AudioVolumeIncrement '1'
+	$Wiz -set DolbyTest '0'
+	$Wiz -set DTSTest '0'
+}
 
+Done=0
+while [[ "$Done" -eq 0 ]]; do
+	CleanUp
+	SetDefaults
 	if "$BaseDir"/AVWizardWrapper.sh; then
 		Done=1
 	fi
