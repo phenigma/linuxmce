@@ -48,6 +48,8 @@ void Wizard::MainLoop()
 	int Count = 0;
 	std::cout<<"Event: "<<Count<<std::endl;
 #endif
+	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 	while(!Quit)
 	{
@@ -60,6 +62,9 @@ void Wizard::MainLoop()
 			Count ++;
 			std::cout<<"Event: "<<Count<<std::endl;
 #endif
+			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+
 			FrontEnd->TranslateEvent(Event);
 			EvaluateEvent(Event);
 		}
@@ -113,8 +118,6 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if(MainPage == NULL)
 		return;
 	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
-	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
-	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	MainPage->DoApplySetting(Settings);
 	delete MainPage;
 	MainPage = NULL;
