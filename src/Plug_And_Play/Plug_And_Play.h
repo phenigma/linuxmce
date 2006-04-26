@@ -7,8 +7,6 @@
 #include "Gen_Devices/Plug_And_PlayBase.h"
 //<-dceag-d-e->
 
-class Database_pluto_main;
-
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -19,6 +17,12 @@ namespace DCE
 
 		// Private methods
 public:
+
+		/** Flags for capabilities.
+		  * 0 2^0 2^1 2^2
+		  */
+		enum Capabilities { NOTHING=0, CONFIG=1 };
+		
 		// Public member variables
 
 //<-dceag-const-b->
@@ -53,24 +57,32 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #797 - PlugAndPlayAddDevice */
+	/** @brief COMMAND: #798 - PlugAndPlayAddDevice */
 	/** Adds or enables the newly discovered device */
-		/** @param #9 Text */
-			/** The MessageSend parameters for creating the discovered device */
 		/** @param #44 PK_DeviceTemplate */
 			/** The device template ID for the discovered device */
+		/** @param #58 IP Address */
+			/** The IP address where was the new device detected. */
 		/** @param #70 Tokens */
 			/** Extra parameters in the form of | (pipe) separated tokens */
 		/** @param #214 PNPSerialNo */
 			/** The serial number of the device, computed by the PNP discovery daemons */
 		/** @param #215 PK_PnpProtocol */
 			/** The PNP protocol of the daemon that discovered the device */
+		/** @param #216 Identifier */
+			/** The device model and producer identifier */
+		/** @param #217 Capabilities */
+			/** A variable that defines the daemons' capability to perform custom operations */
+		/** @param #218 PK_CommMethod */
+			/** Communication method */
+		/** @param #219 Path */
+			/** The path where should run the scripts and binaries used by PnP. */
 
-	virtual void CMD_PlugAndPlayAddDevice(string sText,int iPK_DeviceTemplate,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol) { string sCMD_Result; CMD_PlugAndPlayAddDevice(sText.c_str(),iPK_DeviceTemplate,sTokens.c_str(),sPNPSerialNo.c_str(),iPK_PnpProtocol,sCMD_Result,NULL);};
-	virtual void CMD_PlugAndPlayAddDevice(string sText,int iPK_DeviceTemplate,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_Address,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol,string sIdentifier,int iCapabilities,int iPK_CommMethod,string sPath) { string sCMD_Result; CMD_PlugAndPlayAddDevice(iPK_DeviceTemplate,sIP_Address.c_str(),sTokens.c_str(),sPNPSerialNo.c_str(),iPK_PnpProtocol,sIdentifier.c_str(),iCapabilities,iPK_CommMethod,sPath.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_Address,string sTokens,string sPNPSerialNo,int iPK_PnpProtocol,string sIdentifier,int iCapabilities,int iPK_CommMethod,string sPath,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #798 - PlugAndPlayRemoveDevice */
+	/** @brief COMMAND: #799 - PlugAndPlayRemoveDevice */
 	/** Disables the newly discovered device */
 		/** @param #214 PNPSerialNo */
 			/** The serial number detected by the PNP discovery layers */
@@ -80,8 +92,12 @@ public:
 
 //<-dceag-h-e->
 
-private: 
-	Database_pluto_main *m_pDatabase_pluto_main;
+	virtual void CheckQueue();
+
+private:
+
+	class PnPPrivate;
+	PnPPrivate * d;
 	
 	};
 

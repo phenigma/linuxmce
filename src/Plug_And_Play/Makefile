@@ -19,7 +19,7 @@ sources = Main.cpp Plug_And_Play.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files +=
 sources +=
