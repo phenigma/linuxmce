@@ -15,6 +15,6 @@ while [[ "$Done" -eq 0 ]]; do
 	Video_Refresh=$($Wiz -get Video_Refresh)
 
 	case "$WizStep" in
-		1) "$BaseDir"/Xconfigure.sh --defaults ;;
+		1) "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$Video_Resolution@$Video_Refresh" ;;
 	esac
 done

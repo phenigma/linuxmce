@@ -17,14 +17,15 @@ CleanUp()
 	rm -f /tmp/*.xml
 }
 
+# TODO: use SDL dummy driver for -set and -get (write a wrapper function)
 SetDefaults()
 {
+	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
+	StartX
 	export DISPLAY=:0
 	$Wiz -set Video_Ratio '4_3'
 	$Wiz -set Video_Resolution '640x480'
 	$Wiz -set Video_Refresh '60'
-	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
-	"$BaseDir"/Start_X.sh
 	$Wiz -set Video_Output 'VGA' #TODO: parse X log and extract autodetected output
 	$Wiz -set AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
@@ -43,4 +44,5 @@ while [[ "$Done" -eq 0 ]]; do
 	if "$BaseDir"/AVWizardWrapper.sh; then
 		Done=1
 	fi
+	StopX
 done
