@@ -7,8 +7,8 @@ use DBI;
 #declare vars (it's safer this way)
 my $DEVICE_ID=0;
 my $DEVICE_EXT = 0;
-my $DEVICE_TYPE = ""; #default is SIP phone
-my $DEVICE_PORT = 0;  #default for SIP
+my $DEVICE_TYPE = "";
+my $DEVICE_PORT = 0;
 
 my $CONF_HOST="localhost";
 my $CONF_USER="root";
@@ -263,8 +263,9 @@ sub add_to_asterisk_db()
 
     unless($DEVICE_TYPE =~/^(iax2|sip|zap|custom)$/)
     {
-        print "Unsupported device type : \"$DEVICE_TYPE\"\n";
-        return;
+        print "Unsupported device type : \"$DEVICE_TYPE\" will set to default\n";
+        $DEVICE_TYPE='iax2';
+        &update_device_data();
     }
 
     $EXT_VARS{'display'}="extensions";
