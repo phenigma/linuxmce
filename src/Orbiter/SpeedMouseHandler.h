@@ -36,7 +36,7 @@ namespace DCE
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 
 	public:
-		SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
+		SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
 		~SpeedMouseHandler();
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Speed; }
 

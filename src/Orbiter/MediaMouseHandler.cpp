@@ -13,7 +13,7 @@
 
 using namespace DCE;
 
-MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior)
+MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 }
 

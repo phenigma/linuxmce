@@ -13,8 +13,8 @@
 
 using namespace DCE;
 
-LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior)
-	: MouseHandler(pObj,pMouseBehavior)
+LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
+	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 	m_pObj_Highlighted = NULL;
 	m_bFirstTime=true;
@@ -22,7 +22,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pM
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
 	{
 		DesignObj_Orbiter *pObj_First = m_pMouseBehavior->m_pOrbiter->FindObject(
-			StringUtils::itos(DESIGNOBJ_popMainMenu_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
+			StringUtils::itos(atoi(m_pObj->m_ObjectID.c_str())) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
 		if( pObj_First )
 		{
 			m_pMouseBehavior->m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
@@ -48,7 +48,11 @@ void LockedMouseHandler::Start()
 	}
 
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
+	{
+		if( m_sOptions[0]=='M' )
+			m_pMouseBehavior->m_bMouseHandler_Horizontal_Exclusive=true;
 		m_bTapAndRelease=true;
+	}
 	else
 		m_bTapAndRelease=false;
 }
@@ -61,8 +65,15 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST )
 	{
-		m_bActivatedObject = true;
-		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+		if( m_sOptions[0]=='M' )
+		{
+			ActivatedMainMenuPad();
+		}
+		else
+		{
+			m_bActivatedObject = true;
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+		}
 	}
 
 	return false; // Keep processing
@@ -73,7 +84,9 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 	if( PK_Button==BUTTON_Mouse_7_CONST && !m_bTapAndRelease )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-		if(  m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
+		if( m_sOptions[0]=='M' )
+			ActivatedMainMenuPad();
+		else if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
 		{
 			m_bActivatedObject = true;
 			m_pMouseBehavior->m_pOrbiter->SelectedObject( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smNavigation );
@@ -110,5 +123,59 @@ pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 			m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
 		}
 	}
-
 }
+
+void LockedMouseHandler::ActivatedMainMenuPad()
+{
+	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		return;
+
+	string sSubMenu;
+	switch( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_iBaseObjectID )
+	{
+	case 4865:
+		sSubMenu = "<%=NP_R%>";
+		break;
+	case 4954:  // climate
+		sSubMenu = "4957.<%=L:0%>.0";
+		break;
+	case 4955:  // telecom
+		sSubMenu = "4958.<%=L:0%>.0";//"#DESIGNOBJ_icoModeBabySitter_CONST.<%=L:0%>";// "4957.<%=L:0%>";  //
+		break;
+	case 4956: // security
+		sSubMenu = "4959.<%=L:0%>.0";
+		break;
+	case 4890: // lights
+		sSubMenu = "4889.<%=L:0%>.0";
+		break;
+	case 4873:
+		sSubMenu = "4870.<%=L:0%>.0";
+		break;
+	case 4867:
+		sSubMenu = "4894";
+		break;
+	case 4952:
+		sSubMenu = "4960";
+		break;
+	case 4953:
+		sSubMenu = "4961";
+		break;
+	}
+
+	DesignObj_Orbiter *pObj = m_pMouseBehavior->m_pOrbiter->FindObject(sSubMenu);
+	if( !pObj )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedMainMenuPad cannot find %s",sSubMenu.c_str());
+		return;
+	}
+
+	// We want to put it above us, left justified
+	PlutoPoint pt = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Location();
+	pt.Y -= pObj->m_rPosition.Height;
+	if( pt.X + pObj->m_rPosition.Width > m_pMouseBehavior->m_pOrbiter->m_Width )
+		pt.X = m_pMouseBehavior->m_pOrbiter->m_Width-pObj->m_rPosition.Width;
+
+	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(pObj->m_ObjectID,pt.X,pt.Y,"","submenu",false,false);
+	m_pMouseBehavior->Set_Mouse_Behavior("LS",true,"Y",pObj->m_ObjectID);
+}
+

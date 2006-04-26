@@ -22,8 +22,8 @@ using namespace DCE;
 
 const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};
 
-SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) 
-	: MouseHandler(pObj,pMouseBehavior)
+SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
+	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");	
 

@@ -1699,6 +1699,7 @@ fprintf(file,"%s\n",itgs->first.c_str());
 fclose(file);
 }
 
+				StringUtils::Replace(&sDesignObj,"<%=L:0%>","0");
 
 				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(First2Dots(sDesignObj))==m_htGeneratedScreens.end() )
 				{

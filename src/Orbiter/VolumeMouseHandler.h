@@ -22,7 +22,7 @@ namespace DCE
 	class VolumeMouseHandler : public MouseHandler
 	{
 	public:
-		VolumeMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) {}
+		VolumeMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior) {}
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Volume; }
 
 		void Start();

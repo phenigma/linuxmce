@@ -123,7 +123,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4861 ||  m_pRow_DesignObj->PK_DesignObj_get()==4970 ) // || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4889 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==4970 ) // || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -231,7 +231,7 @@ int k=2;
 						cout << "Regenerating: cache file " << Filename << " doesn't exist" << endl;
 				}
 				else
-					cout << "Regenerating: screen has changed from " << lModDate1 << " to " << lModDate2 << endl;
+					cout << "Regenerating: screen has changed from " << lModDate1 << " to " << lModDate2 << " ( " << pdrCachedScreen->Modification_LastGen_get() << " to " <<  m_pRow_DesignObj->psc_mod_get() << ")" << endl;
             }
 			else
 				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;
@@ -552,6 +552,8 @@ Table_Image *p = m_mds->Image_get();
             }
         }
     }
+if(m_sOrigBackgroundFile=="/pluto/orbiter/skins//Basic/Icons/lights/lightson.png")
+int k=2;
 
 	// See if there's a button
 	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
@@ -1007,7 +1009,7 @@ int k=2;
         }
     }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4878 )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3390 )
 int k=2;
     // Don't stretch out the floorplan objects
     if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
@@ -1024,8 +1026,8 @@ int k=2;
                     m_rPosition = PlutoRectangle::Union(m_rPosition,oco->m_rPosition);
                 else
 				{
-					m_rPosition.Width = oco->m_rPosition.Right();
-					m_rPosition.Height = oco->m_rPosition.Bottom();
+					m_rPosition.Right(oco->m_rPosition.Right());
+					m_rPosition.Bottom(oco->m_rPosition.Bottom());
 				}
             }
         }

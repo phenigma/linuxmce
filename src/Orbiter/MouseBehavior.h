@@ -31,8 +31,9 @@ namespace DCE
 		DesignObj_Orbiter *m_pObj;
 		MouseBehavior *m_pMouseBehavior;
 		bool m_bIsActive; // Means this handler is currently being used
+		string m_sOptions;
 
-		MouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; m_bIsActive=false; }
+		MouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_sOptions=sOptions; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; m_bIsActive=false; }
 		virtual ~MouseHandler() {}
 
 

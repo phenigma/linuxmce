@@ -22,7 +22,7 @@ namespace DCE
 	class LightMouseHandler : public MouseHandler
 	{
 	public:
-		LightMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,pMouseBehavior) {}
+		LightMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior) {}
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Light; }
 
 		void Start();

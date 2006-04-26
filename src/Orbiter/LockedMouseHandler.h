@@ -29,7 +29,7 @@ namespace DCE
 	public:
 		bool m_bActivatedObject; // Set to true whenever an object was activated
 
-		LockedMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
+		LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Locked; }
 
 		void Start();
@@ -38,6 +38,8 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y);
+
+		void ActivatedMainMenuPad();
 	};
 
 }

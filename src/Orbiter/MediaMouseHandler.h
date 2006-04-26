@@ -25,7 +25,7 @@ namespace DCE
 	{
 
 	public:
-		MediaMouseHandler(DesignObj_Orbiter *pObj,MouseBehavior *pMouseBehavior);
+		MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Media; }
 		~MediaMouseHandler()
 		{

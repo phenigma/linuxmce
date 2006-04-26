@@ -121,22 +121,23 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	switch(sOptions[0])
 	{
 	case 'L':
-		pMouseHandler=new LockedMouseHandler(pObj,this);
+	case 'M':
+		pMouseHandler=new LockedMouseHandler(pObj,sOptions,this);
 		break;
 	case 'S':
-		pMouseHandler=new SpeedMouseHandler(pObj,this);
+		pMouseHandler=new SpeedMouseHandler(pObj,sOptions,this);
 		break;
 	case 'G':
-		pMouseHandler=new LightMouseHandler(pObj,this);
+		pMouseHandler=new LightMouseHandler(pObj,sOptions,this);
 		break;
 	case 'V':
-		pMouseHandler=new VolumeMouseHandler(pObj,this);
+		pMouseHandler=new VolumeMouseHandler(pObj,sOptions,this);
 		break;
 	case 'T':
-		pMouseHandler=new MediaMouseHandler(pObj,this);
+		pMouseHandler=new MediaMouseHandler(pObj,sOptions,this);
 		break;
 	case 'K':
-		pMouseHandler=new KeyboardMouseHandler(pObj,this);
+		pMouseHandler=new KeyboardMouseHandler(pObj,sOptions,this);
 		break;
 	}
 
@@ -153,7 +154,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_bMouseHandler_Vertical_Exclusive=bExclusive;
 		m_sVerticalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
-		if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
+		if( m_bMouseHandler_Vertical_Exclusive )
+		{
+			m_pMouseHandler_Vertical->Start();
+			m_cLocked_Axis_Current=AXIS_LOCK_Y;
+		}
+		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
 			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
 	if( sDirection[0]=='X' || sDirection[0]=='B' )
@@ -169,7 +175,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_bMouseHandler_Horizontal_Exclusive=bExclusive;
 		m_sHorizontalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
-		if( m_cLocked_Axis_Current==AXIS_LOCK_X )
+		if( m_bMouseHandler_Horizontal_Exclusive )
+		{
+			m_pMouseHandler_Horizontal->Start();
+			m_cLocked_Axis_Current=AXIS_LOCK_X;
+		}
+		else if( m_cLocked_Axis_Current==AXIS_LOCK_X )
 			m_cLocked_Axis_Current=AXIS_LOCK_NONE;
 	}
 

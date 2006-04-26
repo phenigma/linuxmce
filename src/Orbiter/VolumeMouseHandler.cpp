@@ -14,8 +14,6 @@ using namespace DCE;
 
 void VolumeMouseHandler::Start()
 {
-m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
-
 	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
@@ -34,7 +32,7 @@ m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 	}
 	else
 	{
-		m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
+		m_pMouseBehavior->m_pMouseGovernor->SetBuffer(250);
 		m_bTapAndRelease=false;
 		m_pObj->m_GraphicToDisplay=1;
 		m_iCancelLevel = m_iLastNotch = atoi(m_pMouseBehavior->m_pOrbiter->GetEvents()->GetDeviceDataFromDatabase(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
