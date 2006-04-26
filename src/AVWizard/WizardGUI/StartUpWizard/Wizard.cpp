@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include "GUIWizardUtils.h"
+
 Wizard::Wizard()
 	: Quit(false),
 	  StatusChange(true)	
