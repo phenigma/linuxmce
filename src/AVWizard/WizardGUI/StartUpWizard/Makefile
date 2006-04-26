@@ -1,4 +1,4 @@
-ROOT = ..
+ROOT = ../../..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -D_DEVEL_DEFINES
@@ -13,15 +13,13 @@ FLAGS = $(CXXFLAGS) $(CPPFLAGS)
 Gen_Dev_Files +=
 include sources.list.mk
     
-
-whattodo:
-	@echo "type 'make bin', 'make all' or 'make clean'"
-
-all: bin 
-bin: AVWizard
-
 AVWizard: $(sources:.cpp=.o)
 	$(CXX) -o AVWizard $(sources)  $(FLAGS) $(LDFLAGS) $(LDLIBS)
 
 clean: 
 	rm -f *.o *.d AVWizard 
+
+include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
+-include $(sources:.cpp=.d)
+endif
