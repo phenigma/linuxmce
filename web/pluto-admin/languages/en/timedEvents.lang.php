@@ -13,4 +13,6 @@ $TEXT_ABSOLUTE_TEXT_CONST='Do something on 5 Mar 2005 at 11:15';
 $TEXT_VALIDATION_DESCRIPTION_CONST='Please enter the description!';
 $TEXT_COMMAND_DELETED_NOTIFICATION_CONST='The command was deleted from the command group.';
 $TEXT_EDIT_TIMED_EVENT_CONST='Edit Timed Event';
+$TEXT_ERROR_INVALID_DAY_NUMBER_CONST='Invalid day number, please type a number between 0 and 30.';
+$TEXT_ERROR_INVALID_INTERVAL_NUMBER_CONST='Invalid interval number, please type a numerical value.';
 ?>

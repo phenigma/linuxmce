@@ -16,6 +16,7 @@ $TEXT_ROOMS_CONST='Rooms';
 $TEXT_EDIT_CONST='Edit';
 $TEXT_DELETE_CONST='Delete';
 $TEXT_ENTERTAIN_AREA_CONST='Entertain area';
+$TEXT_ENTERTAIN_AREAS_CONST='Entertain areas';
 $TEXT_DESCRIPTION_CONST='Description';
 $TEXT_PARENT_CONST='Parent';
 $TEXT_ADD_CONST='Add';
@@ -154,4 +155,6 @@ $TEXT_SECURITY_CONST='Security';
 $TEXT_FILES_AND_MEDIA_CONST='Files & Media';
 $TEXT_TELECOM_CONST='Telecom';
 $TEXT_WARNING_NUMERICAL_ONLY_CONST='Please enter a numerical value.';
+$TEXT_ERROR_INVALID_TIME_FORMAT_CONST='Invalid time format';
+$TEXT_ERROR_INVALID_DATE_FORMAT_CONST='Invalid date format, please enter dd/mm/yyyy';
 ?>

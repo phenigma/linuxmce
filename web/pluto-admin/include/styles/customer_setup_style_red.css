@@ -221,3 +221,22 @@ textarea {
 	background-position: bottom left;
 	background-color: #FFFFFF;
 }
+fieldset {
+    position: relative;
+	border:1px solid #000000; 
+  	background-color: #DEDEDE;	
+}
+html>body fieldset {
+    padding-top: 1em;
+    top: 0;
+}
+legend {
+    position: relative;
+    top: -1em;
+	padding: 0.2em 0.5em;
+  	border:1px solid #000000;
+  	background-color: #000000;	
+  	color:#FFFFFF;
+  	font-size:90%;
+  	text-align:right;
+}

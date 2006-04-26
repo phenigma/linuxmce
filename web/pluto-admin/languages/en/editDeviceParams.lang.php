@@ -23,4 +23,10 @@ $TEXT_ERROR_DEVICE_PIPE_EXISTS_CONST='Device pipe already exist.';
 $TEXT_CONNECTION_KEEP_ALIVE_CONST='Use 5 second pings to ensure connection stays alive.';
 $TEXT_RECONFIGURE_DEVICE_CONST='Reconfigure device';
 $TEXT_DISABLED_CONST='Disabled';
+$TEXT_DEVICE_PIPES_USED_CONST='Device Pipes Used';
+$TEXT_MEMBER_OF_GROUP_CONST='Member Of Group';
+$TEXT_RELATED_DEVICES_CONST='Related Devices';
+$TEXT_CONFIRM_DELETE_PIPE_CONST='Are you sure you want to delete this pipe?';
+$TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST='Are you sure you want to delete this device from the group?';
+$TEXT_CONFIRM_DELETE_DEVICE_CONST='Are you sure you want to delete this device?';
 ?>

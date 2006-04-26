@@ -54,10 +54,89 @@ function editTimedEvent($output,$dbADO) {
 			}
 			eval("document.getElementById(\'type_"+val+"\').style.display=\'\';");
 		}
+		
+		function validateForm(){
+			eventChecked=-1;
+			for(i=0;i<document.editTimedEvent.timedEventType.length;i++){
+				if(document.editTimedEvent.timedEventType[i].checked){
+					eventChecked=i;
+				}
+			}
+
+			switch(eventChecked){
+				case 0:
+					intervalNr=parseInt(document.editTimedEvent.intervalNumber.value);
+					if(isNaN(intervalNr) || intervalNr<0){
+						alert("'.$TEXT_ERROR_INVALID_INTERVAL_NUMBER_CONST.'");
+						document.editTimedEvent.intervalNumber.focus();
+						return false;
+					}
+				break;
+				case 1:
+					var timeValues=new Array();
+					timeValues=document.editTimedEvent.dayOfWeekTime.value.split(",");
+		
+					for(i=0;i<timeValues.length;i++){
+						if(!timeValues[i].checkTimeFormat()){
+							alert("'.$TEXT_ERROR_INVALID_TIME_FORMAT_CONST.'");
+							document.editTimedEvent.dayOfWeekTime.focus();
+							return false;
+						}
+					}
+				break;
+				case 2:
+					var daysValues=new Array();
+					daysValues=document.editTimedEvent.dayOfMonths.value.split(",");
+
+					for(i=0;i<daysValues.length;i++){
+						if(isNaN(parseInt(daysValues[i])) || parseInt(daysValues[i])<0 || parseInt(daysValues[i]>30)){
+							alert("'.$TEXT_ERROR_INVALID_DAY_NUMBER_CONST.'");
+		
+							document.editTimedEvent.dayOfMonths.focus();
+							return false;
+						}
+					}
+		
+					var timeValues=new Array();
+					timeValues=document.editTimedEvent.dayOfMonthTime.value.split(",");
+
+					for(i=0;i<timeValues.length;i++){
+						if(!timeValues[i].checkTimeFormat()){
+							alert("'.$TEXT_ERROR_INVALID_TIME_FORMAT_CONST.'");
+							document.editTimedEvent.dayOfMonthTime.focus();
+							return false;
+						}
+					}
+				break;
+				case 3:
+					if(document.editTimedEvent.absoluteDate.value.checkDateFormat()!=0){
+						alert("'.$TEXT_ERROR_INVALID_DATE_FORMAT_CONST.'");
+						document.editTimedEvent.absoluteDate.focus();
+						return false;
+					}
+					var timeValues=new Array();
+					timeValues=document.editTimedEvent.absoluteTime.value.split(",");
+
+					for(i=0;i<timeValues.length;i++){
+						if(!timeValues[i].checkTimeFormat()){
+							alert("'.$TEXT_ERROR_INVALID_TIME_FORMAT_CONST.'");
+							document.editTimedEvent.absoluteTime.focus();
+							return false;
+						}
+					}
+				break;
+				default:
+					return false;
+				break;
+			}
+		
+			return true;
+		}
 		</script>
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-		<form action="index.php" method="post" name="editTimedEvent">
+		
+		<form action="index.php" method="post" name="editTimedEvent" onSubmit="return validateForm();">
 		<input type="hidden" name="section" value="editTimedEvent">
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
@@ -134,7 +213,6 @@ function editTimedEvent($output,$dbADO) {
 					$rowOldValues=$resOldValue->FetchRow();
 					$oldAbsolute=$rowOldValues['Value'];
 					$dataParts=explode(' ',$rowOldValues['Value']);
-					echo $rowOldValues['PK_CriteriaParm'];
 				}
 				$out.='<input type="hidden" name="oldAbsolute" value="'.@$oldAbsolute.'">';
 			break;
@@ -200,7 +278,7 @@ function editTimedEvent($output,$dbADO) {
 			header("Location: index.php?section=editTimedEvent&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
 			exit();
 		}
-		$description=$_POST['description'];
+		$description=cleanString($_POST['description']);
 		$timedEventType=(int)$_POST['timedEventType'];
 
 		// update EventHandler
@@ -252,7 +330,7 @@ function editTimedEvent($output,$dbADO) {
 
 				break;
 				case 3:
-					$dayOfMonths=(int)@$_POST['dayOfMonths'];
+					$dayOfMonths=@$_POST['dayOfMonths'];
 					$dayOfMonthTime=isset($_POST['dayOfMonthTime'])?$_POST['dayOfMonthTime']:date('h:i');
 					$oldDayOfMonth=@$_POST['oldDayOfMonth'];
 					$newDayOfMonth=$dayOfMonths.$dayOfMonthTime;

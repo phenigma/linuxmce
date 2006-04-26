@@ -131,7 +131,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 		<div class="confirm" align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	
-	<table width="100%" bgcolor="#F0F3F8">
+	<table width="100%">
 		<tr>
 			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">'.($deviceID==0?$TEXT_CREATE_TOP_LEVEL_DEVICE_CONST:$TEXT_CREATE_CHILD_DEVICE_CONST).'</a> &nbsp; &nbsp; &nbsp;
 			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
@@ -152,29 +152,33 @@ $installationID = (int)@$_SESSION['installationID'];
 		
 	<fieldset>
 	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
-	<table>
-	<tr><td>'.$TEXT_DESCRIPTION_CONST.' *</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
+	<table border="0">
+		<tr>
+			<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
+			<td colspan="2"><input type="text" name="DeviceDescription" value="'.$description.'" class="input_big"></td>
+		</tr>
 	<tr>
-		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
+		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
+		<td width="230" bgcolor="#B9B9B9"><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B></td>
+		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_COMMENTS_CONST.'</td>
-		<td>'.$dtComments.'</td>
+		<td colspan="2">'.$dtComments.'</td>
 	</tr>
-	
-				<tr>
-					<td valign="top">This device is controlled via:</td>
-					<td>
-					';
-					$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO,'0,- '.$TEXT_PLEASE_SELECT_CONST.' -','onchange="document.editDeviceParams.submit();"');
+	<tr>
+		<td valign="top">This device is controlled via</td>
+		<td colspan="2">
+		';
+		$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO,'0,- '.$TEXT_PLEASE_SELECT_CONST.' -','class="input_big" onchange="document.editDeviceParams.submit();"');
 					
-					$out.='		
-					</td>
-				</tr>
-				<tr>
-					<td>Room:</td>
-					<td><select name="Room">
-						<option value="0">Please select</option>';
+		$out.='		
+		</td>
+	</tr>
+	<tr>
+		<td>'.$TEXT_ROOM_CONST.'</td>
+		<td colspan="2"><select name="Room" class="input_big">
+			<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 					if(isMediaDirector($deviceID,$dbADO)){
 						$mdArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
 					
@@ -196,11 +200,11 @@ $installationID = (int)@$_SESSION['installationID'];
 						$out.='<option value="'.$rowRooms['PK_Room'].'" '.(($rowRooms['PK_Room']==$deviceRoom)?'selected':'').'>'.$rowRooms['Description'].((!is_null(@$rowRooms['PK_Device']))?' [ '.@$rowRooms['md'].' ]':'').'</option>';
 					}
 					$out.='
-					</select></td>
-				</tr>
-				<tr>
-					<td>Entertain Areas:</td>
-					<td>';
+				</select></td>
+		</tr>
+		<tr>
+			<td>'.$TEXT_ENTERTAIN_AREAS_CONST.'</td>
+			<td bgcolor="#B9B9B9">';
 					$selectCheckedEA='SELECT * FROM Device_EntertainArea WHERE FK_Device=?';
 					$resCheckedEA=$dbADO->Execute($selectCheckedEA,$deviceID);
 					$checkedArray=array();
@@ -225,49 +229,50 @@ $installationID = (int)@$_SESSION['installationID'];
 					$out.='
 					<input type="hidden" name="displayedEntAreas" value="'.join(',',$displayedEntAreas).'">
 					<input type="hidden" name="oldEntAreas" value="'.join(',',$oldEntAreas).'">
-					</td>
-				</tr>					
-				<tr>
-					<td>IP Address:</td>
-					<td><input name="ipAddress" value="'.$ipAddress.'"></td>
-				</tr>
-				<tr>
-					<td>MAC Address:</td>
-					<td><input name="macAddress" value="'.$macAddress.'"></td>
-				</tr>
-				<tr>
-					<td>Ignore On/Off:</td>
-					<td>On:<input type="radio" value="1" name="IgnoreOnOff" '.($ignoreOnOff==1?' checked="checked" ':'').'> &nbsp; 
-						Off:<input type="radio" value="0" name="IgnoreOnOff" '.($ignoreOnOff==0?' checked="checked" ':'').'></td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>'.$TEXT_RECONFIGURE_DEVICE_CONST.'</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>'.$TEXT_CONNECTION_KEEP_ALIVE_CONST.'</td>
-				</tr>
-				<tr>
-					<td>State</td>
-					<td>'.getStateFormElement($deviceID,'State',$State,$dbADO).'</td>
-				</tr>
-				<tr>
-					<td>Status</td>
-					<td><input type="text" name="Status" value="'.$Status.'"></td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" name="deviceDisabled" value="1" '.(($deviceDisabled==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>'.$TEXT_DISABLED_CONST.'</td>
-				</tr>					
-				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-				</tr>
+				</td>
+			</tr>					
+			<tr>
+				<td>IP Address</td>
+				<td><input name="ipAddress" value="'.$ipAddress.'" class="input_big"></td>
+			</tr>
+			<tr>
+				<td>MAC Address</td>
+				<td><input name="macAddress" value="'.$macAddress.'" class="input_big"></td>
+			</tr>
+			<tr>
+				<td>Ignore On/Off</td>
+				<td>On<input type="radio" value="1" name="IgnoreOnOff" '.($ignoreOnOff==1?' checked="checked" ':'').'> &nbsp; 
+					Off:<input type="radio" value="0" name="IgnoreOnOff" '.($ignoreOnOff==0?' checked="checked" ':'').'></td>
+			</tr>
+			<tr>
+				<td colspan="3"><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"> '.$TEXT_RECONFIGURE_DEVICE_CONST.'</td>
+			</tr>
+			<tr>
+				<td colspan="3"><input type="checkbox" name="PingTest" value="1" '.(($PingTest==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"> '.$TEXT_CONNECTION_KEEP_ALIVE_CONST.'</td>
+			</tr>
+			<tr>
+				<td>'.$TEXT_STATE_CONST.'</td>
+				<td>'.getStateFormElement($deviceID,'State',$State,$dbADO).'</td>
+			</tr>
+			<tr>
+				<td>'.$TEXT_STATUS_CONST.'</td>
+				<td><input type="text" name="Status" value="'.$Status.'" class="input_big"></td>
+			</tr>
+			<tr>
+				<td colspan="3"><input type="checkbox" name="deviceDisabled" value="1" '.(($deviceDisabled==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"> '.$TEXT_DISABLED_CONST.'</td>
+			</tr>					
+			<tr>
+				<td colspan="3" align="left"><input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> <input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
+			</tr>
 	</table>
 	</fieldset>
-					<br />
-	<fieldset>				
-	<legend>Device Pipes Used</legend>
+	<br />
+					
+	<table width="100%">
+		<tr>
+			<td valign="top" width="50%">
+	<fieldset style="height:80%">				
+	<legend>'.$TEXT_DEVICE_PIPES_USED_CONST.'</legend>
 	<table>
 		<tr>
 			<td>
@@ -325,7 +330,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			}
 			
 			$out.='<td> Pipe '.$selectPipesTxt.'</td>';
-			$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+			$out.='<td><input value="'.$TEXT_DELETE_CONST.'" type="button" class="button" onClick="if (confirm(\''.$TEXT_CONFIRM_DELETE_PIPE_CONST.'\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
 			
 			$out.='</tr>';
 		}
@@ -338,7 +343,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		<tr>
 			<td>
 				<select name="addDeviceForPiping">
-					<option value="0">-please select-</option>
+					<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
 					';
 			
 				$querySelectDevice = "SELECT Description,PK_Device FROM Device Where FK_Installation = ? Order By Description ASC";
@@ -361,13 +366,13 @@ $installationID = (int)@$_SESSION['installationID'];
 			<input type="submit" class="button" name="submitX" value="Add"  >
 			</td>
 		</tr>
-	    <tr><td><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
+	    <tr><td><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td></tr>
 	</table>
 	</fieldset>
-
-	<br />
-	<fieldset>				
-	<legend>Member Of Group</legend>
+		</td>
+		<td>
+	<fieldset style="height:80%">				
+	<legend>'.$TEXT_MEMBER_OF_GROUP_CONST.'</legend>
 	
 	<table>				';
 
@@ -391,7 +396,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$out.="<tr>
 					<td>".$rowDevicesGroup['Description']."</td>					
 					<td>
-						<input value='Delete' type='button' onClick=\"if (confirm('Are you sure you want to delete this device from the group?')) {windowOpen('index.php?section=deleteDeviceFromDeviceGroup&deviceID=$deviceID&deviceGroupID=".$rowDevicesGroup['PK_DeviceGroup']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+						<input value='Delete' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST')) {windowOpen('index.php?section=deleteDeviceFromDeviceGroup&deviceID=$deviceID&deviceGroupID=".$rowDevicesGroup['PK_DeviceGroup']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
 					</td>
 				  </tr>";
 			$deviceGroups[]=$rowDevicesGroup['PK_DeviceGroup'];
@@ -401,7 +406,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	$selectRemainingGroups = "SELECT Description,PK_DeviceGroup from DeviceGroup where FK_Installation = ? and PK_DeviceGroup not in (".join(",",$deviceGroups).") order by Description ASC";
 	$resRemainingGroups = $dbADO->Execute($selectRemainingGroups,array($installationID));
 	
-	$remainingGroups = '<option value="0">-please select-</option>';
+	$remainingGroups = '<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 	if ($resRemainingGroups) {
 		while ($rowRemainingGroups = $resRemainingGroups->FetchRow()) {
 			$remainingGroups.='<option value="'.$rowRemainingGroups['PK_DeviceGroup'].'">'.$rowRemainingGroups['Description'].'</option>';
@@ -412,12 +417,15 @@ $installationID = (int)@$_SESSION['installationID'];
 	<tr><td><select name="addNewGroup">'.$remainingGroups.'</select></td><td><input type="submit" class="button"   name="submitX" value="Add"></td></tr>		
 	<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createDeviceGroup&deviceID='.$deviceID.'&from=editDeviceParams\',\'width=400,height=400,toolbars=true,scrollbars=1,resizable=1\');">Create new device group</a></td></tr>
 	
-		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
+		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td></tr>
 	</table>
 	</fieldset>
+			</td>
+		</tr>
+	</table>
+	
 	<fieldset>
-	<br />
-	<legend>Related Devices</legend>
+	<legend>'.$TEXT_RELATED_DEVICES_CONST.'</legend>
 					
 	<table>
 	';
@@ -442,7 +450,7 @@ $installationID = (int)@$_SESSION['installationID'];
 						<input type=\"text\" name=\"relatedDeviceValue_".$rowRelatedDevice['FK_Device_Related']."\" value=\"".stripslashes($rowRelatedDevice['Value'])."\">
 					</td>
 					<td>
-						<input value='Delete' class='button' type='button' onClick=\"if (confirm('Are you sure you want to delete this device?')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+						<input value='Delete' class='button' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_CONST')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
 					</td>
 				  </tr>";
 			$deviceRelatedData[]=$rowRelatedDevice['FK_Device_Related'];
@@ -466,13 +474,13 @@ $installationID = (int)@$_SESSION['installationID'];
 		<tr><td><select name="addNewDeviceRelated">'.$newDeviceRelated.'</select></td><td><input type="submit" class="button" name="submitX" value="Add"  ></td></tr>
 	
 		<input type="hidden" name="selectedRelatedDevice" value="'.(join(",",$deviceRelatedData)).'">
-		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
+		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td></tr>
 	</table>	
 	</fieldset>
 	
 	<br />
 	<fieldset>
-		<legend>Device Data</legend>
+		<legend>'.$TEXT_DEVICE_DATA_CONST.'</legend>
 	
 		
 			<input type="hidden" value="editDeviceParams" name="section">
@@ -565,9 +573,9 @@ $installationID = (int)@$_SESSION['installationID'];
 		$validOrbiters=getValidOrbitersArray($installationID,$dbADO);
 		$validComputers=getValidComputersArray($installationID,$dbADO);
 
-	$out.=((count($deviceDataArray)>0)?formatDeviceData($deviceID,$deviceDataArray[$deviceID],$dbADO,$IsIPBased,getSpecificFloorplanType($dcID,$dbADO),1,'textarea').'
+	$out.=((count($deviceDataArray)>0)?formatDeviceData($deviceID,$deviceDataArray[$deviceID],$dbADO,$IsIPBased,getSpecificFloorplanType($dcID,$dbADO),1,'textarea','input_big').'
 		<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">
-		<input type="submit" class="button" name="submitX" value="Save"  >
+		<input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  >
 	':'').'	
 	</fieldset>
 	</form>
@@ -650,7 +658,6 @@ $installationID = (int)@$_SESSION['installationID'];
 		foreach ($selectedDateArray as $elem) {
 			if(isset($_POST['oldDeviceData_'.$deviceID.'_'.$elem])){
 				$value = @$_POST['deviceData_'.$deviceID.'_'.$elem];
-				echo "[$value]";
 				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
 				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
 				if ($res && $res->RecordCount()==1) {

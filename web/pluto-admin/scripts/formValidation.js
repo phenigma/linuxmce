@@ -747,3 +747,43 @@ function validateInput(strValidateStr,objValue,strError)
     return ret; 
 }
 
+String.prototype.checkTimeFormat = function ( ){ 
+
+	return /^([0-1]?[0-9]|[2][0-3])(:[0-5][0-9])?$/.test( this );
+}
+
+String.prototype.checkDateFormat=function(){
+    var mo, day, yr;
+
+    var re = /\b\d{1,2}[\/-]\d{1,2}[\/-]\d{4}\b/;
+    if (re.test(this)) {
+        var delimChar = (this.indexOf("/") != -1) ? "/" : "-";
+        var delim1 = this.indexOf(delimChar);
+        var delim2 = this.lastIndexOf(delimChar);
+        day = parseInt(this.substring(0, delim1), 10);
+        mo = parseInt(this.substring(delim1+1, delim2), 10);
+        yr = parseInt(this.substring(delim2+1), 10);
+        var testDate = new Date(yr, mo-1, day);
+
+        if (testDate.getDate() == day) {
+            if (testDate.getMonth() + 1 == mo) {
+                if (testDate.getFullYear() == yr) {
+                    return 0;
+                } else {
+                    // There is a problem with the year entry.
+                    return 3;
+                }
+            } else {
+                // There is a problem with the month entry.
+                return 4;
+            }
+        } else {
+            // There is a problem with the date entry.
+            return 5;
+        }
+    } else {
+        // Incorrect date format. Enter as mm/dd/yyyy.
+        return 2;
+    }
+    return 1;
+}

@@ -2655,7 +2655,7 @@ function PortForHumans($device,$deviceNames)
 	return "Unknown: $devname";
 }
 
-function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$dbADO,$deviceID)
+function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$dbADO,$deviceID,$cssStyle="")
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -2698,6 +2698,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	}
 	
 	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
+	$extra.=' class="'.$cssStyle.'"';
 	$out=pulldownFromArray($serialPortAsoc,$name,$selectedPort,$extra,'key');
 	
 	return $out;
@@ -3128,7 +3129,7 @@ function isCritical($deviceID)
 	}
 }
 
-function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specificFloorplanType=0,$boolJsValidation=0,$default='input')
+function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specificFloorplanType=0,$boolJsValidation=0,$default='input',$cssStyle='')
 {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 		
@@ -3148,7 +3149,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 					<td align="left" valign="middle" title="'.@$rowDDforDevice['Tooltip'].'"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$rowDDforDevice['dd_Description']).'</b></td>
 					<td align="right">';
 			$itemDisabled=((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'');
-			$defaultFormElement=($default=='input')?'<input type="text" name="'.$formElementName.'" value="'.@$ddValue.'" '.$itemDisabled.'>':'<textarea name="'.$formElementName.'" '.$itemDisabled.' rows="1">'.@$ddValue.'</textarea>';
+			$defaultFormElement=($default=='input')?'<input type="text" name="'.$formElementName.'" value="'.@$ddValue.'" '.$itemDisabled.' class="'.$cssStyle.'">':'<textarea name="'.$formElementName.'" '.$itemDisabled.' rows="2" class="'.$cssStyle.'">'.@$ddValue.'</textarea>';
 			
 			switch($rowDDforDevice['typeParam']){
 				case 'int':
@@ -3178,7 +3179,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 
 					$queryTable="SELECT $tableFields FROM $tableName $filterQuery $orderQuery";
 					$resTable=$dbADO->Execute($queryTable);
-					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.$itemDisabled.'>
+					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.$itemDisabled.' class="'.$cssStyle.'">
 												<option value="0"></option>';
 					while($rowTable=$resTable->FetchRow()){
 						$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
@@ -3201,12 +3202,12 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 						if($rowDDforDevice['FK_DeviceData']==$GLOBALS['PortChannel']){
 							$choicesArray=parentHasChoices($deviceID,$dbADO);
 							if(count($choicesArray)>0){
-								$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowD['PK_Device'].'_'.$rowDDforDevice['FK_DeviceData'],$ddValue);
+								$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowD['PK_Device'].'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,'class="'.$cssStyle.'"');
 							}									
 						}
 						$deviceDataBox.=$defaultFormElement;
 					}else{
-						$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID);
+						$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID,$cssStyle);
 					}
 			}
 			$GLOBALS['mdDistro']=($rowDDforDevice['FK_DeviceData']==$GLOBALS['rootPK_Distro'])?@$ddValue:0;
@@ -3388,7 +3389,7 @@ function getStateFormElement($deviceID,$name,$State,$dbADO)
 		<input type="checkbox" name="'.$name.'_app" value="1" '.((strpos($State,'APP')!==false)?'checked':'').'> Resend application to phone<br>
 		<input type="checkbox" name="'.$name.'_VMC" value="1" '.((strpos($State,'VMC')!==false)?'checked':'').'> Resend VMC to phone';
 	}else{
-		$out.='<input type="text" name="'.$name.'" value="'.$State.'">';
+		$out.='<input type="text" name="'.$name.'" value="'.$State.'" class="input_big">';
 	}
 	
 	return $out;
