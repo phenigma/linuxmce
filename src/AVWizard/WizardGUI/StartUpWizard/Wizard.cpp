@@ -113,12 +113,12 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if(MainPage == NULL)
 		return;
 	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
+	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	MainPage->DoApplySetting(Settings);
 	delete MainPage;
 	MainPage = NULL;
-	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 	CurrentPage ++ ;
-	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	if(CurrentPage == 9)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
