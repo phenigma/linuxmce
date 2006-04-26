@@ -24,7 +24,7 @@ void signal_handler(int signal)
 	switch (signal)
 	{
 		case SIGUSR1:
-			exit(2);
+			Wizard::GetInstance()->SetExitWithCode(2);
 			break;
 	}
 }
@@ -145,9 +145,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if(CurrentPage == 9)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-		WM_Event Event;
-		Event.Quit();
-		GenerateCustomEvent(Event);
+		SetExitWithCode(0);
 	}
 	CreateDialogs();
 	if(MainPage == NULL)
@@ -173,10 +171,7 @@ void Wizard::DoCancelScreen()
 	CurrentPage -- ;
 	if(CurrentPage == 0)
 	{
-		ExitCode = 1;
-		WM_Event Event;
-		Event.Quit();
-		GenerateCustomEvent(Event);
+		SetExitWithCode(1);
 	}
 	CreateDialogs();
 	if(MainPage == NULL)
@@ -304,4 +299,11 @@ int Wizard::GetExitCode()
 	return this->ExitCode;
 }
 
+void Wizard::SetExitWithCode(int Code)
+{
+	ExitCode = Code;
+	WM_Event Event;
+	Event.Quit();
+	GenerateCustomEvent(Event);
+}
 

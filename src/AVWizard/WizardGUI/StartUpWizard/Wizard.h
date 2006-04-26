@@ -161,6 +161,8 @@ public:
 
 	int GetExitCode();
 
+	void SetExitWithCode(int Code);
+
 };
 
 #endif /*Wizard_H_*/
