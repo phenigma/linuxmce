@@ -34,6 +34,7 @@ Wizard::Wizard()
 	: Quit(false),
 	  StatusChange(true)	
 {
+	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
 	this->AVWizardOptions = ConfigurationParser.ParseFile();
 	FrontEnd = new SDLFrontEnd();
@@ -172,6 +173,7 @@ void Wizard::DoCancelScreen()
 	CurrentPage -- ;
 	if(CurrentPage == 0)
 	{
+		ExitCode = 1;
 		WM_Event Event;
 		Event.Quit();
 		GenerateCustomEvent(Event);
@@ -296,3 +298,10 @@ void Wizard::GenerateCustomEvent(WM_Event Event)
 {
 	EvaluateEvent(Event);
 }
+
+int Wizard::GetExitCode()
+{
+	return this->ExitCode;
+}
+
+

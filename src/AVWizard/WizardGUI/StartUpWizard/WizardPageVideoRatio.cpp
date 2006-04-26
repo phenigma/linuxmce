@@ -4,6 +4,8 @@
 
 #include "GUIWizardUtils.h"
 
+#include "ConfigureCommons.h"
+
 WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -22,9 +24,15 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	if(Dictionary == NULL)
 		return -1;
 	if(Selected->GetName() == "Btn1")
+	{
 		OutputValue = "4_3";
+		system(COMMAND_SET_RATIO_4_3);
+	}	
 	else
+	{
 		OutputValue = "16_9";
+		system(COMMAND_SET_RATIO_16_9);
+	}
 	Dictionary->Set("VideoRatio", OutputValue);
 	return 0;
 }

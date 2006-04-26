@@ -47,6 +47,7 @@
 class Wizard
 {
 
+	int ExitCode;
 	/**
 	 *	Current video mode that runs the wizard
 	 */
@@ -157,6 +158,8 @@ public:
 	void GenerateCustomEvent(WM_Event Event);
 
 	void CreateDialogs();
+
+	int GetExitCode();
 
 };
 

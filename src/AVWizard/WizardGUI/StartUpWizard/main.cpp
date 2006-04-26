@@ -18,7 +18,7 @@ bool IsConsole = false;
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-
+	int ExitCode;
 	GenerateWizardConfigDefaults Generator;
 	Generator.GenerateDefaults();
 	Generator.GenerateDefaultPages("", "wiz_pixmaps");
@@ -27,8 +27,9 @@ int main(int argc, char *argv[])
 	m_Wizard->ParseCommandLineParameters(argc, argv);
 	m_Wizard->StartSDLVideoMode();
 	m_Wizard->CreateDialogs();
-	m_Wizard->MainLoop();	
+	m_Wizard->MainLoop();
+	ExitCode = m_Wizard->GetExitCode();
 	m_Wizard->CleanUp();
 
-	return 0;
+	return ExitCode;
 }
