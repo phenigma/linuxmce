@@ -52,6 +52,10 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_PnP_Set_Device_Template(int iPK_DeviceTemplate,int iPK_PnpQueue);
+	void EVENT_PnP_Pre_Config_Response(int iResult,int iPK_PnpQueue);
+	void EVENT_PnP_Do_Config_Response(int iResult,int iPK_PnpQueue);
+	void EVENT_PnP_Post_Config_Response(int iResult,int iPK_PnpQueue);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -93,7 +97,7 @@ public:
 //<-dceag-h-e->
 
 	virtual void CheckQueue();
-
+	void Set_Device_Template( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 private:
 
 	class PnPPrivate;

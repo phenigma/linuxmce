@@ -18,6 +18,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "DCE/DeviceData_Router.h"
+
 #include "DCE/DCERouter.h"
 #include "DCE/DCEConfig.h"
 
@@ -49,6 +50,7 @@ Plug_And_Play::PnPPrivate::~PnPPrivate()
 	delete database;
 	database = NULL;
 }
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -377,6 +379,63 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 		}
 	}
 	
+	//check the queue to see if the device is not in processing
+	if( iPK_DeviceTemplate < 0 )
+	{
+		// set the right state
+		// PNP_DEVICE_DETECTED
+	}
+	else
+	{
+		// PNP_DEVICE_PROMPT_FOR_PARAMETERS
+	}
+	
+	string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
+	
+	vector<Row_PnpQueue*> vectRow_PnpQueue;
+	vector<Row_PnpQueue*>::iterator vectRow_PnpQueue_iterator;
+	
+	Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
+	if( p_Table_PnpQueue != NULL )
+	{
+		p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
+		if( vectRow_PnpQueue.empty() )
+		{
+			// add it to the queue
+			Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
+			if( row != NULL )
+			{
+				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
+				row->FK_Device_set( 0 );
+				row->FK_CommMethod_set( iPK_CommMethod  );
+				row->FK_PnpProtocol_set( iPK_PnpProtocol );
+				row->DetectedDate_set( "Data" );
+				row->SerialNumber_set( sPNPSerialNo );
+				row->Identifier_set( sIdentifier );
+				row->Path_set( sPath );
+				// TODO
+				// row->IP_set( sIP_Address );
+				// row->ExtraParameters_set( sTokens );
+				
+				if( !p_Table_PnpQueue->Commit() )
+				{
+					// error
+				}
+			}
+			else
+			{
+				// error
+			}
+		}
+		else
+		{
+			// nothing ??
+		}
+	}
+	
+
+	//check the device table to see if there is already a device with the specified serial no
+	
 }
 
 //<-dceag-c799-b->
@@ -391,7 +450,6 @@ void Plug_And_Play::CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD
 {
 	//clear the result string
 	sCMD_Result.clear();
-	
 	if( d->core )
 	{
 	}
@@ -402,4 +460,29 @@ void Plug_And_Play::CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD
 
 void Plug_And_Play::CheckQueue()
 {
+
 }
+
+void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	int iPK_DeviceTemplate = 0;
+	int iPK_PnpQueue = 0;
+	
+	//
+	
+	Table_PnpQueue *table_PnpQueue = d->database->PnpQueue_get();
+	if(table_PnpQueue != NULL)
+	{
+		Row_PnpQueue* row_PnpQueue = table_PnpQueue->GetRow(iPK_PnpQueue);
+		if(row_PnpQueue != NULL)
+		{
+			row_PnpQueue->FK_DeviceTemplate_set(iPK_DeviceTemplate);
+			if(!table_PnpQueue->Commit())
+			{
+				//error
+				;
+			}
+		}
+	}
+}
+
