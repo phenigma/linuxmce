@@ -110,13 +110,16 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	if(MainPage == NULL)
 		return;
+	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
 	MainPage->DoApplySetting(Settings);
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
+	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	if(CurrentPage == 9)
 	{
+		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		WM_Event Event;
 		Event.Quit();
 		GenerateCustomEvent(Event);
