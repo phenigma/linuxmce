@@ -151,21 +151,21 @@ namespace cpp {
 	public : 
 		//	grabs the singleton's instance, if any
 		//	otherwise creates an instance
-		static RefType Instance();
+		static typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::RefType Instance();
 		//	performs cleanup on the singleton
 		static void Destroy();
 		//	resets the singleton instance with a new user created instance
-		static void Reset(PointerType, void (*pFun)(T*));
+		static void Reset(typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType, void (*pFun)(T*));
 
 	protected : 
-		inline explicit Singleton() { Singleton::instance_ = static_cast<PointerType>(this); Singleton::destroyed_ = false; Singleton::pFun_ = 0; }
+		inline explicit Singleton() { Singleton::instance_ = static_cast<typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType>(this); Singleton::destroyed_ = false; Singleton::pFun_ = 0; }
 		inline ~Singleton() { Singleton::instance_ = 0; Singleton::destroyed_ = true; Singleton::pFun_ = 0; }
 
 	private : 
 		typedef void (*UserSuppliedDestroy)(T*);
 
 	private : 
-		static PointerType instance_;
+		static typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType instance_;
 		static bool destroyed_;
 		static UserSuppliedDestroy pFun_;
 
