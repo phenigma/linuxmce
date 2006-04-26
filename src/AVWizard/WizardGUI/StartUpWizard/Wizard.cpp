@@ -37,7 +37,7 @@ Wizard::Wizard()
 	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
 	this->AVWizardOptions = ConfigurationParser.ParseFile();
-	FrontEnd = new SDLFrontEnd();
+	this->FrontEnd = NULL;
 	this->Width = 640;
 	this->Height = 480;
 
@@ -286,6 +286,11 @@ void Wizard::CleanUp()
 
 void Wizard::StartSDLVideoMode()
 {
+	if(FrontEnd != NULL)
+		return;
+
+	FrontEnd = new SDLFrontEnd();
+
 	FrontEnd->StartVideoMode(Width, Height, FullScreen);
 }
 
