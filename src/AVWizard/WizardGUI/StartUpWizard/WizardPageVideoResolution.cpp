@@ -17,14 +17,36 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
 	if(Dictionary == NULL)
 		return -1;
+
+	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
+		(Page->GetChildRecursive("ListBox1"));
+
+	Dictionary->Set("VideoResolution", ResListBox->GetCaption());
+
+	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
+		(Page->GetChildRecursive("ListBox2"));
+
+	Dictionary->Set("VideoRefresh", RefreshListBox->GetCaption());
+
+	Dictionary->Set("ResolutionSelected", Selected->GetCaption() == "ListBox1" );
+
 	return 0;
 }
 
 /*virtual*/ void WizardPageVideoResolution::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
-	std::string ListBoxName = "ListBox1";
-	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
-	Selected->SetFocus(true);
+	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
+		(Page->GetChildRecursive("ListBox1"));
+
+	Dictionary->Set("VideoResolution", ResListBox->GetCaption());
+
+	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
+		(Page->GetChildRecursive("ListBox2"));
+
+
+	bool IsSelectedResolutionListBox = Utils::StringToInt32(Selected->Get("ResolutionSelected"));
+	ResListBox->SetFocus(IsSelectedResolutionListBox);
+	ResListBox->SetFocus(!IsSelectedResolutionListBox);
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
