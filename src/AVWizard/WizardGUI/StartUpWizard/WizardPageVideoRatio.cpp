@@ -7,8 +7,8 @@
 WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
-	Buttons["16_9"] = 1;
-	Buttons["4_3"] = 2;
+	Buttons["4_3"] = 1;
+	Buttons["16_9"] = 2;
 	OutputValue = "4_3";
 	Selected = NULL;
 }
@@ -21,11 +21,11 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 {
 	if(Dictionary == NULL)
 		return -1;
-	std::string RatioValue = "16_9";
-	if(RatioMode != 0)
-		RatioValue = "4_3";
-
-	Dictionary->Set("VideoRatio", RatioValue);
+	if(Selected->GetName() == "Btn1")
+		OutputValue = "4_3";
+	else
+		OutputValue = "16_9";
+	Dictionary->Set("VideoRatio", OutputValue);
 	return 0;
 }
 
@@ -40,11 +40,6 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		OutputValue = AVWizardSettings->GetValue("VideoRatio");
 		RatioMode = (OutputValue == "4_3");
 	}
-	OutputValue = "16_9";
-	if(RatioMode != 0)
-		OutputValue = "4_3";
-
-	AVWizardSettings->Set("VideoRatio", OutputValue);
 
 	SearchSelectedItem();
 }
@@ -82,6 +77,14 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 	if(ButtonIndex == 0)
 		return;
 	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
-	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
+	WizardWidgetButton* Btn43, *Btn169;
+	Btn43 = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("Btn1"));
+	Btn169 = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("Btn2"));
+	Btn43->SetFocus(false);
+	Btn169->SetFocus(false);
+	if(ButtonIndex == 1)
+		Selected = Btn43;
+	else
+		Selected = Btn169;
 	Selected->SetFocus(true);	
 }
