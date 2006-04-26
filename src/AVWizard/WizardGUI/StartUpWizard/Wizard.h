@@ -4,6 +4,16 @@
 #ifndef Wizard_H_
 #define Wizard_H_
 
+
+#ifdef WIN32
+#define LEAN_AND_MEAN
+#include <windows.h>
+#include <process.h>
+#include <atlbase.h>
+#else
+#include <signal.h>
+#endif
+
 #include "SDLFrontEnd.h"
 #include "ScreenManager.h"
 

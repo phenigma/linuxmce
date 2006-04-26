@@ -18,6 +18,18 @@
 
 #include "GUIWizardUtils.h"
 
+#ifndef WIN32
+void signal_handler(int signal)
+{
+	switch (signal)
+	{
+		case SIGUSR1:
+			exit(2);
+			break;
+	}
+}
+#endif
+
 Wizard::Wizard()
 	: Quit(false),
 	  StatusChange(true)	
@@ -33,6 +45,10 @@ Wizard::Wizard()
 	CurrentPage = 1;
 	AVWizardOptions->GetDictionary()->SetName("AVSettings");
 	AVWizardOptions->GetDictionary()->SetType("Config_file");
+
+#ifndef WIN32
+	signal(SIGUSR1, signal_handler);
+#endif
 }
 
 Wizard::~Wizard()

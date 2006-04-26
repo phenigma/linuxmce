@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include <iostream>
 //---------------------------------------------------------------------------
-#ifdef WIN32
-#include <windows.h>
-#include <process.h>
-#include <atlbase.h>
-#else
-#include <signal.h>
-#endif
 
 #include "Wizard.h"
 //---------------------------------------------------------------------------
@@ -21,23 +14,11 @@
 //---------------------------------------------------------------------------
 bool IsConsole = false;
 //---------------------------------------------------------------------------
-#ifndef WIN32
-void signal_handler(int signal)
-{
-	switch (signal)
-	{
-		case SIGUSR1:
-			exit(2);
-			break;
-	}
-}
-#endif
+
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-#ifndef WIN32
-	signal(SIGUSR1, signal_handler);
-#endif
+
 	GenerateWizardConfigDefaults Generator;
 	Generator.GenerateDefaults();
 	Generator.GenerateDefaultPages("", "wiz_pixmaps");
