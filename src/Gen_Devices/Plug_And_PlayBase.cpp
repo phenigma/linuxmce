@@ -14,7 +14,7 @@ DeviceData_Impl *Plug_And_Play_Data::CreateData(DeviceData_Impl *Parent,char *pD
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 1794:
+		case 1791:
 			return new Plug_And_Play_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -24,7 +24,7 @@ DeviceData_Impl *Plug_And_Play_Data::CreateData(DeviceData_Impl *Parent,char *pD
 Event_Impl *Plug_And_Play_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 1794:
+		case 1791:
 			return (Event_Impl *) new Plug_And_Play_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
