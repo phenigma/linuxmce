@@ -48,6 +48,8 @@ void Wizard::MainLoop()
 	int Count = 0;
 	std::cout<<"Event: "<<Count<<std::endl;
 #endif
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
@@ -85,6 +87,7 @@ void Wizard::MainLoop()
 			}
 		}
 	}
+	CmdLineParser->CleanUp();
 }
 
 void Wizard::DoDecreaseAction()
