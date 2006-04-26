@@ -180,6 +180,7 @@ function devices($output,$dbADO) {
 					if($rowD['PK_Device']!=$firstDevice){
 						$firstDevice=$rowD['PK_Device'];
 						$deviceDataArray[$firstDevice]=array();
+						$deviceDataArray[$firstDevice][]=$rowD;
 					}else{
 						$deviceDataArray[$firstDevice][]=$rowD;
 					}					
