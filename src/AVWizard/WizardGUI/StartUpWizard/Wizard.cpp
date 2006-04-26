@@ -114,9 +114,9 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
+	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	if(CurrentPage == 9)
 	{
-		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		WM_Event Event;
 		Event.Quit();
 		GenerateCustomEvent(Event);
