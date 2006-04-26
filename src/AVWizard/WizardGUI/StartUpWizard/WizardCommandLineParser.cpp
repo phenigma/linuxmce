@@ -22,7 +22,7 @@ WizardCommandLineParser::WizardCommandLineParser(void)
 {
 	NeedQuit = false;
 	this->Version = "0.01 Alpha";
-	this->ConfigFileDefault = "avwizardsettings.xml";
+	this->ConfigFileDefault = "/tmp/avwizardsettings.xml";
 	ArgumentTypes["--help"] = ARGUMENT_GET_HELP;
 	ArgumentTypes["-step"] = ARGUMENT_STEP;
 	ArgumentTypes["-set"] = ARGUMENT_SET;

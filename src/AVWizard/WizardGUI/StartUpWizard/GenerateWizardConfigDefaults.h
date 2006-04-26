@@ -23,31 +23,31 @@ class GenerateWizardConfigDefaults
 	 */
 	void GeneratePage1(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate page 2 of the wizard: VideoRatio.xml
+	 *	Generate page 2 of the wizard: VideoOutput.xml
 	 */
 	void GeneratePage2(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: VideoResolution.xml
 	 */
 	void GeneratePage3(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: AudioConnector.xml
 	 */
 	void GeneratePage4(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: AudioVolume.xml
 	 */
 	void GeneratePage5(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: DolbyTest.xml
 	 */
 	void GeneratePage6(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: DTSTest.xml
 	 */
 	void GeneratePage7(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoRatio.xml
+	 *	Generate first page of the wizard: FinalSelections.xml
 	 */
 	void GeneratePage8(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**

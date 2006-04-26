@@ -46,6 +46,10 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 	PageNames[6] = "DTSTest.xml";
 	PageNames[7] = "FinalSelections.xml";
 
+	std::string TmpPrefix = "/tmp/";
+	for(int i = 0; i < 8; i++)
+		PageNames[i] = TmpPrefix + PageNames[i];
+
 	Options = new SettingsDictionaryTree();
 
 	for(int i = 0; i<8; i++)
