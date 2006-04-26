@@ -55,9 +55,17 @@ for DeviceData in $R; do
 done
 
 Dev_V4L=$((Dev_Pipe * 2 + PipeDevOffset))
+if [[ -e /dev/video1394-$Dev_IEEE1394 ]]; then
+	Dev_IEEE1394=/dev/video1394-$Dev_IEEE1394
+elif [[ -e /dev/video1394/$Dev_IEEE1394 ]]; then
+	Dev_IEEE1394=/dev/video1394/$Dev_IEEE1394
+else
+	echo "/dev/video1394 entry $Dev_IEEE1394 not found"
+	exit 3
+fi
 
 modprobe video1394
 modprobe raw1394
 modprobe vloopback pipes=$PipeCount dev_offset=$PipeDevOffset
 sleep 0.5
-dc1394_vloopback "--video1394=/dev/video1394-$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L" --pipe "--width=$Width" "--height=$Height"
+dc1394_vloopback "--video1394=$Dev_IEEE1394" "--vloopback=/dev/video$Dev_V4L" --pipe "--width=$Width" "--height=$Height"
