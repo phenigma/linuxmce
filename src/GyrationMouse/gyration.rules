@@ -1,2 +1,3 @@
 # udev rule for Gyration Air Mouse
-BUS="usb", SYSFS{manufacturer}=="Gyration", NAME="%k" SYMLINK="input/gyration"
+BUS="usb", KERNEL="event*", SYSFS{manufacturer}=="Gyration", NAME="%k" SYMLINK="input/gyration"
+

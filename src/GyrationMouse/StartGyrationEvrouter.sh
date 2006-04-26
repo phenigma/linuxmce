@@ -26,11 +26,12 @@ if [[ "$counter" == "20" ]] ;then
 	exit 0
 fi
 
-if [[ ! -f /dev/input/gyration ]] ;then
+if [[ ! -h /dev/input/gyration ]] ;then
 	LogMessage "Device /dev/input/gyration not found, exiting"
 	exit 0
 fi
 
 LogMessage "Starting evrouter for /dev/input/gyration"
-DISPLAY=:0 evrouter /dev/input/gyration
+export DISPLAY=:0 
+/usr/bin/evrouter /dev/input/gyration
 
