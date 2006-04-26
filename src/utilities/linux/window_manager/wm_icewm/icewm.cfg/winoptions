@@ -4,4 +4,14 @@
 # since modifications to this file will be discarded when you
 # (re)install icewm.
 
+# initial window geometry
 pluto-xine-playback-window.pluto-xine-playback-window.geometry: 0x0+0+0
+
+# never focus
+pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
+
+# always focus
+Orbiter.Orbiter.ignoreNoFocusHint: 1
+SDL_App.SDL_App.ignoreNoFocusHint: 1
+
+# EOF
