@@ -6,6 +6,12 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
+#define USE_X11_LIB (! USE_WX_LIB)
+#include <X11/Xutil.h>
+#include <X11/Xproto.h>
+#include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
+
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
@@ -18,12 +24,16 @@ MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
-	MouseBehavior::SetMousePosition(X,Y);
     if (m_pOrbiterLinux)
         m_pOrbiterLinux->X_LockDisplay();
-	// this is crashing with: Xlib: unexpected async reply (sequence 0x273)!
-    // should not crash with X-locking code, not yet tested
-    //SDL_WarpMouse(X,Y);
+	MouseBehavior::SetMousePosition(X,Y);
+    Display *dpy = XOpenDisplay (NULL);
+    Window rootwindow = DefaultRootWindow (dpy);
+    g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",X,Y);
+
+    XWarpPointer(dpy, rootwindow,rootwindow , 0, 0, 0, 0, X,Y);
+    XCloseDisplay(dpy);
+
     if (m_pOrbiterLinux)
         m_pOrbiterLinux->X_UnlockDisplay();
 }
