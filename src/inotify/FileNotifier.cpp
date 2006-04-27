@@ -148,7 +148,8 @@ void *BackgroundWorkerThread(void *p)
 				sDBModifiedDate = row[0];
 
 			//compare timestamps; also, always scan movies folder to remove any lock files
-			if((sModifiedDate > sDBModifiedDate && sDBModifiedDate != "") || sItem == "/home/public/data/movies")
+			//if((sModifiedDate > sDBModifiedDate && sDBModifiedDate != "") || sItem == "/home/public/data/movies")
+			//this is not working for well for symlinks. so we'll always scan all the folders.
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Need to sync folder %s: on disk %s - on database %s" , sItem.c_str(), 
 					sModifiedDate.c_str(), sDBModifiedDate.c_str());
