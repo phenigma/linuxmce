@@ -222,24 +222,9 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 			switch ( pxEvent->u.u.type )
 			{
 				case KeyPress: case KeyRelease: // key related events types
-					static int nOldKey = 0;
-					static long lOldTime = 0;
-
-					if(nOldKey > 0 && lOldTime > 0 && pxEvent->u.keyButtonPointer.time - lOldTime < 1000 && nOldKey == pxEvent->u.u.detail)
-					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "ignoring key %d - it's a repeated key", pxEvent->u.u.detail);
-						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
-					}
-					else
-					{
 	                    orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
-    	                g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d, time %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail,
-								pxEvent->u.keyButtonPointer.time - lOldTime); //del
+    	                g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
         	            orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
-					}
-
-					nOldKey = pxEvent->u.u.detail;
-                    lOldTime = pxEvent->u.keyButtonPointer.time;
 										
 					break;
 

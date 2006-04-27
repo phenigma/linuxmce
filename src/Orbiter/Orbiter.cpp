@@ -1124,12 +1124,14 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 	}
 
+#ifdef ENABLE_MOUSE_BEHAVIOR	
 if( pObj->m_iBaseObjectID==DESIGNOBJ_popSpeedControl_temp_CONST &&
 m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
 {
 SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
 pSpeedMouseHandler->DrawInfo();
 }
+#endif
 
 	if(m_bShowShortcuts && pObj->m_iPK_Button)
 		RenderShortcut(pObj);

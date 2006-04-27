@@ -87,15 +87,14 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
     openDisplay();
 	m_pMouseBehavior = new MouseBehavior_Linux(this);
 
+    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
-// AARON -- temporarily put back SDL EVENTS
-//    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
-//	m_pRecordHandler->enableRecording(this, true);
+#ifdef USE_XRECORD	//recording is always enabled in this case
+	m_pRecordHandler->enableRecording(this, true);
+#endif	
 	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
-
-	SDL_ShowCursor(SDL_DISABLE);
 }
 
 void *HackThread(void *p)
@@ -132,6 +131,7 @@ OrbiterLinux::~OrbiterLinux()
     KillMaintThread();
 
     delete m_pRecordHandler;
+	
     closeDisplay();
 }
 
@@ -231,8 +231,13 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         m_WinListManager.SetExternApplicationPosition(rectTotal);
         ActivateExternalWindowAsync(NULL);
     }
-    //g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", 1/*m_bYieldInput*/);
-    //m_pRecordHandler->enableRecording(this, true /*m_bYieldInput*/);
+	
+#ifndef USE_XRECORD	//activate/deactivate xrecording only when USE_XRECORD is not defined
+					//if defined, xrecording will be enabled all the time
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
+	m_pRecordHandler->enableRecording(this, m_bYieldInput);
+#endif
+	
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
     return true;
 }
