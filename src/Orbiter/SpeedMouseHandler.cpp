@@ -36,8 +36,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
 	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 
-	//DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1",m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID,"", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
-	//m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
+	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1",m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID,"", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
+	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 
 	m_iCancelLevel = m_CurrentMedia_Pos;
 	m_iLastNotch=0;
@@ -49,8 +49,8 @@ SpeedMouseHandler::~SpeedMouseHandler()
 {
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-	//DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
-	//m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
+	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
+	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 }
 
 void SpeedMouseHandler::Start()
@@ -59,13 +59,22 @@ g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Start");
 	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
+		m_pMouseBehavior->m_bMouseHandler_Horizontal_Exclusive = true;
 		m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_bHidden = true;
+		DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_ChildObjects.begin());
+		if( pObj_Child )
+		{
+			pObj_Child->m_bHidden = true;
+			pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
+			if( pObj_Child )
+				 pObj_Child->m_bHidden = true;
+		}
 		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject )
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject);
 	}
 
-	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(300);
+	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( !m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;
 	else
@@ -107,7 +116,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," dm_" + StringUtils::itos(m_iCancelLevel*1000));
 			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Media_Position.m_pMessage);
 		}
-		m_pMouseBehavior->Clear(); // this will be deleted
+		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing
 	}
 	return false; // Keep processing
@@ -122,7 +131,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-		m_pMouseBehavior->Clear();
+		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
 	}
 	return false; // Keep processing
@@ -130,7 +139,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 
 void SpeedMouseHandler::Move(int X,int Y)
 {
-g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);	
+//g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);	
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 	{
@@ -269,9 +278,10 @@ void SpeedMouseHandler::Update()
 		//for now SpeedOptions == "FULL"; Remus will receive all the speeds
 		for(int i = 0; i < sizeof(m_iSpeeds) / sizeof(m_iSpeeds[0]); ++i)
 			pSpeedControlData->m_listSpeeds.push_back(m_iSpeeds[i]);
-		
+#if (USE_WX_LIB)
         WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_SpeedControl, pSpeedControlData);
         TaskManager::Instance().AddTask(pTask);
+#endif
 	}
 #endif
 }

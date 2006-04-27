@@ -15,6 +15,17 @@ using namespace DCE;
 
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+	/*
+	// TODO - Temporary nasty hack so we don't have popups because they cause the whole screen to refresh and flicker
+	pObj->m_ChildObjects.clear();
+	DesignObj_Orbiter *pObj_Child = m_pMouseBehavior->m_pOrbiter->FindObject("<%=NP_PR%>");
+	
+	VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
+	m_pMouseBehavior->m_pOrbiter->ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, pObj_Child, NULL );
+
+	if( pObj_Child )
+		pObj->m_ChildObjects.push_back(pObj_Child);
+		*/
 }
 
 void MediaMouseHandler::Start()
@@ -22,6 +33,7 @@ void MediaMouseHandler::Start()
 	if( m_pMouseBehavior->m_pMouseHandler_Horizontal && m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start media" );
+		m_pMouseBehavior->m_bMouseHandler_Vertical_Exclusive = true;
 		m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_bHidden = true;
 		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject )
@@ -32,6 +44,8 @@ void MediaMouseHandler::Start()
 		return; // Shouldn't happen, this should be the volume control
 
 	DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin());
+	if( pObj_Child )
+		pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
 	PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
 	if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
@@ -72,15 +86,19 @@ bool MediaMouseHandler::ButtonDown(int PK_Button)
 	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
 		return false; // Shouldn't happen, this should be the volume control
 
+	DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin());
+	if( pObj_Child )
+		pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
+
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 
 		if( PK_Button==BUTTON_Mouse_1_CONST )
-			m_pMouseBehavior->m_pOrbiter->SelectedObject((DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin()),smNavigation);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Child,smNavigation);
 
-		m_pMouseBehavior->Clear();
+		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
 	}
 	return false; // Keep processing
@@ -91,12 +109,16 @@ bool MediaMouseHandler::ButtonUp(int PK_Button)
 	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
 		return false; // Shouldn't happen, this should be the volume control
 
+	DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin());
+	if( pObj_Child )
+		pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
+
 	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-		m_pMouseBehavior->m_pOrbiter->SelectedObject((DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin()),smNavigation);
-		m_pMouseBehavior->Clear();
+		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Child,smNavigation);
+		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
 	}
 	return false; // Keep processing
@@ -108,9 +130,11 @@ void MediaMouseHandler::Move(int X,int Y)
 		return; // Shouldn't happen, this should be the volume control
 
 	DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pObj->m_ChildObjects.begin());
+	if( pObj_Child )
+		pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
 	PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
-	if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
+	if( !pObj_Child || pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Also shouldn't happen
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj_Child;
 	if( !pObj_Grid->m_pDataGridTable )

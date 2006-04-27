@@ -348,13 +348,14 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
         return false;
     if(SDL_PollEvent(&sdl_event_loop_data.event))
     {
+// AARON -- temporarily put back SDL EVENTS
         // convert the SDL into what we know to interpret.
-        //translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
+        translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
 
-        //if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
-        //    return false;
+        if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
+            return false;
 
-        //sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
+        sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
     }
     else
         ((OrbiterSDL*)sdl_event_loop_data.pOrbiter)->OnIdle();

@@ -81,7 +81,7 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 
 bool LockedMouseHandler::ButtonUp(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_7_CONST && !m_bTapAndRelease )
+	if( PK_Button==BUTTON_Mouse_7_CONST && m_pMouseBehavior->m_iTime_Last_Mouse_Up==0 )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 		if( m_sOptions[0]=='M' )
@@ -92,7 +92,7 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 			m_pMouseBehavior->m_pOrbiter->SelectedObject( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smNavigation );
 		}
 		else
-			m_pMouseBehavior->Clear();   // ** WARNING -- this will be deleted exit immediately
+			m_pMouseBehavior->Clear(true);   // ** WARNING -- this will be deleted exit immediately
 		return false;
 	}
 

@@ -435,7 +435,6 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
-g_pPlutoLogger->Write(LV_STATUS, "Rendering text...");
 
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
@@ -461,7 +460,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Rendering text...");
 	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
 		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Text rendered.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)

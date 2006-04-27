@@ -656,12 +656,6 @@ void Orbiter::RenderScreen( )
 		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
 	}
 
-	if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuSpeed_CONST &&
-		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
-	{
-		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-		pSpeedMouseHandler->DrawInfo();
-	}
 #endif
 }
 
@@ -1129,6 +1123,13 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		PlutoRectangle rect(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
 		UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 	}
+
+if( pObj->m_iBaseObjectID==DESIGNOBJ_popSpeedControl_temp_CONST &&
+m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+{
+SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+pSpeedMouseHandler->DrawInfo();
+}
 
 	if(m_bShowShortcuts && pObj->m_iPK_Button)
 		RenderShortcut(pObj);
@@ -2504,9 +2505,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if(sbNoSelection == m_nSelectionBehaviour || !m_pObj_Highlighted->m_bOnScreen )
 		return;
-g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject1 %p",m_pObj_Highlighted);
 	UnHighlightObject();
-g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject2 %p",m_pObj_Highlighted);
 
 	if( !m_pObj_Highlighted )
 		return;
@@ -2514,9 +2513,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject2 %p",m_pObj_Highlig
 if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
 	int k=2;
 
-g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject3 %p",m_pObj_Highlighted);
 	ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_HighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
-g_pPlutoLogger->Write(LV_WARNING,"Orbiter::DoHighlightObject4 %p",m_pObj_Highlighted);
 
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pObj_Highlighted,m_rectLastHighlight);

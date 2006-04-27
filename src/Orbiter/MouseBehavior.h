@@ -48,19 +48,23 @@ namespace DCE
 		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
 
+	#define	NUM_SAMPLES		10
 	class MouseSensitivity
 	{
 	public:
 		const static int SampleInterval;  
 		const static int DiscardSamplesOlderThanSec; 
-		const static int MinMoveToStart;
-		const static int MaxMoveToStart;
-		const static int MinMovePerSampleToChangeDir;
-		const static int MaxMovePerSampleToChangeDir;
-		const static int MinMoveAllSamplesToChangeDir;
-		const static int MaxMoveAllSamplesToChangeDir;
+		// Threshold 1 represents the fastest, most clear movement, requiring a high ratio, for users that are very precise
+		const static int Threshhold_1_Minimum;  // Minimum number of pixels to move
+		const static int Threshhold_1_Ratio; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
+		const static int Threshhold_2_Minimum;
+		const static int Threshhold_2_Ratio;
+		const static int Threshhold_2_Samples; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+		const static int Threshhold_3_Minimum;
+		const static int Threshhold_3_Ratio;
+		const static int Threshhold_3_Samples;
 		const static int HoldTime;
-		const static int IgnoreMouseAfterReposition;;
+		const static int IgnoreMouseAfterReposition;
 	};
 
 	//-----------------------------------------------------------------------------------------------------
@@ -88,8 +92,9 @@ namespace DCE
 		class MouseIterator *m_pMouseIterator;
 		DesignObj_Orbiter *m_pObj_Locked_Horizontal,*m_pObj_Locked_Vertical;
 		MouseHandler *m_pMouseHandler_Horizontal,*m_pMouseHandler_Vertical;
-	    unsigned long m_dwSamples[4];
-		PlutoPoint m_pSamples[4];
+	    unsigned long m_dwSamples[NUM_SAMPLES];
+		PlutoPoint m_pSamples[NUM_SAMPLES];
+		PlutoPoint m_pLastPosition;
 		PlutoPoint m_pStartMovement;
 		string m_sHorizontalOptions,m_sVerticalOptions;
 		int m_iLockedPosition; // Either the X or Y
@@ -107,16 +112,17 @@ namespace DCE
 		bool ButtonDown(int PK_Button);     // Return true means don't process this anymore
 		bool ButtonUp(int PK_Button);   // Return true means don't process this anymore
 		void Move(int X,int Y);
-		bool CheckForChangeInDirection(int X,int Y);
+		bool CheckForChangeInDirection();
 		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y);
 
-		void ResetSamples() { m_dwSamples[0]=m_dwSamples[1]=m_dwSamples[2]=m_dwSamples[3]=0; }
-		void ShiftSamples() { m_dwSamples[2]=m_dwSamples[1]; m_pSamples[2]=m_pSamples[1]; m_dwSamples[1]=m_dwSamples[0]; m_pSamples[1]=m_pSamples[0]; }
-		void Clear();
+		void ResetSamples() { for(int i=0;i<NUM_SAMPLES;++i) m_dwSamples[i]=0; }
+		void ShiftSamples() { for(int i=NUM_SAMPLES-2;i>=0;--i) { m_dwSamples[i+1]=m_dwSamples[i]; m_pSamples[i+1]=m_pSamples[i]; } m_pSamples[0].X=m_pSamples[0].Y=0; m_dwSamples[0]=0; }
+		int GetDirection(PlutoPoint &pt,int *CumulativeThisDirection=NULL,int *CumulativeOtherDirection=NULL);
+		void Clear(bool bGotoMainMenu=false);
 		void HighlightObject(DesignObj_Orbiter *pObj);
 
 		// Override these for OS specific handling
-		virtual void SetMousePosition(int X,int Y) { m_pSamples[0].X=X; m_pSamples[0].Y=Y; g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y); }
+		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y); }
 		virtual void GetMousePosition(PlutoPoint *p) { }
 		virtual void ShowMouse(bool bShow) { }
 

@@ -1610,6 +1610,7 @@ bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
     PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate(), x=%d, y=%d, w=%d, h=%d",
                            plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
+#if (USE_WX_LIB)
 #ifndef WIN32
     {
 		//we only need the give the control the position
@@ -1619,6 +1620,7 @@ bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
         WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, 		pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
+#endif
 #endif
 
 	m_bSpeedControlCreated = true;
@@ -1635,6 +1637,7 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
 
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlDelete() data %p", pData );
 
+#if (USE_WX_LIB)
 #ifndef WIN32
     {
 		//no data to attach
@@ -1643,6 +1646,7 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
         WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, 		pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
+#endif
 #endif
 
 	m_bSpeedControlCreated = false;

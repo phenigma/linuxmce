@@ -17,6 +17,7 @@ void LightMouseHandler::Start()
 	if( m_pMouseBehavior->m_pMouseHandler_Horizontal && m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start light" );
+		m_pMouseBehavior->m_bMouseHandler_Vertical_Exclusive = true;
 		m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_bHidden = true;
 		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject )
@@ -52,7 +53,7 @@ g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
 bool LightMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_8_CONST )
-		m_pMouseBehavior->Clear(); // this will be deleted
+		m_pMouseBehavior->Clear(true); // this will be deleted
 	return false; // Keep processing
 }
 
@@ -65,12 +66,12 @@ bool LightMouseHandler::ButtonUp(int PK_Button)
 			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
 			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Level.m_pMessage);
 		}
-		m_pMouseBehavior->Clear(); // this will be deleted
+		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing
 	}
 	else if( PK_Button==BUTTON_Mouse_8_CONST && !m_bTapAndRelease )
 	{
-		m_pMouseBehavior->Clear(); // this will be deleted
+		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing
 
 	}

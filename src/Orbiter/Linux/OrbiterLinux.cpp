@@ -87,8 +87,10 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
     openDisplay();
 	m_pMouseBehavior = new MouseBehavior_Linux(this);
 
-    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
-	m_pRecordHandler->enableRecording(this, true);
+
+// AARON -- temporarily put back SDL EVENTS
+//    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
+//	m_pRecordHandler->enableRecording(this, true);
 	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
@@ -350,7 +352,7 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 	if( sOnOff!="X" )
 		return;
 
-	/*
+	
 Display *dpy = XOpenDisplay (NULL);
 Window win = DefaultRootWindow (dpy);
 
@@ -375,16 +377,16 @@ cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
 XFreePixmap (dpy, blank);
 
 int iresult=XGrabPointer(dpy, win,
-			 True,
+			 False,
 0,//ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, //			 0,
-			 GrabModeSync, GrabModeSync,
-//			 GrabModeAsync, GrabModeAsync,
+//			 GrabModeSync, GrabModeSync,
+			 GrabModeAsync, GrabModeAsync,
 			 None, //win,
 			 None, //cursor,
 			 CurrentTime);
       g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iresult);
 
-
+/*
 int XGrabPointer(dpy, rootwindow, true, 
 ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask				 
 , GrabModeAsync, GrabModeAsync, 
