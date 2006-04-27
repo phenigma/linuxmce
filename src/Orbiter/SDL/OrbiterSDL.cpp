@@ -254,8 +254,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		g_bResettingVideoMode=true;
 		pthread_t hackthread;
 		pthread_create(&hackthread, NULL, HackThread2, (void*)this);
-	
-		if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
+
+        X_LockDisplay();
+        Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags);
+        X_UnlockDisplay();
+        if (Screen == NULL)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", m_iImageWidth, m_iImageHeight, SDL_GetError());
 			exit(1);
@@ -268,7 +271,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	#ifdef USE_ONLY_SCREEN_SURFACE
 		m_pScreenImage = Screen;
 	#else
-		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
+        m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
 		if (m_pScreenImage == NULL)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
@@ -285,14 +288,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
 		/// creates 2D surface which is drawed with 2D engine the Orbiter
 		/// which lately will be used as a texture
-		m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, 
-			rmask, gmask, bmask, amask);
+        m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32,
+            rmask, gmask, bmask, amask);
 		if (m_pScreenImage == NULL) {
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
 		}
 #endif
 	}
-	return true;
+    return true;
 }
 //----------------------------------------------------------------------------------------------------
 /**
@@ -309,8 +312,10 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		if (m_pScreenHistory_Current)
 		{
 			PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-			SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
-		}
+            X_LockDisplay();
+            SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+            X_UnlockDisplay();
+        }
 	
 		Orbiter::RenderScreen();
 		DisplayImageOnScreen(m_pScreenImage);
@@ -323,19 +328,27 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		PlutoRectangle rectLastSelected(0, 0, 0, 0);
 	
 		//saving the surface before rendering the screen
-		SDL_Surface *pBeforeRender = SDL_CreateRGBSurface(SDL_HWSURFACE, m_iImageWidth, m_iImageHeight, 32, 
-			rmask, gmask, bmask, amask);
+        X_LockDisplay();
+        SDL_Surface *pBeforeRender = SDL_CreateRGBSurface(SDL_HWSURFACE, m_iImageWidth, m_iImageHeight, 32,
+             rmask, gmask, bmask, amask);
+        X_UnlockDisplay();
 			
 		SDL_Rect ImageSize;
 		ImageSize.x = 0;
 		ImageSize.y = 0;
 		ImageSize.w = m_iImageWidth;
 		ImageSize.h = m_iImageHeight;
-		SDL_BlitSurface(m_pScreenImage, NULL, pBeforeRender, NULL);
+        X_LockDisplay();
+        SDL_BlitSurface(m_pScreenImage, NULL, pBeforeRender, NULL);
+        X_UnlockDisplay();
 	
 		m_spBeforeGraphic.reset(new SDLGraphic(pBeforeRender));
 		if (m_pScreenHistory_Current)
-			SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+        {
+            X_LockDisplay();
+            SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+            X_UnlockDisplay();
+        }
 	
 		//screen rendering
 		Orbiter::RenderScreen();
@@ -400,7 +413,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	
 		glm.Release();
 #endif
-	}
+    }
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
@@ -411,12 +424,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	if(!EnableOpenGL)
 	{
 		PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+        X_LockDisplay();
 	
 	#ifndef USE_ONLY_SCREEN_SURFACE
-		SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
+        SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 	#endif
 	
 		SDL_UpdateRect(Screen, 0, 0, 0, 0);
+        X_UnlockDisplay();
 	}
 	else
 	{
@@ -487,7 +502,9 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	SDL_Rect Rectangle;
 	Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
 
+    X_LockDisplay();
 	SDL_FillRect(m_pScreenImage, &Rectangle, SDL_MapRGBA(m_pScreenImage->format, color.R(), color.G(), color.B(), color.A()));
+    X_UnlockDisplay();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -501,7 +518,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	if(pPlutoGraphic->IsEmpty())
 		return;
 
-	SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
+    SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
 	SDL_Surface *pSDL_Surface = pSDLGraphic->m_pSDL_Surface;
 
 	//render the sdl surface
@@ -534,11 +551,17 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 			rotozoom_picture = zoomSurface(pSDL_Surface, ZoomX, ZoomY, SMOOTHING_ON);
 
+            X_LockDisplay();
 			SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
 			SDL_FreeSurface(rotozoom_picture);
+            X_UnlockDisplay();
 		}
 		else //same size ... just blit the surface
-			SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
+        {
+            X_LockDisplay();
+            SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
+            X_UnlockDisplay();
+        }
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
@@ -549,12 +572,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
 		SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
 		
-		SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-			pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
+        SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+             pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
 		
+        X_LockDisplay();
 		SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 		SDL_SetAlpha(pSDL_Surface, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
-		
+        X_UnlockDisplay();
+        
 		pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 	}
 }
@@ -571,16 +596,18 @@ PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 			rect.Height = m_iImageHeight - rect.Y - 1;
 
 
-		SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+        SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 			rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
 
 		SDL_Rect SourceRect;
 		SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
 		SourceRect.w = rect.Width; SourceRect.h = rect.Height;
 
+        X_LockDisplay();
 		SDL_SetAlpha(m_pScreenImage, 0, 0);
 		SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
-
+        X_UnlockDisplay();
+        
 		return new SDLGraphic(pSDL_Surface);
 	}
 	else
@@ -687,8 +714,10 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	{
 	    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
-		SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
-	}
+        X_LockDisplay();
+        SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
+        X_UnlockDisplay();
+    }
 #endif
 }
 

@@ -55,6 +55,8 @@
 
 using namespace std;
 
+bool g_useX11LOCK = (getenv("PLUTO_X11LOCK"));
+
 OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            string ServerAddress, string sLocalDirectory,
                            bool bLocalMode,
@@ -222,6 +224,15 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     m_WinListManager.ShowSdlWindow(false);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
+        //HACK: does not work: now the speed control is not displayed
+        //extern bool g_bIgnoreRender;
+        //if (g_bIgnoreRender)
+        //{
+        //    g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop skipping rendering of %s",pObj->m_ObjectID.c_str());
+        //	return true;
+        //}
+        //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());
+        
         {
             // TODO : Set now playing is not sent in video wizard
             // we'll assume this is a xine for now
@@ -258,6 +269,8 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         else
         {
             g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
+            // HACK: stop activating xine or wxdialog several times per second
+            // TODO: do the proper activating code for windows
             m_WinListManager.PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
     }
@@ -271,6 +284,8 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 {
     OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
     reinitGraphics();
+    //GrabPointer(XServerDisplay);
+    //GrabKeyboard(XServerDisplay);
 }
 
 void OrbiterLinux::RenderScreen()
@@ -369,56 +384,33 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	if( sOnOff!="X" )
 		return;
+    Display *dpy = XOpenDisplay (NULL);
+    Window win = DefaultRootWindow (dpy);
 
-	
-Display *dpy = XOpenDisplay (NULL);
-Window win = DefaultRootWindow (dpy);
+    SDL_SysWMinfo sdlinfo;
+    SDL_VERSION(&sdlinfo.version);
+    int r2=SDL_GetWMInfo(&sdlinfo);
+    Window w2 = sdlinfo.info.x11.wmwindow;
+    Window w3 = sdlinfo.info.x11.window;
+    Window w4 = sdlinfo.info.x11.fswindow;
+    g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE window %d, r2: %d, w2: %d w3: %d w5: %d",(int) win,r2,(int) w2,(int) w3,(int) w4);
+ 
+    win = w3;
+    Pixmap blank;
+    XColor dummy;
+    char data[1] = {0};
+    Cursor cursor;
 
-SDL_SysWMinfo sdlinfo;
-SDL_VERSION(&sdlinfo.version);
-int r2=SDL_GetWMInfo(&sdlinfo);
-Window w2 = sdlinfo.info.x11.wmwindow;
-Window w3 = sdlinfo.info.x11.window;
-Window w4 = sdlinfo.info.x11.fswindow;
-g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE window %d, r2: %d, w2: %d w3: %d w5: %d",(int) win,r2,(int) w2,(int) w3,(int) w4);
+    /* make a blank cursor */
+    X_LockDisplay();
+    blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+    if(blank == None) fprintf(stderr, "error: out of memory.\n");
+    cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+    XFreePixmap (dpy, blank);
+    X_UnlockDisplay();
 
-win = w3;
-Pixmap blank;
-XColor dummy;
-char data[1] = {0};
-Cursor cursor;
-
-// make a blank cursor 
-blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
-if(blank == None) fprintf(stderr, "error: out of memory.\n");
-cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
-XFreePixmap (dpy, blank);
-
-int iresult=XGrabPointer(dpy, win,
-			 False,
-0,//ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, //			 0,
-//			 GrabModeSync, GrabModeSync,
-			 GrabModeAsync, GrabModeAsync,
-			 None, //win,
-			 None, //cursor,
-			 CurrentTime);
-      g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iresult);
-
-/*
-int XGrabPointer(dpy, rootwindow, true, 
-ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask				 
-, GrabModeAsync, GrabModeAsync, 
-NULL, cursor, CurrentTime)
-      Display *display;
-      Window grab_window;
-      Bool owner_events;
-      unsigned int event_mask;	
-      int pointer_mode, keyboard_mode; 
-      Window confine_to; 
-      Cursor cursor; 
-      Time time; 
-*/
-    // not need this anymore
+    //GrabPointer(dpy);
+    //GrabKeyboard(dpy);
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -744,4 +736,52 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 /*virtual*/ ScreenHandler *OrbiterLinux::CreateScreenHandler()
 {
 	return new OSDScreenHandler(this, &m_mapDesignObj);
+}
+
+void OrbiterLinux::X_LockDisplay()
+{
+    if (g_useX11LOCK)
+        XLockDisplay(XServerDisplay);
+}
+
+void OrbiterLinux::X_UnlockDisplay()
+{
+    if (g_useX11LOCK)
+        XUnlockDisplay(XServerDisplay);
+}
+
+void OrbiterLinux::GrabPointer(Display *dpyxx)
+{
+    Display *dpy = XOpenDisplay (NULL);
+    Window win = DefaultRootWindow(dpy);
+    int iResultPointer = XGrabPointer(
+        dpy, win, true,
+        0,//ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, //			 0,
+        GrabModeSync, GrabModeSync,
+        //GrabModeAsync, GrabModeAsync,
+        //GrabModeAsync, GrabModeSync,
+        //GrabModeSync, GrabModeAsync,
+        None, //win,
+        None, //cursor,
+        CurrentTime
+        );
+    g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iResultPointer);
+    //XCloseDisplay(dpy);
+}
+
+void OrbiterLinux::GrabKeyboard(Display *dpyxx)
+{
+    Display *dpy = XOpenDisplay (NULL);
+    Window win = DefaultRootWindow(dpy);
+    int iResultKeyboard = XGrabKeyboard(
+        dpy, win, false,
+        GrabModeSync, GrabModeSync,
+        //GrabModeAsync, GrabModeAsync,
+        //GrabModeAsync, GrabModeSync,
+        //GrabModeSync, GrabModeAsync,
+        CurrentTime
+        );
+    XAllowEvents(dpy, AsyncKeyboard, CurrentTime);
+    g_pPlutoLogger->Write(LV_CRITICAL,"XGrabKeyboard %d",iResultKeyboard);
+    //XCloseDisplay(dpy);
 }

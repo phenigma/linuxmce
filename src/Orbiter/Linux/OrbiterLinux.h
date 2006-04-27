@@ -98,6 +98,12 @@ public:
 	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 
 	virtual class ScreenHandler *CreateScreenHandler();
+
+    void GrabPointer(Display *dpy);
+    void GrabKeyboard(Display *dpy);
+
+    virtual void X_LockDisplay();
+    virtual void X_UnlockDisplay();
 };
 
 #endif // __ORBITERLINUX_H__

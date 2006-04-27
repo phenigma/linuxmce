@@ -42,12 +42,19 @@ public:
 	long m_nPK_Datagrid;
 };
 //-----------------------------------------------------------------------------------------------------
+namespace DCE
+{
+	class DeviceData_Base;
+	class Message;
+	class Socket;
+};
+
 class MsgInterceptorCellBackData : public CallBackData
 {
 public:
-	class Socket *m_pSocket;
-	class Message *m_pMessage;
-	class DeviceData_Base *m_pDeviceFrom, *m_pDeviceTo;
+	DCE::Socket *m_pSocket;
+	DCE::Message *m_pMessage;
+	DCE::DeviceData_Base *m_pDeviceFrom, *m_pDeviceTo;
 };
 //-----------------------------------------------------------------------------------------------------
 class RenderScreenCallBackData : public CallBackData

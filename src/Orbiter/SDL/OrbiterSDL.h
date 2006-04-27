@@ -92,7 +92,7 @@ public:
 
 public:
 
-	/// Used to stop the animation if is no effec pending but to draw once the background 
+	/// Used to stop the animation if is no effec pending but to draw once the background
 	///(safeing drawing)
 	bool PaintDesktopGL;
 
@@ -108,6 +108,11 @@ public:
 
 	SDL_Surface * Screen;
 	bool m_bFullScreen;
+
+    // need this for linux
+    virtual void X_LockDisplay() {};
+    virtual void X_UnlockDisplay() {};
+
 protected:
 	pthread_t SDLGLthread;
 };

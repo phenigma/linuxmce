@@ -28,6 +28,10 @@ using namespace DCE;
 
 #include "Orbiter3DCommons.h"
 
+#ifndef WIN32 // linux
+#include "../Linux/OrbiterLinux.h"
+#endif // linux
+
 OrbiterGL3D* OrbiterGL3D::Instance = NULL;
 
 OrbiterGL3D::OrbiterGL3D ()
@@ -38,6 +42,9 @@ OrbiterGL3D::OrbiterGL3D ()
 	  EffectBuilder(NULL)  
 {
 	Instance = this;
+#ifndef WIN32 // linux
+    m_pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
+#endif // linux
 }
 
 void OrbiterGL3D::Paint()
@@ -116,10 +123,18 @@ void OrbiterGL3D::EndAnimation()
 void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
+#ifndef WIN32 // linux
+    if (m_pOrbiterLinux)
+        m_pOrbiterLinux->X_LockDisplay();
+#endif // linux
 	SDL_GL_SwapBuffers();
-#else
+#ifndef WIN32 // linux
+    if (m_pOrbiterLinux)
+        m_pOrbiterLinux->X_UnlockDisplay();
+#endif // linux
+#else // ndef POCKETFROG
 	SwapBuffers(hdc);
-#endif
+#endif // ndef POCKETFROG
 }
 
 int OrbiterGL3D::InitOpenGL()
@@ -227,7 +242,7 @@ int OrbiterGL3D::InitOpenGL()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	return 1;
+    return 1;
 }
 
 void OrbiterGL3D::ReleaseOpenGL()

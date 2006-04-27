@@ -31,7 +31,6 @@ public:
 	TBasicWindow * HighLighArea;
 	TBasicWindow * SelectedArea;
 
-
 #ifdef POCKETFROG
 	HDC hdc;
 #endif 
@@ -86,6 +85,9 @@ private:
 	 */
 	static OrbiterGL3D* Instance;
 
+#ifndef WIN32 // linux
+    class OrbiterLinux *m_pOrbiterLinux;
+#endif // linux
 };
 
 #endif

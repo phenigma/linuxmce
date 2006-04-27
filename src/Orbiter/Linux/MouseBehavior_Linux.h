@@ -8,10 +8,11 @@ using namespace std;
 
 #include "../MouseBehavior.h"
 using namespace DCE;
+#include "OrbiterLinux.h"
 
 namespace DCE
 {
-	//-----------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------
 	/**
 	* @brief Handles special mouse behavior in a Linux environment
 	*/
@@ -22,6 +23,8 @@ namespace DCE
 		MouseBehavior_Linux(Orbiter *pOrbiter);
 		virtual void SetMousePosition(int X,int Y);
 		virtual void ShowMouse(bool bShow);
+    protected:
+        class OrbiterLinux *m_pOrbiterLinux;
 	};
 }
 //-----------------------------------------------------------------------------------------------------

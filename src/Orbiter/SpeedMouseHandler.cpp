@@ -20,6 +20,9 @@
 
 using namespace DCE;
 
+// HACK: prevent OrbiterLinux::RenderDesktop to be called
+//bool g_bIgnoreRender = false;
+
 const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};
 
 SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
@@ -47,6 +50,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");
 
 SpeedMouseHandler::~SpeedMouseHandler() 
 {
+    //g_bIgnoreRender = false;
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
@@ -55,7 +59,8 @@ SpeedMouseHandler::~SpeedMouseHandler()
 
 void SpeedMouseHandler::Start()
 {
-g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Start");	
+    //g_bIgnoreRender=true;
+    g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Start");	
 	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
@@ -98,7 +103,8 @@ g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Start");
 
 void SpeedMouseHandler::Stop()
 {
-g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Stop");	
+    //g_bIgnoreRender=false;
+    g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Stop");	
 	Update();
 }
 
@@ -139,7 +145,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 
 void SpeedMouseHandler::Move(int X,int Y)
 {
-//g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);	
+    //g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 	{
