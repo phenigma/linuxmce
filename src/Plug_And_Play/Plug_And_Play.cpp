@@ -43,6 +43,7 @@ Plug_And_Play::PnPPrivate::PnPPrivate()
 	  pnpCoreDevice(NULL),
 	  core(true)
 {
+	
 }
 
 Plug_And_Play::PnPPrivate::~PnPPrivate()
@@ -339,16 +340,22 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					if( !p_Table_PnpQueue->Commit() )
 					{
 						// error
+						g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
+						return;
 					}
 				}
 				else
 				{
 					// error
+					g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
+					return;
 				}
 			}
 			else
 			{
 				// nothing ??
+				g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );				
+				return;
 			}
 		}
 		
@@ -430,15 +437,18 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 				if( !p_Table_PnpQueue->Commit() )
 				{
 					// error
+					g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
 				}
 			}
 			else
 			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
 				// error
 			}
 		}
 		else
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );
 			// nothing ??
 		}
 	}
@@ -473,13 +483,58 @@ void Plug_And_Play::CheckQueue()
 
 }
 
+void Plug_And_Play::Pre_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if(pMessage->m_dwID != EVENT_PnP_Pre_Config_Response_CONST)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Pre_Config_Response_CONST");
+		return;
+	}
+	//get the response from the pre_config function
+}
+
+void Plug_And_Play::Do_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if(pMessage->m_dwID != EVENT_PnP_Do_Config_Response_CONST)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Do_Config_Response_CONST");
+		return;
+	}
+	//get the response from the do_config function
+}
+
+void Plug_And_Play::Post_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if(pMessage->m_dwID != EVENT_PnP_Post_Config_Response_CONST)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Post_Config_Response_CONST");
+		return;
+	}
+	//get the response from the post_config function
+}
+
+
 void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	int iPK_DeviceTemplate = 0;
 	int iPK_PnpQueue = 0;
+
+	//get the device template and the pnp queue
+//	class DeviceData_Router* p_deviceData_RouterFrom = (class DeviceData_Router*)pDeviceFrom;
+//	class DeviceData_Router* p_deviceData_RouterTo = (class DeviceData_Router*)pDeviceTo;
+
+	if(pMessage->m_dwID != EVENT_PnP_Set_Device_Template_CONST)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Set_Device_Template_CONST");
+		return;
+	}
 	
-	//
-	
+	string templateID = pMessage->m_mapParameters[COMMANDPARAMETER_PK_DeviceTemplate_CONST];
+	string pnpQueueID = pMessage->m_mapParameters[EVENTPARAMETER_PK_PnpQueue_CONST];
+
+	iPK_DeviceTemplate = atoi(templateID.c_str());
+	iPK_PnpQueue = atoi(pnpQueueID.c_str());
+
 	Table_PnpQueue *table_PnpQueue = d->database->PnpQueue_get();
 	if(table_PnpQueue != NULL)
 	{
@@ -490,9 +545,8 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 			if(!table_PnpQueue->Commit())
 			{
 				//error
-				;
+				g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
 			}
 		}
 	}
 }
-

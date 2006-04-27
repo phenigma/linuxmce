@@ -97,7 +97,27 @@ public:
 //<-dceag-h-e->
 
 	virtual void CheckQueue();
-	void Set_Device_Template( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+	void Set_Device_Template( 	class Socket *pSocket, 
+								class Message *pMessage, 
+								class DeviceData_Base *pDeviceFrom, 
+								class DeviceData_Base *pDeviceTo );
+
+	void Pre_Config_Response( 	class Socket *pSocket, 
+								class Message *pMessage, 
+								class DeviceData_Base *pDeviceFrom, 
+								class DeviceData_Base *pDeviceTo );
+
+	void Do_Config_Response( 	class Socket *pSocket, 
+								class Message *pMessage, 
+								class DeviceData_Base *pDeviceFrom, 
+								class DeviceData_Base *pDeviceTo );
+
+	void Post_Config_Response( 	class Socket *pSocket, 
+								class Message *pMessage, 
+								class DeviceData_Base *pDeviceFrom, 
+								class DeviceData_Base *pDeviceTo );
+
 private:
 
 	class PnPPrivate;
