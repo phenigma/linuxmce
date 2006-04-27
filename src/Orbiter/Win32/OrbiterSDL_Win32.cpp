@@ -45,13 +45,23 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string S
 				nImageHeight, bFullScreen, NULL, bUseOpenGL)
 
 {
-	//todo
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 
 	if(NULL != hSDLWindow)
 	{
-		OldSDLWindowProc = reinterpret_cast<WNDPROC>(::SetWindowLong(hSDLWindow, 
-			GWL_WNDPROC, reinterpret_cast<LONG>(SDLWindowProc)));
+#pragma warning(disable:4244)
+#pragma warning(disable:4312)
+
+		OldSDLWindowProc = reinterpret_cast<WNDPROC>(
+			::SetWindowLongPtr(
+				hSDLWindow, 
+				GWL_WNDPROC, 
+				reinterpret_cast<LONG_PTR>(SDLWindowProc)
+			)
+		);
+
+#pragma warning(default:4312)
+#pragma warning(default:4244)
 	}
 
 	m_bConnectionLost = false;
@@ -59,8 +69,12 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string S
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::~OrbiterSDL_Win32()
 {
+#pragma warning(disable:4244)
+
 	//restore old sdl windowproc
-	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));
+	::SetWindowLongPtr(hSDLWindow, GWL_WNDPROC, reinterpret_cast<LONG_PTR>(OldSDLWindowProc));
+
+#pragma warning(default:4244)
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::BuildOrbiter(
@@ -170,7 +184,7 @@ void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 	::SetTextColor(hDC, RGB(0xFF, 0xFF, 0xFF));
 	::SetBkMode(hDC, OPAQUE);	
 
-	::DrawText(hDC, MY_TEXT, string(pMessage).length(), &rect, 
+	::DrawText(hDC, MY_TEXT, int(string(pMessage).length()), &rect, 
 		DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE); 
 
 	::ReleaseDC(hSDLWindow, hDC);
