@@ -1455,7 +1455,7 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 	{
 		// This is the OSD orbiter
 		//TODO: replace "mozilla" with custom class name from database
-		DCE::CMD_Activate_Window CMD_Activate_Window_(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device, "Gecko.Firefox-bin");
+		DCE::CMD_Activate_Window CMD_Activate_Window_(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device, "Firefox-bin");
 		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Activate_Window_.m_pMessage);
 
 		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
