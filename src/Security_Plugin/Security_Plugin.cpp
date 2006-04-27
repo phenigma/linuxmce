@@ -481,9 +481,17 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	// We want to be sure to fire tripped status's for any sensors that may have gotten tripped during the countdown
 	m_pAlarmManager->AddRelativeAlarm(pRow_AlertType->ExitDelay_get(),this,PROCESS_MODE_CHANGE,NULL);
 
-	DCE::SCREEN_ModeChanged SCREEN_ModeChanged(0, pMessage->m_dwPK_Device_From, sPK_HouseMode, 
-		sHouseModeTime, sExitDelay, sAlerts);
-	SendCommand(SCREEN_ModeChanged);
+	//Send to all orbiter the message
+	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();
+		it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+		int deviceTo = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+
+		DCE::SCREEN_ModeChanged SCREEN_ModeChanged(0, deviceTo, sPK_HouseMode, 
+			sHouseModeTime, sExitDelay, sAlerts);
+		SendCommand(SCREEN_ModeChanged);
+	}
 
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
