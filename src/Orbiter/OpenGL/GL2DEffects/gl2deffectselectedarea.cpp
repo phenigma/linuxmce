@@ -27,7 +27,7 @@ void GL2DEffectSelectedArea::Configure(PlutoRectangle* EffectSourceSize)
 	if (!EffectSourceSize)
 		return;
 	this->EffectSourceSize.Left = (float)EffectSourceSize->X;
-	this->EffectSourceSize.Top = (float)(Effects->Widgets->GetHeight()) - EffectSourceSize->Y - EffectSourceSize->Height;
+	this->EffectSourceSize.Top = (float)EffectSourceSize->Y;
 	this->EffectSourceSize.Width = (float)EffectSourceSize->Width;
 	this->EffectSourceSize.Height = (float)EffectSourceSize->Height;
 }

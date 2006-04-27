@@ -362,7 +362,6 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		if(m_pObj_SelectedLastScreen)
 		{
 			rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
-			rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
 		}
 		else
 		{
@@ -388,14 +387,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
-					m_Desktop->EffectBuilder->GetEffectCode(m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
-					Simulator::GetInstance()->m_iMilisecondsTransition
+						m_Desktop->EffectBuilder->GetEffectCode(m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
+						Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(!Transit)
 					Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					Simulator::GetInstance()->m_iMilisecondsTransition
+						GL2D_EFFECT_TRANSIT_NO_EFFECT,
+						Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(Transit)
 					Transit->Configure(&rectLastSelected);
@@ -824,7 +823,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 
 	FloatRect HighLightArea;
 	HighLightArea.Left = (float)m_rectLastHighlight.Left();
-	HighLightArea.Top = m_Desktop->Widgets->GetHeight() - (float)m_rectLastHighlight.Top() - (float)m_rectLastHighlight.Height;
+	HighLightArea.Top = (float)m_rectLastHighlight.Top();
 	HighLightArea.Width =  (float)m_rectLastHighlight.Width;
 	HighLightArea.Height = (float)m_rectLastHighlight.Height;
 
@@ -850,7 +849,7 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 
 	FloatRect SelectedArea;
 	SelectedArea.Left   = (float)point.X + pObj->m_rBackgroundPosition.X;
-	SelectedArea.Top    = (float)m_Desktop->Widgets->GetHeight() - (point.Y + pObj->m_rBackgroundPosition.Y +pObj->m_rBackgroundPosition.Height);
+	SelectedArea.Top    = (float)(point.Y + pObj->m_rBackgroundPosition.Y);
 	SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
 	SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
 

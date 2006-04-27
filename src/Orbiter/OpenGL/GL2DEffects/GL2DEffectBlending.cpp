@@ -52,7 +52,7 @@ GL2DEffectBlending::~GL2DEffectBlending() {
 void GL2DEffectBlending::Configure(PlutoRectangle* EffectSourceSize)
 {
 	ButtonSize.Left = float(EffectSourceSize->X);
-	ButtonSize.Top = float(EffectSourceSize->Y-EffectSourceSize->Height);
+	ButtonSize.Top = float(EffectSourceSize->Y);
 	ButtonSize.Width = float(EffectSourceSize->Width);
 	ButtonSize.Height = float(EffectSourceSize->Height);
 	
@@ -69,8 +69,7 @@ void GL2DEffectBlending::Paint(int Now)
 
 	if(!Configured) {
 		//Set up the textures for triangles
-		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
-		//Background->SetTexture(Effects->Widgets->OldScreen);
+		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 		Button->SetTexture(Effects->Widgets->OldScreen);
 		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
@@ -84,9 +83,9 @@ void GL2DEffectBlending::Paint(int Now)
 			endl;
 		Button->SetTextureWraping(
 			ButtonSize.Left/FullScreen.Width*MaxCoordU,
-			MaxCoordV * (1 -(ButtonSize.Top+ButtonSize.Height)/FullScreen.Height),
+			MaxCoordV * ButtonSize.Top/FullScreen.Height,
 			ButtonSize.Width/FullScreen.Width*MaxCoordU,
-			MaxCoordV * ButtonSize.Height/FullScreen.Height
+			MaxCoordV * (ButtonSize.Top+ButtonSize.Height)/FullScreen.Height
 			);
 			
 		Destination->SetTextureWraping(0.0, 0.0, 

@@ -84,28 +84,7 @@ OrbiterGL3D::~OrbiterGL3D()
 void OrbiterGL3D::BeginAnimation()
 {
 #ifdef POCKETFROG
-	/*
-	Orbiter_PocketFrog *pOrbiter_PocketFrog = dynamic_cast<Orbiter_PocketFrog *>(pOrbiterGL);
-	OpenGLProxy::GetInstance()->Attach(pOrbiter_PocketFrog->m_hWnd);
-	hdc = GetDC(pOrbiter_PocketFrog->m_hWnd);	
 
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);  // Change Matrix Mode to Projection
-	glLoadIdentity();             // Reset View
-	glOrtho(0, pOrbiterGL->m_iImageWidth, 0, 
-		pOrbiterGL->m_iImageHeight, 0, pOrbiterGL->m_iImageWidth);
-	glMatrixMode(GL_MODELVIEW);   // Change Projection to Matrix Mode
-	glLoadIdentity();
-
-	glDepthFunc(GL_LEQUAL);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glFlush();
-
-	glEnable(GL_TEXTURE_2D);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	*/
 #endif
 }
 
@@ -238,6 +217,10 @@ int OrbiterGL3D::InitOpenGL()
 	glFlush();
 
 	glEnable(GL_TEXTURE_2D);
+
+
+	glScalef(1, -1.0f, 1);
+	glTranslatef(0, -pOrbiter->m_iImageHeight, 0);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);

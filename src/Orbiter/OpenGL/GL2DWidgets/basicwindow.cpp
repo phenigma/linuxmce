@@ -29,8 +29,6 @@ void TBasicWindow::Paint()
 		
 	TBaseWidget::Paint();
 	
-	glLoadIdentity();
-	
 	glBindTexture(GL_TEXTURE_2D, BackgroundTex);
 	// a window has 4 points
 	glBegin(GL_QUADS);
@@ -39,18 +37,18 @@ void TBasicWindow::Paint()
 	glColor4f(Background.Red , Background.Green, Background.Blue, 
 		Background.Alpha);	
 	//first point
-	glTexCoord2f( TextureWrapper2D.Left, TextureWrapper2D.Top + 
-		TextureWrapper2D.Height); 
+	glTexCoord2f( TextureWrapper2D.Left, TextureWrapper2D.Top ); 
 	glVertex3f(float(Left), float(Top), 0.0f);
 	//second point
-	glTexCoord2f( TextureWrapper2D.Left, TextureWrapper2D.Top ); 
+	glTexCoord2f( TextureWrapper2D.Left, TextureWrapper2D.Top + 
+		TextureWrapper2D.Height); 
 	glVertex3f(float(Left), float(Top + Height), 0.0f);
 	//third point
-	glTexCoord2f( TextureWrapper2D.Left+TextureWrapper2D.Width, TextureWrapper2D.Top); 
-	glVertex3f(float(Left + Width), float(Top + Height), 0.0f);
-	//fourth point
 	glTexCoord2f( TextureWrapper2D.Left+TextureWrapper2D.Width, 
 		TextureWrapper2D.Top + TextureWrapper2D.Height); 
+	glVertex3f(float(Left + Width), float(Top + Height), 0.0f);
+	//fourth point
+	glTexCoord2f( TextureWrapper2D.Left+TextureWrapper2D.Width, TextureWrapper2D.Top); 
 	glVertex3f(float(Left + Width), float(Top), 0.0f);
 	glEnd();
 }

@@ -49,7 +49,7 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 				1.0f-(float)px);
 			CoordV = (float)MathUtils::InterpolateValues(TextureWrapper2D.Top, 
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
-				(float)pyold);
+				1-(float)pyold);
 			glTexCoord2f(CoordU, CoordV);			// Apply The Old Texture Coords
 			glVertex3d(last[v].x, last[v].y, last[v].z);	// Old Point
 
@@ -60,7 +60,7 @@ GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D) {
 				1-(float)px);
 			CoordV = (float)MathUtils::InterpolateValues(TextureWrapper2D.Top, 
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
-				(float)py);
+				1-(float)py);
 			glTexCoord2f(CoordU, CoordV);		// Apply The New Texture Coords
 			glVertex3d(last[v].x, last[v].y, last[v].z);	// New Point
 		}
