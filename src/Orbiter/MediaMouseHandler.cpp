@@ -48,7 +48,7 @@ void MediaMouseHandler::Start()
 		pObj_Child = (DesignObj_Orbiter *) *(pObj_Child->m_ChildObjects.begin());
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
 	PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
-	if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
+	if(  NULL == pObj_Child || pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Also shouldn't happen
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj_Child;
 	if( !pObj_Grid->m_pDataGridTable )

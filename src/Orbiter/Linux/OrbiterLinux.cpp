@@ -308,6 +308,20 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     kevent.keycode = event.data.button.m_iPK_Button;;
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
+	switch (event.data.button.m_iPK_Button)
+	{
+#ifdef ENABLE_MOUSE_BEHAVIOR
+        case 101:   event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+        case 102:   event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+        case 103:   
+					event.data.button.m_iPK_Button = BUTTON_F8_CONST; 
+					g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); 
+					return true;
+#endif
+		default:
+			break; 
+	}
+
     switch ( keysym )
     {
         case XK_F1:     event.data.button.m_iPK_Button = BUTTON_F1_CONST; break;
@@ -319,7 +333,6 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 		case XK_F7:     event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 		
-						
         case XK_0: case XK_KP_0:    event.data.button.m_iPK_Button = BUTTON_0_CONST; break;
         case XK_1: case XK_KP_1:    event.data.button.m_iPK_Button = BUTTON_1_CONST; break;
         case XK_2: case XK_KP_2:    event.data.button.m_iPK_Button = BUTTON_2_CONST; break;
