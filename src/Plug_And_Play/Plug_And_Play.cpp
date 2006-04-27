@@ -374,6 +374,16 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 		else
 		{
 			// send the message
+			DCE::CMD_PlugAndPlayAddDevice cmd(	m_dwPK_Device, d->pnpCoreDevice->m_dwPK_Device,
+												iPK_DeviceTemplate,
+												sIP_Address,
+												sTokens,
+												sPNPSerialNo,
+												iPK_PnpProtocol,
+												sIdentifier,
+												iCapabilities,
+												iPK_CommMethod,
+												sPath );
 //			DCE::CMD_ cmd(m_dwPK_Device, d->pnpCoreDevice->m_dwPK_Device, ..)
 //			SendCommand(cmd);
 		}
