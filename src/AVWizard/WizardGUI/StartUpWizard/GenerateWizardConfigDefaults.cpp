@@ -59,7 +59,7 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 
 		Dictionary->SetName("ScreenStep"+Utils::Int32ToString(i+1));
 		Dictionary->SetType("Screen");
-		Dictionary->Set("FileName", PageNames[i]);
+		Dictionary->Set("FileName", PageNames[i].c_str());
 		Dictionary->Set("Index", i);
 
 		Options->AddChild(PageDescription);

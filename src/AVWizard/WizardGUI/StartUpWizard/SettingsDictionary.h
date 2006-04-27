@@ -25,6 +25,7 @@ public:
 	SettingsDictionary();
 	~SettingsDictionary();
 
+	void Set(std::string OptionName, const char* Value);
 	void Set(std::string OptionName, std::string Value);
 	void Set(std::string OptionName, int Value);
 	bool Exists(std::string OptionName);

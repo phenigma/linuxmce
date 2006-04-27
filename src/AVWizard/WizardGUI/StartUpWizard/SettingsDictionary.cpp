@@ -1,5 +1,7 @@
 #include "SettingsDictionary.h"
 
+#include <iostream>
+
 SettingsDictionary::SettingsDictionary(void)
 {
 }
@@ -11,6 +13,17 @@ SettingsDictionary::~SettingsDictionary(void)
 
 void SettingsDictionary::Set(std::string OptionName, std::string Value)
 {
+	Set(OptionName, Value.c_str());
+}
+	
+void SettingsDictionary::Set(std::string OptionName, const char* Value)
+{
+	if ((Value == NULL)||(strlen(Value) == 0))
+	{
+		std::cout<<"Warning option: '"<<OptionName <<"' not stored because it gets an empty value";
+		return;
+	}
+	
 	Options[OptionName] = Value;
 }
 
