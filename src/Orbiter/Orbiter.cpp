@@ -3765,29 +3765,34 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 #endif
 // some temporary stuff
 #ifdef ENABLE_MOUSE_BEHAVIOR
+bool bSkipProcessing=false;
+
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
 
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
 
 // The cancel button
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
-m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+
+if( bSkipProcessing )
+return true;
 
 // Temporary hack to hide and show the cursor
 if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F5_CONST )

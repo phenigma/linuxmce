@@ -357,7 +357,7 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 		if(sdl_event_loop_data.event.type == SDL_QUIT)
 			return false;
 #else		
-        // convert the SDL into what we know to interpret.
+		// convert the SDL into what we know to interpret.
         translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
 
         if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )

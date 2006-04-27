@@ -68,11 +68,13 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 		if( m_sOptions[0]=='M' )
 		{
 			ActivatedMainMenuPad();
+			return true; // Don't process any more
 		}
 		else
 		{
 			m_bActivatedObject = true;
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+			return true; // Don't process any more
 		}
 	}
 

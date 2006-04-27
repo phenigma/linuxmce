@@ -514,13 +514,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return false; // Nothing to do
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
-	{
-		MouseHandler::EMouseHandler eMouseHandler = m_pMouseHandler_Horizontal->TypeOfMouseHandler();
-		bool bResult = m_pMouseHandler_Horizontal->ButtonDown(PK_Button);
-		if( m_pMouseHandler_Horizontal && m_pMouseHandler_Horizontal->TypeOfMouseHandler()==MouseHandler::mh_Locked && ((LockedMouseHandler *)m_pMouseHandler_Horizontal)->m_bActivatedObject )
-			Clear();  // Whenever the user chooses something on a horizontal menu, it's always a destination and we need to clear the menus
-		return bResult;
-	}
+		return m_pMouseHandler_Horizontal->ButtonDown(PK_Button);
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 		return m_pMouseHandler_Vertical->ButtonDown(PK_Button);
 	return false;

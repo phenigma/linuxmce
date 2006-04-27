@@ -851,6 +851,11 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
+	if( rect.X >= m_iImageWidth )
+		rect.X = m_iImageWidth-1;
+	if( rect.Y >= m_iImageHeight )
+		rect.Y = m_iImageHeight-1;
+
 	if(rect.Width <= 0)
 		rect.Width = 1;
 	
