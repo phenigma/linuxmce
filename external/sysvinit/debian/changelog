@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto35) unstable; urgency=low
+
+  * Added hoplug-perl by default 
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 27 Apr 2006 16:39:31 +0300
+
 sysvinit (2.86.ds1-1.1pluto34) unstable; urgency=low
 
   * Fixed some syntax again
