@@ -49,7 +49,7 @@ namespace DCE
 		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
 
-	#define	NUM_SAMPLES		10
+	#define	NUM_SAMPLES		30
 	class MouseSensitivity
 	{
 	public:

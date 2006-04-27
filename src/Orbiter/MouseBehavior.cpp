@@ -24,22 +24,22 @@ using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 //class MouseSensitivity
-const int MouseSensitivity::SampleInterval = 150; //250; // 250 ms
+const int MouseSensitivity::SampleInterval = 50; //250; // 250 ms
 const int MouseSensitivity::DiscardSamplesOlderThanSec = 1500; // 1500 ms
 
 const int MouseSensitivity::Threshhold_1_Minimum=60;  // Minimum number of pixels to move
 const int MouseSensitivity::Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
 const int MouseSensitivity::Threshhold_2_Minimum=80;  // 20 pixels over 5 samples
 const int MouseSensitivity::Threshhold_2_Ratio=300;
-const int MouseSensitivity::Threshhold_2_Samples=4; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+const int MouseSensitivity::Threshhold_2_Samples=12; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
 const int MouseSensitivity::Threshhold_3_Minimum=80;
 const int MouseSensitivity::Threshhold_3_Ratio=200;
-const int MouseSensitivity::Threshhold_3_Samples=9;
+const int MouseSensitivity::Threshhold_3_Samples=25;
 
 const int MouseSensitivity::HoldTime = 750;
 const int MouseSensitivity::IgnoreMouseAfterReposition=10;
 
-const int MouseSensitivity::NumberOfSamplesForNotch = 3;
+const int MouseSensitivity::NumberOfSamplesForNotch = 2;
 const int MouseSensitivity::DistanceForNotch=100;
 
 //-----------------------------------------------------------------------------------------------------
@@ -375,7 +375,9 @@ bool MouseBehavior::CheckForChangeInDirection()
 
 		if( i>=MouseSensitivity::NumberOfSamplesForNotch && CumulativeThisDirection>=MouseSensitivity::DistanceForNotch && m_dwSamples[i]>m_dwTime_Last_Notch )
 		{
-			m_dwTime_Last_Notch = m_dwSamples[i];
+			g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Notched i: %d vumulative %d time now %d last notch %d sample %d sample 0 %d",
+				i,CumulativeThisDirection,m_dwTime_Last_Notch,m_dwSamples[i],m_dwSamples[0]);
+			m_dwTime_Last_Notch = m_dwSamples[0];
 			if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 				m_pMouseHandler_Horizontal->Notch(PK_Direction);
 			else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
