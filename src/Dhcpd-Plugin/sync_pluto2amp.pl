@@ -222,10 +222,6 @@ sub update_device_data()
     $DB_SQL = "update Device_DeviceData SET IK_DeviceData='$DEVICE_EXT' WHERE FK_Device='$DEVICE_ID' AND FK_DeviceData='31'";
     $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-
-    $DB_SQL = "update Device_DeviceData SET IK_DeviceData='$DEVICE_TYPE' WHERE FK_Device='$DEVICE_ID' AND FK_DeviceData='29'";
-    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 }
 
 sub update_asterisk_db()
@@ -263,9 +259,8 @@ sub add_to_asterisk_db()
 
     unless($DEVICE_TYPE =~/^(iax2|sip|zap|custom)$/)
     {
-        print "Unsupported device type : \"$DEVICE_TYPE\" will set to default\n";
-        $DEVICE_TYPE='iax2';
-        &update_device_data();
+        print "Unsupported device type : \"$DEVICE_TYPE\"\n";
+        return;
     }
 
     $EXT_VARS{'display'}="extensions";
