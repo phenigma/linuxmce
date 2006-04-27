@@ -38,6 +38,7 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y);
+		void Notch(int PK_Direction); // The user moved a 'notch' in the given direction
 
 		void ActivatedMainMenuPad();
 	};

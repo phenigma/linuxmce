@@ -82,6 +82,7 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y)
 {
+
 	if( !m_pObj )
 	{
 		MoveExternalApp(X,Y);

@@ -203,6 +203,19 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 			{
 				Orbiter::Event *pEvent = new Orbiter::Event;
 				*pEvent = pRecordingHandler->m_OrbiterEvent;
+
+				if( pEvent->type==Orbiter::Event::MOUSE_MOVE )
+				{
+					PLUTO_SAFETY_LOCK( cm, pRecordingHandler->m_pOrbiter->m_MaintThreadMutex );
+					for(map<int,PendingCallBackInfo *>::iterator it=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.begin();it!=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.end();++it)
+					{
+						PendingCallBackInfo *pCallBackInfo = (*it).second;
+						Orbiter::Event *pEvent_cb = (Orbiter::Event *) pCallBackInfo->m_pData;
+						if( pCallBackInfo->m_fnCallBack==&Orbiter::QueueEventForProcessing &&
+							pEvent_cb && pEvent_cb->type==Orbiter::Event::MOUSE_MOVE )
+								pCallBackInfo->m_bStop=true;
+					}
+				}
 				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO );
 			}
 	}

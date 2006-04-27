@@ -43,6 +43,7 @@ namespace DCE
 		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y) {}
+		virtual void Notch(int PK_Direction) {} // The user moved a 'notch' in the given direction
 
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
@@ -65,6 +66,9 @@ namespace DCE
 		const static int Threshhold_3_Samples;
 		const static int HoldTime;
 		const static int IgnoreMouseAfterReposition;
+
+		const static int NumberOfSamplesForNotch;
+		const static int DistanceForNotch;
 	};
 
 	//-----------------------------------------------------------------------------------------------------
@@ -101,6 +105,7 @@ namespace DCE
 		char m_cLockedAxes,m_cLocked_Axis_Current;  // one of the #define AXIS_LOCK to indicate which axes are locked
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
+		unsigned long m_dwTime_Last_Notch;
 		EMenuOnScreen m_EMenuOnScreen;
 		bool m_bMouseHandler_Horizontal_Exclusive,m_bMouseHandler_Vertical_Exclusive;
 

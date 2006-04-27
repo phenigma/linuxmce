@@ -39,6 +39,9 @@ const int MouseSensitivity::Threshhold_3_Samples=9;
 const int MouseSensitivity::HoldTime = 750;
 const int MouseSensitivity::IgnoreMouseAfterReposition=10;
 
+const int MouseSensitivity::NumberOfSamplesForNotch = 3;
+const int MouseSensitivity::DistanceForNotch=100;
+
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
@@ -90,6 +93,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	m_pMouseGovernor->SetBuffer(0);
 	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 	m_bMouseHandler_Vertical_Exclusive=m_bMouseHandler_Horizontal_Exclusive=false;
+	m_dwTime_Last_Notch=0;
 
 	if( bGotoMainMenu )
 	{
@@ -345,14 +349,15 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now Y, x locked to %d",m_iLock
 
 bool MouseBehavior::CheckForChangeInDirection()
 {
+	bool bChangeInDirectionEliminated=false;
 	if( (m_cLocked_Axis_Current == AXIS_LOCK_Y && m_bMouseHandler_Vertical_Exclusive) ||
 		(m_cLocked_Axis_Current == AXIS_LOCK_X && m_bMouseHandler_Horizontal_Exclusive) )
-			return false;
+			bChangeInDirectionEliminated=true;
 	
 	int CumulativeThisDirection=0,CumulativeOtherDirection=0;
 	int PK_Direction = GetDirection(m_pSamples[0]);
 	if( !PK_Direction )
-		return false;
+		bChangeInDirectionEliminated=true;
 	for(int i=0;i<NUM_SAMPLES;++i)
 	{
 		int PK_Direction_Sample = GetDirection(m_pSamples[i],&CumulativeThisDirection,&CumulativeOtherDirection);
@@ -366,6 +371,15 @@ bool MouseBehavior::CheckForChangeInDirection()
 //			g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::CheckForChangeInDirection Move sample %d is not direction %d it is %d",
 //				i,PK_Direction,PK_Direction_Sample);
 			return false;
+		}
+
+		if( i>=MouseSensitivity::NumberOfSamplesForNotch && CumulativeThisDirection>=MouseSensitivity::DistanceForNotch && m_dwSamples[i]>m_dwTime_Last_Notch )
+		{
+			m_dwTime_Last_Notch = m_dwSamples[i];
+			if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Horizontal->Notch(PK_Direction);
+			else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
+				m_pMouseHandler_Horizontal->Notch(PK_Direction);
 		}
 		int Minimum,Ratio;
 		if( i>=MouseSensitivity::Threshhold_3_Samples-1 )
@@ -384,19 +398,19 @@ bool MouseBehavior::CheckForChangeInDirection()
 			Ratio=MouseSensitivity::Threshhold_1_Ratio;
 		}
 
-		if( CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
+		if( !bChangeInDirectionEliminated && CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::CheckForChangeInDirection i=%d cumulative this=%d other=%d  min=%d ratio=%d",i,CumulativeThisDirection,CumulativeOtherDirection,Minimum,Ratio);
 			if( PK_Direction==DIRECTION_Left_CONST || PK_Direction==DIRECTION_Right_CONST )
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_X )
-					return false;
+					bChangeInDirectionEliminated=true;
 				m_cLocked_Axis_Current = AXIS_LOCK_X;
 			}
 			else
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
-					return false;
+					bChangeInDirectionEliminated=true;
 				m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			}
 			return true;

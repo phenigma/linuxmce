@@ -3632,23 +3632,6 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 	{
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
-if( pObj->m_ObjectID.find("4890")!=string::npos )
-{
-	DesignObjCommandList::iterator it;
-	for(it=pObj->m_Action_HighlightList.begin();it!=pObj->m_Action_HighlightList.end();++it)
-	{
-		DesignObjCommand *pDesignObjCommand = *it;
-		map<int,string>::iterator it2;
-		for(it2=pDesignObjCommand->m_ParameterList.begin();it2!=pDesignObjCommand->m_ParameterList.end();++it2)
-		{
-			int i=it2->first;
-			string s=it2->second;
-		int k=2;
-		}
-
-	}
-int k=2;
-}
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
