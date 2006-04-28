@@ -34,7 +34,7 @@ namespace DCE
 		pluto_pthread_mutex_t 	m_xineSlaveMutex;
 
 		SlimServerClient *getSlimServerClient();
-
+		friend class XineSlaveWrapper;
 
 	//<-dceag-const-b->
 public:
