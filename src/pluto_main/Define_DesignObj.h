@@ -2037,6 +2037,20 @@
 #define DESIGNOBJ_butMediaTypeSort_CONST 4975
 #define DESIGNOBJ_grpMediaSortOptions_CONST 4976
 #define DESIGNOBJ_icoModeBabySitter_CONST 4977
+#define DESIGNOBJ_butSubMenuOptions_CONST 4978
+#define DESIGNOBJ_butSubMenuButton_CONST 4979
+#define DESIGNOBJ_arrLightsMain2_CONST 4980
+#define DESIGNOBJ_butShowClimatePopup_CONST 4982
+#define DESIGNOBJ_butShowTelecomPopup_CONST 4983
+#define DESIGNOBJ_butShowSecurityPopup_CONST 4984
+#define DESIGNOBJ_arrClimate2_CONST 4985
+#define DESIGNOBJ_arrMedia2_CONST 4986
+#define DESIGNOBJ_arrSecurity2_CONST 4987
+#define DESIGNOBJ_arrTelecom2_CONST 4988
+#define DESIGNOBJ_butShowRooms_CONST 4989
+#define DESIGNOBJ_butShowFloorplans_CONST 4990
+#define DESIGNOBJ_butShowAdvanced_CONST 4991
+#define DESIGNOBJ_popMediaTypeOptionsPlaceholder_CONST 4992
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
