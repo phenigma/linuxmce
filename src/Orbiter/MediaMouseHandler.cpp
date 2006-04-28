@@ -13,7 +13,8 @@
 
 using namespace DCE;
 
-MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior)
+MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
+	: MouseHandler(pObj,sOptions,pMouseBehavior), m_DatagridMouseHandlerHelper(this)
 {
 }
 
@@ -36,17 +37,6 @@ void MediaMouseHandler::Start()
 	if( !pObj_Grid->m_pDataGridTable )
 		return; // Again shouldn't happen
 
-	m_pObj_MediaBrowser_Down = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_pParentObject->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
-	m_pObj_MediaBrowser_Up = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_pParentObject->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
-	if( m_pObj_MediaBrowser_Down && !m_pObj_MediaBrowser_Down->m_bOnScreen )
-		m_pObj_MediaBrowser_Down = NULL;
-	if( m_pObj_MediaBrowser_Up && !m_pObj_MediaBrowser_Up->m_bOnScreen )
-		m_pObj_MediaBrowser_Up = NULL;
-	if( m_pObj_MediaBrowser_Down )
-		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_NORMAL;
-	if( m_pObj_MediaBrowser_Up )
-		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_NORMAL;
-
 	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
@@ -56,6 +46,8 @@ void MediaMouseHandler::Start()
 		m_bTapAndRelease=true;
 		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),
 			pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y + (pObj_Grid->m_rPosition.Height/2));
+		m_DatagridMouseHandlerHelper.Start(pObj_Grid);
+
 	}
 	else
 	{
@@ -132,57 +124,5 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highli
 		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 	}
 	else
-	{
-		// 20 notches, -10 to +10.  >5 do pages
-		int NotchWidth = m_pObj->m_rPosition.Height/20;
-		int Notch = (Y-m_pObj->m_rPosition.Y-m_pObj->m_pPopupPoint.Y)/NotchWidth - 10;
-		if( Notch<-10 )
-			Notch = -10;
-		if( Notch>10 )
-			Notch = 10;
-
-		if( Notch!=m_iLastNotch )
-		{
-			if( Notch==0 )
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
-			else
-			{
-				int Frequency;
-				bool bPage=false;
-				if( abs(Notch)>5 )
-				{
-					bPage=true;
-					if( Notch>0 )
-						Frequency = (6-(Notch-5))*100;
-					else
-						Frequency = (6+(Notch+5))*100;
-				}
-				else
-					Frequency = (6-abs(Notch))*100;
-
-if( Frequency<1 )
-int k=2;
-g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
-				if( bPage )
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 2 : -2,Frequency,NULL);
-				else
-					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 1 : -1,Frequency,NULL);
-			}
-			m_iLastNotch=Notch;
-
-			Notch/=2;
-			if( Notch > 0 ) // Down
-			{
-				m_pObj_MediaBrowser_Down->m_GraphicToDisplay=abs(Notch);
-				m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
-			}
-			else
-			{
-				m_pObj_MediaBrowser_Up->m_GraphicToDisplay=abs(Notch);
-				m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
-			}
-
-//remus  m_pObj->SetSpeed(Speed);
-		}
-	}
+		m_DatagridMouseHandlerHelper.StayInGrid(PK_Direction,X,Y);
 }

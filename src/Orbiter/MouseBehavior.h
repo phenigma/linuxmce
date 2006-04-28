@@ -22,6 +22,7 @@ namespace DCE
 	class MouseHandler
 	{
 		friend class MouseBehavior;
+		friend class DatagridMouseHandlerHelper;
 
 	public:
 		int m_iLastNotch,m_iCancelLevel;  // Notch = last position on a locked vert/horiz bar.  CancelLevel = if doing discrete movement, cancel returns to this value
@@ -91,6 +92,7 @@ namespace DCE
 		friend class MediaMouseHandler;
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
+		friend class DatagridMouseHandlerHelper;
 
 		typedef enum EMenuOnScreen { mb_None, mb_MainMenu, mb_MediaControl, mb_Ambiance };
 
@@ -130,6 +132,10 @@ namespace DCE
 		int GetDirection(PlutoPoint &pt,int *CumulativeThisDirection=NULL,int *CumulativeOtherDirection=NULL);
 		void Clear(bool bGotoMainMenu=false);
 		void HighlightObject(DesignObj_Orbiter *pObj);
+		PlutoRectangle GetHighlighedObjectCoordinates();
+		void SelectFirstObject();
+		int GetDirectionAwayFromHighlight(int X,int Y);
+		void PositionMouseAtObjectEdge(int PK_Direction);
 
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }

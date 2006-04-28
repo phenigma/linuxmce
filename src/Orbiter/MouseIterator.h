@@ -19,6 +19,7 @@ namespace DCE
 		friend class LightMouseHandler;
 		friend class MediaMouseHandler;
 		friend class KeyboardMouseHandler;
+		friend class DatagridMouseHandlerHelper;
 
 		class MouseBehavior *m_pMouseBehavior;
 		class MouseHandler *m_pMouseHandler;

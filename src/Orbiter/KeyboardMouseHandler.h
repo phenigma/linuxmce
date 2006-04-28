@@ -10,6 +10,8 @@ using namespace std;
 #include "Orbiter.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "MouseBehavior.h"
+#include "DatagridMouseHandlerHelper.h"
+
 using namespace DCE;
 
 namespace DCE
@@ -22,11 +24,8 @@ namespace DCE
 	class KeyboardMouseHandler : public MouseHandler
 	{
 		char m_cDirection;
-		int m_dwPK_Direction_ScrollGrid;
-		DesignObj_DataGrid *m_pObj_ScrollingGrid;
-		DesignObj_Orbiter *m_pObj_MediaBrowser_Alpha;
-		DesignObj_Orbiter *m_pObj_MediaBrowser_Down,*m_pObj_MediaBrowser_Up;
 		int m_PK_Direction_Last;
+		DatagridMouseHandlerHelper m_DatagridMouseHandlerHelper;
 
 	public:
 		KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
@@ -44,14 +43,6 @@ namespace DCE
 		void DoIteration();
 		void IterateObject();
 		void IterateExternalApp();
-
-		void SelectFirstObject();
-		int GetDirectionAwayFromHighlight(int X,int Y);
-		void PositionMouseAtObjectEdge(int PK_Direction);
-		PlutoRectangle GetHighlighedObjectCoordinates();
-		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
-		void ScrollGrid(int dwPK_Direction,int X,int Y);
-
 
 friend class Orbiter; // Temporary hack
 void TempHack_DrawAlphaSquare();

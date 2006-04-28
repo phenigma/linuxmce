@@ -111,6 +111,7 @@ sources += \
 	MediaMouseHandler.cpp \
 	LockedMouseHandler.cpp \
 	KeyboardMouseHandler.cpp \
+	DatagridMouseHandlerHelper.cpp \
 	MouseGovernor.cpp \
 	MouseIterator.cpp \
 	SDL/SDLRendererOCGHelper.cpp \

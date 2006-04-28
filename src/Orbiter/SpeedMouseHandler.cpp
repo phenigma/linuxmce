@@ -64,7 +64,7 @@ void SpeedMouseHandler::Start()
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
 		m_pMouseBehavior->m_bMouseHandler_Horizontal_Exclusive = true;
 		m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_bHidden = true;
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 	}
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);

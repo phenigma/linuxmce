@@ -629,3 +629,97 @@ int MouseBehavior::GetDirection(PlutoPoint &pt,int *CumulativeThisDirection,int 
 	}
 }
 
+PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()
+{
+	if( m_pOrbiter->m_pObj_Highlighted )
+	{
+		if( m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			PlutoRectangle rect;
+			m_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pOrbiter->m_pObj_Highlighted,rect);
+			return rect + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+		}
+		else
+			return m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+	}
+
+	return PlutoRectangle(0,0,0,0);
+}
+
+void MouseBehavior::SelectFirstObject()
+{
+	// Select the first object to highlight if we didn't already and center over it
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->FindFirstObjectByDirection('1',true,NULL,NULL);
+	if( pObj )
+	{
+		PlutoRectangle rect = GetHighlighedObjectCoordinates();
+		SetMousePosition( rect.X + rect.Width/2,
+			rect.Y + rect.Height/2 );
+
+		if( m_cLocked_Axis_Current==AXIS_LOCK_X )
+			m_iLockedPosition = rect.Y + rect.Height/2;
+		else
+			m_iLockedPosition = rect.X + rect.Width/2;
+	}
+}
+
+int MouseBehavior::GetDirectionAwayFromHighlight(int X,int Y)
+{
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
+
+	PlutoRectangle plutoRectangle = GetHighlighedObjectCoordinates();
+	if( plutoRectangle.Contains(X,Y) )
+		return 0;  // We're still inside the object
+
+	// If the highlighted object is a datagrid and we're totally outside the datagrid, then use the datagrid
+	// as a whole for determining which side we're on, and not the individual cell, otherwise we'll always
+	// think we're below a datagrid without a lot of cells even if we're to the left or right
+	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && !(pObj->m_rPosition+pObj->m_pPopupPoint).Contains(X,Y) )
+		plutoRectangle = pObj->m_rPosition + pObj->m_pPopupPoint;
+
+//	g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::GetDirectionAwayFromHighlight object %s at %d,%d w:%d h:%d doesn't contain %d,%d",
+//		pObj->m_ObjectID.c_str(),plutoRectangle.X,plutoRectangle.Y,
+//		plutoRectangle.Width,plutoRectangle.Height,X,Y);
+	int FromLeft = plutoRectangle.X - X;
+	int FromTop = plutoRectangle.Y - Y;
+	int FromRight = X - plutoRectangle.Right();
+	int FromBottom = Y - plutoRectangle.Bottom();
+
+	if( FromLeft>0 && FromLeft>=FromTop && FromLeft>=FromBottom )
+		return DIRECTION_Left_CONST;
+	if( FromTop>0 && FromTop>=FromLeft && FromTop>=FromRight )
+		return DIRECTION_Up_CONST;
+	if( FromRight>0 && FromRight>=FromTop && FromRight>=FromBottom )
+		return DIRECTION_Right_CONST;
+	if( FromBottom>0 && FromBottom>=FromLeft && FromBottom>=FromRight )
+		return DIRECTION_Down_CONST;
+
+	return 0; // shouldn't happen
+}
+
+void MouseBehavior::PositionMouseAtObjectEdge(int PK_Direction)
+{
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
+	PlutoRectangle rect = GetHighlighedObjectCoordinates();
+
+	switch(PK_Direction)
+	{
+	case DIRECTION_Left_CONST:
+		SetMousePosition( rect.Right(), 
+			rect.Y + rect.Height/2 );
+		return;
+	case DIRECTION_Up_CONST:
+		SetMousePosition( rect.X + rect.Width/2, 
+			rect.Bottom());
+		return;
+	case DIRECTION_Right_CONST:
+		SetMousePosition( rect.X, 
+			rect.Y + rect.Height/2 );
+		return;
+	case DIRECTION_Down_CONST:
+		SetMousePosition( rect.X + rect.Width/2, 
+			rect.Y);
+		return;
+	};
+}
+

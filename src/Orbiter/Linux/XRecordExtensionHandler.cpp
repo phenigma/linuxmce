@@ -244,7 +244,6 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
                 case MotionNotify:
 					m_iMouseX = pxEvent->u.keyButtonPointer.rootX;
 					m_iMouseY = pxEvent->u.keyButtonPointer.rootY;
-                    g_pPlutoLogger->Write(LV_WARNING, "Mouse move at position: %d, %d", m_iMouseX, m_iMouseY); //del
 
 		            orbiterEvent->type = Orbiter::Event::MOUSE_MOVE;
 		            orbiterEvent->data.region.m_iX = m_iMouseX;

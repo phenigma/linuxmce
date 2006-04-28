@@ -107,6 +107,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class MediaMouseHandler;
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
+		friend class DatagridMouseHandlerHelper;
 #endif
 
 	public: //data

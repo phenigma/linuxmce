@@ -1,5 +1,5 @@
-#ifndef __MediaMouseHandler_H__
-#define __MediaMouseHandler_H__
+#ifndef __DatagridMouseHandlerHelper_H__
+#define __DatagridMouseHandlerHelper_H__
 //-----------------------------------------------------------------------------------------------------
 #include <list>
 #include <string>
@@ -10,11 +10,7 @@ using namespace std;
 #include "Orbiter.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "MouseBehavior.h"
-#include "DatagridMouseHandlerHelper.h"
-
 using namespace DCE;
-
-#define MAX_SPEEDS		17
 
 namespace DCE
 {
@@ -23,26 +19,25 @@ namespace DCE
 	* @brief Handles special mouse behavior for lighting control
 	*/
 	//-----------------------------------------------------------------------------------------------------
-	class MediaMouseHandler : public MouseHandler
+	class DatagridMouseHandlerHelper
 	{
-		DatagridMouseHandlerHelper m_DatagridMouseHandlerHelper;
+		friend class KeyboardMouseHandler;
+
+		class MouseHandler *m_pMouseHandler;
+		class MouseBehavior *m_pMouseBehavior;
+		int m_dwPK_Direction_ScrollGrid;
+		DesignObj_DataGrid *m_pObj_ScrollingGrid;
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Alpha;
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Down,*m_pObj_MediaBrowser_Up;
 
 	public:
-		MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
-		virtual EMouseHandler TypeOfMouseHandler() { return mh_Media; }
-		~MediaMouseHandler()
-		{
-			int k=2;
-		}
+		DatagridMouseHandlerHelper(MouseHandler *pMouseHandler);
+		void Start(DesignObj_DataGrid *pObj_ScrollingGrid);
+		bool StayInGrid(int PK_Direction,int X,int Y);
 
-		void Start();
-		void Stop();
-
-		bool ButtonDown(int PK_Button);
-		bool ButtonUp(int PK_Button);
-		void Move(int X,int Y,int PK_Direction);
+		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
+		void ScrollGrid(int dwPK_Direction,int X,int Y);
 	};
-
 }
 //-----------------------------------------------------------------------------------------------------
 #endif
