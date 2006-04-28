@@ -54,6 +54,17 @@ void MediaMouseHandler::Start()
 	if( !pObj_Grid->m_pDataGridTable )
 		return; // Again shouldn't happen
 
+	m_pObj_MediaBrowser_Down = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
+	m_pObj_MediaBrowser_Up = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
+	if( m_pObj_MediaBrowser_Down && !m_pObj_MediaBrowser_Down->m_bOnScreen )
+		m_pObj_MediaBrowser_Down = NULL;
+	if( m_pObj_MediaBrowser_Up && !m_pObj_MediaBrowser_Up->m_bOnScreen )
+		m_pObj_MediaBrowser_Up = NULL;
+	if( m_pObj_MediaBrowser_Down )
+		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_NORMAL;
+	if( m_pObj_MediaBrowser_Up )
+		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_NORMAL;
+
 	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
@@ -196,6 +207,19 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
 					m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,Notch > 0 ? 1 : -1,Frequency,NULL);
 			}
 			m_iLastNotch=Notch;
+
+			Notch/=2;
+			if( Notch > 0 ) // Down
+			{
+				m_pObj_MediaBrowser_Down->m_GraphicToDisplay=abs(Notch);
+				m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
+			}
+			else
+			{
+				m_pObj_MediaBrowser_Up->m_GraphicToDisplay=abs(Notch);
+				m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
+			}
+
 //remus  m_pObj->SetSpeed(Speed);
 		}
 	}

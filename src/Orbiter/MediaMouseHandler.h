@@ -23,6 +23,7 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MediaMouseHandler : public MouseHandler
 	{
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Down,*m_pObj_MediaBrowser_Up;
 
 	public:
 		MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
