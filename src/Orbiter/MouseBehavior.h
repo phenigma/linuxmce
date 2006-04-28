@@ -132,7 +132,7 @@ namespace DCE
 		void HighlightObject(DesignObj_Orbiter *pObj);
 
 		// Override these for OS specific handling
-		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y); }
+		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }
 		virtual void GetMousePosition(PlutoPoint *p) { }
 		virtual void ShowMouse(bool bShow) { }
 

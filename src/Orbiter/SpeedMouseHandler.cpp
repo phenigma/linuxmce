@@ -28,8 +28,6 @@ const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8
 SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");	
-
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
@@ -61,7 +59,6 @@ SpeedMouseHandler::~SpeedMouseHandler()
 void SpeedMouseHandler::Start()
 {
     //g_bIgnoreRender=true;
-    g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Start");	
 	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
@@ -108,16 +105,13 @@ void SpeedMouseHandler::Start()
 void SpeedMouseHandler::Stop()
 {
     //g_bIgnoreRender=false;
-    g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Stop");	
 	Update();
 }
 
 bool SpeedMouseHandler::ButtonDown(int PK_Button)
 {
-	g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonDown %d",PK_Button);
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
-		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonDown cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -134,10 +128,8 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 
 bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
-	g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonUp %d",PK_Button);
 	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
-		g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::ButtonUp cancelling");
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -149,7 +141,6 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 
 void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-    //g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);
 	m_iLastGoodPosition = X;
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
@@ -166,7 +157,6 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 		}
 		if( Notch!=m_iLastNotch )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::Move speed %d",Speed);
 			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed,true);
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Notch;
@@ -187,7 +177,6 @@ m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the ob
 		if( m_iLastNotch!=Notch )
 		{
 			m_iLastNotch=Notch;
-	g_pPlutoLogger->Write(LV_FESTIVAL,"SpeedMouseHandler::Move seek %d",m_iLastNotch);
 			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," POS:" + StringUtils::itos(m_iLastNotch*1000));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Media_Position.m_pMessage);
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );

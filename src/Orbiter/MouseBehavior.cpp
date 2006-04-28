@@ -44,7 +44,7 @@ const int MouseSensitivity::DistanceForNotch=100;
 
 const int MouseSensitivity::UseAccelerationIfMovementsWithin=200;
 
-const int MouseSensitivity::IgnoreMovesLessThanThisPerSample=30;
+const int MouseSensitivity::IgnoreMovesLessThanThisPerSample=10;//30;
 
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
@@ -122,9 +122,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	if( sDesignObj.size() )
 		pObj = m_pOrbiter->FindObject(sDesignObj);
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior object found %p,"
-		" obj id %s ", pObj, sDesignObj.c_str());
-		
 	MouseHandler *pMouseHandler=NULL;
 	if( !pObj && sOptions[0] !='K' )  // Only the keyboard handler does not require an object
 	{
@@ -132,8 +129,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		return;
 	}
 	
-	g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior options %s", sOptions.c_str());
-
 	switch(sOptions[0])
 	{
 	case 'L':
@@ -218,9 +213,6 @@ void MouseBehavior::Move(int X,int Y)
 	unsigned long dwTime = ProcessUtils::GetMsTime();
 	if( dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MOVESXX 2 dwtime:%d m_dwLastSampleShift %d m_dwSamples[0]: %d  diff: %d  samp: %d bool %s  %d  %d",
-			dwTime,m_dwLastSampleShift,m_dwSamples[0],dwTime-m_dwLastSampleShift,MouseSensitivity::SampleInterval,(dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval ? "Y" : "N"),m_pSamples[0].X,m_pSamples[0].Y);
-
 		m_dwLastSampleShift=dwTime;
 		if( abs(m_pSamples[0].X)<MouseSensitivity::IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<MouseSensitivity::IgnoreMovesLessThanThisPerSample )
 		{
@@ -304,7 +296,6 @@ m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwS
 				m_iLockedPosition = m_pObj_Locked_Horizontal->m_rPosition.Y + m_pObj_Locked_Horizontal->m_pPopupPoint.Y + m_pObj_Locked_Horizontal->m_rPosition.Height/2;
 			else
 				m_iLockedPosition = Y;
-g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now X, y locked to %d",m_iLockedPosition);
 		}
 		else
 		{
@@ -312,7 +303,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now X, y locked to %d",m_iLock
 				m_iLockedPosition = m_pObj_Locked_Vertical->m_rPosition.X + m_pObj_Locked_Vertical->m_pPopupPoint.X + m_pObj_Locked_Vertical->m_rPosition.Width/2;
 			else
 				m_iLockedPosition = X;
-g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now Y, x locked to %d",m_iLockedPosition);
 		}
 		m_pMouseGovernor->SetBuffer(0);
 		if( cLocked_Axis_Before==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
@@ -432,7 +422,6 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 
 		if( CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::CheckForChangeInDirection i=%d cumulative this=%d other=%d  min=%d ratio=%d",i,CumulativeThisDirection,CumulativeOtherDirection,Minimum,Ratio);
 			if( PK_Direction==DIRECTION_Left_CONST || PK_Direction==DIRECTION_Right_CONST )
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_X )

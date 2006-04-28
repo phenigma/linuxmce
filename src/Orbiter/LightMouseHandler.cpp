@@ -38,7 +38,6 @@ void LightMouseHandler::Start()
 		DrawSquare(10-m_iLastNotch,PlutoColor::White());
 	}
 
-	g_pPlutoLogger->Write(LV_FESTIVAL,"LightMouseHandler::LightControl starting");
 	int Y=m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2;
 	m_iLastGoodPosition=Y;
 	m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2,Y);
@@ -100,7 +99,6 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		if( m_bTapAndRelease==false )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"Setting light to : %d  X %d",Notch,X);
 			DrawSquare(10-m_iLastNotch,PlutoColor::Blue());
 			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);

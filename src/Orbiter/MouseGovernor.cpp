@@ -59,7 +59,6 @@ void MouseGovernor::Run()
 		unsigned long dwTime = ProcessUtils::GetMsTime();
 		if( dwTime-m_dwTime_Last_SentMessage>=m_dwBufferMs && m_pMessage )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::Run sending %p",m_pMessage);
 			DoSendMessage(m_pMessage);
 			m_pMessage=NULL;
 		}
@@ -108,7 +107,6 @@ void MouseGovernor::SendMessage(Message *pMessage)
 
 void MouseGovernor::DoSendMessage(Message *pMessage)
 {
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::DoSendMessage ****sending %p last %d**** id %d to %d",pMessage,m_dwTime_Last_SentMessage,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
 	m_pMouseBehavior->m_pOrbiter->QueueMessageToRouter(pMessage);
 	m_dwTime_Last_SentMessage=ProcessUtils::GetMsTime();
 }
@@ -116,7 +114,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::DoSendMessage ****sending %p l
 void MouseGovernor::SetBuffer(int MS)
 {
 	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::SetBuffer %d",MS);
 	m_dwBufferMs=MS;
 	m_dwTime_Last_SentMessage=0;
 }

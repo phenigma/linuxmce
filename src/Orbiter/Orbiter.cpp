@@ -654,8 +654,6 @@ void Orbiter::RenderScreen( )
 		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
 	{
 		KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-		if( pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid && pKeyboardMouseHandler->m_iLastNotch!=-999 )
-			pKeyboardMouseHandler->TempHack_DrawSpeedSquare(pKeyboardMouseHandler->m_dwPK_Direction_ScrollGrid,pKeyboardMouseHandler->m_iLastNotch,PlutoColor::White());
 		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
 	}
 

@@ -25,7 +25,7 @@ namespace DCE
 	{
 		DesignObj_Orbiter *m_pObj_Highlighted;
 		bool m_bFirstTime; // Will be true the first time movement is locked onto this handler, false for subsequent times
-		int PK_Direction_Last;
+		int m_PK_Direction_Last;
 
 	public:
 		bool m_bActivatedObject; // Set to true whenever an object was activated

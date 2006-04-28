@@ -24,9 +24,12 @@ namespace DCE
 		char m_cDirection;
 		int m_dwPK_Direction_ScrollGrid;
 		DesignObj_DataGrid *m_pObj_ScrollingGrid;
-		DesignObj_Orbiter *m_pObj_MediaBrowser_Scrolling_Speed,*m_pObj_MediaBrowser_Alpha;
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Alpha;
+		DesignObj_Orbiter *m_pObj_MediaBrowser_Down,*m_pObj_MediaBrowser_Up;
+		int m_PK_Direction_Last;
+
 	public:
-		KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior) { m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_MediaBrowser_Alpha=m_pObj_MediaBrowser_Scrolling_Speed=m_pObj_ScrollingGrid=NULL; }
+		KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Keyboard; }
 
 		void Start();
@@ -35,6 +38,7 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y,int PK_Direction);
+		bool SlowDrift(int &X,int &Y); // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 		void MoveExternalApp(int X,int Y);
 
 		void DoIteration();
@@ -50,7 +54,6 @@ namespace DCE
 
 
 friend class Orbiter; // Temporary hack
-void TempHack_DrawSpeedSquare(int dwPK_Direction,int Notch,PlutoColor plutoColor);
 void TempHack_DrawAlphaSquare();
 	};
 }

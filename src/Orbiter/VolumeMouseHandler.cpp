@@ -44,7 +44,6 @@ void VolumeMouseHandler::Start()
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change to discrete volume" );
 PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
 m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
-g_pPlutoLogger->Write(LV_FESTIVAL,"Starting discrete volume control notch: %d  X %d",m_iLastNotch,X);
 		m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
 	}
 	DrawSquare(m_iLastNotch,PlutoColor::White());
@@ -115,7 +114,6 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 			Notch=100;
 		if( Notch!=m_iLastNotch )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 			DrawSquare(m_iLastNotch,PlutoColor::Blue());
 			DCE::CMD_Set_Volume CMD_Set_Volume(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Volume.m_pMessage);

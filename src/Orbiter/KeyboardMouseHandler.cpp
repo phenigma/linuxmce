@@ -13,8 +13,15 @@
 
 using namespace DCE;
 
+KeyboardMouseHandler::KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
+	: MouseHandler(pObj,sOptions,pMouseBehavior)
+{ 
+	m_bLockAxis=true; m_dwPK_Direction_ScrollGrid=0; m_pObj_MediaBrowser_Alpha=m_pObj_ScrollingGrid=NULL;
+}
+
 void KeyboardMouseHandler::Start()
 {
+	m_PK_Direction_Last=0;
 	m_cDirection=0;
 	m_dwPK_Direction_ScrollGrid = 0;
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
@@ -41,14 +48,21 @@ void KeyboardMouseHandler::Start()
 			else
 				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 		}
-		m_pObj_MediaBrowser_Scrolling_Speed = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoSpeedOptions_CONST));
+
+
+		m_pObj_MediaBrowser_Down = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
+		m_pObj_MediaBrowser_Up = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
 		m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
-		if( m_pObj_MediaBrowser_Scrolling_Speed && !m_pObj_MediaBrowser_Scrolling_Speed->m_bOnScreen )
-			m_pObj_MediaBrowser_Scrolling_Speed = NULL;
+		if( m_pObj_MediaBrowser_Down && !m_pObj_MediaBrowser_Down->m_bOnScreen )
+			m_pObj_MediaBrowser_Down = NULL;
+		if( m_pObj_MediaBrowser_Up && !m_pObj_MediaBrowser_Up->m_bOnScreen )
+			m_pObj_MediaBrowser_Up = NULL;
 		if( m_pObj_MediaBrowser_Alpha && !m_pObj_MediaBrowser_Alpha->m_bOnScreen )
 			m_pObj_MediaBrowser_Alpha = NULL;
-		if( m_pObj_MediaBrowser_Scrolling_Speed )
-			m_pObj_MediaBrowser_Scrolling_Speed->m_GraphicToDisplay=GRAPHIC_NORMAL;
+		if( m_pObj_MediaBrowser_Down )
+			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_NORMAL;
+		if( m_pObj_MediaBrowser_Up )
+			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_NORMAL;
 		m_iLastNotch = -999;
 	}
 }
@@ -82,6 +96,16 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	if( !m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	{
+		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
+		PlutoRectangle rect = GetHighlighedObjectCoordinates();
+		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
+			rect.Y + rect.Height/2 );
+		m_PK_Direction_Last=PK_Direction;
+		return;
+	}
+	m_PK_Direction_Last=PK_Direction;
 
 	if( !m_pObj )
 	{
@@ -98,7 +122,7 @@ void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	if( m_dwPK_Direction_ScrollGrid )
 	{
-		ScrollGrid(m_dwPK_Direction_ScrollGrid,X,Y);
+		ScrollGrid(PK_Direction,X,Y);
 		return;
 	}
 
@@ -422,9 +446,9 @@ int KeyboardMouseHandler::GetDirectionAwayFromHighlight(int X,int Y)
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && !(pObj->m_rPosition+pObj->m_pPopupPoint).Contains(X,Y) )
 		plutoRectangle = pObj->m_rPosition + pObj->m_pPopupPoint;
 
-	g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::GetDirectionAwayFromHighlight object %s at %d,%d w:%d h:%d doesn't contain %d,%d",
-		pObj->m_ObjectID.c_str(),plutoRectangle.X,plutoRectangle.Y,
-		plutoRectangle.Width,plutoRectangle.Height,X,Y);
+//	g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::GetDirectionAwayFromHighlight object %s at %d,%d w:%d h:%d doesn't contain %d,%d",
+//		pObj->m_ObjectID.c_str(),plutoRectangle.X,plutoRectangle.Y,
+//		plutoRectangle.Width,plutoRectangle.Height,X,Y);
 	int FromLeft = plutoRectangle.X - X;
 	int FromTop = plutoRectangle.Y - Y;
 	int FromRight = X - plutoRectangle.Right();
@@ -524,56 +548,46 @@ bool KeyboardMouseHandler::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj
 
 	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 	m_iLastNotch = -999; // Start with no movement
-	m_pObj_MediaBrowser_Scrolling_Speed->m_GraphicToDisplay=GRAPHIC_SELECTED;
+	m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
+	m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 	return true;
 }
 
 void KeyboardMouseHandler::ScrollGrid(int dwPK_Direction,int X,int Y)
 {
-	if( dwPK_Direction==DIRECTION_Down_CONST && Y < m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y )
+	if( dwPK_Direction!=m_dwPK_Direction_ScrollGrid)
 	{
+g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::ScrollGrid direction changed from %d to %d",
+					  m_dwPK_Direction_ScrollGrid,dwPK_Direction);
 		// We moved past the top
-		m_dwPK_Direction_ScrollGrid = 0;
 		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
 
-		PlutoRectangle r;
-		m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
-			1, // col span
-			1, // row span
-			0, // column
-			m_pObj_ScrollingGrid->m_MaxRow - 1 /* 0 based */, // We only care about the position of the last visible row, whether or not anything is there
-			r.X,  r.Y,  r.Width,  r.Height );
+		if( m_dwPK_Direction_ScrollGrid==DIRECTION_Up_CONST )
+			m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
+		else
+		{
+			PlutoRectangle r;
+			m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
+				1, // col span
+				1, // row span
+				0, // column
+				m_pObj_ScrollingGrid->m_MaxRow - 1 /* 0 based */, // We only care about the position of the last visible row, whether or not anything is there
+				r.X,  r.Y,  r.Width,  r.Height );
 
-		// Move back to the bottom of the grid, since we're done with the iterator
-		m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , r.Bottom() + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
+			// Move back to the bottom of the grid, since we're done with the iterator
+			m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , r.Bottom() + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
+		}
 
 		// Unhighlight the speed
-		TempHack_DrawSpeedSquare(dwPK_Direction,m_iLastNotch,PlutoColor::Blue());
+		m_dwPK_Direction_ScrollGrid = 0;
 		m_iLastNotch = -999;
 		TempHack_DrawAlphaSquare();
-		m_pObj_MediaBrowser_Scrolling_Speed->m_GraphicToDisplay=GRAPHIC_NORMAL;
+		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
+		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 		return;
 	}
-	if( dwPK_Direction==DIRECTION_Up_CONST && Y > m_pObj_ScrollingGrid->m_rPosition.Bottom() + m_pObj_ScrollingGrid->m_pPopupPoint.Y )
-	{
-		// We moved past the top
-		m_dwPK_Direction_ScrollGrid = 0;
-		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
-
-		// Move back to the top of the grid, since we're done with the iterator
-		m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
-
-		// Unhighlight the speed
-		TempHack_DrawSpeedSquare(dwPK_Direction,m_iLastNotch,PlutoColor::Blue());
-		m_iLastNotch = -999;
-		TempHack_DrawAlphaSquare();
-		m_pObj_MediaBrowser_Scrolling_Speed->m_GraphicToDisplay=GRAPHIC_NORMAL;
-
-		return;
-	}
-
 
 	// 11 notches, 0=pause, 5 scroll, 5 pages
 	int NotchWidth = m_pObj_ScrollingGrid->m_rPosition.Height/11;
@@ -596,44 +610,40 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::ScrollGrid Notch %d",No
 			int Frequency;
 			bool bPage=false;
 			if( Notch>5 )
+				Notch=5;
+				/*
 			{
+		m_iLastNotch=Notch;
+		return;
 				bPage=true;
 				Frequency = (11-Notch)*100;
 			}
 			else
+			*/
 				Frequency = (6-Notch)*100;
+				bPage=true;
 
 			if( bPage )
 				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,Frequency,NULL);
 			else
 				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 1 : -1,Frequency,NULL);
 		}
-		TempHack_DrawSpeedSquare(dwPK_Direction,m_iLastNotch,PlutoColor::Blue());
 		m_iLastNotch=Notch;
-		TempHack_DrawSpeedSquare(dwPK_Direction,m_iLastNotch,PlutoColor::White());
+		if( dwPK_Direction==DIRECTION_Down_CONST )
+		{
+			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=m_iLastNotch;
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
+		}
+		else
+		{
+			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=m_iLastNotch;
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
+		}
 //remus  m_pObj_ScrollingGrid->SetSpeed(Speed);
 	}
 	TempHack_DrawAlphaSquare();
 }
 
-void KeyboardMouseHandler::TempHack_DrawSpeedSquare(int dwPK_Direction,int Notch,PlutoColor plutoColor)
-{
-	if( !m_pObj_MediaBrowser_Scrolling_Speed || Notch==-999 )
-		return; // Hasn't started yet
-
-	if( dwPK_Direction==DIRECTION_Up_CONST )
-		Notch *= -1; // It's reversed if we're moving up
-
-g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::TempHack_DrawSpeedSquare %d",Notch);
-
-	float NotchWidth = ((float) m_pObj_MediaBrowser_Scrolling_Speed->m_rPosition.Height)/21; // Allow for 7 repeat levels in each direction
-	int NotchStart = (10 + Notch) * NotchWidth + m_pObj_MediaBrowser_Scrolling_Speed->m_rPosition.Y + m_pObj_MediaBrowser_Scrolling_Speed->m_pPopupPoint.Y;
-	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-		m_pObj_MediaBrowser_Scrolling_Speed->m_rPosition.X + m_pObj_MediaBrowser_Scrolling_Speed->m_pPopupPoint.X, NotchStart,
-		m_pObj_MediaBrowser_Scrolling_Speed->m_rPosition.Width, NotchWidth,
-		plutoColor);
-	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj_MediaBrowser_Scrolling_Speed->m_rPosition + m_pObj_MediaBrowser_Scrolling_Speed->m_pPopupPoint);
-}
 
 void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 {
@@ -666,5 +676,20 @@ void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 		PlutoColor::White());
 	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj_MediaBrowser_Alpha->m_rPosition + m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
 
+}
+
+bool KeyboardMouseHandler::SlowDrift(int &X,int &Y)
+{
+	if( m_dwPK_Direction_ScrollGrid )
+		return false;
+g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::SlowDrift");
+	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	{
+		PlutoRectangle rect = GetHighlighedObjectCoordinates();
+		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
+			rect.Y + rect.Height/2 );
+		return true;
+	}
+	return false;
 }
 

@@ -37,7 +37,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 
 void LockedMouseHandler::Start()
 {
-	PK_Direction_Last=0;
+	m_PK_Direction_Last=0;
 	m_bActivatedObject = false;
 	if( m_bFirstTime )
 		m_bFirstTime=false;
@@ -104,14 +104,16 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 
 void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( PK_Direction_Last && PK_Direction!=PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
 		int X = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Width/2;
 		int Y = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Height/2;
 		m_pMouseBehavior->SetMousePosition(X,Y);
+		m_PK_Direction_Last=PK_Direction;
 		return;
 	}
+	m_PK_Direction_Last=PK_Direction;
 	//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
 //X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
@@ -124,10 +126,6 @@ void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_X ? m_pMouseBehavior->m_pObj_Locked_Horizontal : m_pMouseBehavior->m_pObj_Locked_Vertical,X,Y);
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 
-g_pPlutoLogger->Write(LV_CRITICAL,"change hl doesn't contain %d,%d h:%p v:%p old obj to hl: %s, new: %s",
-X,Y,m_pMouseBehavior->m_pObj_Locked_Horizontal,m_pMouseBehavior->m_pObj_Locked_Vertical,
-m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted ? m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str() : "NONE",
-pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
 			m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
@@ -138,13 +136,13 @@ pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 
 void LockedMouseHandler::Notch(int PK_Direction,int iRepeat)
 {
+	return;
 	if( m_pObj->m_iBaseObjectID!=DESIGNOBJ_popMainMenu_CONST )
 		return; 
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::Notch" );
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	for(int i=0;i<iRepeat;++i)
 		m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
-	g_pPlutoLogger->Write(LV_FESTIVAL,"LockedMouseHandler::Notched %d",PK_Direction);
 	m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y); // So we don't hit limits too fast
 }
 
