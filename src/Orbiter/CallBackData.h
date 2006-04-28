@@ -14,6 +14,18 @@ class PositionCallBackData : public CallBackData
 {
 public:
 	PlutoRectangle m_rectPosition;
+
+	PositionCallBackData(): CallBackData() {}
+	virtual ~PositionCallBackData() {}
+};
+//-----------------------------------------------------------------------------------------------------
+class PopupCallBackData : public PositionCallBackData
+{
+public:
+	unsigned long m_ulPopupID;
+
+	PopupCallBackData(): PositionCallBackData() {}
+	virtual ~PopupCallBackData() {}
 };
 //-----------------------------------------------------------------------------------------------------
 class KeyCallBackData : public CallBackData

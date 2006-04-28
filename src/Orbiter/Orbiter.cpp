@@ -65,8 +65,11 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+#ifdef USE_POPUPMANAGER
+#include "PopupManager.h"
+#endif
 
-	// Temporary nasty hack! TODO -- temp
+// Temporary nasty hack! TODO -- temp
 #include "KeyboardMouseHandler.h"
 #include "SpeedMouseHandler.h"
 
@@ -8354,7 +8357,19 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
 	if(pPopup->m_pObj)
+	{
 		RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
+
+#ifdef USE_POPUPMANAGER
+		//PlutoGraphic *pPlutoGraphic = GetBackground(pPopup->m_pObj->m_rPosition);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task refresh", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+		PopupCallBackData *pCallBackData = new PopupCallBackData();
+		pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+		pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
+		//TODO: add here to surface too to call back data
+		PopupManager::Instance().RefreshPopup(pCallBackData->m_ulPopupID, pCallBackData);
+#endif
+	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 }
@@ -8438,6 +8453,17 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	if( !bSuccessful )
 		return; // Popup must have already been there
 
+#ifdef USE_POPUPMANAGER
+	g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task create", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+
+	//TODO Associate pObj with a E_DIALOG_TYPE 
+	PopupCallBackData *pCallBackData = new PopupCallBackData();
+	pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+	unsigned long ulPopupId = 0;
+	PopupManager::Instance().CreatePopup(E_Dialog_SpeedControl, pCallBackData, ulPopupId);
+	m_mapPopupDialogs.insert(make_pair(pPopup, ulPopupId));
+#endif
+
 	ResetState(pObj_Popup);
 
 	VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
@@ -8497,6 +8523,16 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 6 now %p",m_pActivePopup);
 				}
 
+#ifdef USE_POPUPMANAGER
+				PlutoPopup *pPopup = *it;
+				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+				PopupCallBackData *pCallBackData = new PopupCallBackData();
+				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
+				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
+				m_mapPopupDialogs.erase(pPopup);
+#endif
+
 				delete *it;
 				pObj->m_listPopups.erase(it);
 				break;
@@ -8519,6 +8555,16 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					m_pActivePopup=NULL;
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 7 now %p",m_pActivePopup);
 				}
+
+#ifdef USE_POPUPMANAGER
+				PlutoPopup *pPopup = *it;
+				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+				PopupCallBackData *pCallBackData = new PopupCallBackData();
+				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
+				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
+				m_mapPopupDialogs.erase(pPopup);
+#endif
 
 				delete *it;
 				m_listPopups.erase(it);

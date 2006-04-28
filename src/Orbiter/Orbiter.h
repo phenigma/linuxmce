@@ -297,6 +297,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen,*m_pObj_NowPlaying_Section_OnScreen,*m_pObj_NowPlaying_TimeShort_OnScreen,*m_pObj_NowPlaying_TimeLong_OnScreen,*m_pObj_NowPlaying_Speed_OnScreen; /** < The objects showing 'now playing' on screen */
 
 		list<class PlutoPopup*> m_listPopups;
+		map<PlutoPopup *, unsigned long> m_mapPopupDialogs;
 
 		map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 		map< string, class DesignObj_Orbiter * > m_mapFloorplan;

@@ -12,6 +12,8 @@ enum E_DIALOG_TYPE
     E_Dialog_VolumeControl,
     E_Dialog_LightControl,
     E_Dialog_None,
+	E_Dialog_Last_Wx_Dialog,
+	E_Dialog_Dummy_Orbiter_Dialog
 };
 
 #endif

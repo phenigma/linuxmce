@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="\mysql\include;.;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../PocketFrog;../../../libs/Libraries/PocketFrog;../../../libs/CrossPlatform/lpng127/contrib/visupng"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;TEST_OSD;ENABLE_MOUSE_BEHAVIOR;THREAD_LOG "
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;TEST_OSD;ENABLE_MOUSE_BEHAVIOR;THREAD_LOG;POPUP_MANAGER"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -279,6 +279,12 @@
 				RelativePath="..\OpenGL\orbitergl3dengine.cpp">
 			</File>
 			<File
+				RelativePath="..\OrbiterPopup.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\OrbiterPopupFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\Linux\OSDScreenHandler.cpp">
 			</File>
 			<File
@@ -292,6 +298,9 @@
 			</File>
 			<File
 				RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\PopupManager.cpp">
 			</File>
 			<File
 				RelativePath="..\Win32\PopupMessage.cpp">
@@ -324,6 +333,12 @@
 				RelativePath="..\Win32\StartOrbiter.cpp">
 			</File>
 			<File
+				RelativePath="..\Task.cpp">
+			</File>
+			<File
+				RelativePath="..\TaskManager.cpp">
+			</File>
+			<File
 				RelativePath="..\TextStyle.cpp">
 			</File>
 			<File
@@ -334,6 +349,9 @@
 			</File>
 			<File
 				RelativePath="..\VolumeMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\Win32Popup.cpp">
 			</File>
 			<File
 				RelativePath="..\WizardLogic.cpp">
