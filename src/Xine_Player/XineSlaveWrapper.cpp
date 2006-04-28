@@ -1869,6 +1869,8 @@ void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )
 {
+	PLUTO_SAFETY_LOCK( xp, m_pAggregatorObject->m_xineSlaveMutex ); // There are lots of problems when 2 threads try to get the position at the same time
+
     if ( m_pDynamic_Pointer )
         m_pDynamic_Pointer->pointer_check_time();
 
