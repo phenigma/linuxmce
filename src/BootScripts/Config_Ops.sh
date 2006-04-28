@@ -78,7 +78,28 @@ PackageIsInstalled()
 	local Pkg="$1"
 
 	[[ -z "$Pkg" ]] && return 1
-	dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
+	#dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
+	PackageStatus "$Pkg" | grep -q 'Status: install ok installed'
+}
+
+PackageStatus()
+{
+	local Pkg="$1"
+
+	[[ -z "$Pkg" ]] && return 1
+	awk "/^Package: $Pkg/,/^$/" /var/lib/dpkg/status
+}
+
+InstalledPackages()
+{
+	local Pkg InstPkg=""
+
+	for Pkg in "$@"; do
+		if PackageIsInstalled "$Pkg"; then
+			InstPkg="$InstPkg $(PackageStatus $Pkg | grep '^Package: ' | sed 's/^Package: //')"
+		fi
+	done
+	echo "${InstPkg# }"
 }
 
 ConfEval

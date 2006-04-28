@@ -5,6 +5,10 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Utils.sh
 
+DEVICECATEGORY_Video_Cards=125
+DEVICETEMPLATE_GeForce_or_TNT2=1736
+DEVICETEMPLATE_Radeon_8500_or_newer=1721
+
 NeedConfigure()
 {
 	local Device NeedConfigure PK_Device
@@ -63,24 +67,42 @@ Unset_NeedConfigure_Children()
 # The new drivers for video cards are installed later in this script, not in this function
 CleanupVideo()
 {
+	echo "$(date -R) --> CleanupVideo"
+	
 	# Check for video card changes and update system accordingly
-	local Pkgs_nVidia="nvidia-driver nvidia-glx nvidia-kernel-* pluto-nvidia-video-drivers"
+	# Package name lists are treated as prefixes
+	local Pkgs_nVidia="nvidia-driver nvidia-glx nvidia-kernel- pluto-nvidia-video-drivers"
 	local Pkgs_ATI="fglrx-driver pluto-ati-video-drivers"
 	local nV_inst ATI_inst nV_dev ATI_dev
-	local DEVICECATEGORY_Video_Cards=125
+	local Pkg
+	
+	echo "$(date -R) --> Finding installed packages (nVidia)"
+	nV_inst="$(InstalledPackages $Pkgs_nVidia)"
+	echo "$(date -R) <-- Finding installed packages (nVidia)"
+	echo "$(date -R) --> Finding installed packages (ATI)"
+	ATI_inst="$(InstalledPackages $Pkgs_ATI)"
+	echo "$(date -R) <-- Finding installed packages (ATI)"
 
-	nV_inst="$(echo "$Pkgs_nVidia" | COLUMNS=1024 xargs dpkg -l | grep ^ii | awk '{ print $2 }')"
-	ATI_inst="$(echo "$Pkgs_ATI" | COLUMNS=1024 xargs dpkg -l | grep ^ii | awk '{ print $2 }')"
-	nV_dev="$(FindDevice_Category $PK_Device $DEVICECATEGORY_Video_Cards)"
-	ATI_dev="$(FindDevice_Category $PK_Device $DEVICECATEGORY_Video_Cards)"
+	echo "$(date -R) --> Retreiving desired video card (nVidia)"
+	nV_dev="$(FindDevice_Template $PK_Device $DEVICETEMPLATE_GeForce_or_TNT2)"
+	echo "$(date -R) <-- Retreiving desired video card (nVidia)"
+	echo "$(date -R) --> Retreiving desired video card (ATI)"
+	ATI_dev="$(FindDevice_Template $PK_Device $DEVICETEMPLATE_Radeon_8500_or_newer)"
+	echo "$(date -R) <-- Retreiving desired video card (ATI)"
 
+	echo "$(date -R) --> Performing package purges"
 	if [[ -n "$nV_inst" && -z "$nV_dev" ]]; then
 		apt-get -y remove --purge $nV_inst
 	elif [[ -n "$ATI_inst" && -z "$ATI_dev" ]]; then
 		apt-get -y remove --purge $ATI_inst
 	fi
+	echo "$(date -R) <-- Performing package purges"
 
+	echo "$(date -R) --> Configuring X"
 	/usr/pluto/bin/Xconfigure.sh --update-video-driver
+	echo "$(date -R) <-- Configuring X"
+	
+	echo "$(date -R) <-- CleanupVideo"
 }
 
 for ((i = 1; i <= "$#"; i++)); do
@@ -97,7 +119,13 @@ if [[ "$NoVideo" != "y" ]]; then
 fi
 
 if [[ "$Force" != "y" ]]; then
-	NeedConfigure "$PK_Device" || exit 0
+	echo "$(date -R) --> NeedConfigure $Device"
+	NeedConfigure "$PK_Device"
+	Ret=$?
+	echo "$(date -R) <-- NeedConfigure $Device"
+	if [[ "$Ret" -ne 0 ]]; then
+		exit 0
+	fi
 fi
 
 [ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
