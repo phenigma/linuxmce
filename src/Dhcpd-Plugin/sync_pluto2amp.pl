@@ -29,26 +29,23 @@ my $STATUS = 0;
 $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 $DB_AS_HANDLE = DBI->connect("dbi:mysql:database=asterisk;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 
-my @DEVICES = ();
+my %DEVICES = ();
+my %EXTENSIONS = ();
+&add_embed_phones();
 
-if (defined($ARGV[0]))
+while(my $I = shift @ARGV)
 {
-    @DEVICES = @ARGV;
-}
-else
-{
-    &set_embed_phones();
+    $DEVICES{$I}=1;
 }
 
-&check_and_fix_duplicates();
-
-foreach my $I (@DEVICES)
+foreach my $I (sort keys %DEVICES)
 {
     $DEVICE_ID = $I;
     $DEVICE_EXT = 0;
     &read_pluto_device_data();
     if($STATUS == -1)
     {
+        &writelog("Will delete device #$DEVICE_ID\n");
         &remove_from_asterisk_db();
     }
     else
@@ -58,7 +55,16 @@ foreach my $I (@DEVICES)
             &find_next_extension();
             &update_device_data();
         }
-        print "Processing #$DEVICE_ID ($DEVICE_EXT)\n";
+        unless(defined $EXTENSIONS{$DEVICE_EXT})
+        {
+            $EXTENSIONS{$DEVICE_EXT}=$DEVICE_ID;
+        }
+        else
+        {
+            &writelog("Conflict detected for extension $DEVICE_EXT with devices #".$EXTENSIONS{$DEVICE_EXT}." and #$DEVICE_ID\n");
+            die "Conflict detected";
+        }
+        &writelog("Processing #$DEVICE_ID ($DEVICE_EXT)\n");
         $DEVICE_PORT = 4569 if($DEVICE_TYPE =~ /^iax/i);
         $DEVICE_PORT = 5060 if($DEVICE_TYPE =~ /^sip/i);
         &update_asterisk_db();
@@ -79,6 +85,13 @@ $DB_AS_HANDLE->disconnect();
 `/usr/sbin/asterisk -r -x reload`;
 
 #helpers
+sub writelog()
+{
+    my $str = shift;
+    print $str;
+    `echo -n -e "$str" >> /tmp/sync.log`;
+}
+
 sub read_pluto_config()
 {
     open(CONF,"/etc/pluto.conf") or die "Could not open pluto config";
@@ -100,66 +113,6 @@ sub read_pluto_config()
         }
     }
     close(CONF);
-}
-
-sub check_and_fix_duplicates()
-{
-    my $DB_SQL;
-    my $DB_STATEMENT;
-    my $DB_ROW;
-    my %TEMPL_MOD = ();
-    my %DEV_TEMPL = ();
-    my %DEV_EXTEN = ();
-
-
-    $DB_SQL = "select FK_DeviceTemplate, AllowedToModify from DeviceTemplate_DeviceData where FK_DeviceData=31";
-    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-    {
-        $TEMPL_MOD{$DB_ROW->{'FK_DeviceTemplate'}}=$DB_ROW->{'AllowedToModify'};
-    }
-    $DB_STATEMENT->finish();
-    $DB_SQL = "select FK_Device,FK_DeviceTemplate,IK_DeviceData from Device_DeviceData,Device where FK_DeviceData=31 and FK_Device=PK_Device";
-    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-    {
-        $DEV_EXTEN{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'IK_DeviceData'};
-        $DEV_TEMPL{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'FK_DeviceTemplate'};
-    }
-    $DB_STATEMENT->finish();
-
-    foreach my $i (keys %DEV_EXTEN)
-    {
-        foreach my $j (keys %DEV_EXTEN)
-        {
-            if(($i ne $j) && ($DEV_EXTEN{$i} eq $DEV_EXTEN{$j}) && ($DEV_EXTEN{$i} ne "0") && (length($DEV_EXTEN{$i})>0))
-            {
-                print "Conflict for extension ".$DEV_EXTEN{$i}." between #$i and #$j\n";
-                if($TEMPL_MOD{$DEV_TEMPL{$i}} == 1)
-                {
-                    $DEV_EXTEN{$i} = 0;
-                }
-                elsif($TEMPL_MOD{$DEV_TEMPL{$j}} == 1)
-                {
-                    $DEV_EXTEN{$j} = 0;
-                }
-                else
-                {
-                    print "Conflict can't be solved\n";
-                    exit;
-                }
-            }
-        }
-    }
-    foreach my $i (keys %DEV_EXTEN)
-    {
-        $DEVICE_ID = $i;
-        &read_pluto_device_data();
-        $DEVICE_EXT = $DEV_EXTEN{$i};
-        &update_device_data();
-    }
 }
 
 sub read_pluto_device_data()
@@ -211,6 +164,7 @@ sub find_next_extension()
     {
         $DEVICE_EXT = $DEVICE_EXT+1;
     }
+    $DB_STATEMENT->finish();    
 }
 
 sub update_device_data()
@@ -222,6 +176,7 @@ sub update_device_data()
     $DB_SQL = "update Device_DeviceData SET IK_DeviceData='$DEVICE_EXT' WHERE FK_Device='$DEVICE_ID' AND FK_DeviceData='31'";
     $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->finish();    
 }
 
 sub update_asterisk_db()
@@ -243,8 +198,9 @@ sub remove_from_asterisk_db()
     if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         my $old_ext = $DB_ROW->{'user'};
-        `curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' > /dev/null`;
+        `curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' &> /dev/null`;
     }
+    $DB_STATEMENT->finish();    
 }
 
 sub add_to_asterisk_db()
@@ -259,7 +215,7 @@ sub add_to_asterisk_db()
 
     unless($DEVICE_TYPE =~/^(iax2|sip|zap|custom)$/)
     {
-        print "Unsupported device type : \"$DEVICE_TYPE\"\n";
+        &writelog("Unsupported device type : \"$DEVICE_TYPE\"\n");
         return;
     }
 
@@ -283,10 +239,10 @@ sub add_to_asterisk_db()
         $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
         $EXT_DATA .=$var."=".$str."&";
     }
-    `curl -d '$EXT_DATA' 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions' > /dev/null`;
+    `curl -d '$EXT_DATA' 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions' &> /dev/null`;
 }
 
-sub set_embed_phones()
+sub add_embed_phones()
 {
     my $DB_SQL;
     my $DB_STATEMENT;
@@ -296,6 +252,7 @@ sub set_embed_phones()
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
     while(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
-        push @DEVICES, $DB_ROW->{'PK_Device'};
+        $DEVICES{$DB_ROW->{'PK_Device'}}=1;
     }
+    $DB_STATEMENT->finish();    
 }
