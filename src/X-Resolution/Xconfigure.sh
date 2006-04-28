@@ -48,7 +48,7 @@ while [[ $# -gt 0 ]]; do
 			ResX=${Resolution%%x*}
 			ResY=${Resolution#*x}
 			if [[ -z "$ResX" || -z "$ResY" || -z "$Refresh" || "$ResX" == *[![:digit:]]* || "$ResY" == *[![:digit:]]* || "$Refresh" == *[![:digit:]]* ]]; then
-				echo "Mismatched resolution. Use format: <ResX>x<ResY>@<Refresh>"
+				echo "Mismatched resolution '$Resolution@$Refresh'. Use format: <ResX>x<ResY>@<Refresh>"
 				exit 1
 			fi
 			shift
