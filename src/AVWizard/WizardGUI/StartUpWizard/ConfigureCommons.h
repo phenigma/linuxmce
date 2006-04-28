@@ -8,15 +8,15 @@
 #define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf"
 #endif
 
-#define COMMAND_SET_RESOLUTION "UpdateResolution.sh"
+#define COMMAND_SET_RESOLUTION "/usr/pluto/bin/UpdateResolution.sh"
 #define COMMAND_SET_RESOLUTION_PLUS  COMMAND_SET_RESOLUTION " resolution+"
 #define COMMAND_SET_RESOLUTION_MINUS COMMAND_SET_RESOLUTION " resolution-"
 
-#define COMMAND_SET_REFRESH "UpdateResolution.sh"
+#define COMMAND_SET_REFRESH "/usr/pluto/bin/UpdateResolution.sh"
 #define COMMAND_SET_REFRESH_PLUS  COMMAND_SET_REFRESH " refresh+"
 #define COMMAND_SET_REFRESH_MINUS COMMAND_SET_REFRESH " refresh-"
 
-#define COMMAND_SET_RATIO "UpdateResolution.sh"
+#define COMMAND_SET_RATIO "/usr/pluto/bin/UpdateResolution.sh"
 #define COMMAND_SET_RATIO_4_3  COMMAND_SET_RATIO " 4_3"
 #define COMMAND_SET_RATIO_16_9 COMMAND_SET_RATIO " 16_9"
 
