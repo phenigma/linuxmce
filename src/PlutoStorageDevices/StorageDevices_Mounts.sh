@@ -29,8 +29,7 @@ done
 PopulateSection "/etc/auto.PlutoStorageDevices" "InternalStorageDevices" "$Fstab_InternalStorageDevices"
 
 
-## Lookup for other computers storage devices and add them to fstab
-## as nfs shares
+## Lookup for other computers storage devices and add them to automount as nfs shares
 Q="
 SELECT
 	Drive.PK_Device,
@@ -58,8 +57,8 @@ done
 PopulateSection "/etc/auto.PlutoStorageDevices" "ExternalStorageDevices" "$Fstab_ExternalStorageDevices"
 
 
-TPL_BUFFALO_HDHG300LAN=1794
 ## Look for Buffalo NAS mounts
+TPL_BUFFALO_HDHG300LAN=1794
 Q="
 SELECT
 	PK_Device,
@@ -76,10 +75,34 @@ for Device in $BuffaloDevices; do
 	Device_Host=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
 
-	Automount_Buffalo="$Aautomount_Buffolo\n$Device_ID	-fstype=smbfs,guest,dmask=777,fmask=777	://${Device_Host}/share"
+	Automount_Buffalo="$Automount_Buffalo\n$Device_ID	-fstype=smbfs,guest,dmask=777,fmask=777	://${Device_Host}/share"
 done
 
 PopulateSection "/etc/auto.PlutoStorageDevices" "Buffalo HDHG300LAN" "$Automount_Buffalo"
+
+## Look for Maxtor NAS mounts
+#TPL_MAXTOR_NAS=1770
+#DD_SHARE_NAME=126
+#Q="
+#SELECT
+#	PK_Device,
+#	IPaddress
+#FROM
+#	Device
+#WHERE
+#	FK_DeviceTemplate=$TPL_MAXTOR_NAS
+#"
+#MaxtorDevices=$(RunSQL "$Q")
+#
+#for Device in $MaxtorDevices; do
+#	Device_ID=$(Field 1 "$Device")
+#	Device_Host=$(Field 2 "$Device")
+#	Device_ShareName=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_SHARE_NAME")
+#	
+#	Automount_Maxtor="$Automount_Maxtor\n$Device_ID		-fstype=nfs,soft,timeo=1,retrans=1,retry=0,rsize=32768,wsize=32768 ${Device_Host}:${Device_ShareName}"
+#done
+#
+#PopulateSection "/etc/auto.PlutoStorageDevices" "Maxtor 1770" "$Automount_Maxtor"
 
 ## Reload automounter daemon
 /etc/init.d/autofs reload
