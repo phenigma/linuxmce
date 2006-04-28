@@ -2,18 +2,17 @@
 
 #ifndef WM_TASK_MANAGER_H
 #define WM_TASK_MANAGER_H
-
+//--------------------------------------------------------------------------------------------------------------
 #include "Task.h"
-
 #include <queue>
 #include <list>
-
+//--------------------------------------------------------------------------------------------------------------
 #include "../PlutoUtils/MultiThreadIncludes.h"
 #include "../PlutoUtils/singleton.h"
 #include "../CallBackTypes.h"
 using namespace cpp;
 using namespace cpp::Threading;
-
+//--------------------------------------------------------------------------------------------------------------
 /**
  *	Safe-thread class to treat VX queue of messages
  */
@@ -62,13 +61,28 @@ public:
 	 */
 	Task *PopTask();
 
+	/**
+	* 	Returns the type of the dialog for first task from queue.
+	*/
+	E_DIALOG_TYPE GetDialogTypeForTopTask();
+
+	/**
+	* 	Returns the type of the first task from queue.
+	*/
+	CallBackType GetTopTaskType();
+
+	/**
+	* 	Returns the id of the popup of the first task from queue if that task is for a popup; 0 if not
+	*/
+	unsigned long GetPopupIDForTopTask();
+
     /**
-     *  ?
+     *  Notifies TaskManager that a task has been processed.
      */
     void TaskProcessed(unsigned int TaskId);
 };
-
+//--------------------------------------------------------------------------------------------------------------
 typedef Singleton<TaskManagerImpl, CreateUsingNew<TaskManagerImpl>, DefaultLifetime, MultiThreaded> TaskManager;
-
+//--------------------------------------------------------------------------------------------------------------
 #endif
 // WM_TASK_MANAGER_H

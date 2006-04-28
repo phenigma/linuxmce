@@ -2,9 +2,9 @@
 
 #include "TaskManager.h"
 #include "../../DCE/Logger.h"
-
+#include "CallBackData.h"
 using namespace DCE;
-
+//--------------------------------------------------------------------------------------------------------------
 TaskManagerImpl::TaskManagerImpl()
 {
     TaskCounter = 0;
@@ -12,12 +12,12 @@ TaskManagerImpl::TaskManagerImpl()
     pthread_cond_init(&ListMutexCond, NULL);
     ListMutex->Init(NULL, &ListMutexCond);
 }
-
+//--------------------------------------------------------------------------------------------------------------
 TaskManagerImpl::~TaskManagerImpl()
 {
 	delete ListMutex;
 }
-
+//--------------------------------------------------------------------------------------------------------------
 Task *TaskManagerImpl::CreateTask(CallBackType TaskType,
                                   E_DIALOG_TYPE DialogType,
                                   CallBackData* pCallBackData )
@@ -25,7 +25,7 @@ Task *TaskManagerImpl::CreateTask(CallBackType TaskType,
     PLUTO_SAFETY_LOCK(cm, *ListMutex);
     return new Task(TaskType, DialogType, pCallBackData, ++TaskCounter);
 }
-
+//--------------------------------------------------------------------------------------------------------------
 void TaskManagerImpl::AddTask(Task *pEvent)
 {
     if(NULL == pEvent)
@@ -39,7 +39,7 @@ void TaskManagerImpl::AddTask(Task *pEvent)
         );
 	Events.push(pEvent);
 }
-
+//--------------------------------------------------------------------------------------------------------------
 void TaskManagerImpl::AddTaskAndWait(Task *pEvent)
 {
     if(NULL == pEvent)
@@ -75,7 +75,7 @@ void TaskManagerImpl::AddTaskAndWait(Task *pEvent)
         }
     }
 }
-
+//--------------------------------------------------------------------------------------------------------------
 Task * TaskManagerImpl::PopTask()
 {
 	PLUTO_SAFETY_LOCK(cm, *ListMutex);
@@ -91,12 +91,50 @@ Task * TaskManagerImpl::PopTask()
 
     return NULL;
 }
+//--------------------------------------------------------------------------------------------------------------
+E_DIALOG_TYPE TaskManagerImpl::GetDialogTypeForTopTask()
+{
+	PLUTO_SAFETY_LOCK(cm, *ListMutex);
+	if(Events.size())
+	{
+		Task *pEvent = Events.front();
+		return pEvent->DialogType;
+	}
 
+	return E_Dialog_Undefined;
+}	
+//--------------------------------------------------------------------------------------------------------------
+CallBackType TaskManagerImpl::GetTopTaskType()
+{
+	PLUTO_SAFETY_LOCK(cm, *ListMutex);
+	if(Events.size())
+	{
+		Task *pEvent = Events.front();
+		return pEvent->TaskType;
+	}
+
+	return cbUnused;
+}
+//--------------------------------------------------------------------------------------------------------------
+unsigned long TaskManagerImpl::GetPopupIDForTopTask()
+{
+	PLUTO_SAFETY_LOCK(cm, *ListMutex);
+	if(Events.size())
+	{
+		Task *pEvent = Events.front();
+		PopupCallBackData *pPopupData = dynamic_cast<PopupCallBackData *>(pEvent->pCallBackData);
+		if(NULL != pPopupData)
+			return pPopupData->m_ulPopupID;
+	}
+
+	return 0;
+}
+//--------------------------------------------------------------------------------------------------------------
 void TaskManagerImpl::WakeUp()
 {
 	pthread_cond_broadcast(&ListMutexCond);
 }
-
+//--------------------------------------------------------------------------------------------------------------
 void TaskManagerImpl::TaskProcessed(unsigned int TaskId)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, *ListMutex);
@@ -104,3 +142,4 @@ void TaskManagerImpl::TaskProcessed(unsigned int TaskId)
     g_pPlutoLogger->Write(LV_WARNING, "TaskManagerImpl::TaskProcessed(id %d), size=%d", TaskId, Events.size());
     WakeUp();
 }
+//--------------------------------------------------------------------------------------------------------------
