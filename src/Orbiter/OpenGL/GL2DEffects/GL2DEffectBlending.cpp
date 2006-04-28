@@ -73,23 +73,21 @@ void GL2DEffectBlending::Paint(int Now)
 		Button->SetTexture(Effects->Widgets->OldScreen);
 		Destination->SetTexture(Effects->Widgets->NewScreen);
 		
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Width);
+		float MaxCoordV = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
-		cout <<"CoordinatesButton:"<<ButtonSize.Top<<","<<
-			ButtonSize.Left<<","<<
-			ButtonSize.Width<<","<<
-			ButtonSize.Height<<","<<
-			endl;
 		Button->SetTextureWraping(
-			ButtonSize.Left/FullScreen.Width*MaxCoordU,
-			MaxCoordV * ButtonSize.Top/FullScreen.Height,
-			ButtonSize.Width/FullScreen.Width*MaxCoordU,
-			MaxCoordV * (ButtonSize.Top+ButtonSize.Height)/FullScreen.Height
+			ButtonSize.Left*MaxCoordU,
+			 ButtonSize.Top*MaxCoordV,
+			(ButtonSize.Width)*MaxCoordU,
+			(ButtonSize.Height)*MaxCoordV 
 			);
-			
+/*
+		Button->SetTextureWraping(0.0f, FullScreen.Width*0.5f*MaxCoordV,
+			FullScreen.Height*0.8*MaxCoordU, FullScreen.Width*0.9*MaxCoordV);
+	*/		
 		Destination->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
+			MaxCoordU*FullScreen.Width, MaxCoordV*FullScreen.Height);
 		Start = Effects->MilisecondTimmer();
 
 		
