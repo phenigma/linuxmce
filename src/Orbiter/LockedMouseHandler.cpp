@@ -25,8 +25,8 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 			StringUtils::itos(atoi(m_pObj->m_ObjectID.c_str())) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
 		if( pObj_First )
 		{
-			m_pMouseBehavior->m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
-			m_pMouseBehavior->m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
+			m_pMouseBehavior->m_pStartMovement.X=m_pMouseBehavior->m_pOrbiter->m_iImageWidth/2; //pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
+			m_pMouseBehavior->m_pStartMovement.Y=m_pMouseBehavior->m_pOrbiter->m_iImageHeight/2;
 			m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 			m_pObj_Highlighted=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
@@ -103,8 +103,10 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 
 void LockedMouseHandler::Move(int X,int Y)
 {
-	return;
-//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
+	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
+		return;
+
+	//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
 //X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
@@ -128,12 +130,16 @@ pObj_ToHighlight ? pObj_ToHighlight->m_ObjectID.c_str() : "NONE");
 	}
 }
 
-void LockedMouseHandler::Notch(int PK_Direction)
+void LockedMouseHandler::Notch(int PK_Direction,int iRepeat)
 {
+	if( m_pObj->m_iBaseObjectID!=DESIGNOBJ_popMainMenu_CONST )
+		return; 
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::Notch" );
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-	m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
+	for(int i=0;i<iRepeat;++i)
+		m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
 	g_pPlutoLogger->Write(LV_FESTIVAL,"LockedMouseHandler::Notched %d",PK_Direction);
+	m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y); // So we don't hit limits too fast
 }
 
 void LockedMouseHandler::ActivatedMainMenuPad()

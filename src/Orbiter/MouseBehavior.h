@@ -43,7 +43,7 @@ namespace DCE
 		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y) {}
-		virtual void Notch(int PK_Direction) {} // The user moved a 'notch' in the given direction
+		virtual void Notch(int PK_Direction,int iRepeat) {} // The user moved a 'notch' in the given direction
 
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
@@ -69,6 +69,7 @@ namespace DCE
 
 		const static int NumberOfSamplesForNotch;
 		const static int DistanceForNotch;
+		const static int UseAccelerationIfMovementsWithin;
 	};
 
 	//-----------------------------------------------------------------------------------------------------
