@@ -209,6 +209,10 @@ for Client in $R; do
 		cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
 		ReplaceVars $DlPath/etc/fstab.$$
 		mv $DlPath/etc/fstab.$$ $DlPath/etc/fstab
+
+		echo -n " timezone"
+		cp /etc/localtime $DlPath/etc/localtime	
+	        cat /etc/timezone > $DlPath/etc/timezone
 	
 		echo -n " hosts"
 		cp /usr/pluto/templates/hosts.tmpl $DlPath/etc/hosts.$$

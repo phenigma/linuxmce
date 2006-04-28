@@ -1,14 +1,25 @@
 #!/bin/bash
 
-. /usr/pluto/bin/pluto.func
+timeZone="$1"
 
-TimeZone="$1"
+## Function for seting timezone for a computer
+function setTimezone() {
+	rootDir=$1
+	timeZone=$2
+	
+	zoneFile="/usr/share/zoneinfo/$TimeZone"
+	[[ -z "$timeZone" || ! -f "${rootDir}${zoneFile}" ]] && exit 1
 
-Logging "$TYPE" "$SEVERITY_NORMAL" "Timezone" "Setting timezone to $TimeZone"
+	rm -f $rootDir/etc/localtime
+	ln -s "$zoneFile" $rootDir/etc/localtime
+	
+	echo "$timeZone" >$rootDir/etc/timezone
+}
 
-File="/usr/share/zoneinfo/$TimeZone"
-[[ -z "$TimeZone" || ! -f "$File" ]] && exit 1
+## Set timezone for core
+setTimezone "/" $timeZone
 
-rm -f /etc/localtime
-ln -s "$File" /etc/localtime
-echo "$TimeZone" >/etc/timezone
+## Set timezone for MDs
+for rootDir in /usr/pluto/diskless/* ;do
+	setTimezone $rootDir $timeZone
+done
