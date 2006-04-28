@@ -47,7 +47,7 @@ Section "Monitor"
 	Identifier	"Monitor0"
 	VendorName	"Unknown Monitor Vendor"
 	ModelName	"Unknown Monitor Model"
-	HorizSync	28-90
+	HorizSync	28-500
 	VertRefresh	60
 EndSection
 
