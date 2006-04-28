@@ -4,7 +4,7 @@
 
 FindDevice_Template()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}"
+	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3"
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceTemplate" ]]; then
 		echo ""
@@ -17,7 +17,7 @@ FindDevice_Template()
 		WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'"
 	R="$(RunSQL "$Q")"
 
-	if [[ -z "$R" ]]; then
+	if [[ -z "$R" && -z "$NoRecusion" ]]; then
 		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
 		R="$(RunSQL "$Q")"
 		for i in $R; do
@@ -32,7 +32,7 @@ FindDevice_Template()
 
 FindDevice_Category()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}"
+	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}" NoRecursion="$3"
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceCategory" ]]; then
 		echo ""
@@ -46,7 +46,7 @@ FindDevice_Category()
 		WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory='$FK_DeviceCategory'"
 	R="$(RunSQL "$Q")"
 
-	if [[ -z "$R" ]]; then
+	if [[ -z "$R" && -z "$NoRecursion" ]]; then
 		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
 		R="$(RunSQL "$Q")"
 		for i in $R; do

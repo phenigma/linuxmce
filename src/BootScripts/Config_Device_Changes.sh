@@ -84,10 +84,14 @@ CleanupVideo()
 	echo "$(date -R) <-- Finding installed packages (ATI)"
 
 	echo "$(date -R) --> Retreiving desired video card (nVidia)"
-	nV_dev="$(FindDevice_Template $PK_Device $DEVICETEMPLATE_GeForce_or_TNT2)"
+	SubComputer=$(FindDevice_Category $PK_Device 8)
+	if [[ -z "$SubComputer" ]]; then
+		SubComputer="$PK_Device"
+	fi
+	nV_dev="$(FindDevice_Template $SubComputer $DEVICETEMPLATE_GeForce_or_TNT2 'norecursion')"
 	echo "$(date -R) <-- Retreiving desired video card (nVidia)"
 	echo "$(date -R) --> Retreiving desired video card (ATI)"
-	ATI_dev="$(FindDevice_Template $PK_Device $DEVICETEMPLATE_Radeon_8500_or_newer)"
+	ATI_dev="$(FindDevice_Template $SubComputer $DEVICETEMPLATE_Radeon_8500_or_newer 'norecursion')"
 	echo "$(date -R) <-- Retreiving desired video card (ATI)"
 
 	echo "$(date -R) --> Performing package purges"
