@@ -39,7 +39,9 @@ void LightMouseHandler::Start()
 	}
 
 	g_pPlutoLogger->Write(LV_FESTIVAL,"LightMouseHandler::LightControl starting");
-	m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
+	int Y=m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2;
+	m_iLastGoodPosition=Y;
+	m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2,Y);
 }
 
 void LightMouseHandler::Stop()
@@ -80,6 +82,7 @@ bool LightMouseHandler::ButtonUp(int PK_Button)
 
 void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	m_iLastGoodPosition=Y;
 	int NotchWidth = m_pObj->m_rPosition.Height/11; // Allow for 5 repeat levels in each direction
 	int Notch = (Y - m_pObj->m_rPosition.Y - m_pObj->m_pPopupPoint.Y) * 11 / 
 		(m_pObj->m_rPosition.Height + (m_pObj->m_rPosition.Height ? 1 : 0));
@@ -115,6 +118,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting light to : %d  X %d",Notch,X);
 			DrawSquare(5-m_iLastNotch,PlutoColor::White());
 		}
 	}
+}
+
+bool LightMouseHandler::SlowDrift(int &X,int &Y)
+{ 
+	X = m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + (m_pObj->m_rPosition.Width/2);
+	Y = m_iLastGoodPosition;
+	m_pMouseBehavior->SetMousePosition(X,Y);
+	return true;
 }
 
 void LightMouseHandler::DrawSquare(int Notch,PlutoColor plutoColor)

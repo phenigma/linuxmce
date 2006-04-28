@@ -42,6 +42,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Speed Control widget on screen!");
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1",m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID,"", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 
+	m_iLastGoodPosition=-1;
 	m_iCancelLevel = m_CurrentMedia_Pos;
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
@@ -92,11 +93,14 @@ void SpeedMouseHandler::Start()
 		int X = (m_pObj->m_rPosition.Width * Percentage) + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
 		int Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);
+		m_iLastGoodPosition=X;
 		m_pObj->m_GraphicToDisplay=1;
 	}
 	else
 	{
-		m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
+		int X=m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
+		m_pMouseBehavior->SetMousePosition(X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
+		m_iLastGoodPosition=X;
 	}
 	Update();
 }
@@ -146,6 +150,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
     //g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);
+	m_iLastGoodPosition = X;
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 	{
@@ -190,6 +195,14 @@ m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the ob
 			Update();
 		}
 	}
+}
+
+bool SpeedMouseHandler::SlowDrift(int &X,int &Y)
+{ 
+	X = m_iLastGoodPosition;
+	Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
+	m_pMouseBehavior->SetMousePosition(X,Y);
+	return true;
 }
 
 bool SpeedMouseHandler::ParsePosition(string sMediaPosition)

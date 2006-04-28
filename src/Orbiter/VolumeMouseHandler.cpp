@@ -28,7 +28,9 @@ void VolumeMouseHandler::Start()
 	{
 		m_bTapAndRelease=true;
 		m_pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
-		m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
+		int X=m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
+		m_iLastGoodPosition=X;
+		m_pMouseBehavior->SetMousePosition(X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
 		m_iLastNotch = 0;
 	}
 	else
@@ -38,6 +40,7 @@ void VolumeMouseHandler::Start()
 		m_pObj->m_GraphicToDisplay=1;
 		m_iCancelLevel = m_iLastNotch = atoi(m_pMouseBehavior->m_pOrbiter->GetEvents()->GetDeviceDataFromDatabase(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
 		int X = m_pObj->m_rPosition.Width * m_iLastNotch / 100;
+		m_iLastGoodPosition=X;
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change to discrete volume" );
 PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
 m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
@@ -85,6 +88,7 @@ bool VolumeMouseHandler::ButtonUp(int PK_Button)
 
 void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	m_iLastGoodPosition=X;
 	if( m_bTapAndRelease )
 	{
 		int NotchWidth = m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
@@ -119,6 +123,14 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Setting volume to : %d  X %d",Notch,X);
 			DrawSquare(m_iLastNotch,PlutoColor::White());
 		}
 	}
+}
+
+bool VolumeMouseHandler::SlowDrift(int &X,int &Y)
+{ 
+	X = m_iLastGoodPosition;
+	Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
+	m_pMouseBehavior->SetMousePosition(X,Y);
+	return true;
 }
 
 void VolumeMouseHandler::DrawSquare(int Notch,PlutoColor plutoColor)

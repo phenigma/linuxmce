@@ -228,7 +228,7 @@ void MouseBehavior::Move(int X,int Y)
 			if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 				bCancel=m_pMouseHandler_Horizontal->SlowDrift(X,Y);
 			else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
-				bCancel=m_pMouseHandler_Horizontal->SlowDrift(X,Y);
+				bCancel=m_pMouseHandler_Vertical->SlowDrift(X,Y);
 			if( bCancel )
 			{
 				ResetSamples();
