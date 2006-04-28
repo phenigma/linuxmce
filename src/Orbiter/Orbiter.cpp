@@ -5715,11 +5715,6 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" )
 	{
-		if( m_iUiVersion==2 )
-		{
-			CMD_Goto_Screen("",SCREEN_Main_CONST);
-			return; // With UI version 2, there is not 'goto remote'
-		}
 		if( m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
 			sPK_DesignObj = "<%=M%>";
 		else

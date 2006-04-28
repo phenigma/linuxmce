@@ -573,7 +573,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::ScrollGrid direction ch
 			m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
 		else
 		{
-			if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() )
+			if( m_pObj_ScrollingGrid->m_pDataGridTable && m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() )
 				m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
 
 			PlutoRectangle r;
