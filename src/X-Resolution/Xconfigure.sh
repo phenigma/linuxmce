@@ -74,6 +74,11 @@ if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
 	exit 1
 fi
 
+if [[ ! -f /usr/pluto/bin/X-GetDisplayDriver.awk ]]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-GetDisplayDriver.awk."
+	exit 1
+fi
+
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
 	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file not found or empty. Forcing use of defaults."
@@ -81,18 +86,21 @@ if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 fi
 
 [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
+CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
 	if [[ ! -f /usr/pluto/templates/XF86Config-4.in ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/XF86Config-4.in. Can't setup defaults"
 		exit 1
 	fi
 	cat /usr/pluto/templates/XF86Config-4.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
-elif [[ -n "$UpdateVideoDriver" ]]; then
+elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 fi
 
-if [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
+# Test detected display driver
+# Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
+if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
 	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
 		exec "$0" "${OrigParams[@]}" --force-vesa
 	fi
