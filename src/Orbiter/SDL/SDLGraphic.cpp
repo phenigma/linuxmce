@@ -14,8 +14,7 @@
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
-					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter),
-					     m_pSDL_Surface(NULL)
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
 {
 	Initialize();
 }
