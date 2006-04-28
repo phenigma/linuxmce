@@ -21,8 +21,16 @@ DrawingWidgetsEngine::DrawingWidgetsEngine(int Width, int Height)
 	
 	UVRect.Width = (float)Width/MathUtils::MinPowerOf2(Width);
 	UVRect.Height = (float)Height/MathUtils::MinPowerOf2(Height);
-	
+
+	m_GLTextureThreadMutex = new pluto_pthread_mutex_t("OpenGL Texture safety lock");	
+	pthread_cond_init(&m_GLTextureThreadCond, NULL);
+	m_GLTextureThreadMutex->Init(NULL, &m_GLTextureThreadCond);
 } 
+
+DrawingWidgetsEngine::~DrawingWidgetsEngine()
+{
+	delete m_GLTextureThreadMutex;
+}
 
 void DrawingWidgetsEngine::ClearScreen(unsigned char Red, unsigned char Green, unsigned char Blue)
 {
@@ -81,11 +89,13 @@ void DrawingWidgetsEngine::RemoveAll()
 
 void DrawingWidgetsEngine::SetUpNextDisplay()
 {
+	PLUTO_SAFETY_LOCK(glm, *m_GLTextureThreadMutex);
 	if(!NextDisplay)
 		return;
 	if(OldScreen)
+	{
 		glDeleteTextures(1, &OldScreen);
-
+	}
 	OldScreen = NewScreen;
 	NewScreen = OpenGLTextureConverter::GenerateTexture(NextDisplay);
 
@@ -106,6 +116,7 @@ void DrawingWidgetsEngine::SetUpNextDisplay()
 
 void DrawingWidgetsEngine::ConfigureNextScreen(PlutoGraphic* NextDisplay)
 {
+	PLUTO_SAFETY_LOCK(glm, *m_GLTextureThreadMutex);
 	if(!NextDisplay)
 		return;
 	if(this->NextDisplay)
@@ -118,6 +129,7 @@ void DrawingWidgetsEngine::ConfigureNextScreen(PlutoGraphic* NextDisplay)
 
 void DrawingWidgetsEngine::ConfigureOldScreen(PlutoGraphic* LastDisplay)
 {
+	PLUTO_SAFETY_LOCK(glm, *m_GLTextureThreadMutex);
 	if(this->LastDisplay)
 	{
 		delete this->LastDisplay;

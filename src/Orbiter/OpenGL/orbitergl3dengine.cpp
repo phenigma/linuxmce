@@ -222,7 +222,7 @@ int OrbiterGL3D::InitOpenGL()
 
 
 	glScalef(1, -1.0f, 1);
-	glTranslatef(0, -pOrbiter->m_iImageHeight, 0);
+	glTranslatef(0, -(GLfloat)pOrbiter->m_iImageHeight, 0);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);

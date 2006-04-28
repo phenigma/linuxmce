@@ -30,8 +30,8 @@ class DrawingWidgetsEngine
 	/**
 	 *	Safe thread mutex
 	 */
-	pluto_pthread_mutex_t* WidgetsMutex;
-	pthread_cond_t ListMutexCond;
+	pluto_pthread_mutex_t* m_GLTextureThreadMutex;
+	pthread_cond_t m_GLTextureThreadCond;
 public:
 	/**
 	 * Getters
@@ -51,7 +51,7 @@ public:
 	/*
 	 *	Default no-op destructor 
 	 */
-	~DrawingWidgetsEngine() {} 
+	~DrawingWidgetsEngine();
 	///	Painting routines
 	/**
 	 * Clear the openGL screen using an RGB based color
