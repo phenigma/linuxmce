@@ -20,7 +20,7 @@ Monitor == 1 && /EndSection/ {
 	}
 	else
 	{
-		print "\tHorizSync\t28-90";
+		print "\tHorizSync\t28-500";
 	}
 	print "\tVertRefresh\t" Refresh;
 	Monitor = 0;
