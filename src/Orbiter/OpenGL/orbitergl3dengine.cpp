@@ -39,12 +39,11 @@ OrbiterGL3D::OrbiterGL3D ()
 	  HighLighArea(NULL),
 	  SelectedArea(NULL),
 	  Widgets(NULL),
-	  EffectBuilder(NULL)  
+	  EffectBuilder(NULL),
+	  pOrbiterGL(NULL)
+
 {
 	Instance = this;
-#ifndef WIN32 // linux
-    m_pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
-#endif // linux
 }
 
 void OrbiterGL3D::Paint()
@@ -102,15 +101,18 @@ void OrbiterGL3D::EndAnimation()
 void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
-#ifndef WIN32 // linux
-    if (m_pOrbiterLinux)
-        m_pOrbiterLinux->X_LockDisplay();
-#endif // linux
-	SDL_GL_SwapBuffers();
-#ifndef WIN32 // linux
-    if (m_pOrbiterLinux)
-        m_pOrbiterLinux->X_UnlockDisplay();
-#endif // linux
+
+	#ifndef WIN32 // linux
+		OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
+		if (NULL != pOrbiterLinux)
+			pOrbiterLinux->X_LockDisplay();
+	#endif // linux
+		SDL_GL_SwapBuffers();
+	#ifndef WIN32 // linux
+		if (NULL != pOrbiterLinux)
+			pOrbiterLinux->X_UnlockDisplay();
+	#endif // linux
+
 #else // ndef POCKETFROG
 	SwapBuffers(hdc);
 #endif // ndef POCKETFROG
