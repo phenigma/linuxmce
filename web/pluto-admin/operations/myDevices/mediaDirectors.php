@@ -342,7 +342,7 @@ function mediaDirectors($output,$dbADO) {
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
-				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
+				$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec($cmd);
 				deleteDevice($value,$dbADO);
 				$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
@@ -351,7 +351,7 @@ function mediaDirectors($output,$dbADO) {
 			
 			if(isset($_POST['rebuild_diskless_'.$value])){
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
-				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
+				$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec($cmd);
 
 				header('Location: index.php?section=setupDisklessMD');

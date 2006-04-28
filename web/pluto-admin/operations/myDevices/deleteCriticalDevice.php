@@ -52,7 +52,7 @@ function deleteCriticalDevice($output,$dbADO) {
 		}
 		$deviceFields=getFieldsAsArray('Device','FK_DeviceTemplate,IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$deviceID);
 		if($deviceFields['FK_DeviceTemplate'][0]==$GLOBALS['rootMediaDirectorsID']){
-			$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$deviceFields['IPaddress'][0].'" "'.$deviceFields['MACaddress'][0].'"';
+			$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$deviceFields['IPaddress'][0].'" "'.$deviceFields['MACaddress'][0].'"';
 			exec($cmd);
 		}
 		
