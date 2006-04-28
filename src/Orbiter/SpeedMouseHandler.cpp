@@ -143,7 +143,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void SpeedMouseHandler::Move(int X,int Y)
+void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
     //g_pPlutoLogger->Write(LV_CRITICAL," SpeedMouseHandler::Move %d,%d",X,Y);
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;

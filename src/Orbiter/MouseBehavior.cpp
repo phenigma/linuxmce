@@ -24,17 +24,17 @@ using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 //class MouseSensitivity
-const int MouseSensitivity::SampleInterval = 50; //250; // 250 ms
+const int MouseSensitivity::SampleInterval = 200; //250; // 250 ms
 const int MouseSensitivity::DiscardSamplesOlderThanSec = 1500; // 1500 ms
 
 const int MouseSensitivity::Threshhold_1_Minimum=60;  // Minimum number of pixels to move
 const int MouseSensitivity::Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
 const int MouseSensitivity::Threshhold_2_Minimum=80;  // 20 pixels over 5 samples
 const int MouseSensitivity::Threshhold_2_Ratio=300;
-const int MouseSensitivity::Threshhold_2_Samples=12; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+const int MouseSensitivity::Threshhold_2_Samples=5; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
 const int MouseSensitivity::Threshhold_3_Minimum=80;
 const int MouseSensitivity::Threshhold_3_Ratio=200;
-const int MouseSensitivity::Threshhold_3_Samples=25;
+const int MouseSensitivity::Threshhold_3_Samples=10;
 
 const int MouseSensitivity::HoldTime = 750;
 const int MouseSensitivity::IgnoreMouseAfterReposition=10;
@@ -43,6 +43,8 @@ const int MouseSensitivity::NumberOfSamplesForNotch = 0;
 const int MouseSensitivity::DistanceForNotch=100;
 
 const int MouseSensitivity::UseAccelerationIfMovementsWithin=200;
+
+const int MouseSensitivity::IgnoreMovesLessThanThisPerSample=30;
 
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
@@ -96,6 +98,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 	m_bMouseHandler_Vertical_Exclusive=m_bMouseHandler_Horizontal_Exclusive=false;
 	m_dwTime_Last_Notch=0;
+	m_dwLastSampleShift=0;
 
 	if( bGotoMainMenu )
 	{
@@ -114,8 +117,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		Clear();
 		return; 
 	}
-if( sOptions=="LS" )
-int k=2;
+
 	DesignObj_Orbiter *pObj=NULL;
 	if( sDesignObj.size() )
 		pObj = m_pOrbiter->FindObject(sDesignObj);
@@ -210,27 +212,49 @@ void MouseBehavior::Move(int X,int Y)
 	//	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d   (%d)",X,Y,m_pOrbiter->m_pObj_Highlighted && m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST ? ((DesignObj_DataGrid *)m_pOrbiter->m_pObj_Highlighted)->m_iHighlightedRow : -999);
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 
+	if( m_pLastPosition.X==X && m_pLastPosition.Y==Y )
+		return; // Nothing to do 
+
 	unsigned long dwTime = ProcessUtils::GetMsTime();
-	if( dwTime-m_dwSamples[0]>MouseSensitivity::SampleInterval )
+	if( dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval )
 	{
-//g_pPlutoLogger->Write(LV_FESTIVAL,"Move ****************SHIFT*************");
-g_pPlutoLogger->Write(LV_CRITICAL,"MOVESXX %d  %d",m_pSamples[0].X,m_pSamples[0].Y);
+		g_pPlutoLogger->Write(LV_CRITICAL,"MOVESXX 2 dwtime:%d m_dwLastSampleShift %d m_dwSamples[0]: %d  diff: %d  samp: %d bool %s  %d  %d",
+			dwTime,m_dwLastSampleShift,m_dwSamples[0],dwTime-m_dwLastSampleShift,MouseSensitivity::SampleInterval,(dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval ? "Y" : "N"),m_pSamples[0].X,m_pSamples[0].Y);
+
+		m_dwLastSampleShift=dwTime;
+		if( abs(m_pSamples[0].X)<MouseSensitivity::IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<MouseSensitivity::IgnoreMovesLessThanThisPerSample )
+		{
+			bool bCancel=false;
+			if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
+				bCancel=m_pMouseHandler_Horizontal->SlowDrift(X,Y);
+			else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
+				bCancel=m_pMouseHandler_Horizontal->SlowDrift(X,Y);
+			if( bCancel )
+			{
+				ResetSamples();
+				m_pLastPosition.X=X; m_pLastPosition.Y=Y;
+				return;
+			}
+		}
+		
+		//g_pPlutoLogger->Write(LV_FESTIVAL,"Move ****************SHIFT*************");
 		ShiftSamples();
 		m_dwSamples[0]=dwTime;
 //		SetMousePosition(m_pOrbiter->m_iImageWidth/2,m_pOrbiter->m_iImageHeight/2); // So we don't hit limits too fast
 
 	}
 
-
-	if( m_pLastPosition.X==X && m_pLastPosition.Y==Y )
-		return; // Nothing to do 
 	if( m_pLastPosition.X!=-1 && m_pLastPosition.Y!=-1 )
 	{
 		m_pSamples[0].X += X - m_pLastPosition.X;
 		m_pSamples[0].Y += Y - m_pLastPosition.Y;
 	}
-	
-g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d at %d last: %d,%d XX %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d XX %d %d %d %d %d %d %d %d %d %d ",
+
+	m_pLastPosition.X=X; m_pLastPosition.Y=Y;
+	if( abs(m_pSamples[0].X)<MouseSensitivity::IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<MouseSensitivity::IgnoreMovesLessThanThisPerSample )
+	{
+		/*
+g_pPlutoLogger->Write(LV_FESTIVAL,"MOVESXX %d,%d at %d last: %d,%d XX %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d XX %d %d %d %d %d %d %d %d %d %d ",
 					  X,Y,dwTime,m_pLastPosition.X,m_pLastPosition.Y,
 					  m_pSamples[0].X,m_pSamples[0].Y,
 					  m_pSamples[1].X,m_pSamples[1].Y,
@@ -243,15 +267,32 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d at %d last: %d,%d XX %d,%d %d,%d %
 					  m_pSamples[8].X,m_pSamples[8].Y,
 					  m_pSamples[9].X,m_pSamples[9].Y,
 m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwSamples[5],m_dwSamples[6],m_dwSamples[7],m_dwSamples[8],m_dwSamples[9]);
-	m_pLastPosition.X=X; m_pLastPosition.Y=Y;
-
+*/
+		return;
+	}
+/*
+g_pPlutoLogger->Write(LV_WARNING,"MOVESXX %d,%d at %d last: %d,%d XX %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d XX %d %d %d %d %d %d %d %d %d %d ",
+					  X,Y,dwTime,m_pLastPosition.X,m_pLastPosition.Y,
+					  m_pSamples[0].X,m_pSamples[0].Y,
+					  m_pSamples[1].X,m_pSamples[1].Y,
+					  m_pSamples[2].X,m_pSamples[2].Y,
+					  m_pSamples[3].X,m_pSamples[3].Y,
+					  m_pSamples[4].X,m_pSamples[4].Y,
+					  m_pSamples[5].X,m_pSamples[5].Y,
+					  m_pSamples[6].X,m_pSamples[6].Y,
+					  m_pSamples[7].X,m_pSamples[7].Y,
+					  m_pSamples[8].X,m_pSamples[8].Y,
+					  m_pSamples[9].X,m_pSamples[9].Y,
+m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwSamples[5],m_dwSamples[6],m_dwSamples[7],m_dwSamples[8],m_dwSamples[9]);
+*/
 //if( CheckForChangeInDirection() )
 //g_pPlutoLogger->Write(LV_FESTIVAL,"change!!!!!!!!!");
 //return;
 
 	// Now m_pSamples[0] should be the amount of movement cumulative during the past sample period
 	char cLocked_Axis_Before = m_cLocked_Axis_Current;
-	if( CheckForChangeInDirection() )
+	int PK_Direction=0;
+	if( CheckForChangeInDirection(PK_Direction) )
 	{
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move Direction changed");
 		m_pStartMovement.X=X;
@@ -321,7 +362,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now Y, x locked to %d",m_iLock
 				X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
 				SetMousePosition(X,Y);
 			}
-			m_pMouseHandler_Horizontal->Move(X, Y);
+			m_pMouseHandler_Horizontal->Move(X, Y, PK_Direction);
 		}
 	}
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
@@ -347,23 +388,21 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Move Direction now Y, x locked to %d",m_iLock
 				Y = m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
 				SetMousePosition(X,Y);
 			}
-			m_pMouseHandler_Vertical->Move(X, Y);
+			m_pMouseHandler_Vertical->Move(X, Y, PK_Direction);
 		}
 	}
 }
 
 int iRound=0;
 
-bool MouseBehavior::CheckForChangeInDirection()
+bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 {
-	bool bChangeInDirectionEliminated=false;
 	if( (m_cLocked_Axis_Current == AXIS_LOCK_Y && m_bMouseHandler_Vertical_Exclusive) ||
 		(m_cLocked_Axis_Current == AXIS_LOCK_X && m_bMouseHandler_Horizontal_Exclusive) )
-			bChangeInDirectionEliminated=true;
+			return false;
 	
 	int CumulativeThisDirection=0,CumulativeOtherDirection=0;
-	int iNumNotches=0,DistanceUsedForNotches=0;
-	int PK_Direction = GetDirection(m_pSamples[0]);
+	PK_Direction = GetDirection(m_pSamples[0]);
 	if( !PK_Direction )
 		return false;
 	for(int i=0;i<NUM_SAMPLES;++i)
@@ -371,38 +410,7 @@ bool MouseBehavior::CheckForChangeInDirection()
 		int PK_Direction_Sample = GetDirection(m_pSamples[i],&CumulativeThisDirection,&CumulativeOtherDirection);
 		if( m_dwSamples[0]-m_dwSamples[i]>MouseSensitivity::DiscardSamplesOlderThanSec || PK_Direction_Sample!=PK_Direction )
 		{
-			if( iNumNotches )
-			{
-//	g_pPlutoLogger->Write(LV_CRITICAL,"MMouseBehavior::Notched i: %d vumulative %d ,m_dwSamples[i]:%d m_dwSamples[0]: %d m_dwTime_Last_Notch:%d distance_used %d # of notches %d",
-//i,CumulativeThisDirection,m_dwSamples[i],m_dwSamples[0],m_dwTime_Last_Notch,DistanceUsedForNotches,iNumNotches);
-				m_dwTime_Last_Notch = m_dwSamples[0];
-				if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
-					m_pMouseHandler_Horizontal->Notch(PK_Direction,iNumNotches);
-				else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
-					m_pMouseHandler_Vertical->Notch(PK_Direction,iNumNotches);
-			}
-//			g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::CheckForChangeInDirection Move sample %d is not direction %d it is %d",
-//				i,PK_Direction,PK_Direction_Sample);
 			return false;
-		}
-
-		if( i>=MouseSensitivity::NumberOfSamplesForNotch && CumulativeThisDirection-DistanceUsedForNotches>=MouseSensitivity::DistanceForNotch && m_dwSamples[i]>m_dwTime_Last_Notch )
-		{
-//]]			if( m_dwSamples[0]-m_dwTime_Last_Notch<MouseSensitivity::UseAccelerationIfMovementsWithin )
-//			{
-				int NotchesToMove = (CumulativeThisDirection-DistanceUsedForNotches)/MouseSensitivity::DistanceForNotch;
-				if( NotchesToMove>2 )
-					NotchesToMove-=1;
-				else
-					NotchesToMove=1;
-				iNumNotches+=NotchesToMove;
-				DistanceUsedForNotches+=(NotchesToMove*MouseSensitivity::DistanceForNotch);
-//			}
-//			else
-//			{
-//				iNumNotches++;
-//				DistanceUsedForNotches+=MouseSensitivity::DistanceForNotch;
-//			}
 		}
 
 		int Minimum,Ratio;
@@ -422,31 +430,23 @@ bool MouseBehavior::CheckForChangeInDirection()
 			Ratio=MouseSensitivity::Threshhold_1_Ratio;
 		}
 
-		if( !bChangeInDirectionEliminated && CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
+		if( CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::CheckForChangeInDirection i=%d cumulative this=%d other=%d  min=%d ratio=%d",i,CumulativeThisDirection,CumulativeOtherDirection,Minimum,Ratio);
 			if( PK_Direction==DIRECTION_Left_CONST || PK_Direction==DIRECTION_Right_CONST )
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_X )
-					bChangeInDirectionEliminated=true;
+					return false;
 				m_cLocked_Axis_Current = AXIS_LOCK_X;
 			}
 			else
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_Y )
-					bChangeInDirectionEliminated=true;
+					return false;
 				m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			}
 			return true;
 		}
-	}
-	if( iNumNotches )
-	{
-		m_dwTime_Last_Notch = m_dwSamples[0];
-		if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
-			m_pMouseHandler_Horizontal->Notch(PK_Direction,iNumNotches);
-		else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
-			m_pMouseHandler_Vertical->Notch(PK_Direction,iNumNotches);
 	}
 	return false;
 }

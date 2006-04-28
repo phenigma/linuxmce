@@ -25,6 +25,7 @@ namespace DCE
 	{
 		DesignObj_Orbiter *m_pObj_Highlighted;
 		bool m_bFirstTime; // Will be true the first time movement is locked onto this handler, false for subsequent times
+		int PK_Direction_Last;
 
 	public:
 		bool m_bActivatedObject; // Set to true whenever an object was activated
@@ -37,8 +38,9 @@ namespace DCE
 
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
-		void Move(int X,int Y);
+		void Move(int X,int Y,int PK_Direction);
 		void Notch(int PK_Direction,int iRepeat); // The user moved a 'notch' in the given direction
+		bool SlowDrift(int &X,int &Y); // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 
 		void ActivatedMainMenuPad();
 	};

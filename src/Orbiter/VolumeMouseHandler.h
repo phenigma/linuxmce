@@ -30,7 +30,7 @@ namespace DCE
 
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
-		void Move(int X,int Y);
+		void Move(int X,int Y,int PK_Direction);
 
 		void DrawSquare(int Notch,PlutoColor plutoColor);
 	};

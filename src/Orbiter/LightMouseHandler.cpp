@@ -78,7 +78,7 @@ bool LightMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void LightMouseHandler::Move(int X,int Y)
+void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	int NotchWidth = m_pObj->m_rPosition.Height/11; // Allow for 5 repeat levels in each direction
 	int Notch = (Y - m_pObj->m_rPosition.Y - m_pObj->m_pPopupPoint.Y) * 11 / 

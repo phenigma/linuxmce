@@ -83,7 +83,7 @@ bool VolumeMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void VolumeMouseHandler::Move(int X,int Y)
+void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	if( m_bTapAndRelease )
 	{

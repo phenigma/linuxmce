@@ -80,7 +80,7 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void KeyboardMouseHandler::Move(int X,int Y)
+void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 
 	if( !m_pObj )
@@ -102,7 +102,7 @@ void KeyboardMouseHandler::Move(int X,int Y)
 		return;
 	}
 
-	int PK_Direction = GetDirectionAwayFromHighlight(X,Y);
+	PK_Direction = GetDirectionAwayFromHighlight(X,Y);
 	if( PK_Direction )
 	{
 		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;

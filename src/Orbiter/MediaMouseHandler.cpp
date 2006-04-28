@@ -124,7 +124,7 @@ bool MediaMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void MediaMouseHandler::Move(int X,int Y)
+void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	if( !m_pObj || m_pObj->m_ChildObjects.size()==0 )
 		return; // Shouldn't happen, this should be the volume control

@@ -25,8 +25,8 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 			StringUtils::itos(atoi(m_pObj->m_ObjectID.c_str())) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
 		if( pObj_First )
 		{
-			m_pMouseBehavior->m_pStartMovement.X=m_pMouseBehavior->m_pOrbiter->m_iImageWidth/2; //pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
-			m_pMouseBehavior->m_pStartMovement.Y=m_pMouseBehavior->m_pOrbiter->m_iImageHeight/2;
+			m_pMouseBehavior->m_pStartMovement.X=pObj_First->m_rPosition.X + pObj_First->m_pPopupPoint.X + (pObj_First->m_rPosition.Width/2);
+			m_pMouseBehavior->m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
 			m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 			m_pObj_Highlighted=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
@@ -37,6 +37,7 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 
 void LockedMouseHandler::Start()
 {
+	PK_Direction_Last=0;
 	m_bActivatedObject = false;
 	if( m_bFirstTime )
 		m_bFirstTime=false;
@@ -101,11 +102,16 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void LockedMouseHandler::Move(int X,int Y)
+void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
+	if( PK_Direction_Last && PK_Direction!=PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	{
+		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
+		int X = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Width/2;
+		int Y = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Height/2;
+		m_pMouseBehavior->SetMousePosition(X,Y);
 		return;
-
+	}
 	//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
 //X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
@@ -194,5 +200,17 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 
 	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(pObj->m_ObjectID,pt.X,pt.Y,"","submenu",false,false);
 	m_pMouseBehavior->Set_Mouse_Behavior("LS",true,"Y",pObj->m_ObjectID);
+}
+
+bool LockedMouseHandler::SlowDrift(int &X,int &Y)
+{
+	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	{
+		X = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Width/2;
+		Y = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Height/2;
+		m_pMouseBehavior->SetMousePosition(X,Y);
+		return true;
+	}
+	return false;
 }
 

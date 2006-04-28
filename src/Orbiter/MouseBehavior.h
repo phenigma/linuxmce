@@ -42,9 +42,9 @@ namespace DCE
 
 		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
-		virtual void Move(int X,int Y) {}
+		virtual void Move(int X,int Y,int PK_Direction) {}
 		virtual void Notch(int PK_Direction,int iRepeat) {} // The user moved a 'notch' in the given direction
-
+		virtual bool SlowDrift(int &X,int &Y) { return false; } // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
@@ -70,6 +70,9 @@ namespace DCE
 		const static int NumberOfSamplesForNotch;
 		const static int DistanceForNotch;
 		const static int UseAccelerationIfMovementsWithin;
+
+		const static int IgnoreMovesLessThanThisPerSample;
+
 	};
 
 	//-----------------------------------------------------------------------------------------------------
@@ -98,6 +101,7 @@ namespace DCE
 		DesignObj_Orbiter *m_pObj_Locked_Horizontal,*m_pObj_Locked_Vertical;
 		MouseHandler *m_pMouseHandler_Horizontal,*m_pMouseHandler_Vertical;
 	    unsigned long m_dwSamples[NUM_SAMPLES];
+		unsigned long m_dwLastSampleShift;
 		PlutoPoint m_pSamples[NUM_SAMPLES];
 		PlutoPoint m_pLastPosition;
 		PlutoPoint m_pStartMovement;
@@ -118,7 +122,7 @@ namespace DCE
 		bool ButtonDown(int PK_Button);     // Return true means don't process this anymore
 		bool ButtonUp(int PK_Button);   // Return true means don't process this anymore
 		void Move(int X,int Y);
-		bool CheckForChangeInDirection();
+		bool CheckForChangeInDirection(int &PK_Direction);
 		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y);
 
 		void ResetSamples() { for(int i=0;i<NUM_SAMPLES;++i) m_dwSamples[i]=0; }
