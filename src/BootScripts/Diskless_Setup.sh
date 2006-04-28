@@ -139,7 +139,7 @@ for Client in $R; do
 		
 		## Create the a filesystem for this MD
 		#FIXME: Should we create this filesystem everytime ?
-		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$PK_Device" "$Activation_Code" "$Architecture"
+		/usr/pluto/bin/Diskless_CreateFS.sh "$IP" "$MAC" "$PK_Device" "$Architecture"
 		
 		## Check to see if we have a valid hardware adreess
 		/usr/pluto/bin/CheckMAC.sh "$MAC"

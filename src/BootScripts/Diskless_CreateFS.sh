@@ -3,15 +3,14 @@
 . /usr/pluto/bin/pluto.func
 
 if [[ "$#" -ne 5 ]]; then
-	echo "Syntax: $0 <IP> <MAC> <Device> <Activation Code> <Architecture>"
+	echo "Syntax: $0 <IP> <MAC> <Device> <Architecture>"
 	exit 1
 fi
 
 IP="$1"
 MAC="$2"
 Device="$3"
-Code="$4"
-Architecture="${5:-686}"
+Architecture="${4:-686}"
 
 FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$IP"
@@ -145,7 +144,7 @@ if [[ ! -d "$DlPath" || ! -f "$DlPath/etc/diskless.conf" ]]; then
 	conf="IP=$IP
 MAC=$MAC
 Device=$Device
-Code=$Code"
+Code="
 	echo "$conf" >etc/diskless.conf
 	[[ -d /home/backup && -f "/home/backup/pluto.conf-$IP" ]] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
 	mkdir -p "$DlPath"/usr/pluto/install
