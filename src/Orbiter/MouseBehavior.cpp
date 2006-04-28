@@ -448,6 +448,9 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 			return true;
 		}
 	}
+	// CIPRIAN 
+	// int LengthOfCompassArm=20;  // I'll figure this out laters
+	// MouseCompass->ShowCompass(m_pSamples[0],LengthOfCompassArm);
 	return false;
 }
 
