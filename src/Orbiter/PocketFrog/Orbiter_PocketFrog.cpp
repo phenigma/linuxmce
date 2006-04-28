@@ -56,6 +56,9 @@ const int ciSpaceHeight = 5;
 #define PROGRESS_BOTTOM_DISTANCE 50
 #define PROGRESS_HEIGHT 20
 
+#define TITLEBAR_HEIGHT 18
+#define BORDER_WIDTH 3
+//-----------------------------------------------------------------------------------------------------
 namespace ProgressBar
 {
 	PlutoColor TextColor(0xDD, 0xDD, 0xDD);
@@ -1710,4 +1713,13 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 	StartAnimation();
 #endif
 }
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::GetWindowPosition(PlutoPoint& point)
+{
+	RECT rect;
+	GetWindowRect(&rect);
 
+	point.X = rect.left + BORDER_WIDTH;
+	point.Y = rect.top + BORDER_WIDTH + TITLEBAR_HEIGHT;
+}
+//-----------------------------------------------------------------------------------------------------

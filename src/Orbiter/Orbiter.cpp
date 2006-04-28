@@ -4350,7 +4350,7 @@ bool Orbiter::GotActivity(  )
 #endif
 
 	if( !m_bDisplayOn ||
-		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()==m_pDesignObj_Orbiter_ScreenSaveMenu &&
+		(NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()==m_pDesignObj_Orbiter_ScreenSaveMenu &&
 		m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
 #ifdef DEBUG
@@ -4358,7 +4358,7 @@ bool Orbiter::GotActivity(  )
 #endif
 		if( !m_bDisplayOn )
 			CMD_Display_OnOff( "1",false );
-		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if( m_pDesignObj_Orbiter_ScreenSaveMenu && NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
 			GotoMainMenu();
@@ -4369,10 +4369,10 @@ bool Orbiter::GotActivity(  )
 		return false; // Don't do anything with this
 	}
 
-	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
+	if(  NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 
-	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
@@ -8365,6 +8365,8 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 		g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task refresh", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 		PopupCallBackData *pCallBackData = new PopupCallBackData();
 		pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+		pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
+		pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
 		pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
 		//TODO: add here to surface too to call back data
 		PopupManager::Instance().RefreshPopup(pCallBackData->m_ulPopupID, pCallBackData);
@@ -8456,11 +8458,16 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 #ifdef USE_POPUPMANAGER
 	g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task create", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 
-	//TODO Associate pObj with a E_DIALOG_TYPE 
 	PopupCallBackData *pCallBackData = new PopupCallBackData();
 	pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+	pCallBackData->m_rectPosition.X = iPosition_X;
+	pCallBackData->m_rectPosition.Y = iPosition_Y;
 	unsigned long ulPopupId = 0;
-	PopupManager::Instance().CreatePopup(E_Dialog_SpeedControl, pCallBackData, ulPopupId);
+	PopupManager::Instance().CreatePopup(
+		PopupManager::Instance().GetDialogTypeOfPopupObj(pPopup->m_pObj->m_iBaseObjectID), 
+		pCallBackData, 
+		ulPopupId
+	);
 	m_mapPopupDialogs.insert(make_pair(pPopup, ulPopupId));
 #endif
 
@@ -8528,6 +8535,8 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 				PopupCallBackData *pCallBackData = new PopupCallBackData();
 				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+				pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
+				pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
 				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
 				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
 				m_mapPopupDialogs.erase(pPopup);
@@ -8561,6 +8570,8 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 				PopupCallBackData *pCallBackData = new PopupCallBackData();
 				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
+				pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
+				pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
 				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
 				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
 				m_mapPopupDialogs.erase(pPopup);

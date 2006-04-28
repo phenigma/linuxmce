@@ -3,6 +3,10 @@
 #include "CallBackData.h"
 #include "OrbiterPopupFactory.h"
 
+#ifdef WIN32
+	#include "Win32/OrbiterWin32Defs.h"
+#endif
+
 #include "Logger.h"
 using namespace DCE;
 //--------------------------------------------------------------------------------------------------------------
@@ -20,8 +24,28 @@ PopupManagerImpl::~PopupManagerImpl(void)
 #endif
 }
 //--------------------------------------------------------------------------------------------------------------
+E_DIALOG_TYPE PopupManagerImpl::GetDialogTypeOfPopupObj(int nBaseObjectID)
+{
+#ifdef WIN32
+	return E_Dialog_Dummy_Orbiter_Dialog;
+#endif
+
+	switch(nBaseObjectID)
+	{
+		case 12345: //speed control's design obj
+			return E_Dialog_SpeedControl;
+		
+		default:
+			break;
+	}
+
+	return E_Dialog_Undefined;
+}
+//--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *pCallBackData)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	pCallBackData->m_ulPopupID = 0;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, aDialogType, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
@@ -32,6 +56,8 @@ bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData 
 //--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *pCallBackData, unsigned long& ulPopupID)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	pCallBackData->m_ulPopupID = ++m_ulPopupCounter;
 
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, aDialogType, pCallBackData);
@@ -43,6 +69,8 @@ bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData 
 //--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::RefreshPopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *pCallBackData)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, aDialogType, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
 
@@ -51,6 +79,8 @@ bool PopupManagerImpl::RefreshPopup(E_DIALOG_TYPE aDialogType, PopupCallBackData
 //--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::RefreshPopup(const unsigned long ulPopupID, PopupCallBackData *pCallBackData)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	map<unsigned long, E_DIALOG_TYPE>::iterator it = mapPopups.find(ulPopupID);
 	if(it == mapPopups.end())
 	{
@@ -95,6 +125,8 @@ bool PopupManagerImpl::HidePopup(const unsigned long ulPopupID, PopupCallBackDat
 //--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::ClosePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *pCallBackData/* = NULL*/)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, aDialogType, pCallBackData);
 	TaskManager::Instance().AddTask(pTask);
 
@@ -103,6 +135,8 @@ bool PopupManagerImpl::ClosePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *
 //--------------------------------------------------------------------------------------------------------------
 bool PopupManagerImpl::ClosePopup(const unsigned long ulPopupID, PopupCallBackData *pCallBackData/* = NULL*/)
 {
+	AdjustPopupPositionInfo(pCallBackData);
+
 	map<unsigned long, E_DIALOG_TYPE>::iterator it = mapPopups.find(ulPopupID);
 	if(it == mapPopups.end())
 	{
@@ -131,5 +165,18 @@ bool PopupManagerImpl::AnimatePopup(const unsigned long ulPopupID, PopupCallBack
 	//TODO: for window manager controller
 
 	return true;
+}
+//--------------------------------------------------------------------------------------------------------------
+void PopupManagerImpl::AdjustPopupPositionInfo(PopupCallBackData *pCallBackData)
+{
+	if(NULL != pCallBackData)
+	{
+#ifdef WIN32
+		PlutoPoint point;
+		ORBITER_CLASS::GetInstance()->GetWindowPosition(point);
+		pCallBackData->m_rectPosition.X += point.X;
+		pCallBackData->m_rectPosition.Y += point.Y;
+#endif 
+	}
 }
 //--------------------------------------------------------------------------------------------------------------

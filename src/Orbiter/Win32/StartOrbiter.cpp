@@ -2,34 +2,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "Simulator.h"
-
-#ifdef POCKETFROG
-	#include "Orbiter_PocketFrog.h"
-
-	#ifdef ORBITER
-	#undef ORBITER
-	#define ORBITER Orbiter_PocketFrog
-	#endif
-
-#else
-
-	#ifdef WINCE
-		#include "OrbiterSDL_WinCE.h"
-
-		#ifdef ORBITER
-		#undef ORBITER
-		#define ORBITER OrbiterSDL_WinCE
-		#endif
-	#else
-		#include "OrbiterSDL_Win32.h"
-
-		#ifdef ORBITER
-		#undef ORBITER
-		#define ORBITER OrbiterSDL_Win32
-		#endif
-	#endif
-
-#endif
+#include "Win32/OrbiterWin32Defs.h"
 
 using namespace DCE;
 using namespace std;
@@ -81,10 +54,10 @@ enum OrbiterStages
 	osQuit
 };
 //-----------------------------------------------------------------------------------------------------
-bool EventLoop(ORBITER* pOrbiter);
+bool EventLoop(ORBITER_CLASS* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
+ORBITER_CLASS *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
 	int Width,int Height, bool bFullScreen, bool bUseOpenGL, bool &bMustQuit)
 {
     bMustQuit = false;
@@ -95,11 +68,11 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	try
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
-		ORBITER::Cleanup();
+		ORBITER_CLASS::Cleanup();
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 
 		WriteStatusOutput("Building a new orbiter");
-		ORBITER::BuildOrbiter(
+		ORBITER_CLASS::BuildOrbiter(
 			PK_Device, PK_DeviceTemplate, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen, 
@@ -126,7 +99,7 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		return NULL;
 	}
 */
-	ORBITER *pOrbiter = ORBITER::GetInstance();
+	ORBITER_CLASS *pOrbiter = ORBITER_CLASS::GetInstance();
 
 	if(!bLocalMode)
 	{
@@ -139,7 +112,7 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
                 bMustQuit = true;
             else
             {
-                ORBITER::Cleanup();
+                ORBITER_CLASS::Cleanup();
                 return NULL;
             }
         }
@@ -148,7 +121,7 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	return pOrbiter;
 }
 //-----------------------------------------------------------------------------------------------------
-bool Run(ORBITER* pOrbiter, bool bLocalMode)
+bool Run(ORBITER_CLASS* pOrbiter, bool bLocalMode)
 {
 	WriteStatusOutput("Parsing configuration data...");
 	pOrbiter->WriteStatusOutput("Parsing configuration data...");
@@ -174,7 +147,7 @@ bool Run(ORBITER* pOrbiter, bool bLocalMode)
 	return EventLoop(pOrbiter);
 }
 //-----------------------------------------------------------------------------------------------------
-bool EventLoop(ORBITER* pOrbiter)
+bool EventLoop(ORBITER_CLASS* pOrbiter)
 {
 	if(Simulator::GetInstance()->m_bEnableGenerator)
 		Simulator::GetInstance()->StartRandomEventGenerator();
@@ -273,7 +246,7 @@ bool EventLoop(ORBITER* pOrbiter)
 void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 					int Width,int Height, bool bFullScreen, bool bUseOpenGL)
 {
-	ORBITER *pOrbiter = NULL;
+	ORBITER_CLASS *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
 
 	g_pDeadlockHandler=DeadlockHandler;

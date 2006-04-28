@@ -312,6 +312,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		PlutoGraphic *m_pGraphicBeforeHighlight;
 		PlutoRectangle m_rectLastHighlight;
 
+		virtual void GetWindowPosition(PlutoPoint& point) { point.X = point.Y = 0; }
+
 		// Be sure we're only reading the correct version
 		virtual bool OkayToDeserialize(int iSC_Version);
 

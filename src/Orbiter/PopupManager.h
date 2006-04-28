@@ -16,10 +16,8 @@ class PopupCallBackData;
 class PopupManagerImpl
 {
 private:
-	/*
-	*	Returns a pointer to popup
-	*/
-	IPopupDialog *GetPopup(const unsigned long ulPopupID);
+
+	void AdjustPopupPositionInfo(PopupCallBackData *pCallBackData);
 
 	//data
 	unsigned long m_ulPopupCounter;
@@ -28,6 +26,11 @@ private:
 public:
 	PopupManagerImpl(void);
 	~PopupManagerImpl(void);
+
+	/*
+	 *	Get the coresponding dialog type for a popup's design obj id
+	 */
+	E_DIALOG_TYPE GetDialogTypeOfPopupObj(int nBaseObjectID);
 
 	/*
 	 *	Creates a popup of type 'aDialogType'

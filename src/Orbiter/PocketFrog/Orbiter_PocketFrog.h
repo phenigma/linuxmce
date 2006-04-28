@@ -48,6 +48,8 @@ public:
 		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
 	virtual ~Orbiter_PocketFrog();
 
+	virtual void GetWindowPosition(PlutoPoint& point);
+
 	//from socket class
 	virtual void PingFailed();
 

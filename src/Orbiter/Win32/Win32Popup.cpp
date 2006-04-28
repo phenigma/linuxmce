@@ -29,7 +29,7 @@ void Win32Popup::Initialize()
 bool Win32Popup::InitWindow()
 {
 	RECT r = {m_rect.X, m_rect.Y, m_rect.X + m_rect.Width, m_rect.Y + m_rect.Height};
-	DWORD exStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT;
+	DWORD exStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW /*| WS_EX_TRANSPARENT*/;
 	DWORD style = (WS_VISIBLE | WS_POPUP) & ~WS_CAPTION;
 
 	if (!(m_hWnd = Create( 0, r, "win32 popup", style, exStyle )))
@@ -38,6 +38,7 @@ bool Win32Popup::InitWindow()
 		return false;
 	}
 
+	SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE);
 	ShowWindow(SW_SHOWNORMAL);
 	return true;
 }
@@ -100,10 +101,10 @@ LRESULT Win32Popup::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHand
 	PAINTSTRUCT ps;
 
 	BeginPaint( &ps );
-	HDC hdc = ::GetDC(m_hWnd);
+	HDC hdc = GetDC();
 	RECT rect = {0, 0, m_rect.Width, m_rect.Height};
 	::FillRect(hdc, &rect, (HBRUSH)::GetStockObject(LTGRAY_BRUSH));
-	::ReleaseDC(m_hWnd, hdc);
+	ReleaseDC(hdc);
 	EndPaint( &ps );
 
 	return 0L;
