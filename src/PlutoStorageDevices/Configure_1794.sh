@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Configuration script for : Device Template 1794 - Buffalo NAS HD-HG300LAN
+#
 
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Maxtor_openmss_EnableNFS.sh

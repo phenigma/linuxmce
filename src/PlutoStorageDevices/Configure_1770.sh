@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Configuration script for : Device Template 1770 - Maxtor NAS
+#
+
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/SQL_Ops.sh

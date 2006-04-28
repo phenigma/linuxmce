@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Configuration script for : Device Template 1790 - Generic Internal Drive
+#
+
 Params=("$@")
 for ((i = 0; i < ${#Params[@]}; i++)); do
 	case "${Params[$i]}" in
