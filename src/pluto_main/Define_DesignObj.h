@@ -2051,8 +2051,6 @@
 #define DESIGNOBJ_butShowFloorplans_CONST 4990
 #define DESIGNOBJ_butShowAdvanced_CONST 4991
 #define DESIGNOBJ_popMediaTypeOptionsPlaceholder_CONST 4992
-#define DESIGNOBJ_icoDownIndicator_CONST 4993
-#define DESIGNOBJ_icoUpIndicator_CONST 4994
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
