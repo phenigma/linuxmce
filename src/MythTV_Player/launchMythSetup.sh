@@ -12,6 +12,11 @@ if [[ -n "$MYTH_SETUP_PIDS" ]]; then
 fi;
 
 /etc/init.d/mythtv-backend stop
+PID=`pidof mythbackend`;
+
+if [ "$PID" != "" ] ; then 
+	kill -9 $PID;
+fi;
 
 echo -e "\n\n" | mythtv-setup 
 

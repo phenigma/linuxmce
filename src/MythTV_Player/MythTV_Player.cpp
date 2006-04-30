@@ -55,12 +55,6 @@ MythTV_Player *g_pMythPlayer = NULL;
 #define MYTH_SOCKET_TIMEOUT	5  // SECONDS
 
 #ifndef WIN32
-#include "utilities/linux/RatpoisonHandler.h"
-
-#include "X11/Xlib.h"
-#include "X11/Xutil.h"
-#include "X11/keysym.h"
-#include <X11/extensions/XTest.h>
 
 #include <sys/wait.h>
 
@@ -80,16 +74,6 @@ void sh(int i) /* signal handler */
 }
 
 #define MYTH_WINDOW_NAME "mythfrontend"
-
-class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
-{
-    Display *display;
-
-public:
-    RatPoisonWrapper(Display *display) : display(display) {}
-    Display *getDisplay() { return display; }
-    bool commandRatPoison(string command) { return RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
-};
 
 #endif
 
@@ -117,13 +101,10 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 	m_MythMutex.Init(NULL);
 	g_pMythPlayer = this;
 	m_pDevice_MythTV_Plugin=NULL;
-#ifndef WIN32 
-	m_pRatWrapper = NULL;
-	m_pMythSocket = NULL;
-#endif
     m_iMythFrontendWindowId = 0;
     m_bExiting = false;
     m_threadMonitorMyth = 0;
+    m_pDisplay = NULL;
     m_mythStatus = MYTHSTATUS_DISCONNECTED;
     
 }
@@ -145,9 +126,11 @@ bool MythTV_Player::GetConfig()
 	
  	system("killall mythfrontend");
 	Sleep(500);
-	m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 	signal(SIGCHLD, sh); /* install handler */
  	pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
+	
+	m_pDisplay = XOpenDisplay(getenv("DISPLAY")); 
+
  
 	return true;
 }
@@ -162,27 +145,23 @@ MythTV_Player::~MythTV_Player()
 	vector<void *> data;
 #ifndef WIN32
 	ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);
-
-    delete m_pRatWrapper;
 #endif
 	m_bExiting = true;
 	if (m_threadMonitorMyth != 0)
 		pthread_join(m_threadMonitorMyth, NULL);
 	delete m_pMythSocket;
+	if (m_pDisplay)
+		XCloseDisplay(m_pDisplay);
 }
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
 #ifndef WIN32
-	if ( ! m_pRatWrapper )
-		m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
-
 	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
 	
 	if( bSelectWindow )
 	{
 		selectWindow();
-		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
 	}
 #endif	
  	return true;
@@ -196,41 +175,8 @@ bool MythTV_Player::Register()
     return Connect(PK_DeviceTemplate_get());
 }
 
-bool MythTV_Player::checkXServerConnection()
-{
-#ifndef WIN32
-	if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
-	{
-		if ( !m_pRatWrapper )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
-			return false;
-		}
-
-		if ( !m_pRatWrapper->getDisplay() )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
-			return false;
-		}
-	}
-#endif
-	return true;
-}
 void MythTV_Player::CreateChildren()
 {
-/*
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
-
-#ifndef WIN32
-    if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
-    {
-		LaunchMythFrontend(false);
-        locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-    }
-#endif
-i*/
 }
 /*
     When you receive commands that are destined to one of your children,
@@ -278,7 +224,7 @@ void MythTV_Player::pollMythStatus()
 		PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 		LaunchMythFrontend();
-		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+		//locateMythTvFrontendWindow(DefaultRootWindow(getDisplay()));
 		m_CurrentMode.clear();
 		m_CurrentProgram.clear();
 		m_mythStatus = MYTHSTATUS_LIVETV;
@@ -368,9 +314,6 @@ void MythTV_Player::pollMythStatus()
 
 void MythTV_Player::selectWindow()
 {
-#ifndef WIN32
-    m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
-#endif
 }
 
 void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
@@ -379,25 +322,16 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
     Window oldWindow;
     int oldRevertBehaviour;
 
-	if ( ! checkXServerConnection())
-		return;
-
-	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
-	{
-            LaunchMythFrontend();
-            locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-	}
-
 	selectWindow();
 
-	XGetInputFocus( m_pRatWrapper->getDisplay(), &oldWindow, &oldRevertBehaviour);
-    XSetInputFocus( m_pRatWrapper->getDisplay(), (Window)m_iMythFrontendWindowId, RevertToParent, CurrentTime );
-    XTestFakeKeyEvent( m_pRatWrapper->getDisplay(), XKeysymToKeycode(m_pRatWrapper->getDisplay(), iXKeySym), True, 0 );
-    XTestFakeKeyEvent( m_pRatWrapper->getDisplay(), XKeysymToKeycode(m_pRatWrapper->getDisplay(), iXKeySym), False, 0 );
+	XGetInputFocus( getDisplay(), &oldWindow, &oldRevertBehaviour);
+    XSetInputFocus( getDisplay(), (Window)m_iMythFrontendWindowId, RevertToParent, CurrentTime );
+    XTestFakeKeyEvent( getDisplay(), XKeysymToKeycode(getDisplay(), iXKeySym), True, 0 );
+    XTestFakeKeyEvent( getDisplay(), XKeysymToKeycode(getDisplay(), iXKeySym), False, 0 );
     if ( oldWindow )
-        XSetInputFocus( m_pRatWrapper->getDisplay(), oldWindow, oldRevertBehaviour, CurrentTime );
+        XSetInputFocus( getDisplay(), oldWindow, oldRevertBehaviour, CurrentTime );
 
-    XFlush(m_pRatWrapper->getDisplay());
+    XFlush(getDisplay());
 #endif
 }
 
@@ -469,12 +403,12 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 {
 #ifndef WIN32
-	XTextProperty text;
+/*	XTextProperty text;
 
 	if ( ! checkXServerConnection())
 		return false;
 
-	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
+	if ( XGetWMName (getDisplay(), window, &text) && windowName == string((const char*)text.value) ) */
         return true;
 #endif
     return false;
@@ -482,12 +416,11 @@ bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 
 bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 {
+/*
 #ifndef WIN32
     Window parent_win, root_win, *child_windows;
     unsigned int num_child_windows;
 
-	if ( ! checkXServerConnection())
-		return false;
 
     if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
@@ -496,17 +429,17 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
         return true;
     }
 
-    XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
+    XQueryTree(getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
 
     for ( unsigned int i = 0; i < num_child_windows; i++ )
         if ( locateMythTvFrontendWindow(child_windows[i]) )
             return true;
 
-    /* we need to free the list of child IDs, as it was dynamically allocated */
-    /* by the XQueryTree function.                                            */
+     we need to free the list of child IDs, as it was dynamically allocated 
+     by the XQueryTree function.                                            
     XFree(child_windows);
-#endif
-    return false;
+#endif*/
+    return true;
 }
 
 /*
@@ -528,8 +461,6 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 //<-dceag-c187-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
 
 	vector<string> numbers;
 	StringUtils::Tokenize( sProgramID, "|", numbers );
@@ -539,7 +470,7 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 		return;
 	}
 
-	string sTuneCMD = string("play channel ")+numbers[0];
+	string sTuneCMD = string("play chanid ")+numbers[0];
 	sendMythCommand(sTuneCMD.c_str());
 }
 
@@ -646,9 +577,6 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
-
 	CMD_Move_Up(sCMD_Result, pMessage);
 }
 
@@ -661,9 +589,6 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
-
 	CMD_Move_Down(sCMD_Result, pMessage);
 }
 //<-dceag-c190-b->
@@ -689,8 +614,7 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	// sendMythCommand("key up");
-	processKeyBoardInputRequest(XK_Up);
-	
+	processKeyBoardInputRequest(XK_Up);	
 }
 
 //<-dceag-c201-b->
@@ -887,10 +811,8 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 {
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
 	
-	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+	if ( m_mythStatus == MYTHSTATUS_DISCONNECTED )
 	{
 		m_mythStatus = MYTHSTATUS_STARTUP;
 	}
@@ -920,9 +842,6 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	m_mythStatus = MYTHSTATUS_DISCONNECTED;
-
-	if ( ! checkXServerConnection())
-		return;
 
 	vector<void *> data;
 	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
@@ -975,6 +894,7 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 {
 	// We send left/right for this
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	string Direction, Speed;
 
 	switch(iMediaPlaybackSpeed)
 	{
@@ -998,26 +918,21 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 	case -2000:
 		sendMythCommand("play speed -2x");
 		break;
-	case 4000:
-		sendMythCommand("play speed 4x");
-		break;
-	case 8000:
-		sendMythCommand("play speed 8x");
-		break;
-	case 16000:
-		sendMythCommand("play speed 16x");
-		break;
-	case -4000:
-		sendMythCommand("play speed -4x");
-		break;
-	case -8000:
-		sendMythCommand("play speed -8x");
-		break;
-	case -16000:
-		sendMythCommand("play speed -16x");
-		break;
 	default:
-		g_pPlutoLogger->Write(LV_STATUS, "Don't know how to handle playback speed: \"%d\"", iMediaPlaybackSpeed);
+		if (iMediaPlaybackSpeed < 0)
+		{
+			Direction="-";
+			iMediaPlaybackSpeed = -iMediaPlaybackSpeed;
+		}
+		if(iMediaPlaybackSpeed < 1000)
+		{
+			Speed = "1/"+StringUtils::itos(1000/iMediaPlaybackSpeed);
+		}
+		else
+		{
+			Speed = StringUtils::itos(iMediaPlaybackSpeed / 1000);
+		}
+		sendMythCommand(StringUtils::Format("play speed %s%sx", Direction.c_str(), Speed.c_str()).c_str());
 		break;
 	}
 

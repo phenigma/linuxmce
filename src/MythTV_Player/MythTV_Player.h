@@ -15,6 +15,11 @@
 #include "Gen_Devices/MythTV_PlayerBase.h"
 //<-dceag-d-e->
 
+#include "X11/Xlib.h"
+#include "X11/Xutil.h"
+#include "X11/keysym.h"
+#include <X11/extensions/XTest.h>
+
 #include "DCE/PlainClientSocket.h"
 class RatPoisonWrapper;
 typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_STARTUP, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
@@ -32,27 +37,25 @@ namespace DCE
         /** Private member variables */
 	DeviceData_Base *m_pDevice_MythTV_Plugin;
 	PlainClientSocket *m_pMythSocket; 
-	
+
 	pthread_t		     m_threadMonitorMyth;
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
+	Display *m_pDisplay;
 	string m_CurrentMode, m_CurrentProgram;
-#ifndef WIN32
-		RatPoisonWrapper            *m_pRatWrapper;
-#endif
-		void selectWindow();
+	void selectWindow();
         bool checkWindowName(long unsigned int window, string windowName);
 
     protected:
         bool LaunchMythFrontend(bool bSelectWindow=true);
 
+	Display *getDisplay() { return m_pDisplay; };
         void processKeyBoardInputRequest(int iXKeySym);
 	string sendMythCommand(const char *Cmd);
 
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
         bool locateMythTvFrontendWindow(long unsigned int window);
 
-		bool checkXServerConnection();
         /** Private methods */
     public:
         /** Public member variables */
