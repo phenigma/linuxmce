@@ -209,6 +209,9 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 	case WMET_ENTER_KEY:
 		DoApplyScreen(AVWizardOptions->GetDictionary());
 		break;
+	case WMET_SAVE:
+		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
+		break;
 	case WMET_ESCAPE_KEY:
 		DoCancelScreen();	
 	}

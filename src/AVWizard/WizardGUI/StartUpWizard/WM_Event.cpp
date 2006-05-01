@@ -35,6 +35,12 @@ void WM_Event::EscapeKey()
 	this->Type = WMET_ESCAPE_KEY;
 }
 
+void WM_Event::Save()
+{
+	this->Type = WMET_SAVE;
+}
+
+
 void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 {
 	switch(Event.type)

@@ -6,6 +6,10 @@
 
 #include <iostream>
 
+#include "SettingsDictionaryTree.h"
+
+#include "Wizard.h"
+
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -39,6 +43,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 /*virtual*/ void WizardPageVideoResolution::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	this->GlobalSettings = AVWizardSettings;
 	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
 		(Page->GetChildRecursive("ListBox1"));
 
@@ -69,6 +74,11 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
 {
+	DoApplySetting(GlobalSettings);
+	WM_Event Event;
+	Event.Save();
+	Wizard::GetInstance()->GenerateCustomEvent(Event);
+
 	std::string ListBoxName = Selected->GetName();
 	#ifdef DEBUG
 	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
@@ -92,6 +102,11 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 /*virtual*/ void WizardPageVideoResolution::DoDecreaseSetting()
 {
+	DoApplySetting(GlobalSettings);
+	WM_Event Event;
+	Event.Save();
+	Wizard::GetInstance()->GenerateCustomEvent(Event);
+
 	std::string ListBoxName = Selected->GetName();
 	#ifdef DEBUG
 	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;

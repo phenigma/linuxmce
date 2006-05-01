@@ -9,7 +9,7 @@ class WizardPageVideoResolution :
 	public WizardPage
 {
 	WizardWidgetListBox* Selected;
-
+	SettingsDictionary* GlobalSettings;
 public:
 
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

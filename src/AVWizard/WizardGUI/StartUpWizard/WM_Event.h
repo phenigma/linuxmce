@@ -22,8 +22,9 @@
 #define WMET_DOWN_KEY			2004
 
 #define WMET_ENTER_KEY			2010
-#define WMET_ESCAPE_KEY			3000
+#define WMET_ESCAPE_KEY			2030
 
+#define WMET_SAVE				3010
 
 /**
  *	Helper class that converts SDL events 
@@ -68,6 +69,11 @@ public:
 	 *	Set the current event as Escape key event
 	 */
 	void EscapeKey();	
+
+	/**
+	 *	Set the current event as Escape key event
+	 */
+	void Save();	
 
 	/**
 	 *	Get the event information based on SDL_Event
