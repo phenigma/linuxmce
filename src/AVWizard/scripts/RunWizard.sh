@@ -23,18 +23,18 @@ SetDefaults()
 	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
 	StartX
 	export DISPLAY=:0
-	$Wiz -set Video_Ratio '4_3'
-	$Wiz -set Video_Resolution '640x480'
-	$Wiz -set Video_Refresh '60'
-	$Wiz -set Video_Output 'VGA' #TODO: parse X log and extract autodetected output
-	$Wiz -set AudioConnector 'Analog Stereo'
+	WizSet Video_Ratio '4_3'
+	WizSet Video_Resolution '640x480'
+	WizSet Video_Refresh '60'
+	WizSet Video_Output 'VGA' #TODO: parse X log and extract autodetected output
+	WizSet AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
-	$Wiz -set AudioVolumeMin "$AudioVolumeMin"
-	$Wiz -set AudioVolumeMax "$AudioVolumeMax"
-	$Wiz -set AudioVolumeCurrent "$AudioVolumeCurrent"
-	$Wiz -set AudioVolumeIncrement '1'
-	$Wiz -set DolbyTest '0'
-	$Wiz -set DTSTest '0'
+	WizSet AudioVolumeMin "$AudioVolumeMin"
+	WizSet AudioVolumeMax "$AudioVolumeMax"
+	WizSet AudioVolumeCurrent "$AudioVolumeCurrent"
+	WizSet AudioVolumeIncrement '1'
+	WizSet DolbyTest '0'
+	WizSet DTSTest '0'
 }
 
 Done=0

@@ -18,3 +18,19 @@ StopX()
 {
 	"$BaseDir"/Stop_X.sh
 }
+
+WizSet()
+{
+	local Var="$1" Value="$2"
+	
+	[[ -z "$Var" ]] && return 1
+	SDL_VIDEODEVICE=dummy "$Wiz" -set "$Var" "$Value" 2>/dev/null
+}
+
+WizSet()
+{
+	local Var="$1"
+	
+	[[ -z "$Var" ]] && return 1
+	SDL_VIDEODEVICE=dummy "$Wiz" -get "$Var" 2>/dev/null
+}

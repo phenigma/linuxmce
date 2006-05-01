@@ -10,9 +10,9 @@ case "$Param" in
 	;;
 	16[_:]9)
 		echo "--> Aspect ratio 16:9"
-		$Wiz -set Video_Radio '16_9'
-		$Wiz -set Video_Resolution '480p'
-		$Wiz -set Video_Refresh '60'
+		WizSet Video_Radio '16_9'
+		WizSet Video_Resolution '480p'
+		WizSet Video_Refresh '60'
 		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '848x480'
 		kill -USR1 $PPID
 	;;
