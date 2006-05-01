@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "CallBackTypes.h"
 #include "Task.h"
+#include "TaskManager.h"
 using namespace DCE;
 //--------------------------------------------------------------------------------------------------------------
 void *Win32PopupWorkerThread(void *p);
@@ -67,11 +68,22 @@ void Win32Popup::Run()
 				if(pTask->TaskType == cbOnDialogDelete)
 				{
 					::PostMessage( m_hWnd, WM_CLOSE, 0, 0 );
+					TaskManager::Instance().TaskProcessed(pTask->TaskId);
+
+					delete pTask->pCallBackData;
+					pTask->pCallBackData = NULL;
+					delete pTask;
+
 					break;
 				}
 				else
 				{
 					RefreshPopup(pTask->pCallBackData);
+					TaskManager::Instance().TaskProcessed(pTask->TaskId);
+
+					delete pTask->pCallBackData;
+					pTask->pCallBackData = NULL;
+					delete pTask;
 				}
 			}
 			else
@@ -114,7 +126,11 @@ void Win32Popup::RefreshPopup(CallBackData *pCallBackData)
 {
 	PopupBitmapCallBackData *pPopupBitmapCallBackData = dynamic_cast<PopupBitmapCallBackData *>(pCallBackData);
 
-	if(NULL != pPopupBitmapCallBackData)
+	if(
+		NULL != pPopupBitmapCallBackData && 
+		NULL != pPopupBitmapCallBackData->m_pRawBitmapData && 
+		pPopupBitmapCallBackData->m_ulSize > 0
+	)
 	{
 		char *pBytes = pPopupBitmapCallBackData->m_pRawBitmapData;
 
@@ -147,6 +163,9 @@ void Win32Popup::RefreshPopup(CallBackData *pCallBackData)
 
         delete [] lpbmpinfo;
 		lpbmpinfo = NULL;
+
+		delete [] (pPopupBitmapCallBackData->m_pRawBitmapData);
+		pPopupBitmapCallBackData->m_pRawBitmapData = NULL;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------

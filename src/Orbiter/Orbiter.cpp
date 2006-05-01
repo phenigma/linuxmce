@@ -459,6 +459,10 @@ Orbiter::~Orbiter()
 
 	if(!m_bUsingExternalScreenMutex)
 		pthread_mutex_destroy(&m_ScreenMutex.mutex);
+
+#ifdef USE_POPUPMANAGER
+	PopupManager::Destroy();
+#endif
 }
 
 //<-dceag-getconfig-b->!
@@ -8362,9 +8366,9 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 		pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
 		pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
 
-		//TODO: we'll need a faster way of getting the surface to be rendered on the popup
-		std::auto_ptr<PlutoGraphic> spPlutoGraphic(GetBackground(pCallBackData->m_rectPosition));
-		spPlutoGraphic->GetInMemoryBitmap(pCallBackData->m_pRawBitmapData, pCallBackData->m_ulSize);
+		PlutoGraphic *pPlutoGraphic = GetBackground(pCallBackData->m_rectPosition);
+		pPlutoGraphic->GetInMemoryBitmap(pCallBackData->m_pRawBitmapData, pCallBackData->m_ulSize);
+		delete pPlutoGraphic;
 
 		PopupManager::Instance().RefreshPopup(pCallBackData->m_ulPopupID, pCallBackData);
 #endif
@@ -8465,7 +8469,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 		pCallBackData, 
 		ulPopupId
 	);
-	m_mapPopupDialogs.insert(make_pair(pPopup, ulPopupId));
+	m_mapPopupDialogs[pPopup] = ulPopupId;
 #endif
 
 	ResetState(pObj_Popup);

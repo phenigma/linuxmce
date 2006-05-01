@@ -21,6 +21,7 @@ PopupManagerImpl::~PopupManagerImpl(void)
 {
 #ifdef WIN32
 	OrbiterPopupFactory::Instance().Deactivate();
+	OrbiterPopupFactory::Destroy();
 #endif
 }
 //--------------------------------------------------------------------------------------------------------------
@@ -73,7 +74,7 @@ bool PopupManagerImpl::RefreshPopup(E_DIALOG_TYPE aDialogType, PopupCallBackData
 	AdjustPopupPositionInfo(pCallBackData);
 
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, aDialogType, pCallBackData);
-	TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 
 	return true;
 }
@@ -91,7 +92,7 @@ bool PopupManagerImpl::RefreshPopup(const unsigned long ulPopupID, PopupCallBack
 
 	pCallBackData->m_ulPopupID = ulPopupID;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, it->second, pCallBackData);
-	TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 
 	return true;
 }
@@ -129,7 +130,7 @@ bool PopupManagerImpl::ClosePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData *
 	AdjustPopupPositionInfo(pCallBackData);
 
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, aDialogType, pCallBackData);
-	TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 
 	return true;
 }
@@ -147,7 +148,7 @@ bool PopupManagerImpl::ClosePopup(const unsigned long ulPopupID, PopupCallBackDa
 
 	pCallBackData->m_ulPopupID = ulPopupID;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, it->second, pCallBackData);
-	TaskManager::Instance().AddTask(pTask);
+	TaskManager::Instance().AddTaskAndWait(pTask);
 
 	return true;
 }
