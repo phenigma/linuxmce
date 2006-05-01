@@ -68,8 +68,8 @@ Surface* LoadImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t
 
 // Save an image to a .BMP file
 bool SaveImage( const Surface* surface, const TCHAR* filename );
-
-
+// Save an image to a memory block of data
+bool SaveImage( const Surface* const_surface, char*& pRawBitmapData, size_t& ulSize);
 
 } // end of namespace Frog
 

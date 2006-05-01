@@ -365,6 +365,88 @@ bool SaveImage( const Surface* const_surface, const TCHAR* filename )
     return true;
 }
 
+bool SaveImage( const Surface* const_surface, char*& pRawBitmapData, size_t& ulSize )
+{	
+	Surface* surface = const_cast<Surface*>( const_surface );
+
+	if (!surface)
+		return false;
+
+	// Lock the surface
+	Surface::LockInfo lockinfo;
+	if (!surface->Lock( lockinfo ))
+		return false;
+
+	//added 0-3 pixels to have width a multiple of 4
+	int width = surface->GetWidth() + ((surface->GetWidth() * sizeof(Pixel)) & 3);
+
+	BITMAPINFOHEADER info;
+	info.biSize          = sizeof(BITMAPINFOHEADER);
+	info.biWidth         = width;
+	info.biHeight        = surface->GetHeight();
+	info.biPlanes        = 1;
+	info.biBitCount      = 16;
+	info.biCompression   = BI_BITFIELDS;
+	info.biSizeImage     = info.biWidth * info.biHeight;
+	info.biXPelsPerMeter = 0;
+	info.biYPelsPerMeter = 0;
+	info.biClrUsed       = 0;
+	info.biClrImportant  = 0; 
+
+	uint32_t colors[3] = { RED_MASK, GREEN_MASK, BLUE_MASK };
+
+
+	BITMAPFILEHEADER header;
+	header.bfType      = 0x4d42;
+	header.bfSize      = sizeof(BITMAPFILEHEADER) + info.biSize + sizeof(colors) + info.biSizeImage;
+	header.bfReserved1 = 0;
+	header.bfReserved2 = 0;
+	header.bfOffBits   = sizeof(BITMAPFILEHEADER) + info.biSize + sizeof(colors);
+
+
+	ulSize = sizeof(header) + sizeof(info) + sizeof(colors) + 
+		surface->GetHeight() * width * sizeof(Pixel);
+
+	pRawBitmapData = new char[ulSize];
+	if(NULL == pRawBitmapData)
+	{
+		//not enough memory ??
+		surface->Unlock( true );
+		return false;
+	}
+	
+	char *pRawDataCursor = pRawBitmapData;
+	memcpy(pRawDataCursor, &header, sizeof(header));
+	pRawDataCursor += sizeof(header);
+	memcpy(pRawDataCursor, &info, sizeof(info));
+	pRawDataCursor += sizeof(info);
+	memcpy(pRawDataCursor, colors, sizeof(colors));
+	pRawDataCursor += sizeof(colors);
+	
+	// Write the image (must flip image vertically)
+	const Pixel* pixels = lockinfo.pixels;
+	pixels = (Pixel*)((uint8_t*)pixels + lockinfo.pitch * (surface->GetHeight()-1));
+
+	for (int h = surface->GetHeight(); h; --h)
+	{
+		memcpy(pRawDataCursor, pixels, surface->GetWidth() * sizeof(Pixel));
+		pRawDataCursor += surface->GetWidth() * sizeof(Pixel);
+
+		//added eventually extra black pixels
+		if(width > surface->GetWidth())
+		{
+			memset(pRawDataCursor, 0, (width - surface->GetWidth() + 1) * sizeof(Pixel));
+			pRawDataCursor += (width - surface->GetWidth() + 1) * sizeof(Pixel);
+		}
+
+		pixels = (Pixel*)((uint8_t*)pixels - lockinfo.pitch);
+	}
+
+	surface->Unlock( true );
+	return true;
+}
+
 
 
 } // end of namespace Frog
+
