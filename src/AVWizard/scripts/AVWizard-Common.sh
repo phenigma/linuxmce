@@ -11,24 +11,67 @@ Refresh_Rates=('50' '60' '65' '72' '75' '80' '85' '100' '120')
 
 XF86Config="/etc/X11/XF86Config-4"
 
+Resolution_Get()
+{
+	local Ratio="$1" Resolution="$2" Op="$3"
+	local Idx Resolution_Array
+
+	case "$Ratio" in
+		4_3) Resolution_Array=("${Resolutions_VESA[@]}") ;;
+		16_9) Resolution_Array=("${Resolutions_HDTV[@]}") ;;
+	esac
+	
+	Idx=$(FindInArray_Prefix "$Resolution" "${Resolution_Array[@]}") ;;
+	[[ -z "$Idx" ]] && Idx=0
+
+	case "$Op" in
+		+) [[ "$Idx" -lt "${#Resolution_Array[*]}" ]] && ((Idx++)) ;;
+		-) [[ "$Idx" -gt 0 ]] && ((Idx--)) ;;
+	esac
+	echo "${Resolution_Array[$Idx]}"
+}
+
 Resolution_Next()
 {
 	local Ratio="$1" Resolution="$2"
+
+	Resolution_Get "$Ratio" "$Resolution" +
 }
 
 Resolution_Prev()
 {
 	local Ratio="$1" Resolution="$2"
+
+	Resolution_Get "$Ratio" "$Resolution" -
+}
+
+Refresh_Get()
+{
+	local Refresh="$1" Op="$2"
+	local Idx
+
+	Idx=$(FindInArray "$Refresh" "${Refresh_Rates[@]}")
+	[[ -z "$Idx" ]] && Idx=0
+
+	case "$Op" in
+		+) [[ "$Idx" -lt "${#Refresh_Rates[@]}" ]] && ((Idx++)) ;;
+		-) [[ "$Idx" -gt 0 ]] && ((Idx--)) ;;
+	esac
+	echo "${Refresh_Rates[$Idx]}"
 }
 
 Refresh_Next()
 {
 	local Refresh="$1"
+
+	Refresh_Get "$Refresh" +
 }
 
 Refresh_Prev()
 {
 	local Refresh="$1"
+
+	Refresh_Get "$Refresh" -
 }
 
 StartX()
