@@ -1,3 +1,11 @@
 #!/bin/bash
 
-killall /usr/bin/icewm-session
+XClient=/usr/bin/icewm-session
+
+for ((i = 1; i < "$#"; i++)); do
+	case "${!i}" in
+		--client) ((i++)); XClient=${!i} ;;
+	esac
+done
+
+killall "$XClient"
