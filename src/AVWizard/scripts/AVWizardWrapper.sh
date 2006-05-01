@@ -3,8 +3,9 @@
 . /usr/pluto/bin/AVWizard-Common.sh
 
 Done=0
+NextStep=1
 while [[ "$Done" -eq 0 ]]; do
-	$Wiz
+	$Wiz -step "$NextStep"
 	Ret=$?
 	case "$Ret" in
 		0|1) exit $Ret ;;
@@ -15,6 +16,6 @@ while [[ "$Done" -eq 0 ]]; do
 	Video_Refresh=$(WizGet Video_Refresh)
 
 	case "$WizStep" in
-		1) "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$Video_Resolution@$Video_Refresh" ;;
+		1) NextStep=2 ;;
 	esac
 done

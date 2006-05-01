@@ -9,6 +9,26 @@ Refresh_Rates="50 60 65 72 75 80 85 100 120"
 
 XF86Config="/etc/X11/XF86Config-4"
 
+Resolution_Next()
+{
+	local Ratio="$1" Resolution="$2"
+}
+
+Resolution_Prev()
+{
+	local Ratio="$1" Resolution="$2"
+}
+
+Refresh_Next()
+{
+	local Refresh="$1"
+}
+
+Refresh_Prev()
+{
+	local Refresh="$1"
+}
+
 StartX()
 {
 	"$BaseDir"/Start_X.sh
@@ -17,6 +37,12 @@ StartX()
 StopX()
 {
 	"$BaseDir"/Stop_X.sh
+}
+
+RestartX()
+{
+	StopX
+	StartX
 }
 
 WizSet()
