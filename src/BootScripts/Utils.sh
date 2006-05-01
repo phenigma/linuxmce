@@ -89,3 +89,19 @@ DeviceIsDisabled()
 		return 1 # Device exists and is enabled
 	fi
 }
+
+FindInArray()
+{
+	local Value="$1"
+	shift
+	local Array=("$@")
+	local i
+	
+	for ((i = 0; i < ${#Array[*]}; i++)); do
+		if [[ "$Value" == "${Array[$i]}" ]]; then
+			echo "$i"
+			return 0
+		fi
+	done
+	return 1
+}
