@@ -21,7 +21,7 @@ Resolution_Get()
 		16_9) Resolution_Array=("${Resolutions_HDTV[@]}") ;;
 	esac
 	
-	Idx=$(FindInArray_Prefix "$Resolution" "${Resolution_Array[@]}") ;;
+	Idx=$(FindInArray_Prefix "$Resolution" "${Resolution_Array[@]}")
 	[[ -z "$Idx" ]] && Idx=0
 
 	case "$Op" in
