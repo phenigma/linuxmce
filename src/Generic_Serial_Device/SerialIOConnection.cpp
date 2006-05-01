@@ -76,18 +76,19 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	if(psp_ != NULL) {
 		g_pPlutoLogger->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
 									serport_.c_str(), size, timeout);
-		int retsize = psp_->Read(buff, size, timeout);
+		size_t retsize = psp_->Read(buff, size, timeout);
 		if(retsize == 0) {
 			g_pPlutoLogger->Write(LV_STATUS, "Received EOF. Closing Connection.");
-			Close();		
-		} else
-		if(retsize < 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "Timeout receiving data.");
-		} else {
+			Close();
+		}
+		else {
 			g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
 									serport_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize, "33").c_str());
 		}
-		return retsize;
+		
+		// ugly, the serial API should be consistent between IOConnection and SerialPort
+		// try to use size_t
+		return (int)retsize;
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Trying to receive DATA while not connected.");
 		return -1;
