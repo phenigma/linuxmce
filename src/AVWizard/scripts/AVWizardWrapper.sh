@@ -12,8 +12,8 @@ while [[ "$Done" -eq 0 ]]; do
 	esac
 	WizStep=$(WizGet CurrentStep)
 	Video_Ratio=$(WizGet Video_Radio)
-	Video_Resolution=$(WizGet Video_Resolution)
-	Video_Refresh=$(WizGet Video_Refresh)
+	VideoResolution=$(WizGet VideoResolution)
+	VideoRefresh=$(WizGet VideoRefresh)
 
 	case "$WizStep" in
 		1) NextStep=2 ;;

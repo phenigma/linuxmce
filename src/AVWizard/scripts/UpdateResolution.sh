@@ -11,30 +11,30 @@ case "$Param" in
 	16[_:]9)
 		echo "--> Aspect ratio 16:9"
 		WizSet Video_Ratio '16_9'
-		WizSet Video_Resolution '480p'
-		WizSet Video_Refresh '60'
+		WizSet VideoResolution '480p'
+		WizSet VideoRefresh '60'
 		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '848x480'
 		RestartX
 		kill -USR1 $PPID
 	;;
 	resolution[+-])
 		Video_Ratio=$(WizGet Video_Ratio)
-		Video_Resolution=$(WizGet Video_Resolution)
-		echo "--> Resolution cmd: $Param; Ratio: $Video_Ratio; Current resolution: $Video_Resolution"
+		VideoResolution=$(WizGet VideoResolution)
+		echo "--> Resolution cmd: $Param; Ratio: $Video_Ratio; Current resolution: $VideoResolution"
 		case "${Param#resolution}" in
-			+) Video_Resolution_New=$(Resolution_Next "$Video_Ratio" "$Video_Resolution") ;;
-			-) Video_Resolution_New=$(Resolution_Prev "$Video_Ratio" "$Video_Resolution") ;;
+			+) VideoResolution_New=$(Resolution_Next "$Video_Ratio" "$VideoResolution") ;;
+			-) VideoResolution_New=$(Resolution_Prev "$Video_Ratio" "$VideoResolution") ;;
 		esac
-		echo "--> New resolution: $Video_Resolution_New"
+		echo "--> New resolution: $VideoResolution_New"
 	;;
 	refresh[+-])
-		Video_Refresh=$(WizGet Video_Refresh)
-		echo "--> Refresh cmd: $Param; Ratio: $Video_Ratio; Current refresh: $Video_Refresh"
+		VideoRefresh=$(WizGet VideoRefresh)
+		echo "--> Refresh cmd: $Param; Ratio: $Video_Ratio; Current refresh: $VideoRefresh"
 		case "${Param#refresh}" in
-			+) Video_Refresh_New=$(Refresh_Next "$Video_Refresh") ;;
-			-) Video_Refresh_New=$(Refresh_Prev "$Video_Refresh") ;;
+			+) VideoRefresh_New=$(Refresh_Next "$VideoRefresh") ;;
+			-) VideoRefresh_New=$(Refresh_Prev "$VideoRefresh") ;;
 		esac
-		echo "--> New refresh: $Video_Refresh_New"
+		echo "--> New refresh: $VideoRefresh_New"
 	;;
 	*) echo "Unknown parameter: '$Param'"; exit 1 ;;
 esac

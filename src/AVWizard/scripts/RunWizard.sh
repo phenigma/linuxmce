@@ -24,8 +24,8 @@ SetDefaults()
 	StartX
 	export DISPLAY=:0
 	WizSet Video_Ratio '4_3'
-	WizSet Video_Resolution '640x480'
-	WizSet Video_Refresh '60'
+	WizSet VideoResolution '640x480'
+	WizSet VideoRefresh '60'
 	WizSet Video_Output 'VGA' #TODO: parse X log and extract autodetected output
 	WizSet AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
