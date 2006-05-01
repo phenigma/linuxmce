@@ -405,13 +405,14 @@ bool SaveImage( const Surface* const_surface, char*& pRawBitmapData, size_t& ulS
 
 
 	ulSize = sizeof(header) + sizeof(info) + sizeof(colors) + 
-		surface->GetHeight() * width * sizeof(Pixel);
+		(surface->GetHeight() + 1) * width * sizeof(Pixel);
 
 	pRawBitmapData = new char[ulSize];
 	if(NULL == pRawBitmapData)
 	{
 		//not enough memory ??
 		surface->Unlock( true );
+		ulSize = 0;
 		return false;
 	}
 	
