@@ -45,8 +45,17 @@ while [[ $# -gt 0 ]]; do
 			else
 				Refresh=60
 			fi
+			
 			ResX=${Resolution%%x*}
 			ResY=${Resolution#*x}
+			if [[ "$ResY" == *i ]]; then
+				ResY="${ResY%i}"
+				ScanType="interlace"
+			elif [[ "$ResY" == *p ]]; then
+				ResY="${ResY%p}"
+				ScanType=
+			fi
+			
 			if [[ -z "$ResX" || -z "$ResY" || -z "$Refresh" || "$ResX" == *[![:digit:]]* || "$ResY" == *[![:digit:]]* || "$Refresh" == *[![:digit:]]* ]]; then
 				echo "Mismatched resolution '$Resolution@$Refresh'. Use format: <ResX>x<ResY>@<Refresh>"
 				exit 1
