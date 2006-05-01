@@ -16,5 +16,5 @@ StartX()
 
 StopX()
 {
-	: # TODO: Stop the X server started by StartX
+	"$BaseDir"/Stop_X.sh
 }
