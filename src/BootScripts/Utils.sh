@@ -92,13 +92,27 @@ DeviceIsDisabled()
 
 FindInArray()
 {
-	local Value="$1"
+	local Value="$1" Array i
 	shift
-	local Array i
 	Array=("$@")
 	
 	for ((i = 0; i < ${#Array[*]}; i++)); do
 		if [[ "$Value" == "${Array[$i]}" ]]; then
+			echo "$i"
+			return 0
+		fi
+	done
+	return 1
+}
+
+FindInArray_Prefix()
+{
+	local Value="$1" Array i
+	shift
+	Array=("$@")
+
+	for ((i = 0; i < ${#Array[*]}; i++)); do
+		if [[ "$Value" == "${Array[$i]}"* ]]; then
 			echo "$i"
 			return 0
 		fi
