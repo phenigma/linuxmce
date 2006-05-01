@@ -8347,21 +8347,25 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
 #endif
-	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
 	if(pPopup->m_pObj)
 	{
 		RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
 
 #ifdef USE_POPUPMANAGER
-		//PlutoGraphic *pPlutoGraphic = GetBackground(pPopup->m_pObj->m_rPosition);
 		g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task refresh", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-		PopupCallBackData *pCallBackData = new PopupCallBackData();
+
+		PopupBitmapCallBackData *pCallBackData = new PopupBitmapCallBackData();
 		pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
 		pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
 		pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
 		pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
-		//TODO: add here to surface too to call back data
+
+		//TODO: we'll need a faster way of getting the surface to be rendered on the popup
+		std::auto_ptr<PlutoGraphic> spPlutoGraphic(GetBackground(pCallBackData->m_rectPosition));
+		spPlutoGraphic->GetInMemoryBitmap(pCallBackData->m_pRawBitmapData, pCallBackData->m_ulSize);
+
 		PopupManager::Instance().RefreshPopup(pCallBackData->m_ulPopupID, pCallBackData);
 #endif
 	}

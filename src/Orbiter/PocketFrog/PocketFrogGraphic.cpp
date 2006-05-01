@@ -65,7 +65,9 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         }
 	}
 
-#ifndef WINCE
+#ifndef WINCE 
+	//windows CE has native support for png files
+	//we only need this for windows xp version
 	if( !m_pSurface ) //maybe it's a png ?
 	{
 		FileUtils::WriteBufferIntoFile("tmp.img", pData, iSize); //hack :(
@@ -164,5 +166,10 @@ PlutoGraphic *PocketFrogGraphic::Clone()
 	pDestionationRasterizer->Blit(0, 0, m_pSurface, &srcRect);
 
 	return new PocketFrogGraphic(pSurface);
+}
+//-------------------------------------------------------------------------------------------------------
+bool PocketFrogGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
+{
+	return SaveImage(m_pSurface, pRawBitmapData, ulSize);
 }
 //-------------------------------------------------------------------------------------------------------

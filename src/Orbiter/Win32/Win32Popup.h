@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../CallBackData.h"
 #include "../OrbiterPopup.h"
 #include "../PlutoUtils/MultiThreadIncludes.h"
 //--------------------------------------------------------------------------------------------------------------
@@ -22,6 +23,7 @@ public:
 	Win32Popup(E_DIALOG_TYPE aDialogType, PopupCallBackData *pCallBackData);
 	void Initialize();
 	void Run();
+	void RefreshPopup(CallBackData *pCallBackData);
 
 private:
 	pthread_t m_WorkerThreadID;

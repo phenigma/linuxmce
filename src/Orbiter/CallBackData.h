@@ -36,6 +36,17 @@ public:
 	virtual ~PopupCallBackData() {}
 };
 //-----------------------------------------------------------------------------------------------------
+class PopupBitmapCallBackData : public PopupCallBackData
+{
+public:
+	char *m_pRawBitmapData;
+	size_t m_ulSize;
+
+	PopupBitmapCallBackData(): PopupCallBackData(),
+		m_pRawBitmapData(NULL), m_ulSize(0) {}
+	virtual ~PopupBitmapCallBackData() {}
+};
+//-----------------------------------------------------------------------------------------------------
 class KeyCallBackData : public CallBackData
 {
 public:

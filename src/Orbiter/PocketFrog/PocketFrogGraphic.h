@@ -21,6 +21,7 @@ public:
 	void Clear(); 
     PlutoGraphic *GetHighlightedVersion();
 	PlutoGraphic *Clone();
+	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
 
 	class Surface *m_pSurface;
 };

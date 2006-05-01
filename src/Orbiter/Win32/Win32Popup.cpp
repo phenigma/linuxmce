@@ -71,7 +71,7 @@ void Win32Popup::Run()
 				}
 				else
 				{
-					//process the refresh here
+					RefreshPopup(pTask->pCallBackData);
 				}
 			}
 			else
@@ -110,6 +110,46 @@ LRESULT Win32Popup::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHand
 	return 0L;
 }
 //--------------------------------------------------------------------------------------------------------------
+void Win32Popup::RefreshPopup(CallBackData *pCallBackData)
+{
+	PopupBitmapCallBackData *pPopupBitmapCallBackData = dynamic_cast<PopupBitmapCallBackData *>(pCallBackData);
+
+	if(NULL != pPopupBitmapCallBackData)
+	{
+		char *pBytes = pPopupBitmapCallBackData->m_pRawBitmapData;
+
+		BITMAPFILEHEADER fileheader;
+		memcpy(&fileheader, pBytes, sizeof(BITMAPFILEHEADER));
+		pBytes += sizeof(BITMAPFILEHEADER);
+
+		uint32_t colors[3];
+		LPBITMAPINFO lpbmpinfo = (LPBITMAPINFO) new BYTE[sizeof(BITMAPINFOHEADER) + (1 * sizeof(colors))];
+
+		memcpy(&lpbmpinfo->bmiHeader, pBytes, sizeof(BITMAPINFOHEADER));
+		pBytes += sizeof(BITMAPINFOHEADER);
+
+		memcpy(&lpbmpinfo->bmiColors, pBytes, sizeof(colors));
+		pBytes += sizeof(colors);
+
+		HDC hdc = GetDC();
+		::SetDIBitsToDevice(
+			hdc, // handle to DC
+			0, 0, // x-y-coord of destination upper-left corner
+			lpbmpinfo->bmiHeader.biWidth, lpbmpinfo->bmiHeader.biHeight, // width-height of source rectangle
+			0, 0, // x-y-coord of source upper-left corner
+			0, //uStartScan,// first scan line in array
+			lpbmpinfo->bmiHeader.biHeight, // number of scan lines
+			pBytes, // array of DIB bits
+			lpbmpinfo, // bitmap information
+			DIB_RGB_COLORS
+		); // RGB vs. palette indexes ... RGB means raw
+		ReleaseDC(hdc);
+
+        delete [] lpbmpinfo;
+		lpbmpinfo = NULL;
+	}
+}
+//--------------------------------------------------------------------------------------------------------------
 void *Win32PopupWorkerThread(void *p)
 {
 	Win32Popup *pWin32Popup = static_cast<Win32Popup *>(p);
@@ -123,4 +163,3 @@ void *Win32PopupWorkerThread(void *p)
 	return NULL;
 }
 //--------------------------------------------------------------------------------------------------------------
-

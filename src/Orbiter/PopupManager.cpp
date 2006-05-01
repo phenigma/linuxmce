@@ -49,7 +49,7 @@ bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData 
 	pCallBackData->m_ulPopupID = 0;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, aDialogType, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
-	mapPopups.insert(make_pair(pCallBackData->m_ulPopupID, aDialogType));
+	mapPopups[0] = aDialogType;
 
 	return true;
 }
@@ -58,11 +58,12 @@ bool PopupManagerImpl::CreatePopup(E_DIALOG_TYPE aDialogType, PopupCallBackData 
 {
 	AdjustPopupPositionInfo(pCallBackData);
 
-	pCallBackData->m_ulPopupID = ++m_ulPopupCounter;
+	ulPopupID = ++m_ulPopupCounter;
+	pCallBackData->m_ulPopupID = ulPopupID;
 
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, aDialogType, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
-	mapPopups.insert(make_pair(pCallBackData->m_ulPopupID, aDialogType));
+	mapPopups[ulPopupID] = aDialogType;
 
 	return true;
 }
@@ -72,7 +73,7 @@ bool PopupManagerImpl::RefreshPopup(E_DIALOG_TYPE aDialogType, PopupCallBackData
 	AdjustPopupPositionInfo(pCallBackData);
 
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, aDialogType, pCallBackData);
-	TaskManager::Instance().AddTaskAndWait(pTask);
+	TaskManager::Instance().AddTask(pTask);
 
 	return true;
 }
@@ -90,7 +91,7 @@ bool PopupManagerImpl::RefreshPopup(const unsigned long ulPopupID, PopupCallBack
 
 	pCallBackData->m_ulPopupID = ulPopupID;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, it->second, pCallBackData);
-	TaskManager::Instance().AddTaskAndWait(pTask);
+	TaskManager::Instance().AddTask(pTask);
 
 	return true;
 }

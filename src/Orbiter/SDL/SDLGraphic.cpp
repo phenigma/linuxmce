@@ -194,3 +194,11 @@ PlutoGraphic* SDLGraphic::Clone()
 	SDL_Surface* Surface = SDL_DisplayFormat(this->m_pSDL_Surface);
 	return new SDLGraphic(Surface);
 }
+
+bool SDLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
+{	
+	//TODO : implement me!
+    pRawBitmapData = NULL;	
+	ulSize = 0;
+	return false;
+}

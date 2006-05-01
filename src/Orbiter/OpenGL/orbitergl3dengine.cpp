@@ -40,8 +40,10 @@ OrbiterGL3D::OrbiterGL3D ()
 	  SelectedArea(NULL),
 	  Widgets(NULL),
 	  EffectBuilder(NULL),
-	  pOrbiterGL(NULL),
-      m_pOrbiterLinux(NULL)
+	  pOrbiterGL(NULL)
+#ifndef WIN32	  
+	  , m_pOrbiterLinux(NULL)
+#endif
 {
 	Instance = this;
 }
@@ -246,7 +248,10 @@ OrbiterGL3D* OrbiterGL3D::GetInstance()
 int OrbiterGL3D::BuildOrbiterGL(Orbiter * pOrbiterGL)
 {
 	this->pOrbiterGL = pOrbiterGL;
-    OrbiterLinux *m_pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
+
+#ifndef WIN32
+    m_pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
+#endif
 
 	FloatRect FullScreenSize(0.0f, 0.0f, float(pOrbiterGL->m_iImageWidth), float(pOrbiterGL->m_iImageHeight));
 
