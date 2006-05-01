@@ -1,37 +1,29 @@
 #!/bin/bash
 
-function LogMessage {
+function LogMsg {
 	echo $(date -R) $*
 }
 
-if [[ "$(pidof evrouter)" != "" ]]; then
-	LogMessage "Evrouter allready running, exiting"
-	exit 0
-fi
 
-LogMessage "Removing everouter lock file"
-rm -f /tmp/.evrouter*
-
-LogMessage "Waiting for Xorg to start"
-couter=0
-while [[ "$(ps -A | grep Xorg | wc -l)" == "0" && "$counter" != "20" ]]; do
-	echo  -n "."
-	sleep 0.5
-	counter=$(( $counter + 1 ))
-done
-echo
-
-if [[ "$counter" == "20" ]] ;then
-	LogMessage "Xorg faild to start, extiting"
-	exit 0
-fi
+while true; do
 
 if [[ ! -h /dev/input/gyration ]] ;then
-	LogMessage "Device /dev/input/gyration not found, exiting"
-	exit 0
+	LogMsg "Device /dev/input/gyration not found, sleeping for 5 seconds"
+	sleep 5s
 fi
 
-LogMessage "Starting evrouter for /dev/input/gyration"
-export DISPLAY=:0 
-/usr/bin/evrouter /dev/input/gyration
+if [[ "$(pidof X)" == "" ]]; then
+	LogMsg "Xorg not found running, sleeping for 5 seconds"
+	sleep 5s
+fi
 
+if [[ -h /dev/input/gyration ]] && [[ "$(pidof X)" != "" ]] && [[ "$(pidof evrouter)" == "" ]]; then
+	LogMsg "Removing everouter lock file"
+	rm -f /tmp/.evrouter*
+	LogMsg "Starting evrouter for /dev/input/gyration"
+	export DISPLAY=:0
+	/usr/bin/evrouter /dev/input/gyration
+	sleep 5s
+fi 
+
+done
