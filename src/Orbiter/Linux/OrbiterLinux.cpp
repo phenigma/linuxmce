@@ -55,10 +55,12 @@
 
 using namespace std;
 
-// activate new calls to X(Un)LockDisplay
+// new calls to X(Un)LockDisplay activated by default
+// 
+// to deactivate new calls to X(Un)LockDisplay
 // copy this in LaunchOrbiter.sh
-// export PLUTO_ENABLE_X11LOCK=
-bool g_useX11LOCK = (getenv("PLUTO_ENABLE_X11LOCK"));
+// export PLUTO_DISABLE_X11LOCK=
+bool g_useX11LOCK = (! getenv("PLUTO_DISABLE_X11LOCK"));
 
 OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            string ServerAddress, string sLocalDirectory,
@@ -287,7 +289,7 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 {
     OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
     reinitGraphics();
-    g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_ENABLE_X11LOCK %s", g_useX11LOCK, g_useX11LOCK ? "exported" : "unset" );
+    g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
     //GrabPointer(XServerDisplay);
     //GrabKeyboard(XServerDisplay);
 }
