@@ -30,7 +30,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 	Dictionary->Set("VideoRefresh", RefreshListBox->GetCaption());
 
-	Dictionary->Set("ResolutionSelected", Selected->GetCaption() == "ListBox1" );
+	Dictionary->Set("ResolutionSelected", Selected->GetName() == "ListBox1" );
 
 	return 0;
 }
@@ -67,7 +67,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
 {
-	std::string ListBoxName = Selected->GetCaption();
+	std::string ListBoxName = Selected->GetName();
 	if (ListBoxName == "ListBox1")
 		system(COMMAND_SET_RESOLUTION_PLUS);
 	else
@@ -77,7 +77,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 /*virtual*/ void WizardPageVideoResolution::DoDecreaseSetting()
 {
-	std::string ListBoxName = Selected->GetCaption();
+	std::string ListBoxName = Selected->GetName();
 	if (ListBoxName == "ListBox1")
 		system(COMMAND_SET_RESOLUTION_MINUS);
 	else
