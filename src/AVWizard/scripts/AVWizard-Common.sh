@@ -27,7 +27,7 @@ WizSet()
 	SDL_VIDEODEVICE=dummy "$Wiz" -set "$Var" "$Value" 2>/dev/null
 }
 
-WizSet()
+WizGet()
 {
 	local Var="$1"
 	
