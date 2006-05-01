@@ -3,8 +3,8 @@
 #include "../wxAppMain/wx_safe_dialog.h"
 #include "../wxAppMain/wxdialog_roomwizard.h"
 #define USE_TASK_MANAGER true //del
-#include "wmtask.h"
-#include "wmtaskmanager.h"
+#include "../Task.h"
+#include "../TaskManager.h"
 #endif // (USE_WX_LIB)
 
 #ifndef WIN32
@@ -1499,12 +1499,12 @@ bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
 #if (USE_TASK_MANAGER)
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_RoomWizard, pCallBackData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTaskAndWait(pTask);
     }
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -1527,12 +1527,12 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
 #if (USE_TASK_MANAGER)
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogSave, E_Dialog_RoomWizard, pCallBackData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogSave, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_RoomWizard, pCallBackData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTaskAndWait(pTask);
     }
     {
@@ -1567,7 +1567,7 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 #if (USE_TASK_MANAGER)
     {
         CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
         TaskManager::Instance().AddTask(pTask);
     }
 #else // (USE_TASK_MANAGER)
@@ -1617,7 +1617,7 @@ bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
 		//additional info will be available on update (refresh)
 		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
 	
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, 		pSpeedControlData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, 		pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
 #endif
@@ -1643,7 +1643,7 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
 		//no data to attach
 		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(PlutoRectangle(0, 0, 0, 0));
 	
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, 		pSpeedControlData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, 		pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
 #endif

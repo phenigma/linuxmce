@@ -3,8 +3,8 @@
 
 // Window Message Task
 
-#include "../CallBackTypes.h"
-#include "../dialog_types.h"
+#include "CallBackTypes.h"
+#include "dialog_types.h"
 
 class CallBackData;
 

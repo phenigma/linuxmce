@@ -1,5 +1,7 @@
 // Window Message Task Manager
 
+//TODO: remove this file, now it is "../TaskManager.h"
+
 #ifndef WM_TASK_MANAGER_H
 #define WM_TASK_MANAGER_H
 

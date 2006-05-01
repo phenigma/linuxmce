@@ -13,8 +13,8 @@
 #include "pluto_main/Define_Text.h"
 
 #ifndef WIN32
-#	include "Linux/wmtask.h"
-#	include "Linux/wmtaskmanager.h"
+#	include "Task.h"
+#	include "TaskManager.h"
 #	include "CallBackData.h"
 #endif
 
@@ -277,7 +277,7 @@ void SpeedMouseHandler::Update()
 		for(int i = 0; i < sizeof(m_iSpeeds) / sizeof(m_iSpeeds[0]); ++i)
 			pSpeedControlData->m_listSpeeds.push_back(m_iSpeeds[i]);
 #if (USE_WX_LIB)
-        WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_SpeedControl, pSpeedControlData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_SpeedControl, pSpeedControlData);
         TaskManager::Instance().AddTask(pTask);
 #endif
 	}

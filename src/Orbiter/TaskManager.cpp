@@ -1,7 +1,7 @@
 // Window Message Task Manager
 
 #include "TaskManager.h"
-#include "../../DCE/Logger.h"
+#include "../DCE/Logger.h"
 #include "CallBackData.h"
 using namespace DCE;
 //--------------------------------------------------------------------------------------------------------------

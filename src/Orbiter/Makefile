@@ -30,7 +30,7 @@ WX_GL_LIBS    := $(shell $(WX_CONFIG) --gl-libs)
 WX_LDFLAGS    := $(shell $(WX_CONFIG) --ldflags 2>/dev/null)
 WX_LD         := $(shell $(WX_CONFIG) --ld)
 WX_PARSE_LD   := $(shell $(WX_CONFIG) --ld 2>/dev/null | sed -e 's|^[^-][^ ]*||;s| -shared | |g;s| -o *$$| |;')
-WX_SOURCES    := $(shell ls wxAppMain/*.cpp Linux/wmtask*.cpp)
+WX_SOURCES    := $(shell ls wxAppMain/*.cpp)
 
 else
 # not using wx
@@ -87,6 +87,8 @@ XTRALDLIBS += $(WX_LIBS)
 Gen_Dev_Files +=
 sources += \
 	$(WX_SOURCES) \
+	Task.cpp \
+	TaskManager.cpp \
 	../utilities/linux/window_manager/WMController/WMController.cpp \
 	../utilities/linux/window_manager/WMController/wmctrl.cpp \
 	Linux/win_list_manager.cpp \

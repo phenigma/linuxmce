@@ -84,6 +84,10 @@ private:
 	 * Instance of the singleton class
 	 */
 	static OrbiterGL3D* Instance;
+
+#ifndef WIN32 // linux
+    class OrbiterLinux *m_pOrbiterLinux;
+#endif // linux
 };
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef WM_TASK_H
 #define WM_TASK_H
 
+//TODO: remove this file, now it is "../Task.h"
+
 // Window Message Task
 
 #include "../CallBackTypes.h"

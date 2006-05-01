@@ -25,8 +25,8 @@
 #include "../wxAppMain/wxdialog_waitlist.h"
 #include "../wxAppMain/wxdialog_waituser.h"
 #define USE_TASK_MANAGER true //del
-#include "wmtask.h"
-#include "wmtaskmanager.h"
+#include "../Task.h"
+#include "../TaskManager.h"
 #endif // (USE_WX_LIB)
 
 #include "DCE/Logger.h"
@@ -55,7 +55,10 @@
 
 using namespace std;
 
-bool g_useX11LOCK = (getenv("PLUTO_X11LOCK"));
+// activate new calls to X(Un)LockDisplay
+// copy this in LaunchOrbiter.sh
+// export PLUTO_ENABLE_X11LOCK=
+bool g_useX11LOCK = (getenv("PLUTO_ENABLE_X11LOCK"));
 
 OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            string ServerAddress, string sLocalDirectory,
@@ -284,6 +287,7 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 {
     OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
     reinitGraphics();
+    g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_ENABLE_X11LOCK %s", g_useX11LOCK, g_useX11LOCK ? "exported" : "unset" );
     //GrabPointer(XServerDisplay);
     //GrabKeyboard(XServerDisplay);
 }
@@ -494,7 +498,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 		callbackType = cbOnDialogDelete;
 		bDialogRunning = false;
 	}
-	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
+	Task *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
@@ -609,7 +613,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 		callbackType = cbOnDialogDelete;
 		bDialogRunning = false;
 	}
-	WMTask *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
+	Task *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
@@ -706,10 +710,10 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
-	WMTask *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
+	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
     m_WinListManager.MaximizeWindow("dialog.dialog");
-	WMTask *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
+	Task *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 #else // (USE_TASK_MANAGER)

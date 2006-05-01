@@ -1,5 +1,7 @@
 // Window Message Task Manager
 
+//TODO: remove this file, now it is "../TaskManager.cpp"
+
 #include "../wxAppMain/wx_all_include.cpp"
 #include "wmtaskmanager.h"
 #include "../../DCE/Logger.h"
