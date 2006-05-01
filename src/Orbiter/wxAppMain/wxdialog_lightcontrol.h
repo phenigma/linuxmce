@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #ifndef _WXDIALOG_LIGHTCONTROL_H_
 #define _WXDIALOG_LIGHTCONTROL_H_
 
@@ -19,7 +25,7 @@
 
 ////@begin forward declarations
 class wxBoxSizer;
-class wxWindow;
+class wxPanel_Light;
 ////@end forward declarations
 
 /*!
@@ -28,12 +34,12 @@ class wxWindow;
 
 ////@begin control identifiers
 #define ID_DIALOG_LIGHTCONTROL 10028
-#define SYMBOL_WXDIALOG_LIGHTCONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_LIGHTCONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_LIGHTCONTROL_TITLE _T("wx Dialog_LightControl")
 #define SYMBOL_WXDIALOG_LIGHTCONTROL_IDNAME ID_DIALOG_LIGHTCONTROL
-#define SYMBOL_WXDIALOG_LIGHTCONTROL_SIZE wxSize(74, 69)
+#define SYMBOL_WXDIALOG_LIGHTCONTROL_SIZE wxDefaultSize
 #define SYMBOL_WXDIALOG_LIGHTCONTROL_POSITION wxDefaultPosition
-#define ID_WINDOW_LIGHT 10000
+#define ID_CTRL_LIGHT 10045
 ////@end control identifiers
 
 /*!
@@ -50,10 +56,10 @@ class wxWindow;
 
 class wxDialog_LightControl: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_LightControl )
-        DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxDialog_LightControl );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxDialog_LightControl( );
     wxDialog_LightControl( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_LIGHTCONTROL_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_LIGHTCONTROL_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_LIGHTCONTROL_POSITION, const wxSize& size = SYMBOL_WXDIALOG_LIGHTCONTROL_SIZE, long style = SYMBOL_WXDIALOG_LIGHTCONTROL_STYLE );
@@ -85,8 +91,11 @@ class wxDialog_LightControl: public wxDialog_Base
 
 ////@begin wxDialog_LightControl member variables
     wxBoxSizer* v_pBoxH_all;
-    wxWindow* v_pWinLight;
+    wxPanel_Light* v_pPanel_Light;
 ////@end wxDialog_LightControl member variables
+
+public:
+    virtual bool Gui_Refresh(CallBackData *pCallBackData);
 };
 
 #endif

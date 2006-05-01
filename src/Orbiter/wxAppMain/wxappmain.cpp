@@ -26,15 +26,11 @@
 #include "wx_event_dialog.h"
 #include "wx_safe_dialog.h"
 #include "wxdialog_base.h"
-#include "wxdialog_roomwizard.h"
-#include "wxdialog_waitgrid.h"
-#include "wxdialog_waitlist.h"
-#include "wxdialog_waituser.h"
 #include "wx_thread_bag.h"
 #include "wx_extern_app.h"
 
 #ifdef USE_RELEASE_CODE
-#include "../Linux/wmtaskmanager.h"
+#include "../TaskManager.h"
 #endif // USE_RELEASE_CODE
 
 ////@begin XPM images
@@ -135,7 +131,7 @@ bool wxAppMain::OnInit()
     mainWindow->Show(false);
 #endif // USE_RELEASE_CODE
 #ifdef USE_DEBUG_CODE
-    _debug_init();
+    _debug_global_init();
 #endif // USE_DEBUG_CODE
 
     v_pwxThread_Bag = new wxThread_Bag;
@@ -176,12 +172,12 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
     }
     else
     {
-        Extern_Event_Listener();
+        Extern_Task_Listener();
     }
 #endif // USE_RELEASE_CODE
 #ifdef USE_DEBUG_CODE
     {
-        Extern_Event_Listener();
+        Extern_Task_Listener();
     }
 #endif // USE_DEBUG_CODE
 ////@begin wxEVT_IDLE event handler in wxAppMain.

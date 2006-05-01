@@ -41,8 +41,7 @@ class wxThread_Bag : public wxEvtHandler
 
   private:
     friend class wxThread_Cmd;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_EVENT_TABLE();
 };
 
 #endif

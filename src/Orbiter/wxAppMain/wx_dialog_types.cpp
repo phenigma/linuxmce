@@ -27,6 +27,9 @@ const char * _str_enum(E_DIALOG_TYPE value)
         CASE_const_ret_str(E_Dialog_WaitGrid);
         CASE_const_ret_str(E_Dialog_WaitList);
         CASE_const_ret_str(E_Dialog_WaitUser);
+        CASE_const_ret_str(E_Dialog_SpeedControl);
+        CASE_const_ret_str(E_Dialog_VolumeControl);
+        CASE_const_ret_str(E_Dialog_LightControl);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;
@@ -48,6 +51,7 @@ const char * _str_enum(E_ACTION_TYPE value)
         CASE_const_ret_str(E_Action_Show);
         CASE_const_ret_str(E_Action_ShowModal);
         CASE_const_ret_str(E_Action_WaitUser);
+        CASE_const_ret_str(E_Action_WaitInitialized);
         default:
             _WX_LOG_ERR("unknown value %d", value);
             break;

@@ -18,6 +18,7 @@
 ////@begin includes
 ////@end includes
 #include "wx_dialog_types.h"
+#include "wx_extern_helpers.h"
 
 /*!
  * Forward declarations
@@ -32,7 +33,7 @@
 
 ////@begin control identifiers
 #define ID_DIALOG_BASE 10024
-#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_BASE_TITLE _T("wx Dialog_Base")
 #define SYMBOL_WXDIALOG_BASE_IDNAME ID_DIALOG_BASE
 #define SYMBOL_WXDIALOG_BASE_SIZE wxDefaultSize
@@ -48,7 +49,6 @@
 #endif
 
 struct Data_Holder_Dialog;
-struct Extern_Event_Data;
 
 /*!
  * wxDialog_Base class declaration
@@ -56,10 +56,8 @@ struct Extern_Event_Data;
 
 class wxDialog_Base: public wxDialog
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_Base )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_DYNAMIC_CLASS( wxDialog_Base );
+    DECLARE_EVENT_TABLE();
 
   public:
     /// Constructors
@@ -95,28 +93,41 @@ class wxDialog_Base: public wxDialog
 ////@end wxDialog_Base member variables
 
   public:
-    ~wxDialog_Base();
+    virtual ~wxDialog_Base();
     virtual bool Destroy();
     virtual void EndModal(int retCode);
     void OnButton_EndModal( wxCommandEvent& event );
     void OnButton_SetReturnCode( wxCommandEvent& event );
 
-    virtual bool Gui_DataLoad(void *pExternData); // load data from extern object, called after create
-    virtual bool Gui_DataSave(void *pExternData); // save data to extern object, not called by default
-    virtual bool Gui_Refresh(void *pExternData); // GUI refresh related code should be implemented here
+    // load data from external object, called after create
+    // by default calls Gui_Refresh
+    virtual bool Gui_DataLoad(CallBackData *pCallBackData);
+
+    // save data to external object
+    // not called by default
+    virtual bool Gui_DataSave(CallBackData *pCallBackData);
+
+    // GUI refresh related code should be implemented here
+    virtual bool Gui_Refresh(CallBackData *pCallBackData);
 
     bool IsInitialized();
     void Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog);
-    void Set_WaitUser(Extern_Event_Data *pExtern_Event_Data);
+    void Set_WaitUser(Extern_Task_Data *pExtern_Task_Data);
+    void Set_WaitInitialized(Extern_Task_Data *pExtern_Task_Data);
 
 protected:
     void OnWindowCreate(wxWindowCreateEvent& event);
     void OnEvent_Dialog(wxCommandEvent& event);
     void Clean_Exit();
+    void UpdatePosition(const int x, const int y, const int width, const int height);
 
     bool v_bInitialized;
-    Data_Holder_Dialog *v_pData_Holder_Dialog; // generic dialog functionality
-    Extern_Event_Data *v_pExtern_Event_Data;
+    // generic dialog functionality
+    Data_Holder_Dialog *v_pData_Holder_Dialog;
+    // wait user action
+    Extern_Task_Data *v_pExtern_Task_Data_WaitUser;
+    // wait the dialog to be fully initialized
+    Extern_Task_Data *v_pExtern_Task_Data_WaitInitialized;
 };
 
 #endif

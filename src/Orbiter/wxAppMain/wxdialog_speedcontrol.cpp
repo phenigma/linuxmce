@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxdialog_speedcontrol.h"
 #endif
@@ -17,6 +23,9 @@
 ////@end includes
 
 #include "wxdialog_speedcontrol.h"
+#include "wxpanel_seek.h"
+#include "wxpanel_speed.h"
+#include "wxpanel_time.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -39,17 +48,20 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_SpeedControl, wxDialog_Base )
 ////@end wxDialog_SpeedControl event table entries
 
     END_EVENT_TABLE()
+    ;
 
 /*!
  * wxDialog_SpeedControl constructors
  */
 
-    wxDialog_SpeedControl::wxDialog_SpeedControl( )
+wxDialog_SpeedControl::wxDialog_SpeedControl( )
 {
+    _WX_LOG_NFO();
 }
 
 wxDialog_SpeedControl::wxDialog_SpeedControl( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
+    _WX_LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -59,19 +71,15 @@ wxDialog_SpeedControl::wxDialog_SpeedControl( wxWindow* parent, wxWindowID id, c
 
 bool wxDialog_SpeedControl::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
+    _WX_LOG_NFO();
 ////@begin wxDialog_SpeedControl member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_Seek = NULL;
-    v_pWinSeek = NULL;
+    v_pPanel_Seek = NULL;
     v_pBoxH_Speed = NULL;
-    v_pWinSpeed = NULL;
-    v_pBoxH_Slider = NULL;
-    v_pSliderTimeLine = NULL;
-    v_pBoxH_Labels = NULL;
-    v_pWinTimeShow = NULL;
-    v_pTimeBeg = NULL;
-    v_pTimeNow = NULL;
-    v_pTimeEnd = NULL;
+    v_pPanel_Speed = NULL;
+    v_pBoxH_Time = NULL;
+    v_pPanel_Time = NULL;
 ////@end wxDialog_SpeedControl member initialisation
 
 ////@begin wxDialog_SpeedControl creation
@@ -91,6 +99,7 @@ bool wxDialog_SpeedControl::Create( wxWindow* parent, wxWindowID id, const wxStr
 
 void wxDialog_SpeedControl::CreateControls()
 {
+    _WX_LOG_NFO();
 ////@begin wxDialog_SpeedControl content construction
     wxDialog_SpeedControl* itemDialog_Base1 = this;
 
@@ -100,54 +109,39 @@ void wxDialog_SpeedControl::CreateControls()
     v_pBoxH_Seek = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_Seek, 1, wxGROW|wxALL|wxSHAPED, 5);
 
-    v_pWinSeek = new wxWindow;
-    v_pWinSeek->Create( itemDialog_Base1, ID_WINDOW_SEEK, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(200, 20)), wxNO_BORDER|wxCLIP_CHILDREN |wxHSCROLL|wxVSCROLL );
-    v_pWinSeek->SetBackgroundColour(wxColour(30, 144, 255));
-    v_pBoxH_Seek->Add(v_pWinSeek, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pPanel_Seek = new wxPanel_Seek;
+    v_pPanel_Seek->Create( itemDialog_Base1, ID_CTRL_SEEK, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+    v_pBoxH_Seek->Add(v_pPanel_Seek, 1, wxGROW|wxALL, 5);
 
     v_pBoxH_Speed = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_Speed, 1, wxGROW|wxALL|wxSHAPED, 5);
 
-    v_pWinSpeed = new wxWindow;
-    v_pWinSpeed->Create( itemDialog_Base1, ID_WINDOW_SPEED, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(200, 20)), wxSIMPLE_BORDER );
-    v_pWinSpeed->SetBackgroundColour(wxColour(30, 144, 255));
-    v_pBoxH_Speed->Add(v_pWinSpeed, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pPanel_Speed = new wxPanel_Speed;
+    v_pPanel_Speed->Create( itemDialog_Base1, ID_CTRL_SPEED, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+    v_pBoxH_Speed->Add(v_pPanel_Speed, 1, wxGROW|wxALL, 5);
 
-    v_pBoxH_Slider = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_Slider, 1, wxGROW|wxALL|wxSHAPED, 5);
+    v_pBoxH_Time = new wxBoxSizer(wxHORIZONTAL);
+    v_pBoxV_all->Add(v_pBoxH_Time, 1, wxGROW|wxALL|wxSHAPED, 5);
 
-    v_pSliderTimeLine = new wxSlider;
-    v_pSliderTimeLine->Create( itemDialog_Base1, ID_SLIDER_TIMELINE, 0, 0, 100, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(200, 50)), wxSL_HORIZONTAL|wxSL_AUTOTICKS|wxSL_LABELS|wxSL_TOP );
-    v_pBoxH_Slider->Add(v_pSliderTimeLine, 1, wxALIGN_CENTER_VERTICAL|wxALL|wxSHAPED, 5);
-
-    v_pBoxH_Labels = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_Labels, 1, wxGROW|wxALL|wxSHAPED, 5);
-
-    v_pWinTimeShow = new wxWindow;
-    v_pWinTimeShow->Create( itemDialog_Base1, ID_WINDOW_LABELS, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(200, 20)), wxSIMPLE_BORDER );
-    v_pWinTimeShow->SetBackgroundColour(wxColour(30, 144, 255));
-    v_pBoxH_Labels->Add(v_pWinTimeShow, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-    wxBoxSizer* itemBoxSizer11 = new wxBoxSizer(wxHORIZONTAL);
-    v_pWinTimeShow->SetSizer(itemBoxSizer11);
-
-    v_pTimeBeg = new wxStaticText;
-    v_pTimeBeg->Create( v_pWinTimeShow, wxID_TIME_BEG, _T("11:11:11"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer11->Add(v_pTimeBeg, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
-
-    itemBoxSizer11->Add(8, 8, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-    v_pTimeNow = new wxStaticText;
-    v_pTimeNow->Create( v_pWinTimeShow, wxID_TIME_NOW, _T("22:22:22"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer11->Add(v_pTimeNow, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
-
-    itemBoxSizer11->Add(8, 8, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-    v_pTimeEnd = new wxStaticText;
-    v_pTimeEnd->Create( v_pWinTimeShow, wxID_TIME_END, _T("99:99:99"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer11->Add(v_pTimeEnd, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    v_pPanel_Time = new wxPanel_Time;
+    v_pPanel_Time->Create( itemDialog_Base1, ID_CTRL_TIME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+    v_pBoxH_Time->Add(v_pPanel_Time, 1, wxGROW|wxALL, 5);
 
 ////@end wxDialog_SpeedControl content construction
+}
+
+/*!
+ * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL
+ */
+
+void wxDialog_SpeedControl::OnCloseWindow( wxCloseEvent& event )
+{
+////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL in wxDialog_SpeedControl.
+    // Before editing this code, remove the block markers.
+    wxWindow* window = this;
+    window->Destroy();
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL in wxDialog_SpeedControl.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -184,17 +178,71 @@ wxIcon wxDialog_SpeedControl::GetIconResource( const wxString& name )
     return wxNullIcon;
 ////@end wxDialog_SpeedControl icon retrieval
 }
-/*!
- * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL
- */
 
-void wxDialog_SpeedControl::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+bool wxDialog_SpeedControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL in wxDialog_SpeedControl.
-    // Before editing this code, remove the block markers.
-    wxWindow* window = this;
-    window->Destroy();
-////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_SPEEDCONTROL in wxDialog_SpeedControl. 
+    //_WX_LOG_NFO();
+    SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
+    v_oPersistent_Data.oData_Refresh = *pCallData;
+    _WX_LOG_NFO("Style=%d, seek=%d, speed=%d", pCallData->m_eStyle, pCallData->m_nSeekToPos, pCallData->m_nSpeed);
+    switch (pCallData->m_eStyle)
+    {
+        case SpeedControlCallBackData::TIME:
+            v_oPersistent_Data.bShowTime = true;
+            break;
+        case SpeedControlCallBackData::TIME_SEEK:
+            v_oPersistent_Data.bShowTime = true;
+            v_oPersistent_Data.bShowSeek = true;
+            break;
+        case SpeedControlCallBackData::TIME_SPEED:
+            v_oPersistent_Data.bShowTime = true;
+            v_oPersistent_Data.bShowSpeed = true;
+            break;
+        case SpeedControlCallBackData::SPEED:
+            v_oPersistent_Data.bShowSpeed = true;
+            break;
+        default:
+            _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
+            break;
+    }
+    v_oPersistent_Data.bInitialized = true;
+    if (v_oPersistent_Data.bShowSeek)
+    {
+        int nDeltaFull = pCallData->m_nTimeEnd - pCallData->m_nTimeStart;
+        int nDeltaSeek = pCallData->m_nSeekToPos - pCallData->m_nTimeStart;
+        if ( (nDeltaFull > 0) && (nDeltaSeek > 0) )
+        {
+            v_pPanel_Seek->v_nPosRatio = nDeltaSeek / nDeltaFull;
+            v_pPanel_Seek->Refresh();
+        }
+        v_pPanel_Seek->Show();
+    }
+    else
+    {
+        v_pPanel_Seek->Hide();
+    }
+    if (v_oPersistent_Data.bShowSpeed)
+    {
+        Copy_StlSequence_wxArray(pCallData->m_listSpeeds, v_pPanel_Speed->v_anSpeeds);
+        v_pPanel_Speed->v_nSpeed = pCallData->m_nSpeed;
+        v_pPanel_Speed->Show();
+    }
+    else
+    {
+        v_pPanel_Speed->Hide();
+    }
+    if (v_oPersistent_Data.bShowTime)
+    {
+        v_pPanel_Time->v_nTimeStart = pCallData->m_nTimeStart;
+        v_pPanel_Time->v_nTimeNow = pCallData->m_nTimeNow;
+        v_pPanel_Time->v_nTimeEnd = pCallData->m_nTimeEnd;
+        v_pPanel_Time->Show();
+    }
+    else
+    {
+        v_pPanel_Time->Hide();
+    }
+    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    return true;
 }
-
-

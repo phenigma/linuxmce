@@ -35,7 +35,7 @@ class wxGrid;
 
 ////@begin control identifiers
 #define ID_DIALOG_WAITGRID 10020
-#define SYMBOL_WXDIALOG_WAITGRID_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_WAITGRID_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_WAITGRID_TITLE _T("Wait Grid")
 #define SYMBOL_WXDIALOG_WAITGRID_IDNAME ID_DIALOG_WAITGRID
 #define SYMBOL_WXDIALOG_WAITGRID_SIZE wxSize(300, 200)
@@ -59,10 +59,8 @@ class wxGrid;
 
 class wxDialog_WaitGrid: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_WaitGrid )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_DYNAMIC_CLASS( wxDialog_WaitGrid );
+    DECLARE_EVENT_TABLE();
 
 public:
     /// Constructors
@@ -109,19 +107,10 @@ public:
 ////@end wxDialog_WaitGrid member variables
 
 public:
-    ~wxDialog_WaitGrid();
-    virtual bool Gui_DataLoad(void *pExternData);
-    virtual bool Gui_Refresh(void *pExternData);
-
-    struct Data_Refresh
-    {
-        string m_sMessage;
-        map<string, bool> m_mapChildDevices;
-        int m_nPercent;
-    };
+    virtual bool Gui_Refresh(CallBackData *pCallBackData);
 
 protected:
-    wxArrayString v_asName; // old and new
+    wxArrayString v_asNames; // old and new
 };
 
 #endif

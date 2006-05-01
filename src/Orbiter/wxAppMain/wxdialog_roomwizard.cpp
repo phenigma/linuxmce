@@ -91,6 +91,8 @@ bool wxDialog_RoomWizard::Create( wxWindow* parent, wxWindowID id, const wxStrin
     wxDialog_Base::Create( parent, id, caption, pos, size, style );
 
     CreateControls();
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 ////@end wxDialog_RoomWizard creation
     return true;
 }
@@ -122,6 +124,7 @@ void wxDialog_RoomWizard::CreateControls()
     v_pBoxV_all->Add(v_pGrid, 1, wxGROW, 1);
 
 ////@end wxDialog_RoomWizard content construction
+
     // clear grid
     wx_Clear(v_pGrid);
     wx_Align(v_pGrid);
@@ -135,13 +138,14 @@ void wxDialog_RoomWizard::CreateControls()
  * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_ROOMWIZARD
  */
 
-void wxDialog_RoomWizard::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+void wxDialog_RoomWizard::OnCloseWindow( wxCloseEvent& event )
 {
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
     window->Destroy();
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -222,26 +226,26 @@ wxIcon wxDialog_RoomWizard::GetIconResource( const wxString& name )
 ////@end wxDialog_RoomWizard icon retrieval
 }
 
-//==================================================
-
-wxDialog_RoomWizard::~wxDialog_RoomWizard()
+bool wxDialog_RoomWizard::Gui_DataLoad(CallBackData *pCallBackData)
 {
-    _WX_LOG_NFO();
-}
-
-bool wxDialog_RoomWizard::Gui_DataLoad(void *pExternData)
-{
-    _WX_LOG_NFO("ptr=%p", pExternData);
+    RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
+    _COND_RET(pCallData, false);
     v_aRoomItems.Clear();
+    _WX_LOG_NFO("pCallData=%p", pCallData);
 #ifdef USE_DEBUG_CODE
-    wxArray_RoomItems *pData = (wxArray_RoomItems *)pExternData;
-    v_aRoomItems = *pData;
+    v_oPersistent_Data.map_room_types = pCallData->map_room_types;
+    for (map<int,int>::iterator it = v_oPersistent_Data.map_room_types.begin(); it != v_oPersistent_Data.map_room_types.end(); ++it)
+    {
+        int nKey = it->first;
+        int nValue = it->second;
+        string sName = pCallData->map_fn_GetRoomTypeName[nKey];
+        v_oPersistent_Data.map_room_names[nKey] = sName;
+        _WX_LOG_NFO("Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
+        v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
+    }
 #endif // USE_DEBUG_CODE
 #ifdef USE_RELEASE_CODE
-    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
-    RoomWizardCallBackData *pRoomWizardCallBackData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
-    _COND_RET(pRoomWizardCallBackData, false);
-    WizardLogic *pWizardLogic = pRoomWizardCallBackData->m_pWizardLogic;
+    WizardLogic *pWizardLogic = pCallData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
         _WX_LOG_WRN("extern data not initialized");
@@ -249,14 +253,14 @@ bool wxDialog_RoomWizard::Gui_DataLoad(void *pExternData)
     else
     {
         _WX_LOG_NFO("extern data (%p)", pWizardLogic);
-        pWizardLogic->PreSeedRoomInfo(m_Persistent_Data.map_room_types);
-        for(map<int,int>::iterator it = m_Persistent_Data.map_room_types.begin(); it != m_Persistent_Data.map_room_types.end(); ++it)
+        pWizardLogic->PreSeedRoomInfo(v_oPersistent_Data.map_room_types);
+        for (map<int,int>::iterator it = v_oPersistent_Data.map_room_types.begin(); it != v_oPersistent_Data.map_room_types.end(); ++it)
         {
             int nKey = it->first;
             int nValue = it->second;
             string sName = pWizardLogic->GetRoomTypeName(nKey);
-            m_Persistent_Data.map_room_names[nKey] = sName;
-            g_pPlutoLogger->Write(LV_STATUS, "Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
+            v_oPersistent_Data.map_room_names[nKey] = sName;
+            _WX_LOG_NFO("Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
             v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
         }
     }
@@ -281,19 +285,20 @@ bool wxDialog_RoomWizard::Gui_DataLoad(void *pExternData)
     v_pGrid->AutoSizeRows();
     v_pGrid->SetGridCursor(0, 1);
     ItemWindowSelect(0);
-    return true;
+    return Gui_Refresh(pCallBackData);
 }
 
-bool wxDialog_RoomWizard::Gui_DataSave(void *pExternData)
+bool wxDialog_RoomWizard::Gui_DataSave(CallBackData *pCallBackData)
 {
-    _WX_LOG_NFO("ptr=%p", pExternData);
-    _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
-    _COND(v_aRoomItems.GetCount() > 0);
+    RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
+    _COND_RET(pCallData, false);
+    _WX_LOG_NFO("pCallData=%p", pCallData);
+    if (v_aRoomItems.GetCount() <= 0)
+        _WX_LOG_WRN("Number of rooms: %d", v_aRoomItems.GetCount());
+    else
+        _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
 #ifdef USE_RELEASE_CODE
-    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
-    RoomWizardCallBackData *pRoomWizardCallBackData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
-    _COND_RET(pRoomWizardCallBackData, false);
-    WizardLogic *pWizardLogic = pRoomWizardCallBackData->m_pWizardLogic;
+    WizardLogic *pWizardLogic = pCallData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
         _WX_LOG_WRN("extern data not initialized");
@@ -305,43 +310,20 @@ bool wxDialog_RoomWizard::Gui_DataSave(void *pExternData)
         _COND(v_aRoomItems.GetCount() > 0);
         for (size_t i=0; i<v_aRoomItems.GetCount(); i++)
         {
-            m_Persistent_Data.map_room_types[v_aRoomItems[i].nKey] = v_aRoomItems[i].nValue;
-            g_pPlutoLogger->Write(LV_STATUS, "Save Roomtype: %s (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
+            v_oPersistent_Data.map_room_types[v_aRoomItems[i].nKey] = v_aRoomItems[i].nValue;
+            _WX_LOG_NFO("Save Roomtype: %s (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
         }
-        pWizardLogic->ProcessUpdatedRoomInfo(m_Persistent_Data.map_room_types);
+        pWizardLogic->ProcessUpdatedRoomInfo(v_oPersistent_Data.map_room_types);
     }
 #endif // USE_RELEASE_CODE
     return true;
 }
 
-bool wxDialog_RoomWizard::Gui_Refresh(void *pExternData)
-{
-    //_WX_LOG_NFO();
-#ifdef USE_RELEASE_CODE
-    CallBackData *pCallBackData = wx_static_cast(CallBackData *, pExternData);
-    RoomWizardCallBackData *pData_Refresh = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
-    _COND_RET(pData_Refresh != NULL, false);
-    SetSize(
-        pData_Refresh->m_coord.X,
-        pData_Refresh->m_coord.Y,
-        pData_Refresh->m_coord.Width,
-        pData_Refresh->m_coord.Height,
-        wxSIZE_ALLOW_MINUS_ONE);
-    delete pData_Refresh;
-#endif // USE_RELEASE_CODE
-#ifdef USE_DEBUG_CODE
-    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-    _COND_RET(pData_Refresh != NULL, false);
-    SetSize(pData_Refresh->m_coord, wxSIZE_ALLOW_MINUS_ONE);
-#endif // USE_DEBUG_CODE
-    return true;
-}
-
 void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
 {
-    _WX_LOG_NFO("item=%d, bool=%d", nItem, bOn);
     if ( (nItem < 0) || (nItem >= (int)v_aRoomItems.GetCount()) )
         return;
+    _WX_LOG_NFO("item=%d, bool=%d", nItem, bOn);
     // deselect previous
     if (bOn && (nItem != v_nSelectedItem))
         ItemWindowSelect(v_nSelectedItem, false);
@@ -377,8 +359,6 @@ void wxDialog_RoomWizard::eventButtonInc()
     v_aRoomItems[v_nSelectedItem].nValue++;
     v_pGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
 }
-
-//==================================================
 
 #include "wx/arrimpl.cpp"
 WX_DEFINE_OBJARRAY(wxArray_RoomItems);

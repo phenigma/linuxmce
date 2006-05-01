@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #ifndef _WXDIALOG_VOLUMECONTROL_H_
 #define _WXDIALOG_VOLUMECONTROL_H_
 
@@ -19,7 +25,7 @@
 
 ////@begin forward declarations
 class wxBoxSizer;
-class wxWindow;
+class wxPanel_Volume;
 ////@end forward declarations
 
 /*!
@@ -28,12 +34,12 @@ class wxWindow;
 
 ////@begin control identifiers
 #define ID_DIALOG_VOLUMECONTROL 10027
-#define SYMBOL_WXDIALOG_VOLUMECONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_VOLUMECONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_VOLUMECONTROL_TITLE _T("wx Dialog_VolumeControl")
 #define SYMBOL_WXDIALOG_VOLUMECONTROL_IDNAME ID_DIALOG_VOLUMECONTROL
-#define SYMBOL_WXDIALOG_VOLUMECONTROL_SIZE wxSize(74, 69)
+#define SYMBOL_WXDIALOG_VOLUMECONTROL_SIZE wxDefaultSize
 #define SYMBOL_WXDIALOG_VOLUMECONTROL_POSITION wxDefaultPosition
-#define ID_WINDOW_VOLUME 10000
+#define ID_CTRL_VOLUME 10044
 ////@end control identifiers
 
 /*!
@@ -50,10 +56,10 @@ class wxWindow;
 
 class wxDialog_VolumeControl: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_VolumeControl )
-        DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxDialog_VolumeControl );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxDialog_VolumeControl( );
     wxDialog_VolumeControl( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_VOLUMECONTROL_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_VOLUMECONTROL_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_VOLUMECONTROL_POSITION, const wxSize& size = SYMBOL_WXDIALOG_VOLUMECONTROL_SIZE, long style = SYMBOL_WXDIALOG_VOLUMECONTROL_STYLE );
@@ -85,8 +91,11 @@ class wxDialog_VolumeControl: public wxDialog_Base
 
 ////@begin wxDialog_VolumeControl member variables
     wxBoxSizer* v_pBoxV_all;
-    wxWindow* v_pWinVOLUME;
+    wxPanel_Volume* v_pPanel_Volume;
 ////@end wxDialog_VolumeControl member variables
+
+public:
+    virtual bool Gui_Refresh(CallBackData *pCallBackData);
 };
 
 #endif

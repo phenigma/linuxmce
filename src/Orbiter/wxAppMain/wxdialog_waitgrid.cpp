@@ -155,6 +155,7 @@ void wxDialog_WaitGrid::CreateControls()
     v_pBoxH_bot->Add(v_pGauge, 1, wxALIGN_CENTER_VERTICAL|wxALL, 10);
 
 ////@end wxDialog_WaitGrid content construction
+
     v_pInfoText->SetValue("");
     v_pGauge->SetValue(0);
     // clear grid
@@ -170,13 +171,14 @@ void wxDialog_WaitGrid::CreateControls()
  * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITGRID
  */
 
-void wxDialog_WaitGrid::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+void wxDialog_WaitGrid::OnCloseWindow( wxCloseEvent& event )
 {
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
     window->Destroy();
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -234,43 +236,25 @@ wxIcon wxDialog_WaitGrid::GetIconResource( const wxString& name )
 ////@end wxDialog_WaitGrid icon retrieval
 }
 
-//==================================================
-
-wxDialog_WaitGrid::~wxDialog_WaitGrid()
-{
-    _WX_LOG_NFO();
-}
-
-bool wxDialog_WaitGrid::Gui_DataLoad(void *pExternData)
-{
-    _WX_LOG_NFO();
-    return Gui_Refresh(pExternData);
-}
-
-bool wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
+bool wxDialog_WaitGrid::Gui_Refresh(CallBackData *pCallBackData)
 {
     //_WX_LOG_NFO();
-#ifdef USE_RELEASE_CODE
-    WaitUserGridCallBackData *pData_Refresh = wx_static_cast(WaitUserGridCallBackData *, pExternData);
-#endif // USE_RELEASE_CODE
-#ifdef USE_DEBUG_CODE
-    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-#endif // USE_DEBUG_CODE
-    _COND_RET(pData_Refresh != NULL, false);
+    WaitUserGridCallBackData *pCallData = dynamic_cast<WaitUserGridCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
+    v_pInfoText->SetValue(pCallData->m_sMessage);
     // update grid
-    for(map<string, bool>::iterator it = pData_Refresh->m_mapChildDevices.begin(); it != pData_Refresh->m_mapChildDevices.end(); ++it)
+    for (map<string, bool>::iterator it = pCallData->m_mapChildDevices.begin(); it != pCallData->m_mapChildDevices.end(); ++it)
     {
         wxString sName = it->first.c_str();
         bool bValue = it->second;
         // search string in current data
         // add item if not found
-        int idx = v_asName.Index(sName);
+        int idx = v_asNames.Index(sName);
         if (idx == wxNOT_FOUND)
         {
-            idx = v_asName.GetCount();
-            v_asName.Add(sName);
+            idx = v_asNames.GetCount();
+            v_asNames.Add(sName);
             v_pGrid->AppendRows(1);
             v_pGrid->SetCellValue(idx, 1, sName);
         }
@@ -289,9 +273,6 @@ bool wxDialog_WaitGrid::Gui_Refresh(void *pExternData)
     v_pGrid->AutoSizeRows();
     wx_Grid_Resize_Column(v_pGrid, idxResizableColumn);
     // update progress bar
-    v_pGauge->SetValue(pData_Refresh->m_nPercent);
-#ifdef USE_RELEASE_CODE
-    delete pData_Refresh;
-#endif // USE_RELEASE_CODE
+    v_pGauge->SetValue(pCallData->m_nPercent);
     return true;
 }

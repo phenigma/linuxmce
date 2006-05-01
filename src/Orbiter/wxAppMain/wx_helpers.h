@@ -12,6 +12,18 @@
 #endif
 
 WX_DEFINE_ARRAY(bool, wxArrayBool);
+// already defined: wxArrayShort wxArrayInt wxArrayLong wxArrayPtrVoid
+
+template <typename StlSequenceType, typename wxArrayType>
+bool Copy_StlSequence_wxArray(StlSequenceType &aSTL, wxArrayType &aWX)
+{
+    aWX.Clear();
+    for (typename StlSequenceType::iterator it = aSTL.begin(); it != aSTL.end(); ++it)
+    {
+        aWX.Add(*it);
+    }
+    return true;
+}
 
 typedef void (* type_ptr_void_fn_void)();
 typedef void (& type_ref_void_fn_void)();
@@ -79,6 +91,8 @@ void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg);
 void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg, wxColour line);
 int wx_GetTextExtent(wxWindow *pWindow, const wxArrayString &aStrings, int *pReturnHeight=NULL);
 void wx_Grid_Resize_Column(wxGrid *pGrid, int idxResizableColumn);
+
+wxString StrTimeHMS(int seconds);
 
 #endif
 // _WX_HELPERS_H_

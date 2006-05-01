@@ -44,10 +44,9 @@ enum E_UNIQUE_ID
 
 #define WAIT_SEMAPHORE_MSEC 100
 
-#define INTERVAL_TIMER_WAKEIDLE_MSEC 200
+//del : read all tasks until the queue is empty
+#define INTERVAL_TIMER_WAKEIDLE_MSEC 50
 #define INTERVAL_TIMER_EXPIREDIALOG_MSEC 200
-
-#define EXTERN_APP_EVENT_SLEEP_MSEC 200
 
 #endif
 // _WX_CONFIG_H_

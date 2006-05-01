@@ -17,10 +17,7 @@
 #endif
 
 #include "wx_safe_dialog.h"
-#include "wxdialog_roomwizard.h"
-#include "wxdialog_waitgrid.h"
-#include "wxdialog_waitlist.h"
-#include "wxdialog_waituser.h"
+#include "wx_dialog_all_include.h"
 
 wxSemaError wx_semaphore_post(Data_Holder_Dialog &rData_Holder_Dialog)
 {
@@ -42,10 +39,13 @@ const char * Get_ClassName(E_DIALOG_TYPE e_dialog_type)
 {
     switch (e_dialog_type)
     {
-        case E_Dialog_RoomWizard: return "wxDialog_RoomWizard";
-        case E_Dialog_WaitGrid:   return "wxDialog_WaitGrid";
-        case E_Dialog_WaitList:   return "wxDialog_WaitList";
-        case E_Dialog_WaitUser:   return "wxDialog_WaitUser";
+        case E_Dialog_RoomWizard:    return "wxDialog_RoomWizard";
+        case E_Dialog_WaitGrid:      return "wxDialog_WaitGrid";
+        case E_Dialog_WaitList:      return "wxDialog_WaitList";
+        case E_Dialog_WaitUser:      return "wxDialog_WaitUser";
+        case E_Dialog_SpeedControl:  return "wxDialog_SpeedControl";
+        case E_Dialog_VolumeControl: return "wxDialog_VolumeControl";
+        case E_Dialog_LightControl:  return "wxDialog_LightControl";
         default: break;
     } // switch (e_dialog_type)
     _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
@@ -56,10 +56,13 @@ const char * Get_WindowName(E_DIALOG_TYPE e_dialog_type)
 {
     switch (e_dialog_type)
     {
-        case E_Dialog_RoomWizard: return SYMBOL_WXDIALOG_ROOMWIZARD_TITLE;
-        case E_Dialog_WaitGrid:   return SYMBOL_WXDIALOG_WAITGRID_TITLE;
-        case E_Dialog_WaitList:   return SYMBOL_WXDIALOG_WAITLIST_TITLE;
-        case E_Dialog_WaitUser:   return SYMBOL_WXDIALOG_WAITUSER_TITLE;
+        case E_Dialog_RoomWizard:    return SYMBOL_WXDIALOG_ROOMWIZARD_TITLE;
+        case E_Dialog_WaitGrid:      return SYMBOL_WXDIALOG_WAITGRID_TITLE;
+        case E_Dialog_WaitList:      return SYMBOL_WXDIALOG_WAITLIST_TITLE;
+        case E_Dialog_WaitUser:      return SYMBOL_WXDIALOG_WAITUSER_TITLE;
+        case E_Dialog_SpeedControl:  return SYMBOL_WXDIALOG_SPEEDCONTROL_TITLE;
+        case E_Dialog_VolumeControl: return SYMBOL_WXDIALOG_VOLUMECONTROL_TITLE;
+        case E_Dialog_LightControl:  return SYMBOL_WXDIALOG_LIGHTCONTROL_TITLE;
         default: break;
     } // switch (e_dialog_type)
     _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
@@ -70,10 +73,13 @@ const long Get_WindowID(E_DIALOG_TYPE e_dialog_type)
 {
     switch (e_dialog_type)
     {
-        case E_Dialog_RoomWizard: return SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME;
-        case E_Dialog_WaitGrid:   return SYMBOL_WXDIALOG_WAITGRID_IDNAME;
-        case E_Dialog_WaitList:   return SYMBOL_WXDIALOG_WAITLIST_IDNAME;
-        case E_Dialog_WaitUser:   return SYMBOL_WXDIALOG_WAITUSER_IDNAME;
+        case E_Dialog_RoomWizard:    return SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME;
+        case E_Dialog_WaitGrid:      return SYMBOL_WXDIALOG_WAITGRID_IDNAME;
+        case E_Dialog_WaitList:      return SYMBOL_WXDIALOG_WAITLIST_IDNAME;
+        case E_Dialog_WaitUser:      return SYMBOL_WXDIALOG_WAITUSER_IDNAME;
+        case E_Dialog_SpeedControl:  return SYMBOL_WXDIALOG_SPEEDCONTROL_IDNAME;
+        case E_Dialog_VolumeControl: return SYMBOL_WXDIALOG_VOLUMECONTROL_IDNAME;
+        case E_Dialog_LightControl:  return SYMBOL_WXDIALOG_LIGHTCONTROL_IDNAME;
         default: break;
     } // switch (e_dialog_type)
     _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
@@ -83,10 +89,13 @@ const long Get_WindowID(E_DIALOG_TYPE e_dialog_type)
 E_DIALOG_TYPE Get_Type(const char * sClassName)
 {
     wxString str = sClassName;
-    if (str == "wxDialog_RoomWizard") return E_Dialog_RoomWizard;
-    if (str == "wxDialog_WaitGrid")   return E_Dialog_WaitGrid;
-    if (str == "wxDialog_WaitList")   return E_Dialog_WaitList;
-    if (str == "wxDialog_WaitUser")   return E_Dialog_WaitUser;
+    if (str == "wxDialog_RoomWizard")    return E_Dialog_RoomWizard;
+    if (str == "wxDialog_WaitGrid")      return E_Dialog_WaitGrid;
+    if (str == "wxDialog_WaitList")      return E_Dialog_WaitList;
+    if (str == "wxDialog_WaitUser")      return E_Dialog_WaitUser;
+    if (str == "wxDialog_SpeedControl")  return E_Dialog_SpeedControl;
+    if (str == "wxDialog_VolumeControl") return E_Dialog_VolumeControl;
+    if (str == "wxDialog_LightControl")  return E_Dialog_LightControl;
     _WX_LOG_ERR("unknown value '%s'", sClassName);
     return E_Dialog_Undefined;
 }
@@ -105,6 +114,9 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -113,10 +125,13 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_RoomWizard>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitGrid>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitList>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitUser>(pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_RoomWizard>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitGrid>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitList>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_WaitUser>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_SpeedControl>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_VolumeControl>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_LightControl>(pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -125,10 +140,13 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_RoomWizard>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitGrid>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitList>(pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitUser>(pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_RoomWizard>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitGrid>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitList>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_WaitUser>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_SpeedControl>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_VolumeControl>(pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_LightControl>(pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -137,10 +155,13 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -149,10 +170,13 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -161,10 +185,13 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -177,6 +204,9 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
                 case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
                 case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -189,6 +219,9 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_WaitGrid: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_WaitList: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_WaitUser: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
@@ -197,10 +230,28 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
         {
             switch (e_dialog_type)
             {
-                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
-                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pExternData); break;
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+            }
+            break;
+        }
+        case E_Action_WaitInitialized:
+        {
+            switch (e_dialog_type)
+            {
+                case E_Dialog_RoomWizard: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_RoomWizard>((wxDialog_RoomWizard *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitGrid: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_WaitGrid>((wxDialog_WaitGrid *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitList: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_WaitList>((wxDialog_WaitList *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_WaitUser: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_WaitUser>((wxDialog_WaitUser *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
+                case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;

@@ -33,7 +33,7 @@ class wxBoxSizer;
 
 ////@begin control identifiers
 #define ID_DIALOG_WAITLIST 10023
-#define SYMBOL_WXDIALOG_WAITLIST_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_WAITLIST_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_WAITLIST_TITLE _T("Wait List")
 #define SYMBOL_WXDIALOG_WAITLIST_IDNAME ID_DIALOG_WAITLIST
 #define SYMBOL_WXDIALOG_WAITLIST_SIZE wxSize(400, 300)
@@ -56,10 +56,8 @@ class wxBoxSizer;
 
 class wxDialog_WaitList: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_WaitList )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_DYNAMIC_CLASS( wxDialog_WaitList );
+    DECLARE_EVENT_TABLE();
 
 public:
     /// Constructors
@@ -103,15 +101,7 @@ public:
 ////@end wxDialog_WaitList member variables
 
 public:
-    ~wxDialog_WaitList();
-    virtual bool Gui_DataLoad(void *pExternData);
-    virtual bool Gui_Refresh(void *pExternData);
-
-    struct Data_Refresh
-    {
-        string m_sMessage;
-        int m_nPercent;
-    };
+    virtual bool Gui_Refresh(CallBackData *pCallBackData);
 
 protected:
     wxString v_sPrevStr; // previous string message

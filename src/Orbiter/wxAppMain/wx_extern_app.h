@@ -12,6 +12,7 @@
 #endif
 
 #include "wx_thread_cmd.h"
+#include "wx_extern_helpers.h"
 
 #ifdef USE_RELEASE_CODE
 class SDL_App_Object;
@@ -39,19 +40,8 @@ public:
 #endif // USE_RELEASE_CODE
 };
 
-struct Extern_Event_Data
-{
-    Extern_Event_Data()
-            : nEventId(0)
-            , nButtonId(0)
-        {
-        }
-    unsigned int nEventId;
-    int nButtonId;
-};
-
-void Extern_Event_Listener();
-void Extern_Event_Response(Extern_Event_Data *pExtern_Event_Data);
+void Extern_Task_Listener();
+void Extern_Task_Response(Extern_Task_Data *pExtern_Task_Data);
 
 #endif
 // _WX_EXTERN_APP_H_

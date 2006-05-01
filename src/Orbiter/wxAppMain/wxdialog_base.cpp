@@ -60,16 +60,19 @@ BEGIN_EVENT_TABLE( wxDialog_Base, wxDialog )
 wxDialog_Base::wxDialog_Base( )
         : v_bInitialized(false)
         , v_pData_Holder_Dialog(NULL)
-        , v_pExtern_Event_Data(NULL)
+        , v_pExtern_Task_Data_WaitUser(NULL)
+        , v_pExtern_Task_Data_WaitInitialized(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
-    wxDELETE(v_pExtern_Event_Data);
+    wxDELETE(v_pExtern_Task_Data_WaitUser);
+    wxDELETE(v_pExtern_Task_Data_WaitInitialized);
 }
 
 wxDialog_Base::wxDialog_Base( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
         : v_bInitialized(false)
         , v_pData_Holder_Dialog(NULL)
-        , v_pExtern_Event_Data(NULL)
+        , v_pExtern_Task_Data_WaitUser(NULL)
+        , v_pExtern_Task_Data_WaitInitialized(NULL)
 {
     _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
     Create(parent, id, caption, pos, size, style);
@@ -112,6 +115,7 @@ void wxDialog_Base::CreateControls()
 
     this->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
 ////@end wxDialog_Base content construction
+
     wxUnusedVar(itemDialog1);
 }
 
@@ -122,6 +126,12 @@ void wxDialog_Base::CreateControls()
 void wxDialog_Base::OnIdle( wxIdleEvent& event )
 {
     //_WX_LOG_NFO();
+    if (v_pExtern_Task_Data_WaitInitialized && v_bInitialized)
+    {
+        _WX_LOG_NFO("Send response to external task : WaitInitialized");
+        Extern_Task_Response(v_pExtern_Task_Data_WaitInitialized);
+        wxDELETE(v_pExtern_Task_Data_WaitInitialized);
+    }
     wxDialog::OnIdle(event);
 ////@begin wxEVT_IDLE event handler for ID_DIALOG_BASE in wxDialog_Base.
     // Before editing this code, remove the block markers.
@@ -184,7 +194,7 @@ bool wxDialog_Base::Destroy()
 
 void wxDialog_Base::EndModal(int retCode)
 {
-    _WX_LOG_NFO("retCode=%d Label='%s'", retCode, GetLabel().c_str());
+    _WX_LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), retCode);
     SetReturnCode(retCode);
     if (! IsModal())
     {
@@ -211,20 +221,26 @@ void wxDialog_Base::OnButton_SetReturnCode( wxCommandEvent& event )
     SetReturnCode(pwxWindow->GetId());
 }
 
-bool wxDialog_Base::Gui_DataLoad(void * WXUNUSED(pExternData))
+bool wxDialog_Base::Gui_DataLoad(CallBackData * pCallBackData)
 {
+    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    return Gui_Refresh(pCallBackData);
+}
+
+bool wxDialog_Base::Gui_DataSave(CallBackData * pCallBackData)
+{
+    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    wxUnusedVar(pCallBackData);
     return true;
 }
 
-bool wxDialog_Base::Gui_DataSave(void * WXUNUSED(pExternData))
+bool wxDialog_Base::Gui_Refresh(CallBackData * pCallBackData)
 {
+    //_WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    PositionCallBackData *pCallData = dynamic_cast<PositionCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
+    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
     return true;
-}
-
-bool wxDialog_Base::Gui_Refresh(void * WXUNUSED(pExternData))
-{
-    _WX_LOG_ERR("virtual method not implemented in a derived class");
-    return false;
 }
 
 bool wxDialog_Base::IsInitialized()
@@ -234,14 +250,20 @@ bool wxDialog_Base::IsInitialized()
 
 void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
 {
-    _WX_LOG_NFO("pData=%p", pData_Holder_Dialog);
+    _WX_LOG_NFO("pData_Holder_Dialog=%p", pData_Holder_Dialog);
     v_pData_Holder_Dialog = pData_Holder_Dialog;
 }
 
-void wxDialog_Base::Set_WaitUser(Extern_Event_Data *pExtern_Event_Data)
+void wxDialog_Base::Set_WaitUser(Extern_Task_Data *pExtern_Task_Data)
 {
-    _WX_LOG_NFO("pData=%p", pExtern_Event_Data);
-    v_pExtern_Event_Data = pExtern_Event_Data;
+    _WX_LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
+    v_pExtern_Task_Data_WaitUser = pExtern_Task_Data;
+}
+
+void wxDialog_Base::Set_WaitInitialized(Extern_Task_Data *pExtern_Task_Data)
+{
+    _WX_LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
+    v_pExtern_Task_Data_WaitInitialized = pExtern_Task_Data;
 }
 
 void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
@@ -270,7 +292,7 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
     {
         case E_Action_Refresh:
         {
-            Safe_Gui_Refresh(this, pData_Holder_Dialog->pExternData);
+            Safe_Gui_Refresh(this, pData_Holder_Dialog->pCallBackData);
             break;
         }
         default:
@@ -282,13 +304,19 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 
 void wxDialog_Base::Clean_Exit()
 {
-    _WX_LOG_NFO("retCode=%d Label='%s'", GetReturnCode(), GetLabel().c_str());
-    if (v_pExtern_Event_Data)
+    _WX_LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), GetReturnCode());
+    if (v_pExtern_Task_Data_WaitInitialized)
     {
-        _WX_LOG_NFO("Send response to external event");
-        v_pExtern_Event_Data->nButtonId = GetReturnCode();
-        Extern_Event_Response(v_pExtern_Event_Data);
-        wxDELETE(v_pExtern_Event_Data);
+        _WX_LOG_NFO("Send response to external task : WaitInitialized");
+        Extern_Task_Response(v_pExtern_Task_Data_WaitInitialized);
+        wxDELETE(v_pExtern_Task_Data_WaitInitialized);
+    }
+    if (v_pExtern_Task_Data_WaitUser)
+    {
+        _WX_LOG_NFO("Send response to external task : WaitUser");
+        v_pExtern_Task_Data_WaitUser->nButtonId = GetReturnCode();
+        Extern_Task_Response(v_pExtern_Task_Data_WaitUser);
+        wxDELETE(v_pExtern_Task_Data_WaitUser);
     }
     if (v_pData_Holder_Dialog)
     {
@@ -297,4 +325,33 @@ void wxDialog_Base::Clean_Exit()
         v_pData_Holder_Dialog->nRetCode = GetReturnCode();
         wx_semaphore_post(*v_pData_Holder_Dialog);
     }
+}
+
+void wxDialog_Base::UpdatePosition(const int x, const int y, const int width, const int height)
+{
+    // update position if changed
+    int old_x = 0;
+    int old_y = 0;
+    GetPosition(&old_x, &old_y);
+    if ( (x == old_x) && (y == old_y) )
+        return;
+    int old_width = 0;
+    int old_height = 0;
+    GetSize(&old_width, &old_height);
+    if ( (width == old_width) && (height == old_height) )
+        return;
+    if ( (x == 0) && (y == 0) && (width == 0) && (height == 0) )
+    {
+        _WX_LOG_ERR(
+            "Bad Position : (%d, %d, %d, %d)",
+            x, y, width, height
+        );
+        return;
+    }
+    _WX_LOG_NFO(
+        "Changing Position : (%d, %d, %d, %d) -> (%d, %d, %d, %d)",
+        old_x, old_y, old_width, old_height,
+        x, y, width, height
+        );
+    SetSize(x, y, width, height, wxSIZE_ALLOW_MINUS_ONE);
 }

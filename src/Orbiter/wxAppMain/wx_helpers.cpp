@@ -324,3 +324,12 @@ void wx_Grid_Resize_Column(wxGrid *pGrid, int idxResizableColumn)
     pGrid->SetColSize(idxResizableColumn, widthCol);
     pGrid->Refresh();
 }
+
+wxString StrTimeHMS(int seconds)
+{
+    int sec = seconds % 60;
+    int hour = (seconds-sec) / 60;
+    int min = hour % 60;
+    hour = (hour-min) / 60;
+    return wxString::Format("%02d:%02d:%02d", hour, min, sec);
+}

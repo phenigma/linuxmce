@@ -39,7 +39,7 @@ class WizardLogic;
 
 ////@begin control identifiers
 #define ID_DIALOG_ROOMWIZARD 10000
-#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_ROOMWIZARD_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_ROOMWIZARD_TITLE _T("Room Wizard")
 #define SYMBOL_WXDIALOG_ROOMWIZARD_IDNAME ID_DIALOG_ROOMWIZARD
 #define SYMBOL_WXDIALOG_ROOMWIZARD_SIZE wxSize(300, 100)
@@ -75,10 +75,8 @@ WX_DECLARE_OBJARRAY(RoomItem, wxArray_RoomItems);
 
 class wxDialog_RoomWizard: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_RoomWizard )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_DYNAMIC_CLASS( wxDialog_RoomWizard );
+    DECLARE_EVENT_TABLE();
 
 public:
     /// Constructors
@@ -122,15 +120,8 @@ public:
 ////@end wxDialog_RoomWizard member variables
 
 public:
-    ~wxDialog_RoomWizard();
-    virtual bool Gui_DataLoad(void *pExternData);
-    virtual bool Gui_DataSave(void *pExternData);
-    virtual bool Gui_Refresh(void *pExternData);
-
-    struct Data_Refresh
-    {
-        wxRect m_coord;
-    };
+    virtual bool Gui_DataLoad(CallBackData *pCallBackData);
+    virtual bool Gui_DataSave(CallBackData *pCallBackData);
 
 protected:
     void ItemWindowSelect(int nItem, bool bOn=true);
@@ -140,14 +131,12 @@ protected:
     wxArray_RoomItems v_aRoomItems;
     int v_nSelectedItem; // 0 based, -1 not selected
 
-#ifdef USE_RELEASE_CODE
     struct Persistent_Data
     {
         map <int, int> map_room_types;
         map <int, string> map_room_names;
     };
-    Persistent_Data m_Persistent_Data;
-#endif // USE_RELEASE_CODE
+    Persistent_Data v_oPersistent_Data;
 };
 
 #endif

@@ -42,6 +42,9 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
 #define ID_TOOLBAR_MAIN 10006
 #define ID_TOOL_DBG 10000
+#define ID_TOOL_SPEEDCONTOL 10033
+#define ID_TOOL_VOLUMECONTROL 10034
+#define ID_TOOL_LIGHTCONTROL 10035
 #define ID_TOOL_ROOMWIZARD 10004
 #define ID_TOOL_WAITGRID 10009
 #define ID_TOOL_WAITLIST 10018
@@ -69,10 +72,10 @@ class wxStatusBar;
 
 class wxFrameMain: public wxFrame
 {
-    DECLARE_CLASS( wxFrameMain )
-        DECLARE_EVENT_TABLE()
+    DECLARE_CLASS( wxFrameMain );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxFrameMain( );
     wxFrameMain( wxWindow* parent, wxWindowID id = SYMBOL_WXFRAMEMAIN_IDNAME, const wxString& caption = SYMBOL_WXFRAMEMAIN_TITLE, const wxPoint& pos = SYMBOL_WXFRAMEMAIN_POSITION, const wxSize& size = SYMBOL_WXFRAMEMAIN_SIZE, long style = SYMBOL_WXFRAMEMAIN_STYLE );
@@ -98,6 +101,24 @@ class wxFrameMain: public wxFrame
 
     /// wxEVT_UPDATE_UI event handler for ID_TOOL_DBG
     void OnToolDbgUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SPEEDCONTOL
+    void OnToolSpeedcontolClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_SPEEDCONTOL
+    void OnToolSpeedcontolUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_VOLUMECONTROL
+    void OnToolVolumecontrolClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_VOLUMECONTROL
+    void OnToolVolumecontrolUpdate( wxUpdateUIEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_LIGHTCONTROL
+    void OnToolLightcontrolClick( wxCommandEvent& event );
+
+    /// wxEVT_UPDATE_UI event handler for ID_TOOL_LIGHTCONTROL
+    void OnToolLightcontrolUpdate( wxUpdateUIEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD
     void OnToolRoomwizardClick( wxCommandEvent& event );
@@ -174,7 +195,6 @@ class wxFrameMain: public wxFrame
 ////@end wxFrameMain member variables
 
   public:
-    virtual ~wxFrameMain();
     bool Destroy();
 };
 

@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxdialog_lightcontrol.h"
 #endif
@@ -17,6 +23,7 @@
 ////@end includes
 
 #include "wxdialog_lightcontrol.h"
+#include "wxpanel_light.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -61,7 +68,7 @@ bool wxDialog_LightControl::Create( wxWindow* parent, wxWindowID id, const wxStr
 {
 ////@begin wxDialog_LightControl member initialisation
     v_pBoxH_all = NULL;
-    v_pWinLight = NULL;
+    v_pPanel_Light = NULL;
 ////@end wxDialog_LightControl member initialisation
 
 ////@begin wxDialog_LightControl creation
@@ -87,12 +94,25 @@ void wxDialog_LightControl::CreateControls()
     v_pBoxH_all = new wxBoxSizer(wxHORIZONTAL);
     itemDialog_Base1->SetSizer(v_pBoxH_all);
 
-    v_pWinLight = new wxWindow;
-    v_pWinLight->Create( itemDialog_Base1, ID_WINDOW_LIGHT, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(20, 200)), wxNO_BORDER|wxCLIP_CHILDREN |wxHSCROLL|wxVSCROLL );
-    v_pWinLight->SetBackgroundColour(wxColour(30, 144, 255));
-    v_pBoxH_all->Add(v_pWinLight, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pPanel_Light = new wxPanel_Light;
+    v_pPanel_Light->Create( itemDialog_Base1, ID_CTRL_LIGHT, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+    v_pBoxH_all->Add(v_pPanel_Light, 1, wxGROW|wxALL, 5);
 
 ////@end wxDialog_LightControl content construction
+}
+
+/*!
+ * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL
+ */
+
+void wxDialog_LightControl::OnCloseWindow( wxCloseEvent& event )
+{
+////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl.
+    // Before editing this code, remove the block markers.
+    wxWindow* window = this;
+    window->Destroy();
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl. 
+    wxUnusedVar(event);
 }
 
 /*!
@@ -129,17 +149,12 @@ wxIcon wxDialog_LightControl::GetIconResource( const wxString& name )
     return wxNullIcon;
 ////@end wxDialog_LightControl icon retrieval
 }
-/*!
- * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL
- */
 
-void wxDialog_LightControl::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+bool wxDialog_LightControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl.
-    // Before editing this code, remove the block markers.
-    wxWindow* window = this;
-    window->Destroy();
-////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl. 
+    //_WX_LOG_NFO();
+    LightControlCallBackData *pCallData = dynamic_cast<LightControlCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
+    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    return true;
 }
-
-

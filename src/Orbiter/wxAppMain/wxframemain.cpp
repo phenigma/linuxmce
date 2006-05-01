@@ -25,11 +25,8 @@
 #include "wxframemain.h"
 #include "wxappmain.h"
 #include "wx_thread_bag.h"
-#include "wxdialog_roomwizard.h"
-#include "wxdialog_waitgrid.h"
-#include "wxdialog_waitlist.h"
-#include "wxdialog_waituser.h"
 #include "wx_safe_dialog.h"
+#include "wx_dialog_all_include.h"
 
 ////@begin XPM images
 #include "exit.xpm"
@@ -58,6 +55,15 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
     EVT_MENU( ID_TOOL_DBG, wxFrameMain::OnToolDbgClick )
     EVT_UPDATE_UI( ID_TOOL_DBG, wxFrameMain::OnToolDbgUpdate )
+
+    EVT_MENU( ID_TOOL_SPEEDCONTOL, wxFrameMain::OnToolSpeedcontolClick )
+    EVT_UPDATE_UI( ID_TOOL_SPEEDCONTOL, wxFrameMain::OnToolSpeedcontolUpdate )
+
+    EVT_MENU( ID_TOOL_VOLUMECONTROL, wxFrameMain::OnToolVolumecontrolClick )
+    EVT_UPDATE_UI( ID_TOOL_VOLUMECONTROL, wxFrameMain::OnToolVolumecontrolUpdate )
+
+    EVT_MENU( ID_TOOL_LIGHTCONTROL, wxFrameMain::OnToolLightcontrolClick )
+    EVT_UPDATE_UI( ID_TOOL_LIGHTCONTROL, wxFrameMain::OnToolLightcontrolUpdate )
 
     EVT_MENU( ID_TOOL_ROOMWIZARD, wxFrameMain::OnToolRoomwizardClick )
     EVT_UPDATE_UI( ID_TOOL_ROOMWIZARD, wxFrameMain::OnToolRoomwizardUpdate )
@@ -162,32 +168,42 @@ void wxFrameMain::CreateControls()
     v_pToolBar->AddSeparator();
     wxBitmap itemtool11Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool11BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool11Bitmap, itemtool11BitmapDisabled, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard Dialog"));
+    v_pToolBar->AddTool(ID_TOOL_SPEEDCONTOL, _T("Spd"), itemtool11Bitmap, itemtool11BitmapDisabled, wxITEM_CHECK, _T("Speed Control"), _T("Speed Control"));
     wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool12BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool12Bitmap, itemtool12BitmapDisabled, wxITEM_CHECK, _T("Wait Grid"), _T("Dialog Wait Grid"));
+    v_pToolBar->AddTool(ID_TOOL_VOLUMECONTROL, _T("Vol"), itemtool12Bitmap, itemtool12BitmapDisabled, wxITEM_CHECK, _T("Volume Control"), _T("Volume Control"));
     wxBitmap itemtool13Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool13BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool13Bitmap, itemtool13BitmapDisabled, wxITEM_CHECK, _T("Wait List"), _T("Dialog Wait List"));
-    wxBitmap itemtool14Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    wxBitmap itemtool14BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool14Bitmap, itemtool14BitmapDisabled, wxITEM_CHECK, _T("Wait User"), _T("Dialog Wait User"));
+    v_pToolBar->AddTool(ID_TOOL_LIGHTCONTROL, _T("Lght"), itemtool13Bitmap, itemtool13BitmapDisabled, wxITEM_CHECK, _T("Light Control"), _T("Light Control"));
     v_pToolBar->AddSeparator();
-    wxBitmap itemtool16Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool15Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    wxBitmap itemtool15BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool15Bitmap, itemtool15BitmapDisabled, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard"));
+    wxBitmap itemtool16Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool16BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool16Bitmap, itemtool16BitmapDisabled, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
-    wxBitmap itemtool17Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_pToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool16Bitmap, itemtool16BitmapDisabled, wxITEM_CHECK, _T("Wait Grid"), _T("Wait Grid"));
+    wxBitmap itemtool17Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool17BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool17Bitmap, itemtool17BitmapDisabled, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
-    wxBitmap itemtool18Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_pToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool17Bitmap, itemtool17BitmapDisabled, wxITEM_CHECK, _T("Wait List"), _T("Wait List"));
+    wxBitmap itemtool18Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool18BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool18Bitmap, itemtool18BitmapDisabled, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
-    wxBitmap itemtool19Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    wxBitmap itemtool19BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool19Bitmap, itemtool19BitmapDisabled, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
-    wxBitmap itemtool20Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
+    v_pToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool18Bitmap, itemtool18BitmapDisabled, wxITEM_CHECK, _T("Wait User"), _T("Wait User"));
+    v_pToolBar->AddSeparator();
+    wxBitmap itemtool20Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     wxBitmap itemtool20BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_STOP, _T("stop"), itemtool20Bitmap, itemtool20BitmapDisabled, wxITEM_NORMAL, _T("stop all threads"), _T("stop all threads"));
+    v_pToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool20Bitmap, itemtool20BitmapDisabled, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
+    wxBitmap itemtool21Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool21BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool21Bitmap, itemtool21BitmapDisabled, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
+    wxBitmap itemtool22Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool22BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool22Bitmap, itemtool22BitmapDisabled, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    wxBitmap itemtool23Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool23BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool23Bitmap, itemtool23BitmapDisabled, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
+    wxBitmap itemtool24Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
+    wxBitmap itemtool24BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_STOP, _T("stop"), itemtool24Bitmap, itemtool24BitmapDisabled, wxITEM_NORMAL, _T("stop all threads"), _T("stop all threads"));
     v_pToolBar->AddSeparator();
     v_pToolBar->Realize();
     itemFrame1->SetToolBar(v_pToolBar);
@@ -205,13 +221,31 @@ void wxFrameMain::CreateControls()
     itemFrame1->SetStatusBar(v_pStatusBar);
 
 ////@end wxFrameMain content construction
+
+#ifdef USE_RELEASE_CODE
+    itemMenu3->Enable(wxID_EXIT, false);
+    v_pToolBar->EnableTool(wxID_EXIT, false);
+    v_pToolBar->EnableTool(ID_TOOL_DBG, false);
+    v_pToolBar->EnableTool(ID_TOOL_SPEEDCONTOL, false);
+    v_pToolBar->EnableTool(ID_TOOL_VOLUMECONTROL, false);
+    v_pToolBar->EnableTool(ID_TOOL_LIGHTCONTROL, false);
+    v_pToolBar->EnableTool(ID_TOOL_ROOMWIZARD, false);
+    v_pToolBar->EnableTool(ID_TOOL_WAITGRID, false);
+    v_pToolBar->EnableTool(ID_TOOL_WAITLIST, false);
+    v_pToolBar->EnableTool(ID_TOOL_WAITUSER, false);
+    v_pToolBar->EnableTool(ID_TOOL_U_B_D, false);
+    v_pToolBar->EnableTool(ID_TOOL_U_B_J, false);
+    v_pToolBar->EnableTool(ID_TOOL_U_N_D, false);
+    v_pToolBar->EnableTool(ID_TOOL_U_N_J, false);
+    v_pToolBar->EnableTool(ID_TOOL_STOP, false);
+#endif // USE_RELEASE_CODE
 }
 
 /*!
  * wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN
  */
 
-void wxFrameMain::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+void wxFrameMain::OnCloseWindow( wxCloseEvent& event )
 {
     _WX_LOG_NFO();
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN in wxFrameMain.
@@ -219,6 +253,7 @@ void wxFrameMain::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
     wxWindow* window = this;
     window->Destroy();
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN in wxFrameMain.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -240,12 +275,13 @@ void wxFrameMain::OnIdle( wxIdleEvent& event )
  * wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
  */
 
-void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
+void wxFrameMain::OnExitClick( wxCommandEvent& event )
 {
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT in wxFrameMain.
     // Before editing this code, remove the block markers.
     Destroy();
 ////@end wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT in wxFrameMain.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -254,17 +290,15 @@ void wxFrameMain::OnExitClick( wxCommandEvent& WXUNUSED(event) )
 
 void wxFrameMain::OnToolDbgClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_refresh_update");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
     else
         ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_refresh_update", _debug_refresh_update) )->Start();
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_DBG in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_DBG in wxFrameMain. 
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_DBG in wxFrameMain.
 }
 
 /*!
@@ -277,7 +311,115 @@ void wxFrameMain::OnToolDbgUpdate( wxUpdateUIEvent& event )
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_DBG in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_UPDATE_UI event handler for ID_TOOL_DBG in wxFrameMain. 
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_DBG in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SPEEDCONTOL
+ */
+
+void wxFrameMain::OnToolSpeedcontolClick( wxCommandEvent& event )
+{
+    wxDialog_SpeedControl *pwxDialog = ptr_wxDialogByType<wxDialog_SpeedControl>();
+    if (pwxDialog)
+        Safe_Close(pwxDialog);
+    else
+    {
+        SpeedControlCallBackData *pCallBackData = new SpeedControlCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_SpeedControl>(pCallBackData);
+        Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
+    }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SPEEDCONTOL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SPEEDCONTOL in wxFrameMain.
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_SPEEDCONTOL
+ */
+
+void wxFrameMain::OnToolSpeedcontolUpdate( wxUpdateUIEvent& event )
+{
+    v_pToolBar->ToggleTool(ID_TOOL_SPEEDCONTOL, ptr_wxDialogByType<wxDialog_SpeedControl>());
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_SPEEDCONTOL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_SPEEDCONTOL in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_VOLUMECONTROL
+ */
+
+void wxFrameMain::OnToolVolumecontrolClick( wxCommandEvent& event )
+{
+    wxDialog_VolumeControl *pwxDialog = ptr_wxDialogByType<wxDialog_VolumeControl>();
+    if (pwxDialog)
+        Safe_Close(pwxDialog);
+    else
+    {
+        VolumeControlCallBackData *pCallBackData = new VolumeControlCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_VolumeControl>(pCallBackData);
+        Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
+    }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_VOLUMECONTROL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_VOLUMECONTROL in wxFrameMain.
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_VOLUMECONTROL
+ */
+
+void wxFrameMain::OnToolVolumecontrolUpdate( wxUpdateUIEvent& event )
+{
+    v_pToolBar->ToggleTool(ID_TOOL_VOLUMECONTROL, ptr_wxDialogByType<wxDialog_VolumeControl>());
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_VOLUMECONTROL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_VOLUMECONTROL in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_LIGHTCONTROL
+ */
+
+void wxFrameMain::OnToolLightcontrolClick( wxCommandEvent& event )
+{
+    wxDialog_LightControl *pwxDialog = ptr_wxDialogByType<wxDialog_LightControl>();
+    if (pwxDialog)
+        Safe_Close(pwxDialog);
+    else
+    {
+        LightControlCallBackData *pCallBackData = new LightControlCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_LightControl>(pCallBackData);
+        Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
+    }
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_LIGHTCONTROL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_LIGHTCONTROL in wxFrameMain.
+}
+
+/*!
+ * wxEVT_UPDATE_UI event handler for ID_TOOL_LIGHTCONTROL
+ */
+
+void wxFrameMain::OnToolLightcontrolUpdate( wxUpdateUIEvent& event )
+{
+    v_pToolBar->ToggleTool(ID_TOOL_LIGHTCONTROL, ptr_wxDialogByType<wxDialog_LightControl>());
+////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_LIGHTCONTROL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_LIGHTCONTROL in wxFrameMain.
 }
 
 /*!
@@ -286,16 +428,17 @@ void wxFrameMain::OnToolDbgUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolRoomwizardClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();
     if (pwxDialog)
         Safe_Close(pwxDialog);
     else
     {
-        pwxDialog = Safe_CreateUnique<wxDialog_RoomWizard>(_debug_RoomWizard());
+        RoomWizardCallBackData *pCallBackData = new RoomWizardCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_RoomWizard>(pCallBackData);
         Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
     }
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_ROOMWIZARD in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -321,16 +464,17 @@ void wxFrameMain::OnToolRoomwizardUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaitgridClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     wxDialog_WaitGrid *pwxDialog = ptr_wxDialogByType<wxDialog_WaitGrid>();
     if (pwxDialog)
         Safe_Close(pwxDialog);
     else
     {
-        pwxDialog = Safe_CreateUnique<wxDialog_WaitGrid>();
+        WaitUserGridCallBackData *pCallBackData = new WaitUserGridCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_WaitGrid>(pCallBackData);
         Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
     }
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITGRID in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -356,16 +500,17 @@ void wxFrameMain::OnToolWaitgridUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaitlistClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     wxDialog_WaitList *pwxDialog = ptr_wxDialogByType<wxDialog_WaitList>();
     if (pwxDialog)
         Safe_Close(pwxDialog);
     else
     {
-        pwxDialog = Safe_CreateUnique<wxDialog_WaitList>();
+        WaitUserListCallBackData *pCallBackData = new WaitUserListCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_WaitList>(pCallBackData);
         Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
     }
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITLIST in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -391,16 +536,17 @@ void wxFrameMain::OnToolWaitlistUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolWaituserClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     wxDialog_WaitUser *pwxDialog = ptr_wxDialogByType<wxDialog_WaitUser>();
     if (pwxDialog)
         Safe_Close(pwxDialog);
     else
     {
-        pwxDialog = Safe_CreateUnique<wxDialog_WaitUser>();
+        WaitUserPromptCallBackData *pCallBackData = new WaitUserPromptCallBackData;
+        _debug_init(pCallBackData);
+        pwxDialog = Safe_CreateUnique<wxDialog_WaitUser>(pCallBackData);
         Safe_Show(pwxDialog);
+        wxDELETE(pCallBackData);
     }
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_WAITUSER in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -545,14 +691,12 @@ void wxFrameMain::OnToolUNJUpdate( wxUpdateUIEvent& event )
 
 void wxFrameMain::OnToolStopClick( wxCommandEvent& event )
 {
-#ifdef USE_DEBUG_CODE
     if (wxGetApp().ptr_ThreadBag()->GetCount())
         wxGetApp().ptr_ThreadBag()->DestroyAll();
-#endif // USE_DEBUG_CODE
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_STOP in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_STOP in wxFrameMain. 
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_STOP in wxFrameMain.
 }
 
 /*!
@@ -565,7 +709,7 @@ void wxFrameMain::OnToolStopUpdate( wxUpdateUIEvent& event )
 ////@begin wxEVT_UPDATE_UI event handler for ID_TOOL_STOP in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_UPDATE_UI event handler for ID_TOOL_STOP in wxFrameMain. 
+////@end wxEVT_UPDATE_UI event handler for ID_TOOL_STOP in wxFrameMain.
 }
 
 /*!
@@ -616,10 +760,6 @@ wxIcon wxFrameMain::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     return wxNullIcon;
 ////@end wxFrameMain icon retrieval
-}
-
-wxFrameMain::~wxFrameMain()
-{
 }
 
 bool wxFrameMain::Destroy()

@@ -41,12 +41,10 @@
 
 class wxAppMain: public wxApp
 {
-    DECLARE_CLASS( wxAppMain )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_CLASS( wxAppMain );
+    DECLARE_EVENT_TABLE();
 
-  public:
+public:
     /// Constructor
     wxAppMain();
 

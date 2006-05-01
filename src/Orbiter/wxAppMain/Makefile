@@ -26,7 +26,7 @@ OBJECTPATH=DebugX11
 PROGRAM=wxAppMain
 LIBS=`wx-config --libs`
 LINKERFLAGS=
-WARNINGFLAGS=-Wall -W -Wunused -Wunreachable-code
+WARNINGFLAGS=-Wall -W -Wunused
 OPTFLAGS=-O0
 DEBUGFLAGS=-ggdb
 LIBPATH=
@@ -64,7 +64,7 @@ LIBDIRNAME=$(WXWIN)/GCCBuildDebugGTK2/lib
 RESPATH=--include-dir "$(WXWIN)/include" --include-dir "$(WXWIN)/contrib/include" --include-dir "$(WXWIN)/GCCBuildDebugGTK2/lib/wx/include/gtk2d-2.4"
 endif
 
-OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxdialog_speedcontrol.o $(OBJECTPATH)/wxdialog_volumecontrol.o $(OBJECTPATH)/wxdialog_lightcontrol.o $(OBJECTPATH)/wxdialog_base.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wxdialog_waitgrid.o $(OBJECTPATH)/wxdialog_waitlist.o $(OBJECTPATH)/wxdialog_waituser.o $(OBJECTPATH)/wx_all_include.o $(OBJECTPATH)/wx_debugging.o $(OBJECTPATH)/wx_dialog_types.o $(OBJECTPATH)/wx_event_dialog.o $(OBJECTPATH)/wx_event_thread.o $(OBJECTPATH)/wx_extern_app.o $(OBJECTPATH)/wx_helpers.o $(OBJECTPATH)/wx_logger.o $(OBJECTPATH)/wx_main.o $(OBJECTPATH)/wx_safe_dialog.o $(OBJECTPATH)/wx_thread_bag.o $(OBJECTPATH)/wx_thread_cmd.o $(OBJECTPATH)/wx_thread_wrapper.o $(RESOURCEOBJECT)
+OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxpanel_seek.o $(OBJECTPATH)/wxpanel_speed.o $(OBJECTPATH)/wxpanel_time.o $(OBJECTPATH)/wxdialog_speedcontrol.o $(OBJECTPATH)/wxpanel_volume.o $(OBJECTPATH)/wxdialog_volumecontrol.o $(OBJECTPATH)/wxpanel_light.o $(OBJECTPATH)/wxdialog_lightcontrol.o $(OBJECTPATH)/wxdialog_base.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wxdialog_waitgrid.o $(OBJECTPATH)/wxdialog_waitlist.o $(OBJECTPATH)/wxdialog_waituser.o $(OBJECTPATH)/wx_all_include.o $(OBJECTPATH)/wx_debugging.o $(OBJECTPATH)/wx_dialog_types.o $(OBJECTPATH)/wx_event_dialog.o $(OBJECTPATH)/wx_event_thread.o $(OBJECTPATH)/wx_extern_app.o $(OBJECTPATH)/wx_extern_helpers.o $(OBJECTPATH)/wx_helpers.o $(OBJECTPATH)/wx_logger.o $(OBJECTPATH)/wx_main.o $(OBJECTPATH)/wx_safe_dialog.o $(OBJECTPATH)/wx_thread_bag.o $(OBJECTPATH)/wx_thread_cmd.o $(OBJECTPATH)/wx_thread_wrapper.o $(RESOURCEOBJECT)
 
 all:	$(OBJECTPATH) $(MACPACKAGEINFO)
 
@@ -106,40 +106,55 @@ $(OUTPUTPATH)/$(PROGRAM).app/Contents/PkgInfo: $(OUTPUTPATH)/$(PROGRAM) $(WXWIN)
 	ln -f $(OUTPUTPATH)/$(PROGRAM) $(OUTPUTPATH)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
 	cp -f $(WXWIN)/src/mac/carbon/wxmac.icns $(OUTPUTPATH)/$(PROGRAM).app/Contents/Resources/wxmac.icns
 
-$(OBJECTPATH)/wxappmain.o:	wxappmain.cpp wx/wx.h wxappmain.h wxframemain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_event_dialog.h wx_safe_dialog.h wx_dialog_types.h wxdialog_base.h wxdialog_roomwizard.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wx_thread_bag.h
+$(OBJECTPATH)/wxappmain.o:	wxappmain.cpp wx/wx.h wxappmain.h wxframemain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_extern_helpers.h wx_dialog_types.h wx_event_dialog.h wx_safe_dialog.h wxdialog_base.h wx_thread_bag.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxappmain.cpp
 
-$(OBJECTPATH)/wxframemain.o:	wxframemain.cpp wx/wx.h wxframemain.h wxappmain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_thread_bag.h wxdialog_roomwizard.h wxdialog_base.h wx_dialog_types.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wx_safe_dialog.h wx_event_dialog.h exit.xpm exec.xpm clock.xpm
+$(OBJECTPATH)/wxframemain.o:	wxframemain.cpp wx/wx.h wxframemain.h wxappmain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_extern_helpers.h wx_dialog_types.h wx_thread_bag.h wx_safe_dialog.h wx_event_dialog.h wx_dialog_all_include.h wxdialog_roomwizard.h wxdialog_base.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wxdialog_speedcontrol.h wxdialog_volumecontrol.h wxdialog_lightcontrol.h exit.xpm exec.xpm clock.xpm
 	$(CXX) -c -o $@ $(CPPFLAGS) wxframemain.cpp
 
-$(OBJECTPATH)/wxdialog_speedcontrol.o:	wxdialog_speedcontrol.cpp wx/wx.h wxdialog_speedcontrol.h wxdialog_base.h wx_dialog_types.h
+$(OBJECTPATH)/wxpanel_seek.o:	wxpanel_seek.cpp wx/wx.h wxpanel_seek.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wxpanel_seek.cpp
+
+$(OBJECTPATH)/wxpanel_speed.o:	wxpanel_speed.cpp wx/wx.h wxpanel_speed.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wxpanel_speed.cpp
+
+$(OBJECTPATH)/wxpanel_time.o:	wxpanel_time.cpp wx/wx.h wxpanel_time.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wxpanel_time.cpp
+
+$(OBJECTPATH)/wxdialog_speedcontrol.o:	wxdialog_speedcontrol.cpp wx/wx.h wxdialog_speedcontrol.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h wxpanel_seek.h wxpanel_speed.h wxpanel_time.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_speedcontrol.cpp
 
-$(OBJECTPATH)/wxdialog_volumecontrol.o:	wxdialog_volumecontrol.cpp wx/wx.h wxdialog_volumecontrol.h wxdialog_base.h wx_dialog_types.h
+$(OBJECTPATH)/wxpanel_volume.o:	wxpanel_volume.cpp wx/wx.h wxpanel_volume.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wxpanel_volume.cpp
+
+$(OBJECTPATH)/wxdialog_volumecontrol.o:	wxdialog_volumecontrol.cpp wx/wx.h wxdialog_volumecontrol.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h wxpanel_volume.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_volumecontrol.cpp
 
-$(OBJECTPATH)/wxdialog_lightcontrol.o:	wxdialog_lightcontrol.cpp wx/wx.h wxdialog_lightcontrol.h wxdialog_base.h wx_dialog_types.h
+$(OBJECTPATH)/wxpanel_light.o:	wxpanel_light.cpp wx/wx.h wxpanel_light.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wxpanel_light.cpp
+
+$(OBJECTPATH)/wxdialog_lightcontrol.o:	wxdialog_lightcontrol.cpp wx/wx.h wxdialog_lightcontrol.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h wxpanel_light.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_lightcontrol.cpp
 
-$(OBJECTPATH)/wxdialog_base.o:	wxdialog_base.cpp wx/wx.h wxdialog_base.h wx_dialog_types.h wx_event_dialog.h wx_safe_dialog.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h
+$(OBJECTPATH)/wxdialog_base.o:	wxdialog_base.cpp wx/wx.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h wx_event_dialog.h wx_safe_dialog.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_base.cpp
 
-$(OBJECTPATH)/wxdialog_roomwizard.o:	wxdialog_roomwizard.cpp wx/wx.h wxdialog_roomwizard.h wxdialog_base.h wx_dialog_types.h
+$(OBJECTPATH)/wxdialog_roomwizard.o:	wxdialog_roomwizard.cpp wx/wx.h wxdialog_roomwizard.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_roomwizard.cpp
 
-$(OBJECTPATH)/wxdialog_waitgrid.o:	wxdialog_waitgrid.cpp wx/wx.h wxdialog_waitgrid.h wxdialog_base.h wx_dialog_types.h logo_pluto.xpm
+$(OBJECTPATH)/wxdialog_waitgrid.o:	wxdialog_waitgrid.cpp wx/wx.h wxdialog_waitgrid.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h logo_pluto.xpm
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_waitgrid.cpp
 
-$(OBJECTPATH)/wxdialog_waitlist.o:	wxdialog_waitlist.cpp wx/wx.h wxdialog_waitlist.h wxdialog_base.h wx_dialog_types.h logo_pluto.xpm
+$(OBJECTPATH)/wxdialog_waitlist.o:	wxdialog_waitlist.cpp wx/wx.h wxdialog_waitlist.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h logo_pluto.xpm
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_waitlist.cpp
 
-$(OBJECTPATH)/wxdialog_waituser.o:	wxdialog_waituser.cpp wx/wx.h wxdialog_waituser.h wxdialog_base.h wx_dialog_types.h logo_pluto.xpm
+$(OBJECTPATH)/wxdialog_waituser.o:	wxdialog_waituser.cpp wx/wx.h wxdialog_waituser.h wxdialog_base.h wx_dialog_types.h wx_extern_helpers.h logo_pluto.xpm
 	$(CXX) -c -o $@ $(CPPFLAGS) wxdialog_waituser.cpp
 
 $(OBJECTPATH)/wx_all_include.o:	wx_all_include.cpp wx/wx.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_all_include.cpp
 
-$(OBJECTPATH)/wx_debugging.o:	wx_debugging.cpp wx/wx.h wx_debugging.h wx_dialog_types.h wxappmain.h wxframemain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_event_thread.h wx_thread_wrapper.h wx_thread_bag.h wxdialog_roomwizard.h wxdialog_base.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wx_safe_dialog.h wx_event_dialog.h
+$(OBJECTPATH)/wx_debugging.o:	wx_debugging.cpp wx/wx.h wx_debugging.h wxappmain.h wxframemain.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_extern_helpers.h wx_dialog_types.h wx_event_thread.h wx_thread_wrapper.h wx_thread_bag.h wx_safe_dialog.h wx_event_dialog.h wx_dialog_all_include.h wxdialog_roomwizard.h wxdialog_base.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wxdialog_speedcontrol.h wxdialog_volumecontrol.h wxdialog_lightcontrol.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_debugging.cpp
 
 $(OBJECTPATH)/wx_dialog_types.o:	wx_dialog_types.cpp wx/wx.h wx_dialog_types.h
@@ -151,8 +166,11 @@ $(OBJECTPATH)/wx_event_dialog.o:	wx_event_dialog.cpp wx/wx.h wx_event_dialog.h w
 $(OBJECTPATH)/wx_event_thread.o:	wx_event_thread.cpp wx/wx.h wx_event_thread.h wx_thread_cmd.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_event_thread.cpp
 
-$(OBJECTPATH)/wx_extern_app.o:	wx_extern_app.cpp wx/wx.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wxappmain.h wxframemain.h wx_safe_dialog.h wx_dialog_types.h wx_event_dialog.h
+$(OBJECTPATH)/wx_extern_app.o:	wx_extern_app.cpp wx/wx.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_extern_helpers.h wx_dialog_types.h wxappmain.h wxframemain.h wx_safe_dialog.h wx_event_dialog.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_extern_app.cpp
+
+$(OBJECTPATH)/wx_extern_helpers.o:	wx_extern_helpers.cpp wx/wx.h wx_extern_helpers.h wx_dialog_types.h
+	$(CXX) -c -o $@ $(CPPFLAGS) wx_extern_helpers.cpp
 
 $(OBJECTPATH)/wx_helpers.o:	wx_helpers.cpp wx/wx.h wx_helpers.h wx_event_dialog.h wx_event_thread.h wx_thread_wrapper.h wx_thread_cmd.h wx_thread_bag.h wx_dialog_types.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_helpers.cpp
@@ -160,19 +178,19 @@ $(OBJECTPATH)/wx_helpers.o:	wx_helpers.cpp wx/wx.h wx_helpers.h wx_event_dialog.
 $(OBJECTPATH)/wx_logger.o:	wx_logger.cpp wx/wx.h wx_logger.h wx_helpers.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_logger.cpp
 
-$(OBJECTPATH)/wx_main.o:	wx_main.cpp wx/wx.h wx_main.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h
+$(OBJECTPATH)/wx_main.o:	wx_main.cpp wx/wx.h wx_main.h wx_extern_app.h wx_thread_cmd.h wx_helpers.h wx_extern_helpers.h wx_dialog_types.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_main.cpp
 
-$(OBJECTPATH)/wx_safe_dialog.o:	wx_safe_dialog.cpp wx/wx.h wx_safe_dialog.h wx_dialog_types.h wx_event_dialog.h wxdialog_roomwizard.h wxdialog_base.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h
+$(OBJECTPATH)/wx_safe_dialog.o:	wx_safe_dialog.cpp wx/wx.h wx_safe_dialog.h wx_dialog_types.h wx_event_dialog.h wx_extern_helpers.h wx_dialog_all_include.h wxdialog_roomwizard.h wxdialog_base.h wxdialog_waitgrid.h wxdialog_waitlist.h wxdialog_waituser.h wxdialog_speedcontrol.h wxdialog_volumecontrol.h wxdialog_lightcontrol.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_safe_dialog.cpp
 
 $(OBJECTPATH)/wx_thread_bag.o:	wx_thread_bag.cpp wx/wx.h wx_thread_bag.h wx_thread_cmd.h wx_helpers.h wx_event_thread.h wx_thread_wrapper.h wxframemain.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_thread_bag.cpp
 
-$(OBJECTPATH)/wx_thread_cmd.o:	wx_thread_cmd.cpp wx/wx.h wx_thread_cmd.h wx_helpers.h wxappmain.h wxframemain.h wx_extern_app.h wx_thread_wrapper.h wx_thread_bag.h
+$(OBJECTPATH)/wx_thread_cmd.o:	wx_thread_cmd.cpp wx/wx.h wx_thread_cmd.h wx_helpers.h wxappmain.h wxframemain.h wx_extern_app.h wx_extern_helpers.h wx_dialog_types.h wx_thread_wrapper.h wx_thread_bag.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_thread_cmd.cpp
 
-$(OBJECTPATH)/wx_thread_wrapper.o:	wx_thread_wrapper.cpp wx/wx.h wx_thread_wrapper.h wx_thread_cmd.h wx_helpers.h wxappmain.h wxframemain.h wx_extern_app.h wx_event_thread.h wx_thread_bag.h
+$(OBJECTPATH)/wx_thread_wrapper.o:	wx_thread_wrapper.cpp wx/wx.h wx_thread_wrapper.h wx_thread_cmd.h wx_helpers.h wxappmain.h wxframemain.h wx_extern_app.h wx_extern_helpers.h wx_dialog_types.h wx_event_thread.h wx_thread_bag.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wx_thread_wrapper.cpp
 
 .PHONY:	all clean

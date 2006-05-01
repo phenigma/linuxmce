@@ -24,10 +24,12 @@
 #include "wx_debugging.h"
 
 #include "wx/dynarray.h"
-
 #include <string>
 #include <map>
+#include <list>
 using namespace std;
+
+#include "wx_extern_helpers.h"
 
 #endif
 // _WX_ALL_INCLUDE_H_

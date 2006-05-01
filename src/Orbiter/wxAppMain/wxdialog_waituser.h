@@ -33,7 +33,7 @@ class wxBoxSizer;
 
 ////@begin control identifiers
 #define ID_DIALOG_WAITUSER 10005
-#define SYMBOL_WXDIALOG_WAITUSER_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXDIALOG_WAITUSER_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXDIALOG_WAITUSER_TITLE _T("Wait User")
 #define SYMBOL_WXDIALOG_WAITUSER_IDNAME ID_DIALOG_WAITUSER
 #define SYMBOL_WXDIALOG_WAITUSER_SIZE wxSize(150, 150)
@@ -56,10 +56,8 @@ class wxBoxSizer;
 
 class wxDialog_WaitUser: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_WaitUser )
-        ;
-    DECLARE_EVENT_TABLE()
-        ;
+    DECLARE_DYNAMIC_CLASS( wxDialog_WaitUser );
+    DECLARE_EVENT_TABLE();
 
 public:
     /// Constructors
@@ -105,14 +103,7 @@ public:
 
 public:
     ~wxDialog_WaitUser();
-    virtual bool Gui_DataLoad(void *pExternData);
-
-    struct Data_Refresh
-    {
-        string m_sMessage;
-        int m_nTimeoutSeconds;
-        map<int,string> m_mapPrompts;
-    };
+    virtual bool Gui_DataLoad(CallBackData *pCallBackData);
 
 protected:
     void OnAnyButtonClick( wxCommandEvent& event );

@@ -153,6 +153,7 @@ void wxDialog_WaitUser::CreateControls()
     v_pBoxH_bot->Add(v_pButtonOk, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
 ////@end wxDialog_WaitUser content construction
+
     v_pInfoText->SetValue("");
     v_nExpireTime_ms = 0;
     v_nCrtTime_ms = 0;
@@ -162,13 +163,14 @@ void wxDialog_WaitUser::CreateControls()
  * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER
  */
 
-void wxDialog_WaitUser::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+void wxDialog_WaitUser::OnCloseWindow( wxCloseEvent& event )
 {
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER in wxDialog_WaitUser.
     // Before editing this code, remove the block markers.
     wxDialog* dialog = wxDynamicCast(this, wxDialog);
     dialog->EndModal(ID_DIALOG_WAITUSER);
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITUSER in wxDialog_WaitUser.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -211,35 +213,28 @@ wxIcon wxDialog_WaitUser::GetIconResource( const wxString& name )
 ////@end wxDialog_WaitUser icon retrieval
 }
 
-//==================================================
-
 wxDialog_WaitUser::~wxDialog_WaitUser()
 {
     _WX_LOG_NFO();
     v_oTimer_ExpireDialog.Stop();
 }
 
-bool wxDialog_WaitUser::Gui_DataLoad(void *pExternData)
+bool wxDialog_WaitUser::Gui_DataLoad(CallBackData *pCallBackData)
 {
     //_WX_LOG_NFO();
-#ifdef USE_RELEASE_CODE
-    WaitUserPromptCallBackData *pData_Refresh = wx_static_cast(WaitUserPromptCallBackData *, pExternData);
-#endif // USE_RELEASE_CODE
-#ifdef USE_DEBUG_CODE
-    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-#endif // USE_DEBUG_CODE
-    _COND_RET(pData_Refresh != NULL, false);
+    WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
+    v_pInfoText->SetValue(pCallData->m_sMessage);
     // update buttons
-    if (pData_Refresh->m_mapPrompts.size() == 0)
+    if (pCallData->m_mapPrompts.size() == 0)
     {
         v_pButtonOk->Show();
     }
     else
     {
         v_pButtonOk->Hide();
-        for(map<int, string>::iterator it = pData_Refresh->m_mapPrompts.begin(); it != pData_Refresh->m_mapPrompts.end(); ++it)
+        for (map<int, string>::iterator it = pCallData->m_mapPrompts.begin(); it != pCallData->m_mapPrompts.end(); ++it)
         {
             int nButtonId = it->first;
             wxString sButtonLabel = it->second.c_str();
@@ -260,17 +255,14 @@ bool wxDialog_WaitUser::Gui_DataLoad(void *pExternData)
     }
     // update expired time value and restart the timer
     bool bStartNow = (v_nExpireTime_ms == 0);
-    v_nExpireTime_ms = pData_Refresh->m_nTimeoutSeconds * 1000;
+    v_nExpireTime_ms = pCallData->m_nTimeoutSeconds * 1000;
     v_pGauge->SetRange(v_nExpireTime_ms);
     if (bStartNow)
     {
         v_oTimer_ExpireDialog.Start(INTERVAL_TIMER_EXPIREDIALOG_MSEC);
     }
     v_pGauge->SetValue(v_nCrtTime_ms);
-#ifdef USE_RELEASE_CODE
-    delete pData_Refresh;
-#endif // USE_RELEASE_CODE
-    return true;
+    return Gui_Refresh(pCallBackData);
 }
 
 void wxDialog_WaitUser::OnTimer_ExpireDialog(wxTimerEvent& event)

@@ -21,13 +21,8 @@
 #include "wx_event_thread.h"
 #include "wx_thread_wrapper.h"
 #include "wx_thread_bag.h"
-#include "wxdialog_roomwizard.h"
-#include "wxdialog_waitgrid.h"
-#include "wxdialog_waitlist.h"
-#include "wxdialog_waituser.h"
 #include "wx_safe_dialog.h"
-
-wxArray_RoomItems _g_aRoomItems;
+#include "wx_dialog_all_include.h"
 
 static string _g_aStr[] =
 {
@@ -41,51 +36,105 @@ int _g_nPercent = 0;
 int _g_nTimeoutSeconds = 5;
 static map<string, bool> _g_mapStrBool;
 static map<int,string> _g_mapIntStr;
+static list<int> _g_listIntSpeeds;
 
-void _debug_init()
+void _debug_global_init()
 {
     for (int idx=0; idx<_g_nStr; idx++)
     {
         _g_mapIntStr[(idx+1)*10] = _g_aStr[idx];
         _g_mapStrBool[_g_aStr[idx]] = (idx % (2+idx));
     }
-    _g_aRoomItems.Add( RoomItem("Living Room", 1, 0) );
-    _g_aRoomItems.Add( RoomItem("Bathroom", 2, 0) );
-    _g_aRoomItems.Add( RoomItem("Bedroom", 4, 0) );
+    _g_listIntSpeeds.push_back(-20);
+    _g_listIntSpeeds.push_back(-10);
+    _g_listIntSpeeds.push_back(0);
+    _g_listIntSpeeds.push_back(10);
+    _g_listIntSpeeds.push_back(20);
 };
 
-void * _debug_RoomWizard()
+void _debug_init(class CallBackData *pCallBackData=NULL)
 {
-    return &_g_aRoomItems;
+    if (RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData))
+    {
+        pCallData->m_rectPosition.X = 500;
+        pCallData->m_rectPosition.Y = 200;
+        pCallData->m_rectPosition.Width = 300;
+        pCallData->m_rectPosition.Height = 100;
+#ifdef USE_DEBUG_CODE
+        if (pCallData->map_room_types.size() != 0)
+            return;
+        pCallData->map_room_types[101] = 1;
+        pCallData->map_fn_GetRoomTypeName[101] = "Living Room";
+        pCallData->map_room_types[102] = 2;
+        pCallData->map_fn_GetRoomTypeName[102] = "Bathroom";
+        pCallData->map_room_types[103] = 3;
+        pCallData->map_fn_GetRoomTypeName[103] = "Bedroom";
+#endif // USE_DEBUG_CODE
+        return;
+    }
+    if (WaitUserGridCallBackData *pCallData = dynamic_cast<WaitUserGridCallBackData *>(pCallBackData))
+    {
+        pCallData->m_nPercent = 0;
+        return;
+    }
+    if (WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData))
+    {
+        pCallData->m_nPercent = 0;
+        return;
+    }
+    if (WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData))
+    {
+        pCallData->m_nTimeoutSeconds = 0;
+        return;
+    }
+    if (SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData))
+    {
+        //pCallData->m_eStyle = SpeedControlCallBackData::TIME;
+        //pCallData->m_eStyle = SpeedControlCallBackData::TIME_SEEK;
+        //pCallData->m_eStyle = SpeedControlCallBackData::TIME_SPEED;
+        //pCallData->m_eStyle = SpeedControlCallBackData::SPEED;
+        pCallData->m_eStyle = SpeedControlCallBackData::TIME_SEEK;
+        pCallData->m_listSpeeds = _g_listIntSpeeds;
+        pCallData->m_nSpeed = 10;
+        pCallData->m_nTimeStart = 10234;
+        pCallData->m_nTimeEnd = 50234;
+        pCallData->m_nTimeNow = 90234;
+        pCallData->m_nSeekToPos = 70234;
+        pCallData->m_rectPosition.X = 500;
+        pCallData->m_rectPosition.Y = 200;
+        pCallData->m_rectPosition.Width = 300;
+        pCallData->m_rectPosition.Height = 100;
+        return;
+    }
 };
 
 template <class wxClassName>
-void _debug_show_dlg_safe(void *pData=NULL)
+void _debug_show_dlg_safe(CallBackData *pCallBackData=NULL)
 {
 #ifdef USE_DEBUG_CODE
     _WX_LOG_DBG("Safe_START");
     wxClassName *pWin = NULL;
     _WX_LOG_DBG("Safe_Show");
-    pWin = Safe_CreateUnique<wxClassName>(pData);
+    pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_Show<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_Close");
     Safe_Close<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_Show Again");
-    pWin = Safe_CreateUnique<wxClassName>(pData);
+    pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_Show<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_ShowModal");
-    pWin = Safe_CreateUnique<wxClassName>(pData);
+    pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_ShowModal<wxClassName>(pWin);
     _WX_LOG_DBG("Safe_END");
 #endif // USE_DEBUG_CODE
 }
 
 template <class wxClassName>
-void _debug_show_dlg_pdac(void *pCallBackData=NULL)
+void _debug_show_dlg_pdac(CallBackData *pCallBackData=NULL)
 {
 #ifdef USE_DEBUG_CODE
     _WX_LOG_DBG("PDAC_START");
-    WMTask *pTask = NULL;
+    Task *pTask = NULL;
     _WX_LOG_DBG("cbOnDialogCreate");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
@@ -116,15 +165,38 @@ void _debug_show_dlg_pdac(void *pCallBackData=NULL)
 
 void _debug_show_dlg_safe_all()
 {
-    _debug_show_dlg_safe<wxDialog_RoomWizard>(_debug_RoomWizard());
-    _debug_show_dlg_safe<wxDialog_WaitGrid>();
-    _debug_show_dlg_safe<wxDialog_WaitList>();
-    _debug_show_dlg_safe<wxDialog_WaitUser>();
+    {
+        RoomWizardCallBackData *pCallBackData = new RoomWizardCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_safe<wxDialog_RoomWizard>(pCallBackData);
+        wxDELETE(pCallBackData);
+    }
+    {
+        WaitUserGridCallBackData *pCallBackData = new WaitUserGridCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_safe<wxDialog_WaitGrid>(pCallBackData);
+        wxDELETE(pCallBackData);
+    }
+    {
+        WaitUserListCallBackData *pCallBackData = new WaitUserListCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_safe<wxDialog_WaitList>(pCallBackData);
+        wxDELETE(pCallBackData);
+    }
+    {
+        WaitUserPromptCallBackData *pCallBackData = new WaitUserPromptCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_safe<wxDialog_WaitUser>(pCallBackData);
+        wxDELETE(pCallBackData);
+    }
 }
 
 void _debug_show_dlg_pdac_all()
 {
-    _debug_show_dlg_pdac<wxDialog_RoomWizard>(_debug_RoomWizard());
+    RoomWizardCallBackData *pCallBackData = new RoomWizardCallBackData;
+    _debug_init(pCallBackData);
+    _debug_show_dlg_pdac<wxDialog_RoomWizard>(pCallBackData);
+    //wxDELETE(pCallBackData);
     _debug_show_dlg_pdac<wxDialog_WaitGrid>();
     _debug_show_dlg_pdac<wxDialog_WaitList>();
     _debug_show_dlg_pdac<wxDialog_WaitUser>();
@@ -162,8 +234,12 @@ void _debug_refresh_update()
             {
                 _WX_LOG_DBG("wxDialog_WaitGrid");
                 bOneActive = true;
-                wxDialog_WaitGrid::Data_Refresh data_refresh = { _g_aStr[i], _g_mapStrBool, _g_nPercent };
-                Safe_Gui_Refresh(pwxDialog, &data_refresh);
+                WaitUserGridCallBackData *pCallBackData = new WaitUserGridCallBackData();
+                pCallBackData->m_sMessage = _g_aStr[i];
+                pCallBackData->m_mapChildDevices = _g_mapStrBool;
+                pCallBackData->m_nPercent = _g_nPercent;
+                Safe_Gui_Refresh(pwxDialog, pCallBackData);
+                wxDELETE(pCallBackData);
             }
         }
         {
@@ -172,8 +248,11 @@ void _debug_refresh_update()
             {
                 _WX_LOG_DBG("wxDialog_WaitList");
                 bOneActive = true;
-                wxDialog_WaitList::Data_Refresh data_refresh = { _g_aStr[i], _g_nPercent };
-                Safe_Gui_Refresh(pwxDialog, &data_refresh);
+                WaitUserListCallBackData *pCallBackData = new WaitUserListCallBackData();
+                pCallBackData->m_sMessage = _g_aStr[i];
+                pCallBackData->m_nPercent = _g_nPercent;
+                Safe_Gui_Refresh(pwxDialog, pCallBackData);
+                wxDELETE(pCallBackData);
             }
         }
         {
@@ -182,8 +261,25 @@ void _debug_refresh_update()
             {
                 _WX_LOG_DBG("wxDialog_WaitUser");
                 bOneActive = true;
-                wxDialog_WaitUser::Data_Refresh data_refresh = { _g_aStr[i], _g_nTimeoutSeconds, _g_mapIntStr };
-                Safe_Gui_Refresh(pwxDialog, &data_refresh);
+                WaitUserPromptCallBackData *pCallBackData = new WaitUserPromptCallBackData();
+                pCallBackData->m_sMessage = _g_aStr[i];
+                pCallBackData->m_nTimeoutSeconds = _g_nTimeoutSeconds;
+                pCallBackData->m_mapPrompts = _g_mapIntStr;
+                Safe_Gui_Refresh(pwxDialog, pCallBackData);
+                wxDELETE(pCallBackData);
+            }
+        }
+        {
+            wxDialog_SpeedControl *pwxDialog = ptr_wxDialogByType<wxDialog_SpeedControl>();
+            if (pwxDialog)
+            {
+                _WX_LOG_DBG("wxDialog_SpeedControl");
+                bOneActive = true;
+                SpeedControlCallBackData *pCallBackData = new SpeedControlCallBackData();
+                _debug_init(pCallBackData);
+                pCallBackData->m_eStyle = SpeedControlCallBackData::Style( 1 + iLoop % 4 );
+                Safe_Gui_Refresh(pwxDialog, pCallBackData);
+                wxDELETE(pCallBackData);
             }
         }
         iLoop++;
@@ -225,136 +321,3 @@ void _debug_thread_nonblock()
     }
     _WX_LOG_DBG(";;");
 }
-
-// compatibility code for debug
-// wx implementation for task-manager
-#ifdef USE_DEBUG_CODE
-
-const char * _str_enum(CallBackType value)
-{
-    switch (value)
-    {
-        CASE_const_ret_str(cbOnDialog_Unused);
-        CASE_const_ret_str(cbOnDialogCreate);
-        CASE_const_ret_str(cbOnDialogDelete);
-        CASE_const_ret_str(cbOnDialogRefresh);
-        CASE_const_ret_str(cbOnDialogSave);
-        CASE_const_ret_str(cbOnDialogWaitUser);
-        default:
-            _WX_LOG_ERR("unknown value %d", value);
-            break;
-    }
-    return wxString::Format("?%d?", value);
-}
-
-const char * _str_task(WMTask *pWMTask)
-{
-    if (pWMTask == NULL)
-        return wxString::Format("NULL task");
-    return wxString::Format(
-        "WMTask(TaskType=%s, DialogType=%s, pCallBackData=%p, TaskId=%d)",
-        _str_enum(pWMTask->TaskType), _str_enum(pWMTask->DialogType), pWMTask->pCallBackData, pWMTask->TaskId
-        );
-}
-
-WMTask::WMTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData, size_t TaskId)
-        : TaskType(TaskType)
-        , DialogType(DialogType)
-        , pCallBackData(pCallBackData)
-        , TaskId(TaskId)
-        , b_IsWaiting(false)
-        , v_oSemaphoreTaskWait(0, 1)
-{
-    //_WX_LOG_DBG("New %s", _str_task(this));
-}
-
-WMTaskManager::WMTaskManager()
-        : v_oMutex(wxMUTEX_RECURSIVE)
-        , v_nNextUniqueId(0)
-{
-    _WX_LOG_DBG();
-}
-
-WMTask * WMTaskManager::CreateTask(CallBackType TaskType, E_DIALOG_TYPE DialogType, CallBackData* pCallBackData )
-{
-    //_WX_LOG_DBG("LOCK CreateTask()");
-    wxMutexLocker lock(v_oMutex);
-    //_WX_LOG_DBG("INTO CreateTask()");
-    v_nNextUniqueId++;
-    WMTask *pWMTask = new WMTask(TaskType, DialogType, pCallBackData, v_nNextUniqueId);
-    _WX_LOG_DBG("DONE CreateTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-    return pWMTask;
-}
-
-void WMTaskManager::AddTask(WMTask *pWMTask)
-{
-    _WX_LOG_DBG("AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-    _COND_RET(pWMTask);
-    //_WX_LOG_DBG("LOCK AddTask()");
-    wxMutexLocker lock(v_oMutex);
-    //_WX_LOG_DBG("INTO AddTask()");
-    v_apWMTask.Add(pWMTask);
-    _WX_LOG_DBG("DONE AddTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-}
-
-void WMTaskManager::AddTaskAndWait(WMTask *pWMTask)
-{
-    _WX_LOG_DBG("AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-    _COND_RET(pWMTask);
-    {
-        //_WX_LOG_DBG("LOCK AddTaskAndWait()");
-        wxMutexLocker lock(v_oMutex);
-        //_WX_LOG_DBG("INTO AddTaskAndWait()");
-        v_apWMTask.Add(pWMTask);
-        pWMTask->b_IsWaiting = true;
-    }
-    _WX_LOG_DBG("WAIT AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-    pWMTask->v_oSemaphoreTaskWait.Wait();
-    _WX_LOG_DBG("DONE AddTaskAndWait(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-}
-
-WMTask *WMTaskManager::PopTask()
-{
-    //_WX_LOG_DBG();
-    //_WX_LOG_DBG("LOCK PopTask()");
-    wxMutexLocker lock(v_oMutex);
-    //_WX_LOG_DBG("INTO PopTask()");
-    if (v_apWMTask.IsEmpty())
-        return NULL;
-    _WX_LOG_DBG("NOT EMPTY PopTask()");
-    WMTask *pWMTask = v_apWMTask[0];
-    v_apWMTask.RemoveAt(0);
-    _WX_LOG_DBG("DONE PopTask(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-    return pWMTask;
-}
-
-void WMTaskManager::TaskProcessed(size_t nTaskId)
-{
-    _WX_LOG_DBG("TaskProcessed(%d)", nTaskId);
-    _WX_LOG_DBG("LOCK TaskProcessed()");
-    wxMutexLocker lock(v_oMutex);
-    _WX_LOG_DBG("INTO TaskProcessed()");
-    size_t n = v_apWMTask.GetCount();
-    for (size_t i=0; i<n; i++)
-    {
-        WMTask *pWMTask = v_apWMTask[i];
-        if (pWMTask->TaskId == nTaskId)
-        {
-            _WX_LOG_DBG("ITEM TaskProcessed() : i=%d", i);
-            _COND(i == 0);
-            if (pWMTask->b_IsWaiting)
-            {
-                _WX_LOG_DBG("WAIT TaskProcessed() : i=%d", i);
-                pWMTask->v_oSemaphoreTaskWait.Post();
-                _WX_LOG_DBG("CONT TaskProcessed() : i=%d", i);
-            }
-            v_apWMTask.RemoveAt(i);
-            _WX_LOG_DBG("Done TaskProcessed(%s), size=%d", _str_task(pWMTask), v_apWMTask.GetCount());
-        }
-    }
-    //--_WX_LOG_ERR("No task found with id=%d, size=%d", nTaskId, v_apWMTask.GetCount());
-}
-
-WMTaskManager TaskManager::_g_WMTaskManager;
-
-#endif // USE_DEBUG_CODE

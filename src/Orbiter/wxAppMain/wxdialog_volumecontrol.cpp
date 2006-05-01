@@ -1,3 +1,9 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wxdialog_volumecontrol.h"
 #endif
@@ -17,6 +23,7 @@
 ////@end includes
 
 #include "wxdialog_volumecontrol.h"
+#include "wxpanel_volume.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -61,7 +68,7 @@ bool wxDialog_VolumeControl::Create( wxWindow* parent, wxWindowID id, const wxSt
 {
 ////@begin wxDialog_VolumeControl member initialisation
     v_pBoxV_all = NULL;
-    v_pWinVOLUME = NULL;
+    v_pPanel_Volume = NULL;
 ////@end wxDialog_VolumeControl member initialisation
 
 ////@begin wxDialog_VolumeControl creation
@@ -87,12 +94,25 @@ void wxDialog_VolumeControl::CreateControls()
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
-    v_pWinVOLUME = new wxWindow;
-    v_pWinVOLUME->Create( itemDialog_Base1, ID_WINDOW_VOLUME, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(200, 20)), wxNO_BORDER|wxCLIP_CHILDREN |wxHSCROLL|wxVSCROLL );
-    v_pWinVOLUME->SetBackgroundColour(wxColour(30, 144, 255));
-    v_pBoxV_all->Add(v_pWinVOLUME, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    v_pPanel_Volume = new wxPanel_Volume;
+    v_pPanel_Volume->Create( itemDialog_Base1, ID_CTRL_VOLUME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+    v_pBoxV_all->Add(v_pPanel_Volume, 1, wxGROW|wxALL, 5);
 
 ////@end wxDialog_VolumeControl content construction
+}
+
+/*!
+ * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL
+ */
+
+void wxDialog_VolumeControl::OnCloseWindow( wxCloseEvent& event )
+{
+////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL in wxDialog_VolumeControl.
+    // Before editing this code, remove the block markers.
+    wxWindow* window = this;
+    window->Destroy();
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL in wxDialog_VolumeControl.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -129,17 +149,12 @@ wxIcon wxDialog_VolumeControl::GetIconResource( const wxString& name )
     return wxNullIcon;
 ////@end wxDialog_VolumeControl icon retrieval
 }
-/*!
- * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL
- */
 
-void wxDialog_VolumeControl::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+bool wxDialog_VolumeControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL in wxDialog_VolumeControl.
-    // Before editing this code, remove the block markers.
-    wxWindow* window = this;
-    window->Destroy();
-////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_VOLUMECONTROL in wxDialog_VolumeControl. 
+    //_WX_LOG_NFO();
+    VolumeControlCallBackData *pCallData = dynamic_cast<VolumeControlCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
+    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    return true;
 }
-
-

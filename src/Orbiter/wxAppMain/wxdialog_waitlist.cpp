@@ -143,6 +143,7 @@ void wxDialog_WaitList::CreateControls()
     v_pBoxH_bot->Add(v_pGauge, 1, wxALIGN_CENTER_VERTICAL|wxALL, 10);
 
 ////@end wxDialog_WaitList content construction
+
     v_pInfoText->SetValue("");
     v_pLogText->SetValue("");
     v_pGauge->SetValue(0);
@@ -152,13 +153,14 @@ void wxDialog_WaitList::CreateControls()
  * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST
  */
 
-void wxDialog_WaitList::OnCloseWindow( wxCloseEvent& WXUNUSED(event) )
+void wxDialog_WaitList::OnCloseWindow( wxCloseEvent& event )
 {
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST in wxDialog_WaitList.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
     window->Destroy();
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_WAITLIST in wxDialog_WaitList.
+    wxUnusedVar(event);
 }
 
 /*!
@@ -201,43 +203,22 @@ wxIcon wxDialog_WaitList::GetIconResource( const wxString& name )
 ////@end wxDialog_WaitList icon retrieval
 }
 
-//==================================================
-
-wxDialog_WaitList::~wxDialog_WaitList()
-{
-    _WX_LOG_NFO();
-}
-
-bool wxDialog_WaitList::Gui_DataLoad(void *pExternData)
-{
-    _WX_LOG_NFO();
-    return Gui_Refresh(pExternData);
-}
-
-bool wxDialog_WaitList::Gui_Refresh(void *pExternData)
+bool wxDialog_WaitList::Gui_Refresh(CallBackData *pCallBackData)
 {
     //_WX_LOG_NFO();
-#ifdef USE_RELEASE_CODE
-    WaitUserListCallBackData *pData_Refresh = wx_static_cast(WaitUserListCallBackData *, pExternData);
-#endif // USE_RELEASE_CODE
-#ifdef USE_DEBUG_CODE
-    Data_Refresh *pData_Refresh = wx_static_cast(Data_Refresh *, pExternData);
-#endif // USE_DEBUG_CODE
-    _COND_RET(pData_Refresh != NULL, false);
+    WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData);
+    _COND_RET(pCallData != NULL, false);
     // update info text
-    v_pInfoText->SetValue(pData_Refresh->m_sMessage);
+    v_pInfoText->SetValue(pCallData->m_sMessage);
     // update log text
-    if (v_sPrevStr != pData_Refresh->m_sMessage)
+    if (v_sPrevStr != pCallData->m_sMessage)
     {
         if (! v_pLogText->GetValue().IsEmpty())
             v_pLogText->AppendText("\n");
-        v_pLogText->AppendText(pData_Refresh->m_sMessage);
-        v_sPrevStr = pData_Refresh->m_sMessage;
+        v_pLogText->AppendText(pCallData->m_sMessage);
+        v_sPrevStr = pCallData->m_sMessage;
     }
     // update progress bar
-    v_pGauge->SetValue(pData_Refresh->m_nPercent);
-#ifdef USE_RELEASE_CODE
-    delete pData_Refresh;
-#endif // USE_RELEASE_CODE
+    v_pGauge->SetValue(pCallData->m_nPercent);
     return true;
 }

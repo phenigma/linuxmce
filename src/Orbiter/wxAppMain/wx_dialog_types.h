@@ -23,6 +23,9 @@ enum E_DIALOG_TYPE
     E_Dialog_WaitGrid,
     E_Dialog_WaitList,
     E_Dialog_WaitUser,
+    E_Dialog_SpeedControl,
+    E_Dialog_VolumeControl,
+    E_Dialog_LightControl,
     E_Dialog_None,
 };
 #endif // USE_DEBUG_CODE
@@ -40,6 +43,7 @@ enum E_ACTION_TYPE
     E_Action_Show,
     E_Action_ShowModal,
     E_Action_WaitUser,
+    E_Action_WaitInitialized,
 };
 const char * _str_enum(E_ACTION_TYPE value);
 
