@@ -79,11 +79,6 @@ class Wizard
 	SDLFrontEnd* FrontEnd;
 	
 	/**
-	 * That object is used for changing the display modes
-	 */
-	ScreenManager Manager;
-	
-	/**
 	 * Last pending event definition
 	 */
 	WM_Event Event;
