@@ -94,8 +94,8 @@ FindInArray()
 {
 	local Value="$1"
 	shift
-	local Array=("$@")
-	local i
+	local Array i
+	Array=("$@")
 	
 	for ((i = 0; i < ${#Array[*]}; i++)); do
 		if [[ "$Value" == "${Array[$i]}" ]]; then
