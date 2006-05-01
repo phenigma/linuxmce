@@ -196,7 +196,7 @@ public:
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #796 - PL_Join_Call */
+	/** @brief COMMAND: #797 - PL_Join_Call */
 	/** Will join you to an existing call */
 		/** @param #86 CallID */
 			/** Call ID to join to */

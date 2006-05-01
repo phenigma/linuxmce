@@ -1462,9 +1462,9 @@ void Telecom_Plugin::doDisplayMessages()
 	}
 }
 
-//<-dceag-c796-b->
+//<-dceag-c797-b->
 
-	/** @brief COMMAND: #796 - PL_Join_Call */
+	/** @brief COMMAND: #797 - PL_Join_Call */
 	/** Will join you to an existing call */
 		/** @param #86 CallID */
 			/** Call ID to join to */
@@ -1472,7 +1472,7 @@ void Telecom_Plugin::doDisplayMessages()
 			/** Devices which will be added to the call */
 
 void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
-//<-dceag-c796-e->
+//<-dceag-c797-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Command PL_Join_Call (call=%s, devices=%s)",sCallID.c_str(),sList_PK_Device.c_str());
 	list <int> dev_join_list;
