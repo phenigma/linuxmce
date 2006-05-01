@@ -68,6 +68,9 @@ public:
 
 ////@begin wxPanel_Volume event handler declarations
 
+    /// wxEVT_PAINT event handler for ID_PANEL_VOLUME
+    void OnPaint( wxPaintEvent& event );
+
 ////@end wxPanel_Volume event handler declarations
 
 ////@begin wxPanel_Volume member function declarations
@@ -84,6 +87,12 @@ public:
 
 ////@begin wxPanel_Volume member variables
 ////@end wxPanel_Volume member variables
+
+public:
+    int m_nPositions;
+    int m_nCrtPosition;
+    bool bTypeSpeed;
+    bool bTypeRuler;
 };
 
 #endif

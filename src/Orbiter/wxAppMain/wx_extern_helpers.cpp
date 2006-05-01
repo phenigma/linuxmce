@@ -20,6 +20,36 @@
 
 #include "wx_extern_helpers.h"
 
+const char * _str_enum(SpeedControlCallBackData::Style value)
+{
+    switch (value)
+    {
+        CASE_const_ret_str(SpeedControlCallBackData::UNUSED);
+        CASE_const_ret_str(SpeedControlCallBackData::TIME);
+        CASE_const_ret_str(SpeedControlCallBackData::TIME_SEEK);
+        CASE_const_ret_str(SpeedControlCallBackData::TIME_SPEED);
+        CASE_const_ret_str(SpeedControlCallBackData::SPEED);
+        default:
+            _WX_LOG_ERR("unknown value %d", value);
+            break;
+    }
+    return wxString::Format("?%d?", value);
+}
+
+const char * _str_enum(VolumeControlCallBackData::Style value)
+{
+    switch (value)
+    {
+        CASE_const_ret_str(VolumeControlCallBackData::UNUSED);
+        CASE_const_ret_str(VolumeControlCallBackData::RULER);
+        CASE_const_ret_str(VolumeControlCallBackData::SPEED);
+        default:
+            _WX_LOG_ERR("unknown value %d", value);
+            break;
+    }
+    return wxString::Format("?%d?", value);
+}
+
 #ifdef USE_DEBUG_CODE
 const char * _str_enum(CallBackType value)
 {

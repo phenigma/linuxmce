@@ -44,17 +44,23 @@ IMPLEMENT_DYNAMIC_CLASS( wxPanel_Time, wxPanel )
 
 ////@end wxPanel_Time event table entries
 
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
 /*!
  * wxPanel_Time constructors
  */
 
-    wxPanel_Time::wxPanel_Time( )
+wxPanel_Time::wxPanel_Time( )
+        : v_nTimeStart(0)
+        , v_nTimeNow(0)
+        , v_nTimeEnd(0)
 {
 }
 
 wxPanel_Time::wxPanel_Time( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
+        : v_nTimeStart(0)
+        , v_nTimeNow(0)
+        , v_nTimeEnd(0)
 {
     Create(parent, id, pos, size, style);
 }
@@ -77,7 +83,6 @@ bool wxPanel_Time::Create( wxWindow* parent, wxWindowID id, const wxPoint& pos, 
     wxPanel::Create( parent, id, pos, size, style );
 
     CreateControls();
-    Centre();
 ////@end wxPanel_Time creation
     return true;
 }
@@ -97,14 +102,14 @@ void wxPanel_Time::CreateControls()
     itemPanel1->SetSizer(itemBoxSizer2);
 
     v_pSliderTime = new wxSlider;
-    v_pSliderTime->Create( itemPanel1, ID_SLIDER_TIME, 50, 0, 100, wxDefaultPosition, itemPanel1->ConvertDialogToPixels(wxSize(57, -1)), wxSL_HORIZONTAL|wxSL_AUTOTICKS );
+    v_pSliderTime->Create( itemPanel1, ID_SLIDER_TIME, 50, 0, 100, wxDefaultPosition, itemPanel1->ConvertDialogToPixels(wxSize(75, -1)), wxSL_HORIZONTAL|wxSL_AUTOTICKS );
     v_pSliderTime->SetBackgroundColour(wxColour(173, 216, 230));
     v_pSliderTime->Enable(false);
-    itemBoxSizer2->Add(v_pSliderTime, 1, wxGROW|wxALL|wxSHAPED, 5);
+    itemBoxSizer2->Add(v_pSliderTime, 1, wxGROW|wxSHAPED, 5);
 
     v_pWinTime = new wxWindow;
     v_pWinTime->Create( itemPanel1, ID_WIN_TIME, wxDefaultPosition, itemPanel1->ConvertDialogToPixels(wxSize(100, 100)), wxNO_BORDER|wxCLIP_CHILDREN  );
-    itemBoxSizer2->Add(v_pWinTime, 1, wxGROW|wxALL, 5);
+    itemBoxSizer2->Add(v_pWinTime, 1, wxGROW, 5);
 
     v_pTimeStart = new wxStaticText;
     v_pTimeStart->Create( v_pWinTime, wxID_TIME_START, _T("11:11:11"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -127,9 +132,9 @@ void wxPanel_Time::OnPaint( wxPaintEvent& event )
 ////@begin wxEVT_PAINT event handler for ID_PANEL_TIME in wxPanel_Time.
     // Before editing this code, remove the block markers.
     wxPaintDC dc(this);
-////@end wxEVT_PAINT event handler for ID_PANEL_TIME in wxPanel_Time. 
+////@end wxEVT_PAINT event handler for ID_PANEL_TIME in wxPanel_Time.
     wxUnusedVar(event);
-    //_WX_LOG_NFO();
+    _WX_LOG_NFO("start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
     dc.Clear();

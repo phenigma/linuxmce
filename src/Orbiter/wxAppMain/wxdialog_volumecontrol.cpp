@@ -95,8 +95,9 @@ void wxDialog_VolumeControl::CreateControls()
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pPanel_Volume = new wxPanel_Volume;
-    v_pPanel_Volume->Create( itemDialog_Base1, ID_CTRL_VOLUME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
-    v_pBoxV_all->Add(v_pPanel_Volume, 1, wxGROW|wxALL, 5);
+    v_pPanel_Volume->Create( itemDialog_Base1, ID_CTRL_VOLUME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pPanel_Volume->SetBackgroundColour(wxColour(0, 0, 255));
+    v_pBoxV_all->Add(v_pPanel_Volume, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
 ////@end wxDialog_VolumeControl content construction
 }
@@ -155,6 +156,24 @@ bool wxDialog_VolumeControl::Gui_Refresh(CallBackData *pCallBackData)
     //_WX_LOG_NFO();
     VolumeControlCallBackData *pCallData = dynamic_cast<VolumeControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    _WX_LOG_NFO("Style=%s, m_nPositions=%d, m_nCrtPosition=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nPositions, pCallData->m_nCrtPosition);
+    switch (pCallData->m_eStyle)
+    {
+        case VolumeControlCallBackData::SPEED:
+            v_pPanel_Volume->bTypeSpeed = true;
+            v_pPanel_Volume->bTypeRuler = false;
+            break;
+        case VolumeControlCallBackData::RULER:
+            v_pPanel_Volume->bTypeSpeed = false;
+            v_pPanel_Volume->bTypeRuler = true;
+            break;
+        default:
+            _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
+            break;
+    }
+    v_pPanel_Volume->m_nPositions = pCallData->m_nPositions;
+    v_pPanel_Volume->m_nCrtPosition = pCallData->m_nCrtPosition;
+    v_pPanel_Volume->Refresh();
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     return true;
 }

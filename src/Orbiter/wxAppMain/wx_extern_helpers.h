@@ -57,9 +57,11 @@ class PositionCallBackData : public CallBackData
 {
 public:
 	PlutoRectangle m_rectPosition;
+    bool m_bShowFullScreen;
 	PositionCallBackData()
             : CallBackData()
             , m_rectPosition(0, 0, 0, 0)
+            , m_bShowFullScreen(false)
         {}
 	virtual ~PositionCallBackData() {}
 };
@@ -256,6 +258,9 @@ public:
 #ifdef USE_RELEASE_CODE
 #include "../CallBackData.h"
 #endif // USE_RELEASE_CODE
+
+const char * _str_enum(SpeedControlCallBackData::Style value);
+const char * _str_enum(VolumeControlCallBackData::Style value);
 
 class Extern_Task_Data : public CallBackData
 {

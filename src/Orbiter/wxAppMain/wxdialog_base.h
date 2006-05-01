@@ -108,6 +108,7 @@ class wxDialog_Base: public wxDialog
     virtual bool Gui_DataSave(CallBackData *pCallBackData);
 
     // GUI refresh related code should be implemented here
+    // by default set full-screen or update position
     virtual bool Gui_Refresh(CallBackData *pCallBackData);
 
     bool IsInitialized();
@@ -119,7 +120,9 @@ protected:
     void OnWindowCreate(wxWindowCreateEvent& event);
     void OnEvent_Dialog(wxCommandEvent& event);
     void Clean_Exit();
-    void UpdatePosition(const int x, const int y, const int width, const int height);
+    void Update_Position(const int x, const int y, const int width, const int height);
+    void Update_FullScreen(bool bShowFullScreen);
+    void Update_Position_FullScreen(const int x, const int y, const int width, const int height, bool bShowFullScreen);
 
     bool v_bInitialized;
     // generic dialog functionality

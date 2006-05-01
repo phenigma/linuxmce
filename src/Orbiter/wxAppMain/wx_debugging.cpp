@@ -54,12 +54,30 @@ void _debug_global_init()
 
 void _debug_init(class CallBackData *pCallBackData=NULL)
 {
-    if (RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData))
+    static wxCriticalSection oCriticalSection;
+    wxCriticalSectionLocker lock(oCriticalSection);
+    // initialization
+    static int iLoop=0;
+    iLoop++;
+    int i = iLoop % _g_nStr;
+    _g_nPercent = i * 100 / _g_nStr;
+    for (int idx=0; idx<_g_nStr; idx++)
+    {
+        _g_mapStrBool[_g_aStr[idx]] = (i % (2+idx));
+    }
+    _WX_LOG_DBG("iLoop=%d, nPercent=%d, nTimeoutSeconds=%d", iLoop, _g_nPercent, _g_nTimeoutSeconds);
+    // loop continue
+    if (PositionCallBackData *pCallData = dynamic_cast<PositionCallBackData *>(pCallBackData))
     {
         pCallData->m_rectPosition.X = 500;
         pCallData->m_rectPosition.Y = 200;
         pCallData->m_rectPosition.Width = 300;
         pCallData->m_rectPosition.Height = 100;
+        //pCallData->m_bShowFullScreen = bool( (1+iLoop) % 2 );
+    }
+    // loop return
+    if (RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData))
+    {
 #ifdef USE_DEBUG_CODE
         if (pCallData->map_room_types.size() != 0)
             return;
@@ -74,38 +92,89 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
     }
     if (WaitUserGridCallBackData *pCallData = dynamic_cast<WaitUserGridCallBackData *>(pCallBackData))
     {
-        pCallData->m_nPercent = 0;
+        pCallData->m_sMessage = _g_aStr[i];
+        pCallData->m_mapChildDevices = _g_mapStrBool;
+        pCallData->m_nPercent = _g_nPercent;
         return;
     }
     if (WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData))
     {
-        pCallData->m_nPercent = 0;
+        pCallData->m_sMessage = _g_aStr[i];
+        pCallData->m_nPercent = _g_nPercent;
         return;
     }
     if (WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData))
     {
-        pCallData->m_nTimeoutSeconds = 0;
+        pCallData->m_sMessage = _g_aStr[i];
+        pCallData->m_nTimeoutSeconds = _g_nTimeoutSeconds;
+        pCallData->m_mapPrompts = _g_mapIntStr;
         return;
     }
     if (SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData))
     {
-        //pCallData->m_eStyle = SpeedControlCallBackData::TIME;
-        //pCallData->m_eStyle = SpeedControlCallBackData::TIME_SEEK;
-        //pCallData->m_eStyle = SpeedControlCallBackData::TIME_SPEED;
-        //pCallData->m_eStyle = SpeedControlCallBackData::SPEED;
-        pCallData->m_eStyle = SpeedControlCallBackData::TIME_SEEK;
+        pCallData->m_eStyle = SpeedControlCallBackData::Style( 1 + iLoop % 4 );
         pCallData->m_listSpeeds = _g_listIntSpeeds;
         pCallData->m_nSpeed = 10;
         pCallData->m_nTimeStart = 10234;
         pCallData->m_nTimeEnd = 50234;
         pCallData->m_nTimeNow = 90234;
         pCallData->m_nSeekToPos = 70234;
-        pCallData->m_rectPosition.X = 500;
-        pCallData->m_rectPosition.Y = 200;
-        pCallData->m_rectPosition.Width = 300;
-        pCallData->m_rectPosition.Height = 100;
         return;
     }
+    if (VolumeControlCallBackData *pCallData = dynamic_cast<VolumeControlCallBackData *>(pCallBackData))
+    {
+        pCallData->m_eStyle = VolumeControlCallBackData::Style( 1 + iLoop % 2 );
+        pCallData->m_nPositions = 10;
+        pCallData->m_nCrtPosition = iLoop % ( pCallData->m_nPositions + 1 );
+        return;
+    }
+    if (LightControlCallBackData *pCallData = dynamic_cast<LightControlCallBackData *>(pCallBackData))
+    {
+        pCallData->m_nPositions = 10;
+        pCallData->m_nCrtPosition = iLoop % ( pCallData->m_nPositions + 1 );
+        return;
+    }
+};
+
+template <class wxClassName, class ExternData_CallBackData>
+bool CallRefresh()
+{
+    wxClassName *pwxDialog = ptr_wxDialogByType<wxClassName>();
+    if (pwxDialog)
+    {
+        _WX_LOG_DBG("%s", Get_ClassName(Get_Type<wxClassName>()));
+        ExternData_CallBackData *pCallBackData = new ExternData_CallBackData();
+        _debug_init(pCallBackData);
+        Safe_Gui_Refresh(pwxDialog, pCallBackData);
+        wxDELETE(pCallBackData);
+        return true;
+    }
+    return false;
+}
+
+void _debug_refresh_update()
+{
+#ifdef USE_DEBUG_CODE
+    bool bInThread = (! ::wxIsMainThread());
+    bool bOneActive = true;
+    do
+    {
+        if ( wxIdleThreadShouldStop() || (! bOneActive) )
+            break;
+        bOneActive = false;
+        bOneActive = bOneActive || CallRefresh<wxDialog_RoomWizard, RoomWizardCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_WaitGrid, WaitUserGridCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_WaitList, WaitUserListCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_WaitUser, WaitUserPromptCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_SpeedControl, SpeedControlCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_VolumeControl, VolumeControlCallBackData>();
+        bOneActive = bOneActive || CallRefresh<wxDialog_LightControl, LightControlCallBackData>();
+        if (bInThread)
+        {
+            wx_sleep(2);
+        }
+    } while (bInThread);
+#endif // USE_DEBUG_CODE
 };
 
 template <class wxClassName>
@@ -193,13 +262,26 @@ void _debug_show_dlg_safe_all()
 
 void _debug_show_dlg_pdac_all()
 {
-    RoomWizardCallBackData *pCallBackData = new RoomWizardCallBackData;
-    _debug_init(pCallBackData);
-    _debug_show_dlg_pdac<wxDialog_RoomWizard>(pCallBackData);
-    //wxDELETE(pCallBackData);
-    _debug_show_dlg_pdac<wxDialog_WaitGrid>();
-    _debug_show_dlg_pdac<wxDialog_WaitList>();
-    _debug_show_dlg_pdac<wxDialog_WaitUser>();
+    {
+        RoomWizardCallBackData *pCallBackData = new RoomWizardCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_pdac<wxDialog_RoomWizard>(pCallBackData);
+    }
+    {
+        WaitUserGridCallBackData *pCallBackData = new WaitUserGridCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_pdac<wxDialog_WaitGrid>(pCallBackData);
+    }
+    {
+        WaitUserListCallBackData *pCallBackData = new WaitUserListCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_pdac<wxDialog_WaitList>(pCallBackData);
+    }
+    {
+        WaitUserPromptCallBackData *pCallBackData = new WaitUserPromptCallBackData;
+        _debug_init(pCallBackData);
+        _debug_show_dlg_pdac<wxDialog_WaitUser>(pCallBackData);
+    }
 }
 
 void _debug_show_dlg_all()
@@ -207,89 +289,6 @@ void _debug_show_dlg_all()
     //_debug_show_dlg_safe_all();
     _debug_show_dlg_pdac_all();
 }
-
-void _debug_refresh_update()
-{
-#ifdef USE_DEBUG_CODE
-    bool bInThread = (! ::wxIsMainThread());
-    bool bOneActive = true;
-    do
-    {
-        if ( wxIdleThreadShouldStop() || (! bOneActive) )
-            break;
-        bOneActive = false;
-        // initialization
-        static int iLoop=0;
-        int i = iLoop % _g_nStr;
-        _g_nPercent = i * 100 / _g_nStr;
-        for (int idx=0; idx<_g_nStr; idx++)
-        {
-            _g_mapStrBool[_g_aStr[idx]] = (i % (2+idx));
-        }
-        _WX_LOG_DBG("iLoop=%d, nPercent=%d, nTimeoutSeconds=%d", iLoop, _g_nPercent, _g_nTimeoutSeconds);
-        // refresh update
-        {
-            wxDialog_WaitGrid *pwxDialog = ptr_wxDialogByType<wxDialog_WaitGrid>();
-            if (pwxDialog)
-            {
-                _WX_LOG_DBG("wxDialog_WaitGrid");
-                bOneActive = true;
-                WaitUserGridCallBackData *pCallBackData = new WaitUserGridCallBackData();
-                pCallBackData->m_sMessage = _g_aStr[i];
-                pCallBackData->m_mapChildDevices = _g_mapStrBool;
-                pCallBackData->m_nPercent = _g_nPercent;
-                Safe_Gui_Refresh(pwxDialog, pCallBackData);
-                wxDELETE(pCallBackData);
-            }
-        }
-        {
-            wxDialog_WaitList *pwxDialog = ptr_wxDialogByType<wxDialog_WaitList>();
-            if (pwxDialog)
-            {
-                _WX_LOG_DBG("wxDialog_WaitList");
-                bOneActive = true;
-                WaitUserListCallBackData *pCallBackData = new WaitUserListCallBackData();
-                pCallBackData->m_sMessage = _g_aStr[i];
-                pCallBackData->m_nPercent = _g_nPercent;
-                Safe_Gui_Refresh(pwxDialog, pCallBackData);
-                wxDELETE(pCallBackData);
-            }
-        }
-        {
-            wxDialog_WaitUser *pwxDialog = ptr_wxDialogByType<wxDialog_WaitUser>();
-            if (pwxDialog)
-            {
-                _WX_LOG_DBG("wxDialog_WaitUser");
-                bOneActive = true;
-                WaitUserPromptCallBackData *pCallBackData = new WaitUserPromptCallBackData();
-                pCallBackData->m_sMessage = _g_aStr[i];
-                pCallBackData->m_nTimeoutSeconds = _g_nTimeoutSeconds;
-                pCallBackData->m_mapPrompts = _g_mapIntStr;
-                Safe_Gui_Refresh(pwxDialog, pCallBackData);
-                wxDELETE(pCallBackData);
-            }
-        }
-        {
-            wxDialog_SpeedControl *pwxDialog = ptr_wxDialogByType<wxDialog_SpeedControl>();
-            if (pwxDialog)
-            {
-                _WX_LOG_DBG("wxDialog_SpeedControl");
-                bOneActive = true;
-                SpeedControlCallBackData *pCallBackData = new SpeedControlCallBackData();
-                _debug_init(pCallBackData);
-                pCallBackData->m_eStyle = SpeedControlCallBackData::Style( 1 + iLoop % 4 );
-                Safe_Gui_Refresh(pwxDialog, pCallBackData);
-                wxDELETE(pCallBackData);
-            }
-        }
-        iLoop++;
-        if (bInThread)
-        {
-            wx_sleep(2);
-        }
-    } while (bInThread);
-#endif // USE_DEBUG_CODE
-};
 
 void _debug_thread_block()
 {

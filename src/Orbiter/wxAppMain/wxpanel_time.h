@@ -98,6 +98,7 @@ public:
     wxStaticText* v_pTimeNow;
     wxStaticText* v_pTimeEnd;
 ////@end wxPanel_Time member variables
+
 public:
     int v_nTimeStart;
     int v_nTimeNow;

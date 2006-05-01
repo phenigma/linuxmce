@@ -168,10 +168,12 @@
     </object>
     <object class="wxPanel" name="ID_PANEL_SEEK" subclass="wxPanel_Seek">
         <style>wxRESIZE_BORDER</style>
+        <fg>#00FF00</fg>
         <bg>#ADD8E6</bg>
         <size>200,25d</size>
     </object>
     <object class="wxPanel" name="ID_PANEL_SPEED" subclass="wxPanel_Speed">
+        <fg>#0000FF</fg>
         <bg>#ADD8E6</bg>
         <size>200,50d</size>
     </object>
@@ -182,11 +184,11 @@
         <object class="wxBoxSizer">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL|wxSHAPED</flag>
+                <flag>wxGROW|wxSHAPED</flag>
                 <border>5</border>
                 <option>1</option>
                 <object class="wxSlider" name="ID_SLIDER_TIME">
-                    <size>57,-1d</size>
+                    <size>75,-1d</size>
                     <style>wxSL_HORIZONTAL|wxSL_AUTOTICKS</style>
                     <enabled>0</enabled>
                     <bg>#ADD8E6</bg>
@@ -196,7 +198,7 @@
                 </object>
             </object>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL</flag>
+                <flag>wxGROW</flag>
                 <border>5</border>
                 <option>1</option>
                 <object class="unknown" name="ID_WIN_TIME">
@@ -222,51 +224,27 @@
         <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL|wxSHAPED</flag>
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_pBoxH_Seek">
-                    <orient>wxHORIZONTAL</orient>
-                    <object class="sizeritem">
-                        <flag>wxGROW|wxALL</flag>
-                        <border>5</border>
-                        <option>1</option>
-                        <object class="wxPanel" name="ID_CTRL_SEEK" subclass="wxPanel_Seek">
-                            <style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
-                        </object>
-                    </object>
+                <object class="wxPanel" name="ID_CTRL_SEEK" subclass="wxPanel_Seek">
+                    <style>wxSUNKEN_BORDER</style>
                 </object>
             </object>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL|wxSHAPED</flag>
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="wxBoxSizer" name="v_pBoxH_Speed">
-                    <orient>wxHORIZONTAL</orient>
-                    <object class="sizeritem">
-                        <flag>wxGROW|wxALL</flag>
-                        <border>5</border>
-                        <option>1</option>
-                        <object class="wxPanel" name="ID_CTRL_SPEED" subclass="wxPanel_Speed">
-                            <style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
-                        </object>
-                    </object>
+                <object class="wxPanel" name="ID_CTRL_SPEED" subclass="wxPanel_Speed">
+                    <style>wxSUNKEN_BORDER</style>
                 </object>
             </object>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL|wxSHAPED</flag>
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
                 <border>5</border>
-                <option>1</option>
-                <object class="wxBoxSizer" name="v_pBoxH_Time">
-                    <orient>wxHORIZONTAL</orient>
-                    <object class="sizeritem">
-                        <flag>wxGROW|wxALL</flag>
-                        <border>5</border>
-                        <option>1</option>
-                        <object class="wxPanel" name="ID_CTRL_TIME" subclass="wxPanel_Time">
-                            <style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
-                        </object>
-                    </object>
+                <option>2</option>
+                <object class="wxPanel" name="ID_CTRL_TIME" subclass="wxPanel_Time">
+                    <style>wxSUNKEN_BORDER</style>
                 </object>
             </object>
         </object>
@@ -282,11 +260,12 @@
         <object class="wxBoxSizer" name="v_pBoxV_all">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL</flag>
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
                 <border>5</border>
                 <option>1</option>
                 <object class="wxPanel" name="ID_CTRL_VOLUME" subclass="wxPanel_Volume">
-                    <style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
+                    <style>wxSUNKEN_BORDER</style>
+                    <bg>#0000FF</bg>
                 </object>
             </object>
         </object>
@@ -302,11 +281,12 @@
         <object class="wxBoxSizer" name="v_pBoxH_all">
             <orient>wxHORIZONTAL</orient>
             <object class="sizeritem">
-                <flag>wxGROW|wxALL</flag>
+                <flag>wxGROW|wxTOP|wxBOTTOM</flag>
                 <border>5</border>
                 <option>1</option>
                 <object class="wxPanel" name="ID_CTRL_LIGHT" subclass="wxPanel_Light">
-                    <style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
+                    <style>wxSUNKEN_BORDER</style>
+                    <bg>#FFA500</bg>
                 </object>
             </object>
         </object>

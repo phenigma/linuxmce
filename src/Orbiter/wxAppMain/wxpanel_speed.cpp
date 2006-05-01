@@ -44,17 +44,19 @@ IMPLEMENT_DYNAMIC_CLASS( wxPanel_Speed, wxPanel )
 
 ////@end wxPanel_Speed event table entries
 
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
 /*!
  * wxPanel_Speed constructors
  */
 
-    wxPanel_Speed::wxPanel_Speed( )
+wxPanel_Speed::wxPanel_Speed( )
+        : v_nSpeed(0)
 {
 }
 
 wxPanel_Speed::wxPanel_Speed( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
+        : v_nSpeed(0)
 {
     Create(parent, id, pos, size, style);
 }
@@ -72,7 +74,6 @@ bool wxPanel_Speed::Create( wxWindow* parent, wxWindowID id, const wxPoint& pos,
     wxPanel::Create( parent, id, pos, size, style );
 
     CreateControls();
-    Centre();
 ////@end wxPanel_Speed creation
     return true;
 }
@@ -86,6 +87,7 @@ void wxPanel_Speed::CreateControls()
 ////@begin wxPanel_Speed content construction
     wxPanel_Speed* itemPanel1 = this;
 
+    this->SetForegroundColour(wxColour(0, 0, 255));
     this->SetBackgroundColour(wxColour(173, 216, 230));
 ////@end wxPanel_Speed content construction
     wxUnusedVar(itemPanel1);
@@ -102,7 +104,7 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_SPEED in wxPanel_Speed.
     wxUnusedVar(event);
-    //_WX_LOG_NFO();
+    _WX_LOG_NFO("count=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
     dc.Clear();

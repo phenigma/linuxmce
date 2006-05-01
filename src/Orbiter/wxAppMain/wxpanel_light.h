@@ -68,6 +68,9 @@ public:
 
 ////@begin wxPanel_Light event handler declarations
 
+    /// wxEVT_PAINT event handler for ID_PANEL_LIGHT
+    void OnPaint( wxPaintEvent& event );
+
 ////@end wxPanel_Light event handler declarations
 
 ////@begin wxPanel_Light member function declarations
@@ -84,6 +87,10 @@ public:
 
 ////@begin wxPanel_Light member variables
 ////@end wxPanel_Light member variables
+
+public:
+    int m_nPositions;
+    int m_nCrtPosition;
 };
 
 #endif

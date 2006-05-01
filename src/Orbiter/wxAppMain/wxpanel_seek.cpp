@@ -44,17 +44,19 @@ IMPLEMENT_DYNAMIC_CLASS( wxPanel_Seek, wxPanel )
 
 ////@end wxPanel_Seek event table entries
 
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
 /*!
  * wxPanel_Seek constructors
  */
 
-    wxPanel_Seek::wxPanel_Seek( )
+wxPanel_Seek::wxPanel_Seek( )
+        : v_nPosRatio(0)
 {
 }
 
 wxPanel_Seek::wxPanel_Seek( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
+        : v_nPosRatio(0)
 {
     Create(parent, id, pos, size, style);
 }
@@ -72,7 +74,6 @@ bool wxPanel_Seek::Create( wxWindow* parent, wxWindowID id, const wxPoint& pos, 
     wxPanel::Create( parent, id, pos, size, style );
 
     CreateControls();
-    Centre();
 ////@end wxPanel_Seek creation
     return true;
 }
@@ -86,6 +87,7 @@ void wxPanel_Seek::CreateControls()
 ////@begin wxPanel_Seek content construction
     wxPanel_Seek* itemPanel1 = this;
 
+    this->SetForegroundColour(wxColour(0, 255, 0));
     this->SetBackgroundColour(wxColour(173, 216, 230));
 ////@end wxPanel_Seek content construction
     wxUnusedVar(itemPanel1);
@@ -102,7 +104,7 @@ void wxPanel_Seek::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_SEEK in wxPanel_Seek.
     wxUnusedVar(event);
-    //_WX_LOG_NFO();
+    _WX_LOG_NFO("ratio=%d", v_nPosRatio);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
     dc.Clear();

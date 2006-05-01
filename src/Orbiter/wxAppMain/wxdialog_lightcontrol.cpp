@@ -95,8 +95,9 @@ void wxDialog_LightControl::CreateControls()
     itemDialog_Base1->SetSizer(v_pBoxH_all);
 
     v_pPanel_Light = new wxPanel_Light;
-    v_pPanel_Light->Create( itemDialog_Base1, ID_CTRL_LIGHT, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
-    v_pBoxH_all->Add(v_pPanel_Light, 1, wxGROW|wxALL, 5);
+    v_pPanel_Light->Create( itemDialog_Base1, ID_CTRL_LIGHT, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pPanel_Light->SetBackgroundColour(wxColour(255, 165, 0));
+    v_pBoxH_all->Add(v_pPanel_Light, 1, wxGROW|wxTOP|wxBOTTOM, 5);
 
 ////@end wxDialog_LightControl content construction
 }
@@ -155,6 +156,10 @@ bool wxDialog_LightControl::Gui_Refresh(CallBackData *pCallBackData)
     //_WX_LOG_NFO();
     LightControlCallBackData *pCallData = dynamic_cast<LightControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    _WX_LOG_NFO("m_nPositions=%d, m_nCrtPosition=%d", pCallData->m_nPositions, pCallData->m_nCrtPosition);
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
+    v_pPanel_Light->m_nPositions = pCallData->m_nPositions;
+    v_pPanel_Light->m_nCrtPosition = pCallData->m_nCrtPosition;
+    v_pPanel_Light->Refresh();
     return true;
 }

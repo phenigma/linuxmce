@@ -36,7 +36,7 @@ class wxPanel_Time;
 
 ////@begin control identifiers
 #define ID_DIALOG_SPEEDCONTROL 10026
-#define SYMBOL_WXDIALOG_SPEEDCONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_SPEEDCONTROL_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_SPEEDCONTROL_TITLE _T("wx Dialog_SpeedControl")
 #define SYMBOL_WXDIALOG_SPEEDCONTROL_IDNAME ID_DIALOG_SPEEDCONTROL
 #define SYMBOL_WXDIALOG_SPEEDCONTROL_SIZE wxDefaultSize
@@ -95,36 +95,13 @@ public:
 
 ////@begin wxDialog_SpeedControl member variables
     wxBoxSizer* v_pBoxV_all;
-    wxBoxSizer* v_pBoxH_Seek;
     wxPanel_Seek* v_pPanel_Seek;
-    wxBoxSizer* v_pBoxH_Speed;
     wxPanel_Speed* v_pPanel_Speed;
-    wxBoxSizer* v_pBoxH_Time;
     wxPanel_Time* v_pPanel_Time;
 ////@end wxDialog_SpeedControl member variables
 
 public:
     virtual bool Gui_Refresh(CallBackData *pCallBackData);
-
-protected:
-    struct Persistent_Data
-    {
-        Persistent_Data()
-                : bInitialized(false)
-                , oData_Refresh()
-                , bShowTime(false)
-                , bShowSeek(false)
-                , bShowSpeed(false)
-            {
-            }
-        bool bInitialized;
-        SpeedControlCallBackData oData_Refresh;
-        bool bShowTime;
-        bool bShowSeek;
-        bool bShowSpeed;
-        int idxSpeed;
-    };
-    Persistent_Data v_oPersistent_Data;
 };
 
 #endif

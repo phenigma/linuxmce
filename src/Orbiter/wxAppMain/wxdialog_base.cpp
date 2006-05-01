@@ -239,7 +239,7 @@ bool wxDialog_Base::Gui_Refresh(CallBackData * pCallBackData)
     //_WX_LOG_NFO("Label='%s'", GetLabel().c_str());
     PositionCallBackData *pCallData = dynamic_cast<PositionCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     return true;
 }
 
@@ -327,7 +327,7 @@ void wxDialog_Base::Clean_Exit()
     }
 }
 
-void wxDialog_Base::UpdatePosition(const int x, const int y, const int width, const int height)
+void wxDialog_Base::Update_Position(const int x, const int y, const int width, const int height)
 {
     // update position if changed
     int old_x = 0;
@@ -343,15 +343,39 @@ void wxDialog_Base::UpdatePosition(const int x, const int y, const int width, co
     if ( (x == 0) && (y == 0) && (width == 0) && (height == 0) )
     {
         _WX_LOG_ERR(
-            "Bad Position : (%d, %d, %d, %d)",
+            "Label='%s' : Bad Position : (%d, %d, %d, %d)",
+            GetLabel().c_str(),
             x, y, width, height
         );
         return;
     }
     _WX_LOG_NFO(
-        "Changing Position : (%d, %d, %d, %d) -> (%d, %d, %d, %d)",
+        "Label='%s' : Changing Position : (%d, %d, %d, %d) -> (%d, %d, %d, %d)",
+        GetLabel().c_str(),
         old_x, old_y, old_width, old_height,
         x, y, width, height
         );
     SetSize(x, y, width, height, wxSIZE_ALLOW_MINUS_ONE);
+}
+
+void wxDialog_Base::Update_FullScreen(bool bShowFullScreen)
+{
+    // update full screen if changed
+    bool old_bShowFullScreen = IsFullScreen();
+    if (old_bShowFullScreen == bShowFullScreen)
+        return;
+    _WX_LOG_NFO(
+        "Label='%s' : Changing Full Screen Mode : (%d) -> (%d)",
+        GetLabel().c_str(),
+        old_bShowFullScreen, bShowFullScreen
+        );
+    ShowFullScreen(bShowFullScreen, 0);
+}
+
+void wxDialog_Base::Update_Position_FullScreen(const int x, const int y, const int width, const int height, bool bShowFullScreen)
+{
+    // no need to calculate, wx performs well
+    Update_FullScreen(bShowFullScreen);
+    Update_Position(x, y, width, height);
+    return;
 }

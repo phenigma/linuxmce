@@ -74,11 +74,8 @@ bool wxDialog_SpeedControl::Create( wxWindow* parent, wxWindowID id, const wxStr
     _WX_LOG_NFO();
 ////@begin wxDialog_SpeedControl member initialisation
     v_pBoxV_all = NULL;
-    v_pBoxH_Seek = NULL;
     v_pPanel_Seek = NULL;
-    v_pBoxH_Speed = NULL;
     v_pPanel_Speed = NULL;
-    v_pBoxH_Time = NULL;
     v_pPanel_Time = NULL;
 ////@end wxDialog_SpeedControl member initialisation
 
@@ -106,26 +103,17 @@ void wxDialog_SpeedControl::CreateControls()
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
-    v_pBoxH_Seek = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_Seek, 1, wxGROW|wxALL|wxSHAPED, 5);
-
     v_pPanel_Seek = new wxPanel_Seek;
-    v_pPanel_Seek->Create( itemDialog_Base1, ID_CTRL_SEEK, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
-    v_pBoxH_Seek->Add(v_pPanel_Seek, 1, wxGROW|wxALL, 5);
-
-    v_pBoxH_Speed = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_Speed, 1, wxGROW|wxALL|wxSHAPED, 5);
+    v_pPanel_Seek->Create( itemDialog_Base1, ID_CTRL_SEEK, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pBoxV_all->Add(v_pPanel_Seek, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
     v_pPanel_Speed = new wxPanel_Speed;
-    v_pPanel_Speed->Create( itemDialog_Base1, ID_CTRL_SPEED, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
-    v_pBoxH_Speed->Add(v_pPanel_Speed, 1, wxGROW|wxALL, 5);
-
-    v_pBoxH_Time = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_Time, 1, wxGROW|wxALL|wxSHAPED, 5);
+    v_pPanel_Speed->Create( itemDialog_Base1, ID_CTRL_SPEED, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pBoxV_all->Add(v_pPanel_Speed, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
     v_pPanel_Time = new wxPanel_Time;
-    v_pPanel_Time->Create( itemDialog_Base1, ID_CTRL_TIME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
-    v_pBoxH_Time->Add(v_pPanel_Time, 1, wxGROW|wxALL, 5);
+    v_pPanel_Time->Create( itemDialog_Base1, ID_CTRL_TIME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pBoxV_all->Add(v_pPanel_Time, 2, wxGROW|wxLEFT|wxRIGHT, 5);
 
 ////@end wxDialog_SpeedControl content construction
 }
@@ -184,65 +172,78 @@ bool wxDialog_SpeedControl::Gui_Refresh(CallBackData *pCallBackData)
     //_WX_LOG_NFO();
     SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    v_oPersistent_Data.oData_Refresh = *pCallData;
-    _WX_LOG_NFO("Style=%d, seek=%d, speed=%d", pCallData->m_eStyle, pCallData->m_nSeekToPos, pCallData->m_nSpeed);
+    _WX_LOG_NFO("Style=%s, speed=%d, seek=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nSpeed, pCallData->m_nSeekToPos);
+    bool bShowTime = false;
+    bool bShowSeek = false;
+    bool bShowSpeed = false;
     switch (pCallData->m_eStyle)
     {
         case SpeedControlCallBackData::TIME:
-            v_oPersistent_Data.bShowTime = true;
+            bShowTime = true;
             break;
         case SpeedControlCallBackData::TIME_SEEK:
-            v_oPersistent_Data.bShowTime = true;
-            v_oPersistent_Data.bShowSeek = true;
+            bShowTime = true;
+            bShowSeek = true;
             break;
         case SpeedControlCallBackData::TIME_SPEED:
-            v_oPersistent_Data.bShowTime = true;
-            v_oPersistent_Data.bShowSpeed = true;
+            bShowTime = true;
+            bShowSpeed = true;
             break;
         case SpeedControlCallBackData::SPEED:
-            v_oPersistent_Data.bShowSpeed = true;
+            bShowSpeed = true;
             break;
         default:
             _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
             break;
     }
-    v_oPersistent_Data.bInitialized = true;
-    if (v_oPersistent_Data.bShowSeek)
+    _WX_LOG_NFO("bShowTime=%d, bShowSeek=%d, bShowSpeed=%d", bShowTime, bShowSeek, bShowSpeed);
+    if (bShowTime)
+    {
+        v_pPanel_Time->v_nTimeStart = pCallData->m_nTimeStart;
+        v_pPanel_Time->v_nTimeNow = pCallData->m_nTimeNow;
+        v_pPanel_Time->v_nTimeEnd = pCallData->m_nTimeEnd;
+        if (! v_pPanel_Time->IsShown())
+            v_pPanel_Time->Show();
+        v_pPanel_Time->Refresh();
+    }
+    else
+    {
+        if (! v_pPanel_Time->IsShown())
+            v_pPanel_Time->Hide();
+    }
+    v_pPanel_Time->Show(bShowTime);
+    if (bShowSeek)
     {
         int nDeltaFull = pCallData->m_nTimeEnd - pCallData->m_nTimeStart;
         int nDeltaSeek = pCallData->m_nSeekToPos - pCallData->m_nTimeStart;
         if ( (nDeltaFull > 0) && (nDeltaSeek > 0) )
         {
             v_pPanel_Seek->v_nPosRatio = nDeltaSeek / nDeltaFull;
-            v_pPanel_Seek->Refresh();
         }
-        v_pPanel_Seek->Show();
+        if (! v_pPanel_Seek->IsShown())
+            v_pPanel_Seek->Show();
+        v_pPanel_Seek->Refresh();
     }
     else
     {
-        v_pPanel_Seek->Hide();
+        if (v_pPanel_Seek->IsShown())
+            v_pPanel_Seek->Hide();
     }
-    if (v_oPersistent_Data.bShowSpeed)
+    v_pPanel_Seek->Show(bShowSeek);
+    if (bShowSpeed)
     {
         Copy_StlSequence_wxArray(pCallData->m_listSpeeds, v_pPanel_Speed->v_anSpeeds);
         v_pPanel_Speed->v_nSpeed = pCallData->m_nSpeed;
-        v_pPanel_Speed->Show();
+        if (! v_pPanel_Speed->IsShown())
+            v_pPanel_Speed->Show();
+        v_pPanel_Speed->Refresh();
     }
     else
     {
-        v_pPanel_Speed->Hide();
+        if (v_pPanel_Speed->IsShown())
+            v_pPanel_Speed->Hide();
     }
-    if (v_oPersistent_Data.bShowTime)
-    {
-        v_pPanel_Time->v_nTimeStart = pCallData->m_nTimeStart;
-        v_pPanel_Time->v_nTimeNow = pCallData->m_nTimeNow;
-        v_pPanel_Time->v_nTimeEnd = pCallData->m_nTimeEnd;
-        v_pPanel_Time->Show();
-    }
-    else
-    {
-        v_pPanel_Time->Hide();
-    }
-    UpdatePosition(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height);
+    v_pPanel_Speed->Show(bShowSpeed);
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     return true;
 }
