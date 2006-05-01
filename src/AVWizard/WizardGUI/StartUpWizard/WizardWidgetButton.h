@@ -64,6 +64,8 @@ public:
 
 	virtual std::string GetCaption();
 
+	virtual void SetCaption(std::string Caption);
+
 };
 
 #endif

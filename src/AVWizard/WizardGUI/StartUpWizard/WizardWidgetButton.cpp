@@ -187,3 +187,8 @@ WizardWidgetPage* WizardWidgetButton::GetContainerPage()
 {
 	return Caption;
 }
+
+/*virtual*/ void WizardWidgetButton::SetCaption(std::string Caption)
+{
+	this->Caption = Caption;
+}

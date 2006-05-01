@@ -40,10 +40,20 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
 		(Page->GetChildRecursive("ListBox1"));
 
-	AVWizardSettings->Set("VideoResolution", ResListBox->GetCaption());
+	std::string ResolutionStr = "640x480";
+	if(AVWizardSettings->Exists("VideoResolution"))
+		ResolutionStr =  AVWizardSettings->GetValue("VideoResolution");
+	
+	ResListBox->SetCaption(ResolutionStr);
 
 	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
 		(Page->GetChildRecursive("ListBox2"));
+
+	std::string RefreshStr = "60Hz";
+	if(AVWizardSettings->Exists("VideoRefresh"))
+		RefreshStr =  AVWizardSettings->GetValue("VideoRefresh");
+	
+	RefreshListBox->SetCaption(RefreshStr);
 
 
 	bool IsSelectedResolutionListBox = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionSelected"));
