@@ -97,7 +97,7 @@ FindInArray()
 	Array=("$@")
 	
 	for ((i = 0; i < ${#Array[*]}; i++)); do
-		if [[ "$Value" == "${Array[$i]}" ]]; then
+		if [[ "${Array[$i]}" == "$Value" ]]; then
 			echo "$i"
 			return 0
 		fi
@@ -112,7 +112,7 @@ FindInArray_Prefix()
 	Array=("$@")
 
 	for ((i = 0; i < ${#Array[*]}; i++)); do
-		if [[ "$Value" == "${Array[$i]}"* ]]; then
+		if [[ "${Array[$i]}" == "$Value"* ]]; then
 			echo "$i"
 			return 0
 		fi
