@@ -157,7 +157,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                 if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown )
                 {
                     // No Modifiers were down
-                    switch (sdlEvent.SDLK_9key.keysym.sym )
+                    switch (sdlEvent.key.keysym.sym )
                     {
                         case SDLK_0: case SDLK_KP0: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_0_CONST; break;
                         case SDLK_1: case SDLK_KP1: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_1_CONST; break;
