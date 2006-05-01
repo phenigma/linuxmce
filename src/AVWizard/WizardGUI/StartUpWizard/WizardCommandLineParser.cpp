@@ -20,7 +20,7 @@ WizardCommandLineParser* WizardCommandLineParser::GetInstance()
 
 WizardCommandLineParser::WizardCommandLineParser(void)
 {
-	NeedQuit = false;
+	NeedQuit = QUIT_REASON_NONE;
 	this->Version = "0.01 Alpha";
 	this->ConfigFileDefault = "/tmp/avwizardsettings.xml";
 	ArgumentTypes["--help"] = ARGUMENT_GET_HELP;
@@ -45,16 +45,16 @@ void WizardCommandLineParser::ParseArguments(std::vector<std::string> Arguments,
 		switch(KindOfArgument) {
 		case ARGUMENT_GET_HELP:
 			PrintCommandLineHelp();
-			NeedQuit = true;
+			NeedQuit = QUIT_REASON_OTHER;
 			break;
 		case ARGUMENT_GET:
 			std::cout<<Options.GetValue(Arguments[i+1])<<std::endl;
-			NeedQuit = true;
+			NeedQuit = QUIT_REASON_GET;
 			i++;
 			break;
 		case ARGUMENT_SET:
 			Options.Set(Arguments[i+1], Arguments[i+2]);
-			NeedQuit = true;
+			NeedQuit = QUIT_REASON_OTHER;
 			i+= 2;
 			break;
 		case ARGUMENT_STEP:

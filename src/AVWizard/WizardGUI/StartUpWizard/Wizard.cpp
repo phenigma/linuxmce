@@ -26,6 +26,7 @@ void signal_handler(int signal)
 	switch (signal)
 	{
 		case SIGUSR1:
+			std::cout<<"Signal treated"<<std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
 			break;
 	}
@@ -238,7 +239,6 @@ int Wizard::ParseCommandLineParameters(int argc, char** argv)
 
 	if (CmdLineParser->NeedQuit)
 	{
-		AVWizardOptions->GetDictionary()->Set("ExitCode", 0);
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		exit(0);
 	}

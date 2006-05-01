@@ -33,6 +33,15 @@
  */
 
 #define ARGUMENT_ERROR_TYPE_NOT_FOUND 1
+
+/**
+ * Reason to quit
+ */
+#define QUIT_REASON_NONE	0
+#define QUIT_REASON_GET		1
+#define QUIT_REASON_OTHER	2
+
+
 /**
  *	Singleton that parte the command line
  */
@@ -79,7 +88,7 @@ public:
 	/**
 	 *	NeedQuit is true if it gets commands as Get/Set or --help
 	 */
-	bool NeedQuit;
+	int NeedQuit;
 
 	/**
 	 *	Parse the command line arguments
