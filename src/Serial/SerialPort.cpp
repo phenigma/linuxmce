@@ -152,40 +152,55 @@ CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop
 		default:
         throw string("Baud rate not supported");
     }
-    tcsetattr(m_fdSerial,TCSANOW,&t);
+    ::tcsetattr(m_fdSerial,TCSANOW,&t);
 }
 
 CSerialPort::~CSerialPort()
 {
+	::tcdrain(m_fdSerial);
     close(m_fdSerial);  
 }
 
 void CSerialPort::Write(char *Buf, size_t Len)
 {
-   int Timeout = 2000;
-   int BytesWritten = 0;
-   time_t end, start = time(NULL);
+   time_t Timeout = 3000; /** 3 sec */
+   time_t timeoutSec = Timeout/1000;
+   size_t BytesWritten = 0;
+   ssize_t iWrite = 0;
+   time_t end = 0;
+   time_t start = time(NULL);
 
    do
    {
 		fd_set wrfds;
 		FD_ZERO(&wrfds);
 		FD_SET(m_fdSerial, &wrfds);
-		int ret;
+		
+		int ret = 0;
 		struct timeval tv;
-		tv.tv_sec = Timeout / 1000 + 1;
+		tv.tv_sec = timeoutSec;
 		tv.tv_usec = 0;
+		
 		do
 		{
-   			ret = select(m_fdSerial+1, NULL, &wrfds, NULL, &tv);
-		} while(ret != -1 && ret != 1);
-		if (ret == 0 || ret ==-1)
-		{ 
-    			return;
-		}  
-		BytesWritten += write(m_fdSerial, Buf, Len);
-		end=time(NULL);
-	} while(BytesWritten < Len && (end-start) < (Timeout/1000 +1));
+			ret = select(m_fdSerial+1, NULL, &wrfds, NULL, &tv);
+			end = time(NULL);
+		} while( !ret && (end-start) < timeoutSec );
+		
+		if (ret <= 0 || !FD_ISSET(m_fdSerial, &wrfds) )
+		{
+			continue;
+		}
+		
+		iWrite = write(m_fdSerial, Buf, Len);
+		if( iWrite >= 0 )
+		{
+			usleep(10000);
+			BytesWritten += iWrite;
+		}
+		
+		end = time(NULL);
+	} while(BytesWritten < Len && (end-start) < timeoutSec);
 }
 
 size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
@@ -193,11 +208,12 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 	struct timeval tv;
 	struct timeval now;
 	struct timeval last;
-	unsigned int bytes=0;
+	size_t bytes = 0;
+	ssize_t retval = 0;
 	fd_set rfds;
-	int ret;
+	int ret = 0;
 	
-	gettimeofday(&now,NULL);
+	gettimeofday(&now, NULL);
 
 	last.tv_sec = now.tv_sec+Timeout/1000;
 	last.tv_usec = now.tv_usec+(Timeout % 1000) * 1000;
@@ -211,25 +227,34 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 		if(tv.tv_usec < 0)
 		{
 			tv.tv_sec--;
-			tv.tv_usec+=1000*1000;
+			tv.tv_usec +=  1000000; /*1000*1000 = 1 sec*/
 		}
 		if(tv.tv_sec<0)
 		{
 			break;
 		}
+		
 		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-		if (ret <= 0) {
-			break;
-		}
-		size_t retval = read(m_fdSerial,Buf+bytes,MaxLen-bytes);
-		bytes += retval;
-		if(bytes==MaxLen)
+		if (ret <= 0 || !FD_ISSET(m_fdSerial, &rfds))
 		{
 			break;
 		}
-		gettimeofday(&now,NULL);
+		
+		retval = read(m_fdSerial, Buf+bytes, MaxLen-bytes);
+		if( retval < 0 )
+		{
+			break;
+		}
+		
+		bytes += retval;
+		if(bytes >= MaxLen)
+		{
+			break;
+		}
+		gettimeofday(&now, NULL);
 	}
-	return bytes>0?bytes:-1;
+	
+	return bytes;
 }
 
 bool CSerialPort::IsReadEmpty()
@@ -239,23 +264,25 @@ bool CSerialPort::IsReadEmpty()
 		
 	FD_ZERO(&rfds);
 	FD_SET(m_fdSerial, &rfds);
-	int ret;
-					
+	int ret = 0;
+	
 	tv.tv_sec = 0 ;
 	tv.tv_usec = 0;
-							
+	
     ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-    if (ret == 0 || ret == -1) {
+    if ( ret <= 0 )
+	{
 		return true;
-    } else {
+    }
+	else
+	{
 		return false;
 	}
 }
 
 
 void CSerialPort::Flush() {
-    tcflush(m_fdSerial, TCIOFLUSH);
+    ::tcflush(m_fdSerial, TCIOFLUSH);
 }
-
 
 #endif
