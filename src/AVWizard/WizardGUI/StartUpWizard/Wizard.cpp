@@ -18,6 +18,8 @@
 
 #include "GUIWizardUtils.h"
 
+#include "WizardCommandLineParser.h"
+
 #ifndef WIN32
 void signal_handler(int signal)
 {
@@ -210,6 +212,7 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 		DoApplyScreen(AVWizardOptions->GetDictionary());
 		break;
 	case WMET_SAVE:
+		AVWizardOptions->GetDictionary()->Set("ExitCode", this->ExitCode);
 		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
 		break;
 	case WMET_ESCAPE_KEY:
@@ -235,6 +238,7 @@ int Wizard::ParseCommandLineParameters(int argc, char** argv)
 
 	if (CmdLineParser->NeedQuit)
 	{
+		AVWizardOptions->GetDictionary()->Set("ExitCode", 0);
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		exit(0);
 	}
@@ -309,6 +313,9 @@ int Wizard::GetExitCode()
 
 void Wizard::SetExitWithCode(int Code)
 {
+	AVWizardOptions->GetDictionary()->Set("ExitCode", Code);
+	AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
+
 	ExitCode = Code;
 	WM_Event Event;
 	Event.Quit();

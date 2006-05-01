@@ -193,7 +193,7 @@ std::string WizardPageFinalSelections::GetDTSTestStatus(SettingsDictionary* AVWi
 
 	if(Buttons[Selected->GetCaption()] == 1)
 	{
-		exit(1);
+		Wizard::GetInstance()->SetExitWithCode(1);
 	}
 	return 0;
 }

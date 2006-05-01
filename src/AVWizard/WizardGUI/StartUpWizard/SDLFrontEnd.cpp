@@ -2,12 +2,15 @@
 
 #include <iostream>
 
+#include "Wizard.h"
+
 SDLFrontEnd::SDLFrontEnd()
 	: IsEventWaiting (false)
 {
 	if(TTF_Init()==-1) {
 		printf("TTF_Init: %s\n", TTF_GetError());
-		exit(2);
+		Wizard::GetInstance()->SetExitWithCode(-1);
+		return;
 	}
 
 	CurrentFont = NULL;
@@ -49,7 +52,8 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
 		std::cout<<"SDL library cannot init properly!"<<std::endl;
-		exit(-1);
+		Wizard::GetInstance()->SetExitWithCode(-1);
+		return -1;
 	}
 		
 	if (FullScreen)
@@ -59,7 +63,8 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	if(!Screen)
 	{
 		std::cout<<"Cannot init the video mode!"<<std::endl;
-		exit(1);
+		Wizard::GetInstance()->SetExitWithCode(-1);
+		return -1;
 	}
 	
 	SDL_WM_SetCaption("AVWizard", "AVWizard");
