@@ -4,6 +4,8 @@
 
 #include "GUIWizardUtils.h"
 
+#include <iostream>
+
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -68,20 +70,46 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
 {
 	std::string ListBoxName = Selected->GetName();
+	#ifdef DEBUG
+	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
+	#endif
 	if (ListBoxName == "ListBox1")
+	{
+		#ifdef DEBUG
+		std::cout<<COMMAND_SET_RESOLUTION_PLUS<<std::endl;
+		#endif
 		system(COMMAND_SET_RESOLUTION_PLUS);
+	}
 	else
+	{
+		#ifdef DEBUG
+		std::cout<<COMMAND_SET_REFRESH_PLUS<<std::endl;
+		#endif
 		system(COMMAND_SET_REFRESH_PLUS);
+	}
 
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoDecreaseSetting()
 {
 	std::string ListBoxName = Selected->GetName();
+	#ifdef DEBUG
+	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
+	#endif
 	if (ListBoxName == "ListBox1")
+	{
+		#ifdef DEBUG
+		std::cout<<COMMAND_SET_RESOLUTION_MINUS<<std::endl;
+		#endif
 		system(COMMAND_SET_RESOLUTION_MINUS);
+	}
 	else
+	{
+		#ifdef DEBUG
+		std::cout<<COMMAND_SET_REFRESH_MINUS<<std::endl;
+		#endif
 		system(COMMAND_SET_REFRESH_MINUS);
+	}
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoNextFocusItem()
@@ -91,6 +119,9 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
 	if(Selected == NULL)
 		return;
+	#ifdef DEBUG
+	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
+	#endif
 	Selected->SetFocus(true);
 }
 
@@ -101,5 +132,9 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
 	if(Selected == NULL)
 		return;
+	Selected->SetFocus(true);
+	#ifdef DEBUG
+	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
+	#endif
 	Selected->SetFocus(true);
 }
