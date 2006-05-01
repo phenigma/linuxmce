@@ -14,10 +14,12 @@ class PositionCallBackData : public CallBackData
 {
 public:
 	PlutoRectangle m_rectPosition;
+    bool m_bShowFullScreen;
 
 	PositionCallBackData()
             : CallBackData()
             , m_rectPosition(0, 0, 0, 0)
+            , m_bShowFullScreen(false)
         {}
 	virtual ~PositionCallBackData() {}
 };
