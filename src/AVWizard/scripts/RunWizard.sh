@@ -21,8 +21,6 @@ CleanUp()
 SetDefaults()
 {
 	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
-	StartX
-	export DISPLAY=:0
 	WizSet Video_Ratio '4_3'
 	WizSet VideoResolution '640x480'
 	WizSet VideoRefresh '60'
@@ -44,5 +42,4 @@ while [[ "$Done" -eq 0 ]]; do
 	if "$BaseDir"/AVWizardWrapper.sh; then
 		Done=1
 	fi
-	StopX
 done

@@ -11,6 +11,23 @@ Refresh_Rates=('50' '60' '65' '72' '75' '80' '85' '100' '120')
 
 XF86Config="/etc/X11/XF86Config-4"
 
+Resolution_GetFullName()
+{
+	local Ratio="$1" Prefix="$2"
+	local Idx Resolution_Array FullName
+
+	case "$Ratio" in
+		4_3) Resolution_Array=("${Resolutions_VESA[@]}") ;;
+		16_9) Resolution_Array=("${Resolutions_HDTV[@]}") ;;
+	esac
+	
+	Idx=$(FindInArray_Prefix "$Prefix" "${Resolution_Array[@]}")
+	if [[ -n "$Idx" ]]; then
+		FullName="${Resolution_Array[$Idx]}"
+	fi
+	echo "$FullName"
+}
+
 Resolution_Get()
 {
 	local Ratio="$1" Resolution="$2" Op="$3"
@@ -76,12 +93,18 @@ Refresh_Prev()
 
 StartX()
 {
-	"$BaseDir"/Start_X.sh
+	local Parm XParm
+	XParm=()
+
+	for Parm in "$@"; do
+		XParm=("${XParm[@]}" -parm "$Parm")
+	done
+	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard "${XParm[@]}"
 }
 
 StopX()
 {
-	"$BaseDir"/Stop_X.sh
+	"$BaseDir"/Stop_X.sh -client /usr/pluto/bin/AVWizard
 }
 
 RestartX()
@@ -95,7 +118,7 @@ WizSet()
 	local Var="$1" Value="$2"
 	
 	[[ -z "$Var" ]] && return 1
-	SDL_VIDEODEVICE=dummy "$Wiz" -set "$Var" "$Value" 2>/dev/null
+	"$Wiz" -set "$Var" "$Value" 2>/dev/null
 }
 
 WizGet()
@@ -103,5 +126,5 @@ WizGet()
 	local Var="$1"
 	
 	[[ -z "$Var" ]] && return 1
-	SDL_VIDEODEVICE=dummy "$Wiz" -get "$Var" 2>/dev/null
+	"$Wiz" -get "$Var" 2>/dev/null
 }
