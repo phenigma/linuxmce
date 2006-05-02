@@ -5,7 +5,7 @@ XClient=/usr/bin/icewm-session
 XClientParm=()
 Background=y
 
-for ((i = 1; i < "$#"; i++)); do
+for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		-client) ((i++)); XClient=${!i} ;;
 		-parm) ((i++)); XClientParm=("${XClientParm[@]}" ${!i}) ;;
