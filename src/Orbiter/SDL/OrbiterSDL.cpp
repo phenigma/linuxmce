@@ -367,7 +367,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
 			rectLastSelected.X = 0;
-			rectLastSelected.Y = 80;
+			rectLastSelected.Y = 0;
 			rectLastSelected.Width = 80;
 			rectLastSelected.Height = 80;
 		}

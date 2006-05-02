@@ -19,11 +19,12 @@
 OpenGLTextureConverter_SDL::OpenGLTextureConverter_SDL(PlutoGraphic *pGraphic) 
 	: OpenGLTextureConverter(pGraphic)
 {
-	
 }
 
 SDL_Surface* OpenGLTextureConverter_SDL::CreateSurfaceTexture(SDL_Surface* Surface)
 {
+	if (Surface == NULL)
+		return NULL;
 	int width = MathUtils::MinPowerOf2(Surface->w);
 	int height = MathUtils::MinPowerOf2(Surface->h);
 	
@@ -48,6 +49,8 @@ OpenGLTexture OpenGLTextureConverter_SDL::Convert()
 	SDL_Surface* SurfaceTexture;
 	SDL_Surface *Surface = dynamic_cast<SDLGraphic *>(m_spPlutoGraphic.get())->m_pSDL_Surface;
 
+	if(Surface == NULL)
+		return 0;
 	/* Create The Texture */
 	SurfaceTexture = CreateSurfaceTexture(Surface);
 	
