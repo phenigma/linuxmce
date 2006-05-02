@@ -19,6 +19,7 @@
 
 #include "IOConnection.h"
 
+
 namespace DCE {
 
 /**
@@ -61,7 +62,7 @@ public:
 
 	/*particular members members*/
 	virtual int Recv(char* buff, unsigned int size, int timeout);
-	virtual std::string Recv(const char* delimbuff, unsigned int delimsize, int timeout);
+	virtual std::string RecvDelimited(const char* delimbuff, unsigned int delimsize, int timeout);
 	virtual void UndoRecv(const char* buff, unsigned int size);
 
 protected:

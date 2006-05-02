@@ -16,6 +16,9 @@
 using namespace std;
 
 #define CACHE_READBLOCK_SIZE	128
+#define DEFAULT_DELIMITED_TIMEOUT 5000
+#include <sys/time.h>
+#include <time.h>
 
 namespace DCE {
 
@@ -70,40 +73,45 @@ BufferedIOConnection::CacheSize() {
 
 
 std::string
-BufferedIOConnection::Recv(const char* delimbuff, unsigned int delimsize, int timeout) 
+BufferedIOConnection::RecvDelimited(const char* delimbuff, unsigned int delimsize, int timeout) 
 {
 	string ret;
+	struct timeval first;
+	struct timeval last;
+
 	if(delimsize <= 0 || !isDataAvailable(timeout)) {
 		return ret;
 	}
+	fprintf(stderr,"Called RecvDelimited (delimbuff='%s',delimsize=%d,timeout=%d)\n",delimbuff,delimsize,timeout);
 	
+	if(timeout<=0)
+	{
+		timeout=DEFAULT_DELIMITED_TIMEOUT;
+	}
+	char c=0;	
 	unsigned delimindex = 0;
-	while(delimindex < delimsize) {
-		if(CacheSize() == 0) {
-			RecvCache(CACHE_READBLOCK_SIZE, 0);
-		}
-		
-		char c;
-		int rsize = Recv(&c, sizeof(char), timeout);
-		if(rsize <= 0) {
-			if(delimindex > 0) {
-				UndoRecv(ret.c_str(), delimindex);
-			}
-			return ret;
-		}
+	int rest_timeout=timeout;
+	gettimeofday(&first, NULL);
 
-		if(c == delimbuff[delimindex]) {
-			delimindex++;
-		} else {
-			if(delimindex > 0) {
-				delimindex = 0;
-				ret.append(delimbuff, delimindex);
-				UndoRecv(&c, 1);
+	while(delimindex < delimsize) {
+		int rsize = Recv(&c, sizeof(char), rest_timeout);
+		if(rsize > 0) {
+			if(c == delimbuff[delimindex]) {
+				delimindex++;
 			} else {
-				ret += c;
+				delimindex = 0;
 			}
+			ret += c;
+		}
+		gettimeofday(&last, NULL);
+		rest_timeout = timeout-((last.tv_sec - first.tv_sec)*1000+(last.tv_usec - first.tv_usec)/1000);
+		if(rest_timeout <= 0)
+		{
+			fprintf(stderr,"Timeout in RecvDelimited : received so far '%s', but will return empty\n",ret.c_str());
+			return string("");
 		}
 	}
+	fprintf(stderr,"Return from RecvDelimited with result=%s\n",ret.c_str());	
 	return ret;
 }
 

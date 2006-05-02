@@ -78,8 +78,7 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 									serport_.c_str(), size, timeout);
 		size_t retsize = psp_->Read(buff, size, timeout);
 		if(retsize == 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "Received EOF. Closing Connection.");
-			Close();
+			g_pPlutoLogger->Write(LV_STATUS, "Received nothing.");
 		}
 		else {
 			g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 

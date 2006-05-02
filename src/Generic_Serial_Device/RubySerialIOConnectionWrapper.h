@@ -34,7 +34,7 @@ public:
 	}
 	std::string 
 	RecvDelimited(const char* delimbuff, unsigned int delimsize, int timeout) {
-		return BufferedIOConnection::Recv(delimbuff, delimsize, timeout);
+		return BufferedIOConnection::RecvDelimited(delimbuff, delimsize, timeout);
 	}
 	void UndoRecv(const char* buff, unsigned int size) {
 		BufferedIOConnection::UndoRecv(buff, size);
