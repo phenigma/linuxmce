@@ -191,7 +191,7 @@ void* DevicePoll::_Run() {
 					if(!SendAddress(&serprt, &msg)) {
 						break;
 					}
-					if(isStopRequested)
+					if(isStopRequested())
 						return 0;
 					Sleep(100);
 				}
@@ -208,7 +208,7 @@ void* DevicePoll::_Run() {
 					if(!SendFunction(&serprt, &msg)) {
 						break;
 					}
-					if(isStopRequested)
+					if(isStopRequested())
 						return 0;
 					Sleep(100);
 				}
