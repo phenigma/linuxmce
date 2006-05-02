@@ -5,6 +5,6 @@ $TEXT_INSTRUCTIONS_DETAILS_CONST='<p>1. You can add to your core a routable ip. 
 $TEXT_WAP_NOTES_CONST='<p>There, you will be able to access the wap site from your phone\'s browser like this: <B>http://[ your_routable_ip_address ]/[ the_path_to_wml_page ]/check.wml</B>.';
 $TEXT_ENTER_WAP_GPRS_URL_CONST='Please enter WAP/GPRS URL';
 $TEXT_ERROR_CANNOT_WRITE_TO_FILE_CONST='Cannot write to file';
-$TEXT_WAP_GPRS_SETTINGS_UPDATED_CONST='WAP/GPRS url was updated.';
+$TEXT_WAP_GPRS_SETTINGS_UPDATED_CONST='Settings were updated.';
 $TEXT_CALLER_ID_NUMBER_CONST='Caller ID number';
 ?>
