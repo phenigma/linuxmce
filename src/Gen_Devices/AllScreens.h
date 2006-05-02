@@ -8741,6 +8741,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_TVManufNotListed : public PreformedCommand
+	{
+	public:
+		SCREEN_TVManufNotListed(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVManufNotListed_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVManufNotListed_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVManufNotListed_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVManufNotListed_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVManufNotListed_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVManufNotListed_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -8976,6 +9016,7 @@ namespace DCE
 		virtual void SCREEN_tempmnumain2(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_tempmnuambiance(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_tempmnuspeed(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVManufNotListed(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10104,6 +10145,11 @@ namespace DCE
 				case 213:
 				{
 					SCREEN_tempmnuspeed(nPK_Screen);
+					break;
+				}
+				case 214:
+				{
+					SCREEN_TVManufNotListed(nPK_Screen);
 					break;
 				}
 
