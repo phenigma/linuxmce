@@ -309,6 +309,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 		map< string, class DesignObj_Orbiter * > m_mapFloorplan;
 
+		map< string, string> m_mapBoundIconValues;  /** < Values for all bound icons */
+
 		/** for threads and shared memory control @todo ask */
 
 		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */

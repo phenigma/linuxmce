@@ -5220,6 +5220,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 				Output += pDevice->m_sDescription;
 			}
 		}
+		else if( Variable.length()>2 && Variable[0]=='B'  )
+		{
+			PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+			Output += m_mapBoundIconValues[Variable.substr(1)];
+			vm.Release();
+		}
 		else
 			PK_Variable = atoi( Variable.c_str(  ) );
 
@@ -6409,6 +6415,10 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
 {
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	m_mapBoundIconValues[sType]=sText;
+	vm.Release();
+
 	DesignObj_DataList *pDesignObj_DataList = m_mapObj_Bound_Find(sType);
 	if( !pDesignObj_DataList )
 	{

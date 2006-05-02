@@ -139,7 +139,7 @@ public:
 	map<int,string> m_mapObjParms;
 	string m_ObjectID;
 	int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)
-	int m_ObjectType;
+	int m_ObjectType,m_PK_Effect_On_Screen,m_PK_Effect_Off_Screen;
 	PlutoRectangle m_rectDontDim, m_rPosition, m_rBackgroundPosition;
 	PlutoDataBlock m_dbHitTest;
 	class PlutoSize m_sOriginalSize;

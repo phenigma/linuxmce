@@ -231,6 +231,8 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		Write_long(m_iPage);
 
 		Write_long(m_ObjectType);
+		Write_long(m_PK_Effect_On_Screen);
+		Write_long(m_PK_Effect_Off_Screen);
 
 		Write_long(m_rPosition.X);
 		Write_long(m_rPosition.Y);
@@ -360,6 +362,8 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		m_iPage=Read_long();
 
 		m_ObjectType=Read_long();
+		m_PK_Effect_On_Screen=Read_long();
+		m_PK_Effect_Off_Screen=Read_long();
 
 		m_rPosition.X=Read_long();
 		m_rPosition.Y=Read_long();

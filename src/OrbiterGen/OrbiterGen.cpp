@@ -1792,6 +1792,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	}
 
 	ocDesignObj->m_ObjectType=ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get();
+	ocDesignObj->m_PK_Effect_On_Screen=atoi(ocDesignObj->GetParm(DESIGNOBJPARAMETER_PK_Effect_On_Screen_CONST).c_str());
+	ocDesignObj->m_PK_Effect_Off_Screen=atoi(ocDesignObj->GetParm(DESIGNOBJPARAMETER_PK_Effect_Off_Screen_CONST).c_str());
 	ocDesignObj->m_bCanBeHidden = bIsChild && ocDesignObj->m_bCanBeHidden;
 	//	ocDesignObj->m_bDontMergeBackground =  
 	//		(ocDesignObj->m_bHideByDefault ? "1" : "0") << "|" <<
