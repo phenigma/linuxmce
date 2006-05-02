@@ -82,8 +82,6 @@ BufferedIOConnection::RecvDelimited(const char* delimbuff, unsigned int delimsiz
 	if(delimsize <= 0 || !isDataAvailable(timeout)) {
 		return ret;
 	}
-	fprintf(stderr,"Called RecvDelimited (delimbuff='%s',delimsize=%d,timeout=%d)\n",delimbuff,delimsize,timeout);
-	
 	if(timeout<=0)
 	{
 		timeout=DEFAULT_DELIMITED_TIMEOUT;
@@ -111,7 +109,7 @@ BufferedIOConnection::RecvDelimited(const char* delimbuff, unsigned int delimsiz
 			return string("");
 		}
 	}
-	fprintf(stderr,"Return from RecvDelimited with result=%s\n",ret.c_str());	
+	fprintf(stderr,"RecvDelimited returns '%s'\n",ret.c_str());	
 	return ret;
 }
 
