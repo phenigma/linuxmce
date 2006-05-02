@@ -191,6 +191,8 @@ void* DevicePoll::_Run() {
 					if(!SendAddress(&serprt, &msg)) {
 						break;
 					}
+					if(isStopRequested)
+						return 0;
 					Sleep(100);
 				}
 				
@@ -206,6 +208,8 @@ void* DevicePoll::_Run() {
 					if(!SendFunction(&serprt, &msg)) {
 						break;
 					}
+					if(isStopRequested)
+						return 0;
 					Sleep(100);
 				}
 				
@@ -319,11 +323,8 @@ void* DevicePoll::_Run() {
 						}
 					}
 				}
-				
 				Sleep(CM11A_NOREQUES_SLEEP);
 			}
-		
-			      
 		} catch(...) {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured on CM11A's serial port: %s. Sleeping for %0.1f second.", 
 													serport_.c_str(), 1.0 * CM11A_ERROR_SLEEP / 1000);
