@@ -916,7 +916,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
 		pEntertainArea_Last ? pEntertainArea_Last->m_iPK_EntertainArea : 0);
 
 	DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-		StringUtils::itos((int)(pEntertainArea && pEntertainArea->m_bMediaIsPrivate)),"media_private");
+		StringUtils::itos((int)(pEntertainArea && pEntertainArea->m_bMediaIsPrivate)),"media_private","");
 	SendCommand(CMD_Set_Bound_Iconl);
 
 }
@@ -1588,18 +1588,18 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 
 	if( pOH_Orbiter->m_bRegistered )
 	{
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting ? "1" : "0","follow_light");
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting ? "1" : "0","follow_light","");
 
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconm(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Media ? "1" : "0","follow_media");
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconm(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Media ? "1" : "0","follow_media","");
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Iconm.m_pMessage);
 
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconc(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Climate ? "1" : "0","follow_climate");
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconc(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Climate ? "1" : "0","follow_climate","");
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Iconc.m_pMessage);
 
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icons(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Security ? "1" : "0","follow_security");
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icons(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Security ? "1" : "0","follow_security","");
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icons.m_pMessage);
 
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icont(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icont(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Telecom ? "1" : "0","follow_telecom","");
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icont.m_pMessage);
 
 		pOH_Orbiter->m_dwPK_Room=iPK_Room;
@@ -1973,7 +1973,7 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
         if( pOH_Orbiter->PK_Users_get() != iPK_Users )
 			continue; // Don't change
 
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,bOnOff ? "1" : "0",sType);
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,bOnOff ? "1" : "0",sType,"");
 		SendCommand(CMD_Set_Bound_Icon);
 	}
 }

@@ -1053,7 +1053,7 @@ void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
 		OH_Orbiter *pOH_Orbiter = (*it).second;
 		if( pOH_Orbiter_Compare==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
 		{
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode");
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos((int) m_bMonitorMode),"monitormode","");
 			SendCommand(CMD_Set_Bound_Icon);
 		}
 	}
@@ -1076,7 +1076,7 @@ void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_O
 				OH_Orbiter *pOH_Orbiter = (*it).second;
 				if( pOH_Orbiter_Compare==NULL || pOH_Orbiter==pOH_Orbiter_Compare )
 				{
-					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode" + StringUtils::itos(itHM->first));
+					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"housemode" + StringUtils::itos(itHM->first),"");
 					SendCommand(CMD_Set_Bound_Icon);
 				}
 #ifdef DEBUG
