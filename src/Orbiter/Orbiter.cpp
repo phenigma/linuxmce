@@ -2084,6 +2084,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 				else
 					QueueMessageToRouter( pMessage );
 			}
+			else
+				QueueMessageToRouter( pMessage );
 #else
 			QueueMessageToRouter( pMessage );
 #endif
@@ -4836,6 +4838,9 @@ int k=2;
 						if( !m_pcRequestSocket->SendMessage( pMessage ) )
 							g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
 				}
+				else
+					if( !m_pcRequestSocket->SendMessage( pMessage ) )
+						g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
 #else
 				if( !m_pcRequestSocket->SendMessage( pMessage ) )
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
