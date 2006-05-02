@@ -298,6 +298,11 @@ void Wizard::StartSDLVideoMode()
 
 	FrontEnd = new SDLFrontEnd();
 
+	SettingsDictionary * Dictionary = AVWizardOptions->GetDictionary();
+	if (Dictionary->Exists("WindowWidth"))
+		Width = Utils::StringToInt32(Dictionary->GetValue("WindowWidth"));
+	if (Dictionary->Exists("WindowHeight"))
+		Height = Utils::StringToInt32(Dictionary->GetValue("WindowHeight"));
 	FrontEnd->StartVideoMode(Width, Height, FullScreen);
 }
 

@@ -74,6 +74,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 
 void SDLFrontEnd::Flip()
 {
+	// TODO: Scale
 	SDL_Flip(Screen);
 }
 

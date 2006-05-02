@@ -20,5 +20,10 @@
 #define COMMAND_SET_RATIO_4_3  COMMAND_SET_RATIO " 4_3"
 #define COMMAND_SET_RATIO_16_9 COMMAND_SET_RATIO " 16_9"
 
+#ifdef WIN32
+#define PATH_PIXMAPS "wiz_pixmaps"
+#else
+#define PATH_PIXMAPS "/usr/pluto/wiz_pixmaps"
+#endif
 
 #endif

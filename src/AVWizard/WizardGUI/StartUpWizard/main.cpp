@@ -11,17 +11,16 @@
 #include "WizardWidgetsFactory.h"
 //---------------------------------------------------------------------------
 #include "GenerateWizardConfigDefaults.h"
+#include "ConfigureCommons.h"
 //---------------------------------------------------------------------------
 bool IsConsole = false;
-//---------------------------------------------------------------------------
-
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
 	int ExitCode;
 	GenerateWizardConfigDefaults Generator;
 	Generator.GenerateDefaults();
-	Generator.GenerateDefaultPages("", "wiz_pixmaps");
+	Generator.GenerateDefaultPages("", PATH_PIXMAPS);
 
 	Wizard* m_Wizard = Wizard::GetInstance();
 	m_Wizard->ParseCommandLineParameters(argc, argv);
