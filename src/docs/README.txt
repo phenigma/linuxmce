@@ -5,8 +5,10 @@
   - remember that for the files not covered by those rules, nothing will apply
   - do NOT write a rule '*' for all files
 
-/pluto/trunk/src/docs/X11_PLUTO.txt
+/pluto/trunk/src/docs/X11_NOTES.txt
   - X11 notes, which also apply to SDL, GTK, wxWidgets
+/pluto/trunk/src/docs/X11_PLUTO.txt
+  - Using X11-locking in Pluto
 
 /pluto/trunk/src/Orbiter/wxAppMain/WX_PLUTO.txt
   - notes about wxWidgets integration in Pluto

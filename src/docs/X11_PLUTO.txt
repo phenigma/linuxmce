@@ -4,63 +4,32 @@
 // Changed by : ...
 //
 
-==========================
-X11 integration with Pluto
-==========================
+== Using X11 locking in Orbiter ==
 
-    This document contains (very) short notes about threads in X11,
-taken from the net forums and docs.
-    Please read the Xlib Programming manual and X11 tutorials.
-    Code which implements the notes below was tested and it works fine.
+    In OrbiterLinux there are 2 new functions:
+X_LockDisplay() and X_UnlockDisplay(); which should be used
+before and after calling X11/SDL functions which update the display, or change the mouse position
 
-    If "Xlib: unexpected async reply" error message appears, then for
-sure some thread code does not call X functions correctly.
+    Example:
+class_name::some_drawing_function()
+{
+    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiter);
+    // or, better, make a member variable from pOrbiterLinux,
+    // and initialize it before this function would be called
 
+    // non-critical code
 
+    if (pOrbiterLinux)
+        pOrbiterLinux->X_LockDisplay();
 
-    If these notes are disregarded, then the application may appear to
-work fine, until a point in time when:
-- it starts to loose events;
-- appear to freeze for a time;
-- behaves unpredictably;
-- in gdb, the application may appear to be locked after a call to XSync().
+    // critical code here
 
+    if (pOrbiterLinux)
+        pOrbiterLinux->X_UnlockDisplay();
 
+    // non-critical code
+}
 
-    When working with threads in any X11 application, the following
-notes apply:
-
-- it doesn't matter if the application uses wxWidgets, or GTK, or
-  Motif, or any other library; some libraries, like QT4, already
-  contains code for these rules, implemented in a way that is
-  transparent to the developer.
-
-- if a thread doesn't call routines for updating the display, or
-  routines for working with messages, it's ok leave that code as it
-  is.
-
-- if at least one thread calls routines for updating the display,
-  or routines for working with messages, then in the main thread,
-  before starting any other thread, XInitThreads() should be used
-
-- in every thread that draws something in a window call
-  XLockDisplay(Display *display) before draw and
-  XUnlockDisplay(Display *display) after draw
-
-- events must be read from a single thread, usually the main one
-
-- the event-process code can be written in another thread, but mutexes
-  (or semaphores, or conditions, etc.) should be used to be sure that
-  the data processed is not changed before the end of the
-  event-process
-
-- another method is to use XOpenDisplay() in the thread that owns
-  (create, update, destroy) a window, and that thread must have it's
-  own event-loop (i didn't tested if this really works smoothly)
-
-    Events specified here refers to: X11 events, keyboard events
-
-    QT, GTK, wxWidgets all have equivalent functions. Use them as
-appropriate instead of Xlib functions for platform compatibility.
+The dynamic_cast should return NULL only if you are not compiling the Linux version.
 
 // --EOF--
