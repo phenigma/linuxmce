@@ -239,9 +239,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             {
                 // This is a new screen, start with a clean canvas
 				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->m_rPosition.Width && pDesignObj_Generator->m_rPosition.Height )
-	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height),pRenderImage==NULL);
+	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height), sInputFile.length() == 0);
 				else
-	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height),pRenderImage==NULL); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height), sInputFile.length() == 0); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
             }
             else
