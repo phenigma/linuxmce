@@ -1104,11 +1104,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 			/** If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen */
 		/** @param #114 Cant Go Back */
 			/** If true, then when this screen goes away the user won't be able to return to it -- it will be skipped over, unless Go Back with Force=1 is used.  This prevents layers of popup screens. */
-		/** @param #221 PK_Effect */
-			/** The effect to use for the transition.  0=default, -1=no effect. */
 
-	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,int iPK_Effect) { string sCMD_Result; CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,iPK_Effect,sCMD_Result,NULL);};
-	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,int iPK_Effect,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back) { string sCMD_Result; CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,NULL);};
+	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #6 - Show Object */
@@ -1847,11 +1845,9 @@ light, climate, media, security, telecom */
 			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
-		/** @param #221 PK_Effect */
-			/** The effect to use for the transition.  0=default, -1=no effect. */
 
-	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iPK_Effect) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,iPK_Effect,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iPK_Effect,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #795 - Set Mouse Behavior */

@@ -5741,10 +5741,8 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			/** If 1, the Orbiter will store the current variable values, and restore them if a 'go back' causes it to return to this screen */
 		/** @param #114 Cant Go Back */
 			/** If true, then when this screen goes away the user won't be able to return to it -- it will be skipped over, unless Go Back with Force=1 is used.  This prevents layers of popup screens. */
-		/** @param #221 PK_Effect */
-			/** The effect to use for the transition.  0=default, -1=no effect. */
 
-void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,int iPK_Effect,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
 #ifdef DEBUG
@@ -9966,10 +9964,8 @@ bool Orbiter::WaitForRelativesIfOSD()
 			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
-		/** @param #221 PK_Effect */
-			/** The effect to use for the transition.  0=default, -1=no effect. */
 
-void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iPK_Effect,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
 	if( m_iUiVersion==2 )
