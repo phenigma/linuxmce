@@ -3212,6 +3212,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 			}
 			$GLOBALS['mdDistro']=($rowDDforDevice['FK_DeviceData']==$GLOBALS['rootPK_Distro'])?@$ddValue:0;
 
+			$deviceDataBox.=($itemDisabled=='disabled')?'<input type="hidden" name="isDisabled_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1">':'';
 			$deviceDataBox.='
 							<input type="hidden" name="oldDeviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.$ddValue.'">';					
 			unset($ddValue);
@@ -5239,5 +5240,250 @@ function getSpecificFloorplanType($dcID,$dbADO){
 	}
 	
 	return 0;
+}
+
+function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defaultAll,$section,$dbADO,$genericSerialDevicesOnly=0){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
+	
+	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
+	$deviceCategoryPicker=(isset($_REQUEST['deviceCategoryPicker']))?$_REQUEST['deviceCategoryPicker']:0;
+	$dtID=(isset($_REQUEST['dtID']))?$_REQUEST['dtID']:0;
+	
+	switch (@$deviceCategoryPicker){
+		case 1:
+			$deviceCategoriesArray=getHierachicalCategories($dbADO);
+			$deviceCategoryPulldown=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
+		break;
+		case 2:
+			$deviceCategoryPulldown=getdTree($categoryID,$dbADO);
+		break;
+		default:
+			$deviceCategoriesArray=getAlphaCategories($dbADO);
+			$deviceCategoryPulldown=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
+	}
+	
+	if($categoryID!=0 && $manufacturerID>0){
+		// TODO: do the filtering here
+		
+		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'','ORDER BY Description ASC');
+		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
+		
+	}else{
+		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'','ORDER BY Description ASC');
+		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
+	}
+	
+	$out=dtPickerJS().'
+
+	<form action="index.php" method="post" name="deviceTemplatePicker">
+		<input type="hidden" name="section" value="deviceTemplatePicker">
+		<input type="hidden" name="action" value="choose">
+	
+	<table align="center">
+		<tr>
+			<td><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
+			<td>'.pulldownFromArray($manufacturersArray,'manufacturerID',$manufacturerID,'class="input_big" onchange="setManufacturer();"').'</td>
+			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_MANUFACTURER_CONST.'" onclick="add_manufacturer_popup();"></td>
+		</tr>
+		<tr>
+			<td valign="top"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
+			<td valign="top">'.$deviceCategoryPulldown.'</td>
+			<td valign="top"><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_CATEGORY_CONST.'" onclick="add_device_category_popup();"></td>
+		</tr>	
+		<tr>
+			<td>&nbsp;</td>
+			<td>
+				<input type="radio" name="deviceCategoryPicker" value="0" '.(($deviceCategoryPicker==0)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_PULLDOWN_ALPHA_CONST.'<br>
+				<input type="radio" name="deviceCategoryPicker" value="1" '.(($deviceCategoryPicker==1)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_PULLDOWN_HIERARCHICAL_CONST.'<br>
+				<input type="radio" name="deviceCategoryPicker" value="2" '.(($deviceCategoryPicker==2)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_TREEVIEW_CONST.'<br>
+			</td>
+			<td>&nbsp;</td>
+		</tr>	
+		<tr>
+			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+			<td>'.$deviceTemplatesPulldown.'</td>
+			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();"></td>
+		</tr>	
+		<tr>
+			<td colspan="3">
+			<table width="100%">
+				<tr class="tablehead">
+					<td align="center"><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+				</tr>
+				<tr class="alternate_back">
+					<td align="center"><input type="text" name="manufSelected" value="'.$manufacturerID.'"></td>
+					<td align="center"><input type="text" name="dcSelected" value="'.$categoryID.'"></td>
+					<td align="center"><input type="text" name="dtID" value="'.$dtID.'"></td>
+				</tr>
+			</table>
+			</td>
+		</tr>	
+		<tr>
+			<td colspan="3" align="center">
+				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'">
+			</td>
+		</tr>	
+	</table>
+	</form>
+	';
+	
+	return $out;
+}
+
+// get an associative array with device categories, and in description there are also displayed the parents
+function getAlphaCategories($dbADO){
+	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY Description ASC');
+	$categoriesWithParents=$categoriesArray;
+	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
+	
+	foreach ($categoriesArray AS $cID=>$description){
+		$parents=array();
+		$parents=getDCParents($parents,$cID,$categoriesParents,$categoriesArray);
+		$parentSuffix=(count($parents)>0)?' < '.join(' < ',$parents):'';
+		$categoriesWithParents[$cID]=$description.$parentSuffix;
+	}
+
+	return $categoriesWithParents;
+}
+
+function getDCParents($parents,$cID,$categoriesParents,$categoriesArray){
+
+	if(isset($categoriesParents[$cID]) && (int)$categoriesParents[$cID]!=0){
+		$parents[]=$categoriesArray[$categoriesParents[$cID]];
+		$parents+=getDCParents($parents,$categoriesParents[$cID],$categoriesParents,$categoriesArray);
+	}
+	
+	return $parents;
+}
+
+function getHierachicalCategories($dbADO){
+	$categoriesHierarchical=array();
+	
+	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY FK_DeviceCategory_Parent ASC,Description ASC');
+	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
+
+	foreach ($categoriesParents AS $cID=>$parent){
+		if($parent==''){
+			$categoriesHierarchical[$cID]=$categoriesArray[$cID];
+			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,1);
+		}
+	}
+
+	return $categoriesHierarchical;
+}
+
+function getHierachicalChilds($categoriesHierarchical,$pid,$categoriesArray,$categoriesParents,$level=0){
+	foreach ($categoriesParents AS $cID=>$parent){
+		if($parent==$pid){
+			$prefix='';
+			for($i=0;$i<$level;$i++){
+				$prefix.='&nbsp;&nbsp;&nbsp;&nbsp;';
+			}
+			
+			$categoriesHierarchical[$cID]=$prefix.$categoriesArray[$cID];
+			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,$level+1);
+		}
+	}
+	
+	return $categoriesHierarchical;
+}
+
+// build a treeview with categories
+function getdTree($categoryID,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+
+	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY FK_DeviceCategory_Parent ASC,Description ASC');
+	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
+
+	$jsNodes='';
+	foreach ($categoriesParents AS $cID=>$parent){
+		if($parent==''){
+			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\'javascript:setDeviceCategory('.$cID.');\');';
+			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents);
+		}
+	}
+
+//die($jsNodes);
+	$out='
+	<link rel="StyleSheet" href="scripts/dtree/dtree.css" type="text/css" />
+	<script type="text/javascript" src="scripts/dtree/dtree.js"></script>
+	
+<div class="dtree">
+	<script type="text/javascript">
+		<!--
+
+		d = new dTree(\'d\');
+
+		d.add(0,-1,\''.$TEXT_DEVICE_CATEGORY_CONST.'\');
+		'.$jsNodes.'		
+	
+		d.config.useLines=true;
+		d.config.useIcons=false;
+	
+		document.write(d);
+
+		//-->
+	</script>
+</div>	
+	';
+
+	return $out;
+}
+
+function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents){
+
+	foreach ($categoriesParents AS $cID=>$parent){
+		if($parent==$pid){
+			$jsNodes.='d.add('.$cID.','.$parent.',\''.addslashes($categoriesArray[$cID]).'\',\'javascript:setDeviceCategory('.$cID.');\');';
+			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents);
+		}
+	}
+	
+	return $jsNodes;
+}
+
+function dtPickerJS(){
+	$out='
+	<script>
+	function setDeviceCategory(val){
+		if(val==-1){
+			for(i=0;i<document.deviceTemplatePicker.categoryID.length;i++){
+				if(document.deviceTemplatePicker.categoryID[i].selected)
+					val=document.deviceTemplatePicker.categoryID[i].value;
+			}
+		}
+		document.deviceTemplatePicker.dcSelected.value=val;	
+	}
+	
+	function setManufacturer(val){
+		for(i=0;i<document.deviceTemplatePicker.manufacturerID.length;i++){
+			if(document.deviceTemplatePicker.manufacturerID[i].selected)
+				val=document.deviceTemplatePicker.manufacturerID[i].value;
+		}
+
+		document.deviceTemplatePicker.manufSelected.value=val;
+	}
+
+	function setDeviceTemplate(){
+		for(i=0;i<document.deviceTemplatePicker.template.length;i++){
+			if(document.deviceTemplatePicker.template[i].selected)
+				val=document.deviceTemplatePicker.template[i].value;
+		}
+
+		document.deviceTemplatePicker.dtID.value=val;
+	}	
+	
+	function changeCategoryPicker(){
+		document.deviceTemplatePicker.submit();
+	}
+	</script>
+	';
+	
+	return $out;
 }
 ?>
