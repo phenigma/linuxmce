@@ -100,6 +100,7 @@ Plug_And_Play::Plug_And_Play(Command_Impl *pPrimaryDeviceCommand, DeviceData_Imp
 	d = new PnPPrivate(this);
 	if( d != NULL )
 	{
+		
 	}
 	else
 	{
@@ -339,8 +340,8 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 		string existingDeviceID = response.substr(response.find(":"));
 		if(!existingDeviceID.empty())
 		{
-			//TODO: enable the device
-			
+			//enable the device
+			d->SetEnableState(atoi( existingDeviceID.c_str()), true );
 			return;
 		}
 		
@@ -391,12 +392,16 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					// row->IP_set( sIP_Address );
 					// row->ExtraParameters_set( sTokens );
 					
+							
 					if( !p_Table_PnpQueue->Commit() )
 					{
 						// error
 						g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
 						return;
 					}
+					d->currentPnpQueueID = row->PK_PnpQueue_get();
+					
+					//TODO: go to pre, if the devices is not capable, else go to post
 				}
 				else
 				{
@@ -585,7 +590,77 @@ void Plug_And_Play::CMD_PlugAndPlayRemoveDevice(string sPNPSerialNo,string &sCMD
 
 void Plug_And_Play::CheckQueue()
 {
-
+	//only runs on core
+	if(!d->core)
+		return;
+	
+	if(d->currentPnpQueueID != 0)
+	{
+		//something in process
+		return;
+	}
+	else
+	{
+		//check the queue
+		vector< Row_PnpQueue* > vectRow_PnpQueue;
+		vector< Row_PnpQueue* >::iterator vectRow_PnpQueue_iterator;
+		string sSQL = "where 1=1";
+		Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
+		if( p_Table_PnpQueue != NULL )
+		{
+			p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);		
+			if(!vectRow_PnpQueue.empty())
+			{
+				for(	vectRow_PnpQueue_iterator = vectRow_PnpQueue.begin();
+						vectRow_PnpQueue_iterator != vectRow_PnpQueue.end();
+						vectRow_PnpQueue_iterator ++)
+				{
+					int stage = (*vectRow_PnpQueue_iterator)->Stage_get() ;
+					switch(stage)
+					{
+						case Plug_And_Play::Detected:
+							//interrupted during add device
+							//actually, this means that the add device was succesfull, so goto next case
+						case Plug_And_Play::Pre:
+							//interrupted during pre
+							//TODO: rerun pre
+							break;
+						case Plug_And_Play::Do:
+							//interrupted during do
+							//TODO:rerun do
+							break;
+						case Plug_And_Play::Post:
+							//interrupted during post
+						case Plug_And_Play::PromptUser:
+							//interrupted during user action
+							//TODO: rerun post
+							break;
+						case Plug_And_Play::Done:
+							//all actions done
+						case Plug_And_Play::Error:
+							//errorenous item
+							//delete the item from queue
+						default:
+							//unknown stage
+							//delete the item from queue
+							(*vectRow_PnpQueue_iterator)->Delete();
+							p_Table_PnpQueue->Commit();							
+							g_pPlutoLogger->Write(LV_WARNING, "invalid stage on PNP queue");
+							
+					}
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_DEBUG, "device not in pnp queue.. good");
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "pnp queue table is NULL");
+		}
+	}
+	
 }
 
 void Plug_And_Play::Pre_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

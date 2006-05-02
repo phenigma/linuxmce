@@ -23,6 +23,8 @@ public:
 		  */
 		enum Capabilities { NOTHING=0, CONFIG=1 };
 		
+		enum Stages {Detected = 0, Pre, Do, Post, PromptUser, Done, Error};
+		
 		// Public member variables
 
 //<-dceag-const-b->
