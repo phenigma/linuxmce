@@ -2060,6 +2060,7 @@
 #define DESIGNOBJ_butYesUseRecommended_CONST 4999
 #define DESIGNOBJ_butDontUseRecommended_CONST 5000
 #define DESIGNOBJ_butDontUseIt_CONST 5002
+#define DESIGNOBJ_dgTVWhatDelays_CONST 5003
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
