@@ -212,6 +212,7 @@
 #define SCREEN_tempmnumain2_CONST 211
 #define SCREEN_tempmnuambiance_CONST 212
 #define SCREEN_tempmnuspeed_CONST 213
+#define SCREEN_TVManufNotListed_CONST 214
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

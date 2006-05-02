@@ -2055,6 +2055,11 @@
 #define DESIGNOBJ_icoUpIndicator_CONST 4994
 #define DESIGNOBJ_mnuDvdSpeedControl_CONST 4995
 #define DESIGNOBJ_dgPlaylist_No_Scroll_CONST 4996
+#define DESIGNOBJ_mnuPartitions_Option_Mount_CONST 4997
+#define DESIGNOBJ_mnuPartitions_Options_CONST 4998
+#define DESIGNOBJ_butYesUseRecommended_CONST 4999
+#define DESIGNOBJ_butDontUseRecommended_CONST 5000
+#define DESIGNOBJ_butDontUseIt_CONST 5002
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
