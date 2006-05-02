@@ -40,10 +40,6 @@ function keyboardLayout($output,$dbADO) {
 			<tr class="tablehead">
 				<td colspan="2 align="center""><B>'.$TEXT_CORE_CONST.'</B></td>
 			</tr>		
-			<tr>
-				<td>'.$TEXT_CORE_CONST.'</td>
-				<td>'. keyboardLayoutPulldown($keyboardLayoutsArray,$coreKL,'core_KL').'</td>
-			</tr>
 			<tr class="tablehead">
 				<td colspan="2 align="center""><B>'.$TEXT_MEDIA_DIRECTORS_CONST.'</B></td>
 			</tr>';
@@ -71,7 +67,7 @@ function keyboardLayout($output,$dbADO) {
 			exit();
 		}	
 
-		exec('sudo -u root /usr/pluto/bin/XKbLayout.sh set 127.0.0.1 '.$_POST['core_KL']);
+		//exec('sudo -u root /usr/pluto/bin/XKbLayout.sh set 127.0.0.1 '.$_POST['core_KL']);
 
 		foreach ($mediaDirectors AS $mdID=>$mdName){
 			
