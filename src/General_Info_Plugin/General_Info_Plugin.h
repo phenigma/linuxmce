@@ -405,6 +405,15 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #800 - InitAVDeviceTemplateSettings */
+	/** Save default values in database for a deviceTemplate */
+		/** @param #44 PK_DeviceTemplate */
+			/** Template id */
+
+	virtual void CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate) { string sCMD_Result; CMD_InitAVDeviceTemplateSettings(iPK_DeviceTemplate,sCMD_Result,NULL);};
+	virtual void CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

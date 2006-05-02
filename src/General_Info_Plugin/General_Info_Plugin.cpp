@@ -61,6 +61,7 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
+#include "pluto_main/Table_DeviceTemplate_AV.h"
 
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -2490,4 +2491,34 @@ void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *
 			}
 		}
 	}
+}
+//<-dceag-c800-b->
+
+	/** @brief COMMAND: #800 - InitAVDeviceTemplateSettings */
+	/** Save default values in database for a deviceTemplate */
+		/** @param #44 PK_DeviceTemplate */
+			/** Template id */
+
+void General_Info_Plugin::CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage)
+//<-dceag-c800-e->
+{
+	Table_DeviceTemplate_AV *pTemplateAVTable = NULL;
+	Row_DeviceTemplate_AV *pTemplateAVRow = NULL;
+	
+	pTemplateAVTable = m_pDatabase_pluto_main->DeviceTemplate_AV_get();
+	if( pTemplateAVTable )
+	{
+		pTemplateAVRow = pTemplateAVTable->AddRow();
+	
+		// add default values
+		pTemplateAVRow->FK_DeviceTemplate_set( iPK_DeviceTemplate );
+
+		pTemplateAVRow->IR_PowerDelay_set( 2 );
+		pTemplateAVRow->IR_ModeDelay_set( 7 );
+		pTemplateAVRow->DigitDelay_set( 250 );
+
+		pTemplateAVTable->Commit();
+	}
+	//else; //log an error
+		
 }
