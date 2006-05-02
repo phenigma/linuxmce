@@ -333,15 +333,15 @@ void window_set_title (Display *disp, Window win, /* {{{ */
 
 int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
     unsigned long *cur_desktop = NULL;
-    fprintf(stderr, "::window_to_desktop\n");
+    //fprintf(stderr, "::window_to_desktop\n");
     Window root = DefaultRootWindow(disp);
-    fprintf(stderr, "::window_to_desktop 2\n");
+    //fprintf(stderr, "::window_to_desktop 2\n");
 
     if (desktop == -1) {
-        fprintf(stderr, "::window_to_desktop 3\n");
+        //fprintf(stderr, "::window_to_desktop 3\n");
         if (! (cur_desktop = (unsigned long *)get_property(disp, root,
                 XA_CARDINAL, "_NET_CURRENT_DESKTOP", NULL))) {
-            fprintf(stderr, "::window_to_desktop 4\n");
+            //fprintf(stderr, "::window_to_desktop 4\n");
             if (! (cur_desktop = (unsigned long *)get_property(disp, root,
                     XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
                 fputs("Cannot get current desktop properties. "
@@ -350,12 +350,12 @@ int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
                 return EXIT_FAILURE;
             }
         }
-        fprintf(stderr, "::window_to_desktop 5\n");
+        //fprintf(stderr, "::window_to_desktop 5\n");
         desktop = *cur_desktop;
     }
-    fprintf(stderr, "::window_to_desktop 6\n");
+    //fprintf(stderr, "::window_to_desktop 6\n");
     g_free(cur_desktop);
-    fprintf(stderr, "::window_to_desktop 7\n");
+    //fprintf(stderr, "::window_to_desktop 7\n");
 
     return client_msg(disp, win, "_NET_WM_DESKTOP", (unsigned long)desktop,
             0, 0, 0, 0);

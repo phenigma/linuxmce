@@ -40,10 +40,10 @@ bool Init_System()
     // Disable DPMS and screen saver
     system("/usr/bin/X11/xset -display :0 -dpms s off");
 
-#ifdef USE_XRECORD
+//#ifdef USE_XRECORD
 	//disable repeated keys
 	system("/usr/bin/X11/xset r off");
-#endif
+//#endif
 
     // as soon as possible
     if ( XInitThreads() == 0 )
@@ -353,18 +353,21 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
         return false;
     if(SDL_PollEvent(&sdl_event_loop_data.event))
     {
-#ifdef USE_XRECORD		
-		if(sdl_event_loop_data.event.type == SDL_QUIT)
-			return false;
-#else		
-		// convert the SDL into what we know to interpret.
-        translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
+		if(sdl_event_loop_data.pOrbiter->UsesUIVersion2())
+		{
+			if(sdl_event_loop_data.event.type == SDL_QUIT)
+				return false;
+		}
+		else
+		{
+			// convert the SDL into what we know to interpret.
+		    translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState);
 
-        if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
-            return false;
+	        if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
+				return false;
 
-        sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
-#endif		
+			sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
+		}
     }
     else
         ((OrbiterSDL*)sdl_event_loop_data.pOrbiter)->OnIdle();

@@ -11,7 +11,7 @@ WMControllerImpl::~WMControllerImpl()
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::Init()
 {
-    printf("WMControllerImpl::Init()\n");
+    //printf("WMControllerImpl::Init()\n");
 	m_pDisplay = XOpenDisplay(NULL);
 	
 	if (NULL == m_pDisplay)
@@ -23,13 +23,13 @@ bool WMControllerImpl::Init()
     XLockDisplay(m_pDisplay);	
 	init_charset(true); //use UTF8
 
-    printf("Done WMControllerImpl::Init()\n");
+    //printf("Done WMControllerImpl::Init()\n");
 	return true;
 }
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::Fini()
 {
-    fprintf(stderr, "WMControllerImpl::Fini()\n");
+    //fprintf(stderr, "WMControllerImpl::Fini()\n");
 	if(NULL != m_pDisplay)
 	{
 		XUnlockDisplay(m_pDisplay);	
@@ -38,15 +38,12 @@ bool WMControllerImpl::Fini()
 		return true;
 	}
 
-	fprintf(stderr, "WMControllerImpl::Fini() : Cannot close NULL display!\n");
+	//fprintf(stderr, "WMControllerImpl::Fini() : Cannot close NULL display!\n");
 	return false;
 }
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 {
-	//list<WinInfo> listWinInfo;
-	//ListWindows(listWinInfo);
-
 	fprintf(stderr, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 
 	if(!Init())

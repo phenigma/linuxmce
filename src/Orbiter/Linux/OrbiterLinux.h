@@ -73,7 +73,14 @@ public:
 
     virtual ~OrbiterLinux();
 
-    void setWindowName(string strDesktopWindowName);
+	/**
+	 * @brief Sets up the class right after the constructor is called
+	 */
+	//virtual bool GetConfig();
+
+	void HideOtherWindows();
+		
+	void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);
 
     // overriden to handle the desktop window hiding

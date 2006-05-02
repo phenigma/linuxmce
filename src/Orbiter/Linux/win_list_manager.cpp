@@ -120,3 +120,16 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
     }
     return false;
 }
+
+bool WinListManager::HideWindow(const string &sClassName)
+{
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	WMController::Instance().SetVisible(sClassName, false);	
+}
+
+void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
+{
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	WMController::Instance().ListWindows(listWinInfo);
+}
+

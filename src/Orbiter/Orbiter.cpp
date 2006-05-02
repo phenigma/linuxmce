@@ -8118,7 +8118,7 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->GetObj() );
 #endif
-	if( pObj==m_pScreenHistory_Current->GetObj() && pObj->m_dwTimeoutSeconds )
+	if( NULL != m_pScreenHistory_Current && pObj==m_pScreenHistory_Current->GetObj() && pObj->m_dwTimeoutSeconds )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
 }
 //<-dceag-c325-b->

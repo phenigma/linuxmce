@@ -96,12 +96,13 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
-#ifdef USE_XRECORD	//recording is always enabled in this case
-	m_pRecordHandler->enableRecording(this, true);
-#endif	
+	if(UsesUIVersion2())
+		m_pRecordHandler->enableRecording(this, true);
 	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
+
+	HideOtherWindows();
 }
 
 void *HackThread(void *p)
@@ -140,6 +141,31 @@ OrbiterLinux::~OrbiterLinux()
     delete m_pRecordHandler;
 	
     closeDisplay();
+}
+/*
+bool OrbiterLinux::GetConfig()
+{
+    HideOtherWindows();
+		
+    return  OrbiterSDL::GetConfig();
+}
+*/
+void OrbiterLinux::HideOtherWindows()
+{
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
+
+	list<WinInfo> listWinInfo;
+	m_WinListManager.GetWindows(listWinInfo);
+
+	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
+	{
+		string sClassName = it->sClassName;
+		if(sClassName != "" && string::npos == sClassName.find("Orbiter"))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows, hidding %s", sClassName.c_str());
+			m_WinListManager.HideWindow(sClassName);
+		}
+	}
 }
 
 void OrbiterLinux::reinitGraphics()
@@ -248,11 +274,13 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         ActivateExternalWindowAsync(NULL);
     }
 	
-#ifndef USE_XRECORD	//activate/deactivate xrecording only when USE_XRECORD is not defined
-					//if defined, xrecording will be enabled all the time
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
-	m_pRecordHandler->enableRecording(this, m_bYieldInput);
-#endif
+	if(!UsesUIVersion2())
+	{
+		//activate/deactivate xrecording only for old UI
+		//for UI version 2, xrecording will be enabled all the time
+		g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
+		m_pRecordHandler->enableRecording(this, m_bYieldInput);
+	}
 	
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
     return true;
@@ -329,19 +357,22 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     kevent.keycode = event.data.button.m_iPK_Button;;
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
-	switch (event.data.button.m_iPK_Button)
-	{
 #ifdef ENABLE_MOUSE_BEHAVIOR
-        case 101:   event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
-        case 102:   event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
-        case 103:   
-					event.data.button.m_iPK_Button = BUTTON_F8_CONST; 
-					g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); 
-					return true;
-#endif
-		default:
-			break; 
+	if(UsesUIVersion2())
+	{
+		switch (event.data.button.m_iPK_Button)
+		{
+			case 101:   event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+			case 102:   event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+			case 103:   
+						event.data.button.m_iPK_Button = BUTTON_F8_CONST; 
+						g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); 
+						return true;
+			default:
+				break; 
+		}
 	}
+#endif		
 
     switch ( keysym )
     {

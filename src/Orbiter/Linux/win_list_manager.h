@@ -9,6 +9,8 @@
 #include <list>
 using namespace std;
 
+struct WinInfo;
+
 class WinListManager
 {
 public:
@@ -31,6 +33,9 @@ public:
     bool IsEmpty();
 
     bool IsWindowAvailable(const string &sClassName);
+	bool HideWindow(const string &sClassName);
+	
+	void GetWindows(list<WinInfo>& listWinInfo);
 
 protected:
     pthread_mutexattr_t m_WindowsMutexAttr;
