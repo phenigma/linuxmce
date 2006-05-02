@@ -24,6 +24,7 @@
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
 #include "CallBackTypes.h"
+#include "pluto_main/Define_UI.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
@@ -154,6 +155,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		string GetCurrentScreenID();
 
 		virtual void SetImageQuality(unsigned long ulImageQuality) {};
+
+		/**
+		* @brief Returns true if version 2 of the UI is being used
+		*/
+		virtual bool UsesUIVersion2() { return UI_V2_Normal_Horizontal_16_9_CONST == m_iUiVersion; }
 
 		/**
 		* @brief creates a screen handler

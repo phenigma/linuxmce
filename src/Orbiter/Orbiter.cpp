@@ -653,14 +653,15 @@ void Orbiter::RenderScreen( )
 #endif
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	// Temporary nasty hack! TODO -- temp
-	if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST &&
-		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+	if(UsesUIVersion2())
 	{
-		KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-		pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
+		if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST &&
+			m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+		{
+			KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+			pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
+		}
 	}
-
 #endif
 }
 
@@ -1130,11 +1131,15 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	}
 
 #ifdef ENABLE_MOUSE_BEHAVIOR	
-if( pObj->m_iBaseObjectID==DESIGNOBJ_popSpeedControl_temp_CONST &&
-m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+//temporary code ?
+if(UsesUIVersion2())
 {
-SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-pSpeedMouseHandler->DrawInfo();
+	if( pObj->m_iBaseObjectID==DESIGNOBJ_popSpeedControl_temp_CONST &&
+		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
+	{
+		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+		pSpeedMouseHandler->DrawInfo();
+	}
 }
 #endif
 
@@ -2071,12 +2076,18 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		else
 		{
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			//#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
-			if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
-				m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
-			else
+			if(UsesUIVersion2())
+			{
+				//#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
+				if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
+					m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
+				else
+					QueueMessageToRouter( pMessage );
+			}
+#else
+			QueueMessageToRouter( pMessage );
 #endif
-				QueueMessageToRouter( pMessage );
+				
 
 			//          QueueMessageToRouter( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
 			//          pMessage=NULL;  // Send message will delete the messages.  It's okay--it's just a copy anyway
@@ -3751,43 +3762,47 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 			g_pPlutoLogger->Write(LV_STATUS, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
 	}
 #endif
-// some temporary stuff
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
-bool bSkipProcessing=false;
-
-if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
-
-if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
-
-if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
-
-if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
-
-if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
-
-if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
-
-// The cancel button
-if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
-if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
-bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
-
-if( bSkipProcessing )
-return true;
-
-// Temporary hack to hide and show the cursor
-if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F5_CONST )
+// some temporary stuff
+if(UsesUIVersion2())
 {
-	static bool bShowCursor=true;
-	bShowCursor=!bShowCursor;
-	m_pMouseBehavior->ShowMouse(bShowCursor);
+	bool bSkipProcessing=false;
+
+	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
+
+	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
+
+	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
+
+	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
+
+	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+
+	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
+
+	// The cancel button
+	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
+		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+
+	if( bSkipProcessing )
+		return true;
+
+	// Temporary hack to hide and show the cursor
+	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F5_CONST )
+	{
+		static bool bShowCursor=true;
+		bShowCursor=!bShowCursor;
+		m_pMouseBehavior->ShowMouse(bShowCursor);
+	}
 }
 #endif
 
@@ -3804,8 +3819,11 @@ if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button
 		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
-		m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
+	if(UsesUIVersion2())
+	{
+		if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
+			m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
+	}
 #endif	
 
 	return false;
@@ -4214,8 +4232,11 @@ bool Orbiter::ButtonUp( int iPK_Button )
 bool Orbiter::RegionUp( int x,  int y )
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if( m_pMouseBehavior && x && y && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )  // if x & y are 0, it's being called from Orbiter::NeedToChangeScreen
-		return true;
+	if(UsesUIVersion2())
+	{
+		if( m_pMouseBehavior && x && y && m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST) )  // if x & y are 0, it's being called from Orbiter::NeedToChangeScreen
+			return true;
+	}
 #endif
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseUp);
@@ -4235,8 +4256,11 @@ bool Orbiter::RegionUp( int x,  int y )
 bool Orbiter::RegionDown( int x,  int y )
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if( m_pMouseBehavior && m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
-		return true;
+	if(UsesUIVersion2())
+	{
+		if( m_pMouseBehavior && m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
+			return true;
+	}
 #endif
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseDown);
@@ -4804,12 +4828,18 @@ int k=2;
 			else
 			{
 #ifdef ENABLE_MOUSE_BEHAVIOR
-				if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
-					m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
-				else 
-#endif
-					if( !m_pcRequestSocket->SendMessage( pMessage ) )
+				if(UsesUIVersion2())
+				{
+					if( selectionMethod==smMouseGovernor && m_pMouseBehavior && m_pMouseBehavior->m_pMouseGovernor )
+						m_pMouseBehavior->m_pMouseGovernor->SendMessage(pMessage);
+					else 
+						if( !m_pcRequestSocket->SendMessage( pMessage ) )
+							g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+				}
+#else
+				if( !m_pcRequestSocket->SendMessage( pMessage ) )
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+#endif
 			}
 			pMessage = NULL;
 		}
@@ -9281,8 +9311,11 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 		RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if( m_pMouseBehavior )
-		m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+	if(UsesUIVersion2())
+	{
+		if( m_pMouseBehavior )
+			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+	}
 #endif
 }
 
@@ -10230,8 +10263,11 @@ void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool b
 //<-dceag-c795-e->
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if( m_pMouseBehavior )
-		m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
+	if(UsesUIVersion2())
+	{
+		if( m_pMouseBehavior )
+			m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
+	}
 #endif
 }
 

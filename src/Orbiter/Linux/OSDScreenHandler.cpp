@@ -3,9 +3,10 @@
 #include "../wxAppMain/wx_safe_dialog.h"
 #include "../wxAppMain/wxdialog_roomwizard.h"
 #define USE_TASK_MANAGER true //del
+#endif // (USE_WX_LIB)
+
 #include "../Task.h"
 #include "../TaskManager.h"
-#endif // (USE_WX_LIB)
 
 #ifndef WIN32
 #include "OrbiterLinux.h"
@@ -198,7 +199,10 @@ void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 {
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+
+	if(NULL == pObjectInfoData)
+		return false;
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
@@ -1610,18 +1614,14 @@ bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
     PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate(), x=%d, y=%d, w=%d, h=%d",
                            plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
-#if (USE_WX_LIB)
-#ifndef WIN32
     {
 		//we only need the give the control the position
 		//additional info will be available on update (refresh)
 		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
 	
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, 		pSpeedControlData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
-#endif
-#endif
 
 	m_bSpeedControlCreated = true;
 	return false;
@@ -1637,17 +1637,13 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
 
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlDelete() data %p", pData );
 
-#if (USE_WX_LIB)
-#ifndef WIN32
     {
 		//no data to attach
 		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(PlutoRectangle(0, 0, 0, 0));
 	
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, 		pSpeedControlData);
+        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, pSpeedControlData);
         TaskManager::Instance().AddTaskAndWait(pTask);
 	}
-#endif
-#endif
 
 	m_bSpeedControlCreated = false;
 	return false;
