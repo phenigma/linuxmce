@@ -2061,7 +2061,9 @@
 #define DESIGNOBJ_butDontUseRecommended_CONST 5000
 #define DESIGNOBJ_butDontUseIt_CONST 5002
 #define DESIGNOBJ_dgTVWhatDelays_CONST 5003
-#define DESIGNOBJ_icoUserVoicemail_CONST 4997
+#define DESIGNOBJ_butHowToTuneYes_CONST 5004
+#define DESIGNOBJ_butHowToTuneNo_CONST 5005
+#define DESIGNOBJ_icoUserVoicemail_CONST 5006
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -954,6 +954,8 @@
 #define TEXT_Start_Time_CONST 1666
 #define TEXT_Stop_Time_CONST 1667
 #define TEXT_Current_Time_CONST 1668
+#define TEXT_Tunepart1_CONST 1669
+#define TEXT_Tunepart2_CONST 1670
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
