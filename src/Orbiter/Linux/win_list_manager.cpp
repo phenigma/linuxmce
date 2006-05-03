@@ -59,6 +59,7 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
     //WMController::Instance().SetVisible(sWindowName, false);
     WMController::Instance().SetFullScreen(sWindowName, false);
+	WMController::Instance().SetMaximized(sWindowName, false);
     WMController::Instance().SetPosition(sWindowName, x, y, w, h);
     ShowWindow(sWindowName);
     g_pPlutoLogger->Write(LV_WARNING, "Done WinListManager::PositionWindow(%s)", sWindowName.c_str());
