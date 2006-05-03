@@ -387,7 +387,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ void Orbiter_PocketFrog::StylusMove( Point p )
 {
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	m_pMouseBehavior->Move(p.x, p.y);
+	if(UsesUIVersion2())
+	{
+		m_pMouseBehavior->Move(p.x, p.y);
+	}
 #endif
 }
 //-----------------------------------------------------------------------------------------------------

@@ -206,6 +206,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_nCallbackCounter = 0;
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
+	m_iUiVersion = 0;
 
 	//initialize
 	m_pObj_NowPlayingOnScreen = NULL;
@@ -4377,7 +4378,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"active popup 4 now %p",m_pActivePopup);
 //------------------------------------------------------------------------
 bool Orbiter::GotActivity(  )
 {
-	if( m_iUiVersion==2 )
+	if(UsesUIVersion2())
 		return true; // No concept of screen saver in the new UI
 
 	m_LastActivityTime=time( NULL );
@@ -8732,7 +8733,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		CMD_Remove_Popup(pObj_Popop_FileList->m_ObjectID,"filelist");
 		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj_Popup),m_Popop_FileList_X,m_Popop_FileList_Y,pObj_Popop_FileList->m_ObjectID,"filelist",false,false);
 	}
-	else if( m_iUiVersion==2 ) // TODO - temp hack in x & y values......
+	else if(UsesUIVersion2()) // TODO - temp hack in x & y values......
 	{
 		CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_popFileList_CONST),"","",false,false);
 
@@ -9987,7 +9988,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	if( m_iUiVersion==2 )
+	if(UsesUIVersion2())
 	{
 		if( iPK_Screen==SCREEN_DialogAskToResume_CONST )
 			iPK_Screen=SCREEN_Main_CONST;  // temp, no way to handle this.  TODO
@@ -10347,4 +10348,9 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 	rect.Y = max(0,r.Y);
 	rect.Right( min(r.Right(),m_Width-1) );
 	rect.Bottom( min(r.Bottom(),m_Height-1) );
+}
+
+/*virtual*/ bool Orbiter::UsesUIVersion2() 
+{ 
+	return 2 == m_iUiVersion; 
 }
