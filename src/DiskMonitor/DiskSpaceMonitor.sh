@@ -8,7 +8,7 @@ module=$(basename $0)
 
 ## Lock
 mkdir -p /usr/pluto/locks
-lock=/usr/pluto/locks/checkDiskSpace.lock
+lock=/usr/pluto/locks/DiskSpaceMonitor.lock
 
 if [ -f $lock ]; then
         Logging $TYPE $SEVERITY_WARNING $module "Lock file ($lock) already exists"
