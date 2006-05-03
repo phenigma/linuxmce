@@ -47,6 +47,29 @@
     #include "wince.h"
 #endif
 
+#if defined(WINCE) || defined(BLUETOOTH_DONGLE) || defined(PROXY_ORBITER)
+#define DISABLE_OPENGL
+#endif
+
+#ifndef DISABLE_OPENGL
+#include "../OpenGL/math3dutils.h"
+#include "../OpenGL/GL2DWidgets/basicwindow.h"
+#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
+
+#include "../OpenGL/orbitergl3dengine.h"
+
+#include "../OpenGL/GL2DEffects/gl2deffecttransit.h"
+#include "../OpenGL/GL2DEffects/gl2deffectbeziertranzit.h"
+#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
+#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
+#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
+#include "../OpenGL/Orbiter3DCommons.h" 
+#include "../Simulator.h" 
+
+#include "../../pluto_main/Define_Effect.h"
+#include "../OpenGL/PendingGLEffects.h"
+#endif
+
 bool g_bResettingVideoMode;
 void *HackThread2(void *p)
 {
@@ -63,29 +86,6 @@ void *HackThread2(void *p)
     }
     return NULL;
 }
-
-#if defined(WINCE) || defined(BLUETOOTH_DONGLE) || defined(PROXY_ORBITER)
-#define DISABLE_OPENGL
-#endif
-
-#ifndef DISABLE_OPENGL
-	#include "../OpenGL/math3dutils.h"
-	#include "../OpenGL/GL2DWidgets/basicwindow.h"
-	#include "../OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
-
-	#include "../OpenGL/orbitergl3dengine.h"
-
-	#include "../OpenGL/GL2DEffects/gl2deffecttransit.h"
-	#include "../OpenGL/GL2DEffects/gl2deffectbeziertranzit.h"
-	#include "../OpenGL/GL2DEffects/gl2deffectslidefromleft.h"
-	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromtop.h"
-	#include "../OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.h"
-	#include "../OpenGL/Orbiter3DCommons.h" 
-	#include "../Simulator.h" 
-
-	#include "../../pluto_main/Define_Effect.h"
-
-#endif
 
 #ifndef DISABLE_OPENGL
 
@@ -161,6 +161,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 #ifdef DISABLE_OPENGL
 	EnableOpenGL = false;
 #endif
+
+	m_spPendingGLEffects.reset(new PendingGLEffects());
 
 	m_pScreenImage = NULL;
 	m_bFullScreen=bFullScreen;
@@ -298,9 +300,23 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
     return true;
 }
 //----------------------------------------------------------------------------------------------------
-/**
- * 
- */
+/*virtual*/ void OrbiterSDL::ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, 
+	DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
+{
+	if(pObj->m_PK_Effect_On_Screen > 0)
+		m_spPendingGLEffects->m_nOnScreenTransitionEffectID = pObj->m_PK_Effect_On_Screen;
+
+	Orbiter::ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
+}
+//----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL::ObjectOffScreen(DesignObj_Orbiter *pObj)
+{
+	if(pObj->m_PK_Effect_Off_Screen > 0)
+        m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
+
+	Orbiter::ObjectOffScreen(pObj);
+}
+//----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
 	#ifdef DEBUG
@@ -372,11 +388,19 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 			rectLastSelected.Height = 80;
 		}
 	
-		//m_pObj_SelectedLastScreen = NULL;
-		
 		g_pPlutoLogger->Write(LV_CRITICAL, "Last selected object rectangle : x %d, y %d, w %d, h %d",
 			rectLastSelected.X, rectLastSelected.Y, rectLastSelected.Width, rectLastSelected.Height);
-	
+
+		if(m_pObj_SelectedLastScreen)
+			m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
+
+
+		//TODO: Ciprian
+		//You have here:
+		int a = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
+		int b = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
+		int c = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
+		
 		if(m_pObj_SelectedLastScreen)
 		{
 			//m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange = rand() % 9 + 1;
@@ -413,8 +437,10 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		glm.Release();
 #endif
     }
+
+	m_spPendingGLEffects->Reset();
 }
-//-----------------------------------------------------------------------------------------------------
+
 /*virtual*/ void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
 {
 	if(m_bQuit)

@@ -11,19 +11,22 @@ using namespace std;
 #include "../Orbiter.h"
 #include "../DesignObj_Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
-
+//forward declarations
 class OrbiterGL3D;
-
+struct PendingGLEffects;
+//-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
 
 class OrbiterSDL : public Orbiter
 {
-protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
+protected: 
 	/**
 	 * OpenGL internal variable which say if is used OpenGL code at the moment of runtime
 	 */
 	bool EnableOpenGL;
+
+	std::auto_ptr<PendingGLEffects> m_spPendingGLEffects;
 
 public:
 	/**
@@ -58,11 +61,13 @@ public:
 	virtual PlutoGraphic *GetBackground( PlutoRectangle &rect );
 	virtual PlutoGraphic *CreateGraphic();
 
+	virtual void ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup = NULL);
+	virtual void ObjectOffScreen(DesignObj_Orbiter *pObj);
+
 	// Rendering
 	virtual void RenderScreen();
 	virtual void RedrawObjects();
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
-
 	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
 	virtual void BeginPaint();
