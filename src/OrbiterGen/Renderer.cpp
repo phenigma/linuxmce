@@ -773,12 +773,14 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     dest_rect.x = pos.X;
     dest_rect.y = pos.Y;
 
+	bool bCompositeAlpha = true;
     bool WasSrcAlpha = (pRenderImage_Child->m_pSDL_Surface->flags & SDL_SRCALPHA) != 0;
     Uint8 WasAlpha = pRenderImage_Child->m_pSDL_Surface->format->alpha;
     if (pRenderImage_Parent->NewSurface)
     {
         SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, 0, 0);
         pRenderImage_Parent->NewSurface = false;
+		bCompositeAlpha = false;
     }
 
     if (SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, pRenderImage_Parent->m_pSDL_Surface, &dest_rect) < 0)
@@ -786,6 +788,8 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     {
         throw string("Failed composing image: ") + SDL_GetError();
     }
+	if (bCompositeAlpha)
+		CompositeAlpha(pRenderImage_Parent, pRenderImage_Child, pos);
 
     SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, WasSrcAlpha, WasAlpha);
 
@@ -797,6 +801,49 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     SDL_Flip(Screen);
     */
     //Sleep(5000);
+}
+
+void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
+{
+    // with no destination, function always fails
+    if (pRenderImage_Parent == NULL || pRenderImage_Parent->m_pSDL_Surface == NULL)
+        throw "Composite image passed null parent";
+    // with no source, function always succeeds (I assume that it's an empty image)
+    if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
+        throw "Composite image passed null child";
+
+// TODO: put these in a common place
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	const Uint32 rmask = 0xff000000, gmask = 0x00ff0000, bmask = 0x0000ff00, amask = 0x000000ff;
+	const int rshift = 24, gshift = 16, bshift = 8, ashift = 0;
+#else
+	const Uint32 rmask = 0x000000ff, gmask = 0x0000ff00, bmask = 0x00ff0000, amask = 0xff000000;
+	const int rshift = 0, gshift = 8, bshift = 16, ashift = 24;
+#endif
+	
+	int iChildHeight = pRenderImage_Child->m_pSDL_Surface->h;
+	int iChildWidth = pRenderImage_Child->m_pSDL_Surface->w;
+	
+	for (int j = 0; j < iChildHeight; j++)
+	{
+		for (int i = 0; i < iChildWidth; i++)
+		{
+			int iParentX = pos.X + i;
+			int iParentY = pos.Y + j;
+			Uint32 iPixel_Parent = getpixel(pRenderImage_Parent, iParentX, iParentY);
+			Uint32 iPixel_Child = getpixel(pRenderImage_Child, i, j);
+			Uint8 iAlpha_Parent = iPixel_Parent >> ashift & 0xff;
+			Uint8 iAlpha_Child = iPixel_Child >> ashift & 0xff;
+			
+			// in SDL, the alpha value represents the opacity, not transparency (255 = opaque, 0 = transparent)
+			// the most opaque one establishes resulting opacity
+			Uint8 iAlpha_Result = iAlpha_Parent > iAlpha_Child ? iAlpha_Parent : iAlpha_Child;
+			Uint32 iPixel_Result = iPixel_Parent & ~amask | (iAlpha_Result << ashift);
+
+			//printf("Pixel: P:%x(%x); C:%x(%x), R:%x(%x)\n", iPixel_Parent, iAlpha_Parent, iPixel_Child, iAlpha_Child, iPixel_Result, iAlpha_Result);
+			putpixel(pRenderImage_Parent, iParentX, iParentY, iPixel_Result);
+		}
+	}
 }
 
 RendererImage * Renderer::DuplicateImage(RendererImage * pRendererImage)
