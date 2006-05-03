@@ -1540,6 +1540,64 @@ string Makefile = "none:\n"
 			FileUtils::PUCopyFile("debian/preinst", "debian/preinst.ex");
 #endif
 		}
+		else if (sSource.find("mkr_prerm") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+#ifndef WIN32
+			cout << "PRERM: " << sSource << endl;
+			// put mkr_preinst scripts into control section instead of package contents
+			FILE * g;
+			f = fopen("debian/prerm.ex", "r");
+			g = fopen("debian/prerm", "w");
+			fchmod(fileno(g), 0644);
+			char buffer[1024];
+			while (fgets(buffer, 1024, f))
+			{
+				fprintf(g, "%s", buffer);
+				if (strstr(buffer, "remove|upgrade|deconfigure)") != NULL)
+				{
+					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
+					FILE * g2 = fopen(sSource.c_str(), "r");
+					while (fgets(buffer, 1024, g2))
+					{
+						fprintf(g, "%s", buffer);
+					}
+					fclose(g2);
+				}
+			}
+			fclose(g);
+			fclose(f);
+			FileUtils::PUCopyFile("debian/prerm", "debian/prerm.ex");
+#endif
+		}
+		else if (sSource.find("mkr_postrm") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+#ifndef WIN32
+			cout << "POSTRM: " << sSource << endl;
+			// put mkr_preinst scripts into control section instead of package contents
+			FILE * g;
+			f = fopen("debian/postrm.ex", "r");
+			g = fopen("debian/postrm", "w");
+			fchmod(fileno(g), 0644);
+			char buffer[1024];
+			while (fgets(buffer, 1024, f))
+			{
+				fprintf(g, "%s", buffer);
+				if (strstr(buffer, "purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)") != NULL)
+				{
+					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
+					FILE * g2 = fopen(sSource.c_str(), "r");
+					while (fgets(buffer, 1024, g2))
+					{
+						fprintf(g, "%s", buffer);
+					}
+					fclose(g2);
+				}
+			}
+			fclose(g);
+			fclose(f);
+			FileUtils::PUCopyFile("debian/postrm", "debian/postrm.ex");
+#endif
+		}
 		else
 		{
 			// no prefix for absolute paths (the ones that start with a slash)
