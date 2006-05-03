@@ -281,7 +281,9 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     string sWindowName = m_WinListManager.GetExternApplicationName();
     PlutoRectangle rectTotal;
     m_WinListManager.GetExternApplicationPosition(rectTotal);
+	g_pPlutoLogger->Write(LV_WARNING, "Is '%s' window available?", sWindowName.c_str());
     bool bIsWindowAvailable = m_WinListManager.IsWindowAvailable(sWindowName);
+	g_pPlutoLogger->Write(LV_WARNING, "==> %s", bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
     if (bIsWindowAvailable)
     {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )

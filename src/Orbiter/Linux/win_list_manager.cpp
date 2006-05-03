@@ -115,7 +115,8 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
         return false;
     for (list<WinInfo>::iterator it = listWinInfo.begin(); it !=  listWinInfo.end(); ++it)
     {
-        if (it->sClassName == sClassName)
+		g_pPlutoLogger->Write(LV_STATUS, "Comparing '%s' with '%s'...", it->sClassName.c_str(), sClassName.c_str());
+        if (string::npos != it->sClassName.find(sClassName))
             return true;
     }
     return false;
