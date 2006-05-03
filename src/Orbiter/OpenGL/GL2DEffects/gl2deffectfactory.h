@@ -55,12 +55,6 @@ class GL2DEffectFactory {
 	 * will be displayed the desktop with no change
 	 */
 	vector <GL2DEffect*> Effects;
-	
-	/**
-	 * Screenshot of the actual display
-	 */
-	OpenGLTexture SnapshotTex;
-
 	/**
 	 *	Safe thread mutex
 	 */

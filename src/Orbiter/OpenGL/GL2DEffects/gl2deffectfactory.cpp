@@ -39,8 +39,7 @@
 #include "../../../pluto_main/Define_Effect.h"
 
 GL2DEffectFactory::GL2DEffectFactory (DrawingWidgetsEngine* WidgetsEngine)
-	: SnapshotTex(0),
-	  Widgets(WidgetsEngine) {
+	: Widgets(WidgetsEngine) {
 	gettimeofday(&StartTime, NULL);
 }
 
