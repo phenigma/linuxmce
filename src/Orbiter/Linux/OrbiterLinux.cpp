@@ -92,7 +92,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
 {
     openDisplay();
-	m_pMouseBehavior = new MouseBehavior_Linux(this);
+	//m_pMouseBehavior = new MouseBehavior_Linux(this);
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
@@ -311,7 +311,10 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
 
     if(UsesUIVersion2())
+	{
+		m_pMouseBehavior = new MouseBehavior_Linux(this);
         m_pRecordHandler->enableRecording(this, true);
+	}
 
     reinitGraphics();
     g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
