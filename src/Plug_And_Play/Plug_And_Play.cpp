@@ -37,7 +37,8 @@ class Plug_And_Play::PnPPrivate
 		DeviceData_Base * pnpCoreDevice;
 		DCEConfig config;
 		bool core;
-		
+		/**true if there is a device pending in the queue*/
+		bool pending;
 		/**the pnp queue id of the device in progress*/
 		int currentPnpQueueID ; 
 		
@@ -62,6 +63,7 @@ Plug_And_Play::PnPPrivate::PnPPrivate(Plug_And_Play* p)
 	: database(NULL),
 	  pnpCoreDevice(NULL),
 	  core(true),
+	  pending(false),
 	  currentPnpQueueID(-1),
 	  parent(p)
 {
@@ -329,7 +331,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 											sPNPSerialNo);
 				
 		string response; 
-		SendCommand(cmd, &response);
+		bool bResponse = SendCommand(cmd, &response);
 		
 		if(response.find("Error") != string::npos)
 		{
@@ -370,6 +372,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
 			if( vectRow_PnpQueue.empty() )
 			{
+				d->pending = true;
 				// add it to the queue
 				Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
 				if( row != NULL )
@@ -401,7 +404,17 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					}
 					d->currentPnpQueueID = row->PK_PnpQueue_get();
 					
-					//TODO: go to pre, if the devices is not capable, else go to post
+					// go to pre, if the devices is not capable, else go to post
+					if(iCapabilities == 0)
+					{
+						//TODO:goto pre
+						
+					}
+					else
+					{
+						//TODO:goto post
+						
+					}
 				}
 				else
 				{
@@ -448,67 +461,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			SendCommand(cmd);
 		}
 	}
-	
-	//check the queue to see if the device is not in processing
-	if( iPK_DeviceTemplate < 0 )
-	{
-		// set the right state
-		// PNP_DEVICE_DETECTED
-	}
-	else
-	{
-		// PNP_DEVICE_PROMPT_FOR_PARAMETERS
-	}
-	
-	string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
-	
-	vector<Row_PnpQueue*> vectRow_PnpQueue;
-	vector<Row_PnpQueue*>::iterator vectRow_PnpQueue_iterator;
-	
-	Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
-	if( p_Table_PnpQueue != NULL )
-	{
-		p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
-		if( vectRow_PnpQueue.empty() )
-		{
-			// add it to the queue
-			Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
-			if( row != NULL )
-			{
-				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
-				row->FK_Device_set( 0 );
-				row->FK_CommMethod_set( iPK_CommMethod  );
-				row->FK_PnpProtocol_set( iPK_PnpProtocol );
-				row->DetectedDate_set( "Data" );
-				row->SerialNumber_set( sPNPSerialNo );
-				row->Identifier_set( sIdentifier );
-				row->Path_set( sPath );
-				// TODO
-				// row->IP_set( sIP_Address );
-				// row->ExtraParameters_set( sTokens );
-				
-				if( !p_Table_PnpQueue->Commit() )
-				{
-					// error
-					g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
-				}
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
-				// error
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );
-			// nothing ??
-		}
-	}
-	
-
-	//check the device table to see if there is already a device with the specified serial no
-	
+	//buh-bye now
 }
 
 //<-dceag-c799-b->
