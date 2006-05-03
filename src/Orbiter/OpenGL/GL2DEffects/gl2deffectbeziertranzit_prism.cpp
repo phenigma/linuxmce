@@ -29,7 +29,7 @@ GL2DBezierEffectTransit_Prism::~GL2DBezierEffectTransit_Prism() {
 void GL2DBezierEffectTransit_Prism::Configure(PlutoRectangle* EffectSourceSize)
 {
 	ButtonSize.Left = (float)EffectSourceSize->X;
-	ButtonSize.Top = (float)EffectSourceSize->Y-EffectSourceSize->Height;
+	ButtonSize.Top = (float)EffectSourceSize->Y;
 	ButtonSize.Width = (float)EffectSourceSize->Width;
 	ButtonSize.Height = (float)EffectSourceSize->Height;
 

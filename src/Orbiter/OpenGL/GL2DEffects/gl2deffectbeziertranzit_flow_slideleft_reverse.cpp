@@ -29,7 +29,7 @@ GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::~GL2DBezierEffectTransit_Flow_Sl
 void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Configure(PlutoRectangle* EffectSourceSize)
 {
 	ButtonSize.Left = (float)EffectSourceSize->X;
-	ButtonSize.Top = (float)EffectSourceSize->Y-EffectSourceSize->Height;
+	ButtonSize.Top = (float)EffectSourceSize->Y;
 	ButtonSize.Width = (float)EffectSourceSize->Width;
 	ButtonSize.Height = (float)EffectSourceSize->Height;
 
