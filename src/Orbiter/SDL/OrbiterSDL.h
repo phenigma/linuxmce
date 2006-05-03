@@ -10,10 +10,11 @@ using namespace std;
 //-----------------------------------------------------------------------------------------------------
 #include "../Orbiter.h"
 #include "../DesignObj_Orbiter.h"
+
+#include "../OpenGL/PendingGLEffects.h"
 //-----------------------------------------------------------------------------------------------------
 //forward declarations
 class OrbiterGL3D;
-struct PendingGLEffects;
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {

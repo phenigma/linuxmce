@@ -67,7 +67,6 @@
 #include "../Simulator.h" 
 
 #include "../../pluto_main/Define_Effect.h"
-#include "../OpenGL/PendingGLEffects.h"
 #endif
 
 bool g_bResettingVideoMode;
