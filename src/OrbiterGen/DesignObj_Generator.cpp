@@ -234,7 +234,12 @@ int k=2;
 					cout << "Regenerating: screen has changed from " << lModDate1 << " to " << lModDate2 << " ( " << pdrCachedScreen->Modification_LastGen_get() << " to " <<  m_pRow_DesignObj->psc_mod_get() << ")" << endl;
             }
 			else
-				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;
+			{
+				if( pdrCachedScreen==NULL )
+					cout << "Regenerating:  cached screen in DB" << endl;
+				else
+					cout << "Regenerating: schema changed from " <<  pdrCachedScreen->Schema_get() << " to " << ORBITER_SCHEMA << endl;
+			}
         }
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
 			StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + ".*";
