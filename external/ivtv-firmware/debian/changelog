@@ -1,4 +1,4 @@
-ivtv-firmware (2-1pluto2) unstable; urgency=lowd
+ivtv-firmware (2-1pluto2) unstable; urgency=low
 
   * Don't complain if the ivtv module can't be loaded
 
