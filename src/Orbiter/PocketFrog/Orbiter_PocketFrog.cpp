@@ -965,7 +965,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 			if(m_pObj_SelectedLastScreen)
 			{
 				m_rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
-				m_rectLastSelected.Y = m_iImageHeight - m_pObj_SelectedLastScreen->m_rPosition.Y;
+				m_rectLastSelected.Y = m_pObj_SelectedLastScreen->m_rPosition.Y;
 
 #ifdef DEBUG
 				g_pPlutoLogger->Write(LV_WARNING, "Effect with change: %d", m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange);
@@ -1561,7 +1561,7 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 
 		FloatRect SelectedArea;
 		SelectedArea.Left   = (float)point.X + pObj->m_rBackgroundPosition.X;
-		SelectedArea.Top    = (float)m_Desktop->Widgets->GetHeight() - (point.Y + pObj->m_rBackgroundPosition.Y +pObj->m_rBackgroundPosition.Height);
+		SelectedArea.Top    = (float)(point.Y + pObj->m_rBackgroundPosition.Y);
 		SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
 		SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
 
@@ -1592,7 +1592,7 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 		SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
 		SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
 		
-			Effect->Configure(&SeclectedAreaEffectSize);
+		Effect->Configure(&SeclectedAreaEffectSize);
 #endif
 	}
 }  
@@ -1688,7 +1688,7 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 	//m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
 	FloatRect HighLightArea;
 	HighLightArea.Left = (float)m_rectLastHighlight.Left();
-	HighLightArea.Top = m_Desktop->Widgets->GetHeight() - (float)m_rectLastHighlight.Top() - (float)m_rectLastHighlight.Height;
+	HighLightArea.Top = (float)m_rectLastHighlight.Top();
 	HighLightArea.Width =  (float)m_rectLastHighlight.Width;
 	HighLightArea.Height = (float)m_rectLastHighlight.Height;
 
