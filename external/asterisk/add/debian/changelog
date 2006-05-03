@@ -1,6 +1,8 @@
 asterisk-pluto (1.0.9-16) unstable; urgency=low
 
   * Send event and let telecom plugin to handle it
+  * Kick last user out of conference in 15 seconds
+  * Recompile for newer kernel
   * Bump version to force upgrade
 
  -- Office Server Operator <root@activate.plutohome.com>  Tue, 28 Mar 2006 17:11:15 +0300

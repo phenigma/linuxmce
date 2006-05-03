@@ -55,6 +55,7 @@ cd ${SRCFOLDER}/zaptel-*/
 sed -r -i "s/^ROOT_PREFIX=//" Makefile
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 patch < ${ADDFOLDER}/zaptel_2.6.15.patch
+patch < ${ADDFOLDER}/zaptel_2.6.16.patch
 touch ${PKGFOLDER}/etc/conf.modules
 make clean
 make || exit
