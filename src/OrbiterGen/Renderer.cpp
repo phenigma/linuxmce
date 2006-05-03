@@ -841,7 +841,7 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
 			//Uint8 iAlpha_Result = 255 - (Uint8) ((1 - iAlpha_Child / 255.0) * (255 - iAlpha_Parent)); // Formula 2: not fast
 			// Formula 3: Formula 2 on steroids
 			Uint32 Result = iAlpha_Child + iAlpha_Parent - iAlpha_Child * iAlpha_Parent / 256;
-			Uint8 iAlpha_Result = Result>=256?255:Result;
+			Uint8 iAlpha_Result = Result >= 256 ? 255 : Result;
 
 			Uint32 iPixel_Result = iPixel_Parent & ~amask | (iAlpha_Result << ashift);
 
