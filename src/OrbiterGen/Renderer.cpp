@@ -837,7 +837,12 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
 			
 			// in SDL, the alpha value represents the opacity, not transparency (255 = opaque, 0 = transparent)
 			// the most opaque one establishes resulting opacity
-			Uint8 iAlpha_Result = iAlpha_Parent > iAlpha_Child ? iAlpha_Parent : iAlpha_Child;
+			//Uint8 iAlpha_Result = iAlpha_Parent > iAlpha_Child ? iAlpha_Parent : iAlpha_Child; // Formula 1: not correct
+			//Uint8 iAlpha_Result = 255 - (Uint8) ((1 - iAlpha_Child / 255.0) * (255 - iAlpha_Parent)); // Formula 2: not fast
+			// Formula 3: Formula 2 on steroids
+			Uint32 Result = iAlpha_Child + iAlpha_Parent - iAlpha_Child * iAlpha_Parent / 256;
+			Uint8 iAlpha_Result = Result>=256?255:Result;
+
 			Uint32 iPixel_Result = iPixel_Parent & ~amask | (iAlpha_Result << ashift);
 
 			//printf("Pixel: P:%x(%x); C:%x(%x), R:%x(%x)\n", iPixel_Parent, iAlpha_Parent, iPixel_Child, iAlpha_Child, iPixel_Result, iAlpha_Result);
