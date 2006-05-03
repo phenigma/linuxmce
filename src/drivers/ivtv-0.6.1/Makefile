@@ -24,7 +24,7 @@ replaces:
 	done
 					    
 
-modules all clean install: replaces FORCE
+modules all clean install: replaces
 	make -C driver $@
 	make -C i2c-drivers $@
 	make -C utils $@
