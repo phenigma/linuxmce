@@ -96,9 +96,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
-	if(UsesUIVersion2())
-		m_pRecordHandler->enableRecording(this, true);
-	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
 
@@ -142,14 +139,7 @@ OrbiterLinux::~OrbiterLinux()
 	
     closeDisplay();
 }
-/*
-bool OrbiterLinux::GetConfig()
-{
-    HideOtherWindows();
-		
-    return  OrbiterSDL::GetConfig();
-}
-*/
+
 void OrbiterLinux::HideOtherWindows()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
@@ -316,6 +306,13 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
     OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
+
+    //we know here the ui version!
+    g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
+
+    if(UsesUIVersion2())
+        m_pRecordHandler->enableRecording(this, true);
+
     reinitGraphics();
     g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
     //GrabPointer(XServerDisplay);
