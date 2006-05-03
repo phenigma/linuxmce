@@ -2316,7 +2316,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		}
 		CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "housemode" + StringUtils::itos(PK_DeviceGroup),true);
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST )
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST || pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoUserVoicemail_CONST )
 	{
 		// This is actually at startup time.  Figure out what user this is controlling
 		int PK_Users=0;
@@ -2335,7 +2335,16 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 				}
 			}
 		}
-		CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "user" + StringUtils::itos(PK_Users),true);
+		if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoUserVoicemail_CONST )
+		{
+			CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "vm" + StringUtils::itos(PK_Users),true);
+			// Get the text object, and set it
+			if( pDesignObj_Orbiter->m_vectDesignObjText.size() )
+				pDesignObj_Orbiter->m_vectDesignObjText[0]->m_sText="<%=Bvm" + StringUtils::itos(PK_Users) + "%>";
+
+		}
+		else
+			CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "user" + StringUtils::itos(PK_Users),true);
 	}
 }
 
