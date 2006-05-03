@@ -6,8 +6,21 @@
 
 module=$(basename $0)
 
-function cleanRootFS() { }
-function cleanHomeFS() { }
+## Lock
+mkdir -p /usr/pluto/locks
+lock=/usr/pluto/locks/checkDiskSpace.lock
+
+if [ -f $lock ]; then
+        Logging $TYPE $SEVERITY_WARNING $module "Lock file ($lock) already exists"
+        exit
+fi
+
+Logging $TYPE $SEVERITY_NORMAL $module "Locking $module"
+touch $lock
+
+
+function cleanRootFS { }
+function cleanHomeFS { }
 
 ## Check system root partitions for free space (/)
 rootDevice=$( cat /etc/fstab  | awk '{ if ($2 == "/") { print $1 } }' )
@@ -69,3 +82,6 @@ for Device in $StorageDevices; do
 	## FIXME: Add code to notofy someone about free space
 	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) is $Device_DiskUsed%% full having $(($Device_DiskFree / 1024))MB free"
 done
+
+## Unlock
+rm $lock
