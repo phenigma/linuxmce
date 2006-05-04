@@ -51,7 +51,7 @@ void KeyboardMouseHandler::Start()
 		m_iLastNotch = -999;
 	}
 
-	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		m_DatagridMouseHandlerHelper.Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }
 
