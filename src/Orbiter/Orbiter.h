@@ -89,6 +89,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	*/
 	class Orbiter : public Orbiter_Command,  public OrbiterData
 	{
+	private:
+		class PlutoGraphic * m_pBackgroundImage;
+		
 	protected:
 		void DumpScreenHistory(); // temporary function
 

@@ -290,6 +290,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	pthread_detach(m_MaintThreadID);
 
 	srand( (unsigned)time( NULL ) );  // For the screen saver
+
+	m_pBackgroundImage = NULL;
 }
 
 //<-dceag-const2-b->!
@@ -298,6 +300,9 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+	if (m_pBackgroundImage)
+		delete m_pBackgroundImage;
+	
 	WriteStatusOutput("Orbiter destructor");
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
@@ -625,6 +630,22 @@ void Orbiter::RenderScreen( )
 	clock_t clkStart = clock();
 #endif
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+
+	if (!m_pBackgroundImage)
+	{
+		size_t iSize;
+		char * pData = FileUtils::ReadFileIntoBuffer("/home/OrbiterBkg.png", iSize);
+		if (pData)
+		{
+			m_pBackgroundImage = CreateGraphic();
+			m_pBackgroundImage->LoadGraphic(pData, iSize);
+			delete [] pData;
+		}
+	}
+	if (m_pBackgroundImage)
+	{
+		RenderGraphic(m_pBackgroundImage, PlutoRectangle(0, 0, 0, 0), false);
+	}
 
 	if ( m_pScreenHistory_Current  )
 	{
