@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto36) unstable; urgency=low
+
+  * Cleaning up old pid files from /var/run when booting
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 04 May 2006 18:41:19 +0300
+
 sysvinit (2.86.ds1-1.1pluto35) unstable; urgency=low
 
   * Added hoplug-perl by default 

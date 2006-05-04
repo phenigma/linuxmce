@@ -137,6 +137,7 @@ else
 fi
 
 ## Do some pluto specific cleanup
+rm -f /var/run/*.pid
 setterm -blank >/dev/console             # disable console blanking
 chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
 rm /var/log/pluto/running.pids
