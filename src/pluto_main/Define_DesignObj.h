@@ -2064,6 +2064,14 @@
 #define DESIGNOBJ_butHowToTuneYes_CONST 5004
 #define DESIGNOBJ_butHowToTuneNo_CONST 5005
 #define DESIGNOBJ_icoUserVoicemail_CONST 5006
+#define DESIGNOBJ_TVOnOffCodes_CONST 5007
+#define DESIGNOBJ_butDiscreteOnOff_CONST 5008
+#define DESIGNOBJ_butToggleOnOff_CONST 5009
+#define DESIGNOBJ_dgTVConfirmOnOffDiscrete_CONST 5010
+#define DESIGNOBJ_mnuRADU_CONST 5011
+#define DESIGNOBJ_mnuRADU2_CONST 5012
+#define DESIGNOBJ_mnuRADU3_CONST 5013
+#define DESIGNOBJ_butRadu_CONST 5014
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -956,6 +956,14 @@
 #define TEXT_Current_Time_CONST 1668
 #define TEXT_Tunepart1_CONST 1669
 #define TEXT_Tunepart2_CONST 1670
+#define TEXT_TVOnOffCodes_CONST 1671
+#define TEXT_Select_Toggle_or_Discrete_On_Off_CONST 1672
+#define TEXT_DiscreteOnOff_CONST 1673
+#define TEXT_ToggleOnOff_CONST 1674
+#define TEXT_ConfirmDiscreteOnOff_CONST 1675
+#define TEXT_TVConfirmOnOffDiscrete_CONST 1676
+#define TEXT_TVConfirmOnOffToggle_CONST 1677
+#define TEXT_ConfirmOnOffToggle_CONST 1678
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
