@@ -370,24 +370,16 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 	{
 		switch (event.data.button.m_iPK_Button)
 		{
-/*
-TODO: To map 
-#ifdef XORG_KEYS
-case 101:   
-#else
-case XK_F6:
-#endif
-	event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+			case 101:   event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
 			case 102:   event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
-			case 103:   
-						event.data.button.m_iPK_Button = BUTTON_F8_CONST; 
-						g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); 
-						return true;
-*/				default:
+			case 103:   event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 (gyro) %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); return true;
+
+			default:
 				break; 
 		}
 	}
 #endif		
+
 	printf("KEYCode: %d %x \n", keysym, keysym);
 	
     switch ( keysym )
