@@ -5,7 +5,7 @@
 # (re)install icewm.
 
 # initial window geometry
-pluto-xine-playback-window.pluto-xine-playback-window.geometry: 0x0+0+0
+pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
 
 # never focus
 pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1

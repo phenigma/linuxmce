@@ -53,10 +53,10 @@ PointerColormap=1 # 0/1
 DontRotateMenuPointer=1 # 0/1
 
 #  Limit size of windows to screen
-LimitSize=1 # 0/1
+LimitSize=0 # 0/1
 
 #  Limit position of windows to screen
-LimitPosition=1 # 0/1
+LimitPosition=0 # 0/1
 
 #  Let the Dock layer limit the workspace (incompatible with GNOME Panel)
 LimitByDockLayer=1 # 0/1
@@ -762,10 +762,10 @@ DlgBorderSizeX=0 # [0-128]
 DlgBorderSizeY=0 # [0-128]
 
 #  Resize corner width
-CornerSizeX=0 # [0-64]
+CornerSizeX=5 # [0-64]
 
 #  Resize corner height
-CornerSizeY=0 # [0-64]
+CornerSizeY=5 # [0-64]
 
 #  Title bar height
 TitleBarHeight=0 # [0-128]
