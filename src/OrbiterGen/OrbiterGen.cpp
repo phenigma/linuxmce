@@ -1234,8 +1234,10 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_DesignObj_Popup: " << row[1] << endl;
 					else
+					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
 				}
 				if( row[2] ) // FK_Screen_FileList
 				{
@@ -1251,8 +1253,10 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_Screen_OSD: " << row[3] << endl;
 					else
+					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
 				}
 				if( row[4] ) // FK_Screen_Alt
 				{
@@ -1260,8 +1264,10 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_Screen_Alt: " << row[4] << endl;
 					else
+					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
 				}
 				if( row[5] ) // FK_Screen_Alt_OSD
 				{
@@ -1269,8 +1275,10 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
 					else
+					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
 				}
 			}
 			catch(...)
