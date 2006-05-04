@@ -118,15 +118,19 @@ protected:
 	bool DiskDriveIsRipping(int iPK_Device);
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
-	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
+	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType,int UIVersion_Forced=0)
 	{
-		int UIVersion = 1;
+		int UIVersion = UIVersion_Forced ? UIVersion_Forced : 1;
 		// We're going to look in 4 places, from most specific to least specific
 		if( PK_Orbiter )
 		{
-			UIVersion = m_mapOrbiterUiVersion[PK_Orbiter];
-			if( !UIVersion )
-				UIVersion = 1;
+			if( UIVersion_Forced==0 )
+			{
+				UIVersion = m_mapOrbiterUiVersion[PK_Orbiter];
+				if( !UIVersion )
+					UIVersion = 1;
+			}
+
 			// The first 2 maps will see if the user directly specified a remote control to use for the given remote
 			map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
 			pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
@@ -171,6 +175,8 @@ protected:
 		if( (it4=m_mapMediaType_RemoteControl[UIVersion-1].find(PK_MediaType))!=m_mapMediaType_RemoteControl[UIVersion-1].end() )
 			return it4->second;
 
+		if( UIVersion_Forced==0 && UIVersion!=1 )
+			return PickRemoteControlMap(PK_Orbiter,iPK_DeviceTemplate,PK_MediaType,1);  // Try again with UI 1
 		return NULL;
 	}
 
@@ -302,8 +308,7 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 			if( pRemoteControlSet )
 			{
 				OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry = new OrbiterFileBrowser_Entry();
-				pOrbiterFileBrowser_Entry->m_DesignObj=pRemoteControlSet->m_iPK_DesignObj_FileList;
-				pOrbiterFileBrowser_Entry->m_DesignObj_Popup=pRemoteControlSet->m_iPK_DesignObj_FileList_Popup;
+				pOrbiterFileBrowser_Entry->m_PK_Screen=pRemoteControlSet->m_iPK_Screen_FileList;
 				pOrbiterFileBrowser_Entry->m_MediaType=it->first;
 				pOrbiterFileBrowser_Entry->m_sFilename=m_mapMediaType_2_Directory[it->first];
 				pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[it->first]=pOrbiterFileBrowser_Entry;
@@ -468,11 +473,10 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 				}
 				pMediaStream->m_mapRemoteControlSet[dwPK_Device]=pRemoteControlSet;
 			}
-			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_Remote ? pRemoteControlSet->m_iPK_DesignObj_Alt_Remote : pRemoteControlSet->m_iPK_DesignObj_Remote) + ","
-				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_Popup ? pRemoteControlSet->m_iPK_DesignObj_Alt_Popup : pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
-				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList) + ","
-				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
-				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_OSD ? pRemoteControlSet->m_iPK_DesignObj_Alt_OSD : pRemoteControlSet->m_iPK_DesignObj_OSD);
+			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","
+				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD);
 		}
 
 

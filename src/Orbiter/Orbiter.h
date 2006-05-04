@@ -233,7 +233,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		string m_sLastSelectedDatagrid; /** < The contents of the last selected datagrid cell */
 
 		// The remotes for the current media
-		int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD,m_iPK_DesignObj_Guide;
+		int m_iPK_Screen_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_Screen_FileList,m_iPK_Screen_RemoteOSD;
 		string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 		int m_iPK_MediaType;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio;  /** < set by the media engine, this is whatever media device is currently playing */
@@ -928,7 +928,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief A helper function we can call internally rather than the full CMD_GotoScreen
 		*/
-		void GotoScreen( string sScreen, string sID = "" ) { CMD_Goto_DesignObj( 0, sScreen, sID, "", false, false ); }
+		void GotoDesignObj( string sDesignObj, string sID = "" ) { CMD_Goto_DesignObj( 0, sDesignObj, sID, "", false, false ); }
 
 		/**
 		* @brief does a custom comparation (you ca also specify the operand to use) with the value from the variable identified by the key and the other parmeter

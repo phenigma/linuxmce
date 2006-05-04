@@ -38,28 +38,22 @@
 
 RemoteControlSet::RemoteControlSet(Row_MediaType_DesignObj *pRow_MediaType_DesignObj)
 {
-	m_iPK_DesignObj_Remote=pRow_MediaType_DesignObj->FK_DesignObj_get();
+	m_iPK_Screen_Remote=pRow_MediaType_DesignObj->FK_Screen_get();
 	m_iPK_DesignObj_Remote_Popup=pRow_MediaType_DesignObj->FK_DesignObj_Popup_get();
-	m_iPK_DesignObj_FileList=pRow_MediaType_DesignObj->FK_DesignObj_FileList_get();
-	m_iPK_DesignObj_FileList_Popup=pRow_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
-	m_iPK_DesignObj_Guide=pRow_MediaType_DesignObj->FK_DesignObj_Guide_get();
-    m_iPK_DesignObj_OSD=pRow_MediaType_DesignObj->FK_DesignObj_OSD_get();
-	m_iPK_DesignObj_Alt_Remote=pRow_MediaType_DesignObj->FK_DesignObj_Alt_get();
-	m_iPK_DesignObj_Alt_Popup=pRow_MediaType_DesignObj->FK_DesignObj_Alt_Popup_get();
-	m_iPK_DesignObj_Alt_OSD=pRow_MediaType_DesignObj->FK_DesignObj_Alt_OSD_get();
+	m_iPK_Screen_FileList=pRow_MediaType_DesignObj->FK_Screen_FileList_get();
+    m_iPK_Screen_OSD=pRow_MediaType_DesignObj->FK_Screen_OSD_get();
+	m_iPK_Screen_Alt_Remote=pRow_MediaType_DesignObj->FK_Screen_Alt_get();
+	m_iPK_Screen_Alt_OSD=pRow_MediaType_DesignObj->FK_Screen_Alt_OSD_get();
 }
 
 RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj)
 {
-	m_iPK_DesignObj_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_get();
+	m_iPK_Screen_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_get();
 	m_iPK_DesignObj_Remote_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Popup_get();
-	m_iPK_DesignObj_FileList=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_get();
-	m_iPK_DesignObj_FileList_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
-	m_iPK_DesignObj_Guide=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Guide_get();
-    m_iPK_DesignObj_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_OSD_get();
-	m_iPK_DesignObj_Alt_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_get();
-	m_iPK_DesignObj_Alt_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_Popup_get();
-	m_iPK_DesignObj_Alt_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_OSD_get();
+	m_iPK_Screen_FileList=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_FileList_get();
+    m_iPK_Screen_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_OSD_get();
+	m_iPK_Screen_Alt_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_Alt_get();
+	m_iPK_Screen_Alt_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_Alt_OSD_get();
 }
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )

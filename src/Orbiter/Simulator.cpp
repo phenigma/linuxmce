@@ -140,7 +140,7 @@ void *GeneratorThread( void *p)
 				pOrbiter->GetCurrentScreenID().c_str());
 
 			if(!pOrbiter->m_bQuit && HomeScreen != "")
-				pOrbiter->GotoScreen(HomeScreen);
+				pOrbiter->GotoDesignObj(HomeScreen);
 		}
 
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);

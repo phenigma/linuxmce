@@ -12,12 +12,12 @@
 class OrbiterFileBrowser_Entry : public SerializeClass
 {
 public:
-	int m_DesignObj,m_DesignObj_Popup,m_MediaType;
+	int m_PK_Screen,m_MediaType;
 	string m_sFilename;
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_DesignObj + m_DesignObj_Popup + m_MediaType + m_sFilename;
+		StartSerializeList() + m_PK_Screen + m_MediaType + m_sFilename;
 	}
 };
 

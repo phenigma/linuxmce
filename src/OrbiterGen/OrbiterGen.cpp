@@ -1129,7 +1129,7 @@ m_bNoEffects = true;
 
 	// Find all records for objects used as remotes for devices within this installation.  Ignore remotes
 	// that only apply to devices that are orbiters (FK_DeviceCategory NOT IN (2,3,5)) unless it's for this orbiter
-	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup") + 
+	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_Screen,Device.FK_DesignObj,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD") + 
 		" FROM Device " +
 		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +
 		" INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate " + 
@@ -1144,44 +1144,62 @@ m_bNoEffects = true;
 		{
 			try
 			{
-				if( row[0] )
+				if( row[0] ) // FK_Screen
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+						cerr << "Cannot find FK_Screen: " << row[0] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[1] )
+				if( row[1] ) // Device.FK_DesignObj
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[1] << endl;
+						cerr << "Cannot find Device.FK_DesignObj: " << row[1] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[2] )
+				if( row[2] ) // FK_DesignObj_Popup
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[2]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[2] << endl;
+						cerr << "Cannot find FK_DesignObj_Popup: " << row[2] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
-				if( row[3] )
+				if( row[3] ) // FK_Screen_FileList
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[3]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[3] << endl;
+						cerr << "Cannot find FK_Screen_FileList: " << row[3] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[4] )
+				if( row[4] ) // FK_Screen_OSD
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[4]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[4]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[4] << endl;
+						cerr << "Cannot find FK_Screen_OSD: " << row[4] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[5] ) // FK_Screen_Alt
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt: " << row[5] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[6] ) // FK_Screen_Alt_OSD
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[6]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[6] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1192,8 +1210,7 @@ m_bNoEffects = true;
 		}
 	}
 
-
-	sql = "select FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup FROM MediaType_DesignObj"
+	sql = "select FK_Screen,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD FROM MediaType_DesignObj"
 		" WHERE FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	PlutoSqlResult result_set4b;
@@ -1203,36 +1220,54 @@ m_bNoEffects = true;
 		{
 			try
 			{
-				if( row[0] )
+				if( row[0] )  // FK_Screen
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+						cerr << "Cannot find FK_Screen: " << row[0] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[1] )
+				if( row[1] ) // FK_DesignObj_Popup
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[1] << endl;
+						cerr << "Cannot find FK_DesignObj_Popup: " << row[1] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
-				if( row[2] )
+				if( row[2] ) // FK_Screen_FileList
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[2]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[2]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[2] << endl;
+						cerr << "Cannot find FK_Screen_FileList: " << row[2] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[3] )
+				if( row[3] ) // FK_Screen_OSD
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[3]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find device.designobj: " << row[3] << endl;
+						cerr << "Cannot find FK_Screen_OSD: " << row[3] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[4] ) // FK_Screen_Alt
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[4]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt: " << row[4] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[5] ) // FK_Screen_Alt_OSD
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1668,7 +1703,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 					if( pRow_DesignObj )
 						sDesignObj = StringUtils::itos(pRow_DesignObj->PK_DesignObj_get());
 					map<int, string>::iterator itParmLocation = oca->m_ParameterList.find(COMMANDPARAMETER_Location_CONST);
-					if( itParmLocation!=oca->m_ParameterList.end() )
+					if( itParmLocation!=oca->m_ParameterList.end() && itParmLocation->second.size() )
 					{
 						sDesignObj += "." + itParmLocation->second;
 						m_iLocation = atoi(itParmLocation->second.c_str());
@@ -1794,6 +1829,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	ocDesignObj->m_ObjectType=ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get();
 	ocDesignObj->m_PK_Effect_On_Screen=atoi(ocDesignObj->GetParm(DESIGNOBJPARAMETER_PK_Effect_On_Screen_CONST).c_str());
 	ocDesignObj->m_PK_Effect_Off_Screen=atoi(ocDesignObj->GetParm(DESIGNOBJPARAMETER_PK_Effect_Off_Screen_CONST).c_str());
+	ocDesignObj->m_bCustomRender=atoi(ocDesignObj->GetParm(DESIGNOBJPARAMETER_Custom_Render_CONST).c_str())==1;
 	ocDesignObj->m_bCanBeHidden = bIsChild && ocDesignObj->m_bCanBeHidden;
 	//	ocDesignObj->m_bDontMergeBackground =  
 	//		(ocDesignObj->m_bHideByDefault ? "1" : "0") << "|" <<

@@ -236,7 +236,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
 	m_bShowShortcuts = false;
-	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_Guide=0;
+	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=0;
 	m_iPK_MediaType=0;
 
 	m_pScreenHistory_Current=NULL;
@@ -693,7 +693,7 @@ void Orbiter::ScreenSaver( void *data )
 	else
 	{
 		CMD_Set_Main_Menu("V");
-		GotoScreen(m_sMainMenu);
+		GotoDesignObj(m_sMainMenu);
 
 		//make sure the display is on
 		m_bDisplayOn = true;
@@ -947,6 +947,19 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if(  !pObj->m_pvectCurrentGraphic && pObj->m_GraphicToDisplay != GRAPHIC_NORMAL  )
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
+	if( pObj->m_bCustomRender )
+	{
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
+		if(pCallBackData)
+		{
+			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
+			pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
+			pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
+		}
+		ExecuteScreenHandlerCallback(cbOnCustomRender);
+		return;
+	}
+
 	// This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
 	if( pObj->m_bIsBoundToUser )
 	{
@@ -1130,19 +1143,6 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		PlutoRectangle rect(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
 		UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 	}
-
-#ifdef ENABLE_MOUSE_BEHAVIOR	
-//temporary code ?
-if(UsesUIVersion2())
-{
-	if( pObj->m_iBaseObjectID==DESIGNOBJ_popSpeedControl_temp_CONST &&
-		m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
-	{
-		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-		pSpeedMouseHandler->DrawInfo();
-	}
-}
-#endif
 
 	if(m_bShowShortcuts && pObj->m_iPK_Button)
 		RenderShortcut(pObj);
@@ -4014,7 +4014,7 @@ if(UsesUIVersion2())
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
 #endif
-			GotoScreen( m_sMainMenu );
+			GotoDesignObj( m_sMainMenu );
 			bHandled=true;
 		}
 	}
@@ -5073,19 +5073,17 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 		}
 		else if(  Variable=="NP_R" )
 		{
-			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
-				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
+			if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+				Output += StringUtils::itos(m_iPK_Screen_RemoteOSD);
 			else
-				Output += m_iPK_DesignObj_Remote ? StringUtils::itos(m_iPK_DesignObj_Remote) : "**NOMEDIA**";
+				Output += m_iPK_Screen_Remote ? StringUtils::itos(m_iPK_Screen_Remote) : "**NOMEDIA**";
 		}
 		else if(  Variable=="NP_PR" )
 			Output += StringUtils::itos(m_iPK_DesignObj_Remote_Popup);
 		else if(  Variable=="NP_FL" )
-			Output += StringUtils::itos(m_iPK_DesignObj_FileList);
-		else if(  Variable=="NP_PFL" )
-			Output += StringUtils::itos(m_iPK_DesignObj_FileList_Popup);
+			Output += StringUtils::itos(m_iPK_Screen_FileList);
 		else if(  Variable=="NP_RNF" )
-			Output += StringUtils::itos(m_iPK_DesignObj_Remote);
+			Output += StringUtils::itos(m_iPK_Screen_Remote);
 		else if(  Variable=="B" )
 			Output += "\t";
 		else if(  Variable=="N" )
@@ -5773,7 +5771,12 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		if( m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
 			sPK_DesignObj = "<%=M%>";
 		else
+		{
+			string sDestScreen = SubstituteVariables( sPK_DesignObj, NULL, 0, 0 );
+			if( m_mapDesignObj.find(atoi(sDestScreen.c_str())) != m_mapDesignObj.end() )
+				sPK_DesignObj = StringUtils::itos(m_mapDesignObj[atoi(sDestScreen.c_str())]);
 			bIsRemote=true;
+		}
 	}
 
 	else if( sPK_DesignObj=="**NOMEDIA**" )
@@ -5827,7 +5830,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_PVR_FS_CONST) )
 		return;
 
-	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_Remote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_RemoteOSD )
+	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_Screen_Remote || pObj_New->m_iBaseObjectID==m_iPK_Screen_RemoteOSD )
 		pObj_New->m_bIsARemoteControl=true;
 
 	ScreenHistory *pScreenHistory_New = NULL;
@@ -7294,12 +7297,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s %s",sValue_To_Assign.c_str(),sPK_DesignObj.c_str());
 #endif
 	pos=0;
-	m_iPK_DesignObj_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_Screen_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_iPK_DesignObj_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_iPK_DesignObj_FileList_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_iPK_DesignObj_Guide=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_Screen_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_Screen_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_sDefaultRippingName = sFilename;
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
@@ -8727,13 +8728,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 
-	DesignObj_Orbiter *pObj_Popop_FileList;
-	if( m_sObj_Popop_RemoteControl.size() && pOrbiterFileBrowser_Entry->m_DesignObj_Popup && (pObj_Popop_FileList=FindObject(m_sObj_Popop_RemoteControl)) )
-	{
-		CMD_Remove_Popup(pObj_Popop_FileList->m_ObjectID,"filelist");
-		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj_Popup),m_Popop_FileList_X,m_Popop_FileList_Y,pObj_Popop_FileList->m_ObjectID,"filelist",false,false);
-	}
-	else if(UsesUIVersion2()) // TODO - temp hack in x & y values......
+	if(UsesUIVersion2()) // TODO - temp hack in x & y values......
 	{
 		CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_popFileList_CONST),"","",false,false);
 
@@ -8745,7 +8740,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 	else
-		GotoScreen(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj));
+		CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);
 }
 
 //<-dceag-c402-b->
@@ -8881,7 +8876,7 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 		return;
 	}
 	if( !m_pScreenHistory_Current || (pObj->m_rPosition.Width==m_pScreenHistory_Current->GetObj()->m_rPosition.Width && pObj->m_rPosition.Height==m_pScreenHistory_Current->GetObj()->m_rPosition.Height) )
-		GotoScreen(pObj->m_ObjectID);
+		GotoDesignObj(pObj->m_ObjectID);
 	else
 		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
 }
@@ -9073,13 +9068,7 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 void Orbiter::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
 {
-	if( m_iPK_DesignObj_Guide )
-		CMD_Goto_DesignObj( 0, StringUtils::itos(m_iPK_DesignObj_Guide), "","", false,false );
-	else
-	{
-		DCE::CMD_Guide CMD_Guide(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
-		SendCommand(CMD_Guide);
-	}
+// AB May-03-06, don't think this is used anymore
 }
 
 //<-dceag-c194-b->
@@ -9988,14 +9977,6 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	if(UsesUIVersion2())
-	{
-		if( iPK_Screen==SCREEN_DialogAskToResume_CONST )
-			iPK_Screen=SCREEN_Main_CONST;  // temp, no way to handle this.  TODO
-		else if( iPK_Screen!=SCREEN_Main_CONST && iPK_Screen!=SCREEN_tempmnumain2_CONST && iPK_Screen!=SCREEN_tempmnuambiance_CONST && iPK_Screen!=SCREEN_tempmnuspeed_CONST )
-			return;  // For now we don't do any other screens
-	}
-
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
 	if(pCallBackData)
 	{

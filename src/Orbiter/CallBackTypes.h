@@ -20,6 +20,7 @@ enum CallBackType
     cbOnTimer,
     cbMessageIntercepted,
     cbOnRenderScreen,
+	cbOnCustomRender,
     cbOnGotoScreen
 };
 
