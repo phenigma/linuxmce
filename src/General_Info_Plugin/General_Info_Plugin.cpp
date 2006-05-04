@@ -1196,7 +1196,6 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 		"Number of seconds to wait before sending other codes after changing inputs or modes on this device ",
 		"Number of seconds* between commands (up to 3 decimal places) when sending a series of codes, such as a sequence of digits to tune to a channel"};
 	int nRow;
-	char aux[20];
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1207,13 +1206,13 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 				g_pPlutoLogger->Write( LV_STATUS , "Read AVWhatDelay grid" );
 				g_pPlutoLogger->Write( LV_STATUS , row[nRow] );
 
-				pCell = new DataGridCell(row[nRow], itoa(nRow,aux,10));
+				pCell = new DataGridCell(row[nRow], StringUtils::itos(nRow));
 				pDataGrid->SetData(1, nRow, pCell );
 			}
 
 			for(nRow=0;nRow<3;nRow++)
 			{
-				pCell = new DataGridCell(header[nRow], itoa(nRow,aux,10));
+				pCell = new DataGridCell(header[nRow], StringUtils::itos(nRow));
 				pDataGrid->SetData(0, nRow, pCell );
 			}
 		}
