@@ -947,19 +947,6 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if(  !pObj->m_pvectCurrentGraphic && pObj->m_GraphicToDisplay != GRAPHIC_NORMAL  )
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
-	if( pObj->m_bCustomRender )
-	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
-		if(pCallBackData)
-		{
-			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
-			pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
-		}
-		ExecuteScreenHandlerCallback(cbOnCustomRender);
-		return;
-	}
-
 	// This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
 	if( pObj->m_bIsBoundToUser )
 	{
@@ -997,6 +984,19 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	}
 	else if(  pObj->m_pvectCurrentGraphic  )
 		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+	if( pObj->m_bCustomRender )
+	{
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
+		if(pCallBackData)
+		{
+			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
+			pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
+			pRenderScreenCallBackData->m_pObj = pObj; //m_pScreenHistory_Current->GetObj();
+		}
+		ExecuteScreenHandlerCallback(cbOnCustomRender);
+		return;
+	}
 
 	switch( pObj->m_ObjectType )
 	{

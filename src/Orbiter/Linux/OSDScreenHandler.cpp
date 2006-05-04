@@ -29,6 +29,11 @@
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "DataGrid.h"
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+#	include "../MouseBehavior.h"
+#	include "../SpeedMouseHandler.h"
+#endif
+
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
         ScreenHandler(pOrbiter, p_MapDesignObj)
@@ -40,8 +45,6 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	{
 		//do something here; unable to connect to db
 	}
-	
-	m_bSpeedControlCreated = false;
 }
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::~OSDScreenHandler()
@@ -1591,23 +1594,19 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_tempmnuspeed(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-
+	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_tempmnuspeed()" );
 	ScreenHandler::SCREEN_tempmnuspeed(PK_Screen);
 	
-	// register the RoomWizard callbacks
-	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
 	RegisterCallBack( cbOnDialogCreate, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCreate, new PositionCallBackData() );
 	RegisterCallBack( cbOnDialogDelete, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlDelete, new PositionCallBackData() );
+	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
+bool OSDScreenHandler::SpeedControlCreate(CallBackData *pData)
 {
     g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate()" );
 
+	/*
     PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
     if (pPositionCallBackData == NULL)
     {
@@ -1628,20 +1627,23 @@ bool OSDScreenHandler::SpeedControlCreate( CallBackData *pData )
 	}
 
 	m_bSpeedControlCreated = true;
+	*/
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
+bool OSDScreenHandler::SpeedControlDelete(CallBackData *pData)
 {
+    g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlDelete()");
+
+	/*
 	if(!m_bSpeedControlCreated)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "OSDScreenHandler::SpeedControlDelete() ignoring... The wx control is not created yet");
 		return false;
 	}
 
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlDelete() data %p", pData );
-
-    {
+	{
 		//no data to attach
 		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(PlutoRectangle(0, 0, 0, 0));
 	
@@ -1650,9 +1652,50 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
 	}
 
 	m_bSpeedControlCreated = false;
+	*/
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender()");
+
+	/*
+	//we don't need this right now
+	RenderScreenCallBackData *pRenderData = dynamic_cast<RenderScreenCallBackData *>(pData);
+	if(NULL == pRenderData || NULL == pRenderData->m_pObj)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+			"pData is not a RenderScreenCallBackData or the designobj within is NULL: renderdata %p", pRenderData);
+		return false;
+	}
+	*/
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+
+	if(NULL != m_pOrbiter && NULL != m_pOrbiter->m_pMouseBehavior)
+	{
+		const MouseHandler *pMouseHandler = m_pOrbiter->m_pMouseBehavior->GetHorizontalMouseHandler();
+		const SpeedMouseHandler *pcSpeedMouseHandler = dynamic_cast<const SpeedMouseHandler *>(pMouseHandler);
+		if(NULL == pcSpeedMouseHandler)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+				"Unable to get SpeedMouseHandler");
+			return false;
+		}
+
+		SpeedMouseHandler *pSpeedMouseHandler = const_cast<SpeedMouseHandler *>(pcSpeedMouseHandler);
+		pSpeedMouseHandler->DrawInfo();
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+			"MouseBehavior not activated in Orbiter!");
+#endif
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------=======
 void OSDScreenHandler::SCREEN_TVManufNotListed(long PK_Screen)
 {
 	ScreenHandler::SCREEN_TVManufNotListed(PK_Screen);

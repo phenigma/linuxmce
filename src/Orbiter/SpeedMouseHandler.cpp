@@ -28,6 +28,10 @@ const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8
 SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+	m_bHasTimeline = false;
+	m_CurrentMedia_Start = m_CurrentMedia_Stop = m_CurrentMedia_Pos = 0;
+	m_iLastGoodPosition = 0;
+
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
@@ -245,6 +249,7 @@ void SpeedMouseHandler::Update()
 	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: %d 2: %s 3: %d 4: %d/%d/%d 5: %d",
 		Style,SpeedOptions,Speed,m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos,SeekPosition);
 		
+/*
 		//for now, available only for linux; taskmanager will be included in windows version in few days
 #ifndef WIN32
     {
@@ -282,6 +287,7 @@ void SpeedMouseHandler::Update()
 #endif
 	}
 #endif
+*/
 }
 
 void SpeedMouseHandler::DrawInfo()

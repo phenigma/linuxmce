@@ -143,6 +143,9 @@ namespace DCE
 		virtual void ShowMouse(bool bShow) { }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
+
+		const MouseHandler* GetHorizontalMouseHandler() const;
+		const MouseHandler* GetVerticalMouseHandler() const;
 	};
 
 }

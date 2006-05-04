@@ -85,8 +85,7 @@ public:
 	virtual void SCREEN_tempmnuspeed(long PK_Screen);	
 	bool SpeedControlCreate(CallBackData *pData);
 	bool SpeedControlDelete(CallBackData *pData);
-	bool m_bSpeedControlCreated;
-	//NOTE: for refresh, see SpeedMouseHandler::Update
+	bool SpeedControlCustomRender(CallBackData *pData);
 
 	virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);

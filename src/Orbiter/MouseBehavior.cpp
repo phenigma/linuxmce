@@ -505,7 +505,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 		m_EMenuOnScreen=mb_MediaControl;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
+		m_pOrbiter->CMD_Goto_Screen("",213/*m_pOrbiter->m_iPK_Screen_Remote*/);
 /*
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
 		pObj->m_rPosition.Width=964;
@@ -721,5 +721,15 @@ void MouseBehavior::PositionMouseAtObjectEdge(int PK_Direction)
 			rect.Y);
 		return;
 	};
+}
+
+const MouseHandler* MouseBehavior::GetHorizontalMouseHandler() const
+{
+	return m_pMouseHandler_Horizontal;
+}
+
+const MouseHandler* MouseBehavior::GetVerticalMouseHandler() const
+{
+	return m_pMouseHandler_Vertical;
 }
 

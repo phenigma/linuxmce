@@ -507,15 +507,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
-    if(width <= 0 || height <= 0 || y >= m_iImageHeight || x >= m_iImageWidth)
-        return;
-
-    //clipping
-    if(x + width >= m_iImageWidth)
-        width = m_iImageWidth - x - 1;
-
-    if(y + height >= m_iImageHeight)
-        height = m_iImageHeight - y - 1;
+	ClipRectangle(x, y, width, height);
     
     CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -524,15 +516,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-	if(width <= 0 || height <= 0 || y >= m_iImageHeight || x >= m_iImageWidth)
-		return;
-
-    //clipping
-    if(x + width >= m_iImageWidth)
-        width = m_iImageWidth - x - 1;
-
-    if(y + height >= m_iImageHeight)
-        height = m_iImageHeight - y - 1;
+	ClipRectangle(x, y, width, height);
 
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -542,8 +526,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
 	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
-    if(width <= 0 || height <= 0 || width >= m_iImageWidth || height >= m_iImageHeight)
-        return;
+	ClipRectangle(x, y, width, height);
 
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -857,23 +840,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	if( rect.X >= m_iImageWidth )
-		rect.X = m_iImageWidth-1;
-	if( rect.Y >= m_iImageHeight )
-		rect.Y = m_iImageHeight-1;
-
-	if(rect.Width <= 0)
-		rect.Width = 1;
-	
-	if(rect.Height <= 0)
-		rect.Height = 1;
-
-	//clipping
-	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
-		rect.Width = m_iImageWidth - rect.X - 1;
-
-	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
-		rect.Height = m_iImageHeight - rect.Y - 1;
+	ClipRectangle(rect);
 
 	Rect srcRect;
 	srcRect.Set(rect.X, rect.Y, rect.Right() + 1, rect.Bottom() + 1);
@@ -885,7 +852,41 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	
 	return new PocketFrogGraphic(pSurface);
 }
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::ClipRectangle(int& x, int& y, int& width, int& height)
+{
+	PlutoRectangle rect(x, y, width, height);
+	ClipRectangle(rect);
 
+	x = rect.X;
+	y = rect.Y;
+	width = rect.Width;
+	height = rect.Height;
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
+{
+	if( rect.X >= m_iImageWidth )
+		rect.X = m_iImageWidth-1;
+	if( rect.X <= 0)
+		rect.X = 0;
+	if( rect.Y <= 0)
+		rect.Y = 0;
+	if( rect.Y >= m_iImageHeight )
+		rect.Y = m_iImageHeight-1;
+
+	if(rect.Width <= 0)
+		rect.Width = 1;
+
+	if(rect.Height <= 0)
+		rect.Height = 1;
+
+	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
+		rect.Width = m_iImageWidth - rect.X - 1;
+
+	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
+		rect.Height = m_iImageHeight - rect.Y - 1;
+}
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
 {
@@ -1097,28 +1098,14 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint point)
 {
+	PlutoRectangle localrect = rect;
+	localrect.X += point.X;
+	localrect.Y += point.Y;
+
+	ClipRectangle(localrect);
+
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
-    PlutoRectangle localrect = rect;
-    localrect.X += point.X;
-    localrect.Y += point.Y;
-
-	if(localrect.Width <= 0 || localrect.Height <= 0)
-		return;
-
-	//clipping the rectangle 
-	if(localrect.X < 0)
-		localrect.X = 0;
-
-	if(localrect.Y < 0)
-		localrect.Y = 0;
-
-	if(localrect.Right() >= m_Width)
-		localrect.Width = m_Width - localrect.X - 1;
-
-	if(localrect.Bottom() >= m_Height)
-		localrect.Height = m_Height - localrect.Y - 1;
 
 	Rect rectUpdate;
 	rectUpdate.Set(localrect.Left(), localrect.Top(), localrect.Right(), localrect.Bottom());
