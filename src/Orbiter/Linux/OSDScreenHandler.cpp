@@ -1594,7 +1594,7 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_tempmnuspeed(long PK_Screen)
 {
-	//TODO: will remove this once SpeedMouseHandler.cpp issue which PK_Screen is fixed
+	//TODO: will remove this once SpeedMouseHandler.cpp issue with PK_Screen is fixed
 	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_tempmnuspeed()" );
 	ScreenHandler::SCREEN_tempmnuspeed(PK_Screen);
 
@@ -1672,7 +1672,6 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 {
 	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender()");
 
-	/*
 	//we don't need this right now
 	RenderScreenCallBackData *pRenderData = dynamic_cast<RenderScreenCallBackData *>(pData);
 	if(NULL == pRenderData || NULL == pRenderData->m_pObj)
@@ -1681,7 +1680,9 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 			"pData is not a RenderScreenCallBackData or the designobj within is NULL: renderdata %p", pRenderData);
 		return false;
 	}
-	*/
+
+	m_pOrbiter->RenderGraphic(pRenderData->m_pObj,  pRenderData->m_pObj->m_rPosition, 
+		pRenderData->m_pObj->m_bDisableAspectLock);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 
