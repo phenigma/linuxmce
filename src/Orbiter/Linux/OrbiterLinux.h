@@ -20,6 +20,15 @@ class wxDialog_WaitUser;
 #include <string>
 using namespace std;
 
+/**
+ * Structure that match the modifier keys status
+ */
+struct TKeyboardState
+{
+    bool bShiftDown, bAltDown, bControlDown;
+};
+ 
+
 class OrbiterLinux : public OrbiterSDL/*, public RatpoisonHandler<OrbiterLinux>*/
 {
 private:
@@ -64,6 +73,7 @@ protected:
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
 
+	TKeyboardState KeyboardState;
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,
