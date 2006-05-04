@@ -39,6 +39,7 @@ class Plug_And_Play::PnPPrivate
 		bool core;
 		/**true if there is a device pending in the queue*/
 		bool pending;
+		
 		/**the pnp queue id of the device in progress*/
 		int currentPnpQueueID ; 
 		
@@ -333,17 +334,18 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 		string response; 
 		bool bResponse = SendCommand(cmd, &response);
 		
-		if(response.find("Error") != string::npos)
+		if(response.find("Error") != string::npos || !bResponse)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Error conneting to router");
 			return;
 		}
 		
-		string existingDeviceID = response.substr(response.find(":"));
-		if(!existingDeviceID.empty())
+		StringUtils::TrimSpaces( response );
+		
+		if(!response.empty())
 		{
 			//enable the device
-			d->SetEnableState(atoi( existingDeviceID.c_str()), true );
+			d->SetEnableState(atoi( response.c_str()), true );
 			return;
 		}
 		
@@ -458,7 +460,15 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 												iCapabilities,
 												iPK_CommMethod,
 												sPath );
-			SendCommand(cmd);
+			bool response = SendCommand(cmd);
+			if(!response)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "cannot send message to core");
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "cannot get the core device");
 		}
 	}
 	//buh-bye now
@@ -547,7 +557,7 @@ void Plug_And_Play::CheckQueue()
 	if(!d->core)
 		return;
 	
-	if(d->currentPnpQueueID != 0)
+	if(d->currentPnpQueueID != 0 && d->pending)
 	{
 		//something in process
 		return;
