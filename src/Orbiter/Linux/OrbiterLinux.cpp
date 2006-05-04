@@ -517,7 +517,8 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
-	CallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
+	PositionCallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
+    pCallBackData->m_bShowFullScreen = true;
 	CallBackType callbackType = cbOnDialogRefresh;
 	if(nProgress != -1)
 	{
@@ -632,7 +633,8 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
 	static bool bDialogRunning = false;
-	CallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
+	PositionCallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
+    pCallBackData->m_bShowFullScreen = true;
 	CallBackType callbackType = cbOnDialogRefresh;
 	if(nProgress != -1)
 	{
@@ -744,7 +746,8 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 
 #if (USE_WX_LIB)
 #if (USE_TASK_MANAGER)
-	CallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
+	PositionCallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
+    pCallBackData->m_bShowFullScreen = true;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
     m_WinListManager.MaximizeWindow("dialog.dialog");

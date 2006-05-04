@@ -246,7 +246,7 @@ void SpeedMouseHandler::Update()
 	//update the time - will update the control right now
 	m_ulLastTimeControlUpdated = ulCurrentTimeControlUpdated;
 		
-	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: %d 2: %s 3: %d 4: %d/%d/%d 5: %d",
+	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: style=%d 2: speedOpts=%s 3: speed=%d 4: start=%d/stop=%d/now=%d 5: seek=%d",
 		Style,SpeedOptions,Speed,m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos,SeekPosition);
 		
 /*
