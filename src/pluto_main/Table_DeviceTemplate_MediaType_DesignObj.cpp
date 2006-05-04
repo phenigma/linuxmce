@@ -18,12 +18,11 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType.h"
+#include "Table_Screen.h"
 #include "Table_DesignObj.h"
-#include "Table_DesignObj.h"
-#include "Table_DesignObj.h"
-#include "Table_DesignObj.h"
-#include "Table_DesignObj.h"
-#include "Table_DesignObj.h"
+#include "Table_Screen.h"
+#include "Table_Screen.h"
+#include "Table_Screen.h"
 #include "Table_Skin.h"
 
 #include "Table_RemoteControl.h"
@@ -130,40 +129,34 @@ void Row_DeviceTemplate_MediaType_DesignObj::SetDefaultValues()
 is_null[0] = false;
 m_FK_DeviceTemplate_MediaType = 0;
 is_null[1] = false;
-m_FK_DesignObj = 0;
+m_FK_Screen = 0;
 is_null[2] = false;
 is_null[3] = true;
 m_FK_DesignObj_Popup = 0;
 is_null[4] = true;
-m_FK_DesignObj_FileList = 0;
+m_FK_Screen_FileList = 0;
 is_null[5] = true;
-m_FK_DesignObj_FileList_Popup = 0;
+m_FK_Screen_OSD = 0;
 is_null[6] = true;
-m_FK_DesignObj_Guide = 0;
+m_FK_Screen_Alt = 0;
 is_null[7] = true;
-m_FK_DesignObj_OSD = 0;
+m_FK_Screen_Alt_OSD = 0;
 is_null[8] = true;
-m_FK_DesignObj_Alt = 0;
-is_null[9] = true;
-m_FK_DesignObj_Alt_Popup = 0;
-is_null[10] = true;
-m_FK_DesignObj_Alt_OSD = 0;
-is_null[11] = true;
 m_FK_Skin = 0;
-is_null[12] = true;
+is_null[9] = true;
 m_UIVersion = 0;
-is_null[13] = true;
-is_null[14] = true;
+is_null[10] = true;
+is_null[11] = true;
 m_psc_id = 0;
-is_null[15] = true;
+is_null[12] = true;
 m_psc_batch = 0;
-is_null[16] = true;
+is_null[13] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[17] = false;
+is_null[14] = false;
 m_psc_mod = "00000000000000";
-is_null[18] = false;
-is_null[19] = true;
+is_null[15] = false;
+is_null[16] = true;
 m_psc_restrict = 0;
 
 
@@ -178,33 +171,24 @@ return m_PK_DeviceTemplate_MediaType_DesignObj;}
 long int Row_DeviceTemplate_MediaType_DesignObj::FK_DeviceTemplate_MediaType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DeviceTemplate_MediaType;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_DesignObj;}
+return m_FK_Screen;}
 long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Popup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DesignObj_Popup;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_DesignObj_FileList;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_Popup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_FK_Screen_FileList;}
+long int Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_DesignObj_FileList_Popup;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_FK_Screen_OSD;}
+long int Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_DesignObj_Guide;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_FK_Screen_Alt;}
+long int Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_OSD_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_DesignObj_OSD;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_FK_DesignObj_Alt;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_Popup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_FK_DesignObj_Alt_Popup;}
-long int Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_OSD_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_FK_DesignObj_Alt_OSD;}
+return m_FK_Screen_Alt_OSD;}
 long int Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Skin;}
@@ -240,174 +224,144 @@ m_PK_DeviceTemplate_MediaType_DesignObj = val; is_modified=true; is_null[0]=fals
 void Row_DeviceTemplate_MediaType_DesignObj::FK_DeviceTemplate_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DeviceTemplate_MediaType = val; is_modified=true; is_null[1]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DesignObj = val; is_modified=true; is_null[2]=false;}
+m_FK_Screen = val; is_modified=true; is_null[2]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Popup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DesignObj_Popup = val; is_modified=true; is_null[3]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DesignObj_FileList = val; is_modified=true; is_null[4]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_Popup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_FK_Screen_FileList = val; is_modified=true; is_null[4]=false;}
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DesignObj_FileList_Popup = val; is_modified=true; is_null[5]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_FK_Screen_OSD = val; is_modified=true; is_null[5]=false;}
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DesignObj_Guide = val; is_modified=true; is_null[6]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_FK_Screen_Alt = val; is_modified=true; is_null[6]=false;}
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_OSD_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DesignObj_OSD = val; is_modified=true; is_null[7]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_FK_DesignObj_Alt = val; is_modified=true; is_null[8]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_Popup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_FK_DesignObj_Alt_Popup = val; is_modified=true; is_null[9]=false;}
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_OSD_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_FK_DesignObj_Alt_OSD = val; is_modified=true; is_null[10]=false;}
+m_FK_Screen_Alt_OSD = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Skin = val; is_modified=true; is_null[11]=false;}
+m_FK_Skin = val; is_modified=true; is_null[8]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::UIVersion_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_UIVersion = val; is_modified=true; is_null[12]=false;}
+m_UIVersion = val; is_modified=true; is_null[9]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Description = val; is_modified=true; is_null[13]=false;}
+m_Description = val; is_modified=true; is_null[10]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[14]=false;}
+m_psc_id = val; is_modified=true; is_null[11]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[15]=false;}
+m_psc_batch = val; is_modified=true; is_null[12]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[16]=false;}
+m_psc_user = val; is_modified=true; is_null[13]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[17]=false;}
+m_psc_frozen = val; is_modified=true; is_null[14]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[18]=false;}
+m_psc_mod = val; is_modified=true; is_null[15]=false;}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[19]=false;}
+m_psc_restrict = val; is_modified=true; is_null[16]=false;}
 
 		
 bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Popup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_Popup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_OSD_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[8];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_Popup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[9];}
-bool Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_OSD_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[10];}
 bool Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[11];}
+return is_null[8];}
 bool Row_DeviceTemplate_MediaType_DesignObj::UIVersion_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[12];}
+return is_null[9];}
 bool Row_DeviceTemplate_MediaType_DesignObj::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[13];}
+return is_null[10];}
 bool Row_DeviceTemplate_MediaType_DesignObj::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[14];}
+return is_null[11];}
 bool Row_DeviceTemplate_MediaType_DesignObj::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[15];}
+return is_null[12];}
 bool Row_DeviceTemplate_MediaType_DesignObj::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[16];}
+return is_null[13];}
 bool Row_DeviceTemplate_MediaType_DesignObj::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[17];}
+return is_null[14];}
 bool Row_DeviceTemplate_MediaType_DesignObj::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[19];}
+return is_null[16];}
 
 			
 void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Popup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_Popup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_OSD_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_Popup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::UIVersion_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_OSD_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::UIVersion_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate_MediaType_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate_MediaType_DesignObj::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[15]=val;
-is_modified=true;
-}
-void Row_DeviceTemplate_MediaType_DesignObj::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[16]=val;
-is_modified=true;
-}
-void Row_DeviceTemplate_MediaType_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[17]=val;
-is_modified=true;
-}
 void Row_DeviceTemplate_MediaType_DesignObj::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[19]=val;
+is_null[16]=val;
 is_modified=true;
 }
 	
@@ -438,7 +392,7 @@ sprintf(buf, "%li", m_FK_DeviceTemplate_MediaType);
 return buf;
 }
 
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_asSQL()
+string Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -446,7 +400,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj);
+sprintf(buf, "%li", m_FK_Screen);
 
 return buf;
 }
@@ -464,7 +418,7 @@ sprintf(buf, "%li", m_FK_DesignObj_Popup);
 return buf;
 }
 
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_asSQL()
+string Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -472,12 +426,12 @@ if (is_null[4])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_FileList);
+sprintf(buf, "%li", m_FK_Screen_FileList);
 
 return buf;
 }
 
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_Popup_asSQL()
+string Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -485,12 +439,12 @@ if (is_null[5])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_FileList_Popup);
+sprintf(buf, "%li", m_FK_Screen_OSD);
 
 return buf;
 }
 
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_asSQL()
+string Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -498,12 +452,12 @@ if (is_null[6])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_Guide);
+sprintf(buf, "%li", m_FK_Screen_Alt);
 
 return buf;
 }
 
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_asSQL()
+string Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_OSD_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -511,46 +465,7 @@ if (is_null[7])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_OSD);
-
-return buf;
-}
-
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[8])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_Alt);
-
-return buf;
-}
-
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_Popup_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[9])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_Alt_Popup);
-
-return buf;
-}
-
-string Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_OSD_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[10])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_DesignObj_Alt_OSD);
+sprintf(buf, "%li", m_FK_Screen_Alt_OSD);
 
 return buf;
 }
@@ -559,7 +474,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -572,7 +487,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::UIVersion_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -585,7 +500,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[10])
 return "NULL";
 
 char *buf = new char[511];
@@ -599,7 +514,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[14])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -612,7 +527,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[15])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -625,7 +540,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -638,7 +553,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -651,7 +566,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[18])
+if (is_null[15])
 return "NULL";
 
 char *buf = new char[29];
@@ -665,7 +580,7 @@ string Row_DeviceTemplate_MediaType_DesignObj::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[19])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -712,10 +627,10 @@ bool Table_DeviceTemplate_MediaType_DesignObj::Commit(bool bDeleteFailedModified
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_MediaType_DesignObj_asSQL()+", "+pRow->FK_DeviceTemplate_MediaType_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_DesignObj_Popup_asSQL()+", "+pRow->FK_DesignObj_FileList_asSQL()+", "+pRow->FK_DesignObj_FileList_Popup_asSQL()+", "+pRow->FK_DesignObj_Guide_asSQL()+", "+pRow->FK_DesignObj_OSD_asSQL()+", "+pRow->FK_DesignObj_Alt_asSQL()+", "+pRow->FK_DesignObj_Alt_Popup_asSQL()+", "+pRow->FK_DesignObj_Alt_OSD_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->UIVersion_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_MediaType_DesignObj_asSQL()+", "+pRow->FK_DeviceTemplate_MediaType_asSQL()+", "+pRow->FK_Screen_asSQL()+", "+pRow->FK_DesignObj_Popup_asSQL()+", "+pRow->FK_Screen_FileList_asSQL()+", "+pRow->FK_Screen_OSD_asSQL()+", "+pRow->FK_Screen_Alt_asSQL()+", "+pRow->FK_Screen_Alt_OSD_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->UIVersion_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_MediaType_DesignObj (`PK_DeviceTemplate_MediaType_DesignObj`, `FK_DeviceTemplate_MediaType`, `FK_DesignObj`, `FK_DesignObj_Popup`, `FK_DesignObj_FileList`, `FK_DesignObj_FileList_Popup`, `FK_DesignObj_Guide`, `FK_DesignObj_OSD`, `FK_DesignObj_Alt`, `FK_DesignObj_Alt_Popup`, `FK_DesignObj_Alt_OSD`, `FK_Skin`, `UIVersion`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DeviceTemplate_MediaType_DesignObj (`PK_DeviceTemplate_MediaType_DesignObj`, `FK_DeviceTemplate_MediaType`, `FK_Screen`, `FK_DesignObj_Popup`, `FK_Screen_FileList`, `FK_Screen_OSD`, `FK_Screen_Alt`, `FK_Screen_Alt_OSD`, `FK_Skin`, `UIVersion`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -771,7 +686,7 @@ condition = condition + "`PK_DeviceTemplate_MediaType_DesignObj`=" + tmp_PK_Devi
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DeviceTemplate_MediaType_DesignObj`="+pRow->PK_DeviceTemplate_MediaType_DesignObj_asSQL()+", `FK_DeviceTemplate_MediaType`="+pRow->FK_DeviceTemplate_MediaType_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_DesignObj_Popup`="+pRow->FK_DesignObj_Popup_asSQL()+", `FK_DesignObj_FileList`="+pRow->FK_DesignObj_FileList_asSQL()+", `FK_DesignObj_FileList_Popup`="+pRow->FK_DesignObj_FileList_Popup_asSQL()+", `FK_DesignObj_Guide`="+pRow->FK_DesignObj_Guide_asSQL()+", `FK_DesignObj_OSD`="+pRow->FK_DesignObj_OSD_asSQL()+", `FK_DesignObj_Alt`="+pRow->FK_DesignObj_Alt_asSQL()+", `FK_DesignObj_Alt_Popup`="+pRow->FK_DesignObj_Alt_Popup_asSQL()+", `FK_DesignObj_Alt_OSD`="+pRow->FK_DesignObj_Alt_OSD_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `UIVersion`="+pRow->UIVersion_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate_MediaType_DesignObj`="+pRow->PK_DeviceTemplate_MediaType_DesignObj_asSQL()+", `FK_DeviceTemplate_MediaType`="+pRow->FK_DeviceTemplate_MediaType_asSQL()+", `FK_Screen`="+pRow->FK_Screen_asSQL()+", `FK_DesignObj_Popup`="+pRow->FK_DesignObj_Popup_asSQL()+", `FK_Screen_FileList`="+pRow->FK_Screen_FileList_asSQL()+", `FK_Screen_OSD`="+pRow->FK_Screen_OSD_asSQL()+", `FK_Screen_Alt`="+pRow->FK_Screen_Alt_asSQL()+", `FK_Screen_Alt_OSD`="+pRow->FK_Screen_Alt_OSD_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `UIVersion`="+pRow->UIVersion_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DeviceTemplate_MediaType_DesignObj set " + update_values_list + " where " + condition;
@@ -905,12 +820,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DeviceTemplate_MediaType));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_DesignObj = 0;
+pRow->m_FK_Screen = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_DesignObj));
+sscanf(row[2], "%li", &(pRow->m_FK_Screen));
 }
 
 if (row[3] == NULL)
@@ -927,177 +842,144 @@ sscanf(row[3], "%li", &(pRow->m_FK_DesignObj_Popup));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_DesignObj_FileList = 0;
+pRow->m_FK_Screen_FileList = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_DesignObj_FileList));
+sscanf(row[4], "%li", &(pRow->m_FK_Screen_FileList));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_FK_DesignObj_FileList_Popup = 0;
+pRow->m_FK_Screen_OSD = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_FK_DesignObj_FileList_Popup));
+sscanf(row[5], "%li", &(pRow->m_FK_Screen_OSD));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_DesignObj_Guide = 0;
+pRow->m_FK_Screen_Alt = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_DesignObj_Guide));
+sscanf(row[6], "%li", &(pRow->m_FK_Screen_Alt));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_DesignObj_OSD = 0;
+pRow->m_FK_Screen_Alt_OSD = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_DesignObj_OSD));
+sscanf(row[7], "%li", &(pRow->m_FK_Screen_Alt_OSD));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_DesignObj_Alt = 0;
+pRow->m_FK_Skin = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_DesignObj_Alt));
+sscanf(row[8], "%li", &(pRow->m_FK_Skin));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DesignObj_Alt_Popup = 0;
+pRow->m_UIVersion = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DesignObj_Alt_Popup));
+sscanf(row[9], "%li", &(pRow->m_UIVersion));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_DesignObj_Alt_OSD = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_DesignObj_Alt_OSD));
+pRow->m_Description = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Skin = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Skin));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_UIVersion = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_UIVersion));
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Description = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Description = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_user));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+pRow->m_psc_mod = string(row[15],lengths[15]);
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
-}
-
-if (row[17] == NULL)
-{
-pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[18] == NULL)
-{
-pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
-}
-else
-{
-pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
-}
-
-if (row[19] == NULL)
-{
-pRow->is_null[19]=true;
 pRow->m_psc_restrict = 0;
 }
 else
 {
-pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_restrict));
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1233,12 +1115,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DeviceTemplate_MediaType));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_DesignObj = 0;
+pRow->m_FK_Screen = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_DesignObj));
+sscanf(row[2], "%li", &(pRow->m_FK_Screen));
 }
 
 if (row[3] == NULL)
@@ -1255,177 +1137,144 @@ sscanf(row[3], "%li", &(pRow->m_FK_DesignObj_Popup));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_DesignObj_FileList = 0;
+pRow->m_FK_Screen_FileList = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_DesignObj_FileList));
+sscanf(row[4], "%li", &(pRow->m_FK_Screen_FileList));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_FK_DesignObj_FileList_Popup = 0;
+pRow->m_FK_Screen_OSD = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_FK_DesignObj_FileList_Popup));
+sscanf(row[5], "%li", &(pRow->m_FK_Screen_OSD));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_DesignObj_Guide = 0;
+pRow->m_FK_Screen_Alt = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_DesignObj_Guide));
+sscanf(row[6], "%li", &(pRow->m_FK_Screen_Alt));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_DesignObj_OSD = 0;
+pRow->m_FK_Screen_Alt_OSD = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_DesignObj_OSD));
+sscanf(row[7], "%li", &(pRow->m_FK_Screen_Alt_OSD));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_DesignObj_Alt = 0;
+pRow->m_FK_Skin = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_DesignObj_Alt));
+sscanf(row[8], "%li", &(pRow->m_FK_Skin));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DesignObj_Alt_Popup = 0;
+pRow->m_UIVersion = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DesignObj_Alt_Popup));
+sscanf(row[9], "%li", &(pRow->m_UIVersion));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_DesignObj_Alt_OSD = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_DesignObj_Alt_OSD));
+pRow->m_Description = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Skin = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Skin));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_UIVersion = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_UIVersion));
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Description = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Description = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_user));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+pRow->m_psc_mod = string(row[15],lengths[15]);
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
-}
-
-if (row[17] == NULL)
-{
-pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[18] == NULL)
-{
-pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
-}
-else
-{
-pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
-}
-
-if (row[19] == NULL)
-{
-pRow->is_null[19]=true;
 pRow->m_psc_restrict = 0;
 }
 else
 {
-pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_psc_restrict));
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1443,12 +1292,12 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DeviceTemplate_MediaType *pTable = table->database->DeviceTemplate_MediaType_get();
 return pTable->GetRow(m_FK_DeviceTemplate_MediaType);
 }
-class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_getrow()
+class Row_Screen* Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_DesignObj *pTable = table->database->DesignObj_get();
-return pTable->GetRow(m_FK_DesignObj);
+class Table_Screen *pTable = table->database->Screen_get();
+return pTable->GetRow(m_FK_Screen);
 }
 class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Popup_getrow()
 {
@@ -1457,33 +1306,26 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj_Popup);
 }
-class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_FileList_getrow()
+class Row_Screen* Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_FileList_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_DesignObj *pTable = table->database->DesignObj_get();
-return pTable->GetRow(m_FK_DesignObj_FileList);
+class Table_Screen *pTable = table->database->Screen_get();
+return pTable->GetRow(m_FK_Screen_FileList);
 }
-class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Guide_getrow()
+class Row_Screen* Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_OSD_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_DesignObj *pTable = table->database->DesignObj_get();
-return pTable->GetRow(m_FK_DesignObj_Guide);
+class Table_Screen *pTable = table->database->Screen_get();
+return pTable->GetRow(m_FK_Screen_OSD);
 }
-class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_OSD_getrow()
+class Row_Screen* Row_DeviceTemplate_MediaType_DesignObj::FK_Screen_Alt_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_DesignObj *pTable = table->database->DesignObj_get();
-return pTable->GetRow(m_FK_DesignObj_OSD);
-}
-class Row_DesignObj* Row_DeviceTemplate_MediaType_DesignObj::FK_DesignObj_Alt_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_DesignObj *pTable = table->database->DesignObj_get();
-return pTable->GetRow(m_FK_DesignObj_Alt);
+class Table_Screen *pTable = table->database->Screen_get();
+return pTable->GetRow(m_FK_Screen_Alt);
 }
 class Row_Skin* Row_DeviceTemplate_MediaType_DesignObj::FK_Skin_getrow()
 {

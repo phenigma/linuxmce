@@ -158,7 +158,15 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Screen_CommandParameter_FK_Screen_getrows(vector <class Row_Screen_CommandParameter*> *rows);
+		void DeviceTemplate_MediaType_DesignObj_FK_Screen_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_Screen_FileList_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_Screen_OSD_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_Screen_Alt_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_Screen_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_Screen_FileList_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_Screen_OSD_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_Screen_Alt_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void Screen_CommandParameter_FK_Screen_getrows(vector <class Row_Screen_CommandParameter*> *rows);
 void Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *rows);
 void Skin_FK_Screen_MainMenu_getrows(vector <class Row_Skin*> *rows);
 void Skin_FK_Screen_Sleeping_getrows(vector <class Row_Skin*> *rows);
