@@ -208,7 +208,7 @@ bool General_Info_Plugin::Register()
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
-	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Gnereal_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
