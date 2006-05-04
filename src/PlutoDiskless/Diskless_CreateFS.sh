@@ -68,7 +68,7 @@ Upgrade_Essential()
 		e2fsprogs=1.37-2sarge1
 		e2fslibs=1.37-2sarge1
 		libc6=2.3.2.ds1-22
-		sysv-rc=2.86.ds1-1.1pluto34
+		sysv-rc=2.86.ds1-1.1pluto36
 		pluto-boot-scripts=2.0.0.36
 		lsb-base
 		module-init-tools=3.2.2
