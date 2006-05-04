@@ -22,7 +22,12 @@ public:
 		  * 0 2^0 2^1 2^2
 		  */
 		enum Capabilities { NOTHING=0, CONFIG=1 };
-		
+		/**Detected means that the device was added to the pnp queue
+		 * Pre means that the device is running Pre script/application
+		 * Do means that the device is running Do script/application
+		 * Post means that the device is running Post script/application
+		 * Done means that the device is completly added, will be deleted from queue with the first ocasion 
+		 * Error means that the device has an error, will be deleted from queue with the first ocasion */
 		enum Stages {Detected = 0, Pre, Do, Post, PromptUser, Done, Error};
 		
 		// Public member variables

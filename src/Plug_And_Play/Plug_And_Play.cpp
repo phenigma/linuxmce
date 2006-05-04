@@ -349,19 +349,10 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			return;
 		}
 		
-		int state = -1;
 		//clear the result string
 		sCMD_Result.clear();
 		
 		//check the queue to see if the device is not in processing
-		if( iPK_DeviceTemplate < 0 )
-		{
-			state = PNP_DEVICE_DETECTED;
-		}
-		else
-		{
-			state = PNP_DEVICE_WAITING;
-		}
 		
 		string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
 		
@@ -391,7 +382,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					row->SerialNumber_set( sPNPSerialNo );
 					row->Identifier_set( sIdentifier );
 					row->Path_set( sPath );
-					row->Stage_set(state);
+					row->Stage_set(Plug_And_Play::Detected);
 					
 					// TODO
 					// row->IP_set( sIP_Address );
@@ -405,18 +396,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 						return;
 					}
 					d->currentPnpQueueID = row->PK_PnpQueue_get();
-					
-					// go to pre, if the devices is not capable, else go to post
-					if(iCapabilities == 0)
-					{
-						//TODO:goto pre
-						
-					}
-					else
-					{
-						//TODO:goto post
-						
-					}
+					CheckQueue();
 				}
 				else
 				{
@@ -557,7 +537,7 @@ void Plug_And_Play::CheckQueue()
 	if(!d->core)
 		return;
 	
-	if(d->currentPnpQueueID != 0 && d->pending)
+	if(d->currentPnpQueueID > 0 && d->pending)
 	{
 		//something in process
 		return;
@@ -584,6 +564,16 @@ void Plug_And_Play::CheckQueue()
 						case Plug_And_Play::Detected:
 							//interrupted during add device
 							//actually, this means that the add device was succesfull, so goto next case
+						case Plug_And_Play::PromptUser:
+							//interrupted during user action
+							if((*vectRow_PnpQueue_iterator)->FK_DeviceTemplate_get() <= 0)
+							{
+								//TODO: 
+/*								RunScript(	(*vectRow_PnpQueue_iterator)->PK_PnpQueue_get(), 
+											(*vectRow_PnpQueue_iterator)->From_get(), 
+											(*vectRow_PnpQueue_iterator)->Path_get());
+*/							}
+							break;
 						case Plug_And_Play::Pre:
 							//interrupted during pre
 							//TODO: rerun pre
@@ -594,8 +584,6 @@ void Plug_And_Play::CheckQueue()
 							break;
 						case Plug_And_Play::Post:
 							//interrupted during post
-						case Plug_And_Play::PromptUser:
-							//interrupted during user action
 							//TODO: rerun post
 							break;
 						case Plug_And_Play::Done:
@@ -624,7 +612,7 @@ void Plug_And_Play::CheckQueue()
 		}
 	}
 	
-}
+}//void Plug_And_Play::CheckQueue()
 
 void Plug_And_Play::Pre_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
