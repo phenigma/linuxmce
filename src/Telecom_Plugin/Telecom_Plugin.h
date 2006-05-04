@@ -223,6 +223,8 @@ private:
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
 	bool VoIP_Problem( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
+	bool VoiceMailChanged( class Socket *pSocket, class Message *pMessage,
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
 													
 private:
     DeviceData_Router* find_AsteriskDevice();

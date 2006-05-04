@@ -178,6 +178,7 @@ bool Telecom_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::Hangup) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_PBX_Hangup_CONST);
 	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoIP_Problem) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_VoIP_Problem_Detected_CONST);
+	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoiceMailChanged) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Voice_Mail_Changed_CONST);
 	
     if (pthread_create(&displayThread, NULL, startDisplayThread, (void *) this))
     {
@@ -1608,4 +1609,34 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 			Sleep(200);		
 		}
 	}
+}
+
+bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	int userid = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Users_CONST].c_str());
+	string vmcount = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+	string::size_type pos=0;
+	int vm_new = atoi(StringUtils::Tokenize(vmcount," ",pos).c_str());
+	int vm_old = atoi(StringUtils::Tokenize(vmcount," ",pos).c_str());
+	string value_param = "0";
+	string text_param = "0";
+	if(vm_old != 0)
+	{
+		value_param = "1";
+		text_param = StringUtils::itos(vm_old);
+	}
+	if(vm_new != 0)
+	{	
+		value_param = "2";
+		text_param = StringUtils::itos(vm_new);		
+	}
+	
+	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,value_param,text_param,"vm"+StringUtils::itos(userid));
+		SendCommand(CMD_Set_Bound_Icon);
+	}
+
+	return true;	
 }
