@@ -389,7 +389,7 @@ void * startVoiceMailThread(void * Arg)
 {
     Asterisk *asterisk = (Asterisk *) Arg;
     g_pPlutoLogger->Write(LV_STATUS, "Started VoiceMail Thread");
-    std::map <int,int> users2vm;
+    std::map <int,std::string> users2vm;
 
     char buffer[1024];
     int seconds = 0;
@@ -410,7 +410,8 @@ void * startVoiceMailThread(void * Arg)
                     stat(buffer,&statbuf);
                     if((S_ISDIR(statbuf.st_mode)) && (dirent1->d_name[0] != '.'))
                     {
-                        int vmcount=0;
+                        int vm_new_count=0;
+                        int vm_old_count=0;						
                         int exten=atoi(dirent1->d_name);
                         strcat(buffer,"/INBOX/");
                         DIR * dir2=opendir(buffer);
@@ -419,22 +420,37 @@ void * startVoiceMailThread(void * Arg)
                             struct dirent *dirent2 = NULL;
                             while((dirent2 = readdir(dir2)))
                             {
-                                if(strstr(dirent2->d_name,".gsm"))
+                                if(strstr(dirent2->d_name,".wav"))
                                 {
-                                    vmcount++;
+                                    vm_new_count++;
                                 }
                             }
                             closedir(dir2);
                         }
-                        g_pPlutoLogger->Write(LV_STATUS, "Found %d voicemails for user %d (ext %d)",vmcount,ext2user[exten],exten);
-                        if((vmcount != users2vm[exten]) && (ext2user[exten] != 0))
+                        strcat(buffer,"Old/");
+                        dir2=opendir(buffer);
+                        if(dir2)
+                        {
+                            struct dirent *dirent2 = NULL;
+                            while((dirent2 = readdir(dir2)))
+                            {
+                                if(strstr(dirent2->d_name,".wav"))
+                                {
+                                    vm_old_count++;
+                                }
+                            }
+                            closedir(dir2);
+                        }
+                        g_pPlutoLogger->Write(LV_STATUS, "Found voicemail for user %d (ext %d) new:%d, old:%d",ext2user[exten],exten,vm_new_count,vm_old_count);
+						std::string joined_values=StringUtils::itos(vm_new_count)+string(" ")+StringUtils::itos(vm_old_count);
+                        if((joined_values != users2vm[exten]) && (ext2user[exten] != 0))
                         {
                             g_pPlutoLogger->Write(LV_STATUS, "Will send an event that user voicemail count has changed");
                             Message *msg=new Message(asterisk->GetData()->m_dwPK_Device, DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Voice_Mail_Changed_CONST,0);
                             msg->m_mapParameters[EVENTPARAMETER_PK_Users_CONST] = StringUtils::itos(ext2user[exten]);
-                            msg->m_mapParameters[EVENTPARAMETER_Value_CONST] = StringUtils::itos(vmcount);
+                            msg->m_mapParameters[EVENTPARAMETER_Value_CONST] = joined_values;
                             asterisk->GetEvents()->SendMessage(msg);
-                            users2vm[exten]=vmcount;
+                            users2vm[exten]=joined_values;
                         }
                     }
                 }
