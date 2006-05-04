@@ -201,6 +201,10 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DevicesOfCategory)), 
 		DATAGRID_Devices_Of_Category_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVWhatDelay)), 
+		DATAGRID_TVWhatDelays_CONST,PK_DeviceTemplate_get());
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1169,6 +1173,55 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 			pDataGrid->SetData(0, iRow++, pCell );
 		}
 	}
+
+	return pDataGrid;
+}
+
+class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	string sql = "SELECT IR_PowerDelay,IR_ModeDelay,DigitDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='" + 
+		StringUtils::ltos(1797) + "'";
+	g_pPlutoLogger->Write( LV_STATUS , "AVWhatDelay grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string header[]={ 
+		"Number of seconds to wait for the device to warm up after sending a code to turn the power on",
+		"Number of seconds to wait before sending other codes after changing inputs or modes on this device ",
+		"Number of seconds* between commands (up to 3 decimal places) when sending a series of codes, such as a sequence of digits to tune to a channel"};
+	int nRow;
+	char aux[20];
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		if( (row = mysql_fetch_row( result.r )) )
+		{
+			for(nRow=0;nRow<3;nRow++)
+			{
+				g_pPlutoLogger->Write( LV_STATUS , "Read AVWhatDelay grid" );
+				g_pPlutoLogger->Write( LV_STATUS , row[nRow] );
+
+				pCell = new DataGridCell(row[nRow], itoa(nRow,aux,10));
+				pDataGrid->SetData(1, nRow, pCell );
+			}
+
+			for(nRow=0;nRow<3;nRow++)
+			{
+				pCell = new DataGridCell(header[nRow], itoa(nRow,aux,10));
+				pDataGrid->SetData(0, nRow, pCell );
+			}
+		}
+		else
+			g_pPlutoLogger->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
+	}
+	else
+		g_pPlutoLogger->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
 
 	return pDataGrid;
 }

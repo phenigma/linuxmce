@@ -27,6 +27,10 @@ private:
 	string GetDeviceStatus(long nPK_Device);
 	deque< pair<int,string> > m_dequeNumLights;
 
+	string m_ManufacturerName;
+	string m_AVTemplateName;
+	long m_nPKAVTemplate;
+
 protected:
 	class Orbiter *m_pOrbiter;
 	class UserUtils *m_pUserUtils;
@@ -73,6 +77,14 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
+	void SetManufacturer(string name){ m_ManufacturerName = name; }
+	void SetAVTemplateName(string name){ m_AVTemplateName = name; }
+	void SetPKAVTemplate(long PKTemplate){ m_nPKAVTemplate = PKTemplate; }
+	long GetPKAVTemplate(){ return m_nPKAVTemplate; }
+
+	int AddAVDeviceTemplate();
+	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay,int PKAVTemplate);
+
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
 	void AddExternalTuner(int PK_Device_Tuner);
@@ -92,6 +104,7 @@ public:
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}
 
+	bool ExistManufacturer(string name);
 	/*
 		ALARM PANEL
 	*/

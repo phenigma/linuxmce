@@ -101,6 +101,8 @@ public:
 	class DataGridTable *UsersGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *CountriesGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *DevicesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *AVWhatDelay( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);

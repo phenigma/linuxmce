@@ -345,6 +345,30 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 	return false;
 }
 
+int WizardLogic::AddAVDeviceTemplate()
+{
+	m_nPKAVTemplate = 1797;
+
+	string sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+//	result_set.r = mysql_query_result(sSQL);
+//	row = mysql_fetch_row(result_set.r);
+
+//	this->m_pMySQL;
+
+	return m_nPKAVTemplate;
+}
+
+void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay,
+										 int PKAVTemplate)
+{
+	string sSQL = "UPDATE DeviceTemplate_AV SET IR_PowerDelay=" + IR_PowerDelay + ",";
+	sSQL += "IR_ModeDelay=" + IR_ModeDelay + "," + "DigitDelay=" + DigitDelay + " ";
+	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(PKAVTemplate);
+	threaded_mysql_query(sSQL);
+}
+
 void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)
 {
 	string sSQL = "DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) +
@@ -401,6 +425,22 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
 			m_pOrbiter->SendCommand(CMD_Delete_Device,&sResponse);
 		}
+}
+
+bool WizardLogic::ExistManufacturer(string name)
+{
+	string sSQL = "SELECT * FROM Manufacturer WHERE Description='" + name + "'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) )
+	{
+		if( (row = mysql_fetch_row(result_set.r)) )
+			return true;
+		else
+			return false;
+	}
+
+	return false;
 }
 
 string WizardLogic::GetDeviceStatus(long nPK_Device)

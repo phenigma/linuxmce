@@ -53,6 +53,8 @@ public:
 	//7. AV Devices
 	virtual void SCREEN_AV_Devices(long PK_Screen);
 	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
+	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
+	virtual bool AV_Devices_DatagridSelected(CallBackData *pData);
 
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
@@ -85,6 +87,9 @@ public:
 	bool SpeedControlDelete(CallBackData *pData);
 	bool m_bSpeedControlCreated;
 	//NOTE: for refresh, see SpeedMouseHandler::Update
+
+	virtual void SCREEN_TVManufNotListed(long PK_Screen);
+	virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
 };
 
 #endif

@@ -27,6 +27,7 @@
 #include "PlutoUtils/DatabaseUtils.h"
 #include "../WizardLogic.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
+#include "DataGrid.h"
 
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
@@ -753,6 +754,7 @@ void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
+
 bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
@@ -856,6 +858,8 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 	return false;
 }
+
+
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
@@ -1649,3 +1653,181 @@ bool OSDScreenHandler::SpeedControlDelete( CallBackData *pData )
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
+void OSDScreenHandler::SCREEN_TVManufNotListed(long PK_Screen)
+{
+	ScreenHandler::SCREEN_TVManufNotListed(PK_Screen);
+
+	//TODO: register callback
+	RegisterCallBack(cbObjectSelected, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected,
+		new ObjectInfoBackData());
+	RegisterCallBack(cbCapturedKeyboardBufferChanged, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged,
+		new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_DatagridSelected, 
+		new DatagridCellBackData());
+}
+
+bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
+{
+	string sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+	string sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+	int nId = atoi(sId.c_str());
+
+	DesignObj_Orbiter *pObj;
+	DesignObj_DataGrid *pDatagridObj;
+	DataGridCell *pCell;
+
+	pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
+	if( NULL != pObj )
+	{
+		pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
+
+		if(NULL != pDatagridObj)
+		{
+				pCell = pDatagridObj->m_pDataGridTable->GetData(1, nId);
+				if( NULL != pCell )
+				{
+					sVal = pCell->GetText();
+					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				}
+		}
+	}
+	return false;
+}
+
+
+bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData)
+{
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVWhatDelays_CONST:
+		string sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+		string sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+		string sValues[3];
+		int id = atoi( sId.c_str() );
+
+		DesignObj_Orbiter *pObj;
+		DesignObj_DataGrid *pDatagridObj;
+		DataGridCell *pCell;
+
+		pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
+		if( NULL != pObj )
+		{
+			pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
+
+			if(NULL != pDatagridObj)
+			{
+				for(int i=0;i<3;i++)
+				{
+					pCell = pDatagridObj->m_pDataGridTable->GetData(1, i);
+					if( NULL != pCell )
+					{
+						sValues[i] = pCell->GetText();
+						PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+						m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = "100";
+					}
+				}
+			}
+		}
+
+		sValues[id] = sVal;
+		m_pWizardLogic->UpdateAVTemplateDelays( sValues[0], sValues[1], sValues[2], 1797);
+		m_pOrbiter->CMD_Refresh("*");
+	}
+	return false;
+}
+
+
+bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVManufNotListed_CONST:
+		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVModelNotListed_CONST )
+		{
+			PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+			map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
+			string manuf = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+
+			if( manuf.empty() )
+			{
+				m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
+                                 "Please specify a name for Manufacturer ", TEXT_STATUS_CONST);
+                return true;
+			}
+			
+			if( m_pWizardLogic->ExistManufacturer(manuf) )
+			{
+				m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
+                                 "Manufacturer " + manuf + " already exist", TEXT_STATUS_CONST);
+				return true;
+			}
+			else
+				m_pWizardLogic->SetManufacturer( manuf );
+		}
+		break;
+
+		case DESIGNOBJ_TVModelNotListed_CONST:
+		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVWhatDelays_CONST )
+		{
+			PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+			map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
+			string tvModel = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
+			int n_PKDeviceTemplate = 1797;
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+
+			if( tvModel == "" )
+			{
+				m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
+                                 "Please specify a model", TEXT_STATUS_CONST);
+                return true;
+			}
+			m_pWizardLogic->SetAVTemplateName( tvModel );
+			n_PKDeviceTemplate = m_pWizardLogic->AddAVDeviceTemplate();
+
+			DCE::CMD_InitAVDeviceTemplateSettings InitAVDeviceTemplateSettings( 
+			m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
+			n_PKDeviceTemplate );		
+			m_pOrbiter->SendCommand( InitAVDeviceTemplateSettings );
+		}
+		
+		
+		break;
+
+		case DESIGNOBJ_TVWhatDelays_CONST:
+		if( (pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVWhatDelays_CONST)
+		  || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgTVWhatDelays_CONST)
+		{
+			
+			//m_pOrbiter->CMD_Refresh("*");
+        }
+		break;
+
+		case DESIGNOBJ_TVHowToTune_CONST:
+			
+		break;
+
+		//Discret
+		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
+		break;
+
+		//Toggle
+		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
+		break;
+
+		//Ask
+		//case
+		//break;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+
