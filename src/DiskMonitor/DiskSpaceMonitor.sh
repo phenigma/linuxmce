@@ -19,6 +19,7 @@ Logging $TYPE $SEVERITY_NORMAL $module "Locking $module"
 touch $lock
 
 
+## Clean / filesystem
 function cleanRootFS { 
 	## Clean the apt cache 
 	# info : could fail if apt is running
@@ -26,6 +27,8 @@ function cleanRootFS {
 
 	return 0
 }
+
+## Clean /home filesystem
 function cleanHomeFS {
 	## Remove coredups if any
 	rm -rf /usr/pluto/coredump/* 
@@ -37,12 +40,13 @@ function cleanHomeFS {
 		
 		## Clean the apt cache
 		chroot $DisklessrRoot apt-get autoclean 2&>1 >/dev/null
-
-				
 	done
 
 	return 0
 }
+
+
+SystemFilesystemFull="false"
 
 ## Check system root partitions for free space (/)
 rootDevice=$( cat /etc/fstab  | awk '{ if ($2 == "/") { print $1 } }' )
@@ -50,7 +54,19 @@ dfOutput=$(df $rootDevice | grep -v "^Filesystem")
 rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 rootFree=$(echo $dfOutput | awk '{ print $4 }')
 if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
-	Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full !"
+	Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full, trying to clean quietly!"
+	cleanRootFS
+
+	dfOutput=$(df $rootDevice | grep -v "^Filesystem")
+	rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+	rootFree=$(echo $dfOutput | awk '{ print $4 }')
+
+	if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
+		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) was auto cleaned but there is still not much space left"
+		SystemFilesystemFull="true"
+	else
+		Logging $TYPE $SEVERITY_NORMAL $module "Filesyste ( / ) was auto cleaned and now looks ok"
+	fi
 fi
 
 ## Check system /home partition for free space (/home)
@@ -59,8 +75,24 @@ dfOutput=$(df $homeDevice | grep -v '^Filesystem')
 homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 homeFree=$(echo $dfOutput | awk '{ print $4 }')
 if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
-	Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full !"
-	
+	Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
+	cleanHomeFS
+
+	dfOutput=$(df $homeDevice | grep -v '^Filesystem')
+	homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+	homeFree=$(echo $dfOutput | awk '{ print $4 }')
+
+	if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
+		Logging $TYPE $SEVERITY_CRITICAL $module "Fielsystem ( /home ) wan auto cleaned but there is still no much space left"
+		SystemFilesystemFull="true"
+	else
+		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( /home ) was auto cleaned and looks ok now"
+	fi
+fi
+
+if [[ $SystemFilesystemFull == "true" ]]; then
+	# Triger the Low System Disk Space (64) event
+	/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 64
 fi
 
 ## Check Pluto Storage device for free space
