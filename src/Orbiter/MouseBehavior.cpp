@@ -505,7 +505,30 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 		m_EMenuOnScreen=mb_MediaControl;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("",213/*m_pOrbiter->m_iPK_Screen_Remote*/);
+
+		/*
+
+		//TODO: we have m_pOrbiter->m_iPK_Screen_Remote, but we need the screen id associated with
+		//this designobj!
+
+		int nPK_Screen = 0;
+		for(map<int, int>::iterator it = m_pOrbiter->m_mapDesignObj.begin();
+			it != m_pOrbiter->m_mapDesignObj.end();
+			++it)
+		{
+			if(it->second == m_pOrbiter->m_iPK_Screen_Remote)
+				nPK_Screen = it->first;
+		}
+
+		if(nPK_Screen)
+			m_pOrbiter->CMD_Goto_Screen("", nPK_Screen);
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior::ButtonDown: No screen associated with designobj %d",
+				m_pOrbiter->m_iPK_Screen_Remote);
+		*/
+
+		m_pOrbiter->CMD_Goto_Screen("", SCREEN_tempmnuspeed_CONST /*m_pOrbiter->m_iPK_Screen_Remote*/);
+			
 /*
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
 		pObj->m_rPosition.Width=964;
