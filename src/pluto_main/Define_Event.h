@@ -63,6 +63,7 @@
 #define EVENT_PnP_Pre_Config_Response_CONST 61
 #define EVENT_PnP_Do_Config_Response_CONST 62
 #define EVENT_PnP_Post_Config_Response_CONST 63
+#define EVENT_Low_System_Disk_Space_CONST 64
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
