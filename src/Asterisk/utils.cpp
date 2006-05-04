@@ -44,6 +44,9 @@ Utils::ParseChannel(const std::string channel,
 	if(pos < 0) {
 		pos = channel.find('|',oldpos);
 	}
+	if(pos < 0) {
+		return -1;
+	}
 	
 	if(psphone) {
 		*psphone = channel.substr(oldpos, pos - oldpos);

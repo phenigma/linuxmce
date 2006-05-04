@@ -52,7 +52,7 @@ bool Asterisk::GetConfig()
 Asterisk::~Asterisk()
 //<-dceag-dest-e->
 {
-    
+
 }
 
 //<-dceag-reg-b->
@@ -60,7 +60,7 @@ Asterisk::~Asterisk()
 bool Asterisk::Register()
 //<-dceag-reg-e->
 {
-    return Connect(PK_DeviceTemplate_get()); 
+    return Connect(PK_DeviceTemplate_get());
 }
 
 
@@ -82,9 +82,9 @@ bool Asterisk::Connect(int iPK_DeviceTemplate) {
 /*
     When you receive commands that are destined to one of your children,
     then if that child implements DCE then there will already be a separate class
-    created for the child that will get the message.  If the child does not, then you will 
-    get all    commands for your children in ReceivedCommandForChild, where 
-    pDeviceData_Base is the child device.  If you handle the message, you 
+    created for the child that will get the message.  If the child does not, then you will
+    get all    commands for your children in ReceivedCommandForChild, where
+    pDeviceData_Base is the child device.  If you handle the message, you
     should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
@@ -96,7 +96,7 @@ void Asterisk::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string 
 
 /*
     When you received a valid command, but it wasn't for one of your children,
-    then ReceivedUnknownCommand gets called.  If you handle the message, you 
+    then ReceivedUnknownCommand gets called.  If you handle the message, you
     should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -124,7 +124,7 @@ void Asterisk::SomeFunction()
     // commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
     // Examples:
-    
+
     // Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
     DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
     SendCommand(CMD_Simulate_Mouse_Click);
@@ -150,12 +150,12 @@ void Asterisk::SomeFunction()
     DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
     // This send command will wait for the destination device to respond since there is
     // an out parameter
-    SendCommand(CMD_Get_Signal_Strength);  
+    SendCommand(CMD_Get_Signal_Strength);
 
-    // This time we don't care about the out parameter.  We just want the command to 
+    // This time we don't care about the out parameter.  We just want the command to
     // get through, and don't want to wait for the round trip.  The out parameter, iValue,
     // will not get set
-    SendCommandNoResponse(CMD_Get_Signal_Strength);  
+    SendCommandNoResponse(CMD_Get_Signal_Strength);
 
     // This command has an out parameter of a data block.  Any parameter that is a binary
     // data block is a pair of int and char *
@@ -251,18 +251,18 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
         int pos = sPhoneCallID.find_first_not_of(' ');
         if(pos < 0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on empty channel ???");        
+            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on empty channel ???");
             return;
         }
         string stripped=sPhoneCallID.substr(pos,sPhoneCallID.length());
 		pos = stripped.find(' ');
         if(pos<0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on unconnected channel ???");        
+            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on unconnected channel ???");
             return;
 		}
 		string p1=stripped.substr(0, pos);
-		string p2=stripped.substr(pos+1,sPhoneCallID.length());		
+		string p2=stripped.substr(pos+1,sPhoneCallID.length());
 		string devext=string("/")+StringUtils::itos(dev2ext[pMessage->m_dwPK_Device_From]);
 		string rest=p1;
 		string hang=p2;
@@ -280,29 +280,64 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
     }
     else
     {
-        int pos1 = sPhoneCallID.find_first_not_of(' ');
-		if(pos1<0)
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty channel ???");
+		int pos = 0, oldpos = 0;
+		map<string,string> dev_channels;
+		string chan;
+		string sext;
+		string rest1;
+		string rest2;
+		do
+		{
+			pos = sPhoneCallID.find(' ',oldpos);
+			if(pos < 0)
+			{
+				chan = sPhoneCallID.substr(oldpos, sPhoneCallID.length());
+			}
+			else
+			{
+				if(pos==oldpos)
+				{
+					oldpos=pos+1;
+					continue;
+				}
+				chan = sPhoneCallID.substr(oldpos, pos - oldpos);
+			}
+			if(Utils::ParseChannel(chan,&sext,NULL,NULL)==0)
+			{
+				if(dev_channels.find(sext)==dev_channels.end())
+				{
+					dev_channels[sext] = chan;
+					if(rest1 == "")
+					{
+						rest1=chan;
+					}
+					else
+					{
+						if(rest2 == "")
+						{
+							rest2=chan;
+						}
+						else
+						{
+							g_pPlutoLogger->Write(LV_CRITICAL, "Can not join more than 2 channels !!!");
+						}
+					}
+				}
+			}
+			oldpos=pos+1;
+		}
+		while(pos>=0);
+
+		if((rest1=="") || (rest2==""))
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty/unconnected channels ???");
 			return;
-        }
-		int pos=sPhoneCallID.find(' ',pos1);
-        if(pos>=0)
-        {
-            string rest1 = sPhoneCallID;
-            string rest2 = sPhoneCallID;
-            rest1=sPhoneCallID.substr(pos1, pos-pos1);
-            rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
-            g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
-            manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
-			//This sleep should be enough, but it may depend on system load.
-			Sleep(500);
-            manager->Conference(rest2,"",sPhoneExtension,iCommandID);
-        }
-        else
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Conference on unconnected channels ???");
-        }
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
+		manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+		//This sleep should be enough, but it may depend on system load.
+		Sleep(500);
+		manager->Conference(rest2,"",sPhoneExtension,iCommandID);
     }
 }
 //<-dceag-c237-b->
@@ -321,7 +356,7 @@ void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Re
                                                 "PhoneCallID: %s"
                                                   "CommandID: %d"
                                                 , sPhoneCallID.c_str(), iCommandID);
-                                                    
+
     AsteriskManager *manager = AsteriskManager::getInstance();
     string rest = sPhoneCallID;
     std::stack<std::string> hangup_order;
@@ -346,7 +381,7 @@ void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Re
 //<-dceag-createinst-b->!
 //<-dceag-createinst-e->!
 
-#define VOICEMAIL_LOCATION "/var/lib/asterisk/sounds/voicemail/default/" 
+#define VOICEMAIL_LOCATION "/var/lib/asterisk/sounds/voicemail/default/"
 #define CHECK_PERIOD 60
 std::map <int,int> ext2user;
 
@@ -355,7 +390,7 @@ void * startVoiceMailThread(void * Arg)
     Asterisk *asterisk = (Asterisk *) Arg;
     g_pPlutoLogger->Write(LV_STATUS, "Started VoiceMail Thread");
     std::map <int,int> users2vm;
-    
+
     char buffer[1024];
     int seconds = 0;
 
@@ -425,7 +460,7 @@ void Asterisk::CreateChildren()
     {
         g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff1);
         return;
-    }    
+    }
     while((row = mysql_fetch_row(result_set.r)))
     {
         if(row[1])
@@ -438,7 +473,7 @@ void Asterisk::CreateChildren()
     {
         g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff2);
         return;
-    }    
+    }
     while((row = mysql_fetch_row(result_set.r)))
     {
         if(row[1])
@@ -446,7 +481,7 @@ void Asterisk::CreateChildren()
             dev2ext[atoi(row[0])] = atoi(row[1]);
         }
     }
-	
+
     if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");
