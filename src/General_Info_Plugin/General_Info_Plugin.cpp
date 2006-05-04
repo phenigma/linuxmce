@@ -208,6 +208,7 @@ bool General_Info_Plugin::Register()
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Gnereal_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -1593,6 +1594,14 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	m_pDatabase_pluto_main->Device_get()->Commit();
 	m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
 
+	return true;
+}
+
+bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{  
+	SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+			"You system is running low on disk space", "0", "0", "0");
+	SendCommand(SCREEN_DialogGenericNoButtons);
 	return true;
 }
 
