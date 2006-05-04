@@ -19,8 +19,30 @@ Logging $TYPE $SEVERITY_NORMAL $module "Locking $module"
 touch $lock
 
 
-function cleanRootFS { }
-function cleanHomeFS { }
+function cleanRootFS { 
+	## Clean the apt cache 
+	# info : could fail if apt is running
+	apt-get autoclean 2&>1 >/dev/null
+
+	return 0
+}
+function cleanHomeFS {
+	## Remove coredups if any
+	rm -rf /usr/pluto/coredump/* 
+
+	## If we are on core, the diskless path is also in /home
+	for DisklessRoot in /home/pluto/diskless/* ;do
+		## Clean the coredumps
+		rm -rf $DisklessRoot/usr/pluto/coredump/*
+		
+		## Clean the apt cache
+		chroot $DisklessrRoot apt-get autoclean 2&>1 >/dev/null
+
+				
+	done
+
+	return 0
+}
 
 ## Check system root partitions for free space (/)
 rootDevice=$( cat /etc/fstab  | awk '{ if ($2 == "/") { print $1 } }' )
@@ -79,7 +101,7 @@ for Device in $StorageDevices; do
 	Device_DiskUsed=$(echo $dfOutput | awk '{ print $5 }' | cut -d"%" -f1)
 	Device_DiskFree=$(echo $dfOutput | awk '{ print $4 }')
 
-	## FIXME: Add code to notofy someone about free space
+	## FIXME: Add code to notify someone about free space
 	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) is $Device_DiskUsed%% full having $(($Device_DiskFree / 1024))MB free"
 done
 
