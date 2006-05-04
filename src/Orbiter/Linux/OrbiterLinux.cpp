@@ -93,8 +93,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
 {
     openDisplay();
-	m_pMouseBehavior = new MouseBehavior_Linux(this);
-
     m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
     m_nProgressWidth = 400;
@@ -286,7 +284,9 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     string sWindowName = m_WinListManager.GetExternApplicationName();
     PlutoRectangle rectTotal;
     m_WinListManager.GetExternApplicationPosition(rectTotal);
+	g_pPlutoLogger->Write(LV_WARNING, "Is '%s' window available?", sWindowName.c_str());
     bool bIsWindowAvailable = m_WinListManager.IsWindowAvailable(sWindowName);
+	g_pPlutoLogger->Write(LV_WARNING, "==> %s", bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
     if (bIsWindowAvailable)
     {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
@@ -316,8 +316,11 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
 
     if(UsesUIVersion2())
+	{
+		m_pMouseBehavior = new MouseBehavior_Linux(this);
         m_pRecordHandler->enableRecording(this, true);
-
+	}
+	
     reinitGraphics();
     g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
     //GrabPointer(XServerDisplay);
