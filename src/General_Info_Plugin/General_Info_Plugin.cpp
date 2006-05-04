@@ -1599,7 +1599,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 
 bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {  
-	SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+	SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
 			"You system is running low on disk space", "0", "0", "0");
 	SendCommand(SCREEN_DialogGenericNoButtons);
 	return true;
