@@ -1,4 +1,4 @@
-/*      $Id: dump_config.c,v 5.16 2005/02/07 15:44:08 lirc Exp $      */
+/*      $Id: dump_config.c,v 5.18 2006/02/25 17:02:23 lirc Exp $      */
 
 /****************************************************************************
  ** dump_config.c ***********************************************************
@@ -45,7 +45,7 @@ void fprint_comment(FILE *f,struct ir_remote *rem)
 		"# brand:                       %s\n"
 		"# model no. of remote control: \n"
 		"# devices being controlled by this remote:\n"
-		"#\n\n",VERSION,LIRC_DRIVER,asctime(tmp),
+		"#\n\n",VERSION,hw.name,asctime(tmp),
 		rem->name);
 }
 
@@ -169,6 +169,11 @@ void fprint_remote_head(FILE *f, struct ir_remote *rem)
 		if(rem->min_repeat>0)
 		{
 			fprintf(f, "  min_repeat      %d\n",rem->min_repeat);
+		}
+		if(rem->min_code_repeat>0)
+		{
+			fprintf(f, "  min_code_repeat %d\n",
+				rem->min_code_repeat);
 		}
 		fprintf(f, "  toggle_bit      %d\n\n",rem->toggle_bit);
 		if(has_toggle_mask(rem))

@@ -31,49 +31,6 @@
 
 <!-- Text ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-<H1>XMODE2</H1>
-<HR>
-
-<A NAME="lbAB">&nbsp;</A>
-<H2>NAME</H2>
-
-mode2, smode2, xmode2 - shows the pulse/space length of infrared signals
-<A NAME="lbAC">&nbsp;</A>
-<H2>SYNOPSIS</H2>
-
-<B>xmode2</B>
-
-[<I>options</I>]
-<A NAME="lbAD">&nbsp;</A>
-<H2>DESCRIPTION</H2>
-
-The main purpose of these programs is to check operation of your
-home-brew LIRC receiver hardware and to see the IR waveform of the
-remote controller without an expensive oscilloscope. Very useful for
-debugging. Of course this program won't work with hardware that decodes
-the signals itself like e.g. TV cards or the Irman.
-<P>
-<P>
-xmode2 is based on smode2 by Sinkovics Zoltan. It is just a conversion
-from svga to X with some basic support for resizing. The only
-differences are that the --mode option enables an alternative display
-mode and that xmode2 can read and visualise mode2 output from stdin.
-<DL COMPACT>
-<DT><B>-h</B> <B>--help</B><DD>
-display usage summary
-<DT><B>-v</B> <B>--version</B><DD>
-display version
-<DT><B>-d</B> <B>--device</B>=<I>device</I><DD>
-read from given device
-<DT>
-
-<B>-g</B> <B>--geometry</B>=<I>geometry</I> window geometry
-<DT><B>-t</B> <B>--timediv</B>=<I>value</I><DD>
-<DD>ms per unit
-<DT><B>-m</B> <B>--mode</B><DD>
-enable alternative display mode
-</DL>
-<A NAME="lbAE">&nbsp;</A>
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 

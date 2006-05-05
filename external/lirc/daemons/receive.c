@@ -1,4 +1,4 @@
-/*      $Id: receive.c,v 5.29 2005/10/20 18:43:36 lirc Exp $      */
+/*      $Id: receive.c,v 5.31 2006/01/28 18:36:44 lirc Exp $      */
 
 /****************************************************************************
  ** receive.c ***************************************************************
@@ -492,6 +492,19 @@ inline int get_header(struct ir_remote *remote)
 		unget_rec_buffer(2);
 		return(0);
 	}
+	else if(is_bo(remote))
+	{
+		if(expectpulse(remote, remote->pone) &&
+		   expectspace(remote, remote->sone) &&
+		   expectpulse(remote, remote->pone) &&
+		   expectspace(remote, remote->sone) &&
+		   expectpulse(remote, remote->phead) &&
+		   expectspace(remote, remote->shead))
+		{
+			return 1;
+		}
+		return 0;
+	}
 	if(remote->shead==0)
 	{
 		if(!sync_pending_space(remote)) return 0;
@@ -898,6 +911,68 @@ ir_code get_data(struct ir_remote *remote,int bits,int done)
 		set_pending_space(0);
 		return code;
 	}
+	else if(is_bo(remote))
+	{
+		int lastbit = 1;
+		lirc_t deltap,deltas;
+		lirc_t pzero,szero;
+		lirc_t pone,sone;
+		
+		for(i=0; i<bits; i++)
+		{
+			code<<=1;
+			deltap=get_next_pulse(remote->pzero+remote->pone+
+					      remote->ptwo+remote->pthree);
+			deltas=get_next_space(remote->szero+remote->sone+
+					      remote->stwo+remote->sthree);
+			if(deltap==0 || deltas==0) 
+			{
+				logprintf(LOG_ERR,"failed on bit %d",
+					  done+i+1);
+				return((ir_code) -1);
+			}
+			if(lastbit == 1)
+			{
+				pzero = remote->pone;
+				szero = remote->sone;
+				pone = remote->ptwo;
+				sone = remote->stwo;
+			}
+			else
+			{
+				pzero = remote->ptwo;
+				szero = remote->stwo;
+				pone = remote->pthree;
+				sone = remote->sthree;
+			}
+			LOGPRINTF(5, "%lu %lu %lu %lu", pzero, szero, pone, sone);
+			if(expect(remote, deltap, pzero))
+			{
+				if(expect(remote, deltas, szero))
+				{
+					code|=0;
+					lastbit=0;
+					LOGPRINTF(2,"0");
+					continue;
+				}
+			}
+			
+			if(expect(remote, deltap, pone))
+			{
+				if(expect(remote, deltas, sone))
+				{
+					code|=1;
+					lastbit=1;
+					LOGPRINTF(2,"1");
+					continue;
+				}
+			}
+			logprintf(LOG_ERR,"failed on bit %d",
+				  done+i+1);
+			return((ir_code) -1);
+		}
+		return code;
+	}
 	
 	for(i=0;i<bits;i++)
 	{
@@ -1258,7 +1333,7 @@ int receive_decode(struct ir_remote *remote,
 		} /* end of mode specific code */
 	}
 	*prep=pre;*codep=code;*postp=post;
-	if(!has_repeat(remote) &&
+	if((!has_repeat(remote) || remote->reps<remote->min_code_repeat) &&
 	   expect_at_most(remote, sync, remote->remaining_gap))
 		*repeat_flagp=1;
 	else

@@ -31,60 +31,6 @@
 
 <!-- Text ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-<H1>IRCAT</H1>
-<HR>
-
-<A NAME="lbAB">&nbsp;</A>
-<H2>NAME</H2>
-
-ircat - print strings when pressing buttons
-<A NAME="lbAC">&nbsp;</A>
-<H2>SYNOPSIS</H2>
-
-<B>ircat</B>
-
-[<I>options</I>] <I>&lt;prog&gt;</I>
-<A NAME="lbAD">&nbsp;</A>
-<H2>DESCRIPTION</H2>
-
-This program prints config strings to standard output. It can be used 
-to provide remote control input to scripts and to debug your .lircrc 
-file.
-<P>
-The argument to the program is the program name, as it
-appears in the prog entries in .lircrc.
-<DL COMPACT>
-<DT><B>-h</B> <B>--help</B><DD>
-display usage summary
-<DT><B>-v</B> <B>--version</B><DD>
-display version
-<DT><B>-c</B> <B>--config=</B>&lt;file&gt;<DD>
-set config file
-</DL>
-<A NAME="lbAE">&nbsp;</A>
-<H2>EXAMPLES</H2>
-
-If .lircrc contains:
-<P>
-<PRE>
-begin
-        prog = myprog
-        button = tv_p+
-        config = next_file
-end
-</PRE>
-
-<P>
-then
-<BR>&nbsp;
-<PRE>
-$ ircat myprog
-</PRE>
-
-<P>
-will print &quot;next_file&quot; (followed by newline) every time the
-button tv_p+ is pressed.
-<A NAME="lbAF">&nbsp;</A>
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 

@@ -1,4 +1,4 @@
-/*      $Id: lircd.c,v 5.61 2005/10/30 11:11:46 lirc Exp $      */
+/*      $Id: lircd.c,v 5.63 2006/02/28 21:24:18 lirc Exp $      */
 
 /****************************************************************************
  ** lircd.c *****************************************************************
@@ -55,6 +55,10 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <sys/file.h>
+
+#if defined __APPLE__
+#include <sys/ioccom.h>
+#endif
 
 #ifndef timersub
 #define timersub(a, b, result)                                            \
@@ -139,16 +143,18 @@ char hostname[HOSTNAME_LEN+1];
 FILE *lf=NULL;
 #endif
 
-/* fixme: */
+/* quite arbitrary limits */
 #define MAX_PEERS	100
+/* substract one for lirc, sockfd, sockinet, logfile, pidfile */
+#define MAX_CLIENTS     (FD_SETSIZE-5-MAX_PEERS)
 
 int sockfd, sockinet;
-int clis[FD_SETSIZE-5-MAX_PEERS]; /* substract one for lirc, sockfd, sockinet, logfile, pidfile */
+int clis[MAX_CLIENTS];
 
 #define CT_LOCAL  1
 #define CT_REMOTE 2
 
-int cli_type[FD_SETSIZE-5-MAX_PEERS];
+int cli_type[MAX_CLIENTS];
 int clin=0;
 
 int listen_tcpip=0;
@@ -467,7 +473,7 @@ void add_client(int sock)
 		dosigterm(SIGTERM);
 	};
 
-	if(fd>=FD_SETSIZE)
+	if(fd>=FD_SETSIZE || clin>=MAX_CLIENTS)
 	{
 		logprintf(LOG_ERR,"connection rejected");
 		shutdown(fd,2);

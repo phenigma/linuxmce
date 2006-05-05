@@ -1,0 +1,47 @@
+<H1>IRRECORD</H1>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+irrecord - application for recording IR-codes for usage with LIRC
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>irrecord</B>
+
+[<I>options</I>] <I>file</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This program will record the signals from your remote control and create
+a config file for lircd. A proper config file for lircd is maybe the
+most vital part of this package, so you should invest some time to
+create a working config file. Although I put a good deal of effort in
+this program it is often not possible to automatically recognize all
+features of a remote control.
+<P>
+If the program fails to recognize the protocol of the remote control you
+should use the --force option to at least create a config file in raw mode.
+<P>
+If <I>file</I> already exists and contains a valid config irrecord will use the
+protocol description found there and will only try to record the
+buttons. This is very useful if you want to learn a remote where config
+files of the same brand are already available. Of course this will only
+work if the remotes use the same protocol but it's worth a try. You will
+find template files for the most common protocols in the
+remotes/generic/ directory of this package. The name of the new file is
+created by appending .conf to the given filename in this case.
+<DL COMPACT>
+<DT><B>-h</B> <B>--help</B><DD>
+display this message
+<DT><B>-v</B> <B>--version</B><DD>
+display version
+<DT><B>-f</B> <B>--force</B><DD>
+force raw mode
+<DT><B>-H</B> <B>--driver</B>=<I>driver</I><DD>
+use given driver
+<DT><B>-d</B> <B>--device</B>=<I>device</I><DD>
+read from given device
+</DL>
+<A NAME="lbAE">&nbsp;</A>

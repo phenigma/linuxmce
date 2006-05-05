@@ -1,9 +1,15 @@
-/*      $Id: kcompat.h,v 5.24 2006/01/07 20:51:31 lirc Exp $      */
+/*      $Id: kcompat.h,v 5.26 2006/03/04 23:16:02 lirc Exp $      */
 
 #ifndef _KCOMPAT_H
 #define _KCOMPAT_H
 
 #include <linux/version.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,16)
+#define LIRC_THIS_MODULE(x) x,
+#else /* >= 2.6.16 */
+#define LIRC_THIS_MODULE(x)
+#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 
@@ -243,6 +249,11 @@ static inline char *pci_name(struct pci_dev *pdev)
 /* removed in 2.6.14 */
 #ifndef I2C_ALGO_BIT
 #   define I2C_ALGO_BIT 0
+#endif
+
+/* removed in 2.6.16 */
+#ifndef I2C_DRIVERID_EXP3
+#  define I2C_DRIVERID_EXP3 0xf003
 #endif
 
 /*************************** USB specific *****************************/

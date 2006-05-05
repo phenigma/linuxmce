@@ -1,0 +1,40 @@
+<H1>MODE2</H1>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+mode2, smode2, xmode2 - shows the pulse/space length of infrared signals
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>smode2</B>
+
+[<I>options</I>]
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+The main purpose of these programs is to check operation of your
+home-brew LIRC receiver hardware and to see the IR waveform of the
+remote controller without an expensive oscilloscope. Very useful for
+debugging. Of course this program won't work with hardware that decodes
+the signals itself like e.g. TV cards or the Irman.
+<P>
+<P>
+smode2 uses the svgalib to show the IR waveform in a graphical
+representation. The time division is variable from 1 ms/unit to
+extremely high values (integer type) but there is no point increasing
+this value above 20 ms/unit, because one pulse is about 1 ms. This kind
+of presentation is much more exciting than the simple pulse&amp;space output
+showed by mode2.
+<DL COMPACT>
+<DT><B>-h</B> <B>--help</B><DD>
+display usage summary
+<DT><B>-v</B> <B>--version</B><DD>
+display version
+<DT><B>-d</B> <B>--device</B>=<I>device</I><DD>
+read from given device
+<DT><B>-t</B> <B>--timediv</B>=<I>value</I><DD>
+ms per unit
+</DL>
+<A NAME="lbAE">&nbsp;</A>

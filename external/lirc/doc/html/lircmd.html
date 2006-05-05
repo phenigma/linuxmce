@@ -31,57 +31,6 @@
 
 <!-- Text ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-<H1>LIRCMD</H1>
-<HR>
-
-<A NAME="lbAB">&nbsp;</A>
-<H2>NAME</H2>
-
-LIRC mouse daemon - translates infrared signals into mouse events
-<A NAME="lbAC">&nbsp;</A>
-<H2>SYNOPSIS</H2>
-
-<B>lircmd</B>
-
-[<I>options</I>] [<I>config-file</I>]
-<A NAME="lbAD">&nbsp;</A>
-<H2>DESCRIPTION</H2>
-
-This daemon can simulate a MouseSystems, IntelliMouse or IMPS/2 type mouse. It
-gets the received buttons from lircd and converts them to mouse events. To
-make this possible, lircmd needs a config file located
-in /etc/lircmd.conf. In this file you have to determine which
-button from which remote causes a mouse move or a mouse button click.
-<DL COMPACT>
-<DT><B>-h</B> <B>--help</B><DD>
-display this message
-<DT><B>-v</B> <B>--version</B><DD>
-display version
-<DT><B>-n</B> <B>--nodaemon</B><DD>
-don't fork to background
-</DL>
-<A NAME="lbAE">&nbsp;</A>
-<H2>OPTIONS</H2>
-
-If you provide the --nodaemon option lircmd won't fork to background.
-<A NAME="lbAF">&nbsp;</A>
-<H2>FILES</H2>
-
-lircmd will use syslogd to output error messages. It depends on your
-system configuration where they will show up.
-<A NAME="lbAG">&nbsp;</A>
-<H2>DAEMONS</H2>
-
-lircd and lircmd are daemons. You should start them in some init script
-depending on your system. There are some example scripts for different
-distributions in the contrib directory. lircmd has to be started after
-lircd as it connects to the socket lircd provides.
-<P>
-If you start lircd or lircmd from your shell prompt you will usually get
-back immediately to the prompt. Often people think that the program has
-died. But this is not an error. lircd and lircmd are daemons. Daemons
-always run in background.
-<A NAME="lbAH">&nbsp;</A>
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 

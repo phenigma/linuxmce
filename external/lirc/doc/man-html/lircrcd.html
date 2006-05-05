@@ -1,0 +1,61 @@
+<H1>LIRCRC</H1>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+lircrc daemon - handle consistent .lircrc state among client applications
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>lircrcd</B>
+
+[<I>options</I>] <I>config-file</I>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<B>lircrcd</B>
+
+reads the given .lircrc config file and synchronises the mode
+that the LIRC clients using this config file (<B><A HREF="/cgi-bin/man/man2html?1+irexec">irexec</A></B>(1),
+<B><A HREF="/cgi-bin/man/man2html?1+irxevent">irxevent</A></B>(1) , etc.) are in. Using 
+<B>lircrcd</B>
+
+has to be explicitly
+enabled in the config file by adding the following line at the
+beginning of the file:
+<BR>
+
+#! lircrcd
+<DL COMPACT>
+<DT><B>-h</B> <B>--help</B><DD>
+display this message
+<DT><B>-v</B> <B>--version</B><DD>
+display version
+<DT><B>-p</B> <B>--permission</B>=<I>mode</I><DD>
+file permissions for socket
+<DT><B>-o</B> <B>--output</B>=<I>socket</I><DD>
+output socket filename
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-p,&nbsp;--premission=</B><I>mode</I>
+
+<DD>
+The --permission option gives the file permission of the Unix domain
+socket lircrcd creates on startup in octal representation. Read the
+documentation for chmod for further details. If no --permission option
+is given when the socket is created the default is to give only the
+user owning the file read and write permissions (0600 in octal
+representation).
+<DT><B>-o,&nbsp;--output=</B><I>socket</I>
+
+<DD>
+With the --output option you can select the Unix domain socket, which
+lircrcd will create. The default is to append a &quot;d&quot; character to the
+config filename given.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
