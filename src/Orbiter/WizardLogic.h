@@ -27,9 +27,10 @@ private:
 	string GetDeviceStatus(long nPK_Device);
 	deque< pair<int,string> > m_dequeNumLights;
 
-	string m_ManufacturerName;
-	string m_AVTemplateName;
-	long m_nPKAVTemplate;
+	string m_ManufacturerName, m_AVTemplateName;
+	string m_AVTemplateNumericEntry;
+	bool m_bAVTemplateTogglePower;
+	long m_nPKAVTemplate, m_nPKManufacuter;
 
 protected:
 	class Orbiter *m_pOrbiter;
@@ -79,11 +80,20 @@ public:
 	*/
 	void SetManufacturer(string name){ m_ManufacturerName = name; }
 	void SetAVTemplateName(string name){ m_AVTemplateName = name; }
+
+	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
+	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }
+
+	void SetAVTemplateNumericEntry(string value){ m_AVTemplateNumericEntry = value; }
+
 	void SetPKAVTemplate(long PKTemplate){ m_nPKAVTemplate = PKTemplate; }
 	long GetPKAVTemplate(){ return m_nPKAVTemplate; }
 
 	int AddAVDeviceTemplate();
-	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay,int PKAVTemplate);
+	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
+	void UpdateAVTemplateSettings();
+	// return value 0 none,1 toggle,2 discret
+	int AVTemplateIRCode();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);

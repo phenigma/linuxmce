@@ -8781,6 +8781,126 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_TVConfirmInputsDiscrete : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsDiscrete(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "215" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsDiscrete_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsDiscrete_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "215" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsDiscrete_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsDiscrete_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "215" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsDiscrete_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsDiscrete_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "215" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsToggle : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsToggle(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "216" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsToggle_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsToggle_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "216" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsToggle_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsToggle_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "216" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVConfirmInputsToggle_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVConfirmInputsToggle_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "216" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVOnOffCodes : public PreformedCommand
+	{
+	public:
+		SCREEN_TVOnOffCodes(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "217" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVOnOffCodes_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVOnOffCodes_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "217" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVOnOffCodes_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVOnOffCodes_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "217" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVOnOffCodes_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVOnOffCodes_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "217" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9017,6 +9137,9 @@ namespace DCE
 		virtual void SCREEN_tempmnuambiance(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_tempmnuspeed(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVManufNotListed(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVConfirmInputsDiscrete(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVConfirmInputsToggle(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVOnOffCodes(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10150,6 +10273,21 @@ namespace DCE
 				case 214:
 				{
 					SCREEN_TVManufNotListed(nPK_Screen);
+					break;
+				}
+				case 215:
+				{
+					SCREEN_TVConfirmInputsDiscrete(nPK_Screen);
+					break;
+				}
+				case 216:
+				{
+					SCREEN_TVConfirmInputsToggle(nPK_Screen);
+					break;
+				}
+				case 217:
+				{
+					SCREEN_TVOnOffCodes(nPK_Screen);
 					break;
 				}
 

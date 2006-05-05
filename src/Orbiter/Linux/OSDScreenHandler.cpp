@@ -1745,7 +1745,7 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 				{
 					sVal = pCell->GetText();
 					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = sVal;
 				}
 		}
 	}
@@ -1755,14 +1755,14 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 
 bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData)
 {
-	switch(GetCurrentScreen_PK_DesignObj())
+	string sEditVal, sSelectedId;
+	sEditVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+	sSelectedId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+	int nSelectedId = atoi( sSelectedId.c_str() );
+
+	switch( GetCurrentScreen_PK_DesignObj() )
 	{
 		case DESIGNOBJ_TVWhatDelays_CONST:
-		string sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-		string sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
-		string sValues[3];
-		int id = atoi( sId.c_str() );
-
 		DesignObj_Orbiter *pObj;
 		DesignObj_DataGrid *pDatagridObj;
 		DataGridCell *pCell;
@@ -1771,26 +1771,34 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 		if( NULL != pObj )
 		{
 			pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
+			string sValues[3];
 
 			if(NULL != pDatagridObj)
 			{
 				for(int i=0;i<3;i++)
 				{
+					if( !pDatagridObj->m_pDataGridTable )
+						return false;
 					pCell = pDatagridObj->m_pDataGridTable->GetData(1, i);
 					if( NULL != pCell )
 					{
 						sValues[i] = pCell->GetText();
 						PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-						m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = "100";
+						//m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = "100";
 					}
 				}
 			}
+			sValues[nSelectedId] = sEditVal;
+			m_pWizardLogic->UpdateAVTemplateDelays( sValues[0], sValues[1], sValues[2]);
+			m_pOrbiter->CMD_Refresh("*");
 		}
+		break;
 
-		sValues[id] = sVal;
-		m_pWizardLogic->UpdateAVTemplateDelays( sValues[0], sValues[1], sValues[2], 1797);
-		m_pOrbiter->CMD_Refresh("*");
+		case DESIGNOBJ_TVHowToTune_CONST:
+			m_pWizardLogic->SetAVTemplateNumericEntry( sEditVal );
+		break;
 	}
+
 	return false;
 }
 
@@ -1833,7 +1841,6 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 			PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 			map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
 			string tvModel = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
-			int n_PKDeviceTemplate = 1797;
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
 			if( tvModel == "" )
@@ -1843,28 +1850,51 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
                 return true;
 			}
 			m_pWizardLogic->SetAVTemplateName( tvModel );
-			n_PKDeviceTemplate = m_pWizardLogic->AddAVDeviceTemplate();
-
-			DCE::CMD_InitAVDeviceTemplateSettings InitAVDeviceTemplateSettings( 
-			m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
-			n_PKDeviceTemplate );		
-			m_pOrbiter->SendCommand( InitAVDeviceTemplateSettings );
+			int nPK = m_pWizardLogic->AddAVDeviceTemplate();
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos( nPK ));
 		}
-		
-		
 		break;
 
 		case DESIGNOBJ_TVWhatDelays_CONST:
 		if( (pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVWhatDelays_CONST)
 		  || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgTVWhatDelays_CONST)
 		{
-			
-			//m_pOrbiter->CMD_Refresh("*");
         }
 		break;
 
 		case DESIGNOBJ_TVHowToTune_CONST:
-			
+				switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+				{
+				case DESIGNOBJ_butHowToTuneYes_CONST:
+					m_pWizardLogic->SetAVTemplateTogglePower( true );
+				break;
+
+				case DESIGNOBJ_butHowToTuneNo_CONST:
+					m_pWizardLogic->SetAVTemplateTogglePower( false );
+				break;
+
+				case DESIGNOBJ_butSQLOnOffCodes_CONST:
+					m_pWizardLogic->UpdateAVTemplateSettings();
+					switch( m_pWizardLogic->AVTemplateIRCode() )
+					{
+						//Unknow
+						case 0:
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
+						break;
+
+						//Toggle
+						case 1:
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsToggle_CONST );
+						break;
+
+						//Discret
+						case 2:
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsDiscrete_CONST );
+						break;
+					}	
+				return false;
+				break;
+				}
 		break;
 
 		//Discret

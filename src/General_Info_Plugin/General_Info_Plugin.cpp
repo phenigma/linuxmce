@@ -1184,11 +1184,13 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 	string::size_type pos = 0;
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
+	string sPKTemplate = Parms;
 
 	string sql = "SELECT IR_PowerDelay,IR_ModeDelay,DigitDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='" + 
-		StringUtils::ltos(1797) + "'";
+		sPKTemplate + "'";
 	g_pPlutoLogger->Write( LV_STATUS , "AVWhatDelay grid sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	g_pPlutoLogger->Write( LV_STATUS , sValue_To_Assign->c_str() );
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;

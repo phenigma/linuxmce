@@ -347,26 +347,57 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 
 int WizardLogic::AddAVDeviceTemplate()
 {
-	m_nPKAVTemplate = 1797;
-
 	string sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
-	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-//	result_set.r = mysql_query_result(sSQL);
-//	row = mysql_fetch_row(result_set.r);
+	m_nPKManufacuter = threaded_mysql_query_withID(sSQL);
+	
+	sSQL = string("INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,IRFrequency ,FK_CommMethod) VALUES('") +\
+		 m_AVTemplateName + "'," + "77" + "," + StringUtils::itos(m_nPKManufacuter) + "," + "NULL" + "," + "1" + ")"; 
+	m_nPKAVTemplate = threaded_mysql_query_withID(sSQL);
 
-//	this->m_pMySQL;
-
+	sSQL = string("INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,IR_PowerDelay,IR_ModeDelay,DigitDelay) VALUES(") + \
+		StringUtils::itos(m_nPKAVTemplate) + "," + "2" + "," + "7" + "," + "250" + ")";
+	threaded_mysql_query(sSQL);
 	return m_nPKAVTemplate;
 }
 
-void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay,
-										 int PKAVTemplate)
+void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay)
 {
 	string sSQL = "UPDATE DeviceTemplate_AV SET IR_PowerDelay=" + IR_PowerDelay + ",";
 	sSQL += "IR_ModeDelay=" + IR_ModeDelay + "," + "DigitDelay=" + DigitDelay + " ";
-	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(PKAVTemplate);
+	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(m_nPKAVTemplate);
 	threaded_mysql_query(sSQL);
+}
+
+void WizardLogic::UpdateAVTemplateSettings()
+{
+	string sSQL = string("UPDATE DeviceTemplate_AV SET TogglePower=") + 
+		(m_bAVTemplateTogglePower ? "1" : "0") + "," += "NumericEntry=" + m_AVTemplateNumericEntry + " ";
+	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(m_nPKAVTemplate);
+	threaded_mysql_query(sSQL);
+}
+
+int WizardLogic::AVTemplateIRCode()
+{
+	string sSQL = "SELECT FK_Command,FK_DeviceTemplate,IRData FROM InfraredGroup_Command WHERE FK_DeviceTemplate=" +\
+		StringUtils::ltos( m_nPKAVTemplate );
+	int nCommandId , nReadRow = 0;
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	if( (result.r = mysql_query_result(sSQL))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			nCommandId = atoi( row[0] );
+			nReadRow++;
+		}
+	}
+
+	if( nReadRow )
+		return 0;
+	else 
+		return 1;
 }
 
 void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)
