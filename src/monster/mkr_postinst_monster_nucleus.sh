@@ -42,3 +42,6 @@ popd
 
 rm -f /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
 rm -rf /tmp/cisco
+
+# monster web skin
+sed -i "s/_SESSION\\['skin'\\]=.;/_SESSION\\['skin'\\]=1;/" /var/www/pluto-admin/include/config/config.inc.php
