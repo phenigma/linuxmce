@@ -1027,7 +1027,6 @@ m_bNoEffects = true;
 			if( o->size()>0 )
 			{
 				DesignObj_Generator *oco = o->front();
-
 				// Be sure that if this is location specific we have added for every location
 				if( oco->m_bLocationSpecific && StringUtils::EndsWith(itgs->first,".0") )
 				{

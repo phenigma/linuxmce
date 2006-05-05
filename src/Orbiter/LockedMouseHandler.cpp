@@ -9,7 +9,9 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Screen.h"
 #include "DataGrid.h"
+#include "ScreenHistory.h"
 
 using namespace DCE;
 
@@ -81,7 +83,10 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 		else
 		{
 			m_bActivatedObject = true;
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+			if( m_sOptions=="LS" )
+				ActivatedSubMenu();
+			else
+				m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
 			return true; // Don't process any more
 		}
 	}
@@ -99,6 +104,8 @@ bool LockedMouseHandler::ButtonUp(int PK_Button)
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 		if( m_sOptions[0]=='M' )
 			ActivatedMainMenuPad();
+		else if( m_sOptions=="LS" )
+			ActivatedSubMenu();
 		else if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
 		{
 			m_bActivatedObject = true;
@@ -243,3 +250,25 @@ bool LockedMouseHandler::MovedOutside(int PK_Direction)
 	return false;
 }
 
+void LockedMouseHandler::ActivatedSubMenu()
+{
+	// This is weird.  If we do a clear, we become deleted and invalid.  If we change screens, and that causes
+	// another set mouse behavior, we may also be deleted and become invalid.  So set the horizontal handler
+	// to NULL so we won't be deleted, but then delete ourselves when we're done
+	m_pMouseBehavior->m_cLocked_Axis_Current=m_pMouseBehavior->m_cLockedAxes==AXIS_LOCK_NONE;
+	delete m_pMouseBehavior->m_pMouseHandler_Horizontal;
+	m_pMouseBehavior->m_pMouseHandler_Horizontal=NULL;
+	m_pMouseBehavior->m_pMouseHandler_Vertical=NULL;
+	m_pMouseBehavior->m_EMenuOnScreen=MouseBehavior::mb_None;
+
+	DesignObj_Orbiter *pObj_Screen_Before = m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj();
+	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )
+	{
+		m_bActivatedObject = true;
+		m_pMouseBehavior->m_pOrbiter->SelectedObject( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smNavigation );
+	}
+
+	if( pObj_Screen_Before==m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj() )
+		m_pMouseBehavior->m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
+	delete this;  // See above notes
+}

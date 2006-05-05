@@ -3674,7 +3674,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 	{
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
-
+if( pObj->m_iBaseObjectID==4870 )
+int k=2;
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
 
@@ -8741,20 +8742,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
-
-	if(UsesUIVersion2()) // TODO - temp hack in x & y values......
-	{
-		CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_popFileList_CONST),"","",false,false);
-
-/*
-		if( m_pMouseBehavior )
-			m_pMouseBehavior->Clear();
-		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj),50,50,"","mediabrowser",false,false);
-*/
-		return;
-	}
-	else
-		CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);
+	CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);
 }
 
 //<-dceag-c402-b->

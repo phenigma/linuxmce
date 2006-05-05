@@ -44,6 +44,7 @@ namespace DCE
 		bool MovedOutside(int PK_Direction); // Override this and return true
 
 		void ActivatedMainMenuPad();
+		void ActivatedSubMenu();
 	};
 
 }

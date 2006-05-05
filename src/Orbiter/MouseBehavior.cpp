@@ -336,6 +336,8 @@ m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwS
 		}
 		return;
 	}
+if( (m_cLocked_Axis_Current==AXIS_LOCK_Y && !m_pMouseHandler_Vertical) || (m_cLocked_Axis_Current==AXIS_LOCK_X && !m_pMouseHandler_Horizontal) )
+int k=2;
 
 	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
 	{
