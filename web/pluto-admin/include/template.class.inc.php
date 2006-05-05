@@ -449,7 +449,7 @@ function setTemplateFileType($type) {
   function output() {
   	// todo: remove
   	
-	if($GLOBALS['inDebug']==1 && isset($_SESSION['cssFile'])){
+	if(isset($_SESSION['cssFile'])){
 		$this->setCssFile($_SESSION['cssFile']);
 		$this->setScriptAnotherJS($_SESSION['jsForMenu']);
 	}
