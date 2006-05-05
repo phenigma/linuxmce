@@ -3,19 +3,11 @@
 #include "gl2deffectfactory.h"
 #include "../OpenGLTextureConverter.h"
 
-#ifdef IGNORE_NV_EXTENSIONS
-#include "../nvidia/nv_shaders.h"
-#endif
-
 #include "../Orbiter3DCommons.h"
 
 GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
 {
-#ifdef NV_EXTENSIONS
-	nvtest();
-#endif
-
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());

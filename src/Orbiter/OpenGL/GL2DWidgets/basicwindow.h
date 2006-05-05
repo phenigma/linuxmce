@@ -100,6 +100,12 @@ public:
 		TextureWrapper2D.Height = HeightCoordinate;
 	}
 	
+	void SetTextureWraping(FloatRect UVRect) {
+		TextureWrapper2D.Left = UVRect.Left;
+		TextureWrapper2D.Top = UVRect.Top;
+		TextureWrapper2D.Width = UVRect.Width;
+		TextureWrapper2D.Height = UVRect.Height;
+	}
 	/**
 	 * Utility function: given one FloatRect it set the coordinates of the window
 	 * using the float based coordinates

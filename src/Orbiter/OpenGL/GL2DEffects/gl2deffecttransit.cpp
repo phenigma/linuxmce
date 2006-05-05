@@ -17,6 +17,7 @@ GL2DEffectTransit::GL2DEffectTransit(GL2DEffectFactory * EffectsEngine, int Time
 		Effects->Widgets->OldScreen
 	);
 }
+
 GL2DEffectTransit::~GL2DEffectTransit()
 {
 	//clean up the highlighted items to not have remain on the new screen

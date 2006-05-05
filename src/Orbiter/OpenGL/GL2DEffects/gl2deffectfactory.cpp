@@ -33,6 +33,8 @@
 #include "GL2DEffectNoEffect.h"
 #include "GL2DEffectHighLightArea.h"
 #include "gl2deffectselectedarea.h"
+#include "GL2DEffectWipeIn.h"
+
 #include "DCE/Logger.h"
 
 
@@ -72,6 +74,12 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 		case GL2D_EFFECT_TRANSIT:
 			Effect = new GL2DEffectBlending(this, TimeForComplete);
 			break;
+
+		case GL2D_EFFECT_WIPE_IN:
+			Effect = new GL2DEffectWipeIn(this, TimeForComplete);
+			break;
+			
+		
 		case GL2D_EFFECT_BEZIER_TRANSIT:
 			Effect = new GL2DBezierEffectTransit (this, TimeForComplete);
 			break;
@@ -180,7 +188,8 @@ int GL2DEffectFactory::GetEffectCode(int DBEffectCode)
 		case EFFECT_Slide_from_top_CONST:
 			return GL2D_EFFECT_TRANSIT_NO_EFFECT; //IMPLEMENT ME!
 		case EFFECT_Fades_from_top_CONST:
-			return GL2D_EFFECT_FADES_FROM_TOP;
+			//return GL2D_EFFECT_FADES_FROM_TOP;
+			return GL2D_EFFECT_WIPE_IN;
 		case EFFECT_Fades_from_underneath_CONST:
 			return GL2D_EFFECT_FADES_FROM_UNDERNEATH;
 		case EFFECT_Bezier_transit_prism_CONST:

@@ -76,6 +76,7 @@ void GL2DEffectWipeIn::Paint(int Now)
 	UVRect_.Width = Animation.Width/FullScreen.Width*MaxCoordU;
 	UVRect_.Height = Animation.Height/FullScreen.Height*MaxCoordV;
 
+	Destination->SetAlpha(0.7+0.3*Step);
 	Destination->SetTextureWraping(
 		UVRect_
 		);
