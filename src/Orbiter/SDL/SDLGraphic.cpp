@@ -30,6 +30,11 @@ SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface)
 	Initialize();
 
 	m_pSDL_Surface = pSDL_Surface;
+    if (m_pSDL_Surface == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::SDLGraphic() : NULL m_pSDL_Surface");
+        return;
+    }
 	Width = m_pSDL_Surface->w;
 	Height = m_pSDL_Surface->h;
 }
@@ -46,6 +51,11 @@ void SDLGraphic::Initialize()
 //-------------------------------------------------------------------------------------------------------
 bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
+    if (m_pSDL_Surface == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::LoadGraphic() : NULL m_pSDL_Surface");
+        return false;
+    }
 	if(m_GraphicFormat == GR_OCG)
 	{
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load ocg files with PocketFrog surfaces in Orbiter SDL. Please check 'Use_OCG' device data for this device. Exiting...");
@@ -88,6 +98,11 @@ void SDLGraphic::Clear()
 
 PlutoGraphic *SDLGraphic::GetHighlightedVersion()
 {
+    if (m_pSDL_Surface == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::GetHighlightedVersion() : NULL m_pSDL_Surface");
+        return NULL;
+    }
 	if( m_pSDL_Surface->format->BytesPerPixel!=4 )
 		return NULL;
 
