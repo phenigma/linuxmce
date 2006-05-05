@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function getCurrentLayout {
-	currentLayout=$(cat $XConfFile  | grep "^.*Option.*\"XkbLayout\"" | cut -f5 | sed 's/"//g')
-	currentVariant=$(cat $XConfFile | grep "^.*Option.*\"XkbVariant\"" | cut -f5 | sed 's/"//g')
+	currentLayout=$(cat $XConfFile 2>/dev/null  | grep "^.*Option.*\"XkbLayout\"" | cut -f5 | sed 's/"//g')
+	currentVariant=$(cat $XConfFile 2>/dev/null | grep "^.*Option.*\"XkbVariant\"" | cut -f5 | sed 's/"//g')
 
 	if [[ "$currentLayout" == "" ]]; then
 		currentLayout="us"
@@ -18,6 +18,11 @@ function setCurrentLayout {
 	local layout=$1
 	local variant=$2
 	
+	if [[ ! -f $XConfFile ]] ;then
+		echo "Warning: file $XConfFile does not exist"
+		return 1
+	fi
+
 	# Test is the Layout option is inable in X Config File
 	grep -q "^.*Option.*\"XkbLayout\".*" $XConfFile
 	if [[ $? -eq 0 ]]; then
