@@ -429,10 +429,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		{
 			if(!UsesUIVersion2())
 			{
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+				m_Desktop->EffectBuilder->
 					CreateEffect(
 					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					400
+					0
 					);
 			}
 			else
@@ -470,6 +471,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 					break;
 				}
 
+				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
