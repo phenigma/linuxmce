@@ -864,7 +864,7 @@ function grabDirectory ($path, $depth) {
 function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
-	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':'"'.$path.'"';
+	$PathParm=($startingWith!='')?'"'.$path.'/'.$startingWith.'"*':'"'.$path.'"';
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
 	//echo $cmd;
 	exec($cmd,$retArray);
@@ -5250,24 +5250,25 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
 	$deviceCategoryPicker=(isset($_REQUEST['deviceCategoryPicker']))?$_REQUEST['deviceCategoryPicker']:0;
 	$dtID=(isset($_REQUEST['dtID']))?$_REQUEST['dtID']:0;
-	
+
 	switch (@$deviceCategoryPicker){
 		case 1:
 			$deviceCategoriesArray=getHierachicalCategories($dbADO);
-			$deviceCategoryPulldown=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
+			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 		break;
 		case 2:
-			$deviceCategoryPulldown=getdTree($categoryID,$dbADO);
+			$deviceCategoryFormElement=getdTree($categoryID,$dbADO);
 		break;
 		default:
 			$deviceCategoriesArray=getAlphaCategories($dbADO);
-			$deviceCategoryPulldown=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
+			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 	}
 	
-	if($categoryID!=0 && $manufacturerID>0){
+	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1){
 		// TODO: do the filtering here
+		//echo 'do_filter categ: '.$categoryID.' manuf: '.$manufacturerID;
 		
-		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'','ORDER BY Description ASC');
+		$deviceTemplatesArray=getAllowedDT((int)@$_SESSION['parentID'],$categoryID,$manufacturerID,$dbADO);
 		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
 		
 	}else{
@@ -5275,7 +5276,10 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
 	}
 	
-	$out=dtPickerJS().'
+	$out=jsManufCategories(array_keys($deviceTemplatesArray),$dbADO);
+	$out.=dtPickerJS();
+	
+	$out.='
 
 	<form action="index.php" method="post" name="deviceTemplatePicker">
 		<input type="hidden" name="section" value="deviceTemplatePicker">
@@ -5289,8 +5293,8 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 		</tr>
 		<tr>
 			<td valign="top"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
-			<td valign="top">'.$deviceCategoryPulldown.'</td>
-			<td valign="top"><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_CATEGORY_CONST.'" onclick="add_device_category_popup();"></td>
+			<td valign="top">'.$deviceCategoryFormElement.'</td>
+			<td valign="top">&nbsp;</td>
 		</tr>	
 		<tr>
 			<td>&nbsp;</td>
@@ -5302,10 +5306,25 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 			<td>&nbsp;</td>
 		</tr>	
 		<tr>
+			<td colspan="3" align="center">
+				<input type="checkbox" name="autofilter" value="1" '.(((int)@$_REQUEST['autofilter']==1)?'checked':'').' onClick="document.deviceTemplatePicker.submit();">'.$TEXT_AUTOFILTER_CONST.'
+			</td>
+		</tr>	
+		<tr>
+			<td colspan="3" align="center">
+				<input type="submit" name="do_filter" class="button_fixed" value="'.$TEXT_APPLY_FILTER_CONST.'">
+			</td>
+		</tr>	
+		<tr>
 			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
 			<td>'.$deviceTemplatesPulldown.'</td>
 			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();"></td>
-		</tr>	
+		</tr>
+		<tr>
+			<td colspan="3" align="center">
+				<span class="err" id="error_box"></span>&nbsp;
+			</td>
+		</tr>		
 		<tr>
 			<td colspan="3">
 			<table width="100%">
@@ -5315,18 +5334,24 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
 				</tr>
 				<tr class="alternate_back">
-					<td align="center"><input type="text" name="manufSelected" value="'.$manufacturerID.'"></td>
-					<td align="center"><input type="text" name="dcSelected" value="'.$categoryID.'"></td>
-					<td align="center"><input type="text" name="dtID" value="'.$dtID.'"></td>
+					<td align="center"><input type="text" name="manufSelected" value="'.$manufacturerID.'" onKeyUp="document.deviceTemplatePicker.dtID.value=0;setDeviceTemplatePulldown(0);setManufacturerPulldown(this.value);"></td>
+					<td align="center"><input type="text" name="dcSelected" value="'.$categoryID.'" onKeyUp="document.deviceTemplatePicker.dtID.value=0;setDeviceTemplatePulldown(0);setCategoryPulldown(this.value);"></td>
+					<td align="center"><input type="text" name="dtID" value="'.$dtID.'" onKeyUp="setDeviceTemplatePulldown();"></td>
 				</tr>
 			</table>
 			</td>
 		</tr>	
 		<tr>
 			<td colspan="3" align="center">
-				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'">
+				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();">
 			</td>
 		</tr>	
+		<tr>
+			<td colspan="3" align="left">
+				<em>'.$TEXT_AUTOFILTER_INFO_CONST.'</em>
+			</td>
+		</tr>	
+	
 	</table>
 	</form>
 	';
@@ -5448,9 +5473,13 @@ function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents){
 }
 
 function dtPickerJS(){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
+	
 	$out='
 	<script>
 	function setDeviceCategory(val){
+		setErrorMessage("");
 		if(val==-1){
 			for(i=0;i<document.deviceTemplatePicker.categoryID.length;i++){
 				if(document.deviceTemplatePicker.categoryID[i].selected)
@@ -5458,18 +5487,28 @@ function dtPickerJS(){
 			}
 		}
 		document.deviceTemplatePicker.dcSelected.value=val;	
+		
+		if(document.deviceTemplatePicker.autofilter.checked){
+			document.deviceTemplatePicker.submit();
+		}
 	}
-	
-	function setManufacturer(val){
+
+	function setManufacturer(){
+		setErrorMessage("");
 		for(i=0;i<document.deviceTemplatePicker.manufacturerID.length;i++){
 			if(document.deviceTemplatePicker.manufacturerID[i].selected)
 				val=document.deviceTemplatePicker.manufacturerID[i].value;
 		}
 
 		document.deviceTemplatePicker.manufSelected.value=val;
+		
+		if(document.deviceTemplatePicker.autofilter.checked){
+			document.deviceTemplatePicker.submit();
+		}
 	}
 
 	function setDeviceTemplate(){
+		setErrorMessage("");
 		for(i=0;i<document.deviceTemplatePicker.template.length;i++){
 			if(document.deviceTemplatePicker.template[i].selected)
 				val=document.deviceTemplatePicker.template[i].value;
@@ -5481,9 +5520,135 @@ function dtPickerJS(){
 	function changeCategoryPicker(){
 		document.deviceTemplatePicker.submit();
 	}
+	
+	function pickDeviceTemplate(){
+		dt=document.deviceTemplatePicker.dtID.value;
+		if(dt>0){
+			opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
+			//self.close();
+		}else{
+			// error case, display error message
+			setErrorMessage("'.$TEXT_ERROR_DEVICE_TEMPLATE_NOT_SELECTED_CONST.'");
+		}
+	}
+	
+	function setErrorMessage(value){
+		document.getElementById("error_box").innerHTML=value;
+	}
+	
+	function setManufacturerPulldown(val){
+		val=(val==0)?parseInt(document.deviceTemplatePicker.manufSelected.value):val;
+		
+		if(val!=0 && val!=document.deviceTemplatePicker.manufacturerID.value){		
+			pos=0;
+			for(i=0;i<document.deviceTemplatePicker.manufacturerID.length;i++){
+				if(document.deviceTemplatePicker.manufacturerID[i].value==val)
+					pos=i;
+			}
+		
+			if(pos!=0){
+				setErrorMessage("");
+				document.deviceTemplatePicker.manufacturerID[pos].selected=true;
+			}else{
+				document.deviceTemplatePicker.manufacturerID[0].selected=true;
+				setErrorMessage("'.$TEXT_MANUFACTURER_DOES_NOT_EXIST_CONST.'");
+			}
+		}
+	}
+	
+	function setCategoryPulldown(val){
+	
+		val=(val==0)?parseInt(document.deviceTemplatePicker.dcSelected.value):val;
+		val=(isNaN(val))?-1:val;
+	
+		// if it\'s treeview, use its function to set menu item
+		if(document.deviceTemplatePicker.deviceCategoryPicker[2].checked){
+			d.openTo(val,true);
+		}else{
+			if(val!=0 && val!=document.deviceTemplatePicker.categoryID.value){	
+				pos=0;
+				for(i=0;i<document.deviceTemplatePicker.categoryID.length;i++){
+					if(document.deviceTemplatePicker.categoryID[i].value==val)
+						pos=i;
+				}
+			
+				if(pos!=0){
+					setErrorMessage("");
+					document.deviceTemplatePicker.categoryID[pos].selected=true;
+				}else{
+					document.deviceTemplatePicker.categoryID[0].selected=true;
+					setErrorMessage("'.$TEXT_DEVICE_CATEGORY_DOES_NOT_EXIST_CONST.'");
+				}
+			}
+		}
+	}	
+	
+	function setDeviceTemplatePulldown(){
+		val=parseInt(document.deviceTemplatePicker.dtID.value);
+		if(val!=0 && !isNaN(val) && val!=document.deviceTemplatePicker.template.value){
+			pos=0;
+			for(i=0;i<document.deviceTemplatePicker.template.length;i++){
+				if(document.deviceTemplatePicker.template[i].value==val)
+					pos=i;
+			}
+
+			if(pos!=0){
+				setErrorMessage("");
+				document.deviceTemplatePicker.template[pos].selected=true;
+				setManufacturerPulldown(manufacturersArray[val]);
+				setCategoryPulldown(deviceCategoriesArray[val]);
+			}else{
+				document.deviceTemplatePicker.template[0].selected=true;
+				setErrorMessage("'.$TEXT_DEVICE_TEMPLATE_DOES_NOT_EXIST_OR_INVALID_CONTROLED_VIA_CONST.'");
+				setManufacturerPulldown(0);
+				setCategoryPulldown(0);
+			}
+		}else{
+			document.deviceTemplatePicker.template[0].selected=true;
+		}
+	}	
+	
 	</script>
 	';
 	
 	return $out;
+}
+
+function jsManufCategories($deviceTemplatesArray,$dbADO){
+	if(count($deviceTemplatesArray)==0){
+		return '';
+	}
+	
+	$res=$dbADO->Execute('SELECT PK_DeviceTemplate,FK_Manufacturer,FK_DeviceCategory FROM DeviceTemplate WHERE PK_DeviceTemplate IN ('.join(',',$deviceTemplatesArray).')');
+	$manufJsArray=array();
+	$categJsArray=array();
+	while($row=$res->FetchRow()){
+		$manufJsArray[]='manufacturersArray['.$row['PK_DeviceTemplate'].']='.$row['FK_Manufacturer'].';';
+		$categJsArray[]='deviceCategoriesArray['.$row['PK_DeviceTemplate'].']='.$row['FK_DeviceCategory'].';';
+	}
+	
+	$out='
+	<script>
+		manufacturersArray=new Array();
+		'.join("\n",$manufJsArray).'
+		deviceCategoriesArray=new Array();
+		'.join("\n",$categJsArray).'
+	</script>
+	';
+	
+	return $out;
+}
+
+// return an associative array with the device templates allowed as childs for a specific device
+// if parent is not specified, return all device templates from category and its childs & manufacturer
+function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO){
+	if($parentID!=0){
+		$allowedDevices=getDeviceTemplatesControlledBy($parentID,$dbADO);
+	}
+	$filter=(count($allowedDevices)>0)?'WHERE PK_DeviceTemplate IN ('.join(',',$allowedDevices).')':'';
+	$dtArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,$filter,'ORDER BY Description ASC');	
+	
+	print_array($allowedDevices);
+	return $dtArray;
 }
 ?>
