@@ -128,8 +128,8 @@ void Extern_Task_Listener()
         return;
     if (! pExternApp->IsRunning())
         return;
-    _WX_LOG_NFO();
 #endif // USE_RELEASE_CODE
+    //_WX_LOG_NFO();
     Task *pTask = TaskManager::Instance().PopTask();
     if (pTask == NULL)
     {
