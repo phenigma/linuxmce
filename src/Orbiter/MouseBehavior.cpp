@@ -107,6 +107,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	}
 }
 
+// If options contains a 's', this will be selected by default
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
@@ -165,7 +166,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_bMouseHandler_Vertical_Exclusive=bExclusive;
 		m_sVerticalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_X || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_Y);
-		if( m_bMouseHandler_Vertical_Exclusive )
+		if( m_bMouseHandler_Vertical_Exclusive || sOptions.find('s')!=string::npos )
 		{
 			m_pMouseHandler_Vertical->Start();
 			m_cLocked_Axis_Current=AXIS_LOCK_Y;
@@ -187,7 +188,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_bMouseHandler_Horizontal_Exclusive=bExclusive;
 		m_sHorizontalOptions=sOptions;
 		m_cLockedAxes = (m_cLockedAxes==AXIS_LOCK_Y || m_cLockedAxes==AXIS_LOCK_BOTH ? AXIS_LOCK_BOTH : AXIS_LOCK_X);
-		if( m_bMouseHandler_Horizontal_Exclusive )
+		if( m_bMouseHandler_Horizontal_Exclusive || sOptions.find('s')!=string::npos )
 		{
 			m_pMouseHandler_Horizontal->Start();
 			m_cLocked_Axis_Current=AXIS_LOCK_X;
@@ -344,13 +345,23 @@ m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwS
 		{
 			if( X < m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
 			{
-				X = m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
-				SetMousePosition(X,Y);
+				if( !m_pMouseHandler_Horizontal->MovedOutside(DIRECTION_Left_CONST) )
+				{
+					X = m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+					SetMousePosition(X,Y);
+				}
+				else
+					return;
 			}
 			if( X > m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
 			{
-				X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
-				SetMousePosition(X,Y);
+				if( !m_pMouseHandler_Horizontal->MovedOutside(DIRECTION_Right_CONST) )
+				{
+					X = m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X;
+					SetMousePosition(X,Y);
+				}
+				else
+					return;
 			}
 			m_pMouseHandler_Horizontal->Move(X, Y, PK_Direction);
 		}
@@ -370,13 +381,23 @@ m_dwSamples[0],m_dwSamples[1],m_dwSamples[2],m_dwSamples[3],m_dwSamples[4],m_dwS
 		{
 			if( Y < m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
 			{
-				Y = m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
-				SetMousePosition(X,Y);
+				if( !m_pMouseHandler_Vertical->MovedOutside(DIRECTION_Up_CONST) )
+				{
+					Y = m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+					SetMousePosition(X,Y);
+				}
+				else
+					return;
 			}
 			if( Y > m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
 			{
-				Y = m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
-				SetMousePosition(X,Y);
+				if( !m_pMouseHandler_Vertical->MovedOutside(DIRECTION_Down_CONST) )
+				{
+					Y = m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y;
+					SetMousePosition(X,Y);
+				}
+				else
+					return;
 			}
 			m_pMouseHandler_Vertical->Move(X, Y, PK_Direction);
 		}
@@ -387,10 +408,6 @@ int iRound=0;
 
 bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 {
-	if( (m_cLocked_Axis_Current == AXIS_LOCK_Y && m_bMouseHandler_Vertical_Exclusive) ||
-		(m_cLocked_Axis_Current == AXIS_LOCK_X && m_bMouseHandler_Horizontal_Exclusive) )
-			return false;
-	
 	int CumulativeThisDirection=0,CumulativeOtherDirection=0;
 	PK_Direction = GetDirection(m_pSamples[0]);
 	if( !PK_Direction )
@@ -422,6 +439,15 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 
 		if( CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
 		{
+			if( m_pMouseHandler_Horizontal )
+				m_pMouseHandler_Horizontal->m_bStartedMovement=true;
+			if( m_pMouseHandler_Vertical )
+				m_pMouseHandler_Vertical->m_bStartedMovement=true;
+
+			if( (m_cLocked_Axis_Current == AXIS_LOCK_Y && m_bMouseHandler_Vertical_Exclusive) ||
+				(m_cLocked_Axis_Current == AXIS_LOCK_X && m_bMouseHandler_Horizontal_Exclusive) )
+				return false;
+
 			if( PK_Direction==DIRECTION_Left_CONST || PK_Direction==DIRECTION_Right_CONST )
 			{
 				if( m_cLocked_Axis_Current==AXIS_LOCK_X )
@@ -434,6 +460,7 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 					return false;
 				m_cLocked_Axis_Current = AXIS_LOCK_Y;
 			}
+
 			return true;
 		}
 	}
@@ -579,9 +606,12 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
+	DesignObj_Orbiter *pObj_Previously_Highlighted=m_pOrbiter->m_pObj_Highlighted;
+
 	m_pOrbiter->UnHighlightObject();
-	if( pObj )
-		m_pOrbiter->ExecuteCommandsInList( &pObj->m_Action_UnhighlightList, pObj, smHighlight, 0, 0 );
+	if( pObj_Previously_Highlighted && pObj!=pObj_Previously_Highlighted )
+		m_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
+	m_pOrbiter->m_pObj_Highlighted = pObj;
 	m_pOrbiter->DoHighlightObject();
 //			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }
@@ -638,19 +668,20 @@ PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()
 		{
 			PlutoRectangle rect;
 			m_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pOrbiter->m_pObj_Highlighted,rect);
+
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates %d,%d - %d,%d",rect.X,rect.Y,rect.Width,rect.Height);
 			return rect + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 		}
 		else
 			return m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 	}
-
 	return PlutoRectangle(0,0,0,0);
 }
 
-void MouseBehavior::SelectFirstObject()
+void MouseBehavior::SelectFirstObject(char cDirection,DesignObj_Orbiter *pObj_Parent)
 {
 	// Select the first object to highlight if we didn't already and center over it
-	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->FindFirstObjectByDirection('1',true,NULL,NULL);
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
 	if( pObj )
 	{
 		PlutoRectangle rect = GetHighlighedObjectCoordinates();

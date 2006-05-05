@@ -105,9 +105,10 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 		return NULL;
 
 	int PK_MediaType = atoi(Parms.substr(pos+3).c_str());
-	string sSQL = "select PK_Attribute,PK_File,Name,Path,Filename FROM Attribute"
+	string sSQL = "select PK_Attribute,PK_File,Name,Path,Filename,FK_Picture FROM Attribute"
 		" LEFT JOIN File_Attribute ON FK_Attribute=PK_Attribute"
-		" LEFT JOIN File ON FK_File=PK_File"
+		" LEFT JOIN File ON File_Attribute.FK_File=PK_File"
+		" LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File"
 		" WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
 		" ORDER BY Name";
 
@@ -115,14 +116,14 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
     MYSQL_ROW row;
     DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-	int RowCount=0;
+	int RowCount=0,ColCount=0,MaxCol=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
 	int PK_Attribute_Last=0;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
 			int PK_Attribute = atoi(row[0]);
-			if( PK_Attribute!=PK_Attribute_Last )
+			if( PK_Attribute!=PK_Attribute_Last && PK_AttributeType!=ATTRIBUTETYPE_Title_CONST )
 			{
 				pCell = new DataGridCell( row[2] );
 				pCell->m_Colspan = 5;
@@ -130,8 +131,17 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 				PK_Attribute_Last=PK_Attribute;
 			}
 			pCell = new DataGridCell( row[4] );
-			pCell->m_Colspan = 5;
-	        pDataGrid->SetData( 1, RowCount++, pCell );
+	        pDataGrid->SetData( ColCount++, RowCount, pCell );
+			if( ColCount>=MaxCol )
+			{
+				ColCount=0;  RowCount++;
+			}
+
+			size_t size=0;
+			if( row[5] )
+				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[5]) + ".jpg",size);
+			pCell->m_GraphicLength=size;
+
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(pMessage->m_dwPK_Device_From,m_dwPK_Device,0,"!F" + string(row[1]),0,0,"",false,0);
 			pCell->m_pMessage = CMD_MH_Play_Media.m_pMessage;
 		}

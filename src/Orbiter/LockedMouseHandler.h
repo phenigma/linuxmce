@@ -41,6 +41,7 @@ namespace DCE
 		void Move(int X,int Y,int PK_Direction);
 		void Notch(int PK_Direction,int iRepeat); // The user moved a 'notch' in the given direction
 		bool SlowDrift(int &X,int &Y); // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
+		bool MovedOutside(int PK_Direction); // Override this and return true
 
 		void ActivatedMainMenuPad();
 	};

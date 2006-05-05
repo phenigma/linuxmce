@@ -32,9 +32,10 @@ namespace DCE
 		DesignObj_Orbiter *m_pObj;
 		MouseBehavior *m_pMouseBehavior;
 		bool m_bIsActive; // Means this handler is currently being used
+		bool m_bStartedMovement;  // Means the user has started moving
 		string m_sOptions;
 
-		MouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) { m_pObj=pObj; m_sOptions=sOptions; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; m_bIsActive=false; }
+		MouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) { m_bStartedMovement=false; m_pObj=pObj; m_sOptions=sOptions; m_pMouseBehavior=pMouseBehavior; m_bLockAxis=true; m_bIsActive=false; }
 		virtual ~MouseHandler() {}
 
 
@@ -45,6 +46,7 @@ namespace DCE
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y,int PK_Direction) {}
 		virtual void Notch(int PK_Direction,int iRepeat) {} // The user moved a 'notch' in the given direction
+		virtual bool MovedOutside(int PK_Direction) { return false; } // Override this and return true if you don't want the framework to automatically reposition the pointer inside the object
 		virtual bool SlowDrift(int &X,int &Y) { return false; } // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
@@ -73,6 +75,8 @@ namespace DCE
 		const static int UseAccelerationIfMovementsWithin;
 
 		const static int IgnoreMovesLessThanThisPerSample;
+		const static int TapInterval;  // If the button is released within this many ms, it's a tap, not a hold
+		
 
 	};
 
@@ -133,7 +137,7 @@ namespace DCE
 		void Clear(bool bGotoMainMenu=false);
 		void HighlightObject(DesignObj_Orbiter *pObj);
 		PlutoRectangle GetHighlighedObjectCoordinates();
-		void SelectFirstObject();
+		void SelectFirstObject(char cDirection='1',DesignObj_Orbiter *pObj_Parent=NULL);
 		int GetDirectionAwayFromHighlight(int X,int Y);
 		void PositionMouseAtObjectEdge(int PK_Direction);
 

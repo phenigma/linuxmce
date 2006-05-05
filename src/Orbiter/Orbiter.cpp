@@ -69,10 +69,6 @@ using namespace DCE;
 #include "PopupManager.h"
 #endif
 
-// Temporary nasty hack! TODO -- temp
-#include "KeyboardMouseHandler.h"
-#include "SpeedMouseHandler.h"
-
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
@@ -631,20 +627,9 @@ void Orbiter::RenderScreen( )
 #endif
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
-	if (!m_pBackgroundImage)
-	{
-		size_t iSize;
-		char * pData = FileUtils::ReadFileIntoBuffer("/home/OrbiterBkg.png", iSize);
-		if (pData)
-		{
-			m_pBackgroundImage = CreateGraphic();
-			m_pBackgroundImage->LoadGraphic(pData, iSize);
-			delete [] pData;
-		}
-	}
 	if (m_pBackgroundImage)
 	{
-		RenderGraphic(m_pBackgroundImage, PlutoRectangle(0, 0, 0, 0), false);
+		RenderGraphic(m_pBackgroundImage, PlutoRectangle(0, 0, m_iImageWidth, m_iImageHeight), false);
 	}
 
 	if ( m_pScreenHistory_Current  )
@@ -672,18 +657,6 @@ void Orbiter::RenderScreen( )
 #endif
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
-#endif
-
-#ifdef ENABLE_MOUSE_BEHAVIOR
-	if(UsesUIVersion2())
-	{
-		if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST &&
-			m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal )
-		{
-			KeyboardMouseHandler *pKeyboardMouseHandler = (KeyboardMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
-			pKeyboardMouseHandler->TempHack_DrawAlphaSquare();
-		}
-	}
 #endif
 }
 
@@ -1225,6 +1198,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
 			delete pPlutoGraphic;
 		}
+
+		// TODO -- temp hack -- don't show text on the media browser grid if we have cover art
+		if( pObj->m_iPK_Datagrid==63 && pCell->m_pGraphicData )
+			return bTransparentCell;
 
 		DesignObjText Text( pObj );
 		// todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
@@ -3087,6 +3064,15 @@ INITIALIZATION
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
+	size_t iSize;
+	char * pData = FileUtils::ReadFileIntoBuffer("/home/OrbiterBkg.png", iSize);
+	if (pData)
+	{
+		m_pBackgroundImage = CreateGraphic();
+		m_pBackgroundImage->LoadGraphic(pData, iSize);
+		delete [] pData;
+	}
+
 	if ( !m_bQuit )
 	{
 		m_bStartingUp=true;

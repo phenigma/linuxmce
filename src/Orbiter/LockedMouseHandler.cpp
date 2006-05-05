@@ -56,10 +56,17 @@ void LockedMouseHandler::Start()
 	}
 	else
 		m_bTapAndRelease=false;
+
+	if( m_sOptions[0]=='M' )
+		m_pMouseBehavior->m_iLockedPosition -= 2; // The activities are just slightly above the center point
 }
 
 void LockedMouseHandler::Stop()
 {
+	if( m_sOptions[0]=='M' && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL && m_pObj_Highlighted && m_bTapAndRelease==false )
+	{
+		ActivatedMainMenuPad();  // The user is doing a press and hold on the main menu and changing directions, activate the menu pad
+	}
 }
 
 bool LockedMouseHandler::ButtonDown(int PK_Button)
@@ -84,7 +91,10 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 
 bool LockedMouseHandler::ButtonUp(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_7_CONST && m_pMouseBehavior->m_iTime_Last_Mouse_Up==0 )
+	if( PK_Button==BUTTON_Mouse_7_CONST && !m_bStartedMovement )
+		m_bTapAndRelease=true;
+
+	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 		if( m_sOptions[0]=='M' )
@@ -154,8 +164,8 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 	string sSubMenu;
 	switch( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_iBaseObjectID )
 	{
-	case 4865:
-		sSubMenu = "<%=NP_R%>";
+	case DESIGNOBJ_butCurrentMedia_CONST:
+		sSubMenu = StringUtils::itos(m_pMouseBehavior->m_pOrbiter->m_iPK_DesignObj_Remote_Popup);
 		break;
 	case 4954:  // climate
 		sSubMenu = "4957.<%=L:0%>.0";
@@ -166,19 +176,19 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 	case 4956: // security
 		sSubMenu = "4959.<%=L:0%>.0";
 		break;
-	case 4890: // lights
+	case DESIGNOBJ_butLightsPopup_CONST: // lights
 		sSubMenu = "4889.<%=L:0%>.0";
 		break;
-	case 4873:
+	case DESIGNOBJ_butMediaPopup_CONST:
 		sSubMenu = "4870.<%=L:0%>.0";
 		break;
-	case 4867:
+	case DESIGNOBJ_butCurrentLocation_CONST:
 		sSubMenu = "4894";
 		break;
-	case 4952:
+	case DESIGNOBJ_butFloorplans_CONST:
 		sSubMenu = "4960";
 		break;
-	case 4953:
+	case DESIGNOBJ_butSettings_CONST:
 		sSubMenu = "4961";
 		break;
 	}
@@ -198,6 +208,8 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 
 	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(pObj->m_ObjectID,pt.X,pt.Y,"","submenu",false,false);
 	m_pMouseBehavior->Set_Mouse_Behavior("LS",true,"Y",pObj->m_ObjectID);
+
+	m_pMouseBehavior->SelectFirstObject('3',pObj);
 }
 
 bool LockedMouseHandler::SlowDrift(int &X,int &Y)
@@ -207,6 +219,25 @@ bool LockedMouseHandler::SlowDrift(int &X,int &Y)
 		X = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Width/2;
 		Y = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Height/2;
 		m_pMouseBehavior->SetMousePosition(X,Y);
+		return true;
+	}
+	return false;
+}
+
+bool LockedMouseHandler::MovedOutside(int PK_Direction)
+{
+	if( m_sOptions.size()>1 &&  m_sOptions[0]=='L' && m_sOptions[1]=='S' && PK_Direction==DIRECTION_Down_CONST )
+	{
+		LockedMouseHandler *pLockedMouseHandler = (LockedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","submenu");
+		m_pMouseBehavior->m_cLockedAxes=AXIS_LOCK_X;
+		m_pMouseBehavior->m_cLocked_Axis_Current=AXIS_LOCK_X;
+		m_pMouseBehavior->m_iLockedPosition = pLockedMouseHandler->m_pObj_Highlighted->m_rPosition.Y + pLockedMouseHandler->m_pObj_Highlighted->m_pPopupPoint.Y + pLockedMouseHandler->m_pObj_Highlighted->m_rPosition.Height/2;
+		m_pMouseBehavior->m_iLockedPosition -= 2; // The activities are just slightly above the center point
+		m_pMouseBehavior->HighlightObject(pLockedMouseHandler->m_pObj_Highlighted);
+		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
+		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2, rect.Y + rect.Height/2 );
+
 		return true;
 	}
 	return false;

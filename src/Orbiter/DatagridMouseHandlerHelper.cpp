@@ -56,11 +56,11 @@ bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
 		if ( m_pObj_ScrollingGrid->m_FirstColumnWidth > 0 && ( m_pObj_ScrollingGrid->m_GridCurCol == 0 || m_pObj_ScrollingGrid->m_bKeepColHeader )  )
 			DeltaX = m_pObj_ScrollingGrid->m_FirstColumnWidth - m_pObj_ScrollingGrid->m_FixedColumnWidth;
 
-		int X2 = X - m_pObj_ScrollingGrid->m_pPopupPoint.X - DeltaX;
-		int Y2 = Y - m_pObj_ScrollingGrid->m_pPopupPoint.Y - DeltaY;
+		int X2 = X - m_pObj_ScrollingGrid->m_rPosition.X - m_pObj_ScrollingGrid->m_pPopupPoint.X - DeltaX;
+		int Y2 = Y - m_pObj_ScrollingGrid->m_rPosition.Y - m_pObj_ScrollingGrid->m_pPopupPoint.Y - DeltaY;
 		
-		int Row = Y2 / (m_pObj_ScrollingGrid->m_FixedRowHeight+1);
-		int Column = X2 / (m_pObj_ScrollingGrid->m_FixedColumnWidth+1);
+		int Row = Y2 / (m_pObj_ScrollingGrid->m_FixedRowHeight);
+		int Column = X2 / (m_pObj_ScrollingGrid->m_FixedColumnWidth);
 		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 )
 			m_pObj_ScrollingGrid->m_iHighlightedRow = Row;
 		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 )
@@ -76,7 +76,9 @@ bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
 
 		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 && m_pObj_ScrollingGrid->m_GridCurCol + m_pObj_ScrollingGrid->m_iHighlightedColumn >= m_pObj_ScrollingGrid->m_pDataGridTable->GetCols() )
 			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->m_pDataGridTable->GetCols() - m_pObj_ScrollingGrid->m_GridCurCol - 1;
-
+g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::StayInGrid %d-%d,%d  old row:%d col %d, now row:%d,col:%d",PK_Direction,X,Y,Row_Before,Column_Before,Row,Column);
+if( Row_Before==Row && Column_Before==Column )
+int k=2;
 		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=Row_Before || m_pObj_ScrollingGrid->m_iHighlightedColumn!=Column_Before )
 		{
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);

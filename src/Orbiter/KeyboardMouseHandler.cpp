@@ -86,6 +86,7 @@ void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	if( !m_DatagridMouseHandlerHelper.m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
+g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
 		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
@@ -117,6 +118,7 @@ void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 	PK_Direction = m_pMouseBehavior->GetDirectionAwayFromHighlight(X,Y);
 	if( PK_Direction )
 	{
+g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highlight %d at %d,%d",PK_Direction,X,Y);
 		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 
 		// Let's see if we've been highlighting a datagrid and moved past the top or bottom
@@ -371,7 +373,7 @@ void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 	if( !pCell )
 		return;
 
-	char cLetter = pCell->m_Text[0];
+	char cLetter = pCell->m_Text ? pCell->m_Text[0] : 'A';
 	if( cLetter>'Z' )
 		cLetter -= 32; 
 

@@ -1653,6 +1653,15 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 	                alArray->push_back(new ArrayValue(StringUtils::itos(pRow_AttributeType->PK_AttributeType_get()),
 						pRow_AttributeType->Description_get(),NULL,0,0,0,VARIABLE_Sort_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
 				}
+				if( vectRow_MediaType_AttributeType.size() )
+				{
+					DesignObjCommand *p_DesignObjCommand = new DesignObjCommand(COMMAND_Set_Variable_CONST,0,true,DEVICEID_HANDLED_INTERNALLY,0,false);
+					p_DesignObjCommand->m_PK_DeviceTemplate=0;
+					p_DesignObjCommand->m_PK_DeviceCategory=0;
+					p_DesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST] = StringUtils::itos(VARIABLE_Sort_CONST);
+					p_DesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST] = StringUtils::itos(vectRow_MediaType_AttributeType[0]->FK_AttributeType_get());
+					m_Action_LoadList.push_back(p_DesignObjCommand);
+				}
 			}
 			break;
 
