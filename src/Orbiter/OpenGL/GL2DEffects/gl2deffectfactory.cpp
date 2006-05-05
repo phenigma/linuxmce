@@ -37,7 +37,6 @@
 
 #include "DCE/Logger.h"
 
-
 #include "../../../pluto_main/Define_Effect.h"
 
 GL2DEffectFactory::GL2DEffectFactory (DrawingWidgetsEngine* WidgetsEngine)
@@ -58,6 +57,8 @@ int GL2DEffectFactory::MilisecondTimmer()
 
 GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 {
+	std::cout << "GL2DEffectFactory::CreateEffect : " << IDEffect << std::endl;
+	
 	if(!Effects.empty())
 	{
 		vector<GL2DEffect*>::iterator Effect = Effects.begin();
@@ -114,6 +115,7 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 			Effect = new GL2DBezierEffectTransit_Flow_SlideLeft_Reverse(this, TimeForComplete);
 			break;
 	}
+
 	if(IDEffect >= GL2D_UNIQUE_EFFECT)
 		ClearEffects();
 

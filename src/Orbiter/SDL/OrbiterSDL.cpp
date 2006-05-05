@@ -125,6 +125,7 @@ void *Orbiter_OpenGLThread(void *p)
 		if (!pOrbiter->m_Desktop->EffectBuilder->HasEffects()) {
 			if (!pOrbiter->PaintDesktopGL) {
 				pOrbiter->PaintDesktopGL = true;
+				std::cout << "Orbiter_OpenGLThread: paiting " << std::endl;
 				pOrbiter->m_Desktop->Paint();
 			}
 			else
@@ -138,6 +139,7 @@ void *Orbiter_OpenGLThread(void *p)
 		{
 			pOrbiter->PaintDesktopGL = false;
 			pOrbiter->m_Desktop->Paint();
+			std::cout << "Orbiter_OpenGLThread: paiting done " << std::endl;
 		}
 	}
 
@@ -408,6 +410,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 			//TODO: this is temporary
 		if(UsesUIVersion2())
 		{
+			std::cout << "RenderScreen: using UIVersion2 : " << std::endl;
+
 			int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
 			PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
 			int nPK_Effect = 0;
@@ -440,6 +444,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				break;
 			}
 
+			std::cout << "RenderScreen: effect to render : " << nPK_Effect << std::endl;
+
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 			GL2DEffect* Transit = m_Desktop->EffectBuilder->
 				CreateEffect(
@@ -455,6 +461,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				GL2D_EFFECT_TRANSIT_NO_EFFECT,
 				Simulator::GetInstance()->m_iMilisecondsTransition
 				);
+
+			std::cout << "RenderScreen: effect to render : " << nPK_Effect << " ready" << std::endl;
 
 			glm.Release();
 			m_spPendingGLEffects->Reset();
