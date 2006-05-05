@@ -1728,25 +1728,32 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 	string sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 	string sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
 	int nId = atoi(sId.c_str());
-
 	DesignObj_Orbiter *pObj;
 	DesignObj_DataGrid *pDatagridObj;
 	DataGridCell *pCell;
 
-	pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
-	if( NULL != pObj )
-	{
-		pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
+	int test = GetCurrentScreen_PK_DesignObj();
 
-		if(NULL != pDatagridObj)
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVWhatDelays_CONST:
+		pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
+		if( NULL != pObj )
 		{
+			pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
+
+			if(NULL != pDatagridObj)
+			{
 				pCell = pDatagridObj->m_pDataGridTable->GetData(1, nId);
 				if( NULL != pCell )
 				{
 					sVal = pCell->GetText();
 					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+					m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), sVal, TEXT_USR_ENTRY_CONST);
 					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = sVal;
+					//m_pOrbiter->CMD_Refresh("*");
 				}
+			}
 		}
 	}
 	return false;
@@ -1783,8 +1790,8 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 					if( NULL != pCell )
 					{
 						sValues[i] = pCell->GetText();
-						PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-						//m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = "100";
+						//PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+						
 					}
 				}
 			}
@@ -1856,9 +1863,12 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 		break;
 
 		case DESIGNOBJ_TVWhatDelays_CONST:
-		if( (pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVWhatDelays_CONST)
-		  || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgTVWhatDelays_CONST)
+		if( (pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVHowToTune_CONST) )
 		{
+			//reset edit
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+			m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
+                                     "", TEXT_USR_ENTRY_CONST);
         }
 		break;
 
@@ -1905,9 +1915,9 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
 		break;
 
-		//Ask
-		//case
-		//break;
+		//Unknown
+		case SCREEN_TVConfirmInputsDiscrete_CONST:
+		break;
 	}
 
 	return false;
