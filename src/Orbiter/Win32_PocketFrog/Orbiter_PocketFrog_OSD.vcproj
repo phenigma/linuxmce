@@ -288,6 +288,9 @@
 				RelativePath="..\Win32\OrbiterPopupFactory.cpp">
 			</File>
 			<File
+				RelativePath="..\Linux\OSDCompass.cpp">
+			</File>
+			<File
 				RelativePath="..\Linux\OSDScreenHandler.cpp">
 			</File>
 			<File
@@ -380,6 +383,9 @@
 			</File>
 			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.h">
+			</File>
+			<File
+				RelativePath="..\Linux\OSDCompass.h">
 			</File>
 			<File
 				RelativePath=".\Sdl\PlutoSDLDefs.h">

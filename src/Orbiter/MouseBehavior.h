@@ -16,6 +16,9 @@ using namespace DCE;
 #define AXIS_LOCK_Y		2
 #define AXIS_LOCK_BOTH	3
 
+//forward declaration
+class OSDCompass;
+
 namespace DCE
 {
 	// A pure virtual base class for the call-backs
@@ -119,6 +122,7 @@ namespace DCE
 		unsigned long m_dwTime_Last_Notch;
 		EMenuOnScreen m_EMenuOnScreen;
 		bool m_bMouseHandler_Horizontal_Exclusive,m_bMouseHandler_Vertical_Exclusive;
+		std::auto_ptr<OSDCompass> m_spCompass;
 
 	public:
 		MouseBehavior(Orbiter *pOrbiter);

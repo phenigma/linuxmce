@@ -19,6 +19,8 @@
 #include "LockedMouseHandler.h"
 #include "KeyboardMouseHandler.h"
 
+#include "Linux/OSDCompass.h"
+
 using namespace DCE;
 
 
@@ -49,6 +51,9 @@ const int MouseSensitivity::IgnoreMovesLessThanThisPerSample=10;//30;
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
+	//TODO: set custom position for the compass
+	m_spCompass.reset(new OSDCompass(pOrbiter, PlutoRectangle(10, 10, 100, 100)));
+
 	m_pMouseHandler_Horizontal=m_pMouseHandler_Vertical=NULL;
 	ProcessUtils::ResetMsTime();
 	m_pOrbiter=pOrbiter;
@@ -202,6 +207,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
+	unsigned long dwTime = ProcessUtils::GetMsTime();
+	m_spCompass->Update(X, Y, dwTime);
+
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return; // Nothing to do
 
@@ -211,7 +219,6 @@ void MouseBehavior::Move(int X,int Y)
 	if( m_pLastPosition.X==X && m_pLastPosition.Y==Y )
 		return; // Nothing to do 
 
-	unsigned long dwTime = ProcessUtils::GetMsTime();
 	if( dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval )
 	{
 		m_dwLastSampleShift=dwTime;
