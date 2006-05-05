@@ -92,6 +92,7 @@ sources += \
 	../utilities/linux/window_manager/WMController/WMController.cpp \
 	../utilities/linux/window_manager/WMController/wmctrl.cpp \
 	Linux/win_list_manager.cpp \
+	Linux/OSDCompass.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	Simulator.cpp \
