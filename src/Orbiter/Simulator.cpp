@@ -264,7 +264,7 @@ Simulator::Simulator()
 	m_bUseOpenGL = false;
 	m_bLogToServer = false;
 
-	m_iMilisecondsTransition = 600;
+	m_iMilisecondsTransition = 500;
 	m_iMilisecondsHighLight = 200;
 
 	m_bStopGeneratorThread = false;
