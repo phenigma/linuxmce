@@ -38,9 +38,6 @@ function keyboardLayout($output,$dbADO) {
 		
 		<table cellpadding="2" cellspacing="0">
 			<tr class="tablehead">
-				<td colspan="2 align="center""><B>'.$TEXT_CORE_CONST.'</B></td>
-			</tr>		
-			<tr class="tablehead">
 				<td colspan="2 align="center""><B>'.$TEXT_MEDIA_DIRECTORS_CONST.'</B></td>
 			</tr>';
 		foreach ($mediaDirectors AS $mdID=>$mdName){
@@ -182,7 +179,8 @@ function getVariants($arr){
 
 function keyboardLayoutPulldown($keyboardLayoutsArray,$selected,$name){
 
-	$out='<select name="'.$name.'">';
+	$out='<select name="'.$name.'">
+		<option value="by basic" '.(('by basic'==$selected)?'selected':'').'>- Basic -</option>';
 	foreach ($keyboardLayoutsArray AS $key=>$valueArr){
 		$out.='<option value="'.$key.'" '.(($key==$selected)?'selected':'').'>'.$valueArr['description'].'</option>';
 		if(count($valueArr['variants'])!=0){
