@@ -402,6 +402,67 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		int b = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
 		int c = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 		
+
+
+		//////////////////////////////////////////////////////////////////////////
+			//TODO: this is temporary
+		if(UsesUIVersion2())
+		{
+			int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+			PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
+			int nPK_Effect = 0;
+			int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
+			switch(nCurrentDesignObjID) 
+			{
+			case DESIGNOBJ_mnuMenu2_CONST:
+				nPK_Effect = EFFECT_Basic_transit_effect_CONST;
+				break;
+
+			case DESIGNOBJ_mnuAmbiance_CONST:
+				nTransitionTimeIsMs = 1000;
+				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+				rectStartEffect.Size(PlutoSize(100, 40));
+				nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
+				break;
+
+			case DESIGNOBJ_mnuDvdSpeedControl_CONST:
+				nTransitionTimeIsMs = 1000;
+				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+				rectStartEffect.Size(PlutoSize(100, 40));
+				nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
+				break;
+
+			case DESIGNOBJ_popFileList_CONST:
+				nPK_Effect = EFFECT_Fades_from_top_CONST;
+				break;
+
+			default:
+				break;
+			}
+
+			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+			GL2DEffect* Transit = m_Desktop->EffectBuilder->
+				CreateEffect(
+				m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
+				nTransitionTimeIsMs
+				);
+
+			if(Transit)
+				Transit->Configure(&rectStartEffect);
+			else
+				Transit = m_Desktop->EffectBuilder->
+				CreateEffect(
+				GL2D_EFFECT_TRANSIT_NO_EFFECT,
+				Simulator::GetInstance()->m_iMilisecondsTransition
+				);
+
+			glm.Release();
+			m_spPendingGLEffects->Reset();
+		}
+		//////////////////////////////////////////////////////////////////////////
+		
+
+
 		if(m_pObj_SelectedLastScreen)
 		{
 			//m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange = rand() % 9 + 1;
@@ -427,60 +488,12 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		}
 		else
 		{
-			if(!UsesUIVersion2())
-			{
-				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-				m_Desktop->EffectBuilder->
-					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					0
-					);
-			}
-			else
-			{
-				//TODO: this is temporary
-				int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-				PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
-				int nPK_Effect = 0;
-				int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
-				switch(nCurrentDesignObjID) 
-				{
-				case DESIGNOBJ_mnuMenu2_CONST:
-					nPK_Effect = EFFECT_Basic_transit_effect_CONST;
-					break;
-
-				case DESIGNOBJ_mnuAmbiance_CONST:
-					nTransitionTimeIsMs = 1000;
-					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-					rectStartEffect.Size(PlutoSize(100, 40));
-					nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
-					break;
-
-				case DESIGNOBJ_mnuDvdSpeedControl_CONST:
-					nTransitionTimeIsMs = 1000;
-					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-					rectStartEffect.Size(PlutoSize(100, 40));
-					nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
-					break;
-
-				case DESIGNOBJ_popFileList_CONST:
-					nPK_Effect = EFFECT_Fades_from_top_CONST;
-					break;
-
-				default:
-					break;
-				}
-
-				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
-					nTransitionTimeIsMs
-					);
-
-				if(Transit)
-					Transit->Configure(&rectStartEffect);
-			}
+			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+			m_Desktop->EffectBuilder->
+				CreateEffect(
+				GL2D_EFFECT_TRANSIT_NO_EFFECT,
+				0
+			);
 		}
 	
 		glm.Release();

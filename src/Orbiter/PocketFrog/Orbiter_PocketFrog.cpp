@@ -968,6 +968,69 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 		if(m_Desktop && m_Desktop->EffectBuilder)
 		{
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
+
+
+
+
+			//temp for the show. remove me!
+			if(UsesUIVersion2())
+			{
+				//TODO: this is temporary
+				int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+				PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
+				int nPK_Effect = 0;
+				int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
+				switch(nCurrentDesignObjID) 
+				{
+				case DESIGNOBJ_mnuMenu2_CONST:
+					nPK_Effect = EFFECT_Basic_transit_effect_CONST;
+					break;
+
+				case DESIGNOBJ_mnuAmbiance_CONST:
+					nTransitionTimeIsMs = 1000;
+					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+					rectStartEffect.Size(PlutoSize(100, 40));
+					nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
+					break;
+
+				case DESIGNOBJ_mnuDvdSpeedControl_CONST:
+					nTransitionTimeIsMs = 1000;
+					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+					rectStartEffect.Size(PlutoSize(100, 40));
+					nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
+					break;
+
+				case DESIGNOBJ_popFileList_CONST:
+					nPK_Effect = EFFECT_Fades_from_top_CONST;
+					break;
+
+				default:
+					break;
+				}
+
+				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
+					nTransitionTimeIsMs
+					);
+
+				if(Transit)
+					Transit->Configure(&rectStartEffect);
+
+				if(!Transit)
+					Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					Simulator::GetInstance()->m_iMilisecondsTransition
+					);
+
+				StartAnimation();
+				return;
+			}
+
+
+
+            
 			if(m_pObj_SelectedLastScreen)
 			{
 				m_rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
@@ -994,58 +1057,11 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 			}
 			else
 			{
-				if(!UsesUIVersion2())
-				{
-					GL2DEffect* Transit = m_Desktop->EffectBuilder->
-						CreateEffect(
-						GL2D_EFFECT_TRANSIT_NO_EFFECT,
-						400
-						);
-				}
-				else
-				{
-					//TODO: this is temporary
-					int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-					PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
-					int nPK_Effect = 0;
-					int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
-					switch(nCurrentDesignObjID) 
-					{
-						case DESIGNOBJ_mnuMenu2_CONST:
-							nPK_Effect = EFFECT_Basic_transit_effect_CONST;
-							break;
-
-						case DESIGNOBJ_mnuAmbiance_CONST:
-							nTransitionTimeIsMs = 1000;
-							rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-							rectStartEffect.Size(PlutoSize(100, 40));
-							nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
-							break;
-
-						case DESIGNOBJ_mnuDvdSpeedControl_CONST:
-							nTransitionTimeIsMs = 1000;
-							rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-							rectStartEffect.Size(PlutoSize(100, 40));
-							nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
-							break;
-
-						case DESIGNOBJ_popFileList_CONST:
-							nPK_Effect = EFFECT_Fades_from_top_CONST;
-							break;
-
-						default:
-							break;
-					}
-
-					GL2DEffect* Transit = m_Desktop->EffectBuilder->
-						CreateEffect(
-							m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
-							nTransitionTimeIsMs
-						);
-
-					if(Transit)
-						Transit->Configure(&rectStartEffect);
-				}
+				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					400
+					);
 			}
 		}
 #endif
