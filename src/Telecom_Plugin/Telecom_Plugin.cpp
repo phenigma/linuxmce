@@ -50,6 +50,7 @@ using namespace DCE;
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Table_Users.h"
 #include "pluto_telecom/Table_Contact.h"
 #include "pluto_telecom/Table_PhoneNumber.h"
@@ -64,6 +65,11 @@ using namespace DCE;
 #define MAX_TELECOM_COLORS 5
 int UniqueColors[MAX_TELECOM_COLORS];
 #include <time.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
 
 #define CONFERENCE_PREFIX "C000"
 void * startDisplayThread(void * Arg);
@@ -171,6 +177,10 @@ bool Telecom_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::SpeedDialGrid)),
 		DATAGRID_Speed_Dial_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::UserVoiceMailGrid)),
+		DATAGRID_User_VoiceMail_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
@@ -1639,4 +1649,69 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 	}
 
 	return true;	
+}
+
+/* this makes the plugin asterisk dependend */
+#define VOICEMAIL_LOCATION "/var/lib/asterisk/sounds/voicemail/default/"
+class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	int Row = 0;
+	string userid = Parms;
+
+	if( userid.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "UserVoiceMailGrid request has no user");
+		return pDataGrid;
+	}
+	
+	string user_path=string(VOICEMAIL_LOCATION)+userid+string("/INBOX/");
+	DIR * dir=opendir(user_path.c_str());
+	struct dirent *dir_ent = NULL;
+	while((dir_ent = readdir(dir)))
+	{
+	    struct stat statbuf;
+		string buffer = user_path+dir_ent->d_name;
+        stat(buffer.c_str(),&statbuf);
+        if((S_ISREG(statbuf.st_mode)) && (dir_ent->d_name[0] != '.') && (strstr(dir_ent->d_name,".txt") != NULL))
+        {
+			string text = "New message " + StringUtils::itos(Row+1);
+			string file_path=user_path+(dir_ent->d_name);
+			file_path.replace(file_path.length()-4,4,".wav");
+			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
+
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, file_path, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+			
+			pCell = new DataGridCell(text,"");			
+			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
+			pDataGrid->SetData(0,Row,pCell);
+			Row++;
+		}
+	}
+	user_path=string(VOICEMAIL_LOCATION)+userid+string("/INBOX/Old");
+	dir=opendir(user_path.c_str());
+	dir_ent = NULL;
+	while((dir_ent = readdir(dir)))
+	{
+	    struct stat statbuf;
+		string buffer = user_path+dir_ent->d_name;
+        stat(buffer.c_str(),&statbuf);
+        if((S_ISREG(statbuf.st_mode)) && (dir_ent->d_name[0] != '.') && (strstr(dir_ent->d_name,".txt") != NULL))
+        {
+			string text = "Old message " + StringUtils::itos(Row+1);
+			string file_path=user_path+(dir_ent->d_name);
+			file_path.replace(file_path.length()-4,4,".wav");
+			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
+
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, file_path, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+			
+			pCell = new DataGridCell(text,"");			
+			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
+			pDataGrid->SetData(0,Row,pCell);
+			Row++;
+		}
+	}	
+	return pDataGrid;
 }
