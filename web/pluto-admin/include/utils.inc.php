@@ -864,7 +864,7 @@ function grabDirectory ($path, $depth) {
 function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
-	$PathParm=($startingWith!='')?'"'.$path.'/'.$startingWith.'"*':'"'.$path.'"';
+	$PathParm=($startingWith!='')?'"'.$path.'/'.$startingWith.'"*':'"'.$path.'/"';
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
 	//echo $cmd;
 	exec($cmd,$retArray);
