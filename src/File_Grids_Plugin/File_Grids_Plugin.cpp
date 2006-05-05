@@ -243,7 +243,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				pDataGrid->m_vectFileInfo.push_back(pFileListInfo);
 			}
 		}
-		else
+		else if( StringUtils::StartsWith(sSubDirectory,"Jukebox: ") )
 		{
 			//not a top level folder
 			for(vector<Row_Device *>::iterator iPowerFile = vectRow_Device.begin(); iPowerFile != vectRow_Device.end(); iPowerFile++)

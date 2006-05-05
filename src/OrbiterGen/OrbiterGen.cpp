@@ -637,6 +637,9 @@ m_bNoEffects = true;
 	if( !m_pRow_Size )
 		throw "Cannot determine the size";
 
+	m_Width = m_pRow_Size->Width_get();
+	m_Height = m_pRow_Size->Height_get();
+
 	m_sScale.Width = m_pRow_Size->ScaleX_get();
 	m_sScale.Height = m_pRow_Size->ScaleY_get();
 
@@ -1441,8 +1444,6 @@ m_bNoEffects = true;
 		}
 	}
 
-	m_Width = m_pRow_Size->Width_get();
-	m_Height = m_pRow_Size->Height_get();
 	m_sScaledSize = PlutoSize(m_Width,m_Height);
 	m_AnimationStyle = 1; // TODO -- is this used anymore? m_pRow_Orbiter->FK_Skin_getrow()->FK_AnimationStyle_get();
 
@@ -1531,6 +1532,7 @@ m_bNoEffects = true;
 				}
 				catch(string s)
 				{
+					cout << "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
 					throw "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
 				}
 

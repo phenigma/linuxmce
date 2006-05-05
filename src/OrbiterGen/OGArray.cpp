@@ -48,6 +48,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 	m_rBounds=rBounds;
 	m_bExpandHorizontal=(m_rBounds.Width==-1);
 	m_bExpandVertical=(m_rBounds.Height==-1);
+
 	m_VariableMap=&m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_mapVariable;
 
 	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
@@ -131,7 +132,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 
 				// See if another one of those objects won't fit and we need a new column
 				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || 
-					(m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() && !m_bExpandVertical)  )
+					(m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() && !m_bExpandVertical) ||
+					m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_Height )
 				{
 					if( MaxNumColumns>0 && ++iCurrentNumColumns>=MaxNumColumns )
 					{ CheckLastEntry(); return; }
@@ -159,7 +161,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 
 				// See if another one of those objects won't fit and we need a new column
 				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || 
-					(m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() && !m_bExpandHorizontal) )  // -1 width means no limit
+					(m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() && !m_bExpandHorizontal) ||
+					m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_Width )  // -1 width means no limit
 				{
 					if( MaxNumRows>0 && ++iCurrentNumRows>=MaxNumRows )
 					{ CheckLastEntry(); return; }

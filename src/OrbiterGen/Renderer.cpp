@@ -1138,6 +1138,7 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size,bool bFillIt)
 
     if (Canvas->m_pSDL_Surface == NULL)
     {
+		cout << "Failed to create blank canvas w: " << Width << " Height " << Height << " error: " << SDL_GetError() << endl;
         throw string("Failed to create blank canvas: ") + SDL_GetError();
         delete Canvas;
         Canvas = NULL;
