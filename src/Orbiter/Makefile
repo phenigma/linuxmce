@@ -145,6 +145,7 @@ sources += \
 	OpenGL/GL2DEffects/GL2DEffectHighLight.cpp \
 	OpenGL/GL2DEffects/gl2deffectselectedarea.cpp \
 	OpenGL/GL2DEffects/GL2DEffectTransitionNoEffect.cpp \
+	OpenGL/GL2DEffects/GL2DEffectWipeIn.cpp \
 	OpenGL/GL2DEffects/gl2deffect.cpp \
 	Linux/OSDScreenHandler.cpp \
 	Linux/MouseBehavior_Linux.cpp \
