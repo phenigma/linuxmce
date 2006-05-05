@@ -655,6 +655,13 @@ void Orbiter::RenderScreen( )
 			m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), clkFinished-clkStart );
 	}
 #endif
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	// With the new UI 
+	if(UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal==NULL && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL )
+		m_pMouseBehavior->Set_Mouse_Behavior("K",false,"B",m_pScreenHistory_Current->GetObj()->m_ObjectID);
+#endif
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif

@@ -1349,6 +1349,8 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
 		return;
 	}
 
+	Row_DesignObjVariation *drVariation_Alt=NULL;
+
     for(size_t s=0;s<vectrov.size();++s)
     {
         Row_DesignObjVariation *drOV = vectrov[s];
@@ -1366,7 +1368,15 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
             *drDesignObjVariation = drOV;
             alDesignObjVariations->push_back(drOV);
         }
+		else if( drOV->FK_UI_get() == pGenerator->m_pRow_UI->FK_UI_Alt_get() )
+			drVariation_Alt = drOV;
     }
+
+    if( *drDesignObjVariation==NULL && drVariation_Alt!=NULL )
+	{
+		*drDesignObjVariation = drVariation_Alt;
+		alDesignObjVariations->push_back(drVariation_Alt);
+	}
 
     // It's possible there's just no standard variation.  In that case the chosen variation will be standard.
     if( *drStandardVariation==NULL && *drDesignObjVariation!=NULL )
