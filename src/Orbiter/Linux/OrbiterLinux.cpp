@@ -248,15 +248,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     m_WinListManager.ShowSdlWindow(false);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
-        //HACK: does not work: now the speed control is not displayed
-        //extern bool g_bIgnoreRender;
-        //if (g_bIgnoreRender)
-        //{
-        //    g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop skipping rendering of %s",pObj->m_ObjectID.c_str());
-        //	return true;
-        //}
         //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());
-        
         {
             // TODO : Set now playing is not sent in video wizard
             // we'll assume this is a xine for now
