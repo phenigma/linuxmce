@@ -17,6 +17,8 @@
 #define UI_INCLUDESTANDARDUI_TABLE_FIELD "UI.IncludeStandardUI"
 #define UI_VERSION_FIELD "Version"
 #define UI_VERSION_TABLE_FIELD "UI.Version"
+#define UI_FK_UI_ALT_FIELD "FK_UI_Alt"
+#define UI_FK_UI_ALT_TABLE_FIELD "UI.FK_UI_Alt"
 #define UI_PSC_ID_FIELD "psc_id"
 #define UI_PSC_ID_TABLE_FIELD "UI.psc_id"
 #define UI_PSC_BATCH_FIELD "psc_batch"

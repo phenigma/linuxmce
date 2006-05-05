@@ -2073,6 +2073,9 @@
 #define DESIGNOBJ_mnuRADU3_CONST 5013
 #define DESIGNOBJ_butRadu_CONST 5014
 #define DESIGNOBJ_butRoomLong_CONST 5015
+#define DESIGNOBJ_icoRedSquare_CONST 5016
+#define DESIGNOBJ_icoYellowSquare_CONST 5017
+#define DESIGNOBJ_dgVoiceMailManager_CONST 5018
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

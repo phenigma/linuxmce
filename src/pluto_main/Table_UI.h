@@ -82,6 +82,7 @@ string m_Description;
 string m_Define;
 short int m_IncludeStandardUI;
 long int m_Version;
+long int m_FK_UI_Alt;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -89,7 +90,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int PK_UI_get();
@@ -97,6 +98,7 @@ string Description_get();
 string Define_get();
 short int IncludeStandardUI_get();
 long int Version_get();
+long int FK_UI_Alt_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -110,6 +112,7 @@ void Description_set(string val);
 void Define_set(string val);
 void IncludeStandardUI_set(short int val);
 void Version_set(long int val);
+void FK_UI_Alt_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -122,6 +125,7 @@ void psc_restrict_set(long int val);
 bool Define_isNull();
 bool IncludeStandardUI_isNull();
 bool Version_isNull();
+bool FK_UI_Alt_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -133,6 +137,7 @@ bool psc_restrict_isNull();
 void Define_setNull(bool val);
 void IncludeStandardUI_setNull(bool val);
 void Version_setNull(bool val);
+void FK_UI_Alt_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -150,18 +155,20 @@ void psc_restrict_setNull(bool val);
 		class Table_UI *Table_UI_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_UI* FK_UI_Alt_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObjVariation_FK_UI_getrows(vector <class Row_DesignObjVariation*> *rows);
 void Screen_DesignObj_FK_UI_getrows(vector <class Row_Screen_DesignObj*> *rows);
 void Skin_FK_UI_getrows(vector <class Row_Skin*> *rows);
 void StyleVariation_FK_UI_getrows(vector <class Row_StyleVariation*> *rows);
+void UI_FK_UI_Alt_getrows(vector <class Row_UI*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_UI+ m_Description+ m_Define+ m_IncludeStandardUI+ m_Version+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_UI+ m_Description+ m_Define+ m_IncludeStandardUI+ m_Version+ m_FK_UI_Alt+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -171,6 +178,7 @@ string Description_asSQL();
 string Define_asSQL();
 string IncludeStandardUI_asSQL();
 string Version_asSQL();
+string FK_UI_Alt_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
