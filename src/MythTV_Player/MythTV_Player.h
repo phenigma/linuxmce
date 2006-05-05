@@ -43,6 +43,7 @@ namespace DCE
         pthread_t                    m_qApplicationThreadId;
 	Display *m_pDisplay;
 	string m_CurrentMode, m_CurrentProgram;
+	int m_CurTime, m_EndTime;
 	void selectWindow();
         bool checkWindowName(long unsigned int window, string windowName);
 

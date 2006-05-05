@@ -106,6 +106,8 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_threadMonitorMyth = 0;
     m_pDisplay = NULL;
     m_mythStatus = MYTHSTATUS_DISCONNECTED;
+    m_CurTime=0;
+    m_EndTime=0;
     
 }
 
@@ -275,8 +277,8 @@ void MythTV_Player::pollMythStatus()
 				m_mythStatus = MYTHSTATUS_PLAYBACK;
 				if (vectResults[1]=="LiveTV")
 				{
-					int CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
-					int EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
+					m_CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
+					m_EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
 					// flapping.    Unfortunately it takes live TV so long to start up at times that we need
@@ -284,14 +286,14 @@ void MythTV_Player::pollMythStatus()
 					
 					if (m_CurrentMode == "live")
 					{
-						if (CurTime < EndTime - 10)
+						if (m_CurTime < m_EndTime - 10)
 							SetMode = "nonlive";
 						else
 							SetMode = "live";
 					} 
 					else
 					{
-						if (CurTime < EndTime - 8)
+						if (m_CurTime < m_EndTime - 8)
 							SetMode = "nonlive";
 						else
 							SetMode = "live";
@@ -1009,9 +1011,8 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	*sText = sendMythCommand("query location");
-
-	g_pPlutoLogger->Write(LV_STATUS, "Status position: \"%s\"", sText->c_str());
+	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+		*sText=StringUtils::Format(" POS:%d TOTAL:%d", m_CurTime, m_EndTime);
 }
 
 //<-dceag-c412-b->
