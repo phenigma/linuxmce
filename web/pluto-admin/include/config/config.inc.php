@@ -4,7 +4,7 @@
   	
   	// todo: set lang when translation is finished
   	$GLOBALS['lang']='en';
-  	$GLOBALS['skin']=0;
+  	$_SESSION['skin']=0;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -46,11 +46,11 @@
   		// todo: remove
   		// setting get get parameter &red=1 set css style to red stylesheet and preserve it, set to 0 to return to pluto
   		if(isset($_REQUEST['red'])){
-  			$GLOBALS['skin']=(int)$_REQUEST['red'];
+  			$_SESSION['skin']=(int)$_REQUEST['red'];
   		}
   	}
 
-  	if($GLOBALS['skin']==0){
+  	if($_SESSION['skin']==0){
 		$_SESSION['cssFile']='include/styles/customer_setup_style.css';
 		$_SESSION['jsForMenu']='scripts/menu_settings.js';
 	}else{
