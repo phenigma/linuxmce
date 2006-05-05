@@ -37,7 +37,8 @@ class Plug_And_Play::PnPPrivate
 		DeviceData_Base * pnpCoreDevice;
 		DCEConfig config;
 		bool core;
-		/**true if there is a device pending in the queue*/
+		
+		/**true if there is a device pending in the queue*/ 
 		bool pending;
 		
 		/**the pnp queue id of the device in progress*/
@@ -48,13 +49,19 @@ class Plug_And_Play::PnPPrivate
 		 * @param the state
 		 * @return 0 if succesfull, -1 in case of error */
 		int SetState(int PK_PnpQueue, int state);
+		
 		/**set the enable state of the device
 		 * @param iPK_Device the device ID
 		 * @param bEnable the enable state*/
 		void SetEnableState(int iPK_Device, bool bEnable);
+		
 		/**get the core pnp device
 		 * @return true if succesfull*/
 		bool getCorePNPDevice();
+		
+		/**Run script on the remote system.*/
+		bool RunScript(int iPK_PnpQueue, long lFrom, string sPath);
+		
 	private:
 		/**pointer to the holder object*/
 		Plug_And_Play* parent;
@@ -77,6 +84,147 @@ Plug_And_Play::PnPPrivate::~PnPPrivate()
 	database = NULL;
 }
 
+bool Plug_And_Play::PnPPrivate::RunScript(int iPK_PnpQueue, long lFrom, string sPath)
+{
+	if( core )
+	{
+		DeviceData_Base * pDevice_From = parent->m_pData->m_AllDevices.m_mapDeviceData_Base_Find( lFrom );
+		if( pDevice_From != NULL )
+		{
+			if( pDevice_From->m_pDevice_ControlledVia != NULL )
+			{
+				DeviceData_Base * pDevice_AppServer = 
+					pDevice_From->m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+				if( pDevice_AppServer != NULL )
+				{
+					// Ex: script_detect_template parameters --queue_id iPK_PnpQueue
+					sPath += " --queue_id ";
+					sPath += StringUtils::itos( iPK_PnpQueue );
+					string sName("Device Template Detection");
+					string sCommOnFailure, sCommOnSuccess; // just nothing
+					string sCommand_Line, sArguments;
+					string sCommand_LineClone(sPath);
+					vector<string> vectArgs;
+					StringUtils::Tokenize(sCommand_LineClone, " ", vectArgs);
+				
+					sCommand_Line = vectArgs[0];
+					for(size_t i = 1; i < vectArgs.size(); i++)
+					{
+						sArguments += vectArgs[i];
+						sArguments += i == vectArgs.size() - 1 ? "" : "\t";
+					}
+					
+					DCE::CMD_Spawn_Application cmd_Spawn_Application(	parent->m_dwPK_Device,
+												pDevice_AppServer->m_dwPK_Device,
+												sCommand_Line,
+												sName,
+												sArguments,
+												sCommOnFailure,
+												sCommOnSuccess,
+												false, false, false );
+					parent->SendCommand( cmd_Spawn_Application );
+					return true;
+				}
+			}
+
+/*			DeviceData_Base * pDevice_Parent = 
+				pDevice_From->FindSelfOrParentWithinCategory( DEVICECATEGORY_Media_Director_CONST );
+			if( pDevice_Parent == NULL )
+			{
+				pDevice_From->FindSelfOrParentWithinCategory( DEVICECATEGORY_Core_CONST );
+			}*/
+		}
+		
+		// error
+	}
+	
+	return false;
+}
+
+void Plug_And_Play::PnPPrivate::SetEnableState(int iPK_Device, bool bEnable)
+{
+	//get the device row from 'Device' table
+	Row_Device *pRow_Device = database->Device_get()->GetRow(iPK_Device);
+
+	if(NULL != pRow_Device)
+	{
+		//the device exists; setting 'Disabled' flag
+		pRow_Device->Disabled_set(bEnable ? 0 : 1);
+		pRow_Device->Table_Device_get()->Commit();
+	}
+	else
+	{
+		//no row, no valid device id; are you missing something ? 
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
+			iPK_Device);
+	}
+}
+
+bool Plug_And_Play::PnPPrivate::getCorePNPDevice()
+{
+	bool retValue = true;
+	// find the Core then find the PnP device from Core
+	if( pnpCoreDevice == NULL )
+	{
+		DeviceData_Base * pDevice_Core = 
+			parent->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory( DEVICECATEGORY_Core_CONST );
+		if( pDevice_Core != NULL )
+		{
+			pnpCoreDevice = pDevice_Core->FindFirstRelatedDeviceOfTemplate( DEVICETEMPLATE_Plug_And_Play_CONST );
+			if( pnpCoreDevice != NULL )
+			{
+				retValue = true;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "cannot get the pnp device from core");
+				retValue = false;
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "cannot get the core device");
+			retValue = false;
+		}
+	}
+	return retValue;
+}
+
+int Plug_And_Play::PnPPrivate::SetState(int PK_PnpQueue, int state)
+{
+	if(PK_PnpQueue <= 0)
+		return -1;
+	
+	if(state < 0 || state > 7)
+		return -1;
+	
+	Table_PnpQueue *table_PnpQueue = database->PnpQueue_get();
+	if(table_PnpQueue != NULL)
+	{
+		Row_PnpQueue* row_PnpQueue = table_PnpQueue->GetRow(PK_PnpQueue);
+		if(row_PnpQueue != NULL)
+		{
+			row_PnpQueue->Stage_set(state);
+			if(!table_PnpQueue->Commit())
+			{
+				//error
+				g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
+				return -1;
+			}		
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "no row");
+				return -1;
+		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "no pnpqueue table");
+		return -1;
+	}
+	return 0;
+}
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -160,10 +308,13 @@ bool Plug_And_Play::GetConfig()
 bool Plug_And_Play::Register()
 //<-dceag-reg-e->
 {
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Pre_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Pre_Config_Response_CONST );
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Do_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Do_Config_Response_CONST );
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Post_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Post_Config_Response_CONST );
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Set_Device_Template ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Set_Device_Template_CONST );
+	if( d->core )
+	{
+		RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Pre_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Pre_Config_Response_CONST );
+		RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Do_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Do_Config_Response_CONST );
+		RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Post_Config_Response ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Post_Config_Response_CONST );
+		RegisterMsgInterceptor(( MessageInterceptorFn )( &Plug_And_Play::Set_Device_Template ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PnP_Set_Device_Template_CONST );
+	}
 
 	return Connect(PK_DeviceTemplate_get());
 }
@@ -331,7 +482,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 											DEVICETEMPLATE_General_Info_Plugin_CONST,
 											sPNPSerialNo);
 				
-		string response; 
+		string response;
 		bool bResponse = SendCommand(cmd, &response);
 		
 		if(response.find("Error") != string::npos || !bResponse)
@@ -366,6 +517,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			if( vectRow_PnpQueue.empty() )
 			{
 				d->pending = true;
+				
 				// add it to the queue
 				Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
 				if( row != NULL )
@@ -396,6 +548,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 						return;
 					}
 					d->currentPnpQueueID = row->PK_PnpQueue_get();
+					
 					CheckQueue();
 				}
 				else
@@ -451,7 +604,67 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			g_pPlutoLogger->Write(LV_WARNING, "cannot get the core device");
 		}
 	}
-	//buh-bye now
+	
+	//check the queue to see if the device is not in processing
+	if( iPK_DeviceTemplate < 0 )
+	{
+		// set the right state
+		// PNP_DEVICE_DETECTED
+	}
+	else
+	{
+		// PNP_DEVICE_PROMPT_FOR_PARAMETERS
+	}
+	
+	string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
+	
+	vector<Row_PnpQueue*> vectRow_PnpQueue;
+	vector<Row_PnpQueue*>::iterator vectRow_PnpQueue_iterator;
+	
+	Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
+	if( p_Table_PnpQueue != NULL )
+	{
+		p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
+		if( vectRow_PnpQueue.empty() )
+		{
+			// add it to the queue
+			Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
+			if( row != NULL )
+			{
+				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
+				row->FK_Device_set( 0 );
+				row->FK_CommMethod_set( iPK_CommMethod  );
+				row->FK_PnpProtocol_set( iPK_PnpProtocol );
+				row->DetectedDate_set( "Data" );
+				row->SerialNumber_set( sPNPSerialNo );
+				row->Identifier_set( sIdentifier );
+				row->Path_set( sPath );
+				// TODO
+				// row->IP_set( sIP_Address );
+				// row->ExtraParameters_set( sTokens );
+				
+				if( !p_Table_PnpQueue->Commit() )
+				{
+					// error
+					g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
+				// error
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );
+			// nothing ??
+		}
+	}
+	
+
+	//check the device table to see if there is already a device with the specified serial no
+	
 }
 
 //<-dceag-c799-b->
@@ -595,7 +808,7 @@ void Plug_And_Play::CheckQueue()
 							//unknown stage
 							//delete the item from queue
 							(*vectRow_PnpQueue_iterator)->Delete();
-							p_Table_PnpQueue->Commit();							
+							p_Table_PnpQueue->Commit();
 							g_pPlutoLogger->Write(LV_WARNING, "invalid stage on PNP queue");
 							
 					}
@@ -616,32 +829,150 @@ void Plug_And_Play::CheckQueue()
 
 void Plug_And_Play::Pre_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	if( !d->core )
+	{
+		return;
+	}
+	
 	if(pMessage->m_dwID != EVENT_PnP_Pre_Config_Response_CONST)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Pre_Config_Response_CONST");
 		return;
 	}
-	//get the response from the pre_config function
+	
+	int iResult = 0;
+	int iPK_PnpQueue = 0;
+	
+	string result = pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST];
+	string pnpQueueID = pMessage->m_mapParameters[EVENTPARAMETER_PK_PnpQueue_CONST];
+	
+	iResult = atoi(result.c_str());
+	iPK_PnpQueue = atoi(pnpQueueID.c_str());
+	
+	if( d->currentPnpQueueID != iPK_PnpQueue )
+	{
+		return;
+	}
+	
+	switch( iResult )
+	{
+		case Plug_And_Play::OK :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Do);
+			break;
+		
+		case Plug_And_Play::RETRY :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Pre);
+			break;
+		
+		case Plug_And_Play::FAILED :
+		default :
+			// error
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Error);
+			break;
+	}
+	
+	d->pending = false;
+	
+	CheckQueue();
 }
 
 void Plug_And_Play::Do_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	if( !d->core )
+	{
+		return;
+	}
+	
 	if(pMessage->m_dwID != EVENT_PnP_Do_Config_Response_CONST)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Do_Config_Response_CONST");
 		return;
 	}
-	//get the response from the do_config function
+	
+	int iResult = 0;
+	int iPK_PnpQueue = 0;
+	
+	string result = pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST];
+	string pnpQueueID = pMessage->m_mapParameters[EVENTPARAMETER_PK_PnpQueue_CONST];
+	
+	iResult = atoi(result.c_str());
+	iPK_PnpQueue = atoi(pnpQueueID.c_str());
+	
+	if( d->currentPnpQueueID != iPK_PnpQueue )
+	{
+		return;
+	}
+	
+	switch( iResult )
+	{
+		case Plug_And_Play::OK :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Post);
+			break;
+		
+		case Plug_And_Play::RETRY :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Do);
+			break;
+		
+		case Plug_And_Play::FAILED :
+		default :
+			// error
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Error);
+			break;
+	}
+	
+	d->pending = false;
+	
+	CheckQueue();
 }
 
 void Plug_And_Play::Post_Config_Response( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	//get the response from the post_config function
+	if( !d->core )
+	{
+		return;
+	}
+	
 	if(pMessage->m_dwID != EVENT_PnP_Post_Config_Response_CONST)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Post_Config_Response_CONST");
 		return;
 	}
-	//get the response from the post_config function
+	
+	int iResult = 0;
+	int iPK_PnpQueue = 0;
+	
+	string result = pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST];
+	string pnpQueueID = pMessage->m_mapParameters[EVENTPARAMETER_PK_PnpQueue_CONST];
+	
+	iResult = atoi(result.c_str());
+	iPK_PnpQueue = atoi(pnpQueueID.c_str());
+	
+	if( d->currentPnpQueueID != iPK_PnpQueue )
+	{
+		return;
+	}
+	
+	switch( iResult )
+	{
+		case Plug_And_Play::OK :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Done);
+			break;
+		
+		case Plug_And_Play::RETRY :
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Post);
+			break;
+		
+		case Plug_And_Play::FAILED :
+		default :
+			// error
+			d->SetState(iPK_PnpQueue, Plug_And_Play::Error);
+			break;
+	}
+	
+	d->pending = false;
+	
+	CheckQueue();
 }
 
 
@@ -690,87 +1021,4 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 	}
 }
 
-int Plug_And_Play::PnPPrivate::SetState(int PK_PnpQueue, int state)
-{
-	if(PK_PnpQueue <= 0)
-		return -1;
-	
-	if(state < 0 || state > 7)
-		return -1;
-	
-	Table_PnpQueue *table_PnpQueue = database->PnpQueue_get();
-	if(table_PnpQueue != NULL)
-	{
-		Row_PnpQueue* row_PnpQueue = table_PnpQueue->GetRow(PK_PnpQueue);
-		if(row_PnpQueue != NULL)
-		{
-			row_PnpQueue->Stage_set(state);
-			if(!table_PnpQueue->Commit())
-			{
-				//error
-				g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
-				return -1;
-			}		
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "no row");
-				return -1;
-		}
-	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "no pnpqueue table");
-		return -1;
-	}
-	return 0;
-}
 
-void Plug_And_Play::PnPPrivate::SetEnableState(int iPK_Device, bool bEnable)
-{
-	//get the device row from 'Device' table
-	Row_Device *pRow_Device = database->Device_get()->GetRow(iPK_Device);
-
-	if(NULL != pRow_Device)
-	{
-		//the device exists; setting 'Disabled' flag
-		pRow_Device->Disabled_set(bEnable ? 0 : 1);
-		pRow_Device->Table_Device_get()->Commit();
-	}
-	else
-	{
-		//no row, no valid device id; are you missing something ? 
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
-			iPK_Device);
-	}
-}
-
-bool Plug_And_Play::PnPPrivate::getCorePNPDevice()
-{
-	bool retValue = true;
-	// find the Core then find the PnP device from Core
-	if( pnpCoreDevice == NULL )
-	{
-		DeviceData_Base * pDevice_Core = 
-			parent->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory( DEVICECATEGORY_Core_CONST );
-		if( pDevice_Core != NULL )
-		{
-			pnpCoreDevice = pDevice_Core->FindFirstRelatedDeviceOfTemplate( DEVICETEMPLATE_Plug_And_Play_CONST );
-			if( pnpCoreDevice != NULL )
-			{
-				retValue = true;
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "cannot get the pnp device from core");
-				retValue = false;
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "cannot get the core device");
-			retValue = false;
-		}
-	}
-	return retValue;
-}
