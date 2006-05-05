@@ -10,6 +10,9 @@ using namespace std;
 #include "Orbiter.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "MouseBehavior.h"
+
+//struct SDL_Surface;
+
 using namespace DCE;
 
 namespace DCE
@@ -24,8 +27,10 @@ namespace DCE
 	public:
 		int m_iLastGoodPosition;
 
-		VolumeMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) : MouseHandler(pObj,sOptions,pMouseBehavior) {}
-		virtual EMouseHandler TypeOfMouseHandler() { return mh_Volume; }
+		VolumeMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
+        ~VolumeMouseHandler();
+
+        virtual EMouseHandler TypeOfMouseHandler() { return mh_Volume; }
 
 		void Start();
 		void Stop();
@@ -35,7 +40,10 @@ namespace DCE
 		void Move(int X,int Y,int PK_Direction);
 		bool SlowDrift(int &X,int &Y);  // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 
-		void DrawSquare(int Notch,PlutoColor plutoColor);
+		void DrawSquare(int Notch, PlutoColor plutoColor);
+
+    //protected:
+    //    SDL_Surface *m_pPrevSurface;
 	};
 
 }

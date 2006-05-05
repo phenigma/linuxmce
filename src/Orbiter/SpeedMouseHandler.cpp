@@ -294,7 +294,9 @@ void SpeedMouseHandler::DrawInfo()
 	int Speed = -9999;  // Option #3, the current speed, -9999 = don't show any speed
 	int SeekPosition = -1;  // Option #5, the current seek to position.  -1 = none
 
-	if( m_bHasTimeline )
+    //g_pPlutoLogger->Write(LV_CRITICAL,"SpeedMouseHandler::DrawInfo()");
+
+    if( m_bHasTimeline )
 	{
 		if( !m_bIsActive )
 			Style = SPEED_STYLE_TIMELINE_IDLE;

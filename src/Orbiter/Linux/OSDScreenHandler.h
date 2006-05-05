@@ -88,8 +88,10 @@ public:
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
 
-	virtual void SCREEN_TVManufNotListed(long PK_Screen);
+    virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
+
+	//bool VolumeControlCustomRender(CallBackData *pData);
 };
 
 #endif

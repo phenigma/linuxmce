@@ -32,6 +32,8 @@
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #	include "../MouseBehavior.h"
 #	include "../SpeedMouseHandler.h"
+#	include "../VolumeMouseHandler.h"
+#	include "../LightMouseHandler.h"
 #endif
 
 //-----------------------------------------------------------------------------------------------------
@@ -1923,6 +1925,39 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 	return false;
 }
 
+////-----------------------------------------------------------------------------------------------------
+//bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
+//{
+//	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::VolumeControlCustomRender()");
+//	//we don't need this right now
+//	RenderScreenCallBackData *pRenderData = dynamic_cast<RenderScreenCallBackData *>(pData);
+//	if(NULL == pRenderData || NULL == pRenderData->m_pObj)
+//	{
+//		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::VolumeControlCustomRender() : "
+//			"pData is not a RenderScreenCallBackData or the designobj within is NULL: renderdata %p", pRenderData);
+//		return false;
+//	}
+//	m_pOrbiter->RenderGraphic(pRenderData->m_pObj,  pRenderData->m_pObj->m_rPosition, 
+//		pRenderData->m_pObj->m_bDisableAspectLock);
+//#ifdef ENABLE_MOUSE_BEHAVIOR
+//	if(NULL != m_pOrbiter && NULL != m_pOrbiter->m_pMouseBehavior)
+//	{
+//		const MouseHandler *pMouseHandler = m_pOrbiter->m_pMouseBehavior->GetHorizontalMouseHandler();
+//		const VolumeMouseHandler *pcVolumeMouseHandler = dynamic_cast<const VolumeMouseHandler *>(pMouseHandler);
+//		if(NULL == pcVolumeMouseHandler)
+//		{
+//			g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::VolumeControlCustomRender() : "
+//				"Unable to get VolumeMouseHandler");
+//			return false;
+//		}
+//		VolumeMouseHandler *pVolumeMouseHandler = const_cast<VolumeMouseHandler *>(pcVolumeMouseHandler);
+//		//pVolumeMouseHandler->DrawSquare();
+//	}
+//	else
+//		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::VolumeControlCustomRender() : "
+//			"MouseBehavior not activated in Orbiter!");
+//#endif
+//	return false;
+//}
+
 //-----------------------------------------------------------------------------------------------------
-
-

@@ -128,11 +128,13 @@ bool LightMouseHandler::SlowDrift(int &X,int &Y)
 
 void LightMouseHandler::DrawSquare(int Notch,PlutoColor plutoColor)
 {
+    //g_pPlutoLogger->Write(LV_CRITICAL,"LightMouseHandler::DrawSquare() : Notch=%d", Notch);
+
 	int NotchHeight = m_pObj->m_rPosition.Height/11; // Allow for 7 repeat levels in each direction
 	int NotchStart = Notch * NotchHeight + m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y;
 	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-	m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.X, NotchStart,
-	m_pObj->m_rPosition.Width, NotchHeight,
-	plutoColor);
+        m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.X, NotchStart,
+        m_pObj->m_rPosition.Width, NotchHeight,
+        plutoColor);
 	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
 }
