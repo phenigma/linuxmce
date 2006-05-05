@@ -51,11 +51,6 @@ void SDLGraphic::Initialize()
 //-------------------------------------------------------------------------------------------------------
 bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
-    if (m_pSDL_Surface == NULL)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::LoadGraphic() : NULL m_pSDL_Surface");
-        return false;
-    }
 	if(m_GraphicFormat == GR_OCG)
 	{
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load ocg files with PocketFrog surfaces in Orbiter SDL. Please check 'Use_OCG' device data for this device. Exiting...");
