@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: nvidia-glx-ia32
 Architecture: amd64
-Depends: nvidia-kernel-1.0.8756, ia32-libs, ${shlibs:Depends}
+Depends: nvidia-kernel-2.6.16.12-pluto-1-686, ia32-libs, ${shlibs:Depends}
 Recommends: nvidia-kernel-source (>= 1.0.8756)
 Suggests: nvidia-settings
 Conflicts: nvidia-glx-src
@@ -24,7 +24,7 @@ Description: NVIDIA binary XFree86 4.x driver
 
 Package: nvidia-glx
 Architecture: i386 amd64
-Depends: nvidia-kernel-1.0.8756, xserver-common (>= 4.0.3), xlibmesa-glu | libglu | libglu1, ${shlibs:Depends}, nvidia-driver (=1.1-1)
+Depends: nvidia-kernel-2.6.16.12-pluto-1-686, xserver-common (>= 4.0.3), xlibmesa-glu | libglu | libglu1, ${shlibs:Depends}, nvidia-driver (=1.1-1)
 Recommends: nvidia-kernel-source (>= 1.0.8756)
 Suggests: nvidia-settings
 Conflicts: nvidia-glx-src

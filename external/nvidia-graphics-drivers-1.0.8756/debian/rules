@@ -21,6 +21,7 @@ upstreamversion:=$(shell sh debian/upstream_info UPSTREAMVERSION)
 url:=$(shell sh debian/upstream_info URL)
 dirname:=$(shell sh debian/upstream_info DIRNAME)
 filename:=$(shell sh debian/upstream_info FILENAME)
+kvers=$(shell uname -r)
 
 AUTOGEN=debian/nvidia-kernel-source.README.Debian debian/control \
 debian/copyright debian/nvidia-glx.links debian/nvidia-glx-dev.links \
@@ -229,6 +230,7 @@ binary-common:
 	-e 's{#BASE_VERSION#}{$(base_version)}g;' \
 	-e 's{#RELEASE#}{$(release)}g;' \
 	-e 's{#VERSION#}{$(version)}g;' \
+	-e 's{#KVERS#}{$(kvers)}g;' \
 	-e 's{#UPSTREAMVERSION#}{$(upstreamversion)}g;' \
 	-e 's{#DIRNAME#}{$(dirname)}g;' \
 	-e 's{#FILENAME#}{$(filename)}g;' \
