@@ -463,3 +463,35 @@ string MediaStream::GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEnte
 
 	return sResult;
 }
+
+int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
+{
+	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
+	RemoteControlSet *pRemoteControlSet = pMedia_Plugin->PickRemoteControlMap(
+		PK_Orbiter,
+		m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+		m_iPK_MediaType);
+	if( !pRemoteControlSet )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MediaStream::GetRemoteControlScreen Cannot find remote controls for Orbiter %d",PK_Orbiter);
+		return 0;
+	}
+	m_mapRemoteControlSet[PK_Orbiter]=pRemoteControlSet;
+	EntertainArea *pEntertainArea_OSD=NULL;
+	bool bIsOSD=OrbiterIsOSD(PK_Orbiter,&pEntertainArea_OSD);
+
+	if( m_bUseAltScreens )
+	{
+		if( bIsOSD )
+			return pRemoteControlSet->m_iPK_Screen_Alt_OSD;
+		else
+			return pRemoteControlSet->m_iPK_Screen_Alt_Remote;
+	}
+	else
+	{
+		if( bIsOSD )
+			return pRemoteControlSet->m_iPK_Screen_OSD;
+		else
+			return pRemoteControlSet->m_iPK_Screen_Remote;
+	}
+}

@@ -27,6 +27,7 @@
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "pluto_main/Table_MediaType_DesignObj.h"
+#include "pluto_main/Define_Screen.h"
 
 #include "pluto_media/Define_AttributeType.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -455,9 +456,10 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
 		string sRemotes;
+		RemoteControlSet *pRemoteControlSet = NULL;
 		if( pMediaStream )
 		{
-			RemoteControlSet *pRemoteControlSet = pMediaStream->m_mapRemoteControlSet[dwPK_Device];
+			pRemoteControlSet = pMediaStream->m_mapRemoteControlSet[dwPK_Device];
 			if( !pRemoteControlSet )
 			{
 				pRemoteControlSet = PickRemoteControlMap(
@@ -479,11 +481,14 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD);
 		}
 
+		EntertainArea *pEntertainArea_OSD=NULL;
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
 		string sFilename;
 		if( pMediaStream )
 		{
+			bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
+			int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 
@@ -519,18 +524,16 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
-						0,"<%=NP_R%>","","",false,false);
-					pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen);
+					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
 			else
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
-						0,"<%=NP_R%>","","",false,false);
-					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
 			}
@@ -544,18 +547,16 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
-						0,"<%=NP_R%>","","",false,false);
-					pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST);
+					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
 			else
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
-						0,"<%=NP_R%>","","",false,false);
-					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
 			}

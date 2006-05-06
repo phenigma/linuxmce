@@ -23,6 +23,7 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class KeyboardMouseHandler : public MouseHandler
 	{
+		bool m_b1Step; // If true, do not do continuous motion, only 1 step at a time
 		char m_cDirection;
 		int m_PK_Direction_Last;
 		DatagridMouseHandlerHelper m_DatagridMouseHandlerHelper;
@@ -39,6 +40,7 @@ namespace DCE
 		void Move(int X,int Y,int PK_Direction);
 		bool SlowDrift(int &X,int &Y); // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 		void MoveExternalApp(int X,int Y);
+		void MoveExternalApp1Step(int X,int Y);
 
 		void DoIteration();
 		void IterateObject();

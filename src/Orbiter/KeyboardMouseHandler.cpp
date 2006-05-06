@@ -24,7 +24,7 @@ void KeyboardMouseHandler::Start()
 	m_PK_Direction_Last=0;
 	m_cDirection=0;
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
-
+	m_b1Step = m_sOptions.find('1')!=string::npos;
 	if( !m_pObj )
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
 			m_pMouseBehavior->m_pOrbiter->m_Height/2);
@@ -105,7 +105,10 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 
 	if( !m_pObj )
 	{
-		MoveExternalApp(X,Y);
+		if( m_b1Step )
+			MoveExternalApp1Step(X,Y);
+		else
+			MoveExternalApp(X,Y);
 		return;
 	}
 
@@ -165,6 +168,27 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 				m_DatagridMouseHandlerHelper.Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 		}
+	}
+}
+
+void KeyboardMouseHandler::MoveExternalApp1Step(int X,int Y)
+{
+	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
+	int NotchSize = bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
+	int Diff = bHorizontal ? X-m_pMouseBehavior->m_pOrbiter->m_Width/2 : Y-m_pMouseBehavior->m_pOrbiter->m_Height/2;
+	if( abs(Diff)>NotchSize )
+	{
+		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
+			m_pMouseBehavior->m_pOrbiter->m_Height/2);
+		int PK_Button;
+		if( bHorizontal )
+			PK_Button = Diff < 0 ? BUTTON_Left_Arrow_CONST : BUTTON_Right_Arrow_CONST;
+		else
+			PK_Button = Diff < 0 ? BUTTON_Up_Arrow_CONST : BUTTON_Down_Arrow_CONST;
+
+		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			StringUtils::itos(PK_Button),"");
+		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 	}
 }
 

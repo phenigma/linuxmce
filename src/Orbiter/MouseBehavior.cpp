@@ -345,7 +345,7 @@ int k=2;
 		}
 		else
 		{
-			if( X < m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+			if( m_pObj_Locked_Horizontal && X < m_pObj_Locked_Horizontal->m_rPosition.X+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
 			{
 				if( !m_pMouseHandler_Horizontal->MovedOutside(DIRECTION_Left_CONST) )
 				{
@@ -355,7 +355,7 @@ int k=2;
 				else
 					return;
 			}
-			if( X > m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
+			if( m_pObj_Locked_Horizontal && X > m_pObj_Locked_Horizontal->m_rPosition.Right()+m_pObj_Locked_Horizontal->m_pPopupPoint.X )
 			{
 				if( !m_pMouseHandler_Horizontal->MovedOutside(DIRECTION_Right_CONST) )
 				{
@@ -381,7 +381,7 @@ int k=2;
 		}
 		else
 		{
-			if( Y < m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+			if( m_pObj_Locked_Vertical && Y < m_pObj_Locked_Vertical->m_rPosition.Y+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
 			{
 				if( !m_pMouseHandler_Vertical->MovedOutside(DIRECTION_Up_CONST) )
 				{
@@ -391,7 +391,7 @@ int k=2;
 				else
 					return;
 			}
-			if( Y > m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
+			if( m_pObj_Locked_Vertical && Y > m_pObj_Locked_Vertical->m_rPosition.Bottom()+m_pObj_Locked_Vertical->m_pPopupPoint.Y )
 			{
 				if( !m_pMouseHandler_Vertical->MovedOutside(DIRECTION_Down_CONST) )
 				{
@@ -571,7 +571,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
-		if( PK_Screen_OnScreen==DESIGNOBJ_mnuEmptyScreen_CONST )
+		if( PK_Screen_OnScreen==SCREEN_Main_CONST )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);

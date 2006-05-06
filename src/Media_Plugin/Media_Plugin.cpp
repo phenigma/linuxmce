@@ -1048,22 +1048,11 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
 			EntertainArea *pEntertainArea_OSD=NULL;
 			int PK_Orbiter = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-			RemoteControlSet *pRemoteControlSet = PickRemoteControlMap(
-				PK_Orbiter,
-				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
-				pMediaStream->m_iPK_MediaType);
-			if( !pRemoteControlSet )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartMedia Cannot find remote controls for Orbiter %d",PK_Orbiter);
-				continue;
-			}
-			else
-				pMediaStream->m_mapRemoteControlSet[PK_Orbiter]=pRemoteControlSet;
-
+			int PK_Screen = pMediaStream->GetRemoteControlScreen(PK_Orbiter);
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
 			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",bIsOSD ? pRemoteControlSet->m_iPK_Screen_OSD : pRemoteControlSet->m_iPK_Screen_Remote);
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen);
 
 				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
 				{
@@ -1077,7 +1066,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			}
 			else
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",pRemoteControlSet->m_iPK_Screen_Remote);
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen);
 				SendCommand(CMD_Goto_Screen);
 			}
 		}
@@ -1686,11 +1675,12 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 		if( !pEntertainArea->m_pMediaStream )
 		{
 			sCMD_Result="No media stream";
-			//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
-			//SendCommand(CMD_Goto_DesignObj);
-			DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
-			SendCommand(SCREEN_Main);
-			g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
+			if( sOptions.find("X")==string::npos )  // Means don't send me to the main menu if there's no media playing
+			{
+				DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
+				SendCommand(SCREEN_Main);
+				g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
+			}
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}
 
@@ -3824,8 +3814,8 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
-
-	string sCmdToRenameBookmark="<%=!%> -300 1 5 3 <%=NP_R%>\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
+	int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
+	string sCmdToRenameBookmark="<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + "\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 
 	/*
 	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
@@ -4173,7 +4163,6 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		"<%=T" + StringUtils::itos(TEXT_Never_Resume_CONST) + "%>",sMessageToGoToRemote + "\n" + sMessageToSetPreference + " N");
 	*/
 
-	EntertainArea *pEntertainArea_OSD=NULL;
 	RemoteControlSet *pRemoteControlSet = PickRemoteControlMap(
 		iPK_Device_Orbiter,
 		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
@@ -4184,6 +4173,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		return 0;
 	}
 	pMediaStream->m_mapRemoteControlSet[iPK_Device_Orbiter]=pRemoteControlSet;
+	EntertainArea *pEntertainArea_OSD=NULL;
 	bool bIsOSD=pMediaStream->OrbiterIsOSD(iPK_Device_Orbiter,&pEntertainArea_OSD);
 
 	SCREEN_DialogAskToResume SCREEN_DialogAskToResume(m_dwPK_Device, iPK_Device_Orbiter,

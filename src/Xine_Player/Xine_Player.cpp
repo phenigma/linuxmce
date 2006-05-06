@@ -1189,5 +1189,28 @@ void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
+	int PK_Button = atoi(sPK_Button.c_str());
+	g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Simulate_Keypress %d",PK_Button);
+	switch(PK_Button)
+	{
+	case BUTTON_Up_Arrow_CONST:
+		CMD_Move_Up();
+		break;
+	case BUTTON_Down_Arrow_CONST:
+		CMD_Move_Down();
+		break;
+	case BUTTON_Left_Arrow_CONST:
+		CMD_Move_Left();
+		break;
+	case BUTTON_Right_Arrow_CONST:
+		CMD_Move_Right();
+		break;
+	case BUTTON_Enter_CONST:
+		CMD_EnterGo();
+		break;
+	default:
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
+		break;
+	}
 }
 
