@@ -229,7 +229,7 @@ public:
 	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
@@ -360,11 +360,11 @@ public:
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
-						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
 						string sOptions=pMessage->m_mapParameters[COMMANDPARAMETER_Options_CONST];
 						string sPK_EntertainArea=pMessage->m_mapParameters[COMMANDPARAMETER_PK_EntertainArea_CONST];
 						int iPK_Text_Synopsis=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_Synopsis_CONST].c_str());
-						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,sCMD_Result,pMessage);
+						int iPK_Screen=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Screen_CONST].c_str());
+						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -381,7 +381,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,sCMD_Result,pMessage);
+								CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,iPK_Screen,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

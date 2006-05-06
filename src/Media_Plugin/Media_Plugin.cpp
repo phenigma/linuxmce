@@ -1636,16 +1636,16 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 			/** The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes. */
 		/** @param #8 On/Off */
 			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The current screen. */
 		/** @param #39 Options */
 			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area the orbiter is controlling. */
 		/** @param #63 PK_Text_Synopsis */
 			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
+		/** @param #159 PK_Screen */
+			/** The current screen. */
 
-void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
 g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
@@ -1693,7 +1693,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
         pBoundRemote->m_pOH_Orbiter = pOH_Orbiter;
         pBoundRemote->m_pEntertainArea = pEntertainArea;
         pBoundRemote->m_sPK_DesignObj_GraphicImage = sPK_DesignObj;
-        pBoundRemote->m_sPK_DesignObj_Remote = sPK_DesignObj_CurrentScreen;
+        pBoundRemote->m_PK_Screen = iPK_Screen;
         pBoundRemote->m_sOptions = sOptions;
 
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
@@ -1708,6 +1708,15 @@ g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
 		else
 	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote
 g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
+
+		int PK_Screen_ShouldBe = pEntertainArea->m_pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
+		if( iPK_Screen && PK_Screen_ShouldBe && iPK_Screen != PK_Screen_ShouldBe )
+		{
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,"",PK_Screen_ShouldBe);
+			SendCommand(CMD_Goto_Screen);
+g_pPlutoLogger->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sending to %d",
+					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size(),iPK_Screen,PK_Screen_ShouldBe);
+		}
     }
 }
 

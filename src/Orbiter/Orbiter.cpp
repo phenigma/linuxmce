@@ -5236,6 +5236,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 		}
 		else if(  Variable=="S"  )
 			Output += m_pScreenHistory_Current->GetObj()->m_ObjectID;
+		else if(  Variable=="SID"  )
+			Output += StringUtils::itos(m_pScreenHistory_Current->PK_Screen());
 		else if(  Variable=="O"  )
 			Output += pObj->m_ObjectID;
 		else if( Variable.length()>1 && Variable[0]=='T'  )

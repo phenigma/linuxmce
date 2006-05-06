@@ -637,17 +637,17 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 			/** The object where the remote displays the graphical image of the cover art.  It will get update object images when the cover art changes. */
 		/** @param #8 On/Off */
 			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The current screen. */
 		/** @param #39 Options */
 			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area the orbiter is controlling. */
 		/** @param #63 PK_Text_Synopsis */
 			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
+		/** @param #159 PK_Screen */
+			/** The current screen. */
 
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,sCMD_Result,NULL);};
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #214 - Save playlist */

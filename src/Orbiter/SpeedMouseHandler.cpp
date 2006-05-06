@@ -38,7 +38,7 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
 	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 
-	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1",m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID,"", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
+	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 
 	m_iLastGoodPosition=-1;
@@ -52,7 +52,7 @@ SpeedMouseHandler::~SpeedMouseHandler()
 {
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0);
+	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 }
 
