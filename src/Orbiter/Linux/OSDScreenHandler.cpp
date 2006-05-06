@@ -1594,17 +1594,6 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
     return false;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OSDScreenHandler::SCREEN_tempmnuspeed(long PK_Screen)
-{
-	//TODO: will remove this once SpeedMouseHandler.cpp issue with PK_Screen is fixed
-	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_tempmnuspeed()" );
-	ScreenHandler::SCREEN_tempmnuspeed(PK_Screen);
-
-	RegisterCallBack( cbOnDialogCreate, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCreate, new PositionCallBackData() );
-	RegisterCallBack( cbOnDialogDelete, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlDelete, new PositionCallBackData() );
-	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_DVDRemote(long PK_Screen)
 {
 	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );

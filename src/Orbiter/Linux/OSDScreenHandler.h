@@ -83,7 +83,6 @@ public:
     bool RoomsWizardRefresh( CallBackData *pData );
 	
 	virtual void SCREEN_DVDRemote(long PK_Screen);	
-	virtual void SCREEN_tempmnuspeed(long PK_Screen);	//TODO: remove me!
 	bool SpeedControlCreate(CallBackData *pData);
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
