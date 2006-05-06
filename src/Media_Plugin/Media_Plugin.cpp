@@ -4173,7 +4173,21 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		"<%=T" + StringUtils::itos(TEXT_Never_Resume_CONST) + "%>",sMessageToGoToRemote + "\n" + sMessageToSetPreference + " N");
 	*/
 
+	EntertainArea *pEntertainArea_OSD=NULL;
+	RemoteControlSet *pRemoteControlSet = PickRemoteControlMap(
+		iPK_Device_Orbiter,
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+		pMediaStream->m_iPK_MediaType);
+	if( !pRemoteControlSet )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CheckForAutoResume Cannot find remote controls for Orbiter %d",iPK_Device_Orbiter);
+		return 0;
+	}
+	pMediaStream->m_mapRemoteControlSet[iPK_Device_Orbiter]=pRemoteControlSet;
+	bool bIsOSD=pMediaStream->OrbiterIsOSD(iPK_Device_Orbiter,&pEntertainArea_OSD);
+
 	SCREEN_DialogAskToResume SCREEN_DialogAskToResume(m_dwPK_Device, iPK_Device_Orbiter,
+		bIsOSD ? pRemoteControlSet->m_iPK_Screen_OSD : pRemoteControlSet->m_iPK_Screen_Remote,
 		StringUtils::ltos(m_dwPK_Device), 
 		StringUtils::ltos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device),
 		StringUtils::itos(pMediaStream->m_iStreamID_get()),

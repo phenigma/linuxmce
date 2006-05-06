@@ -234,26 +234,22 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 		"%> " + sErrors);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom,
-	string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, int iPK_Screen, string sPK_Device_From, 
+	string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
 {
-	string sMessageToResume = sPK_DeviceFrom + " " + sPK_Device_MediaSource
+	string sMessageToResume = sPK_Device_From + " " + sPK_Device_MediaSource
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " "
-		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + sStreamID + " "
+		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + sStreamID_String + " "
 		+ StringUtils::itos(COMMANDPARAMETER_MediaPosition_CONST) + " \"" + sPosition + "\"";
 
-	int PK_Screen_Remote = m_pOrbiter->m_iPK_Screen_Remote;
-	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
-		PK_Screen_Remote = m_pOrbiter->m_iPK_Screen_RemoteOSD;
-
-	string sMessageToGoToRemote = sPK_DeviceFrom + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device)
+	string sMessageToGoToRemote = sPK_Device_From + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device)
 		+ " 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " "
-		+ StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(PK_Screen_Remote);
+		+ StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(iPK_Screen);
 
-	string sMessageToSetPreference = StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + sPK_DeviceFrom
+	string sMessageToSetPreference = StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + sPK_Device_From
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Auto_Resume_Options_CONST) + " "
 		+ StringUtils::itos(COMMANDPARAMETER_PK_Users_CONST) + " " + sUsers + " "
-		+ StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) + " " + sPK_MediaType + " "
+		+ StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) + " " + sPK_MediaType_String + " "
 		+ StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST);
 
 	DisplayMessageOnOrbiter(PK_Screen,
