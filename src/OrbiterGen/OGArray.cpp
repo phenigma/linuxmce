@@ -26,11 +26,6 @@
 
 CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page)
 {
-if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
-{
-	int k=2;
-}
-
 	m_bContainsMore=false;
 	m_iLastVisibleArrayEntry=0;
 	iScreenNum=0;
@@ -87,7 +82,8 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 	int iCurrentNumColumns=0;
 
 	m_ptNextPosition = rBounds.Location();
-
+if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==1270 || drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==1264 )
+int k=2;
 	if( StartingOffset!=0 )
 	{
 		m_ocBack = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
@@ -133,7 +129,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 				// See if another one of those objects won't fit and we need a new column
 				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || 
 					(m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() && !m_bExpandVertical) ||
-					m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_Height )
+					m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > 1600 )  // 2844x1600 is the maximum size
 				{
 					if( MaxNumColumns>0 && ++iCurrentNumColumns>=MaxNumColumns )
 					{ CheckLastEntry(); return; }
@@ -162,7 +158,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 				// See if another one of those objects won't fit and we need a new column
 				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || 
 					(m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() && !m_bExpandHorizontal) ||
-					m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_Width )  // -1 width means no limit
+					m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > 2844 )  // 2844x1600 is the maximum size
 				{
 					if( MaxNumRows>0 && ++iCurrentNumRows>=MaxNumRows )
 					{ CheckLastEntry(); return; }
