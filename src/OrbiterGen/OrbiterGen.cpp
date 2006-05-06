@@ -660,6 +660,7 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_sScale.Width) + ","
 		+ StringUtils::itos(m_sScale.Height) + ","
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + ","
+		+ StringUtils::itos(m_pRow_UI->PK_UI_get()) + ","
 		+ StringUtils::itos(m_iRotation) 
 		+ StringUtils::itos(m_rSpacing.X) + ","
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
