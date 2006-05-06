@@ -242,9 +242,13 @@ void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFr
 		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + sStreamID + " "
 		+ StringUtils::itos(COMMANDPARAMETER_MediaPosition_CONST) + " \"" + sPosition + "\"";
 
+	int PK_Screen_Remote = m_pOrbiter->m_iPK_Screen_Remote;
+	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+		PK_Screen_Remote = m_pOrbiter->m_iPK_Screen_RemoteOSD;
+
 	string sMessageToGoToRemote = sPK_DeviceFrom + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device)
-		+ " 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " "
-		+ StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " <%=NP_R%>";
+		+ " 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " "
+		+ StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(PK_Screen_Remote);
 
 	string sMessageToSetPreference = StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + sPK_DeviceFrom
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Auto_Resume_Options_CONST) + " "

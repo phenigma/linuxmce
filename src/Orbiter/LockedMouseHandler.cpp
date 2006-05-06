@@ -259,7 +259,6 @@ void LockedMouseHandler::ActivatedSubMenu()
 	delete m_pMouseBehavior->m_pMouseHandler_Horizontal;
 	m_pMouseBehavior->m_pMouseHandler_Horizontal=NULL;
 	m_pMouseBehavior->m_pMouseHandler_Vertical=NULL;
-	m_pMouseBehavior->m_EMenuOnScreen=MouseBehavior::mb_None;
 
 	DesignObj_Orbiter *pObj_Screen_Before = m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj();
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )

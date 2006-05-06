@@ -57,7 +57,6 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_pMouseHandler_Horizontal=m_pMouseHandler_Vertical=NULL;
 	ProcessUtils::ResetMsTime();
 	m_pOrbiter=pOrbiter;
-	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor = new MouseGovernor(this);
 	m_pMouseIterator = new MouseIterator(this);
 	m_iPK_Button_Mouse_Last=0;
@@ -74,11 +73,6 @@ MouseBehavior::~MouseBehavior()
 void MouseBehavior::Clear(bool bGotoMainMenu)
 {
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
-	if( m_EMenuOnScreen!=mb_None )
-	{
-//		m_pOrbiter->CMD_Remove_Popup("","left");
-//		m_pOrbiter->CMD_Remove_Popup("","horiz");
-	}
 
 	/* there's a logic flaw that when popups are put on screen they're added to the following
 	vect's, but not removed when the popup is removed, although they are marked as m_bOnScreen=false.
@@ -98,7 +92,6 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	delete m_pMouseHandler_Horizontal;
 	delete m_pMouseHandler_Vertical;
 	m_pMouseHandler_Horizontal=m_pMouseHandler_Vertical=NULL;
-	m_EMenuOnScreen=mb_None;
 	m_pMouseGovernor->SetBuffer(0);
 	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 	m_bMouseHandler_Vertical_Exclusive=m_bMouseHandler_Horizontal_Exclusive=false;
@@ -522,12 +515,12 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
 	m_iTime_Last_Mouse_Up=0;
+	int PK_Screen_OnScreen = m_pOrbiter->m_pScreenHistory_Current->PK_Screen();
 
 	// Special case for the media control
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen!=mb_MainMenu )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_tempmnumain2_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
-		m_EMenuOnScreen=mb_MainMenu;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
 		/*
@@ -536,10 +529,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
 		*/
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen!=mb_MediaControl )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_Remote )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
-		m_EMenuOnScreen=mb_MediaControl;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_Remote);
 			
@@ -553,10 +545,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup));
 */
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen!=mb_Ambiance )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_tempmnuambiance_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
-		m_EMenuOnScreen=mb_Ambiance;
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_tempmnuambiance_CONST);
 /*
@@ -571,17 +562,16 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		}
 */
 	}
-	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && m_EMenuOnScreen==mb_MediaControl && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && m_EMenuOnScreen==mb_Ambiance && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && m_EMenuOnScreen==mb_MainMenu) )
+	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen==SCREEN_tempmnuambiance_CONST && m_cLocked_Axis_Current == AXIS_LOCK_NONE) ||
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_tempmnumain2_CONST) )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
 		Clear(true);
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
-		g_pPlutoLogger->Write(LV_FESTIVAL,"Canel button on menu %d",(int) m_EMenuOnScreen);
-		if( m_EMenuOnScreen==mb_None )
+		if( PK_Screen_OnScreen==DESIGNOBJ_mnuEmptyScreen_CONST )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);

@@ -10,10 +10,12 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 
+#ifndef WIN32
 #include <SDL_image.h>
 #include "SDL/OrbiterSDL.h"
 #include "SDL/SDLGraphic.h"
 #include "Linux/OrbiterLinux.h"
+#endif
 
 using namespace DCE;
 
@@ -152,7 +154,8 @@ bool VolumeMouseHandler::SlowDrift(int &X,int &Y)
 
 void VolumeMouseHandler::DrawSquare(int Notch, PlutoColor plutoColor)
 {
-    g_pPlutoLogger->Write(LV_CRITICAL,"VolumeMouseHandler::DrawSquare() : Notch=%d", Notch);
+#ifndef WIN32
+	g_pPlutoLogger->Write(LV_CRITICAL,"VolumeMouseHandler::DrawSquare() : Notch=%d", Notch);
 
     OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pMouseBehavior->m_pOrbiter);
     if (pOrbiterLinux)
@@ -268,4 +271,5 @@ void VolumeMouseHandler::DrawSquare(int Notch, PlutoColor plutoColor)
 
     if (pOrbiterLinux)
         pOrbiterLinux->X_UnlockDisplay();
+#endif
 }

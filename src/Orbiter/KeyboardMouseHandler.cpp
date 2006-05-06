@@ -70,9 +70,16 @@ bool KeyboardMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST )
 	{
-		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-			StringUtils::itos(BUTTON_Enter_CONST),"");
-		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		if( m_pObj )
+		{
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::itos(BUTTON_Enter_CONST),"");
+		}
+		else
+		{
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+				StringUtils::itos(BUTTON_Enter_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		}
 	}
 	return false; // Keep processing
 }

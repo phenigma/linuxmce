@@ -1047,11 +1047,23 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
 			EntertainArea *pEntertainArea_OSD=NULL;
+			int PK_Orbiter = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+			RemoteControlSet *pRemoteControlSet = PickRemoteControlMap(
+				PK_Orbiter,
+				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+				pMediaStream->m_iPK_MediaType);
+			if( !pRemoteControlSet )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartMedia Cannot find remote controls for Orbiter %d",PK_Orbiter);
+				continue;
+			}
+			else
+				pMediaStream->m_mapRemoteControlSet[PK_Orbiter]=pRemoteControlSet;
+
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
 			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 			{
-				DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-					"<%=NP_R%>","","",false, false);  // Always go
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",bIsOSD ? pRemoteControlSet->m_iPK_Screen_OSD : pRemoteControlSet->m_iPK_Screen_Remote);
 
 				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
 				{
@@ -1061,13 +1073,12 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 					string sResponse;
 					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
 				}
-				SendCommand(CMD_Goto_DesignObj);
+				SendCommand(CMD_Goto_Screen);
 			}
 			else
 			{
-				DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-					"<%=NP_R%>","","-1",false, false);  // Only if at main menu
-				SendCommand(CMD_Goto_DesignObj);
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",pRemoteControlSet->m_iPK_Screen_Remote);
+				SendCommand(CMD_Goto_Screen);
 			}
 		}
 	}

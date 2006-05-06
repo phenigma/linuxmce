@@ -758,7 +758,7 @@ void Orbiter::RealRedraw( void *data )
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	// We don't have a good solution for rendering objects under popups--so re-render the whole screen if there are popups and we're going to render something else anyway
 	if(  m_bRerenderScreen ||
-		((m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_listPopups.size())) &&
+		((m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_listPopups.size())) && m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST && 
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
 	{
 		if(m_pGraphicBeforeHighlight)
@@ -3072,7 +3072,7 @@ INITIALIZATION
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
 	size_t iSize;
-	char * pData = FileUtils::ReadFileIntoBuffer("/home/OrbiterBkg.png", iSize);
+	char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
 	if (pData)
 	{
 		m_pBackgroundImage = CreateGraphic();
@@ -3820,6 +3820,21 @@ if(UsesUIVersion2())
 	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
 		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
 
+	// The left mouse button
+	if( (event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP) && m_pMouseBehavior )
+	{
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==1  )
+			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==1 )
+			m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
+		// The right mouse button
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==3 )
+			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==3 )
+			m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+		return true;
+	}
+
 	if( bSkipProcessing )
 		return true;
 
@@ -4285,8 +4300,11 @@ bool Orbiter::RegionDown( int x,  int y )
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
-		if( m_pMouseBehavior && m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
+		if( m_pMouseBehavior )
+		{
+			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
 			return true;
+		}
 	}
 #endif
 
@@ -10003,6 +10021,12 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		string sValue = it->second;
 		g_pPlutoLogger->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, sValue.c_str());
 	}
+#endif
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	// With the new UI 
+	if(UsesUIVersion2() && m_pMouseBehavior )
+		m_pMouseBehavior->Clear();
 #endif
 
 	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current);

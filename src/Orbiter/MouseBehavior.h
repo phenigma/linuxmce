@@ -101,8 +101,6 @@ namespace DCE
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;
 
-		typedef enum EMenuOnScreen { mb_None, mb_MainMenu, mb_MediaControl, mb_Ambiance };
-
 	protected:
 		Orbiter *m_pOrbiter;
 		class MouseGovernor *m_pMouseGovernor;
@@ -120,7 +118,6 @@ namespace DCE
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		unsigned long m_dwTime_Last_Notch;
-		EMenuOnScreen m_EMenuOnScreen;
 		bool m_bMouseHandler_Horizontal_Exclusive,m_bMouseHandler_Vertical_Exclusive;
 		std::auto_ptr<OSDCompass> m_spCompass;
 
