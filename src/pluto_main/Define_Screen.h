@@ -216,6 +216,8 @@
 #define SCREEN_TVConfirmInputsDiscrete_CONST 215
 #define SCREEN_TVConfirmInputsToggle_CONST 216
 #define SCREEN_TVOnOffCodes_CONST 217
+#define SCREEN_mnuPVR_OSD_Full_Screen_CONST 218
+#define SCREEN_mnuPVRRecording_Full_Screen_CONST 219
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
