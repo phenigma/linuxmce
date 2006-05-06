@@ -9,5 +9,6 @@ if [[ "$isX11Running" != "1" ]]; then
 	export DISPLAY=:0
 fi
 
+xset m 1 1
 exec ./Orbiter "$@"
 

@@ -25,30 +25,6 @@ using namespace DCE;
 
 
 //-----------------------------------------------------------------------------------------------------
-//class MouseSensitivity
-const int MouseSensitivity::SampleInterval = 200; //250; // 250 ms
-const int MouseSensitivity::DiscardSamplesOlderThanSec = 1500; // 1500 ms
-
-const int MouseSensitivity::Threshhold_1_Minimum=60;  // Minimum number of pixels to move
-const int MouseSensitivity::Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
-const int MouseSensitivity::Threshhold_2_Minimum=80;  // 20 pixels over 5 samples
-const int MouseSensitivity::Threshhold_2_Ratio=300;
-const int MouseSensitivity::Threshhold_2_Samples=5; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
-const int MouseSensitivity::Threshhold_3_Minimum=80;
-const int MouseSensitivity::Threshhold_3_Ratio=200;
-const int MouseSensitivity::Threshhold_3_Samples=10;
-
-const int MouseSensitivity::HoldTime = 750;
-const int MouseSensitivity::IgnoreMouseAfterReposition=10;
-
-const int MouseSensitivity::NumberOfSamplesForNotch = 0;
-const int MouseSensitivity::DistanceForNotch=100;
-
-const int MouseSensitivity::UseAccelerationIfMovementsWithin=200;
-
-const int MouseSensitivity::IgnoreMovesLessThanThisPerSample=10;//30;
-
-//-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
 	//TODO: set custom position for the compass
@@ -200,6 +176,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
+g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d locked %d current %d vert %p hor %p",
+					  X,Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,m_pMouseHandler_Vertical,m_pMouseHandler_Horizontal);
+
 	unsigned long dwTime = ProcessUtils::GetMsTime();
 	m_spCompass->Update(X, Y, dwTime);
 
@@ -212,10 +191,10 @@ void MouseBehavior::Move(int X,int Y)
 	if( m_pLastPosition.X==X && m_pLastPosition.Y==Y )
 		return; // Nothing to do 
 
-	if( dwTime-m_dwLastSampleShift>MouseSensitivity::SampleInterval )
+	if( dwTime-m_dwLastSampleShift>m_MouseSensitivity.SampleInterval )
 	{
 		m_dwLastSampleShift=dwTime;
-		if( abs(m_pSamples[0].X)<MouseSensitivity::IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<MouseSensitivity::IgnoreMovesLessThanThisPerSample )
+		if( abs(m_pSamples[0].X)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample )
 		{
 			bool bCancel=false;
 			if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
@@ -244,7 +223,7 @@ void MouseBehavior::Move(int X,int Y)
 	}
 
 	m_pLastPosition.X=X; m_pLastPosition.Y=Y;
-	if( abs(m_pSamples[0].X)<MouseSensitivity::IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<MouseSensitivity::IgnoreMovesLessThanThisPerSample )
+	if( abs(m_pSamples[0].X)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample )
 	{
 		/*
 g_pPlutoLogger->Write(LV_FESTIVAL,"MOVESXX %d,%d at %d last: %d,%d XX %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d XX %d %d %d %d %d %d %d %d %d %d ",
@@ -417,26 +396,26 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 	for(int i=0;i<NUM_SAMPLES;++i)
 	{
 		int PK_Direction_Sample = GetDirection(m_pSamples[i],&CumulativeThisDirection,&CumulativeOtherDirection);
-		if( m_dwSamples[0]-m_dwSamples[i]>MouseSensitivity::DiscardSamplesOlderThanSec || PK_Direction_Sample!=PK_Direction )
+		if( m_dwSamples[0]-m_dwSamples[i]>m_MouseSensitivity.DiscardSamplesOlderThanSec || PK_Direction_Sample!=PK_Direction )
 		{
 			return false;
 		}
 
 		int Minimum,Ratio;
-		if( i>=MouseSensitivity::Threshhold_3_Samples-1 )
+		if( i>=m_MouseSensitivity.Threshhold_3_Samples-1 )
 		{
-			Minimum=MouseSensitivity::Threshhold_3_Minimum;
-			Ratio=MouseSensitivity::Threshhold_3_Ratio;
+			Minimum=m_MouseSensitivity.Threshhold_3_Minimum;
+			Ratio=m_MouseSensitivity.Threshhold_3_Ratio;
 		}
-		else if( i>=MouseSensitivity::Threshhold_2_Samples-1 )
+		else if( i>=m_MouseSensitivity.Threshhold_2_Samples-1 )
 		{
-			Minimum=MouseSensitivity::Threshhold_2_Minimum;
-			Ratio=MouseSensitivity::Threshhold_2_Ratio;
+			Minimum=m_MouseSensitivity.Threshhold_2_Minimum;
+			Ratio=m_MouseSensitivity.Threshhold_2_Ratio;
 		}
 		else
 		{
-			Minimum=MouseSensitivity::Threshhold_1_Minimum;
-			Ratio=MouseSensitivity::Threshhold_1_Ratio;
+			Minimum=m_MouseSensitivity.Threshhold_1_Minimum;
+			Ratio=m_MouseSensitivity.Threshhold_1_Ratio;
 		}
 
 		if( CumulativeThisDirection>=Minimum && (CumulativeOtherDirection==0 || CumulativeThisDirection*100/CumulativeOtherDirection>=Ratio) )
@@ -571,7 +550,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
-		if( PK_Screen_OnScreen==SCREEN_Main_CONST )
+		if( m_pOrbiter->m_iPK_MediaType )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
@@ -581,7 +560,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 
 	if( m_cLockedAxes == AXIS_LOCK_NONE )
 		return false; // Nothing to do
-	if( m_cLocked_Axis_Current==AXIS_LOCK_X && m_pMouseHandler_Horizontal )
+	if( m_pMouseHandler_Horizontal && (m_cLocked_Axis_Current==AXIS_LOCK_X || m_pMouseHandler_Vertical==m_pMouseHandler_Horizontal) )
 		return m_pMouseHandler_Horizontal->ButtonDown(PK_Button);
 	else if( m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pMouseHandler_Vertical )
 		return m_pMouseHandler_Vertical->ButtonDown(PK_Button);
@@ -762,5 +741,55 @@ const MouseHandler* MouseBehavior::GetHorizontalMouseHandler() const
 const MouseHandler* MouseBehavior::GetVerticalMouseHandler() const
 {
 	return m_pMouseHandler_Vertical;
+}
+
+void MouseSensitivity::SetSensitivity(int Level)
+{
+	switch(Level)
+	{
+	case 2:
+		SampleInterval = 350;
+		DiscardSamplesOlderThanSec = 2250; // 1500 ms
+		Threshhold_1_Minimum=70;  // Minimum number of pixels to move
+		Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
+		Threshhold_2_Minimum=100;  // 20 pixels over 5 samples
+		Threshhold_2_Ratio=300;
+		Threshhold_2_Samples=4; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+		Threshhold_3_Minimum=160;
+		Threshhold_3_Ratio=200;
+		Threshhold_3_Samples=4;
+		IgnoreMovesLessThanThisPerSample=20;
+		NumNotchesForExternalApp=12;
+		break;
+	case 3:
+		SampleInterval = 500;
+		DiscardSamplesOlderThanSec = 3000; // 1500 ms
+		Threshhold_1_Minimum=80;  // Minimum number of pixels to move
+		Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
+		Threshhold_2_Minimum=120;  // 20 pixels over 5 samples
+		Threshhold_2_Ratio=300;
+		Threshhold_2_Samples=3; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+		Threshhold_3_Minimum=200;
+		Threshhold_3_Ratio=200;
+		Threshhold_3_Samples=4;
+		IgnoreMovesLessThanThisPerSample=30;
+		NumNotchesForExternalApp=5;
+		break;
+	case 1:
+	default:
+		SampleInterval = 200; //250; // 250 ms
+		DiscardSamplesOlderThanSec = 1500; // 1500 ms
+		Threshhold_1_Minimum=60;  // Minimum number of pixels to move
+		Threshhold_1_Ratio=400; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
+		Threshhold_2_Minimum=80;  // 20 pixels over 5 samples
+		Threshhold_2_Ratio=300;
+		Threshhold_2_Samples=5; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+		Threshhold_3_Minimum=80;
+		Threshhold_3_Ratio=200;
+		Threshhold_3_Samples=10;
+		IgnoreMovesLessThanThisPerSample=10;//30;
+		NumNotchesForExternalApp=20;
+		break;
+	}
 }
 

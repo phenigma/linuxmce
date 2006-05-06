@@ -252,6 +252,7 @@ bool LockedMouseHandler::MovedOutside(int PK_Direction)
 
 void LockedMouseHandler::ActivatedSubMenu()
 {
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::ActivatedSubMenu" );
 	// This is weird.  If we do a clear, we become deleted and invalid.  If we change screens, and that causes
 	// another set mouse behavior, we may also be deleted and become invalid.  So set the horizontal handler
 	// to NULL so we won't be deleted, but then delete ourselves when we're done
@@ -266,8 +267,14 @@ void LockedMouseHandler::ActivatedSubMenu()
 		m_bActivatedObject = true;
 		m_pMouseBehavior->m_pOrbiter->SelectedObject( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted, smNavigation );
 	}
-
-	if( pObj_Screen_Before==m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj() )
+	if( pObj_Screen_Before==m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj() && render.m_pScreenHistory_get()==NULL )  // See if the selection commands didn't already result in a change screen
+	{
 		m_pMouseBehavior->m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
+		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu setting to main because it stayed at %s",
+			pObj_Screen_Before->m_ObjectID.c_str());
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu already changed from %s to %s",
+			pObj_Screen_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 	delete this;  // See above notes
 }

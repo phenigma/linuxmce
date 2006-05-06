@@ -20840,5 +20840,33 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str()); }
 	};
+	class CMD_Set_Mouse_Sensitivity : public PreformedCommand {
+	public:
+		CMD_Set_Mouse_Sensitivity(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Set_Mouse_Sensitivity_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Set_Mouse_Sensitivity_DL : public PreformedCommand {
+	public:
+		CMD_Set_Mouse_Sensitivity_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Mouse_Sensitivity_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Set_Mouse_Sensitivity_DT : public PreformedCommand {
+	public:
+		CMD_Set_Mouse_Sensitivity_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Mouse_Sensitivity_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Set_Mouse_Sensitivity_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Mouse_Sensitivity_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Mouse_Sensitivity_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
 }
 #endif

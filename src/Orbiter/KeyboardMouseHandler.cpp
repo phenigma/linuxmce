@@ -174,7 +174,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 void KeyboardMouseHandler::MoveExternalApp1Step(int X,int Y)
 {
 	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
-	int NotchSize = bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
+	int NotchSize = bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp : m_pMouseBehavior->m_pOrbiter->m_Height / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp;
 	int Diff = bHorizontal ? X-m_pMouseBehavior->m_pOrbiter->m_Width/2 : Y-m_pMouseBehavior->m_pOrbiter->m_Height/2;
 	if( abs(Diff)>NotchSize )
 	{

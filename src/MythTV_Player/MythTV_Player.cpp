@@ -615,8 +615,8 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	// sendMythCommand("key up");
-	processKeyBoardInputRequest(XK_Up);	
+	sendMythCommand("key up");
+//	processKeyBoardInputRequest(XK_Up);	
 }
 
 //<-dceag-c201-b->

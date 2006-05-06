@@ -9999,6 +9999,14 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	if( iPK_Screen==-9999 ) // Special hack meaning go to the current remote
+	{
+		if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+			iPK_Screen = m_iPK_Screen_RemoteOSD;
+		else
+			iPK_Screen = m_iPK_Screen_Remote;
+	}
+
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
 	if(pCallBackData)
 	{
@@ -10362,4 +10370,19 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 /*virtual*/ bool Orbiter::UsesUIVersion2() 
 { 
 	return 2 == m_iUiVersion; 
+}
+//<-dceag-c801-b->
+
+	/** @brief COMMAND: #801 - Set Mouse Sensitivity */
+	/** 1=Sensitive, 3=not sensitive */
+		/** @param #48 Value */
+			/** 1=sensitive, 3=least sensitive */
+
+void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c801-e->
+{
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pMouseBehavior )
+		m_pMouseBehavior->m_MouseSensitivity.SetSensitivity(iValue);
+#endif
 }

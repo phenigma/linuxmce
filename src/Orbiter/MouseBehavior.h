@@ -59,28 +59,23 @@ namespace DCE
 	class MouseSensitivity
 	{
 	public:
-		const static int SampleInterval;  
-		const static int DiscardSamplesOlderThanSec; 
+		int SampleInterval;  
+		int DiscardSamplesOlderThanSec; 
 		// Threshold 1 represents the fastest, most clear movement, requiring a high ratio, for users that are very precise
-		const static int Threshhold_1_Minimum;  // Minimum number of pixels to move
-		const static int Threshhold_1_Ratio; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
-		const static int Threshhold_2_Minimum;
-		const static int Threshhold_2_Ratio;
-		const static int Threshhold_2_Samples; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
-		const static int Threshhold_3_Minimum;
-		const static int Threshhold_3_Ratio;
-		const static int Threshhold_3_Samples;
-		const static int HoldTime;
-		const static int IgnoreMouseAfterReposition;
+		int Threshhold_1_Minimum;  // Minimum number of pixels to move
+		int Threshhold_1_Ratio; // Minimum ratio : 100=baseline, 200=twice as much on the directional axis as the non-directional, 500=5x as much
+		int Threshhold_2_Minimum;
+		int Threshhold_2_Ratio;
+		int Threshhold_2_Samples; // How many samples must be taken before the ratio/minimum's are lowered to threshhold 2
+		int Threshhold_3_Minimum;
+		int Threshhold_3_Ratio;
+		int Threshhold_3_Samples;
 
-		const static int NumberOfSamplesForNotch;
-		const static int DistanceForNotch;
-		const static int UseAccelerationIfMovementsWithin;
+		int IgnoreMovesLessThanThisPerSample;  // This is considered drift, not move
+		int NumNotchesForExternalApp; // Determines sensitivity when sending move commands to an external app
 
-		const static int IgnoreMovesLessThanThisPerSample;
-		const static int TapInterval;  // If the button is released within this many ms, it's a tap, not a hold
-		
-
+		MouseSensitivity() { SetSensitivity(2); }
+		void SetSensitivity(int Level); // 1=most sensitive, 3=least sensitive
 	};
 
 	//-----------------------------------------------------------------------------------------------------
@@ -105,6 +100,7 @@ namespace DCE
 		Orbiter *m_pOrbiter;
 		class MouseGovernor *m_pMouseGovernor;
 		class MouseIterator *m_pMouseIterator;
+		MouseSensitivity m_MouseSensitivity;
 		DesignObj_Orbiter *m_pObj_Locked_Horizontal,*m_pObj_Locked_Vertical;
 		MouseHandler *m_pMouseHandler_Horizontal,*m_pMouseHandler_Vertical;
 	    unsigned long m_dwSamples[NUM_SAMPLES];

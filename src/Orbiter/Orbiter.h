@@ -1869,6 +1869,16 @@ light, climate, media, security, telecom */
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection) { string sCMD_Result; CMD_Set_Mouse_Behavior(sPK_DesignObj.c_str(),sOptions.c_str(),bExclusive,sDirection.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #801 - Set Mouse Sensitivity */
+	/** 1=Sensitive, 3=not sensitive */
+		/** @param #48 Value */
+			/** 1=sensitive, 3=least sensitive */
+
+	virtual void CMD_Set_Mouse_Sensitivity(int iValue) { string sCMD_Result; CMD_Set_Mouse_Sensitivity(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 		/** temporary solution only */
