@@ -676,21 +676,21 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
         return;  /** Can't do anything */
 	}
 
-	int PK_DesignObj_Remote,PK_DesignObj_OSD;
+	int PK_Screen_Remote,PK_Screen_OSD;
 	if( sText=="live" )
 	{
-		PK_DesignObj_Remote=DESIGNOBJ_mnuPVR_CONST;
-		PK_DesignObj_OSD=DESIGNOBJ_PVR_FS_CONST;
+		PK_Screen_Remote=SCREEN_PVR_CONST;
+		PK_Screen_OSD=SCREEN_PvrFullScreen_CONST;
 	}
 	else if( sText=="nonlive" )
 	{
-		PK_DesignObj_Remote=DESIGNOBJ_mnuPVRRecording_CONST;
-		PK_DesignObj_OSD=DESIGNOBJ_PVR_Recordings_FS_CONST;
+		PK_Screen_Remote=SCREEN_mnuPVRRecording_CONST;
+		PK_Screen_OSD=SCREEN_mnuPVRRecording_Full_Screen_CONST;
 	}
 	else
 	{
-		PK_DesignObj_Remote=DESIGNOBJ_mnuPVROSD_CONST;
-		PK_DesignObj_OSD=DESIGNOBJ_PVR_OSD_FS_CONST;
+		PK_Screen_Remote=SCREEN_mnuPVROSD_CONST;
+		PK_Screen_OSD=SCREEN_mnuPVR_OSD_Full_Screen_CONST;
 	}
 
 	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
@@ -707,8 +707,8 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 					pMythTvMediaStream->m_mapRemoteControlSet[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device];
 				if (pRemoteControlSet)
 				{
-					pRemoteControlSet->m_iPK_Screen_Remote = PK_DesignObj_Remote;
-					pRemoteControlSet->m_iPK_Screen_OSD = PK_DesignObj_OSD;
+					pRemoteControlSet->m_iPK_Screen_Remote = PK_Screen_Remote;
+					pRemoteControlSet->m_iPK_Screen_OSD = PK_Screen_OSD;
 
 					g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
