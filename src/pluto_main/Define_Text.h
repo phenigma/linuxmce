@@ -967,6 +967,7 @@
 #define TEXT_Most_Sensitive_CONST 1679
 #define TEXT_Middle_Sensitivity_CONST 1680
 #define TEXT_Least_Sensitive_CONST 1681
+#define TEXT_Filename_CONST 1682
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

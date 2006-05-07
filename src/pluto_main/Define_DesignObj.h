@@ -2069,6 +2069,7 @@
 #define DESIGNOBJ_butSensitivity1_CONST 5019
 #define DESIGNOBJ_butSensitivity2_CONST 5020
 #define DESIGNOBJ_butSensitivity3_CONST 5021
+#define DESIGNOBJ_butShowFilenames_CONST 5022
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
