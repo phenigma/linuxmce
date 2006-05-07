@@ -180,7 +180,7 @@ void VolumeMouseHandler::CustomRender()
 	//	NotchWidth, m_pObj->m_rPosition.Height,
 	//	plutoColor);
     //m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
-
+/*
 #ifndef WIN32
 	g_pPlutoLogger->Write(LV_CRITICAL,"VolumeMouseHandler::DrawSquare() : Notch=%d", Notch);
 
@@ -282,6 +282,7 @@ void VolumeMouseHandler::CustomRender()
     if (pOrbiterLinux)
         pOrbiterLinux->X_UnlockDisplay();
 #endif
+	*/
 }
 
 void VolumeMouseHandler::DoIteration(int Parm)
