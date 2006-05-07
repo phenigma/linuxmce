@@ -106,11 +106,12 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
-			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c)",Code,PK_Device_Remote",pm->m_dwMessage_Type,pm->m_dwID,Code,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout);
+			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c)",
+					pm->m_dwMessage_Type,pm->m_dwID,pCode,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout);
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
 		else
-			g_pPlutoLogger->Write(LV_WARNING,"No mapping for code: %s device %d",Code,PK_Device_Remote);
+			g_pPlutoLogger->Write(LV_WARNING,"No mapping for code: %s device %d",pCode,PK_Device_Remote);
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
