@@ -515,10 +515,11 @@ bool Proxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridT
     return bRetValue;
 }
 
-void Proxy_Orbiter::RenderScreen()
+void Proxy_Orbiter::RenderScreen(bool bRenderGraphicsOnly)
 {
-    m_dequeCellXMLItems.clear();
-    return OrbiterSDL::RenderScreen();
+	if( !bRenderGraphicsOnly )
+	    m_dequeCellXMLItems.clear();
+    return OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
 }
 
 bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
