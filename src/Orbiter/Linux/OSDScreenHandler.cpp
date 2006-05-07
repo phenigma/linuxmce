@@ -1976,6 +1976,8 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 		}
 		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
 		{
+			LightMouseHandler *pLightMouseHandler = dynamic_cast<LightMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical);
+			pLightMouseHandler->CustomRender();
 		}
 	}
 #endif

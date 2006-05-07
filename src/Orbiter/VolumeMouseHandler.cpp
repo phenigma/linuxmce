@@ -151,6 +151,10 @@ bool VolumeMouseHandler::SlowDrift(int &X,int &Y)
 void VolumeMouseHandler::CustomRender()
 {
 	int CurrentLevel = m_bTapAndRelease ? m_iCancelLevel : m_iLastNotch;
+	if( CurrentLevel > 100 )
+		CurrentLevel=100;
+	if( CurrentLevel < 0 )
+		CurrentLevel = 0;
 	CurrentLevel = m_pObj->m_rPosition.Width * CurrentLevel / 100;
 	int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1;
 	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
@@ -158,17 +162,17 @@ void VolumeMouseHandler::CustomRender()
 		CurrentLevel, m_pObj->m_rPosition.Height*.1,
 		PlutoColor::White());
 
-    int NotchWidth = m_bTapAndRelease==false ? m_pObj->m_rPosition.Width/100 : m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
-	int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
+	if( !m_bTapAndRelease )
+		return;  // We only draw the square for tap and release
 
-	// ORIGINAL CODE
-/*	int Y = 
-	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-		NotchStart, m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
-		NotchWidth, m_pObj->m_rPosition.Height,
-		plutoColor);
-    m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
-	*/
+    int NotchWidth = m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
+	int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
+	Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7;
+
+	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		NotchStart, Y,
+		NotchWidth, m_pObj->m_rPosition.Height * .25,
+		PlutoColor::Blue());
 	return;
     // ORIGINAL CODE, changed to solid rectangle
 	//m_pMouseBehavior->m_pOrbiter->SolidRectangle(
@@ -285,6 +289,10 @@ void VolumeMouseHandler::DoIteration(int Parm)
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
 	m_iCancelLevel += Parm;
+	if( m_iCancelLevel > 100 )
+		m_iCancelLevel=100;
+	if( m_iCancelLevel < 0 )
+		m_iCancelLevel = 0;
 	if( Parm<0 )
 	{
 		DCE::CMD_Vol_Down CMD_Vol_Down(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm*-1);

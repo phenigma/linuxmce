@@ -37,7 +37,6 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 		case ARRAY_Hard_Phones_CONST:
 		case ARRAY_Soft_Phones_CONST:
 		case ARRAY_Soft_Video_Phones_CONST:
-		case ARRAY_Video_Phones_CONST:
 		case ARRAY_Media_Directors_CONST:
 		case ARRAY_Viewable_Cameras_CONST:
         {
