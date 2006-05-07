@@ -176,8 +176,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d locked %d current %d vert %p hor %p",
-					  X,Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,m_pMouseHandler_Vertical,m_pMouseHandler_Horizontal);
+//g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d locked %d current %d vert %p hor %p",
+//					  X,Y,(int) m_cLockedAxes,(int) m_cLocked_Axis_Current,m_pMouseHandler_Vertical,m_pMouseHandler_Horizontal);
 
 	unsigned long dwTime = ProcessUtils::GetMsTime();
 	m_spCompass->Update(X, Y, dwTime);

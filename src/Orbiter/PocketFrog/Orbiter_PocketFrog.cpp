@@ -900,6 +900,7 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 	if( bRenderGraphicsOnly )
 	{
 		Orbiter::RenderScreen( bRenderGraphicsOnly );
+		UpdateScreen();
 		return;
 	}
 

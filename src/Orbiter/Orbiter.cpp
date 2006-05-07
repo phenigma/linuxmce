@@ -1211,6 +1211,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
 			delete pPlutoGraphic;
 		}
+g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
 
 		// TODO -- temp hack -- don't show text on the media browser grid if we have cover art
 		if( pObj->m_iPK_Datagrid==63 && pCell->m_pGraphicData )
@@ -3692,6 +3693,13 @@ int k=2;
 		// Fix up the parameters
 		pObj_Datagrid->m_sGridID = SubstituteVariables( pObj->GetParameterValue( DESIGNOBJPARAMETER_Data_grid_ID_CONST ), pObj, 0, 0 );
 		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
+	}
+	else if( pObj->m_ObjectType==DESIGNOBJTYPE_App_Desktop_CONST && (pObj->m_rPosition.Width==0 || pObj->m_rPosition.Height==0) )
+	{
+		if( pObj->m_rPosition.Width==0 )
+			pObj->m_rPosition.Width=m_iImageWidth;
+		if( pObj->m_rPosition.Height==0 )
+			pObj->m_rPosition.Height=m_iImageHeight;
 	}
 
 	DesignObj_DataList::iterator iHao;

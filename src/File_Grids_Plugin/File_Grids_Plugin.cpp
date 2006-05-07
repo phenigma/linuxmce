@@ -36,6 +36,7 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_DesignObjParameter.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Table_MediaType.h"
@@ -144,11 +145,15 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 }
 
 
+#define INCREMENT_ROW_COLUMN iColumn++; if( iColumn>iMaxColumns ) { iColumn=0; iRow++; }
+
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 #endif
+	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
+	int PK_DataGrid = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DataGrid_CONST].c_str());
 	FileListGrid *pDataGrid = new FileListGrid(m_pDatagrid_Plugin,m_pMedia_Plugin);
 	DataGridCell *pCell;
 
@@ -186,6 +191,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		sSubDirectory = "";
 
 	int iRow=0;
+	int iColumn=0;
 	if( sSubDirectory.length() )
 	{
 		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
@@ -193,14 +199,23 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-		pCell = new DataGridCell("", "");
-		pCell->m_pMessage = CMDPDG.m_pMessage;
-		pDataGrid->SetData(0, iRow, pCell);
 
 		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
-		pCell->m_Colspan = 6;
-		pDataGrid->SetData(1, iRow++, pCell);
+		if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
+		{
+			pDataGrid->SetData(iColumn, iRow, pCell);
+			INCREMENT_ROW_COLUMN
+		}
+		else
+		{
+			pCell->m_Colspan = 6;
+			pDataGrid->SetData(1, iRow, pCell);
+
+			pCell = new DataGridCell("", "");
+			pCell->m_pMessage = CMDPDG.m_pMessage;
+			pDataGrid->SetData(0, iRow++, pCell);
+		}
 
 		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths,true));
 	}
@@ -226,13 +241,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				FileListInfo *pFileListInfo = new FileListInfo(true, sItemName, false);
 		
 				pCell = new DataGridCell("~S2~" + sItemName, sItemName);
-				pCell->m_Colspan = 6;
-				
+
 				DataGridCell *pCellPicture = new DataGridCell("", sItemName);
-			
-				pDataGrid->SetData(0, iRow, pCellPicture);	
-				pDataGrid->SetData(1, iRow++, pCell);
-				
+					
 				string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
 					+ "\n" + StringUtils::itos(iRow)+ "\n" + sItemName;
 				DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
@@ -240,6 +251,17 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				pCell->m_pMessage = CMDPDG.m_pMessage;
 				pCellPicture->m_pMessage = CMDPDG.m_pMessage;			
 				
+				if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
+				{
+					pDataGrid->SetData(iColumn, iRow, pCell);
+					INCREMENT_ROW_COLUMN
+				}
+				else
+				{
+					pDataGrid->SetData(0, iRow, pCellPicture);	
+					pCell->m_Colspan = 6;
+					pDataGrid->SetData(1, iRow++, pCell);
+				}
 				pDataGrid->m_vectFileInfo.push_back(pFileListInfo);
 			}
 		}
@@ -259,10 +281,20 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 					if(!SendCommand(CMD_Get_Jukebox_Status_))
 					{
 						FileListInfo *pFileListInfo = new FileListInfo(true, "", false);
- 						pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
+
 						pCell = new DataGridCell("Unable to communicate with Powerfile '" + pRow_Device->Description_get() + "'", "");
-						pCell->m_Colspan = 6;
-						pDataGrid->SetData(1, iRow++, pCell);						
+						if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
+						{
+							pDataGrid->SetData(iColumn, iRow, pCell);
+							INCREMENT_ROW_COLUMN
+						}
+						else
+						{
+							pCell->m_Colspan = 6;
+							pDataGrid->SetData(1, iRow, pCell);						
+							pDataGrid->SetData(0, iRow++, new DataGridCell("", ""));
+						}
+
 						pDataGrid->m_vectFileInfo.push_back(pFileListInfo);					
 						return pDataGrid;
 					}
@@ -278,7 +310,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 							string sSlotIndex = sElem.substr(1, sElem.find('=', 0) - 1);
 							FileListInfo *pFileListInfo = new FileListInfo(true, sSlotIndex + ". " + "Movie", false);
 							pCell = new DataGridCell("~S2~not identified", "not identified");
-							pCell->m_Colspan = 6;
 							
 							if( Actions.length() )
 							{
@@ -297,8 +328,17 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 								}						
 							}
 							
-							pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
-							pDataGrid->SetData(1, iRow++, pCell);
+							if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
+							{
+								pDataGrid->SetData(iColumn, iRow, pCell);
+								INCREMENT_ROW_COLUMN
+							}
+							else
+							{
+								pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
+								pCell->m_Colspan = 6;
+								pDataGrid->SetData(1, iRow++, pCell);
+							}
 							pDataGrid->m_vectFileInfo.push_back(pFileListInfo);							
 						}
 					}
@@ -354,7 +394,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
         pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
-		pCell->m_Colspan = 6;
 
 		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
 		{
@@ -396,16 +435,21 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			}
 		}
 		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
-		pDataGrid->SetData(0, iRow, pCellPicture);
-		pDataGrid->SetData(1, iRow++, pCell);
+
+		if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
+		{
+			pDataGrid->SetData(iColumn, iRow, pCell);
+			INCREMENT_ROW_COLUMN
+		}
+		else
+		{
+			pCell->m_Colspan = 6;
+			pDataGrid->SetData(0, iRow, pCellPicture);
+			pDataGrid->SetData(1, iRow++, pCell);
+		}
 		pDataGrid->m_vectFileInfo.push_back(flInfo);
 	}
 
-	return pDataGrid;
-
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"End File list");
-#endif
 	return pDataGrid;
 }
 
