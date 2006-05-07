@@ -215,6 +215,9 @@
 				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectTransitionNoEffect.cpp">
 			</File>
 			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectWipeIn.cpp">
+			</File>
+			<File
 				RelativePath="..\GraphicBuilder.cpp">
 			</File>
 			<File
