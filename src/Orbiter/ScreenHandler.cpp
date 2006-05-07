@@ -152,6 +152,16 @@ void ScreenHandler::SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, str
 	ScreenHandlerBase::SCREEN_ModeChanged(PK_Screen, sPK_HouseMode, sHouseModeTime, sExitDelay, sAlerts);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
+{
+	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_RemoteOSD);
+	else if( m_pOrbiter->m_iPK_Screen_Remote )
+		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote no remote");
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>" + sErrors);
