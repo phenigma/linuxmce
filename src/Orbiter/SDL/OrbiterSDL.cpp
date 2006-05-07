@@ -326,7 +326,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 	#endif
 	
-	if (bRenderGraphicsOnly || !EnableOpenGL)
+	if (!EnableOpenGL)
 	{
 		if (m_pScreenHistory_Current)
 		{
@@ -408,7 +408,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 		//////////////////////////////////////////////////////////////////////////
 			//TODO: this is temporary
-		if(UsesUIVersion2())
+		if(!bRenderGraphicsOnly && UsesUIVersion2())
 		{
 			std::cout << "RenderScreen: using UIVersion2 : " << std::endl;
 
