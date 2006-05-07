@@ -106,7 +106,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
-			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d",Code,PK_Device_Remote",pm->m_dwMessage_Type,pm->m_dwID,Code,PK_Device_Remote);
+			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c)",Code,PK_Device_Remote",pm->m_dwMessage_Type,pm->m_dwID,Code,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout);
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
 		else
