@@ -764,7 +764,7 @@ void Orbiter::RealRedraw( void *data )
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	// We don't have a good solution for rendering objects under popups--so re-render the whole screen if there are popups and we're going to render something else anyway
 	if(  m_bRerenderScreen ||
-		((m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_listPopups.size())) && m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST && 
+		((m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_listPopups.size())) && 
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
 	{
 		if(m_pGraphicBeforeHighlight)
