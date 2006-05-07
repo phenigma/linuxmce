@@ -8861,6 +8861,86 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_mnuPVR_OSD_Full_Screen : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVR_OSD_Full_Screen(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "218" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVR_OSD_Full_Screen_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVR_OSD_Full_Screen_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "218" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVR_OSD_Full_Screen_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVR_OSD_Full_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "218" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVR_OSD_Full_Screen_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVR_OSD_Full_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "218" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_Full_Screen : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_Full_Screen(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "219" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_Full_Screen_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_Full_Screen_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "219" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_Full_Screen_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_Full_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "219" /* screen ID */);
+		}
+	};
+
+	class SCREEN_mnuPVRRecording_Full_Screen_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_mnuPVRRecording_Full_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "219" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9099,6 +9179,8 @@ namespace DCE
 		virtual void SCREEN_TVConfirmInputsDiscrete(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmInputsToggle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVOnOffCodes(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_mnuPVR_OSD_Full_Screen(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_mnuPVRRecording_Full_Screen(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10243,6 +10325,16 @@ namespace DCE
 				case 217:
 				{
 					SCREEN_TVOnOffCodes(nPK_Screen);
+					break;
+				}
+				case 218:
+				{
+					SCREEN_mnuPVR_OSD_Full_Screen(nPK_Screen);
+					break;
+				}
+				case 219:
+				{
+					SCREEN_mnuPVRRecording_Full_Screen(nPK_Screen);
 					break;
 				}
 
