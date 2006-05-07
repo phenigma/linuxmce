@@ -359,7 +359,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief Render the screen in m_pScreenHistory_Current
 		*/
-		virtual void RenderScreen();
+		virtual void RenderScreen(bool bRenderGraphicsOnly);
 		virtual void BeginPaint() {};
 		virtual void EndPaint() {};
 		virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0)) {};

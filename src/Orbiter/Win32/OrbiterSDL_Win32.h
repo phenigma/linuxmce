@@ -25,7 +25,7 @@ public:
 
 	//base public methods
 	void OnQuit();
-	void RenderScreen();
+	void RenderScreen( bool bRenderGraphicsOnly );
 	bool SelfUpdate();
 
 	void WriteStatusOutput(const char* pMessage);

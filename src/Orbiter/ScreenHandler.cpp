@@ -10,6 +10,10 @@
 #include "pluto_main/Define_EventParameter.h"
 using namespace DCE;
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+#include "VolumeMouseHandler.h"
+#endif
+
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
 	ScreenHandlerBase(p_MapDesignObj), m_MapMutex("maps")

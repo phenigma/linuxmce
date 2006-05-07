@@ -35,7 +35,8 @@ namespace DCE
 		void Move(int X,int Y,int PK_Direction);
 		bool SlowDrift(int &X,int &Y);  // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 
-		void DrawSquare(int Notch,PlutoColor plutoColor);
+		void DoIteration(int Parm);
+		void CustomRender();
 	};
 
 }

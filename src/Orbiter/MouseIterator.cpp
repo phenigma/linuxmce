@@ -2,6 +2,8 @@
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
 #include "KeyboardMouseHandler.h"
+#include "VolumeMouseHandler.h"
+#include "LightMouseHandler.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -109,21 +111,17 @@ void MouseIterator::DoIteration()
 	switch(m_EIteratorFunction)
 	{
 	case if_Volume:
-		if( m_dwParm<0 )
 		{
-			DCE::CMD_Vol_Down CMD_Vol_Down(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,m_dwParm*-1);
-			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Down.m_pMessage);
-		}
-		else if( m_dwParm>0 )
-		{
-			DCE::CMD_Vol_Up CMD_Vol_Up(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,m_dwParm);
-			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Up.m_pMessage);
+			// Call back the volume handler so it can also update the total
+			VolumeMouseHandler *pVolumeMouseHandler = (VolumeMouseHandler *) m_pMouseHandler;
+			pVolumeMouseHandler->DoIteration(m_dwParm);
 		}
 		break;
 	case if_Light:
 		{
-			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,(m_dwParm>0 ? "+" : "") + StringUtils::itos(m_dwParm*10));
-			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
+			// Call back the Light handler so it can also update the total
+			LightMouseHandler *pLightMouseHandler = (LightMouseHandler *) m_pMouseHandler;
+			pLightMouseHandler->DoIteration(m_dwParm);
 		}
 		break;
 	case if_Keyboard:

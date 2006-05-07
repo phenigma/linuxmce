@@ -205,10 +205,15 @@ int k=2;
 						StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
 					if( FileUtils::FileExists(Filename) )
 					{
-						if( !ReadRegenVersion(Filename+".regen") || (!bSoleScreenCache && !CachedVersionOK()) )
+						if( !ReadRegenVersion(Filename+".regen") )
 						{
 							m_vectRegenMonitor.clear();
-							cout << "Regenerating: cache has changed" << endl;
+							cout << "Regenerating: cache can't be read" << endl;
+						}
+						else if( !bSoleScreenCache && !CachedVersionOK() )
+						{
+							m_vectRegenMonitor.clear();
+							cout << "Regenerating: cache not ok (sole screen " << bSoleScreenCache << ")" << endl;
 						}
 						else if( SerializeRead(Filename) )
 						{

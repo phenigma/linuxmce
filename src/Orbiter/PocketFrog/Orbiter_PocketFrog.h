@@ -92,7 +92,7 @@ public:
 	virtual PlutoGraphic *CreateGraphic();
 
 	// Rendering
-	virtual void RenderScreen();
+	virtual void RenderScreen( bool bRenderGraphicsOnly );
 	virtual void RedrawObjects();
 
 	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));

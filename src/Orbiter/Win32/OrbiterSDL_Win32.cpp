@@ -118,12 +118,12 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 	return m_pInstance;
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDL_Win32::RenderScreen()
+void OrbiterSDL_Win32::RenderScreen( bool bRenderGraphicsOnly )
 {
 #ifdef ENABLE_OPENGL
-	OrbiterSDLGL::RenderScreen();
+	OrbiterSDLGL::RenderScreen( bRenderGraphicsOnly );
 #else
-	OrbiterSDL::RenderScreen();
+	OrbiterSDL::RenderScreen( bRenderGraphicsOnly );
 #endif
 }
 //-----------------------------------------------------------------------------------------------------

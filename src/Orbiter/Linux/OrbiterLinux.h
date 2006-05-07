@@ -94,7 +94,7 @@ public:
     void setDisplayName(string strDisplayName);
 
     // overriden to handle the desktop window hiding
-    virtual void RenderScreen();
+    virtual void RenderScreen( bool bRenderGraphicsOnly );
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 

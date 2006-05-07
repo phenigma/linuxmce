@@ -319,8 +319,14 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     //GrabKeyboard(XServerDisplay);
 }
 
-void OrbiterLinux::RenderScreen()
+void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
 {
+	if( bRenderGraphicsOnly )
+	{
+		OrbiterSDL::RenderScreen( bRenderGraphicsOnly );
+		return;
+	}
+
     if ( XServerDisplay == NULL && ! openDisplay() )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't open the display: \"%s\"", m_strDisplayName.c_str());
@@ -331,7 +337,7 @@ void OrbiterLinux::RenderScreen()
     m_WinListManager.HideAllWindows();
 
     m_bIsExclusiveMode = true;
-    OrbiterSDL::RenderScreen();
+    OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
 
     if(m_bOrbiterReady)
         m_WinListManager.ShowSdlWindow(m_bIsExclusiveMode);

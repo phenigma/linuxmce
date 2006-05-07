@@ -320,8 +320,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 	Orbiter::ObjectOffScreen(pObj);
 }
 //----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::RenderScreen()
+/*virtual*/ void OrbiterSDL::RenderScreen( bool bRenderGraphicsOnly )
 {
+	if( bRenderGraphicsOnly )
+	{
+		Orbiter::RenderScreen( bRenderGraphicsOnly );
+		return;
+	}
+
 	#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 	#endif
@@ -336,7 +342,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
             X_UnlockDisplay();
         }
 	
-		Orbiter::RenderScreen();
+		Orbiter::RenderScreen(bRenderGraphicsOnly);
 		DisplayImageOnScreen(m_pScreenImage);
 	}
 	else //EnableOpenGL
@@ -370,7 +376,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
         }
 	
 		//screen rendering
-		Orbiter::RenderScreen();
+		Orbiter::RenderScreen(bRenderGraphicsOnly);
 	
 		//the surface after the screen was rendered
 		if(m_spAfterGraphic.get())

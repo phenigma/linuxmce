@@ -29,13 +29,13 @@ void LightMouseHandler::Start()
 	{
 		m_bTapAndRelease=true;
 		m_iLastNotch=0;
-		DrawSquare(5-m_iLastNotch,PlutoColor::White());
+//		DrawSquare(5-m_iLastNotch,PlutoColor::White());
 	}
 	else
 	{
 		m_bTapAndRelease=false;
 		m_iLastNotch=5;
-		DrawSquare(10-m_iLastNotch,PlutoColor::White());
+//		DrawSquare(10-m_iLastNotch,PlutoColor::White());
 	}
 
 	int Y=m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2;
@@ -99,21 +99,21 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		if( m_bTapAndRelease==false )
 		{
-			DrawSquare(10-m_iLastNotch,PlutoColor::Blue());
+//			DrawSquare(10-m_iLastNotch,PlutoColor::Blue());
 			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 			m_iLastNotch = Notch;
-			DrawSquare(10-m_iLastNotch,PlutoColor::White());
+			//DrawSquare(10-m_iLastNotch,PlutoColor::White());
 		}
 		else
 		{
-			DrawSquare(5-m_iLastNotch,PlutoColor::Blue());
+			//DrawSquare(5-m_iLastNotch,PlutoColor::Blue());
 			if( Notch==0 )
 				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
 			else
 				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500,NULL);
 			m_iLastNotch = Notch;
-			DrawSquare(5-m_iLastNotch,PlutoColor::White());
+			//DrawSquare(5-m_iLastNotch,PlutoColor::White());
 		}
 	}
 }
@@ -126,15 +126,23 @@ bool LightMouseHandler::SlowDrift(int &X,int &Y)
 	return true;
 }
 
-void LightMouseHandler::DrawSquare(int Notch,PlutoColor plutoColor)
+void LightMouseHandler::CustomRender()
 {
     //g_pPlutoLogger->Write(LV_CRITICAL,"LightMouseHandler::DrawSquare() : Notch=%d", Notch);
 
 	int NotchHeight = m_pObj->m_rPosition.Height/11; // Allow for 7 repeat levels in each direction
-	int NotchStart = Notch * NotchHeight + m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y;
+	int NotchStart = m_iLastNotch * NotchHeight + m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y;
+	/*
 	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
         m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.X, NotchStart,
         m_pObj->m_rPosition.Width, NotchHeight,
         plutoColor);
 	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
+	*/
+}
+
+void LightMouseHandler::DoIteration(int Parm)
+{
+	DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,(Parm>0 ? "+" : "") + StringUtils::itos(Parm*10));
+	m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 }

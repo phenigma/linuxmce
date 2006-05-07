@@ -598,7 +598,7 @@ GENERAL PURPOSE METHODS
 */
 
 //-----------------------------------------------------------------------------------------------------------
-void Orbiter::RenderScreen( )
+void Orbiter::RenderScreen( bool bRenderGraphicsOnly )
 {
 	if( m_bQuit )
 		return;
@@ -608,15 +608,18 @@ void Orbiter::RenderScreen( )
 		return;
 	}
 
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
-	if(pCallBackData)
+	if( !bRenderGraphicsOnly )
 	{
-		RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-		pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
-		pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
-	}
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
+		if(pCallBackData)
+		{
+			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
+			pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
+			pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
+		}
 
-	ExecuteScreenHandlerCallback(cbOnRenderScreen);
+		ExecuteScreenHandlerCallback(cbOnRenderScreen);
+	}
 
 #ifndef WINCE
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
@@ -656,9 +659,12 @@ void Orbiter::RenderScreen( )
 	}
 #endif
 
+	if( bRenderGraphicsOnly )
+		return;
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	// With the new UI 
-	if(UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal==NULL && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL )
+	if( UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal==NULL && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL )
 		m_pMouseBehavior->Set_Mouse_Behavior("K",false,"B",m_pScreenHistory_Current->GetObj()->m_ObjectID);
 #endif
 
@@ -767,7 +773,7 @@ void Orbiter::RealRedraw( void *data )
 		m_vectTexts_NeedRedraw.clear();
 		nd.Release();
 
-		RenderScreen(  );
+		RenderScreen( !m_bRerenderScreen );  // If !m_bRerenderScreen, then only redraw objects because we're just rendering the whole screen because of the popup
 		if(NULL != m_pObj_Highlighted)
 			DoHighlightObject();
 

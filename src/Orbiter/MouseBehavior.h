@@ -95,6 +95,7 @@ namespace DCE
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;
+		friend class OSDScreenHandler;
 
 	protected:
 		Orbiter *m_pOrbiter;

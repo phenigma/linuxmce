@@ -30,11 +30,16 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 			else
 				return sResult;
 
+		case ARRAY_Media_Type_Sorts_CONST:
+			return sResult;
+
 		case ARRAY_All_Phones_CONST:
 		case ARRAY_Hard_Phones_CONST:
 		case ARRAY_Soft_Phones_CONST:
 		case ARRAY_Soft_Video_Phones_CONST:
+		case ARRAY_Video_Phones_CONST:
 		case ARRAY_Media_Directors_CONST:
+		case ARRAY_Viewable_Cameras_CONST:
         {
 			{
 				int PK_DeviceCategory=-1;
@@ -54,6 +59,9 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 						break;
 					case ARRAY_Media_Directors_CONST:
 						PK_DeviceCategory = DEVICECATEGORY_Media_Director_CONST;
+						break;
+					case ARRAY_Viewable_Cameras_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Surveillance_Cameras_CONST;
 						break;
 				}
 

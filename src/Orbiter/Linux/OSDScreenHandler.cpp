@@ -1950,3 +1950,34 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 //}
 
 //-----------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OSDScreenHandler::SCREEN_mnuAmbiance(long PK_Screen)
+{
+	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	ScreenHandlerBase::SCREEN_mnuAmbiance(PK_Screen);
+	
+	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::AmbianceControlCustomRender, new RenderScreenCallBackData() );
+}
+
+bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
+	PlutoRectangle rectTotal = pObj->m_rPosition;
+	PlutoPoint point;
+	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pOrbiter->m_pMouseBehavior )
+	{
+		if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal )
+		{
+			VolumeMouseHandler *pVolumeMouseHandler = dynamic_cast<VolumeMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal);
+			pVolumeMouseHandler->CustomRender();
+		}
+		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
+		{
+		}
+	}
+#endif
+	return false;
+}

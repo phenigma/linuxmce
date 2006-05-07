@@ -895,8 +895,14 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 	return new PocketFrogGraphic(this);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::RenderScreen()
+/*virtual*/ void Orbiter_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 {
+	if( bRenderGraphicsOnly )
+	{
+		Orbiter::RenderScreen( bRenderGraphicsOnly );
+		return;
+	}
+
 	CHECK_STATUS();
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
@@ -923,7 +929,7 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 	}
 
 	m_bPoolRendering=true;
-	Orbiter::RenderScreen();
+	Orbiter::RenderScreen(bRenderGraphicsOnly);
 	m_bPoolRendering=false;
 
 	if( m_vectPooledTextToRender.size())
