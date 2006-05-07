@@ -65,11 +65,14 @@ using namespace DCE;
 #define MAX_TELECOM_COLORS 5
 int UniqueColors[MAX_TELECOM_COLORS];
 #include <time.h>
+
+#ifndef WIN32
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#endif
 
 #define CONFERENCE_PREFIX "C000"
 void * startDisplayThread(void * Arg);
@@ -1657,6 +1660,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 {
 	g_pPlutoLogger->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
+#ifndef WIN32
 	DataGridCell *pCell;
 	int Row = 0;
 	string userid = Parms;
@@ -1714,5 +1718,6 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			Row++;
 		}
 	}	
+#endif
 	return pDataGrid;
 }
