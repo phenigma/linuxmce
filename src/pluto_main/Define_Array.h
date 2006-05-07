@@ -8,7 +8,6 @@
 #define ARRAY_Media_Scenarios_CONST 5
 #define ARRAY_Entertainment_Areas_CONST 6
 #define ARRAY_Viewable_Cameras_CONST 7
-#define ARRAY_Video_Phones_CONST 8
 #define ARRAY_Hard_Phones_CONST 9
 #define ARRAY_Media_Directors_CONST 10
 #define ARRAY_All_Phones_CONST 11

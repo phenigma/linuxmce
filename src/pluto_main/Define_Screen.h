@@ -211,7 +211,6 @@
 #define SCREEN_Download_are_ready_to_install_CONST 210
 #define SCREEN_tempmnumain2_CONST 211
 #define SCREEN_tempmnuambiance_CONST 212
-#define SCREEN_tempmnuspeed_CONST 213
 #define SCREEN_TVManufNotListed_CONST 214
 #define SCREEN_TVConfirmInputsDiscrete_CONST 215
 #define SCREEN_TVConfirmInputsToggle_CONST 216

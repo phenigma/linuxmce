@@ -964,6 +964,9 @@
 #define TEXT_TVConfirmOnOffDiscrete_CONST 1676
 #define TEXT_TVConfirmOnOffToggle_CONST 1677
 #define TEXT_ConfirmOnOffToggle_CONST 1678
+#define TEXT_Most_Sensitive_CONST 1679
+#define TEXT_Middle_Sensitivity_CONST 1680
+#define TEXT_Least_Sensitive_CONST 1681
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
