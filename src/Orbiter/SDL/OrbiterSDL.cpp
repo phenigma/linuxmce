@@ -322,17 +322,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 //----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen( bool bRenderGraphicsOnly )
 {
-	if( bRenderGraphicsOnly )
-	{
-		Orbiter::RenderScreen( bRenderGraphicsOnly );
-		return;
-	}
-
 	#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 	#endif
 	
-	if (!EnableOpenGL)
+	if (bRenderGraphicsOnly || !EnableOpenGL)
 	{
 		if (m_pScreenHistory_Current)
 		{
@@ -429,21 +423,19 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 				break;
 
 			case DESIGNOBJ_mnuAmbiance_CONST:
-				nTransitionTimeIsMs = 1000;
 				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
 				rectStartEffect.Size(PlutoSize(100, 40));
-				nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
+				nPK_Effect = EFFECT_Slide_from_left_CONST;
 				break;
 
 			case DESIGNOBJ_mnuDvdSpeedControl_CONST:
-				nTransitionTimeIsMs = 1000;
 				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
 				rectStartEffect.Size(PlutoSize(100, 40));
-				nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
+				nPK_Effect = EFFECT_Slide_from_top_CONST;
 				break;
 
 			case DESIGNOBJ_popFileList_CONST:
-				nPK_Effect = EFFECT_Fades_from_top_CONST;
+				nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
 				break;
 
 			default:
