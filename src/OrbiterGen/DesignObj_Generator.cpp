@@ -1573,7 +1573,6 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 		// TODO -- Huh?  this one makes non sense.  PK_DeviceTemplate = ARRAY_Entertainment_Areas_CONST;????
         case ARRAY_Entertainment_Areas_CONST:
-        case ARRAY_Video_Phones_CONST:
         case ARRAY_Viewable_Cameras_CONST:
         {
             int PK_DeviceTemplate=-1;
