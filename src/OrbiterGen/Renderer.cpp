@@ -558,7 +558,9 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	if( bUseOCG )
 	{
 		string FileName = sSaveToFile + ".ocg";
+#ifndef WINCE
 		cout << "Saving " << FileName << endl;
+#endif
 		SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
 		if( m_Rotate )
 			pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
@@ -569,7 +571,9 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	else
 	{
 		string FileName = sSaveToFile + ".png";
+#ifndef WINCE
 		cout << "Saving " << FileName << endl;
+#endif
 		FILE * File = fopen(FileName.c_str(), "wb");
 		SaveImageToPNGFile(pRendererImage, File);
 		fclose(File);
@@ -1138,7 +1142,9 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size,bool bFillIt)
 
     if (Canvas->m_pSDL_Surface == NULL)
     {
+#ifndef WINCE
 		cout << "Failed to create blank canvas w: " << Width << " Height " << Height << " error: " << SDL_GetError() << endl;
+#endif
         throw string("Failed to create blank canvas: ") + SDL_GetError();
         delete Canvas;
         Canvas = NULL;
