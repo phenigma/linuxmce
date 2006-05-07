@@ -1214,3 +1214,15 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 	}
 }
 
+//<-dceag-c548-b->
+
+	/** @brief COMMAND: #548 - Menu */
+	/** Show a menu associated with this media */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c548-e->
+{
+	CMD_Goto_Media_Menu(1,0);  // Go to the root menu
+}

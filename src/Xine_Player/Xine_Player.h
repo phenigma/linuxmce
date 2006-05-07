@@ -447,6 +447,15 @@ public:
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #548 - Menu */
+	/** Show a menu associated with this media */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 		/**
