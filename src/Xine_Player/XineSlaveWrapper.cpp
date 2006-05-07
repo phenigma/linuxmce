@@ -109,6 +109,11 @@ static const char noCursorDataDescription[] =
     };
 
 
+XineSlaveWrapper::XineStream::XineStream():m_xineStreamMutex("xine-stream-access-mutex")
+{
+}
+
+
 /**
  *   \fn bool XineSlaveWrapper::createWindow()
  */
@@ -256,6 +261,8 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         g_pPlutoLogger->Write( LV_STATUS, "Nope .. making a new one" );
         isNewStream = true;
         xineStream = new XineStream();
+        
+        PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
         xineStream->m_pOwner = this;
         xineStream->m_pStream = NULL;
         xineStream->m_iStreamID = streamID;
@@ -263,6 +270,7 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
     }
     else
     {
+    		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
         g_pPlutoLogger->Write( LV_STATUS, "Closing old stream" );
         if ( m_pXineVisualizationPlugin )
         {
@@ -295,6 +303,7 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         xineStream->m_iStreamID = streamID;
     }
 
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
     xineStream->m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
 
     m_x11Visual.display = XServerDisplay;
@@ -518,6 +527,8 @@ bool XineSlaveWrapper::playStream( int streamID, string mediaPosition, bool play
 
     if ( xineStream == NULL )
         return false;
+
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
     time_t startTime = time( NULL );
@@ -749,6 +760,8 @@ void XineSlaveWrapper::frameOutputCallback( void *data, int video_width, int vid
 void XineSlaveWrapper::xineEventListener( void *userData, const xine_event_t *event )
 {
     XineStream * xineStream = ( XineStream * ) userData;
+    
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     switch ( event->type )
     {
@@ -915,6 +928,8 @@ bool XineSlaveWrapper::setXineStreamDebugging( int m_istreamID, bool newValue )
 
     if ( xineStream == NULL )
         return false;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     if ( newValue )
     {
@@ -1005,6 +1020,8 @@ void *XineSlaveWrapper::eventProcessingLoop( void *arguments )
 
 int XineSlaveWrapper::XServerEventProcessor( XineStream *pStream, XEvent &event )
 {
+		PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
+
     Atom XA_DELETE_WINDOW;
 
     switch ( event.type )
@@ -1239,6 +1256,8 @@ void XineSlaveWrapper::changePlaybackSpeed( int iStreamID, PlayBackSpeedType des
     if ( ( pStream = getStreamForId( iStreamID, "Can't set the speed of a non existent stream (%d)!" ) ) == NULL )
         return ;
 
+		PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
+
     int xineSpeed = XINE_SPEED_PAUSE;
     int NewSpecialSeekSpeed = 0;
     pStream->m_iPlaybackSpeed = desiredSpeed;
@@ -1299,6 +1318,8 @@ XineSlaveWrapper::PlayBackSpeedType XineSlaveWrapper::getPlaybackSpeed( int iStr
 
     if ( ( pStream = getStreamForId( iStreamID, "Can't get the speed of a non existent stream (%d)!" ) ) == NULL )
         return PLAYBACK_STOP;
+        
+    PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     int currentSpeed;
     switch ( ( currentSpeed = xine_get_param( pStream->m_pStream, XINE_PARAM_SPEED ) ) )
@@ -1338,7 +1359,7 @@ void XineSlaveWrapper::stopMedia( int iStreamID )
 
     if ( pStream == NULL )
         return ;
-
+        
 	playbackCompleted( pStream->m_iStreamID, false );
     // stop the event thread first
     if ( pStream->eventLoop )
@@ -1358,6 +1379,8 @@ void XineSlaveWrapper::stopMedia( int iStreamID )
 
     if ( pStream->m_pStream )
     {
+	      PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
+
         g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", iStreamID );
         xine_stop( pStream->m_pStream );
 
@@ -1461,6 +1484,8 @@ void XineSlaveWrapper::selectNextButton( int iStreamID )
 
     if ( pStream == NULL )
         return ;
+        
+    PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
 
@@ -1481,8 +1506,10 @@ void XineSlaveWrapper::selectPrevButton( int iStreamID )
 
     if ( pStream == NULL )
         return ;
+        
+    PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
-    g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+    g_pPlutoLogger->Write( LV_STATUS, "Selecting prev hot spot on the m_pstream %d", iStreamID );
 
     xine_event_t event;
 
@@ -1501,6 +1528,8 @@ void XineSlaveWrapper::pushCurrentButton( int iStreamID )
 
     if ( pStream == NULL )
         return ;
+
+		PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
 
@@ -1526,6 +1555,8 @@ void XineSlaveWrapper::getScreenShot( int iStreamID, int iWidth, int iHeight, ch
 
     if ( pStream == NULL )
         return ;
+
+		PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     // only make screenshots if it's a video stream.
     if ( ! pStream->m_bHasVideo )
@@ -1563,7 +1594,7 @@ void XineSlaveWrapper::make_snapshot( xine_stream_t *pStream, string sFormat, in
         g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::make_snapshot(): The xine_stream_t object passed as parameter was null. Can't get the screen shot" );
         return ;
     }
-
+    
     g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame info" );
     if ( ! xine_get_current_frame( pStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL ) )
     {
@@ -1846,6 +1877,8 @@ void XineSlaveWrapper::selectMenu( int iStreamID, int iMenuType )
 
     if ( xineStream == NULL )
         return ;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     xine_event_t xine_event;
 
@@ -1869,7 +1902,7 @@ void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )
 {
-	PLUTO_SAFETY_LOCK( xp, m_pAggregatorObject->m_xineSlaveMutex ); // There are lots of problems when 2 threads try to get the position at the same time
+		//PLUTO_SAFETY_LOCK( xp, m_pAggregatorObject->m_xineSlaveMutex ); // There are lots of problems when 2 threads try to get the position at the same time
 
     if ( m_pDynamic_Pointer )
         m_pDynamic_Pointer->pointer_check_time();
@@ -1878,6 +1911,8 @@ int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTim
 
     if ( xineStream == NULL )
         return 0;
+
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     if ( xine_get_stream_info( xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
     {
@@ -1908,6 +1943,8 @@ int XineSlaveWrapper::enableBroadcast( int iStreamID )
 
     if ( pStream == NULL )
         return 0;
+        
+    PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     int portNumber = 7866;
     if ( portNumber != xine_get_param( pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT ) )
@@ -1937,6 +1974,8 @@ void XineSlaveWrapper::simulateMouseClick( int X, int Y )
 
     if ( ( pStream = getStreamForId( 1, "XineSlaveWrapper::simulateMouseClick() getting one stream" ) ) == NULL )
         return ;
+
+		PLUTO_SAFETY_LOCK( streamLock, pStream->m_xineStreamMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y );
 
@@ -2095,6 +2134,8 @@ bool XineSlaveWrapper::setSubtitle( int Value )
 
     if ( xineStream == NULL )
         return false;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "SPU was %d now %d", getSubtitle(), Value );
     xine_set_param( xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL, Value );
@@ -2108,6 +2149,8 @@ bool XineSlaveWrapper::setAudio( int Value )
 
     if ( xineStream == NULL )
         return false;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "AUDIO was %d now %d", xine_get_param ( xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL ), Value );
     xine_set_param( xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, Value );
@@ -2121,6 +2164,8 @@ int XineSlaveWrapper::getSubtitle()
 
     if ( xineStream == NULL )
         return -1;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     return xine_get_param ( xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL );
 }
@@ -2131,6 +2176,8 @@ int XineSlaveWrapper::getAudio()
 
     if ( xineStream == NULL )
         return 0;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     return xine_get_param ( xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL );
 }
@@ -2141,6 +2188,8 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 
     if ( xineStream == NULL )
         return ;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     int Whole = xineStream->m_iPlaybackSpeed / 1000;
     int Fraction = xineStream->m_iPlaybackSpeed % 1000;
@@ -2200,6 +2249,8 @@ void XineSlaveWrapper::DisplayOSDText( string sText )
     if ( xineStream == NULL )
         return ;
 
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+
     // now fixed
     // todo -- put this back?!!!  Something is freeing the osd and it's not us, so this crashes!
     if ( sText.size() == 0 )
@@ -2233,6 +2284,8 @@ void XineSlaveWrapper::StartSpecialSeek( int Speed )
     if ( xineStream == NULL )
         return ;
 
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+
     xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
 
     int totalTime;
@@ -2254,6 +2307,8 @@ void XineSlaveWrapper::StopSpecialSeek()
 
     if ( xineStream == NULL )
         return ;
+
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
 
@@ -2311,6 +2366,8 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
     if ( xineStream == NULL )
         return ;
+        
+    PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     if( tolerance_ms==0 )
     {
@@ -2355,6 +2412,8 @@ void XineSlaveWrapper::HandleSpecialSeekSpeed()
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
     if ( xineStream == NULL || m_tsLastSpecialSeek.tv_sec==0 )  // Should not happen
         return ;
+
+		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
 
     DisplaySpeedAndTimeCode();
 

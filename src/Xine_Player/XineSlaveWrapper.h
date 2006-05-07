@@ -88,6 +88,9 @@ private:
 
         XineSlaveWrapper *m_pOwner;  /** < the Owner */
 
+				XineStream();
+				// mutex for access control
+				pluto_pthread_mutex_t m_xineStreamMutex;
         /**
         * @brief This will change the playback speed of the current stream
         */
