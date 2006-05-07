@@ -357,10 +357,7 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 	if( !PK_Device )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
 	else
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Got IR Command %s from remote %d",pCommand,PK_Device);
 		ReceivedCode(PK_Device,pCommand);
-	}
 }
 
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)
