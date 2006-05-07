@@ -333,10 +333,11 @@ void SpeedMouseHandler::DrawInfo()
 		int Offset = m_pObj->m_rPosition.Width * Percent;
 		if( Offset<0 )
 			Offset=0;
-		m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-			m_pObj->m_rPosition.X + Offset, m_pObj->m_rPosition.Y,
-			m_pObj->m_rPosition.Width*.035, m_pObj->m_rPosition.Height*.4,
-			PlutoColor::White());
+		int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .3;
+		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+			m_pObj->m_rPosition.X + Offset, Y,
+			m_pObj->m_rPosition.Width*.035, m_pObj->m_rPosition.Height*.25,
+			PlutoColor::Blue());
 	}
 
 	if( m_bHasTimeline )
