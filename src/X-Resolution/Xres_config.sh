@@ -27,17 +27,17 @@ ShowDialog()
 	kill "$pidOfX"
 }
 
-cp /etc/X11/XF86Config-4{,.test}
-if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/XF86Config-4.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
+cp /etc/X11/xorg.conf{,.test}
+if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
 	echo "X configuration script exited with error"
 	exit 10
 fi
 
-X :1 -ac -xf86config /etc/X11/XF86Config-4.test &
+X :1 -ac -config /etc/X11/xorg.conf.test &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
-	pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/XF86Config-4.test'|grep -v grep|awk '{print $1}')"
+	pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
 	((Timeout--))
 	sleep 1
 done

@@ -33,7 +33,7 @@ TestConfig()
 }
 
 OrigParams=("$@")
-ConfigFile="/etc/X11/XF86Config-4"
+ConfigFile="/etc/X11/xorg.conf"
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--defaults) Defaults=y ;;
@@ -97,11 +97,11 @@ fi
 [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
-	if [[ ! -f /usr/pluto/templates/XF86Config-4.in ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/XF86Config-4.in. Can't setup defaults"
+	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.in. Can't setup defaults"
 		exit 1
 	fi
-	cat /usr/pluto/templates/XF86Config-4.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
 elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}

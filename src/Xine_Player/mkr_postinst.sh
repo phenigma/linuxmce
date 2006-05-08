@@ -3,7 +3,7 @@
 /usr/pluto/bin/alsaconf-noninteractive
 
 video_driver=xv;
-grep -q 'Driver.*i810' /etc/X11/XF86Config-4 && video_driver=xshm;
+grep -q 'Driver.*i810' /etc/X11/xorg.conf && video_driver=xshm;
 
 xine_conf="
 #

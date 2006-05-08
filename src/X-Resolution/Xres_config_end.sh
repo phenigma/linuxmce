@@ -11,11 +11,11 @@ TellToReload()
 	done
 }
 
-pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/XF86Config-4.test'|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep 'X :1 -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi
-if [[ ! -f "/etc/X11/XF86Config-4.test" ]]; then
+if [[ ! -f "/etc/X11/xorg.conf.test" ]]; then
 	echo "test config not found. no new settings to apply"
 	exit 10
 fi
@@ -28,13 +28,12 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	TellToReload
 	
 	pidOfX=$(ps ax|grep 'X :0 -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	mv /etc/X11/XF86Config-4{.test,}
+	mv /etc/X11/xorg.conf{.test,}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
 	sleep 5
 	/usr/pluto/bin/Start_X.sh
-	/usr/pluto/bin/Start_ratpoison.sh
 else
-	rm /etc/X11/XF86Config-4.test
+	rm /etc/X11/xorg.conf.test
 fi
 echo

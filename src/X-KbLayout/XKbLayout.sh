@@ -62,7 +62,7 @@ else
 	XConfPath=""
 fi
 
-XConfFile="$XConfPath/etc/X11/XF86Config-4"
+XConfFile="$XConfPath/etc/X11/xorg.conf"
 case "$Action" in
 	get)
 		getCurrentLayout
