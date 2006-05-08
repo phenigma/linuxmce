@@ -31,13 +31,13 @@
  * wxPanel_Seek type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxPanel_Seek, wxPanel )
+IMPLEMENT_DYNAMIC_CLASS( wxPanel_Seek, wxPanel );
 
 /*!
  * wxPanel_Seek event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxPanel_Seek, wxPanel )
+BEGIN_EVENT_TABLE( wxPanel_Seek, wxPanel )
 
 ////@begin wxPanel_Seek event table entries
     EVT_PAINT( wxPanel_Seek::OnPaint )
@@ -51,12 +51,12 @@ IMPLEMENT_DYNAMIC_CLASS( wxPanel_Seek, wxPanel )
  */
 
 wxPanel_Seek::wxPanel_Seek( )
-        : v_nPosRatio(0)
+        : v_dPosPercent(0)
 {
 }
 
 wxPanel_Seek::wxPanel_Seek( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
-        : v_nPosRatio(0)
+        : v_dPosPercent(0)
 {
     Create(parent, id, pos, size, style);
 }
@@ -87,8 +87,6 @@ void wxPanel_Seek::CreateControls()
 ////@begin wxPanel_Seek content construction
     wxPanel_Seek* itemPanel1 = this;
 
-    this->SetForegroundColour(wxColour(0, 255, 0));
-    this->SetBackgroundColour(wxColour(173, 216, 230));
 ////@end wxPanel_Seek content construction
     wxUnusedVar(itemPanel1);
 }
@@ -104,14 +102,26 @@ void wxPanel_Seek::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_SEEK in wxPanel_Seek.
     wxUnusedVar(event);
-    _WX_LOG_NFO("ratio=%d", v_nPosRatio);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
-    dc.Clear();
     dc.SetBrush(GetForegroundColour());
     dc.SetPen(GetForegroundColour());
+    dc.Clear();
+    // check values
+    if (
+        (v_dPosPercent < 0) || (v_dPosPercent > 100)
+        )
+    {
+        _WX_LOG_ERR("Bad value: PosPercent=%f", v_dPosPercent);
+        return;
+    }
+    else
+    {
+        //_WX_LOG_NFO("PosPercent=%f", v_dPosPercent);
+    }
+    // continue to draw
     wxSize oSize = dc.GetSize();
-    int x = v_nPosRatio * oSize.GetWidth();
+    int x = (int)(v_dPosPercent * oSize.GetWidth());
     int y = oSize.GetHeight();
     // draw filled triangle
     wxPoint aPoints[] =

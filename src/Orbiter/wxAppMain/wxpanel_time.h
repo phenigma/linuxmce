@@ -23,7 +23,8 @@
  */
 
 ////@begin forward declarations
-class wxWindow;
+class wxBoxSizer;
+class wxPanel_Arrow;
 ////@end forward declarations
 
 /*!
@@ -32,13 +33,13 @@ class wxWindow;
 
 ////@begin control identifiers
 #define ID_PANEL_TIME 10036
-#define SYMBOL_WXPANEL_TIME_STYLE 0
+#define SYMBOL_WXPANEL_TIME_STYLE wxRESIZE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXPANEL_TIME_TITLE _T("wx Panel_Time")
 #define SYMBOL_WXPANEL_TIME_IDNAME ID_PANEL_TIME
-#define SYMBOL_WXPANEL_TIME_SIZE wxSize(200, 75)
+#define SYMBOL_WXPANEL_TIME_SIZE wxSize(100, 75)
 #define SYMBOL_WXPANEL_TIME_POSITION wxDefaultPosition
 #define ID_SLIDER_TIME 10000
-#define ID_WIN_TIME 10029
+#define ID_CTRL_TIME_ARROW 10029
 #define wxID_TIME_START 10030
 #define wxID_TIME_NOW 10031
 #define wxID_TIME_END 10032
@@ -74,9 +75,6 @@ public:
 
 ////@begin wxPanel_Time event handler declarations
 
-    /// wxEVT_PAINT event handler for ID_PANEL_TIME
-    void OnPaint( wxPaintEvent& event );
-
 ////@end wxPanel_Time event handler declarations
 
 ////@begin wxPanel_Time member function declarations
@@ -92,14 +90,18 @@ public:
     static bool ShowToolTips();
 
 ////@begin wxPanel_Time member variables
+    wxBoxSizer* v_pBoxV_all;
     wxSlider* v_pSliderTime;
-    wxWindow* v_pWinTime;
+    wxPanel_Arrow* v_pPanel_Arrow;
+    wxBoxSizer* v_pBoxH_Start_End;
     wxStaticText* v_pTimeStart;
     wxStaticText* v_pTimeNow;
     wxStaticText* v_pTimeEnd;
 ////@end wxPanel_Time member variables
 
 public:
+    virtual void Refresh(bool eraseBackground = true, const wxRect* rect = NULL);
+
     int v_nTimeStart;
     int v_nTimeNow;
     int v_nTimeEnd;

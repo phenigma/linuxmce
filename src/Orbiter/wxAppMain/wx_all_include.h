@@ -29,6 +29,10 @@
 #include <list>
 using namespace std;
 
+#ifdef WX_SDL_DEMO
+#include "SDL/SDL.h"
+#endif // WX_SDL_DEMO
+
 #include "wx_extern_helpers.h"
 
 #endif

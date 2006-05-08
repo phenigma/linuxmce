@@ -23,6 +23,7 @@
 ////@end includes
 
 #include "wxdialog_base.h"
+#include "wxappmain.h"
 #include "wx_event_dialog.h"
 #include "wx_safe_dialog.h"
 #include "wx_extern_app.h"
@@ -35,7 +36,7 @@
  */
 
 IMPLEMENT_DYNAMIC_CLASS( wxDialog_Base, wxDialog )
-;
+    ;
 
 /*!
  * wxDialog_Base event table definition
@@ -44,6 +45,7 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_Base, wxDialog )
 BEGIN_EVENT_TABLE( wxDialog_Base, wxDialog )
 
 ////@begin wxDialog_Base event table entries
+    EVT_CLOSE( wxDialog_Base::OnCloseWindow )
     EVT_IDLE( wxDialog_Base::OnIdle )
 
 ////@end wxDialog_Base event table entries
@@ -91,6 +93,16 @@ bool wxDialog_Base::Create( wxWindow* parent, wxWindowID id, const wxString& cap
 #ifdef USE_DEBUG_CODE
     style &= (~wxSTAY_ON_TOP);
 #endif // USE_DEBUG_CODE
+    wxWindow *pTopWindow = wxGetApp().GetTopWindow();
+    if (pTopWindow == NULL)
+    {
+        _WX_LOG_WRN("NULL top window");
+    }
+    else if (parent == NULL)
+    {
+        _WX_LOG_NFO("NULL parent for window '%s'", caption.c_str());
+        parent = pTopWindow;
+    }
 ////@begin wxDialog_Base member initialisation
 ////@end wxDialog_Base member initialisation
 
@@ -117,6 +129,20 @@ void wxDialog_Base::CreateControls()
 ////@end wxDialog_Base content construction
 
     wxUnusedVar(itemDialog1);
+}
+
+/*!
+ * wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE
+ */
+
+void wxDialog_Base::OnCloseWindow( wxCloseEvent& event )
+{
+    _WX_LOG_DBG("Label='%s'", GetLabel().c_str());
+////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE in wxDialog_Base.
+    // Before editing this code, remove the block markers.
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE in wxDialog_Base.
+    wxUnusedVar(event);
+    Destroy();
 }
 
 /*!
@@ -346,7 +372,7 @@ void wxDialog_Base::Update_Position(const int x, const int y, const int width, c
             "Label='%s' : Bad Position : (%d, %d, %d, %d)",
             GetLabel().c_str(),
             x, y, width, height
-        );
+            );
         return;
     }
     _WX_LOG_NFO(

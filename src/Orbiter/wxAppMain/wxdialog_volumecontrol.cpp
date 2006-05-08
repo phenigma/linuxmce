@@ -91,15 +91,20 @@ void wxDialog_VolumeControl::CreateControls()
 ////@begin wxDialog_VolumeControl content construction
     wxDialog_VolumeControl* itemDialog_Base1 = this;
 
+    this->SetBackgroundColour(wxColour(30, 144, 255));
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pPanel_Volume = new wxPanel_Volume;
-    v_pPanel_Volume->Create( itemDialog_Base1, ID_CTRL_VOLUME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
-    v_pPanel_Volume->SetBackgroundColour(wxColour(0, 0, 255));
+    v_pPanel_Volume->Create( itemDialog_Base1, ID_CTRL_VOLUME, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(100, 10)), wxSUNKEN_BORDER|wxCLIP_CHILDREN  );
+    v_pPanel_Volume->SetForegroundColour(wxColour(255, 255, 0));
+    v_pPanel_Volume->SetBackgroundColour(wxColour(255, 255, 255));
     v_pBoxV_all->Add(v_pPanel_Volume, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
 ////@end wxDialog_VolumeControl content construction
+#ifdef USE_RELEASE_CODE
+    wx_WindowStyle_Del(v_pPanel_Volume, wxNO_BORDER);
+#endif // USE_RELEASE_CODE
 }
 
 /*!
@@ -160,19 +165,15 @@ bool wxDialog_VolumeControl::Gui_Refresh(CallBackData *pCallBackData)
     switch (pCallData->m_eStyle)
     {
         case VolumeControlCallBackData::SPEED:
-            v_pPanel_Volume->bTypeSpeed = true;
-            v_pPanel_Volume->bTypeRuler = false;
-            break;
         case VolumeControlCallBackData::RULER:
-            v_pPanel_Volume->bTypeSpeed = false;
-            v_pPanel_Volume->bTypeRuler = true;
+            v_pPanel_Volume->v_eStyle = pCallData->m_eStyle;
             break;
         default:
             _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
             break;
     }
-    v_pPanel_Volume->m_nPositions = pCallData->m_nPositions;
-    v_pPanel_Volume->m_nCrtPosition = pCallData->m_nCrtPosition;
+    v_pPanel_Volume->v_nPositions = pCallData->m_nPositions;
+    v_pPanel_Volume->v_nCrtPosition = pCallData->m_nCrtPosition;
     v_pPanel_Volume->Refresh();
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     return true;

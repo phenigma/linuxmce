@@ -4,6 +4,8 @@
 // Changed by : ...
 //
 
+// support code for external app, launched in a separate thread
+
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wx_extern_app.h"
 #endif

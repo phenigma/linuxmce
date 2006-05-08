@@ -313,23 +313,52 @@ void wx_Grid_Resize_Column(wxGrid *pGrid, int idxResizableColumn)
 {
     int nColumnCount = pGrid->GetNumberCols();
     int widthMax = pGrid->GetClientSize().GetWidth();
-    int widthCol = widthMax - (WX_GridLineSize * nColumnCount);
-    // - WX_ScrollBarSize
+    // will calculate the resizable column width
+    int widthResizableColumn = widthMax - WX_GridLineSize; // substract once, will suffice
     for (int i=0; i<nColumnCount; i++)
     {
         if (i == idxResizableColumn)
             continue;
-        widthCol -= pGrid->GetColSize(i);
+        widthResizableColumn -= pGrid->GetColSize(i);
     }
-    pGrid->SetColSize(idxResizableColumn, widthCol);
+    // Sometimes wxGrid has trouble setting the scrollbars correctly
+    // due to rounding errors: setting this to 1 can help
+    pGrid->SetScrollLineX(1);
+    pGrid->SetScrollLineY(1);
+    pGrid->SetColSize(idxResizableColumn, widthResizableColumn);
     pGrid->Refresh();
+}
+
+void wx_CopyWindowAttributes(wxWindow *pWinDest, wxWindow *pWinSrc)
+{
+    _COND_RET(pWinDest);
+    _COND_RET(pWinSrc);
+    pWinDest->SetBackgroundColour(pWinSrc->GetBackgroundColour());
+    pWinDest->SetForegroundColour(pWinSrc->GetForegroundColour());
+    pWinDest->SetFont(pWinSrc->GetFont());
+}
+
+void wx_WindowStyle_Add(wxWindow *pWindow, long style)
+{
+    _COND_RET(pWindow);
+    pWindow->SetWindowStyle(pWindow->GetWindowStyle() | style);
+}
+
+void wx_WindowStyle_Del(wxWindow *pWindow, long style)
+{
+    _COND_RET(pWindow);
+    pWindow->SetWindowStyle(pWindow->GetWindowStyle() & !style);
 }
 
 wxString StrTimeHMS(int seconds)
 {
+    _COND_RET(seconds >= 0, "");
     int sec = seconds % 60;
     int hour = (seconds-sec) / 60;
     int min = hour % 60;
     hour = (hour-min) / 60;
-    return wxString::Format("%02d:%02d:%02d", hour, min, sec);
+    if (hour)
+        return wxString::Format("%02d:%02d:%02d", hour, min, sec);
+    else
+        return wxString::Format("%02d:%02d", min, sec);
 }

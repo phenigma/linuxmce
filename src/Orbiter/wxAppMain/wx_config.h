@@ -48,5 +48,9 @@ enum E_UNIQUE_ID
 #define INTERVAL_TIMER_WAKEIDLE_MSEC 50
 #define INTERVAL_TIMER_EXPIREDIALOG_MSEC 200
 
+// defined in makefile
+//#define WX_GL_DEMO
+//#define WX_SDL_DEMO
+
 #endif
 // _WX_CONFIG_H_

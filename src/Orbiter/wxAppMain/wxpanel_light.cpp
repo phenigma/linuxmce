@@ -31,13 +31,13 @@
  * wxPanel_Light type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxPanel_Light, wxPanel )
+IMPLEMENT_DYNAMIC_CLASS( wxPanel_Light, wxPanel );
 
 /*!
  * wxPanel_Light event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxPanel_Light, wxPanel )
+BEGIN_EVENT_TABLE( wxPanel_Light, wxPanel )
 
 ////@begin wxPanel_Light event table entries
     EVT_PAINT( wxPanel_Light::OnPaint )
@@ -51,14 +51,14 @@ IMPLEMENT_DYNAMIC_CLASS( wxPanel_Light, wxPanel )
  */
 
 wxPanel_Light::wxPanel_Light( )
-        : m_nPositions(0)
-        , m_nCrtPosition(0)
+        : v_nPositions(0)
+        , v_nCrtPosition(0)
 {
 }
 
 wxPanel_Light::wxPanel_Light( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
-        : m_nPositions(0)
-        , m_nCrtPosition(0)
+        : v_nPositions(0)
+        , v_nCrtPosition(0)
 {
     Create(parent, id, pos, size, style);
 }
@@ -89,7 +89,6 @@ void wxPanel_Light::CreateControls()
 ////@begin wxPanel_Light content construction
     wxPanel_Light* itemPanel1 = this;
 
-    this->SetBackgroundColour(wxColour(173, 216, 230));
 ////@end wxPanel_Light content construction
     wxUnusedVar(itemPanel1);
 }
@@ -105,22 +104,40 @@ void wxPanel_Light::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_LIGHT in wxPanel_Light.
     wxUnusedVar(event);
-    _WX_LOG_NFO("pos=%d, crt_pos=%d", m_nPositions, m_nCrtPosition);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
-    dc.Clear();
     dc.SetBrush(GetForegroundColour());
     dc.SetPen(GetForegroundColour());
+    dc.Clear();
+    // check values
+    if (
+        (v_nPositions < 0) || (v_nCrtPosition < 0)
+        )
+    {
+        _WX_LOG_ERR("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        return;
+    }
+    else if (
+        (v_nCrtPosition > v_nPositions)
+        )
+    {
+        _WX_LOG_WRN("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+    }
+    else
+    {
+        _WX_LOG_NFO("pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+    }
+    // continue to draw
     wxSize oSize = dc.GetSize();
     int w = oSize.GetWidth();
     int h = oSize.GetHeight();
     const int NOTCH_SMALL = 4;
     const int NOTCH_BIG = 20;
-    for (int i=0; i<m_nPositions; i++)
+    for (int i=0; i<v_nPositions; i++)
     {
-        int y = (m_nPositions - i) * h / (m_nPositions+1);
+        int y = (v_nPositions - i) * h / (v_nPositions+1);
         // draw selected notch
-        if (i < m_nCrtPosition)
+        if (i < v_nCrtPosition)
         {
             dc.DrawRectangle(0, y - NOTCH_BIG/2, w, NOTCH_BIG);
         }

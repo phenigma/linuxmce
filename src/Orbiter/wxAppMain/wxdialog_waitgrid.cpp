@@ -118,12 +118,12 @@ void wxDialog_WaitGrid::CreateControls()
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pBoxH_top = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_top, 1, wxGROW|wxALL, 5);
+    v_pBoxV_all->Add(v_pBoxH_top, 2, wxGROW|wxALL, 5);
 
     wxBitmap v_pBitmapBitmap(itemDialog_Base1->GetBitmapResource(wxT("logo_pluto.jpg")));
     v_pBitmap = new wxStaticBitmap;
     v_pBitmap->Create( itemDialog_Base1, wxID_STATIC, v_pBitmapBitmap, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(126, 87)), wxNO_BORDER );
-    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL, 5);
 
     v_pGrid = new wxGrid( itemDialog_Base1, ID_GRID_WAITGRID, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL );
     v_pGrid->SetForegroundColour(wxColour(224, 224, 240));
@@ -143,7 +143,7 @@ void wxDialog_WaitGrid::CreateControls()
     v_pInfoText->Create( itemDialog_Base1, ID_TEXTCTRL_WAITGRID, _T(" Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1\n Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2\n"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER );
     v_pInfoText->SetBackgroundColour(wxColour(224, 224, 240));
     v_pInfoText->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 10);
+    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 5);
 
     v_pBoxH_bot = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_bot, 0, wxGROW|wxALL, 5);
@@ -152,7 +152,7 @@ void wxDialog_WaitGrid::CreateControls()
     v_pGauge->Create( itemDialog_Base1, ID_GAUGE_WAITGRID, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER );
     v_pGauge->SetValue(50);
     v_pGauge->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_bot->Add(v_pGauge, 1, wxALIGN_CENTER_VERTICAL|wxALL, 10);
+    v_pBoxH_bot->Add(v_pGauge, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
 ////@end wxDialog_WaitGrid content construction
 

@@ -121,7 +121,7 @@ void wxDialog_RoomWizard::CreateControls()
     v_pGrid->SetColLabelSize(0);
     v_pGrid->SetRowLabelSize(0);
     v_pGrid->CreateGrid(4, 5, wxGrid::wxGridSelectRows);
-    v_pBoxV_all->Add(v_pGrid, 1, wxGROW, 1);
+    v_pBoxV_all->Add(v_pGrid, 1, wxGROW, 5);
 
 ////@end wxDialog_RoomWizard content construction
 

@@ -33,7 +33,7 @@ class wxBoxSizer;
 
 ////@begin control identifiers
 #define ID_DIALOG_WAITUSER 10005
-#define SYMBOL_WXDIALOG_WAITUSER_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_WAITUSER_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_WAITUSER_TITLE _T("Wait User")
 #define SYMBOL_WXDIALOG_WAITUSER_IDNAME ID_DIALOG_WAITUSER
 #define SYMBOL_WXDIALOG_WAITUSER_SIZE wxSize(150, 150)
@@ -92,8 +92,8 @@ public:
 ////@begin wxDialog_WaitUser member variables
     wxBoxSizer* v_pBoxV_all;
     wxBoxSizer* v_pBoxH_top;
+    wxBoxSizer* v_pBoxV_logo;
     wxStaticBitmap* v_pBitmap;
-    wxBoxSizer* v_pBoxSpace;
     wxGauge* v_pGauge;
     wxBoxSizer* v_pBoxH_mid;
     wxTextCtrl* v_pInfoText;

@@ -116,8 +116,8 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
         pCallData->m_listSpeeds = _g_listIntSpeeds;
         pCallData->m_nSpeed = 10;
         pCallData->m_nTimeStart = 10234;
-        pCallData->m_nTimeEnd = 50234;
-        pCallData->m_nTimeNow = 90234;
+        pCallData->m_nTimeNow = 20234;
+        pCallData->m_nTimeEnd = 90234;
         pCallData->m_nSeekToPos = 70234;
         return;
     }
@@ -126,12 +126,18 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
         pCallData->m_eStyle = VolumeControlCallBackData::Style( 1 + iLoop % 2 );
         pCallData->m_nPositions = 10;
         pCallData->m_nCrtPosition = iLoop % ( pCallData->m_nPositions + 1 );
+        // new dimensions
+        pCallData->m_rectPosition.Width = 1000;
+        pCallData->m_rectPosition.Height = 200;
         return;
     }
     if (LightControlCallBackData *pCallData = dynamic_cast<LightControlCallBackData *>(pCallBackData))
     {
         pCallData->m_nPositions = 10;
         pCallData->m_nCrtPosition = iLoop % ( pCallData->m_nPositions + 1 );
+        // new dimensions
+        pCallData->m_rectPosition.Width = 200;
+        pCallData->m_rectPosition.Height = 1000;
         return;
     }
 };

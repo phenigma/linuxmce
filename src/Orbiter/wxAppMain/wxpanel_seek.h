@@ -31,10 +31,10 @@
 
 ////@begin control identifiers
 #define ID_PANEL_SEEK 10037
-#define SYMBOL_WXPANEL_SEEK_STYLE wxRESIZE_BORDER
+#define SYMBOL_WXPANEL_SEEK_STYLE wxRESIZE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXPANEL_SEEK_TITLE _T("wx Panel_Seek")
 #define SYMBOL_WXPANEL_SEEK_IDNAME ID_PANEL_SEEK
-#define SYMBOL_WXPANEL_SEEK_SIZE wxSize(200, 25)
+#define SYMBOL_WXPANEL_SEEK_SIZE wxSize(100, 10)
 #define SYMBOL_WXPANEL_SEEK_POSITION wxDefaultPosition
 ////@end control identifiers
 
@@ -87,8 +87,9 @@ public:
 
 ////@begin wxPanel_Seek member variables
 ////@end wxPanel_Seek member variables
+
 public:
-    int v_nPosRatio;
+    double v_dPosPercent;
 };
 
 #endif

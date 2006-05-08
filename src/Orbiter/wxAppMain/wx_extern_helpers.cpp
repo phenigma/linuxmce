@@ -4,7 +4,8 @@
 // Changed by : ...
 //
 
-// compatibility code for debug
+// extern code copied here
+// compatibility code for debug-app
 
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wx_extern_helpers.h"

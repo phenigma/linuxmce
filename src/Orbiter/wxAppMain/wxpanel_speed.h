@@ -31,10 +31,10 @@
 
 ////@begin control identifiers
 #define ID_PANEL_SPEED 10038
-#define SYMBOL_WXPANEL_SPEED_STYLE 0
+#define SYMBOL_WXPANEL_SPEED_STYLE wxRESIZE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXPANEL_SPEED_TITLE _T("wx Panel_Speed")
 #define SYMBOL_WXPANEL_SPEED_IDNAME ID_PANEL_SPEED
-#define SYMBOL_WXPANEL_SPEED_SIZE wxSize(200, 50)
+#define SYMBOL_WXPANEL_SPEED_SIZE wxSize(100, 10)
 #define SYMBOL_WXPANEL_SPEED_POSITION wxDefaultPosition
 ////@end control identifiers
 

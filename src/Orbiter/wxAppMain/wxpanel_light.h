@@ -31,10 +31,10 @@
 
 ////@begin control identifiers
 #define ID_PANEL_LIGHT 10043
-#define SYMBOL_WXPANEL_LIGHT_STYLE 0
+#define SYMBOL_WXPANEL_LIGHT_STYLE wxRESIZE_BORDER
 #define SYMBOL_WXPANEL_LIGHT_TITLE _T("wx Panel_Light")
 #define SYMBOL_WXPANEL_LIGHT_IDNAME ID_PANEL_LIGHT
-#define SYMBOL_WXPANEL_LIGHT_SIZE wxSize(50, 200)
+#define SYMBOL_WXPANEL_LIGHT_SIZE wxSize(10, 100)
 #define SYMBOL_WXPANEL_LIGHT_POSITION wxDefaultPosition
 ////@end control identifiers
 
@@ -89,8 +89,8 @@ public:
 ////@end wxPanel_Light member variables
 
 public:
-    int m_nPositions;
-    int m_nCrtPosition;
+    int v_nPositions;
+    int v_nCrtPosition;
 };
 
 #endif

@@ -137,6 +137,19 @@ bool wxAppMain::OnInit()
     v_pwxThread_Bag = new wxThread_Bag;
     v_oTimer_WakeIdle.Start(INTERVAL_TIMER_WAKEIDLE_MSEC);
 
+#ifdef USE_DEBUG_CODE
+#ifdef WX_SDL_DEMO
+    // initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+        _WX_LOG_ERR("unable to init SDL: %s", SDL_GetError());
+        return false;
+    }
+    // Setup video mode, but don't create a window
+    SDL_SetVideoMode(0, 0, 0, SDL_SWSURFACE);
+#endif // WX_SDL_DEMO
+#endif // USE_DEBUG_CODE
+
     return true;
 }
 
@@ -214,8 +227,21 @@ void wxAppMain::Clean_Exit(bool bDestroyTopWindow/*=true*/)
     v_oTimer_WakeIdle.Stop();
     wxGetApp().ptr_ThreadBag()->DestroyAll();
     v_pExternApp = NULL; // object already destroyed
-    if (bDestroyTopWindow && GetTopWindow())
-        GetTopWindow()->Destroy();
+    if (bDestroyTopWindow)
+    {
+        wxWindow *pTopWindow = GetTopWindow();
+        if (pTopWindow)
+        {
+            _WX_LOG_NFO("Closing top window %s", pTopWindow->GetLabel().c_str());
+            pTopWindow->Destroy();
+        }
+    }
+#ifdef USE_DEBUG_CODE
+#ifdef WX_SDL_DEMO
+    // cleanup SDL
+    SDL_Quit();
+#endif // WX_SDL_DEMO
+#endif // USE_DEBUG_CODE
 }
 
 wxThread_Bag * wxAppMain::ptr_ThreadBag() const

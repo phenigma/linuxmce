@@ -31,13 +31,13 @@
  * wxPanel_Speed type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxPanel_Speed, wxPanel )
+IMPLEMENT_DYNAMIC_CLASS( wxPanel_Speed, wxPanel );
 
 /*!
  * wxPanel_Speed event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxPanel_Speed, wxPanel )
+BEGIN_EVENT_TABLE( wxPanel_Speed, wxPanel )
 
 ////@begin wxPanel_Speed event table entries
     EVT_PAINT( wxPanel_Speed::OnPaint )
@@ -87,8 +87,6 @@ void wxPanel_Speed::CreateControls()
 ////@begin wxPanel_Speed content construction
     wxPanel_Speed* itemPanel1 = this;
 
-    this->SetForegroundColour(wxColour(0, 0, 255));
-    this->SetBackgroundColour(wxColour(173, 216, 230));
 ////@end wxPanel_Speed content construction
     wxUnusedVar(itemPanel1);
 }
@@ -107,12 +105,25 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
     _WX_LOG_NFO("count=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
-    dc.Clear();
     dc.SetBrush(GetForegroundColour());
     dc.SetPen(GetForegroundColour());
+    dc.Clear();
+    // check values
+    if (
+        (v_anSpeeds.GetCount() == 0)
+        )
+    {
+        _WX_LOG_WRN("Bad value: array_size=%d", v_anSpeeds.GetCount());
+    }
+    else
+    {
+        _WX_LOG_NFO("array_size=%d", v_anSpeeds.GetCount());
+    }
+    // continue to draw
     int nCount = v_anSpeeds.size();
     int w = dc.GetSize().GetWidth() / nCount;
     int h = dc.GetSize().GetHeight() / nCount;
+    bool bIndexFound = false;
     for (size_t i=0; i<v_anSpeeds.GetCount(); i++)
     {
         int nSpeed = v_anSpeeds[i];
@@ -120,8 +131,8 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
         // hilight current speed
         if (v_nSpeed == nSpeed)
         {
-            dc.DrawRoundedRectangle(x - w/2, 0, w, h, -4);
-            break;
+            bIndexFound = true;
+            dc.DrawRoundedRectangle(x - w/2, 0, w, h, -1);
         }
         // draw every speed
         if (nSpeed == 0)
@@ -148,6 +159,10 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
             };
             dc.DrawPolygon( WXSIZEOF(aPoints), aPoints );
         }
+    }
+    if (! bIndexFound)
+    {
+        _WX_LOG_WRN("value not found: array_size=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
     }
 }
 

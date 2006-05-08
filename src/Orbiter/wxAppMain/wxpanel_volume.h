@@ -31,10 +31,10 @@
 
 ////@begin control identifiers
 #define ID_PANEL_VOLUME 10042
-#define SYMBOL_WXPANEL_VOLUME_STYLE 0
+#define SYMBOL_WXPANEL_VOLUME_STYLE wxRESIZE_BORDER
 #define SYMBOL_WXPANEL_VOLUME_TITLE _T("wx Panel_Volume")
 #define SYMBOL_WXPANEL_VOLUME_IDNAME ID_PANEL_VOLUME
-#define SYMBOL_WXPANEL_VOLUME_SIZE wxSize(200, 50)
+#define SYMBOL_WXPANEL_VOLUME_SIZE wxSize(100, 10)
 #define SYMBOL_WXPANEL_VOLUME_POSITION wxDefaultPosition
 ////@end control identifiers
 
@@ -68,6 +68,9 @@ public:
 
 ////@begin wxPanel_Volume event handler declarations
 
+    /// wxEVT_SIZE event handler for ID_PANEL_VOLUME
+    void OnSize( wxSizeEvent& event );
+
     /// wxEVT_PAINT event handler for ID_PANEL_VOLUME
     void OnPaint( wxPaintEvent& event );
 
@@ -89,10 +92,13 @@ public:
 ////@end wxPanel_Volume member variables
 
 public:
-    int m_nPositions;
-    int m_nCrtPosition;
-    bool bTypeSpeed;
-    bool bTypeRuler;
+    int v_nPositions;
+    int v_nCrtPosition;
+    VolumeControlCallBackData::Style v_eStyle;
+
+protected:
+    wxImage v_oImageBuffer;
+    wxBitmap v_oBitmapDraw;
 };
 
 #endif

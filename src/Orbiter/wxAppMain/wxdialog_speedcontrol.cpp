@@ -100,22 +100,33 @@ void wxDialog_SpeedControl::CreateControls()
 ////@begin wxDialog_SpeedControl content construction
     wxDialog_SpeedControl* itemDialog_Base1 = this;
 
+    this->SetBackgroundColour(wxColour(173, 216, 230));
     v_pBoxV_all = new wxBoxSizer(wxVERTICAL);
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pPanel_Seek = new wxPanel_Seek;
-    v_pPanel_Seek->Create( itemDialog_Base1, ID_CTRL_SEEK, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pPanel_Seek->Create( itemDialog_Base1, ID_CTRL_SEEK, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(100, 10)), wxSUNKEN_BORDER|wxCLIP_CHILDREN  );
+    v_pPanel_Seek->SetForegroundColour(wxColour(165, 42, 42));
+    v_pPanel_Seek->SetBackgroundColour(wxColour(173, 216, 230));
     v_pBoxV_all->Add(v_pPanel_Seek, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
     v_pPanel_Speed = new wxPanel_Speed;
-    v_pPanel_Speed->Create( itemDialog_Base1, ID_CTRL_SPEED, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
+    v_pPanel_Speed->Create( itemDialog_Base1, ID_CTRL_SPEED, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(100, 10)), wxSUNKEN_BORDER|wxCLIP_CHILDREN  );
+    v_pPanel_Speed->SetForegroundColour(wxColour(0, 0, 255));
+    v_pPanel_Speed->SetBackgroundColour(wxColour(173, 216, 230));
     v_pBoxV_all->Add(v_pPanel_Speed, 1, wxGROW|wxLEFT|wxRIGHT, 5);
 
     v_pPanel_Time = new wxPanel_Time;
-    v_pPanel_Time->Create( itemDialog_Base1, ID_CTRL_TIME, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER );
-    v_pBoxV_all->Add(v_pPanel_Time, 2, wxGROW|wxLEFT|wxRIGHT, 5);
+    v_pPanel_Time->Create( itemDialog_Base1, ID_CTRL_TIME, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(100, 75)), wxSUNKEN_BORDER|wxCLIP_CHILDREN  );
+    v_pPanel_Time->SetBackgroundColour(wxColour(173, 216, 230));
+    v_pBoxV_all->Add(v_pPanel_Time, 3, wxGROW|wxLEFT|wxRIGHT, 5);
 
 ////@end wxDialog_SpeedControl content construction
+#ifdef USE_RELEASE_CODE
+#endif // USE_RELEASE_CODE
+    wx_WindowStyle_Del(v_pPanel_Seek, wxNO_BORDER);
+    wx_WindowStyle_Del(v_pPanel_Speed, wxNO_BORDER);
+    wx_WindowStyle_Del(v_pPanel_Time, wxNO_BORDER);
 }
 
 /*!
@@ -218,7 +229,7 @@ bool wxDialog_SpeedControl::Gui_Refresh(CallBackData *pCallBackData)
         int nDeltaSeek = pCallData->m_nSeekToPos - pCallData->m_nTimeStart;
         if ( (nDeltaFull > 0) && (nDeltaSeek > 0) )
         {
-            v_pPanel_Seek->v_nPosRatio = nDeltaSeek / nDeltaFull;
+            v_pPanel_Seek->v_dPosPercent = (double)nDeltaSeek / nDeltaFull;
         }
         if (! v_pPanel_Seek->IsShown())
             v_pPanel_Seek->Show();

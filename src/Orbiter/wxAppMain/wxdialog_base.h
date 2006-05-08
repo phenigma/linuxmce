@@ -33,7 +33,7 @@
 
 ////@begin control identifiers
 #define ID_DIALOG_BASE 10024
-#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN
+#define SYMBOL_WXDIALOG_BASE_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN 
 #define SYMBOL_WXDIALOG_BASE_TITLE _T("wx Dialog_Base")
 #define SYMBOL_WXDIALOG_BASE_IDNAME ID_DIALOG_BASE
 #define SYMBOL_WXDIALOG_BASE_SIZE wxDefaultSize
@@ -59,7 +59,7 @@ class wxDialog_Base: public wxDialog
     DECLARE_DYNAMIC_CLASS( wxDialog_Base );
     DECLARE_EVENT_TABLE();
 
-  public:
+public:
     /// Constructors
     wxDialog_Base( );
     wxDialog_Base( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_BASE_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_BASE_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_BASE_POSITION, const wxSize& size = SYMBOL_WXDIALOG_BASE_SIZE, long style = SYMBOL_WXDIALOG_BASE_STYLE );
@@ -71,6 +71,9 @@ class wxDialog_Base: public wxDialog
     void CreateControls();
 
 ////@begin wxDialog_Base event handler declarations
+
+    /// wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE
+    void OnCloseWindow( wxCloseEvent& event );
 
     /// wxEVT_IDLE event handler for ID_DIALOG_BASE
     void OnIdle( wxIdleEvent& event );
@@ -92,7 +95,7 @@ class wxDialog_Base: public wxDialog
 ////@begin wxDialog_Base member variables
 ////@end wxDialog_Base member variables
 
-  public:
+public:
     virtual ~wxDialog_Base();
     virtual bool Destroy();
     virtual void EndModal(int retCode);

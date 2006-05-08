@@ -83,8 +83,8 @@ bool wxDialog_WaitUser::Create( wxWindow* parent, wxWindowID id, const wxString&
 ////@begin wxDialog_WaitUser member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_top = NULL;
+    v_pBoxV_logo = NULL;
     v_pBitmap = NULL;
-    v_pBoxSpace = NULL;
     v_pGauge = NULL;
     v_pBoxH_mid = NULL;
     v_pInfoText = NULL;
@@ -118,21 +118,21 @@ void wxDialog_WaitUser::CreateControls()
     itemDialog_Base1->SetSizer(v_pBoxV_all);
 
     v_pBoxH_top = new wxBoxSizer(wxHORIZONTAL);
-    v_pBoxV_all->Add(v_pBoxH_top, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    v_pBoxV_all->Add(v_pBoxH_top, 2, wxGROW|wxALL, 5);
+
+    v_pBoxV_logo = new wxBoxSizer(wxVERTICAL);
+    v_pBoxH_top->Add(v_pBoxV_logo, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxBitmap v_pBitmapBitmap(itemDialog_Base1->GetBitmapResource(wxT("logo_pluto.jpg")));
     v_pBitmap = new wxStaticBitmap;
     v_pBitmap->Create( itemDialog_Base1, wxID_STATIC, v_pBitmapBitmap, wxDefaultPosition, itemDialog_Base1->ConvertDialogToPixels(wxSize(126, 87)), wxNO_BORDER );
-    v_pBoxH_top->Add(v_pBitmap, 0, wxALIGN_CENTER_VERTICAL|wxALL, 10);
-
-    v_pBoxSpace = new wxBoxSizer(wxVERTICAL);
-    v_pBoxH_top->Add(v_pBoxSpace, 1, wxALIGN_CENTER_VERTICAL, 0);
+    v_pBoxV_logo->Add(v_pBitmap, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 
     v_pGauge = new wxGauge;
     v_pGauge->Create( itemDialog_Base1, ID_GAUGE_WAITUSER, 100, wxDefaultPosition, wxDefaultSize, wxGA_VERTICAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER );
     v_pGauge->SetValue(50);
     v_pGauge->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_top->Add(v_pGauge, 1, wxGROW|wxALL, 10);
+    v_pBoxH_top->Add(v_pGauge, 0, wxGROW|wxALL, 5);
 
     v_pBoxH_mid = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_mid, 1, wxGROW|wxALL, 5);
@@ -141,7 +141,7 @@ void wxDialog_WaitUser::CreateControls()
     v_pInfoText->Create( itemDialog_Base1, ID_TEXTCTRL_WAITUSER, _T(" Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1\n Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2\n"), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER );
     v_pInfoText->SetBackgroundColour(wxColour(224, 224, 240));
     v_pInfoText->SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, _T("Sans")));
-    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 10);
+    v_pBoxH_mid->Add(v_pInfoText, 1, wxGROW|wxALL, 5);
 
     v_pBoxH_bot = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_bot, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);

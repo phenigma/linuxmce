@@ -28,10 +28,11 @@ bool Copy_StlSequence_wxArray(StlSequenceType &aSTL, wxArrayType &aWX)
 typedef void (* type_ptr_void_fn_void)();
 typedef void (& type_ref_void_fn_void)();
 
+// does not work for every window
 // (HasScrollbar(wxHORIZONTAL)) ? GetScrollThumb(wxHORIZONTAL) : 0
 // (HasScrollbar(wxVERTICAL)) ? GetScrollThumb(wxVERTICAL) : 0
-// does not work for every window
-const int WX_ScrollBarSize = 15;
+// const int WX_ScrollBarSize = 15;
+// default grid ScrollLine X, Y == 15;
 const int WX_GridLineSize = 1;
 
 // remove escape sequences
@@ -91,6 +92,10 @@ void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg);
 void wx_Set_Color(wxGrid *pGrid, wxColour bg, wxColour fg, wxColour line);
 int wx_GetTextExtent(wxWindow *pWindow, const wxArrayString &aStrings, int *pReturnHeight=NULL);
 void wx_Grid_Resize_Column(wxGrid *pGrid, int idxResizableColumn);
+
+void wx_CopyWindowAttributes(wxWindow *pWinDest, wxWindow *pWinSrc);
+void wx_WindowStyle_Add(wxWindow *pWindow, long style);
+void wx_WindowStyle_Del(wxWindow *pWindow, long style);
 
 wxString StrTimeHMS(int seconds);
 

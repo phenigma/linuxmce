@@ -20,6 +20,8 @@
 #endif
 
 ////@begin includes
+#include "wxdialog_gl.h"
+#include "wxdialog_sdl.h"
 ////@end includes
 
 #include "wxframemain.h"
@@ -39,7 +41,7 @@
  */
 
 IMPLEMENT_CLASS( wxFrameMain, wxFrame )
-;
+    ;
 
 /*!
  * wxFrameMain event table definition
@@ -52,6 +54,10 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
     EVT_IDLE( wxFrameMain::OnIdle )
 
     EVT_MENU( wxID_EXIT, wxFrameMain::OnExitClick )
+
+    EVT_MENU( ID_TOOL_GL, wxFrameMain::OnToolGlClick )
+
+    EVT_MENU( ID_TOOL_SDL, wxFrameMain::OnToolSdlClick )
 
     EVT_MENU( ID_TOOL_DBG, wxFrameMain::OnToolDbgClick )
     EVT_UPDATE_UI( ID_TOOL_DBG, wxFrameMain::OnToolDbgUpdate )
@@ -94,10 +100,10 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
 ////@end wxFrameMain event table entries
 
-EVT_IDLE(wxFrameMain::OnIdle)
+    EVT_IDLE(wxFrameMain::OnIdle)
 
-END_EVENT_TABLE()
-;
+    END_EVENT_TABLE()
+    ;
 
 /*!
  * wxFrameMain constructors
@@ -164,46 +170,53 @@ void wxFrameMain::CreateControls()
     v_pToolBar->AddSeparator();
     wxBitmap itemtool9Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     wxBitmap itemtool9BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_DBG, _T("dbg"), itemtool9Bitmap, itemtool9BitmapDisabled, wxITEM_CHECK, _T("debug"), _T("debug"));
+    v_pToolBar->AddTool(ID_TOOL_GL, _T("GL"), itemtool9Bitmap, itemtool9BitmapDisabled, wxITEM_NORMAL, _T("GL window"), _T("GL window"));
+    wxBitmap itemtool10Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool10BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_SDL, _T("SDL"), itemtool10Bitmap, itemtool10BitmapDisabled, wxITEM_NORMAL, _T("SDL window"), _T("SDL window"));
     v_pToolBar->AddSeparator();
-    wxBitmap itemtool11Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    wxBitmap itemtool11BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_SPEEDCONTOL, _T("Spd"), itemtool11Bitmap, itemtool11BitmapDisabled, wxITEM_CHECK, _T("Speed Control"), _T("Speed Control"));
-    wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    wxBitmap itemtool12Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     wxBitmap itemtool12BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_VOLUMECONTROL, _T("Vol"), itemtool12Bitmap, itemtool12BitmapDisabled, wxITEM_CHECK, _T("Volume Control"), _T("Volume Control"));
-    wxBitmap itemtool13Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    wxBitmap itemtool13BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_LIGHTCONTROL, _T("Lght"), itemtool13Bitmap, itemtool13BitmapDisabled, wxITEM_CHECK, _T("Light Control"), _T("Light Control"));
+    v_pToolBar->AddTool(ID_TOOL_DBG, _T("dbg"), itemtool12Bitmap, itemtool12BitmapDisabled, wxITEM_CHECK, _T("debug"), _T("debug"));
     v_pToolBar->AddSeparator();
+    wxBitmap itemtool14Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    wxBitmap itemtool14BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_SPEEDCONTOL, _T("Spd"), itemtool14Bitmap, itemtool14BitmapDisabled, wxITEM_CHECK, _T("Speed Control"), _T("Speed Control"));
     wxBitmap itemtool15Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool15BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool15Bitmap, itemtool15BitmapDisabled, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard"));
+    v_pToolBar->AddTool(ID_TOOL_VOLUMECONTROL, _T("Vol"), itemtool15Bitmap, itemtool15BitmapDisabled, wxITEM_CHECK, _T("Volume Control"), _T("Volume Control"));
     wxBitmap itemtool16Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool16BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool16Bitmap, itemtool16BitmapDisabled, wxITEM_CHECK, _T("Wait Grid"), _T("Wait Grid"));
-    wxBitmap itemtool17Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
-    wxBitmap itemtool17BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool17Bitmap, itemtool17BitmapDisabled, wxITEM_CHECK, _T("Wait List"), _T("Wait List"));
+    v_pToolBar->AddTool(ID_TOOL_LIGHTCONTROL, _T("Lght"), itemtool16Bitmap, itemtool16BitmapDisabled, wxITEM_CHECK, _T("Light Control"), _T("Light Control"));
+    v_pToolBar->AddSeparator();
     wxBitmap itemtool18Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool18BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool18Bitmap, itemtool18BitmapDisabled, wxITEM_CHECK, _T("Wait User"), _T("Wait User"));
-    v_pToolBar->AddSeparator();
-    wxBitmap itemtool20Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_pToolBar->AddTool(ID_TOOL_ROOMWIZARD, _T("R.W."), itemtool18Bitmap, itemtool18BitmapDisabled, wxITEM_CHECK, _T("Room Wizard"), _T("Room Wizard"));
+    wxBitmap itemtool19Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
+    wxBitmap itemtool19BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_WAITGRID, _T("W.G."), itemtool19Bitmap, itemtool19BitmapDisabled, wxITEM_CHECK, _T("Wait Grid"), _T("Wait Grid"));
+    wxBitmap itemtool20Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool20BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool20Bitmap, itemtool20BitmapDisabled, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
-    wxBitmap itemtool21Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    v_pToolBar->AddTool(ID_TOOL_WAITLIST, _T("W.L."), itemtool20Bitmap, itemtool20BitmapDisabled, wxITEM_CHECK, _T("Wait List"), _T("Wait List"));
+    wxBitmap itemtool21Bitmap(itemFrame1->GetBitmapResource(wxT("clock.png")));
     wxBitmap itemtool21BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool21Bitmap, itemtool21BitmapDisabled, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
-    wxBitmap itemtool22Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
-    wxBitmap itemtool22BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool22Bitmap, itemtool22BitmapDisabled, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    v_pToolBar->AddTool(ID_TOOL_WAITUSER, _T("W.U."), itemtool21Bitmap, itemtool21BitmapDisabled, wxITEM_CHECK, _T("Wait User"), _T("Wait User"));
+    v_pToolBar->AddSeparator();
     wxBitmap itemtool23Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     wxBitmap itemtool23BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool23Bitmap, itemtool23BitmapDisabled, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
-    wxBitmap itemtool24Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
+    v_pToolBar->AddTool(ID_TOOL_U_B_D, _T("U B D"), itemtool23Bitmap, itemtool23BitmapDisabled, wxITEM_CHECK, _T("U B D"), _T("Unknown Detached Blocking"));
+    wxBitmap itemtool24Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
     wxBitmap itemtool24BitmapDisabled;
-    v_pToolBar->AddTool(ID_TOOL_STOP, _T("stop"), itemtool24Bitmap, itemtool24BitmapDisabled, wxITEM_NORMAL, _T("stop all threads"), _T("stop all threads"));
+    v_pToolBar->AddTool(ID_TOOL_U_B_J, _T("U B J"), itemtool24Bitmap, itemtool24BitmapDisabled, wxITEM_CHECK, _T("U B J"), _T("Unknown Joinable Blocking"));
+    wxBitmap itemtool25Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool25BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_D, _T("U N D"), itemtool25Bitmap, itemtool25BitmapDisabled, wxITEM_CHECK, _T("U N D"), _T("Unknown Detached NonBlocking"));
+    wxBitmap itemtool26Bitmap(itemFrame1->GetBitmapResource(wxT("exec.png")));
+    wxBitmap itemtool26BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_U_N_J, _T("U N J"), itemtool26Bitmap, itemtool26BitmapDisabled, wxITEM_CHECK, _T("U N J"), _T("Unknown Joinable NonBlocking"));
+    wxBitmap itemtool27Bitmap(itemFrame1->GetBitmapResource(wxT("exit.png")));
+    wxBitmap itemtool27BitmapDisabled;
+    v_pToolBar->AddTool(ID_TOOL_STOP, _T("stop"), itemtool27Bitmap, itemtool27BitmapDisabled, wxITEM_NORMAL, _T("stop all threads"), _T("stop all threads"));
     v_pToolBar->AddSeparator();
     v_pToolBar->Realize();
     itemFrame1->SetToolBar(v_pToolBar);
@@ -238,7 +251,16 @@ void wxFrameMain::CreateControls()
     v_pToolBar->EnableTool(ID_TOOL_U_N_D, false);
     v_pToolBar->EnableTool(ID_TOOL_U_N_J, false);
     v_pToolBar->EnableTool(ID_TOOL_STOP, false);
+    v_pToolBar->EnableTool(ID_TOOL_GL, false);
+    v_pToolBar->EnableTool(ID_TOOL_SDL, false);
 #endif // USE_RELEASE_CODE
+
+#if (!defined WX_GL_DEMO)
+    v_pToolBar->RemoveTool(ID_TOOL_GL);
+#endif // (!defined WX_GL_DEMO)
+#if (!defined WX_SDL_DEMO)
+    v_pToolBar->RemoveTool(ID_TOOL_SDL);
+#endif // (!defined WX_SDL_DEMO)
 }
 
 /*!
@@ -605,7 +627,7 @@ void wxFrameMain::OnToolUBJClick( wxCommandEvent& event )
     wxThread_Cmd *pwxThread_Cmd = wxGetApp().ptr_ThreadBag()->ptr_ThreadItem("_debug_thread_block_J");
     if (pwxThread_Cmd)
         pwxThread_Cmd->Stop();
-        ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_thread_block_J", _debug_thread_block) )->Start();
+    ( new wxThread_Cmd(wxTHREAD_JOINABLE, "_debug_thread_block_J", _debug_thread_block) )->Start();
 ////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_U_B_J in wxFrameMain.
     // Before editing this code, remove the block markers.
     event.Skip();
@@ -710,6 +732,34 @@ void wxFrameMain::OnToolStopUpdate( wxUpdateUIEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_UPDATE_UI event handler for ID_TOOL_STOP in wxFrameMain.
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_GL
+ */
+
+void wxFrameMain::OnToolGlClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_GL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    wxDialog_GL* window = new wxDialog_GL(NULL, ID_DIALOG_GL, _T("wx Dialog_GL"));
+    window->Show(true);
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_GL in wxFrameMain.
+    wxUnusedVar(event);
+}
+
+/*!
+ * wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SDL
+ */
+
+void wxFrameMain::OnToolSdlClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SDL in wxFrameMain.
+    // Before editing this code, remove the block markers.
+    wxDialog_SDL* window = new wxDialog_SDL(NULL, ID_DIALOG_SDL, _T("wx Dialog_SDL"));
+    window->Show(true);
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SDL in wxFrameMain.
+    wxUnusedVar(event);
 }
 
 /*!

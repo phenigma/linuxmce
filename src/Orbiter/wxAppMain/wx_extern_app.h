@@ -4,6 +4,8 @@
 // Changed by : ...
 //
 
+// support code for external app, launched in a separate thread
+
 #ifndef _WX_EXTERN_APP_H_
 #define _WX_EXTERN_APP_H_
 

@@ -4,7 +4,9 @@
 // Changed by : ...
 //
 
-// compatibility code for debug
+// extern code copied here
+// compatibility code for debug-app
+
 // class ExternData moved here
 
 #ifndef _WX_EXTERN_HELPERS_H_

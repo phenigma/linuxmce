@@ -38,9 +38,11 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_STYLE wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE|wxMAXIMIZE|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER
 #define SYMBOL_WXFRAMEMAIN_TITLE _T("wxApplication")
 #define SYMBOL_WXFRAMEMAIN_IDNAME ID_FRAMEMAIN
-#define SYMBOL_WXFRAMEMAIN_SIZE wxSize(500, 300)
+#define SYMBOL_WXFRAMEMAIN_SIZE wxSize(700, 300)
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
 #define ID_TOOLBAR_MAIN 10006
+#define ID_TOOL_GL 10046
+#define ID_TOOL_SDL 10047
 #define ID_TOOL_DBG 10000
 #define ID_TOOL_SPEEDCONTOL 10033
 #define ID_TOOL_VOLUMECONTROL 10034
@@ -95,6 +97,12 @@ public:
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
     void OnExitClick( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_GL
+    void OnToolGlClick( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_SDL
+    void OnToolSdlClick( wxCommandEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_DBG
     void OnToolDbgClick( wxCommandEvent& event );
@@ -194,7 +202,7 @@ public:
     wxStatusBar* v_pStatusBar;
 ////@end wxFrameMain member variables
 
-  public:
+public:
     bool Destroy();
 };
 
