@@ -976,11 +976,8 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 		{
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 
-
-
-
 			//temp for the show. remove me!
-			if(UsesUIVersion2())
+			if(UsesUIVersion2() && NULL != m_Desktop && NULL != m_Desktop->EffectBuilder)
 			{
 				//TODO: this is temporary
 				int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
@@ -1035,9 +1032,6 @@ void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
 				return;
 			}
 
-
-
-            
 			if(m_pObj_SelectedLastScreen)
 			{
 				m_rectLastSelected = PlutoRectangle(m_pObj_SelectedLastScreen->m_rPosition);
