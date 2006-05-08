@@ -469,7 +469,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 				nOldCurrentDesignObjID = nCurrentDesignObjID;
 
-				if(nPK_Effect != 0)
+				//if(nPK_Effect != 0)
 				{
 					GL2DEffect* Transit = m_Desktop->EffectBuilder->
 						CreateEffect(
@@ -486,8 +486,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 						Simulator::GetInstance()->m_iMilisecondsTransition
 						);
 				}
-				else
-					g_pPlutoLogger->Write(LV_WARNING, "No opengl effect will be rendered!");
+				//else
+				//	g_pPlutoLogger->Write(LV_WARNING, "No opengl effect will be rendered!");
 			}
 
 			glm.Release();
