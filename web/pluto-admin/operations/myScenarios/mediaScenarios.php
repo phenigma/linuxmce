@@ -239,7 +239,7 @@ function mediaScenarios($output,$dbADO) {
 		}
 			$out.='
 			<tr>
-				<td colspan="7" align="center">'.$remotesBtn.' <input type="button" class="button" name="sortScenarios" value="'.$TEXT_SORT_SCENARIOS_CONST.'"  onclick="self.location=\'index.php?section=sortScenarios&sortBy=EntertainArea&from=mediaScenarios\'"></td>
+				<td colspan="7" align="center">'.@$remotesBtn.' <input type="button" class="button" name="sortScenarios" value="'.$TEXT_SORT_SCENARIOS_CONST.'"  onclick="self.location=\'index.php?section=sortScenarios&sortBy=EntertainArea&from=mediaScenarios\'"></td>
 			</tr>
 			<input type="hidden" name="displayedMediaScenarios" value="'.(join(',',$displayedMediaScenarios)).'">
 				<tr>

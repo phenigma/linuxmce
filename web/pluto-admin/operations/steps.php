@@ -6,7 +6,7 @@ function steps($output,$dbADO) {
 	
 	/* @var $dbADO ADOConnection */
 
-	$out='';
+
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
 
@@ -53,7 +53,7 @@ $start_time=getmicrotime();
 	
 
 	
-	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
+	$out='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td colspan="3" align="center" height="133" class="left_frame_logo">
 					<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>

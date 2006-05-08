@@ -178,16 +178,14 @@ function getVariants($arr){
 }
 
 function keyboardLayoutPulldown($keyboardLayoutsArray,$selected,$name){
-
-	$out='<select name="'.$name.'">
-		<option value="by basic" '.(('by basic'==$selected)?'selected':'').'>- Basic -</option>';
+	$out='<select name="'.$name.'">';
 	foreach ($keyboardLayoutsArray AS $key=>$valueArr){
-		$out.='<option value="'.$key.'" '.(($key==$selected)?'selected':'').'>'.$valueArr['description'].'</option>';
+		$out.='<option value="'.$key.'" '.(($key==$selected || $key==str_replace(' basic','',$selected))?'selected':'').'>'.$valueArr['description'].'</option>';
 		if(count($valueArr['variants'])!=0){
 			$out.='
 			<optgroup label="'.$valueArr['description'].' variants">';
 			foreach ($valueArr['variants'] AS $variantCode=>$variantName){
-				if($variantCode!='')
+				if($variantCode!='' && $variantCode!='basic')
 					$out.='<option value="'.$key.' '.$variantCode.'" '.(($key.' '.$variantCode==$selected)?'selected':'').'>'.$variantName.'</option>';
 			}
 			$out.='

@@ -46,6 +46,7 @@ if($action=='form') {
 			<input type="hidden" name="from" value="'.$from.'">
 			<input type="hidden" name="oldWizard" value="'.$wizard.'">
 	
+		<a href="index.php?section='.$from.'">'.$TEXT_BACK_CONST.'</a>
 			<table width="300" align="center">
 			<tr class="alternate_back">
 				<td><B>'.$TEXT_SCENARIO_NAME_CONST.'</B></td>

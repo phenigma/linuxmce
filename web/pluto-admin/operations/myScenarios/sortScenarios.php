@@ -103,7 +103,7 @@ function sortScenarios($output,$dbADO) {
 		// insert command group in specified room
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			Header('Location: index.php?section=sortScenarios&error=You are not allowed to modify installation.');
+			Header('Location: index.php?section=sortScenarios&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST);
 			exit();
 		}
 
@@ -126,7 +126,7 @@ function sortScenarios($output,$dbADO) {
 					$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
 					$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$areaID));
 					$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$areaID));
-					$msg="Positions were updated";
+					$msg=$TEXT_POSITIONS_UPDATED_CONST;
 				}
 			}else{
 				$offset=array_keys($posInArea);
@@ -141,13 +141,15 @@ function sortScenarios($output,$dbADO) {
 					$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
 					$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$areaID));
 					$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$areaID));
-					$msg="Positions were updated";
+					$msg=$TEXT_POSITIONS_UPDATED_CONST;
 				}
 			}
+		}else{
+			$msg=$TEXT_POSITIONS_NOT_UPDATED_CONST;
 		}
 
 
-		header("Location: index.php?section=sortScenarios&msg=".@$msg.'&sortBy='.$sortBy);
+		header("Location: index.php?section=sortScenarios&msg=".@$msg.'&sortBy='.$sortBy.'&from='.$_REQUEST['from']);
 	}
 
 	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
