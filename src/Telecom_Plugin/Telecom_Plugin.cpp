@@ -743,7 +743,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 				SendCommand(cmd_PBX_Transfer);
 				//allow things to settle a bit
-				Sleep(2000);
+				Sleep(1000);
 				DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"conference",room);
 				SendCommand(cmd_invite);
 			}
