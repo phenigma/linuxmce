@@ -113,6 +113,10 @@ function get_update_media_daemon_status($dbADO){
 function set_update_media_daemon_status($value,$dbADO){
 	$coreDevices=array_keys(getDevicesArrayFromCategory($GLOBALS['CategoryCore'],$dbADO));
 	$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=? WHERE FK_Device=? AND FK_StartupScript=?',array($value,$coreDevices[0],$GLOBALS['UpdateMediaDaemon']));
+
+	$param=($value==1)?'-enable':'-disable';
+	$cmd='sudo -u root /usr/pluto/bin/UpdateMediaDaemonControl.sh '.$param;
+	exec($cmd);
 	
 	$cmd='sudo -u root /usr/pluto/bin/generateRcScripts.sh';
 	exec($cmd);

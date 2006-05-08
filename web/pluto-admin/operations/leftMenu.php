@@ -4,7 +4,6 @@ function leftMenu($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/leftMenu.lang.php');
 	
-	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
 	global $devicesArray;
@@ -12,8 +11,7 @@ function leftMenu($output,$dbADO) {
 	$devicesArray=array();
 	
 	$treeType = isset($_REQUEST['treeType'])?cleanString(strip_tags($_REQUEST['treeType'])):'devices';
-	$out.= '	
-			<table border=0 align="left">				
+	$out= '<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td class="left_frame_logo" height="133">
 					<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
@@ -152,10 +150,14 @@ function leftMenu($output,$dbADO) {
 			if ($treeType!='scenarios'){
 				$out.='
 			<tr>
-				<td><fieldset><legend>'.$TEXT_GO_TO_DEVICE_CONST.'</legend>
-				<div align="right">
-					'.$quickJumpPulldown.' <input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();">
-				</div></fieldset>
+				<td align="right">&nbsp;<fieldset><legend>'.$TEXT_GO_TO_DEVICE_CONST.'</legend>
+					<table>
+						<tr>
+							<td>'.$quickJumpPulldown.'</td>
+							<td><input type="button" class="button" value="'.$TEXT_QUICK_JUMP_CONST.'" onClick="showDevice();"></td>
+						</tr>
+					</table>
+				</fieldset>
 				</td>
 			</tr>';
 			}
