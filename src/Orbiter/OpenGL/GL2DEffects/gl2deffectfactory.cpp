@@ -63,8 +63,12 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 	{
 		vector<GL2DEffect*>::iterator Effect = Effects.begin();
 		if(NULL != dynamic_cast<GL2DEffectTransit*>(*Effect))
+		{
+			std::cout << "GL2DEffectFactory::CreateEffect : Transit effects running!" << std::endl;
 			return NULL;
+		}
 	}
+
 	GL2DEffect* Effect = NULL;
 	switch (IDEffect)
 	{

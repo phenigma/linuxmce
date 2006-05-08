@@ -413,12 +413,17 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 			if(bRenderGraphicsOnly)
 			{
+				/*
 				g_pPlutoLogger->Write(LV_WARNING, "bRenderGraphicsOnly is true; switching to no effect...");
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					GL2D_EFFECT_TRANSIT_NO_EFFECT,
 					Simulator::GetInstance()->m_iMilisecondsTransition
 					);
+				*/
+
+				g_pPlutoLogger->Write(LV_WARNING, "bRenderGraphicsOnly is true; no open gl effect will be rendered...");
+
 			}
 			else
 			{
@@ -464,21 +469,25 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 				nOldCurrentDesignObjID = nCurrentDesignObjID;
 
+				if(nPK_Effect != 0)
+				{
+					GL2DEffect* Transit = m_Desktop->EffectBuilder->
+						CreateEffect(
+						m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
+						nTransitionTimeIsMs
+						);
 
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
-					nTransitionTimeIsMs
-					);
-
-				if(Transit)
-					Transit->Configure(&rectStartEffect);
+					if(Transit)
+						Transit->Configure(&rectStartEffect);
+					else
+						Transit = m_Desktop->EffectBuilder->
+						CreateEffect(
+						GL2D_EFFECT_TRANSIT_NO_EFFECT,
+						Simulator::GetInstance()->m_iMilisecondsTransition
+						);
+				}
 				else
-					Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					Simulator::GetInstance()->m_iMilisecondsTransition
-					);
+					g_pPlutoLogger->Write(LV_WARNING, "No opengl effect will be rendered!");
 			}
 
 			glm.Release();
@@ -850,12 +859,16 @@ void OrbiterSDL::WakeupFromCondWait()
 
 void OrbiterSDL::DoHighlightObject()
 {
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDL::DoHighlightObject");
+
 	if(!EnableOpenGL)
 	{
 		Orbiter::DoHighlightObject();
 	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_WARNING, ">> OrbiterSDL::DoHighlightObjectOpenGL");
+
 #ifndef DISABLE_OPENGL
 		DoHighlightObjectOpenGL();
 #endif
@@ -939,10 +952,15 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 
 	Orbiter3DCommons::GetInstance()->SetHighLightArea(&HighLightArea);
 
+	g_pPlutoLogger->Write(LV_WARNING, ">> OrbiterSDL::DoHighlightObjectOpenGL : GL2D_EFFECT_HIGHLIGHT_AREA");
+
 	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_HIGHLIGHT_AREA, 
 		Simulator::GetInstance()->m_iMilisecondsHighLight);
+
 	if(Effect)
 		Effect->Configure(&m_rectLastHighlight);
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, ">> OrbiterSDL::DoHighlightObjectOpenGL : no effect???!");
 
 #endif //opengl stuff
 }
