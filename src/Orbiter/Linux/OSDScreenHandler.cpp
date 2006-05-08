@@ -1672,8 +1672,27 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		return false;
 	}
 
-	m_pOrbiter->RenderGraphic(pRenderData->m_pObj,  pRenderData->m_pObj->m_rPosition, 
-		pRenderData->m_pObj->m_bDisableAspectLock);
+	DesignObj_Orbiter *pObj = pRenderData->m_pObj;
+	PlutoRectangle rectTotal = pObj->m_rPosition;
+	PlutoPoint point;
+
+	PlutoGraphic *pMergedGraphic = NULL;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	//hook the object to have the background image merged with the desktop image
+	//will do this only once
+	static PlutoGraphic *pMergedBackground = NULL;
+	if(NULL == pMergedBackground)
+	{
+		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+		pMergedBackground = m_pOrbiter->GetBackground(rectTotal);
+	}
+#endif
+
+	if(NULL != pMergedGraphic)
+		m_pOrbiter->RenderGraphic( pMergedBackground,  rectTotal, pObj->m_bDisableAspectLock, point );
+	else
+		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 
@@ -1977,7 +1996,45 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 	DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
 	PlutoRectangle rectTotal = pObj->m_rPosition;
 	PlutoPoint point;
-	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+	PlutoGraphic *pMergedGraphic = NULL;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pOrbiter->m_pMouseBehavior )
+	{
+		//hook the object to have the background image merged with the desktop image
+		//will do this only once
+		static PlutoGraphic *pMergedBackgroundX = NULL;
+		static PlutoGraphic *pMergedBackgroundY = NULL;
+
+		if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal )
+		{
+			if(NULL == pMergedBackgroundX)
+			{
+				m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+				pMergedBackgroundX = m_pOrbiter->GetBackground(rectTotal);
+			}
+
+			pMergedGraphic = pMergedBackgroundX;
+		}
+		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
+		{
+			if(NULL == pMergedBackgroundY)
+			{
+				m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+				pMergedBackgroundY = m_pOrbiter->GetBackground(rectTotal);
+			}
+
+			pMergedGraphic = pMergedBackgroundY;
+		} 
+	} 
+#endif
+
+	if(NULL != pMergedGraphic)
+		m_pOrbiter->RenderGraphic( pMergedGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+	else
+		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
 	{

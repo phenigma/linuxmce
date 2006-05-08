@@ -125,7 +125,6 @@ void *Orbiter_OpenGLThread(void *p)
 		if (!pOrbiter->m_Desktop->EffectBuilder->HasEffects()) {
 			if (!pOrbiter->PaintDesktopGL) {
 				pOrbiter->PaintDesktopGL = true;
-				std::cout << "Orbiter_OpenGLThread: paiting " << std::endl;
 				pOrbiter->m_Desktop->Paint();
 			}
 			else
@@ -139,7 +138,6 @@ void *Orbiter_OpenGLThread(void *p)
 		{
 			pOrbiter->PaintDesktopGL = false;
 			pOrbiter->m_Desktop->Paint();
-			std::cout << "Orbiter_OpenGLThread: paiting done " << std::endl;
 		}
 	}
 
@@ -408,65 +406,88 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 		//////////////////////////////////////////////////////////////////////////
 			//TODO: this is temporary
-		if(!bRenderGraphicsOnly && UsesUIVersion2())
+		if(UsesUIVersion2() && NULL != m_Desktop && NULL != m_Desktop->EffectBuilder)
 		{
-			std::cout << "RenderScreen: using UIVersion2 : " << std::endl;
-
-			int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-			PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
-			int nPK_Effect = 0;
-			int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
-			switch(nCurrentDesignObjID) 
-			{
-			case DESIGNOBJ_mnuMenu2_CONST:
-				nPK_Effect = EFFECT_Basic_transit_effect_CONST;
-				break;
-
-			case DESIGNOBJ_mnuAmbiance_CONST:
-				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-				rectStartEffect.Size(PlutoSize(100, 40));
-				nPK_Effect = EFFECT_Slide_from_left_CONST;
-				break;
-
-			case DESIGNOBJ_mnuDvdSpeedControl_CONST:
-				rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
-				rectStartEffect.Size(PlutoSize(100, 40));
-				nPK_Effect = EFFECT_Slide_from_top_CONST;
-				break;
-
-			case DESIGNOBJ_popFileList_CONST:
-				nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
-				break;
-
-			default:
-				break;
-			}
-
-			std::cout << "RenderScreen: effect to render : " << nPK_Effect << std::endl;
-
+			g_pPlutoLogger->Write(LV_WARNING, "ConfigureNextScreen");
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-			GL2DEffect* Transit = m_Desktop->EffectBuilder->
-				CreateEffect(
-				m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
-				nTransitionTimeIsMs
-				);
 
-			if(Transit)
-				Transit->Configure(&rectStartEffect);
+			if(bRenderGraphicsOnly)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "bRenderGraphicsOnly is true; switching to no effect...");
+				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					Simulator::GetInstance()->m_iMilisecondsTransition
+					);
+			}
 			else
-				Transit = m_Desktop->EffectBuilder->
-				CreateEffect(
-				GL2D_EFFECT_TRANSIT_NO_EFFECT,
-				Simulator::GetInstance()->m_iMilisecondsTransition
-				);
+			{
+				int nCurrentDesignObjID = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+				PlutoRectangle rectStartEffect(0, 0, m_iImageWidth, m_iImageHeight);
+				int nPK_Effect = 0;
+				int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
 
-			std::cout << "RenderScreen: effect to render : " << nPK_Effect << " ready" << std::endl;
+				static int nOldCurrentDesignObjID = 0;
+				switch(nCurrentDesignObjID) 
+				{
+				case DESIGNOBJ_mnuMenu2_CONST:
+					nPK_Effect = EFFECT_Basic_transit_effect_CONST;
+					break;
+
+				case DESIGNOBJ_mnuAmbiance_CONST:
+					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+					rectStartEffect.Size(PlutoSize(100, 40));
+					nPK_Effect = EFFECT_Slide_from_left_CONST;
+					break;
+
+				case DESIGNOBJ_mnuDvdSpeedControl_CONST:
+					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
+					rectStartEffect.Size(PlutoSize(100, 40));
+					nPK_Effect = EFFECT_Slide_from_top_CONST;
+					break;
+
+				case DESIGNOBJ_popFileList_CONST:
+					nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
+					break;
+
+				default:
+					break;
+				}
+
+				if(nOldCurrentDesignObjID == nCurrentDesignObjID && nCurrentDesignObjID != DESIGNOBJ_mnuMenu2_CONST)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Same screen; switching to no effect...");
+					nPK_Effect = EFFECT_No_transit_effect_CONST;
+				}
+				else
+					g_pPlutoLogger->Write(LV_WARNING, "We'll render a nice effect %d", nPK_Effect);
+
+				nOldCurrentDesignObjID = nCurrentDesignObjID;
+
+
+				GL2DEffect* Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
+					nTransitionTimeIsMs
+					);
+
+				if(Transit)
+					Transit->Configure(&rectStartEffect);
+				else
+					Transit = m_Desktop->EffectBuilder->
+					CreateEffect(
+					GL2D_EFFECT_TRANSIT_NO_EFFECT,
+					Simulator::GetInstance()->m_iMilisecondsTransition
+					);
+			}
 
 			glm.Release();
 			m_spPendingGLEffects->Reset();
+
+			g_pPlutoLogger->Write(LV_WARNING, "Render screen returning...");
+			return;
 		}
 		//////////////////////////////////////////////////////////////////////////
-		
 
 
 		if(m_pObj_SelectedLastScreen)
@@ -679,32 +700,27 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 {
-	if (!EnableOpenGL)
-	{
-		//clipping
-		if(rect.X + rect.Width >= m_iImageWidth)
-			rect.Width = m_iImageWidth - rect.X - 1;
+	//clipping
+	if(rect.X + rect.Width >= m_iImageWidth)
+		rect.Width = m_iImageWidth - rect.X - 1;
 
-		if(rect.Y + rect.Height >= m_iImageHeight)
-			rect.Height = m_iImageHeight - rect.Y - 1;
+	if(rect.Y + rect.Height >= m_iImageHeight)
+		rect.Height = m_iImageHeight - rect.Y - 1;
 
 
-        SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-			rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
+    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
 
-		SDL_Rect SourceRect;
-		SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
-		SourceRect.w = rect.Width; SourceRect.h = rect.Height;
+	SDL_Rect SourceRect;
+	SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
+	SourceRect.w = rect.Width; SourceRect.h = rect.Height;
 
-        X_LockDisplay();
-		SDL_SetAlpha(m_pScreenImage, 0, 0);
-		SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
-        X_UnlockDisplay();
-        
-		return new SDLGraphic(pSDL_Surface);
-	}
-	else
-		return new SDLGraphic(this);
+    X_LockDisplay();
+	SDL_SetAlpha(m_pScreenImage, 0, 0);
+	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+    X_UnlockDisplay();
+    
+	return new SDLGraphic(pSDL_Surface);
 }
 
 void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)

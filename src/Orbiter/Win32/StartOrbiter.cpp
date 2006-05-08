@@ -186,7 +186,15 @@ bool EventLoop(ORBITER_CLASS* pOrbiter)
 				break;
 			}
 
-	#ifdef AUDIDEMO
+			if(Event.type == SDL_MOUSEMOTION)
+			{
+				orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+
+#ifdef AUDIDEMO
 			if (Event.type == SDL_MOUSEBUTTONDOWN)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);

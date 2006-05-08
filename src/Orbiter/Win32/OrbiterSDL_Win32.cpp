@@ -6,6 +6,10 @@
 #include "ProgressDialog.h"
 #include "VirtualKeysTranslator.h"
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+#include "Win32/MouseBehavior_Win32.h"
+#endif
+
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
@@ -46,6 +50,10 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string S
 
 {
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	m_pMouseBehavior = new MouseBehavior_Win32(this);
+#endif
 
 	if(NULL != hSDLWindow)
 	{

@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;Win32;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG"
+				AdditionalIncludeDirectories=".;..;Win32;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen;\mysql\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;ENABLE_MOUSE_BEHAVIOR;TEST_OSD"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib OpenGL32.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib OpenGL32.lib libmySQL.lib"
 				OutputFile="../Debug/Orbiter_SDL.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../../libs/Libraries/jpgsrc6b/vc7/Debug"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../../libs/Libraries/jpgsrc6b/vc7/Debug;\mysql\lib\Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
@@ -146,6 +146,9 @@
 				RelativePath="..\Dce\DataGrid.cpp">
 			</File>
 			<File
+				RelativePath=".\DatagridMouseHandlerHelper.cpp">
+			</File>
+			<File
 				RelativePath="DesignObj_Data.cpp">
 			</File>
 			<File
@@ -212,6 +215,15 @@
 				RelativePath=".\GraphicBuilder.cpp">
 			</File>
 			<File
+				RelativePath=".\KeyboardMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\LightMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\LockedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\Win32\main.cpp">
 			</File>
 			<File
@@ -219,6 +231,21 @@
 			</File>
 			<File
 				RelativePath=".\OpenGL\math3dutils.cpp">
+			</File>
+			<File
+				RelativePath=".\MediaMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\MouseBehavior.cpp">
+			</File>
+			<File
+				RelativePath=".\Win32\MouseBehavior_Win32.cpp">
+			</File>
+			<File
+				RelativePath=".\MouseGovernor.cpp">
+			</File>
+			<File
+				RelativePath=".\MouseIterator.cpp">
 			</File>
 			<File
 				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
@@ -246,6 +273,12 @@
 			</File>
 			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.cpp">
+			</File>
+			<File
+				RelativePath=".\Linux\OSDCompass.cpp">
+			</File>
+			<File
+				RelativePath=".\Linux\OSDScreenHandler.cpp">
 			</File>
 			<File
 				RelativePath=".\Win32\PopupMessage.cpp">
@@ -284,6 +317,9 @@
 				RelativePath=".\Simulator.h">
 			</File>
 			<File
+				RelativePath=".\SpeedMouseHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\Win32\StartOrbiter.cpp">
 			</File>
 			<File
@@ -296,7 +332,16 @@
 				RelativePath="..\Splitter\TextWrapper.cpp">
 			</File>
 			<File
+				RelativePath="..\CreateDevice\UserUtils.cpp">
+			</File>
+			<File
 				RelativePath=".\Win32\VirtualKeysTranslator.cpp">
+			</File>
+			<File
+				RelativePath=".\VolumeMouseHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\WizardLogic.cpp">
 			</File>
 		</Filter>
 		<Filter
