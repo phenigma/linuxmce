@@ -95,12 +95,14 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
         pCallData->m_sMessage = _g_aStr[i];
         pCallData->m_mapChildDevices = _g_mapStrBool;
         pCallData->m_nPercent = _g_nPercent;
+        //pCallData->m_bShowFullScreen = (iLoop % 2) ? true : false;
         return;
     }
     if (WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData))
     {
         pCallData->m_sMessage = _g_aStr[i];
         pCallData->m_nPercent = _g_nPercent;
+        //pCallData->m_bShowFullScreen = (iLoop % 2) ? true : false;
         return;
     }
     if (WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData))
@@ -108,6 +110,7 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
         pCallData->m_sMessage = _g_aStr[i];
         pCallData->m_nTimeoutSeconds = _g_nTimeoutSeconds;
         pCallData->m_mapPrompts = _g_mapIntStr;
+        //pCallData->m_bShowFullScreen = (iLoop % 2) ? true : false;
         return;
     }
     if (SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData))
@@ -168,13 +171,13 @@ void _debug_refresh_update()
         if ( wxIdleThreadShouldStop() || (! bOneActive) )
             break;
         bOneActive = false;
-        bOneActive = bOneActive || CallRefresh<wxDialog_RoomWizard, RoomWizardCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_WaitGrid, WaitUserGridCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_WaitList, WaitUserListCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_WaitUser, WaitUserPromptCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_SpeedControl, SpeedControlCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_VolumeControl, VolumeControlCallBackData>();
-        bOneActive = bOneActive || CallRefresh<wxDialog_LightControl, LightControlCallBackData>();
+        bOneActive = CallRefresh<wxDialog_RoomWizard, RoomWizardCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_WaitGrid, WaitUserGridCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_WaitList, WaitUserListCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_WaitUser, WaitUserPromptCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_SpeedControl, SpeedControlCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_VolumeControl, VolumeControlCallBackData>() || bOneActive;
+        bOneActive = CallRefresh<wxDialog_LightControl, LightControlCallBackData>() || bOneActive;
         if (bInThread)
         {
             wx_sleep(2);

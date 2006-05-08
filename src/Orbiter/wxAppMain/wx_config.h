@@ -44,7 +44,6 @@ enum E_UNIQUE_ID
 
 #define WAIT_SEMAPHORE_MSEC 100
 
-//del : read all tasks until the queue is empty
 #define INTERVAL_TIMER_WAKEIDLE_MSEC 50
 #define INTERVAL_TIMER_EXPIREDIALOG_MSEC 200
 

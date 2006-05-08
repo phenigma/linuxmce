@@ -387,15 +387,27 @@ void wxDialog_Base::Update_Position(const int x, const int y, const int width, c
 void wxDialog_Base::Update_FullScreen(bool bShowFullScreen)
 {
     // update full screen if changed
+    // also, maximize status will be the same as full screen status
     bool old_bShowFullScreen = IsFullScreen();
-    if (old_bShowFullScreen == bShowFullScreen)
-        return;
-    _WX_LOG_NFO(
-        "Label='%s' : Changing Full Screen Mode : (%d) -> (%d)",
-        GetLabel().c_str(),
-        old_bShowFullScreen, bShowFullScreen
-        );
-    ShowFullScreen(bShowFullScreen, 0);
+    bool old_bMaximized = IsMaximized();
+    if (old_bShowFullScreen != bShowFullScreen)
+    {
+        _WX_LOG_NFO(
+            "Label='%s' : Changing Full-Screen/Maximized Mode : (%d/%d) -> (%d/%d)",
+            GetLabel().c_str(),
+            old_bShowFullScreen, old_bMaximized, bShowFullScreen, bShowFullScreen
+            );
+        if (bShowFullScreen)
+        {
+            ShowFullScreen(bShowFullScreen, 0);
+            Maximize(bShowFullScreen);
+        }
+        else
+        {
+            Maximize(bShowFullScreen);
+            ShowFullScreen(bShowFullScreen, 0);
+        }
+    }
 }
 
 void wxDialog_Base::Update_Position_FullScreen(const int x, const int y, const int width, const int height, bool bShowFullScreen)

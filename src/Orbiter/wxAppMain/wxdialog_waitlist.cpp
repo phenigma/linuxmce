@@ -208,6 +208,7 @@ bool wxDialog_WaitList::Gui_Refresh(CallBackData *pCallBackData)
     //_WX_LOG_NFO();
     WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     // update info text
     v_pInfoText->SetValue(pCallData->m_sMessage);
     // update log text

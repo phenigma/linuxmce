@@ -224,6 +224,7 @@ bool wxDialog_WaitUser::Gui_DataLoad(CallBackData *pCallBackData)
     //_WX_LOG_NFO();
     WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
+    Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     // update info text
     v_pInfoText->SetValue(pCallData->m_sMessage);
     // update buttons
