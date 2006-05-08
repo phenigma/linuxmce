@@ -236,7 +236,7 @@ OBJS:= $(OBJS) $(OBJS_LINUX)
 DYNCFLAGS=-fPIC
 DYNLIB=libiaxclient.so
 # change below to 1 to include audio_alsa;
-AUDIO_ALSA=1  
+AUDIO_ALSA=1
 endif
 
 ifeq ($(OSTYPE),SOLARIS)

@@ -125,7 +125,7 @@ void SimplePhone::SomeFunction()
     // commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
     // Examples:
-    
+
     // Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
     DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
     SendCommand(CMD_Simulate_Mouse_Click);
@@ -151,12 +151,12 @@ void SimplePhone::SomeFunction()
     DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
     // This send command will wait for the destination device to respond since there is
     // an out parameter
-    SendCommand(CMD_Get_Signal_Strength);  
+    SendCommand(CMD_Get_Signal_Strength);
 
-    // This time we don't care about the out parameter.  We just want the command to 
+    // This time we don't care about the out parameter.  We just want the command to
     // get through, and don't want to wait for the round trip.  The out parameter, iValue,
     // will not get set
-    SendCommandNoResponse(CMD_Get_Signal_Strength);  
+    SendCommandNoResponse(CMD_Get_Signal_Strength);
 
     // This command has an out parameter of a data block.  Any parameter that is a binary
     // data block is a pair of int and char *
@@ -217,17 +217,17 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
     g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
     DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
     SendCommand(CMD_MH_Stop_Media_);
-    iaxc_millisleep(1000);    
-    StopRingTone();    
+    iaxc_millisleep(1000);
+    StopRingTone();
     iaxc_call(tmp);
     sCMD_Result="OK";
     CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,string(""));
     SendCommand(CMD_Set_Variable_name);
     CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sPhoneExtension);
-    SendCommand(CMD_Set_Variable_number);                
+    SendCommand(CMD_Set_Variable_number);
     DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
     SendCommand(SCREEN_DevCallInProgress_);
-    haveActiveCall=true;    
+    haveActiveCall=true;
 }
 
 //<-dceag-c335-b->
@@ -270,7 +270,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 
     if(haveActiveCall)
     {
-        iaxc_millisleep(1000);    
+        iaxc_millisleep(1000);
         iaxc_dump_call();
         sCMD_Result="OK";
         haveActiveCall=false;
@@ -331,7 +331,7 @@ void SimplePhone::PlayRingTone()
     ringTone->data = ringData;
     ringTone->repeat = -1;
     iaxc_play_sound(ringTone, 1);
-    g_pPlutoLogger->Write(LV_STATUS, "Play RING");    
+    g_pPlutoLogger->Write(LV_STATUS, "Play RING");
 }
 
 void SimplePhone::doProccess(void)
@@ -351,7 +351,7 @@ void SimplePhone::doProccess(void)
                 CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,calling_id);
                 SendCommand(CMD_Set_Variable_name);
                 CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,calling_nr);
-                SendCommand(CMD_Set_Variable_number);                
+                SendCommand(CMD_Set_Variable_number);
                 if(phone_status>1)
                 {
                     CMD_Phone_Answer(tmp,NULL);
@@ -359,7 +359,7 @@ void SimplePhone::doProccess(void)
                 else
                 {
                     GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
-                    iaxc_millisleep(1000);                
+                    iaxc_millisleep(1000);
                     PlayRingTone();
                 }
                 calling_id[0]='\0';
@@ -388,8 +388,8 @@ void SimplePhone::registerWithAsterisk()
     int                      output = 0;
     int                      ring   = 0;
     haveActiveCall=false;
-    
-    if(iaxc_initialize(AUDIO_INTERNAL_ALSA,1)<0)
+
+    if(iaxc_initialize(AUDIO_INTERNAL_PA,1)<0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
         m_bQuit = 1;
