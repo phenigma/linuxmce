@@ -90,6 +90,8 @@ public:
     virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
 
+	//virtual bool SCREEN_TVConfirmInputsDiscrete_ObjectSelected(CallBackData *pData);
+
 	//bool VolumeControlCustomRender(CallBackData *pData);
 	// UI 2
 	virtual void SCREEN_mnuAmbiance(long PK_Screen);

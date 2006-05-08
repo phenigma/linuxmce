@@ -1712,6 +1712,11 @@ void OSDScreenHandler::SCREEN_TVManufNotListed(long PK_Screen)
 		new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_DatagridSelected, 
 		new DatagridCellBackData());
+
+	// register Toggle/Discret/Unknown scren windos
+	/*RegisterCallBack(cbObjectSelected, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::SCREEN_TVConfirmInputsDiscrete_ObjectSelected,
+		new ObjectInfoBackData());*/
 }
 
 bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
@@ -1885,7 +1890,9 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 
 						//Toggle
 						case 1:
-						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsToggle_CONST );
+						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsDiscrete_CONST );
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
+						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsToggle_CONST );
 						break;
 
 						//Discret
@@ -1913,6 +1920,11 @@ bool OSDScreenHandler::SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pDat
 
 	return false;
 }
+
+/*bool OSDScreenHandler::SCREEN_TVConfirmInputsDiscrete_ObjectSelected(CallBackData *pData)
+{
+	return false;
+}*/
 
 ////-----------------------------------------------------------------------------------------------------
 //bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
