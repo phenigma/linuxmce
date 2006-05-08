@@ -111,6 +111,10 @@ static const char noCursorDataDescription[] =
 
 XineSlaveWrapper::XineStream::XineStream():m_xineStreamMutex("xine-stream-access-mutex")
 {
+	pthread_mutexattr_t      mutexAttr;
+  pthread_mutexattr_init( &mutexAttr );
+  pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_xineStreamMutex.Init( &mutexAttr );
 }
 
 
