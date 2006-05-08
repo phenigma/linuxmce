@@ -1,7 +1,8 @@
 #ifndef __Define_Criteria_H__
 #define __Define_Criteria_H__
 
-#define CRITERIA_Leave_Home_CONST 1
+#define CRITERIA_event_CONST 1
+#define CRITERIA_Leave_Home_CONST 3
 
 #define CRITERIA_TABLE "Criteria"
 #define CRITERIA_PK_CRITERIA_FIELD "PK_Criteria"
