@@ -335,9 +335,12 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 		}
 		g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
 		manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+/*
+		Only one redirect
 		//This sleep should be enough, but it may depend on system load.
 		Sleep(500);
 		manager->Conference(rest2,"",sPhoneExtension,iCommandID);
+*/		
     }
 }
 //<-dceag-c237-b->
