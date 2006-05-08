@@ -4,6 +4,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include <pthread.h>
 
 #include <iostream>
 using namespace std;
@@ -22,6 +23,7 @@ using namespace DCE;
 #include "DCE/DCERouter.h"
 #include "DCE/DCEConfig.h"
 #include "PNPDevice.h"
+#include "pluto-hald.h"
 
 class Plug_And_Play::PnPPrivate
 {
@@ -62,6 +64,9 @@ class Plug_And_Play::PnPPrivate
 		/**Run script on the remote system.*/
 		bool RunScript(int iPK_PnpQueue, long lFrom, string sPath);
 		
+		/**hald flag*/
+		pthread_t hald_thread;
+		
 	private:
 		/**pointer to the holder object*/
 		Plug_And_Play* parent;
@@ -75,7 +80,7 @@ Plug_And_Play::PnPPrivate::PnPPrivate(Plug_And_Play* p)
 	  currentPnpQueueID(-1),
 	  parent(p)
 {
-
+	
 }
 
 Plug_And_Play::PnPPrivate::~PnPPrivate()
@@ -263,8 +268,12 @@ Plug_And_Play::Plug_And_Play(Command_Impl *pPrimaryDeviceCommand, DeviceData_Imp
 Plug_And_Play::~Plug_And_Play()
 //<-dceag-dest-e->
 {
+	//wait for thread finish
+	pthread_kill( d->hald_thread, SIGTERM);
+	pthread_join( d->hald_thread, NULL );
 	delete d;
 	d = NULL;
+
 }
 
 //<-dceag-getconfig-b->
@@ -291,6 +300,9 @@ bool Plug_And_Play::GetConfig()
 				m_bQuit = true;
 				return false;
 			}
+
+			const char *h = d->pnpCoreDevice->GetIPAddress().c_str();
+			pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) h );
 		}
 	}
 	else

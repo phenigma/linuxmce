@@ -16,13 +16,16 @@ Gen_Dev_Files = $(GENDEV)/Plug_And_PlayBase.cpp
 sources = Main.cpp Plug_And_Play.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
-CPPFLAGS +=
+CXXFLAGS += -I/usr/include/dbus-1.0/ -I/usr/include/hal \
+	-I/usr/lib/dbus-1.0/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include \
+	-DDBUS_API_SUBJECT_TO_CHANGE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-D_DEVEL_DEFINES -DUSE_LZO_DATAGRID -D_GNU_SOURCE  -Wno-deprecated
+CPPFLAGS += 
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main
+XTRALDLIBS = -lpluto_main -lhttp_fetcher -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
 
 Gen_Dev_Files +=
-sources +=
+sources += pluto-hald.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
