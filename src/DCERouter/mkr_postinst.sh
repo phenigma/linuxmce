@@ -108,7 +108,7 @@ if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	. /usr/pluto/bin/Config_Ops.sh
 fi
 
-export PS1='\h_'\$PK_Installation':\w\$ '"
+export PS1='\h_'\$PK_Installation':\w\\$ '"
 
 if ! grep -q nullglob /root/.profile; then
 	echo "shopt -u nullglob # Pluto disable nullglob for shell" >>/root/.profile
