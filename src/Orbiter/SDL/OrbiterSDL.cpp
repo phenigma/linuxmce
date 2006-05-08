@@ -631,6 +631,30 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 }
 
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL::SolidRectangleAlpha(int x, int y, int width, int height, PlutoColor color, int alpha /*= 128*/)
+{
+	//clipping
+	if(x + width >= m_iImageWidth)
+		width = m_iImageWidth - x - 1;
+
+	if(y + height >= m_iImageHeight)
+		height = m_iImageHeight - y - 1;
+
+	SDL_Rect rectScreen;
+	rectScreen.x = x; rectScreen.y = y; rectScreen.w = width; rectScreen.h = height;
+
+    SDL_Rect rectBar;
+	rectBar.x = 0; rectBar.y = 0; rectBar.w = width; rectBar.h = height;
+    SDL_Surface *pSDL_Bar = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, rectBar.w, rectBar.h, 32, rmask, gmask, bmask, amask);
+    SDL_FillRect(pSDL_Bar, &rectBar, SDL_MapRGBA(pSDL_Bar->format, color.R(), color.G(), color.B(), alpha));
+
+    X_LockDisplay();
+    SDL_BlitSurface(pSDL_Bar, NULL, m_pScreenImage, &rectScreen);
+    X_UnlockDisplay();
+    SDL_FreeSurface(pSDL_Bar);
+}
+
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal,
     bool bDisableAspectRatio, PlutoPoint point)
 {

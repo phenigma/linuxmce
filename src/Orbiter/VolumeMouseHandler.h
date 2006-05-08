@@ -11,8 +11,6 @@ using namespace std;
 #include "PlutoUtils/ProcessUtils.h"
 #include "MouseBehavior.h"
 
-//struct SDL_Surface;
-
 using namespace DCE;
 
 namespace DCE

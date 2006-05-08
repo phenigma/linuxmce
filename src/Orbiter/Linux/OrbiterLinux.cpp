@@ -24,7 +24,7 @@
 #include "../wxAppMain/wxdialog_waitgrid.h"
 #include "../wxAppMain/wxdialog_waitlist.h"
 #include "../wxAppMain/wxdialog_waituser.h"
-#define USE_TASK_MANAGER true //del
+#define USE_TASK_MANAGER true
 #include "../Task.h"
 #include "../TaskManager.h"
 #endif // (USE_WX_LIB)

@@ -41,9 +41,6 @@ OrbiterGL3D::OrbiterGL3D ()
 	  Widgets(NULL),
 	  EffectBuilder(NULL),
 	  pOrbiterGL(NULL)
-#ifndef WIN32	  
-	  , m_pOrbiterLinux(NULL)
-#endif
 {
 	Instance = this;
 }
@@ -104,15 +101,11 @@ void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
 
-	#ifndef WIN32 // linux
-		if (NULL != m_pOrbiterLinux)
-			m_pOrbiterLinux->X_LockDisplay();
-	#endif // linux
-		SDL_GL_SwapBuffers();
-	#ifndef WIN32 // linux
-		if (NULL != m_pOrbiterLinux)
-			m_pOrbiterLinux->X_UnlockDisplay();
-	#endif // linux
+    if (pOrbiterGL)
+        pOrbiterGL->X_LockDisplay();
+    SDL_GL_SwapBuffers();
+    if (pOrbiterGL)
+        pOrbiterGL->X_UnlockDisplay();
 
 #else // ndef POCKETFROG
 	SwapBuffers(hdc);
@@ -248,10 +241,6 @@ OrbiterGL3D* OrbiterGL3D::GetInstance()
 int OrbiterGL3D::BuildOrbiterGL(Orbiter * pOrbiterGL)
 {
 	this->pOrbiterGL = pOrbiterGL;
-
-#ifndef WIN32
-    m_pOrbiterLinux = dynamic_cast<OrbiterLinux *>(pOrbiterGL);
-#endif
 
 	FloatRect FullScreenSize(0.0f, 0.0f, float(pOrbiterGL->m_iImageWidth), float(pOrbiterGL->m_iImageHeight));
 

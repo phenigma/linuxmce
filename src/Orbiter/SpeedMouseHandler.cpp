@@ -296,6 +296,8 @@ void SpeedMouseHandler::DrawInfo()
 
     //g_pPlutoLogger->Write(LV_CRITICAL,"SpeedMouseHandler::DrawInfo()");
 
+    PrevSurfaceRestore();
+
     if( m_bHasTimeline )
 	{
 		if( !m_bIsActive )
@@ -321,10 +323,10 @@ void SpeedMouseHandler::DrawInfo()
 		int Offset = m_pObj->m_rPosition.Width * Percent - 5;
 		if( Offset<0 )
 			Offset=0;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 			m_pObj->m_rPosition.X + Offset, m_pObj->m_rPosition.Y,
 			m_pObj->m_rPosition.Width*.01, m_pObj->m_rPosition.Height*.25,
-			PlutoColor::White());
+			PlutoColor::White(), 128);
 	}
 
 	if( Speed!=-9999 )
@@ -334,10 +336,10 @@ void SpeedMouseHandler::DrawInfo()
 		if( Offset<0 )
 			Offset=0;
 		int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .3;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 			m_pObj->m_rPosition.X + Offset, Y,
 			m_pObj->m_rPosition.Width*.035, m_pObj->m_rPosition.Height*.25,
-			PlutoColor::Blue());
+			PlutoColor::Blue(), 128);
 	}
 
 	if( m_bHasTimeline )
@@ -349,10 +351,10 @@ void SpeedMouseHandler::DrawInfo()
 			int Offset = m_pObj->m_rPosition.Width * Percent - 5;
 			if( Offset<0 )
 				Offset=0;
-			m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+			m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 				m_pObj->m_rPosition.X, m_pObj->m_rPosition.Y + (m_pObj->m_rPosition.Height*.6),
 				Offset, m_pObj->m_rPosition.Height*.12,
-				PlutoColor::White());
+				PlutoColor::White(), 128);
 			pText->m_rPosition.X = Offset + m_pObj->m_rPosition.X;
 			pText->m_sText = FormatTime(m_CurrentMedia_Pos);
 		}

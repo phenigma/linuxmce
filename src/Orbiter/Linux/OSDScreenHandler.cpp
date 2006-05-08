@@ -2,7 +2,7 @@
 #include "../wxAppMain/wx_all_include.cpp"
 #include "../wxAppMain/wx_safe_dialog.h"
 #include "../wxAppMain/wxdialog_roomwizard.h"
-#define USE_TASK_MANAGER true //del
+#define USE_TASK_MANAGER true
 #endif // (USE_WX_LIB)
 
 #include "../Task.h"
@@ -1549,10 +1549,10 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
         TaskManager::Instance().AddTaskAndWait(pTask);
     }
     {
-        //del when AppDesktop restores main window
+        // when AppDesktop restores main window
         OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
         if(NULL != pOrbiterLinux)
-            WMController::Instance().SetVisible("dialog", false);
+            WMController::Instance().SetVisible("dialog.dialog", false);
     }
 #else // (USE_TASK_MANAGER)
     wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();

@@ -683,6 +683,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
 
 		/**
+		* @brief draws a solid rectangle, with alpha transparency
+		* @todo: ask if SolidRectangle should be fixed, and this function removed
+		*/
+		virtual void SolidRectangleAlpha( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iAlpha = 128 ) {}
+
+		/**
 		* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
 		*/
 		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
@@ -1907,6 +1913,15 @@ light, climate, media, security, telecom */
 		* @todo ask
 		*/
 		void CalculateGridRight( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
+
+		/**
+		* @brief locks the display, implemented in the Linux-derived class
+		*/
+        virtual void X_LockDisplay() {};
+		/**
+		* @brief unlocks the display, implemented in the Linux-derived class
+		*/
+        virtual void X_UnlockDisplay() {};
 	};
 
 	extern int g_iDontRender; /** < @todo ask */

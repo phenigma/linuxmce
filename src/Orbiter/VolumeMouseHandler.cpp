@@ -10,25 +10,15 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 
-#ifndef WIN32
-#include <SDL_image.h>
-#include "SDL/OrbiterSDL.h"
-#include "SDL/SDLGraphic.h"
-#include "Linux/OrbiterLinux.h"
-#endif
-
 using namespace DCE;
 
 VolumeMouseHandler::VolumeMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
         : MouseHandler(pObj,sOptions,pMouseBehavior)
-        //, m_pPrevSurface(NULL)
 {
 }
 
 VolumeMouseHandler::~VolumeMouseHandler()
 {
-    //if (m_pPrevSurface)
-    //    delete m_pPrevSurface;
 }
 
 void VolumeMouseHandler::Start()
@@ -157,132 +147,26 @@ void VolumeMouseHandler::CustomRender()
 		CurrentLevel = 0;
 	CurrentLevel = m_pObj->m_rPosition.Width * CurrentLevel / 100;
 	int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1;
-	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+
+    PrevSurfaceRestore();
+
+    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 		m_pObj->m_rPosition.X, Y,
 		CurrentLevel, m_pObj->m_rPosition.Height*.1,
-		PlutoColor::White());
+		PlutoColor::White(), 128);
 
+    // We only draw the square for tap and release
 	if( !m_bTapAndRelease )
-		return;  // We only draw the square for tap and release
+        return;
 
     int NotchWidth = m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
-	int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
-	Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7;
+    int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
+    Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7;
 
-	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
-		NotchStart, Y,
-		NotchWidth, m_pObj->m_rPosition.Height * .25,
-		PlutoColor::Blue());
-	return;
-    // ORIGINAL CODE, changed to solid rectangle
-	//m_pMouseBehavior->m_pOrbiter->SolidRectangle(
-	//	NotchStart, m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
-	//	NotchWidth, m_pObj->m_rPosition.Height,
-	//	plutoColor);
-    //m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
-/*
-#ifndef WIN32
-	g_pPlutoLogger->Write(LV_CRITICAL,"VolumeMouseHandler::DrawSquare() : Notch=%d", Notch);
-
-    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pMouseBehavior->m_pOrbiter);
-    if (pOrbiterLinux)
-        pOrbiterLinux->X_LockDisplay();
-
-    // TODO: remove these notes
-    //{
-    //DesignObj *pObj = m_pOrbiter->FindObject();
-    //m_pOrbiter->RenderGraphic(pObj,  pObj->m_rPosition, pObj->m_bDisableAspectLock);
-
-    //redraw screen
-    //PlutoRectangle rect_screen(0, 0, m_pMouseBehavior->m_pOrbiter->m_iImageWidth, m_pMouseBehavior->m_pOrbiter->m_iImageHeight);
-    //m_pMouseBehavior->m_pOrbiter->UpdateRect(rect_screen);
-
-    //plutoColor.A(50);
-    //}
-
-    // NEW CODE, only transparency works fine
-    //{
-    //    PlutoRectangle rectFullImage(
-    //        m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
-    //        m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
-    //        m_pObj->m_rPosition.Width,
-    //        m_pObj->m_rPosition.Height
-    //        );
-
-    //    SDL_Rect rectFullImageSDL;
-    //    rectFullImageSDL.x = rectFullImage.X;
-    //    rectFullImageSDL.y = rectFullImage.Y;
-    //    rectFullImageSDL.w = rectFullImage.Width;
-    //    rectFullImageSDL.h = rectFullImage.Height;
-
-    //    OrbiterSDL *pOrbiterSDL = dynamic_cast<OrbiterSDL *>(m_pMouseBehavior->m_pOrbiter);
-    //    if (pOrbiterSDL == NULL)
-    //        return;
-
-    //    int x =
-    //        rectFullImage.X;
-    //    //NotchStart;
-    //    int width =
-    //        x;
-    //    x + NotchStart;
-    //    //NotchWidth;
-    //    int height =
-    //        m_pObj->m_rPosition.Height
-    //        / 3;
-    //    int y =
-    //        m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y
-    //        + m_pObj->m_rPosition.Height - height;
-
-    //    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    //    const Uint32 rmask = 0xff000000, gmask = 0x00ff0000, bmask = 0x0000ff00, amask = 0x000000ff;
-    //    #else
-    //    const Uint32 rmask = 0x000000ff, gmask = 0x0000ff00, bmask = 0x00ff0000, amask = 0xff000000;
-    //    #endif
-
-    //    // save previous surface
-    //    if (m_pPrevSurface == NULL)
-    //    {
-    //        //PlutoGraphic *pPlutoGraphic = pOrbiterSDL->GetBackground(rectFullImage);
-    //        //m_pPrevSurface = dynamic_cast<SDLGraphic *>(pPlutoGraphic);
-    //        //if (m_pPrevSurface == NULL)
-    //        //    delete pPlutoGraphic;
-    //        m_pPrevSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
-    //        SDL_BlitSurface(pOrbiterSDL->m_pScreenImage, &rectFullImageSDL, m_pPrevSurface, NULL);
-    //    }
-
-    //    // create a transparent rectangle, with the given color
-    //    SDL_Surface * pSDL_Bar = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height, 32, rmask, gmask, bmask, amask);
-    //    SDL_Rect rectBar;
-    //    rectBar.x = 0;
-    //    rectBar.y = 0;
-    //    rectBar.w = width;
-    //    rectBar.h = height;
-    //    SDL_FillRect(pSDL_Bar, &rectBar, SDL_MapRGBA(pSDL_Bar->format, plutoColor.R(), plutoColor.G(), plutoColor.B(), 128));
-
-    //    // prepare for redrawing
-    //    rectBar.x = x;
-    //    rectBar.y = y;
-
-    //    SDL_SetAlpha(pOrbiterSDL->m_pScreenImage, 0, 0);
-    //    SDL_SetAlpha(m_pPrevSurface, 0, 0);
-
-    //    // copy the old surface
-    //    SDL_BlitSurface(m_pPrevSurface, NULL, pOrbiterSDL->m_pScreenImage, &rectFullImageSDL);
-
-    //    // combine with the new surface
-    //    SDL_BlitSurface(pSDL_Bar, NULL, pOrbiterSDL->m_pScreenImage, &rectBar);
-
-    //    SDL_Flip(pOrbiterSDL->m_pScreenImage);
-
-    //    // done
-    //    SDL_FreeSurface(pSDL_Bar);
-    //    m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
-    //}
-
-    if (pOrbiterLinux)
-        pOrbiterLinux->X_UnlockDisplay();
-#endif
-	*/
+    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+        NotchStart, Y,
+        NotchWidth, m_pObj->m_rPosition.Height * .25,
+        PlutoColor::Blue(), 128);
 }
 
 void VolumeMouseHandler::DoIteration(int Parm)

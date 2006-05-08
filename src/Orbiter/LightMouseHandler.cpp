@@ -132,10 +132,13 @@ void LightMouseHandler::CustomRender()
 		CurrentLevel = 0;
 	CurrentLevel = m_pObj->m_rPosition.Height * CurrentLevel / 100;
 	int X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width -  m_pObj->m_rPosition.Width * .1;
-	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+
+    PrevSurfaceRestore();
+
+    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		m_pObj->m_rPosition.Width*.1,CurrentLevel,
-		PlutoColor::Green());
+		PlutoColor::Green(), 128);
 
 	if( !m_bTapAndRelease )
 		return;  // We only draw the square for tap and release
@@ -145,18 +148,11 @@ void LightMouseHandler::CustomRender()
 
 	X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width * .1;
 
-	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+	m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
 		X, NotchStart,
 		m_pObj->m_rPosition.Width * .25, NotchHeight,
-		PlutoColor::Blue());
+		PlutoColor::Blue(), 128);
 	return;
-	/*
-	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-        m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.X, NotchStart,
-        m_pObj->m_rPosition.Width, NotchHeight,
-        plutoColor);
-	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
-	*/
 }
 
 void LightMouseHandler::DoIteration(int Parm)

@@ -53,6 +53,7 @@ public:
 
 	// Drawing routines
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
+	virtual void SolidRectangleAlpha(int x, int y, int width, int height, PlutoColor color, int alpha = 128);
 	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color, int Opacity = 100) {};
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
@@ -114,10 +115,6 @@ public:
 
 	SDL_Surface * Screen;
 	bool m_bFullScreen;
-
-    // need this for linux
-    virtual void X_LockDisplay() {};
-    virtual void X_UnlockDisplay() {};
 
 protected:
 	pthread_t SDLGLthread;

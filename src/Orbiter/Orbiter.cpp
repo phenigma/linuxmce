@@ -9900,8 +9900,7 @@ bool SendPingHandler(Socket *pSocket)
 	return true;
 }
 
-//DEL
-//todo: disable this to use wx custom progress bar dialogs
+//TODO: disable this to use wx custom progress bar dialogs
 //#define X11_PROGRESS_BARS 0
 
 bool Orbiter::WaitForRelativesIfOSD()

@@ -252,7 +252,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 					break;
 
 				case ButtonPress:  case ButtonRelease: // mouse button related event types
-                    g_pPlutoLogger->Write(LV_WARNING, "Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up"); //del
+                    g_pPlutoLogger->Write(LV_WARNING, "Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up"); //TODO: comment this
 					orbiterEvent->type = pxEvent->u.u.type == ButtonPress ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
 					orbiterEvent->data.region.m_iButton = pxEvent->u.u.detail;
 					orbiterEvent->data.region.m_iX = m_iMouseX;
