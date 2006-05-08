@@ -1687,6 +1687,8 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 		pMergedBackground = m_pOrbiter->GetBackground(rectTotal);
 	}
+
+	pMergedGraphic = pMergedBackground;
 #endif
 
 	if(NULL != pMergedGraphic)
