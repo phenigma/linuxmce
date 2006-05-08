@@ -7,7 +7,7 @@ function setTimezone() {
 	rootDir=$1
 	timeZone=$2
 	
-	zoneFile="/usr/share/zoneinfo/$TimeZone"
+	zoneFile="/usr/share/zoneinfo/$timeZone"
 	[[ -z "$timeZone" || ! -f "${rootDir}${zoneFile}" ]] && exit 1
 
 	rm -f $rootDir/etc/localtime
