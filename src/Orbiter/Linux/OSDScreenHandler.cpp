@@ -1691,6 +1691,8 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 	pMergedGraphic = pMergedBackground;
 #endif
 
+	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender(): will render RenderGraphic merged surface %d", NULL != pMergedGraphic);
+ 	
 	if(NULL != pMergedGraphic)
 		m_pOrbiter->RenderGraphic( pMergedBackground,  rectTotal, pObj->m_bDisableAspectLock, point );
 	else
