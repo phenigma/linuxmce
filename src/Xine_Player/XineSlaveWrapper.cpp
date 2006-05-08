@@ -307,8 +307,10 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         xineStream->m_iStreamID = streamID;
     }
 
-		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
-    xineStream->m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
+		{
+				PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+				xineStream->m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
+		}
 
     m_x11Visual.display = XServerDisplay;
     m_x11Visual.screen = m_iCurrentScreen;
@@ -358,7 +360,10 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
     if ( isNewStream )
     {
         g_pPlutoLogger->Write( LV_STATUS, "xine_event_new_queue" );
-        xineStream->m_pStreamEventQueue = xine_event_new_queue( xineStream->m_pStream );
+        {
+        	PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+        	xineStream->m_pStreamEventQueue = xine_event_new_queue( xineStream->m_pStream );
+        }
         xine_event_create_listener_thread( xineStream->m_pStreamEventQueue, xineEventListener, xineStream );
     }
 
@@ -374,15 +379,23 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         g_pPlutoLogger->Write( LV_STATUS, "Opened..... " );
 
         setXineStreamDebugging( streamID, false );
-        xineStream->m_bHasVideo = xine_get_stream_info( xineStream->m_pStream, XINE_STREAM_INFO_HAS_VIDEO );
+        
+        bool streamHasVideo=false;
+        
+        {
+					PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+					xineStream->m_bHasVideo = xine_get_stream_info( xineStream->m_pStream, XINE_STREAM_INFO_HAS_VIDEO );        
+	
+					if ( xineStream->m_iImgWidth == 0 )
+							xineStream->m_iImgWidth++;
+	
+					if ( xineStream->m_iImgHeight == 0 )
+							xineStream->m_iImgHeight++;
+							
+					streamHasVideo = xineStream->m_bHasVideo;
+				}
 
-        if ( xineStream->m_iImgWidth == 0 )
-            xineStream->m_iImgWidth++;
-
-        if ( xineStream->m_iImgHeight == 0 )
-            xineStream->m_iImgHeight++;
-
-        if ( xineStream->m_bHasVideo )
+        if ( streamHasVideo )
         {
 		if (!m_pDeinterlacePlugin)
 		{
@@ -477,6 +490,7 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
                 g_pPlutoLogger->Write( LV_STATUS, "Visualization plugin %s", bPostWireResult ? "enabled" : "disabled" );
                 if ( bPostWireResult )
                 {
+                		PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
                     xineStream->m_iImgWidth = 100;
                     xineStream->m_iImgHeight = 100;
                 }
@@ -488,12 +502,16 @@ bool XineSlaveWrapper::createStream( string fileName, int streamID, int iRequest
         xine_port_send_gui_data( m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
         xine_port_send_gui_data( m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
 
-        xineStream->m_bIsRendering = true;
+				{
+					PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
+        	xineStream->m_bIsRendering = true;
+        }
 
         if ( isNewStream )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Creating event processor" );
             m_bExitThread = false;
+            PLUTO_SAFETY_LOCK( streamLock, xineStream->m_xineStreamMutex );
             pthread_create( &xineStream->eventLoop, NULL, eventProcessingLoop, xineStream );
             g_pPlutoLogger->Write( LV_STATUS, "Event processor started" );
         }
