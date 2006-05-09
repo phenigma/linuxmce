@@ -6,8 +6,10 @@
 #include <map>
 using namespace std;
 
+/*
 struct SDL_Surface;
 struct SDL_Rect;
+*/
 
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
@@ -58,8 +60,10 @@ namespace DCE
 		virtual EMouseHandler TypeOfMouseHandler()=0;
     protected:
         void PrevSurfaceRestore();
+		/*
         SDL_Surface *m_pPrevSurface;
         SDL_Rect *m_pPrevRect;
+		*/
 	};
 
 	#define	NUM_SAMPLES		30

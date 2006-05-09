@@ -23,10 +23,12 @@
 
 using namespace DCE;
 
+/*
 #include <SDL_image.h>
 #include "SDL/OrbiterSDL.h"
 #include "SDL/SDLGraphic.h"
 #include "SDL/PlutoSDLDefs.h"
+*/
 
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
@@ -805,20 +807,25 @@ MouseHandler::MouseHandler(DesignObj_Orbiter *pObj, string sOptions, MouseBehavi
     m_pMouseBehavior=pMouseBehavior;
     m_bLockAxis=true;
     m_bIsActive=false;
-    m_pPrevSurface = NULL;
+/*
+	m_pPrevSurface = NULL;
     m_pPrevRect = NULL;
+*/
 }
 
 MouseHandler::~MouseHandler()
 {
+	/*
     if (m_pPrevSurface)
         SDL_FreeSurface(m_pPrevSurface);
     if (m_pPrevRect)
         delete m_pPrevRect;
+	*/
 }
 
 void MouseHandler::PrevSurfaceRestore()
 {
+	/*
     //TODO: proper restore that surface elsewhere, where it is not restored correctly
     //TODO: and remove this function
     OrbiterSDL *pOrbiterSDL = dynamic_cast<OrbiterSDL *>(m_pMouseBehavior->m_pOrbiter);
@@ -843,4 +850,5 @@ void MouseHandler::PrevSurfaceRestore()
     }
     // draw the original surface again
     SDL_BlitSurface(m_pPrevSurface, NULL, pOrbiterSDL->m_pScreenImage, m_pPrevRect);
+	*/
 }
