@@ -259,14 +259,6 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         ActivateExternalWindowAsync(NULL);
     }
 	
-	if(!UsesUIVersion2())
-	{
-		//activate/deactivate xrecording only for old UI
-		//for UI version 2, xrecording will be enabled all the time
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
-		m_pRecordHandler->enableRecording(this, m_bYieldInput);
-	}
-	
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
     return true;
 }
@@ -338,6 +330,14 @@ void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
 
     m_bIsExclusiveMode = true;
     OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
+
+    if(!UsesUIVersion2())
+    {
+        //activate/deactivate xrecording only for old UI
+        //for UI version 2, xrecording will be enabled all the time
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
+        m_pRecordHandler->enableRecording(this, m_bYieldInput);
+    }
 
     if(m_bOrbiterReady)
         m_WinListManager.ShowSdlWindow(m_bIsExclusiveMode);
