@@ -1,6 +1,0 @@
-etc/hotplug/blacklist.d
-etc/discover.d
-etc/discover.conf.d
-lib/discover
-lib/linux-sound-base
-usr/share/linux-sound-base

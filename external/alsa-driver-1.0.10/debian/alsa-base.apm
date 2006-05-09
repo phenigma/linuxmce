@@ -1,9 +1,0 @@
-#!/bin/sh
-#
-# apmd proxy script for ALSA
-
-case "$1,$2" in
-	suspend,*) /etc/init.d/alsa suspend ;;
-	resume,suspend) /etc/init.d/alsa resume ;;
-esac
-
