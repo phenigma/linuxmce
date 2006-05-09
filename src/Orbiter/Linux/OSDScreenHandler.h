@@ -54,7 +54,6 @@ public:
 	virtual void SCREEN_AV_Devices(long PK_Screen);
 	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
 	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
-	virtual bool AV_Devices_DatagridSelected(CallBackData *pData);
 
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
@@ -87,8 +86,8 @@ public:
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
 
-    virtual void SCREEN_TVManufNotListed(long PK_Screen);
-	virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
+    //virtual void SCREEN_TVManufNotListed(long PK_Screen);
+	//virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
 
 	//virtual bool SCREEN_TVConfirmInputsDiscrete_ObjectSelected(CallBackData *pData);
 

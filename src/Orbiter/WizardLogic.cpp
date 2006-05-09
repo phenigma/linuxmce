@@ -346,9 +346,15 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 }
 
 int WizardLogic::AddAVDeviceTemplate()
-{
-	string sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
-	m_nPKManufacuter = threaded_mysql_query_withID(sSQL);
+{	
+	string sSQL;
+
+	//check if the manufacturerer is already in database
+	if( !ExistManufacturer(m_ManufacturerName) )
+	{
+		sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
+		m_nPKManufacuter = threaded_mysql_query_withID(sSQL);
+	}
 	
 	sSQL = string("INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,IRFrequency ,FK_CommMethod) VALUES('") +\
 		 m_AVTemplateName + "'," + "77" + "," + StringUtils::itos(m_nPKManufacuter) + "," + "NULL" + "," + "1" + ")"; 

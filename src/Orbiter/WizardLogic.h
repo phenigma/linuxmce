@@ -80,6 +80,8 @@ public:
 	*/
 	void SetManufacturer(string name){ m_ManufacturerName = name; }
 	void SetAVTemplateName(string name){ m_AVTemplateName = name; }
+	void SetAVTemplateID(long id){ m_nPKAVTemplate = id; }
+	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
 
 	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
 	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }

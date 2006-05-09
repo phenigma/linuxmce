@@ -8701,46 +8701,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_TVManufNotListed : public PreformedCommand
-	{
-	public:
-		SCREEN_TVManufNotListed(long DeviceIDFrom, long DeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TVManufNotListed_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_TVManufNotListed_DL(long DeviceIDFrom, string sDeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TVManufNotListed_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_TVManufNotListed_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TVManufNotListed_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_TVManufNotListed_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "214" /* screen ID */);
-		}
-	};
-
 	class SCREEN_TVConfirmInputsDiscrete : public PreformedCommand
 	{
 	public:
@@ -9061,6 +9021,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Internal_Disk_Driver_Wizard : public PreformedCommand
+	{
+	public:
+		SCREEN_Internal_Disk_Driver_Wizard(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Internal_Disk_Driver_Wizard_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Internal_Disk_Driver_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Internal_Disk_Driver_Wizard_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Internal_Disk_Driver_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Internal_Disk_Driver_Wizard_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Internal_Disk_Driver_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9295,7 +9295,6 @@ namespace DCE
 		virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuMainMenu2(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuAmbiance(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_TVManufNotListed(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmInputsDiscrete(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmInputsToggle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVOnOffCodes(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9304,6 +9303,7 @@ namespace DCE
 		virtual void SCREEN_CurrentlyActiveRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffTogle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffDiscret(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10430,11 +10430,6 @@ namespace DCE
 					SCREEN_mnuAmbiance(nPK_Screen);
 					break;
 				}
-				case 214:
-				{
-					SCREEN_TVManufNotListed(nPK_Screen);
-					break;
-				}
 				case 215:
 				{
 					SCREEN_TVConfirmInputsDiscrete(nPK_Screen);
@@ -10473,6 +10468,11 @@ namespace DCE
 				case 222:
 				{
 					SCREEN_TVConfirmOnOffDiscret(nPK_Screen);
+					break;
+				}
+				case 223:
+				{
+					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen);
 					break;
 				}
 
