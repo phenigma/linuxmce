@@ -1683,11 +1683,12 @@ void OSDScreenHandler::SCREEN_TVManufNotListed(long PK_Screen)
 
 bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 {
+	DatagridCellBackData *pCellInfoData = NULL; 
+	DesignObj_Orbiter *pObj = NULL;
+	DesignObj_DataGrid *pDatagridObj = NULL;
+	DataGridCell *pCell = NULL;
 	string sVal, sId;
 	int nId;
-	DesignObj_Orbiter *pObj;
-	DesignObj_DataGrid *pDatagridObj;
-	DataGridCell *pCell;
 
 	int test = GetCurrentScreen_PK_DesignObj();
 
@@ -1695,7 +1696,10 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_TVWhatDelays_CONST:
 		pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
-		sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+
+		pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
+		if(NULL != pCellInfoData)
+			sId = pCellInfoData->m_sValue;
 		sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 		nId = atoi( sId.c_str() );
 		if( NULL != pObj )
@@ -1722,9 +1726,9 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 
 bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData)
 {
+	DatagridCellBackData *pCellInfoData = NULL; 
 	string sEditVal, sSelectedId;
 	sEditVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-	sSelectedId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
 	int nSelectedId = atoi( sSelectedId.c_str() );
 
 	switch( GetCurrentScreen_PK_DesignObj() )
@@ -1739,6 +1743,9 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 		{
 			pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
 			string sValues[3];
+			pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
+			if(NULL != pCellInfoData)
+				sSelectedId = pCellInfoData->m_sValue;
 
 			if(NULL != pDatagridObj)
 			{
