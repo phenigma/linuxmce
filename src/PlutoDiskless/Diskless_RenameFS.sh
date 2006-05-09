@@ -20,6 +20,7 @@ if [[ -z "$DevID" ]]; then
 	exit 1
 fi
 
+ChangesToBeMade=n
 # Rename MD filesystem and TFTP directories if needed
 if [[ "$OldIP" != "$NewIP" ]]; then
 	if [[ -n "$OldIP" ]]; then
@@ -31,6 +32,7 @@ if [[ "$OldIP" != "$NewIP" ]]; then
 		mv -f /usr/pluto/diskless/{"$OldIP","$NewIP"}
 		rm -rf /tftpboot/"$OldIP"
 	fi
+	ChangesToBeMade=y
 fi
 
 # Remove MD TFTP boot files if needed
@@ -39,18 +41,21 @@ if [[ "$OldMAC" != "$NewMAC" ]]; then
 		lcdOldMAC=$(echo ${OldMAC//:/-} | tr 'A-Z' 'a-z')
 		rm -f /tftpboot/pxelinux.cfg/01-"$lcdOldMAC"
 	fi
+	ChangesToBeMade=y
 fi
 
-# set the "Need to configure" flag of the MD
-Q="UPDATE Device SET NeedConfigure='1' WHERE PK_Device='$DevID'"
-RunSQL "$Q"
+if [[ "$ChangesToBeMade" == y ]]; then
+	# set the "Need to configure" flag of the MD
+	Q="UPDATE Device SET NeedConfigure='1' WHERE PK_Device='$DevID'"
+	RunSQL "$Q"
 
-# Run other scripts
-# they will do the following actions, if applicable:
-# - create /tftpboot/pxelinux.cfg/01-"$lcdNewMAC"
-# - create /tftpboot/"$lcdNewIP"
-# - update and restart DHCP
-# and other actions that don't have to be duplicated here
-/usr/pluto/bin/Diskless_Setup.sh
-/usr/pluto/bin/DHCP_config.sh
-/usr/pluto/bin/Diskless_ExportsNFS.sh
+	# Run other scripts
+	# they will do the following actions, if applicable:
+	# - create /tftpboot/pxelinux.cfg/01-"$lcdNewMAC"
+	# - create /tftpboot/"$lcdNewIP"
+	# - update and restart DHCP
+	# and other actions that don't have to be duplicated here
+	/usr/pluto/bin/Diskless_Setup.sh
+	/usr/pluto/bin/DHCP_config.sh
+	/usr/pluto/bin/Diskless_ExportsNFS.sh
+fi
