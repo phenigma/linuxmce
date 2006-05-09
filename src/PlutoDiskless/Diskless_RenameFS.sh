@@ -9,8 +9,8 @@ for ((i = 1; i <= "$#"; i++)); do
 		--devid) ((i++)); DevID="${!i}" ;;
 		--oldip) ((i++)); OldIP="${!i}" ;;
 		--newip) ((i++)); NewIP="${!i}" ;;
-		--oldmac) ((i++)); OldMAC="${!i}" ;;
-		--newmac) ((i++)); NewMAC="${!i}" ;;
+		--oldmac) ((i++)); OldMAC="${!i//-/:}"; OldMAC="$(echo "$OldMAC" | tr 'A-Z' 'a-z')" ;;
+		--newmac) ((i++)); NewMAC="${!i//-/:}"; NewMAC="$(echo "$NewMAC" | tr 'A-Z' 'a-z')" ;;
 	esac
 done
 
