@@ -205,6 +205,10 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVWhatDelay)), 
 		DATAGRID_TVWhatDelays_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDiscret)), 
+		DATAGRID_Confirm_On_Off_Codes_CONST,PK_DeviceTemplate_get());
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1190,7 +1194,7 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 		sPKTemplate + "'";
 	g_pPlutoLogger->Write( LV_STATUS , "AVWhatDelay grid sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
-	g_pPlutoLogger->Write( LV_STATUS , sValue_To_Assign->c_str() );
+	g_pPlutoLogger->Write( LV_STATUS , Parms.c_str() );
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1224,6 +1228,37 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 	}
 	else
 		g_pPlutoLogger->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	string sql;
+	sql = "SELECT PK_InfraredGroup_Command, IRData, FK_InfraredGroup, FK_Command, InfraredGroup.Description AS IRG_Name \
+		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=1776) AND FK_InfraredGroup IN (1727, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1736, 1737, 1738, 1739, 1740, 1741, 5117, 5118, 5119, 5947) AND FK_Command IN (194, 192, 193, 205, 89, 90, 63, 64) ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
+	g_pPlutoLogger->Write( LV_STATUS , "AVDiscret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+//	g_pPlutoLogger->Write( LV_STATUS , Parms->c_str() );
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0;
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			pCell = new DataGridCell(row[1], row[0]);
+			pDataGrid->SetData(0, nRow++, pCell );
+		}
+	}
+
 
 	return pDataGrid;
 }
@@ -2565,23 +2600,4 @@ void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *
 void General_Info_Plugin::CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage)
 //<-dceag-c800-e->
 {
-	Table_DeviceTemplate_AV *pTemplateAVTable = NULL;
-	Row_DeviceTemplate_AV *pTemplateAVRow = NULL;
-	
-	pTemplateAVTable = m_pDatabase_pluto_main->DeviceTemplate_AV_get();
-	if( pTemplateAVTable )
-	{
-		pTemplateAVRow = pTemplateAVTable->AddRow();
-	
-		// add default values
-		pTemplateAVRow->FK_DeviceTemplate_set( iPK_DeviceTemplate );
-
-		pTemplateAVRow->IR_PowerDelay_set( 2 );
-		pTemplateAVRow->IR_ModeDelay_set( 7 );
-		pTemplateAVRow->DigitDelay_set( 250 );
-
-		pTemplateAVTable->Commit();
-	}
-	//else; //log an error
-		
 }
