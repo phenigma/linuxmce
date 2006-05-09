@@ -131,10 +131,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
 #ifndef PHONEKEYS
     if(wParam >= VK_A && wParam <= VK_Z && !bControlDown && !bAltDown) // A-Z keys
     {
-        if((!bCapsLock && !bShiftDown) || (bCapsLock && bShiftDown))
-            iPK_Button = BUTTON_a_CONST + int(wParam) - VK_A;
-        else
-            iPK_Button = BUTTON_A_CONST + int(wParam) - VK_Z;
+		iPK_Button = BUTTON_a_CONST + int(wParam) - VK_A;
     }
 #endif 
 

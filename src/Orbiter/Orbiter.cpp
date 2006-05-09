@@ -3963,7 +3963,7 @@ if(UsesUIVersion2())
 				else
 					ch = ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ?
 					'a' + PK_Button - BUTTON_a_CONST :
-				'A' + PK_Button - BUTTON_A_CONST;
+					'A' + PK_Button - BUTTON_A_CONST;
 
 				bHandled |= CaptureKeyboard_EditText_AppendChar( ch );
 			}
