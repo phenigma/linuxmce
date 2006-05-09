@@ -1,3 +1,9 @@
+alsa-utils (1.0.11-2pluto1) unstable; urgency=low
+
+  * Backported to Pluto
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 09 May 2006 15:09:46 +0300
+ 
 alsa-utils (1.0.11-2) unstable; urgency=low
 
   [ Elimar Riesebieter ]
