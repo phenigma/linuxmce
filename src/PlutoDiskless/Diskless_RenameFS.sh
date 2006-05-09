@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/pluto/bin/
+. /usr/pluto/bin/SQL_Ops.sh
 
 # Parse parameters
 for ((i = 1; i <= "$#"; i++)); do
@@ -45,10 +45,12 @@ fi
 Q="UPDATE Device SET NeedConfigure='1' WHERE PK_Device='$DevID'"
 RunSQL "$Q"
 
-# Run Diskless_Setup.sh
-# it will do the following actions, if applicable:
+# Run other scripts
+# they will do the following actions, if applicable:
 # - create /tftpboot/pxelinux.cfg/01-"$lcdNewMAC"
 # - create /tftpboot/"$lcdNewIP"
 # - update and restart DHCP
 # and other actions that don't have to be duplicated here
 /usr/pluto/bin/Diskless_Setup.sh
+/usr/pluto/bin/DHCP_config.sh
+/usr/pluto/bin/Diskless_ExportsNFS.sh
