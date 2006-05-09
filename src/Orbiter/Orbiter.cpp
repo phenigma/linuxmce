@@ -4084,6 +4084,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 	//if this is a repeated button, we'll handle it right away
 	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button))
 	{
+		m_bWeCanRepeat = true;
 		return HandleButtonEvent(iPK_Button);
 	}
 
@@ -4232,7 +4233,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 /*virtual*/ void Orbiter::StopRepeatRelatedEvents()
 {
-	m_bWeCanRepeat=true;
+	m_bWeCanRepeat = false;
 	if( m_bRepeatingObject )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
@@ -7925,6 +7926,13 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 /*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button)
 {
+	//no valid button
+	if(iPK_Button == 0)
+		return false;
+
+	if(NULL != m_pObj_Highlighted && m_pObj_Highlighted->m_bRepeatParm)
+		return true;
+
 	if(pObj->m_bRepeatParm && pObj->m_iPK_Button == iPK_Button)
 		return true;
 
