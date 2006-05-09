@@ -1744,9 +1744,8 @@ void OSDScreenHandler::SCREEN_TVManufNotListed(long PK_Screen)
 
 bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 {
-	string sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-	string sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
-	int nId = atoi(sId.c_str());
+	string sVal, sId;
+	int nId;
 	DesignObj_Orbiter *pObj;
 	DesignObj_DataGrid *pDatagridObj;
 	DataGridCell *pCell;
@@ -1757,6 +1756,9 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_TVWhatDelays_CONST:
 		pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgTVWhatDelays_CONST);
+		sId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+		sVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+		nId = atoi( sId.c_str() );
 		if( NULL != pObj )
 		{
 			pDatagridObj = dynamic_cast<DesignObj_DataGrid *>(pObj);
@@ -1769,7 +1771,7 @@ bool OSDScreenHandler::AV_Devices_DatagridSelected(CallBackData *pData)
 					sVal = pCell->GetText();
 					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 					m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), sVal, TEXT_USR_ENTRY_CONST);
-					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST] = sVal;
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sVal);
 					//m_pOrbiter->CMD_Refresh("*");
 				}
 			}
