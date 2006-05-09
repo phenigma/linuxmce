@@ -597,6 +597,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&msg='.$TEXT_DEVICE_RESETED_CONST);
 			exit();			
 		}
+		$oldIpAddress = $ipAddress;
+		$oldMacAddress = $macAddress;
 
 		$description = cleanString($_POST['DeviceDescription']);
 		$ipAddress = cleanString($_POST['ipAddress']);
@@ -758,6 +760,10 @@ $installationID = (int)@$_SESSION['installationID'];
 			exec($cmd);
 		}
 
+		// set dhcp conf
+		$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$deviceID.' --oldip "'.$oldIpAddress.'" --newip "'.$ipAddress.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$macAddress.'"';
+		exec($cmd);
+		
 		$out.='
 		<script>
 			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg=Device updated').'\';
