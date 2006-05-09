@@ -377,9 +377,16 @@ $start_time=getmicrotime();
 				foreach($displayedDevicesArray as $key => $value){
 					$description=stripslashes(@$_POST['description_'.$value]);
 					if(isset($_POST['ip_'.$value])){
+						$oldIpAddress=$_POST['oldIP_'.$value];
+						$oldMacAddress=$_POST['oldMAC_'.$value];
+						
 						$ip=$_POST['ip_'.$value];
 						$mac=$_POST['mac_'.$value];
 						$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+						
+						// set DHCP settings
+						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$key.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
+						exec($cmd);
 					}
 
 					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;

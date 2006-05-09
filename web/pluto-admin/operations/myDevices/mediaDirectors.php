@@ -380,9 +380,16 @@ function mediaDirectors($output,$dbADO) {
 				foreach($displayedDevicesArray as $key => $value){
 					$description=stripslashes(@$_POST['description_'.$value]);
 					if(isset($_POST['ip_'.$value])){
+						$oldIpAddress=$_POST['oldIP_'.$value];
+						$oldMacAddress=$_POST['oldMAC_'.$value];
+						
 						$ip=$_POST['ip_'.$value];
 						$mac=$_POST['mac_'.$value];
 						$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+						
+						// set DHCP settings
+						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$key.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
+						exec($cmd);
 					}
 										
 							
@@ -393,6 +400,7 @@ function mediaDirectors($output,$dbADO) {
 					if(isset($_POST['controlledBy_'.$value])){
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
+						
 					}else{
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$value));

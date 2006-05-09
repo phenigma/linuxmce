@@ -230,7 +230,7 @@ function devices($output,$dbADO) {
 					<td colspan="7">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="7" align="center">'.$updateCancelBtns.' '.$zoneBtn.' '.$addGC100Btn.'<input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="7" align="center">'.@$updateCancelBtns.' '.@$zoneBtn.' '.$addGC100Btn.'<input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 			</div>
@@ -271,9 +271,16 @@ function devices($output,$dbADO) {
 			foreach($displayedDevicesArray as $key => $value){
 				$description=stripslashes(@$_POST['description_'.$value]);
 				if(isset($_POST['ip_'.$value])){
+					$oldIpAddress=$_POST['oldIP_'.$value];
+					$oldMacAddress=$_POST['oldMAC_'.$value];
+						
 					$ip=$_POST['ip_'.$value];
 					$mac=$_POST['mac_'.$value];
 					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+					
+					// set DHCP settings
+					$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$key.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
+					exec($cmd);
 				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
