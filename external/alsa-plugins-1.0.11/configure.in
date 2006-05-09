@@ -1,0 +1,57 @@
+AC_PREREQ(2.59)
+AC_INIT(oss/pcm_oss.c)
+AM_INIT_AUTOMAKE(alsa-plugins, 1.0.11)
+AC_PREFIX_DEFAULT(/usr)
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_DISABLE_STATIC
+AM_PROG_LIBTOOL
+AC_HEADER_STDC
+
+PKG_CHECK_MODULES(ALSA, alsa >= 1.0.11)
+AC_CHECK_LIB(asound, snd_pcm_ioplug_create,,
+	     AC_ERROR([*** libasound has no external plugin SDK]), -ldl)
+
+PKG_CHECK_MODULES(JACK, jack >= 0.98, [HAVE_JACK=yes], [HAVE_JACK=no])
+AM_CONDITIONAL(HAVE_JACK, test x$HAVE_JACK = xyes)
+
+PKG_CHECK_MODULES(polypaudio, [polyplib], [HAVE_POLYP=yes], [HAVE_POLYP=no])
+AM_CONDITIONAL(HAVE_POLYP, test x$HAVE_POLYP = xyes)
+
+PKG_CHECK_MODULES(samplerate, [samplerate], [HAVE_SAMPLERATE=yes], [HAVE_SAMPLERATE=no])
+AM_CONDITIONAL(HAVE_SAMPLERATE, test x$HAVE_SAMPLERATE = xyes)
+
+AC_ARG_WITH([avcodec-includedir],
+	[--with-avcodec-includedir=dir    AVcodec include directory],
+	[AVCODEC_CFLAGS="-I$withval"], [AVCODEC_CFLAGS=""])
+AC_ARG_WITH([avcodec-libdir],
+	[--with-avcodec-libdir=dir        AVcodec library directory],
+	[AVCODEC_LIBS="-L$withval"], [AVCODEC_LIBS=""])
+CFLAGS_saved="$CFLAGS"
+LDFLAGS_saved="$LDFLAGS"
+CFLAGS="$CFLAGS $AVCODEC_CFLAGS"
+LDFLAGS="$LDFLAGS $AVCODEC_LIBS"
+AC_SUBST(AVCODEC_CFLAGS)
+AVCODEC_LIBS="$AVCODEC_LIBS -lavcodec"
+AC_SUBST(AVCODEC_LIBS)
+AC_CHECK_LIB([avcodec], [avcodec_open], [HAVE_AVCODEC=yes], [HAVE_AVCODEC=no])
+if test x$HAVE_AVCODEC = xyes; then
+  AC_CHECK_HEADER([ffmpeg/avcodec.h], [], [HAVE_AVCODEC=no])
+fi
+AM_CONDITIONAL(HAVE_AVCODEC, test x$HAVE_AVCODEC = xyes)
+CFLAGS="$CFLAGS_saved"
+LDFLAGS="$LDFLAGS_saved"
+
+SAVE_PLUGINS_VERSION
+
+AC_OUTPUT([
+	Makefile
+	oss/Makefile
+	jack/Makefile
+	polyp/Makefile
+	mix/Makefile
+	rate/Makefile
+	a52/Makefile
+	doc/Makefile
+])
