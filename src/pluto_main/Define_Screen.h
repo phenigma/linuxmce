@@ -211,13 +211,15 @@
 #define SCREEN_Download_are_ready_to_install_CONST 210
 #define SCREEN_tempmnumain2_CONST 211
 #define SCREEN_tempmnuambiance_CONST 212
-#define SCREEN_TVManufNotListed_CONST 214
 #define SCREEN_TVConfirmInputsDiscrete_CONST 215
 #define SCREEN_TVConfirmInputsToggle_CONST 216
 #define SCREEN_TVOnOffCodes_CONST 217
 #define SCREEN_mnuPVR_OSD_Full_Screen_CONST 218
 #define SCREEN_mnuPVRRecording_Full_Screen_CONST 219
 #define SCREEN_CurrentlyActiveRemote_CONST 220
+#define SCREEN_OnOff_Toggle_CONST 221
+#define SCREEN_TVConfirmOnOffDiscre_CONST 222
+#define SCREEN_Internal_Disk_Driver_Wizard_CONST 223
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

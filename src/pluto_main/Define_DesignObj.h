@@ -1997,7 +1997,7 @@
 #define DESIGNOBJ_butConnectorType_CONST 4937
 #define DESIGNOBJ_butTVInputsOrder_CONST 4938
 #define DESIGNOBJ_appTVInputsOrder_CONST 4939
-#define DESIGNOBJ_butDSPMode_CONST 4940
+#define DESIGNOBJ_butTVDSPMode_CONST 4940
 #define DESIGNOBJ_appTVConfirmInputs_CONST 4941
 #define DESIGNOBJ_butNoDSPModes_CONST 4942
 #define DESIGNOBJ_butTVDSPModesList_CONST 4943
@@ -2057,7 +2057,7 @@
 #define DESIGNOBJ_TVOnOffCodes_CONST 5007
 #define DESIGNOBJ_butDiscreteOnOff_CONST 5008
 #define DESIGNOBJ_butToggleOnOff_CONST 5009
-#define DESIGNOBJ_dgTVConfirmOnOffDiscrete_CONST 5010
+#define DESIGNOBJ_dgTVConfirmOnOffCodes_CONST 5010
 #define DESIGNOBJ_mnuRADU_CONST 5011
 #define DESIGNOBJ_mnuRADU2_CONST 5012
 #define DESIGNOBJ_mnuRADU3_CONST 5013
@@ -2070,6 +2070,14 @@
 #define DESIGNOBJ_butSensitivity2_CONST 5020
 #define DESIGNOBJ_butSensitivity3_CONST 5021
 #define DESIGNOBJ_butShowFilenames_CONST 5022
+#define DESIGNOBJ_butTVMultipleInputs_CONST 5023
+#define DESIGNOBJ_dgMediaType_CONST 5024
+#define DESIGNOBJ_dgSelectAvailableInputs_CONST 5025
+#define DESIGNOBJ_dgConnectorType_CONST 5026
+#define DESIGNOBJ_TVInputsCodes_CONST 5027
+#define DESIGNOBJ_butDiscreteInputs_CONST 5028
+#define DESIGNOBJ_butToggleInputs_CONST 5029
+#define DESIGNOBJ_dgTVConfirmInputsCodes_CONST 5030
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

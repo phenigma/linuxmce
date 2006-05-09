@@ -968,6 +968,17 @@
 #define TEXT_Middle_Sensitivity_CONST 1680
 #define TEXT_Least_Sensitive_CONST 1681
 #define TEXT_Filename_CONST 1682
+#define TEXT_Choose_the_media_type_CONST 1683
+#define TEXT_Select_Available_Inputs_CONST 1684
+#define TEXT_TVConnectorType_CONST 1685
+#define TEXT_TVInputsCodes_CONST 1686
+#define TEXT_Select_Toggle_or_Discrete_Inputs_CONST 1687
+#define TEXT_DiscreteInputs_CONST 1688
+#define TEXT_ToggleInputs_CONST 1689
+#define TEXT_TVConfirmInputsDiscrete_CONST 1690
+#define TEXT_ConfirmDiscreteInputs_CONST 1691
+#define TEXT_ConfirmInputsToggle_CONST 1692
+#define TEXT_TVConfirmInputsToggle_CONST 1693
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

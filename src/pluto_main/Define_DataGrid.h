@@ -65,7 +65,11 @@
 #define DATAGRID_Media_Browser_CONST 63
 #define DATAGRID_TVWhatDelays_CONST 64
 #define DATAGRID_User_VoiceMail_CONST 65
-#define DATAGRID_Confirm_On_Off_Codes_CONST 67
+#define DATAGRID_Confirm_On_Off_Codes_CONST 66
+#define DATAGRID_Media_Type_CONST 67
+#define DATAGRID_Select_Available_Inputs_CONST 68
+#define DATAGRID_Media_Connector_Type_CONST 69
+#define DATAGRID_Confirm_Inputs_Codes_CONST 70
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
