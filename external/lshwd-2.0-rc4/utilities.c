@@ -458,12 +458,15 @@ getxinfo ( char* devdesc, char* devdriver, char outputxinfo )
 						{
 							char xmodule[ 32 ];
 							char fullpath[ 128 ];
+							char fullpath_xorg [ 128 ];
 							sscanf ( &buffer[ 7 ], "%31s", xmodule );
 							sprintf ( fullpath, XMODPATH "%.31s_drv.o", xmodule );
-							if ( exists ( fullpath ) )
+							sprintf ( fullpath_xorg, XMODPATH "%.31s_drv.so", xmodule );
+							
+							if ( exists ( fullpath ) || exists (fullpath_xorg) )
 							{
 								strncpy ( xi.xmodule, xmodule, sizeof( xi.xmodule ) );
-							}
+							} 
 						}
 						else if ( !strncasecmp( buffer, "SEE ", 4 ) && rescanned < 10 )
 						{	/* rescan Cards-DB for other server */

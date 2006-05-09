@@ -1,6 +1,5 @@
 # simple makefile for lshwd
 #
-#CC = ncc -ncgcc -ncld -ncfabs
 CFLAGS =-I. -Wall -O2 #-DDEBUG -ggdb3 #-D_GNU_SOURCE
 INSTALL = install
 
