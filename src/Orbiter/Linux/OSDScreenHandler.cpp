@@ -1599,64 +1599,7 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
 	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );
 	ScreenHandler::SCREEN_DVDRemote(PK_Screen);
 	
-	RegisterCallBack( cbOnDialogCreate, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCreate, new PositionCallBackData() );
-	RegisterCallBack( cbOnDialogDelete, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlDelete, new PositionCallBackData() );
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
-}
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::SpeedControlCreate(CallBackData *pData)
-{
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate()" );
-
-	/*
-    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
-    if (pPositionCallBackData == NULL)
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::SpeedControlCreate(), NULL Data");
-        return false;
-    }
-	
-    PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SpeedControlCreate(), x=%d, y=%d, w=%d, h=%d",
-                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
-    {
-		//we only need the give the control the position
-		//additional info will be available on update (refresh)
-		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
-	
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_SpeedControl, pSpeedControlData);
-        TaskManager::Instance().AddTaskAndWait(pTask);
-	}
-
-	m_bSpeedControlCreated = true;
-	*/
-
-	return false;
-}
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::SpeedControlDelete(CallBackData *pData)
-{
-    g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlDelete()");
-
-	/*
-	if(!m_bSpeedControlCreated)
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "OSDScreenHandler::SpeedControlDelete() ignoring... The wx control is not created yet");
-		return false;
-	}
-
-	{
-		//no data to attach
-		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(PlutoRectangle(0, 0, 0, 0));
-	
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_SpeedControl, pSpeedControlData);
-        TaskManager::Instance().AddTaskAndWait(pTask);
-	}
-
-	m_bSpeedControlCreated = false;
-	*/
-
-	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
@@ -1676,27 +1619,23 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 	PlutoRectangle rectTotal = pObj->m_rPosition;
 	PlutoPoint point;
 
-	PlutoGraphic *pMergedGraphic = NULL;
+	PlutoGraphic *pBackgroundGraphic = NULL;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	//hook the object to have the background image merged with the desktop image
-	//will do this only once
-	static PlutoGraphic *pMergedBackground = NULL;
-	if(NULL == pMergedBackground)
+	//get the background image
+	static PlutoGraphic *pLocalBackgroundGraphic = NULL;
+	if(NULL == pLocalBackgroundGraphic)
 	{
-		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
-		pMergedBackground = m_pOrbiter->GetBackground(rectTotal);
+		pLocalBackgroundGraphic = m_pOrbiter->GetBackground(rectTotal);
 	}
 
-	pMergedGraphic = pMergedBackground;
+	pBackgroundGraphic = pLocalBackgroundGraphic;
 #endif
 
-	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender(): will render RenderGraphic merged surface %d", NULL != pMergedGraphic);
- 	
-	if(NULL != pMergedGraphic)
-		m_pOrbiter->RenderGraphic( pMergedBackground,  rectTotal, pObj->m_bDisableAspectLock, point );
-	else
-		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+	if(NULL != pBackgroundGraphic)
+		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 
@@ -2003,43 +1942,37 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 	PlutoRectangle rectTotal = pObj->m_rPosition;
 	PlutoPoint point;
 
-	PlutoGraphic *pMergedGraphic = NULL;
+	PlutoGraphic *pBackgroundGraphic = NULL;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
 	{
 		//hook the object to have the background image merged with the desktop image
 		//will do this only once
-		static PlutoGraphic *pMergedBackgroundX = NULL;
-		static PlutoGraphic *pMergedBackgroundY = NULL;
+		static PlutoGraphic *pBackgroundBackgroundX = NULL;
+		static PlutoGraphic *pBackgroundBackgroundY = NULL;
 
 		if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal )
 		{
-			if(NULL == pMergedBackgroundX)
-			{
-				m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
-				pMergedBackgroundX = m_pOrbiter->GetBackground(rectTotal);
-			}
+			if(NULL == pBackgroundBackgroundX)
+				pBackgroundBackgroundX = m_pOrbiter->GetBackground(rectTotal);
 
-			pMergedGraphic = pMergedBackgroundX;
+			pBackgroundGraphic = pBackgroundBackgroundX;
 		}
 		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
 		{
-			if(NULL == pMergedBackgroundY)
-			{
-				m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
-				pMergedBackgroundY = m_pOrbiter->GetBackground(rectTotal);
-			}
+			if(NULL == pBackgroundBackgroundY)
+				pBackgroundBackgroundY = m_pOrbiter->GetBackground(rectTotal);
 
-			pMergedGraphic = pMergedBackgroundY;
+			pBackgroundGraphic = pBackgroundBackgroundY;
 		} 
 	} 
 #endif
 
-	if(NULL != pMergedGraphic)
-		m_pOrbiter->RenderGraphic( pMergedGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
-	else
-		m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+	if(NULL != pBackgroundGraphic)
+		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )

@@ -197,7 +197,7 @@ void MouseBehavior::Move(int X,int Y)
 	if( m_pLastPosition.X==X && m_pLastPosition.Y==Y )
 		return; // Nothing to do 
 
-	if( dwTime-m_dwLastSampleShift>m_MouseSensitivity.SampleInterval )
+	if( int(dwTime - m_dwLastSampleShift) > m_MouseSensitivity.SampleInterval )
 	{
 		m_dwLastSampleShift=dwTime;
 		if( abs(m_pSamples[0].X)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample && abs(m_pSamples[0].Y)<m_MouseSensitivity.IgnoreMovesLessThanThisPerSample )
@@ -402,7 +402,7 @@ bool MouseBehavior::CheckForChangeInDirection(int &PK_Direction)
 	for(int i=0;i<NUM_SAMPLES;++i)
 	{
 		int PK_Direction_Sample = GetDirection(m_pSamples[i],&CumulativeThisDirection,&CumulativeOtherDirection);
-		if( m_dwSamples[0]-m_dwSamples[i]>m_MouseSensitivity.DiscardSamplesOlderThanSec || PK_Direction_Sample!=PK_Direction )
+		if( int(m_dwSamples[0] - m_dwSamples[i]) > m_MouseSensitivity.DiscardSamplesOlderThanSec || PK_Direction_Sample!=PK_Direction )
 		{
 			return false;
 		}
@@ -807,48 +807,8 @@ MouseHandler::MouseHandler(DesignObj_Orbiter *pObj, string sOptions, MouseBehavi
     m_pMouseBehavior=pMouseBehavior;
     m_bLockAxis=true;
     m_bIsActive=false;
-/*
-	m_pPrevSurface = NULL;
-    m_pPrevRect = NULL;
-*/
 }
 
 MouseHandler::~MouseHandler()
 {
-	/*
-    if (m_pPrevSurface)
-        SDL_FreeSurface(m_pPrevSurface);
-    if (m_pPrevRect)
-        delete m_pPrevRect;
-	*/
-}
-
-void MouseHandler::PrevSurfaceRestore()
-{
-	/*
-    //TODO: proper restore that surface elsewhere, where it is not restored correctly
-    //TODO: and remove this function
-    OrbiterSDL *pOrbiterSDL = dynamic_cast<OrbiterSDL *>(m_pMouseBehavior->m_pOrbiter);
-    if (pOrbiterSDL == NULL)
-        return;
-    if (m_pPrevSurface == NULL)
-    {
-        // remember the original surface
-        m_pPrevRect = new SDL_Rect;
-        m_pPrevRect->x = m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
-        m_pPrevRect->y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y;
-        m_pPrevRect->w = m_pObj->m_rPosition.Width;
-        m_pPrevRect->h = m_pObj->m_rPosition.Height;
-        m_pPrevSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_pPrevRect->w, m_pPrevRect->h, 32, rmask, gmask, bmask, amask);
-        if (m_pPrevSurface == NULL)
-		{
-            delete m_pPrevRect;
-            m_pPrevRect = NULL;
-			g_pPlutoLogger->Write(LV_WARNING, "MouseBehavior::PrevSurfaceRestore() : SDL_CreateRGBSurface failed! %s",SDL_GetError());
-		}
-        SDL_BlitSurface(pOrbiterSDL->m_pScreenImage, m_pPrevRect, m_pPrevSurface, NULL);
-    }
-    // draw the original surface again
-    SDL_BlitSurface(m_pPrevSurface, NULL, pOrbiterSDL->m_pScreenImage, m_pPrevRect);
-	*/
 }

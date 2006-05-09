@@ -131,14 +131,12 @@ void LightMouseHandler::CustomRender()
 	if( CurrentLevel < 0 )
 		CurrentLevel = 0;
 	CurrentLevel = m_pObj->m_rPosition.Height * CurrentLevel / 100;
-	int X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width -  m_pObj->m_rPosition.Width * .1;
+	int X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width -  int(m_pObj->m_rPosition.Width * .1);
 
-    PrevSurfaceRestore();
-
-    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
-		m_pObj->m_rPosition.Width*.1,CurrentLevel,
-		PlutoColor::Green(), 128);
+		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
+		PlutoColor::Green().SetAlpha(128));
 
 	if( !m_bTapAndRelease )
 		return;  // We only draw the square for tap and release
@@ -146,12 +144,12 @@ void LightMouseHandler::CustomRender()
 	int NotchHeight = m_pObj->m_rPosition.Height/11; // Allow for 7 repeat levels in each direction
 	int NotchStart = (5-m_iLastNotch) * NotchHeight + m_pObj->m_rPosition.Y;
 
-	X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width * .1;
+	X = m_pObj->m_rPosition.X + int(m_pObj->m_rPosition.Width * .1);
 
-	m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 		X, NotchStart,
-		m_pObj->m_rPosition.Width * .25, NotchHeight,
-		PlutoColor::Blue(), 128);
+		int(m_pObj->m_rPosition.Width * .25), NotchHeight,
+		PlutoColor::Blue().SetAlpha(128));
 	return;
 }
 

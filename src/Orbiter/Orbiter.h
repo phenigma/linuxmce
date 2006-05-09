@@ -680,13 +680,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief draws an rectangle
 		*/
-		virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
-
-		/**
-		* @brief draws a solid rectangle, with alpha transparency
-		* @todo: ask if SolidRectangle should be fixed, and this function removed
-		*/
-		virtual void SolidRectangleAlpha( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iAlpha = 128 ) {}
+		virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
 
 		/**
 		* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
@@ -696,7 +690,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief draws an line
 		*/
-		virtual void DrawLine( int iX, int iY, int iWidth, int iHeight, PlutoColor color, int iOpacity = 100 ) = 0;
+		virtual void DrawLine( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
 
 		/**
 		* @brief replaces the specified color from within the specified rectangle with another one
@@ -719,26 +713,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
 		virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) = 0;
-
-		/*
-		virtual void Initialize( GraphicType Type );
-		void InitializeGrid( DesignObj_DataGrid *pObj );
-		bool ParseConfigurationData( GraphicType Type );
-		void ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev );
-
-
-		virtual bool RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal ); // Not all controllers will be able to do this.  Mainly the 'x' nested
-		virtual bool RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay );
-		virtual void RenderGraphic( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal,  bool bDisableAspectRatio=false )=0;
-		virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle )=0;
-		virtual void SolidRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity = 100 ) = 0;
-		virtual void DrawLine( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity = 100 ) = 0;
-		virtual void ReplaceColorInRectangle( int x,  int y,  int width,  int height,  PlutoColor ColorToReplace,  PlutoColor ReplacementColor ) = 0;
-		virtual void FloodFill( int x,  int y,  PlutoColor ColorToReplace,  PlutoColor ReplacementColor ) = 0;
-		virtual void SolidRectangle( int x,  int y,  int width,  int height,  PlutoColor color,  int Opacity=100 ) = 0;
-		virtual void SetTime( char *ServerTimeString ) = 0;
-		virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj )=0;  // We're going to be redrawing something on top of this object.  Save it's state,  so that during the next redraw this will be used
-		*/
 
 		/**
 		*	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT

@@ -14,8 +14,9 @@
 using namespace DCE;
 
 KeyboardMouseHandler::KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
-	: MouseHandler(pObj,sOptions,pMouseBehavior), m_DatagridMouseHandlerHelper(this)
+	: MouseHandler(pObj,sOptions,pMouseBehavior)
 { 
+	m_spDatagridMouseHandlerHelper.reset(new DatagridMouseHandlerHelper(this));
 	m_bLockAxis=true; 
 }
 
@@ -52,7 +53,7 @@ void KeyboardMouseHandler::Start()
 	}
 
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-		m_DatagridMouseHandlerHelper.Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+		m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }
 
 void KeyboardMouseHandler::Stop()
@@ -91,7 +92,7 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( !m_DatagridMouseHandlerHelper.m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
@@ -119,9 +120,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 		return; // Shouldn't have happened
 	}
 
-	if( m_DatagridMouseHandlerHelper.m_dwPK_Direction_ScrollGrid )
+	if( m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid )
 	{
-		m_DatagridMouseHandlerHelper.ScrollGrid(PK_Direction,X,Y);
+		m_spDatagridMouseHandlerHelper->ScrollGrid(PK_Direction,X,Y);
 		return;
 	}
 
@@ -135,7 +136,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 		// If so, we're going to engage special behavior where we start the iterator to do scroll
 		if( pObj_Before->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
-			if( m_DatagridMouseHandlerHelper.StayInGrid(PK_Direction,X,Y) )
+			if( m_spDatagridMouseHandlerHelper->StayInGrid(PK_Direction,X,Y) )
 			{
 				TempHack_DrawAlphaSquare();
 				return;
@@ -166,7 +167,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-				m_DatagridMouseHandlerHelper.Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 		}
 	}
 }
@@ -393,7 +394,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 {
 	DesignObj_Orbiter *pObj = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-	if( !pObj || pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !pObj->m_pDataGridTable || !m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha )
+	if( !pObj || pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !pObj->m_pDataGridTable || !m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha )
 		return;
 	
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
@@ -413,19 +414,19 @@ void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 	else
 		cLetter = cLetter - 64; // 0=anything non-alpha, 1=a, etc.
 
-	float NotchWidth = ((float) m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_rPosition.Height)/27; // Allow for 0,A-Z
-	int NotchStart = cLetter * NotchWidth + m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_rPosition.Y + m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_pPopupPoint.Y;
+	float NotchWidth = ((float) m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Height)/27; // Allow for 0,A-Z
+	int NotchStart = int(cLetter * NotchWidth) + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Y + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.Y;
 	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
-		m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_rPosition.X + m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_pPopupPoint.X, NotchStart,
-		m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_rPosition.Width, NotchWidth,
+		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.X + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.X, NotchStart,
+		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Width, int(NotchWidth),
 		PlutoColor::White());
-	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_rPosition + m_DatagridMouseHandlerHelper.m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
+	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
 
 }
 
 bool KeyboardMouseHandler::SlowDrift(int &X,int &Y)
 {
-	if( m_DatagridMouseHandlerHelper.m_dwPK_Direction_ScrollGrid )
+	if( m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid )
 		return false;
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::SlowDrift");
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )

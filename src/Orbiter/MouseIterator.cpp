@@ -65,7 +65,7 @@ void MouseIterator::Run()
 			m.CondWait(); // Nothing to do.  Just wait
 		
 		unsigned long dwTime = ProcessUtils::GetMsTime();
-		if( dwTime-m_dwTime_Last_Iterated>=m_dwFrequency_Ms )
+		if( int(dwTime) - m_dwTime_Last_Iterated >= m_dwFrequency_Ms )
 		{
 			// To prevent a deadlock we must always block the screen mutex before the iterator mutex
 			m.Release();

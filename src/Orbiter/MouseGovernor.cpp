@@ -57,7 +57,7 @@ void MouseGovernor::Run()
 		if( m_dwBufferMs==0 && m_pMessage==NULL )
 			m.CondWait(); // Nothing to do.  Just wait
 		unsigned long dwTime = ProcessUtils::GetMsTime();
-		if( dwTime-m_dwTime_Last_SentMessage>=m_dwBufferMs && m_pMessage )
+		if( int(dwTime - m_dwTime_Last_SentMessage) >= m_dwBufferMs && NULL != m_pMessage )
 		{
 			DoSendMessage(m_pMessage);
 			m_pMessage=NULL;
@@ -82,7 +82,7 @@ void MouseGovernor::SendMessage(Message *pMessage)
 	}
 
 	unsigned long dwTime = ProcessUtils::GetMsTime();
-	if( dwTime-m_dwTime_Last_SentMessage>=m_dwBufferMs )
+	if( int(dwTime - m_dwTime_Last_SentMessage) >= m_dwBufferMs )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseGovernor::Move sending %p id %d to %d",pMessage,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
 		DoSendMessage(pMessage);

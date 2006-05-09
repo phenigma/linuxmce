@@ -6,11 +6,6 @@
 #include <map>
 using namespace std;
 
-/*
-struct SDL_Surface;
-struct SDL_Rect;
-*/
-
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
 #include "PlutoUtils/ProcessUtils.h"
@@ -58,12 +53,6 @@ namespace DCE
 		virtual bool SlowDrift(int &X,int &Y) { return false; } // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
-    protected:
-        void PrevSurfaceRestore();
-		/*
-        SDL_Surface *m_pPrevSurface;
-        SDL_Rect *m_pPrevRect;
-		*/
 	};
 
 	#define	NUM_SAMPLES		30
@@ -99,7 +88,6 @@ namespace DCE
 		friend class Orbiter;
 		friend class MouseIterator;
 		friend class MouseGovernor;
-		friend class MouseHandler;
 		friend class LightMouseHandler;
 		friend class SpeedMouseHandler;
 		friend class VolumeMouseHandler;
@@ -108,6 +96,7 @@ namespace DCE
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;
 		friend class OSDScreenHandler;
+		
 
 	protected:
 		Orbiter *m_pOrbiter;

@@ -76,7 +76,7 @@ void SpeedMouseHandler::Start()
 	{
 		m_iLastNotch=m_CurrentMedia_Pos;
 		float Percentage = m_CurrentMedia_Pos==0 ? 0 : ((float) m_CurrentMedia_Pos)/(m_CurrentMedia_Stop-m_CurrentMedia_Start);
-		int X = (m_pObj->m_rPosition.Width * Percentage) + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
+		int X = int(m_pObj->m_rPosition.Width * Percentage) + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
 		int Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);
 		m_iLastGoodPosition=X;
@@ -161,7 +161,7 @@ m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the ob
 			Perc=0;
 		if( Perc>1 )
 			Perc=1;
-		int Notch = (m_CurrentMedia_Stop-m_CurrentMedia_Start) * Perc + m_CurrentMedia_Start;
+		int Notch = int((m_CurrentMedia_Stop-m_CurrentMedia_Start) * Perc) + m_CurrentMedia_Start;
 		if( m_iLastNotch!=Notch )
 		{
 			m_iLastNotch=Notch;
@@ -295,9 +295,6 @@ void SpeedMouseHandler::DrawInfo()
 	int SeekPosition = -1;  // Option #5, the current seek to position.  -1 = none
 
     //g_pPlutoLogger->Write(LV_CRITICAL,"SpeedMouseHandler::DrawInfo()");
-
-    PrevSurfaceRestore();
-
     if( m_bHasTimeline )
 	{
 		if( !m_bIsActive )
@@ -320,26 +317,26 @@ void SpeedMouseHandler::DrawInfo()
 	if( SeekPosition!=-1 )
 	{
 		float Percent = ((float) SeekPosition) / (m_CurrentMedia_Stop-m_CurrentMedia_Start);
-		int Offset = m_pObj->m_rPosition.Width * Percent - 5;
+		int Offset = int(m_pObj->m_rPosition.Width * Percent) - 5;
 		if( Offset<0 )
 			Offset=0;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, m_pObj->m_rPosition.Y,
-			m_pObj->m_rPosition.Width*.01, m_pObj->m_rPosition.Height*.25,
-			PlutoColor::White(), 128);
+			int(m_pObj->m_rPosition.Width * .01), int(m_pObj->m_rPosition.Height * .25),
+			PlutoColor::White().SetAlpha(128));
 	}
 
 	if( Speed!=-9999 )
 	{
 		float Percent = ((float) Speed+16)/33;
-		int Offset = m_pObj->m_rPosition.Width * Percent;
+		int Offset = int(m_pObj->m_rPosition.Width * Percent);
 		if( Offset<0 )
 			Offset=0;
-		int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .3;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+		int Y = m_pObj->m_rPosition.Y + int(m_pObj->m_rPosition.Height * .3);
+		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, Y,
-			m_pObj->m_rPosition.Width*.035, m_pObj->m_rPosition.Height*.25,
-			PlutoColor::Blue(), 128);
+			int(m_pObj->m_rPosition.Width * .035), int(m_pObj->m_rPosition.Height * .25),
+			PlutoColor::Blue().SetAlpha(128));
 	}
 
 	if( m_bHasTimeline )
@@ -348,13 +345,13 @@ void SpeedMouseHandler::DrawInfo()
 		if( pText && m_CurrentMedia_Pos>0 )
 		{
 			float Percent = ((float) m_CurrentMedia_Pos) / (m_CurrentMedia_Stop-m_CurrentMedia_Start);
-			int Offset = m_pObj->m_rPosition.Width * Percent - 5;
+			int Offset = int(m_pObj->m_rPosition.Width * Percent) - 5;
 			if( Offset<0 )
 				Offset=0;
-			m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
-				m_pObj->m_rPosition.X, m_pObj->m_rPosition.Y + (m_pObj->m_rPosition.Height*.6),
-				Offset, m_pObj->m_rPosition.Height*.12,
-				PlutoColor::White(), 128);
+			m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+				m_pObj->m_rPosition.X, m_pObj->m_rPosition.Y + int(m_pObj->m_rPosition.Height * .6),
+				Offset, int(m_pObj->m_rPosition.Height * .12),
+				PlutoColor::White().SetAlpha(128));
 			pText->m_rPosition.X = Offset + m_pObj->m_rPosition.X;
 			pText->m_sText = FormatTime(m_CurrentMedia_Pos);
 		}

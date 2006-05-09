@@ -146,14 +146,12 @@ void VolumeMouseHandler::CustomRender()
 	if( CurrentLevel < 0 )
 		CurrentLevel = 0;
 	CurrentLevel = m_pObj->m_rPosition.Width * CurrentLevel / 100;
-	int Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1;
+	int Y = int(m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1);
 
-    PrevSurfaceRestore();
-
-    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 		m_pObj->m_rPosition.X, Y,
-		CurrentLevel, m_pObj->m_rPosition.Height*.1,
-		PlutoColor::White(), 128);
+		CurrentLevel, int(m_pObj->m_rPosition.Height * .1),
+		PlutoColor::White().SetAlpha(128));
 
     // We only draw the square for tap and release
 	if( !m_bTapAndRelease )
@@ -161,12 +159,12 @@ void VolumeMouseHandler::CustomRender()
 
     int NotchWidth = m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
     int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
-    Y = m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7;
+    Y = int(m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7);
 
-    m_pMouseBehavior->m_pOrbiter->SolidRectangleAlpha(
+    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
         NotchStart, Y,
-        NotchWidth, m_pObj->m_rPosition.Height * .25,
-        PlutoColor::Blue(), 128);
+        NotchWidth, int(m_pObj->m_rPosition.Height * .25),
+        PlutoColor::Blue().SetAlpha(128));
 }
 
 void VolumeMouseHandler::DoIteration(int Parm)

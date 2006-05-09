@@ -26,7 +26,7 @@ namespace DCE
 		bool m_b1Step; // If true, do not do continuous motion, only 1 step at a time
 		char m_cDirection;
 		int m_PK_Direction_Last;
-		DatagridMouseHandlerHelper m_DatagridMouseHandlerHelper;
+		std::auto_ptr<DatagridMouseHandlerHelper> m_spDatagridMouseHandlerHelper;
 
 	public:
 		KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);

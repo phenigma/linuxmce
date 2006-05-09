@@ -7608,11 +7608,11 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	BeginPaint();
 	PlutoColor color(255, 0, 0, 100);
-	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
+	SolidRectangle(x - 5, y - 5, 10, 10, color);
 	UpdateRect(PlutoRectangle(x - 5, y - 5, 10, 10), PlutoPoint(0, 0));
 
 	//render current screen id
-	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
+	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->GetObj());
 	text2.m_rPosition = rect2;
@@ -7641,7 +7641,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	//render a text with the
 	PlutoColor color(200, 200, 200, 100);
-	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
+	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->GetObj());
 	text.m_rPosition = rect;
@@ -7651,7 +7651,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	//render current screen id
 	PlutoColor color2(255, 0, 0, 100);
-	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2, 50);
+	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->GetObj());
 	text2.m_rPosition = rect2;
@@ -8234,7 +8234,7 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
 	BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
-	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
+	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->GetObj());
 	text.m_rPosition = rect;

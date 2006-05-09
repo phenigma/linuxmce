@@ -14,8 +14,9 @@
 using namespace DCE;
 
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
-	: MouseHandler(pObj,sOptions,pMouseBehavior), m_DatagridMouseHandlerHelper(this)
+	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+	m_spDatagridMouseHandlerHelper.reset(new DatagridMouseHandlerHelper(this));
 }
 
 void MediaMouseHandler::Start()
@@ -46,7 +47,7 @@ void MediaMouseHandler::Start()
 		m_bTapAndRelease=true;
 		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),
 			pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y + (pObj_Grid->m_rPosition.Height/2));
-		m_DatagridMouseHandlerHelper.Start(pObj_Grid);
+		m_spDatagridMouseHandlerHelper->Start(pObj_Grid);
 
 	}
 	else
@@ -54,7 +55,7 @@ void MediaMouseHandler::Start()
 		m_bTapAndRelease=false;
 		int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
-		int Y = CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y;
+		int Y = int(CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y);
 		int X = pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);
 	}
@@ -110,7 +111,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
 		int YDiff = Y - pObj_Grid->m_rPosition.Y - pObj_Grid->m_pPopupPoint.Y;
-		int Row = YDiff / RowHeight;
+		int Row = int(YDiff / RowHeight);
 		if( Row>Rows-1 )
 			Row=Rows-1;
 		pObj_Grid->m_iHighlightedRow = 1;
@@ -124,5 +125,5 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highli
 		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 	}
 	else
-		m_DatagridMouseHandlerHelper.StayInGrid(PK_Direction,X,Y);
+		m_spDatagridMouseHandlerHelper->StayInGrid(PK_Direction,X,Y);
 }
