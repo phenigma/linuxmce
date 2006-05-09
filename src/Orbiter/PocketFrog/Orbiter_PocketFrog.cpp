@@ -855,41 +855,6 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	return new PocketFrogGraphic(pSurface);
 }
 //-----------------------------------------------------------------------------------------------------
-void Orbiter_PocketFrog::ClipRectangle(int& x, int& y, int& width, int& height)
-{
-	PlutoRectangle rect(x, y, width, height);
-	ClipRectangle(rect);
-
-	x = rect.X;
-	y = rect.Y;
-	width = rect.Width;
-	height = rect.Height;
-}
-//-----------------------------------------------------------------------------------------------------
-void Orbiter_PocketFrog::ClipRectangle(PlutoRectangle &rect)
-{
-	if( rect.X >= m_iImageWidth )
-		rect.X = m_iImageWidth-1;
-	if( rect.X <= 0)
-		rect.X = 0;
-	if( rect.Y <= 0)
-		rect.Y = 0;
-	if( rect.Y >= m_iImageHeight )
-		rect.Y = m_iImageHeight-1;
-
-	if(rect.Width <= 0)
-		rect.Width = 1;
-
-	if(rect.Height <= 0)
-		rect.Height = 1;
-
-	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
-		rect.Width = m_iImageWidth - rect.X - 1;
-
-	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
-		rect.Height = m_iImageHeight - rect.Y - 1;
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
 {
 	return new PocketFrogGraphic(this);

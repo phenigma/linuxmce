@@ -11,7 +11,7 @@
 class PlutoColor : public SerializeClass
 {
 public:
-	PlutoColor() {}
+	PlutoColor() { m_Value = 0; SetAlpha(255); }
 	PlutoColor(long Value) { m_Value=Value; }
 	PlutoColor(unsigned char R,unsigned char G,unsigned char B) { unsigned char *ucp = (unsigned char *) &m_Value;  ucp[0]=B; ucp[1]=G; ucp[2]=R; ucp[3]=255; };
 	PlutoColor(unsigned char R,unsigned char G,unsigned char B, unsigned char A) { unsigned char *ucp = (unsigned char *) &m_Value;  ucp[0]=B; ucp[1]=G; ucp[2]=R; ucp[3]=A; };
@@ -23,6 +23,13 @@ public:
 	static PlutoColor Blue() { return PlutoColor(0,0,255); }
 	static PlutoColor White() { return PlutoColor(255,255,255); }
 	static PlutoColor Gray() { return PlutoColor(128,128,128); }
+
+	PlutoColor SetAlpha(unsigned char Alpha)
+	{
+		A(Alpha);
+		return *this;
+	}
+
 	long m_Value;
 	long AsARGB() { return m_Value; };
 	int A() { unsigned char *ucp = (unsigned char *) &m_Value;  return ucp[3]; };

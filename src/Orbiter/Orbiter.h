@@ -714,6 +714,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
 		virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) = 0;
 
+		virtual void ClipRectangle(int& x, int& y, int& width, int& height);
+		virtual void ClipRectangle(PlutoRectangle &rect);
+
 		/**
 		*	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT
 		*/

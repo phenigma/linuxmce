@@ -602,25 +602,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	//clipping
-	if(X + Width >= m_iImageWidth)
-		Width = m_iImageWidth - X - 1;
-
-	if(Y + Height >= m_iImageHeight)
-		Height = m_iImageHeight - Y - 1;
-
+	ClipRectangle(X, Y, Width, Height);
 	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
 }
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-	//clipping
-	if(x + width >= m_iImageWidth)
-		width = m_iImageWidth - x - 1;
-
-	if(y + height >= m_iImageHeight)
-		height = m_iImageHeight - y - 1;
+	ClipRectangle(x, y, width, height);
 
 	SDL_Rect Rectangle;
 	Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
@@ -724,13 +713,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 {
-	//clipping
-	if(rect.X + rect.Width >= m_iImageWidth)
-		rect.Width = m_iImageWidth - rect.X - 1;
-
-	if(rect.Y + rect.Height >= m_iImageHeight)
-		rect.Height = m_iImageHeight - rect.Y - 1;
-
+	ClipRectangle(rect);
 
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
@@ -830,17 +813,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     localrect.X += point.X;
     localrect.Y += point.Y;
 
-    if(localrect.X < 0)
-        localrect.X = 0;
-
-    if(localrect.Y < 0)
-        localrect.Y = 0;
-
-    if(localrect.Right() >= m_Width)
-        localrect.Width = m_Width - rect.X - 1;
-
-    if(localrect.Bottom() >= m_Height)
-        localrect.Height = m_Height - localrect.Y - 1;
+	ClipRectangle(localrect);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	if(!EnableOpenGL)

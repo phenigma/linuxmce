@@ -10391,3 +10391,39 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 		m_pMouseBehavior->m_MouseSensitivity.SetSensitivity(iValue);
 #endif
 }
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::ClipRectangle(int& x, int& y, int& width, int& height)
+{
+	PlutoRectangle rect(x, y, width, height);
+	ClipRectangle(rect);
+
+	x = rect.X;
+	y = rect.Y;
+	width = rect.Width;
+	height = rect.Height;
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::ClipRectangle(PlutoRectangle &rect)
+{
+	if( rect.X >= m_iImageWidth )
+		rect.X = m_iImageWidth-1;
+	if( rect.X <= 0)
+		rect.X = 0;
+	if( rect.Y <= 0)
+		rect.Y = 0;
+	if( rect.Y >= m_iImageHeight )
+		rect.Y = m_iImageHeight-1;
+
+	if(rect.Width <= 0)
+		rect.Width = 1;
+
+	if(rect.Height <= 0)
+		rect.Height = 1;
+
+	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
+		rect.Width = m_iImageWidth - rect.X - 1;
+
+	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
+		rect.Height = m_iImageHeight - rect.Y - 1;
+}
+//-----------------------------------------------------------------------------------------------------

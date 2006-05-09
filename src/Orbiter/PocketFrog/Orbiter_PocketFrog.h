@@ -148,10 +148,6 @@ protected:
 	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
 	PlutoRectangle m_rectLastSelected;
 
-	//helper methods:
-	void ClipRectangle(int& x, int& y, int& width, int& height);
-	void ClipRectangle(PlutoRectangle &rect);
-
 public:
 	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
 	bool PaintDesktopGL;
