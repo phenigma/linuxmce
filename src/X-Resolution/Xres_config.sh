@@ -37,7 +37,7 @@ X :1 -ac -config /etc/X11/xorg.conf.test &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
-	pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
+	pidOfX="$(ps ax|grep 'X :1 -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
 	((Timeout--))
 	sleep 1
 done
