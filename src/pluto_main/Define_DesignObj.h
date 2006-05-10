@@ -2080,6 +2080,7 @@
 #define DESIGNOBJ_dgTVConfirmInputsCodes_CONST 5030
 #define DESIGNOBJ_mnuNewPartition_CONST 5031
 #define DESIGNOBJ_butIgnoreIt_CONST 5032
+#define DESIGNOBJ_dgDiskDriveDevice_CONST 5033
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
