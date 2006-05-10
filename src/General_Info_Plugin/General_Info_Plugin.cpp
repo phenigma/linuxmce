@@ -203,6 +203,10 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Devices_Of_Category_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DeviceTemplatesOfCategory)), 
+		DATAGRID_Device_Templates_By_Categ_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVWhatDelay)), 
 		DATAGRID_TVWhatDelays_CONST,PK_DeviceTemplate_get());
 
@@ -885,6 +889,38 @@ class DataGridTable *General_Info_Plugin::DevicesOfCategory( string GridID, stri
 			sDescription += "(" + pRow_Room->Description_get() + ")";
 
 		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+		pDataGrid->SetData( iCol++, iRow, pCell );
+		if( iCol>=iWidth )
+		{
+			iCol=0;
+			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::DeviceTemplatesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 1;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0,iCol=0;
+	vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
+	m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows(
+		"FK_DeviceCategory = " +  Parms + " ORDER BY Description",
+		&vectRow_DeviceTemplate);
+
+	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+	{
+		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
+
+		string sDescription = pRow_DeviceTemplate->Description_get();
+		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()));
 		pDataGrid->SetData( iCol++, iRow, pCell );
 		if( iCol>=iWidth )
 		{

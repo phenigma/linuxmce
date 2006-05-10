@@ -110,6 +110,11 @@ public:
 
 	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName);
 	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
+
+	string m_sInternal_Disk_Driver_Data;
+	virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String);
+	virtual bool Internal_Disk_Driver_Wizard_ObjectSelected(CallBackData *pData);
+	virtual bool Internal_Disk_Driver_Wizard_DatagridSelected(CallBackData *pData);	
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

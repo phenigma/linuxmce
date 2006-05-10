@@ -11,6 +11,8 @@
 #include "SDLRendererOCGHelper.h"
 #include "PlutoSDLDefs.h"
 
+#include "../Orbiter.h"
+
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
@@ -53,8 +55,15 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 	if(m_GraphicFormat == GR_OCG)
 	{
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load ocg files with PocketFrog surfaces in Orbiter SDL. Please check 'Use_OCG' device data for this device. Exiting...");
+		string sErrorMessage = 
+			"Cannot load OCG files in Orbiter SDL. "
+			"Please uncheck 'Use OCG' device data for this device (" + 
+				StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + ").";
+
+        g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
+		m_pOrbiter->PromptUser(sErrorMessage.c_str(), 100);
         exit(1);
+		return false;
 	}
 	else
 	{

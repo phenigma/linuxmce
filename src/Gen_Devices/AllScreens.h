@@ -9024,40 +9024,48 @@ namespace DCE
 	class SCREEN_Internal_Disk_Driver_Wizard : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard(long DeviceIDFrom, long DeviceIDTo)
+		SCREEN_Internal_Disk_Driver_Wizard(long DeviceIDFrom, long DeviceIDTo,
+			string sData_String)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
 		}
 	};
 
 	class SCREEN_Internal_Disk_Driver_Wizard_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo)
+		SCREEN_Internal_Disk_Driver_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sData_String)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
 		}
 	};
 
 	class SCREEN_Internal_Disk_Driver_Wizard_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		SCREEN_Internal_Disk_Driver_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sData_String)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
 		}
 	};
 
 	class SCREEN_Internal_Disk_Driver_Wizard_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		SCREEN_Internal_Disk_Driver_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sData_String)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
 		}
 	};
 
@@ -9303,7 +9311,7 @@ namespace DCE
 		virtual void SCREEN_CurrentlyActiveRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffTogle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffDiscret(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10472,7 +10480,8 @@ namespace DCE
 				}
 				case 223:
 				{
-					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen);
+					string sData_String = pMessage->m_mapParameters[109];
+					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen, sData_String);
 					break;
 				}
 

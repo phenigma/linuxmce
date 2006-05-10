@@ -1,11 +1,13 @@
 #include "ScreenHandler.h"
 #include "ScreenHistory.h"
 #include "CallBackTypes.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 using namespace DCE;
@@ -525,5 +527,120 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		//No command
 		"" //do nothing
 		);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String)
+{ 
+	m_sInternal_Disk_Driver_Data = sData_String;
+
+	//we'll filter the datagrid by this category
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST));
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST), "", false, false );
+
+	//register few callbacks
+	RegisterCallBack(
+		cbObjectSelected, 
+		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected, 
+		new ObjectInfoBackData()
+	);
+
+	RegisterCallBack(
+		cbDataGridSelected, 
+		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Driver_Wizard_DatagridSelected, 
+		new DatagridCellBackData()
+	);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected(CallBackData *pData)
+{
+	static bool bRecommendedDirectoryStructure = false;
+
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+
+	//got the correct callback data?
+	if(NULL == pObjectInfoData)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected: "
+			"expected  a ObjectInfoBackData, but got a CallBackData of other type");
+		return false;
+	}
+
+	//switching between screens
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_mnuNewPartition_CONST:
+		{
+			//switching between objects
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butIgnoreIt_CONST)
+			{
+				//TODO: send a CMD_Ignore_Disk_Driver to general info plugin; 
+				//status: wait for Razvan to implement it
+				//we'll use m_sInternal_Disk_Driver_Data as a parameter
+
+                m_pOrbiter->CMD_Go_back("", "");
+				return true;
+			}
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgDiskDriveDevice_CONST)
+			{
+				GotoDesignObj(DESIGNOBJ_mnuPartitions_Option_Mount_CONST, "", false, false);
+				return false;
+			}
+		}
+		break;
+
+		case DESIGNOBJ_mnuPartitions_Option_Mount_CONST:
+		{
+            if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butYesUseRecommended_CONST)
+			{
+				bRecommendedDirectoryStructure = true;
+				GotoDesignObj(DESIGNOBJ_mnuPartitions_Options_CONST, "", false, false);
+			}
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butDontUseRecommended_CONST)
+			{
+                bRecommendedDirectoryStructure = false;				
+				GotoDesignObj(DESIGNOBJ_mnuPartitions_Options_CONST, "", false, false);
+			}
+		}
+		break;
+
+		case DESIGNOBJ_mnuPartitions_Options_CONST:
+		{
+			if(
+				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butYesUsePartition_CONST || 
+				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butDontUsePartition_CONST
+			)
+			{
+				bool bAutomaticallyStoreMedia = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butYesUsePartition_CONST;
+
+				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+				map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Datagrid_Input_CONST);
+				string sPK_DeviceTemplate = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
+				vm.Release();
+
+				int nPK_Device = 0;
+
+				string sDeviceDataString = 
+					StringUtils::ltos(DEVICEDATA_Block_Device_CONST) + "|" + m_sInternal_Disk_Driver_Data + "|" +
+					StringUtils::ltos(DEVICEDATA_Use_Pluto_Directory_Structure_CONST) + "|" + (bRecommendedDirectoryStructure ? "1" : "0") + "|" + 
+					StringUtils::ltos(DEVICEDATA_Use_Automatically_CONST) + "|" + (bAutomaticallyStoreMedia ? "1" : "0");
+
+				DCE::CMD_Create_Device CMD_Create_Device_(
+					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
+					atoi(sPK_DeviceTemplate.c_str()), "", 0, "", sDeviceDataString, 0, 0, 
+					m_pOrbiter->m_dwPK_Device, 0, &nPK_Device
+				);
+				m_pOrbiter->SendCommand(CMD_Create_Device_);
+				m_pOrbiter->GotoMainMenu();
+			}
+		}
+		break;
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool ScreenHandler::Internal_Disk_Driver_Wizard_DatagridSelected(CallBackData *pData)
+{
+    return false;
 }
 //-----------------------------------------------------------------------------------------------------
