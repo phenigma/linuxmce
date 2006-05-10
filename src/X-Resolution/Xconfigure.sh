@@ -90,7 +90,7 @@ fi
 
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
-	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file not found or empty. Forcing use of defaults."
+	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
 	Defaults=y
 fi
 
