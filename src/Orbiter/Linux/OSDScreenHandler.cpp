@@ -1884,7 +1884,7 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 	//show on screen
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
-	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
 	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, "gugu" ); 
 	
 	//used for populate datagrid
@@ -1901,8 +1901,7 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffTogle(long nPK_Screen)
 	//show on screen
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
-	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
-	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, "gugu" ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
 	
 	//used for populate datagrid
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
@@ -1922,9 +1921,18 @@ void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
+	string sSelectId;
+	int nIdSelected = 0;
+	if(NULL != pCellInfoData)
+		sSelectId = pCellInfoData->m_sValue;
+	nIdSelected = atoi( sSelectId.c_str() );
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
+		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
+			nIdSelected ++;
+		break;
+
 		default:
 		return false;
 	}
