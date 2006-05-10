@@ -1241,7 +1241,7 @@
 	$g_project_view_state_enum_string	= '10:public,50:private';
 	$g_view_state_enum_string			= '10:public,50:private';
 
-	$g_priority_enum_string				= '10:none,20:low,30:normal,40:high,50:urgent,60:immediate';
+	$g_priority_enum_string				= '10:none,20:low,30:normal,40:high,50:urgent';
 	$g_severity_enum_string				= '10:feature,20:trivial,30:text,40:tweak,50:minor,60:major,70:crash,80:block';
 	$g_reproducibility_enum_string		= '10:always,30:sometimes,50:random,70:have not tried,90:unable to duplicate,100:N/A';
 	$g_status_enum_string				= '10:new,20:feedback,30:acknowledged,40:confirmed,50:assigned,80:resolved,90:closed';
@@ -1489,8 +1489,7 @@
 		LOW       => 'priority_low_1.gif',
 		NORMAL    => '',
 		HIGH      => 'priority_1.gif',
-		URGENT    => 'priority_2.gif',
-		IMMEDIATE => 'priority_3.gif'
+		URGENT    => 'priority_2.gif'
 	);
 	# --------------------
 	# Sort direction to icon mapping
