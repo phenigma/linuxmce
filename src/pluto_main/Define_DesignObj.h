@@ -2049,7 +2049,8 @@
 #define DESIGNOBJ_mnuPartitions_Options_CONST 4998
 #define DESIGNOBJ_butYesUseRecommended_CONST 4999
 #define DESIGNOBJ_butDontUseRecommended_CONST 5000
-#define DESIGNOBJ_butDontUseIt_CONST 5002
+#define DESIGNOBJ_butYesUsePartition_CONST 5001
+#define DESIGNOBJ_butDontUsePartition_CONST 5002
 #define DESIGNOBJ_dgTVWhatDelays_CONST 5003
 #define DESIGNOBJ_butHowToTuneYes_CONST 5004
 #define DESIGNOBJ_butHowToTuneNo_CONST 5005
