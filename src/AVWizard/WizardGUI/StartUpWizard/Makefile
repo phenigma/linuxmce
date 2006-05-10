@@ -15,6 +15,7 @@ include sources.list.mk
     
 AVWizard: $(sources:.cpp=.o)
 	$(CXX) -o AVWizard $(sources)  $(FLAGS) $(LDFLAGS) $(LDLIBS)
+	cp AVWizard ../../../bin/
 
 clean: 
 	rm -f *.o *.d AVWizard 
