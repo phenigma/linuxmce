@@ -9,7 +9,8 @@ for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		-client) ((i++)); XClient=${!i} ;;
 		-parm) ((i++)); XClientParm=("${XClientParm[@]}" ${!i}) ;;
-		-fg) Background=n
+		-fg) Background=n ;;
+		-srvparm) ((i++)); XServerParm=("${XServerParm[@]}" ${!i});;
 	esac
 done
 
