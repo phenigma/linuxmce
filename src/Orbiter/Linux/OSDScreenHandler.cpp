@@ -1882,14 +1882,54 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 {	
 	//show on screen
-	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_1_CONST, m_pWizardLogic->GetManufactureName() ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
-	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, "01" ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
+	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
+	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, "gugu" ); 
 	
 	//used for populate datagrid
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
 		StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) ); 
-	ScreenHandlerBase::SCREEN_VOIP_Provider(nPK_Screen);
+	ScreenHandlerBase::SCREEN_TVConfirmOnOffDiscret(nPK_Screen);
+
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_DatagridSelected, 
+		new DatagridCellBackData());
+}
+
+void OSDScreenHandler::SCREEN_TVConfirmOnOffTogle(long nPK_Screen)
+{	
+	//show on screen
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
+	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
+	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, "gugu" ); 
+	
+	//used for populate datagrid
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
+		StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) ); 
+
+	ScreenHandlerBase::SCREEN_TVConfirmOnOffTogle(nPK_Screen);
+
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_DatagridSelected, 
+		new DatagridCellBackData());
+}
+
+void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
+{
+	ScreenHandlerBase::SCREEN_TVOnOffCodes(nPK_Screen);
+}
+
+bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		default:
+		return false;
+	}
+
+	return false;
 }
 
 

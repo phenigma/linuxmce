@@ -56,6 +56,10 @@ public:
 	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
 
 	virtual void SCREEN_TVConfirmOnOffDiscret(long nPK_Screen);
+	virtual void SCREEN_TVConfirmOnOffTogle(long nPK_Screen);
+	virtual void SCREEN_TVOnOffCodes(long nPK_Screen);
+
+	virtual bool AVIRCodes_DatagridSelected(CallBackData *pData);
 
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
