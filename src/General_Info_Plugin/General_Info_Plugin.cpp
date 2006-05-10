@@ -1241,7 +1241,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	string sPKTemplate = Parms;
 	string sql;
 
-	sql = "SELECT PK_InfraredGroup_Command, IRData, FK_InfraredGroup, FK_Command, InfraredGroup.Description AS IRG_Name\
+	sql = "SELECT PK_InfraredGroup_Command, FK_InfraredGroup, InfraredGroup.Description AS IRG_Name,FK_Command,IRData\
 		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command\
 		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup\
 		WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=" + sPKTemplate + ")" + 
@@ -1250,7 +1250,6 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
-
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0;
@@ -1259,14 +1258,17 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-			for(int i=0;i<3;i++)
+			for(int i=0;i<4;i++)
 			{
-				pCell = new DataGridCell(row[i], row[i]);
-				pDataGrid->SetData(i, nRow++, pCell );
+				pCell = new DataGridCell( row[i], row[0]);
+				pDataGrid->SetData(i, nRow, pCell );
 			}
+			pCell = new DataGridCell("Work", row[0]);
+			pDataGrid->SetData(4, nRow, pCell );
+
+			nRow++;
 		}
 	}
-
 
 	return pDataGrid;
 }
