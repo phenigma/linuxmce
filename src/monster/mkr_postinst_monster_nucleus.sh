@@ -15,9 +15,9 @@ RunSQL "$Q"
 #mv /tmp/Start_X.sh /usr/pluto/bin/Start_X.sh
 #chmod +x /usr/pluto/bin/Start_X.sh
 
-sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
-sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
-sed -i 's/--daemon --logfile/--daemon --verbose all --logfile/g' /etc/init.d/mythtv-backend
+#sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+#sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+#sed -i 's/--daemon --logfile/--daemon --verbose all --logfile/g' /etc/init.d/mythtv-backend
 
 set +e  # we want the exit code
 #grep 'deb http://www.yttron.as.ro/ realextra main' /etc/apt/sources.list > /dev/null
@@ -30,18 +30,18 @@ set +e  # we want the exit code
 #chmod +x /etc/rc2.d/S20dvd
 
 echo "## Please wait, installing cisco firmware"
-wget -P /tmp http://www.plutohome.com/cisco7970firmware_7.0.2-1_i386.deb || :
+#wget -P /tmp http://www.plutohome.com/cisco7970firmware_7.0.2-1_i386.deb || :
 
-rm -rf /tmp/cisco
-mkdir -p /tmp/cisco
+#rm -rf /tmp/cisco
+#mkdir -p /tmp/cisco
 
-dpkg -x /tmp/cisco7970firmware_7.0.2-1_i386.deb /tmp/cisco
-pushd /tmp/cisco
-	cp -Ruf * /
-popd
+#dpkg -x /tmp/cisco7970firmware_7.0.2-1_i386.deb /tmp/cisco
+#pushd /tmp/cisco
+#	cp -Ruf * /
+#popd
 
-rm -f /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
-rm -rf /tmp/cisco
+#rm -f /tmp/cisco7970firmware_7.0.2-1_i386.deb || :
+#rm -rf /tmp/cisco
 
 # monster web skin
 sed -i "s/_SESSION\\['skin'\\]=.;/_SESSION\\['skin'\\]=1;/" /var/www/pluto-admin/include/config/config.inc.php
