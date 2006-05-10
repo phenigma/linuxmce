@@ -301,9 +301,9 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 fi
 
 if [[ "$AVWizardDone" != "1" ]] ;then
-	if [[ -x /usr/pluto/bin/RunWizard.sh ]]; then	
+	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
 		Message "Starting Audio/Video Wizard"
-		/usr/pluto/bin/RunWizard.sh	
+		/usr/pluto/bin/AVWizard_Run.sh
 	fi
 fi
 
