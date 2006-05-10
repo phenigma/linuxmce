@@ -290,7 +290,6 @@ Q="SELECT PK_Users FROM Users LIMIT 1"
 R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
 
-
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	 /usr/pluto/bin/Config_Ops.sh
 fi
@@ -299,6 +298,13 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	Message "Generating pluto bootscripts for the first time"
 	/usr/pluto/bin/generateRcScripts.sh
 	ConfSet "FirstBoot" "false"
+fi
+
+if [[ "$AVWizardDone" != "1" ]] ;then
+	if [[ -x /usr/pluto/bin/RunWizard.sh ]]; then	
+		Message "Starting Audio/Video Wizard"
+		/usr/pluto/bin/RunWizard.sh	
+	fi
 fi
 
 if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
