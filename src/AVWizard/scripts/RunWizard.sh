@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/AVWizard-Common.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
 
@@ -43,3 +44,4 @@ while [[ "$Done" -eq 0 ]]; do
 		Done=1
 	fi
 done
+ConfSet "AVWizardDone" "1"
