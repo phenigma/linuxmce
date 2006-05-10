@@ -451,7 +451,7 @@ function setTemplateFileType($type) {
   	
 	if(isset($_SESSION['cssFile'])){
 		$this->setCssFile($_SESSION['cssFile']);
-		$this->setScriptAnotherJS($_SESSION['jsForMenu']);
+		$this->setScriptAnotherJS($this->scriptAnotherJS.','.$_SESSION['jsForMenu']);
 	}
   	
   	

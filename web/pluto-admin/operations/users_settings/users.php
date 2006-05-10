@@ -237,8 +237,8 @@ function users($output,$dbADO) {
 				}
 				
 				$cmd='sudo -u root /usr/pluto/bin/RemoveUser.sh -d '.$toDel;
-				exec($toDel);
-				
+				exec($cmd);
+
 				$dbADO->Execute('DELETE FROM Installation_Users WHERE FK_Users=?',$toDel);
 				$dbADO->Execute('DELETE FROM Users WHERE PK_Users=?',$toDel);
 				

@@ -224,6 +224,13 @@ $start_time=getmicrotime();
 			}
 		}
 
+		if(count($displayedDevices)==0){
+			$out.='
+				<tr>
+					<td align="center" colspan="8" class="alternate_back"><B>'.$TEXT_NO_RECORDS_CONST.'</B></td>
+				</tr>';
+		}
+		
 		$joinArray=array_keys($displayedDevices);	// used only for query when there are no Devices in selected category
 		if(count($joinArray)==0)
 			$joinArray[]=0;
