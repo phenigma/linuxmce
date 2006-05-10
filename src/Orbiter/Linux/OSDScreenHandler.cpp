@@ -672,18 +672,20 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 					{
 						//Unknow
 						case 0:
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
 						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
 						break;
 
 						//Toggle
 						case 1:
-						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsDiscrete_CONST );
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
 						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
 						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsToggle_CONST );
 						break;
 
 						//Discret
 						case 2:
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
 						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsDiscrete_CONST );
 						break;
 					}	
@@ -1877,7 +1879,18 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 	return false;
 }
 
-
+void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
+{	
+	//show on screen
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_1_CONST, m_pWizardLogic->GetManufactureName() ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, "01" ); 
+	
+	//used for populate datagrid
+	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
+		StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) ); 
+	ScreenHandlerBase::SCREEN_VOIP_Provider(nPK_Screen);
+}
 
 
 ////-----------------------------------------------------------------------------------------------------
@@ -1920,7 +1933,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuAmbiance(long PK_Screen)
 {
 	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
-	ScreenHandlerBase::SCREEN_mnuAmbiance(PK_Screen);
+	//ScreenHandlerBase::SCREEN_mnuAmbiance(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::AmbianceControlCustomRender, new RenderScreenCallBackData() );
 }

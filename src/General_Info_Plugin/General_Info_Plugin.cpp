@@ -1238,13 +1238,18 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	string::size_type pos = 0;
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
-
+	string sPKTemplate = Parms;
 	string sql;
-	sql = "SELECT PK_InfraredGroup_Command, IRData, FK_InfraredGroup, FK_Command, InfraredGroup.Description AS IRG_Name \
-		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=1776) AND FK_InfraredGroup IN (1727, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1736, 1737, 1738, 1739, 1740, 1741, 5117, 5118, 5119, 5947) AND FK_Command IN (194, 192, 193, 205, 89, 90, 63, 64) ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
-	g_pPlutoLogger->Write( LV_STATUS , "AVDiscret grid sql" );
+
+	sql = "SELECT PK_InfraredGroup_Command, IRData, FK_InfraredGroup, FK_Command, InfraredGroup.Description AS IRG_Name\
+		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command\
+		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup\
+		WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=" + sPKTemplate + ")" + 
+		"AND FK_InfraredGroup IN (1727, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1736, 1737, 1738, 1739, 1740, 1741, 5117, 5118, 5119, 5947) AND FK_Command IN (192, 193)\
+		AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
-//	g_pPlutoLogger->Write( LV_STATUS , Parms->c_str() );
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1254,8 +1259,11 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-			pCell = new DataGridCell(row[1], row[0]);
-			pDataGrid->SetData(0, nRow++, pCell );
+			for(int i=0;i<3;i++)
+			{
+				pCell = new DataGridCell(row[i], row[i]);
+				pDataGrid->SetData(i, nRow++, pCell );
+			}
 		}
 	}
 
