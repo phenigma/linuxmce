@@ -148,11 +148,11 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	std::string StringList[6];
 
 	StringList[0] = "If the above objects are perfect square and circle, your TV has the tradi-";
-	StringList[1] = "tional aspect ration, meaning 3:4 proportions.";
+	StringList[1] = "tional aspect ration, meaning 4:3 proportions.";
 	StringList[2] = "If the above objects are wide and than they are high, namely a wide rectangle and";
 	StringList[3] = "a wide oval, then you likely have a newer widescreen TV with a 16:9 proportions.";
 	StringList[4] = "What type of TV do you have?";
-	StringList[5] = "Press the cursor left for 3:4, and right for 16:9";
+	StringList[5] = "Press the cursor left for 4:3, and right for 16:9";
 
 	SetFontStyle(13, "000000", "Regular");
 	for(int i = 0; i<4; i++)
