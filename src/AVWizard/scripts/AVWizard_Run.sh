@@ -3,16 +3,6 @@
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
-
-GetAudioMixerSettings()
-{
-	local Settings
-	
-	Settings="$(amixer sget Master | awk -f "$AudioMixerSettingsAwk")"
-	eval "$Settings"
-}
-
 CleanUp()
 {
 	rm -f /tmp/*.xml
@@ -45,3 +35,4 @@ while [[ "$Done" -eq 0 ]]; do
 	fi
 done
 ConfSet "AVWizardDone" "1"
+#mv /etc/X11/xorg.conf{.avwizard,}
