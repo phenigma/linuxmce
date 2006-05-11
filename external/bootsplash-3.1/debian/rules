@@ -14,6 +14,7 @@
 
 CFLAGS = -Wall -g
 INSTALL_NOSTRIP = install
+INSTALL = install
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
