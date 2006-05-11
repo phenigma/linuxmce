@@ -9,15 +9,19 @@
 #include <glib-2.0/glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
+namespace DCE
+{
+	class Plug_And_Play;
+}
+
 class PlutoHalD
 {
 private:
 	static std::map<unsigned int, int> templatesMap;
-	static std::string hostname; 
-	
+	static DCE::Plug_And_Play *pnpdevice;
 public:
 	PlutoHalD();
-	static void* startUp(void * host);
+	static void* startUp(void * pnpdevice);
 	static void sendMessage(std::string params, std::string &returnValue);
 	static void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection);
 	static void getPortIdentification(std::string portFromBus, std::string& portID);

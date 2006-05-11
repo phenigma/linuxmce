@@ -271,6 +271,8 @@ Plug_And_Play::~Plug_And_Play()
 	//wait for thread finish
 	pthread_kill( d->hald_thread, SIGTERM);
 	pthread_join( d->hald_thread, NULL );
+//	pthread_delete(d->hald_thread);
+	
 	delete d;
 	d = NULL;
 
@@ -301,15 +303,17 @@ bool Plug_And_Play::GetConfig()
 				return false;
 			}
 
-			const char *h = d->pnpCoreDevice->GetIPAddress().c_str();
-			pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) h );
 		}
+		//const char *h = d->pnpCoreDevice->GetIPAddress().c_str();
+		
+		int ret = pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
+		g_pPlutoLogger->Write(LV_WARNING, "created hald thread. return = %d", ret);
 	}
 	else
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Not enough memory!" );
 		m_bQuit = true;
-		return false;
+		
 	}
 	
 	return true;
@@ -996,7 +1000,11 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 	//get the device template and the pnp queue
 //	class DeviceData_Router* p_deviceData_RouterFrom = (class DeviceData_Router*)pDeviceFrom;
 //	class DeviceData_Router* p_deviceData_RouterTo = (class DeviceData_Router*)pDeviceTo;
-
+	
+	//only for core
+	if(!d->core)
+		return;
+	
 	if(pMessage->m_dwID != EVENT_PnP_Set_Device_Template_CONST)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "the event is not EVENT_PnP_Set_Device_Template_CONST");
@@ -1033,4 +1041,78 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 	}
 }
 
+void Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
+{
+		returnValue = "";
+	
+	if(m_pEvent != NULL)
+	{			
+		for(int i=0;true;++i) // Wait up to 60 seconds
+		{
+			m_pEvent->m_pClientSocket->SendString("READY");
+			string sResponse;
+			if( !m_pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Cannot communicate with router");
+				throw(string("Cannot communicate with router"));
+			}
+			if( sResponse=="YES" )
+				break;
+			else if( sResponse=="NO" )
+			{
+				if( i>11 )
+				{
+					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 60 seconds.  Aborting....");
+					throw(string("Router not ready after 60 seconds.  Aborting...."));
+				}
+				g_pPlutoLogger->Write(LV_DEBUG,"DCERouter still loading.  Waiting 5 seconds");
+				Sleep(5000);
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_DEBUG,"Router gave unknown response to ready request %s",sResponse.c_str());
+				throw(string("Router gave unknown response to ready request"));
+			}
+		}
 
+		Message *pMsg=new Message(params);
+		if(pMsg != NULL)
+		{
+			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
+			if( ExpectedResponse == ER_ReplyMessage )
+			{
+				// There are out parameters, we need to get a message back in return
+				Message *pResponse = m_pEvent->SendReceiveMessage( pMsg );
+				if( !pResponse || pResponse->m_dwID != 0 )
+				{
+					if(pResponse)
+					{
+						delete pResponse;
+						pResponse = NULL;
+					}
+					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
+				}
+				else
+				{
+					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
+					{
+						g_pPlutoLogger->Write(LV_DEBUG, "%ld : %s",  (*it).first , (*it).second.c_str() );
+						returnValue = (*it).second;
+					}
+				}
+				delete pResponse;
+				pResponse = NULL;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int)) ");
+			}
+		}
+		else
+		{
+			throw(string("pMsg == NULL"));
+		}
+	}
+	else
+		throw(string("m_pEvent == NULL"));
+}

@@ -13,6 +13,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 
+#include "Plug_And_Play.h"
 #define DEBUG 1
 
 
@@ -39,8 +40,7 @@ using namespace std;
 //};
 
 std::map<unsigned int, int> PlutoHalD::templatesMap;
-std::string PlutoHalD::hostname; 
-	
+Plug_And_Play *PlutoHalD::pnpdevice = NULL;	
 
 PlutoHalD::PlutoHalD()
 {
@@ -69,81 +69,8 @@ void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 	
 void PlutoHalD::sendMessage(string params, string &returnValue)
 {
-	returnValue = "";
-	
-	g_pPlutoLogger->Write(LV_DEBUG, "MessageSend %s %s\n", hostname.c_str(), params.c_str());
-	
-	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, hostname.c_str());
-	if(pEvent != NULL)
-	{			
-		for(int i=0;true;++i) // Wait up to 60 seconds
-		{
-			pEvent->m_pClientSocket->SendString("READY");
-			string sResponse;
-			if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Cannot communicate with router");
-				throw(string("Cannot communicate with router"));
-			}
-			if( sResponse=="YES" )
-				break;
-			else if( sResponse=="NO" )
-			{
-				if( i>11 )
-				{
-					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 60 seconds.  Aborting....");
-					throw(string("Router not ready after 60 seconds.  Aborting...."));
-				}
-				g_pPlutoLogger->Write(LV_DEBUG,"DCERouter still loading.  Waiting 5 seconds");
-				Sleep(5000);
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_DEBUG,"Router gave unknown response to ready request %s",sResponse.c_str());
-				throw(string("Router gave unknown response to ready request"));
-			}
-		}
-
-		Message *pMsg=new Message(params);
-		if(pMsg != NULL)
-		{
-			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
-			if( ExpectedResponse == ER_ReplyMessage )
-			{
-				// There are out parameters, we need to get a message back in return
-				Message *pResponse = pEvent->SendReceiveMessage( pMsg );
-				if( !pResponse || pResponse->m_dwID != 0 )
-				{
-					if(pResponse)
-					{
-						delete pResponse;
-						pResponse = NULL;
-					}
-					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
-				}
-				else
-				{
-					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
-					{
-						g_pPlutoLogger->Write(LV_DEBUG, "%ld : %s",  (*it).first , (*it).second.c_str() );
-						returnValue = (*it).second;
-					}
-				}
-				delete pResponse;
-				pResponse = NULL;
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int)) ");
-			}
-		}
-		else
-		{
-			throw(string("pMsg == NULL"));
-		}
-	}
-	else
-		throw(string("pEvent == NULL"));
+	if(pnpdevice != NULL)
+		pnpdevice->sendMessage(params, returnValue);
 }
 
 
@@ -239,9 +166,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		}
 	}
 
-//	if(/*strncmp(last_udi, udi, strlen(last_udi)) == 0 && */strncmp(&udi[strlen(udi) - 10], "usb-serial", 10) == 0)
-//	{
-//	}
+
 
 	g_free (bus);
 	bus = NULL;
@@ -540,13 +465,14 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 
 }
 
-void* PlutoHalD::startUp(void *host)
+void* PlutoHalD::startUp(void *pnp)
 {
 	LibHalFunctions funcs;
 	LibHalContext * ctx = NULL;
 	GMainLoop * loop = NULL;
-	hostname.clear();
-	hostname.append((const char *)host);
+	
+	pnpdevice = (Plug_And_Play *)pnp;
+
 //	
 //	FILE * lockFile = NULL;
 //	
