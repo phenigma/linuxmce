@@ -20,6 +20,9 @@ void WizardWidgetButton::PaintExpandedButton(
 	SDL_Surface *BtnLeft, 
 	SDL_Surface *BtnRight)
 {
+	if(!BtnTexture || !BtnLeft || !BtnRight)
+		return;
+
 	int x, y;
 	WizardWidgetPage* Page = GetContainerPage();
 	Page->SetDefaultFont();

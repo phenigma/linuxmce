@@ -2,6 +2,8 @@
 
 #include "GUIWizardUtils.h"
 
+#include <stdlib.h>
+
 WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
@@ -58,6 +60,9 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 
+	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent)+" unmute";
+	system(Command.c_str());
+
 }
 
 void WizardPageAudioVolume::DoDecreaseSetting()
@@ -70,4 +75,7 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
 	VolumeLabel->SetCaption(VolumeLabelCaption);
+	
+	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent)+" unmute";
+	system(Command.c_str());
 }
