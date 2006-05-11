@@ -9109,6 +9109,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_TVDSPMode : public PreformedCommand
+	{
+	public:
+		SCREEN_TVDSPMode(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "225" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVDSPMode_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVDSPMode_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "225" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVDSPMode_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVDSPMode_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "225" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVDSPMode_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVDSPMode_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "225" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9353,6 +9393,7 @@ namespace DCE
 		virtual void SCREEN_TVConfirmOnOffDiscret(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVMultipleInputs(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVDSPMode(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10529,6 +10570,11 @@ namespace DCE
 				case 224:
 				{
 					SCREEN_TVMultipleInputs(nPK_Screen);
+					break;
+				}
+				case 225:
+				{
+					SCREEN_TVDSPMode(nPK_Screen);
 					break;
 				}
 

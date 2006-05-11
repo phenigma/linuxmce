@@ -222,6 +222,16 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputNotListed)), 
 		DATAGRID_Media_Connector_Type_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputNotListed)), 
+		DATAGRID_Media_Connector_Type_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVConfirmInputs)), 
+		DATAGRID_Confirm_Inputs_Codes_CONST,PK_DeviceTemplate_get());
+
+	//DATAGRID_Confirm_Inputs_Codes_CONST
+
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1349,6 +1359,36 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 }
 
 class DataGridTable *General_Info_Plugin::AVInputNotListed( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string sPKTemplate = Parms;
+	string sql;
+
+	sql = "SELECT PK_Command,Description FROM Command where FK_CommandCategory=22";
+	//Saved in DeviceTemplate_MediaType with FK_MediaType the selected value and FK_DeviceTemplate";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0;
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+				pCell = new DataGridCell( row[1], row[0]);
+				pDataGrid->SetData(0, nRow++, pCell );
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AVConfirmInputs(string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos = 0;

@@ -62,6 +62,10 @@ public:
 	bool TVMultipleInputs_DatagridSelected(CallBackData *pData);
 	bool TVMultipleInputs_ObjectSelected(CallBackData *pData);
 
+	virtual void SCREEN_TVDSPMode(long nPK_Screen);
+	bool TVDSPMode_DatagridSelected(CallBackData *pData);
+	bool TVDSPMode_ObjectSelected(CallBackData *pData);
+
 	//for IR codes datagrid
 	virtual bool AVIRCodes_DatagridSelected(CallBackData *pData);
 

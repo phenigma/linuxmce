@@ -1921,7 +1921,8 @@ void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 	ScreenHandlerBase::SCREEN_TVOnOffCodes(nPK_Screen);
 }
 
-//Single or multiple inputs?
+
+//AV Wizard Inputs
 void OSDScreenHandler::SCREEN_TVMultipleInputs(long nPK_Screen)
 {
 	ScreenHandlerBase::SCREEN_TVMultipleInputs(nPK_Screen);
@@ -1930,7 +1931,6 @@ void OSDScreenHandler::SCREEN_TVMultipleInputs(long nPK_Screen)
 		(ScreenHandlerCallBack) &OSDScreenHandler::TVMultipleInputs_ObjectSelected, 
 		new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, 
-												 //TVMultipleInputs_DatagridSelected
 		(ScreenHandlerCallBack) &OSDScreenHandler::TVMultipleInputs_DatagridSelected, 
 		new DatagridCellBackData());
 }
@@ -2018,6 +2018,72 @@ bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 
 	return false;
 }
+
+
+//AV Wizard DSP Mode
+void OSDScreenHandler::SCREEN_TVDSPMode(long nPK_Screen)
+{
+	ScreenHandlerBase::SCREEN_TVMultipleInputs(nPK_Screen);
+
+	RegisterCallBack(cbObjectSelected, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::TVDSPMode_ObjectSelected, 
+		new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::TVDSPMode_DatagridSelected, 
+		new DatagridCellBackData());
+}
+
+bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+	int i =0;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVDspMode_CONST:
+			i = 0;
+		return false;
+
+		case DESIGNOBJ_TVDspList_CONST:
+			i = 0;
+		return false;
+
+		case DESIGNOBJ_TVDspOrder_CONST:
+			i = 0;
+		return false;
+
+}
+
+	return false;
+}
+
+bool OSDScreenHandler::TVDSPMode_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
+	string sSelectId;
+	int nIdSelected = 0;
+	if(NULL != pCellInfoData)
+		sSelectId = pCellInfoData->m_sValue;
+	nIdSelected = atoi( sSelectId.c_str() );
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVDspMode_CONST:
+			nIdSelected++;
+		return false;
+
+		case DESIGNOBJ_TVDspList_CONST:
+			nIdSelected++;
+		return false;
+
+		case DESIGNOBJ_TVDspOrder_CONST:
+			nIdSelected++;
+		return false;
+	}
+
+	return false;
+}
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuAmbiance(long PK_Screen)
 {
