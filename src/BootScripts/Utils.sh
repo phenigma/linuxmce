@@ -63,13 +63,14 @@ XineConfSet()
 {
 	local Setting="$1"
 	local Value="$2"
+	local XineConf="${3:-/etc/pluto/xine.conf}"
 	
 	[[ -z "$Setting" || -z "$Value" ]] && return 1
 	
-	if grep -qF "$Setting" /etc/pluto/xine.conf; then
-		sed -i "s/^.*$Setting:.*$/$Setting:$Value/" /etc/pluto/xine.conf
+	if grep -qF "$Setting" "$XineConf"; then
+		sed -i "s/^.*$Setting:.*$/$Setting:$Value/" "$XineConf"
 	else
-		echo "$Setting:$Value" >>/etc/pluto/xine.conf
+		echo "$Setting:$Value" >>"$XineConf"
 	fi
 }
 
