@@ -35,4 +35,4 @@ while [[ "$Done" -eq 0 ]]; do
 	fi
 done
 ConfSet "AVWizardDone" "1"
-#mv /etc/X11/xorg.conf{.avwizard,}
+mv /etc/X11/xorg.conf{.avwizard,}
