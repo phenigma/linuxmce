@@ -34,6 +34,20 @@ public:
 		/** The possible types of result.*/
 		enum Result { OK=0, FAILED, RETRY };
 		
+		/**The plug and play protocol*/
+		enum PnPProtocol {	UPNP = 1, 
+							Proprietary = 2,
+							Xap = 3,
+							HAL_USB = 4,
+							DHCP = 5};
+							
+		/**The communication method*/
+		enum CommMethod {	Infrared = 1,
+							RS232 = 2,
+							Ethernet = 3,
+							USB = 4,
+							FireWire = 5,
+							Bluetooth = 6};
 		// Public member variables
 
 //<-dceag-const-b->

@@ -12,7 +12,7 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
-
+#include "Gen_Devices/AllCommandsRequests.h"
 #include "Plug_And_Play.h"
 #define DEBUG 1
 
@@ -66,13 +66,12 @@ void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 	}
 }
 
-	
+
 void PlutoHalD::sendMessage(string params, string &returnValue)
 {
 	if(pnpdevice != NULL)
 		pnpdevice->sendMessage(params, returnValue);
 }
-
 
 void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
@@ -307,68 +306,16 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 //					gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
 					gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
 //					gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
-					
-				try
-				{
-					// check if there is a device with this UID
-					string response;
-					sendMessage(	"-targetType template -o 0 " + 
-									StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-									" 1 " +
-									StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " + 
-									StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
-									info_udi, 
-									response );
-					g_pPlutoLogger->Write(LV_DEBUG, "response DeviceFromUID_ = %s\n", response.c_str());
-					
-					if( !response.empty() )
-					{
-						// enable the device
-						string responseEnable;
-						sendMessage(	"-targetType template -o 0 " +
-										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) +
-										" 1 " +
-										StringUtils::itos( COMMAND_Set_Enable_Status_CONST ) + " " +
-										StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
-										response + " " +
-										StringUtils::itos( COMMANDPARAMETER_Enable_CONST ) + " " +
-										"1", 
-										responseEnable );
-						g_pPlutoLogger->Write(LV_DEBUG, "responseEnable = %s\n", responseEnable.c_str());
-					}
-					else
-					{
-						// create a new device with this UID
-						DCEConfig dceConfig;
-						
-						char buffer[2048];
-						snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, info_udi);
-						//TODO: hack to be removed
-						if(dceConfig.m_iPK_Device_Computer == 0)
-							dceConfig.m_iPK_Device_Computer = 1;
-							
-						string responseCreate;
-						sendMessage(	"-targetType  template  -o 0 " + 
-										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-										" 1 " + 
-										StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
-										StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
-										StringUtils::itos( (*it).second ) + " " +
-										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
-										StringUtils::itos( dceConfig.m_iPK_Device_Computer ) + " " +
-/*										StringUtils::itos( COMMANDPARAMETER_PK_Room_CONST ) + 
-										" 0 " + */
-										"109 " + 
-										buffer,
-										responseCreate );
-						g_pPlutoLogger->Write(LV_DEBUG, "responseCreate = %s\n", responseCreate.c_str());
-					}
-				}
-				catch(string ex)
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: initialize_usb_device exception thrown: %s", ex.c_str());
-				}
-					
+				string responseCreate;
+				
+//TODO: correct this
+//				DCE::CMD_PlugAndPlayAddDevice cmd(0, pnpdevice->m_dwPK_Device,
+//											(*it).second, "", "",
+//											udi, DCE::Plug_And_Play::HAL_USB,
+//											(*it).first, 0,
+//											DCE::Plug_And_Play::USB,"");
+				sendMessage("", responseCreate);
+				
 //					g_free (product);
 //					product = NULL;
 //					g_free (vendor);

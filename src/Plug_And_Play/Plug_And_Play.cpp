@@ -539,7 +539,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 				if( row != NULL )
 				{
 					row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
-					row->FK_Device_set( 0 );
+					row->FK_Device_Created_set( 0 );
 					row->FK_CommMethod_set( iPK_CommMethod  );
 					row->FK_PnpProtocol_set( iPK_PnpProtocol );
 					
@@ -648,7 +648,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 			if( row != NULL )
 			{
 				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
-				row->FK_Device_set( 0 );
+				row->FK_Device_Created_set( 0 );
 				row->FK_CommMethod_set( iPK_CommMethod  );
 				row->FK_PnpProtocol_set( iPK_PnpProtocol );
 				row->DetectedDate_set( "Data" );
@@ -1043,76 +1043,26 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 
 void Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
 {
-		returnValue = "";
+	returnValue = "";
 	
 	if(m_pEvent != NULL)
 	{			
-		for(int i=0;true;++i) // Wait up to 60 seconds
-		{
-			m_pEvent->m_pClientSocket->SendString("READY");
-			string sResponse;
-			if( !m_pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Cannot communicate with router");
-				throw(string("Cannot communicate with router"));
-			}
-			if( sResponse=="YES" )
-				break;
-			else if( sResponse=="NO" )
-			{
-				if( i>11 )
-				{
-					g_pPlutoLogger->Write(LV_DEBUG,"Router not ready after 60 seconds.  Aborting....");
-					throw(string("Router not ready after 60 seconds.  Aborting...."));
-				}
-				g_pPlutoLogger->Write(LV_DEBUG,"DCERouter still loading.  Waiting 5 seconds");
-				Sleep(5000);
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_DEBUG,"Router gave unknown response to ready request %s",sResponse.c_str());
-				throw(string("Router gave unknown response to ready request"));
-			}
-		}
-
-		Message *pMsg=new Message(params);
+		Message *pMsg = new Message(params);
 		if(pMsg != NULL)
 		{
-			eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
-			if( ExpectedResponse == ER_ReplyMessage )
+			string response;			
+			m_pEvent->SendMessage( pMsg, response);
+			pMsg = NULL;
+			if(!response.empty() || response.find("Error") == string::npos)
 			{
-				// There are out parameters, we need to get a message back in return
-				Message *pResponse = m_pEvent->SendReceiveMessage( pMsg );
-				if( !pResponse || pResponse->m_dwID != 0 )
-				{
-					if(pResponse)
-					{
-						delete pResponse;
-						pResponse = NULL;
-					}
-					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
-				}
-				else
-				{
-					for( map<long, string>::iterator it=pResponse->m_mapParameters.begin();it!=pResponse->m_mapParameters.end();++it)
-					{
-						g_pPlutoLogger->Write(LV_DEBUG, "%ld : %s",  (*it).first , (*it).second.c_str() );
-						returnValue = (*it).second;
-					}
-				}
-				delete pResponse;
-				pResponse = NULL;
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int)) ");
+				returnValue = response;
 			}
 		}
 		else
 		{
-			throw(string("pMsg == NULL"));
+			g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate pMsg object");
 		}
 	}
 	else
-		throw(string("m_pEvent == NULL"));
+		g_pPlutoLogger->Write(LV_CRITICAL, "m_pEvent == NULL");
 }
