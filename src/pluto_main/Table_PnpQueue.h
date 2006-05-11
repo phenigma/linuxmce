@@ -85,10 +85,12 @@ string m_SerialNumber;
 long int m_FK_CommMethod;
 long int m_FK_PnpProtocol;
 long int m_FK_DeviceTemplate;
-long int m_FK_Device;
+long int m_FK_Device_Created;
+long int m_FK_Device_Reported;
 long int m_Removed;
 short int m_Stage;
 short int m_Processed;
+string m_Parms;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -96,7 +98,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[18];
+		bool is_null[20];
 	
 	public:
 		long int PK_PnpQueue_get();
@@ -107,10 +109,12 @@ string SerialNumber_get();
 long int FK_CommMethod_get();
 long int FK_PnpProtocol_get();
 long int FK_DeviceTemplate_get();
-long int FK_Device_get();
+long int FK_Device_Created_get();
+long int FK_Device_Reported_get();
 long int Removed_get();
 short int Stage_get();
 short int Processed_get();
+string Parms_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -127,10 +131,12 @@ void SerialNumber_set(string val);
 void FK_CommMethod_set(long int val);
 void FK_PnpProtocol_set(long int val);
 void FK_DeviceTemplate_set(long int val);
-void FK_Device_set(long int val);
+void FK_Device_Created_set(long int val);
+void FK_Device_Reported_set(long int val);
 void Removed_set(long int val);
 void Stage_set(short int val);
 void Processed_set(short int val);
+void Parms_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -146,10 +152,12 @@ bool SerialNumber_isNull();
 bool FK_CommMethod_isNull();
 bool FK_PnpProtocol_isNull();
 bool FK_DeviceTemplate_isNull();
-bool FK_Device_isNull();
+bool FK_Device_Created_isNull();
+bool FK_Device_Reported_isNull();
 bool Removed_isNull();
 bool Stage_isNull();
 bool Processed_isNull();
+bool Parms_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -164,10 +172,12 @@ void SerialNumber_setNull(bool val);
 void FK_CommMethod_setNull(bool val);
 void FK_PnpProtocol_setNull(bool val);
 void FK_DeviceTemplate_setNull(bool val);
-void FK_Device_setNull(bool val);
+void FK_Device_Created_setNull(bool val);
+void FK_Device_Reported_setNull(bool val);
 void Removed_setNull(bool val);
 void Stage_setNull(bool val);
 void Processed_setNull(bool val);
+void Parms_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -188,7 +198,8 @@ void psc_restrict_setNull(bool val);
 		class Row_CommMethod* FK_CommMethod_getrow();
 class Row_PnpProtocol* FK_PnpProtocol_getrow();
 class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
-class Row_Device* FK_Device_getrow();
+class Row_Device* FK_Device_Created_getrow();
+class Row_Device* FK_Device_Reported_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -196,7 +207,7 @@ class Row_Device* FK_Device_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_Identifier+ m_Path+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device+ m_Removed+ m_Stage+ m_Processed+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_Identifier+ m_Path+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -209,10 +220,12 @@ string SerialNumber_asSQL();
 string FK_CommMethod_asSQL();
 string FK_PnpProtocol_asSQL();
 string FK_DeviceTemplate_asSQL();
-string FK_Device_asSQL();
+string FK_Device_Created_asSQL();
+string FK_Device_Reported_asSQL();
 string Removed_asSQL();
 string Stage_asSQL();
 string Processed_asSQL();
+string Parms_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

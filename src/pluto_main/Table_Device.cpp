@@ -45,6 +45,7 @@ using namespace std;
 #include "Table_Package_Device.h"
 #include "Table_PaidLicense.h"
 #include "Table_PnpQueue.h"
+#include "Table_PnpQueue.h"
 
 
 void Database_pluto_main::CreateTable_Device()
@@ -1825,12 +1826,19 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_PaidLicense *pTable = table->database->PaidLicense_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
-void Row_Device::PnpQueue_FK_Device_getrows(vector <class Row_PnpQueue*> *rows)
+void Row_Device::PnpQueue_FK_Device_Created_getrows(vector <class Row_PnpQueue*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PnpQueue *pTable = table->database->PnpQueue_get();
-pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
+pTable->GetRows("`FK_Device_Created`=" + StringUtils::itos(m_PK_Device),rows);
+}
+void Row_Device::PnpQueue_FK_Device_Reported_getrows(vector <class Row_PnpQueue*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_PnpQueue *pTable = table->database->PnpQueue_get();
+pTable->GetRows("`FK_Device_Reported`=" + StringUtils::itos(m_PK_Device),rows);
 }
 
 
