@@ -28,11 +28,17 @@ class XinePlayer
 	xine_event_queue_t  *event_queue;
 	pthread_t tid;
 	std::string FileName;
+	XinePlayer();
+
+	static XinePlayer* Instance;
+
 public:
 	bool NeedToReplay;
 	bool Running;
 
-	XinePlayer();
+	static XinePlayer* GetInstance();
+
+
 	~XinePlayer();
 
 	void InitPlayerEngine(std::string ConfigName, std::string FileName);

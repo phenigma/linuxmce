@@ -12,6 +12,9 @@
 #include "XinePlayer.h"
 
 #include <stdio.h>
+#include <string>
+
+/*static*/ XinePlayer* XinePlayer::Instance = NULL;
 
 XinePlayer::XinePlayer()
 	: xine(NULL),
@@ -23,22 +26,30 @@ XinePlayer::XinePlayer()
 	this->Running = false;
 }
 
+XinePlayer* XinePlayer::GetInstance()
+{
+	if (Instance == NULL)
+		Instance = new XinePlayer();
+	return Instance;
+}
+
 XinePlayer::~XinePlayer()
 {
 }
 
 void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 {
-	char ConfigFile[1024];
+	std::string ConfigFile;
 
 	xine = xine_new();
-	sprintf(ConfigFile, "%s%s", xine_get_homedir(), ConfigName.c_str());
-	xine_config_load(xine, ConfigFile);
+	ConfigFile = ConfigName;
+	xine_config_load(xine, ConfigFile.c_str());
 	xine_init(xine);
 
 	this->FileName = FileName;
 
 	pthread_create(&tid,NULL, XinePlayerThread,this);
+	
 }
 
 void XinePlayer::StopPlayerEngine()
@@ -49,6 +60,7 @@ void XinePlayer::StopPlayerEngine()
 	if(ao_port)
 		xine_close_audio_driver(xine, ao_port);  
 	xine_exit(xine);
+	Running = false;
 }
 
 bool XinePlayer::StartPlayingFile()
@@ -57,7 +69,6 @@ bool XinePlayer::StartPlayingFile()
 	stream      = xine_stream_new(xine, ao_port, NULL);
 	event_queue = xine_event_new_queue(stream);
 	xine_event_create_listener_thread(event_queue, XineEventFunction, this);
-
 
 	if((!xine_open(stream, FileName.c_str())) || (!xine_play(stream, 0, 0))) 
 	{
@@ -93,10 +104,10 @@ void* XinePlayerThread(void* XinePlayerPtr)
 {
 	XinePlayer* Player = (XinePlayer*)XinePlayerPtr;
 
-	Player->StartPlayingFile();
+	Player->Running = Player->StartPlayingFile();
 	while(Player->Running) 
 	{
-		usleep(100000);
+		usleep(10000);
 		if (Player->NeedToReplay)
 		{
 			Player->StartPlayingFile();

@@ -29,7 +29,7 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 /*virtual*/ void WizardPageDolbyTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	std::string FileName, ConfigName;
-	Player = new XinePlayer();
+	Player = XinePlayer::GetInstance();
 	if(AVWizardSettings->Exists("XineConfigFile"))
 	{
 		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
