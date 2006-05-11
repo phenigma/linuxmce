@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto5) unstable; urgency=low
+
+  * Support for other themes
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 11 May 2006 13:43:11 +0300
+  
 bootsplash (3.1-1pluto4) unstable; urgency=low
 
   * Bootsplash is the default boot option now
