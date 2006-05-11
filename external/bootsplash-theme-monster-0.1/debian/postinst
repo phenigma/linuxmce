@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-	db_register shared/bootsplash-monster bootsplash-theme-monster
+	db_register shared/bootsplash-theme bootsplash-theme-monster
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
