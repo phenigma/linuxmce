@@ -37,6 +37,10 @@
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
 
+#ifndef WIN32
+#include <dirent.h>
+#endif
+
 #include "PlutoUtils/FileUtils.h"
 
 #include "MediaFile.h"
