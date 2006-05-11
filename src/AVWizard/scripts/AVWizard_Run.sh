@@ -24,6 +24,10 @@ SetDefaults()
 	WizSet AudioVolumeIncrement '1'
 	WizSet DolbyTest '0'
 	WizSet DTSTest '0'
+	WizSet XineConfigFile "$XineConf"
+	WizSet SoundTestFile '/usr/pluto/sound/avwizard_volume_test.mp3'
+	WizSet DTSTestFile '/usr/pluto/sound/avwizard_dts_test.wav'
+	WizSet DolbyTestFile '/usr/pluto/sound/avwizard_ac3_test.ac3'
 }
 
 Done=0
@@ -35,4 +39,6 @@ while [[ "$Done" -eq 0 ]]; do
 	fi
 done
 ConfSet "AVWizardDone" "1"
-mv /etc/X11/xorg.conf{.avwizard,}
+mv "$XF86Config" /etc/X11/xorg.conf
+mv "$XineConf" /etc/pluto/xine.conf
+alsactl store
