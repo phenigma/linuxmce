@@ -10,6 +10,7 @@ Architecture: any
 Recommends: bootsplash
 Provides: bootsplash-theme
 Replaces: bootsplash-theme-pluto
+Conflicts: bootsplash-theme-pluto
 Depends: debconf (>= 0.5) | debconf-2.0
 Description: The bootsplash theme for Monster Systems
  This is a bootsplash theme packaged for Monster Systems customized 
