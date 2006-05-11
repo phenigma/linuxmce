@@ -58,7 +58,11 @@ public:
 	virtual void SCREEN_TVConfirmOnOffDiscret(long nPK_Screen);
 	virtual void SCREEN_TVConfirmOnOffTogle(long nPK_Screen);
 	virtual void SCREEN_TVOnOffCodes(long nPK_Screen);
+	virtual void SCREEN_TVMultipleInputs(long nPK_Screen);
+	bool TVMultipleInputs_DatagridSelected(CallBackData *pData);
+	bool TVMultipleInputs_ObjectSelected(CallBackData *pData);
 
+	//for IR codes datagrid
 	virtual bool AVIRCodes_DatagridSelected(CallBackData *pData);
 
 	//8. Lights Setup

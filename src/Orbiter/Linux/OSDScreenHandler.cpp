@@ -1915,9 +1915,86 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffTogle(long nPK_Screen)
 		new DatagridCellBackData());
 }
 
+
 void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 {
 	ScreenHandlerBase::SCREEN_TVOnOffCodes(nPK_Screen);
+}
+
+//Single or multiple inputs?
+void OSDScreenHandler::SCREEN_TVMultipleInputs(long nPK_Screen)
+{
+	ScreenHandlerBase::SCREEN_TVMultipleInputs(nPK_Screen);
+
+	RegisterCallBack(cbObjectSelected, 
+		(ScreenHandlerCallBack) &OSDScreenHandler::TVMultipleInputs_ObjectSelected, 
+		new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, 
+												 //TVMultipleInputs_DatagridSelected
+		(ScreenHandlerCallBack) &OSDScreenHandler::TVMultipleInputs_DatagridSelected, 
+		new DatagridCellBackData());
+}
+
+bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+	int i =0;
+
+	switch( GetCurrentScreen_PK_DesignObj() )
+	{
+		//Inputs single/multiple?
+		case DESIGNOBJ_TVMultipleInputs_CONST:
+			i = 0;
+		return false;
+
+		//Input single
+		case DESIGNOBJ_TVSelectMediaType_CONST:
+			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVDSPMode_CONST )
+				m_pWizardLogic->AddAVMediaType();
+		return false;
+
+		//Input multiple
+		case DESIGNOBJ_TVInputsNotListed_CONST:
+			i = 1;
+		return false;
+
+		case DESIGNOBJ_TVConnectorType_CONST:
+			i = 1;
+		return false;
+	}
+
+	return false;
+}
+
+bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
+	string sSelectId;
+	int nIdSelected = 0;
+	if(NULL != pCellInfoData)
+		sSelectId = pCellInfoData->m_sValue;
+	nIdSelected = atoi( sSelectId.c_str() );
+
+	int i;
+
+	switch( GetCurrentScreen_PK_DesignObj() )
+	{
+		// Single Input
+		case DESIGNOBJ_TVSelectMediaType_CONST:
+			m_pWizardLogic->SetPKMediaType(nIdSelected);
+		return false;
+
+		//Multiple input
+		case DESIGNOBJ_TVInputsNotListed_CONST:
+			i = 1;
+		return false;
+
+		case DESIGNOBJ_TVConnectorType_CONST:
+			i = 1;
+		return false;
+	}
+
+	return false;
 }
 
 bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
