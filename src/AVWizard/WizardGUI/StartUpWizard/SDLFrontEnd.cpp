@@ -194,7 +194,7 @@ bool SDLFrontEnd::SetCurrentFont(std::string FontName, int FontHeight, int Style
 	else
 		return false;
 
-	int style = Style;//;
+	int style = Style;
 
 	TTF_SetFontStyle(CurrentFont, style);
 	return true;

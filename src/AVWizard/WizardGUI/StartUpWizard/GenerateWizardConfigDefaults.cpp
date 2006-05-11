@@ -4,10 +4,13 @@
 
 #include "ConfigureCommons.h"
 
+#include "Wizard.h"
+
 GenerateWizardConfigDefaults::GenerateWizardConfigDefaults()
 {
 	FontName = DEFAULT_FONT_NAME;
-	//FontName = "Vera.ttf";
+	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontName"))
+		FontName = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontName");
 
 }
 
