@@ -31,6 +31,7 @@ private:
 	string m_AVTemplateNumericEntry;
 	bool m_bAVTemplateTogglePower;
 	long m_nPKAVTemplate, m_nPKManufacuter;
+	long m_nPKMediaType,m_nPKConnectorType;
 
 protected:
 	class Orbiter *m_pOrbiter;
@@ -95,11 +96,17 @@ public:
 	void SetPKAVTemplate(long PKTemplate){ m_nPKAVTemplate = PKTemplate; }
 	long GetPKAVTemplate(){ return m_nPKAVTemplate; }
 
+	void SetPKConnectorType(long id){ m_nPKConnectorType = id; }
+	void SetPKMediaType(long id){ m_nPKMediaType = id;}
+
+	// return value 0 none,1 toggle,2 discret
+	int AVTemplateIRCode();
+
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
 	void UpdateAVTemplateSettings();
-	// return value 0 none,1 toggle,2 discret
-	int AVTemplateIRCode();
+	void AddAVMediaType();
+	void AddAVDeviceInput();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);

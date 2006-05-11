@@ -382,6 +382,26 @@ void WizardLogic::UpdateAVTemplateSettings()
 	threaded_mysql_query(sSQL);
 }
 
+void WizardLogic::AddAVDeviceInput()
+{
+	string sSQL;
+	sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
+		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
+		StringUtils::ltos(m_nPKAVTemplate) + "," + "command???" + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
+
+	threaded_mysql_query(sSQL);
+}
+
+void WizardLogic::AddAVMediaType()
+{
+	string sSQL;
+	sSQL =string("INSERT IGNORE INTO DeviceTemplate_MediaType\
+		(FK_DeviceTemplate,PK_DeviceTemplate_MediaType) VALUES (") + 
+		StringUtils::ltos(m_nPKAVTemplate) + "," + StringUtils::ltos(m_nPKMediaType) + ")";
+
+	threaded_mysql_query(sSQL);
+}
+
 int WizardLogic::AVTemplateIRCode()
 {
 	string sSQL = "SELECT FK_Command,FK_DeviceTemplate,IRData FROM InfraredGroup_Command WHERE FK_DeviceTemplate=" +\
