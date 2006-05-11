@@ -86,10 +86,15 @@ class MediaAttributes_LowLevel
 {
 private:
     Database_pluto_media *m_pDatabase_pluto_media;
+	int m_nPK_Installation;
 
 public:
     /** @brief constructor */
-	MediaAttributes_LowLevel(Database_pluto_media *pDatabase_pluto_media) { m_pDatabase_pluto_media=pDatabase_pluto_media; };
+	MediaAttributes_LowLevel(Database_pluto_media *pDatabase_pluto_media, int nPK_Installation) 
+	{ 
+		m_pDatabase_pluto_media = pDatabase_pluto_media; 
+		m_nPK_Installation = nPK_Installation;
+	};
 
 	void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string NewName);
     void ChangeAttribute(int PK_Attribute,string NewName);

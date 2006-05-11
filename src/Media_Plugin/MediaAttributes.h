@@ -49,12 +49,13 @@ class MediaAttributes
 {
 private:
     Database_pluto_media *m_pDatabase_pluto_media;
+	int m_nPK_Installation;
 
 public:
 	MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 
 	/** @brief constructor */
-    MediaAttributes(string host, string user, string pass, string db_name, int port);
+    MediaAttributes(string host, string user, string pass, string db_name, int port, int nPK_Installation);
     ~MediaAttributes();
 
 	bool SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_Users, int &iPK_Playlist, string sPlaylistName );

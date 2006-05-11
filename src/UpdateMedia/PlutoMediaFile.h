@@ -26,7 +26,6 @@ class PlutoMediaFile
 {
 private:
     Database_pluto_media *m_pDatabase_pluto_media;
-    Database_pluto_main *m_pDatabase_pluto_main;
 
     string m_sDirectory;
     string m_sFile;
@@ -40,7 +39,7 @@ private:
 	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl, list<string> &listChapters);
 
 public:
-    PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main,
+    PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
         string sDirectory, string sFile);
     ~PlutoMediaFile();
 
@@ -51,8 +50,6 @@ public:
 
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
-
-	static int GetPictureIdFromExtendentAttributes(string sFilePath);
 	static bool IsSupported(string sFileName);
 };
 

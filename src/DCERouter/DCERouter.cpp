@@ -2122,6 +2122,13 @@ void Router::Configure()
 		if( pRow_Device->PK_Device_get()>=m_dwPK_Device_Largest )
 			m_dwPK_Device_Largest=pRow_Device->PK_Device_get();
 
+		if(NULL == pRow_Device->FK_DeviceTemplate_getrow())
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Got a device %d with wrong device template %d", 
+				pRow_Device->PK_Device_get(), pRow_Device->FK_DeviceTemplate_get());
+			continue;
+		}
+
         string CommandLine=pRow_Device->FK_DeviceTemplate_getrow()->CommandLine_get();
         if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
             CommandLine = FileUtils::ValidCPPName(pRow_Device->FK_DeviceTemplate_getrow()->Description_get());

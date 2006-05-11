@@ -19,11 +19,6 @@
 #include "MediaAttributes.h"
 #include "Logger.h"
 
-#ifndef WIN32
-#include <dirent.h>
-#include <attr/attributes.h>
-#endif
-
 // pluto_media related database access
 #include "pluto_main/Table_MediaType.h"
 
@@ -45,6 +40,7 @@
 #include "PlutoUtils/FileUtils.h"
 
 #include "MediaFile.h"
+#include "UpdateMedia/PlutoMediaFile.h"
 
 using namespace DCE;
 
@@ -236,6 +232,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 	PlutoSqlResult result;
     MYSQL_ROW row;
 
+	/*
 #ifdef WIN32
     string::size_type s;
     while( ( s=File.find( "Z:/" ) )!=string::npos )
@@ -255,19 +252,20 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 
     return 0; // Can't do this in Windows
 #else
-    int n = 79;
-    char value[80];
-    memset( value, 0, sizeof( value ) );
+	*/
 
-    if ( attr_get( File.c_str( ), "ID", value, &n, 0 ) == 0 )
+	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, FileUtils::BasePath(File),
+		FileUtils::FilenameWithoutPath(File));
+	int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+
+    if(PK_File > 0)
     {
-        int ID = atoi( value );
-        string DatabaseFile = GetFilePathFromFileID( ID );
+        string DatabaseFile = GetFilePathFromFileID( PK_File );
         if( File!=DatabaseFile )
         {
             if( DatabaseFile.length( )==0 )
             {
-                g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", ID, File.c_str( ) );
+                g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", PK_File, File.c_str( ) );
                 return 0;
             }
             else
@@ -276,25 +274,25 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
                 FILE *file = fopen( DatabaseFile.c_str( ), "rb" );
                 if( file )
                 {
-                    g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", ID, File.c_str( ), DatabaseFile.c_str( ) );
+                    g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", PK_File, File.c_str( ), DatabaseFile.c_str( ) );
                     return 0;
                 }
                 else
                 {
                     // They must have moved it
-                    g_pPlutoLogger->Write( LV_MEDIA, "File %d moved from %s to %s", ID, DatabaseFile.c_str( ), File.c_str( ) );
+                    g_pPlutoLogger->Write( LV_MEDIA, "File %d moved from %s to %s", PK_File, DatabaseFile.c_str( ), File.c_str( ) );
 
                     string path = FileUtils::BasePath( File );
                     string name = FileUtils::FilenameWithoutPath( File, true );
 
                     string SQL;
-                    SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape( path ) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(ID);
+                    SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape( path ) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(PK_File);
                     // cout << "Query: " << SQL << endl;
                     m_pDatabase_pluto_media->threaded_mysql_query( SQL );
                 }
             }
         }
-        return ID;
+        return PK_File;
     }
     else
 	{	// if no attributte is set then fall back to the windows functionality.
@@ -309,7 +307,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 		else
 			return 0;
 	}
-#endif
+//#endif
 }
 
 string MediaAttributes_LowLevel::GetAnyPictureUnderDirectory( string File, int *PK_Picture, int MaxDepthToSearch )
@@ -1193,10 +1191,8 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		return;
 	}
 
-#ifndef WIN32
-	string sPK_File = StringUtils::itos(PK_File);
-	attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
-#endif
+	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, pRow_File->Path_get(), pRow_File->Filename_get());
+	PlutoMediaFile_.SetFileAttribute(PK_File);
 
 	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
@@ -1212,10 +1208,9 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
 			m_pDatabase_pluto_media->Picture_File_get()->Commit();
 		}
-#ifndef WIN32
-		string sPK_Picture = StringUtils::itos(pRow_Picture_File->FK_Picture_get());
-		attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
-#endif
+
+		PlutoMediaFile_.SetPicAttribute(pRow_Picture_File->FK_Picture_get(), 
+			pRow_Picture_File->FK_Picture_getrow()->URL_get());
 	}
 
 	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;

@@ -12,11 +12,6 @@
 #include <map>
 #include <list>
 
-#ifndef WIN32
-#include <dirent.h>
-#include <attr/attributes.h>
-#endif
-
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_Installation.h"
@@ -38,28 +33,19 @@ using namespace std;
 using namespace DCE;
 
 #include "pluto_media/Database_pluto_media.h"
-#include "pluto_main/Database_pluto_main.h"
 
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaFile class
 //
 //-----------------------------------------------------------------------------------------------------
-PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, 
-                               Database_pluto_main *pDatabase_pluto_main,
+PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 							   string sDirectory, string sFile) 
 {
     m_pDatabase_pluto_media = pDatabase_pluto_media;
-    m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_sDirectory = sDirectory;
     m_sFile = sFile;
-
-	m_nInstallationID = 0;
-	vector<Row_Installation *> vectRow_Installation;
-	m_pDatabase_pluto_main->Installation_get()->GetRows("1=1", &vectRow_Installation);
-
-	if(vectRow_Installation.size() > 1)
-		m_nInstallationID = vectRow_Installation[0]->PK_Installation_get();
+	m_nInstallationID = PK_Installation;
 
 	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s", m_sDirectory.c_str(), m_sFile.c_str());
 }
@@ -189,7 +175,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			continue;
 		}
 
-		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
+		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nInstallationID);
 		Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
 			PK_AttrType, sValue);
 
@@ -211,7 +197,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		{
 			//It's a "new" file, but we know the picture url
 			//we'll download the picture and record in Picture table
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nInstallationID);
 			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, FileUtils::FindExtension(sPictureURL), sPictureURL);
 
 			if(pRow_Picture)
@@ -256,12 +242,6 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SetFileAttribute %s/%s %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
     string sPK_File = StringUtils::itos(PK_File);
-
-#ifndef WIN32
-	string sInstallation = StringUtils::ltos(m_nInstallationID);
-	attr_set((m_sDirectory + "/" + m_sFile).c_str(), "PK_Installation", sInstallation.c_str(), sInstallation.length(), 0);
-    attr_set((m_sDirectory + "/" + m_sFile).c_str(), "ID", sPK_File.c_str(), sPK_File.length(), 0);
-#endif
 
 	string sFileWithAttributes = FileWithAttributes();
 
@@ -334,33 +314,6 @@ int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 		}
 	}
 
-#ifndef WIN32
-	int n = 79;
-	char value[80];
-	memset(value, 0, sizeof(value));
-
-	//get installation id
-	if(attr_get((m_sDirectory + "/" + m_sFile).c_str(), "PK_Installation", value, &n, 0) == 0)
-	{
-		long PK_Installation = atoi(value);
-		if(NULL == m_pDatabase_pluto_main->Installation_get()->GetRow(PK_Installation)) //not the same installation
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is from a different installation %d", 
-				m_sDirectory.c_str(), m_sFile.c_str(), PK_Installation);
-			return 0;
-		}
-
-		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is from our installation %d", 
-			m_sDirectory.c_str(), m_sFile.c_str(), PK_Installation);
-	}
-
-    if(attr_get((m_sDirectory + "/" + m_sFile).c_str(), "ID", value, &n, 0) == 0)
-    {
-		g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s %s", m_sDirectory.c_str(), m_sFile.c_str(), value);
-        return atoi(value);
-    }
-#endif
-
 	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found", m_sDirectory.c_str(), m_sFile.c_str());
     return 0;
 }
@@ -372,14 +325,6 @@ void PlutoMediaFile::SetPicAttribute(int PK_Picture, string sPictureUrl)
 
 	list<string> vectChapters; //no new chapters
 	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), 0, 0, PK_Picture, sPictureUrl, vectChapters);
-
-#ifndef WIN32
-    string sPK_Picture = StringUtils::itos(PK_Picture);
-    if( m_sDirectory.size() )
-        attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
-    else
-        attr_set( m_sFile.c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
-#endif
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
@@ -420,9 +365,9 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
         " ORDER BY `PicPriority`",&vectPicture_Attribute);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Found %d pics for attribute", (int) vectPicture_Attribute.size());
-    if( vectPicture_Attribute.size() && vectPicture_File.size())
+    if( vectPicture_Attribute.size())
     {
-		long PK_Picture = vectPicture_File[0]->FK_Picture_get();
+		long PK_Picture = vectPicture_Attribute[0]->FK_Picture_get();
 		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->GetRow(PK_Picture);
 		string sPictureUrl = NULL != pRow_Picture ? pRow_Picture->URL_get() : "";
 
@@ -517,8 +462,6 @@ bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installa
 	string sPlutoAttribute = mapAttributes[Internal_UserDefinedText_CONST];
 	vector<string> vectData;
 	StringUtils::Tokenize(sPlutoAttribute, "\t", vectData);
-	if(vectData.size() < 4)
-		return false;
 
 	//Get usefull info
 	size_t nIndex = 0;
@@ -547,22 +490,6 @@ bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installa
 	}
 
 	return true;
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ int PlutoMediaFile::GetPictureIdFromExtendentAttributes(string sFilePath)
-{
-	int PK_Picture = 0;
-
-#ifndef WIN32
-	int n = 79, result;
-	char value[80];
-	memset(value, 0, sizeof( value ));
-
-	if ((result = attr_get(sFilePath.c_str(), "PIC", value, &n, 0)) != 0 || (PK_Picture = atoi(value)) == 0)
-		return 0;
-#endif
-
-	return PK_Picture;
 }
 //-----------------------------------------------------------------------------------------------------
 

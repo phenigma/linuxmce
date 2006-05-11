@@ -29,6 +29,7 @@
 
 #include "id3info/id3info.h"
 #include "PlutoMediaFile.h"
+#include "pluto_main/Table_Installation.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -76,9 +77,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 	m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
 
-#ifdef WIN32 //for debugging
-	chdir("Z:\\");
-#endif
+	SetupInstallation();
 }
 
 UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media, 
@@ -88,11 +87,22 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_pDatabase_pluto_media = pDatabase_pluto_media;
 
+	SetupInstallation();
+
 	m_bAsDaemon = true;
 	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
     m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
+}
+
+void UpdateMedia::SetupInstallation()
+{
+	m_nPK_Installation = 0;
+	vector<Row_Installation *> vectRow_Installation;
+	m_pDatabase_pluto_main->Installation_get()->GetRows("1=1", &vectRow_Installation);
+	if(vectRow_Installation.size() > 0)
+		m_nPK_Installation = vectRow_Installation[0]->PK_Installation_get();
 }
 
 void UpdateMedia::DoIt()
@@ -163,7 +173,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			}
 		}
 
-        PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
+        PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
 
         if(m_bAsDaemon)
@@ -225,7 +235,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 #endif
 	);
 
-    PlutoMediaFile PlutoMediaParentFolder(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
+    PlutoMediaFile PlutoMediaParentFolder(m_pDatabase_pluto_media, m_nPK_Installation,
         FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory));
 
     cout << (int) listSubDirectories.size() << " sub directories" << endl;
@@ -263,10 +273,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		{
              cout << sDirectory << " is a ripped dvd" << endl;
 
-            #ifndef WIN32
-			    attr_set( sDirectory.c_str( ), "DIR_AS_FILE", "1", 1, 0 );
-            #endif
-
 			// Add this directory like it were a file
 			int PK_File = PlutoMediaParentFolder.HandleFileNotInDatabase(MEDIATYPE_pluto_DVD_CONST);
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
@@ -283,11 +289,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		{
             cout << sDirectory << " is a sub-dir already categoriezed ripped dvd" << endl;
 
-            #ifndef WIN32
-			    attr_set( (sSubDir).c_str( ), "DIR_AS_FILE", "1", 1, 0 );
-            #endif
-
-            PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
+            PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
                 FileUtils::BasePath(sSubDir), "");
             PlutoMediaSubDir.SetFileAttribute(itMapFiles->second.first->PK_File_get());
 			continue; // This directory is already in the database 

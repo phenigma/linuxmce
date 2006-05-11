@@ -10,6 +10,10 @@ class UpdateMedia
 	string m_sDirectory,m_sExtensions;
 	map<string,int> m_mapExtensions;
 	bool m_bAsDaemon;
+	int m_nPK_Installation;
+
+	//Helper method
+	void SetupInstallation();
 
 #ifndef WIN32
 	map<u_int64_t,bool> m_MapInodes;

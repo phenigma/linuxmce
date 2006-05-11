@@ -88,10 +88,6 @@ using namespace DCE;
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 #include "UpdateMedia/PlutoMediaFile.h"
-#ifndef WIN32
-#include <dirent.h>
-#include <attr/attributes.h>
-#endif
 
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
@@ -224,7 +220,7 @@ bool Media_Plugin::GetConfig()
         return false;
     }
 
-    m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) );
+    m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ), m_pRouter->iPK_Installation_get() );
 
     Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_pRouter->iPK_Installation_get( ) );
     vector<Row_Room *> vectRow_Room; // Ent Areas are specified by room. Get all the rooms first
@@ -1342,6 +1338,7 @@ g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list"
 		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 		int PK_Picture=0;
 
+		/*
 #ifdef WIN32
 g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
 		if( pMediaFile->m_dwPK_File )
@@ -1376,16 +1373,13 @@ g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaSt
 g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 		}
 #else
-		if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pMediaFile->FullyQualifiedFile())))
-		{
-			string sFilePath = FileUtils::BasePath(pMediaFile->FullyQualifiedFile());
-			string sFileName = FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile(), false);
-			PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
-			int PK_File = PlutoMediaFile_.GetFileAttribute(false);
-			if(PK_File)
-				PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
-		}
-#endif
+		*/
+
+		string sFilePath = FileUtils::BasePath(pMediaFile->FullyQualifiedFile());
+		string sFileName = FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile(), true);
+		PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), sFilePath, sFileName);
+		PK_Picture = PlutoMediaFile_.GetPicAttribute(pMediaFile->m_dwPK_File);
+//#endif
 
 		if(PK_Picture)
 			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
@@ -3441,7 +3435,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 			pRow_File_Attribute->Section_set(atoi(sSection.c_str()));
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 
-            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, 
+            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
             PlutoMediaFile_.SetFileAttribute(iEK_File); //also updates id3tags
 		}
@@ -3477,7 +3471,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
         {
             Row_File *pRow_File = *it;
 
-            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, 
+            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
             PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
         }
@@ -3915,10 +3909,9 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
 
-#ifndef WIN32
-	string sPK_File = StringUtils::itos(pMediaFile->m_dwPK_File);
-	attr_set( pMediaFile->FullyQualifiedFile().c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
-#endif
+	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
+		pRow_File->Path_get(), pRow_File->Filename_get());
+	PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get());
 }
 
 //<-dceag-c412-b->

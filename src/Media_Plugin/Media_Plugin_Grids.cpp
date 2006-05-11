@@ -74,10 +74,6 @@ using namespace DCE;
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 #include "UpdateMedia/PlutoMediaFile.h"
-#ifndef WIN32
-#include <dirent.h>
-#include <attr/attributes.h>
-#endif
 
 extern int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -1058,17 +1054,12 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 
 			if(pRow_File)
 			{
-				if(0 == (PK_Picture = PlutoMediaFile::GetPictureIdFromExtendentAttributes(pRow_File->Path_get()+"/"+pRow_File->Filename_get())))
-				{
-					string sFilePath = pRow_File->Path_get();
-					string sFileName = pRow_File->Filename_get();
-					PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, sFilePath, sFileName);
-					int PK_File = PlutoMediaFile_.GetFileAttribute(false);
-					if(PK_File)
-						PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
-				}
+				string sFilePath = pRow_File->Path_get();
+				string sFileName = pRow_File->Filename_get();
+				PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), sFilePath, sFileName);
+				PK_Picture = PlutoMediaFile_.GetPicAttribute(pRow_File->PK_File_get());
 
-				if(PK_Picture)
+				if(PK_Picture > 0)
 				{
 					size_t iSize;
 					char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);

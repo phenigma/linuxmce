@@ -45,8 +45,9 @@
 
 using namespace DCE;
 
-MediaAttributes::MediaAttributes(string host, string user, string pass, string db_name, int port)
+MediaAttributes::MediaAttributes(string host, string user, string pass, string db_name, int port, int nPK_Installation)
 {
+	m_nPK_Installation = nPK_Installation;
 	m_pMediaAttributes_LowLevel=NULL;
     m_pDatabase_pluto_media = new Database_pluto_media( );
     if( !m_pDatabase_pluto_media->Connect( host, user, pass, db_name, port  ) )
@@ -54,7 +55,7 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
         throw "Cannot connect";
     }
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nPK_Installation);
 }
 
 MediaAttributes::~MediaAttributes()
