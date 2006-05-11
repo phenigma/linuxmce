@@ -265,7 +265,7 @@ bool Powerfile_C200::GetConfig()
         m_bQuit = true;
         return false;
     }
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);
 
 	string sOutput;
 #ifdef EMULATE_PF
