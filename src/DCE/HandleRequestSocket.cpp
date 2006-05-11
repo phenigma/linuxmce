@@ -196,7 +196,8 @@ void HandleRequestSocket::RunThread()
 							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
 					}
-					delete pMessage;
+					if( pMessage->m_bAutoDelete )
+						delete pMessage;
 				}
 				else
 				{

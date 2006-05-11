@@ -13,6 +13,7 @@
 
 #include "HandleRequestSocket.h"
 #include "DeviceData_Impl.h"
+#include "MessageBuffer.h"
 
 namespace DCE
 {
@@ -35,12 +36,14 @@ namespace DCE
 	 */
 	class Command_Impl : public HandleRequestSocket
 	{
+	protected:
+		MessageBuffer *m_pMessageBuffer;
+
 	private:
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
 		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
 	public:
-	
 		Command_Impl *m_pParent; /** < if the command was created as an embedded command, keep a pointer to it's parent */
 		MapCommand_Impl m_mapCommandImpl_Children; /** < map containing the commands that this command has created */
 		pluto_pthread_mutex_t m_listMessageQueueMutex; /** < for protecin the access to the MessageQueue */
@@ -237,7 +240,7 @@ namespace DCE
 		/**
 		 * @brief performes a specific action bases on the message type
 		 */
-		virtual bool ReceivedMessage( Message *pMessage );
+		virtual enum ReceivedMessageResult ReceivedMessage( Message *pMessage );
 		
 		/**
 		 * @brief adds the message to the message queue
@@ -318,6 +321,13 @@ namespace DCE
 		 * @brief If this is not a plugin loaded into the Router's memory space, the callback will be in the form of a message to this function
 		 */
 		void InterceptedMessage(Message *pMessage);
+
+		/**
+		 * @brief This device is processing commands which may not complete immediately, so incoming messages should be put into a queue
+		 * and duplicate messages that aren't yet processed should be purged.  To accomadate lighting and a/v, on/off/set level/set volume are treated as 
+		 * alike.  In other words, an immediate succession of on/off/on/off/set level/off, all will be purged except the last off
+		 */
+		void BufferMessages() { if( !m_pMessageBuffer ) m_pMessageBuffer = new MessageBuffer(this); }
 
 		/** Re-route the primitives through the primary device command. */
 		

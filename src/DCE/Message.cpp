@@ -450,7 +450,9 @@ void Message::Clear()
 	m_MessageID = g_MessageID++;
 #endif
 
-    m_bRelativeToSender = true;
+	m_bAutoDelete = true;
+	m_bCanBuffer = true;
+	m_bRelativeToSender = true;
     m_eExpectedResponse = ER_None;
     m_eBroadcastLevel = BL_SameHouse; // Default broadcast level
     m_bRespondedToMessage = false;
@@ -467,7 +469,10 @@ void Message::Clear()
     m_mapParameters.clear();
 
     for(vector<Message *>::iterator it = m_vectExtraMessages.begin(); it != m_vectExtraMessages.end(); ++it)
-        delete *it;
+	{
+		if( (*it)->m_bAutoDelete )
+	        delete *it;
+	}
     m_vectExtraMessages.clear();
 
 	map<long, char *>::iterator i;

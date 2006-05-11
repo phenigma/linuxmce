@@ -133,6 +133,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_listMessageQueueMutex.Init( NULL, &m_listMessageQueueCond );
 	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=1;
+	m_pMessageBuffer=NULL;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
 		m_bMessageQueueThreadRunning=false;
@@ -162,6 +163,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_listMessageQueueMutex.Init( NULL, &m_listMessageQueueCond );
 	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=0;
+	m_pMessageBuffer=NULL;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
 		m_bMessageQueueThreadRunning=false;
@@ -558,7 +560,7 @@ void Command_Impl::ReceivedString( string sLine, int nTimeout/*= -1*/)
 	}
 }
 
-bool Command_Impl::ReceivedMessage( Message *pMessage )
+enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage ) 
 {
 	if( pMessage->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
 	{

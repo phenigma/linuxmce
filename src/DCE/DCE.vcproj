@@ -156,6 +156,9 @@
 				RelativePath=".\Message.cpp">
 			</File>
 			<File
+				RelativePath=".\MessageBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\MessageTranslation\MessageTranslation.cpp">
 			</File>
 			<File
