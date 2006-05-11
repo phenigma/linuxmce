@@ -94,7 +94,13 @@ if [[ ! -f /etc/diskless.conf ]]; then
 
 	if [[ $SystemFilesystemFull == "true" ]]; then
 		# Triger the Low System Disk Space (64) event
-		/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 64
+		touch /var/DiskSpaceMonitor.stamp
+		LastEventTrigered=$(cat /var/DiskSpaceMonitor.stamp)
+		Now=$(date +%s)
+		if [[ $LastEventTrigered == "" || $(( $LastEventTrigered + 60 * 60 )) -lt $Now ]]; then
+			usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 64
+			echo $Now > /var/DiskSpaceMonitor.stamp
+		fi
 	fi
 fi
 
