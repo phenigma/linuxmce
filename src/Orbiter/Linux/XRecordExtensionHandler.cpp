@@ -14,6 +14,7 @@ using namespace std;
 
 XRecordExtensionHandler::XRecordExtensionHandler(string displayName)
 	: m_strDisplayName(displayName), m_isRecordingEnabled(false), m_shouldRecord(false), m_shouldQuit(false)
+    , m_bIsActiveConstrainMouse(false)
 {
  	pthread_mutex_init(&mutexEnableRecordCondition, NULL);
 	pthread_cond_init(&enableRecordCondition, NULL);
@@ -29,6 +30,11 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 	g_pPlutoLogger->Write(LV_STATUS, "Marking as quit");
 	m_shouldQuit = true;
 
+    if (m_bIsActiveConstrainMouse)
+    {
+        // deactivate
+        X11_ConstrainMouse(0,0,0,0);
+    }
 
 	if ( m_isRecordingEnabled )
 	{
@@ -273,4 +279,186 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 pthread_t XRecordExtensionHandler::getRecordingThread()
 {
 	return recordingThread;
+}
+
+bool XRecordExtensionHandler::X11_ConstrainMouse_Helper(Display *pDisplay, Window parent_window, int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError/*=NULL*/)
+{
+    // dummy error message string, used when no such string is required
+    std::string string_error_dummy;
+    if (pStringError == NULL)
+        pStringError = &string_error_dummy;
+    std::string &sErr = *pStringError;
+    sErr = "";
+
+    // check values
+    // Size (not including the border) must be nonzero (or a Value error results)
+    // Note: The Xlib manual doesn't mention this restriction ?
+    if ( (nWidth <= 0) || (nHeight <= 0) )
+    {
+        sErr = "bad arguments, size must be greater than 0";
+        return false;
+    }
+
+    static Window window = 0;
+    //int nScreen = XDefaultScreen(pDisplay);
+
+    // hide window case
+    if ( (nWidth == 0) && (nHeight == 0) )
+    {
+        if (! m_bIsActiveConstrainMouse)
+        {
+            sErr = "window not created";
+            return false;
+        }
+        m_bIsActiveConstrainMouse = false;
+        if (! XUngrabPointer(pDisplay, window))
+        {
+            sErr = "cannot ungrab the pointer";
+            return false;
+        }
+        if (! XUnmapWindow(pDisplay, window))
+        {
+            sErr = "cannot hide the window";
+            return false;
+        }
+        if (! XDestroyWindow(pDisplay, window))
+        {
+            sErr = "cannot destroy the window";
+            return false;
+        }
+        //if (! XCloseDisplay(pDisplay))
+        //{
+        //    sErr = "cannot close the display";
+        //    return false;
+        //}
+        return true;
+    }
+
+    // show window
+    if (m_bIsActiveConstrainMouse)
+    {
+        sErr = "window is already created";
+        return false;
+    }
+
+    Visual visual;
+    visual.visualid = CopyFromParent;
+    //Visual *visual = DefaultVisual(pDisplay, nScreen);
+    int nBorderWidth = 0;
+    //unsigned long mask = CWEventMask | CWBackPixel;
+    //unsigned long mask = 0;
+    XSetWindowAttributes win_attr;
+    win_attr.event_mask = ExposureMask;    // | ButtonPressMask | KeyPressMask | ButtonReleaseMask;
+    win_attr.background_pixel = 0xF0F0F0;
+
+    if (window > 0)
+    {
+        if (! XDestroyWindow(pDisplay, window))
+        {
+            sErr = "cannot destroy the previously created window, it should not exist in the first place";
+            return false;
+        }
+    }
+
+    //window = XCreateWindow(
+    //    pDisplay,
+    //    parent_window,
+    //    nPosX, nPosY, nWidth, nHeight,
+    //    nBorderWidth,
+    //    DefaultDepth (pDisplay, nScreen),
+    //    InputOutput,
+    //    &visual,
+    //    mask,
+    //    &win_attr
+    //    );
+
+    window = XCreateSimpleWindow(
+        pDisplay,
+        parent_window,
+        nPosX, nPosY, nWidth, nHeight,
+        nBorderWidth,
+        0,
+        0
+        );
+
+    if (window <= 0)
+    {
+        sErr = "cannot create window";
+        return false;
+    }
+    XClassHint classHint;
+    classHint.res_name = "grab_name";
+    classHint.res_class = "grab_class";
+    if (! XSetClassHint(pDisplay, window, &classHint))
+    {
+        sErr = "cannot set class name";
+        return false;
+    }
+    if (! XMapWindow(pDisplay, window))
+    {
+        sErr = "cannot show the window";
+        return false;
+    }
+    XSync(pDisplay, false);
+    if (! XLowerWindow(pDisplay, window))
+    {
+        sErr = "cannot lower the window";
+        return false;
+    }
+    XSync(pDisplay, false);
+    int res = XGrabPointer(
+        pDisplay, window,
+        false,
+        ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask,
+        GrabModeAsync, // pointer_mode
+        GrabModeAsync, // keyboard_mode
+        window, // confine_to_window
+        None, // cursor // TODO: This may need to be set to the cursor of this window
+        CurrentTime );
+    XSync(pDisplay, false);
+    if (res != GrabSuccess)
+    {
+        sErr = "cannot grab the pointer";
+        if (res == GrabNotViewable)
+            sErr = "this is not a viewable window - perhaps not shown yet";
+        if (res == AlreadyGrabbed)
+            sErr = "pointer already grabbed";
+        if (res == GrabFrozen)
+            sErr = "pointer frozen by another grab";
+        return false;
+    }
+
+    // correct the window position (wm may change it after create or show)
+    if (! XMoveResizeWindow(pDisplay, window, nPosX, nPosY, nWidth, nHeight))
+    {
+        sErr = "cannot change the window position";
+        return false;
+    }
+    XSync(pDisplay, false);
+
+    m_bIsActiveConstrainMouse = true;
+    return true;
+}
+
+bool XRecordExtensionHandler::X11_ConstrainMouse(int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError/*=NULL*/)
+{
+    //TODO: really need m_pDisplay ?
+    //Display *pDisplay = m_pDisplay;
+    static Display *pDisplay = NULL;
+    Window parent_window = 0;
+
+    if (pDisplay == NULL)
+        pDisplay = XOpenDisplay(NULL);
+    parent_window = DefaultRootWindow(pDisplay);
+
+    XLockDisplay(pDisplay);
+
+    bool bResult = X11_ConstrainMouse_Helper(pDisplay, parent_window, nPosX, nPosY, nWidth, nHeight, pStringError);
+
+    //if ( (nWidth == 0) && (nHeight == 0) && bResult )
+    //    pDisplay = NULL;
+    XSync(pDisplay, false);
+    XUnlockDisplay(pDisplay);
+
+    return bResult;
 }

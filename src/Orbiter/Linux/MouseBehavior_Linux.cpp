@@ -41,3 +41,45 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 	SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
     m_pOrbiter->X_UnlockDisplay();
 }
+
+bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
+{
+    // go to the right object
+    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
+    if (pOrbiterLinux == NULL)
+    {
+        g_pPlutoLogger->Write(
+            LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : dynamic_cast error",
+            rect.X, rect.Y, rect.Width, rect.Height
+            );
+        return false;
+    }
+    XRecordExtensionHandler *pXRecordExtensionHandler = pOrbiterLinux->GetXRecordExtensionHandler();
+    if (pXRecordExtensionHandler == NULL)
+    {
+        g_pPlutoLogger->Write(
+            LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : NULL m_pRecordHandler",
+            rect.X, rect.Y, rect.Width, rect.Height
+            );
+        return false;
+    }
+    // call the real function
+    std::string sErrorMessage;
+    bool bSuccess = pXRecordExtensionHandler->X11_ConstrainMouse(rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
+    // log the status
+    if (bSuccess)
+    {
+        g_pPlutoLogger->Write(
+            LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : ok",
+            rect.X, rect.Y, rect.Width, rect.Height
+            );
+    }
+    else
+    {
+        g_pPlutoLogger->Write(
+            LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : %s",
+            rect.X, rect.Y, rect.Width, rect.Height, sErrorMessage.c_str()
+            );
+    }
+    return true;
+}

@@ -149,7 +149,10 @@ namespace DCE
 
 		const MouseHandler* GetHorizontalMouseHandler() const;
 		const MouseHandler* GetVerticalMouseHandler() const;
-	};
+
+        // have a platform-specific implementation
+        virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
+    };
 
 }
 //-----------------------------------------------------------------------------------------------------

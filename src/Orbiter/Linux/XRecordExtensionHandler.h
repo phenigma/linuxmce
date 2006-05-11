@@ -36,6 +36,8 @@ class XRecordExtensionHandler
 
 	int 				m_iMouseX, m_iMouseY;
 
+    bool m_bIsActiveConstrainMouse;
+
 private:
 	static void *recordingThreadMainFunction(void *arguments);
 
@@ -43,14 +45,18 @@ private:
 
 	void processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay);
 
+    bool X11_ConstrainMouse_Helper(Display *pDisplay, Window parent_window, int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError=NULL);
+
 public:
 	XRecordExtensionHandler(std::string strDisplayName);
+	virtual ~XRecordExtensionHandler();
 
 	virtual bool enableRecording(Orbiter *processingOrbiter, bool bEnable = true);
 
-	virtual ~XRecordExtensionHandler();
-
 	pthread_t	getRecordingThread();
+
+    // size must be nonzero
+    bool X11_ConstrainMouse(int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError=NULL);
 };
 
 #endif // XRECORDEXTENSIONHANDLER_H

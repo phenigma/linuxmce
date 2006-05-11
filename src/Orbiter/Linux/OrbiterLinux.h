@@ -121,6 +121,11 @@ public:
 
     virtual void X_LockDisplay();
     virtual void X_UnlockDisplay();
+
+	XRecordExtensionHandler * GetXRecordExtensionHandler()
+        {
+            return m_pRecordHandler;
+        }
 };
 
 #endif // __ORBITERLINUX_H__
