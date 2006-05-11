@@ -529,9 +529,11 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String)
+/*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String,
+	int iPK_Device_ControlledVia)
 { 
 	m_sInternal_Disk_Driver_Data = sData_String;
+	m_nInternal_Disk_Driver_PK_Device_ControlledVia = iPK_Device_ControlledVia;
 
 	//we'll filter the datagrid by this category
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST));
@@ -575,7 +577,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 			{
 				//TODO: send a CMD_Ignore_Disk_Driver to general info plugin; 
 				//status: wait for Razvan to implement it
-				//we'll use m_sInternal_Disk_Driver_Data as a parameter
+				//we'll use m_sInternal_Disk_Driver_Data as a parameter and m_nInternal_Disk_Driver_PK_Device_ControlledVia
 
                 m_pOrbiter->CMD_Go_back("", "");
 				return true;
@@ -626,7 +628,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 
 				DCE::CMD_Create_Device CMD_Create_Device_(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-					atoi(sPK_DeviceTemplate.c_str()), "", 0, "", sDeviceDataString, 0, 0, 
+					atoi(sPK_DeviceTemplate.c_str()), "", 0, "", sDeviceDataString, 0, m_nInternal_Disk_Driver_PK_Device_ControlledVia, 
 					m_pOrbiter->m_dwPK_Device, 0, &nPK_Device
 				);
 				m_pOrbiter->SendCommand(CMD_Create_Device_);

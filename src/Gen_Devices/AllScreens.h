@@ -9025,11 +9025,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Internal_Disk_Driver_Wizard(long DeviceIDFrom, long DeviceIDTo,
-			string sData_String)
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
@@ -9037,11 +9037,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Internal_Disk_Driver_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sData_String)
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
@@ -9049,11 +9049,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Internal_Disk_Driver_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sData_String)
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
@@ -9061,11 +9061,51 @@ namespace DCE
 	{
 	public:
 		SCREEN_Internal_Disk_Driver_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sData_String)
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "223" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str());
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
+		}
+	};
+
+	class SCREEN_TVMultipleInputs : public PreformedCommand
+	{
+	public:
+		SCREEN_TVMultipleInputs(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "224" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVMultipleInputs_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TVMultipleInputs_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "224" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVMultipleInputs_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TVMultipleInputs_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "224" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TVMultipleInputs_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TVMultipleInputs_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "224" /* screen ID */);
 		}
 	};
 
@@ -9311,7 +9351,8 @@ namespace DCE
 		virtual void SCREEN_CurrentlyActiveRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffTogle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffDiscret(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TVMultipleInputs(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10481,7 +10522,13 @@ namespace DCE
 				case 223:
 				{
 					string sData_String = pMessage->m_mapParameters[109];
-					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen, sData_String);
+					int iPK_Device_ControlledVia = atoi(pMessage->m_mapParameters[156].c_str());
+					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen, sData_String, iPK_Device_ControlledVia);
+					break;
+				}
+				case 224:
+				{
+					SCREEN_TVMultipleInputs(nPK_Screen);
 					break;
 				}
 

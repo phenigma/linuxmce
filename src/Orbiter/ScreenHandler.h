@@ -112,7 +112,8 @@ public:
 	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
 
 	string m_sInternal_Disk_Driver_Data;
-	virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String);
+	int m_nInternal_Disk_Driver_PK_Device_ControlledVia;
+	virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia);
 	virtual bool Internal_Disk_Driver_Wizard_ObjectSelected(CallBackData *pData);
 	virtual bool Internal_Disk_Driver_Wizard_DatagridSelected(CallBackData *pData);	
 };
