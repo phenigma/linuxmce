@@ -220,6 +220,8 @@
 #define SCREEN_OnOff_Toggle_CONST 221
 #define SCREEN_TVConfirmOnOffDiscre_CONST 222
 #define SCREEN_Internal_Disk_Driver_Wizard_CONST 223
+#define SCREEN_TVMultipleInputs_CONST 224
+#define SCREEN_TVDSPMode_CONST 225
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
