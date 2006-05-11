@@ -28,7 +28,7 @@ GetVideoDriver()
 
 TestConfig()
 {
-	X :2 -probeonly -xf86config "$ConfigFile" &>/dev/null
+	X :2 -probeonly -config "$ConfigFile" &>/dev/null
 	return $?
 }
 
