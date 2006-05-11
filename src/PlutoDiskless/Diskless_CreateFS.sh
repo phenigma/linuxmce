@@ -60,6 +60,63 @@ InstallKernel()
 	umount ./proc
 }
 
+Upgrade_Monster()
+{
+	MonsterInstState=$(dpkg -s monster-nucleus 2>/dev/null|grep ^Status|cut -d' ' -f2-)	
+	if [[ "$MonsterInstState" != "install ok installed" ]] ;then
+		return
+	fi
+
+	shopt -s nullglob
+	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
+	local Requirements="bootsplash-theme-monster
+	"
+	local NeededReq=""
+	local Pkg Name ReqVer InstVer InstState
+	
+	for Pkg in $Requirements; do
+		if [[ "$Pkg" != *=* ]]; then
+			Pkg="$Pkg="
+		fi
+		
+		Name=${Pkg%=*}
+		ReqVer=${Pkg#*=}
+		InstVer=$(chroot . dpkg -s $Name 2>/dev/null|grep ^Version|cut -d' ' -f2)
+		InstState=$(chroot . dpkg -s $Name 2>/dev/null|grep ^Status|cut -d' ' -f2-)
+		
+		if [[ -z "$InstVer" || "$InstState" != "install ok installed" ]]; then
+			NeededReq="$NeededReq $Name"
+		elif [[ -n "$ReqVer" ]] && dpkg --compare-versions "$InstVer" '<<' "$ReqVer"; then
+			NeededReq="$NeededReq $Name"
+		fi
+	done
+
+	if [[ -n "$NeededReq" ]]; then
+		#mount -t proc proc proc
+		# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
+
+		pushd tmp/
+		aptitude download $NeededReq
+		for File in $NeededReq; do
+			Filename=$(echo "$File"*)
+			if [[ -n "$Filename" ]]; then # it was downloaded
+				continue
+			fi
+			cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
+		done
+		popd
+
+		for Pkg in $NeededReq; do
+			chroot . dpkg -i -GE ./tmp/$Pkg*.deb
+		done
+
+		rm -f tmp/*.deb 2>/dev/null
+
+		# TODO: put replaced scripts back
+		#umount ./proc
+	fi
+}
+
 Upgrade_Essential()
 {
 	shopt -s nullglob
@@ -166,6 +223,7 @@ done
 # Pre-upgrade some packages
 set -x
 Upgrade_Essential
+Upgrade_Monster
 set +x
 
 # Make sure the right kernel version is installed
