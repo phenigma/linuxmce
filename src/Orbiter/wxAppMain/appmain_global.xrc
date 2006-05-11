@@ -1,5 +1,67 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
+    <object class="wxDialog" name="ID_DIALOG_POINTER" subclass="wxDialog_Pointer">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
+        <size>130,113d</size>
+        <title>Pointer Demo</title>
+        <centered>1</centered>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_Buttons">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxButton" name="ID_BUTTON_CONSTRAINMOUSE">
+                            <label>Constrain Mouse</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxButton" name="ID_BUTTON_LOADIMAGE">
+                            <label>Load Pointer Image</label>
+                            <default>1</default>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxBitmapButton" name="wxID_CLOSE">
+                            <bitmap>cancel.xpm</bitmap>
+                            <selected>ok.xpm</selected>
+                            <focus>exit.xpm</focus>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <object class="wxChoice" name="ID_CHOICE_STD">
+                    <content>
+                        <item>aa</item>
+                        <item>bb</item>
+                        <item>cc</item>
+                        <item>dd</item>
+                    </content>
+                    <selection>1</selection>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL|wxADJUST_MINSIZE</flag>
+                <border>5</border>
+                <object class="wxStaticText" name="wxID_STATIC">
+                    <label>Static text Static text Static text Static text Static text Static text Static text Static text </label>
+                </object>
+            </object>
+        </object>
+    </object>
     <object class="wxFrame" name="ID_FRAMEMAIN" subclass="wxFrameMain">
         <style>wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE|wxMAXIMIZE|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER</style>
         <size>700,300d</size>
@@ -27,6 +89,15 @@
             </object>
             <object class="separator">
             </object>
+            <object class="tool" name="ID_TOOL_POINTER">
+                <help>Pointer Demo</help>
+                <bitmap>contexthelp.xpm</bitmap>
+                <label>Ptr</label>
+                <tooltip>Pointer Demo</tooltip>
+                <longhelp>Pointer Demo</longhelp>
+            </object>
+            <object class="separator">
+            </object>
             <object class="tool" name="ID_TOOL_GL">
                 <help>GL window</help>
                 <bitmap>exec.xpm</bitmap>
@@ -45,7 +116,7 @@
             </object>
             <object class="tool" name="ID_TOOL_DBG">
                 <help>debug</help>
-                <bitmap>exec.xpm</bitmap>
+                <bitmap>bug.xpm</bitmap>
                 <label>dbg</label>
                 <tooltip>debug</tooltip>
                 <longhelp>debug</longhelp>
@@ -186,14 +257,14 @@
         <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
         <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
         <size>150,150d</size>
-        <title>wx Dialog_GL</title>
+        <title>OpenGL Demo</title>
         <centered>1</centered>
     </object>
     <object class="wxDialog" name="ID_DIALOG_SDL" subclass="wxDialog_SDL">
         <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
         <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
         <size>150,150d</size>
-        <title>wx Dialog_SDL</title>
+        <title>SDL Demo</title>
         <centered>1</centered>
     </object>
     <object class="wxPanel" name="ID_PANEL_ARROW" subclass="wxPanel_Arrow">

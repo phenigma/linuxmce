@@ -35,7 +35,7 @@
 ////@begin control identifiers
 #define ID_DIALOG_GL 10048
 #define SYMBOL_WXDIALOG_GL_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX
-#define SYMBOL_WXDIALOG_GL_TITLE _T("wx Dialog_GL")
+#define SYMBOL_WXDIALOG_GL_TITLE _T("OpenGL Demo")
 #define SYMBOL_WXDIALOG_GL_IDNAME ID_DIALOG_GL
 #define SYMBOL_WXDIALOG_GL_SIZE wxSize(150, 150)
 #define SYMBOL_WXDIALOG_GL_POSITION wxDefaultPosition
@@ -55,10 +55,10 @@
 
 class wxDialog_GL: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_GL )
-        DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxDialog_GL );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxDialog_GL( );
     wxDialog_GL( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_GL_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_GL_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_GL_POSITION, const wxSize& size = SYMBOL_WXDIALOG_GL_SIZE, long style = SYMBOL_WXDIALOG_GL_STYLE );

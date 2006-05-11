@@ -35,7 +35,7 @@
 ////@begin control identifiers
 #define ID_DIALOG_SDL 10049
 #define SYMBOL_WXDIALOG_SDL_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX
-#define SYMBOL_WXDIALOG_SDL_TITLE _T("wx Dialog_SDL")
+#define SYMBOL_WXDIALOG_SDL_TITLE _T("SDL Demo")
 #define SYMBOL_WXDIALOG_SDL_IDNAME ID_DIALOG_SDL
 #define SYMBOL_WXDIALOG_SDL_SIZE wxSize(150, 150)
 #define SYMBOL_WXDIALOG_SDL_POSITION wxDefaultPosition
@@ -55,10 +55,10 @@
 
 class wxDialog_SDL: public wxDialog_Base
 {
-    DECLARE_DYNAMIC_CLASS( wxDialog_SDL )
-        DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxDialog_SDL );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxDialog_SDL( );
     wxDialog_SDL( wxWindow* parent, wxWindowID id = SYMBOL_WXDIALOG_SDL_IDNAME, const wxString& caption = SYMBOL_WXDIALOG_SDL_TITLE, const wxPoint& pos = SYMBOL_WXDIALOG_SDL_POSITION, const wxSize& size = SYMBOL_WXDIALOG_SDL_SIZE, long style = SYMBOL_WXDIALOG_SDL_STYLE );

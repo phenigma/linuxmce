@@ -41,6 +41,7 @@ class wxStatusBar;
 #define SYMBOL_WXFRAMEMAIN_SIZE wxSize(700, 300)
 #define SYMBOL_WXFRAMEMAIN_POSITION wxPoint(0, 0)
 #define ID_TOOLBAR_MAIN 10006
+#define ID_TOOL_POINTER 10025
 #define ID_TOOL_GL 10046
 #define ID_TOOL_SDL 10047
 #define ID_TOOL_DBG 10000
@@ -97,6 +98,9 @@ public:
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for wxID_EXIT
     void OnExitClick( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_POINTER
+    void OnToolPointerClick( wxCommandEvent& event );
 
     /// wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_GL
     void OnToolGlClick( wxCommandEvent& event );

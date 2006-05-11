@@ -53,8 +53,7 @@ BEGIN_EVENT_TABLE( wxDialog_WaitUser, wxDialog_Base )
     EVT_BUTTON( wxID_ANY, wxDialog_Base::OnButton_EndModal )
     EVT_TIMER(ID_Timer_ExpireDialog, wxDialog_WaitUser::OnTimer_ExpireDialog)
 
-    END_EVENT_TABLE()
-    ;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_WaitUser constructors

@@ -165,6 +165,7 @@ void wxPanel_Volume::OnPaint( wxPaintEvent& event )
     // prepare an alpha surface
     wxImage oFgImage(width, height, true);
     oFgImage.InitAlpha();
+    //oFgImage.SetAlpha();
     wxBitmap oFgBitmap(oFgImage);
     wxMemoryDC dcFg;
     dcFg.SelectObject(oFgBitmap);

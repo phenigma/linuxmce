@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <anthemion-project version="1.0.0.0" xmlns="http://www.anthemion.co.uk">
   <header>
-    <long name="name_counter">0</long>
+    <long name="name_counter">2</long>
     <string name="html_path">""</string>
     <string name="title">""</string>
     <string name="author">""</string>
     <string name="description">""</string>
-    <long name="doc_count">160</long>
+    <long name="doc_count">208</long>
     <string name="xrc_filename">"appmain_global.xrc"</string>
     <bool name="convert_images_to_xpm">1</bool>
     <bool name="inline_images">0</bool>
@@ -290,6 +290,379 @@
           <string name="proxy-Main window">"ID_FRAMEMAIN"</string>
         </document>
         <document>
+          <string name="title">"wx Dialog_Pointer"</string>
+          <string name="type">"dialog-document"</string>
+          <string name="filename">""</string>
+          <string name="icon-name">"dialog"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"11/5/2006"</string>
+          <string name="proxy-type">"wbDialogProxy"</string>
+          <long name="base-id">10000</long>
+          <bool name="use-id-prefix">0</bool>
+          <string name="id-prefix">""</string>
+          <long name="use-xrc">0</long>
+          <string name="proxy-Id name">"ID_DIALOG_POINTER"</string>
+          <long name="proxy-Id value">10050</long>
+          <string name="proxy-Class">"wxDialog_Pointer"</string>
+          <string name="proxy-Base class">"wxDialog_Base"</string>
+          <string name="proxy-Window kind">"wxDialog"</string>
+          <string name="proxy-Implementation filename">"wxdialog_pointer.cpp"</string>
+          <string name="proxy-Header filename">"wxdialog_pointer.h"</string>
+          <string name="proxy-XRC filename">""</string>
+          <string name="proxy-Title">"Pointer Demo"</string>
+          <bool name="proxy-Centre">1</bool>
+          <string name="proxy-Icon">""</string>
+          <bool name="proxy-Dialog units">1</bool>
+          <string name="proxy-Help text">""</string>
+          <string name="proxy-Tooltip text">""</string>
+          <string name="proxy-Background colour">""</string>
+          <string name="proxy-Foreground colour">""</string>
+          <string name="proxy-Font">""</string>
+          <bool name="proxy-Hidden">0</bool>
+          <bool name="proxy-Enabled">1</bool>
+          <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+          <bool name="proxy-wxDEFAULT_DIALOG_STYLE">0</bool>
+          <bool name="proxy-wxCAPTION">1</bool>
+          <bool name="proxy-wxRESIZE_BORDER">1</bool>
+          <bool name="proxy-wxTHICK_FRAME">0</bool>
+          <bool name="proxy-wxSYSTEM_MENU">1</bool>
+          <bool name="proxy-wxSTAY_ON_TOP">0</bool>
+          <bool name="proxy-wxDIALOG_NO_PARENT">0</bool>
+          <bool name="proxy-wxCLOSE_BOX">1</bool>
+          <bool name="proxy-wxMAXIMIZE_BOX">0</bool>
+          <bool name="proxy-wxMINIMIZE_BOX">0</bool>
+          <bool name="proxy-wxDIALOG_MODAL">0</bool>
+          <bool name="proxy-wxNO_BORDER">0</bool>
+          <bool name="proxy-wxSIMPLE_BORDER">0</bool>
+          <bool name="proxy-wxDOUBLE_BORDER">0</bool>
+          <bool name="proxy-wxSUNKEN_BORDER">0</bool>
+          <bool name="proxy-wxRAISED_BORDER">0</bool>
+          <bool name="proxy-wxSTATIC_BORDER">0</bool>
+          <bool name="proxy-wxWANTS_CHARS">0</bool>
+          <bool name="proxy-wxCLIP_CHILDREN ">0</bool>
+          <bool name="proxy-wxTAB_TRAVERSAL">0</bool>
+          <bool name="proxy-wxWS_EX_VALIDATE_RECURSIVELY">0</bool>
+          <bool name="proxy-wxWS_EX_BLOCK_EVENTS">1</bool>
+          <bool name="proxy-wxWS_EX_TRANSIENT">0</bool>
+          <string name="proxy-Custom styles">""</string>
+          <bool name="proxy-wxDIALOG_EX_CONTEXTHELP">0</bool>
+          <bool name="proxy-Fit to content">1</bool>
+          <long name="proxy-X">-1</long>
+          <long name="proxy-Y">-1</long>
+          <long name="proxy-Width">130</long>
+          <long name="proxy-Height">113</long>
+          <string name="proxy-Event sources">""</string>
+          <document>
+            <string name="title">"wxBoxSizer V"</string>
+            <string name="type">"dialog-control-document"</string>
+            <string name="filename">""</string>
+            <string name="icon-name">"sizer"</string>
+            <long name="is-transient">0</long>
+            <long name="owns-file">1</long>
+            <long name="title-mode">0</long>
+            <long name="locked">0</long>
+            <string name="created">"11/5/2006"</string>
+            <string name="proxy-type">"wbBoxSizerProxy"</string>
+            <string name="proxy-Orientation">"Vertical"</string>
+            <string name="proxy-Member variable name">"v_pBoxV_all"</string>
+            <bool name="proxy-wxSHAPED">0</bool>
+            <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+            <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+            <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+            <document>
+              <string name="title">"wxBoxSizer H"</string>
+              <string name="type">"dialog-control-document"</string>
+              <string name="filename">""</string>
+              <string name="icon-name">"sizer"</string>
+              <long name="is-transient">0</long>
+              <long name="owns-file">1</long>
+              <long name="title-mode">0</long>
+              <long name="locked">0</long>
+              <string name="created">"11/5/2006"</string>
+              <string name="proxy-type">"wbBoxSizerProxy"</string>
+              <string name="proxy-Orientation">"Horizontal"</string>
+              <string name="proxy-Member variable name">"v_pBoxH_Buttons"</string>
+              <string name="proxy-AlignH">"Expand"</string>
+              <string name="proxy-AlignV">"Centre"</string>
+              <long name="proxy-Stretch factor">0</long>
+              <long name="proxy-Border">5</long>
+              <bool name="proxy-wxLEFT">1</bool>
+              <bool name="proxy-wxRIGHT">1</bool>
+              <bool name="proxy-wxTOP">1</bool>
+              <bool name="proxy-wxBOTTOM">1</bool>
+              <bool name="proxy-wxSHAPED">0</bool>
+              <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+              <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+              <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+              <document>
+                <string name="title">"wxButton: ID_BUTTON_CONSTRAINMOUSE"</string>
+                <string name="type">"dialog-control-document"</string>
+                <string name="filename">""</string>
+                <string name="icon-name">"dialogcontrol"</string>
+                <long name="is-transient">0</long>
+                <long name="owns-file">1</long>
+                <long name="title-mode">0</long>
+                <long name="locked">0</long>
+                <string name="created">"11/5/2006"</string>
+                <string name="proxy-type">"wbButtonProxy"</string>
+                <string name="event-handler-0">"wxEVT_COMMAND_BUTTON_CLICKED|OnButtonConstrainmouseClick"</string>
+                <string name="proxy-Id name">"ID_BUTTON_CONSTRAINMOUSE"</string>
+                <long name="proxy-Id value">10052</long>
+                <string name="proxy-Class">"wxButton"</string>
+                <string name="proxy-Member variable name">"v_pButton_ConstrainMouse"</string>
+                <string name="proxy-Label">"Constrain Mouse"</string>
+                <bool name="proxy-Default">0</bool>
+                <string name="proxy-Help text">""</string>
+                <string name="proxy-Tooltip text">""</string>
+                <string name="proxy-Background colour">""</string>
+                <string name="proxy-Foreground colour">""</string>
+                <string name="proxy-Font">""</string>
+                <bool name="proxy-Hidden">0</bool>
+                <bool name="proxy-Enabled">1</bool>
+                <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+                <bool name="proxy-wxBU_LEFT">0</bool>
+                <bool name="proxy-wxBU_RIGHT">0</bool>
+                <bool name="proxy-wxBU_TOP">0</bool>
+                <bool name="proxy-wxBU_BOTTOM">0</bool>
+                <bool name="proxy-wxBU_EXACTFIT">0</bool>
+                <bool name="proxy-wxNO_BORDER">0</bool>
+                <bool name="proxy-wxWANTS_CHARS">0</bool>
+                <string name="proxy-Custom styles">""</string>
+                <long name="proxy-X">-1</long>
+                <long name="proxy-Y">-1</long>
+                <long name="proxy-Width">-1</long>
+                <long name="proxy-Height">-1</long>
+                <string name="proxy-AlignH">"Centre"</string>
+                <string name="proxy-AlignV">"Centre"</string>
+                <long name="proxy-Stretch factor">0</long>
+                <long name="proxy-Border">5</long>
+                <bool name="proxy-wxLEFT">1</bool>
+                <bool name="proxy-wxRIGHT">1</bool>
+                <bool name="proxy-wxTOP">1</bool>
+                <bool name="proxy-wxBOTTOM">1</bool>
+                <bool name="proxy-wxSHAPED">0</bool>
+                <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+                <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+                <string name="proxy-Custom arguments">""</string>
+                <string name="proxy-Custom ctor arguments">""</string>
+              </document>
+              <document>
+                <string name="title">"wxButton: ID_BUTTON_LOADIMAGE"</string>
+                <string name="type">"dialog-control-document"</string>
+                <string name="filename">""</string>
+                <string name="icon-name">"dialogcontrol"</string>
+                <long name="is-transient">0</long>
+                <long name="owns-file">1</long>
+                <long name="title-mode">0</long>
+                <long name="locked">0</long>
+                <string name="created">"11/5/2006"</string>
+                <string name="proxy-type">"wbButtonProxy"</string>
+                <string name="event-handler-0">"wxEVT_COMMAND_BUTTON_CLICKED|OnButtonLoadimageClick"</string>
+                <string name="proxy-Id name">"ID_BUTTON_LOADIMAGE"</string>
+                <long name="proxy-Id value">10051</long>
+                <string name="proxy-Class">"wxButton"</string>
+                <string name="proxy-Member variable name">"v_pButton_LoadImage"</string>
+                <string name="proxy-Label">"Load Pointer Image"</string>
+                <bool name="proxy-Default">1</bool>
+                <string name="proxy-Help text">""</string>
+                <string name="proxy-Tooltip text">""</string>
+                <string name="proxy-Background colour">""</string>
+                <string name="proxy-Foreground colour">""</string>
+                <string name="proxy-Font">""</string>
+                <bool name="proxy-Hidden">0</bool>
+                <bool name="proxy-Enabled">1</bool>
+                <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+                <bool name="proxy-wxBU_LEFT">0</bool>
+                <bool name="proxy-wxBU_RIGHT">0</bool>
+                <bool name="proxy-wxBU_TOP">0</bool>
+                <bool name="proxy-wxBU_BOTTOM">0</bool>
+                <bool name="proxy-wxBU_EXACTFIT">0</bool>
+                <bool name="proxy-wxNO_BORDER">0</bool>
+                <bool name="proxy-wxWANTS_CHARS">0</bool>
+                <string name="proxy-Custom styles">""</string>
+                <long name="proxy-X">-1</long>
+                <long name="proxy-Y">-1</long>
+                <long name="proxy-Width">-1</long>
+                <long name="proxy-Height">-1</long>
+                <string name="proxy-AlignH">"Centre"</string>
+                <string name="proxy-AlignV">"Centre"</string>
+                <long name="proxy-Stretch factor">1</long>
+                <long name="proxy-Border">5</long>
+                <bool name="proxy-wxLEFT">1</bool>
+                <bool name="proxy-wxRIGHT">1</bool>
+                <bool name="proxy-wxTOP">1</bool>
+                <bool name="proxy-wxBOTTOM">1</bool>
+                <bool name="proxy-wxSHAPED">0</bool>
+                <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+                <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+                <string name="proxy-Custom arguments">""</string>
+                <string name="proxy-Custom ctor arguments">""</string>
+              </document>
+              <document>
+                <string name="title">"wxBitmapButton: wxID_CLOSE"</string>
+                <string name="type">"dialog-control-document"</string>
+                <string name="filename">""</string>
+                <string name="icon-name">"bitmapbutton"</string>
+                <long name="is-transient">0</long>
+                <long name="owns-file">1</long>
+                <long name="title-mode">0</long>
+                <long name="locked">0</long>
+                <string name="created">"11/5/2006"</string>
+                <string name="proxy-type">"wbBitmapButtonProxy"</string>
+                <string name="event-handler-0">"wxEVT_COMMAND_BUTTON_CLICKED|OnCloseClick|DESTROYWINDOW|ID_DIALOG_POINTER"</string>
+                <string name="proxy-Id name">"wxID_CLOSE"</string>
+                <long name="proxy-Id value">5001</long>
+                <string name="proxy-Class">"wxBitmapButton"</string>
+                <string name="proxy-Member variable name">"v_pButton_Close"</string>
+                <string name="proxy-Bitmap">"cancel.png"</string>
+                <string name="proxy-Bitmap (selected)">"ok.png"</string>
+                <string name="proxy-Bitmap (focused)">"exit.png"</string>
+                <string name="proxy-Bitmap (disabled)">""</string>
+                <string name="proxy-Help text">""</string>
+                <string name="proxy-Tooltip text">""</string>
+                <string name="proxy-Background colour">""</string>
+                <string name="proxy-Foreground colour">""</string>
+                <string name="proxy-Font">""</string>
+                <bool name="proxy-Hidden">0</bool>
+                <bool name="proxy-Enabled">1</bool>
+                <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+                <bool name="proxy-wxBU_AUTODRAW">0</bool>
+                <bool name="proxy-wxBU_EXACTFIT">0</bool>
+                <bool name="proxy-wxBU_LEFT">0</bool>
+                <bool name="proxy-wxBU_RIGHT">0</bool>
+                <bool name="proxy-wxBU_TOP">0</bool>
+                <bool name="proxy-wxBU_BOTTOM">0</bool>
+                <bool name="proxy-wxWANTS_CHARS">0</bool>
+                <string name="proxy-Custom styles">""</string>
+                <long name="proxy-X">-1</long>
+                <long name="proxy-Y">-1</long>
+                <long name="proxy-Width">-1</long>
+                <long name="proxy-Height">-1</long>
+                <string name="proxy-AlignH">"Expand"</string>
+                <string name="proxy-AlignV">"Centre"</string>
+                <long name="proxy-Stretch factor">0</long>
+                <long name="proxy-Border">5</long>
+                <bool name="proxy-wxLEFT">1</bool>
+                <bool name="proxy-wxRIGHT">1</bool>
+                <bool name="proxy-wxTOP">1</bool>
+                <bool name="proxy-wxBOTTOM">1</bool>
+                <bool name="proxy-wxSHAPED">0</bool>
+                <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+                <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+                <string name="proxy-Custom arguments">""</string>
+                <string name="proxy-Custom ctor arguments">""</string>
+              </document>
+            </document>
+            <document>
+              <string name="title">"wxChoice: ID_CHOICE_STD"</string>
+              <string name="type">"dialog-control-document"</string>
+              <string name="filename">""</string>
+              <string name="icon-name">"choice"</string>
+              <long name="is-transient">0</long>
+              <long name="owns-file">1</long>
+              <long name="title-mode">0</long>
+              <long name="locked">0</long>
+              <string name="created">"11/5/2006"</string>
+              <string name="proxy-type">"wbChoiceProxy"</string>
+              <string name="proxy-Id name">"ID_CHOICE_STD"</string>
+              <long name="proxy-Id value">10054</long>
+              <string name="proxy-Class">"wxChoice"</string>
+              <string name="proxy-Member variable name">"v_pChoice"</string>
+              <string name="proxy-Strings">"aa|bb|cc|dd"</string>
+              <string name="proxy-Initial value">"bb"</string>
+              <string name="proxy-Help text">""</string>
+              <string name="proxy-Tooltip text">""</string>
+              <string name="proxy-Background colour">""</string>
+              <string name="proxy-Foreground colour">""</string>
+              <string name="proxy-Font">""</string>
+              <bool name="proxy-Hidden">0</bool>
+              <bool name="proxy-Enabled">1</bool>
+              <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+              <string name="proxy-Data variable">""</string>
+              <string name="proxy-Data validator">""</string>
+              <bool name="proxy-wxWANTS_CHARS">0</bool>
+              <string name="proxy-Custom styles">""</string>
+              <long name="proxy-X">-1</long>
+              <long name="proxy-Y">-1</long>
+              <long name="proxy-Width">-1</long>
+              <long name="proxy-Height">-1</long>
+              <string name="proxy-AlignH">"Expand"</string>
+              <string name="proxy-AlignV">"Centre"</string>
+              <long name="proxy-Stretch factor">0</long>
+              <long name="proxy-Border">5</long>
+              <bool name="proxy-wxLEFT">1</bool>
+              <bool name="proxy-wxRIGHT">1</bool>
+              <bool name="proxy-wxTOP">1</bool>
+              <bool name="proxy-wxBOTTOM">1</bool>
+              <bool name="proxy-wxSHAPED">0</bool>
+              <bool name="proxy-wxADJUST_MINSIZE">0</bool>
+              <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+              <string name="proxy-Custom arguments">""</string>
+              <string name="proxy-Custom ctor arguments">""</string>
+            </document>
+            <document>
+              <string name="title">"wxStaticText: wxID_STATIC"</string>
+              <string name="type">"dialog-control-document"</string>
+              <string name="filename">""</string>
+              <string name="icon-name">"statictext"</string>
+              <long name="is-transient">0</long>
+              <long name="owns-file">1</long>
+              <long name="title-mode">0</long>
+              <long name="locked">0</long>
+              <string name="created">"11/5/2006"</string>
+              <string name="proxy-type">"wbStaticTextProxy"</string>
+              <string name="proxy-Id name">"wxID_STATIC"</string>
+              <long name="proxy-Id value">5105</long>
+              <string name="proxy-Class">"wxStaticText"</string>
+              <string name="proxy-Member variable name">"v_pStaticText"</string>
+              <string name="proxy-Label">"Static text Static text Static text Static text Static text Static text Static text Static text "</string>
+              <long name="proxy-Wrapping width">-1</long>
+              <string name="proxy-Help text">""</string>
+              <string name="proxy-Tooltip text">""</string>
+              <string name="proxy-Background colour">""</string>
+              <string name="proxy-Foreground colour">""</string>
+              <string name="proxy-Font">""</string>
+              <bool name="proxy-Hidden">0</bool>
+              <bool name="proxy-Enabled">1</bool>
+              <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+              <string name="proxy-Data variable">""</string>
+              <string name="proxy-Data validator">""</string>
+              <bool name="proxy-wxALIGN_LEFT">0</bool>
+              <bool name="proxy-wxALIGN_RIGHT">0</bool>
+              <bool name="proxy-wxALIGN_CENTRE">0</bool>
+              <bool name="proxy-wxST_NO_AUTORESIZE">0</bool>
+              <bool name="proxy-wxNO_BORDER">0</bool>
+              <bool name="proxy-wxSIMPLE_BORDER">0</bool>
+              <bool name="proxy-wxDOUBLE_BORDER">0</bool>
+              <bool name="proxy-wxSUNKEN_BORDER">0</bool>
+              <bool name="proxy-wxRAISED_BORDER">0</bool>
+              <bool name="proxy-wxSTATIC_BORDER">0</bool>
+              <bool name="proxy-wxWANTS_CHARS">0</bool>
+              <string name="proxy-Custom styles">""</string>
+              <long name="proxy-X">-1</long>
+              <long name="proxy-Y">-1</long>
+              <long name="proxy-Width">-1</long>
+              <long name="proxy-Height">-1</long>
+              <string name="proxy-AlignH">"Expand"</string>
+              <string name="proxy-AlignV">"Centre"</string>
+              <long name="proxy-Stretch factor">0</long>
+              <long name="proxy-Border">5</long>
+              <bool name="proxy-wxLEFT">1</bool>
+              <bool name="proxy-wxRIGHT">1</bool>
+              <bool name="proxy-wxTOP">1</bool>
+              <bool name="proxy-wxBOTTOM">1</bool>
+              <bool name="proxy-wxSHAPED">0</bool>
+              <bool name="proxy-wxADJUST_MINSIZE">1</bool>
+              <bool name="proxy-wxFIXED_MINSIZE">0</bool>
+              <string name="proxy-Custom arguments">""</string>
+              <string name="proxy-Custom ctor arguments">""</string>
+            </document>
+          </document>
+        </document>
+        <document>
           <string name="title">"wx Frame Main"</string>
           <string name="type">"dialog-document"</string>
           <string name="filename">""</string>
@@ -430,7 +803,7 @@
             <long name="owns-file">1</long>
             <long name="title-mode">0</long>
             <long name="locked">0</long>
-            <string name="created">"16/3/2005"</string>
+            <string name="created">"9/5/2006"</string>
             <string name="proxy-type">"wbToolBarProxy"</string>
             <string name="proxy-Id name">"ID_TOOLBAR_MAIN"</string>
             <long name="proxy-Id value">10006</long>
@@ -496,7 +869,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"4/5/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnExitClick|DESTROYWINDOW|ID_FRAMEMAIN"</string>
               <string name="proxy-Id name">"wxID_EXIT"</string>
@@ -519,7 +892,43 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"17/3/2006"</string>
+              <string name="created">"9/5/2006"</string>
+              <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
+              <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+            </document>
+            <document>
+              <string name="title">"Ptr: ID_TOOL_POINTER"</string>
+              <string name="type">"dialog-control-document"</string>
+              <string name="filename">""</string>
+              <string name="icon-name">"menuitem"</string>
+              <long name="is-transient">0</long>
+              <long name="owns-file">1</long>
+              <long name="title-mode">0</long>
+              <long name="locked">0</long>
+              <string name="created">"9/5/2006"</string>
+              <string name="proxy-type">"wbToolBarButtonProxy"</string>
+              <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolPointerClick|SHOWWINDOW|ID_DIALOG_POINTER"</string>
+              <string name="proxy-Id name">"ID_TOOL_POINTER"</string>
+              <long name="proxy-Id value">10025</long>
+              <string name="proxy-Bitmap">"contexthelp.png"</string>
+              <string name="proxy-Bitmap (disabled)">""</string>
+              <string name="proxy-Label">"Ptr"</string>
+              <string name="proxy-Kind">"Normal"</string>
+              <bool name="proxy-Enabled">1</bool>
+              <string name="proxy-Tooltip">"Pointer Demo"</string>
+              <string name="proxy-Help text">"Pointer Demo"</string>
+              <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
+            </document>
+            <document>
+              <string name="title">"----------"</string>
+              <string name="type">"dialog-control-document"</string>
+              <string name="filename">""</string>
+              <string name="icon-name">"menuitem"</string>
+              <long name="is-transient">0</long>
+              <long name="owns-file">1</long>
+              <long name="title-mode">0</long>
+              <long name="locked">0</long>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -532,7 +941,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"8/5/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolGlClick|SHOWWINDOW|ID_DIALOG_GL"</string>
               <string name="proxy-Id name">"ID_TOOL_GL"</string>
@@ -555,7 +964,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"8/5/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolSdlClick|SHOWWINDOW|ID_DIALOG_SDL"</string>
               <string name="proxy-Id name">"ID_TOOL_SDL"</string>
@@ -578,7 +987,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"8/5/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -591,13 +1000,13 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"17/3/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolDbgClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolDbgUpdate"</string>
               <string name="proxy-Id name">"ID_TOOL_DBG"</string>
               <long name="proxy-Id value">10000</long>
-              <string name="proxy-Bitmap">"exec.png"</string>
+              <string name="proxy-Bitmap">"bug.png"</string>
               <string name="proxy-Bitmap (disabled)">""</string>
               <string name="proxy-Label">"dbg"</string>
               <string name="proxy-Kind">"Check"</string>
@@ -615,7 +1024,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"2/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -628,7 +1037,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"20/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolSpeedcontolClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolSpeedcontolUpdate"</string>
@@ -652,7 +1061,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"20/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolVolumecontrolClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolVolumecontrolUpdate"</string>
@@ -676,7 +1085,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"20/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolLightcontrolClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolLightcontrolUpdate"</string>
@@ -700,7 +1109,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"20/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -713,7 +1122,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"2/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolRoomwizardClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolRoomwizardUpdate"</string>
@@ -737,7 +1146,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"17/11/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolWaitgridClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolWaitgridUpdate"</string>
@@ -761,7 +1170,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"17/11/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolWaitlistClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolWaitlistUpdate"</string>
@@ -785,7 +1194,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"17/11/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolWaituserClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolWaituserUpdate"</string>
@@ -809,7 +1218,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"20/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -822,7 +1231,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"6/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolUBDClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolUBDUpdate"</string>
@@ -846,7 +1255,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"6/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolUBJClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolUBJUpdate"</string>
@@ -870,7 +1279,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"6/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolUNDClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolUNDUpdate"</string>
@@ -894,7 +1303,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"2/4/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolUNJClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolUNJUpdate"</string>
@@ -918,7 +1327,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"28/3/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarButtonProxy"</string>
               <string name="event-handler-0">"wxEVT_COMMAND_MENU_SELECTED|OnToolStopClick"</string>
               <string name="event-handler-1">"wxEVT_UPDATE_UI|OnToolStopUpdate"</string>
@@ -942,7 +1351,7 @@
               <long name="owns-file">1</long>
               <long name="title-mode">0</long>
               <long name="locked">0</long>
-              <string name="created">"5/5/2006"</string>
+              <string name="created">"9/5/2006"</string>
               <string name="proxy-type">"wbToolBarSeparatorProxy"</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
             </document>
@@ -1093,7 +1502,7 @@
           <string name="proxy-Implementation filename">"wxdialog_gl.cpp"</string>
           <string name="proxy-Header filename">"wxdialog_gl.h"</string>
           <string name="proxy-XRC filename">""</string>
-          <string name="proxy-Title">"wx Dialog_GL"</string>
+          <string name="proxy-Title">"OpenGL Demo"</string>
           <bool name="proxy-Centre">1</bool>
           <string name="proxy-Icon">""</string>
           <bool name="proxy-Dialog units">1</bool>
@@ -1161,7 +1570,7 @@
           <string name="proxy-Implementation filename">"wxdialog_sdl.cpp"</string>
           <string name="proxy-Header filename">"wxdialog_sdl.h"</string>
           <string name="proxy-XRC filename">""</string>
-          <string name="proxy-Title">"wx Dialog_SDL"</string>
+          <string name="proxy-Title">"SDL Demo"</string>
           <bool name="proxy-Centre">1</bool>
           <string name="proxy-Icon">""</string>
           <bool name="proxy-Dialog units">1</bool>
@@ -1953,6 +2362,14 @@
             <string name="proxy-type">"wbBoxSizerProxy"</string>
             <string name="proxy-Orientation">"Vertical"</string>
             <string name="proxy-Member variable name">"v_pBoxV_all"</string>
+            <string name="proxy-AlignH">"Centre"</string>
+            <string name="proxy-AlignV">"Centre"</string>
+            <long name="proxy-Stretch factor">0</long>
+            <long name="proxy-Border">5</long>
+            <bool name="proxy-wxLEFT">1</bool>
+            <bool name="proxy-wxRIGHT">1</bool>
+            <bool name="proxy-wxTOP">1</bool>
+            <bool name="proxy-wxBOTTOM">1</bool>
             <bool name="proxy-wxSHAPED">0</bool>
             <bool name="proxy-wxADJUST_MINSIZE">0</bool>
             <bool name="proxy-wxFIXED_MINSIZE">0</bool>
@@ -4022,7 +4439,7 @@
                 <long name="owns-file">1</long>
                 <long name="title-mode">0</long>
                 <long name="locked">0</long>
-                <string name="created">"6/5/2006"</string>
+                <string name="created">"9/5/2006"</string>
                 <string name="proxy-type">"wbButtonProxy"</string>
                 <string name="proxy-Id name">"wxID_OK"</string>
                 <long name="proxy-Id value">5100</long>
@@ -4512,6 +4929,94 @@
           <long name="zoom-level">100</long>
         </document>
         <document>
+          <string name="title">"1downarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"1downarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"1leftarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"1leftarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"1rightarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"1rightarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"1uparrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"1uparrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"2downarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"2downarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"2leftarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"2leftarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"2rightarrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"2rightarrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"2uparrow.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"2uparrow.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
           <string name="title">"attach.png"</string>
           <string name="type">"image-document"</string>
           <string name="filename">"attach.png"</string>
@@ -4521,6 +5026,72 @@
           <long name="title-mode">0</long>
           <long name="locked">0</long>
           <string name="created">"6/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"back.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"back.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"bookmark.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"bookmark.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"bookmark_add.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"bookmark_add.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"bookmark_toolbar.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"bookmark_toolbar.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"bottom.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"bottom.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"bug.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"bug.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
           <long name="zoom-level">100</long>
         </document>
         <document>
@@ -4539,6 +5110,39 @@
           <string name="title">"clock.png"</string>
           <string name="type">"image-document"</string>
           <string name="filename">"clock.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"contexthelp.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"contexthelp.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"down.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"down.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"editclear.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"editclear.png"</string>
           <string name="icon-name">"image"</string>
           <long name="is-transient">0</long>
           <long name="owns-file">1</long>
@@ -4641,6 +5245,28 @@
           <long name="zoom-level">100</long>
         </document>
         <document>
+          <string name="title">"finish.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"finish.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"forward.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"forward.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
           <string name="title">"gear.png"</string>
           <string name="type">"image-document"</string>
           <string name="filename">"gear.png"</string>
@@ -4650,6 +5276,17 @@
           <long name="title-mode">0</long>
           <long name="locked">0</long>
           <string name="created">"6/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"gohome.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"gohome.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
           <long name="zoom-level">100</long>
         </document>
         <document>
@@ -4773,6 +5410,137 @@
           <long name="zoom-level">100</long>
         </document>
         <document>
+          <string name="title">"player_eject.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_eject.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_end.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_end.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_fwd.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_fwd.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_pause.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_pause.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_play.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_play.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_rew.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_rew.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_start.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_start.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"player_stop.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"player_stop.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"previous.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"previous.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"redo.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"redo.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"reload.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"reload.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
           <string name="title">"remove.png"</string>
           <string name="type">"image-document"</string>
           <string name="filename">"remove.png"</string>
@@ -4781,7 +5549,30 @@
           <long name="owns-file">1</long>
           <long name="title-mode">0</long>
           <long name="locked">0</long>
-          <string name="created">"6/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"rotate.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"rotate.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"rotate_cw.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"rotate_cw.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
           <long name="zoom-level">100</long>
         </document>
         <document>
@@ -4793,7 +5584,18 @@
           <long name="owns-file">1</long>
           <long name="title-mode">0</long>
           <long name="locked">0</long>
-          <string name="created">"6/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"start.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"start.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
           <long name="zoom-level">100</long>
         </document>
         <document>
@@ -4805,7 +5607,53 @@
           <long name="owns-file">1</long>
           <long name="title-mode">0</long>
           <long name="locked">0</long>
-          <string name="created">"6/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"top.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"top.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"undo.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"undo.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"up.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"up.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
+          <long name="zoom-level">100</long>
+        </document>
+        <document>
+          <string name="title">"wizard.png"</string>
+          <string name="type">"image-document"</string>
+          <string name="filename">"wizard.png"</string>
+          <string name="icon-name">"image"</string>
+          <long name="is-transient">0</long>
+          <long name="owns-file">1</long>
+          <long name="title-mode">0</long>
+          <long name="locked">0</long>
+          <string name="created">"9/5/2006"</string>
           <long name="zoom-level">100</long>
         </document>
       </document>

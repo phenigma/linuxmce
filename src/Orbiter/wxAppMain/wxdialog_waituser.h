@@ -106,7 +106,6 @@ public:
     virtual bool Gui_DataLoad(CallBackData *pCallBackData);
 
 protected:
-    void OnAnyButtonClick( wxCommandEvent& event );
     void OnTimer_ExpireDialog(wxTimerEvent& event);
 
     int v_nExpireTime_ms; // in milliseconds
