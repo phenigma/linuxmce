@@ -5,6 +5,7 @@
 
 #include "WizardWidgetButton.h"
 
+#include "XinePlayer.h"
 class WizardPageDTSTest :
 	public WizardPage
 {
@@ -15,6 +16,7 @@ class WizardPageDTSTest :
 	WizardWidgetButton* Selected;
 
 	void SearchSelectedItem();
+	XinePlayer* Player;
 public:
 	virtual int DoApplySetting(SettingsDictionary* Dictionary);
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

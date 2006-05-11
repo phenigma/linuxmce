@@ -5,11 +5,15 @@
 
 #include "WizardWidgetLabel.h"
 
+#include "XinePlayer.h"
+
 class WizardPageAudioVolume :
 	public WizardPage
 {
 	int AudioVolumeMin, AudioVolumeMax, AudioVolumeCurrent, AudioVolumeIncrement;
 	WizardWidgetLabel* VolumeLabel;
+
+	XinePlayer* Player;
 public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 

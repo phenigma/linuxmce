@@ -11,6 +11,7 @@ WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string 
 	AudioVolumeMax = 31;
 	AudioVolumeCurrent = 15;
 	AudioVolumeIncrement = 1;
+	Player = NULL;
 }
 
 WizardPageAudioVolume::~WizardPageAudioVolume()
@@ -31,6 +32,17 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 
 /*virtual*/ void WizardPageAudioVolume::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	std::string FileName, ConfigName;
+	Player = new XinePlayer();
+	if(AVWizardSettings->Exists("XineConfigFile"))
+	{
+		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
+
+		if(AVWizardSettings->Exists("SoundTestFile"))
+			FileName = AVWizardSettings->GetValue("SoundTestFile");
+		Player->InitPlayerEngine(ConfigName, FileName);
+	}
+	
 	if(!AVWizardSettings->Exists("AudioVolumeMin"))
 		AudioVolumeMin = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMin"));
 
@@ -57,10 +69,12 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 	AudioVolumeCurrent = NewVolume;
 
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
-	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
+	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin) 
+		* 100 / (AudioVolumeMax - AudioVolumeMin)) + "%";
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 
-	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent)+" unmute";
+	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +
+		" unmute >/dev/null";
 	system(Command.c_str());
 
 }
@@ -76,6 +90,8 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	
-	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent)+" unmute";
+	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +
+		" unmute >/dev/null";
 	system(Command.c_str());
 }
+

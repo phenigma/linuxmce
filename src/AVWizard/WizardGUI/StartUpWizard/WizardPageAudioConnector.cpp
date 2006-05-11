@@ -1,6 +1,7 @@
 #include "WizardPageAudioConnector.h"
 
 #include "GUIWizardUtils.h"
+#include "ConfigureCommons.h"
 
 WizardPageAudioConnector::WizardPageAudioConnector(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
@@ -23,6 +24,9 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 		return -1;
 	OutputValue = Selected->GetCaption();
 	Dictionary->Set("AudioConnector", OutputValue);
+	std::string Command = COMMAND_SET_AUDIO_CONNECTOR;
+	Command = Command + " " + OutputValue;
+	system(Command.c_str());
 	return 0;
 }
 

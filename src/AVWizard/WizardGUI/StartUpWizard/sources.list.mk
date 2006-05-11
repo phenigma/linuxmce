@@ -44,4 +44,5 @@ WizardPageAudioVolume.cpp \
 WizardPageDolbyTest.cpp \
 WizardPageDTSTest.cpp \
 WizardPageFinalSelections.cpp \
+XinePlayer.cpp \
 XUtilities.cpp 

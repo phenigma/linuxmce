@@ -9,10 +9,12 @@ WizardPageDTSTest::WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name)
 	Buttons["Yes, I can hear it"] = 2;
 	OutputValue = "Yes, I can hear it";
 	Selected = NULL;
+	Player = NULL;
 }
 
 WizardPageDTSTest::~WizardPageDTSTest(void)
 {
+	delete Player;
 }
 
 /*virtual*/ int WizardPageDTSTest::DoApplySetting(SettingsDictionary* Dictionary)
@@ -26,6 +28,18 @@ WizardPageDTSTest::~WizardPageDTSTest(void)
 
 /*virtual*/ void WizardPageDTSTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	std::string FileName, ConfigName;
+	Player = new XinePlayer();
+	if(AVWizardSettings->Exists("XineConfigFile"))
+	{
+		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
+
+		if(AVWizardSettings->Exists("DTSTestFile"))
+			FileName = AVWizardSettings->GetValue("DTSTestFile");
+		Player->InitPlayerEngine(ConfigName, FileName);
+	}
+	
+
 	if(!AVWizardSettings->Exists("DTSTest"))
 	{
 		SearchSelectedItem();

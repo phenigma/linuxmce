@@ -9,10 +9,12 @@ WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name
 	Buttons["Yes, I can hear it"] = 2;
 	OutputValue = "Yes, I can hear it";
 	Selected = NULL;
+	Player = NULL;
 }
 
 WizardPageDolbyTest::~WizardPageDolbyTest(void)
 {
+	delete Player;
 }
 
 /*virtual*/ int WizardPageDolbyTest::DoApplySetting(SettingsDictionary* Dictionary)
@@ -26,6 +28,17 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ void WizardPageDolbyTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	std::string FileName, ConfigName;
+	Player = new XinePlayer();
+	if(AVWizardSettings->Exists("XineConfigFile"))
+	{
+		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
+
+		if(AVWizardSettings->Exists("DolbyTestFile"))
+			FileName = AVWizardSettings->GetValue("DolbyTestFile");
+		Player->InitPlayerEngine(ConfigName, FileName);
+	}
+
 	if(!AVWizardSettings->Exists("DolbyTest"))
 	{
 		SearchSelectedItem();
