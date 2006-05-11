@@ -53,4 +53,16 @@
 	$g_short_date_format    = 'Y-m-d';
 	$g_normal_date_format   = 'Y-m-d H:i';
 	$g_complete_date_format = 'Y-m-d H:i T';
+	
+	# --- enum strings ----------------
+	$g_status_enum_string				= '50:open,80:fixed,85:re-open,90:closed';
+	$g_severity_enum_string				= '20:trivial,40:normal,50:minor,60:major,70:crash,80:block';
+	$g_resolution_enum_string 			= '5:pending,10:assigned,15:feedback,20:fixed,30:validation failed,40:unable to reproduce,60:duplicate,80:deferred,85:as designed,90:not a bug,95:on hold';
+
+
+	$g_status_colors		= array( 'open'			=> '#c8c8ff', # red,
+									 'fixed'		=> '#cceedd', # blue
+									 're-open'		=> '#FFFFB0', # buish-green
+									 'closed'		=> '#e8e8e8'); # light gray
+	
 ?>

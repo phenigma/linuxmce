@@ -38,10 +38,10 @@
 
 
 	# status
-	define( 'NEW_',				10 );   # NEW seems to be a reserved keyword
-	define( 'FEEDBACK',			20 );
-	define( 'ACKNOWLEDGED',		30 );
-	define( 'CONFIRMED',		40 );
+	define( 'NEW_',				50 );   # NEW seems to be a reserved keyword
+	define( 'FEEDBACK',			50 );
+	define( 'ACKNOWLEDGED',		50 );
+	define( 'CONFIRMED',		50 );
 	define( 'ASSIGNED',			50 );
 	define( 'RESOLVED',			80 );
 	define( 'CLOSED',			90 );

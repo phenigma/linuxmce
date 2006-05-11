@@ -111,41 +111,6 @@ for ($i=0;$i<$new_user_count;$i++) {
 </table>
 <?php } # New Accounts Form END ?>
 
-<?php # Never Logged In Form BEGIN ?>
-<?php
-	$query = "SELECT *
-		FROM $t_user_table
-		WHERE login_count=0
-		ORDER BY date_created DESC";
-	$result = db_query( $query );
-	$user_count = db_num_rows( $result );
-
-	if ( $user_count > 0 ) {
-?>
-<br />
-<table class="width100" cellspacing="1">
-<tr>
-	<td class="form-title">
-		<?php echo lang_get( 'never_logged_in_title' ) ?> [<?php echo $user_count ?>] <?php print_button( 'manage_user_prune.php', lang_get( 'prune_accounts' ) ); ?>
-	</td>
-</tr>
-<tr <?php echo helper_alternate_class() ?>>
-	<td>
-<?php
-	for ($i=0;$i<$user_count;$i++) {
-		$row = db_fetch_array( $result );
-
-		if ( $i > 0 ) {
-			echo ' : ';
-		}
-
-		echo '<a href="manage_user_edit_page.php?user_id=', $row['id'], '">', $row['username'], '</a>';
-	}
-?>
-	</td>
-</tr>
-</table>
-<?php } # Never Logged In Form END ?>
 
 <?php # Manage Form BEGIN ?>
 <?php
