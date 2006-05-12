@@ -23,7 +23,7 @@ namespace DCE
 		virtual bool Register()=0;   // returns true if successful
 		virtual int ID_get()=0;	// HACK - this changes now	 // returns the ID of the Plug-in
 		virtual ::std::string Description_get()=0; // HACK	// Returns a textual description of the plug-in
-		virtual bool ReceivedMessage(class Message *pMessage) { return false; } // HACK =0; 
+		virtual ReceivedMessageResult ReceivedMessage(class Message *pMessage) { return false; } // HACK =0; 
 
 		// Some Plug-ins may want to get pointers to, or register with other plug-ins
 		// Init will be called when all the Plug-in's have registered

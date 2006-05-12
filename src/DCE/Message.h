@@ -130,7 +130,6 @@ namespace DCE
          */
         bool m_bRelativeToSender;
 
-		bool m_bAutoDelete; // Message will auto-delete
 		bool m_bCanBuffer;  // This message can be buffered
 
         /**

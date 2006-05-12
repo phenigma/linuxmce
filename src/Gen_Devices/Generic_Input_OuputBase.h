@@ -88,7 +88,7 @@ public:
 	//Commands - Override these to handle commands from the server
 
 	//This distributes a received message to your handler.
-	virtual bool ReceivedMessage(class Message *pMessageOriginal)
+	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
 	{
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
@@ -120,7 +120,7 @@ public:
 				}
 			}
 		}
-		return iHandled!=0;
+		return iHandled!=0 ? rmr_Processed : rmr_NotProcessed;
 	}
 }; // end class
 

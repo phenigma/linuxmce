@@ -192,11 +192,11 @@ public:
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
-	virtual bool ReceivedMessage(class Message *pMessageOriginal)
+	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
 	{
 		map<long, string>::iterator itRepeat;
-		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
-			return true;
+		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+			return rmr_Processed;
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -335,7 +335,7 @@ public:
 					SendString("UNHANDLED");
 			}
 		}
-		return iHandled!=0;
+		return iHandled!=0 ? rmr_Processed : rmr_NotProcessed;
 	}
 }; // end class
 

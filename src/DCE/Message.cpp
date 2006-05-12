@@ -450,7 +450,6 @@ void Message::Clear()
 	m_MessageID = g_MessageID++;
 #endif
 
-	m_bAutoDelete = true;
 	m_bCanBuffer = true;
 	m_bRelativeToSender = true;
     m_eExpectedResponse = ER_None;
@@ -469,10 +468,7 @@ void Message::Clear()
     m_mapParameters.clear();
 
     for(vector<Message *>::iterator it = m_vectExtraMessages.begin(); it != m_vectExtraMessages.end(); ++it)
-	{
-		if( (*it)->m_bAutoDelete )
-	        delete *it;
-	}
+        delete *it;
     m_vectExtraMessages.clear();
 
 	map<long, char *>::iterator i;

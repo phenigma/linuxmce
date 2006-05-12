@@ -344,7 +344,7 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 
     // We need our own message queue so that if a message comes in we don't know how to handle, we first hand it off to the plug-in, and if
     // that doesn't handle it either, we send it to the actual media device
-    bool ReceivedMessage(class Message *pMessage);
+    ReceivedMessageResult ReceivedMessage(class Message *pMessage);
 
     // Our message interceptors
     /**

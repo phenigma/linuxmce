@@ -15,6 +15,8 @@
 
 namespace DCE
 {
+	typedef enum { rmr_Processed, rmr_NotProcessed, rmr_Buffered } ReceivedMessageResult;
+
 	/**
 	 * @brief socket that handles requests
 	 */
@@ -23,7 +25,6 @@ namespace DCE
 		
 	public:
 		
-		enum ReceivedMessageResult { rmr_Processed, rmr_NotProcessed, rmr_Buffered };
 		pthread_t m_RequestHandlerThread; /** < he thread that runs the main loop */
 
 		bool m_bRunning; /** < the socket is running */
@@ -66,7 +67,7 @@ namespace DCE
 		 * @brief virtual
 		 * @see the definition from the base class
 		 */
-		virtual enum ReceivedMessageResult ReceivedMessage( Message *pMessage )=0;
+		virtual ReceivedMessageResult ReceivedMessage( Message *pMessage )=0;
 
 		/**
 		 * @brief runs a loop that handles outgoing and incoming messages and strings

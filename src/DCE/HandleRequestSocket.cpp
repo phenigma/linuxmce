@@ -185,7 +185,8 @@ void HandleRequestSocket::RunThread()
 					g_pPlutoLogger->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
 						pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device );
 #endif
-					if ( !ReceivedMessage( pMessage ) )
+					ReceivedMessageResult receivedMessageResult = ReceivedMessage( pMessage );
+					if ( receivedMessageResult == rmr_NotProcessed )
 					{
 						#ifdef LOG_ALL_CONTROLLER_ACTIVITY
 							LACA_B4_6( "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
@@ -196,7 +197,7 @@ void HandleRequestSocket::RunThread()
 							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
 					}
-					if( pMessage->m_bAutoDelete )
+					if( receivedMessageResult != rmr_Buffered )
 						delete pMessage;
 				}
 				else

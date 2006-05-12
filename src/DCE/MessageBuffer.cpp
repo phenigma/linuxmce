@@ -83,7 +83,6 @@ bool MessageBuffer::BufferMessage(Message *pMessage)
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"MessageBuffer::BufferMessage adding to queue message %p",pMessage);
-	pMessage->m_bAutoDelete = false;
 
 	m_listMessage.push_back(pMessage);
 	pthread_cond_broadcast( &m_MessageBufferCond );

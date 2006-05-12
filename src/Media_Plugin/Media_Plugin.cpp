@@ -1087,13 +1087,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 }
 
 
-bool Media_Plugin::ReceivedMessage( class Message *pMessage )
+ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
     // Give it to our base class to see if we have a handler
-    if( !Media_Plugin_Command::ReceivedMessage( pMessage ) )
+    if( Media_Plugin_Command::ReceivedMessage( pMessage )!=rmr_Processed )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Media plug base class didn't handle message id: %d", pMessage->m_dwID );
 	
@@ -1107,7 +1107,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 		{
 			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 			SendCommand(CMD_Eject_Disk_Cat);
-			return true;
+			return rmr_Processed;
 		}
 
 		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
@@ -1118,11 +1118,11 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
 				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 				SendCommand(CMD_Eject_Disk_Cat);
-				return true;
+				return rmr_Processed;
 			}
 
 			g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
-			return false;
+			return rmr_NotProcessed;
         	}
 		pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
@@ -1231,7 +1231,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		// Don't forward to the generic handler--it's just ourself
-        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || !pPlugIn->ReceivedMessage( pMessage ) )
+        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
@@ -1312,7 +1312,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 
     g_pPlutoLogger->Write( LV_STATUS, "Media plug base done with id: %d", pMessage->m_dwID );
 
-    return true;
+    return rmr_Processed;
 }
 
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScreen )

@@ -829,7 +829,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief Redraw any objects that change during execution of a command
 		*/
-		virtual bool ReceivedMessage( class Message *pMessageOriginal );
+		virtual ReceivedMessageResult ReceivedMessage( class Message *pMessageOriginal );
 
 		/**
 		* @brief sets the capture keyboard parameters

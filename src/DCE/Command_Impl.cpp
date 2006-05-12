@@ -560,12 +560,12 @@ void Command_Impl::ReceivedString( string sLine, int nTimeout/*= -1*/)
 	}
 }
 
-enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage ) 
+ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage ) 
 {
 	if( pMessage->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
 	{
 		InterceptedMessage(pMessage);
-		return true;
+		return rmr_Processed;
 	}
 
 	// The class that overrides this will try to handle it
@@ -584,7 +584,7 @@ enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 			if (m_pEvent && m_pEvent->m_pClientSocket)
 				m_pEvent->m_pClientSocket->Disconnect();
 			*/
-			return true;
+			return rmr_Processed;
 		}
 		else if( pMessage->m_dwID == SYSCOMMAND_SEGFAULT )
 		{
@@ -606,7 +606,7 @@ enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		SendString("BYE");
 		Sleep(250);
 		OnReload();
-		return true;
+		return rmr_Processed;
 	}
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
 	{
@@ -648,7 +648,7 @@ enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
 		}
 
-		return true;
+		return rmr_Processed;
 	}
 	else
 		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
@@ -669,10 +669,10 @@ enum ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 				g_pPlutoLogger->Write( LV_WARNING, "Got a data parm change without the value to change." );
 				SendString( "ERR Input" );
 			}
-			return true;
+			return rmr_Processed;
 		}
 
-	return false;
+	return rmr_NotProcessed;
 }
 
 void Command_Impl::QueueMessageToRouter( Message *pMessage )

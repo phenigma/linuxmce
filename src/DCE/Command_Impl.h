@@ -240,7 +240,7 @@ namespace DCE
 		/**
 		 * @brief performes a specific action bases on the message type
 		 */
-		virtual enum ReceivedMessageResult ReceivedMessage( Message *pMessage );
+		virtual ReceivedMessageResult ReceivedMessage( Message *pMessage );
 		
 		/**
 		 * @brief adds the message to the message queue

@@ -662,12 +662,13 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "" << endl;
 */
 	fstr_DeviceCommand << "\t//This distributes a received message to your handler." << endl;
-	fstr_DeviceCommand << "\tvirtual bool ReceivedMessage(class Message *pMessageOriginal)" << endl;
+	fstr_DeviceCommand << "\tvirtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)" << endl;
 	fstr_DeviceCommand << "\t{" << endl;
 
 	fstr_DeviceCommand << "\t\tmap<long, string>::iterator itRepeat;" << endl;
-	fstr_DeviceCommand << "\t\tif( Command_Impl::ReceivedMessage(pMessageOriginal) )" << endl;
-	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
+
+	fstr_DeviceCommand << "\t\tif( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )" << endl;
+	fstr_DeviceCommand << "\t\t\treturn rmr_Processed;" << endl;
 
 	fstr_DeviceCommand << "\t\tint iHandled=0;" << endl;
 	fstr_DeviceCommand << "\t\tfor(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)" << endl;
@@ -677,6 +678,11 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	if (deviceInfo.m_mapCommandInfo.size()>0)
 	{
 		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)\n\t\t\t{" << endl;
+
+		fstr_DeviceCommand << "\t\t\t\t// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't" << endl;
+		fstr_DeviceCommand << "\t\t\t\tif( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )" << endl;
+		fstr_DeviceCommand << "\t\t\t\t\treturn rmr_Buffered;" << endl;
+
 		fstr_DeviceCommand << "\t\t\t\tswitch(pMessage->m_dwID)" << endl;
 		fstr_DeviceCommand << "\t\t\t\t{" << endl;
 
@@ -811,7 +817,14 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t\tDeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);" << endl;
 	fstr_DeviceCommand << "\t\t\t\tstring sCMD_Result=\"UNHANDLED\";" << endl;
 	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Impl )" << endl;
+
+	fstr_DeviceCommand << "\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\treturn rmr_Buffered;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t}" << endl;
+
 	fstr_DeviceCommand << "\t\t\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedUnknownCommand(sCMD_Result,pMessage);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )" << endl;
@@ -846,7 +859,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 
 	fstr_DeviceCommand << "\t\t}" << endl;
-	fstr_DeviceCommand << "\t\treturn iHandled!=0;" << endl;
+	fstr_DeviceCommand << "\t\treturn iHandled!=0 ? rmr_Processed : rmr_NotProcessed;" << endl;
 	fstr_DeviceCommand << "\t}" << endl;
 	fstr_DeviceCommand << "}; // end class" << endl;
 	fstr_DeviceCommand << endl << endl;

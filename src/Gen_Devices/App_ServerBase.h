@@ -216,17 +216,20 @@ public:
 	virtual void CMD_Application_is_Running(string sName,bool *bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
-	virtual bool ReceivedMessage(class Message *pMessageOriginal)
+	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
 	{
 		map<long, string>::iterator itRepeat;
-		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
-			return true;
+		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+			return rmr_Processed;
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Simulate_Keypress_CONST:
@@ -516,7 +519,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
@@ -549,7 +557,7 @@ public:
 					SendString("UNHANDLED");
 			}
 		}
-		return iHandled!=0;
+		return iHandled!=0 ? rmr_Processed : rmr_NotProcessed;
 	}
 }; // end class
 

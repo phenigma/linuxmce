@@ -7069,22 +7069,22 @@ void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Messa
 	HighlightFirstObject(  );
 }
 
-bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
+ReceivedMessageResult Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
 	while( !m_pScreenHistory_Current && !m_bQuit )
 		Sleep(100);
 
 	if(m_bQuit)
-		return false;
+		return rmr_NotProcessed;
 
 	string strMessage = string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID);
 
 	if(m_pScreenHandler->m_mapCallBackData_Find(cbMessageIntercepted) && ScreenHandlerMsgInterceptor(this, pMessageOriginal, NULL, NULL))
-		return true;
+		return rmr_Processed;
 
 	NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
-	bool bResult = Orbiter_Command::ReceivedMessage( pMessageOriginal );
-	return bResult;
+	ReceivedMessageResult Result = Orbiter_Command::ReceivedMessage( pMessageOriginal );
+	return Result;
 }
 
 void Orbiter::CaptureKeyboard_UpdateVariableAndText( int iVariable,  string sVariable ) //for capture keyboard cmd
