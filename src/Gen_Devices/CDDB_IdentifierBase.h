@@ -211,7 +211,7 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
-			return true;
+			return rmr_Processed;
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
