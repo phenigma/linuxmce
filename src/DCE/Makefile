@@ -16,7 +16,8 @@ sources = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message
 	HandleRequestSocket.cpp \
 	DeviceData_Impl.cpp DeviceData_Base.cpp \
 	DCEConfig.cpp DCEMySqlConfig.cpp \
-	Virtual_Device_Translator.cpp arp-cache.cpp
+	Virtual_Device_Translator.cpp arp-cache.cpp \
+	MessageBuffer.cpp
 
 all: libDCECommon.so all-recursive
 
