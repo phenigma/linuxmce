@@ -189,6 +189,7 @@ for line in $result; do
 #   $(date -R)
 #
 
+PATH=\"/usr/pluto/bin:\$PATH\"
 . /usr/pluto/bin/pluto.func
 
 if [[ -e /usr/pluto/install/.notdone ]]; then
