@@ -145,11 +145,11 @@ for Device in $StorageDevices; do
 	Device_FileSystem=$(mount | grep "on /media/sda6" | awk '{ print $5 }')
 
 	## Update Free Space device data
-	Q="UPDATE Device_DeviceDate SET IK_DeviceData = '$Device_DiskFree' WHERE FK_DeviceDate = '$DD_FREE_SPACE' AND FK_Device = '$Device_ID'"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_DiskFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$Device_ID'"
 	RunSQL "$Q"	
 
 	## Update Filesystem device data
-	Q="UPDATE Device_DeviceData SET IK_DeviceDate = '$Device_FileSystem' WHERE FK_DeviceDate = '$DD_FILESYSTEM' AND FK_Device = '$Device_ID'"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_FileSystem' WHERE FK_DeviceData = '$DD_FILESYSTEM' AND FK_Device = '$Device_ID'"
 	RunSQL "$Q"	
 
 	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) is $Device_DiskUsed%% full having $(($Device_DiskFree / 1024))MB free"
