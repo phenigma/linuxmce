@@ -218,11 +218,14 @@
 #define SCREEN_mnuPVRRecording_Full_Screen_CONST 219
 #define SCREEN_CurrentlyActiveRemote_CONST 220
 #define SCREEN_TVMultipleInputs_CONST 221
-#define SCREEN_TVConfirmOnOffDiscre_CONST 222
-#define SCREEN_Internal_Disk_Driver_Wizard_CONST 223
+#define SCREEN_mnuLights_CONST 222
 #define SCREEN_mnuPlaybackControl_CONST 223
-#define SCREEN_TVDSPMode_CONST 225
+#define SCREEN_mnuSpeedControl_CONST 224
+#define SCREEN_mnuVolume_CONST 225
 #define SCREEN_OnOff_Toggle_CONST 226
+#define SCREEN_TVConfirmOnOffDiscre_CONST 227
+#define SCREEN_Internal_Disk_Driver_Wizard_CONST 228
+#define SCREEN_TVDSPMode_CONST 229
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
