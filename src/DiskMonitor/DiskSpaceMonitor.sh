@@ -107,6 +107,8 @@ fi
 ## Check Pluto Storage device for free space
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
+DD_FREE_SPACE=160
+DD_FILESYSTEM=159
 
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN) AND FK_Device_ControlledVia=$PK_Device"
 StorageDevices=$(RunSQL "$Q")
@@ -139,11 +141,19 @@ for Device in $StorageDevices; do
 
 	## Check the space on the drive
 	dfOutput=$(df $Device_MountPoint | grep -v '^Filesystem')
-	Device_DiskUsed=$(echo $dfOutput | awk '{ print $5 }' | cut -d"%" -f1)
-	Device_DiskFree=$(echo $dfOutput | awk '{ print $4 }')
+	Device_DiskFree=$(echo $dfOutput | awk '{ print $4 }') ; Device_DiskFree=$(( $Device_DiskFree / 1024 ))
+	Device_FileSystem=$(mount | grep "on /media/sda6" | awk '{ print $5 }')
 
-	## FIXME: Add code to notify someone about free space
+	## Update Free Space device data
+	Q="UPDATE Device_DeviceDate SET IK_DeviceData = '$Device_DiskFree' WHERE FK_DeviceDate = '$DD_FREE_SPACE' AND FK_Device = '$Device_ID'"
+	RunSQL "$Q"	
+
+	## Update Filesystem device data
+	Q="UPDATE Device_DeviceData SET IK_DeviceDate = '$Device_FileSystem' WHERE FK_DeviceDate = '$DD_FILESYSTEM' AND FK_Device = '$Device_ID'"
+	RunSQL "$Q"	
+
 	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) is $Device_DiskUsed%% full having $(($Device_DiskFree / 1024))MB free"
+	
 done
 
 ## Unlock
