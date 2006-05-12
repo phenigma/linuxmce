@@ -95,7 +95,7 @@ public:
     bool RoomsWizardDelete( CallBackData *pData );
     bool RoomsWizardRefresh( CallBackData *pData );
 	
-	virtual void SCREEN_DVDRemote(long PK_Screen);	
+	virtual void SCREEN_mnuSpeedControl(long PK_Screen);	
 	bool SpeedControlCreate(CallBackData *pData);
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
@@ -107,8 +107,10 @@ public:
 
 	//bool VolumeControlCustomRender(CallBackData *pData);
 	// UI 2
-	virtual void SCREEN_mnuAmbiance(long PK_Screen);
-	bool AmbianceControlCustomRender(CallBackData *pData);
+	virtual void SCREEN_mnuVolume(long PK_Screen);
+	bool VolumeControlCustomRender(CallBackData *pData);
+	virtual void SCREEN_mnuLights(long PK_Screen);
+	bool LightControlCustomRender(CallBackData *pData);
 };
 
 #endif

@@ -21,3 +21,9 @@ void MouseBehavior_Win32::ShowMouse(bool bShow)
 	ShowCursor(bShow);
 }
 
+PlutoRectangle rectConstrain;  // Temp hack until we get a windows contrain
+bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
+{
+	rectConstrain=rect;
+	return true;
+}

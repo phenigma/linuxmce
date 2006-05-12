@@ -14,15 +14,10 @@ using namespace DCE;
 
 void LightMouseHandler::Start()
 {
-	if( m_pMouseBehavior->m_pMouseHandler_Horizontal && m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj )
-	{
-		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start light" );
-		m_pMouseBehavior->m_bMouseHandler_Vertical_Exclusive = true;
-		m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_bHidden = true;
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
-		if( m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject )
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Horizontal->m_pObj->m_pParentObject);
-	}
+	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X  + m_pObj->m_rPosition.Width*.1,
+		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
+		1,m_pObj->m_rPosition.Height);
+	m_pMouseBehavior->ConstrainMouse(rect);
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
@@ -137,19 +132,6 @@ void LightMouseHandler::CustomRender()
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
 		PlutoColor::Green().SetAlpha(128));
-
-	if( !m_bTapAndRelease )
-		return;  // We only draw the square for tap and release
-
-	int NotchHeight = m_pObj->m_rPosition.Height/11; // Allow for 7 repeat levels in each direction
-	int NotchStart = (5-m_iLastNotch) * NotchHeight + m_pObj->m_rPosition.Y;
-
-	X = m_pObj->m_rPosition.X + int(m_pObj->m_rPosition.Width * .1);
-
-	m_pMouseBehavior->m_pOrbiter->SolidRectangle(
-		X, NotchStart,
-		int(m_pObj->m_rPosition.Width * .25), NotchHeight,
-		PlutoColor::Blue().SetAlpha(128));
 	return;
 }
 

@@ -23,6 +23,7 @@ namespace DCE
 		virtual void SetMousePosition(int X,int Y);
 		virtual void GetMousePosition(PlutoPoint *p) { POINT pt; GetCursorPos(&pt); p->X=pt.x; p->Y=pt.y; }
 		virtual void ShowMouse(bool bShow);
+		bool ConstrainMouse(const PlutoRectangle &rect);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

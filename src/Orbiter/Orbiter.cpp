@@ -664,7 +664,7 @@ void Orbiter::RenderScreen( bool bRenderGraphicsOnly )
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	// With the new UI 
-	if( UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler_Horizontal==NULL && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL )
+	if( UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler==NULL )
 		m_pMouseBehavior->Set_Mouse_Behavior("K",false,"B",m_pScreenHistory_Current->GetObj()->m_ObjectID);
 #endif
 
@@ -5730,7 +5730,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 //<-dceag-c4-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),sPK_DesignObj_CurrentScreen.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),sPK_DesignObj_CurrentScreen.c_str());
 #endif
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
@@ -10344,6 +10344,13 @@ void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
 void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect)
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	if( pGrid->m_iHighlightedColumn==-1 && pGrid->m_iHighlightedRow==-1 )
+	{
+		if(  pGrid->m_sExtraInfo.find( 'C' )==string::npos )
+			pGrid->m_iHighlightedRow=0;
+		if(  pGrid->m_sExtraInfo.find( 'R' )==string::npos )
+			pGrid->m_iHighlightedColumn=0;
+	}
 
 	int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
 	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
@@ -10361,10 +10368,6 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 	}
 
 	DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
-
-	//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
-	if(pGrid->m_iHighlightedRow == -1)
-		pGrid->m_iHighlightedRow = 0;
 
 	PlutoRectangle r;
 	GetGridCellDimensions( pGrid,

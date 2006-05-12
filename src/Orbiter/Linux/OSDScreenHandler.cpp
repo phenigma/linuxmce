@@ -1755,10 +1755,10 @@ bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
     return false;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OSDScreenHandler::SCREEN_DVDRemote(long PK_Screen)
+/*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)
 {
 	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );
-	ScreenHandler::SCREEN_DVDRemote(PK_Screen);
+	ScreenHandler::SCREEN_mnuSpeedControl(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
 }
@@ -1802,7 +1802,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 
 	if(NULL != m_pOrbiter && NULL != m_pOrbiter->m_pMouseBehavior)
 	{
-		const MouseHandler *pMouseHandler = m_pOrbiter->m_pMouseBehavior->GetHorizontalMouseHandler();
+		const MouseHandler *pMouseHandler = m_pOrbiter->m_pMouseBehavior->GetMouseHandler();
 		const SpeedMouseHandler *pcSpeedMouseHandler = dynamic_cast<const SpeedMouseHandler *>(pMouseHandler);
 		if(NULL == pcSpeedMouseHandler)
 		{
@@ -2095,15 +2095,15 @@ bool OSDScreenHandler::TVDSPMode_DatagridSelected(CallBackData *pData)
 }
 
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OSDScreenHandler::SCREEN_mnuAmbiance(long PK_Screen)
+/*virtual*/ void OSDScreenHandler::SCREEN_mnuVolume(long PK_Screen)
 {
 	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
-	//ScreenHandlerBase::SCREEN_mnuAmbiance(PK_Screen);
+	ScreenHandlerBase::SCREEN_mnuVolume(PK_Screen);
 	
-	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::AmbianceControlCustomRender, new RenderScreenCallBackData() );
+	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::VolumeControlCustomRender, new RenderScreenCallBackData() );
 }
 
-bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
+bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 {
 	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
 	DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
@@ -2120,13 +2120,14 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 		static PlutoGraphic *pBackgroundBackgroundX = NULL;
 		static PlutoGraphic *pBackgroundBackgroundY = NULL;
 
-		if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal )
+		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
 			if(NULL == pBackgroundBackgroundX)
 				pBackgroundBackgroundX = m_pOrbiter->GetBackground(rectTotal);
 
 			pBackgroundGraphic = pBackgroundBackgroundX;
 		}
+		/*
 		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
 		{
 			if(NULL == pBackgroundBackgroundY)
@@ -2134,6 +2135,7 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 
 			pBackgroundGraphic = pBackgroundBackgroundY;
 		} 
+		*/
 	} 
 #endif
 
@@ -2145,16 +2147,91 @@ bool OSDScreenHandler::AmbianceControlCustomRender(CallBackData *pData)
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
 	{
-		if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal )
+		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
-			VolumeMouseHandler *pVolumeMouseHandler = dynamic_cast<VolumeMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Horizontal);
+			VolumeMouseHandler *pVolumeMouseHandler = dynamic_cast<VolumeMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler);
 			pVolumeMouseHandler->CustomRender();
 		}
+		/*
 		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
 		{
 			LightMouseHandler *pLightMouseHandler = dynamic_cast<LightMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical);
 			pLightMouseHandler->CustomRender();
 		}
+		*/
+	}
+#endif
+	return false;
+}
+
+
+
+
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OSDScreenHandler::SCREEN_mnuLights(long PK_Screen)
+{
+	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	ScreenHandlerBase::SCREEN_mnuLights(PK_Screen);
+	
+	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::LightControlCustomRender, new RenderScreenCallBackData() );
+}
+
+bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
+	PlutoRectangle rectTotal = pObj->m_rPosition;
+	PlutoPoint point;
+
+	PlutoGraphic *pBackgroundGraphic = NULL;
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pOrbiter->m_pMouseBehavior )
+	{
+		//hook the object to have the background image merged with the desktop image
+		//will do this only once
+		static PlutoGraphic *pBackgroundBackgroundX = NULL;
+		static PlutoGraphic *pBackgroundBackgroundY = NULL;
+
+		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
+		{
+			if(NULL == pBackgroundBackgroundX)
+				pBackgroundBackgroundX = m_pOrbiter->GetBackground(rectTotal);
+
+			pBackgroundGraphic = pBackgroundBackgroundX;
+		}
+		/*
+		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
+		{
+			if(NULL == pBackgroundBackgroundY)
+				pBackgroundBackgroundY = m_pOrbiter->GetBackground(rectTotal);
+
+			pBackgroundGraphic = pBackgroundBackgroundY;
+		} 
+		*/
+	} 
+#endif
+
+	if(NULL != pBackgroundGraphic)
+		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pOrbiter->m_pMouseBehavior )
+	{
+		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
+		{
+			LightMouseHandler *pLightMouseHandler = dynamic_cast<LightMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler);
+			pLightMouseHandler->CustomRender();
+		}
+		/*
+		else if( m_pOrbiter->m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_Y && m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical )
+		{
+			LightMouseHandler *pLightMouseHandler = dynamic_cast<LightMouseHandler *> (m_pOrbiter->m_pMouseBehavior->m_pMouseHandler_Vertical);
+			pLightMouseHandler->CustomRender();
+		}
+		*/
 	}
 #endif
 	return false;

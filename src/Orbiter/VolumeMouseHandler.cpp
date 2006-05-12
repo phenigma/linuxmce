@@ -23,16 +23,13 @@ VolumeMouseHandler::~VolumeMouseHandler()
 
 void VolumeMouseHandler::Start()
 {
+	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
+		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + m_pObj->m_rPosition.Height*.2,
+		m_pObj->m_rPosition.Width,1);
+	m_pMouseBehavior->ConstrainMouse(rect);
+
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
-	if( m_pMouseBehavior->m_pMouseHandler_Vertical && m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj )
-	{
-		m_pMouseBehavior->m_bMouseHandler_Horizontal_Exclusive = true;
-		m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_bHidden = true;
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
-		if( m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject )
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync((DesignObj_Orbiter *) m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_pParentObject);
-	}
 m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
@@ -152,19 +149,6 @@ void VolumeMouseHandler::CustomRender()
 		m_pObj->m_rPosition.X, Y,
 		CurrentLevel, int(m_pObj->m_rPosition.Height * .1),
 		PlutoColor::White().SetAlpha(128));
-
-    // We only draw the square for tap and release
-	if( !m_bTapAndRelease )
-        return;
-
-    int NotchWidth = m_pObj->m_rPosition.Width/15; // Allow for 7 repeat levels in each direction
-    int NotchStart = (7 + m_iLastNotch) * NotchWidth + m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X;
-    Y = int(m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .7);
-
-    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
-        NotchStart, Y,
-        NotchWidth, int(m_pObj->m_rPosition.Height * .25),
-        PlutoColor::Blue().SetAlpha(128));
 }
 
 void VolumeMouseHandler::DoIteration(int Parm)

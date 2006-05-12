@@ -39,6 +39,8 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 
 void LockedMouseHandler::Start()
 {
+	if( m_pObj )
+		m_pMouseBehavior->ConstrainMouse(m_pObj->m_rPosition + m_pObj->m_pPopupPoint);
 	m_PK_Direction_Last=0;
 	m_bActivatedObject = false;
 	if( m_bFirstTime )
@@ -51,21 +53,17 @@ void LockedMouseHandler::Start()
 	}
 
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
-	{
-		if( m_sOptions[0]=='M' )
-			m_pMouseBehavior->m_bMouseHandler_Horizontal_Exclusive=true;
 		m_bTapAndRelease=true;
-	}
 	else
 		m_bTapAndRelease=false;
 
-	if( m_sOptions[0]=='M' )
-		m_pMouseBehavior->m_iLockedPosition -= 2; // The activities are just slightly above the center point
+	if( m_sOptions[0]=='H' )
+		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_iImageWidth/2,m_pMouseBehavior->m_pOrbiter->m_iImageHeight/2);
 }
 
 void LockedMouseHandler::Stop()
 {
-	if( m_sOptions[0]=='M' && m_pMouseBehavior->m_pMouseHandler_Vertical==NULL && m_pObj_Highlighted && m_bTapAndRelease==false )
+	if( m_sOptions[0]=='M' && m_pMouseBehavior->m_pMouseHandler==NULL && m_pObj_Highlighted && m_bTapAndRelease==false )
 	{
 		ActivatedMainMenuPad();  // The user is doing a press and hold on the main menu and changing directions, activate the menu pad
 	}
@@ -140,13 +138,22 @@ void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || 
 		(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition+m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false )
 	{
-		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_cLocked_Axis_Current == AXIS_LOCK_X ? m_pMouseBehavior->m_pObj_Locked_Horizontal : m_pMouseBehavior->m_pObj_Locked_Vertical,X,Y);
+		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_pObj_Locked,X,Y);
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
-			m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
-			m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
+			if( m_sOptions[0]=='H' )
+			{
+				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::Move" );
+				m_bActivatedObject = true;
+				m_pMouseBehavior->m_pOrbiter->SelectedObject( pObj_ToHighlight, smNavigation );
+			}
+			else
+			{
+				m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
+				m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
+			}
 		}
 	}
 }
@@ -214,9 +221,8 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 		pt.X = m_pMouseBehavior->m_pOrbiter->m_Width-pObj->m_rPosition.Width;
 
 	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(pObj->m_ObjectID,pt.X,pt.Y,"","submenu",false,false);
-	m_pMouseBehavior->Set_Mouse_Behavior("LS",true,"Y",pObj->m_ObjectID);
-
 	m_pMouseBehavior->SelectFirstObject('3',pObj);
+	m_pMouseBehavior->Set_Mouse_Behavior("LS",true,"Y",pObj->m_ObjectID);
 }
 
 bool LockedMouseHandler::SlowDrift(int &X,int &Y)
@@ -235,12 +241,8 @@ bool LockedMouseHandler::MovedOutside(int PK_Direction)
 {
 	if( m_sOptions.size()>1 &&  m_sOptions[0]=='L' && m_sOptions[1]=='S' && PK_Direction==DIRECTION_Down_CONST )
 	{
-		LockedMouseHandler *pLockedMouseHandler = (LockedMouseHandler *) m_pMouseBehavior->m_pMouseHandler_Horizontal;
+		LockedMouseHandler *pLockedMouseHandler = (LockedMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","submenu");
-		m_pMouseBehavior->m_cLockedAxes=AXIS_LOCK_X;
-		m_pMouseBehavior->m_cLocked_Axis_Current=AXIS_LOCK_X;
-		m_pMouseBehavior->m_iLockedPosition = pLockedMouseHandler->m_pObj_Highlighted->m_rPosition.Y + pLockedMouseHandler->m_pObj_Highlighted->m_pPopupPoint.Y + pLockedMouseHandler->m_pObj_Highlighted->m_rPosition.Height/2;
-		m_pMouseBehavior->m_iLockedPosition -= 2; // The activities are just slightly above the center point
 		m_pMouseBehavior->HighlightObject(pLockedMouseHandler->m_pObj_Highlighted);
 		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2, rect.Y + rect.Height/2 );
@@ -256,10 +258,7 @@ void LockedMouseHandler::ActivatedSubMenu()
 	// This is weird.  If we do a clear, we become deleted and invalid.  If we change screens, and that causes
 	// another set mouse behavior, we may also be deleted and become invalid.  So set the horizontal handler
 	// to NULL so we won't be deleted, but then delete ourselves when we're done
-	m_pMouseBehavior->m_cLocked_Axis_Current=m_pMouseBehavior->m_cLockedAxes==AXIS_LOCK_NONE;
-	delete m_pMouseBehavior->m_pMouseHandler_Horizontal;
-	m_pMouseBehavior->m_pMouseHandler_Horizontal=NULL;
-	m_pMouseBehavior->m_pMouseHandler_Vertical=NULL;
+	m_pMouseBehavior->m_pMouseHandler=NULL;
 
 	DesignObj_Orbiter *pObj_Screen_Before = m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj();
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->IsHidden(  )  )

@@ -42,11 +42,6 @@ void KeyboardMouseHandler::Start()
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 			m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
 				rect.Y + rect.Height/2 );
-
-			if( m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X )
-				m_pMouseBehavior->m_iLockedPosition = rect.Y + rect.Height/2;
-			else
-				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 		}
 
 		m_iLastNotch = -999;
@@ -92,7 +87,7 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( !m_pObj && !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
@@ -159,12 +154,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 					  pObj_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(),PK_Direction);
 			m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 
-			m_pMouseBehavior->PositionMouseAtObjectEdge(PK_Direction);
+//			m_pMouseBehavior->PositionMouseAtObjectEdge(PK_Direction);
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
-			if( m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X )
-				m_pMouseBehavior->m_iLockedPosition = rect.Y + rect.Height/2;
-			else
-				m_pMouseBehavior->m_iLockedPosition = rect.X + rect.Width/2;
 
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
@@ -174,7 +165,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 
 void KeyboardMouseHandler::MoveExternalApp1Step(int X,int Y)
 {
-	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
+	/*
 	int NotchSize = bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp : m_pMouseBehavior->m_pOrbiter->m_Height / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp;
 	int Diff = bHorizontal ? X-m_pMouseBehavior->m_pOrbiter->m_Width/2 : Y-m_pMouseBehavior->m_pOrbiter->m_Height/2;
 	if( abs(Diff)>NotchSize )
@@ -191,10 +182,12 @@ void KeyboardMouseHandler::MoveExternalApp1Step(int X,int Y)
 			StringUtils::itos(PK_Button),"");
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 	}
+	*/
 }
 
 void KeyboardMouseHandler::MoveExternalApp(int X,int Y)
 {
+	/*
 	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
 	int NotchSize = (double) bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
 	int Notch;
@@ -247,6 +240,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
 		}
 		m_iLastNotch=Notch;
 	}
+	*/
 }
 
 void KeyboardMouseHandler::DoIteration()
