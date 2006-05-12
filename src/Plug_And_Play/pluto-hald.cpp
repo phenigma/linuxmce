@@ -66,6 +66,11 @@ void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 	}
 }
 
+void PlutoHalD::sendMessage(Message * pMsg, string &returnValue)
+{
+	if(pnpdevice != NULL)
+		pnpdevice->sendMessage(pMsg, returnValue);
+}
 
 void PlutoHalD::sendMessage(string params, string &returnValue)
 {
@@ -301,21 +306,14 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			g_pPlutoLogger->Write(LV_DEBUG, "searching for %08x \n", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			if( it != templatesMap.end() )
 			{
+			
+				// may be for other devices (not serial)
+			
 //					gchar *product = hal_device_get_property_string (ctx, udi, "info.product");
 //					gchar *vendor = hal_device_get_property_string (ctx, udi, "info.vendor");
 //					gchar *serial = hal_device_get_property_string (ctx, udi, "usb_device.serial");
 					gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
 //					gchar *sysfs_path = hal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
-				string responseCreate;
-				
-//TODO: correct this
-//				DCE::CMD_PlugAndPlayAddDevice cmd(0, pnpdevice->m_dwPK_Device,
-//											(*it).second, "", "",
-//											udi, DCE::Plug_And_Play::HAL_USB,
-//											(*it).first, 0,
-//											DCE::Plug_And_Play::USB,"");
-				sendMessage("", responseCreate);
-				
 //					g_free (product);
 //					product = NULL;
 //					g_free (vendor);
@@ -345,41 +343,17 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					string portID;
 					getPortIdentification(string(serial_port), portID);
 					g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
-					try
-					{
-						// check if there is a device with this UID
-						string response;
-						sendMessage(	"-targetType template -o 0 " + 
-										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-										" 1 " + 
-										StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " +
-										StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
-										info_udi,
-										response );
-						g_pPlutoLogger->Write(LV_DEBUG, "response DeviceFromUID = %s\n", response.c_str());
-						
-						if( !response.empty() )
-						{
-							// set the serial port for the device
-							string responseSerial;
-							sendMessage(	"-targetType template -o 0 " + 
-											StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-											" 1 " + 
-											StringUtils::itos( COMMAND_Set_Device_Data_CONST ) + " " +
-											StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
-											response + " " +
-											StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ) + " " +
-											StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + " " +
-											StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
-											portID, 
-											responseSerial );
-							g_pPlutoLogger->Write(LV_DEBUG, "responseSerial %s\n", responseSerial.c_str());
-						}
-					}
-					catch(string ex)
-					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: initialize_usb-serial exception thrown: %s", ex.c_str());
-					}
+					string responseCreate;
+					
+					char buffer[64];
+					snprintf(buffer, sizeof(buffer), "%08x", (*it).first);
+					DCE::CMD_PlugAndPlayAddDevice cmd(0, pnpdevice->m_dwPK_Device,
+												(*it).second, "", "",
+												udi, DCE::Plug_And_Play::HAL_USB,
+												buffer, 0,
+												DCE::Plug_And_Play::USB,
+												string("|") + StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + "|" + serial_port);
+					sendMessage(cmd.m_pMessage, responseCreate);
 				}
 				
 				g_free (serial_port);

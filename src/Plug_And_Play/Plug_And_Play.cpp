@@ -64,6 +64,9 @@ class Plug_And_Play::PnPPrivate
 		/**Run script on the remote system.*/
 		bool RunScript(int iPK_PnpQueue, long lFrom, string sPath);
 		
+		/** It creates a new device which was detected by the HAL daemon.*/
+		bool CreateDeviceHAL_USB(Row_PnpQueue * row);
+		
 		/**hald flag*/
 		pthread_t hald_thread;
 		
@@ -229,6 +232,46 @@ int Plug_And_Play::PnPPrivate::SetState(int PK_PnpQueue, int state)
 		return -1;
 	}
 	return 0;
+}
+
+bool Plug_And_Play::PnPPrivate::CreateDeviceHAL_USB(Row_PnpQueue * row)
+{
+	DeviceData_Base * device = parent->m_pData->m_AllDevices.m_mapDeviceData_Base_Find( row->FK_Device_Reported_get() );
+	if( device == NULL )
+	{
+		// error
+		return false;
+	}
+	
+	DeviceData_Base * parentDevice = device->m_pDevice_ControlledVia;
+	if( parentDevice == NULL )
+	{
+		// error
+		return false;
+	}
+
+	char buffer[2048];
+	snprintf(buffer, sizeof(buffer), "%d|%s", DEVICEDATA_UID_CONST, row->SerialNumber_get().c_str());
+	
+	string responseCreate;
+	
+	bool bRet = parent->sendMessage(	"-targetType template -o 0 " + 
+										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+										" 1 " + 
+										StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
+										StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
+										StringUtils::itos( row->FK_DeviceTemplate_get() ) + " " +
+										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
+										StringUtils::itos( parentDevice->m_dwPK_Device ) + " " +
+										"109 " + 
+										buffer + row->Parms_get(),
+										responseCreate );
+	
+#ifdef PLUTO_DEBUG
+	g_pPlutoLogger->Write(LV_DEBUG, "Created = %s", responseCreate.c_str());
+#endif
+
+	return bRet;
 }
 
 //<-dceag-const-b->
@@ -553,8 +596,8 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					row->Stage_set(Plug_And_Play::Detected);
 					
 					// TODO
-					// row->IP_set( sIP_Address );
-					// row->ExtraParameters_set( sTokens );
+					//row->FK_Device_Reported_set(   );
+					row->Parms_set( sTokens );
 					
 							
 					if( !p_Table_PnpQueue->Commit() )
@@ -780,7 +823,7 @@ void Plug_And_Play::CheckQueue()
 		Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
 		if( p_Table_PnpQueue != NULL )
 		{
-			p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);		
+			p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
 			if(!vectRow_PnpQueue.empty())
 			{
 				for(	vectRow_PnpQueue_iterator = vectRow_PnpQueue.begin();
@@ -793,6 +836,16 @@ void Plug_And_Play::CheckQueue()
 						case Plug_And_Play::Detected:
 							//interrupted during add device
 							//actually, this means that the add device was succesfull, so goto next case
+							if( Plug_And_Play::HAL_USB == (*vectRow_PnpQueue_iterator)->FK_PnpProtocol_get() )
+							{
+								if( d->CreateDeviceHAL_USB((*vectRow_PnpQueue_iterator)) )
+								{
+								}
+								else
+								{
+								}
+							}
+							break;
 						case Plug_And_Play::PromptUser:
 							//interrupted during user action
 							if((*vectRow_PnpQueue_iterator)->FK_DeviceTemplate_get() <= 0)
@@ -1041,7 +1094,35 @@ void Plug_And_Play::Set_Device_Template( class Socket *pSocket, class Message *p
 	}
 }
 
-void Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
+bool Plug_And_Play::sendMessage(Message * pMsg, std::string &returnValue)
+{
+	returnValue = "";
+	
+	if(m_pEvent != NULL)
+	{			
+		if(pMsg != NULL)
+		{
+			string response;			
+			bool bRet = m_pEvent->SendMessage( pMsg, response);
+			pMsg = NULL;
+			if(bRet && (!response.empty() || response.find("Error") == string::npos) )
+			{
+				returnValue = response;
+				return true;
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "pMsg object is NULL");
+		}
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, "m_pEvent == NULL");
+	
+	return false;
+}
+
+bool Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
 {
 	returnValue = "";
 	
@@ -1050,12 +1131,13 @@ void Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
 		Message *pMsg = new Message(params);
 		if(pMsg != NULL)
 		{
-			string response;			
-			m_pEvent->SendMessage( pMsg, response);
+			string response;
+			bool bRet = m_pEvent->SendMessage( pMsg, response);
 			pMsg = NULL;
-			if(!response.empty() || response.find("Error") == string::npos)
+			if(bRet && (!response.empty() || response.find("Error") == string::npos) )
 			{
 				returnValue = response;
+				return true;
 			}
 		}
 		else
@@ -1065,4 +1147,6 @@ void Plug_And_Play::sendMessage(std::string params, std::string &returnValue)
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, "m_pEvent == NULL");
+	
+	return false;
 }

@@ -62,7 +62,11 @@ public:
 		
 		
 //<-dceag-const-e->
-		void sendMessage(std::string params, std::string &returnValue);
+		
+		bool sendMessage(std::string params, std::string &returnValue);
+		
+		bool sendMessage(Message * pMsg, std::string &returnValue);
+		
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
 		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
