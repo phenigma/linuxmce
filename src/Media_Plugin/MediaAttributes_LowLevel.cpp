@@ -98,6 +98,7 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 	}
 }
 
+/*
 void MediaAttributes_LowLevel::ChangeAttribute( int OldPK_AttributeType, int NewPK_AttributeType, string OldName, string NewName )
 {
 }
@@ -105,7 +106,7 @@ void MediaAttributes_LowLevel::ChangeAttribute( int OldPK_AttributeType, int New
 void MediaAttributes_LowLevel::ChangeAttribute( int PK_Attribute, string NewName )
 {
 }
-
+*/
 listMediaAttribute *MediaAttributes_LowLevel::AttributesFromString( string Input )
 {
     listMediaAttribute *plistMediaAttribute = new listMediaAttribute( );
@@ -847,7 +848,7 @@ bool MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaA
 		for(map<string,int>::iterator it=mapSongs.begin();it!=mapSongs.end();++it)
 			mapTracks[it->second]=true;
 
-		if( Tracks!=mapTracks.size() )
+		if( Tracks != int(mapTracks.size()) )
 		{
 			string sMissing;
 			for(int i=1;i<=Tracks;++i)

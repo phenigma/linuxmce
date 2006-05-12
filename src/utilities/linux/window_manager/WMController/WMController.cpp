@@ -34,7 +34,7 @@ bool WMControllerImpl::Fini()
 	{
 		XUnlockDisplay(m_pDisplay);	
 		XCloseDisplay(m_pDisplay);
-        fprintf(stderr, "Done WMControllerImpl::Fini()\n");
+        //fprintf(stderr, "Done WMControllerImpl::Fini()\n");
 		return true;
 	}
 

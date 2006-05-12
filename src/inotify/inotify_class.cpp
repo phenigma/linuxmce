@@ -142,3 +142,4 @@ string cpp_inotify_event::tostring()
 	cpp_inotify_event inotify::get_event() {cpp_inotify_event retval; return retval;}
 
 #endif
+
