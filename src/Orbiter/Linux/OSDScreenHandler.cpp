@@ -1957,13 +1957,20 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 		//Input multiple
 		case DESIGNOBJ_TVInputsNotListed_CONST:
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butConnectorType_CONST )
+			{
 				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
-				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				aux = StringUtils::Replace( aux, "|", "," );
+				if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].empty() )
+					return true;
+				else
+					return false;
+			}
 		return false;
 
 		// Input multiple screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
-			i = 1;
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "0" );
+			RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
 		return false;
 	}
 
@@ -1994,7 +2001,6 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 		return false;
 
 		case DESIGNOBJ_TVConnectorType_CONST:
-			i = 1;
 		return false;
 	}
 

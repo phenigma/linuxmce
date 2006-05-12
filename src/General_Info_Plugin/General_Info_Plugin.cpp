@@ -1322,6 +1322,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	return pDataGrid;
 }
 
+//AV Wizard - Input type
 class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
@@ -1342,6 +1343,12 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 	if( nMaxCol <= 0 )
 		nMaxCol = 1;
 
+	pCell = new DataGridCell( "Unknown", "0" );	
+	pDataGrid->SetData(0, 0, pCell );
+	if( nMaxCol == 1 )
+		nRow++;
+	else
+		nCol++;
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
 		while( (row = mysql_fetch_row( result.r )) )
@@ -1381,6 +1388,13 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	if( nMaxCol <= 0 )
 		nMaxCol = 1;
 
+	pCell = new DataGridCell( "Unknown", "0" );	
+	pDataGrid->SetData(0, 0, pCell );
+	if( nMaxCol == 1 )
+		nRow++;
+	else
+		nCol++;
+	
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
 		while( (row = mysql_fetch_row( result.r )) )
