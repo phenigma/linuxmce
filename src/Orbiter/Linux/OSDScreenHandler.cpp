@@ -1938,7 +1938,8 @@ void OSDScreenHandler::SCREEN_TVMultipleInputs(long nPK_Screen)
 bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
-	int i =0;
+	string aux;
+	int i;
 
 	switch( GetCurrentScreen_PK_DesignObj() )
 	{
@@ -1955,9 +1956,12 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 
 		//Input multiple
 		case DESIGNOBJ_TVInputsNotListed_CONST:
-			i = 1;
+			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butConnectorType_CONST )
+				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
 		return false;
 
+		// Input multiple screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
 			i = 1;
 		return false;
