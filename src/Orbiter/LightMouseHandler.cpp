@@ -18,6 +18,7 @@ void LightMouseHandler::Start()
 		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
 		1,m_pObj->m_rPosition.Height);
 	m_pMouseBehavior->ConstrainMouse(rect);
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )

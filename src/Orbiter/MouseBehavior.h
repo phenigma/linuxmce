@@ -117,6 +117,7 @@ namespace DCE
 		std::auto_ptr<OSDCompass> m_spCompass;
 
 	public:
+		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
 		MouseBehavior(Orbiter *pOrbiter);
 		virtual ~MouseBehavior();
 
@@ -146,6 +147,7 @@ namespace DCE
 
         // have a platform-specific implementation
         virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
+		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle) {}
     };
 
 }

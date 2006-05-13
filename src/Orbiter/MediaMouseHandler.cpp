@@ -25,10 +25,6 @@ void MediaMouseHandler::Start()
 		return; // Shouldn't happen, this should be the volume control
 
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
-	if( !pObj_Grid->m_pDataGridTable )
-		return; // Again shouldn't happen
-
-	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
@@ -43,11 +39,15 @@ void MediaMouseHandler::Start()
 	else
 	{
 		m_bTapAndRelease=false;
-		int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
-		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
-		int Y = int(CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y);
-		int X = pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2);
-		m_pMouseBehavior->SetMousePosition(X,Y);
+		if( pObj_Grid->m_pDataGridTable )
+		{
+			int Rows = pObj_Grid->m_pDataGridTable->GetRows();
+			int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
+			double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
+			int Y = int(CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y);
+			int X = pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2);
+			m_pMouseBehavior->SetMousePosition(X,Y);
+		}
 	}
 	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_Grid;
 }

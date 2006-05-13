@@ -27,6 +27,7 @@ void VolumeMouseHandler::Start()
 		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + m_pObj->m_rPosition.Height*.2,
 		m_pObj->m_rPosition.Width,1);
 	m_pMouseBehavior->ConstrainMouse(rect);
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
 
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);

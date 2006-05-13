@@ -362,7 +362,7 @@ int main( int argc, char *argv[] )
 			<< "-f filename    -- Save the output of this command to a file, usually so" << endl
 			<< "                  another program like a website can show the contents" << endl
 			<< "                  normally used with -n" << endl
-			<< "-O PK -N PK    -- For use with change_pk command" << endl
+			<< "-O PK -N PK    -- For use with change_key command" << endl
 			<< "-A anonymous   -- Support authorization witn anonymous~anonymous" << endl
 			<< "                  username and password - all records are commited w/o quarantine" << endl;
 

@@ -83,3 +83,30 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
     }
     return true;
 }
+
+void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
+{
+	LPCTSTR lpCursor;
+
+	switch(mouseCursorStyle)
+	{
+	case mcs_Normal:
+		lpCursor =	IDC_ARROW;
+		break;
+	case mcs_LeftRight:
+		lpCursor =	IDC_SIZEWE;
+		break;
+	case mcs_UpDown:
+		lpCursor =	IDC_SIZENS;
+		break;
+	case mcs_AnyDirection:
+		lpCursor =	IDC_SIZEALL;
+		break;
+	case mcs_LeftRightUpDown:
+		lpCursor =	IDC_CROSS;
+		break;
+	};
+	HCURSOR hCursor = LoadCursor(NULL, IDC_WAIT); 
+	SetCursor(hCursor);
+}
+

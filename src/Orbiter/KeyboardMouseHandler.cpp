@@ -108,7 +108,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 		return;
 	}
 
-	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
 		m_pMouseBehavior->SelectFirstObject();

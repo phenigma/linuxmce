@@ -137,32 +137,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		m_pMouseHandler->Start();
 }
 
-#ifdef WIN32
-extern PlutoRectangle rectConstrain;  // Temp hack until we get a windows contrain
 void MouseBehavior::Move(int X,int Y)
 {
-	if( rectConstrain.Width>0 && rectConstrain.Height>0 )
-	{
-		if( X<rectConstrain.X )
-			SetMousePosition(X=rectConstrain.X,Y);
-		else if( X>rectConstrain.Right() )
-			SetMousePosition(X=rectConstrain.Right(),Y);
-		else if( Y<rectConstrain.Y )
-			SetMousePosition(X,Y=rectConstrain.Y);
-		else if( Y>rectConstrain.Bottom() )
-			SetMousePosition(X,Y=rectConstrain.Bottom());
-	}
-
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
 }
-#else
-void MouseBehavior::Move(int X,int Y)
-{
-	if( m_pMouseHandler )
-		m_pMouseHandler->Move(X,Y,0);
-}
-#endif
 
 DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y)
 {

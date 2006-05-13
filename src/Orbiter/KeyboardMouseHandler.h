@@ -30,6 +30,7 @@ namespace DCE
 
 	public:
 		KeyboardMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
+		~KeyboardMouseHandler() {}
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Keyboard; }
 
 		void Start();
