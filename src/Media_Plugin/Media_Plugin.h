@@ -357,6 +357,11 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
      */
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
+	/**
+     * @brief EVENT_Playback_Started event interceptor. Called when the router finds an event of this type in the queue.
+     */
+	bool PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
     /**
      * @brief EVENT_Media_Followme event interceptor. Called when the router finds an event of this type in the queue.
      */

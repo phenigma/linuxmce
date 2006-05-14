@@ -112,7 +112,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 
 bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
+	if( PK_Button==BUTTON_Mouse_6_CONST )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
@@ -232,6 +232,7 @@ void SpeedMouseHandler::DrawInfo()
 			PlutoColor::White().SetAlpha(128));
 	}
 
+	DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Speed_CONST);
 	if( Speed!=-9999 )
 	{
 		float Percent = ((float) Speed+16)/33;
@@ -244,7 +245,6 @@ void SpeedMouseHandler::DrawInfo()
 			int(m_pObj->m_rPosition.Width * .035), int(m_pObj->m_rPosition.Height * .25),
 			PlutoColor::Blue().SetAlpha(128));
 
-		DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Speed_CONST);
 		if( pText )
 		{
 			int SpeedText = m_iSpeeds[abs(Speed)];
@@ -259,6 +259,8 @@ void SpeedMouseHandler::DrawInfo()
 			pText->m_rPosition.X = m_pObj->m_rPosition.X + Offset;
 		}
 	}
+	else if( pText )
+		pText->m_sText="";  // No speed control
 
 	if( m_bHasTimeline )
 	{

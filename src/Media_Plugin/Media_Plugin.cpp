@@ -395,7 +395,8 @@ bool Media_Plugin::Register()
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackStarted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
@@ -704,6 +705,26 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     }
 
     return true;
+}
+
+bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
+
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	string sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+	string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
+	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
+    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
+
+    if ( pMediaStream == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
+        return false;
+    }
+
 }
 
 void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)

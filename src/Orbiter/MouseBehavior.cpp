@@ -199,7 +199,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
 		*/
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_Remote )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=SCREEN_mnuPlaybackControl_CONST 
+		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
@@ -220,7 +221,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup));
 */
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST 
+		&& PK_Screen_OnScreen!=SCREEN_mnuVolume_CONST && PK_Screen_OnScreen!=SCREEN_mnuLights_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
@@ -237,8 +239,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		}
 */
 	}
-	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST) ||
+	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_mnuMainMenu2_CONST) )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");

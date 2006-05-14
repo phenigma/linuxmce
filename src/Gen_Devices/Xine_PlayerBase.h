@@ -73,13 +73,14 @@ public:
 			EVENTPARAMETER_With_Errors_CONST, (bWith_Errors ? "1" : "0")));
 	}
 
-	virtual void Playback_Started(string sMRL,int iStream_ID,string sAudio,string sVideo)
+	virtual void Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Playback_Started_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_MRL_CONST, sMRL.c_str(),
 			EVENTPARAMETER_Stream_ID_CONST, StringUtils::itos(iStream_ID).c_str(),
+			EVENTPARAMETER_SectionDescription_CONST, sSectionDescription.c_str(),
 			EVENTPARAMETER_Audio_CONST, sAudio.c_str(),
 			EVENTPARAMETER_Video_CONST, sVideo.c_str()));
 	}
@@ -301,7 +302,7 @@ public:
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(sMRL.c_str(),iStream_ID,bWith_Errors); }
-	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sAudio.c_str(),sVideo.c_str()); }
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
@@ -356,6 +357,9 @@ public:
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Simulate_Keypress_CONST:
@@ -1418,7 +1422,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )

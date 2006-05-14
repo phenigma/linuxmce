@@ -260,7 +260,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 			}
 		}
 		else
-			EVENT_Playback_Started(sFilename,iStreamID,"audio??","video??");
+			EVENT_Playback_Started(sFilename,iStreamID,"Title 1 Chapter 1\t1\t\nTitle 1 Chapter 2\t2\t1\nTitle 9\t\t9\n,"audio??","video??");
 	}
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 }
