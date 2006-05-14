@@ -2236,3 +2236,20 @@ bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
 #endif
 	return false;
 }
+
+void OSDScreenHandler::SCREEN_mnuPlaybackControl(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_mnuPlaybackControl(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::PlayBackControlSelected, new ObjectInfoBackData());
+}
+
+bool OSDScreenHandler::PlayBackControlSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_hiddenShowSpeedControl_CONST )
+		m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Speed);
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_hiddenShowMediaTracks_CONST )
+		m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
+	return false;
+}

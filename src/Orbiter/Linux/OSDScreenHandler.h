@@ -111,6 +111,8 @@ public:
 	bool VolumeControlCustomRender(CallBackData *pData);
 	virtual void SCREEN_mnuLights(long PK_Screen);
 	bool LightControlCustomRender(CallBackData *pData);
+	virtual void SCREEN_mnuPlaybackControl(long PK_Screen);
+	virtual bool PlayBackControlSelected(CallBackData *pData);
 };
 
 #endif

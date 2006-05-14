@@ -204,7 +204,12 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
+		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
+			m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
+		else if( m_pOrbiter->m_iPK_Screen_OSD_Speed )
+			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Speed);
+		else if( m_pOrbiter->m_iPK_Screen_OSD_Track )
+			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
 			
 /*
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
