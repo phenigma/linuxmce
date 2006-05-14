@@ -85,6 +85,8 @@ long int m_FK_Screen_FileList;
 long int m_FK_Screen_OSD;
 long int m_FK_Screen_Alt;
 long int m_FK_Screen_Alt_OSD;
+long int m_FK_Screen_OSD_Speed;
+long int m_FK_Screen_OSD_Track;
 long int m_FK_Skin;
 long int m_UIVersion;
 string m_Description;
@@ -95,7 +97,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[17];
+		bool is_null[19];
 	
 	public:
 		long int PK_DeviceTemplate_MediaType_DesignObj_get();
@@ -106,6 +108,8 @@ long int FK_Screen_FileList_get();
 long int FK_Screen_OSD_get();
 long int FK_Screen_Alt_get();
 long int FK_Screen_Alt_OSD_get();
+long int FK_Screen_OSD_Speed_get();
+long int FK_Screen_OSD_Track_get();
 long int FK_Skin_get();
 long int UIVersion_get();
 string Description_get();
@@ -125,6 +129,8 @@ void FK_Screen_FileList_set(long int val);
 void FK_Screen_OSD_set(long int val);
 void FK_Screen_Alt_set(long int val);
 void FK_Screen_Alt_OSD_set(long int val);
+void FK_Screen_OSD_Speed_set(long int val);
+void FK_Screen_OSD_Track_set(long int val);
 void FK_Skin_set(long int val);
 void UIVersion_set(long int val);
 void Description_set(string val);
@@ -141,6 +147,8 @@ bool FK_Screen_FileList_isNull();
 bool FK_Screen_OSD_isNull();
 bool FK_Screen_Alt_isNull();
 bool FK_Screen_Alt_OSD_isNull();
+bool FK_Screen_OSD_Speed_isNull();
+bool FK_Screen_OSD_Track_isNull();
 bool FK_Skin_isNull();
 bool UIVersion_isNull();
 bool Description_isNull();
@@ -156,6 +164,8 @@ void FK_Screen_FileList_setNull(bool val);
 void FK_Screen_OSD_setNull(bool val);
 void FK_Screen_Alt_setNull(bool val);
 void FK_Screen_Alt_OSD_setNull(bool val);
+void FK_Screen_OSD_Speed_setNull(bool val);
+void FK_Screen_OSD_Track_setNull(bool val);
 void FK_Skin_setNull(bool val);
 void UIVersion_setNull(bool val);
 void Description_setNull(bool val);
@@ -191,7 +201,7 @@ class Row_Skin* FK_Skin_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate_MediaType_DesignObj+ m_FK_DeviceTemplate_MediaType+ m_FK_Screen+ m_FK_DesignObj_Popup+ m_FK_Screen_FileList+ m_FK_Screen_OSD+ m_FK_Screen_Alt+ m_FK_Screen_Alt_OSD+ m_FK_Skin+ m_UIVersion+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DeviceTemplate_MediaType_DesignObj+ m_FK_DeviceTemplate_MediaType+ m_FK_Screen+ m_FK_DesignObj_Popup+ m_FK_Screen_FileList+ m_FK_Screen_OSD+ m_FK_Screen_Alt+ m_FK_Screen_Alt_OSD+ m_FK_Screen_OSD_Speed+ m_FK_Screen_OSD_Track+ m_FK_Skin+ m_UIVersion+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -204,6 +214,8 @@ string FK_Screen_FileList_asSQL();
 string FK_Screen_OSD_asSQL();
 string FK_Screen_Alt_asSQL();
 string FK_Screen_Alt_OSD_asSQL();
+string FK_Screen_OSD_Speed_asSQL();
+string FK_Screen_OSD_Track_asSQL();
 string FK_Skin_asSQL();
 string UIVersion_asSQL();
 string Description_asSQL();

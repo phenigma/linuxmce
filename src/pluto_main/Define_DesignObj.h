@@ -2082,6 +2082,13 @@
 #define DESIGNOBJ_mnuNewPartition_CONST 5031
 #define DESIGNOBJ_butIgnoreIt_CONST 5032
 #define DESIGNOBJ_dgDiskDriveDevice_CONST 5033
+#define DESIGNOBJ_hiddenShowLights_CONST 5035
+#define DESIGNOBJ_mnuPlaybackControl_CONST 5036
+#define DESIGNOBJ_mnuVolume_CONST 5037
+#define DESIGNOBJ_mnuSpeedControl_CONST 5038
+#define DESIGNOBJ_hiddenShowVolume_CONST 5039
+#define DESIGNOBJ_hiddenShowSpeedControl_CONST 5040
+#define DESIGNOBJ_hiddenShowMediaTracks_CONST 5041
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
