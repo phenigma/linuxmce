@@ -980,7 +980,6 @@
 #define TEXT_ConfirmInputsToggle_CONST 1692
 #define TEXT_TVConfirmInputsToggle_CONST 1693
 #define TEXT_New_Partition_CONST 1694
-#define TEXT_Current_Speed_CONST 1695
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
