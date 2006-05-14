@@ -209,8 +209,8 @@
 #define SCREEN_mnuPVRRecording_CONST 208
 #define SCREEN_Demo_Media_CONST 209
 #define SCREEN_Download_are_ready_to_install_CONST 210
-#define SCREEN_tempmnumain2_CONST 211
-#define SCREEN_tempmnuambiance_CONST 212
+#define SCREEN_mnuMainMenu2_CONST 211
+#define SCREEN_mnuAmbiance_CONST 212
 #define SCREEN_TVConfirmInputsDiscrete_CONST 215
 #define SCREEN_TVConfirmInputsToggle_CONST 216
 #define SCREEN_TVOnOffCodes_CONST 217
@@ -226,6 +226,7 @@
 #define SCREEN_TVConfirmOnOffDiscre_CONST 227
 #define SCREEN_Internal_Disk_Driver_Wizard_CONST 228
 #define SCREEN_TVDSPMode_CONST 229
+#define SCREEN_Media_Tracks_CONST 230
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
