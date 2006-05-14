@@ -139,8 +139,10 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 
 	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 	m_pMouseHandler->m_iLastNotch = -999; // Start with no movement
-	m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
-	m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
+	if( m_pObj_MediaBrowser_Down )
+		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
+	if( m_pObj_MediaBrowser_Up )
+		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 	return true;
 }
@@ -176,8 +178,10 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 		// Unhighlight the speed
 		m_dwPK_Direction_ScrollGrid = 0;
 		m_pMouseHandler->m_iLastNotch = -999;
-		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
-		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
+		if( m_pObj_MediaBrowser_Down )
+			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
+		if( m_pObj_MediaBrowser_Up )
+			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 		return;
 	}
@@ -221,12 +225,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 		Frequency = (11-Notch)*100;
 		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,Frequency,NULL);
 		m_pMouseHandler->m_iLastNotch=Notch;
-		if( dwPK_Direction==DIRECTION_Down_CONST )
+		if( dwPK_Direction==DIRECTION_Down_CONST && m_pObj_MediaBrowser_Down )
 		{
 			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
 		}
-		else
+		else if( dwPK_Direction==DIRECTION_Up_CONST && m_pObj_MediaBrowser_Up )
 		{
 			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
