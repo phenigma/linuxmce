@@ -297,6 +297,7 @@ int OrbiterGenerator::DoIt()
 		throw "No orbiter info for device: "; 
 
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
+	m_bIsOSD = m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST;
 
 	bool bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
@@ -509,7 +510,7 @@ m_bNoEffects = true;
 	if( m_bUseOCG )
 	{
 		if( m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST ||
-			m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+			m_bIsOSD )
 		{
 			cerr << "There's a phone or onscreen orbiter with OCG.  Resetting it" << endl;
 			pRow_Device_DeviceData->IK_DeviceData_set("0");
@@ -1132,7 +1133,7 @@ m_bNoEffects = true;
 
 	// Find all records for objects used as remotes for devices within this installation.  Ignore remotes
 	// that only apply to devices that are orbiters (FK_DeviceCategory NOT IN (2,3,5)) unless it's for this orbiter
-	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_Screen,Device.FK_DesignObj,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD") + 
+	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_Screen,Device.FK_DesignObj,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD,FK_Screen_OSD_Speed,FK_Screen_OSD_Track") + 
 		" FROM Device " +
 		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +
 		" INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate " + 
@@ -1180,7 +1181,7 @@ m_bNoEffects = true;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[4] ) // FK_Screen_OSD
+				if( row[4] && m_bIsOSD ) // FK_Screen_OSD
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[4]));
 					if( !drNewDesignObj )
@@ -1198,11 +1199,29 @@ m_bNoEffects = true;
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
-				if( row[6] ) // FK_Screen_Alt_OSD
+				if( row[6] && m_bIsOSD ) // FK_Screen_Alt_OSD
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[6]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[6] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[7] && m_bIsOSD ) // FK_Screen_OSD_Speed
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[7]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[6] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[8] && m_bIsOSD ) // FK_Screen_OSD_Track
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[8]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[6] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1213,7 +1232,7 @@ m_bNoEffects = true;
 		}
 	}
 
-	sql = "select FK_Screen,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD FROM MediaType_DesignObj"
+	sql = "select FK_Screen,FK_DesignObj_Popup,FK_Screen_FileList,FK_Screen_OSD,FK_Screen_Alt,FK_Screen_Alt_OSD,FK_Screen_OSD_Speed,FK_Screen_OSD_Track FROM MediaType_DesignObj"
 		" WHERE FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	PlutoSqlResult result_set4b;
@@ -1250,7 +1269,7 @@ m_bNoEffects = true;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
-				if( row[3] ) // FK_Screen_OSD
+				if( row[3] && m_bIsOSD ) // FK_Screen_OSD
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[3]));
 					if( !drNewDesignObj )
@@ -1272,7 +1291,29 @@ m_bNoEffects = true;
 						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
-				if( row[5] ) // FK_Screen_Alt_OSD
+				if( row[5] && m_bIsOSD ) // FK_Screen_Alt_OSD
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
+					else
+					{
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
+				}
+				if( row[6] && m_bIsOSD ) // FK_Screen_OSD_Speed
+				{
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
+					else
+					{
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					}
+				}
+				if( row[7] && m_bIsOSD ) // FK_Screen_OSD_Track
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
 					if( !drNewDesignObj )
@@ -1314,7 +1355,7 @@ m_bNoEffects = true;
 	}
 
 	bool bUseVideoWizard=false;
-	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+	if( bNewOrbiter && m_bIsOSD )
 	{
 		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
 		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;

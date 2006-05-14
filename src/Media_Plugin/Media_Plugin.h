@@ -478,7 +478,9 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","
-				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD);
+				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Speed) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Track);
 		}
 
 		EntertainArea *pEntertainArea_OSD=NULL;

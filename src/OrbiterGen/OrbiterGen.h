@@ -25,7 +25,7 @@ public:
 	class Row_Skin *m_pRow_Skin;
 	class Row_Language *m_pRow_Language;
 	class RegenMonitor *m_pRegenMonitor;
-	bool m_bNoEffects,m_bUseOCG;
+	bool m_bNoEffects,m_bUseOCG,m_bIsOSD;
 	bool m_bIgnoreSelected, m_bIgnoreHighlighted, m_bIgnoreAlt;
 
 	int m_dwMediaType;

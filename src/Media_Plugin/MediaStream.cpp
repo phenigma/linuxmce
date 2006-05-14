@@ -44,6 +44,8 @@ RemoteControlSet::RemoteControlSet(Row_MediaType_DesignObj *pRow_MediaType_Desig
     m_iPK_Screen_OSD=pRow_MediaType_DesignObj->FK_Screen_OSD_get();
 	m_iPK_Screen_Alt_Remote=pRow_MediaType_DesignObj->FK_Screen_Alt_get();
 	m_iPK_Screen_Alt_OSD=pRow_MediaType_DesignObj->FK_Screen_Alt_OSD_get();
+	m_iPK_Screen_OSD_Speed=pRow_MediaType_DesignObj->FK_Screen_OSD_Speed_get();
+	m_iPK_Screen_OSD_Track=pRow_MediaType_DesignObj->FK_Screen_OSD_Track_get();
 }
 
 RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj)
@@ -54,6 +56,8 @@ RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_
     m_iPK_Screen_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_OSD_get();
 	m_iPK_Screen_Alt_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_Alt_get();
 	m_iPK_Screen_Alt_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_Alt_OSD_get();
+	m_iPK_Screen_OSD_Speed=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_OSD_Speed_get();
+	m_iPK_Screen_OSD_Track=pRow_DeviceTemplate_MediaType_DesignObj->FK_Screen_OSD_Track_get();
 }
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )

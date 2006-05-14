@@ -29,6 +29,8 @@ namespace DCE
         int 	m_iPK_Screen_OSD; 				/** What screen to use as the remote if this is an on screen display */
 		int		m_iPK_Screen_Alt_Remote;				/** The Alt versions are used for example for DVD Menu's, or non-live TV */
 		int		m_iPK_Screen_Alt_OSD;
+		int		m_iPK_Screen_OSD_Speed;		/** The screen used for letting the user change the speed on screen */
+		int		m_iPK_Screen_OSD_Track;		/** The screen used for letting the user change the track on screen */
  
 		RemoteControlSet(Row_MediaType_DesignObj *);
 		RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *);

@@ -232,7 +232,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
 	m_bShowShortcuts = false;
-	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=0;
+	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=0;
 	m_iPK_MediaType=0;
 
 	m_pScreenHistory_Current=NULL;
@@ -7351,6 +7351,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_Screen_OSD_Speed=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_Screen_OSD_Track=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_sDefaultRippingName = sFilename;
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
