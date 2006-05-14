@@ -1212,7 +1212,7 @@ m_bNoEffects = true;
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[7]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[6] << endl;
+						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[7] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1221,7 +1221,7 @@ m_bNoEffects = true;
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[8]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[6] << endl;
+						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[8] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1304,9 +1304,9 @@ m_bNoEffects = true;
 				}
 				if( row[6] && m_bIsOSD ) // FK_Screen_OSD_Speed
 				{
-					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[6]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[6] << endl;
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1315,9 +1315,9 @@ m_bNoEffects = true;
 				}
 				if( row[7] && m_bIsOSD ) // FK_Screen_OSD_Track
 				{
-					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
+					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[7]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
+						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[7] << endl;
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
