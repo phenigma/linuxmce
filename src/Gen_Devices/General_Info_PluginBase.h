@@ -207,6 +207,7 @@ public:
 	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -220,6 +221,9 @@ public:
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Get_Device_Data_CONST:
@@ -935,6 +939,38 @@ public:
 					};
 					iHandled++;
 					continue;
+				case COMMAND_Get_Available_Storage_Device_CONST:
+					{
+						string sCMD_Result="OK";
+						int iSize=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Size_CONST].c_str());
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sDescription=pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST];
+						string sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST];
+						CMD_Get_Available_Storage_Device(iSize,&iPK_Device,&sDescription,&sPath,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST]=StringUtils::itos(iPK_Device);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Description_CONST]=sDescription;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Path_CONST]=sPath;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Available_Storage_Device(iSize,&iPK_Device,&sDescription,&sPath,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				}
 				iHandled += Command_Impl::ReceivedMessage(pMessage);
 			}
@@ -951,7 +987,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )

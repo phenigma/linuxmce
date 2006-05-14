@@ -20868,5 +20868,81 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
 	};
+	class RESP_Get_Available_Storage_Device : public PreformedCommandResponse {
+		int *m_iPK_Device;string *m_sDescription;string *m_sPath;
+	public:
+		RESP_Get_Available_Storage_Device(int *iPK_Device,string *sDescription,string *sPath) { 
+		m_iPK_Device=iPK_Device; m_sDescription=sDescription; m_sPath=sPath; }
+		void ParseResponse(Message *pMessage) {
+			*m_iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str()); *m_sDescription=pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]; *m_sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST]; };
+	};
+	class CMD_Get_Available_Storage_Device : public PreformedCommand {
+	public:
+		CMD_Get_Available_Storage_Device(long DeviceIDFrom, long DeviceIDTo,int iSize,int *iPK_Device,string *sDescription,string *sPath) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Available_Storage_Device_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str(),
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str(),
+			COMMANDPARAMETER_Description_CONST, (*sDescription).c_str(),
+			COMMANDPARAMETER_Path_CONST, (*sPath).c_str());		m_pcResponse = new RESP_Get_Available_Storage_Device(iPK_Device,sDescription,sPath); }
+	};
+	class CMD_Get_Available_Storage_Device_DL : public PreformedCommand {
+	public:
+		CMD_Get_Available_Storage_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iSize,int *iPK_Device,string *sDescription,string *sPath) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str(),
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str(),
+			COMMANDPARAMETER_Description_CONST, (*sDescription).c_str(),
+			COMMANDPARAMETER_Path_CONST, (*sPath).c_str());		m_pcResponse = new RESP_Get_Available_Storage_Device(iPK_Device,sDescription,sPath); }
+	};
+	class CMD_Get_Available_Storage_Device_DT : public PreformedCommand {
+	public:
+		CMD_Get_Available_Storage_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iSize,int *iPK_Device,string *sDescription,string *sPath) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str(),
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str(),
+			COMMANDPARAMETER_Description_CONST, (*sDescription).c_str(),
+			COMMANDPARAMETER_Path_CONST, (*sPath).c_str());		m_pcResponse = new RESP_Get_Available_Storage_Device(iPK_Device,sDescription,sPath); }
+	};
+	class CMD_Get_Available_Storage_Device_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Available_Storage_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iSize,int *iPK_Device,string *sDescription,string *sPath) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str(),
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str(),
+			COMMANDPARAMETER_Description_CONST, (*sDescription).c_str(),
+			COMMANDPARAMETER_Path_CONST, (*sPath).c_str());		m_pcResponse = new RESP_Get_Available_Storage_Device(iPK_Device,sDescription,sPath); }
+	};
+	class CMD_NOREP_Get_Available_Storage_Device : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Available_Storage_Device(long DeviceIDFrom, long DeviceIDTo,int iSize) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str()); }
+	};
+	class CMD_NOREP_Get_Available_Storage_Device_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Available_Storage_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iSize) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str()); }
+	};
+	class CMD_NOREP_Get_Available_Storage_Device_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Available_Storage_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iSize) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str()); }
+	};
+	class CMD_NOREP_Get_Available_Storage_Device_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Available_Storage_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iSize) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Available_Storage_Device_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str()); }
+	};
 }
 #endif

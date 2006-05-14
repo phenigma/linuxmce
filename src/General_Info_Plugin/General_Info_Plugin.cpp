@@ -2826,3 +2826,20 @@ void General_Info_Plugin::CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplat
 //<-dceag-c800-e->
 {
 }
+//<-dceag-c802-b->
+
+	/** @brief COMMAND: #802 - Get Available Storage Device */
+	/**  */
+		/** @param #2 PK_Device */
+			/** The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file. */
+		/** @param #163 Description */
+			/** The descripition for the device being used for the storage (ie Core, or a device name). */
+		/** @param #219 Path */
+			/** Returns the fully qualified path to prepend to the filename.  If this is empty, that means there is no device which can save this file */
+		/** @param #222 Size */
+			/** The expected size of the file in MB.  If specified, only a device with enough space and which can handle it (ie some NAS don't do big files).  If not specified, returns device with the most free space. */
+
+void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,Message *pMessage)
+//<-dceag-c802-e->
+{
+}
