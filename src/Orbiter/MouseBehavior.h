@@ -34,7 +34,6 @@ namespace DCE
 		bool m_bLockAxis; // True, the default, means the framework will report Move's with the locked axis fixed over the locked object
 		DesignObj_Orbiter *m_pObj;
 		MouseBehavior *m_pMouseBehavior;
-		bool m_bIsActive; // Means this handler is currently being used
 		bool m_bStartedMovement;  // Means the user has started moving
 		string m_sOptions;
 

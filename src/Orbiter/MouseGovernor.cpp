@@ -62,11 +62,16 @@ void MouseGovernor::Run()
 			DoSendMessage(m_pMessage);
 			m_pMessage=NULL;
 		}
-		else
+		else if( m_pMessage )
 		{
 			int TimeToWaitInMs = m_dwBufferMs - ( dwTime-m_dwTime_Last_SentMessage );
 			int SecondsToWait = TimeToWaitInMs / 1000;
 			m.TimedCondWait(SecondsToWait,(TimeToWaitInMs % 1000) * 1000000);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run woke up but message is null");
+			m.CondWait();
 		}
 	}
 	m_bThreadRunning=false;

@@ -50,7 +50,6 @@ namespace DCE
 		bool SlowDrift(int &X,int &Y);  // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
 
 		bool ParsePosition(string sMediaPosition);
-		void Update();
 
 		void DrawInfo();
 		string FormatTime(int Time);

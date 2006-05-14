@@ -175,7 +175,6 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 NeedToRender render( m_pOrbiter, "start speed" );
 m_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 
-		pSpeedMouseHandler->Update();
 	}
 }
 
@@ -189,11 +188,11 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	int PK_Screen_OnScreen = m_pOrbiter->m_pScreenHistory_Current->PK_Screen();
 
 	// Special case for the media control
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_tempmnumain2_CONST )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_mnuMainMenu2_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("",SCREEN_tempmnumain2_CONST);
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
 		/*
 		m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
 		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
@@ -221,11 +220,11 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup));
 */
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_tempmnuambiance_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_Screen("", SCREEN_tempmnuambiance_CONST);
+		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
 /*
 		DesignObj_Orbiter *pObj_Lights = m_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
 		DesignObj_Orbiter *pObj_Volume = m_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
@@ -239,8 +238,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 */
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen==SCREEN_tempmnuambiance_CONST) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_tempmnumain2_CONST) )
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST) ||
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_mnuMainMenu2_CONST) )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
 		Clear(true);
@@ -435,7 +434,6 @@ MouseHandler::MouseHandler(DesignObj_Orbiter *pObj, string sOptions, MouseBehavi
     m_sOptions=sOptions;
     m_pMouseBehavior=pMouseBehavior;
     m_bLockAxis=true;
-    m_bIsActive=false;
 }
 
 MouseHandler::~MouseHandler()

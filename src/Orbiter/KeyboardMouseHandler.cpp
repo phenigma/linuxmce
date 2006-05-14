@@ -24,6 +24,7 @@ void KeyboardMouseHandler::Start()
 {
 	m_PK_Direction_Last=0;
 	m_cDirection=0;
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
 	m_b1Step = m_sOptions.find('1')!=string::npos;
 	if( !m_pObj )

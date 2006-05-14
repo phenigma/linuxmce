@@ -41,11 +41,12 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
+
 	m_iLastGoodPosition=-1;
 	m_iCancelLevel = m_CurrentMedia_Pos;
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
-	Update();
 }
 
 SpeedMouseHandler::~SpeedMouseHandler() 
@@ -85,12 +86,10 @@ void SpeedMouseHandler::Start()
 		m_pMouseBehavior->SetMousePosition(X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
 		m_iLastGoodPosition=X;
 	}
-	Update();
 }
 
 void SpeedMouseHandler::Stop()
 {
-	Update();
 }
 
 bool SpeedMouseHandler::ButtonDown(int PK_Button)
@@ -147,7 +146,6 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_iLastNotch=Notch;
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
 m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
-			Update();
 		}
 	}
 	else  // holding down, go to position
@@ -166,7 +164,6 @@ m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the ob
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Media_Position.m_pMessage);
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
 m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
-			Update();
 		}
 	}
 }
@@ -195,92 +192,6 @@ bool SpeedMouseHandler::ParsePosition(string sMediaPosition)
 	return m_CurrentMedia_Stop>0;
 }
 
-void SpeedMouseHandler::Update()
-{
-	int Style=0; // Option #1, the style
-	char *SpeedOptions = "FULL";  // Option #2, the number of available speeds
-	int Speed = -9999;  // Option #3, the current speed, -9999 = don't show any speed
-	int SeekPosition = -1;  // Option #5, the current seek to position.  -1 = none
-
-	if( m_bHasTimeline )
-	{
-		if( !m_bIsActive )
-			Style = SPEED_STYLE_TIMELINE_IDLE;
-		else if( m_bTapAndRelease )
-			Style = SPEED_STYLE_TIMELINE_SPEED;
-		else
-			Style = SPEED_STYLE_TIMELINE_SEEK;
-	}
-	else
-		Style = SPEED_STYLE_SPEED_ONLY;
-
-	// We only set the current speed for these
-	if( (Style==SPEED_STYLE_SPEED_ONLY || Style==SPEED_STYLE_TIMELINE_SPEED) && m_bIsActive )
-		Speed = m_iLastNotch;
-
-	if( Style==SPEED_STYLE_TIMELINE_SEEK && m_bIsActive )
-		SeekPosition = m_iLastNotch;
-
-	static unsigned long m_ulLastTimeControlUpdated = 0;
-	unsigned long ulCurrentTimeControlUpdated = ProcessUtils::GetMsTime();
-	
-	if(ulCurrentTimeControlUpdated - m_ulLastTimeControlUpdated < 50)
-	{
-		//we don't want to fill the queue with very lots tasks, because the speed control
-		//might not be able to process all of them
-		//only 20 per seconds should be enough
-		g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update ignored. Only %ul ms passed since "
-			"the speed control was updated", ulCurrentTimeControlUpdated - m_ulLastTimeControlUpdated);
-		return;
-	}
-	
-	//update the time - will update the control right now
-	m_ulLastTimeControlUpdated = ulCurrentTimeControlUpdated;
-		
-	g_pPlutoLogger->Write(LV_WARNING,"SpeedMouseHandler::Update parm 1: style=%d 2: speedOpts=%s 3: speed=%d 4: start=%d/stop=%d/now=%d 5: seek=%d",
-		Style,SpeedOptions,Speed,m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos,SeekPosition);
-		
-/*
-		//for now, available only for linux; taskmanager will be included in windows version in few days
-#ifndef WIN32
-    {
-		PlutoRectangle plutoRect = m_pObj->m_rPosition;
-    	g_pPlutoLogger->Write( LV_WARNING, "SpeedControl: Refresh, x=%d, y=%d, w=%d, h=%d",
-                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
-		
-		SpeedControlCallBackData *pSpeedControlData = new SpeedControlCallBackData(plutoRect);
-
-		//translate Aaron's defines to Remus's enums
-		switch(Style)
-		{
-			case SPEED_STYLE_TIMELINE_IDLE:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME; break;
-			case SPEED_STYLE_TIMELINE_SPEED:	pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME_SEEK; 	break;
-			case SPEED_STYLE_TIMELINE_SEEK:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::TIME_SPEED; 	break;
-			case SPEED_STYLE_SPEED_ONLY:		pSpeedControlData->m_eStyle = SpeedControlCallBackData::SPEED; 		break;
-			
-			default: 
-				pSpeedControlData->m_eStyle = SpeedControlCallBackData::UNUSED; 
-				break;
-		}
-		
-		pSpeedControlData->m_nSpeed = Speed;
-		pSpeedControlData->m_nTimeStart = m_CurrentMedia_Start;
-		pSpeedControlData->m_nTimeEnd = m_CurrentMedia_Stop;
-		pSpeedControlData->m_nTimeNow = m_CurrentMedia_Pos;
-		pSpeedControlData->m_nSeekToPos = SeekPosition;
-
-		//for now SpeedOptions == "FULL"; Remus will receive all the speeds
-		for(int i = 0; i < sizeof(m_iSpeeds) / sizeof(m_iSpeeds[0]); ++i)
-			pSpeedControlData->m_listSpeeds.push_back(m_iSpeeds[i]);
-#if (USE_WX_LIB)
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_SpeedControl, pSpeedControlData);
-        TaskManager::Instance().AddTask(pTask);
-#endif
-	}
-#endif
-*/
-}
-
 void SpeedMouseHandler::DrawInfo()
 {
 	if( m_pObj->m_bHidden )
@@ -294,9 +205,7 @@ void SpeedMouseHandler::DrawInfo()
     //g_pPlutoLogger->Write(LV_CRITICAL,"SpeedMouseHandler::DrawInfo()");
     if( m_bHasTimeline )
 	{
-		if( !m_bIsActive )
-			Style = SPEED_STYLE_TIMELINE_IDLE;
-		else if( m_bTapAndRelease )
+		if( m_bTapAndRelease )
 			Style = SPEED_STYLE_TIMELINE_SPEED;
 		else
 			Style = SPEED_STYLE_TIMELINE_SEEK;
@@ -305,10 +214,10 @@ void SpeedMouseHandler::DrawInfo()
 		Style = SPEED_STYLE_SPEED_ONLY;
 
 	// We only set the current speed for these
-	if( (Style==SPEED_STYLE_SPEED_ONLY || Style==SPEED_STYLE_TIMELINE_SPEED) && m_bIsActive )
+	if( Style==SPEED_STYLE_SPEED_ONLY || Style==SPEED_STYLE_TIMELINE_SPEED )
 		Speed = m_iLastNotch;
 
-	if( Style==SPEED_STYLE_TIMELINE_SEEK && m_bIsActive )
+	if( Style==SPEED_STYLE_TIMELINE_SEEK )
 		SeekPosition = m_iLastNotch;
 
 	if( SeekPosition!=-1 )
@@ -334,6 +243,21 @@ void SpeedMouseHandler::DrawInfo()
 			m_pObj->m_rPosition.X + Offset, Y,
 			int(m_pObj->m_rPosition.Width * .035), int(m_pObj->m_rPosition.Height * .25),
 			PlutoColor::Blue().SetAlpha(128));
+
+		DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Speed_CONST);
+		if( pText )
+		{
+			int SpeedText = m_iSpeeds[abs(Speed)];
+			string sSpeed;
+			if( SpeedText==250 )
+				sSpeed = "1/4";
+			else if( SpeedText==500 )
+				sSpeed = "1/2";
+			else
+				sSpeed = StringUtils::itos(SpeedText/1000);
+			pText->m_sText=(Speed<0 ? "-" : "") + sSpeed + "x";
+			pText->m_rPosition.X = m_pObj->m_rPosition.X + Offset;
+		}
 	}
 
 	if( m_bHasTimeline )

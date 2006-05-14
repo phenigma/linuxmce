@@ -1819,6 +1819,19 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 			"MouseBehavior not activated in Orbiter!");
 #endif
 
+	VectorDesignObjText::iterator iText;
+	for( iText=pObj->m_vectDesignObjText.begin(  ); iText != pObj->m_vectDesignObjText.end(  ); ++iText )
+	{
+		DesignObjText *pText = *iText;
+		if(  pText->m_bPreRender  )
+			continue;
+		PROFILE_START( ctText );
+		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
+		string TextToDisplay = m_pOrbiter->SubstituteVariables(m_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
+		m_pOrbiter->RenderText( TextToDisplay, pText, pTextStyle, point );
+		PROFILE_STOP( ctText,  "Text ( obj below )" );
+	}
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------=======

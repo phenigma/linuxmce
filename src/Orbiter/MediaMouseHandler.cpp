@@ -28,6 +28,8 @@ void MediaMouseHandler::Start()
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
+
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
