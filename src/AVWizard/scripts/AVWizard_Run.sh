@@ -97,6 +97,30 @@ UpdateAudioSettings()
 	RunSQL "$Q"
 }
 
+UpdateOrbiterDimensions()
+{
+	DEVICETEMPLATE_OnScreen_Orbiter=62
+	DEVICEDATA_ScreenWidth=100
+	DEVICEDATA_ScreenHeight=101
+	DEVICEDATA_PK_Size=25
+
+	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICEDATA_Audio_Settings")
+	OrbiterResolution=$(WizGet 'VideoResolution')
+	OrbiterWidth=${OrbiterResolution%x*}
+	OrbiterHeight=${OrbiterResolution#*x}
+
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterWidth' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenWidth'"
+	RunSQL "$Q"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterHeight' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenHeight'"
+	RunSQL "$Q"
+	
+	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolution%'"
+	PK_Size=$(RunSQL "$Q")
+	if [[ -n "$PK_Size" ]]; then
+		Q="UPDATE Device_DeviceData SET IK_DeviceData='$PK_Size' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Size'"
+	fi
+}
+
 Done=0
 while [[ "$Done" -eq 0 ]]; do
 	CleanUp
@@ -112,3 +136,4 @@ mv "$XF86Config" /etc/X11/xorg.conf
 mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
 UpdateAudioSettings
+UpdateOrbiterDimensions
