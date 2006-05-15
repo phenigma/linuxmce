@@ -2043,7 +2043,7 @@
 #define DESIGNOBJ_butShowAdvanced_CONST 4991
 #define DESIGNOBJ_icoDownIndicator_CONST 4993
 #define DESIGNOBJ_icoUpIndicator_CONST 4994
-#define DESIGNOBJ_mnuDvdSpeedControl_CONST 4995
+#define DESIGNOBJ_mnuMediaTracks_CONST 4995
 #define DESIGNOBJ_dgPlaylist_No_Scroll_CONST 4996
 #define DESIGNOBJ_mnuPartitions_Option_Mount_CONST 4997
 #define DESIGNOBJ_mnuPartitions_Options_CONST 4998
@@ -2089,6 +2089,7 @@
 #define DESIGNOBJ_hiddenShowVolume_CONST 5039
 #define DESIGNOBJ_hiddenShowSpeedControl_CONST 5040
 #define DESIGNOBJ_hiddenShowMediaTracks_CONST 5041
+#define DESIGNOBJ_hiddenRoomPlaceholder_CONST 5042
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
