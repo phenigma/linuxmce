@@ -1062,7 +1062,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 		OH_Orbiter *pOH_Orbiter = (*it).second;
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-			StringUtils::itos(iPK_UserMode),"user" + StringUtils::itos(iPK_Users),"");
+			StringUtils::itos(iPK_UserMode),"","user" + StringUtils::itos(iPK_Users));
 		SendCommand(CMD_Set_Bound_Icon);
 	}
 }
@@ -1127,7 +1127,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pMessage->m_dwPK_Device_From,
-				StringUtils::itos(pRow_Users->FK_UserMode_get()),"user" + StringUtils::itos(pRow_Users->PK_Users_get()),"");
+				StringUtils::itos(pRow_Users->FK_UserMode_get()),"","user" + StringUtils::itos(pRow_Users->PK_Users_get()));
 			SendCommand(CMD_Set_Bound_Icon);
 			g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered Set_Bound_Icon(usermode = %d, user = %d)",pRow_Users->FK_UserMode_get(),pRow_Users->PK_Users_get());
 		}

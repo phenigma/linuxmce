@@ -3403,7 +3403,7 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 			continue;
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-			StringUtils::itos((int) pEntertainArea->m_bMediaIsPrivate),"media_private","");
+			StringUtils::itos((int) pEntertainArea->m_bMediaIsPrivate),"","media_private");
 		SendCommand(CMD_Set_Bound_Iconl);
 	}
 }
