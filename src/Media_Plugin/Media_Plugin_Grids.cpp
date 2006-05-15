@@ -905,32 +905,6 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     return pDataGrid;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class DataGridTable *Media_Plugin::DVDSubtitles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     DataGridTable *pDataGrid = new DataGridTable();

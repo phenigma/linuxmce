@@ -24,11 +24,13 @@ void LightMouseHandler::Start()
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
+		m_pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
 		m_iLastNotch=0;
 		m_iCancelLevel = 50;
 	}
 	else
 	{
+		m_pObj->m_GraphicToDisplay=1;
 		m_bTapAndRelease=false;
 		m_iLastNotch=5;
 	}
@@ -92,10 +94,10 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	if( Notch!=m_iLastNotch )
 	{
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler" );
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
 		if( m_bTapAndRelease==false )
 		{
-			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
 			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 			m_iLastNotch = Notch;
@@ -133,6 +135,18 @@ void LightMouseHandler::CustomRender()
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
 		PlutoColor::Green().SetAlpha(128));
+
+	if( m_bTapAndRelease )
+	{
+		int NotchWidth = m_pObj->m_rPosition.Height/11; // Allow for 5 repeat levels in each direction
+		int NotchStart = (5-m_iLastNotch) * NotchWidth;
+		NotchStart = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + NotchStart;
+		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + m_pObj->m_rPosition.Width*.5, NotchStart,
+			m_pObj->m_rPosition.Width*.1, NotchWidth,
+			PlutoColor::Blue());
+	}
+
 	return;
 }
 

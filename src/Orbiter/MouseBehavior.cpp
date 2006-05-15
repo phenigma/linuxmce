@@ -79,7 +79,12 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	if( bGotoMainMenu )
 	{
 		NeedToRender render( m_pOrbiter, "start speed" );
-		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
+		if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_RemoteOSD);
+		else if( m_pOrbiter->m_iPK_Screen_Remote )
+			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
+		else
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
 }
 
@@ -248,7 +253,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
-		if( m_pOrbiter->m_iPK_MediaType )//&& PK_Screen_OnScreen==)
+		if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);

@@ -297,7 +297,6 @@ int OrbiterGenerator::DoIt()
 		throw "No orbiter info for device: "; 
 
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
-	m_bIsOSD = m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST;
 
 	bool bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
@@ -500,6 +499,18 @@ m_bNoEffects = true;
 	else
 		m_bIgnoreSelected = m_bIgnoreHighlighted = m_bIgnoreAlt = false;
 
+	m_bIsOSD=false;
+	Row_Device *pRow_Device_MD=m_pRow_Device->FK_Device_ControlledVia_getrow();
+	Row_DeviceCategory *pDeviceCategory_MD=pRow_Device_MD ? pRow_Device_MD->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow() : NULL;
+	while( pDeviceCategory_MD )
+	{
+		if( pDeviceCategory_MD->PK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
+		{
+			m_bIsOSD=true;
+			break;
+		}
+		pDeviceCategory_MD = pDeviceCategory_MD->FK_DeviceCategory_Parent_getrow();
+	}
 
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
 	if( pRow_Device_DeviceData )
@@ -779,20 +790,6 @@ m_bNoEffects = true;
 		}
 
 		listLocationInfo.push_back(li);
-	}
-
-	
-	m_bIsOSD=false;
-	Row_Device *pRow_Device_MD=m_pRow_Device->FK_Device_ControlledVia_getrow();
-	Row_DeviceCategory *pDeviceCategory_MD=pRow_Device_MD ? pRow_Device_MD->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow() : NULL;
-	while( pDeviceCategory_MD )
-	{
-		if( pDeviceCategory_MD->PK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
-		{
-			m_bIsOSD=true;
-			break;
-		}
-		pDeviceCategory_MD = pDeviceCategory_MD->FK_DeviceCategory_Parent_getrow();
 	}
 
 	m_sMainMenu="";

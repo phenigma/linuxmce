@@ -983,10 +983,18 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	}
 	else if( pObj->m_bIsBoundToLocation )
 	{
-		if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
-			pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
-		if( pObj->m_pvectCurrentGraphic )
-			RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+		if( pObj->m_vectDesignObjText.size()==1 )
+		{
+			DesignObjText *pText = *(pObj->m_vectDesignObjText.begin());
+			pText->m_sText = m_pLocationInfo ? m_pLocationInfo->Description : "";
+		}
+		else
+		{
+			if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
+				pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
+			if( pObj->m_pvectCurrentGraphic )
+				RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+		}
 	}
 	// Maybe we're showing a non standard state
 	else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
