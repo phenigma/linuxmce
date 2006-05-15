@@ -24,6 +24,7 @@ SetDefaults()
 	WizSet DolbyTest '0'
 	WizSet DTSTest '0'
 	WizSet XineConfigFile "$XineConf"
+	cp /etc/pluto/xine.conf "$XineConf"
 	WizSet SoundTestFile '/usr/pluto/sound/avwizard_volume_test.mp3'
 	WizSet DTSTestFile '/usr/pluto/sound/avwizard_dts_test.wav'
 	WizSet DolbyTestFile '/usr/pluto/sound/avwizard_ac3_test.ac3'
