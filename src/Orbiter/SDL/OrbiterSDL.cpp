@@ -445,7 +445,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 					nPK_Effect = EFFECT_Slide_from_left_CONST;
 					break;
 
-				case DESIGNOBJ_mnuDvdSpeedControl_CONST:
+				case DESIGNOBJ_mnuSpeedControl_CONST:
 					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
 					rectStartEffect.Size(PlutoSize(100, 40));
 					nPK_Effect = EFFECT_Slide_from_top_CONST;
