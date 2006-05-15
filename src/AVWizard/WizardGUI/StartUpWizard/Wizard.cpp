@@ -64,10 +64,6 @@ Wizard::~Wizard()
 //#define DEBUG
 void Wizard::MainLoop()
 {
-#ifdef DEBUG
-	int Count = 0;
-	std::cout<<"Event: "<<Count<<std::endl;
-#endif
 	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
@@ -75,24 +71,15 @@ void Wizard::MainLoop()
 
 	while(!Quit)
 	{
-#ifdef DEBUG
-		std::cout<<"Event: "<<Count<<std::endl;
-#endif
 		while (!(Quit) && (FrontEnd->HasEventPending()))
 		{
-#ifdef DEBUG
-			Count ++;
-			std::cout<<"Event: "<<Count<<std::endl;
-#endif
 			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 			FrontEnd->TranslateEvent(Event);
 			EvaluateEvent(Event);
 		}
-#ifdef DEBUG
-		Count = 0;
-#endif
+
 		if(!Quit)
 		{
 			if(StatusChange)
