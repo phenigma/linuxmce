@@ -962,7 +962,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 					nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
 					break;
 
-				case DESIGNOBJ_mnuDvdSpeedControl_CONST:
+				case DESIGNOBJ_mnuSpeedControl_CONST:
 					nTransitionTimeIsMs = 1000;
 					rectStartEffect.Location(PlutoPoint(0, m_iImageHeight - 40));
 					rectStartEffect.Size(PlutoSize(100, 40));
