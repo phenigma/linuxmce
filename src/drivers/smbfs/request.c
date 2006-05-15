@@ -68,7 +68,7 @@ static struct smb_request *smb_do_alloc_request(struct smb_sb_info *server,
 		goto out;
 
 	if (bufsize > 0) {
-		buf = kmalloc(bufsize, GFP_NOFS);
+		buf = smb_kmalloc(bufsize, GFP_NOFS);
 		if (!buf) {
 			kmem_cache_free(req_cachep, req);
 			return NULL;
@@ -124,8 +124,9 @@ static void smb_free_request(struct smb_request *req)
 {
 	atomic_dec(&req->rq_server->nr_requests);
 	if (req->rq_buffer && !(req->rq_flags & SMB_REQ_STATIC))
-		kfree(req->rq_buffer);
-	kfree(req->rq_trans2buffer);
+		smb_kfree(req->rq_buffer);
+	if (req->rq_trans2buffer)
+		smb_kfree(req->rq_trans2buffer);
 	kmem_cache_free(req_cachep, req);
 }
 
@@ -182,7 +183,8 @@ static int smb_setup_request(struct smb_request *req)
 	req->rq_err = 0;
 	req->rq_errno = 0;
 	req->rq_fragment = 0;
-	kfree(req->rq_trans2buffer);
+	if (req->rq_trans2buffer)
+		smb_kfree(req->rq_trans2buffer);
 
 	return 0;
 }
@@ -645,9 +647,10 @@ static int smb_recv_trans2(struct smb_sb_info *server, struct smb_request *req)
 			goto out_too_long;
 
 		req->rq_trans2bufsize = buf_len;
-		req->rq_trans2buffer = kzalloc(buf_len, GFP_NOFS);
+		req->rq_trans2buffer = smb_kmalloc(buf_len, GFP_NOFS);
 		if (!req->rq_trans2buffer)
 			goto out_no_mem;
+		memset(req->rq_trans2buffer, 0, buf_len);
 
 		req->rq_parm = req->rq_trans2buffer;
 		req->rq_data = req->rq_trans2buffer + parm_tot;
