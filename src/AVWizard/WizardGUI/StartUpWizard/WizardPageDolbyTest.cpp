@@ -14,7 +14,7 @@ WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name
 
 WizardPageDolbyTest::~WizardPageDolbyTest(void)
 {
-	delete Player;
+	Player->StopPlayerEngine();
 }
 
 /*virtual*/ int WizardPageDolbyTest::DoApplySetting(SettingsDictionary* Dictionary)

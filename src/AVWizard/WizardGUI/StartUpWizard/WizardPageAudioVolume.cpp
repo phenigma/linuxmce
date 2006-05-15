@@ -16,6 +16,7 @@ WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string 
 
 WizardPageAudioVolume::~WizardPageAudioVolume()
 {
+	Player->StopPlayerEngine();
 }
 
 

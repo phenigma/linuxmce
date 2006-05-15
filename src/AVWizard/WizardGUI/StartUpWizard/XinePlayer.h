@@ -28,6 +28,8 @@ class XinePlayer
 	xine_event_queue_t  *event_queue;
 	pthread_t tid;
 	std::string FileName;
+
+	pthread_mutex_t lockmutex;
 	XinePlayer();
 
 	static XinePlayer* Instance;

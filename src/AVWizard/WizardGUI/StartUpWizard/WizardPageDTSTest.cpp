@@ -14,7 +14,7 @@ WizardPageDTSTest::WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name)
 
 WizardPageDTSTest::~WizardPageDTSTest(void)
 {
-	delete Player;
+	Player->StopPlayerEngine();
 }
 
 /*virtual*/ int WizardPageDTSTest::DoApplySetting(SettingsDictionary* Dictionary)

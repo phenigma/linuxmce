@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <pthread.h>
 
 /*static*/ XinePlayer* XinePlayer::Instance = NULL;
 
@@ -22,6 +23,7 @@ XinePlayer::XinePlayer()
 	  ao_port(NULL),
 	  event_queue(NULL)
 {
+	
 	NeedToReplay = false;
 	this->Running = false;
 }
@@ -41,12 +43,17 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 {
 	std::string ConfigFile;
 
+	pthread_mutex_lock(&lockmutex);
 	xine = xine_new();
 	ConfigFile = ConfigName;
 	xine_config_load(xine, ConfigFile.c_str());
 	xine_init(xine);
+	pthread_mutex_unlock(&lockmutex);
 
 	this->FileName = FileName;
+
+	if(!StartPlayingFile())
+		return;
 
 	pthread_create(&tid,NULL, XinePlayerThread,this);
 	
@@ -54,17 +61,24 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 
 void XinePlayer::StopPlayerEngine()
 {
+	if(!xine)
+		return;
+
+	pthread_mutex_lock(&lockmutex);
 	xine_close(stream);
 	xine_event_dispose_queue(event_queue);
 	xine_dispose(stream);
 	if(ao_port)
 		xine_close_audio_driver(xine, ao_port);  
 	xine_exit(xine);
+	xine = NULL;
+	pthread_mutex_unlock(&lockmutex);
 	Running = false;
 }
 
 bool XinePlayer::StartPlayingFile()
 {
+	pthread_mutex_lock(&lockmutex);
 	ao_port     = xine_open_audio_driver(xine , "auto", NULL);
 	stream      = xine_stream_new(xine, ao_port, NULL);
 	event_queue = xine_event_new_queue(stream);
@@ -73,8 +87,12 @@ bool XinePlayer::StartPlayingFile()
 	if((!xine_open(stream, FileName.c_str())) || (!xine_play(stream, 0, 0))) 
 	{
 		printf("Unable to open file: '%s'\n", FileName.c_str());
+		pthread_mutex_unlock(&lockmutex);
+
 		return false;
 	}
+
+	pthread_mutex_unlock(&lockmutex);
 
 	return true;
 }
@@ -104,7 +122,6 @@ void* XinePlayerThread(void* XinePlayerPtr)
 {
 	XinePlayer* Player = (XinePlayer*)XinePlayerPtr;
 
-	Player->Running = Player->StartPlayingFile();
 	while(Player->Running) 
 	{
 		usleep(10000);
@@ -114,6 +131,6 @@ void* XinePlayerThread(void* XinePlayerPtr)
 		}
 	}
 
-	Player->StopPlayerEngine();
+	//Player->StopPlayerEngine();
 	return NULL;
 }
