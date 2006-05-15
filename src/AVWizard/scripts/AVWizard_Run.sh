@@ -105,7 +105,16 @@ UpdateOrbiterDimensions()
 	DEVICEDATA_PK_Size=25
 
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICEDATA_Audio_Settings")
-	OrbiterResolution=$(WizGet 'VideoResolution')
+	OrbiterResolutionName=$(WizGet 'VideoResolution')
+	OrbiterAspectRatio=$(WizGet 'Video_Ratio')
+	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterAspectRatio" "$OrbiterResolution")
+	if [[ "$OrbiterResolutionFullName" == *=* ]]; then
+		OrbiterResolution=${OrbiterResolutionFullName%*=}
+		OrbiterResolution=${OrbiterResolution%i}
+		OrbiterResolution=${OrbiterResolution%p}
+	else
+		OrbiterResolution="$OrbiterResolutionName"
+	fi
 	OrbiterWidth=${OrbiterResolution%x*}
 	OrbiterHeight=${OrbiterResolution#*x}
 
@@ -114,7 +123,7 @@ UpdateOrbiterDimensions()
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterHeight' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenHeight'"
 	RunSQL "$Q"
 	
-	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolution%'"
+	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolutionName%'"
 	PK_Size=$(RunSQL "$Q")
 	if [[ -n "$PK_Size" ]]; then
 		Q="UPDATE Device_DeviceData SET IK_DeviceData='$PK_Size' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Size'"
