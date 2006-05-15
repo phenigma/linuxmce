@@ -1,0 +1,13 @@
+# KDevelop Custom Project File List
+Main.cpp
+Makefile
+Xine_Player.cpp
+Xine_Player.h
+Colorspace_Utils.cpp
+Colorspace_Utils.h
+JpegEncoderDecoder.cpp
+JpegEncoderDecoder.h
+Xine_Stream_Factory.cpp
+Xine_Stream_Factory.h
+Xine_Stream.cpp
+Xine_Stream.h

@@ -1,0 +1,2055 @@
+#include <math.h>
+
+#include <xine.h>
+#include <xine/xineutils.h>
+#include <xine/video_out.h>
+#include <xine/audio_out.h>
+
+#include "DCE/Logger.h"
+#include "DCE/DCEConfig.h"
+
+#include "Xine_Stream.h"
+#include "Colorspace_Utils.h"
+#include "JpegEncoderDecoder.h"
+
+#include "pluto_main/Define_Button.h"
+#include "Gen_Devices/AllCommandsRequests.h"
+
+#define POINTER_HIDE_SECONDS 2
+
+static DCE::Xine_Stream::Dynamic_Pointer *g_pDynamic_Pointer = NULL;
+
+/** Defined this here to avoid some dependency. */
+typedef struct
+{
+	uint32_t flags;
+	uint32_t functions;
+	uint32_t decorations;
+	int32_t input_mode;
+	uint32_t status;
+}
+MWMHints;
+
+#define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
+                      ButtonMotionMask | StructureNotifyMask | PropertyChangeMask | PointerMotionMask)
+
+static const char noCursorDataDescription[] =
+{
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+// Since xine can't handle speeds other than 1x,2x,4x, we'll create our own
+// thread to handle special seek speeds by doing lots of searches
+// If g_iSpecialSeekSpeed==0, that means we don't need a special speed--thread will sleep
+// It can be set to a value such as 32000 (for 32x) or -250 (for -1/4x)
+// The event processing thread will handle it
+int g_iSpecialSeekSpeed = 0;
+
+
+namespace DCE
+{ // DCE namespace begin
+
+Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary)
+{
+	m_pFactory = pFactory;
+	m_pXineLibrary = pXineLibrary;
+	m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
+	m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
+	
+	m_pXineVisualizationPlugin = NULL;
+	m_pXineDeinterlacePlugin = NULL;
+
+	m_bInitialized = false;
+	
+	m_pXineAudioOutput = NULL;
+	m_pXineVideoOutput = NULL;
+	
+	m_sWindowTitle = "pluto-xine-playback-window";
+	m_pXDisplay = NULL;
+	m_iCurrentScreen = 0;
+	m_iCurrentWindow = 0;
+	
+	m_iSpecialOneTimeSeek = 0;
+	m_iPrebuffer = 0;
+	//TODO init properly
+	//!m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
+	
+	m_bExitThread = false;
+}
+
+Xine_Stream::~Xine_Stream()
+{
+	ShutdownStream();
+	DestroyWindows();
+}
+
+// prepare stream for usage
+bool Xine_Stream::StartupStream()
+{
+	if (m_bInitialized)
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Double stream initialization attempted - wrong code?");
+		return false;
+	}
+
+	if ( !CreateWindows() )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
+		return false;
+	}
+	
+	if ( !InitXineAVOutput() )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Stream audio/video initialization failed");
+		return false;
+	}
+
+	m_iTitle=m_iChapter=-1;
+	
+	m_bInitialized = true;
+	return true;
+}
+
+// deinitialize stream
+bool Xine_Stream::ShutdownStream()
+{
+	if (!m_bInitialized)
+		return false;
+	
+	stopMedia();
+	m_bInitialized = false;
+	return true;
+}
+
+// creates stream windows
+bool Xine_Stream::CreateWindows()
+{
+	XColor black;
+	XSizeHints sizeHints;
+	MWMHints wmHints;
+	XClassHint classHint;
+
+	long propertyValues[ 1 ];
+	int completionEvent;
+	int xpos, ypos, width, height;
+
+	double res_h, res_v;
+
+	if ( ( m_pXDisplay = XOpenDisplay( getenv( "DISPLAY" ) ) ) == NULL )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
+		return false;
+	}
+
+	XLockDisplay( m_pXDisplay );
+
+	m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
+	xpos = 10;
+	ypos = 20;
+	width = 720;
+	height = 540;
+
+	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, 
+																			1, 0, 0 );
+	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ),
+																			0, 0, ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) ), DisplayHeight( m_pXDisplay, m_iCurrentScreen ),
+																			0, 0, 0 );
+
+	classHint.res_name = ( char* ) m_sWindowTitle.c_str();
+	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
+	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
+
+	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
+	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
+
+	XSelectInput( m_pXDisplay, windows[ 0 ], INPUT_MOTION );
+	XSelectInput( m_pXDisplay, windows[ 1 ], INPUT_MOTION );
+
+	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
+	XSetStandardProperties( m_pXDisplay, windows[ 1 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
+
+	sizeHints.win_gravity = StaticGravity;
+	sizeHints.flags = PPosition | PSize | PWinGravity;
+
+	XSetWMNormalHints( m_pXDisplay, windows[ 0 ], &sizeHints );
+	XSetWMNormalHints( m_pXDisplay, windows[ 1 ], &sizeHints );
+
+	Atom XA_DELETE_WINDOW = XInternAtom( m_pXDisplay, "WM_DELETE_WINDOW", False );
+	XSetWMProtocols( m_pXDisplay, windows[ 0 ], &XA_DELETE_WINDOW, 1 );
+	XSetWMProtocols( m_pXDisplay, windows[ 1 ], &XA_DELETE_WINDOW, 1 );
+
+	Atom XA_NO_BORDER = XInternAtom( m_pXDisplay, "_MOTIF_WM_HINTS", False );
+	wmHints.flags = ( 1L << 1 ); // MWM_HINTS_DECORATIONS
+	wmHints.decorations = 0;
+
+	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_NO_BORDER, XA_NO_BORDER, 32,
+									 PropModeReplace, ( unsigned char * ) & wmHints,
+									 5 /* PROP_MWM_HINTS_ELEMENTS */ );
+
+	Atom XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
+	propertyValues[ 0 ] = 10;
+	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
+
+
+	XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
+	propertyValues[ 0 ] = 12;
+	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
+
+	if ( XShmQueryExtension( m_pXDisplay ) == True )
+		completionEvent = XShmGetEventBase( m_pXDisplay ) + ShmCompletion;
+	else
+		completionEvent = -1;
+
+	noCursor = XCreateBitmapFromData( m_pXDisplay, ( DefaultRootWindow( m_pXDisplay ) ), noCursorDataDescription, 8, 8 );
+	cursors[0] = XCreateFontCursor(m_pXDisplay, XC_left_ptr);
+	cursors[1] = XCreatePixmapCursor(m_pXDisplay, noCursor, noCursor, &black, &black, 0, 0);
+	
+	//TODO: process pointer	timings
+	/*!
+	if ( m_pDynamic_Pointer )
+		delete m_pDynamic_Pointer;
+	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
+	*/
+
+	XFreePixmap( m_pXDisplay, noCursor );
+
+	XDefineCursor( m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
+	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
+
+	//TODO: process pointer	timings
+	/*!
+	if ( m_pDynamic_Pointer )
+		m_pDynamic_Pointer->pointer_hide();
+	*/
+
+	res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
+	res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
+
+	m_dPixelAspect = res_v / res_h;
+
+	g_pPlutoLogger->Write( LV_STATUS, "XServer aspect %f", m_dPixelAspect );
+
+	if ( fabs( m_dPixelAspect - 1.0 ) < 0.01 )
+		m_dPixelAspect = 1.0;
+
+	XSync( m_pXDisplay, True );
+	XUnlockDisplay( m_pXDisplay );
+
+	return true;
+}
+
+// initializes audion/video output ports, prepares stream for open
+bool Xine_Stream::InitXineAVOutput()
+{
+	// init visual for xine video
+	m_x11Visual.display = m_pXDisplay;
+	m_x11Visual.screen = m_iCurrentScreen;
+	m_x11Visual.d = windows[ m_iCurrentWindow ];
+	
+	m_x11Visual.dest_size_cb = &destinationSizeCallback;
+	m_x11Visual.frame_output_cb = &frameOutputCallback;
+	
+	m_x11Visual.user_data = this;
+
+	// init video output
+	g_pPlutoLogger->Write( LV_STATUS, "Opening Video Driver" );
+	if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+			return false;
+		}
+	}
+
+	// init audio output
+	g_pPlutoLogger->Write( LV_STATUS, "Opening Audio Driver" );
+	if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
+		xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
+		return false;
+	}
+
+	// init xine stream
+	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stream_new" );
+	if ( ( m_pXineStream = xine_stream_new( m_pXineLibrary, m_pXineAudioOutput, m_pXineVideoOutput ) ) == NULL )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Could not create stream" );
+		xine_close_audio_driver(m_pXineLibrary, m_pXineAudioOutput);
+		xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
+		return false;
+	}
+	
+	// creating new queue
+	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_event_new_queue" );
+	m_pXineStreamEventQueue = xine_event_new_queue( m_pXineStream );
+	xine_event_create_listener_thread( m_pXineStreamEventQueue, XineStreamEventListener, this );
+
+	//TODO: identify purpose
+	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
+	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
+	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	
+	return true;
+}
+
+bool Xine_Stream::OpenMedia(string fileName)
+{
+	if (!m_bInitialized)
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - wrong code?");
+		return false;
+	}
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s", fileName.c_str() );
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_open" );
+	
+	m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
+	
+	// TODO: implement and enable
+	//!setXineStreamDebugging( streamID, true );
+	
+	// opening media
+	if ( xine_open( m_pXineStream, fileName.c_str() ) )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Media opened " );
+
+		// TODO: implement and enable
+		//!setXineStreamDebugging( streamID, false );
+		m_bHasVideo = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_VIDEO );
+
+		if ( m_iImgWidth == 0 ) m_iImgWidth++;
+		if ( m_iImgHeight == 0 ) m_iImgHeight++;
+
+		// depending on video availability, enabling deinterlacing plugin or visualizing
+		if ( m_bHasVideo )
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Media has video - enabling deinterlacing plugin" );
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Media doesn't have video -  enabling visualizing plugin" );
+			
+			if ( EnableVisualizing() )
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Visualizing plugin enabled" );
+				m_iImgWidth = 100;
+				m_iImgHeight = 100;
+			}
+			else
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "Visualizing plugin not enabled" );
+			}
+		}
+		
+		// reporting about image
+		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgWidth );
+
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+		
+		m_bIsRendering = true;
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Creating event processor" );
+		m_bExitThread = false;
+		pthread_create( &threadEventLoop, NULL, EventProcessingLoop, this );
+		g_pPlutoLogger->Write( LV_STATUS, "Event processor started" );
+
+		if ( ! m_bHasVideo )
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Stream is seekable: %d", xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) );
+			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
+		}
+
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Open media failed!" );
+		return false;
+	}
+
+}
+
+bool Xine_Stream::EnableDeinterlacing()
+{
+	if (!m_pXineDeinterlacePlugin)
+	{
+		// we need a NULL-terminated list of output ports
+		xine_video_port_t **volist;
+		volist = (xine_video_port_t **)malloc(2 * sizeof(xine_video_port_t*));
+		
+		volist[0] = m_pXineVideoOutput;
+		volist[1] = NULL;
+
+		m_pXineDeinterlacePlugin = xine_post_init(m_pXineLibrary, "tvtime", 0, NULL, &m_pXineVideoOutput);
+		
+		free(volist);
+	}
+	
+	bool rewiringResult = false;
+	
+	if (m_pXineDeinterlacePlugin)
+	{
+		xine_post_in_t *input_api;
+		xine_post_api_t *api;
+		xine_post_api_descr_t *desc;
+		xine_post_api_parameter_t *parm;
+		char *data;
+			
+		input_api = (xine_post_in_t *)xine_post_input(m_pXineDeinterlacePlugin, "parameters");
+		if (!input_api) {
+			g_pPlutoLogger->Write( LV_WARNING, "Failed to setup post plugin" );
+			return false;
+		}
+			
+		api = (xine_post_api_t *)input_api->data;
+		desc = api->get_param_descr();
+		parm = desc->parameter;
+		data = (char *)malloc(desc->struct_size);
+		api->get_parameters(m_pXineDeinterlacePlugin, (void *)data);
+			
+		while (parm->type != POST_PARAM_TYPE_LAST)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"parm: %s, %s\n", parm->name, parm->description);
+			int i = 0;
+			if(parm->enum_values != NULL)
+				while(parm->enum_values[i] != NULL)
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"parm[%d]: %s\n", i, parm->enum_values[i]);
+				i++;
+			}
+			if(!strncasecmp(parm->name, "method", 6) &&
+						 parm->type == POST_PARAM_TYPE_INT)
+			{
+				*(int *)(data + parm->offset) = 4;
+			}
+			else if(!strncasecmp(parm->name, "enabled", 7) &&
+									parm->type == POST_PARAM_TYPE_BOOL)
+			{
+				*(int *)(data + parm->offset) = 1;
+			}
+			else if(!strncasecmp(parm->name, "cheap_mode", 10) &&
+									parm->type == POST_PARAM_TYPE_BOOL)
+			{
+				*(int *)(data + parm->offset) = 0;
+			}
+			else if(!strncasecmp(parm->name, "use_progressive_frame_flag", 26) &&
+									parm->type == POST_PARAM_TYPE_BOOL)
+			{
+				*(int *)(data + parm->offset) = 1;
+			}
+			else if(!strncasecmp(parm->name, "pulldown", 8) &&
+									parm->type == POST_PARAM_TYPE_INT)
+			{
+				*(int *)(data + parm->offset) = 1;
+			}
+			parm++;
+		}
+		api->set_parameters(m_pXineDeinterlacePlugin, (void *)data);
+		free(data);
+		
+		rewiringResult = xine_post_wire_video_port(xine_get_video_source(m_pXineStream), m_pXineDeinterlacePlugin->video_input[0]);
+		if (!rewiringResult)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "post-processing plugin rewiring failed");
+		}
+		
+		return rewiringResult;
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "tvtime failed to load");
+		return false;
+	}
+}
+
+void Xine_Stream::DisableDeinterlacing()
+{
+	if (m_pXineDeinterlacePlugin)
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Disabling deinterlacing" );
+		
+		xine_post_wire_video_port( xine_get_video_source( m_pXineStream ), m_pXineVideoOutput );
+		xine_post_dispose( m_pXineLibrary, m_pXineDeinterlacePlugin );
+		m_pXineDeinterlacePlugin = NULL;
+	}
+}
+
+bool Xine_Stream::EnableVisualizing()
+{
+	return false;
+	
+	if ( ! m_pXineVisualizationPlugin )
+	{
+		//TODO: NULL-terminated list here
+		m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 1, &m_pXineAudioOutput, &m_pXineVideoOutput );
+		if (!m_pXineVisualizationPlugin)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
+		}
+	}
+	
+	bool rewiringResult = false;
+
+	if (m_pXineVisualizationPlugin)
+	{
+		rewiringResult = xine_post_wire_audio_port(xine_get_audio_source(m_pXineStream), m_pXineVisualizationPlugin->audio_input[0]);
+		
+		if (!rewiringResult)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "post-processing plugin rewiring failed");
+		}
+	}
+	
+	return rewiringResult;
+}
+
+void Xine_Stream::DisableVisualizing()
+{
+	if ( m_pXineVisualizationPlugin )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Disabling visualization" );
+		
+		xine_post_wire_audio_port( xine_get_audio_source( m_pXineStream ), m_pXineAudioOutput );
+		xine_post_dispose( m_pXineLibrary, m_pXineVisualizationPlugin );
+		m_pXineVisualizationPlugin = NULL;
+	}
+}
+
+void *Xine_Stream::EventProcessingLoop( void *arguments )
+{
+	Xine_Stream * pStream = ( Xine_Stream* ) arguments;
+
+	Bool checkResult;
+
+	int iCounter_TimeCode = 0;
+	int iCounter = 0;  // A counter for the special seek
+	XEvent event;
+	while ( ! pStream->m_bExitThread )
+	{
+		if ( pStream->m_bIsRendering )
+		{
+			do
+			{
+				XLockDisplay( pStream->m_pXDisplay );
+				checkResult = XCheckWindowEvent( pStream->m_pXDisplay, pStream->windows[ pStream->m_iCurrentWindow ], INPUT_MOTION, &event );
+				XUnlockDisplay( pStream->m_pXDisplay );
+
+				if ( checkResult == True )
+					pStream->XServerEventProcessor( event );
+
+			}
+			while ( checkResult == True );
+		}
+
+		if ( iCounter++ > 10 )                   // Every second
+		{
+			// TODO: review and enable
+			//g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->m_pAggregatorObject->GetPosition().c_str(), g_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
+			iCounter = 0;
+			if ( pStream->m_iTimeCodeReportFrequency && ++iCounter_TimeCode >= pStream->m_iTimeCodeReportFrequency )
+			{
+				// TODO: review and enable
+				//pStream->m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
+				iCounter_TimeCode = 1;
+			}
+		}
+		if ( pStream->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
+		{
+			pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
+			pStream->m_iSpecialOneTimeSeek = 0;
+		}
+		if ( g_iSpecialSeekSpeed )
+			pStream->HandleSpecialSeekSpeed();
+
+		usleep( 100000 );
+	}
+
+	return NULL;
+}
+
+int Xine_Stream::XServerEventProcessor(XEvent &event )
+{
+	Atom XA_DELETE_WINDOW;
+
+	switch ( event.type )
+	{
+		case ClientMessage:
+		{
+			XA_DELETE_WINDOW = XInternAtom( m_pXDisplay, "WM_DELETE_WINDOW", False );
+
+			if ( ( unsigned ) event.xclient.data.l[ 0 ] == XA_DELETE_WINDOW )
+				m_bIsRendering = false;
+			break;
+		}
+
+		case MotionNotify:
+		{
+			XMotionEvent *mevent = ( XMotionEvent * ) & event;
+			int x, y;
+
+			if ( translate_point( mevent->x, mevent->y, &x, &y ) )
+			{
+				xine_event_t xineEvent;
+				xine_input_data_t xineInput;
+
+				xineEvent.type = XINE_EVENT_INPUT_MOUSE_MOVE;
+				xineEvent.stream = m_pXineStream;
+				xineEvent.data = &xineInput;
+				xineEvent.data_length = sizeof( xineInput );
+				gettimeofday( &xineEvent.tv, NULL );
+
+				xineInput.button = 0;
+				xineInput.x = x;
+				xineInput.y = y;
+				xine_event_send( m_pXineStream, &xineEvent );
+			}
+			break;
+		}
+
+		case ButtonPress:
+		{
+			XButtonEvent *bevent = ( XButtonEvent * ) & event;
+			xine_input_data_t xineInputData;
+			xine_event_t xineEvent;
+
+			x11_rectangle_t rect;
+
+			g_pPlutoLogger->Write( LV_STATUS, "Xine player: mouse button event: mx=%d my=%d", bevent->x, bevent->y );
+
+			rect.x = bevent->x;
+			rect.y = bevent->y;
+			rect.w = 0;
+			rect.h = 0;
+
+			xine_gui_send_vo_data ( m_pXineStream, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, ( void* ) & rect );
+			g_pPlutoLogger->Write( LV_STATUS, "Xine player: mouse button event after translation: mx=%d my=%d", rect.x, rect.y );
+
+			xineEvent.stream = m_pXineStream;
+			xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
+			xineEvent.data = &xineInputData;
+			xineEvent.data_length = sizeof( xineInputData );
+
+			xineInputData.button = bevent->button;
+			xineInputData.x = rect.x;
+			xineInputData.y = rect.y;
+
+			gettimeofday( &xineEvent.tv, NULL );
+			XLockDisplay( bevent->display );
+			xine_event_send( m_pXineStream, &xineEvent );
+			XUnlockDisplay( bevent->display );
+
+			break;
+		}
+
+		case KeyPress:
+		{
+			XKeyEvent kevent;
+			KeySym ksym;
+			char kbuf[ 256 ];
+			int len;
+
+			kevent = event.xkey;
+
+			XLockDisplay( kevent.display );
+			len = XLookupString( &kevent, kbuf, sizeof( kbuf ), &ksym, NULL );
+			XUnlockDisplay( kevent.display );
+                // g_pPlutoLogger->Write(LV_STATUS, "Key (%d), \"%s\" - %d", len, kbuf, ksym);
+
+			xine_event_t xineEvent;
+                // xine_input_data_t  xineInput;
+
+			switch ( ksym )
+			{
+				case XK_Up:
+					xineEvent.type = XINE_EVENT_INPUT_UP;
+					break;
+				case XK_Down:
+					xineEvent.type = XINE_EVENT_INPUT_DOWN;
+					break;
+				case XK_Left:
+					xineEvent.type = XINE_EVENT_INPUT_LEFT;
+					break;
+				case XK_Right:
+					xineEvent.type = XINE_EVENT_INPUT_RIGHT;
+					break;
+				case XK_Return:
+					xineEvent.type = XINE_EVENT_INPUT_SELECT;
+					break;
+				default:
+					xineEvent.type = 0;
+			}
+			xineEvent.stream = m_pXineStream;
+			xineEvent.data = NULL;
+			xineEvent.data_length = 0;
+			gettimeofday( &xineEvent.tv, NULL );
+			xine_event_send( m_pXineStream, &xineEvent );
+			break;
+		}
+
+		case Expose:
+		{
+			XExposeEvent *exposeEvent = ( XExposeEvent * ) & event;
+                // g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
+
+			if ( exposeEvent->count != 0 )
+				break;
+
+			if ( m_pXineVideoOutput )
+				xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_EXPOSE_EVENT, exposeEvent );
+
+			break;
+		}
+
+		case ConfigureNotify:
+		{
+			XConfigureEvent *cev = ( XConfigureEvent * ) & event;
+			Window tmp_win;
+
+			m_iImgWidth = cev->width;
+			m_iImgHeight = cev->height;
+
+			if ( ( cev->x == 0 ) && ( cev->y == 0 ) )
+			{
+				XLockDisplay( cev->display );
+				XTranslateCoordinates( cev->display, cev->window, DefaultRootWindow( cev->display ), 0, 0, &m_iImgXPos, &m_iImgYPos, &tmp_win );
+				XUnlockDisplay( cev->display );
+			}
+			else
+			{
+				m_iImgXPos = cev->x;
+				m_iImgYPos = cev->y;
+			}
+		}
+		break;
+	}
+
+	return true;
+}
+
+void Xine_Stream::Seek(int pos,int tolerance_ms)
+{
+	if( tolerance_ms==0 )
+	{
+
+		timespec ts1,ts2,tsElapsed;
+		gettimeofday( &ts1, NULL );
+
+		xine_play( m_pXineStream, 0, pos );
+
+		gettimeofday( &ts2, NULL );
+		tsElapsed = ts2-ts1;
+		int positionTime, totalTime;
+		getStreamPlaybackPosition( positionTime, totalTime );
+		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d, off by %d",
+													tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
+													pos,positionTime,positionTime-pos);
+		return ;
+	}
+
+	g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek seek to %d tolerance %d", pos, tolerance_ms );
+
+	for ( int i = 0;i < 10;++i )
+	{
+		int positionTime, totalTime;
+		if ( abs( getStreamPlaybackPosition( positionTime, totalTime ) - pos ) < tolerance_ms )
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
+			break;
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
+			xine_play( m_pXineStream, 0, pos );
+		}
+	}
+}
+
+void Xine_Stream::HandleSpecialSeekSpeed()
+{
+	if ( m_tsLastSpecialSeek.tv_sec==0 )  // Should not happen
+		return ;
+
+	DisplaySpeedAndTimeCode();
+
+	timespec ts;
+	gettimeofday( &ts, NULL );
+
+	timespec tsElapsed = ts-m_tsLastSpecialSeek;
+	int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
+	int seekTime = m_posLastSpecialSeek + (msElapsed * g_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
+	int positionTime, totalTime;
+	getStreamPlaybackPosition( positionTime, totalTime );
+
+	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
+												g_iSpecialSeekSpeed, msElapsed,
+												m_posLastSpecialSeek,seekTime,positionTime);
+
+	if ( seekTime < 0 || seekTime > totalTime )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
+		StopSpecialSeek();
+		// TODO: reenable
+		//m_pAggregatorObject->ReportTimecode( xineStream->m_iStreamID, xineStream->m_iPlaybackSpeed );
+		return;
+	}
+
+	m_tsLastSpecialSeek=ts;
+	m_posLastSpecialSeek=seekTime;
+	Seek(seekTime,0);
+}
+
+int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
+{
+	// TODO: reenable
+	/*
+	if ( m_pDynamic_Pointer )
+		m_pDynamic_Pointer->pointer_check_time();
+	*/
+
+	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Stream is not seekable" );
+		positionTime = totalTime = 0;
+		return 0;
+	}
+
+	int iPosStream = 0;
+	int iPosTime = 0;
+	int iLengthTime = 0;
+
+	int count = 10;
+	while ( --count && ! xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
+		Sleep( 30 );
+	}
+
+	positionTime = iPosTime;
+	totalTime = iLengthTime;
+	return positionTime;
+}
+
+void Xine_Stream::DisplaySpeedAndTimeCode()
+{
+	int Whole = g_iSpecialSeekSpeed / 1000;
+	int Fraction = g_iSpecialSeekSpeed % 1000;
+	string sSpeed;
+
+	if ( Fraction < 0 )
+	{
+		Fraction *= -1;
+		sSpeed += "-";
+	}
+	else if ( Whole )
+		sSpeed += StringUtils::itos( Whole );
+	else
+		sSpeed += "0";
+
+	if ( Fraction )
+		sSpeed += "." + StringUtils::itos( Fraction );
+
+	sSpeed += "x     ";
+
+	int seconds, totalTime;
+	getStreamPlaybackPosition( seconds, totalTime );
+	g_pPlutoLogger->Write( LV_STATUS, "seconds %d", seconds );
+	seconds /= 1000;
+	int seconds_only = seconds;
+	int hours = seconds / 3600;
+	seconds -= hours * 3600;
+	int minutes = seconds / 60;
+	seconds -= minutes * 60;
+	g_pPlutoLogger->Write( LV_STATUS, "h %d m %d s %d", hours, minutes, seconds );
+	if ( hours )
+	{
+		sSpeed += StringUtils::itos( hours ) + ":";
+		if ( minutes < 10 )
+			sSpeed += "0" + StringUtils::itos( minutes ) + ":";
+		else
+			sSpeed += StringUtils::itos( minutes ) + ":";
+	}
+	else
+		sSpeed += StringUtils::itos( minutes ) + ":";
+
+	if ( seconds < 10 )
+		sSpeed += "0" + StringUtils::itos( seconds );
+	else
+		sSpeed += StringUtils::itos( seconds );
+
+	if ( ( g_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
+		DisplayOSDText("");
+	else
+		DisplayOSDText( sSpeed );
+}
+
+
+void Xine_Stream::DisplayOSDText( string sText )
+{
+	//TODO properly deallocate
+	if ( sText.size() == 0 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
+		/*
+		if ( m_xine_osd_t )
+		xine_osd_free( m_xine_osd_t );*/
+		m_xine_osd_t = NULL;
+		g_iSpecialSeekSpeed = 0;
+		return ;
+	}
+
+	if ( m_xine_osd_t )
+		xine_osd_free( m_xine_osd_t );
+	m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
+	xine_osd_set_font( m_xine_osd_t, "sans", 20 );
+	xine_osd_set_text_palette( m_xine_osd_t,
+														 XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );
+	xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
+	xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
+	xine_osd_show( m_xine_osd_t, 0 );
+
+	g_pPlutoLogger->Write( LV_CRITICAL, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
+}
+
+void Xine_Stream::StartSpecialSeek( int Speed )
+{
+	int totalTime;
+	gettimeofday( &m_tsLastSpecialSeek, NULL );
+	getStreamPlaybackPosition( m_posLastSpecialSeek, totalTime );
+
+	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
+	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 2 * 90000 );
+	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+	g_iSpecialSeekSpeed = Speed;
+	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	DisplaySpeedAndTimeCode();
+	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
+}
+
+void Xine_Stream::StopSpecialSeek()
+{
+	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
+	g_iSpecialSeekSpeed = 0;
+	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	DisplayOSDText("");
+	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
+}
+
+
+bool Xine_Stream::setSubtitle( int Value )
+{
+	g_pPlutoLogger->Write( LV_STATUS, "SPU was %d now %d", getSubtitle(), Value );
+	xine_set_param( m_pXineStream, XINE_PARAM_SPU_CHANNEL, Value );
+
+	return true;
+}
+
+bool Xine_Stream::setAudio( int Value )
+{
+	g_pPlutoLogger->Write( LV_STATUS, "AUDIO was %d now %d", xine_get_param ( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL ), Value );
+	xine_set_param( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, Value );
+
+	return true;
+}
+
+int Xine_Stream::getSubtitle()
+{
+	return xine_get_param ( m_pXineStream, XINE_PARAM_SPU_CHANNEL );
+}
+
+int Xine_Stream::getAudio()
+{
+	return xine_get_param ( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL );
+}
+
+const char *Xine_Stream::TranslateLanguage( const char *abbreviation )
+{
+	const char * pAbbreviation;
+	if ( abbreviation[ 0 ] == ' ' )
+		pAbbreviation = &abbreviation[ 1 ];
+	else
+		pAbbreviation = abbreviation;
+
+	if ( strcmp( pAbbreviation, "en" ) == 0 )
+		return "English";
+	else if ( strcmp( pAbbreviation, "de" ) == 0 )
+		return "Deutsch";
+	else if ( strcmp( pAbbreviation, "fr" ) == 0 )
+		return "Francais";
+
+	return pAbbreviation;
+}
+
+void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_t *event )
+{
+	Xine_Stream * pXineStream = ( Xine_Stream * ) streamObject;
+
+	switch ( event->type )
+	{
+		case XINE_EVENT_UI_PLAYBACK_FINISHED:
+            /**
+		 * @test
+			report_mrl_and_title(NULL);
+			clear_tracks();
+
+			menu_snapshots = end_menu = 0;
+			if (repeat)
+		{
+			xine_play(m_pstream, 0, 0);
+	}
+			else if (mrl[mrl_n+1] != NULL)
+			play_mrl(mrl[++mrl_n]);
+			else
+			send_event(XINE_SE_PLAYBACK_FINISHED, "");
+						 */
+			g_pPlutoLogger->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
+			pXineStream->StopSpecialSeek();
+			//TODO: reenanle
+			//!pXineStream->m_pAggregatorObject->ReportTimecode( pXineStream->m_iStreamID, pXineStream->m_iPlaybackSpeed );
+			pXineStream->playbackCompleted( false );
+			pXineStream->m_bIsRendering = false;
+			break;
+		case XINE_EVENT_QUIT:
+			g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
+                // the playback completed is sent from another place. (see the stopMedia)
+			break;
+
+		case XINE_EVENT_PROGRESS:
+		{
+			xine_progress_data_t *pProgressEvent = ( xine_progress_data_t * ) event->data;
+			g_pPlutoLogger->Write( LV_WARNING, "Playback (%s) is at %d%.", pProgressEvent->description, pProgressEvent->percent );
+		}
+		break;
+
+		case XINE_EVENT_UI_NUM_BUTTONS:
+		{
+			pXineStream->StopSpecialSeek();
+			//TODO: reenable
+			//!pXineStream->m_pOwner->m_pAggregatorObject->ReportTimecode( pXineStream->m_iStreamID, pXineStream->m_iPlaybackSpeed );
+			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
+
+			g_pPlutoLogger->Write( LV_STATUS, "Menu with %d buttons", iButtons );
+			//TODO reenable
+			/*!
+			if ( pXineStream->m_pOwner->m_pAggregatorObject )
+				pXineStream->m_pOwner->m_pAggregatorObject->FireMenuOnScreen( pXineStream->m_iRequestingObject, pXineStream->m_iStreamID, iButtons != 0 );
+			*/
+		}
+		break;
+
+		case XINE_EVENT_UI_SET_TITLE:
+			if ( g_iSpecialSeekSpeed )
+				break; // Ignore this while we're doing all those seeks
+			{
+				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
+				//TODO: reenable
+				//!g_pPlutoLogger->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str() );
+                //UI set title: Title 58, Chapter 1,
+				const char *p = strstr( data->str, "Title " );
+				if ( p )
+					//TODO reenable
+					/*!pXineStream->m_pOwner->m_pAggregatorObject->m_iTitle = atoi( p + 6 )*/;
+
+				p = strstr( data->str, "Chapter " );
+				if ( p )
+					//TODO reenable
+					/*!pXineStream->m_pOwner->m_pAggregatorObject->m_iChapter = atoi( p + 8 )*/;
+			}
+			break;
+
+		case XINE_EVENT_INPUT_MOUSE_MOVE:
+			//TODO reenable
+			/*!if ( g_pDynamic_Pointer )
+				g_pDynamic_Pointer->pointer_show();*/
+			break;
+		case XINE_EVENT_SPU_BUTTON:
+		case XINE_EVENT_INPUT_MOUSE_BUTTON:
+		case XINE_EVENT_INPUT_MENU1:
+		case XINE_EVENT_INPUT_MENU2:
+		case XINE_EVENT_INPUT_MENU3:
+		case XINE_EVENT_INPUT_MENU4:
+		case XINE_EVENT_INPUT_MENU5:
+		case XINE_EVENT_INPUT_MENU6:
+		case XINE_EVENT_INPUT_MENU7:
+		case XINE_EVENT_INPUT_UP:
+		case XINE_EVENT_INPUT_DOWN:
+		case XINE_EVENT_INPUT_LEFT:
+		case XINE_EVENT_INPUT_RIGHT:
+		case XINE_EVENT_INPUT_SELECT:
+		case XINE_EVENT_INPUT_NEXT:
+		case XINE_EVENT_INPUT_PREVIOUS:
+		case XINE_EVENT_INPUT_ANGLE_NEXT:
+		case XINE_EVENT_INPUT_ANGLE_PREVIOUS:
+		case XINE_EVENT_INPUT_BUTTON_FORCE:
+		case XINE_EVENT_INPUT_NUMBER_0:
+		case XINE_EVENT_INPUT_NUMBER_1:
+		case XINE_EVENT_INPUT_NUMBER_2:
+		case XINE_EVENT_INPUT_NUMBER_3:
+		case XINE_EVENT_INPUT_NUMBER_4:
+		case XINE_EVENT_INPUT_NUMBER_5:
+		case XINE_EVENT_INPUT_NUMBER_6:
+		case XINE_EVENT_INPUT_NUMBER_7:
+		case XINE_EVENT_INPUT_NUMBER_8:
+		case XINE_EVENT_INPUT_NUMBER_9:
+		case XINE_EVENT_INPUT_NUMBER_10_ADD:
+            // ignored at the moment;
+			break;
+
+		case XINE_EVENT_UI_CHANNELS_CHANGED:
+			if ( g_iSpecialSeekSpeed )
+				break; // Ignore this while we're doing all those seeks
+			{
+				int numaudio = xine_get_stream_info( pXineStream->m_pXineStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL );
+				if ( numaudio > 1 )
+				{
+					string sAudioTracks = StringUtils::itos( pXineStream->getAudio() ) + "\n";
+					int iResult = 1, i;
+					for ( i = 0;i < 100;++i )
+					{
+						char lang[ XINE_LANG_MAX ];
+						strcpy( lang, "**error**" );
+						iResult = xine_get_audio_lang( pXineStream->m_pXineStream, i, lang );
+						if ( iResult == 0 )
+							break;
+						sAudioTracks += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
+					}
+					if ( i >= 100 )
+						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong audio tracks>100" );
+					//TODO: reenable
+					//!pXineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks( sAudioTracks );
+				}
+				else
+					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple audio tracks" );
+
+				int numsubtitle = xine_get_stream_info( pXineStream->m_pXineStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL );
+				if ( numsubtitle > 1 )
+				{
+					string sSubtitles = StringUtils::itos( pXineStream->getSubtitle() ) + "\n";
+					int iResult = 1, i;
+					for ( i = 0;i < 100;++i )
+					{
+						char lang[ XINE_LANG_MAX ];
+						strcpy( lang, "**error**" );
+						iResult = xine_get_spu_lang( pXineStream->m_pXineStream, i, lang );
+						if ( iResult == 0 )
+							break;
+						sSubtitles += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
+					}
+					if ( i >= 100 )
+						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong subitltes>100" );
+					//TODO: reenable
+					//!pXineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles( sSubtitles );
+				}
+				else
+					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles" );
+			}
+			break;
+
+		default:
+			g_pPlutoLogger->Write( LV_STATUS, "Got unprocessed Xine playback event: %d", event->type );
+			break;
+	}
+
+	//TODO: reenable
+	/*!
+	if ( g_pDynamic_Pointer )
+		g_pDynamic_Pointer->pointer_check_time();*/
+}
+
+void Xine_Stream::selectNextButton()
+{
+	//TODO reenable
+	//!g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+
+	xine_event_t event;
+
+	event.type = XINE_EVENT_INPUT_UP;
+	event.stream = m_pXineStream;
+	event.data = NULL;
+	event.data_length = 0;
+	gettimeofday( &event.tv, NULL );
+
+	xine_event_send( m_pXineStream, &event );
+}
+
+void Xine_Stream::selectPrevButton()
+{
+	//TODO reenable
+	//!g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+
+	xine_event_t event;
+
+	event.type = XINE_EVENT_INPUT_DOWN;
+	event.stream = m_pXineStream;
+	event.data = NULL;
+	event.data_length = 0;
+	gettimeofday( &event.tv, NULL );
+
+	xine_event_send( m_pXineStream, &event );
+}
+
+void Xine_Stream::pushCurrentButton()
+{
+	//TODO reenable
+//!	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+
+	xine_event_t event;
+
+	event.type = XINE_EVENT_INPUT_SELECT;
+	event.stream = m_pXineStream;
+	event.data = NULL;
+	event.data_length = 0;
+	gettimeofday( &event.tv, NULL );
+
+	xine_event_send( m_pXineStream, &event );
+}
+
+bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
+{
+	StopSpecialSeek();
+	// TODO: properly handle OSD
+	/*!
+	if ( m_xine_osd_t )
+	{
+        // Freeing causes a seg fault.  I guess that means xinelib automatically frees it when the stream changes???
+        // xine_osd_free(m_xine_osd_t);
+		m_xine_osd_t = NULL;
+	}
+	*/
+
+	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	time_t startTime = time( NULL );
+
+	int Subtitle = -2, Angle = -2, AudioTrack = -2;
+	// TODO: reenable
+	//!int pos = m_pAggregatorObject->CalculatePosition( mediaPosition, NULL, &Subtitle, &Angle, &AudioTrack );
+	int pos = 0;
+
+	if ( xine_play( m_pXineStream, 0, 0 ) )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time( NULL ) - startTime, pos );
+		if ( pos )
+		{
+            // This functionality in xine keeps bouncing back and forth between working and not working
+            // With some Xine revisions you can pass the seek position in when you start playing, but
+            // other times you must wait at least 500ms after starting the stream before trying to seek
+            // or else you get
+            // "Stream is not seekable".  In such cases we have a m_iSpecialOneTimeSeek that we will use
+            // if we fail to do the seek correctly
+			m_iSpecialOneTimeSeek = pos;
+		}
+
+		if ( Subtitle != -2 )
+			setSubtitle( Subtitle );
+		if ( AudioTrack != -2 )
+			setAudio( AudioTrack );
+
+		if ( playbackStopped )
+			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
+		else
+			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
+
+		m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+
+		// TODO: reenable
+		// m_pAggregatorObject->ReportTimecode( m_iStreamID, m_iPlaybackSpeed );
+
+		return true;
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Play failed with error %d", xine_get_error( m_pXineStream ) );
+		return false;
+	}
+}
+
+void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
+{
+	g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
+
+	int xineSpeed = XINE_SPEED_PAUSE;
+	int NewSpecialSeekSpeed = 0;
+	m_iPlaybackSpeed = desiredSpeed;
+	// TODO: re-enable
+	//!m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
+	switch ( desiredSpeed )
+	{
+		case PLAYBACK_STOP:
+			xineSpeed = XINE_SPEED_PAUSE;
+			break;
+		case PLAYBACK_FF_1_4:
+			xineSpeed = XINE_SPEED_SLOW_4;
+			break;
+		case PLAYBACK_FF_1_2:
+			xineSpeed = XINE_SPEED_SLOW_2;
+			break;
+		case PLAYBACK_FF_1:
+			xineSpeed = XINE_SPEED_NORMAL;
+			break;
+		case PLAYBACK_FF_2:
+            //if( pStream->m_bHasVideo )  Now for some reason Xine uses 100% CPU and kills the system if you it run faster than 1x, so do this in our hacked special seek speed loop--nasty hack
+            //        xineSpeed = XINE_SPEED_FAST_2;
+            //else
+			xineSpeed = XINE_SPEED_NORMAL;
+			NewSpecialSeekSpeed = desiredSpeed;
+			break;
+		case PLAYBACK_FF_4:
+            //      if( pStream->m_bHasVideo )
+            //            xineSpeed = XINE_SPEED_FAST_4;
+            //      else
+			xineSpeed = XINE_SPEED_NORMAL;
+			NewSpecialSeekSpeed = desiredSpeed;  // See above
+			break;
+
+		default:
+			NewSpecialSeekSpeed = desiredSpeed;
+			xineSpeed = XINE_SPEED_NORMAL;
+			break;
+	}
+
+	if ( desiredSpeed == PLAYBACK_FF_1 )
+		DisplayOSDText( "" );
+	else
+		DisplaySpeedAndTimeCode();
+
+	if ( g_iSpecialSeekSpeed && !NewSpecialSeekSpeed )
+		StopSpecialSeek();
+	else if ( NewSpecialSeekSpeed )
+		StartSpecialSeek( NewSpecialSeekSpeed );
+
+	g_pPlutoLogger->Write( LV_STATUS, "Setting speed to special %d real %d desired %d", g_iSpecialSeekSpeed, xineSpeed, desiredSpeed );
+	if ( ( xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0 ) || xineSpeed != XINE_SPEED_PAUSE )
+		xine_set_param( m_pXineStream, XINE_PARAM_SPEED, xineSpeed );
+}
+
+Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
+{
+	/*!
+	XineStream * pStream;
+
+	if ( ( pStream = getStreamForId( iStreamID, "Can't get the speed of a non existent stream (%d)!" ) ) == NULL )
+		return PLAYBACK_STOP;
+*/
+	
+	int currentSpeed;
+	switch ( ( currentSpeed = xine_get_param( m_pXineStream, XINE_PARAM_SPEED ) ) )
+	{
+		case XINE_SPEED_SLOW_4:
+			return PLAYBACK_FF_1_4;
+
+		case XINE_SPEED_SLOW_2:
+			return PLAYBACK_FF_1_2;
+
+		case XINE_SPEED_NORMAL:
+			return PLAYBACK_FF_1;
+
+		case XINE_SPEED_FAST_2:
+			return PLAYBACK_FF_2;
+
+		case XINE_SPEED_FAST_4:
+			return PLAYBACK_FF_4;
+
+		case XINE_SPEED_PAUSE:
+			return PLAYBACK_STOP;
+
+		default:
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Can't translate current Xine speed %d. Assuming normal playback speed!", currentSpeed );
+			return PLAYBACK_FF_1;
+		}
+	}
+}
+
+bool Xine_Stream::DestroyWindows()
+{
+	if ( m_pXDisplay != NULL )
+	{
+		XLockDisplay( m_pXDisplay );
+
+		XUnmapWindow( m_pXDisplay, windows[ m_iCurrentWindow ] );
+
+		XFreeCursor( m_pXDisplay, cursors[ 0 ] );
+		XFreeCursor( m_pXDisplay, cursors[ 1 ] );
+
+		XDestroyWindow( m_pXDisplay, windows[ 0 ] );
+		XDestroyWindow( m_pXDisplay, windows[ 1 ] );
+
+		XUnlockDisplay( m_pXDisplay );
+		XCloseDisplay ( m_pXDisplay );
+
+		m_bExitThread = true;
+		//TODO: possibly reenable
+		/*!
+		if ( m_pSameStream )
+			pthread_join( m_pSameStream->eventLoop, NULL );
+		*/
+
+		m_pXDisplay = NULL;
+
+		// TODO: reenable
+		/*!delete m_pDynamic_Pointer;
+		m_pDynamic_Pointer = NULL;*/
+	}
+
+	return true;
+}
+
+void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize )
+{
+    //   uint8_t   *yuv, *y, *u, *v, *rgb;
+    //   void      *blob;
+    //   int        ratio, format;
+    //   int        width, height;
+    //   double     desired_ratio, image_ratio, f;
+    //   static int initMagick = 1;
+	//
+	// /*   FILE *outfile; */
+	//
+    //   ExceptionInfo exception;
+    //   Image *image;
+    //   Image *resize_image;
+    //   ImageInfo *image_info;
+
+	int imageWidth = 0, imageHeight = 0, imageRatio = 0, imageFormat = 0;
+	uint8_t *imageData = NULL;
+
+	/*
+	if ( pStream == NULL )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::make_snapshot(): The xine_stream_t object passed as parameter was null. Can't get the screen shot" );
+		return ;
+	}
+	*/
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame info" );
+	if ( ! xine_get_current_frame( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL ) )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame info. Returning!" );
+		return ;
+	}
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+
+	imageData = ( uint8_t* ) malloc ( ( imageWidth + 8 ) * ( imageHeight + 1 ) * 2 );
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame data" );
+	if ( ! xine_get_current_frame ( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData ) )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame data. Returning!" );
+		return ;
+	}
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+
+    // we should have the image in YV12 format aici
+    // if not then we try to convert it.
+	if ( imageFormat == XINE_IMGFMT_YUY2 )
+	{
+		uint8_t * yuy2Data = imageData;
+		imageData = ( uint8_t * ) malloc ( imageWidth * imageHeight * 2 );
+
+		Colorspace_Utils::yuy2toyv12 (
+				imageData,
+		imageData + imageWidth * imageHeight,
+		imageData + imageWidth * imageHeight * 5 / 4, yuy2Data, imageWidth, imageHeight );
+
+		free ( yuy2Data );
+	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Converted to YV12" );
+    // convert to RGB
+    // keep the yv12Data array around to be able to delete it
+	uint8_t *yv12Data = imageData;
+
+	/** @brief this function will allocate the output parameter */
+	imageData = Colorspace_Utils::yv12torgb (
+			imageData,
+	imageData + imageWidth * imageHeight,
+	imageData + imageWidth * imageHeight * 5 / 4,
+	imageWidth, imageHeight );
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Converted to RGB!" );
+	free( yv12Data );
+
+	double outputRatio;
+    // double currentRatio;
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Temp data was freed here!" );
+	switch ( imageRatio )
+	{
+		case XINE_VO_ASPECT_ANAMORPHIC:                   /* anamorphic     */
+			case XINE_VO_ASPECT_PAN_SCAN:                     /* we display pan&scan as widescreen */
+				outputRatio = 16.0 / 9.0;
+				break;
+
+				case XINE_VO_ASPECT_DVB:                          /* 2.11:1 */
+					outputRatio = 2.11 / 1.0;
+					break;
+
+					case XINE_VO_ASPECT_SQUARE:                       /* square pels */
+						case XINE_VO_ASPECT_DONT_TOUCH:                   /* probably non-mpeg m_m_pXineStream => don't touch aspect ratio */
+							outputRatio = ( double ) imageWidth / ( double ) imageHeight;
+							break;
+
+		default:
+			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio );
+
+			case XINE_VO_ASPECT_4_3:                          /* 4:3             */
+				outputRatio = 4.0 / 3.0;
+				break;
+	}
+
+	double f = outputRatio / ( ( double ) imageWidth / ( double ) imageHeight );
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): The ratio between the current ration and the output ratio is %f", f );
+	double t_width, t_height;
+    //     if( !bKeepAspect )
+    //     {
+	if ( f >= 1.0 )
+	{
+		t_width = imageWidth * f;
+		t_height = imageHeight;
+	}
+	else
+	{
+		t_width = imageWidth;
+		t_height = imageHeight / f;
+	}
+
+	t_width /= 2;
+	t_height /= 2;
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): Making jpeg from RGB" );
+	JpegEncoderDecoder jpegEncoder;
+
+	jpegEncoder.encodeIntoBuffer( ( char * ) imageData, imageWidth, imageHeight, 3, pData, iDataSize );
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): final image size: %d", iDataSize );
+	free( imageData );
+
+	FILE * file;
+	file = fopen( "/tmp/file.jpg", "wb" );
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): temporary image filep %p", file );
+
+	fwrite( pData, iDataSize, 1, file );
+	fclose( file );
+
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::make_snapshot(): At the end. Returning" );
+	return ;
+}
+
+/**
+    \fn XineSlaveWrapper::stopMedia(int iStreamID)
+ */
+void Xine_Stream::stopMedia()
+{
+	//TODO: reenable
+	/*!
+	XineStream * pStream = getStreamForId( iStreamID, "Can't stop the playback of a non existent stream (%d)!" );
+
+	if ( pStream == NULL )
+		return ;
+	*/
+	
+	playbackCompleted(false );
+    // stop the event thread first
+	if ( threadEventLoop )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
+		m_bExitThread = true;
+
+		pthread_join( threadEventLoop, NULL );
+		g_pPlutoLogger->Write( LV_STATUS, "Done." );
+	}
+
+	if ( m_pXineStreamEventQueue )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
+		xine_event_dispose_queue( m_pXineStreamEventQueue );
+	}
+
+	if ( m_pXineStream )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
+		xine_stop( m_pXineStream );
+
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
+		xine_close( m_pXineStream );
+
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
+		xine_dispose( m_pXineStream );
+	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
+
+	if ( m_pXineAudioOutput )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
+		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
+		m_pXineAudioOutput = NULL;
+	}
+
+	if ( m_pXineVideoOutput )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
+		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
+		m_pXineVideoOutput = NULL;
+	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "Cleanup completed" );
+	
+	m_sCurrentFile = "";
+	m_iTitle=m_iChapter=-1;
+}
+
+/**
+    \fn XineSlaveWrapper::restartMediaStream(int iStreamID)
+ */
+void Xine_Stream::restartMediaStream()
+{
+	changePlaybackSpeed( PLAYBACK_FF_1 );
+}
+
+/**
+    \fn XineSlaveWrapper::pauseMediaStream(int iStreamID)
+ */
+void Xine_Stream::pauseMediaStream( )
+{
+	int stoppedTime, completeTime;
+
+	if ( getPlaybackSpeed() == PLAYBACK_STOP )
+		changePlaybackSpeed( PLAYBACK_FF_1 );
+	else
+		changePlaybackSpeed( PLAYBACK_STOP );
+
+	getStreamPlaybackPosition( stoppedTime, completeTime );
+	g_pPlutoLogger->Write( LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime );
+}
+
+KeySym Xine_Stream::translatePlutoKeySymToXKeySym( int plutoButton )
+{
+	switch ( plutoButton )
+	{
+		case BUTTON_Up_Arrow_CONST:
+			return XK_Up;
+		case BUTTON_Down_Arrow_CONST:
+			return XK_Down;
+		case BUTTON_Left_Arrow_CONST:
+			return XK_Left;
+		case BUTTON_Right_Arrow_CONST:
+			return XK_Right;
+		case BUTTON_Enter_CONST:
+			return XK_Return;
+
+		default:
+			g_pPlutoLogger->Write( LV_WARNING, "Translating of the %d pluto key is not handled yet.", plutoButton );
+			return 0;
+	}
+}
+
+void Xine_Stream::selectMenu( int iMenuType )
+{
+//!	XineStream * xineStream = getStreamForId( iStreamID, "Can't select menu for a nonexistent stream!" );
+
+	xine_event_t xine_event;
+
+	xine_event.type = iMenuType + XINE_EVENT_INPUT_MENU1;
+	xine_event.data_length = 0;
+	xine_event.data = NULL;
+	xine_event.stream = m_pXineStream;
+	gettimeofday( &xine_event.tv, NULL );
+
+	xine_event_send( m_pXineStream, &xine_event );
+}
+
+void Xine_Stream::playbackCompleted( bool bWithErrors )
+{
+	g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event %d", ( int ) m_isSlimClient );
+	//XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
+
+	if ( ! m_isSlimClient )
+		//TODO reenable
+		/*!m_pAggregatorObject->EVENT_Playback_Completed(m_pAggregatorObject->m_sCurrentFile,iStreamID, bWithErrors )*/;
+}
+
+int Xine_Stream::enableBroadcast( int iStreamID )
+{
+//!	XineStream * pStream = getStreamForId( iStreamID, "Can't broadcast a stream that is not available" );
+
+//	if ( pStream == NULL )
+//		return 0;
+
+	int portNumber = 7866;
+	if ( portNumber != xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
+	{
+        //         if( port && xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
+		xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, portNumber );
+
+        /* try up to ten times from port base. sometimes we have trouble
+		* binding to the same port we just used.
+				*/
+		for ( int i = 0; i < 10; i++ )
+		{
+			xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber );
+			if ( portNumber == xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
+				return portNumber;
+		}
+	}
+
+	return 0;
+}
+
+void Xine_Stream::simulateMouseClick( int X, int Y )
+{
+//	XineStream * pStream;
+	xine_input_data_t xineInputData;
+	xine_event_t xineEvent;
+
+//	if ( ( pStream = getStreamForId( 1, "Xine_Stream::simulateMouseClick() getting one stream" ) ) == NULL )
+//		return ;
+
+	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y );
+
+	xineEvent.stream = m_pXineStream;
+	xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
+	xineEvent.data = &xineInputData;
+	xineEvent.data_length = sizeof( xineInputData );
+
+	xineInputData.button = 1;
+	xineInputData.x = X;
+	xineInputData.y = Y;
+
+	gettimeofday( &xineEvent.tv, NULL );
+	XLockDisplay( m_pXDisplay );
+	xine_event_send( m_pXineStream, &xineEvent );
+	XUnlockDisplay( m_pXDisplay );
+}
+
+void Xine_Stream::simulateKeystroke( int plutoButton )
+{
+	Window oldWindow;
+	int oldRevertBehaviour;
+	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
+
+	XLockDisplay( m_pXDisplay );
+	XGetInputFocus( m_pXDisplay, &oldWindow, &oldRevertBehaviour );
+	XSetInputFocus( m_pXDisplay, windows[ m_iCurrentWindow ], RevertToParent, CurrentTime );
+	XTestFakeKeyEvent( m_pXDisplay, XKeysymToKeycode( m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), True, 0 );
+	XTestFakeKeyEvent( m_pXDisplay, XKeysymToKeycode( m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), False, 0 );
+
+	if ( oldWindow )
+		XSetInputFocus( m_pXDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+
+	XFlush( m_pXDisplay );
+	XUnlockDisplay( m_pXDisplay );
+}
+
+void Xine_Stream::sendInputEvent( int eventType )
+{
+	g_iSpecialSeekSpeed = 0;
+
+	time_t startTime = time( NULL );
+	//XineStream *pStream;
+	//if ( ( pStream = getStreamForId( 1, "void XineSlaveWrapper::sendInputEvent(int eventType) getting one stream" ) ) == NULL )
+	//	return ;
+
+	g_pPlutoLogger->Write( LV_STATUS, "Sending %d event to the engine.", eventType );
+
+	xine_event_t event;
+
+	event.type = eventType;
+	event.stream = m_pXineStream;
+	event.data = NULL;
+	event.data_length = 0;
+	gettimeofday( &event.tv, NULL );
+
+	xine_event_send( m_pXineStream, &event );
+	g_pPlutoLogger->Write( LV_STATUS, "XineSlaveWrapper::sendInputEvent() Sending input event with ID: %d took %d seconds", eventType, time( NULL ) - startTime );
+}
+
+/**
+ * xine Callbacks.
+ */
+
+void Xine_Stream::destinationSizeCallback( void *data, int video_width, int video_height, double video_pixel_aspect,
+		int *dest_width, int *dest_height,
+		double *dest_pixel_aspect )
+{
+	Xine_Stream * pStream = ( Xine_Stream* ) data;
+
+    /**
+	 * @test
+	if( ! m_pStream->m_bIsRendering )
+	g_pPlutoLogger->Write(LV_STATUS, "Destination size callback called (not rendering)!");
+		 */
+
+	*dest_width = pStream->m_iImgWidth + ( pStream->m_bIsRendering ? 0 : 1 );
+	*dest_height = pStream->m_iImgHeight + ( pStream->m_bIsRendering ? 0 : 1 );
+	*dest_pixel_aspect = pStream->m_dPixelAspect;
+}
+
+void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_height, double video_pixel_aspect,
+																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
+																						double *dest_pixel_aspect,
+																						int *win_x, int *win_y )
+{
+	Xine_Stream * pStream = ( Xine_Stream* ) data;
+
+    /**
+	 * @test
+	 *     if( ! pStream->m_bIsRendering)
+	 *         g_pPlutoLogger->Write(LV_STATUS, "Framer Output callback called (not rendering).");
+		 */
+
+	*dest_x = 0;
+	*dest_y = 0;
+	*win_x = pStream->m_iImgXPos;
+	*win_y = pStream->m_iImgYPos;
+	*dest_width = pStream->m_iImgWidth + ( pStream->m_bIsRendering ? 0 : 1 );
+	*dest_height = pStream->m_iImgHeight + ( pStream->m_bIsRendering ? 0 : 1 );
+	*dest_pixel_aspect = pStream->m_dPixelAspect;
+}
+
+
+bool Xine_Stream::setDebuggingLevel( bool newValue )
+{
+	//XineStream * xineStream = getStreamForId( m_itreamID, "Trying to set debugging level for and invalid stream: (%d)" );
+
+	//if ( xineStream == NULL )
+//		return false;
+
+	if ( newValue )
+	{
+		xine_set_param( m_pXineStream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG );
+	}
+	else
+	{
+		xine_set_param( m_pXineStream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_NONE );
+	}
+
+	return true;
+}
+
+
+void Xine_Stream::resume()
+{
+	if ( m_pXineVideoOutput != NULL )
+	{
+		int count = 50;
+
+		while ( --count &&
+								!xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] ) )
+			xine_usec_sleep( 20000 );
+
+		if ( !count )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
+			g_pPlutoLogger->Write(LV_STATUS, "  and no other application is using the XVideo port.\n" );
+			return ;
+		}
+
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	}
+}
+
+
+int Xine_Stream::translate_point( int gui_x, int gui_y, int *video_x, int *video_y )
+{
+	x11_rectangle_t rect;
+    //   int             xwin, ywin;
+    //   unsigned int    wwin, hwin, bwin, dwin;
+    //   float           xf,yf;
+    //   float           scale, width_scale, height_scale,aspect;
+    //   Window          rootwin;
+
+	rect.x = gui_x;
+	rect.y = gui_y;
+	rect.w = 0;
+	rect.h = 0;
+
+	if ( m_pXineVideoOutput && xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, ( void* ) & rect ) != -1 )
+	{
+        /**
+		driver implements gui->video coordinate space translation, use it
+				 */
+		*video_x = rect.x;
+		*video_y = rect.y;
+		return 1;
+	}
+
+	return 1;
+}
+
+
+void Xine_Stream::Dynamic_Pointer::pointer_hide()
+{
+	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
+	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_hidden );
+	m_start_time = 0;
+}
+
+void Xine_Stream::Dynamic_Pointer::pointer_show()
+{
+	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
+	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_normal );
+	m_start_time = time( NULL );
+}
+
+void Xine_Stream::Dynamic_Pointer::pointer_check_time()
+{
+	if ( m_start_time == 0 )
+		return ;
+	time_t now_time = time( NULL );
+	if ( difftime( now_time, m_start_time ) >= POINTER_HIDE_SECONDS )
+		pointer_hide();
+}
+
+Xine_Stream::Dynamic_Pointer::Dynamic_Pointer(
+		Xine_Stream *pOwner,
+    Cursor *pCursor_normal,
+		Cursor *pCursor_hidden
+																									) :
+		m_pOwner(pOwner),
+        m_pCursor_normal(pCursor_normal),
+				m_pCursor_hidden(pCursor_hidden),
+				m_start_time(0)
+{
+	g_pDynamic_Pointer = this;
+}
+
+Xine_Stream::Dynamic_Pointer::~Dynamic_Pointer()
+{
+	g_pDynamic_Pointer = NULL;
+}
+
+void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result )
+{
+
+   // only make screenshots if it's a video stream.
+	if ( !m_bHasVideo )
+	{
+		iDataSize = 0;
+		return ;
+	}
+
+	sFormat = "JPG";
+	g_pPlutoLogger->Write( LV_STATUS, "Making snapshot" );
+	make_snapshot( sFormat.c_str(), iWidth, iHeight, true, pData, iDataSize );
+}
+
+
+string Xine_Stream::getRenderingWindowName()
+{
+	return m_sWindowTitle;
+}
+
+/*!
+void Xine_Stream::setXinePlayerObject( Xine_Player *object )
+{
+	m_pAggregatorObject = object;
+}
+*/
+
+int Xine_Stream::getDeviceId()
+{
+	return 0;
+	//!return m_pAggregatorObject->m_dwPK_Device;
+}
+
+bool Xine_Stream::isSlimClient()
+{
+	return m_isSlimClient;
+}
+
+void Xine_Stream::setSlimClient( bool isSlimClient )
+{
+	m_isSlimClient = isSlimClient;
+}
+
+string Xine_Stream::GetPosition()
+{
+	string sPosition;
+	
+	if( m_iChapter!=-1 )
+		sPosition += " CHAPTER:" + StringUtils::itos(m_iChapter);
+	
+	int currentTime, totalTime;
+	int iMediaPosition = getStreamPlaybackPosition(currentTime, totalTime);
+	sPosition += " POS:" + StringUtils::itos(currentTime);
+
+	if( m_iTitle!=-1 )
+		sPosition += " TITLE:" + StringUtils::itos(m_iTitle);
+
+	sPosition += " SUBTITLE:" + StringUtils::itos(getSubtitle());
+	sPosition += " AUDIO:" + StringUtils::itos(getAudio());
+	sPosition += " TOTAL:" + StringUtils::itos(totalTime);
+
+	return sPosition;
+}
+
+void Xine_Stream::ReportTimecode(int Speed)
+{
+	if (!m_iTimeCodeReportFrequency )
+		return;
+	
+	if( m_bIsVDR )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"ignoring vdr timecode for now");
+		return;
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
+	int currentTime, totalTime;
+	int iMediaPosition = getStreamPlaybackPosition(currentTime, totalTime);
+	
+	//TODO reenable
+	/*
+	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
+			iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
+			(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(m_iTitle),
+			StringUtils::itos(m_iChapter));
+	SendCommand(CMD_Update_Time_Code_);
+	*/
+}
+
+int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)
+{
+	string::size_type pos=0;
+	int iTitle=-1,iChapter=-1,iPos=0;
+
+	if( sMRL )
+	{
+		pos = sMediaPosition.find(" TITLE:");
+		if( pos!=string::npos )
+			iTitle = atoi( sMediaPosition.substr(pos+7).c_str() );
+
+		pos = sMediaPosition.find(" CHAPTER:");
+		if( pos!=string::npos )
+			iChapter = atoi( sMediaPosition.substr(pos+9).c_str() );
+
+		if( iTitle!=-1 && iChapter!=-1 )
+			(*sMRL)+="/" + StringUtils::itos(iTitle) + "." + StringUtils::itos(iChapter);
+	}
+
+	if( Subtitle )
+	{
+		pos = sMediaPosition.find(" SUBTITLE:");
+		if( pos!=string::npos )
+			*Subtitle = atoi( sMediaPosition.substr(pos+10).c_str() );
+	}
+
+	if( AudioTrack )
+	{
+		pos = sMediaPosition.find(" AUDIO:");
+		if( pos!=string::npos )
+			*AudioTrack = atoi( sMediaPosition.substr(pos+7).c_str() );
+	}
+
+	pos = sMediaPosition.find(" POS:");
+	if( pos!=string::npos )
+		iPos = atoi( sMediaPosition.substr(pos+5).c_str() );
+
+	return iPos;
+}
+
+} // DCE namespace end
