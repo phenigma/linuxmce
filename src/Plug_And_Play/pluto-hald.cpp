@@ -98,13 +98,21 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		if(it != templatesMap.end())
 		{
 			gchar *info_udi = hal_device_get_property_string (ctx, udi, "info.udi");
-			
 			// TODO
 			// USB devices other than USB-Serial devices
-			
+			g_pPlutoLogger->Write(LV_DEBUG, "an known usb device added with vendor_id 0x%04x and product_id 0x%04x", 
+											usb_device_vendor_id, 
+											usb_device_product_id);			
 			g_free (info_udi);
 			info_udi = NULL;
 		}
+//		else
+//		{
+//			// USB devices other than USB-Serial devices
+//			g_pPlutoLogger->Write(LV_DEBUG, "another usb device added with vendor_id 0x%04x and product_id 0x%04x", 
+//											usb_device_vendor_id, 
+//											usb_device_product_id);
+//		}
 	}
 	
 	g_free (bus);
@@ -179,11 +187,13 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 		if( !sendMessage(cmd.m_pMessage, responseRemoved) )
 		{
 			// error
+			g_pPlutoLogger->Write(LV_WARNING, "error sending remove message");
 		}
 	}
 	else
 	{
 		// error
+		g_pPlutoLogger->Write(LV_WARNING, "error on HAL passing null arguments to remove");
 	}
 }
 
@@ -266,6 +276,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						if( !sendMessage(cmd.m_pMessage, responseCreate) )
 						{
 							//error
+							g_pPlutoLogger->Write(LV_WARNING, "error sending add message");
 						}
 					}
 					
@@ -283,21 +294,6 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 		g_free(bus);
 		bus = NULL;
 	}
-// 	try
-// 	{
-// 		string responseRestart;
-// 		sendMessage(string("-targetType template -o 0 ") + 
-// 				StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-// 				" 1 " + 
-// 				StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
-// 			responseRestart );
-// 		g_pPlutoLogger->Write(LV_DEBUG, "responseRestart %s\n", responseRestart.c_str());
-// 	}
-// 	catch(string ex)
-// 	{
-// 		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
-// 	}
-
 }
 
 void* PlutoHalD::startUp(void *pnp)

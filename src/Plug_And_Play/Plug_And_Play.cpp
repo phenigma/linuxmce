@@ -260,7 +260,7 @@ bool Plug_And_Play::PnPPrivate::CreateDeviceHAL_USB(Row_PnpQueue * row)
 										" 1 " + 
 										StringUtils::itos( COMMAND_Create_Device_CONST ) + " " + 
 										StringUtils::itos( COMMANDPARAMETER_PK_DeviceTemplate_CONST ) + " " + 
-										StringUtils::itos( row->FK_DeviceTemplate_get() ) + " " +
+										StringUtils::itos( row->FK_DeviceTemplate_get() ) + ", (*vectRow_PnpQueue_iterator)->PK_PnpQueue_get() " +
 										StringUtils::itos( COMMANDPARAMETER_PK_Device_Related_CONST ) + " " +
 										StringUtils::itos( parentDevice->m_dwPK_Device ) + " " +
 										"109 " + 
@@ -664,66 +664,66 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 		}
 	}
 	
-	//check the queue to see if the device is not in processing
-	if( iPK_DeviceTemplate < 0 )
-	{
-		// set the right state
-		// PNP_DEVICE_DETECTED
-	}
-	else
-	{
-		// PNP_DEVICE_PROMPT_FOR_PARAMETERS
-	}
-	
-	string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
-	
-	vector<Row_PnpQueue*> vectRow_PnpQueue;
-	vector<Row_PnpQueue*>::iterator vectRow_PnpQueue_iterator;
-	
-	Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
-	if( p_Table_PnpQueue != NULL )
-	{
-		p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
-		if( vectRow_PnpQueue.empty() )
-		{
-			// add it to the queue
-			Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
-			if( row != NULL )
-			{
-				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
-				row->FK_Device_Created_set( 0 );
-				row->FK_CommMethod_set( iPK_CommMethod  );
-				row->FK_PnpProtocol_set( iPK_PnpProtocol );
-				row->DetectedDate_set( "Data" );
-				row->SerialNumber_set( sPNPSerialNo );
-				row->Identifier_set( sIdentifier );
-				row->Path_set( sPath );
-				// TODO
-				// row->IP_set( sIP_Address );
-				// row->ExtraParameters_set( sTokens );
-				
-				if( !p_Table_PnpQueue->Commit() )
-				{
-					// error
-					g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
-				}
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
-				// error
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );
-			// nothing ??
-		}
-	}
-	
-
-	//check the device table to see if there is already a device with the specified serial no
-	
+//	//check the queue to see if the device is not in processing
+//	if( iPK_DeviceTemplate < 0 )
+//	{
+//		// set the right state
+//		// PNP_DEVICE_DETECTED
+//	}
+//	else
+//	{
+//		// PNP_DEVICE_PROMPT_FOR_PARAMETERS
+//	}
+//	
+//	string sSQL = string("where SerialNumber = ") + sPNPSerialNo;
+//	
+//	vector<Row_PnpQueue*> vectRow_PnpQueue;
+//	vector<Row_PnpQueue*>::iterator vectRow_PnpQueue_iterator;
+//	
+//	Table_PnpQueue *p_Table_PnpQueue = d->database->PnpQueue_get();
+//	if( p_Table_PnpQueue != NULL )
+//	{
+//		p_Table_PnpQueue->GetRows(sSQL, &vectRow_PnpQueue);
+//		if( vectRow_PnpQueue.empty() )
+//		{
+//			// add it to the queue
+//			Row_PnpQueue * row = p_Table_PnpQueue->AddRow();
+//			if( row != NULL )
+//			{
+//				row->FK_DeviceTemplate_set( iPK_DeviceTemplate );
+//				row->FK_Device_Created_set( 0 );
+//				row->FK_CommMethod_set( iPK_CommMethod  );
+//				row->FK_PnpProtocol_set( iPK_PnpProtocol );
+//				row->DetectedDate_set( "Data" );
+//				row->SerialNumber_set( sPNPSerialNo );
+//				row->Identifier_set( sIdentifier );
+//				row->Path_set( sPath );
+//				// TODO
+//				// row->IP_set( sIP_Address );
+//				// row->ExtraParameters_set( sTokens );
+//				
+//				if( !p_Table_PnpQueue->Commit() )
+//				{
+//					// error
+//					g_pPlutoLogger->Write(LV_CRITICAL, "cannot commit to database");
+//				}
+//			}
+//			else
+//			{
+//				g_pPlutoLogger->Write(LV_CRITICAL, "cannot add row");
+//				// error
+//			}
+//		}
+//		else
+//		{
+//			g_pPlutoLogger->Write(LV_CRITICAL,  "no table" );
+//			// nothing ??
+//		}
+//	}
+//	
+//
+//	//check the device table to see if there is already a device with the specified serial no
+//	
 }
 
 //<-dceag-c799-b->
@@ -840,10 +840,18 @@ void Plug_And_Play::CheckQueue()
 							{
 								if( d->CreateDeviceHAL_USB((*vectRow_PnpQueue_iterator)) )
 								{
+									d->SetState((*vectRow_PnpQueue_iterator)->PK_PnpQueue_get(), Plug_And_Play::Done);
+									goto label_done;
 								}
 								else
 								{
+									d->SetState((*vectRow_PnpQueue_iterator)->PK_PnpQueue_get(), Plug_And_Play::Error);
+									goto label_error;
 								}
+							}
+							else
+							{
+								g_pPlutoLogger->Write(LV_DEBUG, "detected but protocol not implemented");
 							}
 							break;
 						case Plug_And_Play::PromptUser:
@@ -869,17 +877,32 @@ void Plug_And_Play::CheckQueue()
 							//TODO: rerun post
 							break;
 						case Plug_And_Play::Done:
+label_done:
 							//all actions done
+							(*vectRow_PnpQueue_iterator)->Delete();
+							p_Table_PnpQueue->Commit();
+							g_pPlutoLogger->Write(LV_DEBUG, "done %d", (*vectRow_PnpQueue_iterator)->PK_PnpQueue_get());
+							d->pending = false;
+							d->currentPnpQueueID = -1;
+							break;							
 						case Plug_And_Play::Error:
+label_error:
 							//errorenous item
 							//delete the item from queue
+							(*vectRow_PnpQueue_iterator)->Delete();
+							p_Table_PnpQueue->Commit();
+							g_pPlutoLogger->Write(LV_WARNING, "error %d", (*vectRow_PnpQueue_iterator)->PK_PnpQueue_get());
+							d->pending = false;
+							d->currentPnpQueueID = -1;
+							break;							
 						default:
 							//unknown stage
 							//delete the item from queue
 							(*vectRow_PnpQueue_iterator)->Delete();
 							p_Table_PnpQueue->Commit();
-							g_pPlutoLogger->Write(LV_WARNING, "invalid stage on PNP queue");
-							
+							g_pPlutoLogger->Write(LV_WARNING, "invalid stage on PNP queue for %d", (*vectRow_PnpQueue_iterator)->PK_PnpQueue_get());
+							d->pending = false;
+							d->currentPnpQueueID = -1;
 					}
 				}
 			}
