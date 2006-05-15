@@ -55,7 +55,7 @@
 	$g_complete_date_format = 'Y-m-d H:i T';
 	
 	# --- enum strings ----------------
-	$g_status_enum_string				= '50:open,75:re-open,80:fixed,90:closed';
+	$g_status_enum_string				= '50:open,75:reopen,80:fixed,90:closed';
 	$g_severity_enum_string				= '20:trivial,40:normal,50:minor,60:major,70:crash,80:block';
 	$g_resolution_enum_string 			= '5:pending,10:assigned,15:feedback,20:fixed,30:validation failed,40:unable to reproduce,60:duplicate,80:deferred,85:as designed,90:not a bug,95:on hold';
 
