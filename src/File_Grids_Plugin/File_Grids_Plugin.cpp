@@ -396,16 +396,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
         pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 
 		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
-		{
-#ifndef WIN32
-			int n = 79,result;
-			char value[80];
-			memset( value, 0, sizeof( value ) );
-
-			if ( (result=attr_get( (pFileDetails->m_sBaseName + "/" + pFileDetails->m_sFileName).c_str( ), "DIR_AS_FILE", value, &n, 0)) == 0 && atoi(value)==1 )
-#endif
-				pFileDetails->m_bIsDir=false;
-		}
+			pFileDetails->m_bIsDir=false;
 
 		if (pFileDetails->m_bIsDir)
 		{
