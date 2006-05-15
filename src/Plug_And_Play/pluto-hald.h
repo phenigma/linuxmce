@@ -26,8 +26,8 @@ private:
 public:
 	PlutoHalD();
 	static void* startUp(void * pnpdevice);
-	static void sendMessage(Message * pMsg, string &returnValue);
-	static void sendMessage(std::string params, std::string &returnValue);
+	static bool sendMessage(Message * pMsg, string &returnValue);
+	static bool sendMessage(std::string params, std::string &returnValue);
 	static void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection);
 	static void getPortIdentification(std::string portFromBus, std::string& portID);
 	static void myDeviceAdded(LibHalContext * ctx, const char * udi);
