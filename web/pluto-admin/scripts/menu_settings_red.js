@@ -28,7 +28,7 @@ function set_menu(menuObject)
 	menuObject.divider_caps = false
 	menuObject.divider_width = 1
 	menuObject.divider_height = 1
-	menuObject.divider_background_color = "#FF3366"
+	menuObject.divider_background_color = "#FF6666"
 	menuObject.divider_border_style = "none"
 	menuObject.divider_border_width = 0
 	menuObject.divider_border_color = "#000000"
@@ -51,7 +51,7 @@ function set_menu(menuObject)
 
 
 	menuObject.icon_rel = 0
-	menuObject.menu_items_background_color_roll = "#FF3366"
+	menuObject.menu_items_background_color_roll = "#FF6666"
 	menuObject.menu_items_text_color = "#E7FF80"
 	menuObject.menu_items_text_decoration = "none"
 	menuObject.menu_items_font_family = "Arial"
@@ -72,7 +72,7 @@ function set_menu(menuObject)
 
 **********************************************************************************************/
 
-        menuObject.menu_background_color_main = "#FF3366"
+        menuObject.menu_background_color_main = "#FF6666"
         menuObject.menu_items_background_color_main = "#B80000"
         menuObject.menu_items_text_color_main = "#FFFFFF"
         menuObject.menu_items_text_color_roll_main = "#FFFFFF"

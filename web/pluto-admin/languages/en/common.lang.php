@@ -157,4 +157,5 @@ $TEXT_TELECOM_CONST='Telecom';
 $TEXT_WARNING_NUMERICAL_ONLY_CONST='Please enter a numerical value.';
 $TEXT_ERROR_INVALID_TIME_FORMAT_CONST='Invalid time format';
 $TEXT_ERROR_INVALID_DATE_FORMAT_CONST='Invalid date format, please enter dd/mm/yyyy';
+$TEXT_NONE_CONST='None';
 ?>

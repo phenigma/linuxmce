@@ -220,12 +220,6 @@ textarea {
    font-size: 12px;
    background-color: #DEDEDE;
 }
-.right_frame_logo{
-	background-image: url(../images/right_frame_pluto_logo.jpg);
-	background-repeat:no-repeat;
-	background-position: bottom left;
-	background-color: #FFFFFF;
-}
 .left_frame_logo{
 	background-image: url(../images/left_frame_pluto_logo.jpg);
 	background-repeat:no-repeat;

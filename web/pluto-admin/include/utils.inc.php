@@ -3224,6 +3224,8 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 	}
 	if($isIPBased==1){
 		$deviceDataBox.='
+			<input type="hidden" name="oldIP_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'">
+			<input type="hidden" name="oldMAC_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'">
 			<tr>
 				<td align="left"><B>IP</B></td>
 				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'"></td>
@@ -3622,7 +3624,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	$out.='
 			<td><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';
-	
+
 	// display codes/commands
 	$keysArray=array_keys($commandGrouped);
 	for($i=0;$i<count($commandGrouped);$i++){
@@ -3649,7 +3651,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 }
 
 
-function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
+function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -5242,7 +5244,7 @@ function getSpecificFloorplanType($dcID,$dbADO){
 	return 0;
 }
 
-function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defaultAll,$section,$dbADO,$genericSerialDevicesOnly=0){
+function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAll,$section,$dbADO,$genericSerialDevicesOnly=0){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
@@ -5264,8 +5266,7 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 	}
 	
-	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1){
-		// TODO: do the filtering here
+	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1 || (int)@$_SESSION['parentID']>0){
 		//echo 'do_filter categ: '.$categoryID.' manuf: '.$manufacturerID;
 		
 		$deviceTemplatesArray=getAllowedDT((int)@$_SESSION['parentID'],$categoryID,$manufacturerID,$dbADO);
@@ -5275,28 +5276,38 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'','ORDER BY Description ASC');
 		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
 	}
+	$parentDeviceText=$TEXT_NONE_CONST;
+	if((int)@$_SESSION['parentID']>0){
+		$parentDeviceText='# '.(int)@$_SESSION['parentID'];
+		$dtstar=' ***';
+		$dtNote='<br>'.$dtstar.' '.$TEXT_DEVICE_TEMPLATE_CONTROLLED_VIA_NOTE_CONST;
+	}
 	
 	$out=jsManufCategories(array_keys($deviceTemplatesArray),$dbADO);
 	$out.=dtPickerJS();
-	
 	$out.='
 
 	<form action="index.php" method="post" name="deviceTemplatePicker">
 		<input type="hidden" name="section" value="deviceTemplatePicker">
 		<input type="hidden" name="action" value="choose">
 	
-	<table align="center">
+	<table align="center" border="0" cellpadding="2" cellspacing="0">
 		<tr>
+			<td><B>'.$TEXT_PARENT_DEVICE_CONST.'</B></td>
+			<td>'.$parentDeviceText.'</td>
+			<td>&nbsp;</td>
+		</tr>	
+		<tr class="alternate_back">
 			<td><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
 			<td>'.pulldownFromArray($manufacturersArray,'manufacturerID',$manufacturerID,'class="input_big" onchange="setManufacturer();"').'</td>
 			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_MANUFACTURER_CONST.'" onclick="add_manufacturer_popup();"></td>
 		</tr>
-		<tr>
+		<tr class="alternate_back">
 			<td valign="top"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 			<td valign="top">'.$deviceCategoryFormElement.'</td>
 			<td valign="top">&nbsp;</td>
 		</tr>	
-		<tr>
+		<tr class="alternate_back">
 			<td>&nbsp;</td>
 			<td>
 				<input type="radio" name="deviceCategoryPicker" value="0" '.(($deviceCategoryPicker==0)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_PULLDOWN_ALPHA_CONST.'<br>
@@ -5305,21 +5316,27 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 			</td>
 			<td>&nbsp;</td>
 		</tr>	
-		<tr>
+		<tr class="alternate_back">
 			<td colspan="3" align="center">
-				<input type="checkbox" name="autofilter" value="1" '.(((int)@$_REQUEST['autofilter']==1)?'checked':'').' onClick="document.deviceTemplatePicker.submit();">'.$TEXT_AUTOFILTER_CONST.'
+				<input type="checkbox" name="autofilter" value="1" '.(((int)@$_REQUEST['autofilter']==1)?'checked':'').' onClick="document.deviceTemplatePicker.submit();">'.$TEXT_AUTOFILTER_CONST.' *
 			</td>
 		</tr>	
-		<tr>
+		<tr class="alternate_back">
 			<td colspan="3" align="center">
 				<input type="submit" name="do_filter" class="button_fixed" value="'.$TEXT_APPLY_FILTER_CONST.'">
 			</td>
 		</tr>	
 		<tr>
-			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.@$dtstar.'</B></td>
 			<td>'.$deviceTemplatesPulldown.'</td>
-			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();"></td>
+			<td>&nbsp;</td>
 		</tr>
+		<tr>
+			<td colspan="3" align="center">
+				'.$TEXT_NEW_DEVICE_TEMPLATE_NOTICE_CONST.' **<br>
+				<input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();">
+			</td>
+		</tr>		
 		<tr>
 			<td colspan="3" align="center">
 				<span class="err" id="error_box"></span>&nbsp;
@@ -5343,12 +5360,16 @@ function pickDeviceTemplate_new($categoryID, $manufacturerID,$returnValue,$defau
 		</tr>	
 		<tr>
 			<td colspan="3" align="center">
-				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();">
+				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();"> 
+				<input type="reset" class="button_fixed" name="closeBtn" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 			</td>
 		</tr>	
 		<tr>
 			<td colspan="3" align="left">
-				<em>'.$TEXT_AUTOFILTER_INFO_CONST.'</em>
+				<em>* '.$TEXT_AUTOFILTER_INFO_CONST.'<br>
+					** '.$TEXT_DC_MANUFACTURER_NEEDED_CONST.'
+					'.$dtNote.'
+				</em>
 			</td>
 		</tr>	
 	
@@ -5525,7 +5546,7 @@ function dtPickerJS(){
 		dt=document.deviceTemplatePicker.dtID.value;
 		if(dt>0){
 			opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
-			//self.close();
+			self.close();
 		}else{
 			// error case, display error message
 			setErrorMessage("'.$TEXT_ERROR_DEVICE_TEMPLATE_NOT_SELECTED_CONST.'");
@@ -5607,7 +5628,22 @@ function dtPickerJS(){
 			document.deviceTemplatePicker.template[0].selected=true;
 		}
 	}	
+
+	function add_device_template_popup(){
+		setErrorMessage("");
+		manuf=parseInt(document.deviceTemplatePicker.manufSelected.value);
+		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
+		if(!isNaN(manuf) && !isNaN(categ) && manuf>0 && categ>0){
+			self.location="index.php?section=addModel&mID="+manuf+"&dcID="+categ+"&step=1&from='.urlencode(@$_SESSION['from']).'";
+		}else{
+			setErrorMessage("'.$TEXT_ERROR_PICK_MANUF_AND_DC_CONST.'");
+		}
+	}
 	
+	function add_manufacturer_popup(){
+		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
+		self.location="index.php?section=addManufacturer&dcID="+categ;
+	}
 	</script>
 	';
 	
@@ -5645,10 +5681,19 @@ function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO){
 	if($parentID!=0){
 		$allowedDevices=getDeviceTemplatesControlledBy($parentID,$dbADO);
 	}
-	$filter=(count($allowedDevices)>0)?'WHERE PK_DeviceTemplate IN ('.join(',',$allowedDevices).')':'';
+	$filter='WHERE 1=1 ';
+	$filter.=(count($allowedDevices)>0)?'AND PK_DeviceTemplate IN ('.join(',',$allowedDevices).') ':'';
+	if($categoryID>0){
+		$subcategories=getDescendantsForCategory($categoryID,$dbADO);
+		$filter.='AND FK_DeviceCategory IN ('.join(',',$subcategories).')';
+	}
+	
+	if($manufacturerID>0){
+		$filter.='AND FK_Manufacturer ='.$manufacturerID;
+	}
+	
 	$dtArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,$filter,'ORDER BY Description ASC');	
 	
-	print_array($allowedDevices);
 	return $dtArray;
 }
 ?>
