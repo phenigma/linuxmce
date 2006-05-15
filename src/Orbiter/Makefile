@@ -6,7 +6,7 @@
 # deactivating wx:
 # export USE_WX_LIB=0 ; make
 # or USE_WX_LIB=0 in Makefile
-# USE_WX_LIB = 0
+USE_WX_LIB = 0
 
 USE_WX_LIB ?= 1
 ifneq ($(USE_WX_LIB), 0)
