@@ -161,6 +161,10 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     DataGridTable *pDataGrid = new DataGridTable();
     // DataGridCell *pCell = NULL;
 
+
+	// Keep track of the ones we've already picked up from the database so we can show the user the extra ones that aren't there
+	map< pair<int,int>,bool > mapSections;
+
     deque<MediaFile *>::iterator itFiles;
     string sCurrentFile;
 
@@ -176,11 +180,13 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 				MediaSection *pMediaSection = pMediaTitle->m_dequeMediaSection[sSection];
 				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
 				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell," TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1)));
+				mapSections[ make_pair<int,int> (sSection,sTitle) ] = true;
 			}
 		}
 	}
 	else
 	{
+		int iSection=0;
 		for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
 		{
 			MediaFile *pMediaFile = *itFiles;
@@ -188,7 +194,28 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 			sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile());
 
 			pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
-			g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s section %d", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str(),iSection);
+			mapSections[ make_pair<int,int> (iSection,0) ] = true;
+		}
+	}
+
+	map< pair<int,int>,bool >::iterator itSections;
+	for(map< pair<int,int>,string >::iterator it = pMediaStream->m_mapSections.begin(); it!=pMediaStream->m_mapSections.end(); ++it)
+	{
+		itSections = mapSections.find( make_pair<int,int> ( it->first.first, it->first.second ) );
+		if( itSections==mapSections.end() )
+		{
+			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ) // There's a title
+			{
+				string sCell;
+				if( it->first.first>=0 )
+					sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
+				if( it->first.second>=0 )
+					sCell += " TITLE:" + StringUtils::itos(it->first.second+1);
+				pDataGrid->SetData(0, currentPos++,new DataGridCell(it->second,sCell));
+			}
+			else
+				pDataGrid->SetData(0, currentPos++,new DataGridCell(it->second, StringUtils::itos(it->first.first)));
 		}
 	}
 

@@ -109,12 +109,12 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 		pObj_Grid->m_iHighlightedRow = 1;
 		pObj_Grid->m_GridCurRow = Row;
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
+		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 		delete pObj_Grid->m_pDataGridTable;
 		pObj_Grid->m_pDataGridTable=NULL;
 		pObj_Grid->bReAcquire=true;
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
 		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pObj_Grid);
-		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 	}
 	else
 		m_spDatagridMouseHandlerHelper->StayInGrid(PK_Direction,X,Y);

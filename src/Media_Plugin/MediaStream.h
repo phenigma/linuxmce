@@ -59,6 +59,7 @@ namespace DCE
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 		map<int,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType,Section=PK_Attribute */
+		map< pair<int,int>,string > m_mapSections; /** pair<Chapter,Title/0> to section description.  These are provided by the media player independent of what we have in the database */
         int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? 0 : (*it).second; }
 
         /**

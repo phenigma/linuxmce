@@ -725,6 +725,18 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
         return false;
     }
 
+	string::size_type pos=0;
+	while(pos<sSectionDescription.size())
+	{
+		string sSection = StringUtils::Tokenize(sSectionDescription,"\n",pos);
+		string::size_type pos2=0;
+		string sDescription = StringUtils::Tokenize(sSection,"\t",pos2);
+		int iChapter = atoi(StringUtils::Tokenize(sSection,"\t",pos2).c_str());
+		int iTitle = atoi(StringUtils::Tokenize(sSection,"\t",pos2).c_str());
+
+		pMediaStream->m_mapSections[ make_pair<int,int> (iChapter-1,iTitle-1) ] = sDescription;
+	}
+	return false;
 }
 
 void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
