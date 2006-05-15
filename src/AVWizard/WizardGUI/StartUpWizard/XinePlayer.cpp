@@ -21,11 +21,13 @@ XinePlayer::XinePlayer()
 	: xine(NULL),
 	  stream(NULL),
 	  ao_port(NULL),
-	  event_queue(NULL)
+	  event_queue(NULL),
+	  tid(0)
 {
 	
 	NeedToReplay = false;
 	this->Running = false;
+	pthread_mutex_init(&lockmutex, NULL);
 }
 
 XinePlayer* XinePlayer::GetInstance()
@@ -44,18 +46,20 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 	std::string ConfigFile;
 
 	pthread_mutex_lock(&lockmutex);
+
 	xine = xine_new();
 	ConfigFile = ConfigName;
 	xine_config_load(xine, ConfigFile.c_str());
 	xine_init(xine);
-	pthread_mutex_unlock(&lockmutex);
-
 	this->FileName = FileName;
+
+
+	pthread_mutex_unlock(&lockmutex);
 
 	if(!StartPlayingFile())
 		return;
-
-	pthread_create(&tid,NULL, XinePlayerThread,this);
+	if(tid == 0)
+		pthread_create(&tid, NULL, XinePlayerThread,this);
 	
 }
 
@@ -65,6 +69,7 @@ void XinePlayer::StopPlayerEngine()
 		return;
 
 	pthread_mutex_lock(&lockmutex);
+
 	xine_close(stream);
 	xine_event_dispose_queue(event_queue);
 	xine_dispose(stream);
@@ -72,8 +77,9 @@ void XinePlayer::StopPlayerEngine()
 		xine_close_audio_driver(xine, ao_port);  
 	xine_exit(xine);
 	xine = NULL;
-	pthread_mutex_unlock(&lockmutex);
+
 	Running = false;
+	pthread_mutex_unlock(&lockmutex);
 }
 
 bool XinePlayer::StartPlayingFile()
