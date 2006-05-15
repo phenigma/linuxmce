@@ -25,7 +25,7 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 	OutputValue = Selected->GetCaption();
 	Dictionary->Set("AudioConnector", OutputValue);
 	std::string Command = COMMAND_SET_AUDIO_CONNECTOR;
-	Command = Command + " " + OutputValue;
+	Command = Command + " '" + OutputValue + "'";
 	system(Command.c_str());
 	return 0;
 }
