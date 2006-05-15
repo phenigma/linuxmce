@@ -142,7 +142,7 @@ for Device in $StorageDevices; do
 	## Check the space on the drive
 	dfOutput=$(df $Device_MountPoint | grep -v '^Filesystem')
 	Device_DiskFree=$(echo $dfOutput | awk '{ print $4 }') ; Device_DiskFree=$(( $Device_DiskFree / 1024 ))
-	Device_FileSystem=$(mount | grep "on /media/sda6" | awk '{ print $5 }')
+	Device_FileSystem=$(mount | grep "on $Device_MountPoint" | awk '{ print $5 }')
 
 	## Update Free Space device data
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_DiskFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$Device_ID'"
