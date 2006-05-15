@@ -981,6 +981,11 @@
 #define TEXT_TVConfirmInputsToggle_CONST 1693
 #define TEXT_New_Partition_CONST 1694
 #define TEXT_Current_Speed_CONST 1695
+#define TEXT_DSPModes_available_CONST 1696
+#define TEXT_DSPModesOrder_CONST 1697
+#define TEXT_TVDSPModesOrder_CONST 1698
+#define TEXT_TVInputsOrder_CONST 1699
+#define TEXT_InputsOrder_CONST 1700
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

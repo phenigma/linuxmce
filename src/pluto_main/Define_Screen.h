@@ -224,7 +224,7 @@
 #define SCREEN_mnuVolume_CONST 225
 #define SCREEN_OnOff_Toggle_CONST 226
 #define SCREEN_TVConfirmOnOffDiscre_CONST 227
-#define SCREEN_Internal_Disk_Driver_Wizard_CONST 228
+#define SCREEN_Internal_Disk_Drive_Wizard_CONST 228
 #define SCREEN_TVDSPMode_CONST 229
 #define SCREEN_Media_Tracks_CONST 230
 
