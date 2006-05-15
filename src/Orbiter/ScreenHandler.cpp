@@ -530,11 +530,11 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen, string sData_String,
+/*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String,
 	int iPK_Device_ControlledVia)
 { 
-	m_sInternal_Disk_Driver_Data = sData_String;
-	m_nInternal_Disk_Driver_PK_Device_ControlledVia = iPK_Device_ControlledVia;
+	m_sInternal_Disk_Drive_Data = sData_String;
+	m_nInternal_Disk_Drive_PK_Device_ControlledVia = iPK_Device_ControlledVia;
 
 	//we'll filter the datagrid by this category
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST));
@@ -543,18 +543,18 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	//register few callbacks
 	RegisterCallBack(
 		cbObjectSelected, 
-		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected, 
+		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Drive_Wizard_ObjectSelected, 
 		new ObjectInfoBackData()
 	);
 
 	RegisterCallBack(
 		cbDataGridSelected, 
-		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Driver_Wizard_DatagridSelected, 
+		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Drive_Wizard_DatagridSelected, 
 		new DatagridCellBackData()
 	);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected(CallBackData *pData)
+/*virtual*/ bool ScreenHandler::Internal_Disk_Drive_Wizard_ObjectSelected(CallBackData *pData)
 {
 	static bool bRecommendedDirectoryStructure = false;
 
@@ -563,7 +563,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	//got the correct callback data?
 	if(NULL == pObjectInfoData)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ScreenHandler::Internal_Disk_Driver_Wizard_ObjectSelected: "
+		g_pPlutoLogger->Write(LV_CRITICAL, "ScreenHandler::Internal_Disk_Drive_Wizard_ObjectSelected: "
 			"expected  a ObjectInfoBackData, but got a CallBackData of other type");
 		return false;
 	}
@@ -578,7 +578,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 			{
 				//TODO: send a CMD_Ignore_Disk_Driver to general info plugin; 
 				//status: wait for Razvan to implement it
-				//we'll use m_sInternal_Disk_Driver_Data as a parameter and m_nInternal_Disk_Driver_PK_Device_ControlledVia
+				//we'll use m_sInternal_Disk_Drive_Data as a parameter and m_nInternal_Disk_Drive_PK_Device_ControlledVia
 
                 m_pOrbiter->CMD_Go_back("", "");
 				return true;
@@ -623,13 +623,13 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 				int nPK_Device = 0;
 
 				string sDeviceDataString = 
-					StringUtils::ltos(DEVICEDATA_Block_Device_CONST) + "|" + m_sInternal_Disk_Driver_Data + "|" +
+					StringUtils::ltos(DEVICEDATA_Block_Device_CONST) + "|" + m_sInternal_Disk_Drive_Data + "|" +
 					StringUtils::ltos(DEVICEDATA_Use_Pluto_Directory_Structure_CONST) + "|" + (bRecommendedDirectoryStructure ? "1" : "0") + "|" + 
 					StringUtils::ltos(DEVICEDATA_Use_Automatically_CONST) + "|" + (bAutomaticallyStoreMedia ? "1" : "0");
 
 				DCE::CMD_Create_Device CMD_Create_Device_(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-					atoi(sPK_DeviceTemplate.c_str()), "", 0, "", sDeviceDataString, 0, m_nInternal_Disk_Driver_PK_Device_ControlledVia, 
+					atoi(sPK_DeviceTemplate.c_str()), "", 0, "", sDeviceDataString, 0, m_nInternal_Disk_Drive_PK_Device_ControlledVia, 
 					m_pOrbiter->m_dwPK_Device, 0, &nPK_Device
 				);
 				m_pOrbiter->SendCommand(CMD_Create_Device_);
@@ -642,7 +642,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool ScreenHandler::Internal_Disk_Driver_Wizard_DatagridSelected(CallBackData *pData)
+/*virtual*/ bool ScreenHandler::Internal_Disk_Drive_Wizard_DatagridSelected(CallBackData *pData)
 {
     return false;
 }
