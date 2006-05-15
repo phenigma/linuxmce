@@ -1,3 +1,9 @@
+xine-lib (1.1.1-1pluto3) unstable; urgency=low
+
+  * Added trick play patch
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 15 May 2006 14:21:53 +0300
+
 xine-lib (1.1.1-1pluto2) unstable; urgency=low
 
   * Added XvMC library dependencies

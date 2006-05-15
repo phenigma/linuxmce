@@ -51,6 +51,8 @@ ifeq (,$(findstring optimize,$(DEB_BUILD_OPTIONS)))
  DEB_BUILD_GNU_OPTION := --build=$(DEB_BUILD_GNU_TYPE)
 endif
 
+include /usr/share/dpatch/dpatch.make
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -58,7 +60,7 @@ configure-stamp:
                     $(DEB_BUILD_GNU_OPTION) CFLAGS="$(CFLAGS)"
 	touch configure-stamp
 
-build: configure-stamp build-stamp
+build: patch configure-stamp build-stamp
 build-stamp:
 	dh_testdir
 
@@ -66,7 +68,7 @@ build-stamp:
 
 	touch build-stamp
 
-clean:
+clean: unpatch
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp po/*.gmo
@@ -112,4 +114,4 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: build clean binary-indep binary-arch binary install configure patch unpatch
