@@ -216,12 +216,12 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Confirm_On_Off_Codes_CONST,PK_DeviceTemplate_get());
 	//AV Wizard - Input 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVMediaType)), 
-		DATAGRID_Media_Type_CONST,PK_DeviceTemplate_get());
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputNotListed)), 
+		DATAGRID_Select_Available_Inputs_CONST,PK_DeviceTemplate_get());	
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputNotListed)), 
-		DATAGRID_Select_Available_Inputs_CONST,PK_DeviceTemplate_get());
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVMediaType)), 
+		DATAGRID_Media_Type_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVMediaConnector)), 
@@ -1299,6 +1299,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0;
@@ -1323,6 +1324,47 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 }
 
 //AV Wizard - Input type
+class DataGridTable *General_Info_Plugin::AVInputNotListed(string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string sPKTemplate = Parms;
+	string sql;
+
+	sql = "SELECT PK_Command,Description FROM Command where FK_CommandCategory=22";
+	// add a filter
+	if( !Parms.empty() )
+		sql += string( " AND PK_Command IN (" ) + Parms + ")";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard confirm inputs grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0,nCol = 0,nMaxCol;
+	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
+	if( nMaxCol <= 0 )
+		nMaxCol = 1;;
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+				pCell = new DataGridCell( row[1], row[0]);
+				pDataGrid->SetData(nCol++, nRow, pCell );
+			if( nCol >= nMaxCol )
+			{
+				nCol = 0;
+				nRow++;
+			}
+		}
+	}
+
+	return pDataGrid;
+}
+
 class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
@@ -1413,7 +1455,7 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 }
 
 //change sql!!!!!!
-class DataGridTable *General_Info_Plugin::AVInputNotListed( string GridID, string Parms, void *ExtraData, 
+/*class DataGridTable *General_Info_Plugin::AVInputNotListed( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos = 0;
@@ -1449,44 +1491,8 @@ class DataGridTable *General_Info_Plugin::AVInputNotListed( string GridID, strin
 	}
 
 	return pDataGrid;
-}
+}*/
 
-class DataGridTable *General_Info_Plugin::AVConfirmInputs(string GridID, string Parms, void *ExtraData, 
-	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
-{
-	string::size_type pos = 0;
-	DataGridTable *pDataGrid = new DataGridTable( );
-	DataGridCell *pCell;
-	string sPKTemplate = Parms;
-	string sql;
-
-	sql = "SELECT PK_Command,Description FROM Command where FK_CommandCategory=22";
-
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	int nRow = 0,nCol = 0,nMaxCol;
-	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
-	if( nMaxCol <= 0 )
-		nMaxCol = 1;;
-
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
-	{
-		while( (row = mysql_fetch_row( result.r )) )
-		{
-				pCell = new DataGridCell( row[1], row[0]);
-				pDataGrid->SetData(nCol++, nRow, pCell );
-			if( nCol >= nMaxCol )
-			{
-				nCol = 0;
-				nRow++;
-			}
-		}
-	}
-
-	return pDataGrid;
-}
 
 //<-dceag-c395-b->
 
