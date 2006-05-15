@@ -243,14 +243,16 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	{
 		string sSubDir = *it;
 
-		string SQL = "select count(*) from File Where Path LIKE '" + 
-			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
-
-
         if(m_bAsDaemon)
 			Sleep(500);
 		
+/*
+		//This is not correct. If the user adds an attribute in pluto-admin
+		//we cannot decide if we need or not to scan the folder again.
 
+		string SQL = "select count(*) from File Where Path LIKE '" + 
+			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
+		
 		PlutoSqlResult allresult;
 		MYSQL_ROW row;
 		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
@@ -264,6 +266,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				continue;
 			}
 		}
+*/		
 
         //is sDirectory a ripped dvd ?
 		if( 
