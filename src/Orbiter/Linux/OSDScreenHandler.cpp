@@ -1952,13 +1952,12 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
 	string aux;
-	int i;
 
 	switch( GetCurrentScreen_PK_DesignObj() )
 	{
 		//Inputs single/multiple?
 		case DESIGNOBJ_TVMultipleInputs_CONST:
-			i = 0;
+			m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, "" );
 		return false;
 
 		//Input single
@@ -1973,6 +1972,8 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 			{
 				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
 				aux = StringUtils::Replace( aux, "|", "," );
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, aux );
+
 				if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].empty() )
 					return true;
 				else
@@ -1982,8 +1983,11 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 
 		// Input multiple screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "0" );
-			RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0" );
+			//RefreshDatagrid( DESIGNOBJ_dgMediaType_CONST );
+
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0" );
+			//RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
 		return false;
 	}
 
@@ -1998,7 +2002,6 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 	if(NULL != pCellInfoData)
 		sSelectId = pCellInfoData->m_sValue;
 	nIdSelected = atoi( sSelectId.c_str() );
-
 	int i;
 
 	switch( GetCurrentScreen_PK_DesignObj() )
@@ -2008,13 +2011,25 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 			m_pWizardLogic->SetPKMediaType(nIdSelected);
 		return false;
 
-		//Multiple input
+		//Multiple input  screen 1
 		case DESIGNOBJ_TVInputsNotListed_CONST:
-			i = 1;
 		return false;
 
+		//Multiple input  screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
 		return false;
+		/*switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+		{
+			case DESIGNOBJ_dgAvailableInputs_CONST:
+			i = 1;
+			return false;
+
+			case DESIGNOBJ_dgMediaType_CONST:
+			return false;
+
+			DESIGNOBJ_dgConnectorType_CONST:
+			return false;
+		}*/
 	}
 
 	return false;
