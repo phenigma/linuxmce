@@ -30,6 +30,7 @@ private:
     string m_sDirectory;
     string m_sFile;
 	long m_nInstallationID;
+	bool m_bDbAttributesSyncd;
 
     //internal helper functions
     int AddFileToDatabase(int PK_MediaType);
@@ -37,6 +38,8 @@ private:
 	string FileWithAttributes(bool bCreateId3File = true);
 	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl, const list<string> &listChapters);
 	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl, list<string> &listChapters);
+
+	void InsertAttributesInDatabase(const list<string>& listChapters, int PK_File);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,

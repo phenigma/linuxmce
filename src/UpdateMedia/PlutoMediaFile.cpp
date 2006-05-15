@@ -46,6 +46,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
     m_sDirectory = sDirectory;
     m_sFile = sFile;
 	m_nInstallationID = PK_Installation;
+	m_bDbAttributesSyncd = false;
 
 	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s", m_sDirectory.c_str(), m_sFile.c_str());
 }
@@ -211,23 +212,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			}
 		}
 
-		if(listChapters.size())
-		{
-			//New file, but with info about chapters
-			for(list<string>::iterator it = listChapters.begin(); it != listChapters.end(); ++it)
-			{
-				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
-				pRow_Attribute->FK_AttributeType_set(ATTRIBUTETYPE_Chapter_CONST);
-				pRow_Attribute->Name_set(*it);
-				m_pDatabase_pluto_media->Attribute_get()->Commit();
-
-				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-				pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-				pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-			}
-
-			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
-		}
+		InsertAttributesInDatabase(listChapters, pRow_File->PK_File_get());
 
 		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), m_nInstallationID, pRow_File->PK_File_get(), 
 			PK_Picture, sPictureURL, listChapters);
@@ -236,6 +221,27 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
     return pRow_File->PK_File_get();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::InsertAttributesInDatabase(const list<string>& listChapters, int PK_File)
+{
+	if(listChapters.size())
+	{
+		//New file, but with info about chapters
+		for(list<string>::const_iterator it = listChapters.begin(); it != listChapters.end(); ++it)
+		{
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+			pRow_Attribute->FK_AttributeType_set(ATTRIBUTETYPE_Chapter_CONST);
+			pRow_Attribute->Name_set(*it);
+			m_pDatabase_pluto_media->Attribute_get()->Commit();
+
+			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+			pRow_File_Attribute->FK_File_set(PK_File);
+		}
+
+		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
@@ -443,6 +449,47 @@ bool PlutoMediaFile::SavePlutoAttributes(string sFullFileName, long PK_Installat
 
 	//Finally, save all the attributes in the file
 	SetId3Info(sFullFileName, mapAttributes);
+
+	if(!m_bDbAttributesSyncd)
+	{
+		string SQL = 
+			"SELECT PK_Attribute, FK_AttributeType, Name, Track, Section "
+			"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
+			"WHERE FK_File = " + StringUtils::ltos(PK_File);
+
+		map<string, string> mapAttributes;
+
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+		{
+			while( ( row=mysql_fetch_row( result.r ) ) )
+			{
+				string sPK_Attribute = row[0];
+				string sFK_AttributeType = row[1];
+				string sName = row[2];
+				string sTrack = row[3];
+				string sSection = row[4];
+
+				//temp code. we'll upgrade it to store all attributes
+				mapAttributes[sName] = sName;
+			}
+		}
+
+		list<string> listNewChapters;
+		for(list<string>::const_iterator it = listInternal_Chapters.begin(), end = listInternal_Chapters.end(); it != end; ++it)
+		{
+			string sName = *it;
+			if(mapAttributes.find(sName) == mapAttributes.end())
+			{
+				listNewChapters.push_back(sName);
+			}
+		}
+
+		InsertAttributesInDatabase(listNewChapters, PK_File);
+		m_bDbAttributesSyncd = true;
+	}
+
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
