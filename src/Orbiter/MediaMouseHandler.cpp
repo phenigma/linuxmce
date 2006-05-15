@@ -106,15 +106,19 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 		int Row = int(YDiff / RowHeight);
 		if( Row>Rows-1 )
 			Row=Rows-1;
-		pObj_Grid->m_iHighlightedRow = 1;
-		pObj_Grid->m_GridCurRow = Row;
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
-		m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
-		delete pObj_Grid->m_pDataGridTable;
-		pObj_Grid->m_pDataGridTable=NULL;
-		pObj_Grid->bReAcquire=true;
-		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pObj_Grid);
+		if( Row!=m_iLastNotch )
+		{
+			m_iLastNotch=Row;
+			pObj_Grid->m_iHighlightedRow = 1;
+			pObj_Grid->m_GridCurRow = Row;
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
+			delete pObj_Grid->m_pDataGridTable;
+			pObj_Grid->m_pDataGridTable=NULL;
+			pObj_Grid->bReAcquire=true;
+			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pObj_Grid);
+		}
 	}
 	else
 		m_spDatagridMouseHandlerHelper->StayInGrid(PK_Direction,X,Y);
