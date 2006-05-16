@@ -228,9 +228,9 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Media_Connector_Type_CONST,PK_DeviceTemplate_get());
 
 	//AV Wizard - DSP Mode
-	/*m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVMediaConnector)), 
-		DATAGRID_Media_Connector_Type_CONST,PK_DeviceTemplate_get());*/
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDSPMode)), 
+		DATAGRID_Select_available_DSPMODES_CONST,PK_DeviceTemplate_get());
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1246,7 +1246,7 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 
 	string sql = "SELECT IR_PowerDelay,IR_ModeDelay,DigitDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='" + 
 		sPKTemplate + "'";
-	g_pPlutoLogger->Write( LV_STATUS , "AVWhatDelay grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV WizardAVWhatDelay sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	g_pPlutoLogger->Write( LV_STATUS , Parms.c_str() );
 
@@ -1302,7 +1302,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 		"AND FK_InfraredGroup IN (1727, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1736, 1737, 1738, 1739, 1740, 1741, 5117, 5118, 5119, 5947) AND FK_Command IN (192, 193)\
 		AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 
 	PlutoSqlResult result;
@@ -1343,7 +1343,7 @@ class DataGridTable *General_Info_Plugin::AVInputNotListed(string GridID, string
 	if( !Parms.empty() )
 		sql += string( " AND PK_Command IN (" ) + Parms + ")";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard confirm inputs grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVInputNotListed sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 
 	PlutoSqlResult result;
@@ -1381,7 +1381,7 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 
 	sql = "SELECT PK_MediaType,Description FROM MediaType WHERE DCEAware=0";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVMediaType sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1426,7 +1426,7 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	sql = "SELECT PK_ConnectorType,Description FROM ConnectorType";
 	//Saved in DeviceTemplate_MediaType with FK_MediaType the selected value and FK_DeviceTemplate";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVMediaConnector sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1459,8 +1459,8 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	return pDataGrid;
 }
 
-//change sql!!!!!!
-/*class DataGridTable *General_Info_Plugin::AVInputNotListed( string GridID, string Parms, void *ExtraData, 
+//AV Wizard - DSP Mode
+class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos = 0;
@@ -1469,10 +1469,12 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	string sPKTemplate = Parms;
 	string sql;
 
-	sql = "SELECT PK_Command,Description FROM Command where FK_CommandCategory=22";
-	//Saved in DeviceTemplate_MediaType with FK_MediaType the selected value and FK_DeviceTemplate";
+	sql = "SELECT DeviceTemplate_DSPMode.*,Command.Description as DSPMode_Desc,PK_Command\
+          FROM Command\
+          LEFT JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='";
+	sql += Parms + "' " + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard discret grid sql" );
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDSPMode sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1496,7 +1498,7 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	}
 
 	return pDataGrid;
-}*/
+}
 
 
 //<-dceag-c395-b->
