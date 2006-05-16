@@ -1108,6 +1108,10 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	{
 		cmdline += "/usr/pluto/bin/create_amp_nufone.pl";
 	}
+	if(sName == "voiceeclipse")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_voiceeclipse.pl";
+	}
 
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
 	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
