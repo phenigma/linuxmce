@@ -107,6 +107,19 @@ void *Orbiter_OpenGLThread(void *p)
 
 	pOrbiter->m_Desktop = OrbiterGL3D::GetInstance();
 	pOrbiter->m_Desktop->BuildOrbiterGL(pOrbiter);
+	
+	size_t iSize;
+	SDLGraphic *pCursorGraphic = NULL;
+	char * pData = FileUtils::ReadFileIntoBuffer("/home/pluto_cursor.png", iSize);
+	if (pData)
+	{
+		pCursorGraphic = (SDLGraphic*)pOrbiter->CreateGraphic();
+		pCursorGraphic->LoadGraphic(pData, iSize);
+		delete [] pData;
+	}
+
+	Commons3D::Instance().SetMouseCursor(pCursorGraphic);
+
 	cm.CondWait(); // This will unlock the mutex and lock it on awakening
 	
 	pOrbiter->PaintDesktopGL = false;
@@ -415,6 +428,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 			{
 				/*
 				g_pPlutoLogger->Write(LV_WARNING, "bRenderGraphicsOnly is true; switching to no effect...");
+
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
 					GL2D_EFFECT_TRANSIT_NO_EFFECT,
@@ -938,7 +952,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 	HighLightArea.Width =  (float)m_rectLastHighlight.Width;
 	HighLightArea.Height = (float)m_rectLastHighlight.Height;
 
-	Orbiter3DCommons::GetInstance()->SetHighLightArea(&HighLightArea);
+	Commons3D::Instance().SetHighLightArea(&HighLightArea);
 
 	g_pPlutoLogger->Write(LV_WARNING, ">> OrbiterSDL::DoHighlightObjectOpenGL : GL2D_EFFECT_HIGHLIGHT_AREA");
 
@@ -969,7 +983,7 @@ void OrbiterSDL::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 	SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
 	SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
 
-	Orbiter3DCommons::GetInstance()->SetSelectedArea(&SelectedArea);
+	Commons3D::Instance().SetSelectedArea(&SelectedArea);
 	GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_SELECT_AREA, 
 		Simulator::GetInstance()->m_iMilisecondsHighLight);
 

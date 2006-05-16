@@ -1577,7 +1577,7 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 	{
 #ifndef DISABLE_OPENGL
 		if (!m_pObj_SelectedLastScreen)
-			Orbiter3DCommons::GetInstance()->SetSelectedArea(NULL);
+			Commons3D::Instance().SetSelectedArea(NULL);
 
 
 		FloatRect SelectedArea;
@@ -1586,7 +1586,7 @@ void Orbiter_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint
 		SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
 		SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
 
-		Orbiter3DCommons::GetInstance()->SetSelectedArea(&SelectedArea);
+		Commons3D::Instance().SetSelectedArea(&SelectedArea);
 
 		GL2DEffect* Effect = NULL;
 
@@ -1637,7 +1637,7 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 #ifndef DISABLE_OPENGL
 	if(sbNoSelection == m_nSelectionBehaviour)
 	{
-		Orbiter3DCommons::GetInstance()->SetHighLightArea(NULL);
+		Commons3D::Instance().SetHighLightArea(NULL);
 		return;
 	}
 
@@ -1647,7 +1647,7 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 
 	if( !m_pObj_Highlighted )
 	{
-		Orbiter3DCommons::GetInstance()->SetHighLightArea(NULL);
+		Commons3D::Instance().SetHighLightArea(NULL);
 		return;
 	}
 
@@ -1713,7 +1713,7 @@ void Orbiter_PocketFrog::DoHighlightObjectOpenGL()
 	HighLightArea.Width =  (float)m_rectLastHighlight.Width;
 	HighLightArea.Height = (float)m_rectLastHighlight.Height;
 
-	Orbiter3DCommons::GetInstance()->SetHighLightArea(&HighLightArea);
+	Commons3D::Instance().SetHighLightArea(&HighLightArea);
 	GL2DEffect* Effect = NULL;
 
 	if (m_pObj_SelectedLastScreen)

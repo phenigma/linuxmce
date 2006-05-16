@@ -10,9 +10,9 @@ GL2DEffectTransit::GL2DEffectTransit(GL2DEffectFactory * EffectsEngine, int Time
 	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
 {
 	//clean up the highlighted items to not have remain on the new screen
-	Orbiter3DCommons::GetInstance()->SetHighLightArea(NULL);
-	Orbiter3DCommons::GetInstance()->SetSelectedArea(NULL);
-	TBasicWindow* Screen3D = Orbiter3DCommons::GetInstance()->GetScreen3D();
+	Commons3D::Instance().SetHighLightArea(NULL);
+	Commons3D::Instance().SetSelectedArea(NULL);
+	TBasicWindow* Screen3D = Commons3D::Instance().GetScreen3D();
 	Screen3D->SetBackgroundImage(
 		Effects->Widgets->OldScreen
 	);
@@ -21,25 +21,25 @@ GL2DEffectTransit::GL2DEffectTransit(GL2DEffectFactory * EffectsEngine, int Time
 GL2DEffectTransit::~GL2DEffectTransit()
 {
 	//clean up the highlighted items to not have remain on the new screen
-	Orbiter3DCommons::GetInstance()->SetHighLightArea(NULL);
-	Orbiter3DCommons::GetInstance()->SetSelectedArea(NULL);
-	Orbiter3DCommons::GetInstance()->GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
+	Commons3D::Instance().SetHighLightArea(NULL);
+	Commons3D::Instance().SetSelectedArea(NULL);
+	Commons3D::Instance().GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
 }
 
 void GL2DEffectTransit::Paint()
 {
 	//clean up the highlighted items to not have remain on the new screen
-	Orbiter3DCommons::GetInstance()->SetHighLightArea(NULL);
-	Orbiter3DCommons::GetInstance()->SetSelectedArea(NULL);
+	Commons3D::Instance().SetHighLightArea(NULL);
+	Commons3D::Instance().SetSelectedArea(NULL);
 
-	TBasicWindow* WinHigh = Orbiter3DCommons::GetInstance()->GetHighLight();
+	TBasicWindow* WinHigh = Commons3D::Instance().GetHighLight();
 	int Width = WinHigh->GetWidth();
 	int Height = WinHigh->GetHeight();
 
 	g_pPlutoLogger->Write(LV_CRITICAL, "Transit higlight size: %d %d\n", Width, Height);
 
 	if(!Configured) {
-		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 	}
 	
 }

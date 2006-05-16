@@ -8,6 +8,13 @@
 
 #include "GL2DWidgets/basicwindow.h"
 
+//--------------------------------------------------------------------------------------------------------------
+#include "../PlutoUtils/MultiThreadIncludes.h"
+#include "../PlutoUtils/singleton.h"
+#include "CallBackTypes.h"
+using namespace cpp;
+using namespace cpp::Threading;
+//--------------------------------------------------------------------------------------------------------------
 
 class GL2DEffectFactory;
 class DrawingWidgetsEngine;
@@ -18,15 +25,20 @@ class Orbiter3DCommons
 	TBasicWindow* Screen3D;
 	TBasicWindow* HighLight;
 	TBasicWindow* Selected;
+	TBasicWindow* MouseCursor;
 
 	GL2DEffectFactory* Effects;
 	DrawingWidgetsEngine * Widgets;
-	static Orbiter3DCommons* Instance;
+	OpenGLTexture MouseTexture;
 
-
-	Orbiter3DCommons();
 public:
-	void BuildCommons(GL2DEffectFactory* Effects, TBasicWindow* Screen3D, TBasicWindow* HighLight, TBasicWindow* Selected);
+	Orbiter3DCommons();
+	void BuildCommons(
+		GL2DEffectFactory* Effects, 
+		TBasicWindow* Screen3D, 
+		TBasicWindow* HighLight, 
+		TBasicWindow* Selected,
+		TBasicWindow* MouseCursor);
 
 	void SetNewScreen(OpenGLTexture NewScreen);
 	void SetOldScreen(OpenGLTexture OldScreen);
@@ -43,8 +55,20 @@ public:
 
 	virtual ~Orbiter3DCommons(void);
 
-	static Orbiter3DCommons* GetInstance();
+	/**
+	 *	That function creates a custom OpenGL cursor
+	 *	If Surface == NULL, it clean up the openGL mouse cursor and reneable the mouse	
+	 */
+	void SetMouseCursor(PlutoGraphic* Surface);
+	/**
+	 *	Set to OpenGL cursor position
+	 */
+	void SetMousePosition(int X, int Y);
 };
+//--------------------------------------------------------------------------------------------------------------
+typedef Singleton<Orbiter3DCommons, CreateUsingNew<Orbiter3DCommons>, DefaultLifetime, MultiThreaded> Commons3D;
+//--------------------------------------------------------------------------------------------------------------
+
 
 #endif //Orbiter3DCommons_H
 

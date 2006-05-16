@@ -30,6 +30,7 @@ public:
 	TBasicWindow * Screen3D;
 	TBasicWindow * HighLighArea;
 	TBasicWindow * SelectedArea;
+	TBasicWindow * MouseCursor;
 
 #ifdef POCKETFROG
 	HDC hdc;

@@ -13,7 +13,7 @@ GL2DEffectNoEffect::GL2DEffectNoEffect(GL2DEffectFactory * EffectsEngine, int Ti
 
 GL2DEffectNoEffect::~GL2DEffectNoEffect()
 {
-	Orbiter3DCommons::GetInstance()->GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
+	Commons3D::Instance().GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
 }
 
 /**

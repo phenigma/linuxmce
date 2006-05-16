@@ -44,7 +44,7 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 		//Set up the textures for triangles
 		Button->SetTexture(Effects->Widgets->NewScreen);
 		
-		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 		
 		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetVisible(false);
 		

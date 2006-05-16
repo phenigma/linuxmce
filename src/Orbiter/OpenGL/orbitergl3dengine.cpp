@@ -67,6 +67,10 @@ void OrbiterGL3D::Paint()
 	SelectedArea->SetVisible(true);
 	SelectedArea->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.2f);
 
+	MouseCursor->SetVisible(true);
+	//MouseCursor->SetBackgroundColor(1.0f, 1.0f, 1.0f, 1.0f);
+	MouseCursor->SetTextureWraping(0, 0, 1, 1);
+
 	EffectBuilder->Paint();
 	Flip();
 }
@@ -214,12 +218,13 @@ int OrbiterGL3D::InitOpenGL()
 
 	glEnable(GL_TEXTURE_2D);
 
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+	glEnable(GL_BLEND);
 
 	glScalef(1, -1.0f, 1);
 	glTranslatef(0, -(GLfloat)pOrbiter->m_iImageHeight, 0);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
 
     return 1;
 }
@@ -320,15 +325,20 @@ int OrbiterGL3D::BuildOrbiterGL(Orbiter * pOrbiterGL)
 		return 0;
 	}
 
-	
-	Orbiter3DCommons* Commons = Orbiter3DCommons::GetInstance();
-	if(!Commons)
+	this->MouseCursor= dynamic_cast<TBasicWindow*>(Widgets->CreateWidget(
+		BASICWINDOW, 
+		0, 0, 
+		(int)64,
+		(int)64, 
+		"None"));
+	if(!MouseCursor)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, 
 			"Alert: OPENGL started but there is no memory to create attached environment for it! %s", 
-			"<<Fails on creation Commons component>>");
+			"<<Fails on creation SelectedArea component>>");
 		return 0;
 	}
-	Commons->BuildCommons(EffectBuilder, Screen3D, HighLighArea, SelectedArea);
+
+	Commons3D::Instance().BuildCommons(EffectBuilder, Screen3D, HighLighArea, SelectedArea, MouseCursor);
 	return 1;
 }

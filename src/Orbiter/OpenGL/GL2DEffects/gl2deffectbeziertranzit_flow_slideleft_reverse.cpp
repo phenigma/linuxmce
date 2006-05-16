@@ -44,7 +44,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 		//Set up the textures for triangles
 		ButonTop->SetTexture(Effects->Widgets->OldScreen);
 
-		Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);

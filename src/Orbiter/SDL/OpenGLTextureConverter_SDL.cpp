@@ -30,8 +30,7 @@ SDL_Surface* OpenGLTextureConverter_SDL::CreateSurfaceTexture(SDL_Surface* Surfa
 	
 	/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
 	as expected by OpenGL for textures */
-	SDL_Surface *Result = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24,
-					rmask, gmask, bmask, amask);
+	SDL_Surface *Result = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, Surface->format->BitsPerPixel, rmask, gmask, bmask, amask);
 					
 	if(Result == NULL) {
 		fprintf(stderr, "CreateRGBSurface failed: %s", SDL_GetError());
@@ -58,7 +57,15 @@ OpenGLTexture OpenGLTextureConverter_SDL::Convert()
 	
 	/* Typical Texture Generation Using Data From The Bitmap */
 	glBindTexture( GL_TEXTURE_2D, Result );
-	
+	if(SurfaceTexture->format->BytesPerPixel == 4)
+		/* Generate The Texture */
+		glTexImage2D( GL_TEXTURE_2D, 
+		0, 3, 
+		SurfaceTexture->w, SurfaceTexture->h, 
+		0, GL_RGBA,
+		GL_UNSIGNED_BYTE, 
+		SurfaceTexture->pixels );
+	else
 	/* Generate The Texture */
 	glTexImage2D( GL_TEXTURE_2D, 
 			0, 3, 

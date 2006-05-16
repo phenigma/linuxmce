@@ -3,26 +3,31 @@
 #include "GL2DWidgets/DrawingWidgetsEngine.h"
 #include "GL2DEffects/gl2deffectfactory.h"
 
-Orbiter3DCommons* Orbiter3DCommons::Instance = NULL;
+
+#include <SDL.h>
+#include "OpenGLTextureConverter.h"
 
 Orbiter3DCommons::Orbiter3DCommons()
 	: Screen3D(NULL),
 	  HighLight(NULL),
-	  Selected(NULL)
+	  Selected(NULL),
+	  MouseTexture(0),
+	  MouseCursor(NULL)
 {
-	Instance = this;
 }
 
 void Orbiter3DCommons::BuildCommons (GL2DEffectFactory* Effects, 
 									 TBasicWindow* Screen3D, 
 									 TBasicWindow* HighLight, 
-									 TBasicWindow* Selected)
+									 TBasicWindow* Selected,
+									 TBasicWindow* MouseCursor)
 {
 	this->Screen3D = Screen3D;
 	this->HighLight = HighLight;
 	this->Selected = Selected;
 	this->Effects = Effects;
 	this->Widgets = Effects->Widgets;
+	this->MouseCursor = MouseCursor;
 }
 
 void Orbiter3DCommons::SetNewScreen(OpenGLTexture NewScreen)
@@ -39,15 +44,6 @@ void Orbiter3DCommons::SetOldScreen(OpenGLTexture OldScreen)
 Orbiter3DCommons::~Orbiter3DCommons(void)
 {
 
-}
-
-
-Orbiter3DCommons* Orbiter3DCommons::GetInstance()
-{
-	if(Instance)
-		return Instance;
-	
-	return new Orbiter3DCommons();
 }
 
 OpenGLTexture Orbiter3DCommons::GetNewScreen()
@@ -97,4 +93,31 @@ void Orbiter3DCommons::SetSelectedArea(FloatRect* SelectedArea)
 	}
 
 	this->Selected->SetRectCoordinates(*SelectedArea);
+}
+
+void Orbiter3DCommons::SetMouseCursor(PlutoGraphic* CursorSurface)
+{
+	if(MouseTexture != 0)
+		glDeleteTextures(1, &MouseTexture);
+
+	SDL_ShowCursor(CursorSurface == NULL);
+
+	if(CursorSurface == NULL)
+		return;
+	if(MouseCursor == NULL)
+		return;
+
+	MouseTexture = OpenGLTextureConverter::GenerateTexture(CursorSurface);
+	MouseCursor->SetTexture(MouseTexture);
+}
+
+void Orbiter3DCommons::SetMousePosition(int X, int Y)
+{
+	if(!MouseCursor)
+		return;
+	MouseCursor->SetBackgroundColor(1, 1, 1, 1.0/2);
+	MouseCursor->SetTexture	(MouseTexture);
+	//MouseCursor->SetTexture	(GetNewScreen());
+	MouseCursor->SetLeft(X);
+	MouseCursor->SetTop(Y);
 }

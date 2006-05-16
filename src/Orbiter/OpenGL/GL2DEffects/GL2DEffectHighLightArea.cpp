@@ -50,5 +50,5 @@ void GL2DEffectHighLightArea::Paint(int Time)
 	{
 		Button->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.5f - (Step-0.5f)*2.f*0.3f);
 	}
-	Orbiter3DCommons::GetInstance()->GetSelected()->SetVisible(true);
+	Commons3D::Instance().GetSelected()->SetVisible(true);
 }

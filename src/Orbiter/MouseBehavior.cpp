@@ -12,6 +12,9 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Screen.h"
 
+#include "Simulator.h"
+#include "OpenGL/Orbiter3DCommons.h"
+
 #include "SpeedMouseHandler.h"
 #include "LightMouseHandler.h"
 #include "VolumeMouseHandler.h"
@@ -147,6 +150,9 @@ void MouseBehavior::Move(int X,int Y)
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
+
+	if(Simulator::GetInstance()->m_bUseOpenGL)
+		Commons3D::Instance().SetMousePosition(X, Y);
 }
 
 DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y)
