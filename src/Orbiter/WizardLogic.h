@@ -89,8 +89,9 @@ public:
 	string GetManufactureName() { return m_ManufacturerName; }
 
 	void SetAVTemplateID(long id){ m_nPKAVTemplate = id; }
-	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
 	long GetAVTemplateId(){ return m_nPKAVTemplate; }
+	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
+	long GetManufacturerId(){ return m_nPKManufacuter; }
 
 	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
 	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }

@@ -597,6 +597,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	long nDesignId = GetCurrentScreen_PK_DesignObj();
+	string aux;
 
 	switch( nDesignId )
 	{
@@ -1903,7 +1904,8 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 	
 	//used for populate datagrid
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
-		StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) ); 
+						StringUtils::ltos(m_pWizardLogic->GetManufacturerId()) + "," + 
+						StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
 	ScreenHandlerBase::SCREEN_TVConfirmOnOffDiscret(nPK_Screen);
 
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_DatagridSelected, 
@@ -2023,7 +2025,18 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 		//Input single
 		case DESIGNOBJ_TVSelectMediaType_CONST:
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVDSPMode_CONST )
-				m_pWizardLogic->AddAVMediaType();
+			{
+				if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].empty() || 
+					(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST] == "0") )
+					return true;
+				else
+				{
+					//	m_pWizardLogic->AddAVMediaType();
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, 
+					StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()));
+					return false;
+				}
+			}
 		return false;
 
 		//Input multiple screen 1
