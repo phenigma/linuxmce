@@ -448,7 +448,7 @@ void initialize(LibHalContext * ctx)
 		char *udi = devices[i];
 		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
 		bus = libhal_device_get_property_string (ctx, udi, "info.bus", &halError);
-		if( 0 == strcmp(bus, "usb_device") )
+		if( bus != NULL && 0 == strcmp(bus, "usb_device") )
 		{
 			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", &halError);
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", &halError);
