@@ -400,6 +400,45 @@ void WizardLogic::AddAVMediaType()
 		StringUtils::ltos(m_nPKAVTemplate) + "," + StringUtils::ltos(m_nPKMediaType) + ")";
 
 	threaded_mysql_query(sSQL);
+
+
+
+	/*	INSERT IGNORE INTO DeviceTemplate_Input
+(FK_DeviceTemplate,FK_Command,FK_ConnectorType) 
+VALUES (?,?,?) 
+
+If FK_CommMethod != 0 then
+	name este prin conventie [nume comanda]' - '[nume media type] parentID este device template-ul tau, ala creat initial mediaType este ala selectat pt
+
+// create embedded device template
+•	INSERT INTO DeviceTemplate (Description,FK_Manufacturer,FK_DeviceCategory)
+VALUES(?,?,?)' -> embeddedId
+
+// link the embedded device with parent device
+•	INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia
+(FK_DeviceTemplate,FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren)
+   VALUES(embeddedId,FK_DeviceTemplate,1,1)' -> insertId
+
+ //create audio video pipes 2 insert 1&2 pipes
+INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+         (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+ VALUES (insertId,1,FK_Command)',
+	
+
+ INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+         (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+ VALUES (insertId,2,FK_Command)',
+
+
+//
+INSERT INTO DeviceTemplate_Input
+            (FK_DeviceTemplate,FK_Command)
+        VALUES(embeddedID,FK_Command)'
+INSERT INTO DeviceTemplate_MediaType
+                (FK_DeviceTemplate,FK_MediaType)
+            VALUES
+                (($embeddedID,FK_mediaType)',*/
+
 }
 
 int WizardLogic::AVTemplateIRCode()

@@ -27,18 +27,22 @@ private:
 	string GetDeviceStatus(long nPK_Device);
 	deque< pair<int,string> > m_dequeNumLights;
 
+	//AV Wizard
 	string m_ManufacturerName, m_AVTemplateName;
 	string m_AVTemplateNumericEntry;
 	bool m_bAVTemplateTogglePower;
 	long m_nPKAVTemplate, m_nPKManufacuter;
 	long m_nPKMediaType,m_nPKConnectorType;
-
 protected:
 	class Orbiter *m_pOrbiter;
 	class UserUtils *m_pUserUtils;
 public:
 	list< pair<int,string> > m_listRoomTypes;  // In the order to display them
 	map<int,string> m_mapRoomTypes; // For fast lookup
+
+	//AV Wizard
+	map<int,string> m_mapAVInputs;
+	string m_AVInputsId[3];
 
 	WizardLogic(Orbiter *pOrbiter);
 	virtual ~WizardLogic();
@@ -105,6 +109,7 @@ public:
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
 	void UpdateAVTemplateSettings();
+	//AV Wizard Inputs
 	void AddAVMediaType();
 	void AddAVDeviceInput();
 

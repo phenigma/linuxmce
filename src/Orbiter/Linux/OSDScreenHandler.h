@@ -58,16 +58,17 @@ public:
 	virtual void SCREEN_TVConfirmOnOffDiscret(long nPK_Screen);
 	virtual void SCREEN_TVConfirmOnOffTogle(long nPK_Screen);
 	virtual void SCREEN_TVOnOffCodes(long nPK_Screen);
-	virtual void SCREEN_TVMultipleInputs(long nPK_Screen);
-	bool TVMultipleInputs_DatagridSelected(CallBackData *pData);
-	bool TVMultipleInputs_ObjectSelected(CallBackData *pData);
-
-	virtual void SCREEN_TVDSPMode(long nPK_Screen);
-	bool TVDSPMode_DatagridSelected(CallBackData *pData);
-	bool TVDSPMode_ObjectSelected(CallBackData *pData);
-
 	//for IR codes datagrid
 	virtual bool AVIRCodes_DatagridSelected(CallBackData *pData);
+	virtual bool AVIRCodes_ObjectSelected(CallBackData *pData);
+
+	virtual void SCREEN_TVMultipleInputs(long nPK_Screen);
+	virtual bool TVMultipleInputs_DatagridSelected(CallBackData *pData);
+	virtual bool TVMultipleInputs_ObjectSelected(CallBackData *pData);
+
+	virtual void SCREEN_TVDSPMode(long nPK_Screen);
+	virtual bool TVDSPMode_DatagridSelected(CallBackData *pData);
+	virtual bool TVDSPMode_ObjectSelected(CallBackData *pData);
 
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);

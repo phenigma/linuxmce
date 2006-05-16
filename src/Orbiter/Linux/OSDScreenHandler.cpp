@@ -1900,7 +1900,6 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_3_CONST, m_pWizardLogic->GetAVTemplateName() ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
-	//m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, "gugu" ); 
 	
 	//used for populate datagrid
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
@@ -1934,6 +1933,66 @@ void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 	ScreenHandlerBase::SCREEN_TVOnOffCodes(nPK_Screen);
 }
 
+bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
+	string sSelectId;
+	int nIdSelected = 0;
+	if(NULL != pCellInfoData)
+		sSelectId = pCellInfoData->m_sValue;
+	nIdSelected = atoi( sSelectId.c_str() );
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
+			nIdSelected ++;
+		break;
+
+		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
+		break;
+
+		case DESIGNOBJ_TVOnOffCodes_CONST:
+		break;
+	}
+
+	return false;
+}
+
+bool OSDScreenHandler::AVIRCodes_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *> (pData);
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
+			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVMultipleInputs_CONST )
+			{
+				// save to database
+			}
+		break;
+
+		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
+			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVMultipleInputs_CONST )
+			{
+				// save to database
+			}
+		break;
+
+		case DESIGNOBJ_TVOnOffCodes_CONST:
+			switch( pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				case DESIGNOBJ_butDiscreteOnOff_CONST:
+				return false;
+
+				case DESIGNOBJ_butToggleOnOff_CONST:
+				return false;
+			}
+		break;
+	}
+
+	return false;
+}
+
 
 //AV Wizard Inputs
 void OSDScreenHandler::SCREEN_TVMultipleInputs(long nPK_Screen)
@@ -1957,6 +2016,7 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 	{
 		//Inputs single/multiple?
 		case DESIGNOBJ_TVMultipleInputs_CONST:
+			m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_1_CONST, "" );
 			m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, "" );
 		return false;
 
@@ -1966,15 +2026,19 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 				m_pWizardLogic->AddAVMediaType();
 		return false;
 
-		//Input multiple
+		//Input multiple screen 1
 		case DESIGNOBJ_TVInputsNotListed_CONST:
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butConnectorType_CONST )
 			{
 				aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
 				aux = StringUtils::Replace( aux, "|", "," );
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, aux );
 
-				if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].empty() )
+				//reset the selection for the first datagrid
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "" );
+				// parameter for select first datagrid
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, aux );
+				//test if selection
+				if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].empty() )
 					return true;
 				else
 					return false;
@@ -1983,10 +2047,10 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 
 		// Input multiple screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0" );
+			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0" );
 			//RefreshDatagrid( DESIGNOBJ_dgMediaType_CONST );
 
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0" );
+			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0" );
 			//RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
 		return false;
 	}
@@ -1998,6 +2062,7 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
 	string sSelectId;
+	string firstId, secondId, aux;
 	int nIdSelected = 0;
 	if(NULL != pCellInfoData)
 		sSelectId = pCellInfoData->m_sValue;
@@ -2017,41 +2082,52 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 
 		//Multiple input  screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
-		return false;
-		/*switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+		switch( pCellInfoData->m_nPK_Datagrid )
 		{
-			case DESIGNOBJ_dgAvailableInputs_CONST:
-			i = 1;
+			case DATAGRID_Select_Available_Inputs_CONST:
+			m_pWizardLogic->m_AVInputsId[0] = sSelectId;
+
+			//first time select 
+			if( m_pWizardLogic->m_mapAVInputs[nIdSelected].empty() )
+			{
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0" );
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0" );
+				m_pWizardLogic->m_AVInputsId[1] = "0";
+				m_pWizardLogic->m_AVInputsId[2] = "0";
+
+				m_pWizardLogic->m_mapAVInputs[nIdSelected] = "0,0";
+			}
+			else
+			{		
+				string::size_type pos=0;
+				aux = m_pWizardLogic->m_mapAVInputs[nIdSelected];
+				firstId = StringUtils::Tokenize( aux, ",",pos );
+				secondId = StringUtils::Tokenize( aux, ",",pos );
+				
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, firstId );
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, secondId );
+				m_pWizardLogic->m_AVInputsId[1] = firstId;
+				m_pWizardLogic->m_AVInputsId[2] = secondId;
+			}
+
+			RefreshDatagrid( DESIGNOBJ_dgMediaType_CONST );
+			RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
 			return false;
 
-			case DESIGNOBJ_dgMediaType_CONST:
+			case DATAGRID_Media_Type_CONST:
+			m_pWizardLogic->m_AVInputsId[1] = sSelectId;
+
+			aux = m_pWizardLogic->m_AVInputsId[1] + "," + m_pWizardLogic->m_AVInputsId[2];
+			m_pWizardLogic->m_mapAVInputs[atoi(m_pWizardLogic->m_AVInputsId[0].c_str())] = aux;
 			return false;
 
-			DESIGNOBJ_dgConnectorType_CONST:
+			case DATAGRID_Media_Connector_Type_CONST:
+			m_pWizardLogic->m_AVInputsId[2] = sSelectId;
+			
+			aux = m_pWizardLogic->m_AVInputsId[1] + "," + m_pWizardLogic->m_AVInputsId[2];
+			m_pWizardLogic->m_mapAVInputs[atoi(m_pWizardLogic->m_AVInputsId[0].c_str())] = aux;
 			return false;
-		}*/
-	}
-
-	return false;
-}
-
-bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
-{
-	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
-	string sSelectId;
-	int nIdSelected = 0;
-	if(NULL != pCellInfoData)
-		sSelectId = pCellInfoData->m_sValue;
-	nIdSelected = atoi( sSelectId.c_str() );
-
-	switch(GetCurrentScreen_PK_DesignObj())
-	{
-		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
-			nIdSelected ++;
-		break;
-
-		default:
-		return false;
+		}
 	}
 
 	return false;
