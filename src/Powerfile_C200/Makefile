@@ -27,8 +27,8 @@ sources += ../JobHandler/Job.cpp \
 	../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../UpdateMedia/PlutoMediaFile.cpp \
 	../UpdateMedia/id3info/id3info.cpp \
-	../UpdateMedia/MediaIdentifier.cpp 
-	
+	../UpdateMedia/MediaIdentifier.cpp \
+	../UpdateMedia/PlutoMediaAttributes.cpp	
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
