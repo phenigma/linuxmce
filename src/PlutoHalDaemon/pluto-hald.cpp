@@ -721,6 +721,13 @@ int main(int argc, char* argv[])
 	funcs.device_property_modified = NULL;
 	funcs.device_condition = NULL;*/
 	
+	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
+	if( halConnection == NULL )
+	{
+		g_pPlutoLogger->Write(LV_DEBUG, "DBusConnection is NULL!\n");
+		return 1;
+	}
+	
 	ctx = libhal_ctx_new();
 	if ( ctx == NULL )
 	{
@@ -731,6 +738,9 @@ int main(int argc, char* argv[])
 	libhal_ctx_set_device_added(ctx, myDeviceAdded);
 	libhal_ctx_set_device_removed(ctx, myDeviceRemoved);
 	libhal_ctx_set_device_new_capability(ctx, myDeviceNewCapability);
+	
+	libhal_ctx_set_dbus_connection(ctx, halConnection);
+	mainloop_integration(ctx, libhal_ctx_get_dbus_connection(ctx));
 	
 	libhal_ctx_init(ctx, &halError);
 	
