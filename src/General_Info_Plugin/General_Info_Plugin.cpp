@@ -1289,25 +1289,45 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	string::size_type pos = 0;
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
-	string sPKTemplate = Parms;
+	string sManufacturerId,sTemplateId, sInfraredGrupIds; 
 	string sql;
-
-	sql = "SELECT PK_InfraredGroup_Command, FK_InfraredGroup, InfraredGroup.Description AS IRG_Name,FK_Command,IRData\
-		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command\
-		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup\
-		WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=" + sPKTemplate + ")" + 
-		"AND FK_InfraredGroup IN (1727, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1736, 1737, 1738, 1739, 1740, 1741, 5117, 5118, 5119, 5947) AND FK_Command IN (192, 193)\
-		AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
-
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	string::size_type pos=0;
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0;
+
+	sManufacturerId = StringUtils::Tokenize( Parms, ",",pos );
+	sTemplateId = StringUtils::Tokenize( Parms, ",",pos );
+
+	// construct Infrared Group
+	sql = "SELECT PK_InfraredGroup FROM InfraredGroup WHERE FK_Manufacturer=";
+	sql += sManufacturerId + " " + "AND FK_DeviceCategory=77";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			sInfraredGrupIds += string(row[0]) + ",";
+		}
+	}
+
+	if( !sInfraredGrupIds.empty() ) sInfraredGrupIds[sInfraredGrupIds.size()-1] = ' ';
+
+	sql = "SELECT PK_InfraredGroup_Command, FK_InfraredGroup, InfraredGroup.Description AS IRG_Name,FK_Command,IRData\
+		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command\
+		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup\
+		WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=" + sTemplateId + ")" + 
+		"AND FK_InfraredGroup IN (" +  sInfraredGrupIds + ") AND FK_Command IN (192, 193)" +
+		"AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
