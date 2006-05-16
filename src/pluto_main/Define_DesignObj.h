@@ -2092,6 +2092,7 @@
 #define DESIGNOBJ_hiddenRoomPlaceholder_CONST 5042
 #define DESIGNOBJ_dgTVDspModes_CONST 5043
 #define DESIGNOBJ_dgChangeOrder_CONST 5044
+#define DESIGNOBJ_dgMediaTypeSingleInput_CONST 5047
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
