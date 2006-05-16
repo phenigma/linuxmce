@@ -39,6 +39,10 @@ function phoneLines($output,$astADO,$dbADO) {
 	$providerData['NuFone']['script']='create_amp_nufone.pl';
 	$providerData['NuFone']['keyword']='nufone-out';
 
+	$providerData['VoiceEclipse']['url']='http://www.voiceeclipse.com/';
+	$providerData['VoiceEclipse']['script']='create_amp_voiceeclipse.pl';
+	$providerData['VoiceEclipse']['keyword']='voiceeclipse';
+	
 	$keywords=array();
 	foreach ($providerData AS $prID=>$providerArray){
 		$keywords[$providerArray['keyword']]=$prID;
@@ -367,7 +371,7 @@ function getPLDetails($id,$type,$astADO){
 			INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 			INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
 			INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
-			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax') OR (iax.data='efon')) AND iax.id='$id'");
+			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon')) AND iax.id='$id'");
 	}
 	$data=array();
 	$row=$res->FetchRow();

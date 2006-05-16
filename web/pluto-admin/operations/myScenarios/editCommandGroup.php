@@ -3,6 +3,7 @@ function editCommandGroup($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCommandGroup.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/scenarioWizard.lang.php');
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $insertRs ADORecordSet */
@@ -38,7 +39,7 @@ function editCommandGroup($output,$dbADO) {
 		$filePath=$GLOBALS['scenariosPicsPath'].$commandGroupID.'.png';
 		if(file_exists($filePath)){
 			$randNumber=rand(0,99999);
-			$scenarioImg='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'">';
+			$scenarioImg='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'"><br>';
 		}else
 			$scenarioImg='&nbsp;';		
 		
@@ -63,18 +64,20 @@ function editCommandGroup($output,$dbADO) {
 				<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 				<div align="center" class="err"><B>'.stripslashes(@$_REQUEST['error']).'</B></div>
 			
-				<h2>'.$TEXT_EDIT_MY_SCENARIO_CONST.'</h2>
+			<fieldset><legend>'.$TEXT_SCENARIO_DATA_CONST.'</legend>
 				<table border="0">
 						<tr>
-							<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
+							<td><B>'.$TEXT_DESCRIPTION_CONST.'</B> *</td>
 							<td><textarea name="description" style="width:100%;" rows="3">'.$rowCommandGroupDetails['Description'].'</textarea></td>
 						</tr>
 						<tr>
-							<td>'.$TEXT_HINT_CONST.'</td>
-							<td><input type="text" size="20" name="hint" value="'.$rowCommandGroupDetails['Hint'].'"></td>
+							<td><B>'.$TEXT_HINT_CONST.'</B></td>
+							<td><input type="text" style="width:100%;" name="hint" value="'.$rowCommandGroupDetails['Hint'].'"></td>
 						</tr>
-						<tr><td>'.$TEXT_ARRAY_TYPE_CONST.'</td><td>
-								<select name="arrayType">';
+						<tr>
+							<td><B>'.$TEXT_ARRAY_TYPE_CONST.'</B></td>
+							<td>
+								<select name="arrayType" style="width:100%;">';
 			
 			$queryArrays = "SELECT * FROM Array Where CommandGroup = 1 order by Description Asc";
 			$resArrays = $dbADO->Execute($queryArrays);
@@ -87,7 +90,7 @@ function editCommandGroup($output,$dbADO) {
 								</select>
 						</td></tr>
 						<tr>
-					<td>'.$TEXT_DESIGN_OBJ_CONST.':</td>
+					<td><B>'.$TEXT_DESIGN_OBJ_CONST.'</B></td>
 					<td>
 						'.(@(int)$_SESSION['editCommandGroup']['designObjID']!=0
 								?$TEXT_DESIGN_OBJ_SELECTED_CONST.': <b>'.$_SESSION['editCommandGroup']['designObjName'].'</b>&nbsp;&nbsp;<br />'
@@ -100,8 +103,10 @@ function editCommandGroup($output,$dbADO) {
 								 <input type="submit" class="button" name="searchCommandGroup" value="'.$TEXT_SEARCH_CONST.' [...]"  >
 					</td>
 				</tr>
-				<tr><td>'.$TEXT_TEMPLATE_CONST.'</td><td>
-						<select name="template">
+				<tr>
+					<td><B>'.$TEXT_TEMPLATE_CONST.'</B></td>
+					<td>
+						<select name="template" style="width:100%;">
 							<option value="0">'.$TEXT_PLEASE_SELECT_CONST.'</option>';
 	
 							$queryTemplates = "SELECT * FROM Template order by Description Asc";
@@ -114,7 +119,7 @@ function editCommandGroup($output,$dbADO) {
 						</select>
 				</td></tr>
 				<tr>
-					<td>'.(($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForMedia'])?$TEXT_ENTERTAINMENT_AREA_CONST:$TEXT_ROOM_CONST).'</td>
+					<td><B>'.(($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForMedia'])?$TEXT_ENTERTAINMENT_AREA_CONST:$TEXT_ROOM_CONST).'</B></td>
 					<td>';
 					if($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForMedia']){
 						$queryCheckedEntArea='SELECT * FROM CommandGroup_EntertainArea WHERE FK_CommandGroup=?';
@@ -161,12 +166,24 @@ function editCommandGroup($output,$dbADO) {
 			$out.='</td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_PICTURE_CONST.' * <br><input type="file" name="pic"><br>* '.$TEXT_PICTURE_RECOMMENDED_CONST.'</td>
-					<td>'.$scenarioImg.'</td>
+					<td>'.$scenarioImg.'<B>'.$TEXT_PICTURE_CONST.' **</B></td>
+					<td><input type="file" name="pic"></td>
 				</tr>
 				<tr>
-					<td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
+					<td colspan="2">
+						<input type="submit" class="button_fixed" name="submitX" value="'.$TEXT_SAVE_CONST.'"  >
+						<input type="reset" class="button_fixed" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
+						<input type="button" class="button_fixed" name="deleteCG" value="'.$TEXT_DELETE_SCENARIO_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_SCENARION_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
+					</td>
 				</tr>
+				</table>
+			</fieldset>
+			<em>
+			* '.$TEXT_REQUIRED_FIELDS_CONST.'<BR>
+			** '.$TEXT_PICTURE_RECOMMENDED_CONST.'</em><br><br>
+			
+			<fieldset><legend>'.$TEXT_SCENARIO_COMMANDS_CONST.'</legend>
+			<table>
 				';
 						
 				$selectCommandsAssigned = "
@@ -340,12 +357,11 @@ function editCommandGroup($output,$dbADO) {
 					</td>
 				</tr>
 				</table>	
+				</fieldset>
 				<em>'.$TEXT_HIGHLIGHT_INFO_CONST.'</em><br>
-				<br><br><br>
-				
-				<input type="button" class="button" name="deleteCG" value="'.$TEXT_DELETE_SCENARIO_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_SCENARION_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
+				<br>
+			
 			</form>
-			<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");
  				frmvalidator.addValidation("description","req","'.$TEXT_SCENARION_DESCRIPTION_REQUIRED_CONST.'");
@@ -635,6 +651,10 @@ function editCommandGroup($output,$dbADO) {
 
 	if(@$_REQUEST['saved']==1)
 		$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
+		
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_SCENARIO_CONST.' #'.$commandGroupID);
+		
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_MY_SCENARIO_CONST);			
 	$output->output();
