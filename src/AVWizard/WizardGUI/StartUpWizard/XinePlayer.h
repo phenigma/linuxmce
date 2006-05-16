@@ -40,7 +40,6 @@ public:
 
 	static XinePlayer* GetInstance();
 
-
 	~XinePlayer();
 
 	void InitPlayerEngine(std::string ConfigName, std::string FileName);

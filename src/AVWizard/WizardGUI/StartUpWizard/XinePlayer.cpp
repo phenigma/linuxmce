@@ -15,6 +15,8 @@
 #include <string>
 #include <pthread.h>
 
+#include <iostream>
+
 /*static*/ XinePlayer* XinePlayer::Instance = NULL;
 
 XinePlayer::XinePlayer()
@@ -24,7 +26,7 @@ XinePlayer::XinePlayer()
 	  event_queue(NULL),
 	  tid(0)
 {
-	
+	std::cout<<"Starting player!"<<std::endl;
 	NeedToReplay = false;
 	this->Running = false;
 	pthread_mutex_init(&lockmutex, NULL);
@@ -48,6 +50,7 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 	pthread_mutex_lock(&lockmutex);
 
 	xine = xine_new();
+	std::cout << FileName <<std::endl;
 	ConfigFile = ConfigName;
 	xine_config_load(xine, ConfigFile.c_str());
 	xine_init(xine);
@@ -97,6 +100,8 @@ bool XinePlayer::StartPlayingFile()
 
 		return false;
 	}
+
+	std::cout<<"Playing..."<<std::endl;
 
 	pthread_mutex_unlock(&lockmutex);
 

@@ -4,6 +4,8 @@
 
 #include "Wizard.h"
 
+#include <SDL_rotozoom.h>
+
 SDLFrontEnd::SDLFrontEnd()
 	: IsEventWaiting (false)
 {
@@ -75,7 +77,31 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 void SDLFrontEnd::Flip()
 {
 	// TODO: Scale
-	SDL_Flip(Screen);
+	double ZoomX = 1;
+	double ZoomY = 1;
+
+	SDL_Surface *ScaledScreen;
+	bool NeedScale = false;
+
+	int Width = Screen->w;
+	int Height = Screen->h;
+	NeedScale = (Width == 640) && (Height == 480);
+	if (NeedScale)
+	{
+		ZoomX = Width / 640.0f;
+		ZoomY = Height / 480.0f;
+	
+		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
+	}
+	else
+	{
+		ScaledScreen = Screen;
+	}
+//	SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
+	
+	SDL_Flip(ScaledScreen);
+	if(NeedScale)
+		SDL_FreeSurface(ScaledScreen);
 }
 
 void SDLFrontEnd::PaintBackground()
