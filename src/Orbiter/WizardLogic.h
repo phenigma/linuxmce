@@ -31,7 +31,7 @@ private:
 	string m_ManufacturerName, m_AVTemplateName;
 	string m_AVTemplateNumericEntry;
 	bool m_bAVTemplateTogglePower;
-	long m_nPKAVTemplate, m_nPKManufacuter;
+	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
 	long m_nPKMediaType,m_nPKConnectorType;
 protected:
 	class Orbiter *m_pOrbiter;
@@ -92,6 +92,8 @@ public:
 	long GetAVTemplateId(){ return m_nPKAVTemplate; }
 	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
 	long GetManufacturerId(){ return m_nPKManufacuter; }
+	void SetDeviceCategory(long id){ m_nPKDeviceCategory = id; }
+	long GetDeviceCategory(){ return m_nPKDeviceCategory; }
 
 	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
 	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }

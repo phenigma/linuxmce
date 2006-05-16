@@ -2060,11 +2060,10 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 
 		// Input multiple screen 2
 		case DESIGNOBJ_TVConnectorType_CONST:
-			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0" );
-			//RefreshDatagrid( DESIGNOBJ_dgMediaType_CONST );
-
-			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0" );
-			//RefreshDatagrid( DESIGNOBJ_dgConnectorType_CONST );
+			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSQLInputCodes_CONST )
+			{
+				m_pWizardLogic->AddAVDeviceInput();
+			}
 		return false;
 	}
 
