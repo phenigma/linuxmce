@@ -40,7 +40,7 @@ public:
 	class Row_DesignObjVariation *m_drDesignObjVariation,*m_drStandardVariation;
 	
 	vector<class Row_DesignObjVariation *> m_alDesignObjVariations;
-	class Row_DesignObjVariation_DesignObjParameter * m_drOVCP_MoreFwd, *m_drOVCP_MoreBack;
+	class Row_DesignObj *m_pRow_DesignObj_MoreFwd,*m_pRow_DesignObj_MoreBack;
 	class Row_DesignObjVariation_DesignObj * m_drDesignObjVariation_DesignObj;
 	class PlutoPoint m_ptNextPosition;
 

@@ -162,7 +162,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("4973")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("4403")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -273,7 +273,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? 'Y' : 0, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? m_cDefaultToAxisForBackground : 0, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -1110,15 +1110,16 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
     return SubSurface;
 }
 
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate)
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,char cDefaultRenderAxis)
 {
     static Renderer r(font,output,width,height);
+	r.m_cDefaultToAxisForBackground=cDefaultRenderAxis;
 	if( Rotate )
 		r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
 	else
 		r.m_Rotate=0;
 
-    r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
+	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
 }
 
 #endif //ifndef ORBITER

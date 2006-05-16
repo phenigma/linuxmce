@@ -123,7 +123,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4781 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4967 ) // || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==1255 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4967 ) // || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -499,7 +499,7 @@ Table_Image *p = m_mds->Image_get();
 						if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
 						{
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h */
-							/* 5/14/2006 Aaron - This isn't right.  Put it back and see why it was removed in the first place */
+							/* 5/14/2006 Aaron - This isn't right.  Put it back and see why it was removed in the first place.  Now icons that are small are causing the button to be stretched too big */
 							if( m_rPosition.Width>0 )
 								m_rBackgroundPosition.Width = m_rPosition.Width;
 							else
@@ -520,7 +520,7 @@ Table_Image *p = m_mds->Image_get();
 							}
 
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h */
-							/* 5/14/2006 Aaron - This isn't right.  Put it back and see why it was removed in the first place */
+							/* 5/14/2006 Aaron - This isn't right.  Put it back and see why it was removed in the first place.  Now icons that are small are causing the button to be stretched too big */
 							if( m_rPosition.Height>0 )
 								m_rBackgroundPosition.Height = m_rPosition.Height;
 							else

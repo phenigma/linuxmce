@@ -51,6 +51,7 @@ public:
 
 	static RendererImage * CreateBlankCanvas(PlutoSize size,bool bFillIt=false);
 	PlutoSize RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos);
+	char m_cDefaultToAxisForBackground; // If this is 'Y' the background will be scaled by default to match the Y axis
 
 #ifndef ORBITER
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,

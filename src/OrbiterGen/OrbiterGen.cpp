@@ -85,9 +85,7 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 }
 
 // For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate);
-
-
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,char cDefaultRenderAxis);
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -1528,6 +1526,8 @@ m_bNoEffects = true;
 	m_iScreensTotal=m_iScreensToRender;
 	m_iScreensToRender=m_iLastReportedPercentage=0;
 
+	char cDefaultRenderForYAxis = m_pRow_Size->ScaleX_get()==m_pRow_Size->ScaleY_get() ? 'Y' : '0';  // The Cisco and other odd UI aspect ratio's need special scaling
+
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
@@ -1565,7 +1565,7 @@ m_bNoEffects = true;
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cDefaultRenderForYAxis);
 					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
@@ -2488,7 +2488,10 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
 {
 	map<int,int>::iterator it=m_mapDesignObj.find(PK_Screen);
 	if( it==m_mapDesignObj.end() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No design obj for screen %d",PK_Screen);
 		return NULL;
+	}
 
 	return mds.DesignObj_get()->GetRow(it->second);
 }

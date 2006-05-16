@@ -53,10 +53,19 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 		return;
 	}
 
-	m_drOVCP_MoreFwd = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_fwd_CONST);
-	m_drOVCP_MoreBack = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_back_CONST);
+	Row_DesignObjVariation_DesignObjParameter *pRow_DesignObjVariation_DesignObjParameter = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_fwd_CONST);
+	if( pRow_DesignObjVariation_DesignObjParameter )
+		m_pRow_DesignObj_MoreFwd = m_mds->DesignObj_get()->GetRow( atoi(pRow_DesignObjVariation_DesignObjParameter->Value_get().c_str()) );
+	else
+		m_pRow_DesignObj_MoreFwd = NULL;
 
-	int RowSpacing=0,ColumnSpacing=0,MaxNumRows=0,MaxNumColumns=0,FixedRowHeight=0,FixedColumnWidth=0,PK_DesignObjHeader_More_Fwd=0,PK_DesignObjHeader_More_Back=0;
+	pRow_DesignObjVariation_DesignObjParameter = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_More_button_back_CONST);
+	if( pRow_DesignObjVariation_DesignObjParameter )
+		m_pRow_DesignObj_MoreBack = m_mds->DesignObj_get()->GetRow( atoi(pRow_DesignObjVariation_DesignObjParameter->Value_get().c_str()) );
+	else
+		m_pRow_DesignObj_MoreBack = NULL;
+
+	int RowSpacing=0,ColumnSpacing=0,MaxNumRows=0,MaxNumColumns=0,FixedRowHeight=0,FixedColumnWidth=0;
 	bool bDownAcross=false;
 
 	FixedRowHeight = atoi(m_DesignObj_Generator_Parent->GetParm(DESIGNOBJPARAMETER_Fixed_Row_Height_CONST,m_drDesignObjVariation).c_str());  
@@ -73,10 +82,6 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	
 	bDownAcross = m_DesignObj_Generator_Parent->GetParm(DESIGNOBJPARAMETER_Down_then_Across_CONST,m_drDesignObjVariation)=="1";  
 	
-	PK_DesignObjHeader_More_Fwd = atoi(m_DesignObj_Generator_Parent->GetParm(DESIGNOBJPARAMETER_More_button_fwd_CONST,m_drDesignObjVariation).c_str());  
-	
-	PK_DesignObjHeader_More_Back = atoi(m_DesignObj_Generator_Parent->GetParm(DESIGNOBJPARAMETER_More_button_back_CONST,m_drDesignObjVariation).c_str());  
-	
 
 	int iCurrentNumRows=0;
 	int iCurrentNumColumns=0;
@@ -84,10 +89,10 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	m_ptNextPosition = rBounds.Location();
 if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==1270 || drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==1264 )
 int k=2;
-	if( StartingOffset!=0 )
+	if( StartingOffset!=0 && m_pRow_DesignObj_MoreBack )
 	{
 		m_ocBack = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
-			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreBack->Value_get().c_str())),
+			m_pRow_DesignObj_MoreBack,
 			PlutoRectangle(m_ptNextPosition.X,m_ptNextPosition.Y,0,0),m_DesignObj_Generator_Parent,false,false);
 
 		m_ocBack->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
@@ -184,7 +189,8 @@ int k=2;
 	
 		DesignObj_Generator *ocNextDesignObj;
 
-		if( av->m_PK_DesignObjID_Substitute==0 )
+		Row_DesignObj *pRow_DesignObj_Substitute;
+		if( av->m_PK_DesignObjID_Substitute==0 || (pRow_DesignObj_Substitute=m_mds->DesignObj_get()->GetRow(av->m_PK_DesignObjID_Substitute))==NULL )
 		{
 			vector<Row_DesignObjVariation_DesignObj *> vectOVRO;
 			m_drDesignObjVariation->DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent_getrows(&vectOVRO);
@@ -196,7 +202,7 @@ int k=2;
 		}
 		else
 		{
-			ocNextDesignObj = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,m_mds->DesignObj_get()->GetRow(av->m_PK_DesignObjID_Substitute),PlutoRectangle(m_ptNextPosition,PlutoSize(0,0)),m_DesignObj_Generator_Parent,false,false);
+			ocNextDesignObj = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,pRow_DesignObj_Substitute,PlutoRectangle(m_ptNextPosition,PlutoSize(0,0)),m_DesignObj_Generator_Parent,false,false);
 		}
 
 		if( !ocNextDesignObj->m_pRow_DesignObjVariation )
@@ -268,11 +274,11 @@ int k=2;
 
 void CGArray::CheckLastEntry()
 {
-	if( m_iLastVisibleArrayEntry<(int) m_alValues->size() && m_drOVCP_MoreFwd && !m_drOVCP_MoreFwd->Value_isNull() )
+	if( m_iLastVisibleArrayEntry<(int) m_alValues->size() && m_pRow_DesignObj_MoreFwd )
 	{
 		DesignObj_Generator *obPrevious = m_alChildDesignObjs[m_alChildDesignObjs.size()-1];
 		m_ocFwd = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
-			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreFwd->Value_get().c_str())),
+			m_pRow_DesignObj_MoreFwd,
 			PlutoRectangle(obPrevious->m_rPosition.X,obPrevious->m_rPosition.Y,0,0),
 			m_DesignObj_Generator_Parent,false,false);
 
@@ -290,7 +296,7 @@ void CGArray::CheckLastEntry()
 		// See if maybe we're just supposed to change screens rather than paging through all the options
 		if( m_ocFwd->m_PK_DesignObj_Goto!=0 )
 			m_bContainsMore = false;
-		else if( !m_drOVCP_MoreBack || m_drOVCP_MoreBack->Value_isNull())  // if there's no back button, we can't do anything
+		else if( !m_pRow_DesignObj_MoreBack )  // if there's no back button, we can't do anything
 			return;
 		else
 		{
