@@ -167,21 +167,24 @@ void PlutoMediaFile::SyncDbAttributes()
 		if(m_pPlutoMediaAttributes->m_mapAttributes.find(pPlutoMediaAttribute->m_nType) == 
 			m_pPlutoMediaAttributes->m_mapAttributes.end())
 		{
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
-			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
-				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
+			if(pPlutoMediaAttribute->m_nType > 0)
+			{
+				MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+				Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
+					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
-			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-			pRow_File_Attribute->FK_File_set(PK_File);
-			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-			pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-			pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+				pRow_File_Attribute->FK_File_set(PK_File);
+				pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+				pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+				pRow_File_Attribute->Table_File_Attribute_get()->Commit();
 
-			g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
-				"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-				PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-				pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+				g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
+					"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+					PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+					pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+			}
 		}
 	}
 }
@@ -254,21 +257,24 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	{
 		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 
-		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
-		Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
-			pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
+		if(pPlutoMediaAttribute->m_nType > 0)
+		{
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
+				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
-		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-		pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-		pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-		pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-		pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-		pRow_File_Attribute->Table_File_Attribute_get()->Commit();
-        
-		g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
-			"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-			pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-			pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+			pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+			pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+
+			g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
+				"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+				pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+				pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack);
+		}
 	}
 
 	// Got a picture url? Let's download it!
@@ -441,8 +447,6 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 	m_pPlutoMediaAttributes->SerializeWrite();
 	ulSize = m_pPlutoMediaAttributes->CurrentSize();
 	pDataCurrentPosition = pDataStartPosition = m_pPlutoMediaAttributes->m_pcDataBlock;
-
-	//m_pPlutoMediaAttributes->Serialize(true, pDataStartPosition, ulSize, pDataCurrentPosition);
 
 	size_t Size = ulSize;
 	SetUserDefinedInformation(sFullFileName, pDataStartPosition, Size);
