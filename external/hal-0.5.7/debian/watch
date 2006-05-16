@@ -1,0 +1,4 @@
+# format
+version=2
+
+http://freedesktop.org/~david/dist/ hal-(.*).tar.gz
