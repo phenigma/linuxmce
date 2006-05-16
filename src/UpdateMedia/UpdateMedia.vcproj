@@ -32,6 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/FORCE:MULTIPLE"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib pluto-id3lib-d.lib"
 				OutputFile="../Debug/UpdateMedia.exe"
 				LinkIncremental="2"
@@ -147,6 +148,9 @@
 				RelativePath=".\MediaIdentifier.cpp">
 			</File>
 			<File
+				RelativePath=".\PlutoMediaAttributes.cpp">
+			</File>
+			<File
 				RelativePath=".\PlutoMediaFile.cpp">
 			</File>
 			<File
@@ -164,6 +168,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.h">
+			</File>
+			<File
+				RelativePath=".\PlutoMediaAttributes.h">
 			</File>
 			<File
 				RelativePath=".\PlutoMediaFile.h">

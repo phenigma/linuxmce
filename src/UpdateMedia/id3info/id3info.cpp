@@ -8,7 +8,6 @@
 #include <id3/utils.h>
 #include <id3/misc_support.h>
 #include <id3/readers.h>
-//#include <id3/io_helpers.h>
 #include <id3/globals.h>
 
 #include "../../pluto_media/Define_AttributeType.h"
@@ -19,6 +18,50 @@ using std::endl;
 
 #include <map>
 using namespace std;
+
+void GetUserDefinedInformation(string sFilename, char *&pData, size_t& Size)
+{
+ 	pData = NULL;
+	Size = 0;
+
+	ID3_Tag tag; 
+	tag.Link(sFilename.c_str());
+
+	ID3_Frame* frame = tag.Find(ID3FID_GENERALOBJECT);
+	if(NULL != frame)
+	{
+		ID3_Field* fld = frame->GetField(ID3FN_DATA);
+		if(NULL != fld)
+		{
+			Size = fld->Size();
+			pData = new char[Size];
+			memcpy(pData, fld->GetRawBinary(), Size);
+		}
+	}
+}
+
+void SetUserDefinedInformation(string sFilename, char *pData, size_t& Size)
+{
+	ID3_Tag tag; 
+	tag.Link(sFilename.c_str());
+
+	ID3_Frame* frame = tag.Find(ID3FID_GENERALOBJECT);
+	if(NULL == frame)
+	{
+		frame = new ID3_Frame(ID3FID_GENERALOBJECT);
+		tag.AttachFrame(frame);
+	}
+
+	if(NULL != frame)
+	{
+		ID3_Field* fld = frame->GetField(ID3FN_DATA);
+		uchar *pFieldData = new uchar[Size];
+		memcpy(pFieldData, pData, Size);
+		fld->Set(pFieldData, Size);
+	}
+
+    tag.Update(ID3TT_ID3); 
+}
 
 void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
 {
@@ -62,8 +105,6 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         PK_Attr = -6; // todo ask
     else if(id == "TOPE") //Original artist(s)/performer(s)
         PK_Attr = -7; // todo ask;
-	else if(id == "TXXX") //used defined text
-		PK_Attr = Internal_UserDefinedText_CONST; 
 	else
 		PK_Attr = -1000;
 
@@ -477,10 +518,6 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
                 ID3_AddComposer(&myTag, sValue.c_str(), true);
 				break;
 			
-			case Internal_UserDefinedText_CONST:
-				ID3_AddUserDefinedText(&myTag, sValue.c_str(), true);
-				break;
-
             default:
                 cout << "Don't know yet how to save tag with PK_Attr = " << PK_Attr << " and value " << sValue << endl;
         }

@@ -25,6 +25,7 @@
 #include "pluto_media/Define_AttributeType.h"
 
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
+#include "UpdateMedia/PlutoMediaAttributes.h"
 
 #include "id3info/id3info.h"
 #include "MediaIdentifier.h"
@@ -42,17 +43,28 @@ using namespace DCE;
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 							   string sDirectory, string sFile) 
 {
+	//initializations
     m_pDatabase_pluto_media = pDatabase_pluto_media;
     m_sDirectory = sDirectory;
     m_sFile = sFile;
-	m_nInstallationID = PK_Installation;
-	m_bDbAttributesSyncd = false;
+	m_nOurInstallationID = PK_Installation;
+	m_nPK_MediaType = 0;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s", m_sDirectory.c_str(), m_sFile.c_str());
+	//get the path to id3 file
+	string sAttributeFile = m_sDirectory + "/" + FileWithAttributes();
+
+	//get all attributes
+	LoadPlutoAttributes(sAttributeFile);
+
+	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s. Found %d attributes in id3 file", 
+		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
+	SyncDbAttributes();
+
+	delete m_pPlutoMediaAttributes;
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -64,6 +76,8 @@ PlutoMediaFile::~PlutoMediaFile()
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
+	m_nPK_MediaType = PK_MediaType;
+
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
     int PK_File = GetFileAttribute(false);
@@ -73,7 +87,10 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     {
         // Is it a media file?
         if(!PK_MediaType)
+		{
             PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
+			m_nPK_MediaType = PK_MediaType;
+		}
 
 		g_pPlutoLogger->Write(LV_STATUS, "Media Type is: %d", PK_MediaType);
 
@@ -102,9 +119,76 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     return PK_File;
 }
 //-----------------------------------------------------------------------------------------------------
-//This will add a record in the File table and additional attributes too in related tables
+void PlutoMediaFile::SyncDbAttributes()
+{
+	// Is it a media file?
+	if(!m_nPK_MediaType)
+		m_nPK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
+	
+	//not a media file
+	if(!m_nPK_MediaType)
+		return;
+
+	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
+
+	string SQL = 
+		"SELECT FK_AttributeType, Name, Track, Section "
+		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
+		"WHERE FK_File = " + StringUtils::ltos(PK_File);
+
+	MapPlutoMediaAttributes mapPlutoMediaAttributes;
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		{
+			int nFK_AttributeType = atoi(row[0]);
+			string sName = row[1];
+			int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
+			int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+
+			mapPlutoMediaAttributes.insert(
+				std::make_pair(
+					nFK_AttributeType, 
+					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
+				)
+			);
+		}
+	}
+
+	//Save any new attributes in the database
+	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
+	{
+		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+
+		if(m_pPlutoMediaAttributes->m_mapAttributes.find(pPlutoMediaAttribute->m_nType) == 
+			m_pPlutoMediaAttributes->m_mapAttributes.end())
+		{
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
+				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
+
+			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(PK_File);
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+			pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+			pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+
+			g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
+				"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+				PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+				pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 {
+	m_nPK_MediaType = PK_MediaType;
 	Row_File *pRow_File = NULL;
 
 	//We'll have to be sure first that we won't create duplicates; check first is there are any
@@ -114,10 +198,10 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	m_pDatabase_pluto_media->File_get()->GetRows("Path = '" + StringUtils::SQLEscape(m_sDirectory) + 
 		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
 
-	//Any luck?
+	//Any luck to reuse a missing file record?
 	if(vectRow_File.size())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "PlutoMediaFile::AddFileToDatabase -> there is already "
+		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> there is already "
 			"a record in the database marked as missing for %s - %s file", m_sDirectory.c_str(), m_sFile.c_str());
 
 		//Get the first record and reuse it
@@ -125,10 +209,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Missing_set(1);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Table_File_get()->Commit();
-
-		//Delete its children in 'relationated' tables.
-		//unfortunatelly, sql2cpp's generated classes don't support an efficient way to delete this rows
-		//and also be aware of the changes
 
 		//This will get a vector with desired File_Attribute's rows
 		vector<Row_File_Attribute *> vectRow_File_Attribute;
@@ -147,6 +227,9 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		//If there are indeed rows to be deleted, commit the changes
 		if(vectRow_File_Attribute.size())
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+
+		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> reusing PK_File %d. "
+			"Deleted children records.", pRow_File->PK_File_get());
 	}
 	else
 	{
@@ -156,168 +239,97 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Table_File_get()->Commit();
+
+		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> created new record PK_File %d",
+			pRow_File->PK_File_get());
 	}
 
-	string sFileWithAttributes = FileWithAttributes();
-	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
+	//These are our installation and our file
+	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
+	m_pPlutoMediaAttributes->m_nFileID = pRow_File->PK_File_get();
 
-	// Add attributes from ID3 tags
-	map<int,string> mapAttributes;
-	GetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);	
-
-	for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+	//Save any attributes found in the file
+	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
 	{
-		int PK_AttrType = (*it).first;
-		string sValue = (*it).second;
+		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 
-		if(PK_AttrType <= 0)
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s - does not exist", PK_AttrType, sValue.c_str()); 
-			continue;
-		}
-
-		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nInstallationID);
+		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
 		Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
-			PK_AttrType, sValue);
+			pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 		pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
 		pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+		pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+		pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
 		pRow_File_Attribute->Table_File_Attribute_get()->Commit();
-
-		g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s", PK_AttrType, sValue.c_str()); 
+        
+		g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
+			"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+			pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+			pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
 	}
 
-	long PK_Installation, PK_File, PK_Picture;
-	string sPictureURL;
-	list<string> listChapters;
-	if(LoadPlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), PK_Installation, PK_File, PK_Picture, 
-		sPictureURL, listChapters))
-	{
-		if(sPictureURL != "")
+	// Got a picture url? Let's download it!
+	if(m_pPlutoMediaAttributes->m_sPictureUrl != "")
+ 	{
+		//It's a "new" file, but we know the picture url
+		//we'll download the picture and record in Picture table
+		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+		Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, 
+			FileUtils::FindExtension(m_pPlutoMediaAttributes->m_sPictureUrl), 
+			m_pPlutoMediaAttributes->m_sPictureUrl
+		);
+
+		if(pRow_Picture)
 		{
-			//It's a "new" file, but we know the picture url
-			//we'll download the picture and record in Picture table
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nInstallationID);
-			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, FileUtils::FindExtension(sPictureURL), sPictureURL);
+			m_pPlutoMediaAttributes->m_nPictureID = pRow_Picture->PK_Picture_get();
 
-			if(pRow_Picture)
-			{
-				PK_Picture = pRow_Picture->PK_Picture_get();
+			Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+			pRow_Picture_File->FK_File_set(pRow_File->PK_File_get());
+			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
+			pRow_Picture_File->Table_Picture_File_get()->Commit();
 
-				Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
-				pRow_Picture_File->FK_File_set(pRow_File->PK_File_get());
-				pRow_Picture_File->FK_Picture_set(PK_Picture);
-				pRow_Picture_File->Table_Picture_File_get()->Commit();
-			}
+			g_pPlutoLogger->Write(LV_STATUS, "Added picture to file: PK_File %d, PK_Picture %d",
+				pRow_File->PK_File_get(), m_pPlutoMediaAttributes->m_nPictureID);
 		}
-
-		InsertAttributesInDatabase(listChapters, pRow_File->PK_File_get());
-
-		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), m_nInstallationID, pRow_File->PK_File_get(), 
-			PK_Picture, sPictureURL, listChapters);
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Failed to add picture to file: PK_File %d, picture url: %s",
+				pRow_File->PK_File_get(), m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
+		}
 	}
+
+	//Save everything in id3 file
+	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
+
     return pRow_File->PK_File_get();
-}
-//-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::InsertAttributesInDatabase(const list<string>& listChapters, int PK_File)
-{
-	if(listChapters.size())
-	{
-		//New file, but with info about chapters
-		for(list<string>::const_iterator it = listChapters.begin(); it != listChapters.end(); ++it)
-		{
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
-			pRow_Attribute->FK_AttributeType_set(ATTRIBUTETYPE_Chapter_CONST);
-			pRow_Attribute->Name_set(*it);
-			m_pDatabase_pluto_media->Attribute_get()->Commit();
-
-			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-			pRow_File_Attribute->FK_File_set(PK_File);
-		}
-
-		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SetFileAttribute %s/%s %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
-    string sPK_File = StringUtils::itos(PK_File);
 
-	string sFileWithAttributes = FileWithAttributes();
+	//make sure it's our installation and file
+	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
+	m_pPlutoMediaAttributes->m_nFileID = PK_File;
 
-	//If this media file has chapters info, we'll get them from database and populate listChapters
-	list<string> listChapters;
-	vector<Row_Attribute *> vectRow_Attribute;
-	m_pDatabase_pluto_media->Attribute_get()->GetRows(
-		"JOIN File_Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
-		"WHERE FK_File = " + StringUtils::ltos(PK_File) + " AND "
-		"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Chapter_CONST),
-		&vectRow_Attribute);
-
-	for(vector<Row_Attribute *>::iterator it = vectRow_Attribute.begin(); it != vectRow_Attribute.end(); ++it)
-	{
-		Row_Attribute *pRow_Attribute = *it;
-        listChapters.push_back(pRow_Attribute->Name_get());
-	}
-
-	//save only PK_Installation and PK_File
-	SavePlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, m_nInstallationID, PK_File, 0, "", listChapters);
-
-	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
-
-	//sync id3tags on the files with the attributes from the db
-	map<int,string> mapAttributes;
-	GetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);
-
-	string SQL = 
-		"SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
-		"INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
-		"WHERE FK_File = " + sPK_File;
-
-	PlutoSqlResult allresult,result;
-	MYSQL_ROW row;
-	if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
-	{
-		while((row = mysql_fetch_row(allresult.r)))
-		{
-			string sFK_AttributeType = row[0];
-			string sName = row[1];
-
-			//create a new entry in id3 tag list or overwrite an old one
-			mapAttributes[atoi(sFK_AttributeType.c_str())] = sName;
-		}
-	}
-
-	if(mapAttributes.size())
-		SetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);
+	//save 'em
+	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 {
-	string sFileWithAttributes = FileWithAttributes(bCreateId3File);
-
-	if(sFileWithAttributes != "")
+	if(m_pPlutoMediaAttributes->m_nInstallationID == m_nOurInstallationID && m_pPlutoMediaAttributes->m_nFileID != 0)
 	{
-		long PK_Installation, PK_File, PK_Picture;
-		string sPictureURL;
-		list<string> listChapters;
-
-		if(LoadPlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, PK_Installation, PK_File, PK_Picture, sPictureURL, listChapters))
-		{
-			if(PK_Installation == m_nInstallationID && PK_File != 0)
-			{
-				//same installation, same file; however, it's a good record?
-				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
-				if(NULL != pRow_File && pRow_File->Filename_get() == m_sFile && pRow_File->Path_get() == m_sDirectory)
-					return PK_File;
-			}
-		}
+		//same installation, same file; however, it's a good record?
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
+		if(NULL != pRow_File && pRow_File->Filename_get() == m_sFile && pRow_File->Path_get() == m_sDirectory)
+			return pRow_File->PK_File_get();
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found", m_sDirectory.c_str(), m_sFile.c_str());
@@ -329,12 +341,17 @@ void PlutoMediaFile::SetPicAttribute(int PK_Picture, string sPictureUrl)
 	g_pPlutoLogger->Write(LV_STATUS, "SetPicAttribute %s/%s PK_Picture %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		PK_Picture);
 
-	list<string> vectChapters; //no new chapters
-	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), 0, 0, PK_Picture, sPictureUrl, vectChapters);
+	//set the right picture id and picture url
+	m_pPlutoMediaAttributes->m_nPictureID = PK_Picture;
+	m_pPlutoMediaAttributes->m_sPictureUrl = sPictureUrl;
+
+	//save 'em
+	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
 {
+	//got the file in the database?
     if(!PK_File)
     {
         vector<Row_File *> vectRow_File;
@@ -347,9 +364,10 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
             return 0;  // Can do nothing.  This isn't in the database
     }
 
+	//got any picture associated with the file?
     vector<Row_Picture_File *> vectPicture_File;
     m_pDatabase_pluto_media->Picture_File_get()->GetRows("FK_File=" + StringUtils::itos(PK_File),&vectPicture_File);
-    cout << "Found " << (int) vectPicture_File.size() << " pics for file" << endl;
+    g_pPlutoLogger->Write(LV_STATUS, "Found %d pics for file", vectPicture_File.size());
     if( vectPicture_File.size() )
     {
 		long PK_Picture = vectPicture_File[0]->FK_Picture_get();
@@ -360,7 +378,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
         return PK_Picture;  // The first pic for this directory
     }
 
-    // Does one of the attributes have a picture
+    //Does one of the attributes have a picture?
     vector<Row_Picture_Attribute *> vectPicture_Attribute;
     m_pDatabase_pluto_media->Picture_Attribute_get()->GetRows(
         "JOIN File_Attribute ON Picture_Attribute.FK_Attribute=File_Attribute.FK_Attribute "
@@ -402,144 +420,78 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 	return sFileWithAttributes;
 }
 //-----------------------------------------------------------------------------------------------------
-bool PlutoMediaFile::SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File,
-	long PK_Picture, string sPictureUrl, const list<string> &listChapters)
+void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 {
-	long PK_Internal_Installation = 0;
-	long PK_Internal_File = 0;
-	long PK_Internal_Picture = 0;
-	string sInternal_PictureUrl;
-	list<string> listInternal_Chapters;
-
-	//Get first the tags from the file and merge them with data needed to be saved
-	if(LoadPlutoAttributes(sFullFileName, PK_Internal_Installation, PK_Internal_File, PK_Internal_Picture,
-		sInternal_PictureUrl, listInternal_Chapters))
+	//Temporary map with attributes for common tags
+	map<int, string> mapAttributes;
+	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 
+		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
 	{
-		if(PK_Installation == 0 && PK_Internal_Installation != 0)
-			PK_Installation = PK_Internal_Installation;
-
-		if(PK_File == 0 && PK_Internal_File != 0)
-			PK_File = PK_Internal_File;
-
-		if(PK_Picture == 0 && PK_Internal_Picture != 0)
-			PK_Picture = PK_Internal_Picture;
-
-		if(sPictureUrl == "" && sInternal_PictureUrl != "")
-			sPictureUrl = sInternal_PictureUrl;
+		mapAttributes[it->first] = it->second->m_sName;
 	}
 
-	//We'll take the new ones
-	if(listChapters.size())
-		listInternal_Chapters = listChapters;
-
-	//Serialize pluto custom tag
-	string sPlutoAttribute = 
-		StringUtils::ltos(PK_Installation) + "\t" + 
-		StringUtils::ltos(PK_File) + "\t" + 
-		StringUtils::ltos(PK_Picture) + "\t" + 
-		sPictureUrl;
-
-	//Save chapters info
-	for(list<string>::iterator it = listInternal_Chapters.begin(); it != listInternal_Chapters.end(); ++it)
-		sPlutoAttribute += "\t" + *it;
-
-	//Create/modify an 'user defined text' tag to store pluto's custom info
-	map<int,string> mapAttributes;
-	mapAttributes[Internal_UserDefinedText_CONST] = sPlutoAttribute;
-
-	//Finally, save all the attributes in the file
+	//Save common id3 tags
 	SetId3Info(sFullFileName, mapAttributes);
 
-	if(!m_bDbAttributesSyncd)
-	{
-		string SQL = 
-			"SELECT PK_Attribute, FK_AttributeType, Name, Track, Section "
-			"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
-			"WHERE FK_File = " + StringUtils::ltos(PK_File);
+	//Save user defined text
+	char *pDataCurrentPosition = NULL;
+	char *pDataStartPosition = NULL;
+	unsigned long ulSize = 0;
 
-		map<string, string> mapAttributes;
+	m_pPlutoMediaAttributes->SerializeWrite();
+	ulSize = m_pPlutoMediaAttributes->CurrentSize();
+	pDataCurrentPosition = pDataStartPosition = m_pPlutoMediaAttributes->m_pcDataBlock;
 
-		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
-		{
-			while( ( row=mysql_fetch_row( result.r ) ) )
-			{
-				string sPK_Attribute = row[0];
-				string sFK_AttributeType = row[1];
-				string sName = row[2];
-				string sTrack = row[3];
-				string sSection = row[4];
+	//m_pPlutoMediaAttributes->Serialize(true, pDataStartPosition, ulSize, pDataCurrentPosition);
 
-				//temp code. we'll upgrade it to store all attributes
-				mapAttributes[sName] = sName;
-			}
-		}
+	size_t Size = ulSize;
+	SetUserDefinedInformation(sFullFileName, pDataStartPosition, Size);
+	m_pPlutoMediaAttributes->FreeSerializeMemory();
 
-		list<string> listNewChapters;
-		for(list<string>::const_iterator it = listInternal_Chapters.begin(), end = listInternal_Chapters.end(); it != end; ++it)
-		{
-			string sName = *it;
-			if(mapAttributes.find(sName) == mapAttributes.end())
-			{
-				listNewChapters.push_back(sName);
-			}
-		}
-
-		InsertAttributesInDatabase(listNewChapters, PK_File);
-		m_bDbAttributesSyncd = true;
-	}
-
-	return true;
+	g_pPlutoLogger->Write(LV_WARNING, "Saving %d attributes in the id3 file %s",
+		m_pPlutoMediaAttributes->m_mapAttributes.size(), sFullFileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
-bool PlutoMediaFile::LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File,
-	long& PK_Picture, string& sPictureUrl, list<string> &listChapters)
+void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 {
-	//Get all id3 tags, if any
-	map<int,string> mapAttributes;
-	GetId3Info(sFullFileName, mapAttributes);
+	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 
-	//Any "user defined text" tag?
-	map<int,string>::iterator it = mapAttributes.find(Internal_UserDefinedText_CONST);
-	if(it == mapAttributes.end())
-		return false;
+	//deserialize data from user defined tag
+	char *pData = NULL;
+	size_t Size = 0;
+	GetUserDefinedInformation(sFullFileName, pData, Size);
 
-	//Tokenize it and check it's a pluto custom tag
-	string sPlutoAttribute = mapAttributes[Internal_UserDefinedText_CONST];
-	vector<string> vectData;
-	StringUtils::Tokenize(sPlutoAttribute, "\t", vectData);
-
-	//Get usefull info
-	size_t nIndex = 0;
-	for(vector<string>::iterator it = vectData.begin(); it != vectData.end(); ++it)
+	if(NULL != pData)
 	{
-		switch((PlutoCustomTag)nIndex)
-		{
-			case pctInstallation:		
-				PK_Installation = atoi(it->c_str()); 
-				break;
-			case pctFile:		
-				PK_File = atoi(it->c_str()); 
-				break;
-			case pctPicture:		
-				PK_Picture = atoi(it->c_str()); 
-				break;
-			case pctPictureUrl:		
-				sPictureUrl = *it; 
-				break;
-
-			default:
-				listChapters.push_back(*it);
-		}
-
-		++nIndex;
+		m_pPlutoMediaAttributes->SerializeRead((unsigned long)Size, pData);
+		delete []pData;
+		pData = NULL;
 	}
 
-	return true;
-}
-//-----------------------------------------------------------------------------------------------------
+	//get common id3 attributes
+	map<int, string> mapAttributes;
+	GetId3Info(sFullFileName, mapAttributes);	
 
+	//merge attributes
+	for(map<int, string>::iterator it = mapAttributes.begin(), end = mapAttributes.end(); it != end; ++it)
+	{
+		int nType = it->first;
+		string sValue = it->second;
+
+		MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.find(nType);
+		if(itm == m_pPlutoMediaAttributes->m_mapAttributes.end())
+			m_pPlutoMediaAttributes->m_mapAttributes.insert(
+				std::make_pair(
+					nType, 
+					new PlutoMediaAttribute(nType, sValue)
+				)
+			);
+		else
+			itm->second->m_sName = sValue;
+	}
+}
+
+//-----------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------
 //

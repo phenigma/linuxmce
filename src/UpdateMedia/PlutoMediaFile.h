@@ -8,6 +8,7 @@ using namespace std;
 //-----------------------------------------------------------------------------------------------------
 class Database_pluto_media;
 class Database_pluto_main;
+class PlutoMediaAttributes;
 
 enum PlutoCustomTag
 {
@@ -25,21 +26,24 @@ enum PlutoCustomTag
 class PlutoMediaFile
 {
 private:
-    Database_pluto_media *m_pDatabase_pluto_media;
+
+	Database_pluto_media *m_pDatabase_pluto_media;
+	PlutoMediaAttributes *m_pPlutoMediaAttributes;
 
     string m_sDirectory;
     string m_sFile;
-	long m_nInstallationID;
-	bool m_bDbAttributesSyncd;
+	int m_nOurInstallationID;
+	int m_nPK_MediaType;
 
     //internal helper functions
+	//This will add a record in the File table and additional attributes too in related tables
     int AddFileToDatabase(int PK_MediaType);
-
 	string FileWithAttributes(bool bCreateId3File = true);
-	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl, const list<string> &listChapters);
-	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl, list<string> &listChapters);
 
-	void InsertAttributesInDatabase(const list<string>& listChapters, int PK_File);
+	void SavePlutoAttributes(string sFullFileName);
+	void LoadPlutoAttributes(string sFullFileName);
+
+	void SyncDbAttributes();
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
