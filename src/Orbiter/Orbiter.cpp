@@ -3841,15 +3841,14 @@ if(UsesUIVersion2())
 	if( (event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP) && m_pMouseBehavior )
 	{
 		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==1  )
-			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
+			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==1 )
-			m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
+			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
 		// The right mouse button
 		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==3 )
-			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
+			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==3 )
-			m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
-		return true;
+			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
 	}
 
 	if( bSkipProcessing )
