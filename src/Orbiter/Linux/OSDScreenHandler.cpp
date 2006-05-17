@@ -2162,20 +2162,50 @@ void OSDScreenHandler::SCREEN_TVDSPMode(long nPK_Screen)
 bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
-	int i =0;
+	string sSelectIds,id;
+	string::size_type pos = 0;
+	int nPos = 0;
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVDspMode_CONST:
-			i = 0;
+			switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+			{
+				case DESIGNOBJ_butNoDSPModes_CONST:
+				return false;
+
+				case DESIGNOBJ_butDiscreteCodesDSPModes_CONST:
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
+				m_pWizardLogic->SetAVDSPToggleMode( false );
+				return false;
+
+				case DESIGNOBJ_butToggleCodesDSPModes_CONST:
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
+				m_pWizardLogic->SetAVDSPToggleMode( true );
+				return false;
+			}
 		return false;
 
 		case DESIGNOBJ_TVDspList_CONST:
-			i = 0;
+		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVDSPModesList_CONST )
+		{
+			sSelectIds = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+			sSelectIds = StringUtils::Replace( sSelectIds, "|", "," );
+			m_pWizardLogic->m_listDSPModes.clear();
+
+			do
+			{
+				id = StringUtils::Tokenize(sSelectIds, ",", pos);
+				nPos++;
+				if( nPos % 2 )
+					m_pWizardLogic->m_listDSPModes.clear();
+					bool bRes = id.empty();
+			}
+			while( id.empty() == false );
+		}
 		return false;
 
 		case DESIGNOBJ_TVDspOrder_CONST:
-			i = 0;
 		return false;
 
 }

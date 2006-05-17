@@ -394,11 +394,6 @@ void WizardLogic::AddAVDeviceInput()
 	//temporary
 	m_nPKDeviceCategory = 77;
 
-	/*sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
-		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
-		StringUtils::ltos(m_nPKAVTemplate) + "," + "command???" + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
-	threaded_mysql_query(sSQL);*/
-
 	map<int,string>::iterator it;
 	for(it=m_mapAVInputs.begin();it!=m_mapAVInputs.end();it++)
 	{
@@ -408,6 +403,11 @@ void WizardLogic::AddAVDeviceInput()
 		sConnectorType = StringUtils::Tokenize( sInputs, ",", pos );
 		//name este prin conventie [nume comanda]' - '[nume media type]
 		name = string("Comanda??") + "-" + sMediaType;
+
+		/*sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
+		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
+		StringUtils::ltos(m_nPKAVTemplate) + "," + "command???" + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
+		threaded_mysql_query(sSQL);*/
 
 	/*	sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (";
 		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + "?" + "," + sConnectorType + ")"; 
@@ -486,6 +486,15 @@ int WizardLogic::AVTemplateIRCode()
 		return 0;
 	else 
 		return 1;
+}
+
+void WizardLogic::SetAVDSPToggleMode(bool state)
+{
+	string sSQL;
+	sSQL =string("UPDATE DeviceTemplate_AV SET ToggleDSP=") + ( state ? "1" : "0" );
+	sSQL += string(" ") + "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
+
+	threaded_mysql_query(sSQL);
 }
 
 void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)

@@ -42,6 +42,7 @@ public:
 
 	//AV Wizard
 	map<int,string> m_mapAVInputs;
+	list<string> m_listDSPModes;
 	string m_AVInputsId[3];
 
 	WizardLogic(Orbiter *pOrbiter);
@@ -115,6 +116,7 @@ public:
 	//AV Wizard Inputs
 	void AddAVMediaType();
 	void AddAVDeviceInput();
+	void SetAVDSPToggleMode(bool state);
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
