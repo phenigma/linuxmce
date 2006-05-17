@@ -729,7 +729,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\t\tcontinue;" << endl;
 		}
 		fstr_DeviceCommand << "\t\t\t\t}" << endl;
-		fstr_DeviceCommand << "\t\t\t\tiHandled += Command_Impl::ReceivedMessage(pMessage);" << endl;
+		fstr_DeviceCommand << "\t\t\t\tiHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);" << endl;
 		fstr_DeviceCommand << "\t\t\t}" << endl;
 	}
 /*
