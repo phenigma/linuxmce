@@ -134,15 +134,11 @@ void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection)
 
 void getPortIdentification(string portFromBus, string& portID)
 {
-	//something like:
-	
 	size_t startPos = portFromBus.find("usb");
-	size_t endPos = portFromBus.find("/tty");
 	
-	if( startPos != string::npos && endPos != string::npos &&
-		endPos > startPos )
+	if( startPos != string::npos )
 	{
-		portID = portFromBus.substr(startPos, endPos - startPos);
+		portID = portFromBus.substr(startPos);
 		g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	}
 }
@@ -233,6 +229,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 //	static char last_udi[2048];
 
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
+	gchar *category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
 	if( bus != NULL &&
 		strcmp(bus, "usb_device") == 0 &&
 		strlen(bus) == strlen("usb_device") )
@@ -319,6 +316,69 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			info_udi = NULL;
 		}
 	}
+	else if( category != NULL && 0 == strcmp(category, "serial") && strlen(category) == strlen("serial") )
+	{
+		gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
+		gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
+		int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
+		int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
+		
+		map<unsigned int, int>::iterator it =
+			templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
+		if( it != templatesMap.end() )
+		{
+			gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
+			if(serial_port != NULL)
+			{
+				string portID;
+				getPortIdentification(string(serial_port), portID);
+				g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
+				try
+				{
+					// check if there is a device with this UID
+					string response;
+					sendMessage(	"-targetType template -o 0 " + 
+									StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+									" 1 " + 
+									StringUtils::itos( COMMAND_Get_iPK_DeviceFromUID_CONST ) + " " +
+									StringUtils::itos( COMMANDPARAMETER_UID_CONST ) + " " +
+									info_udi,
+									response );
+					g_pPlutoLogger->Write(LV_DEBUG, "response DeviceFromUID = %s\n", response.c_str());
+					
+					if( !response.empty() )
+					{
+						// set the serial port for the device
+						string responseSerial;
+						sendMessage(	"-targetType template -o 0 " + 
+										StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
+										" 1 " + 
+										StringUtils::itos( COMMAND_Set_Device_Data_CONST ) + " " +
+										StringUtils::itos( COMMANDPARAMETER_PK_Device_CONST ) + " " +
+										response + " " +
+										StringUtils::itos( COMMANDPARAMETER_PK_DeviceData_CONST ) + " " +
+										StringUtils::itos( DEVICEDATA_COM_Port_on_PC_CONST ) + " " +
+										StringUtils::itos( COMMANDPARAMETER_Value_To_Assign_CONST ) + " " +
+										portID, 
+										responseSerial );
+						g_pPlutoLogger->Write(LV_DEBUG, "responseSerial %s\n", responseSerial.c_str());
+					}
+				}
+				catch(string ex)
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: initialize_usb-serial exception thrown: %s", ex.c_str());
+				}
+			}
+			
+			g_free (serial_port);
+			serial_port = NULL;
+		}
+		
+		g_free (parent);
+		parent = NULL;
+		g_free (info_udi);
+		info_udi = NULL;
+	}
 
 //	if(/*strncmp(last_udi, udi, strlen(last_udi)) == 0 && */strncmp(&udi[strlen(udi) - 10], "usb-serial", 10) == 0)
 //	{
@@ -326,10 +386,14 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 
 	g_free (bus);
 	bus = NULL;
+	g_free (category);
+	category = NULL;
 }
 
 void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
 {
+	g_pPlutoLogger->Write(LV_DEBUG, "----------------- =============== udi = %s capability = %s\n", udi, capability);
+	
 	gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
 	if(serial_port != NULL)
 	{
@@ -441,6 +505,7 @@ void initialize(LibHalContext * ctx)
 	int num_devices = 0;
 	char **devices = libhal_get_all_devices (ctx, &num_devices, NULL);
 	gchar *bus = NULL;
+	gchar *category = NULL;
 
 	//get all template IDs and producer_id vendor_id
 	for(int i = num_devices - 1; i >= 0 ; i--)
@@ -448,13 +513,8 @@ void initialize(LibHalContext * ctx)
 		char *udi = devices[i];
 		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
 		bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
-		if( bus == NULL )
-		{
-//			g_pPlutoLogger->Write(LV_DEBUG, "bus is NULL, udi = %s\n", udi);
-			continue;
-		}
-		
-		if( 0 == strcmp(bus, "usb_device") )
+		category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
+		if( bus != NULL && 0 == strcmp(bus, "usb_device") && strlen(bus) == strlen("usb_device") )
 		{
 			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
@@ -543,7 +603,7 @@ void initialize(LibHalContext * ctx)
 //					sysfs_path = NULL;
 			}
 		}
-		else if( 0 == strcmp(bus, "usb-serial") )
+		else if( category != NULL && 0 == strcmp(category, "serial") && strlen(category) == strlen("serial") )
 		{
 			gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
 			gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
@@ -554,7 +614,7 @@ void initialize(LibHalContext * ctx)
 				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 			if( it != templatesMap.end() )
 			{
-				gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
+				gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
 				if(serial_port != NULL)
 				{
 					string portID;
@@ -609,22 +669,9 @@ void initialize(LibHalContext * ctx)
 		
 		g_free(bus);
 		bus = NULL;
+		g_free(category);
+		category = NULL;
 	}
-// 	try
-// 	{
-// 		string responseRestart;
-// 		sendMessage(string("-targetType template -o 0 ") + 
-// 				StringUtils::itos( DEVICETEMPLATE_General_Info_Plugin_CONST ) + 
-// 				" 1 " + 
-// 				StringUtils::itos( COMMAND_Restart_DCERouter_CONST ),
-// 			responseRestart );
-// 		g_pPlutoLogger->Write(LV_DEBUG, "responseRestart %s\n", responseRestart.c_str());
-// 	}
-// 	catch(string ex)
-// 	{
-// 		g_pPlutoLogger->Write(LV_WARNING, "exception thrown: %s", ex.c_str());
-// 	}
-
 }
 
 int main(int argc, char* argv[])
@@ -735,7 +782,8 @@ int main(int argc, char* argv[])
 	
 	libhal_ctx_set_device_added(ctx, myDeviceAdded);
 	libhal_ctx_set_device_removed(ctx, myDeviceRemoved);
-	libhal_ctx_set_device_new_capability(ctx, myDeviceNewCapability);
+//	we don't need capability in the current HAL version
+//	libhal_ctx_set_device_new_capability(ctx, myDeviceNewCapability);
 	
 	libhal_ctx_set_dbus_connection(ctx, halConnection);
 	mainloop_integration(ctx, libhal_ctx_get_dbus_connection(ctx));
