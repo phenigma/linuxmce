@@ -70,8 +70,30 @@ function Detect {
 	done
 	availPart=$auxPart
 
-	## TODO: Instead of echo we should send a message to dce router
-	echo $availPart
+	## Display the new internal disk drive found wizard on available orbiters
+	Q="
+		SELECT
+			PK_Device
+		FROM
+			Device
+			JOIN DeviceTemplate ON PK_DeviceTemplate = FK_DeviceTemplate
+			JOIN DeviceCategory ON PK_DeviceCategory = FK_DeviceCategory
+		WHERE
+			PK_DeviceCategory IN (5,2,3)
+	"
+	OrbiterList=$(RunSQL "$Q")
+
+	OrbiterIDList=""
+	for Orbiter in $OrbiterList; do
+		if [[ $OrbiterIDList != "" ]]; then
+			OrbiterIDList="$OrbiterIDList,"
+		fi
+
+		Orbiter_ID=$(Field 1 "$Orbiter")
+		OrbiterIDList="$OrbiterIDList""$Orbiter_ID"
+	done
+
+	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$availPart" 156 $PK_Device
 }
 
 function Blacklist {
