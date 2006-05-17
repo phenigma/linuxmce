@@ -14,7 +14,7 @@ Gen_Dev_Files +=
 include sources.list.mk
     
 AVWizard: $(sources:.cpp=.o)
-	$(CXX) -o AVWizard $(sources)  $(FLAGS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o AVWizard $+ $(FLAGS) $(LDFLAGS) $(LDLIBS)
 	cp AVWizard ../../../bin/
 
 clean: 
