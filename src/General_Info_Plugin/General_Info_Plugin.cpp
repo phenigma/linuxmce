@@ -230,7 +230,11 @@ bool General_Info_Plugin::Register()
 	//AV Wizard - DSP Mode
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDSPMode)), 
-		DATAGRID_Select_available_DSPMODES_CONST,PK_DeviceTemplate_get());
+		DATAGRID_Select_Available_DSPModes_CONST,PK_DeviceTemplate_get());
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDSPModeOrder)), 
+		DATAGRID_Confirm_DSPModes_Order_CONST,PK_DeviceTemplate_get());
+
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1521,6 +1525,37 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
 				nCol = 0;
 				nRow++;
 			}
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string sTemplateId = Parms;
+	string sql,index;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0;
+
+	sql = string( "SELECT PK_Command,Command.Description,DeviceTemplate_DSPMode.OrderNo as DSPMode_Desc \
+		FROM Command JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='" );
+	sql +=	sTemplateId + "'" + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDSPModeOrder sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			pCell = new DataGridCell( row[1], row[0] );
+			pDataGrid->SetData(0, nRow++, pCell );
 		}
 	}
 
