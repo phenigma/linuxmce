@@ -93,7 +93,6 @@ void SDLFrontEnd::Flip()
 	
 		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
 		SDL_BlitSurface(ScaledScreen, NULL, Screen, NULL);
-		SDL_Flip(ScaledScreen);
 		SDL_FreeSurface(ScaledScreen);
 	}
 	SDL_Flip(Screen);	
