@@ -84,6 +84,7 @@ bool PlutoHalD::sendMessage(string params, string &returnValue)
 
 void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
+	/*
 	gchar *bus = hal_device_get_property_string (ctx, udi, "info.bus");
 	if( bus != NULL &&
 		strcmp(bus, "usb_device") == 0 &&
@@ -117,10 +118,12 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 	
 	g_free (bus);
 	bus = NULL;
+	*/
 }
 
 void PlutoHalD::myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
 {
+	/*
 	if( udi == NULL || ctx == NULL || capability == NULL )
 	{
 		// error
@@ -175,6 +178,7 @@ void PlutoHalD::myDeviceNewCapability(LibHalContext * ctx, const char * udi, con
 	
 	g_free (serial_port);
 	serial_port = NULL;
+	*/
 }
 
 void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
@@ -200,6 +204,7 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 /***/
 void PlutoHalD::initialize(LibHalContext * ctx)
 {
+	/*
 	int num_devices = 0;
 	char **devices = hal_get_all_devices (ctx, &num_devices);
 	gchar *bus = NULL;
@@ -294,10 +299,12 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 		g_free(bus);
 		bus = NULL;
 	}
+*/
 }
 
 void* PlutoHalD::startUp(void *pnp)
 {
+	/*
 	LibHalFunctions funcs;
 	LibHalContext * ctx = NULL;
 	GMainLoop * loop = NULL;
@@ -383,6 +390,6 @@ void* PlutoHalD::startUp(void *pnp)
 	g_main_loop_run(loop);
 	
 	hal_shutdown(ctx);
-	
+	*/
 	return NULL;
 }
