@@ -13,7 +13,7 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>Xine_Player2</mainprogram>
+      <mainprogram>Xine_Player</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs/>

@@ -8,7 +8,7 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -ljpeg -lxine -lX11 -lXtst
 
-MYNAME = Xine_Player2
+MYNAME = Xine_Player
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 5mplateID
 
