@@ -232,21 +232,21 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
 //	static char last_udi[2048];
 
-	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", &halError);
+	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	if( bus != NULL &&
 		strcmp(bus, "usb_device") == 0 &&
 		strlen(bus) == strlen("usb_device") )
 	{
 //		strcpy(last_udi, udi);
 		//hal_device_print (ctx, udi);
-		int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", &halError);
-		int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", &halError);
+		int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
+		int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 
 		map<unsigned int, int>::iterator it;
 		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 		if(it != templatesMap.end())
 		{
-			gchar *info_udi = libhal_device_get_property_string (ctx, udi, "info.udi", &halError);
+			gchar *info_udi = libhal_device_get_property_string (ctx, udi, "info.udi", NULL);
 			
 			try
 			{
@@ -330,13 +330,13 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 
 void myDeviceNewCapability(LibHalContext * ctx, const char * udi, const char *capability)
 {
-	gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", &halError);
+	gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
 	if(serial_port != NULL)
 	{
-		gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", &halError), "info.parent", &halError);
-		gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", &halError);
-		int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", &halError);
-		int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", &halError);
+		gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
+		gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
+		int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
+		int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
 		
 		g_pPlutoLogger->Write(LV_DEBUG, "udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
 		
@@ -439,7 +439,7 @@ void myDeviceRemoved(LibHalContext * ctx, const char * udi)
 void initialize(LibHalContext * ctx)
 {
 	int num_devices = 0;
-	char **devices = libhal_get_all_devices (ctx, &num_devices, &halError);
+	char **devices = libhal_get_all_devices (ctx, &num_devices, NULL);
 	gchar *bus = NULL;
 
 	//get all template IDs and producer_id vendor_id
@@ -447,16 +447,17 @@ void initialize(LibHalContext * ctx)
 	{
 		char *udi = devices[i];
 		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
-		bus = libhal_device_get_property_string (ctx, udi, "info.bus", &halError);
+		bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 		if( bus == NULL )
 		{
+//			g_pPlutoLogger->Write(LV_DEBUG, "bus is NULL, udi = %s\n", udi);
 			continue;
 		}
 		
 		if( 0 == strcmp(bus, "usb_device") )
 		{
-			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", &halError);
-			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", &halError);
+			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
+			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 			
 			map<unsigned int, int>::iterator it =
 				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
@@ -466,7 +467,7 @@ void initialize(LibHalContext * ctx)
 //					gchar *product = libhal_device_get_property_string (ctx, udi, "info.product");
 //					gchar *vendor = libhal_device_get_property_string (ctx, udi, "info.vendor");
 //					gchar *serial = libhal_device_get_property_string (ctx, udi, "usb_device.serial");
-					gchar *info_udi = libhal_device_get_property_string (ctx, udi, "info.udi", &halError);
+					gchar *info_udi = libhal_device_get_property_string (ctx, udi, "info.udi", NULL);
 //					gchar *sysfs_path = libhal_device_get_property_string (ctx, udi, "usb_device.linux.sysfs_path");
 					
 				try
@@ -544,16 +545,16 @@ void initialize(LibHalContext * ctx)
 		}
 		else if( 0 == strcmp(bus, "usb-serial") )
 		{
-			gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", &halError), "info.parent", &halError);
-			gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", &halError);
-			int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", &halError);
-			int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", &halError);
+			gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
+			gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
+			int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
+			int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
 			
 			map<unsigned int, int>::iterator it =
 				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
 			if( it != templatesMap.end() )
 			{
-				gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", &halError);
+				gchar *serial_port = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
 				if(serial_port != NULL)
 				{
 					string portID;
@@ -718,14 +719,6 @@ int main(int argc, char* argv[])
 	
 	loop = g_main_loop_new (NULL, FALSE);
 	
-/*	funcs.main_loop_integration = mainloop_integration;
-	funcs.device_added = myDeviceAdded;
-	funcs.device_removed = myDeviceRemoved;
-	funcs.device_new_capability = myDeviceNewCapability;
-	funcs.device_lost_capability = NULL;
-	funcs.device_property_modified = NULL;
-	funcs.device_condition = NULL;*/
-	
 	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
 	if( halConnection == NULL )
 	{
@@ -747,7 +740,7 @@ int main(int argc, char* argv[])
 	libhal_ctx_set_dbus_connection(ctx, halConnection);
 	mainloop_integration(ctx, libhal_ctx_get_dbus_connection(ctx));
 	
-	libhal_ctx_init(ctx, &halError);
+	libhal_ctx_init(ctx, NULL);
 	
 	initialize(ctx);
 	
@@ -758,7 +751,7 @@ int main(int argc, char* argv[])
 
 	g_main_loop_run(loop);
 	
-	libhal_ctx_shutdown(ctx, &halError);
+	libhal_ctx_shutdown(ctx, NULL);
 	libhal_ctx_free(ctx);
 	
 	free(hostname);
