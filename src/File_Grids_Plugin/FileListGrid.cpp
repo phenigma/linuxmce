@@ -87,8 +87,6 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 		{
 			while(NULL != result.r && (row = mysql_fetch_row(result.r)))
 			{
-				//todo: use here picpriority ?
-
 				//got any picture?
 				if(NULL != row[1] && NULL != row[2])
 				{

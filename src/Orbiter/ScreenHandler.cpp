@@ -576,7 +576,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 			//switching between objects
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butIgnoreIt_CONST)
 			{
-				//TODO: send a CMD_Ignore_Disk_Driver to general info plugin; 
+				//TODO: send a CMD_Ignore_Disk_Drive to general info plugin; 
 				//status: wait for Razvan to implement it
 				//we'll use m_sInternal_Disk_Drive_Data as a parameter and m_nInternal_Disk_Drive_PK_Device_ControlledVia
 
