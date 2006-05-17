@@ -60,14 +60,6 @@ For now, you have to manually update these files:
 Switch to another console (Alt+F2), login as root and use an editor like
 'nano' or 'vi' to edit those files before you reboot"
 
-echo "$(CatMessages "$Message1" "$Message2")" | fmt
-Kver=$(uname -r)
-if [ "${Kver:0:4}" == "2.4." ]; then
-	echo "$Message24"
-fi
-read
-#MessageBox "$Message1" "$Message2" "$Message3"
-
 # Set vimrc
 [[ -e /root/.vimrc ]] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
 
@@ -79,3 +71,15 @@ echo "Setting debconf front-end to Noninteractive"
 awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
 	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
 mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
+
+if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
+	/usr/pluto/bin/alsaconf-noninteractive
+fi
+
+echo "$(CatMessages "$Message1" "$Message2")" | fmt
+Kver=$(uname -r)
+if [ "${Kver:0:4}" == "2.4." ]; then
+	echo "$Message24"
+fi
+read
+#MessageBox "$Message1" "$Message2" "$Message3"
