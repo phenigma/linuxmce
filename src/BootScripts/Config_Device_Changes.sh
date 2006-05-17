@@ -166,3 +166,8 @@ if [[ "$StartLocalDevice" == "y" ]]; then
         echo "Starting local devices"
         /usr/pluto/bin/Start_LocalDevices.sh
 fi
+
+# Run alsaconf-noninteractive
+if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
+	/usr/pluto/bin/alsaconf-noninteractive
+fi
