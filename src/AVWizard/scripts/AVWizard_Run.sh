@@ -100,6 +100,7 @@ UpdateAudioSettings()
 UpdateOrbiterDimensions()
 {
 	DEVICETEMPLATE_OnScreen_Orbiter=62
+	DEVICETEMPLATE_OrbiterPlugin=12
 	DEVICEDATA_ScreenWidth=100
 	DEVICEDATA_ScreenHeight=101
 	DEVICEDATA_PK_Size=25
@@ -128,6 +129,13 @@ UpdateOrbiterDimensions()
 	if [[ -n "$PK_Size" ]]; then
 		Q="UPDATE Device_DeviceData SET IK_DeviceData='$PK_Size' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Size'"
 	fi
+
+	# Regen Orbiter
+	Q="UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter='$OrbiterDev'"
+	RunSQL "$Q"
+	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
+	RunSQL "$Q"
+	#/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r"
 }
 
 Done=0
