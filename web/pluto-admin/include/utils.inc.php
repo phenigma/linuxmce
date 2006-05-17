@@ -5288,7 +5288,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	$out.='
 
 	<form action="index.php" method="post" name="deviceTemplatePicker">
-		<input type="hidden" name="section" value="deviceTemplatePicker">
+		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="choose">
 	
 	<table align="center" border="0" cellpadding="2" cellspacing="0">
@@ -5690,7 +5690,7 @@ function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO){
 		$allowedDevices=getDeviceTemplatesControlledBy($parentID,$dbADO);
 	}
 	$filter='WHERE 1=1 ';
-	$filter.=(count($allowedDevices)>0)?'AND PK_DeviceTemplate IN ('.join(',',$allowedDevices).') ':'';
+	$filter.=(count(@$allowedDevices)>0)?'AND PK_DeviceTemplate IN ('.join(',',$allowedDevices).') ':'';
 	if($categoryID>0){
 		$subcategories=getDescendantsForCategory($categoryID,$dbADO);
 		$filter.='AND FK_DeviceCategory IN ('.join(',',$subcategories).')';
