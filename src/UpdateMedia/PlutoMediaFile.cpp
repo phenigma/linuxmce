@@ -320,6 +320,8 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SetFileAttribute %s/%s %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
 
+	LoadAttributesFromDB(m_sDirectory + "/" + m_sFile, PK_File);
+
 	//make sure it's our installation and file
 	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
 	m_pPlutoMediaAttributes->m_nFileID = PK_File;
@@ -472,9 +474,15 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 		pData = NULL;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes loaded %d", 
+		m_pPlutoMediaAttributes->m_mapAttributes.size());
+
 	//get common id3 attributes
 	map<int, string> mapAttributes;
 	GetId3Info(sFullFileName, mapAttributes);	
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: id3 attributes loaded %d", 
+		mapAttributes.size());
 
 	//merge attributes
 	for(map<int, string>::iterator it = mapAttributes.begin(), end = mapAttributes.end(); it != end; ++it)
@@ -493,6 +501,71 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 		else
 			itm->second->m_sName = sValue;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged %d", 
+		m_pPlutoMediaAttributes->m_mapAttributes.size());
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
+{
+	if(!PK_File)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: not in the database %d");
+		return;
+	}
+
+	//also merge the attributes from the database
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string SQL = 
+		"SELECT FK_AttributeType, Name, Track, Section "
+		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
+		"WHERE FK_File = " + StringUtils::ltos(PK_File);
+
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		{
+			int nFK_AttributeType = atoi(row[0]);
+			string sName = row[1];
+			int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
+			int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+
+			bool bAttributeAlreadyAdded = false;
+
+			for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+				end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
+			{
+				PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+				if(
+					pPlutoMediaAttribute->m_nType == nFK_AttributeType	&&
+					pPlutoMediaAttribute->m_sName == sName				&&
+					pPlutoMediaAttribute->m_nTrack == nTrack			&&
+					pPlutoMediaAttribute->m_nSection == nSection
+					)
+				{
+					bAttributeAlreadyAdded = true;
+					break;
+				}
+			}
+
+			if(!bAttributeAlreadyAdded)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: adding attribute type %d, values %s",
+					nFK_AttributeType, sName.c_str());
+
+				m_pPlutoMediaAttributes->m_mapAttributes.insert(
+						std::make_pair(
+							nFK_AttributeType, 
+							new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
+						)
+					);
+			}
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged with those from database %d", 
+		m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
 
 //-----------------------------------------------------------------------------------------------------
