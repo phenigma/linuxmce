@@ -1311,6 +1311,8 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		
 		xine_set_param( m_pXineStream, XINE_PARAM_SPEED, (desiredSpeed == PLAYBACK_FF_1)?XINE_SPEED_NORMAL:XINE_SPEED_PAUSE );
 		
+		DisplayOSDText( "" );
+		
 		return;
 	}
 	
