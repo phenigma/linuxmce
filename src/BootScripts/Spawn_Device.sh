@@ -23,6 +23,7 @@ LogFile="/var/log/pluto/${device_id}_$(basename $cmd_line).log";
 valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log";
 
 exec &> >(tee -a "$LogFile")
+echo "========== NEW LOG SECTION =========="
 
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
