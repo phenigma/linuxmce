@@ -14,4 +14,8 @@ pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
 Orbiter.Orbiter.ignoreNoFocusHint: 1
 SDL_App.SDL_App.ignoreNoFocusHint: 1
 
+# pointer-constrain window
+# pointer_constrain_name.pointer_constrain_class.layer: Below
+pointer_constrain_name.pointer_constrain_class.layer: Desktop
+
 # EOF

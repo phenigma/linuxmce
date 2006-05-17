@@ -1208,4 +1208,5 @@ DesktopTransparencyImage=""
 # ShowTaskBar=1
 # BorderSizeX=5
 # BorderSizeY=5
+# KeyWinClose="Alt+Shift+F4"
 # EOF
