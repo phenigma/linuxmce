@@ -4,8 +4,8 @@
 #ifdef WIN32
 #define DEFAULT_FONT_NAME "c:\\pluto\\src\\avwizard\\wizardgui\\StartUpWizard\\Fonts\\Zurchbc.ttf"
 #else
-#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf"
-//#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf"
+//#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf"
+#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf"
 #endif
 
 #define COMMAND_SET_RESOLUTION "/usr/pluto/bin/AVWizard_UpdateResolution.sh"
@@ -22,14 +22,13 @@
 
 #define COMMAND_SET_AUDIO_CONNECTOR "/usr/pluto/bin/AVWizard_AudioConnector.sh"
 
-/*
+
 #ifdef WIN32
 #define PATH_PIXMAPS "wiz_pixmaps"
 #else
 #define PATH_PIXMAPS "/usr/pluto/wiz_pixmaps"
 #endif
-*/
 
-#define PATH_PIXMAPS "/home/ciplogic/SVN/src/AVWizard/WizardGUI/StartUpWizard/wiz_pixmaps"
+//#define PATH_PIXMAPS "/home/ciplogic/SVN/src/AVWizard/WizardGUI/StartUpWizard/wiz_pixmaps"
 
 #endif

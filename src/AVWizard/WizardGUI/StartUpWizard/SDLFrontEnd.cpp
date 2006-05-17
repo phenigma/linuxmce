@@ -85,28 +85,23 @@ void SDLFrontEnd::Flip()
 
 	int Width = Screen->w;
 	int Height = Screen->h;
-	NeedScale = (Width == 640) && (Height == 480);
+	NeedScale = (Width != 640) || (Height == 480);
 	if (NeedScale)
 	{
 		ZoomX = Width / 640.0f;
 		ZoomY = Height / 480.0f;
 	
 		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
+		SDL_BlitSurface(ScaledScreen, NULL, Screen, NULL);
 		SDL_Flip(ScaledScreen);
 		SDL_FreeSurface(ScaledScreen);
 	}
-	else
-	{
-		SDL_Flip(Screen);
-	}
-//	SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
-	
+	SDL_Flip(Screen);	
 }
 
 void SDLFrontEnd::PaintBackground()
 {
 	SDL_FillRect(Screen, NULL, 0xffffff);
-	//SDL_UpperBlit(Background, NULL, Screen, NULL);
 }
 
 int SDLFrontEnd::TextOutWidth(std::string Text)
