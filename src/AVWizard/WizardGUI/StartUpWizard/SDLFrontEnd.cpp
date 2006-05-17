@@ -86,19 +86,11 @@ void SDLFrontEnd::Flip()
 	int Width = Screen->w;
 	int Height = Screen->h;
 	NeedScale = (Width == 640) && (Height == 480);
-	if (NeedScale)
-	{
-		ZoomX = Width / 640.0f;
-		ZoomY = Height / 480.0f;
+	ZoomX = Width / 640.0f;
+	ZoomY = Height / 480.0f;
 	
-		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
-	}
-	else
-	{
-		ScaledScreen = Screen;
-	}
-//	SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
-	
+	ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
+
 	SDL_Flip(ScaledScreen);
 	if(NeedScale)
 		SDL_FreeSurface(ScaledScreen);

@@ -22,11 +22,14 @@
 
 #define COMMAND_SET_AUDIO_CONNECTOR "/usr/pluto/bin/AVWizard_AudioConnector.sh"
 
-
+/*
 #ifdef WIN32
 #define PATH_PIXMAPS "wiz_pixmaps"
 #else
 #define PATH_PIXMAPS "/usr/pluto/wiz_pixmaps"
 #endif
+*/
+
+#define PATH_PIXMAPS "/home/ciplogic/SVN/src/AVWizard/WizardGUI/StartUpWizard/wiz_pixmaps"
 
 #endif
