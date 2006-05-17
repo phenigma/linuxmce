@@ -268,7 +268,10 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 
 	if( m_pMouseHandler )
+	{
 		m_pMouseHandler->ButtonDown(PK_Button);
+		return true;
+	}
 	return false;
 }
 

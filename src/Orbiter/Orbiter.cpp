@@ -662,12 +662,6 @@ void Orbiter::RenderScreen( bool bRenderGraphicsOnly )
 	if( bRenderGraphicsOnly )
 		return;
 
-#ifdef ENABLE_MOUSE_BEHAVIOR
-	// With the new UI 
-	if( UsesUIVersion2() && m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler==NULL )
-		m_pMouseBehavior->Set_Mouse_Behavior("K",false,"B",m_pScreenHistory_Current->GetObj()->m_ObjectID);
-#endif
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
@@ -2339,9 +2333,10 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST || pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoUserVoicemail_CONST )
 	{
+		DesignObj_Orbiter *pDesignObj_Orbiter_With_Commands = pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST ? pDesignObj_Orbiter : (DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject;
 		// This is actually at startup time.  Figure out what user this is controlling
 		int PK_Users=0;
-		for(DesignObjZoneList::iterator itZ=pDesignObj_Orbiter->m_ZoneList.begin();itZ!=pDesignObj_Orbiter->m_ZoneList.end();++itZ)
+		for(DesignObjZoneList::iterator itZ=pDesignObj_Orbiter_With_Commands->m_ZoneList.begin();itZ!=pDesignObj_Orbiter_With_Commands->m_ZoneList.end();++itZ)
 		{
 			DesignObjZone *pDesignObjZone = *itZ;
 
@@ -4325,8 +4320,8 @@ bool Orbiter::RegionDown( int x,  int y )
 	{
 		if( m_pMouseBehavior )
 		{
-			m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
-			return true;
+			if( m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST) )
+				return true;
 		}
 	}
 #endif

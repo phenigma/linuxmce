@@ -140,10 +140,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 		
 		if( !m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction) )
 		{
+/*
 			// We're off in no-mans land, and not moving toward any selectable object, get back on the highlighted object
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 			m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
 				rect.Y + rect.Height/2 );
+				*/
 			return;
 		}
 
