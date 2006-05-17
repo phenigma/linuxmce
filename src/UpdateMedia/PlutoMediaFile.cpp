@@ -50,6 +50,9 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
 
+	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
+		m_sDirectory.c_str(), m_sFile.c_str());
+
 	//get the path to id3 file
 	string sAttributeFile = m_sDirectory + "/" + FileWithAttributes(false);
 
@@ -65,6 +68,9 @@ PlutoMediaFile::~PlutoMediaFile()
 	SyncDbAttributes();
 
 	delete m_pPlutoMediaAttributes;
+
+	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile ENDED: dir %s file %s", 
+		m_sDirectory.c_str(), m_sFile.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -460,6 +466,8 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: %s", sFullFileName.c_str());
+
 	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 
 	//deserialize data from user defined tag
