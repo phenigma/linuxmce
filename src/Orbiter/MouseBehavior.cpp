@@ -277,13 +277,17 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 
 bool MouseBehavior::ButtonUp(int PK_Button)
 {
-	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
-	m_iPK_Button_Mouse_Last=PK_Button;
-	m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
+    g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p",(int) PK_Button,m_pMouseHandler);
+    PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
+    m_iPK_Button_Mouse_Last=PK_Button;
+    m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
 
-	if( m_pMouseHandler )
+    if( m_pMouseHandler )
+    {
 		m_pMouseHandler->ButtonUp(PK_Button);
-	return false;
+		return true;
+    }
+    return false;
 }
 
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
