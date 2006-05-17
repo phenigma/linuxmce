@@ -54,7 +54,7 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 	map<string, pair<int, string> > mapDatabaseFiles;
 	if(m_vectFileInfo.size() > 0)
 	{
-		FileListInfo *flInfo = m_vectFileInfo[0];
+		FileListInfo *flInfo = m_vectFileInfo[m_vectFileInfo.size() - 1];
 
 		string sSql = 
 			"( "
