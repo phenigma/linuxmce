@@ -44,7 +44,7 @@ Xine_Player.so: $(sources:.cpp=.o)
 		
 Xine_Player: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-#	cp $@ ../bin
+	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive

@@ -410,7 +410,7 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 		/** @param #43 MediaPlaybackSpeed */
 			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
 
-void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,bool bReport,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
@@ -1048,4 +1048,18 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	}
 	if (pStream)
 		CMD_Play_Media(pStream->m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
+}
+
+//<-dceag-c548-b->
+
+        /** @brief COMMAND: #548 - Menu */
+        /** Show a menu associated with this media */
+                /** @param #9 Text */
+                        /** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c548-e->
+{
+	cout << "Need to implement command #548 - Menu" << endl;
+	cout << "Parm #9 - Text=" << sText << endl;
 }

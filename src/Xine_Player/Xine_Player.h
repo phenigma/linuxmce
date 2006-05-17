@@ -55,12 +55,13 @@ public:
 	string DATA_Get_Angles();
 	void DATA_Set_Angles(string Value);
 	int DATA_Get_Time_Code_Report_Frequency();
+	string DATA_Get_Name();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff);
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
-	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sAudio,string sVideo);
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -138,9 +139,11 @@ public:
 			/** The media needing the playback speed change. */
 		/** @param #43 MediaPlaybackSpeed */
 			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
+		/** @param #220 Report */
+			/** If true, report this speed to the user on the OSD */
 
-	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed) { string sCMD_Result; CMD_Change_Playback_Speed(iStreamID,iMediaPlaybackSpeed,sCMD_Result,NULL);};
-	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,bool bReport) { string sCMD_Result; CMD_Change_Playback_Speed(iStreamID,iMediaPlaybackSpeed,bReport,sCMD_Result,NULL);};
+	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,bool bReport,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #42 - Jump to Position in Stream */
@@ -414,11 +417,19 @@ public:
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #548 - Menu */
+	/** Show a menu associated with this media */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
-	
 	};
 
 //<-dceag-end-b->
