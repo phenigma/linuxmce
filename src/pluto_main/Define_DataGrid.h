@@ -71,9 +71,9 @@
 #define DATAGRID_Media_Connector_Type_CONST 69
 #define DATAGRID_Confirm_Inputs_Codes_CONST 70
 #define DATAGRID_Select_Available_DSPModes_CONST 71
-#define DATAGRID_Device_Templates_By_Categ_CONST 73
-#define DATAGRID_Confirm_Inputs_Order_CONST 74
-#define DATAGRID_Confirm_DSPModes_Order_CONST 75
+#define DATAGRID_Confirm_Inputs_Order_CONST 72
+#define DATAGRID_Confirm_DSPModes_Order_CONST 73
+#define DATAGRID_Device_Templates_By_Categ_CONST 76
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
