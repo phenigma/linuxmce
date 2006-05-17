@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto38) unstable; urgency=low
+  
+  * Let udev manage the colpluging
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 17 May 2006 13:34:11 +0300
+
 sysvinit (2.86.ds1-1.1pluto37) unstable; urgency=low
 
   * Run Audio Video Wizard at first boot
