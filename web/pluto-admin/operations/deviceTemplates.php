@@ -12,7 +12,8 @@ function deviceTemplates($output,$dbADO) {
 	
 	$firstColLinks='';
 
-	$out.=pickDeviceTemplate(NULL,1,1,1,0,0,'deviceTemplates',$firstColLinks,$dbADO,1);
+	$_SESSION['from']='deviceTemplates';
+	$out.=pickDeviceTemplate(NULL,1,0,1,'deviceTemplates',$dbADO,1);
 	
 	$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates'));
 	

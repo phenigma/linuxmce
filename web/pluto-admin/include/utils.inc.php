@@ -5248,7 +5248,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
-	
+
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
 	$deviceCategoryPicker=(isset($_REQUEST['deviceCategoryPicker']))?$_REQUEST['deviceCategoryPicker']:0;
 	$dtID=(isset($_REQUEST['dtID']))?$_REQUEST['dtID']:0;
@@ -5284,7 +5284,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	}
 	
 	$out=jsManufCategories(array_keys($deviceTemplatesArray),$dbADO);
-	$out.=dtPickerJS();
+	$out.=dtPickerJS($returnValue);
 	$out.='
 
 	<form action="index.php" method="post" name="deviceTemplatePicker">
@@ -5368,7 +5368,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			<td colspan="3" align="left">
 				<em>* '.$TEXT_AUTOFILTER_INFO_CONST.'<br>
 					** '.$TEXT_DC_MANUFACTURER_NEEDED_CONST.'
-					'.$dtNote.'
+					'.@$dtNote.'
 				</em>
 			</td>
 		</tr>	
@@ -5493,7 +5493,7 @@ function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents){
 	return $jsNodes;
 }
 
-function dtPickerJS(){
+function dtPickerJS($returnValue){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
 	
@@ -5541,12 +5541,20 @@ function dtPickerJS(){
 	function changeCategoryPicker(){
 		document.deviceTemplatePicker.submit();
 	}
+
+	function windowOpen(locationA,attributes) {
+		window.open(locationA,\'\',attributes);
+	}
 	
 	function pickDeviceTemplate(){
 		dt=document.deviceTemplatePicker.dtID.value;
 		if(dt>0){
-			opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
-			self.close();
+			if('.$returnValue.'==1){
+				opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
+				self.close();
+			}else{
+				windowOpen("index.php?section=editMasterDevice&model="+dt,"width=1024,height=768,toolbars=true,scrollbars=1,resizable=1");
+			}
 		}else{
 			// error case, display error message
 			setErrorMessage("'.$TEXT_ERROR_DEVICE_TEMPLATE_NOT_SELECTED_CONST.'");

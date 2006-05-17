@@ -18,4 +18,6 @@ $TEXT_PARAMETERS_UPDATED_CONST='Parameters updated!';
 $TEXT_UPLOAD_FAILED_CONST='Upload failed, check the rights for';
 $TEXT_INVALID_PNG_FILE_CONST='Invalid PNG file';
 $TEXT_HIGHLIGHT_INFO_CONST='The devices who are highlighted are embedded.';
+$TEXT_SCENARIO_DATA_CONST='Scenario data';
+$TEXT_SCENARIO_COMMANDS_CONST='Scenario commands';
 ?>
