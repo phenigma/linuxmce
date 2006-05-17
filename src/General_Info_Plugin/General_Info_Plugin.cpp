@@ -2883,3 +2883,16 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 //<-dceag-c802-e->
 {
 }
+//<-dceag-c803-b->
+
+	/** @brief COMMAND: #803 - Blacklist Internal Disk Drive */
+	/** Adds an internal disk drive device to the list of blacklisted drives. */
+		/** @param #156 PK_Device_ControlledVia */
+			/** The 'computer' device that contains the blacklisted drive. */
+		/** @param #223 Block Device */
+			/** Linux block device representing the Internal Disk Drive. */
+
+void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c803-e->
+{
+}

@@ -20944,5 +20944,37 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Size_CONST, StringUtils::itos(iSize).c_str()); }
 	};
+	class CMD_Blacklist_Internal_Disk_Drive : public PreformedCommand {
+	public:
+		CMD_Blacklist_Internal_Disk_Drive(long DeviceIDFrom, long DeviceIDTo,int iPK_Device_ControlledVia,string sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Blacklist_Internal_Disk_Drive_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Block_Device_CONST, sBlock_Device.c_str()); }
+	};
+	class CMD_Blacklist_Internal_Disk_Drive_DL : public PreformedCommand {
+	public:
+		CMD_Blacklist_Internal_Disk_Drive_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device_ControlledVia,string sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Blacklist_Internal_Disk_Drive_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Block_Device_CONST, sBlock_Device.c_str()); }
+	};
+	class CMD_Blacklist_Internal_Disk_Drive_DT : public PreformedCommand {
+	public:
+		CMD_Blacklist_Internal_Disk_Drive_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device_ControlledVia,string sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Blacklist_Internal_Disk_Drive_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Block_Device_CONST, sBlock_Device.c_str()); }
+	};
+	class CMD_Blacklist_Internal_Disk_Drive_Cat : public PreformedCommand {
+	public:
+		CMD_Blacklist_Internal_Disk_Drive_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device_ControlledVia,string sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Blacklist_Internal_Disk_Drive_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Block_Device_CONST, sBlock_Device.c_str()); }
+	};
 }
 #endif

@@ -444,6 +444,16 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #803 - Blacklist Internal Disk Drive */
+	/** Adds an internal disk drive device to the list of blacklisted drives. */
+		/** @param #156 PK_Device_ControlledVia */
+			/** The 'computer' device that contains the blacklisted drive. */
+		/** @param #223 Block Device */
+			/** Linux block device representing the Internal Disk Drive. */
+
+	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device) { string sCMD_Result; CMD_Blacklist_Internal_Disk_Drive(iPK_Device_ControlledVia,sBlock_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
