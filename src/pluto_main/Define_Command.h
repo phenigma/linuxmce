@@ -727,6 +727,7 @@
 #define COMMAND_InitAVDeviceTemplateSettings_CONST 800
 #define COMMAND_Set_Mouse_Sensitivity_CONST 801
 #define COMMAND_Get_Available_Storage_Device_CONST 802
+#define COMMAND_Blacklist_Internal_Disk_Drive_CONST 803
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
