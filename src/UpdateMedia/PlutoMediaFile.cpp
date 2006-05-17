@@ -51,7 +51,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	m_nPK_MediaType = 0;
 
 	//get the path to id3 file
-	string sAttributeFile = m_sDirectory + "/" + FileWithAttributes();
+	string sAttributeFile = m_sDirectory + "/" + FileWithAttributes(false);
 
 	//get all attributes
 	LoadPlutoAttributes(sAttributeFile);
