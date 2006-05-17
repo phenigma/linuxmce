@@ -2895,4 +2895,15 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c803-e->
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Executing /usr/pluto/bin/StorageDevice_Radar.sh --blacklist %s ( on device %d )" ,sBlock_Device ,iPK_Device_ControlledVia);
+	
+	DeviceData_Base *pDevice_MD = this->m_pRouter->m_mapDeviceData_Router_Find(iPK_Device_ControlledVia);
+	ifdd(pDevice_MD) 
+	{
+		DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
+	}
+		
+	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device, pDevice_AppServer->m_dwPK_Device , "/usr/plut/bin/StorageDevice_Radar.sh", "blacklist", 
+			"--blacklist\t" + sBlock_Device, "", "", false, false, false);
+	SendCommand (CMD_Spawn_Application);
 }

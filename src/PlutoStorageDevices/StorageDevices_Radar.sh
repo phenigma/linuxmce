@@ -97,8 +97,8 @@ function Detect {
 }
 
 function Blacklist {
-	local part=$1	
-	echo $part >> /usr/pluto/share/StorageDevices_Blacklist.txt
+	local BlockDevice=$1
+	echo $BlockDevice >> /usr/pluto/share/StorageDevices_Blacklist.txt
 }
 
 Params=("$@")
@@ -114,8 +114,8 @@ for ((i = 0; i < ${#Params[@]}; i++)); do
 		;;
                 -b|--blacklist) 
 			((i++))
-			part="${Params[$i]}"
-			Blacklist $part
+			BlockDevice="${Params[$i]}"
+			Blacklist $BlockDevice
 			exit 0
 		;;
         esac
