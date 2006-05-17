@@ -27,9 +27,7 @@
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
 #include "UpdateMedia/PlutoMediaAttributes.h"
 
-#ifndef WIN32
 #include "id3info/id3info.h"
-#endif
 #include "MediaIdentifier.h"
 
 using namespace std;
@@ -430,7 +428,6 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 {
-#ifndef WIN32
 	//Temporary map with attributes for common tags
 	map<int, string> mapAttributes;
 	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 
@@ -457,12 +454,10 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 
 	g_pPlutoLogger->Write(LV_WARNING, "Saving %d attributes in the id3 file %s",
 		m_pPlutoMediaAttributes->m_mapAttributes.size(), sFullFileName.c_str());
-#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 {
-#ifndef WIN32
 	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 
 	//deserialize data from user defined tag
@@ -498,7 +493,6 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 		else
 			itm->second->m_sName = sValue;
 	}
-#endif
 }
 
 //-----------------------------------------------------------------------------------------------------

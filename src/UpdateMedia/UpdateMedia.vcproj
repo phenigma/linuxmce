@@ -86,7 +86,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib pluto-id3lib-r.lib"
+				AdditionalOptions="/FORCE:MULTIPLE"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib pluto-id3lib-r.lib pluto_media-r.lib"
 				OutputFile="../bin/UpdateMedia.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Release&quot;"
