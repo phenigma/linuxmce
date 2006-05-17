@@ -2162,8 +2162,17 @@ void OSDScreenHandler::SCREEN_TVDSPMode(long nPK_Screen)
 bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
-	string sSelectIds,id;
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(StringUtils::ltos(DESIGNOBJ_dgDSPModesOrder_CONST));
+	DataGridTable * pDataGrid = NULL;
+	DataGridCell *pCell = NULL;
+	
+	if( pObj )
+		pDataGrid = pObj->m_pDataGridTable;
+
+	string sSelectIds,firstId,secondId;
+	string id;
 	string::size_type pos = 0;
+	list<string>::iterator it;
 	int nPos = 0;
 
 	switch(GetCurrentScreen_PK_DesignObj())
@@ -2198,16 +2207,40 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 				id = StringUtils::Tokenize(sSelectIds, ",", pos);
 				nPos++;
 				if( nPos % 2 )
-					m_pWizardLogic->m_listDSPModes.clear();
-					bool bRes = id.empty();
+					m_pWizardLogic->m_listDSPModes.push_back( id );
+				bool bRes = id.empty();
 			}
 			while( id.empty() == false );
+
+			m_pWizardLogic->InsertDSPModes();
+			/*id="";
+			for(it=m_pWizardLogic->m_listDSPModes.begin();it!=m_pWizardLogic->m_listDSPModes.end();it++)
+				id += *it + ",";
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,id);*/
 		}
 		return false;
 
 		case DESIGNOBJ_TVDspOrder_CONST:
-		return false;
+		switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+		{
+			case DESIGNOBJ_butIRGroups_CONST:
+			return false;
 
+			//up
+			case 5045:
+			if( pDataGrid )
+				pCell = pDataGrid->GetData(0,0);
+			if( pCell )
+				secondId = pCell->GetValue();
+
+			//pDataGrid->
+			return false;
+
+			//down
+			case 5046:
+			return false;
+		}
+		return false;
 }
 
 	return false;

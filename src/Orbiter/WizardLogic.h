@@ -30,7 +30,7 @@ private:
 	//AV Wizard
 	string m_ManufacturerName, m_AVTemplateName;
 	string m_AVTemplateNumericEntry;
-	bool m_bAVTemplateTogglePower;
+	bool m_bAVTemplateTogglePower,m_bAVDSPToggleMode;
 	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
 	long m_nPKMediaType,m_nPKConnectorType;
 protected:
@@ -117,6 +117,8 @@ public:
 	void AddAVMediaType();
 	void AddAVDeviceInput();
 	void SetAVDSPToggleMode(bool state);
+	void InsertDSPModes();
+	void ChangeDSPOrder(string firstID,string secondID);
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);

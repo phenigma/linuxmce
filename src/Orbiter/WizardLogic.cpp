@@ -388,7 +388,7 @@ void WizardLogic::AddAVDeviceInput()
 	string sSQL;
 	string sInputs,sMediaType,sConnectorType;
 	string embeddedId,insertId;
-	string name;
+	string name,aux;
 	string::size_type pos=0;
 	
 	//temporary
@@ -397,21 +397,30 @@ void WizardLogic::AddAVDeviceInput()
 	map<int,string>::iterator it;
 	for(it=m_mapAVInputs.begin();it!=m_mapAVInputs.end();it++)
 	{
-		sInputs = it->second;
+		sInputs = StringUtils::ltos(it->first);
+		aux = it->second;
 		pos = 0;
-		sMediaType = StringUtils::Tokenize( sInputs, ",", pos );
-		sConnectorType = StringUtils::Tokenize( sInputs, ",", pos );
-		//name este prin conventie [nume comanda]' - '[nume media type]
-		name = string("Comanda??") + "-" + sMediaType;
+		sMediaType = StringUtils::Tokenize( aux, ",", pos );
+		sConnectorType = StringUtils::Tokenize( aux, ",", pos );
+		name = sInputs + "-" + sMediaType;
 
-		/*sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
+		aux = "Inputs ,MediaType+ConectorType,name:  ";
+		aux += sInputs + "," + sMediaType + "," + sConnectorType + "," + name;
+		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+		g_pPlutoLogger->Write( LV_WARNING, aux.c_str() );
+
+		sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
 		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
-		StringUtils::ltos(m_nPKAVTemplate) + "," + "command???" + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
-		threaded_mysql_query(sSQL);*/
-
-	/*	sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (";
-		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + "?" + "," + sConnectorType + ")"; 
+		StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
 		threaded_mysql_query(sSQL);
+		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+
+		sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (";
+		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + ")"; 
+		threaded_mysql_query(sSQL);
+		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 		if( sMediaType != "0" )
 		{
@@ -421,6 +430,8 @@ void WizardLogic::AddAVDeviceInput()
 			sSQL = "INSERT INTO DeviceTemplate (Description,FK_Manufacturer,FK_DeviceCategory) VALUES(" ;
 			sSQL += name + "," + StringUtils::ltos(m_nPKManufacuter) + "," + StringUtils::ltos(m_nPKDeviceCategory) + ")";
 			embeddedId = threaded_mysql_query_withID(sSQL);
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 			// link the embedded device with parent device
 			sSQL =	"INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia\
@@ -428,28 +439,38 @@ void WizardLogic::AddAVDeviceInput()
 				VALUES(";
 			sSQL += embeddedId + "," + StringUtils::ltos(m_nPKAVTemplate) + ",1,1)";
 			insertId = threaded_mysql_query_withID(sSQL);
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 			//create audio video pipes 2 insert 1&2 pipes
 			sSQL + "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe\
 			 (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)\
 			VALUES (";
-			sSQL += insertId + ",1," + "FK_Command" + ")";
+			sSQL += insertId + ",1," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL + "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe\
 			 (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)\
 			VALUES (";
-			sSQL += insertId + ",2," + "FK_Command" + ")";
+			sSQL += insertId + ",2," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES(" ;
-			sSQL += embeddedId + "," + "FK_Command" + ")";
+			sSQL += embeddedId + "," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES(";
-			sSQL += embeddedId + "," + sMediaType;
-
-		}*/
+			sSQL += embeddedId + "," + sMediaType + ")";
+			threaded_mysql_query(sSQL);	
+			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
+			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+		}
 	}
 }
 
@@ -491,9 +512,11 @@ int WizardLogic::AVTemplateIRCode()
 void WizardLogic::SetAVDSPToggleMode(bool state)
 {
 	string sSQL;
+	
+	m_bAVDSPToggleMode = state;	
+
 	sSQL =string("UPDATE DeviceTemplate_AV SET ToggleDSP=") + ( state ? "1" : "0" );
 	sSQL += string(" ") + "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
-
 	threaded_mysql_query(sSQL);
 }
 
@@ -508,6 +531,62 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 		+ StringUtils::itos(PK_Pipe) + "," + StringUtils::itos(PK_Command_Input) + ")";
 
 	threaded_mysql_query(sSQL);
+}
+
+//Insert all dsp modes in database
+void WizardLogic::InsertDSPModes()
+{
+	string sql,sqlFinal;
+	sql = string( "INSERT IGNORE INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command,OrderNo) VALUES (" );
+	list<string>::iterator it;
+	int nPos = 0;
+	
+	for(it=m_listDSPModes.begin();it!=m_listDSPModes.end();it++)
+	{
+		sqlFinal = sql + StringUtils::ltos(m_nPKAVTemplate) + "," + *it + "," + StringUtils::ltos(nPos) + ")";
+		if( m_bAVDSPToggleMode )
+			nPos++;
+		threaded_mysql_query(sqlFinal);
+	}
+}
+
+void WizardLogic::ChangeDSPOrder(string firstID,string secondID)
+{
+	string sql, sqlFinal;
+	string firstPos,secondPos;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	sql = string( "SELECT PK_Command,Command.Description,DeviceTemplate_DSPMode.OrderNo as DSPMode_Desc\
+			FROM Command,DeviceTemplate_DSPMode WHERE FK_Command = PK_Command AND FK_DeviceTemplate='" ) +
+			StringUtils::ltos(m_nPKAVTemplate) + "'"; 
+
+	sqlFinal = sql + " " + "AND PK_Command=" + firstID;
+	if( (result.r = mysql_query_result(sql))  )
+	{
+		if( (row = mysql_fetch_row( result.r )) )
+			firstPos = row[2];
+	}
+
+	sqlFinal = sql + " " + "AND PK_Command=" + secondID;
+	if( (result.r = mysql_query_result(sql))  )
+	{
+		if( (row = mysql_fetch_row( result.r )) )
+			secondPos = row[2];
+	}
+	
+	if( firstPos.empty() || secondPos.empty() )
+		return;
+
+	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  secondPos;
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + "AND FK_Command=" + 
+		firstID;
+	threaded_mysql_query(sql);
+
+	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  firstPos;
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + "AND FK_Command=" + 
+		secondID;
+	threaded_mysql_query(sqlFinal);
 }
 
 int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)
