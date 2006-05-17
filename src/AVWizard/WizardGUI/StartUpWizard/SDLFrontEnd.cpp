@@ -85,7 +85,7 @@ void SDLFrontEnd::Flip()
 
 	int Width = Screen->w;
 	int Height = Screen->h;
-	NeedScale = (Width != 640) || (Height == 480);
+	NeedScale = (Width != 640) || (Height != 480);
 	if (NeedScale)
 	{
 		ZoomX = Width / 640.0f;
