@@ -1236,16 +1236,19 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 	return pDataGrid;
 }
 
+//AV Wizard - Template settings
 class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos = 0;
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
-	string sPKTemplate = Parms;
+
+	string sManufacturerId,sTemplateId;
+	sTemplateId = Parms;
 
 	string sql = "SELECT IR_PowerDelay,IR_ModeDelay,DigitDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='" + 
-		sPKTemplate + "'";
+		sTemplateId + "'";
 	g_pPlutoLogger->Write( LV_STATUS , "AV WizardAVWhatDelay sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	g_pPlutoLogger->Write( LV_STATUS , Parms.c_str() );
@@ -1444,8 +1447,7 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	string sql;
 
 	sql = "SELECT PK_ConnectorType,Description FROM ConnectorType";
-	//Saved in DeviceTemplate_MediaType with FK_MediaType the selected value and FK_DeviceTemplate";
-
+	
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVMediaConnector sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
@@ -1487,9 +1489,9 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 	string sPKTemplate = Parms;
-	string sql;
+	string sql,index;
 
-	sql = "SELECT DeviceTemplate_DSPMode.*,Command.Description as DSPMode_Desc,PK_Command\
+	sql = "SELECT PK_Command,DeviceTemplate_DSPMode.FK_Command,Command.Description as DSPMode_Desc\
           FROM Command\
           LEFT JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='";
 	sql += Parms + "' " + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
@@ -1507,7 +1509,12 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-				pCell = new DataGridCell( row[1], row[0]);
+				if( row[1] )
+					index = string(row[0]) + "," + row[1];
+				else
+					index = string(row[0]) + ",0";
+
+				pCell = new DataGridCell( row[2], index );
 				pDataGrid->SetData(nCol++, nRow, pCell );
 			if( nCol >= nMaxCol )
 			{
