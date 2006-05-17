@@ -1,6 +1,7 @@
 #!/bin/bash
 
 NoSpace="s/ //g"
+LogSectionDelimiter="========== NEW LOG SECTION =========="
 
 . /usr/pluto/bin/LockUtils.sh
 
