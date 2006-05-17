@@ -153,6 +153,15 @@ void OrbiterLinux::HideOtherWindows()
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
 	{
 		string sClassName = it->sClassName;
+        // skip the pointer-constrain window
+        if (
+            (sClassName == "pointer_constrain_name") ||
+            (sClassName == "pointer_constrain_class") ||
+            (sClassName == "pointer_constrain_name.pointer_constrain_class")
+            )
+        {
+            continue;
+        }
 		if(sClassName != "" && string::npos == sClassName.find("Orbiter"))
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows, hidding %s", sClassName.c_str());
@@ -218,18 +227,88 @@ bool OrbiterLinux::closeDisplay()
     return true;
 }
 
+// we need to use the same Display and Window with SDL
+bool Get_SDL_SysWMinfo(SDL_SysWMinfo &info)
+{
+    SDL_VERSION(&info.version); // this is important!
+    bool bResult = SDL_GetWMInfo(&info);
+    if (bResult == false)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Get_SDL_SysWMinfo() : error in SDL_GetWMInfo()");
+        return false;
+    }
+    return true;
+}
 
 Display *OrbiterLinux::getDisplay()
 {
-    if ( ! XServerDisplay )
-        openDisplay();
+    if ( XServerDisplay )
+        return XServerDisplay;
 
+    OrbiterSDL *pOrbiterSDL = ptrOrbiterSDL();
+    if (pOrbiterSDL == NULL)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : NULL dynamic_cast<OrbiterSDL *>(%p)",
+                              this
+                              );
+    }
+    else
+    {
+        SDL_SysWMinfo info;
+        if (Get_SDL_SysWMinfo(info))
+        {
+            XServerDisplay = info.info.x11.display;
+        }
+        else
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : error in SDL_GetWMInfo()");
+        }
+    }
+
+    if ( XServerDisplay == NULL )
+        openDisplay();
     return XServerDisplay;
 }
 
 Window OrbiterLinux::getWindow()
 {
-    return 0;
+    Window window = 0;
+
+    OrbiterSDL *pOrbiterSDL = ptrOrbiterSDL();
+    if (pOrbiterSDL == NULL)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getWindow() : NULL dynamic_cast<OrbiterSDL *>(%p)",
+                              this
+                              );
+    }
+    else
+    {
+        SDL_SysWMinfo info;
+        if (Get_SDL_SysWMinfo(info))
+        {
+            window = info.info.x11.window;
+        }
+        else
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : error in SDL_GetWMInfo()");
+        }
+    }
+
+    return window;
+}
+
+OrbiterSDL * OrbiterLinux::ptrOrbiterSDL()
+{
+    OrbiterSDL * pOrbiterSDL = dynamic_cast<OrbiterSDL *>(this);
+    if (pOrbiterSDL == NULL)
+    {
+        g_pPlutoLogger->Write(
+            LV_CRITICAL, "OrbiterLinux::ptrOrbiterSDL() : NULL dynamic_cast<OrbiterSDL *>(%p)",
+            this
+            );
+        return NULL;
+    }
+    return pOrbiterSDL;
 }
 
 bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point )
@@ -537,7 +616,7 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	if( sOnOff!="X" )
 		return;
-    Display *dpy = XOpenDisplay (NULL);
+    Display *dpy = getDisplay();
     Window win = DefaultRootWindow (dpy);
 
     SDL_SysWMinfo sdlinfo;
@@ -584,7 +663,8 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
         g_pPlutoLogger->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
 
-        Display *dpy = XOpenDisplay (NULL);
+        Display *dpy = getDisplay();
+        X_LockDisplay();
 
 		if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), True, 0 );
@@ -595,28 +675,33 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
         if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), False, 0 );
 
-        XCloseDisplay(dpy);
+        X_UnlockDisplay();
     }
     Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
 }
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
-    Display *dpy = XOpenDisplay (NULL);
+    X_LockDisplay();
+    Display *dpy = getDisplay();
     Window rootwindow = DefaultRootWindow (dpy);
     g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",iPosition_X,iPosition_Y);
 
     XWarpPointer(dpy, rootwindow,0 , 0, 0, 0, 0, iPosition_X, iPosition_Y);
-    XCloseDisplay(dpy);
+    X_UnlockDisplay();
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
 
+    X_LockDisplay();
     XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
     XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
-    Display *dpy = XOpenDisplay (NULL);
+    X_UnlockDisplay();
+
+    // again
+    Display *dpy = XOpenDisplay(NULL);
     XTestFakeButtonEvent(dpy, 1, true, 0);
     XTestFakeButtonEvent(dpy, 1, false, 0);
     XCloseDisplay(dpy);
@@ -903,12 +988,16 @@ void OrbiterLinux::X_LockDisplay()
 void OrbiterLinux::X_UnlockDisplay()
 {
     if (g_useX11LOCK)
+    {
+        XSync(XServerDisplay, false);
         XUnlockDisplay(XServerDisplay);
+    }
 }
 
 void OrbiterLinux::GrabPointer(Display *dpyxx)
 {
-    Display *dpy = XOpenDisplay (NULL);
+    X_LockDisplay();
+    Display *dpy = getDisplay();
     Window win = DefaultRootWindow(dpy);
     int iResultPointer = XGrabPointer(
         dpy, win, true,
@@ -921,13 +1010,14 @@ void OrbiterLinux::GrabPointer(Display *dpyxx)
         None, //cursor,
         CurrentTime
         );
+    X_UnlockDisplay();
     g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iResultPointer);
-    //XCloseDisplay(dpy);
 }
 
 void OrbiterLinux::GrabKeyboard(Display *dpyxx)
 {
-    Display *dpy = XOpenDisplay (NULL);
+    X_LockDisplay();
+    Display *dpy = getDisplay();
     Window win = DefaultRootWindow(dpy);
     int iResultKeyboard = XGrabKeyboard(
         dpy, win, false,
@@ -938,6 +1028,6 @@ void OrbiterLinux::GrabKeyboard(Display *dpyxx)
         CurrentTime
         );
     XAllowEvents(dpy, AsyncKeyboard, CurrentTime);
+    X_UnlockDisplay();
     g_pPlutoLogger->Write(LV_CRITICAL,"XGrabKeyboard %d",iResultKeyboard);
-    //XCloseDisplay(dpy);
 }

@@ -126,6 +126,9 @@ public:
         {
             return m_pRecordHandler;
         }
+
+    OrbiterSDL * OrbiterLinux::ptrOrbiterSDL();
+
 };
 
 #endif // __ORBITERLINUX_H__
