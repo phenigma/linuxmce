@@ -15,7 +15,7 @@
 
 namespace DCE
 {
-	typedef enum { rmr_Processed, rmr_NotProcessed, rmr_Buffered } ReceivedMessageResult;
+	typedef enum { rmr_NotProcessed=0, rmr_Processed, rmr_Buffered } ReceivedMessageResult;
 
 	/**
 	 * @brief socket that handles requests
