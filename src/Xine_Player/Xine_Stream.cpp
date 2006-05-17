@@ -75,6 +75,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary)
 	//!m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 	
 	m_bExitThread = false;
+	m_bTrickModeActive = false;
 }
 
 Xine_Stream::~Xine_Stream()
@@ -738,7 +739,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		timespec ts1,ts2,tsElapsed;
 		gettimeofday( &ts1, NULL );
 
-		xine_play( m_pXineStream, 0, pos );
+		xine_seek( m_pXineStream, 0, pos );
 
 		gettimeofday( &ts2, NULL );
 		tsElapsed = ts2-ts1;
@@ -763,7 +764,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		else
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
-			xine_play( m_pXineStream, 0, pos );
+			xine_seek( m_pXineStream, 0, pos );
 		}
 	}
 }
@@ -897,7 +898,6 @@ void Xine_Stream::DisplayOSDText( string sText )
 		if ( m_xine_osd_t )
 		xine_osd_free( m_xine_osd_t );*/
 		m_xine_osd_t = NULL;
-		g_iSpecialSeekSpeed = 0;
 		return ;
 	}
 
@@ -916,24 +916,28 @@ void Xine_Stream::DisplayOSDText( string sText )
 
 void Xine_Stream::StartSpecialSeek( int Speed )
 {
+	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
+	
 	int totalTime;
 	gettimeofday( &m_tsLastSpecialSeek, NULL );
 	getStreamPlaybackPosition( m_posLastSpecialSeek, totalTime );
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
-	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 2 * 90000 );
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	g_iSpecialSeekSpeed = Speed;
-	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
 	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
 }
 
 void Xine_Stream::StopSpecialSeek()
 {
+	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
+	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	g_iSpecialSeekSpeed = 0;
-	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplayOSDText("");
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
@@ -1270,60 +1274,109 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 {
 	g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed speed %d",(int) desiredSpeed);
-
-	int xineSpeed = XINE_SPEED_PAUSE;
-	int NewSpecialSeekSpeed = 0;
-	m_iPlaybackSpeed = desiredSpeed;
-	// TODO: re-enable
-	//!m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
-	switch ( desiredSpeed )
+	
+	//TODO: initialize correctly
+	// bool trickModeSupported = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_TRICK_PLAY_SUPPORTED);
+	// bool trickModeActive = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_TRICK_PLAY_ENABLED) ;
+	bool trickModeSupported = (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0);
+	bool trickModeActive = m_bTrickModeActive;
+	
+	
+	// there few possible modes between which we have to switch correctly:
+	// normal play
+	// trick play
+	// special seek
+	
+	// pause or normal playback requested - stopping any special mode and playing as usually	
+	if ((desiredSpeed == PLAYBACK_FF_1)||(desiredSpeed == PLAYBACK_STOP) )
 	{
-		case PLAYBACK_STOP:
-			xineSpeed = XINE_SPEED_PAUSE;
-			break;
-		case PLAYBACK_FF_1_4:
-			xineSpeed = XINE_SPEED_SLOW_4;
-			break;
-		case PLAYBACK_FF_1_2:
-			xineSpeed = XINE_SPEED_SLOW_2;
-			break;
-		case PLAYBACK_FF_1:
-			xineSpeed = XINE_SPEED_NORMAL;
-			break;
-		case PLAYBACK_FF_2:
-            //if( pStream->m_bHasVideo )  Now for some reason Xine uses 100% CPU and kills the system if you it run faster than 1x, so do this in our hacked special seek speed loop--nasty hack
-            //        xineSpeed = XINE_SPEED_FAST_2;
-            //else
-			xineSpeed = XINE_SPEED_NORMAL;
-			NewSpecialSeekSpeed = desiredSpeed;
-			break;
-		case PLAYBACK_FF_4:
-            //      if( pStream->m_bHasVideo )
-            //            xineSpeed = XINE_SPEED_FAST_4;
-            //      else
-			xineSpeed = XINE_SPEED_NORMAL;
-			NewSpecialSeekSpeed = desiredSpeed;  // See above
-			break;
+		g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed stopping any seeker");
+		
+		if (g_iSpecialSeekSpeed)
+		{
+			StopSpecialSeek();
+		} 
+		else 
+			if ( trickModeSupported &&  trickModeActive )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed stopping trick play");
+			
+			xine_stop_trick_play(m_pXineStream);
+			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			m_bTrickModeActive = false;
+		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING,"XineSlaveWrapper::changePlaybackSpeed IMPOSSIBLE_STATE");
 
-		default:
-			NewSpecialSeekSpeed = desiredSpeed;
-			xineSpeed = XINE_SPEED_NORMAL;
-			break;
+		
+		xine_set_param( m_pXineStream, XINE_PARAM_SPEED, (desiredSpeed == PLAYBACK_FF_1)?XINE_SPEED_NORMAL:XINE_SPEED_PAUSE );
+		
+		return;
 	}
+	
+	
+	// reverse play requested or trick_play is not supported for this stream
+	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported ) )
+	{	
+		if ( trickModeSupported &&  trickModeActive )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed stopping trick play");
+			
+			xine_stop_trick_play(m_pXineStream);
+			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			m_bTrickModeActive = false;
+		}
+		
+		if (g_iSpecialSeekSpeed==0)
+		{
+			StartSpecialSeek( desiredSpeed );
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed changing special seek speed");
+			g_iSpecialSeekSpeed = desiredSpeed;
+		}
+		
+		return;
+	}
+	
+	
+	// trick play is supported and  desired speed is ok
+	if ((desiredSpeed > 0) && trickModeSupported)
+	{
+		if (g_iSpecialSeekSpeed)
+		{
+			StopSpecialSeek();
+		} 
+		
+		g_pPlutoLogger->Write(LV_STATUS,"XineSlaveWrapper::changePlaybackSpeed starting trick play");
+
+		// are we doing restart
+		if (!m_bTrickModeActive)
+		{
+			m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER);
+			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
+		}
+		else
+		{
+			xine_stop_trick_play(m_pXineStream);		
+		}
+		
+		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
+		m_bTrickModeActive = true;
+		
+		return;
+	}
+	
+	/*	
 
 	if ( desiredSpeed == PLAYBACK_FF_1 )
 		DisplayOSDText( "" );
 	else
 		DisplaySpeedAndTimeCode();
 
-	if ( g_iSpecialSeekSpeed && !NewSpecialSeekSpeed )
-		StopSpecialSeek();
-	else if ( NewSpecialSeekSpeed )
-		StartSpecialSeek( NewSpecialSeekSpeed );
-
-	g_pPlutoLogger->Write( LV_STATUS, "Setting speed to special %d real %d desired %d", g_iSpecialSeekSpeed, xineSpeed, desiredSpeed );
-	if ( ( xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0 ) || xineSpeed != XINE_SPEED_PAUSE )
-		xine_set_param( m_pXineStream, XINE_PARAM_SPEED, xineSpeed );
+	*/
+	g_pPlutoLogger->Write(LV_WARNING,"XineSlaveWrapper::changePlaybackSpeed IMPOSSIBLE_STATE");
 }
 
 Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()

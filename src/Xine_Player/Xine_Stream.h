@@ -172,6 +172,7 @@ namespace DCE
 			bool setDebuggingLevel( bool newValue );
 
 			bool m_isSlimClient;
+			bool m_bTrickModeActive;
 
 		public:
 			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary);
