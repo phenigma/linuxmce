@@ -36,6 +36,7 @@ WizardWidgetPage.cpp \
 WizardWidgetsFactory.cpp \
 WM_Event.cpp \
 XRandrParser.cpp \
+WizardPageWelcome.cpp \
 WizardPageVideoRatio.cpp \
 WizardPageVideoOutput.cpp \
 WizardPageVideoResolution.cpp \

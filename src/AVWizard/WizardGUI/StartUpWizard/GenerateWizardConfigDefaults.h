@@ -17,7 +17,11 @@ class GenerateWizardConfigDefaults
 	/**
 	 *	File of XML files that stores the default dialogs
 	 */
-	std::string PageNames[8];
+	std::string PageNames[9];
+	/**
+	 *	Generate welcome page of the wizard: Welcome.xml
+	 */
+	void GeneratePage0(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate first page of the wizard: VideoRatio.xml
 	 */

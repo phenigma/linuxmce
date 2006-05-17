@@ -164,17 +164,6 @@ void Wizard::DoCancelScreen()
 		SetExitWithCode(1);
 	}
 	CreateDialogs();
-	if(MainPage == NULL)
-	{
-#ifdef DEBUG
-		std::cout<<"Warning, XML asociated page doesn't exist!"<<std::endl;
-#endif
-	}
-	else
-	{
-		//MainPage->GetPageLayout()->Paint();
-		//FrontEnd->Flip();
-	}	
 }
 
 void Wizard::EvaluateEvent(WM_Event& Event)

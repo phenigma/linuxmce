@@ -4,6 +4,7 @@
 #include "WizardWidgetsFactory.h"
 //---------------------------------------------------------------------------
 //classes for factory
+#include "WizardPageWelcome.h"
 #include "WizardPageVideoRatio.h"
 #include "WizardPageVideoOutput.h"
 #include "WizardPageVideoResolution.h"
@@ -21,16 +22,19 @@ WizardPagesFactory::WizardPagesFactory()
 	: WizardWidgetsFactory()
 {
 	this->RuningMode = 0;
-	PageNames[0] = "VideoRatio.xml";
-	PageNames[1] = "VideoOutput.xml";
-	PageNames[2] = "VideoResolution.xml";
-	PageNames[3] = "AudioConnector.xml";
-	PageNames[4] = "AudioVolume.xml";
-	PageNames[5] = "DolbyTest.xml";
-	PageNames[6] = "DTSTest.xml";
-	PageNames[7] = "FinalSelections.xml";
+
+	PageNames[0] = "Welcome.xml";
+	PageNames[1] = "VideoRatio.xml";
+	PageNames[2] = "VideoOutput.xml";
+	PageNames[3] = "VideoResolution.xml";
+	PageNames[4] = "AudioConnector.xml";
+	PageNames[5] = "AudioVolume.xml";
+	PageNames[6] = "DolbyTest.xml";
+	PageNames[7] = "DTSTest.xml";
+	PageNames[8] = "FinalSelections.xml";
+
 	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 9; i++)
 		PageNames[i] = TmpPrefix + PageNames[i];
 }
 
@@ -101,7 +105,7 @@ WizardPage* WizardPagesFactory::CreateWidget(SettingsDictionaryTree*
 
 WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 {
-	if (IndexPage<1 || IndexPage>8)
+	if (IndexPage<1 || IndexPage>9)
 		return NULL;
 
 
@@ -131,6 +135,9 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 
 
 	switch(IndexPage) {
+		case PAGE_WELCOME:
+			Result = new WizardPageWelcome(FrontEnd, PageName);
+			break;
 		case PAGE_VIDEORATIO:
 			Result = new WizardPageVideoRatio(FrontEnd, PageName);
 			break;

@@ -40,17 +40,18 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 	Settings->GetDictionary()->SetType("Config_File");
 	Settings->GetDictionary()->Set("Version", "0.0.1 alpha");
 
-	PageNames[0] = "VideoRatio.xml";
-	PageNames[1] = "VideoOutput.xml";
-	PageNames[2] = "VideoResolution.xml";
-	PageNames[3] = "AudioConnector.xml";
-	PageNames[4] = "AudioVolume.xml";
-	PageNames[5] = "DolbyTest.xml";
-	PageNames[6] = "DTSTest.xml";
-	PageNames[7] = "FinalSelections.xml";
+	PageNames[0] = "Welcome.xml";
+	PageNames[1] = "VideoRatio.xml";
+	PageNames[2] = "VideoOutput.xml";
+	PageNames[3] = "VideoResolution.xml";
+	PageNames[4] = "AudioConnector.xml";
+	PageNames[5] = "AudioVolume.xml";
+	PageNames[6] = "DolbyTest.xml";
+	PageNames[7] = "DTSTest.xml";
+	PageNames[8] = "FinalSelections.xml";
 
 	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 9; i++)
 		PageNames[i] = TmpPrefix + PageNames[i];
 
 	Options = new SettingsDictionaryTree();
@@ -114,6 +115,7 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 #endif
 	}
 
+	GeneratePage0(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage1(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage2(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage3(FolderToSave, ImageFolder, FontFolder);
@@ -122,6 +124,72 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 	GeneratePage6(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage7(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage8(FolderToSave, ImageFolder, FontFolder);
+}
+
+
+void GenerateWizardConfigDefaults::GeneratePage0(
+	std::string FolderToSave, 
+	std::string ImageFolder, 
+	std::string FontFolder
+	)
+{
+	SettingsDictionaryTree* Page;
+	SettingsDictionary* Dictionary;
+
+	Page = CreateControlPage("WelcomeStep", 640, 480, true, "AVWizard Welcome");
+	Dictionary = Page->GetDictionary();
+	SetDefaultBtnImages(Dictionary, ImageFolder);
+
+	Page->AddChild(CreateControlImage("BackImage", ImageFolder+"background.png", 0, 52));
+
+	std::string LabelCaption = "WELCOME TO SYSTEM";
+
+	SetFontStyle(24, "000000", "Regular");
+	Page->AddChild(CreateControlLabel(
+		"PageDesc", 
+		LabelCaption,
+		194, 102,
+		"Left"
+		));
+
+	LabelCaption = "CONFIGURATION WIZARD";
+
+	SetFontStyle(24, "000000", "Regular");
+	Page->AddChild(CreateControlLabel(
+		"PageDesc2", 
+		LabelCaption,
+		194, 128,
+		"Left"
+		));
+
+	std::string StringList[4];
+	StringList[0] = "From here you can set up the audio & video for your home";
+	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
+	StringList[2] = "For validation use \"Enter\"";
+	StringList[3] = "IF you want to go back one step user \"Escape\"";
+
+	SetFontStyle(13, "000000", "Regular");
+	for(int i = 0; i<4; i++)
+	{
+		Page->AddChild(CreateControlLabel(
+			"DescribeText"+Utils::Int32ToString(i),
+			StringList[i],
+			320,
+			200+i*15,
+			"Center"
+			));
+	}
+
+	Page->AddChild(CreateControlButton(
+		"Btn2",
+		" Continue ",
+		565,
+		440,
+		true
+		));
+	
+
+	Page->SaveToXMLFile(PageNames[0]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage1(
@@ -157,7 +225,8 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	StringList[4] = "What type of TV do you have?";
 	StringList[5] = "Press the cursor left for 4:3, and right for 16:9";
 
-	SetFontStyle(13, "000000", "Regular");
+
+	SetFontStyle(14, "000000", "Regular");
 	for(int i = 0; i<4; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -202,7 +271,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		));
 
 
-	Page->SaveToXMLFile(PageNames[0]);
+	Page->SaveToXMLFile(PageNames[1]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage2(
@@ -299,7 +368,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			));
 	}
 
-	Page->SaveToXMLFile(PageNames[1]);
+	Page->SaveToXMLFile(PageNames[2]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage3(
@@ -367,7 +436,7 @@ void GenerateWizardConfigDefaults::GeneratePage3(
 		false
 		));
 
-	Page->SaveToXMLFile(PageNames[2]);
+	Page->SaveToXMLFile(PageNames[3]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage4(
@@ -435,7 +504,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[3]);
+	Page->SaveToXMLFile(PageNames[4]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage5(
@@ -510,7 +579,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		"Center"
 		));
 
-	Page->SaveToXMLFile(PageNames[4]);
+	Page->SaveToXMLFile(PageNames[5]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage6(
@@ -576,7 +645,7 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[5]);
+	Page->SaveToXMLFile(PageNames[6]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage7(
@@ -651,7 +720,7 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[6]);
+	Page->SaveToXMLFile(PageNames[7]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage8(
@@ -734,7 +803,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[7]);
+	Page->SaveToXMLFile(PageNames[8]);
 }
 
 SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int NoSelectedTab, 

@@ -9,14 +9,15 @@
 
 #include "SDLFrontEnd.h"
 
-#define PAGE_VIDEORATIO			1
-#define PAGE_VIDEOOUTPUT		2
-#define PAGE_VIDEORESOLUTION	3
-#define PAGE_AUDIOCONNECTOR		4
-#define PAGE_AUDIOVOLUME		5
-#define PAGE_DOLBYTEST			6
-#define PAGE_DTSTEST			7
-#define PAGE_FINALSELECTIONS	8
+#define PAGE_WELCOME			1
+#define PAGE_VIDEORATIO			2
+#define PAGE_VIDEOOUTPUT		3
+#define PAGE_VIDEORESOLUTION	4
+#define PAGE_AUDIOCONNECTOR		5
+#define PAGE_AUDIOVOLUME		6
+#define PAGE_DOLBYTEST			7
+#define PAGE_DTSTEST			8
+#define PAGE_FINALSELECTIONS	9
 
 class WizardPagesFactory : public WizardWidgetsFactory
 {
@@ -31,7 +32,7 @@ class WizardPagesFactory : public WizardWidgetsFactory
 	/**
 	 *	Fixed names for XML based layouts for pages
 	 */
-	std::string PageNames[8];
+	std::string PageNames[9];
 
 public:
 	static WizardPagesFactory* GetInstance();
