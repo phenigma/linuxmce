@@ -100,7 +100,11 @@ void Orbiter3DCommons::SetMouseCursor(PlutoGraphic* CursorSurface)
 	if(MouseTexture != 0)
 		glDeleteTextures(1, &MouseTexture);
 
+#ifdef WIN32
+	::ShowCursor(CursorSurface == NULL);
+#else
 	SDL_ShowCursor(CursorSurface == NULL);
+#endif
 
 	if(CursorSurface == NULL)
 		return;
