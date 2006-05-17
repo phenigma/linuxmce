@@ -6,7 +6,7 @@ if [[ "$1" == "background" ]]; then
 	while [[ "1" == "1" ]];do
 		pidHal=$(pidof hald)
 		if [[ $pidHal == "" ]];then
-			/etc/init.d/dbus-1 start
+			/etc/init.d/dbus start
 		fi
 
 		pidPlutoHal=$(pidof pluto-hald)
