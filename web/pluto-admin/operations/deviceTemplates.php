@@ -13,7 +13,14 @@ function deviceTemplates($output,$dbADO) {
 	$firstColLinks='';
 
 	$_SESSION['from']='deviceTemplates';
-	$out.=pickDeviceTemplate(NULL,1,0,1,'deviceTemplates',$dbADO,1);
+
+	$_SESSION['categoryID']=(isset($_SESSION['categoryID']))?$_SESSION['categoryID']:NULL;
+	$_SESSION['categoryID']=(isset($_REQUEST['dcSelected']))?cleanInteger($_REQUEST['dcSelected']):$_SESSION['categoryID'];
+	$_SESSION['categoryID']=($_SESSION['categoryID']==0)?NULL:$_SESSION['categoryID'];
+	
+	$mID=(!isset($_REQUEST['manufSelected']))?1:(int)$_REQUEST['manufSelected'];
+	
+	$out.=pickDeviceTemplate($_SESSION['categoryID'],$mID,0,1,'deviceTemplates',$dbADO,1);
 	
 	$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates'));
 	
