@@ -157,8 +157,8 @@ is_null[15] = true;
 m_Staff = 0;
 is_null[16] = true;
 is_null[17] = true;
-is_null[18] = true;
-m_FK_UserMode = 0;
+m_FK_UserMode = 1;
+is_null[18] = false;
 is_null[19] = true;
 m_EK_Dealer = 0;
 is_null[20] = true;
@@ -386,9 +386,6 @@ return is_null[16];}
 bool Row_Users::Password_Samba_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
-bool Row_Users::FK_UserMode_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[18];}
 bool Row_Users::EK_Dealer_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[19];}
@@ -450,10 +447,6 @@ is_modified=true;
 }
 void Row_Users::Password_Samba_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
-is_modified=true;
-}
-void Row_Users::FK_UserMode_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[18]=val;
 is_modified=true;
 }
 void Row_Users::EK_Dealer_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
