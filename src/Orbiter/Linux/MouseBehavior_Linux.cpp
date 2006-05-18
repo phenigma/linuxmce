@@ -28,7 +28,7 @@ MouseBehavior_Linux::~MouseBehavior_Linux()
     if (m_bIsActive_Mouse_Constrain)
     {
         // deactivate
-        X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), 0, 0, 0, 0);
+        X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), 0, 0, 0, 0);
     }
 }
 
@@ -85,7 +85,7 @@ return false;
     }
     // call the real function
     std::string sErrorMessage;
-    bool bSuccess = X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
+    bool bSuccess = X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
     // log the status
     if (bSuccess)
     {
@@ -231,8 +231,10 @@ bool X11_Pixmap_ReadFile(Display *pDisplay, Window window, const std::string &sP
     return true;
 }
 
-bool MouseBehavior_Linux::X11_Mouse_Constrain(Display *pDisplay, int nPosX, int nPosY, unsigned int nWidth, int unsigned nHeight, std::string *pStringError/*=NULL*/)
+bool MouseBehavior_Linux::X11_Mouse_Constrain(Display *pDisplay, Window parent_window, int nPosX, int nPosY, unsigned int nWidth, int unsigned nHeight, std::string *pStringError/*=NULL*/)
 {
+    return true;
+    
     // dummy error message string, used when no such string is required
     std::string string_error_dummy;
     if (pStringError == NULL)
@@ -310,8 +312,6 @@ bool MouseBehavior_Linux::X11_Mouse_Constrain(Display *pDisplay, int nPosX, int 
             XSync(pDisplay, false);
         }
 
-        Window parent_window = XDefaultRootWindow(pDisplay);
-
         window = XCreateSimpleWindow(
             pDisplay,
             parent_window,
@@ -364,12 +364,13 @@ bool MouseBehavior_Linux::X11_Mouse_Constrain(Display *pDisplay, int nPosX, int 
         if (1)
         {
             code = XGrabPointer(
-                pDisplay, window,
+                pDisplay, parent_window,
                 false,
                 ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask,
                 GrabModeAsync, // pointer_mode
                 GrabModeAsync, // keyboard_mode
-                window, // confine_to_window
+                //window, // confine_to_window
+                None, // confine_to_window
                 None, // cursor // TODO: This may need to be set to the cursor of this window
                 CurrentTime );
             if (! code)
@@ -559,3 +560,4 @@ bool MouseBehavior_Linux::X11_Window_SetCursor_Image(Display *pDisplay, Window w
         return false;
     return true;
 }
+

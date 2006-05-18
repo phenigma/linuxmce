@@ -29,8 +29,9 @@ namespace DCE
     protected:
         OrbiterLinux * ptrOrbiterLinux();
 
-        // width and height must not be zero
-        bool X11_Mouse_Constrain(Display *pDisplay, int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, std::string *pStringError=NULL);
+        // activate   : both width and height must be > 0
+        // deactivate : both width and height == 0
+        bool X11_Mouse_Constrain(Display *pDisplay, Window parent_window, int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, std::string *pStringError=NULL);
 
         bool X11_Window_SetCursor_Font(Display *pDisplay, Window window, int nShape, std::string *pStringError=NULL);
 

@@ -381,13 +381,13 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     if(UsesUIVersion2())
 	{
 		m_pMouseBehavior = new MouseBehavior_Linux(this);
-        m_pRecordHandler->enableRecording(this, true);
 	}
+    m_pRecordHandler->enableRecording(this, true);
 	
     reinitGraphics();
     g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
-    //GrabPointer(XServerDisplay);
-    //GrabKeyboard(XServerDisplay);
+    GrabPointer(true);
+    GrabKeyboard(true);
 }
 
 void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
@@ -410,13 +410,13 @@ void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
     m_bIsExclusiveMode = true;
     OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
 
-    if(!UsesUIVersion2())
-    {
-        //activate/deactivate xrecording only for old UI
-        //for UI version 2, xrecording will be enabled all the time
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
-        m_pRecordHandler->enableRecording(this, m_bYieldInput);
-    }
+    //if(!UsesUIVersion2())
+    //{
+    //    //activate/deactivate xrecording only for old UI
+    //    //for UI version 2, xrecording will be enabled all the time
+    //    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : enableRecording(%d)", m_bYieldInput);
+    //    m_pRecordHandler->enableRecording(this, m_bYieldInput);
+    //}
 
     if(m_bOrbiterReady)
         m_WinListManager.ShowSdlWindow(m_bIsExclusiveMode);
@@ -641,8 +641,8 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
     XFreePixmap (dpy, blank);
     X_UnlockDisplay();
 
-    //GrabPointer(dpy);
-    //GrabKeyboard(dpy);
+    //GrabPointer();
+    //GrabKeyboard();
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -705,6 +705,14 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
     XTestFakeButtonEvent(dpy, 1, true, 0);
     XTestFakeButtonEvent(dpy, 1, false, 0);
     XCloseDisplay(dpy);
+}
+
+void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d)", sOnOff.c_str(), bFully_release_keyboard);
+    GrabPointer(sOnOff != "1");
+    GrabKeyboard(sOnOff != "1");
+    // TODO: use bFully_release_keyboard
 }
 
 bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
@@ -994,40 +1002,63 @@ void OrbiterLinux::X_UnlockDisplay()
     }
 }
 
-void OrbiterLinux::GrabPointer(Display *dpyxx)
+void OrbiterLinux::GrabPointer(bool bEnable)
 {
-    X_LockDisplay();
-    Display *dpy = getDisplay();
-    Window win = DefaultRootWindow(dpy);
-    int iResultPointer = XGrabPointer(
-        dpy, win, true,
-        0,//ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, //			 0,
-        GrabModeSync, GrabModeSync,
-        //GrabModeAsync, GrabModeAsync,
-        //GrabModeAsync, GrabModeSync,
-        //GrabModeSync, GrabModeAsync,
-        None, //win,
-        None, //cursor,
-        CurrentTime
-        );
-    X_UnlockDisplay();
-    g_pPlutoLogger->Write(LV_CRITICAL,"XGrabPointer %d",iResultPointer);
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d)", bEnable);
+    Display *pDisplay = getDisplay();
+    Window window = getWindow();
+    XLockDisplay(pDisplay);
+    int code = 0;
+    if (bEnable)
+    {
+        code = XGrabPointer(
+            pDisplay, window, false,
+            ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask,
+            GrabModeAsync, GrabModeAsync,
+            None, //win,
+            None, //cursor,
+            CurrentTime
+            );
+    }
+    else
+    {
+        code = XUngrabPointer(pDisplay, CurrentTime);
+    }
+    XSync(pDisplay, false);
+    {
+        // for GrabModeSync
+        // XAllowEvents(pDisplay, AsyncPointer, CurrentTime);
+        //XSync(pDisplay, false);
+    }
+    XUnlockDisplay(pDisplay);
+    g_pPlutoLogger->Write(LV_STATUS, "End OrbiterLinux::GrabPointer(%d) : %s", bEnable, X11_ErrorText(pDisplay, code).c_str());
 }
 
-void OrbiterLinux::GrabKeyboard(Display *dpyxx)
+void OrbiterLinux::GrabKeyboard(bool bEnable)
 {
-    X_LockDisplay();
-    Display *dpy = getDisplay();
-    Window win = DefaultRootWindow(dpy);
-    int iResultKeyboard = XGrabKeyboard(
-        dpy, win, false,
-        GrabModeSync, GrabModeSync,
-        //GrabModeAsync, GrabModeAsync,
-        //GrabModeAsync, GrabModeSync,
-        //GrabModeSync, GrabModeAsync,
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d)", bEnable);
+    Display *pDisplay = getDisplay();
+    Window window = getWindow();
+    XLockDisplay(pDisplay);
+    int code = 0;
+    if (bEnable)
+    {
+        code = XGrabKeyboard(
+        pDisplay, window, false,
+        GrabModeAsync, GrabModeAsync,
         CurrentTime
         );
-    XAllowEvents(dpy, AsyncKeyboard, CurrentTime);
-    X_UnlockDisplay();
-    g_pPlutoLogger->Write(LV_CRITICAL,"XGrabKeyboard %d",iResultKeyboard);
+    }
+    else
+    {
+        code = XUngrabKeyboard(pDisplay, CurrentTime);
+    }
+    XSync(pDisplay, false);
+    {
+        // for GrabModeSync
+        // XAllowEvents(pDisplay, AsyncKeyboard, CurrentTime);
+        //XSync(pDisplay, false);
+    }
+    XUnlockDisplay(pDisplay);
+    g_pPlutoLogger->Write(LV_STATUS, "End OrbiterLinux::GrabKeyboard(%d) : %s", bEnable, X11_ErrorText(pDisplay, code).c_str());
 }
