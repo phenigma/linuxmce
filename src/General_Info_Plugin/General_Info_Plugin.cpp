@@ -227,6 +227,10 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVMediaConnector)), 
 		DATAGRID_Media_Connector_Type_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputsAvaible)), 
+		DATAGRID_Confirm_Inputs_Order_CONST,PK_DeviceTemplate_get());
+
 	//AV Wizard - DSP Mode
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDSPMode)), 
@@ -1485,6 +1489,52 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	return pDataGrid;
 }
 
+class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string sTemplateId = Parms;
+	string sql,index;
+
+	sql = "SELECT PK_Command,OrderNo,Description FROM Command,DeviceTemplate_Input WHERE PK_Command=FK_Command\
+		  AND FK_CommandCategory=22 AND FK_Devicetemplate=";
+	sql += sTemplateId + " " + "ORDER BY OrderNo";
+	
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVInputsAvaible sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0,nCol = 0,nMaxCol;
+	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
+	if( nMaxCol <= 0 )
+		nMaxCol = 1;
+	
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			if( row[1] )
+				index = string(row[0]) + "," + row[1];
+			else
+				index = row[0] + ",0";
+			if( row[2] )
+				pCell = new DataGridCell( row[2], index );
+			else
+				pCell = new DataGridCell( "NULL", index );
+			pDataGrid->SetData(nCol++, nRow, pCell );
+			if( nCol >= nMaxCol )
+			{
+				nCol = 0;
+				nRow++;
+			}
+		}
+	}			
+
+	return pDataGrid;
+}
+
 //AV Wizard - DSP Mode
 class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -1518,7 +1568,10 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
 				else
 					index = string(row[0]) + ",0";
 
-				pCell = new DataGridCell( row[2], index );
+				if( row[2] )
+					pCell = new DataGridCell( row[2], index );
+				else
+					pCell = new DataGridCell( "NULL", index );
 				pDataGrid->SetData(nCol++, nRow, pCell );
 			if( nCol >= nMaxCol )
 			{
@@ -1545,7 +1598,7 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 
 	sql = string( "SELECT PK_Command,Command.Description,DeviceTemplate_DSPMode.OrderNo as DSPMode_Desc \
 		FROM Command JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='" );
-	sql +=	sTemplateId + "'" + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
+	sql +=	sTemplateId + "' " + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
 
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDSPModeOrder sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
@@ -1555,7 +1608,10 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 		while( (row = mysql_fetch_row( result.r )) )
 		{
 			index = string(row[0]) + "," + StringUtils::ltos(nRow);
-			pCell = new DataGridCell( row[1], index );
+			if( row[1] )
+				pCell = new DataGridCell( row[1], index );
+			else
+				pCell = new DataGridCell( "NULL", index );
 			pDataGrid->SetData(0, nRow++, pCell );
 		}
 	}
