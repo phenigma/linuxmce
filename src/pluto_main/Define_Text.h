@@ -933,7 +933,7 @@
 #define TEXT_Monster_Demo_CONST 1645
 #define TEXT_IR_Group_CONST 1646
 #define TEXT_TVModelNotListed_CONST 1647
-#define TEXT_LearIRCodes_CONST 1648
+#define TEXT_LearnIRCodes_CONST 1648
 #define TEXT_TVReceiver_CONST 1649
 #define TEXT_ConfirmIRCodes_CONST 1650
 #define TEXT_TVTypeNotListed_CONST 1651
@@ -986,6 +986,7 @@
 #define TEXT_TVDSPModesOrder_CONST 1698
 #define TEXT_TVInputsOrder_CONST 1699
 #define TEXT_InputsOrder_CONST 1700
+#define TEXT_LearnIRCode_CONST 1701
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -2092,8 +2092,18 @@
 #define DESIGNOBJ_hiddenRoomPlaceholder_CONST 5042
 #define DESIGNOBJ_dgTVDspModes_CONST 5043
 #define DESIGNOBJ_dgDSPModesOrder_CONST 5044
+#define DESIGNOBJ_butOrderMoveUp_CONST 5045
+#define DESIGNOBJ_butOrderMoveDown_CONST 5046
 #define DESIGNOBJ_dgMediaTypeSingleInput_CONST 5047
 #define DESIGNOBJ_dgInputsOrder_CONST 5048
+#define DESIGNOBJ_dgIRCodesSets_CONST 5049
+#define DESIGNOBJ_butIRCodesSetWorks_CONST 5050
+#define DESIGNOBJ_butIRCodesSetDoesntwork_CONST 5051
+#define DESIGNOBJ_dgIRCodesVariations_CONST 5052
+#define DESIGNOBJ_butIRCodeWorks_CONST 5053
+#define DESIGNOBJ_butIRCodeDoesntwork_CONST 5054
+#define DESIGNOBJ_dgLearnCodes_CONST 5055
+#define DESIGNOBJ_butCodes_CONST 5058
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
