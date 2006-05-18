@@ -65,13 +65,13 @@ do
         modprobe $module $args
 done
 
-## Initializing coldplug system (lshwd or hotplug)
-#Message "Loading coldplug modules"
-#if [ -x /etc/init.d/hotplug-perl ] ;then
-#	/etc/init.d/hotplug-perl start
-#elif [ -x /etc/init.d/hotplug ] ;then
-#	/etc/init.d/hotplug start
-#fi 
+## Initializing coldplug system (hotplug-perl or hotplug)
+Message "Loading coldplug modules"
+if [ -x /etc/init.d/hotplug-perl ] ;then
+	/etc/init.d/hotplug-perl start
+elif [ -x /etc/init.d/hotplug ] ;then
+	/etc/init.d/hotplug start
+fi 
 
 ## Enableing RAID devices
 if [[ -x /etc/init.d/mdadm ]]; then
