@@ -390,6 +390,7 @@ void WizardLogic::AddAVDeviceInput()
 	string embeddedId,insertId;
 	string name,aux;
 	string::size_type pos=0;
+	int nPos = 0;
 	
 	//temporary
 	m_nPKDeviceCategory = 77;
@@ -416,8 +417,10 @@ void WizardLogic::AddAVDeviceInput()
 		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
 		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 
-		sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (";
-		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + ")"; 
+		sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType,OrderNo)";
+		sSQL += " VALUES (";
+		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + "," +
+			StringUtils::ltos(nPos++) + ")"; 
 		threaded_mysql_query(sSQL);
 		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
 		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
@@ -481,11 +484,10 @@ void WizardLogic::AddAVMediaType()
 	sSQL =string("INSERT IGNORE INTO DeviceTemplate_MediaType\
 		(FK_DeviceTemplate,PK_DeviceTemplate_MediaType) VALUES (") + 
 		StringUtils::ltos(m_nPKAVTemplate) + "," + StringUtils::ltos(m_nPKMediaType) + ")";
-
 	threaded_mysql_query(sSQL);
 }
 
-int WizardLogic::AVTemplateIRCode()
+int WizardLogic::GetAVIRCodesType()
 {
 	string sSQL = "SELECT FK_Command,FK_DeviceTemplate,IRData FROM InfraredGroup_Command WHERE FK_DeviceTemplate=" +\
 		StringUtils::ltos( m_nPKAVTemplate );
@@ -503,10 +505,17 @@ int WizardLogic::AVTemplateIRCode()
 		}
 	}
 
-	if( nReadRow )
+	/*if( nReadRow )
 		return 0;
 	else 
-		return 1;
+		return 1;*/
+	return 2;
+}
+
+// return value 0 unknown,1 toggle,2 discret
+int WizardLogic::GetAVInputType()
+{
+	return 1;
 }
 
 void WizardLogic::SetAVDSPToggleMode(bool state)
@@ -564,6 +573,24 @@ void WizardLogic::ChangeDSPOrder()
 	threaded_mysql_query(sql);
 
 	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  m_firstPos + " ";
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
+		m_secondId;
+	threaded_mysql_query(sql);
+}
+
+void WizardLogic::ChangeInputOrder()
+{
+	string sql;
+	
+	if( m_firstPos.empty() || m_secondPos.empty() )
+		return;
+
+	sql = string("UPDATE DeviceTemplate_Input SET OrderNo=") +  m_secondPos + " ";
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
+		m_firstId;
+	threaded_mysql_query(sql);
+
+	sql = string("UPDATE DeviceTemplate_Input SET OrderNo=") +  m_firstPos + " ";
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_secondId;
 	threaded_mysql_query(sql);

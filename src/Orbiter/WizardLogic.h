@@ -32,6 +32,7 @@ private:
 	string m_AVTemplateNumericEntry;
 	bool m_bAVTemplateTogglePower,m_bAVDSPToggleMode;
 	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
+	long m_nPKIRGroup;
 	long m_nPKMediaType,m_nPKConnectorType;
 protected:
 	class Orbiter *m_pOrbiter;
@@ -98,6 +99,8 @@ public:
 	long GetManufacturerId(){ return m_nPKManufacuter; }
 	void SetDeviceCategory(long id){ m_nPKDeviceCategory = id; }
 	long GetDeviceCategory(){ return m_nPKDeviceCategory; }
+	void SetIRGroup(long id){m_nPKIRGroup = id; }
+	long GetIRGroup(){ return m_nPKIRGroup; }
 
 	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
 	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }
@@ -110,8 +113,9 @@ public:
 	void SetPKConnectorType(long id){ m_nPKConnectorType = id; }
 	void SetPKMediaType(long id){ m_nPKMediaType = id;}
 
-	// return value 0 none,1 toggle,2 discret
-	int AVTemplateIRCode();
+	// return value 0 unknown,1 toggle,2 discret
+	int GetAVIRCodesType();
+	int GetAVInputType();
 
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
@@ -122,6 +126,7 @@ public:
 	void SetAVDSPToggleMode(bool state);
 	void InsertDSPModes();
 	void ChangeDSPOrder();
+	void ChangeInputOrder();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);

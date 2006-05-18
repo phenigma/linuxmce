@@ -671,25 +671,21 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butSQLOnOffCodes_CONST:
 					m_pWizardLogic->UpdateAVTemplateSettings();
-					switch( m_pWizardLogic->AVTemplateIRCode() )
+					switch( m_pWizardLogic->GetAVIRCodesType() )
 					{
 						//Unknow
 						case 0:
-						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
 						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
 						break;
 
 						//Toggle
 						case 1:
-						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
-						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVOnOffCodes_CONST );
-						//m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsToggle_CONST );
+						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_OnOff_Toggle_CONST );
 						break;
 
 						//Discret
 						case 2:
 						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmOnOffDiscre_CONST );
-						m_pOrbiter->CMD_Goto_Screen( "", SCREEN_TVConfirmInputsDiscrete_CONST );
 						break;
 					}	
 				return false;
@@ -2063,7 +2059,60 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSQLInputCodes_CONST )
 			{
 				m_pWizardLogic->AddAVDeviceInput();
+				switch( m_pWizardLogic->GetAVInputType() )
+				{
+					case 0:
+						m_pOrbiter->GotoDesignObj( StringUtils::ltos(DESIGNOBJ_TVInputsCodes_CONST) );
+					break;
+
+					case 1:
+						m_pOrbiter->GotoDesignObj( StringUtils::ltos(DESIGNOBJ_TVConfirmInputsToggle_CONST) );
+					break;
+
+					case 2:
+						m_pOrbiter->GotoDesignObj( StringUtils::ltos(DESIGNOBJ_TVConfirmInputsDiscrete_CONST) );
+					break;
+				}
 			}
+
+		case DESIGNOBJ_TVConfirmInputsDiscrete_CONST:
+		break;
+
+		case DESIGNOBJ_TVConfirmInputsToggle_CONST:
+		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVInputsOrder_CONST )
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, 
+				StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
+		break;
+
+		case DESIGNOBJ_TVInputsCodes_CONST:
+		break;
+
+		case DESIGNOBJ_TVInputsOrder_CONST:
+		switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+		{
+			case DESIGNOBJ_butIRGroups_CONST:
+			return false;
+
+			//up
+			case DESIGNOBJ_butOrderMoveUp_CONST:
+			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,-1,VARIABLE_Misc_Data_1_CONST) )
+			{
+				m_pWizardLogic->ChangeInputOrder();
+				RefreshDatagrid(DESIGNOBJ_dgDSPModesOrder_CONST);
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,m_pWizardLogic->m_SelectId);
+			}
+			return false;
+
+			//down
+			case DESIGNOBJ_butOrderMoveDown_CONST:
+			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,1,VARIABLE_Misc_Data_1_CONST) )
+			{
+				m_pWizardLogic->ChangeInputOrder();
+				RefreshDatagrid(DESIGNOBJ_dgDSPModesOrder_CONST);
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,m_pWizardLogic->m_SelectId);
+			}
+			return false;
+		}
 		return false;
 	}
 
@@ -2257,7 +2306,7 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			return false;
 
 			//up
-			case 5045:
+			case DESIGNOBJ_butOrderMoveUp_CONST:
 			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,-1,VARIABLE_Misc_Data_1_CONST) )
 			{
 				m_pWizardLogic->ChangeDSPOrder();
@@ -2267,7 +2316,7 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			return false;
 
 			//down
-			case 5046:
+			case DESIGNOBJ_butOrderMoveDown_CONST:
 			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,1,VARIABLE_Misc_Data_1_CONST) )
 			{
 				m_pWizardLogic->ChangeDSPOrder();
