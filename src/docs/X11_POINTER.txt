@@ -1,0 +1,74 @@
+//
+// Author : C Remus
+//
+// Changed by : ...
+//
+
+Custom pointer shapes are used from x-bitmap files.
+
+The standard file extension is xbm.
+The convention is to use the same name for his mask, and add .msk at the end.
+i.e. verybig.xbm and verybig.xbm.msk
+
+For a pointer shape, we need a pixmap for the shape, and another one for his mask.
+The size for these two must be exactly the same.
+
+The pointer hot-spot can be set in the xbm file, and should be set after the final shape is obtained.
+It is ignored in the mask file.
+
+The colors doesn't matter much, we just use black&white pointers for now.
+A colored pixmap can be created anyway, as it probably will be used in the future.
+
+By combining the main bitmap and the mask, the 2 colors (black and white) can be obtained.
+The "invisible" area is obtained by the 0x00 color in the mask.
+
+One can test a shape with the command:
+$ xsetroot -display $DISPLAY -cursor <name>.xbm <name>.xbm.msk
+
+After that, move the mouse over a free area on the desktop, to see how it looks.
+
+To restore the default mouse shape, use the command:
+$ xsetroot -display $DISPLAY -cursor_name 'left_ptr'
+
+To convert from other image formats, use the "convert" utility, like this:
+$ convert prettypointer.jpg prettypointer.xbm
+$ cp prettypointer.xbm prettypointer.xbm.msk
+
+To edit, and test a pixmap file, use "bitmap" app:
+$ bitmap filename
+
+It is the standard utility.
+Another utility for editing pixmaps is "kiconedit"
+$ kiconedit filename
+
+Warning: kiconedit is friendlier, but it is sensitive to file names.
+Do not name a file like pretty_100x50.xbm, because it can parse the
+data in the file in a wrong way, and the pixmap will appear shifted.
+
+To set the hot-spot, just edit with a text editor the xbm file, be careful with the names.
+i.e.: the name of the xbm. file is "verybig.xbm"
+
+Edit the xbm file, the contents will be initially
+    #define verybig_width 200
+    #define verybig_height 200
+    static char verybig_bits[] = {
+    .......
+    .......
+
+Add the x_hot and y_hot lines, and the content will be like this
+
+    #define verybig_width 200
+    #define verybig_height 200
+    #define verybig_x_hot 100
+    #define verybig_y_hot 10
+    static char verybig_bits[] = {
+    .......
+    .......
+
+Some samples can be found in:
+/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/
+
+verybig.xbm uses two colors, and his size is 200x200
+up_up.xbm uses just one color, because his mask have the same bits
+
+// --EOF--
