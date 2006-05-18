@@ -491,6 +491,7 @@ $s_close_immediately = 'Close immediately:';
 # bug_close_page.php
 $s_closed_bug_title = 'Close Issue';
 $s_reopen_bug_title = 'Re-Open Issue';
+$s_reopen_bug_button = 'Re-Open Issue';
 
 # bug_delete.php
 $s_bug_deleted_msg = 'Issue has been deleted...';
