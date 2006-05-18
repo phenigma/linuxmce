@@ -404,6 +404,8 @@ void WizardLogic::AddAVDeviceInput()
 		sMediaType = StringUtils::Tokenize( aux, ",", pos );
 		sConnectorType = StringUtils::Tokenize( aux, ",", pos );
 		name = sInputs + "-" + sMediaType;
+		if( sConnectorType == "0" )
+			sConnectorType = "NULL";
 
 		aux = "Inputs ,MediaType+ConectorType,name:  ";
 		aux += sInputs + "," + sMediaType + "," + sConnectorType + "," + name;
@@ -419,9 +421,15 @@ void WizardLogic::AddAVDeviceInput()
 
 		sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType,OrderNo)";
 		sSQL += " VALUES (";
-		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + "," +
-			StringUtils::ltos(nPos++) + ")"; 
+		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + 
+			"," + StringUtils::ltos(nPos) + ")"; 
 		threaded_mysql_query(sSQL);
+
+		sSQL = "UPDATE DeviceTemplate_Input Set OrderNo=" + StringUtils::ltos(nPos++) + " ";
+		sSQL += "WHERE FK_DeviceTemplate='" + StringUtils::ltos(m_nPKAVTemplate) + "' ";
+		sSQL += "AND FK_Command='" + sInputs + "'";
+		threaded_mysql_query(sSQL);
+
 		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
 		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
 

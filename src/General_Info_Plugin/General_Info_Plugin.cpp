@@ -1506,11 +1506,8 @@ class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	int nRow = 0,nCol = 0,nMaxCol;
-	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
-	if( nMaxCol <= 0 )
-		nMaxCol = 1;
-	
+	int nRow = 0;
+		
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
 		while( (row = mysql_fetch_row( result.r )) )
@@ -1523,12 +1520,7 @@ class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string
 				pCell = new DataGridCell( row[2], index );
 			else
 				pCell = new DataGridCell( "NULL", index );
-			pDataGrid->SetData(nCol++, nRow, pCell );
-			if( nCol >= nMaxCol )
-			{
-				nCol = 0;
-				nRow++;
-			}
+			pDataGrid->SetData(0, nRow++, pCell );
 		}
 	}			
 

@@ -2079,6 +2079,7 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 		break;
 
 		case DESIGNOBJ_TVConfirmInputsToggle_CONST:
+		aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
 		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVInputsOrder_CONST )
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, 
 				StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
@@ -2095,20 +2096,20 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 
 			//up
 			case DESIGNOBJ_butOrderMoveUp_CONST:
-			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,-1,VARIABLE_Misc_Data_1_CONST) )
+			if( GridSwapPos(DESIGNOBJ_dgInputsOrder_CONST,-1,VARIABLE_Misc_Data_1_CONST) )
 			{
 				m_pWizardLogic->ChangeInputOrder();
-				RefreshDatagrid(DESIGNOBJ_dgDSPModesOrder_CONST);
+				RefreshDatagrid(DESIGNOBJ_dgInputsOrder_CONST);
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,m_pWizardLogic->m_SelectId);
 			}
 			return false;
 
 			//down
 			case DESIGNOBJ_butOrderMoveDown_CONST:
-			if( GridSwapPos(DESIGNOBJ_dgDSPModesOrder_CONST,1,VARIABLE_Misc_Data_1_CONST) )
+			if( GridSwapPos(DESIGNOBJ_dgInputsOrder_CONST,1,VARIABLE_Misc_Data_1_CONST) )
 			{
 				m_pWizardLogic->ChangeInputOrder();
-				RefreshDatagrid(DESIGNOBJ_dgDSPModesOrder_CONST);
+				RefreshDatagrid(DESIGNOBJ_dgInputsOrder_CONST);
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,m_pWizardLogic->m_SelectId);
 			}
 			return false;
