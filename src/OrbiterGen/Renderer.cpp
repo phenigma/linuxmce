@@ -162,12 +162,15 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("4403")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("1255.0.0.3302")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
         int k=2;
     }
+
+	if( pDesignObj_Generator->m_rPosition.Width==0 || pDesignObj_Generator->m_rPosition.Height==0 )
+		return; // Nothing to render anyway
 
     // We have versions for standard, highlighted, selected, and a variable number of alternate versions
     // We'll make a loop that starts from the number of alt versions, counting down to -2, so when it's at
@@ -496,6 +499,8 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
     }
 
 	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+if( pSDL_Surface->w==0 || pSDL_Surface->h==0 )
+int k=2;
 	if( m_Rotate )
 		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
 
