@@ -68,6 +68,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
+return false;
     g_pPlutoLogger->Write(LV_STATUS, "X11NewUI : MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
                           rect.X, rect.Y, rect.Width, rect.Height
                           );
