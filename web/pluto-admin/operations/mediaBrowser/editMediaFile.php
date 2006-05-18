@@ -278,7 +278,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if($action=='del'){
 			// delete physical file
-			exec('sudo -u root rm -f '.$oldFilePath);
+			$cmd='sudo -u root rm -f "'.$oldFilePath.'"';
+			exec($cmd);
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
