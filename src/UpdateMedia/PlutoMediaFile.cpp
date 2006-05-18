@@ -387,6 +387,8 @@ void PlutoMediaFile::SetPicAttribute(int PK_Picture, string sPictureUrl)
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "# GetPicAttribute: file %d", PK_File);
+
 	//got the file in the database?
     if(!PK_File)
     {
@@ -410,6 +412,8 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->GetRow(PK_Picture);
 		string sPictureUrl = NULL != pRow_Picture ? pRow_Picture->URL_get() : "";
 
+		g_pPlutoLogger->Write(LV_STATUS, "# GetPicAttribute: got picture %d associated to file %d", PK_Picture, PK_File);
+
         SetPicAttribute(PK_Picture, sPictureUrl);
         return PK_Picture;  // The first pic for this directory
     }
@@ -431,9 +435,49 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->GetRow(PK_Picture);
 		string sPictureUrl = NULL != pRow_Picture ? pRow_Picture->URL_get() : "";
 
+		g_pPlutoLogger->Write(LV_STATUS, "# GetPicAttribute: got picture %d associated to attribute %d", PK_Picture, 
+			vectPicture_Attribute[0]->FK_Attribute_get());
+
         SetPicAttribute(PK_Picture, sPictureUrl);
         return PK_Picture;  // The first pic for this directory
     }
+
+	if(m_pPlutoMediaAttributes->m_sPictureUrl != "")
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "# GetPicAttribute: got no picture in the db, but got picture URL %s",
+			m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
+
+		//It's a "new" file, but we know the picture url
+		//we'll download the picture and record in Picture table
+		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+		Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, 
+			FileUtils::FindExtension(m_pPlutoMediaAttributes->m_sPictureUrl), 
+			m_pPlutoMediaAttributes->m_sPictureUrl
+			);
+
+		if(NULL != pRow_Picture)
+		{
+			m_pPlutoMediaAttributes->m_nPictureID = pRow_Picture->PK_Picture_get();
+
+			Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+			pRow_Picture_File->FK_File_set(PK_File);
+			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
+			pRow_Picture_File->Table_Picture_File_get()->Commit();
+
+			g_pPlutoLogger->Write(LV_STATUS, "Added picture to file: PK_File %d, PK_Picture %d",
+				PK_File, m_pPlutoMediaAttributes->m_nPictureID);
+
+			return m_pPlutoMediaAttributes->m_nPictureID;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Failed to add picture to file: PK_File %d, picture url: %s",
+				PK_File, m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# GetPicAttribute: got no picture for file %d", PK_File);
+
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
