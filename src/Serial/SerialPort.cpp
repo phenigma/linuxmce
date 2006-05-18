@@ -195,7 +195,6 @@ void CSerialPort::Write(char *Buf, size_t Len)
 		iWrite = write(m_fdSerial, Buf, Len);
 		if( iWrite >= 0 )
 		{
-			usleep(10000);
 			BytesWritten += iWrite;
 		}
 		
