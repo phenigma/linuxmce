@@ -1518,7 +1518,7 @@ class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string
 			if( row[1] )
 				index = string(row[0]) + "," + row[1];
 			else
-				index = row[0] + ",0";
+				index = string(row[0]) + ",0";
 			if( row[2] )
 				pCell = new DataGridCell( row[2], index );
 			else
