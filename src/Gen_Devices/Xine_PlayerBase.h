@@ -357,6 +357,7 @@ public:
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST]="1";
 				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
 				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
 					return rmr_Buffered;
