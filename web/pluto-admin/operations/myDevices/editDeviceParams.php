@@ -659,10 +659,11 @@ $installationID = (int)@$_SESSION['installationID'];
 
 		foreach ($selectedDateArray as $elem) {
 			if(isset($_POST['oldDeviceData_'.$deviceID.'_'.$elem])){
-				$value = @$_POST['deviceData_'.$deviceID.'_'.$elem];
-				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
-				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
-				if ($res && $res->RecordCount()==1) {
+				$value=@$_POST['deviceData_'.$deviceID.'_'.$elem];
+				$oldDeviceData=@$_POST['oldDeviceData_'.$deviceID.'_'.$elem];
+				$isDisabled=(int)@$_POST['isDisabled_'.$deviceID.'_'.$elem];
+				
+				if($oldDeviceData!=$value && $isDisabled!=1){
 					
 					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
@@ -671,11 +672,6 @@ $installationID = (int)@$_SESSION['installationID'];
 						$rowOldDD=$res->FetchRow();
 						$securityPlugin=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
 						$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=REPLACE(IK_DeviceData,\','.$rowOldDD['IK_DeviceData'].',\',?) WHERE FK_Device=? AND FK_DeviceData=?',array(','.$value.',',$securityPlugin,$GLOBALS['MobileOrbiterNotification']));
-					}
-				} else {
-					if ($elem!=0 && isset($_POST['deviceData_'.$elem])) {
-						$query = "insert into Device_DeviceData  (IK_DeviceData,FK_Device,FK_DeviceData) values(?,?,?)";
-						$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));
 					}
 				}
 				
