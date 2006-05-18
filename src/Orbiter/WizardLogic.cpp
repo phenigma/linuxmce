@@ -550,43 +550,23 @@ void WizardLogic::InsertDSPModes()
 	}
 }
 
-void WizardLogic::ChangeDSPOrder(string firstID,string secondID)
+//change the order for m_firstId m_secondId
+void WizardLogic::ChangeDSPOrder()
 {
-	string sql, sqlFinal;
-	string firstPos,secondPos;
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-
-	sql = string( "SELECT PK_Command,Command.Description,DeviceTemplate_DSPMode.OrderNo as DSPMode_Desc\
-			FROM Command,DeviceTemplate_DSPMode WHERE FK_Command = PK_Command AND FK_DeviceTemplate='" ) +
-			StringUtils::ltos(m_nPKAVTemplate) + "'"; 
-
-	sqlFinal = sql + " " + "AND PK_Command=" + firstID;
-	if( (result.r = mysql_query_result(sql))  )
-	{
-		if( (row = mysql_fetch_row( result.r )) )
-			firstPos = row[2];
-	}
-
-	sqlFinal = sql + " " + "AND PK_Command=" + secondID;
-	if( (result.r = mysql_query_result(sql))  )
-	{
-		if( (row = mysql_fetch_row( result.r )) )
-			secondPos = row[2];
-	}
+	string sql;
 	
-	if( firstPos.empty() || secondPos.empty() )
+	if( m_firstPos.empty() || m_secondPos.empty() )
 		return;
 
-	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  secondPos;
-	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + "AND FK_Command=" + 
-		firstID;
+	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  m_secondPos + " ";
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
+		m_firstId;
 	threaded_mysql_query(sql);
 
-	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  firstPos;
-	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + "AND FK_Command=" + 
-		secondID;
-	threaded_mysql_query(sqlFinal);
+	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  m_firstPos + " ";
+	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
+		m_secondId;
+	threaded_mysql_query(sql);
 }
 
 int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)

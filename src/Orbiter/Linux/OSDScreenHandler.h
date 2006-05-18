@@ -70,6 +70,8 @@ public:
 	virtual bool TVDSPMode_DatagridSelected(CallBackData *pData);
 	virtual bool TVDSPMode_ObjectSelected(CallBackData *pData);
 
+	bool GridSwapPos(int gridId,int nDiff,int nSelectId);
+
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);

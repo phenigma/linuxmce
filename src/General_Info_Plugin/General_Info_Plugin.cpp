@@ -1554,7 +1554,8 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-			pCell = new DataGridCell( row[1], row[0] );
+			index = string(row[0]) + "," + StringUtils::ltos(nRow);
+			pCell = new DataGridCell( row[1], index );
 			pDataGrid->SetData(0, nRow++, pCell );
 		}
 	}

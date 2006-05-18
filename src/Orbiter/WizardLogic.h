@@ -44,6 +44,9 @@ public:
 	map<int,string> m_mapAVInputs;
 	list<string> m_listDSPModes;
 	string m_AVInputsId[3];
+	string m_firstId,m_secondId; 
+	string m_firstPos,m_secondPos;
+	string m_SelectId;
 
 	WizardLogic(Orbiter *pOrbiter);
 	virtual ~WizardLogic();
@@ -118,7 +121,7 @@ public:
 	void AddAVDeviceInput();
 	void SetAVDSPToggleMode(bool state);
 	void InsertDSPModes();
-	void ChangeDSPOrder(string firstID,string secondID);
+	void ChangeDSPOrder();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
