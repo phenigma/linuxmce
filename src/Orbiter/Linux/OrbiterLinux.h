@@ -1,6 +1,7 @@
 #ifndef __ORBITERLINUX_H__
 #define __ORBITERLINUX_H__
 
+#include "../SDL/StartOrbiterSDL.h"
 #include "../SDL/OrbiterSDL.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -19,15 +20,6 @@ class wxDialog_WaitUser;
 
 #include <string>
 using namespace std;
-
-/**
- * Structure that match the modifier keys status
- */
-struct TKeyboardState
-{
-    bool bShiftDown, bAltDown, bControlDown;
-};
- 
 
 class OrbiterLinux : public OrbiterSDL/*, public RatpoisonHandler<OrbiterLinux>*/
 {
@@ -73,7 +65,7 @@ protected:
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
 
-	TKeyboardState KeyboardState;
+	keyboardState m_keyboardState;
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,

@@ -734,9 +734,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 			typedef enum _EventType {
 				QUIT,
 				NOT_PROCESSED,
-				BUTTON_DOWN,
+				BUTTON_DOWN, // keyboard
 				BUTTON_UP,
-				REGION_DOWN,
+				REGION_DOWN, // mouse
 				REGION_UP,
 				MOUSE_MOVE
 			} EventType;

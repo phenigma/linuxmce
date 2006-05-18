@@ -3781,7 +3781,13 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
 
-	PreprocessEvent(*pEvent);
+    if (m_bYieldInput && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP))
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
+        return;
+    }
+
+    PreprocessEvent(*pEvent);
 	ProcessEvent(*pEvent);
 }
 
@@ -6723,14 +6729,6 @@ void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,str
 {
 	m_bYieldScreen = ( sOnOff=="1" );
 	m_bYieldInput = bFully_release_keyboard;
-
-	// this should not be here the handler for the DesktopApplication Design Obj will render the desktop with the proper parameters.
-	/*
-	if(  m_bYieldScreen  )
-	RenderDesktop( NULL, PlutoRectangle( 0, 0, -1, -1 ) );  // Full screen
-	else
-	RenderDesktop( NULL, PlutoRectangle( 0, 0, 0, 0 ) );
-	*/
 }
 
 
