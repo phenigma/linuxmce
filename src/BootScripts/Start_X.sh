@@ -3,7 +3,7 @@
 
 XClient=/usr/bin/icewm-session
 XClientParm=()
-XServerParm=()
+XServerParm=(-logverbose 5)
 Background=y
 
 for ((i = 1; i <= "$#"; i++)); do
