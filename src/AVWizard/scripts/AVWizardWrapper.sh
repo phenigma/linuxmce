@@ -12,7 +12,7 @@ STEP_AudioDTS=7
 STEP_Final=8
 
 Done=0
-NextStep=0
+NextStep=$STEP_Start
 export DISPLAY=:0
 while [[ "$Done" -eq 0 ]]; do
 	StartX -step "$NextStep"
