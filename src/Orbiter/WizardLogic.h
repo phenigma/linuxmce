@@ -30,7 +30,8 @@ private:
 	//AV Wizard
 	string m_ManufacturerName, m_AVTemplateName;
 	string m_AVTemplateNumericEntry;
-	bool m_bAVTemplateTogglePower,m_bAVDSPToggleMode;
+
+	bool m_bAVTogglePower,m_bAVToggleDSP,m_bAVToggleInput;
 	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
 	long m_nPKIRGroup;
 	long m_nPKMediaType,m_nPKConnectorType;
@@ -102,11 +103,14 @@ public:
 	void SetIRGroup(long id){m_nPKIRGroup = id; }
 	long GetIRGroup(){ return m_nPKIRGroup; }
 
-	void SetAVTemplateTogglePower(bool state){ m_bAVTemplateTogglePower = state;}
-	bool GetAVTemplateTogglePower(){ return m_bAVTemplateTogglePower; }
+	void SetAVTemplateTogglePower(bool state){ m_bAVTogglePower = state;}
+	bool GetAVTemplateTogglePower(){ return m_bAVTogglePower; }
+	void SetAVToggleDSP(bool state){ m_bAVToggleDSP = state; }
+	bool GetAVToggleDSP(){ return m_bAVToggleDSP; }
+	void SetAVToggleInput(bool state){ m_bAVToggleInput = state; }
+	bool GetAVToggleInput(){ return m_bAVToggleInput; }
 
 	void SetAVTemplateNumericEntry(string value){ m_AVTemplateNumericEntry = value; }
-
 	void SetPKAVTemplate(long PKTemplate){ m_nPKAVTemplate = PKTemplate; }
 	long GetPKAVTemplate(){ return m_nPKAVTemplate; }
 
@@ -120,10 +124,10 @@ public:
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
 	void UpdateAVTemplateSettings();
+	void UpdateAVTemplateToggle();
 	//AV Wizard Inputs
 	void AddAVMediaType();
 	void AddAVDeviceInput();
-	void SetAVDSPToggleMode(bool state);
 	void InsertDSPModes();
 	void ChangeDSPOrder();
 	void ChangeInputOrder();

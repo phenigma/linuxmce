@@ -377,7 +377,7 @@ void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDela
 void WizardLogic::UpdateAVTemplateSettings()
 {
 	string sSQL = string("UPDATE DeviceTemplate_AV SET TogglePower=") + 
-		(m_bAVTemplateTogglePower ? "1" : "0") + "," += "NumericEntry=" + m_AVTemplateNumericEntry + " ";
+		(m_bAVTogglePower ? "1" : "0") + "," += "NumericEntry=" + m_AVTemplateNumericEntry + " ";
 	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(m_nPKAVTemplate);
 	threaded_mysql_query(sSQL);
 }
@@ -526,14 +526,13 @@ int WizardLogic::GetAVInputType()
 	return 1;
 }
 
-void WizardLogic::SetAVDSPToggleMode(bool state)
+void WizardLogic::UpdateAVTemplateToggle()
 {
-	string sSQL;
-	
-	m_bAVDSPToggleMode = state;	
-
-	sSQL =string("UPDATE DeviceTemplate_AV SET ToggleDSP=") + ( state ? "1" : "0" );
-	sSQL += string(" ") + "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
+	string sSQL = "UPDATE DeviceTemplate_AV SET ";
+	sSQL += string("TogglePower=") + ( m_bAVTogglePower ? "1" : "0" ) + ",";
+	sSQL += string("ToggleDSP=") + ( m_bAVToggleDSP ? "1" : "0" ) + ",";
+	sSQL += string("ToggleInput=") + ( m_bAVToggleInput ? "1" : "0" ) + " ";
+	sSQL += "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
 	threaded_mysql_query(sSQL);
 }
 
@@ -561,7 +560,7 @@ void WizardLogic::InsertDSPModes()
 	for(it=m_listDSPModes.begin();it!=m_listDSPModes.end();it++)
 	{
 		sqlFinal = sql + StringUtils::ltos(m_nPKAVTemplate) + "," + *it + "," + StringUtils::ltos(nPos) + ")";
-		if( m_bAVDSPToggleMode )
+		if( m_bAVToggleDSP )
 			nPos++;
 		threaded_mysql_query(sqlFinal);
 	}
