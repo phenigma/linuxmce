@@ -33,7 +33,7 @@ private:
 
 	bool m_bAVTogglePower,m_bAVToggleDSP,m_bAVToggleInput;
 	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
-	long m_nPKIRGroup;
+	long m_nPKIRGroup,m_nPKDevice,m_nPKParentDevice;
 	long m_nPKMediaType,m_nPKConnectorType;
 protected:
 	class Orbiter *m_pOrbiter;
@@ -49,6 +49,8 @@ public:
 	string m_firstId,m_secondId; 
 	string m_firstPos,m_secondPos;
 	string m_SelectId;
+
+	map<int,string> m_mapIRCommands;
 
 	WizardLogic(Orbiter *pOrbiter);
 	virtual ~WizardLogic();
@@ -98,6 +100,7 @@ public:
 	long GetAVTemplateId(){ return m_nPKAVTemplate; }
 	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
 	long GetManufacturerId(){ return m_nPKManufacuter; }
+	void SetDeviceId(long id){ m_nPKDevice = id; }
 	void SetDeviceCategory(long id){ m_nPKDeviceCategory = id; }
 	long GetDeviceCategory(){ return m_nPKDeviceCategory; }
 	void SetIRGroup(long id){m_nPKIRGroup = id; }
@@ -120,6 +123,7 @@ public:
 	// return value 0 unknown,1 toggle,2 discret
 	int GetAVIRCodesType();
 	int GetAVInputType();
+	int GetParentDevice();
 
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
@@ -131,6 +135,7 @@ public:
 	void InsertDSPModes();
 	void ChangeDSPOrder();
 	void ChangeInputOrder();
+	void CreateIRGroup();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);

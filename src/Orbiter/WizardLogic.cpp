@@ -526,6 +526,23 @@ int WizardLogic::GetAVInputType()
 	return 1;
 }
 
+int WizardLogic::GetParentDevice()
+{
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+
+	string sql = "SELECT PK_Device,FK_Device_ControlledVia FROM Device WHERE PK_Device='";
+	sql += StringUtils::ltos(m_nPKDevice);
+
+	if( (result_set.r=mysql_query_result(sql)) )
+	{
+		if( (row = mysql_fetch_row(result_set.r)))
+			return atoi( row[1] );
+	}	
+
+	return 0;
+}
+
 void WizardLogic::UpdateAVTemplateToggle()
 {
 	string sSQL = "UPDATE DeviceTemplate_AV SET ";
@@ -601,6 +618,24 @@ void WizardLogic::ChangeInputOrder()
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_secondId;
 	threaded_mysql_query(sql);
+}
+
+void WizardLogic::CreateIRGroup()
+{
+	string sql;
+	map<int,string>::iterator it;
+	sql = "INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description,FK_CommMethod) VALUES (";
+	sql += StringUtils::ltos(m_nPKDeviceCategory) + "," + StringUtils::ltos(m_nPKManufacuter) + ",";
+	sql += StringUtils::ltos(m_nPKAVTemplate) + "," + "1" + ")";
+	m_nPKIRGroup = threaded_mysql_query_withID(sql);
+  
+	for(it=m_mapIRCommands.begin();it!=m_mapIRCommands.end();it++)
+	{
+		sql = "INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command ,FK_DeviceTemplate,IRData) VALUES("; 
+		sql += StringUtils::ltos(m_nPKIRGroup) + "," + StringUtils::ltos(it->first) + ",";
+		sql += StringUtils::ltos(m_nPKAVTemplate) + "," + it->second + ")";
+		threaded_mysql_query(sql);
+	}
 }
 
 int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)

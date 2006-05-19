@@ -597,6 +597,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	long nDesignId = GetCurrentScreen_PK_DesignObj();
+	int nDeviceId;
 	string aux;
 
 	switch( nDesignId )
@@ -671,6 +672,10 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butSQLOnOffCodes_CONST:
 					m_pWizardLogic->UpdateAVTemplateSettings();
+					CMD_Create_Device cmd( m_pOrbiter->m_dwPK_Device,27,m_pWizardLogic->GetAVTemplateId(),
+						0,0,0,"",0,0,m_pOrbiter->m_dwPK_Device,0,&nDeviceId);
+					m_pOrbiter->SendCommand( cmd );
+					m_pWizardLogic->SetDeviceId(nDeviceId) ;
 					switch( m_pWizardLogic->GetAVIRCodesType() )
 					{
 						//Unknow
