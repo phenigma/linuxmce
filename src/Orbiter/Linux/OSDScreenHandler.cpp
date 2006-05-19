@@ -694,7 +694,6 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 		break;
 		//End wizard
 
-
 		case DESIGNOBJ_TVManuf_CONST:
 		{
 			if(DESIGNOBJ_butTVModel_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
@@ -1904,6 +1903,8 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 						StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
 	ScreenHandlerBase::SCREEN_TVConfirmOnOffDiscret(nPK_Screen);
 
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_ObjectSelected, 
+		new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_DatagridSelected, 
 		new DatagridCellBackData());
 }
@@ -1921,6 +1922,8 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffTogle(long nPK_Screen)
 
 	ScreenHandlerBase::SCREEN_TVConfirmOnOffTogle(nPK_Screen);
 
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_ObjectSelected, 
+		new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_DatagridSelected, 
 		new DatagridCellBackData());
 }
@@ -1929,6 +1932,8 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffTogle(long nPK_Screen)
 void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 {
 	ScreenHandlerBase::SCREEN_TVOnOffCodes(nPK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_ObjectSelected, 
+		new ObjectInfoBackData());
 }
 
 bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
@@ -1943,10 +1948,11 @@ bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
-			nIdSelected ++;
+			m_pWizardLogic->SetIRGroup(nIdSelected);
 		break;
 
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
+			m_pWizardLogic->SetIRGroup(nIdSelected);
 		break;
 
 		case DESIGNOBJ_TVOnOffCodes_CONST:
@@ -1959,12 +1965,16 @@ bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 bool OSDScreenHandler::AVIRCodes_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *> (pData);
-
+	
+	//localhost 0 '.$deviceToReceive.' 1 191 9 "'.$code.'"';
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVMultipleInputs_CONST )
 			{
+				m_pWizardLogic->SetAVTemplateTogglePower(false);
+				m_pWizardLogic->UpdateAVTemplateToggle();
+				//m_pOrbiter->SendMessage(
 				// save to database
 			}
 		break;
@@ -1972,19 +1982,25 @@ bool OSDScreenHandler::AVIRCodes_ObjectSelected(CallBackData *pData)
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVMultipleInputs_CONST )
 			{
+				m_pWizardLogic->SetAVTemplateTogglePower(true);
+				m_pWizardLogic->UpdateAVTemplateToggle();
 				// save to database
 			}
 		break;
 
 		case DESIGNOBJ_TVOnOffCodes_CONST:
+		m_pWizardLogic->SetIRGroup(0);
 			switch( pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				case DESIGNOBJ_butDiscreteOnOff_CONST:
+					m_pWizardLogic->SetAVTemplateTogglePower(false);
 				return false;
 
 				case DESIGNOBJ_butToggleOnOff_CONST:
+					m_pWizardLogic->SetAVTemplateTogglePower(true);
 				return false;
 			}
+		m_pWizardLogic->UpdateAVTemplateToggle();
 		break;
 	}
 
@@ -2079,7 +2095,7 @@ bool OSDScreenHandler::TVMultipleInputs_ObjectSelected(CallBackData *pData)
 		break;
 
 		case DESIGNOBJ_TVConfirmInputsToggle_CONST:
-		aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+		aux = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];  // debug only
 		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVInputsOrder_CONST )
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, 
 				StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
@@ -2269,12 +2285,15 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butDiscreteCodesDSPModes_CONST:
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
-				m_pWizardLogic->SetAVDSPToggleMode( false );
+				//m_pWizardLogic->SetAVDSPToggleMode( false );
+				m_pWizardLogic->SetAVToggleDSP(false);
+				m_pWizardLogic->UpdateAVTemplateToggle();
 				return false;
 
 				case DESIGNOBJ_butToggleCodesDSPModes_CONST:
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
-				m_pWizardLogic->SetAVDSPToggleMode( true );
+				m_pWizardLogic->SetAVToggleDSP(false);
+				m_pWizardLogic->UpdateAVTemplateToggle();
 				return false;
 			}
 		return false;
