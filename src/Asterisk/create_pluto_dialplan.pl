@@ -176,6 +176,7 @@ $EXT_BUFFER .= "exten => s,5,DigitTimeout,20\n";
 $EXT_BUFFER .= "exten => s,6,ResponseTimeout,20\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
 
+$tmp="";
 foreach my $phone (sort (values(%PHONES)))
 {
     $tmp .= "Local/$phone\@trusted&";
