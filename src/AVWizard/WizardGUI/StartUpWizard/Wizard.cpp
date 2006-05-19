@@ -132,7 +132,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
-	if(CurrentPage == 9)
+	if(CurrentPage == 10)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		SetExitWithCode(0);
