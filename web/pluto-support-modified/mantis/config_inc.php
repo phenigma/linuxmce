@@ -62,7 +62,7 @@
 
 	$g_status_colors		= array( 'open'			=> '#c8c8ff', # red,
 									 'fixed'		=> '#cceedd', # blue
-									 're-open'		=> '#FFFFB0', # buish-green
+									 'reopen'		=> '#FFFFB0', # buish-green
 									 'closed'		=> '#e8e8e8'); # light gray
 	
 ?>
