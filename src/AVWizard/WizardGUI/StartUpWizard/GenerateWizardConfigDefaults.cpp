@@ -140,8 +140,11 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	Dictionary = Page->GetDictionary();
 	SetDefaultBtnImages(Dictionary, ImageFolder);
 
-	Page->AddChild(CreateControlImage("BackImage", ImageFolder+"background.png", 0, 52));
+	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
 
+
+//	Page->AddChild(CreateControlImage("BackImage", ImageFolder+"background.png", 0, 52));
+/*
 	std::string LabelCaption = "WELCOME TO SYSTEM";
 
 	SetFontStyle(24, "000000", "Regular");
@@ -161,7 +164,7 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 		194, 128,
 		"Left"
 		));
-
+*/
 	std::string StringList[4];
 	StringList[0] = "From here you can set up the audio & video for your home";
 	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
@@ -180,15 +183,13 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 			));
 	}
 
-	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
-
 	Page->AddChild(CreateControlButton(
-		"Btn2",
+		"MainBtn",
 		" Continue ",
 		565,
 		440,
 		true
-		));
+	));
 
 
 
@@ -870,6 +871,9 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		LabelCaption = "AUDIO SETTINGS";
 	else
 		LabelCaption = "FINAL STEP";
+
+	if(NoSelectedTab<0)
+		LabelCaption = "WELCOME TO AUDIO VIDEO WIZARD";
 
 	SetFontStyle(24, "000000", "Regular");
 	Result->AddChild(CreateControlLabel(
