@@ -180,6 +180,8 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 			));
 	}
 
+	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
+
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		" Continue ",
@@ -187,7 +189,8 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 		440,
 		true
 		));
-	
+
+
 
 	Page->SaveToXMLFile(PageNames[0]);
 }
