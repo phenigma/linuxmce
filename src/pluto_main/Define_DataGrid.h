@@ -73,10 +73,10 @@
 #define DATAGRID_Select_Available_DSPModes_CONST 71
 #define DATAGRID_Confirm_Inputs_Order_CONST 72
 #define DATAGRID_Confirm_DSPModes_Order_CONST 73
-#define DATAGRID_Device_Templates_By_Categ_CONST 76
-#define DATAGRID_IR_Codes_Sets_CONST 77
-#define DATAGRID_Learn_IR_Codes_CONST 78
-#define DATAGRID_IR_Codes_Variations_CONST 79
+#define DATAGRID_IR_Codes_Sets_CONST 74
+#define DATAGRID_Learn_IR_Codes_CONST 75
+#define DATAGRID_IR_Codes_Variations_CONST 76
+#define DATAGRID_Device_Templates_By_Categ_CONST 80
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
