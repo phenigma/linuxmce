@@ -873,7 +873,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		LabelCaption = "FINAL STEP";
 
 	if(NoSelectedTab<0)
-		LabelCaption = "WELCOME TO AUDIO VIDEO WIZARD";
+		LabelCaption = "WELCOME TO AVWIZARD";
 
 	SetFontStyle(24, "000000", "Regular");
 	Result->AddChild(CreateControlLabel(
