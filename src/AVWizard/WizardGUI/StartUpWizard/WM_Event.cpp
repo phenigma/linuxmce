@@ -66,6 +66,7 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 				case SDLK_ESCAPE:
 					EscapeKey();
 					break;
+				case SDLK_KP_ENTER:
 				case SDLK_RETURN:
 					EnterKey();
 					break;
