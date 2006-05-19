@@ -14,7 +14,7 @@ using namespace DCE;
 
 void LightMouseHandler::Start()
 {
-	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X  + m_pObj->m_rPosition.Width*.1,
+	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X  + int(m_pObj->m_rPosition.Width*.1),
 		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
 		1,m_pObj->m_rPosition.Height);
 	m_pMouseBehavior->ConstrainMouse(rect);
@@ -142,8 +142,8 @@ void LightMouseHandler::CustomRender()
 		int NotchStart = (5-m_iLastNotch) * NotchWidth;
 		NotchStart = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + NotchStart;
 		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
-			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + m_pObj->m_rPosition.Width*.5, NotchStart,
-			m_pObj->m_rPosition.Width*.1, NotchWidth,
+			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + int(m_pObj->m_rPosition.Width*.5), NotchStart,
+			int(m_pObj->m_rPosition.Width*.1), NotchWidth,
 			PlutoColor::Blue());
 	}
 

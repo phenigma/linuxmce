@@ -2129,7 +2129,6 @@ bool OSDScreenHandler::TVMultipleInputs_DatagridSelected(CallBackData *pData)
 	if(NULL != pCellInfoData)
 		sSelectId = pCellInfoData->m_sValue;
 	nIdSelected = atoi( sSelectId.c_str() );
-	int i;
 
 	switch( GetCurrentScreen_PK_DesignObj() )
 	{

@@ -24,7 +24,7 @@ VolumeMouseHandler::~VolumeMouseHandler()
 void VolumeMouseHandler::Start()
 {
 	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
-		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + m_pObj->m_rPosition.Height*.2,
+		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + int(m_pObj->m_rPosition.Height*.2),
 		m_pObj->m_rPosition.Width,1);
 	m_pMouseBehavior->ConstrainMouse(rect);
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
