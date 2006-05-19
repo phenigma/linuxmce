@@ -76,7 +76,7 @@
 #define DATAGRID_IR_Codes_Sets_CONST 74
 #define DATAGRID_Learn_IR_Codes_CONST 75
 #define DATAGRID_IR_Codes_Variations_CONST 76
-#define DATAGRID_Device_Templates_By_Categ_CONST 80
+#define DATAGRID_Device_Templates_By_Categ_CONST 77
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
