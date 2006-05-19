@@ -91,12 +91,20 @@ std::string WizardPageFinalSelections::GetVideoOutput(SettingsDictionary* AVWiza
 
 std::string WizardPageFinalSelections::GetVideoResolution(SettingsDictionary* AVWizardSettings)
 {
-	return "";
+	std::string ResolutionStr = "640x480";
+	if(AVWizardSettings->Exists("VideoResolution"))
+		ResolutionStr =  AVWizardSettings->GetValue("VideoResolution");
+
+	return ResolutionStr;
 }
 
 std::string WizardPageFinalSelections::GetVideoRefresh(SettingsDictionary* AVWizardSettings)
 {
-	return "";
+	std::string RefreshStr = "60Hz";
+	if(AVWizardSettings->Exists("VideoRefresh"))
+		RefreshStr =  AVWizardSettings->GetValue("VideoRefresh");
+
+	return RefreshStr;
 }
 
 std::string WizardPageFinalSelections::GetAudioConnector(SettingsDictionary* AVWizardSettings)
