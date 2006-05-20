@@ -6,6 +6,21 @@ DIR="/usr/pluto/install"
 mkdir -p /home/pluto/logs
 mkdir -p /home/public/data
 
+Sources="# Pluto sources - start
+deb file:/usr/pluto/deb-cache/ sarge main
+deb http://deb.plutohome.com/debian/ 20dev main
+deb http://deb.plutohome.com/debian/ replacements main
+deb http://deb.plutohome.com/debian/ sarge main non-free contrib
+deb http://deb.plutohome.com/debian/ unstable mythtv
+deb http://www.yttron.as.ro/ sarge main
+# Pluto sources - end"
+SourcesOffline="# Pluto sources offline - start
+deb file:/usr/pluto/deb-cache/ sarge main
+# Pluto sources offline - end"
+echo "$Sources" >/etc/apt/sources.list
+echo "$SourcesOffline" >/etc/apt/sources.list.offline
+
+
 exec 3>&1 1>/dev/tty
 clear
 echo "** Initial config script"
@@ -100,19 +115,6 @@ WhereCode="in pluto.conf backup"
 # Pluto installation
 Activation_Code=1111
 
-Sources="# Pluto sources - start
-deb file:/usr/pluto/deb-cache/ sarge main
-deb http://deb.plutohome.com/debian/ 20dev main
-deb http://deb.plutohome.com/debian/ replacements main
-deb http://deb.plutohome.com/debian/ sarge main non-free contrib
-deb http://deb.plutohome.com/debian/ unstable mythtv
-deb http://www.yttron.as.ro/ sarge main
-# Pluto sources - end"
-SourcesOffline="# Pluto sources offline - start
-deb file:/usr/pluto/deb-cache/ sarge main
-# Pluto sources offline - end"
-
-
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
 	OfflineMode="true"
@@ -148,8 +150,6 @@ OfflineMode = $OfflineMode
 
 echo "$PlutoConf" >/etc/pluto.conf
 
-echo "$Sources" >/etc/apt/sources.list
-echo "$SourcesOffline" >/etc/apt/sources.list.offline
 apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
