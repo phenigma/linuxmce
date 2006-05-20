@@ -836,6 +836,9 @@ m_bNoEffects = true;
 		case DEVICECATEGORY_Orbiter_Plugins_CONST:
 			m_dwPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
 			break;
+		case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
+			m_dwPK_Device_PlugAndPlayPlugIn = pRow_Device->PK_Device_get();
+			break;
 		case DEVICECATEGORY_App_Server_CONST:
 			if( CommonControlledVia(m_pRow_Device,pRow_Device) )
 				m_dwPK_Device_LocalAppServer = pRow_Device->PK_Device_get();

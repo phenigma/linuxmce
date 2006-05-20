@@ -48,7 +48,7 @@ public:
 
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
-	virtual void SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress);
+	virtual void SCREEN_NewPnpDevice(long PK_Screen, int iPK_PnpQueue);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
 	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
 		string sPrivate, string sPublic, string sCaption);

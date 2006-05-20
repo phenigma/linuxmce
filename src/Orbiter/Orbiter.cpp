@@ -8158,6 +8158,9 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
 		return m_dwPK_Device_OrbiterPlugIn;
 
+	case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
+		return m_dwPK_Device_PlugAndPlayPlugIn;
+
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
 		return m_dwPK_Device_LocalAppServer;
 

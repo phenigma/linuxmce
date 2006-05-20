@@ -11,7 +11,7 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 	m_pDeviceData_Base=pDeviceData_Base;
 	m_dwPK_Device_MediaDirector=m_dwPK_Device_DiscDrive=m_dwPK_Device_AppServer=m_dwPK_Device_LCD_VFD=m_dwPK_Device_IRReceiver=m_dwPK_Device_MediaBurner=m_dwPK_Device_VideoConf=m_dwPK_Device_CamcorderCapt=m_dwPK_Device_Orbiter=m_dwPK_Device_WebBrowser=0;
 	m_dwPK_Device_Router=m_dwPK_Device_DatagridPlugIn=m_dwPK_Device_InfraredPlugIn=m_dwPK_Device_GeneralInfoPlugIn=m_dwPK_Device_EventPlugIn=m_dwPK_Device_OrbiterPlugIn=
-		m_dwPK_Device_LightingPlugIn=m_dwPK_Device_ClimatePlugIn=m_dwPK_Device_MediaPlugIn=m_dwPK_Device_TelecomPlugIn=m_dwPK_Device_SecurityPlugIn=
+		m_dwPK_Device_LightingPlugIn=m_dwPK_Device_ClimatePlugIn=m_dwPK_Device_MediaPlugIn=m_dwPK_Device_TelecomPlugIn=m_dwPK_Device_SecurityPlugIn=m_dwPK_Device_PlugAndPlayPlugIn=
 		m_dwPK_Device_LocalAppServer=m_dwPK_Device_LocalMediaPlayer=0;
 
 	DeviceData_Base *pDevice_ControlledVia = m_pDeviceData_Base->m_AllDevices.m_mapDeviceData_Base_Find( m_pDeviceData_Base->m_dwPK_Device_ControlledVia );
@@ -53,6 +53,9 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 			break;
 		case DEVICECATEGORY_Orbiter_Plugins_CONST:
 			m_dwPK_Device_OrbiterPlugIn = pDeviceData_Base->m_dwPK_Device;
+			break;
+		case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
+			m_dwPK_Device_PlugAndPlayPlugIn = pDeviceData_Base->m_dwPK_Device;
 			break;
 		};
 
@@ -154,6 +157,9 @@ int Virtual_Device_Translator::TranslateVirtualDevice(int PK_DeviceTemplate)
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
 		return m_dwPK_Device_OrbiterPlugIn;
+
+	case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
+		return m_dwPK_Device_PlugAndPlayPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
 		return m_dwPK_Device_LocalAppServer;
