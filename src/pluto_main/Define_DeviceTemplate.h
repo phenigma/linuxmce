@@ -15,6 +15,7 @@
 #define DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST -152
 #define DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST -151
 #define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
+#define DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST -111
 #define DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST -110
 #define DEVICETEMPLATE_VirtDev_Event_Plugin_CONST -109
 #define DEVICETEMPLATE_VirtDev_Security_Plugin_CONST -108
