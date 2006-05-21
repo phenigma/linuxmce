@@ -161,19 +161,6 @@ public:
 	virtual void CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #79 - Add Unknown Device */
-	/** Adds an unknown device into the database.  These are devices that are not part of the Pluto system. */
-		/** @param #9 Text */
-			/** A description of the device */
-		/** @param #10 ID */
-			/** The IP Address */
-		/** @param #47 Mac address */
-			/** The MAC address of the device */
-
-	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address) { string sCMD_Result; CMD_Add_Unknown_Device(sText.c_str(),sID.c_str(),sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #239 - Request File And Checksum */
 	/** Get the contents of a file from the server and the checksum of the file */
 		/** @param #13 Filename */

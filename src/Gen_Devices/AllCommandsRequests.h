@@ -21004,5 +21004,37 @@ namespace DCE
 			COMMANDPARAMETER_PK_DeviceData_CONST, StringUtils::itos(iPK_DeviceData).c_str(),
 			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
+	class CMD_Ignore_PNP_Device : public PreformedCommand {
+	public:
+		CMD_Ignore_PNP_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_PnpQueue,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Ignore_PNP_Device_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str(),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+	};
+	class CMD_Ignore_PNP_Device_DL : public PreformedCommand {
+	public:
+		CMD_Ignore_PNP_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_PnpQueue,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Ignore_PNP_Device_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str(),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+	};
+	class CMD_Ignore_PNP_Device_DT : public PreformedCommand {
+	public:
+		CMD_Ignore_PNP_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_PnpQueue,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Ignore_PNP_Device_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str(),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+	};
+	class CMD_Ignore_PNP_Device_Cat : public PreformedCommand {
+	public:
+		CMD_Ignore_PNP_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_PnpQueue,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Ignore_PNP_Device_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str(),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+	};
 }
 #endif

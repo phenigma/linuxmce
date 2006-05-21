@@ -347,30 +347,6 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: ended for file %s", sFilename.c_str());
 }
 
-//<-dceag-c79-b->
-
-	/** @brief COMMAND: #79 - Add Unknown Device */
-	/** Adds an unknown device into the database.  These are devices that are not part of the Pluto system. */
-		/** @param #9 Text */
-			/** A description of the device */
-		/** @param #10 ID */
-			/** The IP Address */
-		/** @param #47 Mac address */
-			/** The MAC address of the device */
-
-void General_Info_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage)
-//<-dceag-c79-e->
-{
-	Row_UnknownDevices *pRow_UnknownDevices = m_pDatabase_pluto_main->UnknownDevices_get()->AddRow();
-	pRow_UnknownDevices->MacAddress_set(sMac_address);
-	m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
-g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_UnknownDevices->PK_UnknownDevices_get(),pRow_UnknownDevices->MacAddress_get().c_str());
-
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
-		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
-
-	SendCommand(CMD_Remove_Screen_From_History_DL);
-}
 //<-dceag-c239-b->
 
 	/** @brief COMMAND: #239 - Request File And Checksum */

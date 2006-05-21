@@ -92,6 +92,17 @@ public:
 	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #805 - Ignore PNP Device */
+	/**  */
+		/** @param #224 PK_PnpQueue */
+			/** The entry in the pnp queue */
+		/** @param #225 Always */
+			/** If true, blacklist this device in the 'unknown devices' list so we never ask again */
+
+	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways) { string sCMD_Result; CMD_Ignore_PNP_Device(iPK_PnpQueue,bAlways,sCMD_Result,NULL);};
+	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

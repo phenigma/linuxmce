@@ -369,3 +369,16 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	}
 }
 */
+//<-dceag-c805-b->
+
+	/** @brief COMMAND: #805 - Ignore PNP Device */
+	/**  */
+		/** @param #224 PK_PnpQueue */
+			/** The entry in the pnp queue */
+		/** @param #225 Always */
+			/** If true, blacklist this device in the 'unknown devices' list so we never ask again */
+
+void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,Message *pMessage)
+//<-dceag-c805-e->
+{
+}
