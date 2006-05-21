@@ -18,14 +18,14 @@ namespace DCE
 		friend class Pnp_PreCreateOptions;
 		friend class Pnp_PostCreateOptions;
 
-		typedef enum { pnpqe_blocked_none, pnpqe_blocked_prompting_device_template, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software } EBlockedState;
+		typedef enum { pnpqe_blocked_none, pnpqe_blocked_prompting_device_template, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software, pnpqe_blocked_waiting_for_other_prompting } EBlockedState;
 		EBlockedState m_EBlockedState;
 		time_t m_tTimeBlocked;
 		Database_pluto_main *m_pDatabase_pluto_main;
 		Row_PnpQueue *m_pRow_PnpQueue;
 		class OH_Orbiter *m_pOH_Orbiter; // The Orbiter to use for displaying messages
 		map<int,Row_DHCPDevice *> m_mapPK_DHCPDevice_possible;
-		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel;
+		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor;
 		map<int,string> m_mapPK_DeviceData;
 		Row_Device *m_pRow_Device_Reported;
 

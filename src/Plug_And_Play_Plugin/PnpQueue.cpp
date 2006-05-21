@@ -77,6 +77,14 @@ PnpQueue::~PnpQueue()
 void PnpQueue::Run()
 {
 	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
+	// Read in any outstanding requests
+	ReadOutstandingQueueEntries();
+
+	pnp.Release();
+	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
+		Sleep(1000); // Wait for the router to be ready before we start to process
+	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up, like app server
+	pnp.Relock();
 
 	bool bOnlyBlockedEntries=false;  // Set this to true if every entry in the list is blocked and we don't need to process anymore until something happens
 	while( !m_pPlug_And_Play_Plugin->m_bQuit )
@@ -97,7 +105,10 @@ void PnpQueue::Run()
 				bOnlyBlockedEntries=false;  // There are some entries that are not blocked, so loop again
 
 			if( Process(pPnpQueueEntry)==true )  // Meaning it needs to be removed from the list
+			{
+				ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry);
 				m_mapPnpQueueEntry.erase( it++ );  // Remove it
+			}
 			else
 				it++;
 		}
@@ -115,6 +126,28 @@ void PnpQueue::NewEntry(PnpQueueEntry *pPnpQueueEntry)
 		return;
 	}
 	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
+
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry2 = it->second;
+		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
+			pPnpQueueEntry2->m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+		{
+			// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
+			if( pPnpQueueEntry2->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry2->m_mapPK_DeviceData.end() ||
+				pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
+				pPnpQueueEntry2->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]==pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] )
+			{
+				delete pPnpQueueEntry;
+				return;  // It was just a duplicate anyway
+			}
+		}
+	}
+
 	m_mapPnpQueueEntry[pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()]=pPnpQueueEntry;
 	pnp.Release();
 	pthread_cond_broadcast( &m_pPlug_And_Play_Plugin->m_PnpCond );
@@ -135,6 +168,7 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 	case	PNP_DETECT_STAGE_ADD_DEVICE:
 		return Process_Detect_Stage_Add_Device(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_ADD_SOFTWARE:
+		ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry);
 		return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_START_DEVICE:
 		return Process_Detect_Stage_Start_Device(pPnpQueueEntry);
@@ -272,6 +306,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 
 	RunPnpDetectionScript(pPnpQueueEntry);
 
+	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
 	return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
 }
 
@@ -339,6 +374,9 @@ bool PnpQueue::CheckForDeviceTemplateOnWeb(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQueueEntry)
 {
+	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
+
 	if( pPnpQueueEntry->m_iPK_DHCPDevice ) // See if the user already picked this from the menu
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = m_pDatabase_pluto_main->DHCPDevice_get()->GetRow(pPnpQueueEntry->m_iPK_DHCPDevice);
@@ -373,11 +411,16 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry)
 {
+	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
+
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_options && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 		return false; // We're waiting for user input.  Give the user more time.
 
 	if( m_Pnp_PreCreateOptions.OkayToCreateDevice(pPnpQueueEntry)==false )  // See if the user needs to specify some options
 		return false;  // The user needs to specify some options
+
+	ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry);
 
 	// We're good to go, let's create the device
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_DEVICE);
@@ -459,6 +502,25 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 	}
+	
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry2 = it->second;
+		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==0 && 
+			pPnpQueueEntry2->m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
+			pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+		{
+			pPnpQueueEntry2->Stage_set(PNP_REMOVE_STAGE_DONE);
+			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
+			ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry2);
+		}
+	}
+
 	pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
 	return true;
 }
@@ -535,6 +597,35 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 }
 
 void PnpQueue::RunPnpDetectionScript(PnpQueueEntry *pPnpQueueEntry)
+{
+}
+
+void PnpQueue::ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry)
+{
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry2 = it->second;
+		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && pPnpQueueEntry2->m_dwPK_PnpQueue_BlockingFor==pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() )
+			pPnpQueueEntry2->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+	}
+}
+
+bool PnpQueue::BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry)
+{
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry2 = it->second;
+		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && (pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT || pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT) )
+		{
+			pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting;
+			pPnpQueueEntry->m_dwPK_PnpQueue_BlockingFor=pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get();
+			return true;
+		}
+	}
+	return false;
+}
+
+void PnpQueue::ReadOutstandingQueueEntries()
 {
 }
 

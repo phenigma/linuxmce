@@ -234,6 +234,7 @@ namespace DCE
 
         // Plug-In's
         void RegisterAllPlugins(); // Iterates through all plug-ins, calling the register method
+		bool m_bIsLoading_get() { return m_bIsLoading; }
 
         void RegisterMsgInterceptor(Message *pMessage);
 

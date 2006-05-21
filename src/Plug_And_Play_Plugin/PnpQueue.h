@@ -50,6 +50,9 @@ namespace DCE
 		bool LocateDevice(PnpQueueEntry *pPnpQueueEntry);
 		bool CheckForDeviceTemplateOnWeb(PnpQueueEntry *pPnpQueueEntry);
 		void RunPnpDetectionScript(PnpQueueEntry *pPnpQueueEntry);
+		void ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry);
+		bool BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry);
+		void ReadOutstandingQueueEntries();
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);

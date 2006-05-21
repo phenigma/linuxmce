@@ -139,7 +139,6 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
-
 	return true;
 }
 
