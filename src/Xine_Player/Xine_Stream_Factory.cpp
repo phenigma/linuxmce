@@ -8,8 +8,14 @@
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream_Factory::Xine_Stream_Factory()
+Xine_Stream_Factory::Xine_Stream_Factory():
+		m_factoryMutex("xine-stream-factory-access-mutex")
 {
+	pthread_mutexattr_t mutexAttr;
+	pthread_mutexattr_init( &mutexAttr );
+	pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_factoryMutex.Init( &mutexAttr );
+		
 	m_bInitialized = false;
 	m_pXineLibrary = NULL;
 	
@@ -17,12 +23,9 @@ Xine_Stream_Factory::Xine_Stream_Factory()
 	m_sXineAudioDriverName = "alsa";
 	m_sXineVideoDriverName = "xv";
 
-	
 	DCEConfig * pConfig = new DCEConfig();
 	m_sConfigFile = pConfig->ReadString( "XinePlayerConfigurationFile", "/etc/pluto/xine.conf" );
 	delete pConfig;
-	
-	
 }
 
 Xine_Stream_Factory::~Xine_Stream_Factory()
@@ -33,10 +36,12 @@ Xine_Stream_Factory::~Xine_Stream_Factory()
 
 bool Xine_Stream_Factory::StartupFactory()
 {
+	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+	
 	// avoid double-initialization
 	if (m_bInitialized) 
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Double initialization attempted - wrong code?");
+		g_pPlutoLogger->Write( LV_WARNING, "Double initialization attempted - bad code?");
 		return false;
 	}
 	
@@ -49,11 +54,11 @@ bool Xine_Stream_Factory::StartupFactory()
 
 	// connect to libxine
 	m_pXineLibrary = xine_new();
-  if (!m_pXineLibrary)
-  {
+	 if (!m_pXineLibrary)
+	 {
 		g_pPlutoLogger->Write( LV_WARNING, "Cannot connect to Xine Library");
 		return false;
-  }
+	 }
 
 	// loading config
 	g_pPlutoLogger->Write( LV_STATUS, "Loading config from %s", m_sConfigFile.c_str() );
@@ -69,6 +74,8 @@ bool Xine_Stream_Factory::StartupFactory()
 
 bool Xine_Stream_Factory::ShutdownFactory()
 {
+	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+	
 	// avoid double-deinitialization
 	if (!m_bInitialized) 
 	{
@@ -173,6 +180,8 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 // returns pointer to stream if exists/was created or NULL otherwise
 Xine_Stream *Xine_Stream_Factory::GetStream(int streamID)
 {
+	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+	
 	map<int, Xine_Stream*>::iterator stream = streamsMap.find(streamID);
 	if (stream != streamsMap.end())
 		return (*stream).second;

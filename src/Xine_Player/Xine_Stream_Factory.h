@@ -44,6 +44,9 @@ namespace DCE
 
 			map<int, Xine_Stream*> streamsMap;
 			
+			// factory access controlling mutex
+			pluto_pthread_mutex_t m_factoryMutex;
+					
 		public:
 			Xine_Stream_Factory();
 			~Xine_Stream_Factory();

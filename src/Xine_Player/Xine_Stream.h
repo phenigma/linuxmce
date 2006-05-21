@@ -74,6 +74,9 @@ namespace DCE
 			static int CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack);
 			
 		private:
+			// stream access controlling mutex
+			pluto_pthread_mutex_t m_streamMutex;
+			
 			bool m_bInitialized;
 			
 			Xine_Stream_Factory *m_pFactory;
@@ -143,7 +146,7 @@ namespace DCE
 			
 			void HandleSpecialSeekSpeed();  // Used for handling rewind and fast forward
 
-    // Used to handle rewind and fastforward to keep track of where we last seeked
+			// Used to handle rewind and fastforward to keep track of where we last seeked
 			timespec m_tsLastSpecialSeek;
 			int m_posLastSpecialSeek;
 
