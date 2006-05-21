@@ -1,0 +1,101 @@
+//<-dceag-d-b->
+#ifndef Plug_And_Play_Plugin_h
+#define Plug_And_Play_Plugin_h
+
+//	DCE Implemenation for #1809 Plug And Play Plug-in
+
+#include "Gen_Devices/Plug_And_Play_PluginBase.h"
+//<-dceag-d-e->
+
+class Database_pluto_main;
+
+//<-dceag-decl-b->
+namespace DCE
+{
+	class Plug_And_Play_Plugin : public Plug_And_Play_Plugin_Command
+	{
+//<-dceag-decl-e->
+		// Private member variables
+		friend class PnpQueue;
+		friend class Pnp_PreCreateOptions;
+
+		class PnpQueue *m_pPnpQueue;
+		Database_pluto_main *m_pDatabase_pluto_main;
+		pluto_pthread_mutex_t m_PnpMutex;
+	    pthread_mutexattr_t m_MutexAttr;
+		pthread_cond_t m_PnpCond;
+	    class Orbiter_Plugin *m_pOrbiter_Plugin;
+		class Datagrid_Plugin *m_pDatagrid_Plugin;
+
+		// Private methods
+public:
+		// Public member variables
+
+//<-dceag-const-b->
+public:
+		// Constructors/Destructor
+		Plug_And_Play_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Plug_And_Play_Plugin();
+		virtual bool GetConfig();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+//<-dceag-const-e->
+
+//<-dceag-const2-b->
+		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
+		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
+		Plug_And_Play_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
+//<-dceag-const2-e->
+
+		bool DeviceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+		class DataGridTable *PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
+//<-dceag-h-b->
+	/*
+				AUTO-GENERATED SECTION
+				Do not change the declarations
+	*/
+
+	/*
+			*****DATA***** accessors inherited from base class
+
+			*****EVENT***** accessors inherited from base class
+
+			*****COMMANDS***** we need to implement
+	*/
+
+
+	/** @brief COMMAND: #700 - Choose Pnp Device Template */
+	/** We have chosen a new pnp device template */
+		/** @param #150 PK_DHCPDevice */
+			/** The template for the device */
+		/** @param #224 PK_PnpQueue */
+			/** The queue entry we're selecting for */
+
+	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue) { string sCMD_Result; CMD_Choose_Pnp_Device_Template(iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,NULL);};
+	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #804 - Set Pnp Options */
+	/** Set options for a pnp device that will soon be created */
+		/** @param #5 Value To Assign */
+			/** The value to assign to it */
+		/** @param #52 PK_DeviceData */
+			/** The device data to assign */
+		/** @param #224 PK_PnpQueue */
+			/** The pnp entry */
+
+	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue) { string sCMD_Result; CMD_Set_Pnp_Options(sValue_To_Assign.c_str(),iPK_DeviceData,iPK_PnpQueue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
+
+
+//<-dceag-h-e->
+	};
+
+//<-dceag-end-b->
+}
+#endif
+//<-dceag-end-e->
