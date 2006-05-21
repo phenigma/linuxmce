@@ -22,7 +22,9 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += Pnp_PreCreateOptions.cpp \
+	PnpQueue.cpp \
+	PnpQueueEntry.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
