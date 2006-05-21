@@ -23,6 +23,7 @@ XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += 
 sources += Web_DHCP_Query.cpp \
+	PostCreateOptions.cpp \
 	../CreateDevice/CreateDevice.cpp \
 	../UpdateEntArea/UpdateEntArea.cpp \
 	../UpdateEntArea/UpdateEntArea_Climate.cpp \

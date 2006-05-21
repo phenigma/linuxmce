@@ -92,6 +92,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_GipMutex.Init( &m_MutexAttr );
 
+	m_pPostCreateOptions=NULL;
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main=NULL;
 }
@@ -110,6 +111,7 @@ bool General_Info_Plugin::GetConfig()
 		m_bQuit=true;
 		return false;
 	}
+	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter);
 	return true;
 }
 
@@ -119,6 +121,7 @@ bool General_Info_Plugin::GetConfig()
 General_Info_Plugin::~General_Info_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pPostCreateOptions;
 	delete m_pDatabase_pluto_main;
 	
 }
@@ -2129,7 +2132,9 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
 			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
-	PostCreateDevice(*iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
+	if( pRow_Device ) // Should always be there
+		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();
@@ -2142,7 +2147,6 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		updateEntArea.AddDefaultScenarios();
 	}
 
-	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device )
 	{
 		if( iPK_Room==-1 )

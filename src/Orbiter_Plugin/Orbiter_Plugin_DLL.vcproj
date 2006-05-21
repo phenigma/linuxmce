@@ -167,6 +167,9 @@
 				RelativePath=".\PopulateListsInVMC.cpp">
 			</File>
 			<File
+				RelativePath="..\General_Info_Plugin\PostCreateOptions.cpp">
+			</File>
+			<File
 				RelativePath="..\OrbiterGen\RegenMonitor.cpp">
 			</File>
 			<File
