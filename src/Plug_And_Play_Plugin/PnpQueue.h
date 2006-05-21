@@ -40,6 +40,7 @@ namespace DCE
 
 	public:
 		PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin);
+		~PnpQueue();
 		void Run();  // The main loop
 
 		// Main entry points
