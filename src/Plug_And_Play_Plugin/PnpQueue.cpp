@@ -452,9 +452,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	vector<Row_Device *> vectRow_Device;
 	string sSqlWhere = "JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN DHCPDevice ON DHCPDevice.FK_DeviceTemplate=PK_DeviceTemplate "
-		"LEFT JOIN DeviceData As SerialNumber ON SerialNumber.FK_Device=PK_Device AND SerialNumber.FK_DeviceData=#DEVICEDATA_Serial_Number_CONST "
-		"LEFT JOIN DeviceData As ComPort ON ComPort.FK_Device=PK_Device AND ComPort.FK_DeviceData=#DEVICEDATA_COM_Port_on_PC_CONST "
-		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND FK_DeviceData=" #DEVICEDATA_Only_One_Per_PC_CONST "";
+		"LEFT JOIN DeviceData As SerialNumber ON SerialNumber.FK_Device=PK_Device AND SerialNumber.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Serial_Number_CONST) + " "
+		"LEFT JOIN DeviceData As ComPort ON ComPort.FK_Device=PK_Device AND ComPort.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + " "
+		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Only_One_Per_PC_CONST);
 
 	string sMacAddress=pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get();
 	if( sMacAddress.size() )
