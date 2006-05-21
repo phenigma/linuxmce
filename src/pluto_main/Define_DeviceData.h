@@ -141,6 +141,7 @@
 #define DEVICEDATA_Free_Disk_Space_in_MBytes_CONST 160
 #define DEVICEDATA_Serial_Number_CONST 161
 #define DEVICEDATA_Only_One_Per_PC_CONST 162
+#define DEVICEDATA_Autoassign_to_parents_room_CONST 163
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -46,6 +46,7 @@ using namespace std;
 #include "Table_PaidLicense.h"
 #include "Table_PnpQueue.h"
 #include "Table_PnpQueue.h"
+#include "Table_UnknownDevices.h"
 
 
 void Database_pluto_main::CreateTable_Device()
@@ -1839,6 +1840,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PnpQueue *pTable = table->database->PnpQueue_get();
 pTable->GetRows("`FK_Device_Reported`=" + StringUtils::itos(m_PK_Device),rows);
+}
+void Row_Device::UnknownDevices_FK_Device_PC_getrows(vector <class Row_UnknownDevices*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_UnknownDevices *pTable = table->database->UnknownDevices_get();
+pTable->GetRows("`FK_Device_PC`=" + StringUtils::itos(m_PK_Device),rows);
 }
 
 

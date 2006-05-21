@@ -238,6 +238,7 @@ void Package_Device_FK_Device_getrows(vector <class Row_Package_Device*> *rows);
 void PaidLicense_FK_Device_getrows(vector <class Row_PaidLicense*> *rows);
 void PnpQueue_FK_Device_Created_getrows(vector <class Row_PnpQueue*> *rows);
 void PnpQueue_FK_Device_Reported_getrows(vector <class Row_PnpQueue*> *rows);
+void UnknownDevices_FK_Device_PC_getrows(vector <class Row_UnknownDevices*> *rows);
 
 
 		// Setup binary serialization
