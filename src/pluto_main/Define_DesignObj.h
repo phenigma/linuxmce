@@ -2104,6 +2104,7 @@
 #define DESIGNOBJ_butIRCodeDoesntwork_CONST 5054
 #define DESIGNOBJ_dgLearnCodes_CONST 5055
 #define DESIGNOBJ_butCodes_CONST 5058
+#define DESIGNOBJ_No_Ignore_it_every_time_CONST 5059
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

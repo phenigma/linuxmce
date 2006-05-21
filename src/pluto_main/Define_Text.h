@@ -987,6 +987,7 @@
 #define TEXT_TVInputsOrder_CONST 1699
 #define TEXT_InputsOrder_CONST 1700
 #define TEXT_LearnIRCode_CONST 1701
+#define TEXT_Ignore_everytime_CONST 1702
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
