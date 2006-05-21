@@ -16,10 +16,12 @@
  */
 
 #include "PlutoUtils/CommonIncludes.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "PnpQueueEntry.h"
 #include "PnpQueue.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
+#include "pluto_main/Table_Device.h"
 
 using namespace DCE;
 
@@ -49,15 +51,16 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->FK_DeviceTemplate_set(PK_DeviceTemplate);
 	m_pRow_PnpQueue->FK_Device_Created_set(0);
 	m_pRow_PnpQueue->FK_Device_Reported_set(PK_Device_Reported);
-	m_pRow_PnpQueue->Removed_set(false);
+	m_pRow_PnpQueue->Removed_set(0);
 	m_pRow_PnpQueue->Stage_set(PNP_DETECT_STAGE_DETECTED);
-	m_pRow_PnpQueue->Processed_set(false);
+	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_iPK_DHCPDevice=0;
 	m_pOH_Orbiter=NULL;
 	ParseDeviceData(sDeviceData);
+	FindTopLevelDevice();
 }
 
 // Constructor for device removed
@@ -87,21 +90,22 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->FK_DeviceTemplate_set(PK_DeviceTemplate);
 	m_pRow_PnpQueue->FK_Device_Created_set(PK_Device_Created);
 	m_pRow_PnpQueue->FK_Device_Reported_set(PK_Device_Reported);
-	m_pRow_PnpQueue->Removed_set(false);
+	m_pRow_PnpQueue->Removed_set(1);
 	m_pRow_PnpQueue->Stage_set(PNP_REMOVE_STAGE_REMOVED);
-	m_pRow_PnpQueue->Processed_set(false);
+	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_iPK_DHCPDevice=0;
 	m_pOH_Orbiter=NULL;
 	ParseDeviceData(sDeviceData);
+	FindTopLevelDevice();
 }
 
 void PnpQueueEntry::Stage_set(int Stage)
 { 
 	m_pRow_PnpQueue->Stage_set(Stage); 
-	if( Stage==PNP_REMOVE_STAGE_DONE )
+	if( Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE )
 		m_pRow_PnpQueue->Processed_set(1);
 	m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 }
@@ -129,5 +133,24 @@ void PnpQueueEntry::ParseDeviceData(string sDeviceData)
 		string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
 		m_mapPK_DeviceData[PK_DeviceData]=sValue;
 	}
+}
+
+void PnpQueueEntry::FindTopLevelDevice()
+{
+	m_pRow_Device_Reported = m_pRow_PnpQueue->FK_Device_Reported_getrow();
+	m_dwPK_Device_TopLevel=0;
+	Row_Device *pRow_Device=m_pRow_Device_Reported;
+	while(pRow_Device)
+	{
+		pRow_Device = pRow_Device->FK_Device_ControlledVia_get() ? pRow_Device->FK_Device_ControlledVia_getrow() : NULL;
+		if( pRow_Device )
+			m_dwPK_Device_TopLevel = pRow_Device->PK_Device_get();
+	}
+}
+
+void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
+{
+	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
 }
 

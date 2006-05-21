@@ -18,6 +18,7 @@ using namespace DCE;
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_PnpQueue.h"
+#include "pluto_main/Table_UnknownDevices.h"
 #include "PnpQueueEntry.h"
 #include "PnpQueue.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -381,4 +382,26 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,Message *pMessage)
 //<-dceag-c805-e->
 {
+	PLUTO_SAFETY_LOCK(pnp,m_PnpMutex);
+	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
+	if( !pPnpQueueEntry )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
+		return;
+	}
+	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+	pPnpQueueEntry->Stage_set( PNP_DETECT_STAGE_DONE );
+
+	if( bAlways )
+	{
+		Row_UnknownDevices *pRow_UnknownDevices = m_pDatabase_pluto_main->UnknownDevices_get()->AddRow();
+		pRow_UnknownDevices->MacAddress_set( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() );
+		pRow_UnknownDevices->IPAddress_set( pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() );
+		pRow_UnknownDevices->VendorModelId_set( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() );
+		pRow_UnknownDevices->SerialNumber_set( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() );
+		pRow_UnknownDevices->FK_Device_PC_set( pPnpQueueEntry->m_dwPK_Device_TopLevel );
+		m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
+	}
+	pthread_cond_broadcast( &m_PnpCond );
 }

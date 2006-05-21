@@ -12,7 +12,7 @@
 #ifndef DatabaseUtils_h
 #define DatabaseUtils_h
 
-class MySqlHelper;
+#include "MySQLHelper.h"
 
 #include <string>
 #include <vector>
@@ -34,6 +34,8 @@ namespace DatabaseUtils
 	bool SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room);
 	bool SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia);
 	int GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate);
+	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,int iPK_Installation);
+	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result_cv);
 };
 
 #endif //#ifndef _DatabaseUtils

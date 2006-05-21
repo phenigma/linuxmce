@@ -2110,7 +2110,19 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 #endif
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device ) // Should always be there
+	{
+		if( iPK_Room==-1 )  // Means prompt, or just auto-assign.  As opposed to 0 which means put in no room
+		{
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
+			if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+			{
+				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
+				if( pRow_Device_ControlledVia )
+					pRow_Device->FK_Room_set( iPK_Room=pRow_Device_ControlledVia->FK_Room_get() );
+			}
+		}
 		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
+	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();

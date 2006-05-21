@@ -60,7 +60,7 @@ namespace DCE
 		bool Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry);
-		bool Process_Remve_Stage_Removed(PnpQueueEntry *pPnpQueueEntry);
+		bool Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry);
 	};
 }
 

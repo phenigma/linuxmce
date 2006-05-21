@@ -16,6 +16,7 @@
  */
 
 #include "PlutoUtils/CommonIncludes.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "PnpQueue.h"
 #include "PnpQueueEntry.h"
 #include "Plug_And_Play_Plugin.h"
@@ -108,6 +109,11 @@ void PnpQueue::Run()
 
 void PnpQueue::NewEntry(PnpQueueEntry *pPnpQueueEntry)
 {
+	if( !pPnpQueueEntry->m_pRow_Device_Reported )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::NewEntry -- don't know who reported this");
+		return;
+	}
 	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
 	m_mapPnpQueueEntry[pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()]=pPnpQueueEntry;
 	pnp.Release();
@@ -136,7 +142,7 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 		return true;
 
 	case PNP_REMOVE_STAGE_REMOVED:
-		return Process_Remve_Stage_Removed(pPnpQueueEntry);
+		return Process_Remove_Stage_Removed(pPnpQueueEntry);
 	case PNP_REMOVE_STAGE_DONE:
 		return true;
 	};
@@ -148,29 +154,31 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 {
 	LocateDevice(pPnpQueueEntry);
-	Row_Device *pRow_Device_Reported = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_getrow();
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
 	{
-		// This was an existing device.  Be sure it has the same parent as the PNP module that detected it
-		if( !pRow_Device_Reported || !pRow_Device_Created )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Detected for queue %d pRow_Device_Reported %d/%p pRow_Device_Created %d/%p",
-				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get(),pRow_Device_Reported,
-				pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),pRow_Device_Created);
-			return true; // Nothing we can do.  Delete this
-		}
-		if( pRow_Device_Created->FK_Device_ControlledVia_get() != pRow_Device_Reported->FK_Device_ControlledVia_get() )
+		pPnpQueueEntry->AssignDeviceData(pRow_Device_Created);
+		int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get());
+		if( PK_Device_Topmost != pPnpQueueEntry->m_dwPK_Device_TopLevel )
 		{
 			// This has moved from one machine to another.  It should have been disabled back when it was removed from the prior machine
 			if( pRow_Device_Created->Disabled_get()==0 )
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Detected for queue %d device %d moved but wasn't disbled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
 
-			Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
-			pMessage_Kill->m_eExpectedResponse=ER_DeliveryConfirmation; // Be sure this message gets process first
-			m_pPlug_And_Play_Plugin->SendMessage(pMessage_Kill); // Kill the device at the old location
-			pRow_Device_Created->FK_Device_ControlledVia_set(pRow_Device_Reported->FK_Device_ControlledVia_get());
+			int PK_Device_ControlledVia=DatabaseUtils::FindControlledViaCandidate(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),
+				pRow_Device_Created->FK_DeviceTemplate_get(),pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_pRow_Device_Reported->FK_Installation_get());
+			if( !PK_Device_ControlledVia )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Detected for queue %d device %d no valid FindControlledViaCandidate",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
+				PK_Device_ControlledVia = pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get();
+			}
+
+			pRow_Device_Created->FK_Device_ControlledVia_set(PK_Device_ControlledVia);
 			pRow_Device_Created->Disabled_set(false);
+			m_pDatabase_pluto_main->Device_get()->Commit();
+			
+			Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
+			m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, changing controlled via",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
@@ -178,13 +186,14 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		else if( pRow_Device_Created->Disabled_get()!=0 )
 		{
 			pRow_Device_Created->Disabled_set(0);
+			m_pDatabase_pluto_main->Device_get()->Commit();
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
 		}
 		else
 		{
-			pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, nothing to do",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return true;
 		}
@@ -222,7 +231,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		if( vectRow_UnknownDevices.size() )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d already unknown",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-			pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 			return true;
 		}
 	}
@@ -376,10 +385,9 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 {
 	Command_Impl *pCommand_Impl_GIP = m_pPlug_And_Play_Plugin->m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
-	Row_Device *pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get());
-	if( !pRow_DeviceTemplate || !pCommand_Impl_GIP || !pRow_Device_Reported ) // They must all be here
+	if( !pRow_DeviceTemplate || !pCommand_Impl_GIP ) // They must all be here
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device something went wrong for queue %d (%p/%p)!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pCommand_Impl_GIP,pRow_Device_Reported);
+		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device something went wrong for queue %d (%p)!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pCommand_Impl_GIP);
 		return true; // Delete this, something went terribly wrong
 	}
 
@@ -388,7 +396,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), -1, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
 		pPnpQueueEntry->m_pOH_Orbiter ? pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0,
-		pRow_Device_Reported->PK_Device_get(),&iPK_Device);
+		pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),&iPK_Device);
 
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Create_Device);
 	if( !iPK_Device )
@@ -437,9 +445,19 @@ bool PnpQueue::Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry)
 	return true;
 }
 
-bool PnpQueue::Process_Remve_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
+bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 {
-	return false;
+	LocateDevice(pPnpQueueEntry);
+	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
+	if( pRow_Device_Created )
+	{
+		pRow_Device_Created->Disabled_set(1);
+		m_pDatabase_pluto_main->Device_get()->Commit();
+		Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
+		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
+	}
+	pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
+	return true;
 }
 
 bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
@@ -450,53 +468,47 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	bool bFirstWhere=true;
 	vector<Row_Device *> vectRow_Device;
-	string sSqlWhere = "JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+	string sPK_Device_TopLevel = StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
+	string sSql_Primary = "JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+		"LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia = P1.PK_Device "
+		"LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia = P2.PK_Device "
 		"LEFT JOIN DHCPDevice ON DHCPDevice.FK_DeviceTemplate=PK_DeviceTemplate "
-		"LEFT JOIN DeviceData As SerialNumber ON SerialNumber.FK_Device=PK_Device AND SerialNumber.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Serial_Number_CONST) + " "
-		"LEFT JOIN DeviceData As ComPort ON ComPort.FK_Device=PK_Device AND ComPort.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + " "
-		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Only_One_Per_PC_CONST);
+		"LEFT JOIN Device_DeviceData As SerialNumber ON SerialNumber.FK_Device=Device.PK_Device AND SerialNumber.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Serial_Number_CONST) + " "
+		"LEFT JOIN Device_DeviceData As ComPort ON ComPort.FK_Device=Device.PK_Device AND ComPort.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + " "
+		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND OnePerPC.FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Only_One_Per_PC_CONST) + " "
+		"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
+		" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")";
+
+
+	string sSql_Model,sSql_SerialNumber;
+
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		sSql_Model += " AND Device.FK_DeviceTemplate=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get());
 
 	string sMacAddress=pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get();
 	if( sMacAddress.size() )
-	{
-		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("MacAddress like '%") + sMacAddress + "%'";
-		bFirstWhere=false;
-	}
-
-	string sSerialNumber = pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get();
-	if( sSerialNumber.size() )
-	{
-		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("SerialNumber.IK_DeviceData='") + sSerialNumber + "'";
-		bFirstWhere=false;
-	}
-		
-	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
-	{
-		// This may be a serial device.  If we already have a device on this port we will use it
-		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("ComPort.IK_DeviceData='") + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "'";
-		sSqlWhere += " AND FK_Device_ControlledVia=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get());
-		bFirstWhere=false;
-	}
+		sSql_Model += " AND MacAddress like '%" + sMacAddress + "%'";
 
 	string sVendorModelId = pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get();
 	if( sVendorModelId.size() )
-	{
-		if( bFirstWhere )
-		{
-			// If there have been no other where clauses, then the only thing we are searching on is the vendor/model id.  In this case we're only looking for devices which have the 'Only One Per PC' set
-			sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("OnePerPC.IK_DeviceData IS NOT NULL AND OnePerPC.IK_DeviceData=1");
-			bFirstWhere=false;
-		}
-		sSqlWhere += " AND VendorModelId='" + sVendorModelId + "'";
-	}
+		sSql_Model += " AND VendorModelId='" + sVendorModelId + "'";
 
-	if( bFirstWhere )
+	string sSerialNumber = pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get();
+	if( sSerialNumber.size() )
+		sSql_SerialNumber += " AND SerialNumber.IK_DeviceData='" + sSerialNumber + "'";
+
+	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+		// This may be a serial device.  If we already have a device on this port we will use it
+		sSql_SerialNumber += " AND (ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' OR Device.Disabled=1)";
+
+	if( sSql_Model.size()==0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d has no identifying attributes",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		return false;
 	}
-		
-	m_pDatabase_pluto_main->Device_get()->GetRows(sSqlWhere,&vectRow_Device);
+	
+	// See if this exact item with the same serial number exists already
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sSql_SerialNumber,&vectRow_Device);
 	if( vectRow_Device.size() )
 	{
 		pRow_Device = vectRow_Device[0];
@@ -504,6 +516,18 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
 		return true;
 	}
+
+	// Nope.  See if there is another similar item, perhaps a different unit (serial #), but the 'one per pc' is set.  If so, it's a match since we can only have 1 per pc anyway
+	string sOnePerPc = " AND OnePerPC.IK_DeviceData IS NOT NULL AND OnePerPC.IK_DeviceData=1";
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sOnePerPc,&vectRow_Device);
+	if( vectRow_Device.size() )
+	{
+		pRow_Device = vectRow_Device[0];
+		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+		return true;
+	}
+
 	return false;
 }
 

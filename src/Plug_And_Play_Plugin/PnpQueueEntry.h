@@ -5,6 +5,7 @@ using namespace std;
 class Database_pluto_main;
 class Row_PnpQueue;
 class Row_DHCPDevice;
+class Row_Device;
 
 namespace DCE
 {
@@ -24,8 +25,9 @@ namespace DCE
 		Row_PnpQueue *m_pRow_PnpQueue;
 		class OH_Orbiter *m_pOH_Orbiter; // The Orbiter to use for displaying messages
 		map<int,Row_DHCPDevice *> m_mapPK_DHCPDevice_possible;
-		int m_iPK_DHCPDevice;
+		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel;
 		map<int,string> m_mapPK_DeviceData;
+		Row_Device *m_pRow_Device_Reported;
 
 	public:
 		// Constructor for device detected
@@ -60,6 +62,8 @@ namespace DCE
 		void Block(EBlockedState eBlockedState);
 		string DeviceDataAsString();
 		void ParseDeviceData(string sDeviceData);
+		void FindTopLevelDevice();
+		void AssignDeviceData(Row_Device *pRow_Device);
 	};
 }
 
