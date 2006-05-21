@@ -101,6 +101,7 @@
 #define DEVICECATEGORY_Hard_Drives_CONST 155
 #define DEVICECATEGORY_Plug_and_Play_CONST 156
 #define DEVICECATEGORY_Storage_Devices_CONST 157
+#define DEVICECATEGORY_Plug_and_Play_Plugins_CONST 159
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

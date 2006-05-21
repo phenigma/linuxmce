@@ -67,15 +67,6 @@ public:
 		}
 		return false;
 	}
-	bool OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
-	bool OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
-	bool OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
-
-	void PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
-	void PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
-	void PostCreateSecurityDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
-	void PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
-	void PostCreateDevice_Cameras(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
 
 	// Private methods
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);
@@ -96,7 +87,6 @@ public:
 	class DataGridTable *InstalledAVDevices(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
 	class DataGridTable *SensorType(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
 	class DataGridTable *TypesOfPhones( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
-	class DataGridTable *PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 	class DataGridTable *UsersGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *CountriesGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -120,7 +110,6 @@ public:
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
 
-	bool NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool LowSystemDiskSpace( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
@@ -315,21 +304,6 @@ public:
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #700 - New Plug and Play Device */
-	/** A new pnp device has been added */
-		/** @param #47 Mac address */
-			/** The Mac Address */
-		/** @param #58 IP Address */
-			/** The IP Address */
-		/** @param #109 Data String */
-			/** Extra device data to create the device */
-		/** @param #150 PK_DHCPDevice */
-			/** The template for the device */
-
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { string sCMD_Result; CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,sCMD_Result,NULL);};
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #718 - Create Device */
 	/** Creates a new device of the given template */
 		/** @param #2 PK_Device */
@@ -454,6 +428,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device) { string sCMD_Result; CMD_Blacklist_Internal_Disk_Drive(iPK_Device_ControlledVia,sBlock_Device.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	private:

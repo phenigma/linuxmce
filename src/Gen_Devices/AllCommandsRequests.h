@@ -18588,45 +18588,37 @@ namespace DCE
 			COMMAND_Center_Parents_Text_If_Blank_CONST,
 			0 /* number of parameters */); }
 	};
-	class CMD_New_Plug_and_Play_Device : public PreformedCommand {
+	class CMD_Choose_Pnp_Device_Template : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_New_Plug_and_Play_Device_CONST,
-			4 /* number of parameters */,
-			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
-			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
-			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
-			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_Choose_Pnp_Device_Template(long DeviceIDFrom, long DeviceIDTo,int iPK_DHCPDevice,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Choose_Pnp_Device_Template_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
-	class CMD_New_Plug_and_Play_Device_DL : public PreformedCommand {
+	class CMD_Choose_Pnp_Device_Template_DL : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_New_Plug_and_Play_Device_CONST,
-			4 /* number of parameters */,
-			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
-			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
-			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
-			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_Choose_Pnp_Device_Template_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DHCPDevice,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Choose_Pnp_Device_Template_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
-	class CMD_New_Plug_and_Play_Device_DT : public PreformedCommand {
+	class CMD_Choose_Pnp_Device_Template_DT : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_New_Plug_and_Play_Device_CONST,
-			4 /* number of parameters */,
-			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
-			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
-			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
-			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_Choose_Pnp_Device_Template_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DHCPDevice,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Choose_Pnp_Device_Template_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
-	class CMD_New_Plug_and_Play_Device_Cat : public PreformedCommand {
+	class CMD_Choose_Pnp_Device_Template_Cat : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_New_Plug_and_Play_Device_CONST,
-			4 /* number of parameters */,
-			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
-			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
-			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
-			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_Choose_Pnp_Device_Template_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DHCPDevice,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Choose_Pnp_Device_Template_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
 	class CMD_Load_from_Slot_into_Drive : public PreformedCommand {
 	public:
@@ -20975,6 +20967,42 @@ namespace DCE
 			2 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
 			COMMANDPARAMETER_Block_Device_CONST, sBlock_Device.c_str()); }
+	};
+	class CMD_Set_Pnp_Options : public PreformedCommand {
+	public:
+		CMD_Set_Pnp_Options(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Set_Pnp_Options_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_PK_DeviceData_CONST, StringUtils::itos(iPK_DeviceData).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
+	};
+	class CMD_Set_Pnp_Options_DL : public PreformedCommand {
+	public:
+		CMD_Set_Pnp_Options_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Pnp_Options_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_PK_DeviceData_CONST, StringUtils::itos(iPK_DeviceData).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
+	};
+	class CMD_Set_Pnp_Options_DT : public PreformedCommand {
+	public:
+		CMD_Set_Pnp_Options_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Pnp_Options_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_PK_DeviceData_CONST, StringUtils::itos(iPK_DeviceData).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
+	};
+	class CMD_Set_Pnp_Options_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Pnp_Options_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Pnp_Options_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_PK_DeviceData_CONST, StringUtils::itos(iPK_DeviceData).c_str(),
+			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
 }
 #endif

@@ -197,7 +197,6 @@ public:
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData_String,int iPK_DHCPDevice,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,class Message *pMessage) {};
@@ -663,35 +662,6 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case COMMAND_New_Plug_and_Play_Device_CONST:
-					{
-						string sCMD_Result="OK";
-						string sMac_address=pMessage->m_mapParameters[COMMANDPARAMETER_Mac_address_CONST];
-						string sIP_Address=pMessage->m_mapParameters[COMMANDPARAMETER_IP_Address_CONST];
-						string sData_String=pMessage->m_mapParameters[COMMANDPARAMETER_Data_String_CONST];
-						int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DHCPDevice_CONST].c_str());
-						CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(itRepeat->second.c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
