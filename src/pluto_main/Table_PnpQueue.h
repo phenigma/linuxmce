@@ -79,7 +79,7 @@ class DECLSPECIFIER Row_PnpQueue : public TableRow, public SerializeClass
 		
 		long int m_PK_PnpQueue;
 string m_DetectedDate;
-string m_Identifier;
+string m_VendorModelId;
 string m_Path;
 string m_IPaddress;
 string m_MACaddress;
@@ -105,7 +105,7 @@ long int m_psc_restrict;
 	public:
 		long int PK_PnpQueue_get();
 string DetectedDate_get();
-string Identifier_get();
+string VendorModelId_get();
 string Path_get();
 string IPaddress_get();
 string MACaddress_get();
@@ -129,7 +129,7 @@ long int psc_restrict_get();
 		
 		void PK_PnpQueue_set(long int val);
 void DetectedDate_set(string val);
-void Identifier_set(string val);
+void VendorModelId_set(string val);
 void Path_set(string val);
 void IPaddress_set(string val);
 void MACaddress_set(string val);
@@ -152,7 +152,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool DetectedDate_isNull();
-bool Identifier_isNull();
+bool VendorModelId_isNull();
 bool Path_isNull();
 bool IPaddress_isNull();
 bool MACaddress_isNull();
@@ -174,7 +174,7 @@ bool psc_restrict_isNull();
 
 			
 		void DetectedDate_setNull(bool val);
-void Identifier_setNull(bool val);
+void VendorModelId_setNull(bool val);
 void Path_setNull(bool val);
 void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
@@ -217,14 +217,14 @@ class Row_Device* FK_Device_Reported_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_Identifier+ m_Path+ m_IPaddress+ m_MACaddress+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_VendorModelId+ m_Path+ m_IPaddress+ m_MACaddress+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_PnpQueue_asSQL();
 string DetectedDate_asSQL();
-string Identifier_asSQL();
+string VendorModelId_asSQL();
 string Path_asSQL();
 string IPaddress_asSQL();
 string MACaddress_asSQL();

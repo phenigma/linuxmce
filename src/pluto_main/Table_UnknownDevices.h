@@ -81,6 +81,8 @@ class DECLSPECIFIER Row_UnknownDevices : public TableRow, public SerializeClass
 string m_Description;
 string m_MacAddress;
 string m_IPAddress;
+string m_VendorModelId;
+string m_SerialNumber;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -88,13 +90,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[12];
 	
 	public:
 		long int PK_UnknownDevices_get();
 string Description_get();
 string MacAddress_get();
 string IPAddress_get();
+string VendorModelId_get();
+string SerialNumber_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -107,6 +111,8 @@ long int psc_restrict_get();
 void Description_set(string val);
 void MacAddress_set(string val);
 void IPAddress_set(string val);
+void VendorModelId_set(string val);
+void SerialNumber_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -118,6 +124,8 @@ void psc_restrict_set(long int val);
 		bool Description_isNull();
 bool MacAddress_isNull();
 bool IPAddress_isNull();
+bool VendorModelId_isNull();
+bool SerialNumber_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -128,6 +136,8 @@ bool psc_restrict_isNull();
 		void Description_setNull(bool val);
 void MacAddress_setNull(bool val);
 void IPAddress_setNull(bool val);
+void VendorModelId_setNull(bool val);
+void SerialNumber_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -152,7 +162,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_IPAddress+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_IPAddress+ m_VendorModelId+ m_SerialNumber+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -161,6 +171,8 @@ void psc_restrict_setNull(bool val);
 string Description_asSQL();
 string MacAddress_asSQL();
 string IPAddress_asSQL();
+string VendorModelId_asSQL();
+string SerialNumber_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
