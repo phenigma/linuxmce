@@ -730,6 +730,7 @@
 #define COMMAND_Blacklist_Internal_Disk_Drive_CONST 803
 #define COMMAND_Set_Pnp_Options_CONST 804
 #define COMMAND_Ignore_PNP_Device_CONST 805
+#define COMMAND_PNP_Detection_Script_Finished_CONST 806
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
