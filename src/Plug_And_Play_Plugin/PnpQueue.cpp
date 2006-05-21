@@ -220,6 +220,9 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	string sSqlWhere;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
+	else
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("FK_Device_PC=") + StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
+
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )

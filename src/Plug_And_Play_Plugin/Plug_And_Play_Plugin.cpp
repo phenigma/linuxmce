@@ -403,5 +403,10 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
 		pRow_UnknownDevices->FK_Device_PC_set( pPnpQueueEntry->m_dwPK_Device_TopLevel );
 		m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 	}
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+    SendCommand(CMD_Remove_Screen_From_History_DL);
+
 	pthread_cond_broadcast( &m_PnpCond );
 }
