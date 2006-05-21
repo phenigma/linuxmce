@@ -1652,7 +1652,7 @@
 #define DESIGNOBJ_mnuAudioOptions_CONST 4476
 #define DESIGNOBJ_mnuSubtitles_CONST 4477
 #define DESIGNOBJ_mnuAngles_CONST 4478
-#define DESIGNOBJ_mnuNewMacAddress_CONST 4482
+#define DESIGNOBJ_mnuNewPnpDevice_CONST 4482
 #define DESIGNOBJ_No_Pluto_should_ignore_it_CONST 4483
 #define DESIGNOBJ_dgPNPDevices_CONST 4484
 #define DESIGNOBJ_butForceReloadRouter_CONST 4485
