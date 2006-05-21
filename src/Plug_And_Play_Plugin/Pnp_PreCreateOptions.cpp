@@ -85,8 +85,11 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 		return false;  // The user specified only 1 option.  Give him TIMEOUT_PROMPTING_USER seconds to specify the other
 	}
 
-	// The user either didn't specify the options, or is taking too long.  Either way, it's time to ask him
+	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+	
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+
 	if( pPnpQueueEntry->m_pOH_Orbiter )
 	{
 		DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
@@ -95,7 +98,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 	}
 	else
 	{
-		DCE::SCREEN_NAS_Options_DL SCREEN_NAS_Options_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
+		DCE::SCREEN_NAS_Options_DL SCREEN_NAS_Options_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NAS_Options_DL);
 	}

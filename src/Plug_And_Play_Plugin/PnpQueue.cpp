@@ -30,8 +30,11 @@
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_CommMethod.h"
+
 using namespace DCE;
 using namespace nsWeb_DHCP_Query;
 
@@ -77,26 +80,32 @@ PnpQueue::~PnpQueue()
 void PnpQueue::Run()
 {
 	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
-	// Read in any outstanding requests
-	ReadOutstandingQueueEntries();
 
 	pnp.Release();
+	// Read in any outstanding requests.  By now Orbiters should have started registering so we know which ones are in which rooms
+	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up, like app server
+	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up
+
 	pnp.Relock();
+	
+	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+		DetermineOrbitersForPrompting(it->second);
 
 	bool bOnlyBlockedEntries=false;  // Set this to true if every entry in the list is blocked and we don't need to process anymore until something happens
 	while( !m_pPlug_And_Play_Plugin->m_bQuit )
 	{
 		if( m_mapPnpQueueEntry.size()==0 || bOnlyBlockedEntries )  // bOnlyBlockedEntries will be true if the last loop had only blocked entries
-			pnp.TimedCondWait(180,0);  // Release the mutex so other items can be added to the queue and so we can handle incoming events.  Only sleep for 3 minutes in case an Orbiter is blocked and not responding
+			pnp.TimedCondWait(60,0);  // Release the mutex so other items can be added to the queue and so we can handle incoming events.  Only sleep for 1 minutes in case an Orbiter is blocked and not responding
 
 		bOnlyBlockedEntries = m_mapPnpQueueEntry.size()>0;
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)  // The pnp mutex is held so we can safely do what we like
 		{
 			PnpQueueEntry *pPnpQueueEntry = it->second;
-			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none )
+			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
+				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) )
 			{
 				it++;
 				continue;
@@ -130,21 +139,12 @@ void PnpQueue::NewEntry(PnpQueueEntry *pPnpQueueEntry)
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
-		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
-			pPnpQueueEntry2->m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+		if( pPnpQueueEntry2->IsDuplicate(pPnpQueueEntry) )
 		{
-			// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
-			if( pPnpQueueEntry2->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry2->m_mapPK_DeviceData.end() ||
-				pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
-				pPnpQueueEntry2->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]==pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] )
-			{
-				delete pPnpQueueEntry;
-				return;  // It was just a duplicate anyway
-			}
+			pPnpQueueEntry->m_pRow_PnpQueue->Processed_set(1);
+			m_pDatabase_pluto_main->PnpQueue_get()->Commit();
+			delete pPnpQueueEntry;
+			return;  // It was just a duplicate anyway
 		}
 	}
 
@@ -161,6 +161,8 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 		return Process_Detect_Stage_Detected(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT:
 		return Process_Detect_Stage_Confirm_Possible_DT(pPnpQueueEntry);
+	case PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS:
+		return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT:
 		return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT:
@@ -254,8 +256,6 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	string sSqlWhere;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
-	else
-		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("FK_Device_PC=") + StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
@@ -264,7 +264,9 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 
 	if( sSqlWhere.size() )
 	{
-		m_pDatabase_pluto_main->UnknownDevices_get()->GetRows(sSqlWhere,&vectRow_UnknownDevices);
+		// Unknown only applies if it's on the same machine, unless it's an ethernet device which is universal
+		string sAdditional = pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() ? "" : " AND FK_Device_PC=" + StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
+		m_pDatabase_pluto_main->UnknownDevices_get()->GetRows(sSqlWhere + sAdditional,&vectRow_UnknownDevices);
 		if( vectRow_UnknownDevices.size() )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d already unknown",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -282,7 +284,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )  // It's usb or similar that has a vendor/model ID
 		sSqlWhere = "VendorModelID='" + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
 	else // Brute force, like RS232 or similar, where we have to check every device that matches the com method
-		sSqlWhere = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_CommMethod=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get());
+		sSqlWhere = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PnpDetectionScript IS NOT NULL AND FK_CommMethod=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get());
 
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
@@ -304,10 +306,8 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
 	}
 
-	RunPnpDetectionScript(pPnpQueueEntry);
-
-	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
-	return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
+	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS);
+	return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
 }
 
 /*
@@ -392,6 +392,18 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
 		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
 	}
+	// If there's only 1 possible device template, and it's DEVICEDATA_PNP_Create_Without_Prompting_CONST is true, then just it without prompting
+	else if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 )
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second;
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DHCPDevice->FK_DeviceTemplate_get(),DEVICEDATA_PNP_Create_Without_Prompting_CONST);
+		if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+		{
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(pRow_DHCPDevice->FK_DeviceTemplate_get());
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
+			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+		}
+	}
 
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )  // We have no possibilities.  We'll have to skip it
 	{
@@ -404,7 +416,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
-	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPnpDevice_DL);
 	return false;  // Now we wait
 }
@@ -552,11 +564,11 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	string sMacAddress=pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get();
 	if( sMacAddress.size() )
-		sSql_Model += " AND MacAddress like '%" + sMacAddress + "%'";
+		sSql_Model += " AND Device.MacAddress like '%" + sMacAddress + "%'";
 
 	string sVendorModelId = pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get();
 	if( sVendorModelId.size() )
-		sSql_Model += " AND VendorModelId='" + sVendorModelId + "'";
+		sSql_Model += " AND DHCPDevice.VendorModelId='" + sVendorModelId + "'";
 
 	string sSerialNumber = pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get();
 	if( sSerialNumber.size() )
@@ -596,8 +608,31 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	return false;
 }
 
-void PnpQueue::RunPnpDetectionScript(PnpQueueEntry *pPnpQueueEntry)
+bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnpQueueEntry)
 {
+	bool bDetectionScriptFailed=false;
+	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_running_detection_scripts )
+	{
+		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT )
+			return false; // We're waiting for user input.  Give the user more time.
+		else
+			bDetectionScriptFailed=true; // The script has blocked.  We'll need to skip it
+	}
+
+	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = it->second;
+		if( pRow_DHCPDevice->PnpDetectionScript_get().size() )
+		{
+			// We have a detection script we need to run
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
+			return false;
+		}
+	}
+
+	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
+	return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
+
 }
 
 void PnpQueue::ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry)
@@ -627,5 +662,54 @@ bool PnpQueue::BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry)
 
 void PnpQueue::ReadOutstandingQueueEntries()
 {
+	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
+
+	vector<Row_PnpQueue *> vectRow_PnpQueue;
+	m_pDatabase_pluto_main->PnpQueue_get()->GetRows("Processed=0",&vectRow_PnpQueue);
+	for(vector<Row_PnpQueue *>::iterator it=vectRow_PnpQueue.begin();it!=vectRow_PnpQueue.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(*it);
+		bool bWasDuplicate=false;
+		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+		{
+			PnpQueueEntry *pPnpQueueEntry2 = it->second;
+			if( pPnpQueueEntry2->IsDuplicate(pPnpQueueEntry) )
+			{
+				pPnpQueueEntry->m_pRow_PnpQueue->Processed_set(1);
+				m_pDatabase_pluto_main->PnpQueue_get()->Commit();
+				delete pPnpQueueEntry;
+				bWasDuplicate=true;
+				break;
+			}
+		}
+		if( bWasDuplicate )
+			continue;
+
+		m_mapPnpQueueEntry[pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()]=pPnpQueueEntry;
+	}
 }
 
+void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
+{
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
+		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
+	else
+	{
+		string s = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
+		string::size_type pos=0;
+		while(pos<s.size())
+		{
+			string sPK_Orbiter = StringUtils::Tokenize(s,",",pos);
+			OH_Orbiter *pOH_Orbiter = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( atoi(sPK_Orbiter.c_str()) );
+			if( !pOH_Orbiter || !pPnpQueueEntry->m_pRow_Device_Reported )
+				continue;   // Shouldn't really happen
+			if( pOH_Orbiter->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() && 
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() &&
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() &&
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() )
+					continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
+			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter;
+		}
+	}
+	
+}

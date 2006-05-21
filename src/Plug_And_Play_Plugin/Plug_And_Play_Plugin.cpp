@@ -63,8 +63,6 @@ bool Plug_And_Play_Plugin::GetConfig()
         return false;
     }
 
-	m_pPnpQueue = new PnpQueue(this);
-
 	return true;
 }
 
@@ -87,6 +85,8 @@ bool Plug_And_Play_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&Plug_And_Play_Plugin::PNPDevices)), 
 		DATAGRID_New_PNP_Devices_CONST,PK_DeviceTemplate_get());
+
+	m_pPnpQueue = new PnpQueue(this);
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -138,6 +138,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
+	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 	return true;
 }
@@ -157,6 +158,7 @@ bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
+	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 
 	return true;
@@ -372,7 +374,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 //<-dceag-c805-b->
 
 	/** @brief COMMAND: #805 - Ignore PNP Device */
-	/**  */
+	/** Ignore a device detected */
 		/** @param #224 PK_PnpQueue */
 			/** The entry in the pnp queue */
 		/** @param #225 Always */
@@ -408,4 +410,25 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	pthread_cond_broadcast( &m_PnpCond );
+}
+//<-dceag-c806-b->
+
+	/** @brief COMMAND: #806 - PNP Detection Script Finished */
+	/** A PNP Detection script has finished running */
+		/** @param #13 Filename */
+			/** The name of the PNP Detection Script */
+		/** @param #18 Errors */
+			/** If not empty, there were errors.  These will be logged. */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device template of the device.  0 means this script couldn't identify the device */
+		/** @param #109 Data String */
+			/** The device data to be assigned when creating the device
+PK_DeviceData\tIK_DeviceData\n
+.... */
+		/** @param #224 PK_PnpQueue */
+			/** The queue entry */
+
+void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c806-e->
+{
 }

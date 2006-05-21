@@ -184,6 +184,7 @@ public:
 	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -284,8 +285,38 @@ public:
 					};
 					iHandled++;
 					continue;
+				case COMMAND_PNP_Detection_Script_Finished_CONST:
+					{
+						string sCMD_Result="OK";
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						string sErrors=pMessage->m_mapParameters[COMMANDPARAMETER_Errors_CONST];
+						int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DeviceTemplate_CONST].c_str());
+						string sData_String=pMessage->m_mapParameters[COMMANDPARAMETER_Data_String_CONST];
+						int iPK_PnpQueue=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_PnpQueue_CONST].c_str());
+						CMD_PNP_Detection_Script_Finished(sFilename.c_str(),sErrors.c_str(),iPK_DeviceTemplate,sData_String.c_str(),iPK_PnpQueue,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_PNP_Detection_Script_Finished(sFilename.c_str(),sErrors.c_str(),iPK_DeviceTemplate,sData_String.c_str(),iPK_PnpQueue,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{

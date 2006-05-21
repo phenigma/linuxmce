@@ -93,7 +93,7 @@ public:
 
 
 	/** @brief COMMAND: #805 - Ignore PNP Device */
-	/**  */
+	/** Ignore a device detected */
 		/** @param #224 PK_PnpQueue */
 			/** The entry in the pnp queue */
 		/** @param #225 Always */
@@ -101,6 +101,25 @@ public:
 
 	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways) { string sCMD_Result; CMD_Ignore_PNP_Device(iPK_PnpQueue,bAlways,sCMD_Result,NULL);};
 	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #806 - PNP Detection Script Finished */
+	/** A PNP Detection script has finished running */
+		/** @param #13 Filename */
+			/** The name of the PNP Detection Script */
+		/** @param #18 Errors */
+			/** If not empty, there were errors.  These will be logged. */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device template of the device.  0 means this script couldn't identify the device */
+		/** @param #109 Data String */
+			/** The device data to be assigned when creating the device
+PK_DeviceData\tIK_DeviceData\n
+.... */
+		/** @param #224 PK_PnpQueue */
+			/** The queue entry */
+
+	virtual void CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue) { string sCMD_Result; CMD_PNP_Detection_Script_Finished(sFilename.c_str(),sErrors.c_str(),iPK_DeviceTemplate,sData_String.c_str(),iPK_PnpQueue,sCMD_Result,NULL);};
+	virtual void CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

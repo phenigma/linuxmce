@@ -5,16 +5,18 @@ using namespace std;
 class Database_pluto_main;
 class Row_PnpQueue;
 
-#define TIMEOUT_PROMPTING_USER					120
+#define TIMEOUT_PROMPTING_USER					120  // If the user doesn't respond in this many seconds, try asking again
+#define TIMEOUT_DETECTION_SCRIPT				20	// Maximum number of seconds to wait for a detction script to return
 
 #define	PNP_DETECT_STAGE_DETECTED				100
 #define	PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT	101
-#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT	102
-#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT	103
-#define	PNP_DETECT_STAGE_ADD_DEVICE				104
-#define	PNP_DETECT_STAGE_ADD_SOFTWARE			105
-#define	PNP_DETECT_STAGE_START_DEVICE			106
-#define	PNP_DETECT_STAGE_DONE					107
+#define	PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS	102
+#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT	103
+#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT	104
+#define	PNP_DETECT_STAGE_ADD_DEVICE				105
+#define	PNP_DETECT_STAGE_ADD_SOFTWARE			106
+#define	PNP_DETECT_STAGE_START_DEVICE			107
+#define	PNP_DETECT_STAGE_DONE					108
 
 #define PNP_REMOVE_STAGE_REMOVED				200
 #define PNP_REMOVE_STAGE_DONE					201
@@ -53,11 +55,13 @@ namespace DCE
 		void ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		bool BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		void ReadOutstandingQueueEntries();
+		void DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueueEntry);
+		bool Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry);

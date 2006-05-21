@@ -22,6 +22,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Define_DeviceData.h"
 
 using namespace DCE;
 
@@ -53,6 +54,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->FK_Device_Reported_set(PK_Device_Reported);
 	m_pRow_PnpQueue->Removed_set(0);
 	m_pRow_PnpQueue->Stage_set(PNP_DETECT_STAGE_DETECTED);
+	m_pRow_PnpQueue->Parms_set(sDeviceData);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
 	m_EBlockedState=pnpqe_blocked_none;
@@ -92,6 +94,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->FK_Device_Reported_set(PK_Device_Reported);
 	m_pRow_PnpQueue->Removed_set(1);
 	m_pRow_PnpQueue->Stage_set(PNP_REMOVE_STAGE_REMOVED);
+	m_pRow_PnpQueue->Parms_set(sDeviceData);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
 	m_EBlockedState=pnpqe_blocked_none;
@@ -100,6 +103,25 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pOH_Orbiter=NULL;
 	ParseDeviceData(sDeviceData);
 	FindTopLevelDevice();
+}
+
+PnpQueueEntry::PnpQueueEntry(Row_PnpQueue *pRow_PnpQueue)
+{
+	m_pRow_PnpQueue=pRow_PnpQueue;
+	m_pDatabase_pluto_main = m_pRow_PnpQueue->Table_PnpQueue_get()->Database_pluto_main_get();
+
+	m_EBlockedState=pnpqe_blocked_none;
+	m_tTimeBlocked=0;
+	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
+	m_pOH_Orbiter=NULL;
+	ParseDeviceData(m_pRow_PnpQueue->Parms_get());
+	FindTopLevelDevice();
+	m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pRow_PnpQueue->FK_Device_Reported_get());
+
+	// If we haven't yet determined the device template, start at the beginning.
+	// m_mapPK_DHCPDevice_possible isn't stored in the database
+	if( m_pRow_PnpQueue->FK_DeviceTemplate_get()==0 )
+		m_pRow_PnpQueue->Stage_set( m_pRow_PnpQueue->Removed_get()==1 ? PNP_REMOVE_STAGE_REMOVED : PNP_DETECT_STAGE_DETECTED );
 }
 
 void PnpQueueEntry::Stage_set(int Stage)
@@ -152,5 +174,25 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 {
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
+}
+
+bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
+{
+	if( m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
+		m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
+		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
+		m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
+		m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
+		m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+	{
+		// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
+		if( m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==m_mapPK_DeviceData.end() ||
+			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
+			m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]==pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] )
+		{
+			return true;
+		}
+	}
+	return false;
 }
 

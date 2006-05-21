@@ -18,7 +18,7 @@ namespace DCE
 		friend class Pnp_PreCreateOptions;
 		friend class Pnp_PostCreateOptions;
 
-		typedef enum { pnpqe_blocked_none, pnpqe_blocked_prompting_device_template, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software, pnpqe_blocked_waiting_for_other_prompting } EBlockedState;
+		typedef enum { pnpqe_blocked_none, pnpqe_blocked_running_detection_scripts, pnpqe_blocked_prompting_device_template, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software, pnpqe_blocked_waiting_for_other_prompting } EBlockedState;
 		EBlockedState m_EBlockedState;
 		time_t m_tTimeBlocked;
 		Database_pluto_main *m_pDatabase_pluto_main;
@@ -28,6 +28,7 @@ namespace DCE
 		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor;
 		map<int,string> m_mapPK_DeviceData;
 		Row_Device *m_pRow_Device_Reported;
+		string m_sPK_Orbiter_List_For_Prompts;
 
 	public:
 		// Constructor for device detected
@@ -57,6 +58,9 @@ namespace DCE
 			string sText,
 			string sVendorModelId);
 
+		// Constructor for restarting unfinished ones in the queue
+		PnpQueueEntry(Row_PnpQueue *pRow_PnpQueue);
+
 		void Stage_set(int Stage);
 
 		void Block(EBlockedState eBlockedState);
@@ -64,6 +68,7 @@ namespace DCE
 		void ParseDeviceData(string sDeviceData);
 		void FindTopLevelDevice();
 		void AssignDeviceData(Row_Device *pRow_Device);
+		bool IsDuplicate(PnpQueueEntry *pPnpQueueEntry);  // Returns true if the entry passed in is the same as this one
 	};
 }
 
