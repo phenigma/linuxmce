@@ -99,6 +99,7 @@ using namespace std;
 #endif 
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember)) 
+#define STRINGIFY(x) #x  // Allows you to have a #define that's a number (#define MYNUM 2) that you concatenate to a string: string x = "abc" + STRINGIFY(MYNUM)
 
 #ifndef _WIN32_WCE
 class PlutoFile
