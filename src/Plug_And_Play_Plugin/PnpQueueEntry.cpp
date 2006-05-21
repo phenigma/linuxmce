@@ -41,7 +41,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->DetectedDate_set(StringUtils::SQLDateTime(time(NULL)));
 	m_pRow_PnpQueue->IPaddress_set(sIPAddress);
 	m_pRow_PnpQueue->MACaddress_set(sMacAddress);
-	m_pRow_PnpQueue->Identifier_set(sVendorModelId);
+	m_pRow_PnpQueue->VendorModelId_set(sVendorModelId);
 	m_pRow_PnpQueue->Path_set("");
 	m_pRow_PnpQueue->SerialNumber_set(sPnpSerialNumber);
 	m_pRow_PnpQueue->FK_CommMethod_set(PK_CommMethod);
@@ -57,10 +57,12 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_tTimeBlocked=0;
 	m_iPK_DHCPDevice=0;
 	m_pOH_Orbiter=NULL;
+	ParseDeviceData(sDeviceData);
 }
 
 // Constructor for device removed
 PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+	string sDeviceData,
 	string sIPAddress,
 	string sMacAddress,
 	int PK_CommMethod,
@@ -77,7 +79,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->DetectedDate_set(StringUtils::SQLDateTime(time(NULL)));
 	m_pRow_PnpQueue->IPaddress_set(sIPAddress);
 	m_pRow_PnpQueue->MACaddress_set(sMacAddress);
-	m_pRow_PnpQueue->Identifier_set(sVendorModelId);
+	m_pRow_PnpQueue->VendorModelId_set(sVendorModelId);
 	m_pRow_PnpQueue->Path_set("");
 	m_pRow_PnpQueue->SerialNumber_set(sPnpSerialNumber);
 	m_pRow_PnpQueue->FK_CommMethod_set(PK_CommMethod);
@@ -93,11 +95,14 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_tTimeBlocked=0;
 	m_iPK_DHCPDevice=0;
 	m_pOH_Orbiter=NULL;
+	ParseDeviceData(sDeviceData);
 }
 
 void PnpQueueEntry::Stage_set(int Stage)
 { 
 	m_pRow_PnpQueue->Stage_set(Stage); 
+	if( Stage==PNP_REMOVE_STAGE_DONE )
+		m_pRow_PnpQueue->Processed_set(1);
 	m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 }
 
@@ -113,5 +118,16 @@ string PnpQueueEntry::DeviceDataAsString()
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 		sResult += StringUtils::itos(it->first) + "|" + it->second + "|";
 	return sResult;
+}
+
+void PnpQueueEntry::ParseDeviceData(string sDeviceData)
+{
+	string::size_type pos=0;
+	while(pos<sDeviceData.size())
+	{
+		int PK_DeviceData = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
+		string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
+		m_mapPK_DeviceData[PK_DeviceData]=sValue;
+	}
 }
 

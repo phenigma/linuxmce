@@ -30,6 +30,7 @@
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_DeviceData.h"
 using namespace DCE;
 using namespace nsWeb_DHCP_Query;
 
@@ -206,42 +207,43 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueueEntry)
 {
-	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
-	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size()>=11 )
-		return Process_Detect_Stage_Confirm_Possible_DT_IP_Based(pPnpQueueEntry);
-	
-}
-
-bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based(PnpQueueEntry *pPnpQueueEntry)
-{
-	string sMacAddress=pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get();
-	// It's an IP based device
 	vector<Row_UnknownDevices *> vectRow_UnknownDevices;
-	m_pDatabase_pluto_main->UnknownDevices_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_UnknownDevices);
-	if( vectRow_UnknownDevices.size() )
+	string sSqlWhere;
+	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
+	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
+	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() + "'";
+
+	if( sSqlWhere.size() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d mac:%s already unknown",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
-		pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
-		return true;
+		m_pDatabase_pluto_main->UnknownDevices_get()->GetRows(sSqlWhere,&vectRow_UnknownDevices);
+		if( vectRow_UnknownDevices.size() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d already unknown",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
+			return true;
+		}
 	}
 
-	vector<Row_Device *> vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_Device);
-	if( vectRow_Device.size() )
+	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size()>=11 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
-		pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
-		return true;
+		// It's IP based
+		PhoneDevice pd("", pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), 0);
+		sSqlWhere = StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High";
 	}
-
-	PhoneDevice pd("", sMacAddress, 0);
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )  // It's usb or similar that has a vendor/model ID
+		sSqlWhere = "VendorModelID='" + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
+	else // Brute force, like RS232 or similar, where we have to check every device that matches the com method
+		sSqlWhere = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_CommMethod=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get());
 
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
-	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
-	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based queue %d mac:%s has %d candidates",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d has %d candidates",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based queue %d mac:%s could be %d devices",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d could be %d devices",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
 		for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
 		{
 			Row_DHCPDevice *pRow_DHCPDevice = *it;
@@ -251,7 +253,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based(PnpQueueEntry *
 	
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 && CheckForDeviceTemplateOnWeb(pPnpQueueEntry) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT_IP_Based queue %d mac:%s identified on web",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d identified on web",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
 		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
 	}
@@ -442,6 +444,66 @@ bool PnpQueue::Process_Remve_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 {
+	Row_Device *pRow_Device = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? m_pDatabase_pluto_main->Device_get()->GetRow( pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ) : NULL;
+	if( pRow_Device )
+		return true;  // This device already exists
+
+	bool bFirstWhere=true;
+	vector<Row_Device *> vectRow_Device;
+	string sSqlWhere = "JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+		"LEFT JOIN DHCPDevice ON DHCPDevice.FK_DeviceTemplate=PK_DeviceTemplate "
+		"LEFT JOIN DeviceData As SerialNumber ON SerialNumber.FK_Device=PK_Device AND SerialNumber.FK_DeviceData=#DEVICEDATA_Serial_Number_CONST "
+		"LEFT JOIN DeviceData As ComPort ON ComPort.FK_Device=PK_Device AND ComPort.FK_DeviceData=#DEVICEDATA_COM_Port_on_PC_CONST "
+		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND FK_DeviceData=" #DEVICEDATA_Only_One_Per_PC_CONST "";
+
+	string sMacAddress=pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get();
+	if( sMacAddress.size() )
+	{
+		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("MacAddress like '%") + sMacAddress + "%'";
+		bFirstWhere=false;
+	}
+
+	string sSerialNumber = pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get();
+	if( sSerialNumber.size() )
+	{
+		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("SerialNumber.IK_DeviceData='") + sSerialNumber + "'";
+		bFirstWhere=false;
+	}
+		
+	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+	{
+		// This may be a serial device.  If we already have a device on this port we will use it
+		sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("ComPort.IK_DeviceData='") + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "'";
+		sSqlWhere += " AND FK_Device_ControlledVia=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get());
+		bFirstWhere=false;
+	}
+
+	string sVendorModelId = pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get();
+	if( sVendorModelId.size() )
+	{
+		if( bFirstWhere )
+		{
+			// If there have been no other where clauses, then the only thing we are searching on is the vendor/model id.  In this case we're only looking for devices which have the 'Only One Per PC' set
+			sSqlWhere += (bFirstWhere ? " WHERE " : " AND ") + string("OnePerPC.IK_DeviceData IS NOT NULL AND OnePerPC.IK_DeviceData=1");
+			bFirstWhere=false;
+		}
+		sSqlWhere += " AND VendorModelId='" + sVendorModelId + "'";
+	}
+
+	if( bFirstWhere )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d has no identifying attributes",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		return false;
+	}
+		
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSqlWhere,&vectRow_Device);
+	if( vectRow_Device.size() )
+	{
+		pRow_Device = vectRow_Device[0];
+		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+		return true;
+	}
 	return false;
 }
 

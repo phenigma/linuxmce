@@ -29,6 +29,7 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Screen.h"
 
 using namespace DCE;
 
@@ -71,7 +72,12 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage %d/%d",(int) bUseAutoSpecified,(int) bUseDirectorySpecified);
 #endif
 	if( bUseAutoSpecified && bUseDirectorySpecified )
+	{
+		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NAS_Options_CONST);
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 		return true;  // The user specified both options
+	}
 
 	if( bUseAutoSpecified && !bUseDirectorySpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{

@@ -43,6 +43,7 @@ namespace DCE
 
 		// Constructor for device removed
 		PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+			string sDeviceData,
 			string sIPAddress,
 			string sMacAddress,
 			int PK_CommMethod,
@@ -58,6 +59,7 @@ namespace DCE
 
 		void Block(EBlockedState eBlockedState);
 		string DeviceDataAsString();
+		void ParseDeviceData(string sDeviceData);
 	};
 }
 

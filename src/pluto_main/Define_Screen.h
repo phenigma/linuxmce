@@ -114,7 +114,7 @@
 #define SCREEN_AudioOptions_CONST 113
 #define SCREEN_Subtitles_CONST 114
 #define SCREEN_Angles_CONST 115
-#define SCREEN_NewMacAddress_CONST 116
+#define SCREEN_NewPnpDevice_CONST 116
 #define SCREEN_VdrRemote_CONST 117
 #define SCREEN_CdRemote_CONST 118
 #define SCREEN_PowerFile_CONST 119

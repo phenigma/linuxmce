@@ -15,7 +15,9 @@ using namespace DCE;
 #include "DCE/DCERouter.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_Screen.h"
 #include "pluto_main/Table_DHCPDevice.h"
+#include "pluto_main/Table_PnpQueue.h"
 #include "PnpQueueEntry.h"
 #include "PnpQueue.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -143,6 +145,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pDatabase_pluto_main,
+		pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST],
 		atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_CommMethod_CONST].c_str()),
@@ -181,6 +184,11 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int
 		g_pPlutoLogger->Write(LV_CRITICAL, "PnpQueue::PickDeviceTemplate queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+    SendCommand(CMD_Remove_Screen_From_History_DL);
+
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->m_iPK_DHCPDevice = iPK_DHCPDevice;

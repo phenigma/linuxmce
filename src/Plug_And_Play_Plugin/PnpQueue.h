@@ -55,7 +55,6 @@ namespace DCE
 		bool Process(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueueEntry);
-		bool Process_Detect_Stage_Confirm_Possible_DT_IP_Based(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry);

@@ -139,6 +139,8 @@
 #define DEVICEDATA_Volume_Level_CONST 158
 #define DEVICEDATA_Filesystem_CONST 159
 #define DEVICEDATA_Free_Disk_Space_in_MBytes_CONST 160
+#define DEVICEDATA_Serial_Number_CONST 161
+#define DEVICEDATA_Only_One_Per_PC_CONST 162
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
