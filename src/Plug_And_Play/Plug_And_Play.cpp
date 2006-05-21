@@ -591,7 +591,7 @@ void Plug_And_Play::CMD_PlugAndPlayAddDevice(int iPK_DeviceTemplate,string sIP_A
 					row->DetectedDate_set( asctime(localtime(&result)));
 
 					row->SerialNumber_set( sPNPSerialNo );
-					row->Identifier_set( sIdentifier );
+					row->VendorModelId_set( sIdentifier );
 					row->Path_set( sPath );
 					row->Stage_set(Plug_And_Play::Detected);
 					
