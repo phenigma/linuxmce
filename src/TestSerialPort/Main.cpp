@@ -36,6 +36,8 @@ namespace DCE
 }
 
 string ParseHex(string sInput);
+string StripHex(const char *pBuffer,int Length);
+
 bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &pos);
 
 int main(int argc, char *argv[])
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/TestSerialPort.log");
 
 	string sPort,sTransmitString,sSearchString,sMessage;
-	bool bReturnErrorIfSearchStringNotFound=false,bHardwareFlowControl=false;
+	bool bHardwareFlowControl=false;
 	unsigned int iTimeout=30,iBaud=9600;
 	eParityBitStop _eParityBitStop = epbsN81;
 
@@ -132,8 +134,10 @@ int main(int argc, char *argv[])
 		if( sReceived==0 )
 			g_pPlutoLogger->Write(LV_STATUS,"recv: timeout, nothing received");
 		else
+		{
 			g_pPlutoLogger->Write(LV_STATUS,"recv: %s",IOUtils::FormatHexAsciiBuffer(pBuffer,sReceived,"33").c_str());
-		int k=2;
+			cout << StripHex(pBuffer,sReceived) << endl;
+		}	
 	}
 	catch(string sError)
 	{
@@ -209,3 +213,28 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 	return true;
 }
 
+string StripHex(const char *pBuffer,int Length)
+{
+	string Result;
+
+	for(int i=0;i<Length;++i)
+	{
+		char c=pBuffer[i];
+		if( c>=' ' && c<='~' )
+			Result += c;
+		else if( c=='\r' )
+			Result += "\\r";
+		else if( c=='\n' )
+			Result += "\\n";
+		else
+		{
+			char hxbuff[5];
+			sprintf(hxbuff, "%0hhx", (int) c);
+			Result+="\\";
+			if( c<16 )
+				Result+="0"; // pad to 2 places
+			Result += hxbuff;
+		}
+	}
+	return Result;
+}
