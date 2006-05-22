@@ -35,6 +35,7 @@
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommMethod.h"
+#include "pluto_main/Define_PnpProtocol.h"
 
 using namespace DCE;
 using namespace nsWeb_DHCP_Query;
@@ -87,7 +88,7 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up
+	Sleep(1);  // Wait another 10 seconds for the app server's and other devices to finish starting up
 
 	pnp.Relock();
 	
@@ -299,10 +300,41 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
 		{
 			Row_DHCPDevice *pRow_DHCPDevice = *it;
+			if( pRow_DHCPDevice->SerialNumber_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find(pRow_DHCPDevice->SerialNumber_get())==string::npos )
+				continue; // Don't do this if the serial number doesn't match
+			if( pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
+				continue; // Don't do this if the serial number doesn't match
+
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible[pRow_DHCPDevice->PK_DHCPDevice_get()]=pRow_DHCPDevice;  // This is a possibility
 		}
 	}
 	
+	// Special case.  If we're sure this is a Serial Port, such as a USB->RS232 dongle, change the comm method to rs232, strip out vendor/model/etc., and start over
+	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 )
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second;
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_getrow();
+		if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Serial_Ports_CONST )
+		{
+			pPnpQueueEntry->m_mapPK_DHCPDevice_possible.clear();
+			pPnpQueueEntry->m_iPK_DHCPDevice=0;
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_set(COMMMETHOD_RS232_CONST);
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_PnpProtocol_set(PNPPROTOCOL_Proprietary_CONST);
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(0);  // there's a glitch in sql2cpp that setnull will set the field to null, but subsequent _get still report the same value
+			pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_set("");
+			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_set("");
+			pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_set("");
+			pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_set("");
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_setNull(true);
+			pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_setNull(true);
+			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_setNull(true);
+			pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_setNull(true);
+			pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_setNull(true);
+			pPnpQueueEntry->m_pRow_PnpQueue->Path_set("");
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DETECTED);
+			return Process_Detect_Stage_Detected(pPnpQueueEntry);
+		}
+	}
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 && CheckForDeviceTemplateOnWeb(pPnpQueueEntry) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d identified on web",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -479,6 +511,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device couldn't create device queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		return true; // Delete this, something went terribly wrong
 	}
+	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(iPK_Device);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CreateDevice already adds the software and starts it, so we're done
 	return true; 
 }
