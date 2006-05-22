@@ -551,7 +551,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 
 	Bool checkResult;
 
-	// counter for tiemcode report
+	// counter for timecode report
 	int iCounter_TimeCode = 0;
 	
 	// 1/10th second interval counter
@@ -600,7 +600,11 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		//updating time and speed when @trickplay mode
 		if (pStream->m_bTrickModeActive)
 		{
-			pStream->DisplaySpeedAndTimeCode();
+			//only every 0.2s
+			if (iCounter%2==0)
+			{
+				pStream->DisplaySpeedAndTimeCode();
+			}
 		}
 		
 		if ( pStream->m_iSpecialSeekSpeed )
