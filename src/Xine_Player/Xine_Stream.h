@@ -219,11 +219,6 @@ namespace DCE
 		 */
 			PlayBackSpeedType getPlaybackSpeed();
 			
-    /**
-			 * @brief stop the stream playback.
-		 */
-
-			void stopMedia();
 
     /**
 			 * @brief restart the stream playback.

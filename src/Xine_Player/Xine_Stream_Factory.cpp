@@ -221,4 +221,20 @@ void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
 	m_pPlayer->ReportTimecode( iStreamID, Speed);
 }
 
+void Xine_Stream_Factory::DestroyStream(int iStreamID)
+{
+	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+	
+	Xine_Stream *pStream = NULL;
+	
+	map<int, Xine_Stream*>::iterator stream = streamsMap.find(iStreamID);
+	if (stream != streamsMap.end())
+	{
+		pStream = (*stream).second;
+		streamsMap.erase(stream);
+		delete pStream;
+		g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
+	}
+}
+
 } // DCE namespace end

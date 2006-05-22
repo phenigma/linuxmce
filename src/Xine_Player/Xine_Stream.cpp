@@ -115,12 +115,67 @@ bool Xine_Stream::StartupStream()
 // deinitialize stream
 bool Xine_Stream::ShutdownStream()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		if (!m_bInitialized)
+			return false;
+	}
 	
-	if (!m_bInitialized)
-		return false;
+	playbackCompleted(false );
+    
+	// stop the event thread first
+	if ( threadEventLoop )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
+		m_bExitThread = true;
+
+		pthread_join( threadEventLoop, NULL );
+		g_pPlutoLogger->Write( LV_STATUS, "Done." );
+	}
+
+	if ( m_pXineStreamEventQueue )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
+		xine_event_dispose_queue( m_pXineStreamEventQueue );
+	}
+
+	if ( m_pXineStream )
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
+		xine_stop( m_pXineStream );
+
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
+		xine_close( m_pXineStream );
+
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
+		xine_dispose( m_pXineStream );
+		m_pXineStream = NULL;
+	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
+
+	if ( m_pXineAudioOutput )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
+		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
+		m_pXineAudioOutput = NULL;
+	}
+
+	if ( m_pXineVideoOutput )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
+		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
+		m_pXineVideoOutput = NULL;
+	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "Cleanup completed" );
 	
-	stopMedia();
+	m_sCurrentFile = "";
+	m_iTitle=m_iChapter=-1;
+	
 	m_bInitialized = false;
 	return true;
 }
@@ -1247,8 +1302,7 @@ void Xine_Stream::selectPrevButton()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//TODO reenable
-	//!g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -1265,8 +1319,7 @@ void Xine_Stream::pushCurrentButton()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//TODO reenable
-//!	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -1652,72 +1705,6 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): At the end. Returning" );
 	return ;
-}
-
-/**
-    \fn Xine_Stream::stopMedia(int iStreamID)
- */
-void Xine_Stream::stopMedia()
-{
-	//TODO: reenable
-	/*!
-	XineStream * pStream = getStreamForId( iStreamID, "Can't stop the playback of a non existent stream (%d)!" );
-
-	if ( pStream == NULL )
-		return ;
-	*/
-	
-	playbackCompleted(false );
-    // stop the event thread first
-	if ( threadEventLoop )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
-		m_bExitThread = true;
-
-		pthread_join( threadEventLoop, NULL );
-		g_pPlutoLogger->Write( LV_STATUS, "Done." );
-	}
-
-	if ( m_pXineStreamEventQueue )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
-		xine_event_dispose_queue( m_pXineStreamEventQueue );
-	}
-
-	if ( m_pXineStream )
-	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
-		xine_stop( m_pXineStream );
-
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
-		xine_close( m_pXineStream );
-
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
-		xine_dispose( m_pXineStream );
-	}
-
-	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
-
-	if ( m_pXineAudioOutput )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
-		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
-		m_pXineAudioOutput = NULL;
-	}
-
-	if ( m_pXineVideoOutput )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
-		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
-		m_pXineVideoOutput = NULL;
-	}
-
-	g_pPlutoLogger->Write( LV_STATUS, "Cleanup completed" );
-	
-	m_sCurrentFile = "";
-	m_iTitle=m_iChapter=-1;
 }
 
 /**
