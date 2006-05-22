@@ -5910,10 +5910,17 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 	pScreenHistory_New->SetObj(pObj_New);
 
-    map<DesignObj_Orbiter *, bool> mapVisibilityContext;
-	GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
-	pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
-	pScreenHistory_New->ScreenID(sID);
+	//we have to restore the context. nothing to save, it's all there
+	if(NULL == m_pContextToBeRestored)
+	{
+		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
+		GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
+		pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
+		pScreenHistory_New->ScreenID(sID);
+	}
+	else
+		g_pPlutoLogger->Write(LV_WARNING, "We have all in screen history item. Nothing new to save.");
+
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
 	if(ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)
