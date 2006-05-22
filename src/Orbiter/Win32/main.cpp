@@ -27,8 +27,10 @@ extern HWND	g_hWndList; //maindialog logger list
     static const string g_sOrbiterConfName = "Orbiter.conf";
 #endif
 
-#ifdef POCKETFROG
+#if defined(POCKETFROG)
 	#include "Orbiter_PocketFrog.h"
+#elif defined(ORBITER_OPENGL)
+	#include "OpenGL/Orbiter_OpenGL.h"
 #else
 	#ifdef WINCE
 		#include "OrbiterSDL_WinCE.h"

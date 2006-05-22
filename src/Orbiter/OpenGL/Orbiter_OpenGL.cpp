@@ -46,7 +46,7 @@ void *Orbiter_OpenGLThread(void *p)
 	{
 		//hack to allow sdl to work from other thread ?
 		SDL_Event Event;
-		if(SDL_PollEvent(&Event))
+		while(SDL_PollEvent(&Event))
 			SDL_PushEvent(&Event);
 
 		cm.CondWait();	
