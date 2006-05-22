@@ -244,9 +244,9 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
 		if( pRow_DeviceTemplate )
 		{
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d is new device, already know template",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+			return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
 		}
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT);
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d is new device, processing",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -383,18 +383,31 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 	if( pPnpQueueEntry->m_iPK_DHCPDevice ) // See if the user already picked this from the menu
 	{
-		Row_DHCPDevice *pRow_DHCPDevice = m_pDatabase_pluto_main->DHCPDevice_get()->GetRow(pPnpQueueEntry->m_iPK_DHCPDevice);
-		if( pRow_DHCPDevice ) // Should always be true
-			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set( pRow_DHCPDevice->FK_DeviceTemplate_get() );
-		else
-			pPnpQueueEntry->m_iPK_DHCPDevice=0;  // Something went really wrong
+		if( pPnpQueueEntry->m_iPK_DHCPDevice!=-1 )
+		{
+			Row_DHCPDevice *pRow_DHCPDevice = m_pDatabase_pluto_main->DHCPDevice_get()->GetRow(pPnpQueueEntry->m_iPK_DHCPDevice);
+			if( pRow_DHCPDevice ) // Should always be true
+				pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set( pRow_DHCPDevice->FK_DeviceTemplate_get() );
+			else
+				pPnpQueueEntry->m_iPK_DHCPDevice=0;  // Something went really wrong
+		}
+		Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
+		if( pRow_DeviceTemplate )  // We know what it is, ask the user for options.  Since m_iPK_DHCPDevice!=0, the user either chose a valid entry from the grid, or his sole selection (-1)
+		{
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
+			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+		}
 	}
 
 	Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
 	if( pRow_DeviceTemplate )  // We know what it is, ask the user for options
 	{
-		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
-		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_PNP_Create_Without_Prompting_CONST);
+		if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+		{
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
+			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+		}
 	}
 	// If there's only 1 possible device template, and it's DEVICEDATA_PNP_Create_Without_Prompting_CONST is true, then just it without prompting
 	else if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 )
@@ -409,7 +422,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		}
 	}
 
-	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )  // We have no possibilities.  We'll have to skip it
+	if( !pRow_DeviceTemplate && pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )  // We have no possibilities.  We'll have to skip it
 	{
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 		return true;
@@ -781,7 +794,9 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 	string sDescription;
 
 	Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
-	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end() )
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
+	else if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end() )
 		pRow_DeviceTemplate=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second->FK_DeviceTemplate_getrow();
 
 	if( pRow_DeviceTemplate )

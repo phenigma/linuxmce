@@ -237,6 +237,13 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 
 	int RowCount=0;
 	DataGridCell *pCell;
+	Row_DeviceTemplate *pRow_DeviceTemplate;
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() && (pRow_DeviceTemplate=pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow()) )
+	{
+		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(), "-1" );
+        pDataGrid->SetData( 0, 0, pCell );
+		return pDataGrid;
+	}
 	for( map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it )
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
