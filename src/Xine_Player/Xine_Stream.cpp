@@ -1385,7 +1385,9 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	
 	
 	// reverse play requested or trick_play is not supported for this stream
-	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported ) )
+	// or we need ultra-fast-forward (>20x)
+	const int UltraFastFWD = 20*1000;
+	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>=UltraFastFWD) )
 	{	
 		if ( trickModeSupported &&  trickModeActive )
 		{
