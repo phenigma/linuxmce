@@ -55,6 +55,8 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		return;
 	}
 	
+	g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++++++++ An usb device added");
+	
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	gchar *category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
 	if( bus != NULL &&
@@ -64,6 +66,9 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
 		int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 
+		g_pPlutoLogger->Write(LV_DEBUG, "An usb device added with vendor_id 0x%04x and product_id 0x%04x", 
+										usb_device_vendor_id, 
+										usb_device_product_id);
 #ifdef NEW_PNP
 // /MessageSend dcerouter -targetType category 999 159 2 65 52 4 51 "0403f850"
 	char buffer[64];
@@ -214,6 +219,8 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 {
 	if( ctx != NULL && udi != NULL )
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "------------------- An usb device removed");
+	
 		gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 		gchar *category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
 		if( bus != NULL &&
@@ -224,11 +231,15 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 	
 #ifdef NEW_PNP
+			g_pPlutoLogger->Write(LV_DEBUG, "an known usb device added with vendor_id 0x%04x and product_id 0x%04x", 
+											usb_device_vendor_id, 
+											usb_device_product_id);
+			
 	// /MessageSend dcerouter -targetType category 999 159 2 65 52 4 51 "0403f850"
-		char buffer[64];
-		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
-		
-		halDevice->EVENT_Device_Removed("", "", 0, "", 0, buffer, 4, 0, udi, "");
+			char buffer[64];
+			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+			
+			halDevice->EVENT_Device_Removed("", "", 0, "", 0, buffer, 4, 0, udi, "");
 #else
 			map<unsigned int, int>::iterator it;
 			it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
@@ -258,6 +269,7 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 			int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
 			
+			g_pPlutoLogger->Write(LV_DEBUG, "------------------- An usb device removed ------");
 #ifdef NEW_PNP
 	// /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
 		gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
@@ -269,6 +281,8 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
+			g_pPlutoLogger->Write(LV_DEBUG, "udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
+			
 			halDevice->EVENT_Device_Removed("", "", 0, "", 0, buffer, 4, 0, udi, "37|" + portID);
 		}
 		
@@ -384,20 +398,20 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			
 #ifdef NEW_PNP
 // /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
-	gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
-	if(serial_port != NULL)
-	{
-		string portID;
-		getPortIdentification(string(serial_port), portID);
-		
-		char buffer[64];
-		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
-	
-		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID);
-	}
-	
-	g_free (serial_port);
-	serial_port = NULL;
+			gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
+			if(serial_port != NULL)
+			{
+				string portID;
+				getPortIdentification(string(serial_port), portID);
+				
+				char buffer[64];
+				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+			
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID);
+			}
+			
+			g_free (serial_port);
+			serial_port = NULL;
 #else
 			map<unsigned int, int>::iterator it =
 				templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
@@ -435,6 +449,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 
 void* PlutoHalD::startUp(void *pnp)
 {
+	g_pPlutoLogger->Write(LV_DEBUG, "############ Start ");
+	
 	if( pnp == NULL )
 	{
 		// error
@@ -449,6 +465,8 @@ void* PlutoHalD::startUp(void *pnp)
 		// error
 		return NULL;
 	}
+
+#ifndef NEW_PNP
 	pnpDeviceID = halDevice->m_pData->m_dwPK_Device_ControlledVia;
 	if( !pnpDeviceID )
 	{
@@ -456,7 +474,6 @@ void* PlutoHalD::startUp(void *pnp)
 		return NULL;
 	}
 
-#ifndef NEW_PNP
 	//get the list of the templates and their corresponding product_id / vendor_id
 	string response;
 	if( !sendMessage(	"-targetType template -o 0 " + 
@@ -508,6 +525,8 @@ void* PlutoHalD::startUp(void *pnp)
 	}
 #endif
 	
+	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 1");
+	
 	loop = g_main_loop_new (NULL, FALSE);
 	
 	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
@@ -524,6 +543,8 @@ void* PlutoHalD::startUp(void *pnp)
 		return NULL;
 	}
 	
+	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 2");
+	
 	libhal_ctx_set_device_added(ctx, myDeviceAdded);
 	libhal_ctx_set_device_removed(ctx, myDeviceRemoved);
 
@@ -533,16 +554,22 @@ void* PlutoHalD::startUp(void *pnp)
 	libhal_ctx_set_dbus_connection(ctx, halConnection);
 	mainloop_integration(ctx, libhal_ctx_get_dbus_connection(ctx));
 	
+	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 3");
+	
 	libhal_ctx_init(ctx, NULL);
 	
 	initialize(ctx);
 	
 	libhal_device_property_watch_all(ctx, &halError);
 
+	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 4");
+	
 	g_main_loop_run(loop);
 	
 	libhal_ctx_shutdown(ctx, NULL);
 	libhal_ctx_free(ctx);
+	
+	g_pPlutoLogger->Write(LV_DEBUG, "############ END ----------- ");
 	
 	return NULL;
 }
