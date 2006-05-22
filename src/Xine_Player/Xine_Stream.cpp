@@ -1110,18 +1110,16 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 				break; // Ignore this while we're doing all those seeks
 			{
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
-				//TODO: reenable
-				//!g_pPlutoLogger->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str() );
-                //UI set title: Title 58, Chapter 1,
+				
+				g_pPlutoLogger->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
+                		//UI set title: Title 58, Chapter 1,
 				const char *p = strstr( data->str, "Title " );
 				if ( p )
-					//TODO reenable
-					/*!pXineStream->m_pOwner->m_pAggregatorObject->m_iTitle = atoi( p + 6 )*/;
+					pXineStream->m_iTitle = atoi( p + 6 );
 
 				p = strstr( data->str, "Chapter " );
 				if ( p )
-					//TODO reenable
-					/*!pXineStream->m_pOwner->m_pAggregatorObject->m_iChapter = atoi( p + 8 )*/;
+					pXineStream->m_iChapter = atoi( p + 8 );
 			}
 			break;
 
