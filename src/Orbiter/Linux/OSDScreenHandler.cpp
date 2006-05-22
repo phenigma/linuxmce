@@ -2318,7 +2318,7 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butToggleCodesDSPModes_CONST:
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
-				m_pWizardLogic->SetAVToggleDSP(false);
+				m_pWizardLogic->SetAVToggleDSP(true);
 				m_pWizardLogic->UpdateAVTemplateToggle();
 				return false;
 			}
@@ -2341,6 +2341,15 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			}
 			while( id.empty() == false );
 			m_pWizardLogic->InsertDSPModes();
+
+			if( m_pWizardLogic->GetAVToggleDSP() == false ) 
+			{
+				if( m_pWizardLogic->IsIRCodes() )
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
+				else
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
+				return true;
+			}
 		}
 		return false;
 
