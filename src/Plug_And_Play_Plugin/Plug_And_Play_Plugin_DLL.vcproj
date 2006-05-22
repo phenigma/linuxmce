@@ -86,10 +86,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib libmysql.lib pluto_main-r.lib"
 				OutputFile="../bin/Plug_And_Play_Plugin.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				ModuleDefinitionFile="Plug_And_Play_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
