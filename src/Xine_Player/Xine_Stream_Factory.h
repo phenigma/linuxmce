@@ -32,6 +32,7 @@ namespace DCE
 	
 	class Xine_Stream_Factory
 	{
+		friend class Xine_Stream;
 		private:
 			bool m_bInitialized;
 			xine_t *m_pXineLibrary;

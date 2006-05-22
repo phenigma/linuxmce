@@ -9,6 +9,7 @@
 #include "DCE/DCEConfig.h"
 
 #include "Xine_Stream.h"
+#include "Xine_Player.h"
 #include "Colorspace_Utils.h"
 #include "JpegEncoderDecoder.h"
 
@@ -357,7 +358,7 @@ bool Xine_Stream::InitXineAVOutput()
 	return true;
 }
 
-bool Xine_Stream::OpenMedia(string fileName)
+bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
 {
 	if (!m_bInitialized)
 	{
@@ -443,6 +444,36 @@ bool Xine_Stream::OpenMedia(string fileName)
 		return false;
 	}
 
+	// reading information about media
+	sMediaInfo = "";
+	int titlesCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_COUNT);
+	g_pPlutoLogger->Write( LV_STATUS, "Stream titles count: %d", titlesCount);
+	int hasChapters = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_HAS_CHAPTERS);
+	g_pPlutoLogger->Write( LV_STATUS, "Stream has chapters: %d", hasChapters);
+	
+	if (!hasChapters)
+	{
+		//simply enumerating titles count
+		for (int i=1; i<=titlesCount; i++)
+		{
+			sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
+		}
+	}
+	else
+	{
+		/*
+		int chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
+		g_pPlutoLogger->Write( LV_STATUS, "Stream chapters count: %d", chaptersCount);*/
+		
+		//also simply enumerating as we can't find the number of chapters using the current xine api
+		for (int i=1; i<=titlesCount; i++)
+		{
+			sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
+		}		
+	}
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Stream media info: %s", sMediaInfo.c_str());
+	
 	return true;
 }
 
@@ -1773,8 +1804,7 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 	//XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
 
 	if ( ! m_isSlimClient )
-		//TODO reenable
-		/*!m_pAggregatorObject->EVENT_Playback_Completed(m_pAggregatorObject->m_sCurrentFile,iStreamID, bWithErrors )*/;
+		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );
 }
 
 int Xine_Stream::enableBroadcast( int iStreamID )

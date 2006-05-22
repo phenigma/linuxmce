@@ -302,11 +302,13 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		return;
 	}
 	
-	if (pStream->OpenMedia( sFilename ))
+	string sMediaInfo;
+	
+	if (pStream->OpenMedia( sFilename, sMediaInfo ))
 	{
 		if (pStream->playStream( sMediaPosition ))
 		{
-			EVENT_Playback_Started(sFilename,iStreamID,"Title 1 Chapter 1\t1\t1\nTitle 1 Chapter 2\t2\t1\nTitle 9\t\t9\n","audio??","video??");
+			EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,"audio??","video??");
 		}
 		else
 		{

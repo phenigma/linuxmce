@@ -176,7 +176,6 @@ namespace DCE
 
 			bool m_isSlimClient;
 			bool m_bTrickModeActive;
-
 		public:
 			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0);
 			~Xine_Stream();
@@ -204,7 +203,7 @@ namespace DCE
 			
 			
 			// media functions
-			bool OpenMedia(string fileName);
+			bool OpenMedia(string fileName, string &sMediaInfo);
 			
 			bool playStream( string mediaPosition, bool playbackStopped = false );
 			
