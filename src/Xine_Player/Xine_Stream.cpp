@@ -38,14 +38,6 @@ static const char noCursorDataDescription[] =
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-// Since xine can't handle speeds other than 1x,2x,4x, we'll create our own
-// thread to handle special seek speeds by doing lots of searches
-// If g_iSpecialSeekSpeed==0, that means we don't need a special speed--thread will sleep
-// It can be set to a value such as 32000 (for 32x) or -250 (for -1/4x)
-// The event processing thread will handle it
-int g_iSpecialSeekSpeed = 0;
-
-
 namespace DCE
 { // DCE namespace begin
 
@@ -76,6 +68,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
 	
+	m_iSpecialSeekSpeed = 0;
 	m_iSpecialOneTimeSeek = 0;
 	m_iPrebuffer = 0;
 	
@@ -585,7 +578,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		// updating every second - position
 		if ( iCounter++ > 10 )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), g_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
+			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
 			iCounter = 0;
 			
 			//if it is a time - reporting our timecode to player object
@@ -602,7 +595,8 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 			pStream->m_iSpecialOneTimeSeek = 0;
 			pStream->ReportTimecode();
 		}
-		if ( g_iSpecialSeekSpeed )
+		
+		if ( pStream->m_iSpecialSeekSpeed )
 			pStream->HandleSpecialSeekSpeed();
 
 		usleep( 100000 );
@@ -826,12 +820,12 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 
 	timespec tsElapsed = ts-m_tsLastSpecialSeek;
 	int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
-	int seekTime = m_posLastSpecialSeek + (msElapsed * g_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
+	int seekTime = m_posLastSpecialSeek + (msElapsed * m_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
 	int positionTime, totalTime;
 	getStreamPlaybackPosition( positionTime, totalTime );
 
 	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
-												g_iSpecialSeekSpeed, msElapsed,
+												m_iSpecialSeekSpeed, msElapsed,
 												m_posLastSpecialSeek,seekTime,positionTime);
 
 	if ( seekTime < 0 || seekTime > totalTime )
@@ -884,8 +878,8 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	int Whole = g_iSpecialSeekSpeed / 1000;
-	int Fraction = g_iSpecialSeekSpeed % 1000;
+	int Whole = m_iSpecialSeekSpeed / 1000;
+	int Fraction = m_iSpecialSeekSpeed % 1000;
 	string sSpeed;
 
 	if ( Fraction < 0 )
@@ -929,7 +923,7 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 	else
 		sSpeed += StringUtils::itos( seconds );
 
-	if ( ( g_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
+	if ( ( m_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
 		DisplayOSDText("");
 	else
 		DisplayOSDText( sSpeed );
@@ -983,7 +977,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
-	g_iSpecialSeekSpeed = Speed;
+	m_iSpecialSeekSpeed = Speed;
 //	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
 	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
@@ -996,7 +990,7 @@ void Xine_Stream::StopSpecialSeek()
 	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
-	g_iSpecialSeekSpeed = 0;
+	m_iSpecialSeekSpeed = 0;
 	DisplayOSDText("");
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
@@ -1098,7 +1092,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 		break;
 
 		case XINE_EVENT_UI_SET_TITLE:
-			if ( g_iSpecialSeekSpeed )
+			if ( pXineStream->m_iSpecialSeekSpeed )
 				break; // Ignore this while we're doing all those seeks
 			{
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
@@ -1156,7 +1150,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			break;
 
 		case XINE_EVENT_UI_CHANNELS_CHANGED:
-			if ( g_iSpecialSeekSpeed )
+			if ( pXineStream->m_iSpecialSeekSpeed )
 				break; // Ignore this while we're doing all those seeks
 			{
 				int numaudio = xine_get_stream_info( pXineStream->m_pXineStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL );
@@ -1353,7 +1347,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping any seeker");
 		
-		if (g_iSpecialSeekSpeed)
+		if (m_iSpecialSeekSpeed)
 		{
 			StopSpecialSeek();
 		} 
@@ -1392,14 +1386,14 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			m_bTrickModeActive = false;
 		}
 		
-		if (g_iSpecialSeekSpeed==0)
+		if (m_iSpecialSeekSpeed==0)
 		{
 			StartSpecialSeek( desiredSpeed );
 		}
 		else
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed changing special seek speed");
-			g_iSpecialSeekSpeed = desiredSpeed;
+			m_iSpecialSeekSpeed = desiredSpeed;
 		}
 		
 		return;
@@ -1409,7 +1403,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	// trick play is supported and  desired speed is ok
 	if ((desiredSpeed > 0) && trickModeSupported)
 	{
-		if (g_iSpecialSeekSpeed)
+		if (m_iSpecialSeekSpeed)
 		{
 			StopSpecialSeek();
 		} 
@@ -1873,7 +1867,7 @@ void Xine_Stream::sendInputEvent( int eventType )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//g_iSpecialSeekSpeed = 0;
+	//m_iSpecialSeekSpeed = 0;
 
 	time_t startTime = time( NULL );
 	//XineStream *pStream;

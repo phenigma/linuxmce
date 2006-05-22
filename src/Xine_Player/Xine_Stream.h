@@ -113,6 +113,7 @@ namespace DCE
 			
 			
 		private:
+			int m_iSpecialSeekSpeed;
 			int m_iSpecialOneTimeSeek;
 
 			// X subsystem properties
