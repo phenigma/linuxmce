@@ -1082,18 +1082,22 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	
-	g_pPlutoLogger->Write( LV_STATUS, "V1: %d",  xine_get_param( m_pXineStream, XINE_PARAM_SPEED));
-	g_pPlutoLogger->Write( LV_STATUS, "V2: %d",  xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER));
 	
 	m_iSpecialSeekSpeed = Speed;
 //	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
 	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
+	/*	
+	g_pPlutoLogger->Write( LV_STATUS, "V0: %d",  m_iSpecialSeekSpeed);
+	g_pPlutoLogger->Write( LV_STATUS, "V1: %d",  xine_get_param( m_pXineStream, XINE_PARAM_SPEED));
+	g_pPlutoLogger->Write( LV_STATUS, "V2: %d",  xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER));
+	*/
 }
 
 void Xine_Stream::StopSpecialSeek()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
 	if (!m_iSpecialSeekSpeed)
 		return;
 	
@@ -1101,6 +1105,7 @@ void Xine_Stream::StopSpecialSeek()
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	m_iSpecialSeekSpeed = 0;
+	//m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplayOSDText("");
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
