@@ -587,6 +587,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 				pStream->ReportTimecode();
 				iCounter_TimeCode = 1;
 			}
+			
 		}
 		
 		if ( pStream->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
@@ -594,6 +595,12 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 			pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
 			pStream->m_iSpecialOneTimeSeek = 0;
 			pStream->ReportTimecode();
+		}
+		
+		//updating time and speed when @trickplay mode
+		if (pStream->m_bTrickModeActive)
+		{
+			pStream->DisplaySpeedAndTimeCode();
 		}
 		
 		if ( pStream->m_iSpecialSeekSpeed )
@@ -880,6 +887,13 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 	
 	int Whole = m_iSpecialSeekSpeed / 1000;
 	int Fraction = m_iSpecialSeekSpeed % 1000;
+	
+	if (m_bTrickModeActive)
+	{
+		Whole = m_iTrickPlaySpeed / 1000;
+		Fraction = m_iTrickPlaySpeed % 1000;
+	}
+	
 	string sSpeed;
 
 	if ( Fraction < 0 )
@@ -923,7 +937,7 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 	else
 		sSpeed += StringUtils::itos( seconds );
 
-	if ( ( m_iSpecialSeekSpeed == 0 ) || ( seconds_only == 1 ) )
+	if ( (( m_iSpecialSeekSpeed == 0 )&&!m_bTrickModeActive) || ( seconds_only == 1 ) )
 		DisplayOSDText("");
 	else
 		DisplayOSDText( sSpeed );
@@ -940,7 +954,6 @@ void Xine_Stream::DisplayOSDText( string sText )
 		
 		if ( m_xine_osd_t )
 		{
-			xine_osd_hide( m_xine_osd_t, 0 );
 			xine_osd_free( m_xine_osd_t );
 			m_xine_osd_t = NULL;
 		}
@@ -949,7 +962,6 @@ void Xine_Stream::DisplayOSDText( string sText )
 
 	if ( m_xine_osd_t )
 	{
-		xine_osd_hide( m_xine_osd_t, 0 );
 		xine_osd_free( m_xine_osd_t );
 	}
 	
@@ -986,6 +998,8 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 void Xine_Stream::StopSpecialSeek()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	if (!m_iSpecialSeekSpeed)
+		return;
 	
 	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
 	
@@ -1214,8 +1228,7 @@ void Xine_Stream::selectNextButton()
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//TODO reenable
-	//!g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", iStreamID );
+	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -1267,15 +1280,6 @@ void Xine_Stream::pushCurrentButton()
 bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 {
 	StopSpecialSeek();
-	// TODO: properly handle OSD
-	/*!
-	if ( m_xine_osd_t )
-	{
-        // Freeing causes a seg fault.  I guess that means xinelib automatically frees it when the stream changes???
-        // xine_osd_free(m_xine_osd_t);
-		m_xine_osd_t = NULL;
-	}
-	*/
 
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
@@ -1283,9 +1287,8 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 	time_t startTime = time( NULL );
 
 	int Subtitle = -2, Angle = -2, AudioTrack = -2;
-	// TODO: reenable
-	//!int pos = m_pAggregatorObject->CalculatePosition( mediaPosition, NULL, &Subtitle, &Angle, &AudioTrack );
-	int pos = 0;
+	
+	int pos = CalculatePosition( mediaPosition, NULL, &Subtitle, &Angle, &AudioTrack );
 
 	if ( xine_play( m_pXineStream, 0, 0 ) )
 	{
@@ -1373,8 +1376,8 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	
 	
 	// reverse play requested or trick_play is not supported for this stream
-	// or we need ultra-fast-forward (>20x)
-	const int UltraFastFWD = 20*1000;
+	// or we need ultra-fast-forward (>16x)
+	const int UltraFastFWD = 16*1000;
 	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>=UltraFastFWD) )
 	{	
 		if ( trickModeSupported &&  trickModeActive )
@@ -1383,6 +1386,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
 		
@@ -1422,20 +1426,12 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		}
 		
 		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
+		m_iTrickPlaySpeed = desiredSpeed;
 		m_bTrickModeActive = true;
 		
 		return;
 	}
 	
-	// TODO clear
-	/*	
-
-	if ( desiredSpeed == PLAYBACK_FF_1 )
-		DisplayOSDText( "" );
-	else
-		DisplaySpeedAndTimeCode();
-
-	*/
 	g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed IMPOSSIBLE_STATE");
 }
 

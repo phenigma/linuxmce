@@ -115,6 +115,7 @@ namespace DCE
 		private:
 			int m_iSpecialSeekSpeed;
 			int m_iSpecialOneTimeSeek;
+			int m_iTrickPlaySpeed;
 
 			// X subsystem properties
 			string m_sWindowTitle;
