@@ -21,7 +21,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	ptrFactory = new Xine_Stream_Factory();
+	ptrFactory = new Xine_Stream_Factory(this);
 	if (!ptrFactory->StartupFactory())
 	{
 		throw "Xine_Player error: cannot startup Xine_Streams_Factory";

@@ -1180,8 +1180,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					}
 					if ( i >= 100 )
 						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong audio tracks>100" );
-					//TODO: reenable
-					//!pXineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks( sAudioTracks );
+					
+					pXineStream->m_pFactory->ReportAudioTracks( sAudioTracks );
 				}
 				else
 					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple audio tracks" );
@@ -1202,8 +1202,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					}
 					if ( i >= 100 )
 						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong subitltes>100" );
-					//TODO: reenable
-					//!pXineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles( sSubtitles );
+					
+					pXineStream->m_pFactory->ReportSubtitles( sSubtitles );
 				}
 				else
 					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles" );

@@ -4,11 +4,13 @@
 
 #include "Xine_Stream_Factory.h"
 #include "Xine_Stream.h"
+#include "Xine_Player.h"
 
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream_Factory::Xine_Stream_Factory():
+Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
+		m_pPlayer(pOwner),
 		m_factoryMutex("xine-stream-factory-access-mutex")
 {
 	pthread_mutexattr_t mutexAttr;
@@ -202,6 +204,16 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID)
 			return NULL;
 		}
 	}
+}
+
+void Xine_Stream_Factory::ReportAudioTracks(string sTracks)
+{
+	m_pPlayer->DATA_Set_Audio_Tracks(sTracks);
+}
+
+void Xine_Stream_Factory::ReportSubtitles( string sSubtitles)
+{
+	m_pPlayer->DATA_Set_Subtitles(sSubtitles);
 }
 
 } // DCE namespace end

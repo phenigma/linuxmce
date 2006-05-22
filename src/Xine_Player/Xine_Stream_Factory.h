@@ -27,7 +27,8 @@
 
 namespace DCE
 {
-	class Xine_Stream;
+	class Xine_Stream;	
+	class Xine_Player;
 	
 	class Xine_Stream_Factory
 	{
@@ -46,9 +47,11 @@ namespace DCE
 			
 			// factory access controlling mutex
 			pluto_pthread_mutex_t m_factoryMutex;
-					
+			
+			// owning player
+			Xine_Player *m_pPlayer;
 		public:
-			Xine_Stream_Factory();
+			Xine_Stream_Factory(Xine_Player *pOwner);
 			~Xine_Stream_Factory();
 			
 			bool StartupFactory();
@@ -60,6 +63,9 @@ namespace DCE
 			void setOutputSpeakerArrangement( string strOutputSpeakerArrangement );
 			
 			Xine_Stream *GetStream(int streamID);
+			
+			void ReportAudioTracks(string sTracks);
+			void ReportSubtitles(string sSubtitles);
 	};
 
 }
