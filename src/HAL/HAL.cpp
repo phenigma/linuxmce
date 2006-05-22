@@ -256,7 +256,7 @@ bool HAL::sendMessage(Message * pMsg, std::string &returnValue)
 	{			
 		if(pMsg != NULL)
 		{
-			string response;			
+			string response;
 			bool bRet = m_pEvent->SendMessage( pMsg, response);
 			pMsg = NULL;
 			if(bRet && (!response.empty() || response.find("Error") == string::npos) )

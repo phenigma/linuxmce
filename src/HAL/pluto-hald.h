@@ -42,12 +42,6 @@ class PlutoHalD
 		static void shutDown();
 		
 		/***/
-		static bool sendMessage(Message * pMsg, std::string &returnValue);
-		
-		/***/
-		static bool sendMessage(std::string params, std::string &returnValue);
-		
-		/***/
 		static void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection);
 		
 		/***/
