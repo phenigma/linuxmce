@@ -19,7 +19,6 @@ function dceEvents($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">'.$TEXT_EVENTS_CONST.'</h3>
 			<form action="index.php" method="POST" name="dceEvents">
 			<input type="hidden" name="section" value="dceEvents">
 			<input type="hidden" name="action" value="update">
@@ -122,6 +121,7 @@ function getEventCategoryChilds($eventCategory,$dbADO,$level)
 			$out.='
 				<tr>
 					<td>&nbsp;</td>
+					<td>'.$rowEvents['PK_Event'].'</td>
 					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=dceEvents&EventID='.$rowEvents['PK_Event'].'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">'.$rowEvents['Description'].'<a></td>
 					<td>'.join(', ',$dtLinksArray).'</td>
 				</tr>';
