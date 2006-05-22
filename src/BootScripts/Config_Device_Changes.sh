@@ -118,6 +118,8 @@ for ((i = 1; i <= "$#"; i++)); do
 	esac
 done
 
+trap 'Unlock "CDC" "Config_Device_Changes"' EXIT
+WaitLock "CDC" "Config_Device_Changes" # don't run two copies of CDC simultaneously
 if [[ "$NoVideo" != "y" ]]; then
 	CleanupVideo
 fi
@@ -142,13 +144,13 @@ awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
 
 chmod +x "$CUsh"
-WaitLock "InstallNewDevice" "Confirm_Device_Changes" # don't step on InstallNewDevices scripts that may be running in the background
+WaitLock "InstallNewDevice" "Config_Device_Changes" # don't step on InstallNewDevices scripts that may be running in the background
 LogFile="/var/log/pluto/Config_Device_Changes.log"
 date -R >>"$LogFile"
 if bash -x "$CUsh" &> >(tee -a "$LogFile"); then
 	Unset_NeedConfigure_Children "$PK_Device"
 fi
-Unlock "InstallNewDevice" "Confirm_Device_Changes"
+Unlock "InstallNewDevice" "Config_Device_Changes"
 #rm "$CUsh"
 
 echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall
