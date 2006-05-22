@@ -534,6 +534,10 @@ function editMasterDevice($output,$dbADO) {
 								<td colspan="2"><input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'" class="input_big"></td>
 							</tr>
 							<tr>
+								<td>'.$TEXT_VENDOR_MODEL_ID_CONST.'</td>
+								<td colspan="4"><input type="text" name="VendorModelID_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['VendorModelID'].'" class="input_big"></td>
+							</tr>			
+							<tr>
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
 								<td colspan="4"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" style="width:100%">'.$rowDHCP['Description'].'</textarea></td>
 								<td><input type="button" class="button" name="editDHCP" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="'.$TEXT_DELETE_CONST.'" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
@@ -550,9 +554,15 @@ function editMasterDevice($output,$dbADO) {
 								<td colspan="2"><input type="text" name="mac_to" value="" class="input_big"></td>
 							</tr>
 							<tr bgcolor="#EEEEEE">
+								<td>'.$TEXT_VENDOR_MODEL_ID_CONST.'</td>
+								<td colspan="4"><input type="text" name="VendorModelID" value="" class="input_big"></td>
+							</tr>		
+							<tr bgcolor="#EEEEEE">
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
 								<td colspan="4"><textarea name="commentPnp" rows="2" style="width:100%"></textarea></td>
-								<td><input type="submit" class="button" name="addDHCP" value="'.$TEXT_ADD_CONST.'"></td>
+							</tr>
+							<tr>
+								<td colspan="5"><input type="submit" class="button" name="addDHCP" value="'.$TEXT_ADD_CONST.'"></td>
 							</tr>
 							<input type="hidden" name="dhcpArray" value="'.((join(',',$dhcpArray))).'">	
 						</table>
@@ -675,6 +685,7 @@ function editMasterDevice($output,$dbADO) {
 		$newScreen=(int)@$_POST['newScreen'];
 		$newMacFrom=@$_POST['mac_from'];
 		$newMacTo=@$_POST['mac_to'];
+		$VendorModelID=cleanString($_POST['VendorModelID']);
 		$newManufacturer=((int)@$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
 		$manufacturerURL=($_POST['manufacturerURL']!='')?$_POST['manufacturerURL']:NULL;
 		$internalURLsufix=($_POST['internalURLsufix']!='')?$_POST['internalURLsufix']:NULL;
@@ -686,15 +697,16 @@ function editMasterDevice($output,$dbADO) {
 
 
 		if($newMacFrom!='' && $newMacTo!=''){
-			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description) VALUES (?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment));
+			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description,VendorModelID) VALUES (?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment,$VendorModelID));
 			$locationGoTo='plugAndPlay';
 		}
 
 		foreach ($dhcpArray AS $dhcpID){
 			$macFrom=@$_POST['mac_from_'.$dhcpID];
 			$macTo=@$_POST['mac_to_'.$dhcpID];
-			$newComment=@$_POST['commentPnp_'.$dhcpID];
-			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$dhcpID));
+			$VendorModelID=cleanString(@$_POST['VendorModelID_'.$dhcpID]);
+			$newComment=cleanString(@$_POST['commentPnp_'.$dhcpID]);
+			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=?,VendorModelID=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$VendorModelID,$dhcpID));
 		}
 
 		if($_REQUEST['toDel']!=''){
