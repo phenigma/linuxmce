@@ -50,7 +50,7 @@ for Device in $ExternalStorageDevices; do
 	Device_MountPoint="/mnt/device/$Device_ID"
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_BLOCK_DEVICE")
 
-	Fstab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n$Device_ID -fstype=nfs,tcp,soft,timeo=1,retrans=1,retry=0 ${Device_Host}:${Device_MountPoint}"
+	Fstab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n$Device_ID -fstype=nfs,tcp,soft,timeo=5,retrans=1,retry=0 ${Device_Host}:${Device_MountPoint}"
 	#stab_ExternalStorageDevices="$Fstab_ExternalStorageDevices\n${Device_Host}:${Device_MountPoint} $Device_MountPoint nfs rsize=8192,wsize=8192,intr,tcp 1 1"
 done
 
