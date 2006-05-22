@@ -5,11 +5,13 @@ CC=$(CXX)
 CPPFLAGS=-W -Wall -pipe -ggdb3
 CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
 LDFLAGS=-L$(ROOT)/lib
-LDLIBS=-lDCECommon -lSerializeClass -lmysqlclient_r -lPlutoUtils
+LDLIBS=-lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r
 
-all: Main.o TestSerialPort.o UserUtils.o
-	g++ Main.o TestSerialPort.o UserUtils.o -o TestSerialPort $(LDFLAGS) $(LDLIBS)
+SOURCES=Main.cpp ../Generic_Serial_Device/IOUtils.cpp
+
+all: $(SOURCES:.cpp=.o)
+	g++ $+ -o TestSerialPort $(LDFLAGS) $(LDLIBS)
 	cp TestSerialPort $(ROOT)/bin/
 
 clean:
-	rm -f TestSerialPort TestSerialPort.o
+	rm -f TestSerialPort *.o
