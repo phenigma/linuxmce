@@ -44,6 +44,39 @@ public:
 	* @brief Events methods for our device
 	*/
 
+	virtual void Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Device_Detected_CONST,
+			9 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Mac_Address_CONST, sMac_Address.c_str(),
+			EVENTPARAMETER_Text_CONST, sText.c_str(),
+			EVENTPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			EVENTPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
+			EVENTPARAMETER_VendorModelID_CONST, sVendorModelID.c_str(),
+			EVENTPARAMETER_PK_CommMethod_CONST, StringUtils::itos(iPK_CommMethod).c_str(),
+			EVENTPARAMETER_PK_PnpProtocol_CONST, StringUtils::itos(iPK_PnpProtocol).c_str(),
+			EVENTPARAMETER_PNP_Serial_Number_CONST, sPNP_Serial_Number.c_str(),
+			EVENTPARAMETER_DeviceData_CONST, sDeviceData.c_str()));
+	}
+
+	virtual void Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Device_Removed_CONST,
+			10 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Mac_Address_CONST, sMac_Address.c_str(),
+			EVENTPARAMETER_Text_CONST, sText.c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			EVENTPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			EVENTPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
+			EVENTPARAMETER_VendorModelID_CONST, sVendorModelID.c_str(),
+			EVENTPARAMETER_PK_CommMethod_CONST, StringUtils::itos(iPK_CommMethod).c_str(),
+			EVENTPARAMETER_PK_PnpProtocol_CONST, StringUtils::itos(iPK_PnpProtocol).c_str(),
+			EVENTPARAMETER_PNP_Serial_Number_CONST, sPNP_Serial_Number.c_str(),
+			EVENTPARAMETER_DeviceData_CONST, sDeviceData.c_str()));
+	}
+
 };
 
 
@@ -180,6 +213,8 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str()); }
+	void EVENT_Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData) { GetEvents()->Device_Removed(sMac_Address.c_str(),sText.c_str(),iPK_Device,sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str()); }
 	//Commands - Override these to handle commands from the server
 
 	//This distributes a received message to your handler.

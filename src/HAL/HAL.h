@@ -2,7 +2,7 @@
 #ifndef HAL_h
 #define HAL_h
 
-//	DCE Implemenation for #1797 HAL
+//	DCE Implemenation for #1808 HAL
 
 #include "Gen_Devices/HALBase.h"
 //<-dceag-d-e->
@@ -66,9 +66,12 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData);
+	void EVENT_Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData);
 
 			*****COMMANDS***** we need to implement
 	*/
+
 
 //<-dceag-h-e->
 private:

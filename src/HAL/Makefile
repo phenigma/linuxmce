@@ -10,7 +10,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = HAL
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1797mplateID
+MYDEVTEMPLATEID = 1808mplateID
 
 Gen_Dev_Files = $(GENDEV)/HALBase.cpp
 sources = Main.cpp HAL.cpp $(Gen_Dev_Files)

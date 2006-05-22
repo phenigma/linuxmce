@@ -50,7 +50,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( !pDeviceCategory )
 		return true;
 
-	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) || pDeviceCategory->WithinCategory(DEVICECATEGORY_Hard_Drives_CONST) )
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
 
 	return true;

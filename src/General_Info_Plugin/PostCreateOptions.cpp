@@ -46,7 +46,7 @@ void PostCreateOptions::PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pO
 		return;
 	}
 
-	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) )
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		PostCreateDevice_NetworkStorage(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
 		PostCreateDevice_Cameras(pRow_Device,pOH_Orbiter);

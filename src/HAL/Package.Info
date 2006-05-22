@@ -1,9 +1,9 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1797 HAL
-Maintainer = DCE_MaintainerName
-Email = DCE_MaintainerEmail
+desc = DCE Implemenation for #1808 HAL
+Maintainer = aaronName
+Email = 
 Depend = DCE_Dependencies
 <-dceag-p-e->
 

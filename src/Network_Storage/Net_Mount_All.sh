@@ -4,7 +4,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Maxtor_openmss_EnableNFS.sh
 
-DEVICECATEGORY_Network_Storage=150
+DEVICECATEGORY_Network_Storage=158
 DEVICETEMPLATE_Maxtor_NAS=1770
 
 Q="SELECT D.PK_Device,D.Description,D.FK_DeviceTemplate,DT.Description,D.IPaddress
