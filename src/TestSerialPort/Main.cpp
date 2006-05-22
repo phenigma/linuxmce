@@ -40,6 +40,7 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 
 int main(int argc, char *argv[])
 {
+
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/TestSerialPort.log");
 
 	string sPort,sTransmitString,sSearchString,sMessage;
@@ -183,8 +184,27 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 	if(pos>=sTransmitString.size())
 		return false;
 
-	sBlock=sTransmitString;  // Todo -- look for \s1000s to delay x milliseconds
-	pos+=sBlock.size();
+	if( sTransmitString.size()-pos>3 && sTransmitString[pos]=='\\' && sTransmitString[pos+1]=='s' )
+	{
+		int Delay = atoi(sTransmitString.substr(pos+2).c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Sleep %dms",Delay);
+		Sleep(Delay);
+		pos = sTransmitString.find('m',pos);
+		if( pos==string::npos || pos>=sTransmitString.size()-1 )
+			return false;
+		pos++;
+	}
+
+	string::size_type pos_delay=0;
+	if( (pos_delay=sTransmitString.find("\\s",pos))==string::npos )
+	{
+		sBlock=sTransmitString.substr(pos);  // Todo -- look for \s1000s to delay x milliseconds
+		pos=sTransmitString.size();
+		return true;
+	}
+
+	sBlock = sTransmitString.substr(pos,pos_delay-pos);
+	pos = pos_delay;
 	return true;
 }
 
