@@ -4665,11 +4665,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice(long DeviceIDFrom, long DeviceIDTo,
-			string sMac_address, string sDescription)
+			string sDescription, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
+				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -4677,11 +4677,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sMac_address, string sDescription)
+			string sDescription, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
+				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -4689,11 +4689,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sMac_address, string sDescription)
+			string sDescription, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
+				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -4701,11 +4701,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sMac_address, string sDescription)
+			string sDescription, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
+				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -9486,7 +9486,7 @@ namespace DCE
 		virtual void SCREEN_AudioOptions(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Subtitles(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Angles(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_NewPnpDevice(long PK_Screen, string sMac_address, string sDescription){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VdrRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CdRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_PowerFile(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -10196,9 +10196,9 @@ namespace DCE
 				}
 				case 116:
 				{
-					string sMac_address = pMessage->m_mapParameters[47];
 					string sDescription = pMessage->m_mapParameters[163];
-					SCREEN_NewPnpDevice(nPK_Screen, sMac_address, sDescription);
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_NewPnpDevice(nPK_Screen, sDescription, iPK_PnpQueue);
 					break;
 				}
 				case 117:
