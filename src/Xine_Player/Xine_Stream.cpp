@@ -1589,7 +1589,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			StopSpecialSeek();
 		} 
 		else 
-			if ( trickModeSupported &&  trickModeActive )
+		if ( trickModeSupported &&  trickModeActive )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
 			
