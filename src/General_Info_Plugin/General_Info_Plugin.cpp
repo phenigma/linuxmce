@@ -1234,7 +1234,9 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 {
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
-	string sManufacturerId,sTemplateId, sInfraredGrupIds; 
+	//input parameters
+	string sManufacturerId,sTemplateId,sDeviceCategory,sCommands;      
+	string sInfraredGrupIds; 
 	string sql;
 	string::size_type pos=0;
 
@@ -1242,12 +1244,15 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	MYSQL_ROW row;
 	int nRow = 0;
 
-	sManufacturerId = StringUtils::Tokenize( Parms, ",",pos );
-	sTemplateId = StringUtils::Tokenize( Parms, ",",pos );
+	sManufacturerId = StringUtils::Tokenize( Parms, ",", pos );
+	sTemplateId = StringUtils::Tokenize( Parms, ",", pos );
+	sDeviceCategory = StringUtils::Tokenize( Parms, ",", pos );
+	sCommands = StringUtils::Tokenize( Parms, ",", pos );
+	sDeviceCategory = "77"; //temporary
 
 	// construct Infrared Group
 	sql = "SELECT PK_InfraredGroup FROM InfraredGroup WHERE FK_Manufacturer=";
-	sql += sManufacturerId + " " + "AND FK_DeviceCategory=77";
+	sql += sManufacturerId + " " + "AND FK_DeviceCategory='" + sDeviceCategory + "'";
 
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
@@ -1543,8 +1548,8 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 	return pDataGrid;
 }
 
-class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string Parms, void *ExtraData, int *iPK_Variable, 
-	string *sValue_To_Assign, class Message *pMessage )
+class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos = 0;
 	DataGridTable *pDataGrid = new DataGridTable( );

@@ -32,8 +32,10 @@ private:
 	string m_AVTemplateNumericEntry;
 
 	bool m_bAVTogglePower,m_bAVToggleDSP,m_bAVToggleInput;
+
 	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
-	long m_nPKIRGroup,m_nPKDevice,m_nPKParentDevice;
+	long m_nPKIRGroupPower,m_nPKIRGroup;
+	long m_nPKDevice,m_nPKParentDevice;
 	long m_nPKMediaType,m_nPKConnectorType;
 protected:
 	class Orbiter *m_pOrbiter;
@@ -104,8 +106,8 @@ public:
 	void SetDeviceId(long id){ m_nPKDevice = id; }
 	void SetDeviceCategory(long id){ m_nPKDeviceCategory = id; }
 	long GetDeviceCategory(){ return m_nPKDeviceCategory; }
-	void SetIRGroup(long id){m_nPKIRGroup = id; }
-	long GetIRGroup(){ return m_nPKIRGroup; }
+	void SetIRGroupPower(long id){m_nPKIRGroupPower = id; }
+	long GetIRGroupPower(){ return m_nPKIRGroupPower; }
 
 	void SetAVTemplateTogglePower(bool state){ m_bAVTogglePower = state;}
 	bool GetAVTemplateTogglePower(){ return m_bAVTogglePower; }
@@ -125,6 +127,7 @@ public:
 	int GetAVIRCodesType();
 	int GetAVInputType();
 	int GetParentDevice();
+	bool IsIRCodes(string commands="");
 
 	int AddAVDeviceTemplate();
 	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);

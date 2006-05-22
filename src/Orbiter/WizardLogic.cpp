@@ -526,6 +526,27 @@ int WizardLogic::GetAVIRCodesType()
 	}
 }
 
+bool WizardLogic::IsIRCodes(string commands)
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string sql = "SELECT Description,OriginalKey FROM InfraredGroup,InfraredGroup_Command WHERE\
+		PK_InfraredGroup=FK_InfraredGroup AND FK_DeviceCategory='";
+	sql += StringUtils::ltos(m_nPKDeviceCategory) + "'" + "AND FK_Manufacturer='" + 
+		StringUtils::ltos(m_nPKAVTemplate) + "'";
+	if( !commands.empty() )
+		sql += string(" ") + "AND FK_Command IN(" + commands + ")";
+
+	if( (result.r = mysql_query_result(sql))  )
+	{
+		if( (row = mysql_fetch_row( result.r )) )
+			return true;
+		else 
+			return false;
+	}
+	return false;
+}
+
 // return value 0 unknown,1 toggle,2 discret
 int WizardLogic::GetAVInputType()
 {

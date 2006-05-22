@@ -1903,10 +1903,12 @@ void OSDScreenHandler::SCREEN_TVConfirmOnOffDiscret(long nPK_Screen)
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_4_CONST, "01" ); 
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_5_CONST, m_pWizardLogic->GetManufactureName() ); 
 	
-	//used for populate datagrid
+	//used for populate datagrid 
+	// ManufactureId,TemplateId,DeviceCategory,[Command]
 	m_pOrbiter->CMD_Set_Variable( VARIABLE_Misc_Data_2_CONST, 
 						StringUtils::ltos(m_pWizardLogic->GetManufacturerId()) + "," + 
-						StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) );
+						StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) + "," + 
+						StringUtils::ltos(m_pWizardLogic->GetDeviceCategory()) );
 	ScreenHandlerBase::SCREEN_TVConfirmOnOffDiscret(nPK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AVIRCodes_ObjectSelected, 
@@ -1954,11 +1956,11 @@ bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
-			m_pWizardLogic->SetIRGroup(nIdSelected);
+			//m_pWizardLogic->SetIRGroupPower(nIdSelected);
 		break;
 
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
-			m_pWizardLogic->SetIRGroup(nIdSelected);
+			//m_pWizardLogic->SetIRGroupPower(nIdSelected);
 		break;
 
 		case DESIGNOBJ_TVOnOffCodes_CONST:
@@ -1971,18 +1973,30 @@ bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 bool OSDScreenHandler::AVIRCodes_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *> (pData);
+	if( !pData )
+		return false;
 	
 	//localhost 0 '.$deviceToReceive.' 1 191 9 "'.$code.'"';
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
-			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVMultipleInputs_CONST )
-			{
-				m_pWizardLogic->SetAVTemplateTogglePower(false);
-				m_pWizardLogic->UpdateAVTemplateToggle();
-				//m_pOrbiter->SendMessage(
-				// save to database
-			}
+		switch( pObjectInfoData->m_PK_DesignObj_SelectedObject  )
+		{
+			case DESIGNOBJ_butTVMultipleInputs_CONST:
+			m_pWizardLogic->SetAVTemplateTogglePower(false);
+			m_pWizardLogic->UpdateAVTemplateToggle();
+			return false;
+
+			case DESIGNOBJ_butIRCodeWorks_CONST:
+			m_pWizardLogic->SetIRGroupPower( 
+				atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].c_str()) );
+			return false;
+
+			case DESIGNOBJ_butIRCodeDoesntwork_CONST:
+			return false;
+			//m_pOrbiter->SendMessage(
+			// save to database
+		}
 		break;
 
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:
@@ -1995,7 +2009,7 @@ bool OSDScreenHandler::AVIRCodes_ObjectSelected(CallBackData *pData)
 		break;
 
 		case DESIGNOBJ_TVOnOffCodes_CONST:
-		m_pWizardLogic->SetIRGroup(0);
+		m_pWizardLogic->SetIRGroupPower(0);
 			switch( pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				case DESIGNOBJ_butDiscreteOnOff_CONST:
@@ -2287,7 +2301,14 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
 			{
 				case DESIGNOBJ_butNoDSPModes_CONST:
-				return false;
+				if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butNoDSPModes_CONST)
+				{
+					if( m_pWizardLogic->IsIRCodes() )
+						m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
+					else
+						m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
+					return false;
+				}
 
 				case DESIGNOBJ_butDiscreteCodesDSPModes_CONST:
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
@@ -2330,7 +2351,11 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,
 				StringUtils::ltos(m_pWizardLogic->GetManufacturerId()) + "," + 
 				StringUtils::ltos(m_pWizardLogic->GetDeviceCategory()) );
-			m_pOrbiter->GotoDesignObj( StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
+
+			if( m_pWizardLogic->IsIRCodes() )
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
+				else
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
 			return false;
 
 			//up
