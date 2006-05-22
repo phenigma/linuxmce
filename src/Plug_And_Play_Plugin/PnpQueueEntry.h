@@ -29,6 +29,7 @@ namespace DCE
 		map<int,string> m_mapPK_DeviceData;
 		Row_Device *m_pRow_Device_Reported;
 		string m_sPK_Orbiter_List_For_Prompts;
+		string m_sDetectionScript_Running;
 
 	public:
 		// Constructor for device detected

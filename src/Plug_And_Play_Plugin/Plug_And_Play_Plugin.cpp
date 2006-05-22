@@ -431,4 +431,45 @@ PK_DeviceData\tIK_DeviceData\n
 void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c806-e->
 {
+	PLUTO_SAFETY_LOCK(pnp,m_PnpMutex);
+	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
+	if( !pPnpQueueEntry )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
+		return;
+	}
+
+	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+	pthread_cond_broadcast( &m_PnpCond );  // We got the mutex, it won't run until we're done anyway
+	if( iPK_DeviceTemplate )  // Great, we know what it is
+	{
+		pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(iPK_DeviceTemplate);
+		pPnpQueueEntry->ParseDeviceData(sData_String);
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
+		return; 
+	}
+
+	// It's either an error, a no match, or just letting us know that the script should have exited by now
+	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();)
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = it->second;
+		if( pPnpQueueEntry->m_sDetectionScript_Running==pRow_DHCPDevice->PnpDetectionScript_get() )
+		{
+			string sMessage;
+			if( sErrors=="OK" ) // This means the script finished running.  If so, it should have reported either an error, a device template, or a no match.  It shouldn't still be in the queue
+				sMessage = "**still in queue**";
+			else if( sErrors=="FAIL" )
+				sMessage = "**couldn't run script**";
+			else if( sErrors.size() )
+				sMessage = "**script reported: " + sErrors + "**";
+
+			if( sMessage.size() )  // If it's empty, this isn't an error.  Just a normal 'this isn't the right device' message.  We'll wake up the process later and check the next one
+				g_pPlutoLogger->Write(LV_CRITICAL,"Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d script %s PK_DHCPDevice %d %s",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_sDetectionScript_Running.c_str(), pRow_DHCPDevice->PK_DHCPDevice_get(),sMessage.c_str());
+
+			pPnpQueueEntry->m_mapPK_DHCPDevice_possible.erase(it++);
+			continue;
+		}
+		++it;
+	}
 }

@@ -50,8 +50,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( !pDeviceCategory )
 		return true;
 
-	// TODO -- THIS SHOULD BE A 'REGISTER CREATE DEVICE' INTERCEPTOR WHERE YOU REGISTER A DEVICETEMPLATE/CATEGORY, AND A PRE/POST CREATE CALLBACK
-	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) )
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) || pDeviceCategory->WithinCategory(DEVICECATEGORY_Hard_Drives_CONST) )
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
 
 	return true;

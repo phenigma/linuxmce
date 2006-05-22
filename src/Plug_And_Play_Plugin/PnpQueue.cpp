@@ -17,6 +17,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/DatabaseUtils.h"
+#include "PlutoUtils/LinuxSerialUSB.h"	 
 #include "PnpQueue.h"
 #include "PnpQueueEntry.h"
 #include "Plug_And_Play_Plugin.h"
@@ -104,8 +105,11 @@ void PnpQueue::Run()
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)  // The pnp mutex is held so we can safely do what we like
 		{
 			PnpQueueEntry *pPnpQueueEntry = it->second;
+			// If we've been sitting too long at either a user prompt or a detection script we need to continue anyway
 			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
-				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) )
+				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) &&
+				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) 
+				)
 			{
 				it++;
 				continue;
@@ -610,21 +614,70 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnpQueueEntry)
 {
-	bool bDetectionScriptFailed=false;
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_running_detection_scripts )
 	{
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT )
 			return false; // We're waiting for user input.  Give the user more time.
 		else
-			bDetectionScriptFailed=true; // The script has blocked.  We'll need to skip it
+		{
+			for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();)
+			{
+				Row_DHCPDevice *pRow_DHCPDevice = it->second;
+				if( pPnpQueueEntry->m_sDetectionScript_Running==pRow_DHCPDevice->PnpDetectionScript_get() )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d script %s PK_DHCPDevice %d timed out",
+						pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_sDetectionScript_Running.c_str(), pRow_DHCPDevice->PK_DHCPDevice_get());
+
+					pPnpQueueEntry->m_mapPK_DHCPDevice_possible.erase(it++);
+					continue;
+				}
+				++it;
+			}
+		}
 	}
 
 	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
 		if( pRow_DHCPDevice->PnpDetectionScript_get().size() )
-		{
+		{  
+			DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector=NULL;
+			pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+			if( pDevice_Detector )
+				pDevice_AppServer = (DeviceData_Router *) ((DeviceData_Impl *) (pDevice_Detector->m_pDevice_Core))->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
+
+			if( !pDevice_AppServer )  // Shouldn't ever happen
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts cannot find an app server for %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				continue;
+			}
+
+			string sPath;  // Where to find the device
+			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_getrow();
+			if( pRow_DeviceTemplate )
+			{
+				if( pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_RS232_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+					sPath = TranslateSerialUSB(pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]);
+				else if( pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST )
+					sPath = pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get();
+			}
+
+			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
+			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
+				" \"" + sPath + "\" \"" + pRow_DHCPDevice->PnpDetectionScript_get() + "\"";
+			string sName = "PNP Detection " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + pRow_DHCPDevice->PnpDetectionScript_get();
+			string sMessage = "0 " + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_PNP_Detection_Script_Finished_CONST) + " "
+				+ TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " 
+				+ StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + TOSTRING(COMMANDPARAMETER_Filename_CONST) + " \""
+				+ pRow_DHCPDevice->PnpDetectionScript_get() + "\" " + TOSTRING(COMMANDPARAMETER_Errors_CONST) + " ";
+
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/pnp/" + pRow_DHCPDevice->PnpDetectionScript_get(), sName,
+				sArguments,sMessage + "FAIL",sMessage + "OK",false,false,false);
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+			
 			// We have a detection script we need to run
+			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice->PnpDetectionScript_get();
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
 			return false;
 		}
