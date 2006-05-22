@@ -238,6 +238,9 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVIRCodesSets)), 
 		DATAGRID_IR_Codes_Sets_CONST,PK_DeviceTemplate_get());
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::IRCommands)), 
+		DATAGRID_IR_Codes_Sets_CONST,PK_DeviceTemplate_get());
 
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
@@ -1579,6 +1582,51 @@ class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string P
 			pDataGrid->SetData(0, nRow++, pCell );
 		}
 	}
+
+	return pDataGrid;
+}
+
+// get the IRCommands for an IR Groups
+class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	string::size_type pos = 0;
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string sIRGroupId;
+	string sql,index;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int nRow = 0;
+
+	sIRGroupId = StringUtils::Tokenize(Parms, ",", pos);
+	if( sIRGroupId.empty() )
+	{
+		pCell = new DataGridCell( "Couldn't read parameters", "0" );
+		pDataGrid->SetData(0, 0, pCell );
+		return pDataGrid;
+	}
+
+	sql = "SELECT PK_Command,Description,FK_InfraredGroup,IRData FROM Command,InfraredGroup_Command\
+		  WHERE PK_Command=FK_Command AND FK_InfraredGroup='";
+	sql += sIRGroupId + "'";
+
+	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
+	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+
+	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			index = string(row[0]) + "," + StringUtils::ltos(nRow);
+			if( row[2] && row[1] )
+				pCell = new DataGridCell( row[2], row[0] );
+			else
+				pCell = new DataGridCell( "NULL", "0" );
+			pDataGrid->SetData(0, nRow++, pCell );
+		}
+	}
+
 
 	return pDataGrid;
 }

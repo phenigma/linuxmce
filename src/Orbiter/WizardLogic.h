@@ -51,6 +51,7 @@ public:
 	string m_SelectId;
 
 	map<int,string> m_mapIRCommands;
+	set<int> m_listIRGroups;
 
 	WizardLogic(Orbiter *pOrbiter);
 	virtual ~WizardLogic();

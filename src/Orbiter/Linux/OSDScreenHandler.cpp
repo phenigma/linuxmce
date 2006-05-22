@@ -541,14 +541,12 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 		return true;
 	}
 	
-	//AVW 	
+	//Video Wizard 	
 	DesignObj_Orbiter *pObj = NULL;
 	DesignObj_DataGrid *pDatagridObj = NULL;
 	DataGridCell *pCell = NULL;
 	string sVal, sId, sAux;
 	int nId;
-
-	int test = GetCurrentScreen_PK_DesignObj();
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
@@ -595,15 +593,16 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 {
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	long nDesignId = GetCurrentScreen_PK_DesignObj();
-	int nDeviceId;
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+	int nDeviceId = 0;
 	string aux;
 
-	switch( nDesignId )
+	switch( GetCurrentScreen_PK_DesignObj() )
 	{
 		//Start wizard
 		case DESIGNOBJ_TVManufNotListed_CONST:
+		m_pWizardLogic->SetDeviceCategory(77);
+
 		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVModelNotListed_CONST )
 		{
 			PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
@@ -673,8 +672,9 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				case DESIGNOBJ_butSQLOnOffCodes_CONST:
 					m_pWizardLogic->UpdateAVTemplateSettings();
 					CMD_Create_Device cmd( m_pOrbiter->m_dwPK_Device,27,m_pWizardLogic->GetAVTemplateId(),
-						0,0,0,"",0,0,m_pOrbiter->m_dwPK_Device,0,&nDeviceId);
-					m_pOrbiter->SendCommand( cmd );
+						"",0,"","",0,0,m_pOrbiter->m_dwPK_Device,0,&nDeviceId);
+					m_pOrbiter->SendCommand(cmd);
+					//m_pOrbiter->SendCommandNoResponse( cmd );
 					m_pWizardLogic->SetDeviceId(nDeviceId) ;
 					switch( m_pWizardLogic->GetAVIRCodesType() )
 					{
@@ -707,6 +707,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				if(sManufacturer == "")
 					return true;
 
+				m_pWizardLogic->SetDeviceCategory(77); 
 				m_pWizardLogic->SetAVTemplateID( atoi(sManufacturer.c_str()) );
 			}
 		}
@@ -2290,7 +2291,6 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butDiscreteCodesDSPModes_CONST:
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
-				//m_pWizardLogic->SetAVDSPToggleMode( false );
 				m_pWizardLogic->SetAVToggleDSP(false);
 				m_pWizardLogic->UpdateAVTemplateToggle();
 				return false;
@@ -2326,7 +2326,11 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 		case DESIGNOBJ_TVDspOrder_CONST:
 		switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
 		{
-			case DESIGNOBJ_butIRGroups_CONST:
+			case DESIGNOBJ_butCodes_CONST:
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,
+				StringUtils::ltos(m_pWizardLogic->GetManufacturerId()) + "," + 
+				StringUtils::ltos(m_pWizardLogic->GetDeviceCategory()) );
+			m_pOrbiter->GotoDesignObj( StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
 			return false;
 
 			//up
@@ -2350,6 +2354,27 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			return false;
 		}
 		return false;
+
+		case DESIGNOBJ_IRGroup_CONST:
+		id = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+		switch( pObjectInfoData->m_PK_DesignObj_SelectedObject )
+		{
+			case DESIGNOBJ_butIRCodesSetWorks_CONST:
+			m_pWizardLogic->m_listIRGroups.insert(atoi(id.c_str()));
+			return false;
+			case DESIGNOBJ_butIRCodesSetDoesntwork_CONST:
+			m_pWizardLogic->m_listIRGroups.erase( atoi(id.c_str()) ); 
+			return false;
+			case DESIGNOBJ_butConfirmIRCodes_CONST:
+			set<int>::iterator it;
+			id = "";
+			for(it=m_pWizardLogic->m_listIRGroups.begin();it!=m_pWizardLogic->m_listIRGroups.end();it++)
+				id += StringUtils::ltos(*it) + ",";
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,id);
+			id[id.size()-1] = ' ';
+			return false;
+		}
+		return false;
 }
 
 	return false;
@@ -2363,19 +2388,29 @@ bool OSDScreenHandler::TVDSPMode_DatagridSelected(CallBackData *pData)
 	if(NULL != pCellInfoData)
 		sSelectId = pCellInfoData->m_sValue;
 	nIdSelected = atoi( sSelectId.c_str() );
+	string aux;
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVDspMode_CONST:
-			nIdSelected++;
 		return false;
 
 		case DESIGNOBJ_TVDspList_CONST:
-			nIdSelected++;
 		return false;
 
 		case DESIGNOBJ_TVDspOrder_CONST:
-			nIdSelected++;
+		return false;
+
+		case DESIGNOBJ_IRGroup_CONST:
+		switch( pCellInfoData->m_nPK_Datagrid )
+		{
+			case DATAGRID_IR_Codes_Sets_CONST:
+			aux = StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) + "," + sSelectId;
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,
+				StringUtils::ltos(m_pWizardLogic->GetAVTemplateId()) + "," + sSelectId );
+			RefreshDatagrid(DESIGNOBJ_dgIRCodes_CONST);
+			return false;
+		}
 		return false;
 	}
 

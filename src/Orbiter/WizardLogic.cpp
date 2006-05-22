@@ -497,9 +497,10 @@ void WizardLogic::AddAVMediaType()
 
 int WizardLogic::GetAVIRCodesType()
 {
-	string sSQL = "SELECT FK_Command,FK_DeviceTemplate,IRData FROM InfraredGroup_Command WHERE FK_DeviceTemplate=" +\
-		StringUtils::ltos( m_nPKAVTemplate );
+	string sSQL = "SELECT Description,FK_Command FROM InfraredGroup_Command,InfraredGroup WHERE\
+		PK_InfraredGroup=FK_InfraredGroup AND FK_Manufacturer='" + StringUtils::ltos(m_nPKManufacuter) + "'";
 	int nCommandId , nReadRow = 0;
+	bool bToggle = true;
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -508,16 +509,21 @@ int WizardLogic::GetAVIRCodesType()
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-			nCommandId = atoi( row[0] );
+			nCommandId = atoi( row[1] );
+			if( (nCommandId == 192) || (nCommandId == 193) )
+				bToggle = false;
 			nReadRow++;
 		}
 	}
 
-	/*if( nReadRow )
+	if( !nReadRow )
 		return 0;
-	else 
-		return 1;*/
-	return 2;
+	else
+	{
+		if( bToggle )
+			return 1;
+		else return 2;
+	}
 }
 
 // return value 0 unknown,1 toggle,2 discret
