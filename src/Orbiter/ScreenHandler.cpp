@@ -541,12 +541,6 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Drive_Wizard_ObjectSelected, 
 		new ObjectInfoBackData()
 	);
-
-	RegisterCallBack(
-		cbDataGridSelected, 
-		(ScreenHandlerCallBack) &ScreenHandler::Internal_Disk_Drive_Wizard_DatagridSelected, 
-		new DatagridCellBackData()
-	);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool ScreenHandler::Internal_Disk_Drive_Wizard_ObjectSelected(CallBackData *pData)
@@ -578,7 +572,6 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 					m_sInternal_Disk_Drive_Data
 				);
 				m_pOrbiter->SendCommandNoResponse(CMD_Blacklist_Internal_Disk_Drive_);
-
                 m_pOrbiter->CMD_Go_back("", "");
 				return true;
 			}
@@ -639,10 +632,5 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	}
 
 	return false;
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool ScreenHandler::Internal_Disk_Drive_Wizard_DatagridSelected(CallBackData *pData)
-{
-    return false;
 }
 //-----------------------------------------------------------------------------------------------------

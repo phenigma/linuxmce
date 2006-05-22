@@ -4665,11 +4665,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice(long DeviceIDFrom, long DeviceIDTo,
-			string sDescription, int iPK_PnpQueue)
+			string sMac_address, string sDescription)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
 		}
 	};
 
@@ -4677,11 +4677,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sDescription, int iPK_PnpQueue)
+			string sMac_address, string sDescription)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
 		}
 	};
 
@@ -4689,11 +4689,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sDescription, int iPK_PnpQueue)
+			string sMac_address, string sDescription)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
 		}
 	};
 
@@ -4701,11 +4701,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPnpDevice_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sDescription, int iPK_PnpQueue)
+			string sMac_address, string sDescription)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "116" /* screen ID */,
-				163 /* What to call this for the user */, sDescription.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* What to call this for the user */, sDescription.c_str());
 		}
 	};
 
@@ -9221,43 +9221,51 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Internal_Disk_Driver_Wizard : public PreformedCommand
+	class SCREEN_Internal_Disk_Drive_Wizard : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard(long DeviceIDFrom, long DeviceIDTo)
+		SCREEN_Internal_Disk_Drive_Wizard(long DeviceIDFrom, long DeviceIDTo,
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
-	class SCREEN_Internal_Disk_Driver_Wizard_DL : public PreformedCommand
+	class SCREEN_Internal_Disk_Drive_Wizard_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo)
+		SCREEN_Internal_Disk_Drive_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
-	class SCREEN_Internal_Disk_Driver_Wizard_DT : public PreformedCommand
+	class SCREEN_Internal_Disk_Drive_Wizard_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		SCREEN_Internal_Disk_Drive_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
-	class SCREEN_Internal_Disk_Driver_Wizard_Cat : public PreformedCommand
+	class SCREEN_Internal_Disk_Drive_Wizard_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Internal_Disk_Driver_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		SCREEN_Internal_Disk_Drive_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sData_String, int iPK_Device_ControlledVia)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
+				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str());
 		}
 	};
 
@@ -9478,7 +9486,7 @@ namespace DCE
 		virtual void SCREEN_AudioOptions(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Subtitles(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Angles(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_NewPnpDevice(long PK_Screen, string sMac_address, string sDescription){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VdrRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CdRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_PowerFile(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9588,7 +9596,7 @@ namespace DCE
 		virtual void SCREEN_mnuVolume(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffTogle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmOnOffDiscret(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Internal_Disk_Driver_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVDSPMode(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media_Tracks(long PK_Screen){ GotoScreen(PK_Screen); }
 
@@ -10188,9 +10196,9 @@ namespace DCE
 				}
 				case 116:
 				{
+					string sMac_address = pMessage->m_mapParameters[47];
 					string sDescription = pMessage->m_mapParameters[163];
-					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
-					SCREEN_NewPnpDevice(nPK_Screen, sDescription, iPK_PnpQueue);
+					SCREEN_NewPnpDevice(nPK_Screen, sMac_address, sDescription);
 					break;
 				}
 				case 117:
@@ -10781,7 +10789,9 @@ namespace DCE
 				}
 				case 228:
 				{
-					SCREEN_Internal_Disk_Driver_Wizard(nPK_Screen);
+					string sData_String = pMessage->m_mapParameters[109];
+					int iPK_Device_ControlledVia = atoi(pMessage->m_mapParameters[156].c_str());
+					SCREEN_Internal_Disk_Drive_Wizard(nPK_Screen, sData_String, iPK_Device_ControlledVia);
 					break;
 				}
 				case 229:
