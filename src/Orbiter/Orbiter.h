@@ -329,6 +329,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		// Be sure we're only reading the correct version
 		virtual bool OkayToDeserialize(int iSC_Version);
 
+		virtual bool OnReplaceHandler(string sIP);
+
 		/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 
 		/**

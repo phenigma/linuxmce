@@ -24,7 +24,7 @@
 #include "DCE/Logger.h"
 #include "TextStyle.h"
 
-#ifndef POCKETFROG
+#if !defined(POCKETFROG) && !defined(ORBITER_OPENGL)
 #include <SDL_ttf.h>
 #endif
 
@@ -61,7 +61,7 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 
 TextStyle::~TextStyle()
 {
-#ifndef POCKETFROG	
+#if !defined(POCKETFROG) && !defined(ORBITER_OPENGL)
 	if( m_pTTF_Font )  
 	{
 		try

@@ -3,8 +3,10 @@
 #include "OrbiterGen/Renderer.h"
 #include "DCE/Logger.h"
 
-#ifdef POCKETFROG
+#if defined(POCKETFROG)
 	#include "PocketFrog/PocketFrogGraphic.h"
+#elif defined(ORBITER_OPENGL)
+	//TODO
 #else
 	#include "SDL/SDLGraphic.h"
 #endif
@@ -49,15 +51,21 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 	else if(IsOCG(Filename))
 		eGF = GR_OCG;
 
-#ifdef POCKETFROG
-	PocketFrogGraphic *pGraphic = new PocketFrogGraphic(pOrbiter);
-#else	
-	SDLGraphic *pGraphic = new SDLGraphic(pOrbiter); //we won't load the graphic yet
+	PlutoGraphic *pGraphic
+#if defined(POCKETFROG)
+		= new PocketFrogGraphic(pOrbiter);
+#elif defined(ORBITER_OPENGL)
+		= NULL;
+#else
+		= new SDLGraphic(pOrbiter); //we won't load the graphic yet
 #endif
 
-	pGraphic->m_GraphicFormat = eGF;
-	pGraphic->m_GraphicManagement = GraphicManagement;
-	pGraphic->m_Filename = Filename;
-	vectPlutoGraphic.push_back(pGraphic);
+	if(NULL != pGraphic)
+	{
+		pGraphic->m_GraphicFormat = eGF;
+		pGraphic->m_GraphicManagement = GraphicManagement;
+		pGraphic->m_Filename = Filename;
+		vectPlutoGraphic.push_back(pGraphic);
+	}
 }
 //-------------------------------------------------------------------------------------------------------

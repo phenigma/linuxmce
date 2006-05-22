@@ -10446,3 +10446,17 @@ void Orbiter::ClipRectangle(PlutoRectangle &rect)
 		rect.Height = m_iImageHeight - rect.Y - 1;
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool Orbiter::OnReplaceHandler(string sIP)
+{
+    if(sIP != m_sIPAddress)
+    {
+        string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
+        PromptUser(sMessage);
+        m_bQuit = true;
+        exit(1);
+        return true;
+    }
+
+    return false;
+}
+//-----------------------------------------------------------------------------------------------------

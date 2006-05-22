@@ -13,6 +13,7 @@
 #include "DCE/ServerLogger.h"
 
 #include "Simulator.h"
+#include "Win32/OrbiterWin32Defs.h"
 
 #define  VERSION "<=version=>"
 const char *g_szCompile_Date="<=compile_date=>";
@@ -299,15 +300,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
-		#ifdef POCKETFROG
-				Orbiter_PocketFrog::Cleanup();
-		#else
-            #ifdef WINCE
-                OrbiterSDL_WinCE::Cleanup();
-            #else
-                OrbiterSDL_Win32::Cleanup();
-            #endif
-		#endif
+		ORBITER_CLASS::Cleanup();
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

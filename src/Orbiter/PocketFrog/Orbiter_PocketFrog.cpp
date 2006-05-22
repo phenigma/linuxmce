@@ -1435,20 +1435,6 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool Orbiter_PocketFrog::OnReplaceHandler(string sIP)
-{
-    if(sIP != m_sIPAddress)
-    {
-        string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
-        PromptUser(sMessage);
-        m_bQuit = true;
-        exit(1);
-        return true;
-    }
-
-    return false;
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnUnexpectedDisconnect()
 {
     //PromptUser("Orbiter have been disconnected. Orbiter will reload.");

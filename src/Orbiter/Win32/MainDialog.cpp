@@ -6,18 +6,12 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "SelfUpdate.h"
 #include "Win32/PopupMessage.h"
+#include "Win32/OrbiterWin32Defs.h"
 
 #include "Simulator.h"
 
-#ifdef POCKETFROG
-	#include "Orbiter_PocketFrog.h"
-#else
-	#ifndef WINCE
-		#include "Commctrl.h"
-		#include "OrbiterSDL_Win32.h"
-	#else
-		#include "OrbiterSDL_WinCE.h"
-	#endif
+#if !defined(POCKETFROG) && !defined(WINCE)
+	#include "Commctrl.h"
 #endif
 
 #pragma warning(disable : 4311 4312)
@@ -213,69 +207,63 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 	int Times = atoi(sTimesText.c_str());
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
-
-#ifdef POCKETFROG
-	Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
-#else
-	#ifdef WINCE
-		OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-	#else
-		OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
-	#endif
-#endif
-
+	Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
 
 	while(Times--)
-	for(int i = 0; i < Count; i++)
 	{
-		if(g_bStopPlayerThread)
-			return 0L;
-
-#ifdef WINCE
-		wchar_t lpszBuffer[256];
-#else
-		char lpszBuffer[256];
-#endif
-		::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
-
-#ifdef WINCE
-		char pItemBuffer[MAX_STRING_LEN];
-		wcstombs(pItemBuffer, lpszBuffer, MAX_STRING_LEN);
-		string sItemBuffer = pItemBuffer;
-#else
-		string sItemBuffer = lpszBuffer;
-#endif
-
-		string::size_type CurPos = 0;
-		string sAction = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
-
-		if(sAction == "delay")
+		for(int i = 0; i < Count; i++)
 		{
-			string sDelay = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
-			long delay = atoi(sDelay.c_str());
+			if(g_bStopPlayerThread)
+				return 0L;
 
-			Simulator::SimulateActionDelay(delay);
-		}
-		else
-			if(sAction == "button")
+	#ifdef WINCE
+			wchar_t lpszBuffer[256];
+	#else
+			char lpszBuffer[256];
+	#endif
+			::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
+
+	#ifdef WINCE
+			char pItemBuffer[MAX_STRING_LEN];
+			wcstombs(pItemBuffer, lpszBuffer, MAX_STRING_LEN);
+			string sItemBuffer = pItemBuffer;
+	#else
+			string sItemBuffer = lpszBuffer;
+	#endif
+
+			string::size_type CurPos = 0;
+			string sAction = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
+
+			if(sAction == "delay")
 			{
-				string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
-				long key = atoi(sKey.c_str());
+				string sDelay = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
+				long delay = atoi(sDelay.c_str());
 
-				pOrbiter->SimulateKeyPress(key);
+				Simulator::SimulateActionDelay(delay);
 			}
 			else
 			{
-				string sClickX = StringUtils::Tokenize(sItemBuffer, ",", CurPos);
-				int x = atoi(sClickX.c_str());
+				if(sAction == "button")
+				{
+					string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
+					long key = atoi(sKey.c_str());
 
-				CurPos++; //skip space too
+					pOrbiter->SimulateKeyPress(key);
+				}
+				else
+				{
+					string sClickX = StringUtils::Tokenize(sItemBuffer, ",", CurPos);
+					int x = atoi(sClickX.c_str());
 
-				string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
-				int y = atoi(sClickY.c_str());
+					CurPos++; //skip space too
 
-				pOrbiter->SimulateMouseClick(x, y);
+					string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
+					int y = atoi(sClickY.c_str());
+
+					pOrbiter->SimulateMouseClick(x, y);
+				}
 			}
+		}
 	}
 
 	return 0L;

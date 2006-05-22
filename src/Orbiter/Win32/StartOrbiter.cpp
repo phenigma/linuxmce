@@ -92,13 +92,7 @@ ORBITER_CLASS *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,s
 		g_pPlutoLogger->Write(LV_STATUS, s);
 		return NULL;
 	}
-/*
-	catch(...)
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Unknown exception!!");
-		return NULL;
-	}
-*/
+
 	ORBITER_CLASS *pOrbiter = ORBITER_CLASS::GetInstance();
 
 	if(!bLocalMode)
@@ -160,23 +154,15 @@ bool EventLoop(ORBITER_CLASS* pOrbiter)
 
 	SDL_Event Event;
 
-    // temporary hack --
-    // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
-    // For now I'll assume that shift + arrows scrolls a grid
+   // For now I'll assume that shift + arrows scrolls a grid
     while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
     {
-		try
-		{
-			SDL_Event_Pending = SDL_PollEvent(&Event);
-		}
-		catch(...) 
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "SDL_WaitEvent crashed!!!");
-			break;
-		}
+		SDL_Event_Pending = SDL_PollEvent(&Event);
 
 		if (SDL_Event_Pending)
 		{
+			g_pPlutoLogger->Write(LV_WARNING, "Event: %d", Event.type);
+
 			Orbiter::Event orbiterEvent;
 			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 
@@ -235,11 +221,15 @@ bool EventLoop(ORBITER_CLASS* pOrbiter)
 				pOrbiter->ProcessEvent(orbiterEvent);
 			}
 	#endif
-	} //if (SDL_Event_Pending)
-	else
-	{
-		((OrbiterSDL*) pOrbiter)->OnIdle();
-	}
+		} //if (SDL_Event_Pending)
+		else
+		{
+			#ifdef ORBITER_OPENGL
+					((Orbiter_OpenGL*) pOrbiter)->OnIdle();
+			#else
+        			((OrbiterSDL*) pOrbiter)->OnIdle();
+			#endif
+		}
 
     }  // while
 

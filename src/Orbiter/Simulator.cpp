@@ -9,35 +9,28 @@ using namespace DCE;
 
 #ifdef WIN32
 
+	#include "Win32/OrbiterWin32Defs.h"
 	#include "Win32/MainDialog.h"
 	#include "StartOrbiter.h"
 
 	#ifdef WINCE
+
 		#include "stdafx.h"
 		#include <commctrl.h>
-	#ifndef WINCE_x86
-		#include <aygshell.h>
-	#endif
 		#include <sipapi.h>
 
-		#ifdef POCKETFROG
-			#include "Orbiter_PocketFrog.h"
-		#else
-			#include "OrbiterSDL_WinCE.h"
+		#ifndef WINCE_x86
+			#include <aygshell.h>
 		#endif
+
 	#else
-		#include "windows.h"
+
+		#include <Windows.h>
 
 		#ifdef BLUETOOTH_DONGLE
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
 		#elif defined(PROXY_ORBITER)
 			#include "Proxy_Orbiter/Proxy_Orbiter.h"
-		#else
-			#ifdef POCKETFROG
-				#include "Orbiter_PocketFrog.h"
-			#else
-				#include "OrbiterSDL_Win32.h"
-			#endif
 		#endif
 
 	#endif
@@ -47,6 +40,8 @@ using namespace DCE;
 		#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
     #elif defined(PROXY_ORBITER)
         #include "Proxy_Orbiter/Proxy_Orbiter.h"
+	#elif defined(ORBITER_OPENGL)
+		#include "OpenGL/Orbiter_OpenGL.h"
 	#else //non bluetooth or proxy
 		#include "Linux/OrbiterLinux.h"
 	#endif
@@ -90,30 +85,14 @@ void *GeneratorThread( void *p)
 	static int Count = 0;
 
 #ifdef BLUETOOTH_DONGLE
-	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
+	Orbiter *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #elif defined(PROXY_ORBITER)
-	Proxy_Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
+	Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
 #else
 	#ifdef WIN32
-		#ifdef WINCE
-
-			#ifdef POCKETFROG
-				Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
-			#else
-				OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-			#endif
-
-		#else
-
-			#ifdef POCKETFROG
-				Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
-			#else
-				OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
-			#endif
-
-		#endif
+		Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
 	#else
-		OrbiterLinux *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
+		Orbiter *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
 	#endif
 #endif
 

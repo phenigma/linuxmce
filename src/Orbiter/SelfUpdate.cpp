@@ -14,33 +14,9 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/md5.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "Win32/OrbiterWin32Defs.h"
 
 using namespace DCE;
-
-#ifdef WINCE
-	#ifdef WINCE_x86
-		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
-	#else
-		const string csUpdateBinaryName("UpdateBinaryCE.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
-	#endif
-#else
-		const string csUpdateBinaryName("UpdateBinary.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
-#endif
-
-#ifdef POCKETFROG
-	#include "Orbiter_PocketFrog.h"
-#else
-	#ifdef WINCE
-		#include "OrbiterSDL_WinCE.h"
-	#else
-		#include "OrbiterSDL_Win32.h"
-	#endif
-#endif 
-
-
 //-----------------------------------------------------------------------------------------------------
 #include "MainDialog.h"
 extern CommandLineParams CmdLineParams;
@@ -297,15 +273,7 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-#ifdef POCKETFROG
-	((Orbiter_PocketFrog *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-#else
-	#ifdef WINCE
-		((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-	#else
-		((OrbiterSDL_Win32 *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-	#endif 
-#endif
+	ORBITER_CLASS::GetInstance()->WriteStatusOutput("Updating orbiter...");
 
 	if(LastUpdateFailed())
 	{	
