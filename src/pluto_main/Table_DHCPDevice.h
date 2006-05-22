@@ -82,6 +82,8 @@ long int m_FK_DeviceTemplate;
 u_int64_t m_Mac_Range_Low;
 u_int64_t m_Mac_Range_High;
 string m_VendorModelID;
+string m_SerialNumber;
+string m_Parms;
 long int m_FK_PnpProtocol;
 string m_PnpDetectionScript;
 long int m_FK_DeviceCategory;
@@ -94,7 +96,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[18];
 	
 	public:
 		long int PK_DHCPDevice_get();
@@ -102,6 +104,8 @@ long int FK_DeviceTemplate_get();
 u_int64_t Mac_Range_Low_get();
 u_int64_t Mac_Range_High_get();
 string VendorModelID_get();
+string SerialNumber_get();
+string Parms_get();
 long int FK_PnpProtocol_get();
 string PnpDetectionScript_get();
 long int FK_DeviceCategory_get();
@@ -120,6 +124,8 @@ void FK_DeviceTemplate_set(long int val);
 void Mac_Range_Low_set(u_int64_t val);
 void Mac_Range_High_set(u_int64_t val);
 void VendorModelID_set(string val);
+void SerialNumber_set(string val);
+void Parms_set(string val);
 void FK_PnpProtocol_set(long int val);
 void PnpDetectionScript_set(string val);
 void FK_DeviceCategory_set(long int val);
@@ -135,6 +141,8 @@ void psc_restrict_set(long int val);
 		
 		bool FK_DeviceTemplate_isNull();
 bool VendorModelID_isNull();
+bool SerialNumber_isNull();
+bool Parms_isNull();
 bool FK_PnpProtocol_isNull();
 bool PnpDetectionScript_isNull();
 bool FK_DeviceCategory_isNull();
@@ -149,6 +157,8 @@ bool psc_restrict_isNull();
 			
 		void FK_DeviceTemplate_setNull(bool val);
 void VendorModelID_setNull(bool val);
+void SerialNumber_setNull(bool val);
+void Parms_setNull(bool val);
 void FK_PnpProtocol_setNull(bool val);
 void PnpDetectionScript_setNull(bool val);
 void FK_DeviceCategory_setNull(bool val);
@@ -183,7 +193,7 @@ class Row_Manufacturer* FK_Manufacturer_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DHCPDevice+ m_FK_DeviceTemplate+ m_Mac_Range_Low+ m_Mac_Range_High+ m_VendorModelID+ m_FK_PnpProtocol+ m_PnpDetectionScript+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DHCPDevice+ m_FK_DeviceTemplate+ m_Mac_Range_Low+ m_Mac_Range_High+ m_VendorModelID+ m_SerialNumber+ m_Parms+ m_FK_PnpProtocol+ m_PnpDetectionScript+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -193,6 +203,8 @@ string FK_DeviceTemplate_asSQL();
 string Mac_Range_Low_asSQL();
 string Mac_Range_High_asSQL();
 string VendorModelID_asSQL();
+string SerialNumber_asSQL();
+string Parms_asSQL();
 string FK_PnpProtocol_asSQL();
 string PnpDetectionScript_asSQL();
 string FK_DeviceCategory_asSQL();
