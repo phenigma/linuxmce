@@ -13,6 +13,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/Logger.h"
+#include "IncomingCallNotifier.h"
 
 using namespace DCE;
 
@@ -57,7 +58,7 @@ CComModule _Module; //ATL - pocket frog
 //-----------------------------------------------------------------------------------------------------
 OrbiterApp *OrbiterApp::m_pInstance = NULL; //the one and only
 //---------------------------------------------------------------------------------------------------------
-OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
+OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hInstance(hInstance)
 {
 	Reset();
 	m_bQuit = false;
@@ -109,6 +110,8 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_CaptureKeyboardParam.TextHeight = 25;
 	m_CaptureKeyboardParam.Reset();	
 #endif
+
+	m_pIncomingCallNotifier = new IncomingCallNotifier();
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterApp::~OrbiterApp()
@@ -117,6 +120,7 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 
 	delete m_pBDCommandProcessor;
+	delete m_pIncomingCallNotifier;
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::Reset()
@@ -1422,9 +1426,9 @@ void OrbiterApp::RenderEditBox()
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Hide()
 {
-	::MessageBeep(MB_ICONASTERISK);
+	::MessageBeep(MB_ICONQUESTION);
 	Sleep(50);
-	::MessageBeep(MB_ICONASTERISK);
+	::MessageBeep(MB_ICONHAND);
 	Sleep(50);
 	::MessageBeep(MB_ICONASTERISK);
 
@@ -1445,8 +1449,6 @@ void OrbiterApp::Show()
 	::MessageBeep(MB_ICONASTERISK);
 	Sleep(50);
 	::MessageBeep(MB_ICONHAND);
-	Sleep(50);
-	::MessageBeep(MB_ICONQUESTION);
 	Sleep(50);
 	::MessageBeep(MB_ICONQUESTION);
 }

@@ -97,8 +97,9 @@ private:
 	int NumberKeyIndex(int KeyCode);
 
 public:
-	OrbiterApp();
+	OrbiterApp(HINSTANCE hInstance);
 	virtual ~OrbiterApp();
+	HINSTANCE m_hInstance;
 
 	static OrbiterApp *GetInstance() { return m_pInstance; }
 
@@ -167,6 +168,8 @@ public:
 	int m_nLastKeyCode;
 	int m_nLastTick;
 	int m_nRepeatStep;
+
+	class IncomingCallNotifier *m_pIncomingCallNotifier;
 
 };
 //---------------------------------------------------------------------------------------------------------

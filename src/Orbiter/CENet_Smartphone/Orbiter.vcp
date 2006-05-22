@@ -594,6 +594,7 @@ DEP_CPP_BD_PC_=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
@@ -649,12 +650,20 @@ DEP_CPP_BD_PC_K=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -682,6 +691,7 @@ DEP_CPP_BD_PC_K=\
 	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
 	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
@@ -775,6 +785,7 @@ DEP_CPP_BD_PC_RE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
@@ -834,12 +845,20 @@ DEP_CPP_BD_PC_S=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -866,6 +885,7 @@ DEP_CPP_BD_PC_S=\
 	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
 	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
@@ -899,12 +919,20 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -931,6 +959,7 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
 	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
@@ -964,12 +993,20 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -996,6 +1033,7 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
 	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
@@ -1179,12 +1217,59 @@ NODEP_CPP_BDCOMMA=\
 
 SOURCE=..\..\PlutoUtils\FileUtils.cpp
 DEP_CPP_FILEU=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\md5.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	
+NODEP_CPP_FILEU=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=.\IncomingCallNotifier.cpp
+DEP_CPP_INCOM=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\IncomingCallNotifier.h"\
+	".\OrbiterApp.h"\
+	
+NODEP_CPP_INCOM=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
 # Begin Source File
@@ -1506,12 +1591,21 @@ NODEP_CPP_SERIA=\
 
 SOURCE=..\..\PlutoUtils\StringUtils.cpp
 DEP_CPP_STRIN=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\CENet\wince.h"\
+	
+NODEP_CPP_STRIN=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
 # Begin Source File

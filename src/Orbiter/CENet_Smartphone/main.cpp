@@ -72,7 +72,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     try
     {
-         g_pPlutoLogger = new NullLogger();//FileLogger(sLogger.c_str());
+		g_pPlutoLogger = new NullLogger();
+		//g_pPlutoLogger = new FileLogger(sLogger.c_str());
     }
     catch(...)
     {
@@ -90,7 +91,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		return -2;
 	}
 
-	OrbiterApp app;
+	OrbiterApp app(hInstance);
 	app.Run();
 
     WSACleanup();
