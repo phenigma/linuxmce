@@ -30,6 +30,7 @@ namespace DCE
 		Row_Device *m_pRow_Device_Reported;
 		string m_sPK_Orbiter_List_For_Prompts;
 		string m_sDetectionScript_Running;
+		string m_sText;
 
 	public:
 		// Constructor for device detected

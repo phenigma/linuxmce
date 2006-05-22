@@ -57,6 +57,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->Parms_set(sDeviceData);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
+	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
@@ -97,6 +98,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->Parms_set(sDeviceData);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
+	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;

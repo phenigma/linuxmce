@@ -420,7 +420,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
-	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, GetDescription(pPnpQueueEntry), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPnpDevice_DL);
 	return false;  // Now we wait
 }
@@ -590,14 +590,23 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	
 	// See if this exact item with the same serial number exists already
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sSql_SerialNumber,&vectRow_Device);
-	if( vectRow_Device.size() )
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
-		pRow_Device = vectRow_Device[0];
+		pRow_Device = *it;
+		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
+		{
+			// For Hard drives the block device parameter must be the same
+			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+			if( !pRow_Device_DeviceData || pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
+				pRow_Device_DeviceData->IK_DeviceData_get()!=pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST] )
+					continue;  // It's not the same hard drive
+		}
 		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
 		return true;
 	}
 
+	vectRow_Device.clear();
 	// Nope.  See if there is another similar item, perhaps a different unit (serial #), but the 'one per pc' is set.  If so, it's a match since we can only have 1 per pc anyway
 	string sOnePerPc = " AND OnePerPC.IK_DeviceData IS NOT NULL AND OnePerPC.IK_DeviceData=1";
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sOnePerPc,&vectRow_Device);
@@ -761,8 +770,27 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() &&
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() )
 					continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
-			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter;
+			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter + ",";
 		}
 	}
 	
+}
+
+string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
+{
+	string sDescription;
+
+	Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
+	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end() )
+		pRow_DeviceTemplate=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second->FK_DeviceTemplate_getrow();
+
+	if( pRow_DeviceTemplate )
+	{
+		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
+	}
+
+	if( sDescription.size()==0 )
+		sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+	return sDescription;
 }

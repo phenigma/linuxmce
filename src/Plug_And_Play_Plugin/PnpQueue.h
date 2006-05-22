@@ -56,6 +56,7 @@ namespace DCE
 		bool BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		void ReadOutstandingQueueEntries();
 		void DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
+		string GetDescription(PnpQueueEntry *pPnpQueueEntry);
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);
