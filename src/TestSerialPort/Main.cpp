@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
 				int k=2;// Send Break;
 			else
 			{
+				sBlock = ParseHex(sBlock);
 				g_pPlutoLogger->Write(LV_STATUS,"send: %s",IOUtils::FormatHexAsciiBuffer(sBlock.c_str(),sBlock.size(),"31").c_str());
 				serialPort.Write((char *) sBlock.c_str(),sBlock.size());
 				serialPort.Flush();
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
 	if( sReceived==0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Didn't receive anything");
-		return sSearchString.size() ? 1 : 0;
+		return 1;
 	}
 
 	if( sSearchString.size() )
