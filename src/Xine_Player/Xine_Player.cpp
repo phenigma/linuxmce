@@ -21,6 +21,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_pDeviceData_MediaPlugin = NULL;
 	ptrFactory = new Xine_Stream_Factory(this);
 	if (!ptrFactory->StartupFactory())
 	{
@@ -34,6 +35,7 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 	: Xine_Player_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
+	m_pDeviceData_MediaPlugin=NULL;
 }
 
 //<-dceag-dest-b->
@@ -53,7 +55,8 @@ bool Xine_Player::GetConfig()
 	if( !Xine_Player_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
+	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
+	
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
 	return true;
@@ -1062,4 +1065,28 @@ void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 {
 	cout << "Need to implement command #548 - Menu" << endl;
 	cout << "Parm #9 - Text=" << sText << endl;
+}
+
+void Xine_Player::ReportTimecode(int iStreamID, int Speed)
+{
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );	
+	if (pStream == NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecode() stream is NULL");
+		return;
+	}
+	
+	if( !m_pDeviceData_MediaPlugin )
+		return;
+
+	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
+	int currentTime, totalTime;	
+	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
+
+	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
+			iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
+			(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(pStream->m_iTitle),
+			StringUtils::itos(pStream->m_iChapter));
+	
+	SendCommand(CMD_Update_Time_Code_);
 }

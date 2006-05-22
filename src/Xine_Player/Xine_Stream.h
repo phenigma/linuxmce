@@ -69,7 +69,7 @@ namespace DCE
 			string GetPosition();
 			
 			//reports timecode
-			void ReportTimecode(int Speed);
+			void ReportTimecode();
 			
 			static int CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack);
 			
@@ -105,11 +105,14 @@ namespace DCE
 			int m_iImgXPos;
 			int m_iImgYPos;
 			
-			bool m_bIsVDR;   // Is this live tv from VDR?
-			
 			int m_iPlaybackSpeed;
 			
+		public:
 			int m_iTimeCodeReportFrequency;
+			bool m_bIsVDR;   // Is this live tv from VDR?
+			
+			
+		private:
 			int m_iSpecialOneTimeSeek;
 
 			// X subsystem properties
@@ -163,11 +166,6 @@ namespace DCE
 			KeySym translatePlutoKeySymToXKeySym( int plutoButton );
 
 			/**
-			 * @brief Find current position for stream.
-		 */
-			int getStreamPlaybackPosition( int &positionTime, int &totalTime );
-
-			/**
 			 * @brief Will convert a point to coordinates relative to the playback window.
 			 */
 			int translate_point( int gui_x, int gui_y, int *video_x, int *video_y );
@@ -178,8 +176,14 @@ namespace DCE
 			bool m_bTrickModeActive;
 
 		public:
-			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary);
+			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0);
 			~Xine_Stream();
+			
+			/**
+		 	* @brief Find current position for stream.
+			 */
+			int getStreamPlaybackPosition( int &positionTime, int &totalTime );
+
 			
 			// utility functions
 			bool StartupStream();

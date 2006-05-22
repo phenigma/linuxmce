@@ -49,8 +49,9 @@ int g_iSpecialSeekSpeed = 0;
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary) :
-		m_streamMutex("xine-stream-access-mutex")
+Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency) :
+		m_streamMutex("xine-stream-access-mutex"),
+		m_xine_osd_t(NULL)
 {
 	pthread_mutexattr_t mutexAttr;
 	pthread_mutexattr_init( &mutexAttr );
@@ -77,11 +78,12 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary) :
 	
 	m_iSpecialOneTimeSeek = 0;
 	m_iPrebuffer = 0;
-	//TODO init properly
-	//!m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
+	
+	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 	
 	m_bExitThread = false;
 	m_bTrickModeActive = false;
+	m_iStreamID = ID;
 }
 
 Xine_Stream::~Xine_Stream()
@@ -556,11 +558,16 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 
 	Bool checkResult;
 
+	// counter for tiemcode report
 	int iCounter_TimeCode = 0;
-	int iCounter = 0;  // A counter for the special seek
+	
+	// 1/10th second interval counter
+	int iCounter = 0;
+	
 	XEvent event;
 	while ( ! pStream->m_bExitThread )
 	{
+		//reading and process X-events
 		if ( pStream->m_bIsRendering )
 		{
 			do
@@ -571,27 +578,29 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 
 				if ( checkResult == True )
 					pStream->XServerEventProcessor( event );
-
 			}
 			while ( checkResult == True );
 		}
 
-		if ( iCounter++ > 10 )                   // Every second
+		// updating every second - position
+		if ( iCounter++ > 10 )
 		{
-			// TODO: review and enable
-			//g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->m_pAggregatorObject->GetPosition().c_str(), g_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
+			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), g_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
 			iCounter = 0;
+			
+			//if it is a time - reporting our timecode to player object
 			if ( pStream->m_iTimeCodeReportFrequency && ++iCounter_TimeCode >= pStream->m_iTimeCodeReportFrequency )
 			{
-				// TODO: review and enable
-				//pStream->m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
+				pStream->ReportTimecode();
 				iCounter_TimeCode = 1;
 			}
 		}
+		
 		if ( pStream->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
 		{
 			pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
 			pStream->m_iSpecialOneTimeSeek = 0;
+			pStream->ReportTimecode();
 		}
 		if ( g_iSpecialSeekSpeed )
 			pStream->HandleSpecialSeekSpeed();
@@ -829,8 +838,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
 		StopSpecialSeek();
-		// TODO: reenable
-		//m_pAggregatorObject->ReportTimecode( xineStream->m_iStreamID, xineStream->m_iPlaybackSpeed );
+		ReportTimecode();
 		return;
 	}
 
@@ -932,28 +940,33 @@ void Xine_Stream::DisplayOSDText( string sText )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//TODO properly deallocate
 	if ( sText.size() == 0 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
-		/*
+		
 		if ( m_xine_osd_t )
-		xine_osd_free( m_xine_osd_t );*/
-		m_xine_osd_t = NULL;
+		{
+			xine_osd_hide( m_xine_osd_t, 0 );
+			xine_osd_free( m_xine_osd_t );
+			m_xine_osd_t = NULL;
+		}
 		return ;
 	}
 
 	if ( m_xine_osd_t )
+	{
+		xine_osd_hide( m_xine_osd_t, 0 );
 		xine_osd_free( m_xine_osd_t );
+	}
+	
 	m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
 	xine_osd_set_font( m_xine_osd_t, "sans", 20 );
-	xine_osd_set_text_palette( m_xine_osd_t,
-														 XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );
+	xine_osd_set_text_palette( m_xine_osd_t, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );
 	xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
 	xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
 	xine_osd_show( m_xine_osd_t, 0 );
 
-	g_pPlutoLogger->Write( LV_CRITICAL, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
+	g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
 }
 
 void Xine_Stream::StartSpecialSeek( int Speed )
@@ -984,7 +997,6 @@ void Xine_Stream::StopSpecialSeek()
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	g_iSpecialSeekSpeed = 0;
-//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplayOSDText("");
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
@@ -1052,31 +1064,15 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 	switch ( event->type )
 	{
 		case XINE_EVENT_UI_PLAYBACK_FINISHED:
-            /**
-		 * @test
-			report_mrl_and_title(NULL);
-			clear_tracks();
-
-			menu_snapshots = end_menu = 0;
-			if (repeat)
-		{
-			xine_play(m_pstream, 0, 0);
-	}
-			else if (mrl[mrl_n+1] != NULL)
-			play_mrl(mrl[++mrl_n]);
-			else
-			send_event(XINE_SE_PLAYBACK_FINISHED, "");
-						 */
 			g_pPlutoLogger->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
 			pXineStream->StopSpecialSeek();
-			//TODO: reenanle
-			//!pXineStream->m_pAggregatorObject->ReportTimecode( pXineStream->m_iStreamID, pXineStream->m_iPlaybackSpeed );
+			pXineStream->ReportTimecode();
 			pXineStream->playbackCompleted( false );
 			pXineStream->m_bIsRendering = false;
 			break;
 		case XINE_EVENT_QUIT:
 			g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
-                // the playback completed is sent from another place. (see the stopMedia)
+	                // the playback completed is sent from another place. (see the stopMedia)
 			break;
 
 		case XINE_EVENT_PROGRESS:
@@ -1089,8 +1085,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 		case XINE_EVENT_UI_NUM_BUTTONS:
 		{
 			pXineStream->StopSpecialSeek();
-			//TODO: reenable
-			//!pXineStream->m_pOwner->m_pAggregatorObject->ReportTimecode( pXineStream->m_iStreamID, pXineStream->m_iPlaybackSpeed );
+			pXineStream->ReportTimecode();
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
 			g_pPlutoLogger->Write( LV_STATUS, "Menu with %d buttons", iButtons );
@@ -1324,8 +1319,7 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 
 		m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 
-		// TODO: reenable
-		// m_pAggregatorObject->ReportTimecode( m_iStreamID, m_iPlaybackSpeed );
+		ReportTimecode();
 
 		return true;
 	}
@@ -2116,7 +2110,7 @@ string Xine_Stream::GetPosition()
 	return sPosition;
 }
 
-void Xine_Stream::ReportTimecode(int Speed)
+void Xine_Stream::ReportTimecode()
 {
 	if (!m_iTimeCodeReportFrequency )
 		return;
@@ -2127,18 +2121,7 @@ void Xine_Stream::ReportTimecode(int Speed)
 		return;
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
-	int currentTime, totalTime;
-	int iMediaPosition = getStreamPlaybackPosition(currentTime, totalTime);
-	
-	//TODO reenable
-	/*
-	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
-			iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
-			(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(m_iTitle),
-			StringUtils::itos(m_iChapter));
-	SendCommand(CMD_Update_Time_Code_);
-	*/
+	m_pFactory->ReportTimecode( m_iStreamID, m_iPlaybackSpeed);
 }
 
 int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)

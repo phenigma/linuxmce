@@ -66,6 +66,7 @@ namespace DCE
 			
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);
+			void ReportTimecode(int iStreamID, int Speed);
 	};
 
 }

@@ -189,7 +189,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID)
 		return (*stream).second;
 	else
 	{
-		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary);
+		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency());
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
@@ -214,6 +214,11 @@ void Xine_Stream_Factory::ReportAudioTracks(string sTracks)
 void Xine_Stream_Factory::ReportSubtitles( string sSubtitles)
 {
 	m_pPlayer->DATA_Set_Subtitles(sSubtitles);
+}
+
+void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
+{
+	m_pPlayer->ReportTimecode( iStreamID, Speed);
 }
 
 } // DCE namespace end

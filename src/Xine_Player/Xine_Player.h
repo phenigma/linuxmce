@@ -427,9 +427,11 @@ public:
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
+	void ReportTimecode(int iStreamID, int Speed);
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
+	DeviceData_Base *m_pDeviceData_MediaPlugin;
 	};
 
 //<-dceag-end-b->
