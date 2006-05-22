@@ -93,7 +93,11 @@ function Detect {
 		OrbiterIDList="$OrbiterIDList""$Orbiter_ID"
 	done
 
-	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$availPart" 156 $PK_Device
+	if [[ $availPart != "" ]] ;then
+		for partition in $availPart ;do
+			/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$partition" 156 $PK_Device
+		done
+	fi
 }
 
 function Blacklist {
