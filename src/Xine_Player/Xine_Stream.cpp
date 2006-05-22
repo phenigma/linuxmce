@@ -71,7 +71,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_iSpecialSeekSpeed = 0;
 	m_iSpecialOneTimeSeek = 0;
-	m_iPrebuffer = 0;
+	m_iPrebuffer = 90000;
 	
 	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 	
@@ -108,6 +108,8 @@ bool Xine_Stream::StartupStream()
 	}
 
 	m_iTitle=m_iChapter=-1;
+	
+	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	
 	m_bInitialized = true;
 	return true;
@@ -1066,10 +1068,9 @@ void Xine_Stream::DisplayOSDText( string sText )
 }
 
 void Xine_Stream::StartSpecialSeek( int Speed )
-{
+{	
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	//xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
 	
 	int totalTime;
@@ -1077,8 +1078,13 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	getStreamPlaybackPosition( m_posLastSpecialSeek, totalTime );
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
+	
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
+	
+	g_pPlutoLogger->Write( LV_STATUS, "V1: %d",  xine_get_param( m_pXineStream, XINE_PARAM_SPEED));
+	g_pPlutoLogger->Write( LV_STATUS, "V2: %d",  xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER));
+	
 	m_iSpecialSeekSpeed = Speed;
 //	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
@@ -1400,8 +1406,6 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 		else
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
 
-		m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
-
 		ReportTimecode();
 
 		return true;
@@ -1430,6 +1434,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	// normal play
 	// trick play
 	// special seek
+	m_iPlaybackSpeed = desiredSpeed;
 	
 	// pause or normal playback requested - stopping any special mode and playing as usually	
 	if ((desiredSpeed == PLAYBACK_FF_1)||(desiredSpeed == PLAYBACK_STOP) )
@@ -1447,6 +1452,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
 		else
