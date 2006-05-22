@@ -86,7 +86,7 @@ while (1 eq 1)
 				{
 					$st->finish();
 					log_plugin("NEW DEVICE !!!","log");
-					system("/usr/pluto/bin/MessageSend localhost 0 -1001 2 53 5 \"$mac_found\" 28 \"$ip_sent\"");
+					system("/usr/pluto/bin/MessageSend localhost $PKDEV -1001 2 65 53 2 5 \"$mac_found\" 28 \"$ip_sent\"");
 				}
 			}
 			$db_handle->disconnect();
