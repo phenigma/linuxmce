@@ -1237,12 +1237,12 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	//input parameters
 	string sManufacturerId,sTemplateId,sDeviceCategory,sCommands;      
 	string sInfraredGrupIds; 
-	string sql;
+	string sql,index;
 	string::size_type pos=0;
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	int nRow = 0;
+	int nRow = 0,nPos = 0 ;
 
 	sManufacturerId = StringUtils::Tokenize( Parms, ",", pos );
 	sTemplateId = StringUtils::Tokenize( Parms, ",", pos );
@@ -1267,12 +1267,12 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 
 	if( !sInfraredGrupIds.empty() ) sInfraredGrupIds[sInfraredGrupIds.size()-1] = ' ';
 
-	sql = "SELECT PK_InfraredGroup_Command, FK_InfraredGroup, InfraredGroup.Description AS IRG_Name,FK_Command,IRData\
+	sql = "SELECT FK_InfraredGroup, InfraredGroup.Description AS IRG_Name,Command.Description,IRData\
 		FROM InfraredGroup_Command INNER JOIN Command ON FK_Command=PK_Command\
-		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup\
-		WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=" + sTemplateId + ")" + 
-		"AND FK_InfraredGroup IN (" +  sInfraredGrupIds + ") AND FK_Command IN (192, 193)" +
-		"AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
+		INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup ";
+	sql += string( "WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate=") + sTemplateId + ")" + " ";
+	sql += string("AND FK_InfraredGroup IN (") +  sInfraredGrupIds + ") AND FK_Command IN (192, 193)" + " ";
+	sql += "AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
 
 	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
 	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
@@ -1281,14 +1281,15 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
-			for(int i=0;i<4;i++)
+			if( row[0] )
+				index = string(row[0]) + "," + StringUtils::ltos(nPos++);
+			else
+				index = string("0,") + StringUtils::ltos(nPos++);
+			for(int i=0;i<3;i++)
 			{
-				pCell = new DataGridCell( row[i], row[0]);
+				pCell = new DataGridCell( row[i+1], index);
 				pDataGrid->SetData(i, nRow, pCell );
 			}
-			pCell = new DataGridCell("Work", row[0]);
-			pDataGrid->SetData(4, nRow, pCell );
-
 			nRow++;
 		}
 	}
