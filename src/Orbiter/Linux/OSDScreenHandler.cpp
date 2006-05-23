@@ -1949,16 +1949,37 @@ void OSDScreenHandler::SCREEN_TVOnOffCodes(long nPK_Screen)
 bool OSDScreenHandler::AVIRCodes_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *> (pData);
-	string sSelectId;
-	int nIdSelected = 0;
-	if(NULL != pCellInfoData)
-		sSelectId = pCellInfoData->m_sValue;
-	nIdSelected = atoi( sSelectId.c_str() );
+	if( NULL != pCellInfoData)
+		return false;
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( pCellInfoData->m_nPK_Datagrid );
+	if( NULL != pObj )
+		return false;
+	DataGridTable * pDataGrid = pObj->m_pDataGridTable;
+	if( !pDataGrid )
+		return false;
+	DataGridCell *pCell = NULL;
+
+	string aux,sSelectId,sSelectPos;
+	string::size_type pos = 0;
+	if( NULL != pCellInfoData )
+		aux = pCellInfoData->m_sValue;
+	sSelectId = StringUtils::Tokenize(aux, ",", pos);
+	sSelectPos = StringUtils::Tokenize(aux, ",", pos);
+	int test = m_pWizardLogic->GetParentDevice();
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_TVConfirmOnOffDiscrete_CONST:
-			//m_pWizardLogic->SetIRGroupPower(nIdSelected);
+		pCell = pDataGrid->GetData(2,atoi(sSelectPos.c_str()));
+		if( pCell )
+		{
+			aux = pCell->GetText();
+			CMD_Send_Code cmd(  m_pOrbiter->m_dwPK_Device, 52, pCell->GetText() );
+			CMD_Send_Code cmd2(  m_pOrbiter->m_dwPK_Device, 54, pCell->GetText() );
+
+			m_pOrbiter->SendCommand(cmd);
+			m_pOrbiter->SendCommand(cmd2);
+		}
 		break;
 
 		case DESIGNOBJ_TVConfirmOnOffToggle_CONST:

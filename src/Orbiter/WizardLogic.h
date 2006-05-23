@@ -33,7 +33,7 @@ private:
 
 	bool m_bAVTogglePower,m_bAVToggleDSP,m_bAVToggleInput;
 
-	long m_nPKDeviceCategory,m_nPKAVTemplate, m_nPKManufacuter;
+	long m_nPKDeviceCategory,m_nPKAVTemplate,m_nPKManufacuter;
 	long m_nPKIRGroupPower,m_nPKIRGroup;
 	long m_nPKDevice,m_nPKParentDevice;
 	long m_nPKMediaType,m_nPKConnectorType;
