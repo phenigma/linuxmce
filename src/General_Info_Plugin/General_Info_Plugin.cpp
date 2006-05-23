@@ -2714,7 +2714,8 @@ void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_Contr
 	{
 		DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
 		
-		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device, pDevice_AppServer->m_dwPK_Device , "/usr/plut/bin/StorageDevice_Radar.sh", "blacklist", 
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device, pDevice_AppServer->m_dwPK_Device , "/usr/pluto/bin/StorageDevice_Radar.sh", "blacklist", 
+				
 				"--blacklist\t" + sBlock_Device, "", "", false, false, false);
 	
 		SendCommand (CMD_Spawn_Application);
