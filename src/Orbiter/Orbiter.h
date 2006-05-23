@@ -672,7 +672,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual void GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList);
 
-		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button);
+		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button, bool bDown);
 
 		/**
 		* @brief renders text with the specified style

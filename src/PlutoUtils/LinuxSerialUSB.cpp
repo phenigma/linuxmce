@@ -16,8 +16,11 @@
 
 #include "PlutoUtils/LinuxSerialUSB.h"	 
 
+
 string TranslateSerialUSB(string sInput)
 {
+#ifndef WIN32
+
 	if( sInput.size()<6 || sInput.substr(0,3)!="usb" )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s isn't serial usb",sInput.c_str());
@@ -40,5 +43,8 @@ string TranslateSerialUSB(string sInput)
 		}
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
+
+#endif
+
 	return sInput;
 }

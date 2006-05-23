@@ -4090,7 +4090,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 		return true;
 
 	//if this is a repeated button, we'll handle it right away
-	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button))
+	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button, true))
 	{
 		m_bWeCanRepeat = true;
 		return HandleButtonEvent(iPK_Button);
@@ -4147,7 +4147,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 	}
 
 	//if this was a repeated button, we might want to stop all repeat related events
-	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button))
+	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button, false))
 	{
 		StopRepeatRelatedEvents();
 		return false;
@@ -7933,14 +7933,24 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	}
 }
 
-/*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button)
+/*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button, bool bDown)
 {
 	//no valid button
 	if(iPK_Button == 0)
 		return false;
 
-	if(NULL != m_pObj_Highlighted && m_pObj_Highlighted->m_bRepeatParm)
+	static DesignObj_Orbiter *pObj_Highlighted_With_Repeat = NULL;
+	if(bDown && NULL != m_pObj_Highlighted && m_pObj_Highlighted->m_bRepeatParm)
+	{
+		pObj_Highlighted_With_Repeat = m_pObj_Highlighted;
 		return true;
+	}
+
+	if(!bDown && NULL != pObj_Highlighted_With_Repeat && pObj_Highlighted_With_Repeat->m_bRepeatParm)
+	{
+		pObj_Highlighted_With_Repeat = NULL;
+		return true;
+	}
 
 	if(pObj->m_bRepeatParm && pObj->m_iPK_Button == iPK_Button)
 		return true;
@@ -7949,7 +7959,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
-		if(IsRepeatedKeyForScreen(pDesignObj_Orbiter, iPK_Button))
+		if(IsRepeatedKeyForScreen(pDesignObj_Orbiter, iPK_Button, bDown))
 			return true;
 	}
 
