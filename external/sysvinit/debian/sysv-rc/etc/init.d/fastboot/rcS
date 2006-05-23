@@ -300,6 +300,11 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	ConfSet "FirstBoot" "false"
 fi
 
+if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
+	Message "Setting ssh keys"
+	/etc/init.d/Pluto_SSH_Keys.sh
+fi
+
 if [[ "$AVWizardDone" != "1" ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
 		Message "Starting Audio/Video Wizard"
