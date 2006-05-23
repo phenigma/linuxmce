@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 #check params
-unless(defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
+unless(defined($ARGV[0]) && defined($ARGV[1]))
 {
     print "USAGE :$0 <line_nr> <line_name> <phone_nr>\n";
     exit(-1);
@@ -9,14 +9,17 @@ unless(defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 
 my $LINE_NR = $ARGV[0];
 my $LINE_NAME = $ARGV[1];
-my $PHONE_NR = $ARGV[2];
 
 $LINE_NAME =~ s/(\w+)[-]out/$1/;
 
 system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&extdisplay=OUT_$LINE_NR&action=deltrunk' &>/dev/null ");
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null");
+if (defined($ARGV[2]))
+{
+	my $PHONE_NR = $ARGV[2];
+	system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null");
+}
 
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8' > /tmp/curl.log");
+system("curl -o /tmp/curl.log 'http://localhost/pluto-admin/amp/admin/config.php?display=8' &> /dev/null");
 open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
 my $OUT_ROUTE = "";
 while(<PAGE>)
