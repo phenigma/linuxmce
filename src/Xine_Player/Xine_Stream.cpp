@@ -835,20 +835,26 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			{
 				case XK_Up:
 					xineEvent.type = XINE_EVENT_INPUT_UP;
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Up");
 					break;
 				case XK_Down:
 					xineEvent.type = XINE_EVENT_INPUT_DOWN;
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Down");
 					break;
 				case XK_Left:
 					xineEvent.type = XINE_EVENT_INPUT_LEFT;
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Left");
 					break;
 				case XK_Right:
 					xineEvent.type = XINE_EVENT_INPUT_RIGHT;
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Right");
 					break;
 				case XK_Return:
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Return");
 					xineEvent.type = XINE_EVENT_INPUT_SELECT;
 					break;
 				default:
+					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: not in (Up, Down, Left, Right, Return)");
 					xineEvent.type = 0;
 			}
 			xineEvent.stream = m_pXineStream;
