@@ -35,6 +35,13 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
+
+#include "PlutoUtils/DatabaseUtils.h"
+
+
+
+
+
 int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.log");

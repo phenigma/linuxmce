@@ -320,3 +320,29 @@ int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_
 	}
 	return iPK_Device_Fallback;
 }
+
+int DatabaseUtils::ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Device_ControlledVia_temp,int iPK_DeviceTemplate)
+{
+	PlutoSqlResult result,result2;
+
+	string sSQL = "SELECT IK_DeviceData FROM DeviceTemplate_DeviceData where FK_DeviceData=" TOSTRING(DEVICEDATA_Only_One_Per_PC_CONST) " AND FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	DatabaseUtils::GetTopMostDevice(pMySqlHelper,PK_Device_ControlledVia_temp);
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || (row=mysql_fetch_row(result.r))==NULL || !atoi(row[0]) )
+		return 0;  // Only one per pc isn't set anyway
+
+	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(pMySqlHelper,PK_Device_ControlledVia_temp);
+	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	if( (result2.r=pMySqlHelper->mysql_query_result(sSQL)) )
+	{
+		MYSQL_ROW row;
+		while (row=mysql_fetch_row(result2.r))
+		{
+			int PK_Device_Test = atoi(row[0]);
+			int PK_Device_TopMost_Test = DatabaseUtils::GetTopMostDevice(pMySqlHelper,PK_Device_Test);
+			if( PK_Device_TopMost_Test==PK_Device_TopMost )
+				return PK_Device_Test;
+		}
+	}
+	return 0;
+}

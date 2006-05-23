@@ -36,6 +36,7 @@ namespace DatabaseUtils
 	int GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate);
 	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,int iPK_Installation);
 	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result_cv);
+	int ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Device_ControlledVia_temp,int iPK_DeviceTemplate);
 };
 
 #endif //#ifndef _DatabaseUtils
