@@ -4331,7 +4331,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
+				<td align="center" width="120">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
 			</tr>
 		</table>';
 
@@ -5291,12 +5291,16 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="choose">
 	
-	<table align="center" border="0" cellpadding="2" cellspacing="0">
+	<table align="center" border="0" cellpadding="2" cellspacing="0" width="550">';
+	if($returnValue==1){
+		$out.='
 		<tr>
 			<td><B>'.$TEXT_PARENT_DEVICE_CONST.'</B></td>
 			<td>'.$parentDeviceText.'</td>
 			<td>&nbsp;</td>
-		</tr>	
+		</tr>';
+	}
+	$out.='
 		<tr class="alternate_back">
 			<td><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
 			<td>'.pulldownFromArray($manufacturersArray,'manufacturerID',$manufacturerID,'class="input_big" onchange="setManufacturer();"').'</td>
@@ -5372,7 +5376,12 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 				</em>
 			</td>
 		</tr>	
-	
+		<tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>	
+		<tr>
+			<td colspan="3"><B>'.$TEXT_NOTES_CONST.'</B><br>'.$TEXT_PICKER_INFO_CONST.'</td>
+		</tr>	
 	</table>
 	</form>
 	';
@@ -5703,5 +5712,78 @@ function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO){
 	$dtArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,$filter,'ORDER BY Description ASC');	
 	
 	return $dtArray;
+}
+
+function queryExternalServer($url){
+	$ch = curl_init();
+	
+	// set URL and other appropriate options
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+	
+	// grab URL and pass it to the browser
+	$result=curl_exec($ch);
+	
+	// close CURL resource, and free up system resources
+	curl_close($ch);
+	
+	return $result;
+}
+
+function import_remote_sql($remoteUrl,$dbADO){
+	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
+	
+	// get data from plutohome server
+	$remoteData=queryExternalServer($remoteUrl);
+
+	if(!ereg('Database import',$remoteData)){
+		error_redirect('Database import failed.','index.php?section=installationSettings');
+	}
+		
+	if(ereg('ERROR',$remoteData)){
+		error_redirect($remoteData,'index.php?section=installationSettings');
+	}
+	
+	$queryDataArray=array();
+	$remoteDataArray=explode("\n",$remoteData);
+
+	// remove first 2 lines, the comment confirming the remote page was loaded and the comma separated list of psc_ids
+	for($i=2;$i<count($remoteDataArray);$i++){
+		$queryDataArray[]=$remoteDataArray[$i];
+	}	
+
+	// waring: str_replace is needed because in bash single quote inside single quotes is not escaped
+	if($remoteData!='No records'){
+		$importCmd='echo \''.str_replace(array("'","\n"),array("'\"'\"'"," "),join("\n",$queryDataArray)).'\' | mysql '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.(($dbPlutoMainPass!='')?' -p'.$dbPlutoMainPass:'').'; echo $?';
+
+		return exec($importCmd,$retArray);
+	}
+}
+
+// PHP version of the .sh file who will do the same thing
+function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
+	// TODO: comment all and call the sh instead
+	
+	// TODO: remove comment to use global variable instead of hard-coded devel one
+	//global $PlutoHomeHost;
+	$PlutoHomeHost='http://10.0.0.175/plutohome-com/';
+
+	if($dtID==0){
+		$data=getFieldsAsArray('Device','FK_DeviceTemplate,FK_InfraredGroup',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
+	}else{
+		$data=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate,FK_InfraredGroup',$dbADO,'WHERE PK_DeviceTemplate='.$dtID);
+	}
+	if(count($data)>0){
+		$res=$dbADO->Execute('SHOW TABLES LIKE "InfraredGroup_Command"');
+		if($res->RecordCount()!=0){
+			$isImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO);	
+		}else{
+			$isCreated=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?Create=1',$dbADO);
+			if($isCreated==0){
+				$isImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO);	
+			}
+		}
+	}
 }
 ?>

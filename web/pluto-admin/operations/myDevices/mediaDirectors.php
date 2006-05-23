@@ -388,7 +388,7 @@ function mediaDirectors($output,$dbADO) {
 						$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
 						
 						// set DHCP settings
-						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$key.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
+						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$value.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
 						exec($cmd);
 					}
 										

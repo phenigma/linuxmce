@@ -23,4 +23,5 @@ $TEXT_ERROR_INVALID_ID_OR_EMPTY_NAME_CONST='Invalid ID or empty name';
 $TEXT_BIT_RATE_CONST='Bit rate';
 $TEXT_QUALITY_CONST='Quality';
 $TEXT_NO_OPTIONS_AVAILABLE_CONST='No options available.';
+$TEXT_ERROR_IMPORT_FAILED_CONST='ERROR: database import failed.';
 ?>

@@ -6,7 +6,7 @@ $TEXT_DEVICE_CATEGORY_PULLDOWN_ALPHA_CONST='Pulldown in alphabetical order';
 $TEXT_DEVICE_CATEGORY_PULLDOWN_HIERARCHICAL_CONST='Pulldown in hierachical order';
 $TEXT_DEVICE_CATEGORY_TREEVIEW_CONST='Treeview';
 $TEXT_ADD_DEVICE_TEMPLATE_CONST='Add device template';
-$TEXT_PICK_MODEL_CONST='Pick model';
+$TEXT_PICK_MODEL_CONST='Pick device template';
 $TEXT_ERROR_DEVICE_TEMPLATE_NOT_SELECTED_CONST='ERROR: Please select a device template';
 $TEXT_MANUFACTURER_DOES_NOT_EXIST_CONST='ERROR: the manufacturer does not exist.';
 $TEXT_DEVICE_CATEGORY_DOES_NOT_EXIST_CONST='ERROR: Device category does not exist.';
@@ -19,4 +19,5 @@ $TEXT_DC_MANUFACTURER_NEEDED_CONST='Need to pick a device category and a manufac
 $TEXT_PARENT_DEVICE_CONST='Parent Device';
 $TEXT_ERROR_PICK_MANUF_AND_DC_CONST='ERROR: you need to select the manufacturer and the device category.';
 $TEXT_DEVICE_TEMPLATE_CONTROLLED_VIA_NOTE_CONST='Device templates are restricted to those who can be controlled via parent device.';
+$TEXT_PICKER_INFO_CONST='- Select the manufacturer and the device category and click "Apply filter" to restrict the device templates list to those from the device category and manufacturer selected. <br>	- Click "Autofilter" to make this operation to be performed automaticly every time the device category or manufacturer is changed.<br> - If you know the device template number, just type it in "device template" box.';
 ?>

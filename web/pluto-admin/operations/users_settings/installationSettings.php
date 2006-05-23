@@ -155,11 +155,12 @@ function installationSettings($output,$dbADO) {
 					</tr>';
 
 					if($selectedRegion>0 && in_array($selectedRegion,array_keys($regionsArray))){
+						$citiesArray=getCities($selectedRegion,$dbADO);
 						$output->setScriptInHead(getCitiesCoordsArray($dbADO,' WHERE FK_Region='.$selectedRegion));
 					$out.='
 					<tr>
 						<td><B>'.$TEXT_CITY_CONST.'</B></td>
-						<td>'.generatePullDown('city_coords','City','PK_City','City',@$selectedCity,$dbADO,'WHERE FK_Region='.$selectedRegion,'onChange="setCoordinates()"').'</td>
+						<td>'.pulldownFromArray($citiesArray,'city_coords',@$selectedCity,'onChange="setCoordinates()"').generatePullDown('city_coords','City','PK_City','City',@$selectedCity,$dbADO,'WHERE FK_Region='.$selectedRegion,'onChange="setCoordinates()"').'</td>
 					</tr>';
 					
 					}
@@ -475,5 +476,34 @@ function rippingSettings($selectedRipFormat){
 	</table>';
 	
 	return $out;
+}
+
+// get an assoc array from database for cities or retrieve them from Internet if no one is found
+function getCities($selectedRegion,$dbADO){
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/installationSettings.lang.php');
+	
+	// TODO: remove comment to use global variable instead of hard-coded devel one
+	//global $PlutoHomeHost;
+	$PlutoHomeHost='http://10.0.0.175/plutohome-com/';
+	
+	/* @var $dbADO ADOConnection */
+	$res=$dbADO->Execute('SHOW TABLES LIKE "City"');
+	if($res->RecordCount()!=0){
+		$existing=getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
+		if(count($existing)==0){
+			$isImported=import_remote_sql($PlutoHomeHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
+			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
+		}
+		return $existing;
+	}else{
+		$isCreated=import_remote_sql($PlutoHomeHost.'/GetCity.php?Create=1',$dbADO);
+		if($isCreated==0){
+			$isImported=import_remote_sql($PlutoHomeHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
+			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
+		}else{
+			error_redirect($TEXT_ERROR_IMPORT_FAILED_CONST,'index.php?section=installationSettings');
+		}
+		
+	}
 }
 ?>

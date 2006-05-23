@@ -42,7 +42,7 @@ if ($action == 'form') {
 	<input type="hidden" name="devicesCoords" value="">
 	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
 	
-	<div align="center"><h3>'.$TEXT_AV_CONNECTION_WIZARD_CONST.'</h3></div>
+
 	<a href="index.php?section=avWizard">'.$TEXT_ADVANCED_MODE_CONST.'</a><br><br>
 	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
 	$devicesList=array();
@@ -402,6 +402,9 @@ if ($action == 'form') {
 		header("Location: index.php?section=connectionWizard&msg=$TEXT_DEVICES_UPDATED_CONST&entertainArea=$entertainArea");		
 	}
 
+	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
+	$output->setPageTitle($TEXT_AV_CONNECTION_WIZARD_CONST);
+	
 	$output->setNavigationMenu(array($TEXT_AV_CONNECTION_WIZARD_CONST=>'index.php?section=connectionWizard'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_CONNECTION_WIZARD_CONST);

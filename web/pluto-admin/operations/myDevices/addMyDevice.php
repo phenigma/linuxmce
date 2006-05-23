@@ -89,7 +89,7 @@ function addMyDevice($output,$dbADO) {
 			unset($_SESSION['MACaddressMyDevice']);
 			unset($_SESSION['ignoreOnOff']);
 
-			$suffix=(isOrbiter($insertID,$dbADO) || isMediaDirector($insertID,$dbADO))?'&showNote=1':'';
+			$suffix=(isOrbiter($insertID,$dbADO) || isMediaDirector($insertID,$dbADO,1))?'&showNote=1':'';
 			
 			$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu&deviceID=$insertID';

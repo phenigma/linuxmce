@@ -66,7 +66,7 @@ $start_time=getmicrotime();
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
 				<tr>
-					<td valign="center" colspan="3" class="left_menu" height="30">'.((@$_SESSION['userLoggedIn']==true)?'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a>':'').'</td>					
+					<td valign="center" colspan="3" class="left_menu" height="30">'.((@$_SESSION['userLoggedIn']==true)?'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.', '.$_SESSION['username'].'</a>':'').'</td>					
 				</tr>
 		';
 	}

@@ -26,6 +26,9 @@ function irCodes($output,$dbADO,$mediaADO) {
 		header("Location: index.php?section=login");
 	}
 
+	// get InfraredGroup_Commmand from remote location
+	GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	
 	if(!isset($_REQUEST['infraredGroupID'])){
 		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
 		if($resDefaultIG->RecordCount()>0){

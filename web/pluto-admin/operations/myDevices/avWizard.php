@@ -241,6 +241,11 @@ $start_time=getmicrotime();
 		$deviceDisplayed=0;
 		while($rowD=$resDevice->FetchRow()){
 			if($rowD['PK_Device']!=$deviceDisplayed){
+				
+				// *****************************
+				GetIRCodesForDevice($rowD['PK_Device'],$dbADO);
+				// *****************************
+				
 				$deviceDisplayed=$rowD['PK_Device'];
 				$pos++;
 	

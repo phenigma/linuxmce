@@ -25,7 +25,7 @@ function leftMenu($output,$dbADO) {
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
 				<tr>
-					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
+					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.', '.$_SESSION['username'].'</a></td>					
 				</tr>
 		';
 	} 	
