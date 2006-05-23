@@ -102,55 +102,69 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 	for (list<Row>::iterator i = origLines.begin(); i != origLines.end(); i++)
 	{
+		Row row = *i;
         TextStyle* pCurrentTextStyle = pDefaultTextStyle;
         
-        for (list<Word>::iterator j = i->begin(); j != i->end(); j++)
+        for (list<Word>::iterator j = row.begin(); j != row.end(); j++)
 		{
-			if ((* j)[0] == '~')
+			bool bGotTextStyleTokens = false;
+			bool Not = false;
+			string sCurrentWord = *j;
+			size_t nLastPosition = 0;
+			
+			while(nLastPosition < sCurrentWord.length() - 1)
 			{
-				bool Not = false;
-				for (Word::iterator k = j->begin(); k != j->end(); k++)
+				if (sCurrentWord[nLastPosition] == '~')
 				{
-					switch (* k)
+					size_t nPos = sCurrentWord.find('~', nLastPosition + 1);
+					if(nPos != string::npos)
 					{
-						case '~': break;
-						case 'x':
-						case 'X': Not = true; continue; break;
-						case 'B': statB = Not ^ true; break;
-						case 'I': statI = Not ^ true; break;
-						case 'U': statU = Not ^ true; break;
-						case 'l': LAttr.HAlign = HORIZALIGNMENT_Left_CONST; break;
-						case 'c': LAttr.HAlign = HORIZALIGNMENT_Center_CONST; break;
-						case 'r': LAttr.HAlign = HORIZALIGNMENT_Right_CONST; break;
-						case 't': LAttr.VAlign = VERTALIGNMENT_Top_CONST; break;
-						case 'm': LAttr.VAlign = VERTALIGNMENT_Middle_CONST; break;
-						case 'b': LAttr.VAlign = VERTALIGNMENT_Bottom_CONST; break;
-                        case 'S': 
-                            {
-                                //TODO: read
-                                string sTextStyleNumber;
-                                k++;
-                                while(*k != '~')
-                                {
-                                    sTextStyleNumber += *k;
-                                    k++;
-                                }
+						bGotTextStyleTokens = true;
+						string sToken = sCurrentWord.substr(nLastPosition + 1, nPos - 1);
+						nLastPosition = nPos + 1;
+						if(sToken[0] == 'S')
+						{
+							string sTextStyleNumber = sToken.substr(1);
+							int nTextStyleIndex = atoi(sTextStyleNumber.c_str());
 
-                                int nTextStyleIndex = atoi(sTextStyleNumber.c_str());
-
-                                if(NULL != m_pmapTextStyle)
-                                {
-                                    MapTextStyle::iterator it = m_pmapTextStyle->find(nTextStyleIndex);
-                                    if(it != m_pmapTextStyle->end())
-                                        pCurrentTextStyle = (*it).second;
-                                }
-                            }
-                            break;
+							if(NULL != m_pmapTextStyle)
+							{
+								MapTextStyle::iterator it = m_pmapTextStyle->find(nTextStyleIndex);
+								if(it != m_pmapTextStyle->end())
+									pCurrentTextStyle = (*it).second;
+							}
+						}
+						else
+						{
+							for(string::iterator it_char = sToken.begin(); it_char != sToken.end(); ++it_char)
+							{
+								char ch = *it_char; 
+								switch(ch)
+								{
+									case 'x':
+									case 'X': Not = true; break; 
+									case 'B': statB = Not ^ true; break;
+									case 'I': statI = Not ^ true; break;
+									case 'U': statU = Not ^ true; break;
+									case 'l': LAttr.HAlign = HORIZALIGNMENT_Left_CONST; break;
+									case 'c': LAttr.HAlign = HORIZALIGNMENT_Center_CONST; break;
+									case 'r': LAttr.HAlign = HORIZALIGNMENT_Right_CONST; break;
+									case 't': LAttr.VAlign = VERTALIGNMENT_Top_CONST; break;
+									case 'm': LAttr.VAlign = VERTALIGNMENT_Middle_CONST; break;
+									case 'b': LAttr.VAlign = VERTALIGNMENT_Bottom_CONST; break;
+								}
+							}
+						}
 					}
-					Not = false;
+					else
+						break;
 				}
-				continue; // don't wrap formatting
+				else
+					break;
 			}
+
+			if(bGotTextStyleTokens)
+				continue;
 
 			bool statB_bk = pCurrentTextStyle->m_bBold;
 			bool statU_bk = pCurrentTextStyle->m_bUnderline;
@@ -163,7 +177,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
                 pCurrentTextStyle->m_bItalic = statI;
             }
 
-			WW = WordWidth(Space + * j, RI, pCurrentTextStyle);
+			WW = WordWidth(Space + sCurrentWord, RI, pCurrentTextStyle);
 
 			if (lastX + WW.first >= Width)
 			{
@@ -176,14 +190,14 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				LAttr.Width = lastX = 0;
 				
 				// re-render last word because it is going to start a new line
-				WW = WordWidth(* j, RI, pCurrentTextStyle, false);
+				WW = WordWidth(sCurrentWord, RI, pCurrentTextStyle, false);
 			}
 
 			pCurrentTextStyle->m_bBold = statB_bk;
 			pCurrentTextStyle->m_bUnderline = statU_bk;
 			pCurrentTextStyle->m_bItalic = statI_bk;
 
-			T.AddWord(line, * j);
+			T.AddWord(line, sCurrentWord);
 			AddImageWord(ImageLine, RI);
 			lastX += WW.first;
 			//Space = " ";
