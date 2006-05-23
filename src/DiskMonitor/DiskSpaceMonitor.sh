@@ -5,6 +5,11 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 module=$(basename $0)
+TPL_BUFFALO_HDHG300LAN=1794
+TPL_GENERIC_INTERNAL_DRIVE=1790
+DD_FREE_SPACE=160
+DD_FILESYSTEM=159
+
 
 ## Lock
 mkdir -p /usr/pluto/locks
@@ -92,6 +97,11 @@ if [[ ! -f /etc/diskless.conf ]]; then
 		fi
 	fi
 
+        ## Update Free Space device data for Core device
+	Core_HomeFree=$(( $homeFree / 1024 ))
+        Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Core_HomeFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$PK_Device'"
+        RunSQL "$Q"
+
 	if [[ $SystemFilesystemFull == "true" ]]; then
 		# Triger the Low System Disk Space (64) event
 		touch /var/DiskSpaceMonitor.stamp
@@ -105,10 +115,6 @@ if [[ ! -f /etc/diskless.conf ]]; then
 fi
 
 ## Check Pluto Storage device for free space
-TPL_BUFFALO_HDHG300LAN=1794
-TPL_GENERIC_INTERNAL_DRIVE=1790
-DD_FREE_SPACE=160
-DD_FILESYSTEM=159
 
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN) AND FK_Device_ControlledVia=$PK_Device"
 StorageDevices=$(RunSQL "$Q")
