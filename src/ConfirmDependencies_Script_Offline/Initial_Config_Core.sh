@@ -289,16 +289,25 @@ clear
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
-		ExtraRepository=$(Ask "Add a new repository? [y/N]")
-		if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
-			ExtraRepositoryPath=$(Ask "Enter repository path")
-			echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
-			apt-get update
-		fi
+		while :; do
+			ExtraRepository=$(Ask "Add a new repository? [y/N]")
+			if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
+				ExtraRepositoryPath=$(Ask "Enter repository path")
+				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
+				apt-get update
+				break
+			elif [[ "$ExtraRepository" == n && "$ExtraRepository" == N ]]; then
+				break
+			else
+				echo "--> Invalid answer: '$ExtraRepository'"
+			fi
+		done
 		ExtraPkgName=$(Ask "Enter package name")
 		apt-get install "$ExtraPkgName"
-	else
+	elif [[ "$ExtraPkg" == n || "$ExtraPkg" == N ]]; then
 		break
+	else
+		echo "--> Invalid answer: '$ExtraPkg'"
 	fi
 done
 exec 1>&3 3>&-
