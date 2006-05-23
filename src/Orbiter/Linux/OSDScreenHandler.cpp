@@ -2333,8 +2333,8 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 					if( m_pWizardLogic->IsIRCodes() )
 						m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
 					else
-						m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
-					return false;
+						m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_LearnIRCodes_CONST) );
+					return true;
 				}
 
 				case DESIGNOBJ_butDiscreteCodesDSPModes_CONST:
@@ -2374,7 +2374,7 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 				if( m_pWizardLogic->IsIRCodes() )
 					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
 				else
-					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_LearnIRCodes_CONST) );
 				return true;
 			}
 		}
@@ -2391,8 +2391,8 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			if( m_pWizardLogic->IsIRCodes() )
 					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_IRGroup_CONST) );
 				else
-					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_AVDeviceAudio_CONST) );
-			return false;
+					m_pOrbiter->GotoDesignObj(StringUtils::ltos(DESIGNOBJ_LearnIRCodes_CONST) );
+			return true;
 
 			//up
 			case DESIGNOBJ_butOrderMoveUp_CONST:
@@ -2434,6 +2434,16 @@ bool OSDScreenHandler::TVDSPMode_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,id);
 			id[id.size()-1] = ' ';
 			return false;
+		}
+		return false;
+
+		case DESIGNOBJ_LearnIRCodes_CONST:
+		if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVReceiver_CONST )
+		{
+		//start learn
+		CMD_Learn_IR cmd(m_pOrbiter->m_dwPK_Device, 52,
+			0, "1", 0, 192);
+		m_pOrbiter->SendCommand(cmd);
 		}
 		return false;
 }
