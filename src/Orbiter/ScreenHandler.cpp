@@ -526,13 +526,14 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String,
-	int iPK_Device_ControlledVia)
+	int iPK_Device_ControlledVia, string sDescription)
 { 
 	m_sInternal_Disk_Drive_Data = sData_String;
 	m_nInternal_Disk_Drive_PK_Device_ControlledVia = iPK_Device_ControlledVia;
 
 	//we'll filter the datagrid by this category
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sDescription);
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST), "", false, false );
 
 	//register few callbacks

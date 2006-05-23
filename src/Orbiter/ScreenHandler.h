@@ -112,7 +112,8 @@ public:
 
 	string m_sInternal_Disk_Drive_Data;
 	int m_nInternal_Disk_Drive_PK_Device_ControlledVia;
-	virtual void SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia);
+	virtual void SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String, 
+		int iPK_Device_ControlledVia, string sDescription);
 	virtual bool Internal_Disk_Drive_Wizard_ObjectSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
