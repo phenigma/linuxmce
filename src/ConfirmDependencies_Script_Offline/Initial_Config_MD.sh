@@ -31,7 +31,6 @@ ok_script=0
 chmod +x /usr/pluto/install/activation.sh
 /usr/pluto/install/activation.sh
 
-
 # Replace Initial_Config.sh entry with regular one in inittab (OMFG Hack)
 awk '
 	/1:23:once/ { next }

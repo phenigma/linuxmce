@@ -19,7 +19,7 @@ deb file:/usr/pluto/deb-cache/ sarge main
 # Pluto sources offline - end"
 echo "$Sources" >/etc/apt/sources.list
 echo "$SourcesOffline" >/etc/apt/sources.list.offline
-sleep 1
+sleep 0.5
 clear
 
 exec 3>&1 1>/dev/tty
