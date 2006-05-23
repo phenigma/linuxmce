@@ -70,6 +70,7 @@ function Detect {
 	done
 	availPart=$auxPart
 
+3B
 	## Display the new internal disk drive found wizard on available orbiters
 	Q="
 		SELECT
@@ -93,8 +94,29 @@ function Detect {
 		OrbiterIDList="$OrbiterIDList""$Orbiter_ID"
 	done
 
+	## Test if we found any available partitions
 	if [[ $availPart != "" ]] ;then
+		
+                Q="
+                        SELECT
+                                Device.Description,
+                                Room.Description
+                        FROM
+                                Device
+                                JOIN Room ON PK_Room = FK_Room
+                        WHERE
+                                PK_Device = $PK_Device
+                        LIMIT 1
+                "
+                Info=$(RunSQL "$Q")
+                Comp_Description=$(Field 1 "$Info")
+                Comp_Room=$(Field 2 "$Info")
+
 		for partition in $availPart ;do
+			fdisk_Output=$( fdisk -l $(echo "/dev/$partition" | sed s/[0-9]*$//) | grep ^/dev/$partition )
+			Partition_Type=$(echo $fdisk_Output  | cut -d' ' -f6-14)
+			Partition_Size=$(( `fdisk -s /dev/$partition`  / 1024 ))
+			echo "I detected $partition, a $Partition_Size MB $Partition_Type partition in computer '$Comp_Description' from room '$Comp_Room'"
 			/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$partition" 156 $PK_Device
 		done
 	fi
