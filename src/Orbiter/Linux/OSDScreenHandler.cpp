@@ -671,11 +671,13 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butSQLOnOffCodes_CONST:
 					m_pWizardLogic->UpdateAVTemplateSettings();
-					CMD_Create_Device cmd( m_pOrbiter->m_dwPK_Device,27,m_pWizardLogic->GetAVTemplateId(),
-						"",0,"","",0,0,m_pOrbiter->m_dwPK_Device,0,&nDeviceId);
+					CMD_Create_Device cmd( m_pOrbiter->m_dwPK_Device,
+						m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,m_pWizardLogic->GetAVTemplateId(),
+						"",0,"","",0,DEVICETEMPLATE_gc100_CONST,
+						m_pOrbiter->m_dwPK_Device,0,&nDeviceId);
 					m_pOrbiter->SendCommand(cmd);
-					//m_pOrbiter->SendCommandNoResponse( cmd );
 					m_pWizardLogic->SetDeviceId(nDeviceId) ;
+					m_pWizardLogic->GetParentDevice();
 					switch( m_pWizardLogic->GetAVIRCodesType() )
 					{
 						//Unknow

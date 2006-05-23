@@ -557,17 +557,21 @@ int WizardLogic::GetParentDevice()
 {
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
+	m_nPKParentDevice = 0;
 
 	string sql = "SELECT PK_Device,FK_Device_ControlledVia FROM Device WHERE PK_Device='";
-	sql += StringUtils::ltos(m_nPKDevice);
+	sql += StringUtils::ltos(m_nPKDevice) + "'";
 
 	if( (result_set.r=mysql_query_result(sql)) )
 	{
 		if( (row = mysql_fetch_row(result_set.r)))
-			return atoi( row[1] );
+		{
+			m_nPKParentDevice = atoi( row[1] );
+			return m_nPKParentDevice;
+		}
 	}	
 
-	return 0;
+	return m_nPKParentDevice;
 }
 
 void WizardLogic::UpdateAVTemplateToggle()
