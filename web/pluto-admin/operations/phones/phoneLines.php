@@ -155,7 +155,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			$editedID=$_REQUEST['editedID'];
 			if($editedID!=''){
 				$phoneData=getPLDetails($editedID,$_REQUEST['edited_type'],$astADO);
-				deletePhoneLine($editedID,$phoneData['Data'],$phoneData['PhoneNumber']);
+				deletePhoneLine(str_replace('9999','',$editedID),$phoneData['Data'],$phoneData['PhoneNumber']);
 			}
 			
 			$username=cleanString($_POST['username']);
@@ -299,23 +299,6 @@ function phoneLinesTable($astADO){
 	}
 	
 	return $out;
-}
-
-function queryExternalServer($url){
-	$ch = curl_init();
-	
-	// set URL and other appropriate options
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_HEADER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-	
-	// grab URL and pass it to the browser
-	$result=curl_exec($ch);
-	
-	// close CURL resource, and free up system resources
-	curl_close($ch);
-	
-	return $result;
 }
 
 function phoneLinesLocalSettings($dbADO){
