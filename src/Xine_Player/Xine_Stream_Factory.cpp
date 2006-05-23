@@ -180,19 +180,24 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 }
 
 // returns pointer to stream if exists/was created or NULL otherwise
-Xine_Stream *Xine_Stream_Factory::GetStream(int streamID)
+Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist)
 {
-	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
-	
-	map<int, Xine_Stream*>::iterator stream = streamsMap.find(streamID);
-	if (stream != streamsMap.end())
-		return (*stream).second;
-	else
+	{
+		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+		
+		map<int, Xine_Stream*>::iterator stream = streamsMap.find(streamID);
+		if (stream != streamsMap.end())
+			return (*stream).second;
+	}
+		
+	if (createIfNotExist)
 	{
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency());
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
+			
+			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 			streamsMap[streamID] = new_stream;
 			return new_stream;
 		}
@@ -204,6 +209,8 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID)
 			return NULL;
 		}
 	}
+	else
+		return NULL;
 }
 
 void Xine_Stream_Factory::ReportAudioTracks(string sTracks)
@@ -223,18 +230,26 @@ void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
 
 void Xine_Stream_Factory::DestroyStream(int iStreamID)
 {
-	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
-	
 	Xine_Stream *pStream = NULL;
+	map<int, Xine_Stream*>::iterator stream;
 	
-	map<int, Xine_Stream*>::iterator stream = streamsMap.find(iStreamID);
-	if (stream != streamsMap.end())
-	{
-		pStream = (*stream).second;
-		streamsMap.erase(stream);
-		delete pStream;
-		g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
+	{	
+		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+		stream = streamsMap.find(iStreamID);
+		
+		if (stream != streamsMap.end())
+		{
+			pStream = (*stream).second;
+			streamsMap.erase(stream);
+		}
 	}
+	
+	if (pStream)
+	{
+		delete pStream;
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
 }
 
 } // DCE namespace end

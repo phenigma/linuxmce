@@ -63,7 +63,7 @@ namespace DCE
 			
 			void setOutputSpeakerArrangement( string strOutputSpeakerArrangement );
 			
-			Xine_Stream *GetStream(int streamID);
+			Xine_Stream *GetStream(int streamID, bool createIfNotExist=true);
 			
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);

@@ -1072,7 +1072,7 @@ void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 
 void Xine_Player::ReportTimecode(int iStreamID, int Speed)
 {
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );	
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, false );	
 	if (pStream == NULL)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecode() stream is NULL");

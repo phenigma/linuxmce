@@ -127,22 +127,25 @@ bool Xine_Stream::ShutdownStream()
 			return false;
 	}
 	
+	playbackCompleted(false );
+	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		
-		playbackCompleted(false );
-		
 		m_bInitialized = false; 
-		
-		// stop the event thread first
-		if ( threadEventLoop )
-		{
-			g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
-			m_bExitThread = true;
+	}
 	
-			pthread_join( threadEventLoop, NULL );
-			g_pPlutoLogger->Write( LV_STATUS, "Done." );
+	// stop the event thread first
+	if ( threadEventLoop )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
+		
+		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			m_bExitThread = true;
 		}
+
+		pthread_join( threadEventLoop, NULL );
+		g_pPlutoLogger->Write( LV_STATUS, "Done." );
 	}
 	
 	if ( m_pXineStreamEventQueue )
@@ -156,9 +159,7 @@ bool Xine_Stream::ShutdownStream()
 	}
 	
 	if ( m_pXineStream )
-	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		
+	{	
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
 		xine_stop( m_pXineStream );
 
@@ -168,6 +169,8 @@ bool Xine_Stream::ShutdownStream()
 		
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
 		xine_dispose( m_pXineStream );
+		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStream = NULL;
 	}
 
@@ -177,6 +180,7 @@ bool Xine_Stream::ShutdownStream()
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
 		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineAudioOutput = NULL;
 	}
 
@@ -184,6 +188,7 @@ bool Xine_Stream::ShutdownStream()
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
 		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineVideoOutput = NULL;
 	}
 
@@ -328,32 +333,37 @@ bool Xine_Stream::InitXineAVOutput()
 	
 	m_x11Visual.user_data = this;
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	// init video output
 	g_pPlutoLogger->Write( LV_STATUS, "Opening Video Driver" );
-	if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
-		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
-			return false;
+			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+				return false;
+			}
 		}
 	}
 
 	// init audio output
 	g_pPlutoLogger->Write( LV_STATUS, "Opening Audio Driver" );
-	if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
-		xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
-		return false;
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
+			xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
+			return false;
+		}
 	}
 
 	// init xine stream
 	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stream_new" );
 	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( ( m_pXineStream = xine_stream_new( m_pXineLibrary, m_pXineAudioOutput, m_pXineVideoOutput ) ) == NULL )
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Could not create stream" );
@@ -365,7 +375,10 @@ bool Xine_Stream::InitXineAVOutput()
 	
 	// creating new queue
 	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_event_new_queue" );
-	m_pXineStreamEventQueue = xine_event_new_queue( m_pXineStream );
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_pXineStreamEventQueue = xine_event_new_queue( m_pXineStream );
+	}
 	xine_event_create_listener_thread( m_pXineStreamEventQueue, XineStreamEventListener, this );
 
 	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
@@ -592,13 +605,14 @@ bool Xine_Stream::EnableDeinterlacing()
 
 void Xine_Stream::DisableDeinterlacing()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	if (m_pXineDeinterlacePlugin)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disabling deinterlacing" );
 		
 		xine_post_wire_video_port( xine_get_video_source( m_pXineStream ), m_pXineVideoOutput );
 		xine_post_dispose( m_pXineLibrary, m_pXineDeinterlacePlugin );
+		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineDeinterlacePlugin = NULL;
 	}
 }
@@ -607,15 +621,16 @@ bool Xine_Stream::EnableVisualizing()
 {
 	return false;
 	
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
-	if ( ! m_pXineVisualizationPlugin )
 	{
-		//TODO: NULL-terminated list here
-		m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 1, &m_pXineAudioOutput, &m_pXineVideoOutput );
-		if (!m_pXineVisualizationPlugin)
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+		if ( ! m_pXineVisualizationPlugin )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
+			//TODO: NULL-terminated list here
+			m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 1, &m_pXineAudioOutput, &m_pXineVideoOutput );
+			if (!m_pXineVisualizationPlugin)
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
+			}
 		}
 	}
 	
@@ -636,14 +651,14 @@ bool Xine_Stream::EnableVisualizing()
 
 void Xine_Stream::DisableVisualizing()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if ( m_pXineVisualizationPlugin )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disabling visualization" );
 		
 		xine_post_wire_audio_port( xine_get_audio_source( m_pXineStream ), m_pXineAudioOutput );
 		xine_post_dispose( m_pXineLibrary, m_pXineVisualizationPlugin );
+		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineVisualizationPlugin = NULL;
 	}
 }
@@ -721,8 +736,6 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 
 int Xine_Stream::XServerEventProcessor(XEvent &event )
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "XServerEventProcessor called on non-initialized stream - aborting command");
@@ -888,8 +901,6 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 
 void Xine_Stream::Seek(int pos,int tolerance_ms)
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Seek called on non-initialized stream - aborting command");
@@ -899,7 +910,6 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 	
 	if( tolerance_ms==0 )
 	{
-
 		timespec ts1,ts2,tsElapsed;
 		gettimeofday( &ts1, NULL );
 
@@ -938,8 +948,6 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	if ( m_tsLastSpecialSeek.tv_sec==0 )  // Should not happen
 		return ;
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "HandleSpecialSeek called on non-initialized stream - aborting command");
@@ -969,6 +977,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	m_tsLastSpecialSeek=ts;
 	m_posLastSpecialSeek=seekTime;
 	Seek(seekTime,0);
@@ -982,8 +991,6 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 		m_pDynamic_Pointer->pointer_check_time();
 	*/
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "getStreamPlaybackPosition called on non-initialized stream - aborting command");
@@ -1016,8 +1023,7 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 
 void Xine_Stream::DisplaySpeedAndTimeCode()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
+
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "DisplaySpeedAndTimeCode called on non-initialized stream - aborting command");
@@ -1086,8 +1092,6 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 
 void Xine_Stream::DisplayOSDText( string sText )
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText called on non-initialized stream - aborting command");
@@ -1102,11 +1106,14 @@ void Xine_Stream::DisplayOSDText( string sText )
 		if ( m_xine_osd_t )
 		{
 			xine_osd_free( m_xine_osd_t );
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			m_xine_osd_t = NULL;
 		}
 		return ;
 	}
 
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
 	if ( m_xine_osd_t )
 	{
 		xine_osd_free( m_xine_osd_t );
@@ -1124,8 +1131,6 @@ void Xine_Stream::DisplayOSDText( string sText )
 
 void Xine_Stream::StartSpecialSeek( int Speed )
 {	
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "StartSpecialSeek called on non-initialized stream - aborting command");
@@ -1141,11 +1146,17 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
 	
-	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+	}
+	
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	
-	
-	m_iSpecialSeekSpeed = Speed;
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_iSpecialSeekSpeed = Speed;
+	}
 //	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
 	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
@@ -1158,8 +1169,6 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 
 void Xine_Stream::StopSpecialSeek()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "StopSpecialSeek called on non-initialized stream - aborting command");
@@ -1173,7 +1182,10 @@ void Xine_Stream::StopSpecialSeek()
 	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
-	m_iSpecialSeekSpeed = 0;
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_iSpecialSeekSpeed = 0;
+	}
 	//m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplayOSDText("");
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
@@ -1264,8 +1276,6 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 {
 	Xine_Stream * pXineStream = ( Xine_Stream * ) streamObject;
 	
-	PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
-	
 	if (!pXineStream->m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "XineStreamEventListener called on non-initialized stream - aborting command");
@@ -1280,7 +1290,10 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			pXineStream->StopSpecialSeek();
 			pXineStream->ReportTimecode();
 			pXineStream->playbackCompleted( false );
-			pXineStream->m_bIsRendering = false;
+			{			
+				PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
+				pXineStream->m_bIsRendering = false;
+			}
 			break;
 		case XINE_EVENT_QUIT:
 			g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
@@ -1313,6 +1326,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			if ( pXineStream->m_iSpecialSeekSpeed )
 				break; // Ignore this while we're doing all those seeks
 			{
+				PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
+
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
 				
 				g_pPlutoLogger->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
@@ -1428,8 +1443,6 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 
 void Xine_Stream::selectNextButton()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "SelectNextButton called on non-initialized stream - aborting command");
@@ -1452,8 +1465,6 @@ void Xine_Stream::selectNextButton()
 
 void Xine_Stream::selectPrevButton()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Select Prev Button called on non-initialized stream - aborting command");
@@ -1476,8 +1487,6 @@ void Xine_Stream::selectPrevButton()
 
 void Xine_Stream::pushCurrentButton()
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "PushCurrentButton called on non-initialized stream - aborting command");
@@ -1502,16 +1511,16 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 {
 	StopSpecialSeek();
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "playStream called on non-initialized stream - aborting command");
 		return false;
 	}
 
-	
-	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	}
 	time_t startTime = time( NULL );
 
 	int Subtitle = -2, Angle = -2, AudioTrack = -2;
@@ -1557,8 +1566,6 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed speed %d",(int) desiredSpeed);
 	
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "changePlayback speed called on non-initialized stream - aborting command");
@@ -1577,7 +1584,10 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	// normal play
 	// trick play
 	// special seek
-	m_iPlaybackSpeed = desiredSpeed;
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+		m_iPlaybackSpeed = desiredSpeed;
+	}
 	
 	// pause or normal playback requested - stopping any special mode and playing as usually	
 	if ((desiredSpeed == PLAYBACK_FF_1)||(desiredSpeed == PLAYBACK_STOP) )
@@ -1595,6 +1605,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
@@ -1621,6 +1632,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
@@ -1632,6 +1644,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		else
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed changing special seek speed");
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iSpecialSeekSpeed = desiredSpeed;
 		}
 		
@@ -1652,6 +1665,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		// are we doing restart
 		if (!m_bTrickModeActive)
 		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 		}
@@ -1661,6 +1675,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		}
 		
 		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 		m_iTrickPlaySpeed = desiredSpeed;
 		m_bTrickModeActive = true;
 		
@@ -1678,8 +1693,6 @@ Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
 	if ( ( pStream = getStreamForId( iStreamID, "Can't get the speed of a non existent stream (%d)!" ) ) == NULL )
 		return PLAYBACK_STOP;
 */
-	
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
 	if (!m_bInitialized)
 	{
@@ -1734,13 +1747,6 @@ bool Xine_Stream::DestroyWindows()
 		XUnlockDisplay( m_pXDisplay );
 		XCloseDisplay ( m_pXDisplay );
 
-		m_bExitThread = true;
-		//TODO: possibly reenable
-		/*!
-		if ( m_pSameStream )
-			pthread_join( m_pSameStream->eventLoop, NULL );
-		*/
-
 		m_pXDisplay = NULL;
 
 		// TODO: reenable
@@ -1790,7 +1796,6 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 	imageData = ( uint8_t* ) malloc ( ( imageWidth + 8 ) * ( imageHeight + 1 ) * 2 );
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame data" );
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( ! xine_get_current_frame ( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData ) )
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame data. Returning!" );
@@ -1954,8 +1959,6 @@ KeySym Xine_Stream::translatePlutoKeySymToXKeySym( int plutoButton )
 
 void Xine_Stream::selectMenu( int iMenuType )
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "selectMenu called on non-initialized stream - aborting command");
@@ -1991,8 +1994,6 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 
 int Xine_Stream::enableBroadcast( int iStreamID )
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "enableBroadcast called on non-initialized stream - aborting command");
@@ -2031,7 +2032,6 @@ void Xine_Stream::simulateMouseClick( int X, int Y )
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y );
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "simulateMouseClick called on non-initialized stream - aborting command");
@@ -2075,7 +2075,6 @@ void Xine_Stream::simulateKeystroke( int plutoButton )
 
 void Xine_Stream::sendInputEvent( int eventType )
 {
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "sendInputEvent on non-initialized stream - aborting command");
@@ -2155,7 +2154,6 @@ bool Xine_Stream::setDebuggingLevel( bool newValue )
 	//if ( xineStream == NULL )
 //		return false;
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
@@ -2271,9 +2269,7 @@ void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDa
 {
 
    	// only make screenshots if it's a video stream.
-	
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
+		
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called on non-initialized stream - aborting command");
