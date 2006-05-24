@@ -4645,7 +4645,13 @@ if( pObj->m_iBaseObjectID==4890 )
 #endif
 if( PK_Command==35 )
 int k=2;
-		if(  PK_Command==COMMAND_Restart_DCERouter_CONST && Simulator::GetInstance()->IsRunning() )
+		if(
+			Simulator::GetInstance()->IsRunning() && 
+			(
+				PK_Command == COMMAND_Restart_DCERouter_CONST || 
+				PK_Command == COMMAND_Halt_Device_CONST
+			)
+		)
 			continue;  // While in stress-test simulator, don't try to reset the router
 		else if(  PK_Command==COMMAND_Requires_Special_Handling_CONST  )
 		{
