@@ -378,20 +378,51 @@ class DataGridTable *Infrared_Plugin::DeviceTemplateByMfrModel(string GridID,str
 	string::size_type pos=0;
 	int PK_DeviceCategory=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 	int PK_Manufacturer=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
-	//int PK_DeviceCategory_Dummy=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 	Parms = StringUtils::Tokenize(Parms,",",pos); // Just get whatever is left over the user typed in as a search value
-
 	int PK_DeviceTemplate=0;
-	vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
-	m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows("FK_Manufacturer=" + StringUtils::itos(PK_Manufacturer) + 
-		" AND FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " ORDER BY Description",&vectRow_DeviceTemplate);
-	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+
+	string sql = 
+		"SELECT PK_DeviceTemplate, DeviceTemplate.Description, DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory "
+		"FROM DeviceTemplate "
+		"LEFT JOIN DeviceTemplate_DeviceCategory_ControlledVia ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"WHERE DeviceTemplate.FK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + " AND " + 
+		"FK_Manufacturer = " + StringUtils::itos(PK_Manufacturer);
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	map<string, pair<string, string> > mapDevices;	// devicetemplate <-> pair(description, controlledviacategory)
+	string sInfraredInterfaceCategory = StringUtils::ltos(DEVICECATEGORY_Infrared_Interface_CONST);
+
+	if( ( result.r = m_pDatabase_pluto_main->mysql_query_result( sql ) ) )
 	{
-		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
-		if( !PK_DeviceTemplate && Parms.size() && StringUtils::StartsWith(pRow_DeviceTemplate->Description_get(),Parms,true) )
-			PK_DeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
-		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(),StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()) );
-		pDataGrid->SetData(0,s,pCell);
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			string sPK_DeviceTemplate = row[0];
+			string sDescription = row[1];
+			string sControlledViaCategory = (NULL != row[2] ? row[2] : "");
+			
+
+			map<string, pair<string, string> >::iterator it = mapDevices.find(sPK_DeviceTemplate);
+			if(it == mapDevices.end())
+				mapDevices.insert(make_pair(sPK_DeviceTemplate, make_pair(sDescription, sControlledViaCategory)));
+			else
+				it->second.second = it->second.second == sInfraredInterfaceCategory ? it->second.second : sControlledViaCategory;
+		}
+	}
+
+	int RowCount = 0;
+	for(map<string, pair<string, string> >::iterator it = mapDevices.begin(), end = mapDevices.end(); it != end; ++it)
+	{
+		string sPK_DeviceTemplate = it->first;
+		string sDescription = it->second.first;
+		string sTextColor = (atoi(it->second.second.c_str()) == DEVICECATEGORY_Infrared_Interface_CONST ? "~S22~" : "");		
+
+		if(!PK_DeviceTemplate && Parms.size() && StringUtils::StartsWith(sDescription, Parms, true))
+			PK_DeviceTemplate = atoi(sDescription.c_str());
+
+		pCell = new DataGridCell(sTextColor + sDescription, sPK_DeviceTemplate);
+		pDataGrid->SetData(0, RowCount++, pCell);
 	}
 
 	if( PK_DeviceTemplate )
