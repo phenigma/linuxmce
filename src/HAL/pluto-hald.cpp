@@ -468,7 +468,7 @@ void* PlutoHalD::startUp(void *pnp)
 	
 	g_main_loop_run(loop);
 	
-	libhal_ctx_shutdown(ctx, NULL);
+//	libhal_ctx_shutdown(ctx, NULL);
 	libhal_ctx_free(ctx);
 	
 	g_pPlutoLogger->Write(LV_DEBUG, "############ END ----------- ");
