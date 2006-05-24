@@ -2107,6 +2107,10 @@
 #define DESIGNOBJ_No_Ignore_it_every_time_CONST 5059
 #define DESIGNOBJ_dgIRCommands_CONST 5060
 #define DESIGNOBJ_butTogglesPower_CONST 5061
+#define DESIGNOBJ_butType_of_Wizard_CONST 5064
+#define DESIGNOBJ_NoRemoteControl_CONST 5065
+#define DESIGNOBJ_Which_Wizard_CONST 5066
+#define DESIGNOBJ_butCancelVideoWizard_CONST 5067
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

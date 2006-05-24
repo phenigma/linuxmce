@@ -989,6 +989,13 @@
 #define TEXT_LearnIRCode_CONST 1701
 #define TEXT_Ignore_everytime_CONST 1702
 #define TEXT_TogglesPower_CONST 1703
+#define TEXT_No_bonus_CD_CONST 1704
+#define TEXT_no_remote_control_CONST 1705
+#define TEXT_Which_wizard_CONST 1706
+#define TEXT_Media_Playback_Wizard_CONST 1707
+#define TEXT_House_Wizard_CONST 1708
+#define TEXT_Media_Player_Wizard_CONST 1709
+#define TEXT_House_Setup_Wizard_CONST 1710
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
