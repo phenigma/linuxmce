@@ -948,6 +948,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if(  !pObj->m_pvectCurrentGraphic && pObj->m_GraphicToDisplay != GRAPHIC_NORMAL  )
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
+	//with opengl, not selected or highlighted graphics for objects are needed
+	if(Simulator::GetInstance()->m_bUseOpenGL)
+		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+
 	if( pObj->m_bCustomRender )
 	{
 		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
@@ -4079,15 +4083,18 @@ if(UsesUIVersion2())
 
 bool Orbiter::ButtonDown( int iPK_Button )
 {
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
-	if(pCallBackData)
+	if(NULL != m_pScreenHandler)
 	{
-		KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
-		pKeyData->m_nPlutoKey = iPK_Button;
-	}
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
+		if(pCallBackData)
+		{
+			KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
+			pKeyData->m_nPlutoKey = iPK_Button;
+		}
 
-	if(ExecuteScreenHandlerCallback(cbOnKeyDown))
-		return true;
+		if(ExecuteScreenHandlerCallback(cbOnKeyDown))
+			return true;
+	}
 
 	//if this is a repeated button, we'll handle it right away
 	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button, true))
@@ -4121,15 +4128,18 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyUp);
-	if(pCallBackData)
+	if(NULL != m_pScreenHandler)
 	{
-		KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
-		pKeyData->m_nPlutoKey = iPK_Button;
-	}
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyUp);
+		if(pCallBackData)
+		{
+			KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
+			pKeyData->m_nPlutoKey = iPK_Button;
+		}
 
-	if(ExecuteScreenHandlerCallback(cbOnKeyUp))
-		return true;
+		if(ExecuteScreenHandlerCallback(cbOnKeyUp))
+			return true;
+	}
 
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
