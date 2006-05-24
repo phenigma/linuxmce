@@ -296,11 +296,11 @@ int OrbiterGenerator::DoIt()
 
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
 
-	bool bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
+	m_bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
-		bNewOrbiter=true;
+		m_bNewOrbiter=true;
 		m_pRow_Orbiter = mds.Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
@@ -567,7 +567,7 @@ m_bNoEffects = true;
 			cout << "***Warning*** No default user specified.  Picking first one: " << vectRow_Installation_Users[0]->FK_Users_get() << endl;
 			drUsers_Default = vectRow_Installation_Users[0]->FK_Users_getrow();
 			if( !drUsers_Default )
-				throw "Database problem -- There is a user in Installation_Users that is not a valid user";
+				cout << "Database problem -- There is a user in Installation_Users that is not a valid user" << endl;
 		}
 		else
 		{
@@ -1353,7 +1353,7 @@ m_bNoEffects = true;
 	}
 
 	bool bUseVideoWizard=false;
-	if( bNewOrbiter && m_bIsOSD )
+	if( m_bNewOrbiter && m_bIsOSD )
 	{
 		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
 		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
@@ -1702,7 +1702,7 @@ m_bNoEffects = true;
 	// no dumping leaks now	WSACleanup();
 #endif
 
-	if( !bNewOrbiter )
+	if( !m_bNewOrbiter )
 	{
 		m_pRow_Device->NeedConfigure_set(0);
 		m_pRow_Device->Table_Device_get()->Commit();

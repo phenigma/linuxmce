@@ -198,6 +198,10 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Countries_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::CitiesGrid)), 
+		DATAGRID_Cities_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DevicesOfCategory)), 
 		DATAGRID_Devices_Of_Category_CONST,PK_DeviceTemplate_get());
 
@@ -884,6 +888,63 @@ class DataGridTable *General_Info_Plugin::DeviceTemplatesOfCategory( string Grid
 		{
 			iCol=0;
 			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::CitiesGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 1;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	string::size_type pos=0;
+	int PK_Country=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	Parms = Parms.substr(pos); // Now it's the city name
+	int iRow=0,iCol=0;
+
+	if( !PK_Country || Parms.size()==0 )
+		return pDataGrid;
+
+	for(int i=0;i<2;++i)
+	{
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		string sSQL;
+		// Fields are 0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=Lat,6=Long,7=time zone
+		if( i==0 )
+			sSQL = "SELECT PK_City,PK_PostalCode,City.City,Region.Region,PostalCode.PostalCode,City.Latitude,City.Longitude,City.TimeZone FROM PostalCode "
+				"LEFT JOIN City ON FK_City=PK_City "
+				"LEFT JOIN Region on FK_Region=PK_Region "
+				"WHERE PostalCode.FK_Country=" + StringUtils::itos(PK_Country) + " AND PostalCode.PostalCode LIKE '%" + Parms + "%' "
+				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first
+		else
+			sSQL = "SELECT PK_City,0,City.City,Region.Region,'',City.Latitude,City.Longitude,City.TimeZone FROM City "
+				"LEFT JOIN Region on FK_Region=PK_Region "
+				"WHERE City.City LIKE '%" + Parms + "%' "
+				"AND City.FK_Country=" + StringUtils::itos(PK_Country) + " " 
+				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first
+
+		if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+		{
+			while( ( row=mysql_fetch_row( result.r ) ) )
+			{
+				string sName = row[2];
+				if( row[3] )
+					sName += " (" + (i==0 ? string(row[4]) + ", " : "") + string(row[3]) + ")";
+				pCell = new DataGridCell( sName, row[0] + string("\t") + row[1] + "\t" + row[2] + "\t" + (row[3] ? row[3] : "") + "\t" + (row[4] ? row[4] : "") + "\t" + (row[5] ? row[5] : "") + "\t" + (row[6] ? row[6] : "") + "\t" + (row[7] ? row[7] : "") );
+				pDataGrid->SetData( iCol++, iRow, pCell );
+				if( iCol>=iWidth )
+				{
+					iCol=0;
+					iRow++;
+				}
+			}
 		}
 	}
 

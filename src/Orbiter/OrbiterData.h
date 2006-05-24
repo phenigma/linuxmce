@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		23	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		24	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -69,7 +69,7 @@ public:
 	map<int,string> m_mapTextString;
 	vector<int> m_vectPK_Users_RequiringPIN;
 	map<int,int> m_mapDesignObj; //Used to map a screen to a DesignObj
-	bool m_bIsOSD;
+	bool m_bIsOSD,m_bNewOrbiter;
 
 	// Some global devices
 	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_InfraredPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_EventPlugIn,m_dwPK_Device_OrbiterPlugIn,
@@ -127,7 +127,7 @@ public:
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_InfraredPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn + m_dwPK_Device_PlugAndPlayPlugIn
 			+ m_dwPK_Device_LocalAppServer + m_dwPK_Device_LocalMediaPlayer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN + m_iRotation 
-			+ m_dwPK_Device_LocalOsdIRReceiver + m_dwPK_Device_LocalOsdVfdLcd + m_bIsOSD + m_mapDesignObj;
+			+ m_dwPK_Device_LocalOsdIRReceiver + m_dwPK_Device_LocalOsdVfdLcd + m_bIsOSD + m_bNewOrbiter + m_mapDesignObj;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
 	}

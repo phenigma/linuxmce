@@ -1,15 +1,14 @@
 #!/bin/bash
 
-echo "device $1"
-echo "queue $2"
-echo "path $3"
-echo "name $4"
+echo "Gateway Detection script"
 
-#failure
-#/usr/pluto/bin/MessageSend localhost -r 0 $1 806 224 $2 13 "$4" 18 "test error"
-
-#success
-#/usr/pluto/bin/MessageSend localhost -r 0 $1 806 224 $2 13 "$4" 44 1752
-
-#no match
-#/usr/pluto/bin/MessageSend localhost -r 0 $1 806 224 $2 13 "$4" 44 0
+# as soon as the bug in serialport.read is fixed, mantis 2311, use the first one
+#/usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "\83\00\s1000m\83\01" -i 1 -s "\00\01"
+/usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "\83\00\s1000m\83\01" -i 1 -s "\01"
+if [[ "$?" -ne 0 ]]; then
+echo "It's not a Gateway Plasma"
+/usr/pluto/bin/MessageSend localhost -r 0 $1 1 806 224 $2 13 "$4" 44 0
+else
+echo "It is a Gateway Plasma"
+/usr/pluto/bin/MessageSend localhost -r 0 $1 1 806 224 $2 13 "$4" 44 1750
+fi
