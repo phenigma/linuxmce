@@ -287,6 +287,42 @@ fi
 clear
 # XXX: No error checking
 while :; do
+	echo -e "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
+        echo ""
+        BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
+	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
+
+                /bin/mount /dev/cdrom 2>/dev/null
+                
+		        while [ ! -d "/cdrom/bonuscd1" ]; do
+                        	echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
+	                        /usr/bin/eject
+        	                echo "Press any key when you inserted the correct CD in drive."
+                	        read key
+                                if [[ ! -n "$key" ]]; then
+                                        /bin/mount /dev/cdrom 2>/dev/null
+                                fi
+                        done
+
+                echo "Installing extra packages from \"Pluto Bonus CD 1\""
+                echo "... PLEASE WAIT ..."
+
+                cd /cdrom/bonuscd1
+                dpkg -i *.deb 1>/dev/null
+                cd /cdrom/bonuscd1-cache
+                cp -r *.deb /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+                cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+                /usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+                cd ..
+                /usr/bin/eject
+                echo ""
+                echo "\"Pluto Bonus CD 1\" succesfuly installed !"
+                echo ""
+        else
+                echo "Skipping \"Pluto Bonus CD 1\" install ..."
+        fi
+
+
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		while :; do
