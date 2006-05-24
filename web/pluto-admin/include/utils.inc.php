@@ -5731,23 +5731,32 @@ function queryExternalServer($url){
 	return $result;
 }
 
-function import_remote_sql($remoteUrl,$dbADO){
+function import_remote_sql($remoteUrl,$dbADO,$table=''){
 	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
-	
+
 	// get data from plutohome server
 	$remoteData=queryExternalServer($remoteUrl);
 
 	if(!ereg('Database import',$remoteData)){
-		error_redirect('Database import failed.','index.php?section=installationSettings');
+		@error_log($remoteData,$GLOBALS['ErrorLog']);
+		return 1;
 	}
 		
 	if(ereg('ERROR',$remoteData)){
-		error_redirect($remoteData,'index.php?section=installationSettings');
+		error_log($remoteData,3,$GLOBALS['ErrorLog']);
+		return 1;
 	}
 	
 	$queryDataArray=array();
 	$remoteDataArray=explode("\n",$remoteData);
 
+	// second line is the list of psc_id to remove
+	$idsToRemove=explode(',',$remoteDataArray[1]);
+
+	if($remoteDataArray[1]!='' && count($idsToRemove)>0 && $table!=''){
+		$dbADO->Execute('DELETE FROM '.$table.' WHERE psc_id IN ('.join(',',$idsToRemove).')');
+	}
+	
 	// remove first 2 lines, the comment confirming the remote page was loaded and the comma separated list of psc_ids
 	for($i=2;$i<count($remoteDataArray);$i++){
 		$queryDataArray[]=$remoteDataArray[$i];
@@ -5757,8 +5766,15 @@ function import_remote_sql($remoteUrl,$dbADO){
 	if($remoteData!='No records'){
 		$importCmd='echo \''.str_replace(array("'","\n"),array("'\"'\"'"," "),join("\n",$queryDataArray)).'\' | mysql '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.(($dbPlutoMainPass!='')?' -p'.$dbPlutoMainPass:'').'; echo $?';
 
-		return exec($importCmd,$retArray);
+		$status=exec($importCmd,$retArray);
+		if($status!=0){
+			@error_log(join("\n",$retArray),3,$GLOBALS['ErrorLog']);
+		}
+		
+		return $status;
 	}
+	
+	return 1;
 }
 
 // PHP version of the .sh file who will do the same thing
@@ -5769,21 +5785,41 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 	//global $PlutoHomeHost;
 	$PlutoHomeHost='http://10.0.0.175/plutohome-com/';
 
+	// get device template ID and infrared group ID for the device
+	// if $dtID!=0 ignore device and only get FK_InfraredGroup
 	if($dtID==0){
-		$data=getFieldsAsArray('Device','FK_DeviceTemplate,FK_InfraredGroup',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
+		$data=getFieldsAsArray('Device','FK_DeviceTemplate,FK_InfraredGroup,FK_DeviceCategory,FK_Manufacturer',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
 	}else{
-		$data=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate,FK_InfraredGroup',$dbADO,'WHERE PK_DeviceTemplate='.$dtID);
+		$data=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate,FK_InfraredGroup,FK_DeviceCategory,FK_Manufacturer',$dbADO,'WHERE PK_DeviceTemplate='.$dtID);
 	}
+	
 	if(count($data)>0){
+		// check if table exists; if not, try to create it geting schema from remote location
 		$res=$dbADO->Execute('SHOW TABLES LIKE "InfraredGroup_Command"');
 		if($res->RecordCount()!=0){
-			$isImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO);	
+			// get the codes for the device template or infrared group
+			$notImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO,'InfraredGroup_Command');	
+			
+			// get the codes for the same manufacturer and device category
+			$notImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_Manufacturer='.$data['FK_Manufacturer'][0].'&PK_DeviceCategory='.$data['FK_DeviceCategory'][0],$dbADO,'InfraredGroup_Command');	
+			
+			return $notImported;
 		}else{
-			$isCreated=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?Create=1',$dbADO);
-			if($isCreated==0){
-				$isImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO);	
+			// create schema
+			$notCreated=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?Create=1',$dbADO);
+			
+			if($notCreated==0){
+				// get the codes for the device template or infrared group
+				$notImported=import_remote_sql($PlutoHomeHost.'/GetInfraredCodes.php?PK_InfraredGroup='.$data['FK_InfraredGroup'][0].'&PK_DeviceTemplate='.$data['FK_DeviceTemplate'][0],$dbADO,'InfraredGroup_Command');	
+				
+				return $notImported;
+			}else{
+				return 1;
 			}
 		}
 	}
+	
+	// no data either for device or device template, return error code
+	return 1;
 }
 ?>

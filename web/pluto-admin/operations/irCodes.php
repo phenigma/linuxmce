@@ -27,7 +27,20 @@ function irCodes($output,$dbADO,$mediaADO) {
 	}
 
 	// get InfraredGroup_Commmand from remote location
-	GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	if($isImported!=0){
+		$_SESSION['error_message']=$TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST;
+		$_SESSION['retry_url']='index.php?section='.$from;
+
+		$out='
+		<script>
+			opener.location="index.php?section=error_message";
+			self.close();
+		</script>
+		';
+		die($out);
+	}
+	
 	
 	if(!isset($_REQUEST['infraredGroupID'])){
 		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
