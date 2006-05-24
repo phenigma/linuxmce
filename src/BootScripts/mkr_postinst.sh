@@ -24,3 +24,7 @@ cp /usr/pluto/templates/logrotate.pluto.tmpl /etc/logrotate.d/pluto
 
 sed -i 's,www\.geocities\.com/medencid/,www.yttron.as.ro/,g' /etc/apt/sources.list
 sed -i '\,/usr/pluto/bin/Update_Packages\.sh, d' /etc/crontab
+
+Version=$(dpkg -s pluto-boot-scripts | grep Version: | sed  's/Version: //')
+Version=${Version%*.*}
+ConfSet "PlutoVersion" "$Version"
