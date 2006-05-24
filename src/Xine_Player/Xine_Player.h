@@ -428,6 +428,7 @@ public:
 
 //<-dceag-h-e->
 	void ReportTimecode(int iStreamID, int Speed);
+	bool Connect(int iPK_DeviceTemplate );
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;

@@ -23,10 +23,6 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
 	m_pDeviceData_MediaPlugin = NULL;
 	ptrFactory = new Xine_Stream_Factory(this);
-	if (!ptrFactory->StartupFactory())
-	{
-		throw "Xine_Player error: cannot startup Xine_Streams_Factory";
-	}
 }
 
 //<-dceag-const2-b->
@@ -1092,4 +1088,15 @@ void Xine_Player::ReportTimecode(int iStreamID, int Speed)
 			StringUtils::itos(pStream->m_iChapter));
 	
 	SendCommand(CMD_Update_Time_Code_);
+}
+
+bool Xine_Player::Connect(int iPK_DeviceTemplate )
+{
+        if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
+                return false;
+
+	if (!ptrFactory->StartupFactory())
+		return false;
+	
+	return true;
 }

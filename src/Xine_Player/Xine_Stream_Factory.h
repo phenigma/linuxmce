@@ -43,7 +43,7 @@ namespace DCE
 			
 			// detects current output video and audio drivers
 			void DetectOutputDrivers();
-
+			
 			map<int, Xine_Stream*> streamsMap;
 			
 			// factory access controlling mutex

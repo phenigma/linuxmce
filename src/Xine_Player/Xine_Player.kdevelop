@@ -42,7 +42,7 @@
   <kdevdebugger>
     <general>
       <dbgshell/>
-      <programargs/>
+      <programargs>-r 10.0.0.51 -d 21</programargs>
       <gdbpath/>
       <configGdbScript/>
       <runShellScript/>
