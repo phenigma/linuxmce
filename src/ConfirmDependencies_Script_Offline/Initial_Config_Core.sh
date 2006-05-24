@@ -296,7 +296,7 @@ while :; do
 				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
 				apt-get update
 				break
-			elif [[ "$ExtraRepository" == n && "$ExtraRepository" == N ]]; then
+			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N ]]; then
 				break
 			else
 				echo "--> Invalid answer: '$ExtraRepository'"
