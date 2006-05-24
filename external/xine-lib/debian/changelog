@@ -1,3 +1,10 @@
+xine-lib (1.1.1-1pluto4) unstable; urgency=low
+
+  * Built against libasound 1.0.10
+  * Removed dependency of libxvmcw
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 24 May 2006 15:55:29 +0300
+
 xine-lib (1.1.1-1pluto3) unstable; urgency=low
 
   * Added trick play patch
