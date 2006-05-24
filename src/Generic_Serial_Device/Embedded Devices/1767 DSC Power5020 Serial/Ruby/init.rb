@@ -1,4 +1,4 @@
-#Init                      11-Ian-06 10:45
+#Init                      24-May-06 14:38
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
@@ -93,6 +93,7 @@ $errCode = {
 }
 
 #if device has childs already initialise
+$partMapping[1]=true
 if (device_.childdevices_ == nil) or (device_.childdevices_.empty?) then 
 	$bInit = false
 else 
