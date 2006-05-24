@@ -429,6 +429,8 @@ void* PlutoHalD::startUp(void *pnp)
 	
 	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 1");
 	
+	dbus_error_init(&halError);
+	
 	loop = g_main_loop_new (NULL, FALSE);
 	
 	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
@@ -458,7 +460,13 @@ void* PlutoHalD::startUp(void *pnp)
 	
 	g_pPlutoLogger->Write(LV_DEBUG, "############ Start 3");
 	
-	libhal_ctx_init(ctx, NULL);
+	if( !libhal_ctx_init(ctx, &halError) )
+	{
+		g_pPlutoLogger->Write(LV_DEBUG, "CTX initialization failed!\n");
+		dbus_error_free(&halError);
+		libhal_ctx_free(ctx);
+		return NULL;
+	}
 	
 	initialize(ctx);
 	
@@ -468,7 +476,12 @@ void* PlutoHalD::startUp(void *pnp)
 	
 	g_main_loop_run(loop);
 	
-//	libhal_ctx_shutdown(ctx, NULL);
+	if( dbus_error_is_set (&halError) )
+		dbus_error_free (&halError);
+	
+	dbus_error_init(&halError);
+	
+	libhal_ctx_shutdown(ctx, &halError);
 	libhal_ctx_free(ctx);
 	
 	g_pPlutoLogger->Write(LV_DEBUG, "############ END ----------- ");
