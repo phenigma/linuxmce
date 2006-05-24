@@ -1,6 +1,6 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=1;
+  	$GLOBALS['inDebug']=0;
   	
   	// todo: set lang when translation is finished
   	$GLOBALS['lang']='en';
