@@ -1,4 +1,4 @@
-#private functions  24-May-06 14:30 Power5020
+#private functions  24-May-06 17:00 Power5020
 class MyIO
 
 	def intialize
@@ -9,7 +9,7 @@ class MyIO
 	if conn_.nil? then
 		log( "Problem with sending data to serial!!! \n" )
 	else
-		log ( "Sending data from MyIo class \n" )
+		log( "Sending data from MyIo class \n" )
 		conn_.Send(buff)
 	end
 	end
@@ -419,18 +419,16 @@ when "CODE"
 end	
 	
 #data - add the partition number partNo=0 -> all partititon
-if( partNo==0 ) then
-	$partStatus.each(){|key,value|
-	{
-	buff += key.to_s
-	if (type == "CODE")       then buff += password           end
-	sendCmd(buff)
-	}
-else
-	buff += partNo.to_s
-	if (type == "CODE")       then buff += password           end
-	sendCmd(buff)
-end
+#if( partNo==0 ) then
+#	$partStatus.each(){|key,value|
+#	buff += key.to_s
+#	if (type == "CODE")       then buff += password           end
+#	sendCmd(buff)
+#	}
+#else
+buff += partNo.to_s
+if (type == "CODE")       then buff += password           end
+sendCmd(buff)
 
 end
 
@@ -452,17 +450,14 @@ if (partNo < 0) or (partNo > 8) then
 end
 
 #data  partNo=0 -> all partititon
-if( partNo==0 ) then
-	$partStatus.each(){|key,value|
-	{
-	buff += key.value
-	buff += password
-	sendCmd(buff)
-	}
-else
-	buff += value
-	buff += password
-	sendCmd(buff)
-end
-
+#if( partNo==0 ) then
+#$partStatus.each(){|key,value|
+#	buff += key.value
+#	buff += password
+#	sendCmd(buff)
+#	}
+#else
+buff += value
+buff += password
+sendCmd(buff)
 end
