@@ -1,5 +1,4 @@
-#private functions  11-Ian-06 14:00 Power5020
-
+#private functions  24-May-06 14:30 Power5020
 class MyIO
 
 	def intialize
@@ -419,11 +418,20 @@ when "CODE"
 	buff += "3"
 end	
 	
-#data - add the partition number
-buff += partNo.to_s
-if (type == "CODE")       then buff += password           end
+#data - add the partition number partNo=0 -> all partititon
+if( partNo==0 ) then
+	$partStatus.each(){|key,value|
+	{
+	buff += key.to_s
+	if (type == "CODE")       then buff += password           end
+	sendCmd(buff)
+	}
+else
+	buff += partNo.to_s
+	if (type == "CODE")       then buff += password           end
+	sendCmd(buff)
+end
 
-sendCmd(buff)
 end
 
 def DSCDisarmPartition(value,password)
@@ -443,9 +451,18 @@ if (partNo < 0) or (partNo > 8) then
 	return
 end
 
-#data
-buff += value
-buff += password
+#data  partNo=0 -> all partititon
+if( partNo==0 ) then
+	$partStatus.each(){|key,value|
+	{
+	buff += key.value
+	buff += password
+	sendCmd(buff)
+	}
+else
+	buff += value
+	buff += password
+	sendCmd(buff)
+end
 
-sendCmd(buff)
 end
