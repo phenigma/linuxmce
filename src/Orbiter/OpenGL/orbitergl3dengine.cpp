@@ -67,7 +67,7 @@ void OrbiterGL3D::Paint()
 	SelectedArea->SetVisible(true);
 	SelectedArea->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.2f);
 
-	MouseCursor->SetVisible(true);
+	MouseCursor->SetVisible(false);
 	//MouseCursor->SetBackgroundColor(1.0f, 1.0f, 1.0f, 1.0f);
 	MouseCursor->SetTextureWraping(0, 0, 1, 1);
 
@@ -218,8 +218,8 @@ int OrbiterGL3D::InitOpenGL()
 
 	glEnable(GL_TEXTURE_2D);
 
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glEnable(GL_BLEND);
 
 	glScalef(1, -1.0f, 1);
