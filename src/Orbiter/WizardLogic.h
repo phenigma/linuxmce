@@ -61,6 +61,13 @@ public:
 	bool Setup();
 
 	/*
+		GREETING
+	*/
+
+	bool HouseAlreadySetup();
+	bool HasRemoteControl(bool bPopulateListOfOptions=true);
+
+	/*
 		SETUP USERS
 	*/
 	bool AlreadyHasUsers();
@@ -73,15 +80,18 @@ public:
 	int GetCountry();
 	void SetCountry(int PK_Country);
 	string GetCityRegion();
+	bool SetLocation(string sLocation);
+	bool GetLocation();
 	bool SetPostalCode(string PostalCode);
 	int GetPostalCode();
+	void SetLongLat(string Latitude,string Longitude);
 
 
 	/*
 		SETUP ROOMS
 	*/
 	// Get a map of RoomTypes to number of Rooms of that Type, and the total number of rooms
-  string GetRoomTypeName(int PK_RoomType);
+	string GetRoomTypeName(int PK_RoomType);
 	int PreSeedRoomInfo( map<int, int > &mapRooms ); // Call this to pre-populate the room info
 	void ProcessUpdatedRoomInfo( map<int, int > &mapRooms ); // Call this to process the updated info
 	void RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired ); // Helper function

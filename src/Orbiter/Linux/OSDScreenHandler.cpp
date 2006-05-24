@@ -23,6 +23,7 @@
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_CommMethod.h"
+#include "pluto_main/Define_Country.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/DatabaseUtils.h"
 #include "../WizardLogic.h"
@@ -53,6 +54,88 @@ OSDScreenHandler::~OSDScreenHandler()
 {
 	delete m_pWizardLogic;
 }
+
+//-----------------------------------------------------------------------------------------------------
+// Video Wizard greetings screen
+//-----------------------------------------------------------------------------------------------------
+void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
+{
+m_pOrbiter->m_bNewOrbiter=true;
+	if( m_pWizardLogic->HouseAlreadySetup() && !m_pOrbiter->m_bNewOrbiter )
+	{
+		if( m_pWizardLogic->HasRemoteControl() )
+			// Everthing is setup already.  Goto the 'pick a wizard screen'
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Which_Wizard_CONST);
+		else
+		{
+			// Help the user get a remote control
+			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_NoRemoteControl_CONST),
+										"", "", false, false );
+			m_pOrbiter->StartScreenHandlerTimer(500);
+		}
+	}
+	else
+		ScreenHandlerBase::SCREEN_VideoWizard(PK_Screen);
+
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
+}
+
+bool OSDScreenHandler::VideoWizard_OnTimer(CallBackData *pData)
+{
+	if(m_pWizardLogic->HasRemoteControl(false))
+	{
+		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::VideoWizard_OnTimer" );  // Redraw anything that was changed by this command
+		if( !m_pWizardLogic->HouseAlreadySetup() )
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_UsersWizard_CONST);
+		else
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Which_Wizard_CONST);
+		return false;
+	}
+	return true;
+}
+
+bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_Greetings_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butType_of_Wizard_CONST)
+			{
+				if( !m_pWizardLogic->HasRemoteControl() )
+				{
+					// Help the user get a remote control
+					m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_NoRemoteControl_CONST),
+												"", "", false, false );
+					m_pOrbiter->StartScreenHandlerTimer(500);
+					return true;
+				}
+				else if( !m_pWizardLogic->HouseAlreadySetup() )
+				{
+					m_pOrbiter->CMD_Goto_Screen("",SCREEN_UsersWizard_CONST);
+					return true;
+				}
+			}
+			break;
+		}
+		case DESIGNOBJ_NoRemoteControl_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butNoRemote_TypeOfWizard_CONST)
+			{
+				if( !m_pWizardLogic->HouseAlreadySetup() )
+				{
+					m_pOrbiter->CMD_Goto_Screen("",SCREEN_UsersWizard_CONST);
+					return true;
+				}
+			}
+		}
+	};
+	return false;
+}
+
 //-----------------------------------------------------------------------------------------------------
 // Users Wizard
 //-----------------------------------------------------------------------------------------------------
@@ -75,7 +158,7 @@ void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_DatagridSelected, new DatagridCellBackData());
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::HandleAddUser()
+bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
@@ -88,7 +171,7 @@ bool OSDScreenHandler::HandleAddUser()
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
 		m_pWizardLogic->AddUser(sUsername);
 	}
-	else
+	else if( bErrorIfEmpty )
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
                                  "ERROR: Please enter your name", TEXT_USR_ENTRY_CONST);
@@ -129,17 +212,7 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butLocation_CONST:
 				{
-					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-					map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
-					string sUsername = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-
-					if(sUsername != "")
-					{
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-						m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
-						m_pWizardLogic->AddUser(sUsername);
-					}
+					HandleAddUser(false);
 				}
 				break;
 
@@ -191,6 +264,18 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 {
+	if( m_pWizardLogic->GetLocation() )
+	{
+		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+		if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_5_CONST]!="VALID_DATA_FOUND" )  // A keyword so we know when we already asked this question
+		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, "VALID_DATA_FOUND");
+			DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,"Is this your location?\n<%=31%>",false,"0",false,"Yes","0 -300 1 741 159 192","No","0 -300 1 741 159 194");
+			return;
+		}
+	}
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -214,7 +299,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_Location_CONST:
 		{
-			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPostalCode_CONST)
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPostalCode_CONST) // 4661
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 				int PK_Country = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());
@@ -225,55 +310,33 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_PostalCode_CONST),TEXT_STATUS_CONST );
 				if( pText )
 				{
-					if( sCityRegion.size()==0 )
+					if( PK_Country==COUNTRY_UNITED_STATES_CONST )  // Actually you can search for postal code no matter the country, but so far they're only populated for the U.S., and we call them 'Zip Codes'
 					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_your_postal_code_CONST];
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_your_postal_code_CONST]; // 1593
 						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"enterpostal");
 					}
 					else
 					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"confirmpostal");
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];  // 1557
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"entercity");
 					}
 				}
 			}
 		}
 		break;
 
-		case DESIGNOBJ_PostalCode_CONST:
+		case DESIGNOBJ_PostalCode_CONST: // 4662
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butWizRooms_CONST )
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-				string sPostalCode = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-				if( sPostalCode.size()==0 )
+				string sLocation = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				bool bLocationOk = m_pWizardLogic->SetLocation(sLocation);
+				if( !bLocationOk )
 				{
-					string sCityRegion = m_pWizardLogic->GetCityRegion();
-					if( sCityRegion.size() )
-						return false; // Nothing to do, the user is just confirming
+					DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,"location isn't good",false,"0",false,"Try again","0 -300 1 741 159 194","Skip it","0 -300 1 741 159 192");
+					return true;
 				}
-				bool bPostalCodeOk = m_pWizardLogic->SetPostalCode(sPostalCode);
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST,"");
-
-				string sCityRegion = m_pWizardLogic->GetCityRegion();
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sCityRegion);
-
-				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(StringUtils::ltos(DESIGNOBJ_PostalCode_CONST)),TEXT_STATUS_CONST );
-				if( pText )
-				{
-					if( bPostalCodeOk )
-					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"confirmpostal");
-					}
-					else
-					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Bad_Zip_Code_CONST];
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"enterpostal");
-					}
-				}
-				m_pOrbiter->CMD_Regen_Screen();
-				return true;
 			}
 		}
 		break;

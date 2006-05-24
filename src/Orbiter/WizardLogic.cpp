@@ -6,6 +6,8 @@
 #include "pluto_main/Define_Country.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Variable.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/DatabaseUtils.h"
 
@@ -22,7 +24,11 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect("dcerouter", "root", "", "pluto_main") )
+#ifdef WIN32
+	if( !MySQLConnect("192.168.80.2", "root", "", "pluto_main") )
+#else
+	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
+#endif
 		return false;
 
 	string sSQL;
@@ -56,6 +62,51 @@ void WizardLogic::LookForZWave()
 		if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
 			m_nPK_Device_ZWave = atoi( row[0] );
 	}
+}
+
+/*
+	GREETING
+*/
+
+bool WizardLogic::HouseAlreadySetup()
+{
+	return AlreadyHasUsers();	
+}
+
+bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
+{
+	int PK_Device_PC = DatabaseUtils::GetTopMostDevice(this,m_pOrbiter->m_dwPK_Device);
+	string sSQL = "SELECT * FROM Device "
+		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory " 
+		"LEFT JOIN Device As P1 ON Device.FK_Device_ControlledVia=P1.PK_Device "
+		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device "
+		"WHERE "
+		"(PK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) " OR FK_DeviceCategory_Parent=" TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) ") AND "
+		"(Device.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
+		"OR P1.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
+		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
+
+	PlutoSqlResult result_set;
+	bool bResult = ( (result_set.r=mysql_query_result(sSQL)) && result_set.r->row_count>0 );
+	if( !bPopulateListOfOptions || bResult )
+		return bResult;
+	
+	// We don't have a remote, and the user will want to see a list of possibilities
+	sSQL = "SELECT DeviceTemplate.Description,Manufacturer.Description FROM DeviceTemplate "
+		"JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer "
+		"JOIN DHCPDevice ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"WHERE DeviceTemplate.FK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Infrared_Receivers_CONST);
+
+	MYSQL_ROW row;
+	string sReceivers;
+	PlutoSqlResult result_set2;
+    if( (result_set2.r=mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set2.r)))
+			sReceivers += (sReceivers.size() ? ", " : "") + string(row[1]) + ":" + row[0];
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sReceivers);
+	return false;
 }
 
 /*
@@ -298,6 +349,58 @@ int WizardLogic::GetPostalCode()
 		return 0;
 }
 
+bool WizardLogic::GetLocation()
+{
+	string sSQL = "SELECT FK_City,FK_PostalCode,City,State,Zip,Country.Description FROM Installation JOIN Country ON FK_Country=PK_Country "
+		" WHERE PK_Installation=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
+	{
+		//0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=country
+		if( !row[0] || !row[2] || !row[5] || !row[5] )
+			return false;
+		
+		string sLocation = string(row[2]) + ", " + row[3];
+		if( row[4] )
+			sLocation += " " + string(row[4]);
+		sLocation += string("\n") + row[5];
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,sLocation);
+		return true;
+	}
+
+	return false;
+}
+
+bool WizardLogic::SetLocation(string sLocation)
+{
+	int PK_Country = GetCountry();
+	//0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=Lat,6=Long,7=time zone
+	string::size_type pos=0;
+	int PK_City = atoi( StringUtils::Tokenize(sLocation,"\t",pos).c_str() );
+	int PK_PostalCode = atoi( StringUtils::Tokenize(sLocation,"\t",pos).c_str() );
+	string City = StringUtils::Tokenize(sLocation,"\t",pos);
+	string Region = StringUtils::Tokenize(sLocation,"\t",pos);
+	string PostalCode = StringUtils::Tokenize(sLocation,"\t",pos);
+	string Latitude = StringUtils::Tokenize(sLocation,"\t",pos);
+	string Longitude = StringUtils::Tokenize(sLocation,"\t",pos);
+	string TimeZone = StringUtils::Tokenize(sLocation,"\t",pos);
+
+	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 )
+		return false;
+
+	string sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(City) +
+		"',State='" + StringUtils::SQLEscape(Region) + "',FK_City=" + StringUtils::itos(PK_City) +
+		",FK_PostalCode=" + StringUtils::itos(PK_PostalCode) + ",Zip='" + StringUtils::SQLEscape(PostalCode) + "'"
+		" WHERE PK_Installation=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+	threaded_mysql_query(sSQL);
+
+	SetLongLat(Longitude,Latitude);
+
+	return true;
+}
+
 bool WizardLogic::SetPostalCode(string PostalCode)
 {
 	int PK_Country = GetCountry();
@@ -316,33 +419,40 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 			",FK_PostalCode=" + row[5];
 		threaded_mysql_query(sSQL);
 
-		DeviceData_Base *pDevice_Event_Plugin =
-			m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Event_Plugins_CONST);
-		if( pDevice_Event_Plugin )
-		{
-			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
-				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
-				StringUtils::itos(DEVICEDATA_Longitude_CONST) + ")";
-			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+		if( row[3] && row[4] )
+			SetLongLat(row[4],row[3]);
 
-			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
-				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
-				StringUtils::itos(DEVICEDATA_Latitude_CONST) + ")";
-			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
-
-			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[3] + "'" +
-				" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
-				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Longitude_CONST);
-			threaded_mysql_query(sSQL);
-
-			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[4] + "'" +
-				" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
-				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Latitude_CONST);
-			threaded_mysql_query(sSQL);
-		}
 		return true;
 	}
 	return false;
+}
+
+void WizardLogic::SetLongLat(string Latitude,string Longitude)
+{
+	DeviceData_Base *pDevice_Event_Plugin =
+		m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Event_Plugins_CONST);
+	if( pDevice_Event_Plugin )
+	{
+		string sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
+			StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
+			StringUtils::itos(DEVICEDATA_Longitude_CONST) + ")";
+		threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+
+		sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
+			StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
+			StringUtils::itos(DEVICEDATA_Latitude_CONST) + ")";
+		threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+
+		sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + Longitude + "'" +
+			" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+			" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Longitude_CONST);
+		threaded_mysql_query(sSQL);
+
+		sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + Latitude + "'" +
+			" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+			" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Latitude_CONST);
+		threaded_mysql_query(sSQL);
+	}
 }
 
 int WizardLogic::AddAVDeviceTemplate()

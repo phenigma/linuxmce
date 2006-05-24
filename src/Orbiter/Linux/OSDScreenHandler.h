@@ -20,11 +20,15 @@ public:
 
 	int m_dwMessageInterceptorCounter_ReportingChildDevices;
 
+	virtual void SCREEN_VideoWizard(long PK_Screen);
+	virtual bool VideoWizard_ObjectSelected(CallBackData *pData);
+	virtual bool VideoWizard_OnTimer(CallBackData *pData);
+
 	//1. Users Wizard
 	virtual void SCREEN_UsersWizard(long PK_Screen);
 	virtual bool UsersWizard_ObjectSelected(CallBackData *pData);
 	virtual bool UsersWizard_DatagridSelected(CallBackData *pData);
-	virtual bool HandleAddUser();
+	virtual bool HandleAddUser(bool bErrorIfEmpty=true);
 
 	//2. Location Wizard
 	virtual void SCREEN_CountryWizard(long PK_Screen);
