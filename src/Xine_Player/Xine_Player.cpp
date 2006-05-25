@@ -38,7 +38,7 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
-	if (!ptrFactory)
+	if (ptrFactory)
 	{
 		ptrFactory->ShutdownFactory();
 		delete ptrFactory;

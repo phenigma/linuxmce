@@ -82,14 +82,32 @@ bool Xine_Stream_Factory::StartupFactory()
 
 bool Xine_Stream_Factory::ShutdownFactory()
 {
-	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
-	
 	// avoid double-deinitialization
 	if (!m_bInitialized) 
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Double deinitialization attempted - wrong code?");
 		return false;
 	}
+	
+	// destroying all streams
+	g_pPlutoLogger->Write( LV_WARNING, "Destroying all active streams");
+	map<int, Xine_Stream*>::iterator stream;
+	while(true)
+	{
+		int streamID;
+		{
+			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+			stream = streamsMap.begin();
+			if (stream == streamsMap.end())
+				break;
+			else
+				streamID = (*stream).first;
+		}
+		DestroyStream( streamID);
+	}
+	
+	
+	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 	
 	// disconnect from libxine
 	xine_exit(m_pXineLibrary);
