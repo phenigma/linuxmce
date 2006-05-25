@@ -1167,7 +1167,6 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_iSpecialSeekSpeed = Speed;
 	}
 //	m_iPlaybackSpeed = PLAYBACK_NORMAL;
@@ -1196,7 +1195,6 @@ void Xine_Stream::StopSpecialSeek()
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_iSpecialSeekSpeed = 0;
 	}
 	//m_iPlaybackSpeed = PLAYBACK_NORMAL;
