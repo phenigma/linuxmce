@@ -8,20 +8,21 @@ class Row_PnpQueue;
 #define TIMEOUT_PROMPTING_USER					120  // If the user doesn't respond in this many seconds, try asking again
 #define TIMEOUT_DETECTION_SCRIPT				20	// Maximum number of seconds to wait for a detction script to return
 
-#define	PNP_DETECT_STAGE_DETECTED				100
-#define	PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT	101
-#define	PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS	102
-#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT	103
-#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT	104
-#define	PNP_DETECT_STAGE_ADD_DEVICE				105
-#define	PNP_DETECT_STAGE_ADD_SOFTWARE			106
-#define	PNP_DETECT_STAGE_START_DEVICE			107
-#define	PNP_DETECT_STAGE_DONE					108
+#define	PNP_DETECT_STAGE_DETECTED				10
+#define	PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT	11
+#define	PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS	12
+#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT	13
+#define	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT	14
+#define	PNP_DETECT_STAGE_ADD_DEVICE				15
+#define	PNP_DETECT_STAGE_ADD_SOFTWARE			16
+#define	PNP_DETECT_STAGE_START_DEVICE			17
+#define	PNP_DETECT_STAGE_DONE					18
 
-#define PNP_REMOVE_STAGE_REMOVED				200
-#define PNP_REMOVE_STAGE_DONE					201
+#define PNP_REMOVE_STAGE_REMOVED				20
+#define PNP_REMOVE_STAGE_DONE					21
 
 class Database_pluto_main;
+class Row_Device;
 
 #include "Pnp_PreCreateOptions.h"
 
@@ -57,6 +58,7 @@ namespace DCE
 		void ReadOutstandingQueueEntries();
 		void DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
 		string GetDescription(PnpQueueEntry *pPnpQueueEntry);
+		bool DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnpQueueEntry);
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);

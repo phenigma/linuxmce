@@ -88,7 +88,7 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	Sleep(1);  // Wait another 10 seconds for the app server's and other devices to finish starting up
+	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up
 
 	pnp.Relock();
 	
@@ -121,6 +121,7 @@ void PnpQueue::Run()
 			if( Process(pPnpQueueEntry)==true )  // Meaning it needs to be removed from the list
 			{
 				ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry);
+				delete pPnpQueueEntry;
 				m_mapPnpQueueEntry.erase( it++ );  // Remove it
 			}
 			else
@@ -512,6 +513,9 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		return true; // Delete this, something went terribly wrong
 	}
 	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(iPK_Device);
+	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CreateDevice already adds the software and starts it, so we're done
 	return true; 
 }
@@ -565,22 +569,24 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 	}
 	
-	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
 		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==0 && 
-			pPnpQueueEntry2->m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
-			pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+			( (pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) ||
+			(pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get()) ||
+			(pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get()) ) )
 		{
-			pPnpQueueEntry2->Stage_set(PNP_REMOVE_STAGE_DONE);
+			pPnpQueueEntry2->Stage_set(PNP_DETECT_STAGE_DONE);
 			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 			ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry2);
+			delete pPnpQueueEntry2;
+			m_mapPnpQueueEntry.erase( it++ );  // Remove it
 		}
+		else
+			it++;
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
@@ -593,21 +599,45 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( pRow_Device )
 		return true;  // This device already exists
 
-	bool bFirstWhere=true;
-	vector<Row_Device *> vectRow_Device;
 	string sPK_Device_TopLevel = StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
+	vector<Row_Device *> vectRow_Device;
+	string sSerialOrMac;
+	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+		sSerialOrMac = "LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia = P1.PK_Device "
+			"LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia = P2.PK_Device "
+			"LEFT JOIN Device_DeviceData As SerialNumber ON SerialNumber.FK_Device=Device.PK_Device AND SerialNumber.FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " "
+			"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
+			" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")"
+			" AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
+		sSerialOrMac = "MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'";
+
+	if( sSerialOrMac.size() )
+	{
+		m_pDatabase_pluto_main->Device_get()->GetRows(sSerialOrMac,&vectRow_Device);
+		if( vectRow_Device.size() )
+		{
+			pRow_Device = vectRow_Device[0];
+			if( vectRow_Device.size()>1 )
+				g_pPlutoLogger->Write(LV_WARNING,"PnpQueue::LocateDevice queue %d more than 1 device matched %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sSerialOrMac.c_str());
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d already a device %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
+			return true;
+		}
+	}
+
+	bool bFirstWhere=true;
 	string sSql_Primary = "JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia = P1.PK_Device "
 		"LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia = P2.PK_Device "
 		"LEFT JOIN DHCPDevice ON DHCPDevice.FK_DeviceTemplate=PK_DeviceTemplate "
-		"LEFT JOIN Device_DeviceData As SerialNumber ON SerialNumber.FK_Device=Device.PK_Device AND SerialNumber.FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " "
 		"LEFT JOIN Device_DeviceData As ComPort ON ComPort.FK_Device=Device.PK_Device AND ComPort.FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST) " "
 		"LEFT JOIN DeviceTemplate_DeviceData As OnePerPC ON OnePerPC.FK_DeviceTemplate=PK_DeviceTemplate AND OnePerPC.FK_DeviceData=" TOSTRING(DEVICEDATA_Only_One_Per_PC_CONST) " "
 		"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
 		" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")";
 
 
-	string sSql_Model,sSql_SerialNumber;
+	string sSql_Model,sSql_Port;
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
 		sSql_Model += " AND Device.FK_DeviceTemplate=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get());
@@ -620,13 +650,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( sVendorModelId.size() )
 		sSql_Model += " AND DHCPDevice.VendorModelId='" + sVendorModelId + "'";
 
-	string sSerialNumber = pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get();
-	if( sSerialNumber.size() )
-		sSql_SerialNumber += " AND SerialNumber.IK_DeviceData='" + sSerialNumber + "'";
-
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 		// This may be a serial device.  If we already have a device on this port we will use it
-		sSql_SerialNumber += " AND (ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' OR Device.Disabled=1)";
+		sSql_Port += " AND (ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' OR Device.Disabled=1)";
 
 	if( sSql_Model.size()==0 )
 	{
@@ -635,7 +661,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	}
 	
 	// See if this exact item with the same serial number exists already
-	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sSql_SerialNumber,&vectRow_Device);
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sSql_Port,&vectRow_Device);
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
 		pRow_Device = *it;
@@ -647,9 +673,13 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 				pRow_Device_DeviceData->IK_DeviceData_get()!=pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST] )
 					continue;  // It's not the same hard drive
 		}
-		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
-		return true;
+
+		if( DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
+		{
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+			return true;
+		}
 	}
 
 	vectRow_Device.clear();
@@ -659,16 +689,48 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( vectRow_Device.size() )
 	{
 		pRow_Device = vectRow_Device[0];
-		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
-		return true;
+		if( DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
+		{
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+			return true;
+		}
 	}
 
 	return false;
 }
 
+bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnpQueueEntry)
+{
+	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+	string sSQL = "JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+		"WHERE PK_Device=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " " 
+		"AND (DHCPDevice.SerialNumber IS NOT NULL "
+		"OR DHCPDevice.Parms IS NOT NULL)";
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSQL,&vectRow_DHCPDevice);
+	for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = *it;
+		if( pRow_DHCPDevice->SerialNumber_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find(pRow_DHCPDevice->SerialNumber_get())==string::npos )
+			continue; // Don't do this if the serial number doesn't match
+		if( pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
+			continue; // Don't do this if the serial number doesn't match
+
+		return true;
+	}
+	return false;
+}
+
 bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnpQueueEntry)
 {
+	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )
+	{
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has no candidates",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		return true;
+	}
+
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_running_detection_scripts )
 	{
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT )

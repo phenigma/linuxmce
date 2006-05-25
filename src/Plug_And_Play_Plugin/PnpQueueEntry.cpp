@@ -176,6 +176,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 {
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
+	if( m_pRow_PnpQueue->SerialNumber_get().size() )
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get());
 }
 
 bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
