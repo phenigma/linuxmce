@@ -8,9 +8,10 @@ class OrbiterSelfUpdate
 {
 	string m_sOrbiterFilePath;
     string m_sUpdateBinaryPath;
+	Orbiter *m_pOrbiter;
 
 public:
-	OrbiterSelfUpdate();
+	OrbiterSelfUpdate(Orbiter *pOrbiter);
 	~OrbiterSelfUpdate();
 
 	static void GetProcessFilePath(char *pProcessFilePath);

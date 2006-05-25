@@ -256,7 +256,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 					string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					long key = atoi(sKey.c_str());
 
-					g_pOrbiter->SimulateKeyPress(key);
+					Orbiter::GetInstance()->SimulateKeyPress(key);
 				}
 				else
 				{
@@ -268,7 +268,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 					string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					int y = atoi(sClickY.c_str());
 
-					g_pOrbiter->SimulateMouseClick(x, y);
+					Orbiter::GetInstance()->SimulateMouseClick(x, y);
 				}
 			}
 		}

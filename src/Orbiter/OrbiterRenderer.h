@@ -6,11 +6,19 @@
 #include "DesignObj_Orbiter.h"
 #include "PlutoGraphic.h"
 #include "SerializeClass/ShapesColors.h"
-#include "Orbiter.h"
 
 class OrbiterRenderer
 {
+	friend class OrbiterRendererFactory;
+
+protected:
+
+	OrbiterRenderer() {}
+
 public:
+
+	virtual ~OrbiterRenderer() {}
+
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color)=0;
 	virtual void SolidRectangleAlpha(int x, int y, int width, int height, PlutoColor color, int alpha = 128) { SolidRectangle(x,y, width, height, color); };
 	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
@@ -35,7 +43,7 @@ public:
 	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0)) { };
 
 	// Other
-	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0) { g_pOrbiter->Initialize(Type, iPK_Room, iPK_EntertainArea); };
+	virtual void Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea) = 0;
 	virtual void SetTime(char *ServerTimeString) {};
 
 	/**
@@ -78,7 +86,5 @@ public:
 
 	bool m_bFullScreen;
 };
-
-extern OrbiterRenderer *g_pRenderer;
 
 #endif

@@ -64,7 +64,6 @@ DesignObj_Orbiter::DesignObj_Orbiter()
 	m_GridCurCol=-1;
 	m_bOneTimeDontReset=false;
 	m_pParentObject=NULL;
-	m_pWebWindow=NULL;
 	m_bHidden=false;
 	m_pFloorplanObject=NULL;
 #ifdef PRONTO
@@ -86,7 +85,7 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 			(dynamic_cast<WinGraphic *>(m_pGraphic))->m_pUncompressedImage
 		)
 		{
-			g_pOrbiter->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pGraphic))->m_pUncompressedImage);
+			Orbiter::GetInstance()->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pGraphic))->m_pUncompressedImage);
 		}
 
 		delete m_pGraphic;
@@ -99,7 +98,7 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 			(dynamic_cast<WinGraphic *>(m_pSelectedGraphic))->m_pUncompressedImage
 		)
 		{
-			g_pOrbiter->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pSelectedGraphic))->m_pUncompressedImage);
+			Orbiter::GetInstance()->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pSelectedGraphic))->m_pUncompressedImage);
 		}
 
 		delete m_pSelectedGraphic;
@@ -111,7 +110,7 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 			(dynamic_cast<WinGraphic *>(m_pHighlightedGraphic))->m_pUncompressedImage
 		)
 		{
-			g_pOrbiter->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pHighlightedGraphic))->m_pUncompressedImage);
+			Orbiter::GetInstance()->RemoveUncompressedImage((dynamic_cast<WinGraphic *>(m_pHighlightedGraphic))->m_pUncompressedImage);
 		}
 
 		delete m_pHighlightedGraphic;
@@ -183,7 +182,6 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	m_ChildObjects.clear();
 
 	delete m_pDataGridTable;
-// todo 2.0	delete m_pWebWindow; 
 #ifdef PRONTO
 	delete m_pCCF;
 #endif
@@ -194,7 +192,7 @@ string DesignObj_Orbiter::GetParameterValue(int ParameterID)
 	map<int,string>::iterator ipParm = m_mapObjParms.find(ParameterID);
 	if (ipParm==m_mapObjParms.end())
 		return "";
-	return g_pOrbiter->SubstituteVariables((*ipParm).second,this,0,0);
+	return Orbiter::GetInstance()->SubstituteVariables((*ipParm).second,this,0,0);
 }
 
 PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
@@ -203,14 +201,14 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 
 	r.X = max(0,m_rPosition.X-4);
 	r.Y = max(0,m_rPosition.Y-4);
-	r.Right( min(m_rPosition.Right()+4,g_pOrbiter->m_Width-1) );
-	r.Bottom( min(m_rPosition.Bottom()+4,g_pOrbiter->m_Height-1) );
+	r.Right( min(m_rPosition.Right()+4,Orbiter::GetInstance()->m_Width-1) );
+	r.Bottom( min(m_rPosition.Bottom()+4,Orbiter::GetInstance()->m_Height-1) );
 	return r;
 }
 
 /*virtual*/ void DesignObj_Orbiter::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );
+	PLUTO_SAFETY_LOCK( cm, Orbiter::GetInstance()->m_ScreenMutex );
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = m_pvectCurrentGraphic;
 
 	//we have nothing to render
@@ -246,17 +244,17 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 	}
 
 	string sFileName = "";
-	if(pPlutoGraphic->IsEmpty() && NULL != g_pOrbiter->m_pCacheImageManager && pPlutoGraphic->m_Filename.length() &&
-		g_pOrbiter->m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, m_Priority)
+	if(pPlutoGraphic->IsEmpty() && NULL != Orbiter::GetInstance()->m_pCacheImageManager && pPlutoGraphic->m_Filename.length() &&
+		Orbiter::GetInstance()->m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, m_Priority)
 		)
 	{
 		//if we have the file in cache
-		sFileName = g_pOrbiter->m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
+		sFileName = Orbiter::GetInstance()->m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 	}
-	else if(pPlutoGraphic->IsEmpty() && g_pOrbiter->m_sLocalDirectory.length() > 0 && pPlutoGraphic->m_Filename.length() )
+	else if(pPlutoGraphic->IsEmpty() && Orbiter::GetInstance()->m_sLocalDirectory.length() > 0 && pPlutoGraphic->m_Filename.length() )
 	{
 		//the file is in our localdrive
-		sFileName = g_pOrbiter->m_sLocalDirectory + pPlutoGraphic->m_Filename;
+		sFileName = Orbiter::GetInstance()->m_sLocalDirectory + pPlutoGraphic->m_Filename;
 	}
 
 	//if we don't have the file in cache or on our localdrive
@@ -267,10 +265,10 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 		int iSizeGraphicFile=0;
 
 		DCE::CMD_Request_File CMD_Request_File(
-			g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-			"orbiter/C" + StringUtils::itos(g_pOrbiter->m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
+			Orbiter::GetInstance()->m_dwPK_Device,Orbiter::GetInstance()->m_dwPK_Device_GeneralInfoPlugIn,
+			"orbiter/C" + StringUtils::itos(Orbiter::GetInstance()->m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
 			&pGraphicFile,&iSizeGraphicFile);
-		g_pOrbiter->SendCommand(CMD_Request_File);
+		Orbiter::GetInstance()->SendCommand(CMD_Request_File);
 
 		if (!iSizeGraphicFile)
 		{
@@ -279,10 +277,10 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 		}
 
 		//save the image in cache
-		if(NULL != g_pOrbiter->m_pCacheImageManager) //cache manager is enabled ?
+		if(NULL != Orbiter::GetInstance()->m_pCacheImageManager) //cache manager is enabled ?
 		{
-			g_pOrbiter->m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, m_Priority);
-			sFileName = g_pOrbiter->m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
+			Orbiter::GetInstance()->m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, m_Priority);
+			sFileName = Orbiter::GetInstance()->m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 		}
 
 		//TODO: same logic for in-memory data
@@ -349,7 +347,7 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 
 					if(iFrameSize)
 					{
-						PlutoGraphic *pGraphic = g_pRenderer->CreateGraphic();
+						PlutoGraphic *pGraphic = Orbiter::GetInstance()->Renderer()->CreateGraphic();
 						pGraphic->m_GraphicManagement = eGM;
 						pGraphic->m_Filename = sMNGFileName;
 						pGraphic->m_GraphicFormat = GR_PNG; //this is an mng with multiple png frames
@@ -404,18 +402,18 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 		//schedule next frame for animation
 		m_pvectCurrentPlayingGraphic = m_pvectCurrentGraphic;
 		m_GraphicToPlay = m_GraphicToDisplay;
-		g_pOrbiter->CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, this , pe_NO );
+		Orbiter::GetInstance()->CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, this , pe_NO );
 	}
 
 	if(!pPlutoGraphic->IsEmpty())
-		g_pRenderer->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+		Orbiter::GetInstance()->Renderer()->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 #ifdef DEBUG
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_ObjectID.c_str());
 #endif
 
 	if(!bIsMNG && m_GraphicToDisplay == GRAPHIC_SELECTED)
-		g_pRenderer->SelectObject(this, point);
+		Orbiter::GetInstance()->Renderer()->SelectObject(this, point);
 }
 
 
@@ -425,14 +423,14 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 
 	if(m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
 	{
-		CallBackData *pCallBackData = g_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogRefresh);
+		CallBackData *pCallBackData = Orbiter::GetInstance()->m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogRefresh);
 		if(pCallBackData)
 		{
 			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
 			pPositionData->m_rectPosition = m_rPosition;
 		}
 
-		if(g_pOrbiter->ExecuteScreenHandlerCallback(cbOnDialogRefresh))
+		if(Orbiter::GetInstance()->ExecuteScreenHandlerCallback(cbOnDialogRefresh))
 			return;
 	}
 
@@ -441,7 +439,7 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 		m_bHidden = m_pDesignObj_Orbiter_TiedTo->IsHidden(  );
 		if(  ( m_iRowTiedTo==-1 && m_iColumnTiedTo==-1 ) || m_pDesignObj_Orbiter_TiedTo->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST  )
 		{
-			if(  m_pDesignObj_Orbiter_TiedTo==g_pOrbiter->m_pObj_Highlighted  )
+			if(  m_pDesignObj_Orbiter_TiedTo==Orbiter::GetInstance()->m_pObj_Highlighted  )
 				m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
 			else
 				m_GraphicToDisplay = m_pDesignObj_Orbiter_TiedTo->m_GraphicToDisplay;
@@ -460,7 +458,7 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 	// See if this object is only visible for a given state
 	if(  m_sVisibleState.size(  )  )
 	{
-		if(  (  ( this==g_pOrbiter->m_pObj_Highlighted || m_GraphicToDisplay==GRAPHIC_HIGHLIGHTED ) && m_sVisibleState.find( "H" )==string::npos ) ||
+		if(  (  ( this==Orbiter::GetInstance()->m_pObj_Highlighted || m_GraphicToDisplay==GRAPHIC_HIGHLIGHTED ) && m_sVisibleState.find( "H" )==string::npos ) ||
 			(  m_GraphicToDisplay==GRAPHIC_SELECTED && m_sVisibleState.find( "S" )==string::npos  ) ||
 			(  m_GraphicToDisplay==GRAPHIC_NORMAL && m_sVisibleState.find( "N" )==string::npos  ) ||
 			(  m_GraphicToDisplay>0 && m_sVisibleState.find( StringUtils::itos( m_GraphicToDisplay ) )==string::npos  )  )
@@ -472,31 +470,31 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", m_ObjectID.c_str(), (int) m_bHidden );
 #endif
-		if(g_pOrbiter->m_bShowShortcuts && m_iPK_Button)
-			g_pOrbiter->RenderShortcut(this);
+		if(Orbiter::GetInstance()->m_bShowShortcuts && m_iPK_Button)
+			Orbiter::GetInstance()->RenderShortcut(this);
 
 		return;
 	}
 
 	PROFILE_START( ctObj )
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, g_pOrbiter->m_VariableMutex )
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, Orbiter::GetInstance()->m_VariableMutex )
 	PlutoRectangle rectBackground = m_rBackgroundPosition;
 	PlutoRectangle rectTotal = m_rPosition;
 	vm.Release(  );
 
-	if( (this == g_pOrbiter->m_pObj_Highlighted || m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
-		(g_pOrbiter->m_pObj_Highlighted && m_bTabStop && this==g_pOrbiter->m_pObj_Highlighted->m_pParentObject)  // If I'm also a tab stop, and my child is a highlighted object, leave me highlighted too
+	if( (this == Orbiter::GetInstance()->m_pObj_Highlighted || m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
+		(Orbiter::GetInstance()->m_pObj_Highlighted && m_bTabStop && this==Orbiter::GetInstance()->m_pObj_Highlighted->m_pParentObject)  // If I'm also a tab stop, and my child is a highlighted object, leave me highlighted too
 		) && m_vectHighlightedGraphic.size() )
 	{
 		m_pvectCurrentGraphic = &(m_vectHighlightedGraphic);
 
 		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting
 		//we won't do it on RealRedraw for this kind of objects
-		if(NULL != g_pOrbiter->m_pObj_Highlighted && g_pOrbiter->m_pObj_Highlighted != g_pOrbiter->m_pObj_Highlighted_Last)
+		if(NULL != Orbiter::GetInstance()->m_pObj_Highlighted && Orbiter::GetInstance()->m_pObj_Highlighted != Orbiter::GetInstance()->m_pObj_Highlighted_Last)
 		{
-			g_pOrbiter->m_pObj_Highlighted_Last = g_pOrbiter->m_pObj_Highlighted;
-			g_pRenderer->DoHighlightObject();
+			Orbiter::GetInstance()->m_pObj_Highlighted_Last = Orbiter::GetInstance()->m_pObj_Highlighted;
+			Orbiter::GetInstance()->Renderer()->DoHighlightObject();
 		}
 	}
 	else if(m_GraphicToDisplay == GRAPHIC_SELECTED && m_vectSelectedGraphic.size())
@@ -511,25 +509,25 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 
 	if( m_bCustomRender )
 	{
-		CallBackData *pCallBackData = g_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
+		CallBackData *pCallBackData = Orbiter::GetInstance()->m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
 		if(pCallBackData)
 		{
 			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = g_pOrbiter->m_pScreenHistory_Current->PK_Screen();
+			pRenderScreenCallBackData->m_nPK_Screen = Orbiter::GetInstance()->m_pScreenHistory_Current->PK_Screen();
 			pRenderScreenCallBackData->m_pObj = this; //m_pScreenHistory_Current->GetObj();
 		}
-		g_pOrbiter->ExecuteScreenHandlerCallback(cbOnCustomRender);
+		Orbiter::GetInstance()->ExecuteScreenHandlerCallback(cbOnCustomRender);
 		return;
 	}
 
 	// This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
 	if( m_bIsBoundToUser )
 	{
-		vector<PlutoGraphic*> *pvectGraphic = g_pOrbiter->m_mapUserIcons[g_pOrbiter->m_dwPK_Users];
+		vector<PlutoGraphic*> *pvectGraphic = Orbiter::GetInstance()->m_mapUserIcons[Orbiter::GetInstance()->m_dwPK_Users];
 
 		// Put this here to debug why sometimes the user and room aren't selected when the screen first appears
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::RenderObject obj %s bound to user %d, got ptr %p",
-			m_ObjectID.c_str(),g_pOrbiter->m_dwPK_Users,pvectGraphic);
+			m_ObjectID.c_str(),Orbiter::GetInstance()->m_dwPK_Users,pvectGraphic);
 
 		if( pvectGraphic )
 			m_pvectCurrentGraphic = pvectGraphic;
@@ -538,8 +536,8 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 	}
 	else if( m_bIsBoundToLocation )
 	{
-		if( g_pOrbiter->m_pLocationInfo && g_pOrbiter->m_pLocationInfo->m_pvectGraphic )
-			m_pvectCurrentGraphic = g_pOrbiter->m_pLocationInfo->m_pvectGraphic;
+		if( Orbiter::GetInstance()->m_pLocationInfo && Orbiter::GetInstance()->m_pLocationInfo->m_pvectGraphic )
+			m_pvectCurrentGraphic = Orbiter::GetInstance()->m_pLocationInfo->m_pvectGraphic;
 		if( m_pvectCurrentGraphic )
 			RenderGraphic(rectTotal, m_bDisableAspectLock, point);
 	}
@@ -576,10 +574,10 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 		break;
 	case DESIGNOBJTYPE_App_Desktop_CONST:
 	case DESIGNOBJTYPE_wxWidgets_Applet_CONST:
-		if ( g_pOrbiter->m_bYieldScreen )
-			g_pOrbiter->RenderDesktop( this, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
+		if ( Orbiter::GetInstance()->m_bYieldScreen )
+			Orbiter::GetInstance()->RenderDesktop( this, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
 		else
-			g_pOrbiter->RenderDesktop( this, m_rPosition, point );
+			Orbiter::GetInstance()->RenderDesktop( this, m_rPosition, point );
 		break;
 #ifdef PRONTO
 	case DESIGNOBJTYPE_Pronto_File_CONST:
@@ -619,7 +617,7 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 		break;
 #endif
 	case DESIGNOBJTYPE_Broadcast_Video_CONST:
-		if ( m_bOnScreen && !g_pOrbiter->m_bAlreadyQueuedVideo )
+		if ( m_bOnScreen && !Orbiter::GetInstance()->m_bAlreadyQueuedVideo )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", this, m_ObjectID.c_str());
@@ -630,8 +628,8 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 			// and should wait the correct interval
 
 			// Don't purge existing callbacks since there can be multiple frames on the screen
-			g_pOrbiter->CallMaintenanceInMiliseconds( m_vectGraphic.size()==0 ? 0 : g_pOrbiter->m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
-			g_pOrbiter->m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
+			Orbiter::GetInstance()->CallMaintenanceInMiliseconds( m_vectGraphic.size()==0 ? 0 : Orbiter::GetInstance()->m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
+			Orbiter::GetInstance()->m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}
 		else
 		{
@@ -690,24 +688,24 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 			continue;
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
-		string TextToDisplay = g_pOrbiter->SubstituteVariables(g_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		g_pRenderer->RenderText( TextToDisplay, pText, pTextStyle, point );
+		string TextToDisplay = Orbiter::GetInstance()->SubstituteVariables(Orbiter::GetInstance()->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
+		Orbiter::GetInstance()->Renderer()->RenderText( TextToDisplay, pText, pTextStyle, point );
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
-	if( m_pFloorplanObject && g_pOrbiter->m_mapDevice_Selected.find(m_pFloorplanObject->PK_Device)!=g_pOrbiter->m_mapDevice_Selected.end() )
+	if( m_pFloorplanObject && Orbiter::GetInstance()->m_mapDevice_Selected.find(m_pFloorplanObject->PK_Device)!=Orbiter::GetInstance()->m_mapDevice_Selected.end() )
 	{
 		int i;
 		for(i = 0; i < 4; ++i)
-			g_pRenderer->HollowRectangle(point.X + m_rBackgroundPosition.X-i, point.Y + m_rBackgroundPosition.Y-i, m_rBackgroundPosition.Width+i+i, m_rBackgroundPosition.Height+i+i,
+			Orbiter::GetInstance()->Renderer()->HollowRectangle(point.X + m_rBackgroundPosition.X-i, point.Y + m_rBackgroundPosition.Y-i, m_rBackgroundPosition.Width+i+i, m_rBackgroundPosition.Height+i+i,
 			(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
 
 		//force an update because the object boundaries are not respected
 		PlutoRectangle rect(point.X + m_rBackgroundPosition.X-i, point.Y + m_rBackgroundPosition.Y-i, m_rBackgroundPosition.Width+i+i, m_rBackgroundPosition.Height+i+i);
-		g_pOrbiter->UpdateRect(rect, NULL != g_pOrbiter->m_pActivePopup ? g_pOrbiter->m_pActivePopup->m_Position : PlutoPoint(0, 0));
+		Orbiter::GetInstance()->UpdateRect(rect, NULL != Orbiter::GetInstance()->m_pActivePopup ? Orbiter::GetInstance()->m_pActivePopup->m_Position : PlutoPoint(0, 0));
 	}
 
-	if(g_pOrbiter->m_bShowShortcuts && m_iPK_Button)
-		g_pOrbiter->RenderShortcut(this);
+	if(Orbiter::GetInstance()->m_bShowShortcuts && m_iPK_Button)
+		Orbiter::GetInstance()->RenderShortcut(this);
 }
 
 bool DesignObj_Orbiter::ObjectInRect(PlutoRectangle rect)

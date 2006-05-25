@@ -7,6 +7,16 @@
 
 using namespace DCE;
 
+#include "Orbiter.h"
+
+#ifdef WIN32
+	#include "Win32/OrbiterWin32Defs.h"
+	#include "Win32/MainDialog.h"
+	#include "StartOrbiter.h"
+#endif
+
+/*
+
 #ifdef WIN32
 
 	#include "Win32/OrbiterWin32Defs.h"
@@ -58,6 +68,7 @@ using namespace DCE;
 	#endif
 #endif //WIN32
 
+*/
 
 //------------------------------------------------------------------------------------------------------
 Simulator *Simulator::m_pInstance = NULL;
@@ -128,11 +139,13 @@ void *GeneratorThread( void *p)
 	#endif
 #endif */
 
+	Orbiter *pOrbiter = Orbiter::GetInstance();
+
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", g_pOrbiter);
+		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
 
-		if(!g_pOrbiter || g_pOrbiter->m_bQuit)
+		if(!pOrbiter || pOrbiter->m_bQuit)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
 			pSimulator->m_bIsRunning = false;
@@ -145,13 +158,13 @@ void *GeneratorThread( void *p)
 			return NULL;
 		}
 
-		if(time(NULL) - g_pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
+		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
-				g_pOrbiter->GetCurrentScreenID().c_str());
+				pOrbiter->GetCurrentScreenID().c_str());
 
-			if(!g_pOrbiter->m_bQuit && HomeScreen != "")
-				g_pOrbiter->GotoDesignObj(HomeScreen);
+			if(!pOrbiter->m_bQuit && HomeScreen != "")
+				pOrbiter->GotoDesignObj(HomeScreen);
 		}
 
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);
@@ -161,11 +174,11 @@ void *GeneratorThread( void *p)
 		{
 			Count = 0;
 
-			x = rand() % g_pOrbiter->m_iImageWidth;
-			y = rand() % g_pOrbiter->m_iImageHeight;
+			x = rand() % pOrbiter->m_iImageWidth;
+			y = rand() % pOrbiter->m_iImageHeight;
 
-			if(!g_pOrbiter->m_bQuit && bGenerateMouseClicks)
-				g_pOrbiter->SimulateMouseClick(x, y);
+			if(!pOrbiter->m_bQuit && bGenerateMouseClicks)
+				pOrbiter->SimulateMouseClick(x, y);
 		}
 		else
 		{
@@ -189,8 +202,8 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % count;
 
-				if(!g_pOrbiter->m_bQuit)
-					g_pOrbiter->SimulateKeyPress(list[index]);
+				if(!pOrbiter->m_bQuit)
+					pOrbiter->SimulateKeyPress(list[index]);
 			}
 			else if(bOption2)
 			{
@@ -202,8 +215,8 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!g_pOrbiter->m_bQuit)
-					g_pOrbiter->SimulateKeyPress(list[index]);
+				if(!pOrbiter->m_bQuit)
+					pOrbiter->SimulateKeyPress(list[index]);
 			}
 			else if(bOption3) //phone keys
 			{
@@ -248,8 +261,8 @@ void *GeneratorThread( void *p)
 				};
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!g_pOrbiter->m_bQuit)
-					g_pOrbiter->SimulateKeyPress(list[index]);
+				if(!pOrbiter->m_bQuit)
+					pOrbiter->SimulateKeyPress(list[index]);
 			}
 		}
 	}

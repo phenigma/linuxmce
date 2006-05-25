@@ -57,11 +57,10 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	{
 		string sErrorMessage = 
 			"Cannot load OCG files in Orbiter SDL. "
-			"Please uncheck 'Use OCG' device data for this device (" + 
-				StringUtils::ltos(g_pOrbiter->m_dwPK_Device) + ").";
+			"Please uncheck 'Use OCG' device data for this device";
 
         g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
-		g_pRenderer->PromptUser(sErrorMessage.c_str(), 100);
+		Orbiter::GetInstance()->Renderer()->PromptUser(sErrorMessage.c_str(), 100);
         exit(1);
 		return false;
 	}

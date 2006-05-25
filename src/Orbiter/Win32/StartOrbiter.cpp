@@ -3,6 +3,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "Simulator.h"
 #include "Win32/OrbiterWin32Defs.h"
+#include "OrbiterRenderer.h"
 
 using namespace DCE;
 using namespace std;
@@ -69,28 +70,20 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
+	Orbiter *pOrbiter = NULL;
+
 	try
 	{
-		g_pOrbiter = new Orbiter(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height);
-
-#ifndef POCKETFROG
-
-#else
-		g_pRenderer = new OrbiterRenderer_PocketFrog(bFullScreen, bUseOpenGL);
-#endif
-
-	/*		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
-		Orbiter::Cleanup();
-		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
+		//remove the old instance
+		if(NULL != Orbiter::GetInstance())
+			Orbiter::DestroyInstance();
 
 		WriteStatusOutput("Building a new orbiter");
-		Orbiter::BuildOrbiter(
-			PK_Device, PK_DeviceTemplate, sRouter_IP,
-			sLocalDirectory, bLocalMode, 
-			Width, Height, bFullScreen, 
-			bUseOpenGL
-		); //the builder method
-		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");*/
+
+		//create a new one
+		pOrbiter = Orbiter::CreateInstance(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height);
+			
+		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
 	}
 	catch(string s)
 	{
@@ -104,8 +97,6 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		g_pPlutoLogger->Write(LV_STATUS, s);
 		return NULL;
 	}
-
-	Orbiter *pOrbiter = g_pOrbiter;
 
 	if(!bLocalMode)
 	{
@@ -158,7 +149,7 @@ bool EventLoop(Orbiter* pOrbiter)
 	if(Simulator::GetInstance()->m_bEnableGenerator)
 		Simulator::GetInstance()->StartRandomEventGenerator();
 
-	g_pRenderer->RunEventLoop();
+	pOrbiter->Renderer()->RunEventLoop();
 
 	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
 		(int) pOrbiter->m_bReload, (int) pOrbiter->m_bConnectionLost, (int) pOrbiter->m_bQuit);

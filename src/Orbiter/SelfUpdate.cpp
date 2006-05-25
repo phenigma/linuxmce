@@ -18,22 +18,11 @@ using namespace std;
 
 using namespace DCE;
 
-#ifdef POCKETFROG
-	#include "OrbiterRenderer_PocketFrog.h"
-#else
-	#ifdef WINCE
-		#include "OrbiterSDL_WinCE.h"
-	#else
-		#include "OrbiterSDL_Win32.h"
-	#endif
-#endif 
-
-
 //-----------------------------------------------------------------------------------------------------
 #include "MainDialog.h"
 extern CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSelfUpdate::OrbiterSelfUpdate()
+OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter) : m_pOrbiter(pOrbiter)
 {
 	char pProcessFilePath[256];
 	GetProcessFilePath(pProcessFilePath);
@@ -42,7 +31,6 @@ OrbiterSelfUpdate::OrbiterSelfUpdate()
 //-----------------------------------------------------------------------------------------------------
 OrbiterSelfUpdate::~OrbiterSelfUpdate()
 {
-	g_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
@@ -92,7 +80,7 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 
 	//get the checksum for the update file
 	DCE::CMD_Request_File_And_Checksum_Cat CMD_Request_File_And_Checksum_Cat(
-		g_pOrbiter->m_dwPK_Device, 
+		m_pOrbiter->m_dwPK_Device, 
 		DEVICECATEGORY_General_Info_Plugins_CONST, 
 		false,
 		BL_SameHouse,
@@ -103,7 +91,7 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 		&bChecksumOnly
 		);
 
-	g_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
+	m_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
 
 	if(sChecksum == "") 
 	{
@@ -128,12 +116,12 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 	char *pUpdateFile = NULL;
 	int iSizeUpdateFile = 0;	
 
-	//string sUpdateName = g_pOrbiter->DATA_Get_Update_Name();
+	//string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
 	string sUpdateName = csUpdateBinaryName;
-	string sStoragePath = g_pOrbiter->DATA_Get_Path();
+	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 
 	DCE::CMD_Request_File_Cat CMD_Request_File_Cat(
-		g_pOrbiter->m_dwPK_Device, 
+		m_pOrbiter->m_dwPK_Device, 
 		DEVICECATEGORY_General_Info_Plugins_CONST, 
 		false,
 		BL_SameHouse,
@@ -141,7 +129,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		&pUpdateFile,
 		&iSizeUpdateFile
 		);
-	g_pOrbiter->SendCommand(CMD_Request_File_Cat);
+	m_pOrbiter->SendCommand(CMD_Request_File_Cat);
 
 	if ( !iSizeUpdateFile )
 	{
@@ -194,7 +182,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::CreateCommunicationFile()
 {
-	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
 
 #ifdef WINCE
 	char sTextBuffer[256];
@@ -225,11 +213,11 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	si.lpReserved = 0;
 
 	string sUpdateName = csUpdateBinaryName;
-	string sStoragePath = g_pOrbiter->DATA_Get_Path();
-	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
+	string sStoragePath = m_pOrbiter->DATA_Get_Path();
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
 	string sCmdLine = "";
 
-	sCmdLine += "-d " + StringUtils::ltos(g_pOrbiter->m_dwPK_Device);
+	sCmdLine += "-d " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device);
 	sCmdLine += " -r " + CmdLineParams.sRouter_IP;
 
 	sCmdLine += " -l " + sUpdateName + ".log";
@@ -272,7 +260,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::LastUpdateFailed()
 {
-	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
 
 	if(FileUtils::FileExists(sCommFile))
 		return true; //UpdateBinary app should delete this file if everything was ok
@@ -282,7 +270,7 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-	g_pOrbiter->WriteStatusOutput("Updating orbiter...");
+	m_pOrbiter->WriteStatusOutput("Updating orbiter...");
 
 	if(LastUpdateFailed())
 	{	

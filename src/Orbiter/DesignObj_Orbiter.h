@@ -42,7 +42,6 @@ public:
 	bool m_bIsBoundToUser,m_bIsBoundToLocation,m_bIsARemoteControl; // Redundant, but saves time from looking this up each time
 	bool m_bOnScreen,m_bDisableAspectLock,m_bContainsDataGrid;
 	DataGridTable *m_pDataGridTable;
-	class WebWindow *m_pWebWindow;
 	class FloorplanObject *m_pFloorplanObject;
 // todo: maybe datagrid related stuff should get moved into its own class to save memory.
 	int m_GridCurRow, m_GridCurCol;  // The current top, left grid and column being displayed.  Zero based.  Example: In a grid with 10 rows per page, on the second page m_GridCurRow will = 10

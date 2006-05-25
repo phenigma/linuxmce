@@ -24,12 +24,16 @@ That class creates a default decorator for OpenGL operations thread.
 #include "GL2DEffects/gl2deffect.h"
 #include "GL2DEffects/gl2deffectfactory.h"
 
-class OrbiterGL3D {
+class OrbiterRenderer;
+
+class OrbiterGL3D 
+{
 public: 
 	TBasicWindow * Screen3D;
 	TBasicWindow * HighLighArea;
 	TBasicWindow * SelectedArea;
 	TBasicWindow * MouseCursor;
+	OrbiterRenderer * Renderer;
 
 #ifdef POCKETFROG
 	HDC hdc;
@@ -40,7 +44,7 @@ public:
 	GL2DEffectFactory* EffectBuilder;
 	FloatRect FullScreenSize;
 	
-	int BuildOrbiterGL();
+	int BuildOrbiterGL(OrbiterRenderer *pRenderer);
 	
 	~OrbiterGL3D ();
 

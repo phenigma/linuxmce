@@ -6,19 +6,16 @@
 using namespace std;
 
 #include <SDL.h>
-
 //-----------------------------------------------------------------------------------------------------
+#include "DCE/Logger.h"
 #include "../OrbiterRenderer.h"
 #include "../DesignObj_Orbiter.h"
-
 #include "../OpenGL/PendingGLEffects.h"
+using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 //forward declarations
 class OrbiterGL3D;
 //-----------------------------------------------------------------------------------------------------
-namespace DCE
-{
-
 class OrbiterSDL : public OrbiterRenderer
 {
 protected: 
@@ -30,20 +27,9 @@ protected:
 	std::auto_ptr<PendingGLEffects> m_spPendingGLEffects;
 
 public:
-	/**
-	 *    Default Constructor for Orbiter SDL
-	 * @param DeviceID
-	 * @param PK_DeviceTemplate
-	 * @param ServerAddress
-	 * @param sLocalDirectory
-	 * @param bLocalMode
-	 * @param nImageWidth Image width size in pixels
-	 * @param nImageHeight Image height size in pixels
-	 * @param bFullScreen Say if the application should be fullscreen or doesn't
-	 * @param pExternalScreenMutex
-	 * @param UseOpenGL Boolean variable that say if it should be used OpenGL code or doesn't
-	 */
-	OrbiterSDL(bool bFullScreen = false, pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
+
+
+	OrbiterSDL();
 	virtual ~OrbiterSDL();
 
 	// Public virtual methods
@@ -75,7 +61,7 @@ public:
 	virtual void OnQuit();
 
 	// Other
-	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
+	virtual void Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea);
 	virtual void SetTime(char *ServerTimeString) {};
 
 	/**
@@ -115,7 +101,5 @@ public:
 protected:
 	pthread_t SDLGLthread;
 };
-
-}
 //-----------------------------------------------------------------------------------------------------
 #endif //__OrbiterSDL_H__

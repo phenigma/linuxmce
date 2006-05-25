@@ -19,30 +19,27 @@ const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+	OrbiterSDL_Win32 *pRenderer = dynamic_cast<OrbiterSDL_Win32 *>(Orbiter::GetInstance()->Renderer());
 
-	if(pOrbiter == NULL)
+	if(pRenderer == NULL)
 		return 0L;
 
-	LRESULT Result = pOrbiter->OldSDLWindowProc(hWnd, uMsg, wParam, lParam);
+	LRESULT Result = pRenderer->OldSDLWindowProc(hWnd, uMsg, wParam, lParam);
 
     switch(uMsg)
 	{
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			pOrbiter->HandleKeyEvents(uMsg, wParam, lParam);
+			pRenderer->HandleKeyEvents(uMsg, wParam, lParam);
 			break;
 	}
 
 	return Result;
 }
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_Win32 *OrbiterSDL_Win32::m_pInstance = NULL; //the one and only
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_Win32::OrbiterSDL_Win32(bool bFullScreen, bool bUseOpenGL)
-	:
-	  OrbiterSDL(bFullScreen, NULL, bUseOpenGL)
+OrbiterSDL_Win32::OrbiterSDL_Win32() : OrbiterSDL()
 
 {
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
@@ -81,42 +78,6 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 #pragma warning(default:4244)
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_Win32::BuildOrbiter( bool bFullScreen, bool bUseOpenGL)
-{
-	if(NULL == m_pInstance)
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
-		m_pInstance = new OrbiterSDL_Win32(bFullScreen, bUseOpenGL);
-	}
-	else
-	{
-		throw "OrbiterSDL_Win32 already created!";
-	}
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_Win32::Cleanup()
-{
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: need to cleanup orbiter...");
-	if(NULL != m_pInstance)
-	{	
-		OrbiterSDL_Win32 *pCopy = m_pInstance;
-		m_pInstance = NULL;
-
-		delete pCopy;
-		pCopy = NULL;
-
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: orbiter deleted.");
-	}
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ OrbiterSDL_Win32 *OrbiterSDL_Win32::GetInstance()
-{
-	if(!m_pInstance)
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32:GetInstance The instance to orbiter is NULL");
-
-	return m_pInstance;
-}
-//-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::RenderScreen( bool bRenderGraphicsOnly )
 {
 #ifdef ENABLE_OPENGL
@@ -138,7 +99,8 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         orbiterEvent.type = Orbiter::Event::BUTTON_UP;
 
     if(!TranslateVirtualKeys2PlutoKeys(uMsg, wParam, lParam, orbiterEvent.data.button.m_iPK_Button, 
-        g_pOrbiter->m_bShiftDown, g_pOrbiter->m_bAltDown, g_pOrbiter->m_bControlDown, g_pOrbiter->m_bCapsLock)
+		Orbiter::GetInstance()->m_bShiftDown, Orbiter::GetInstance()->m_bAltDown, 
+		Orbiter::GetInstance()->m_bControlDown, Orbiter::GetInstance()->m_bCapsLock)
     )
         return; //prevent auto-repeted
 
@@ -150,22 +112,22 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #ifdef WINCE
     else if( wParam == VK_F10) 
 #else
-    else if( wParam == VK_A && g_pOrbiter->m_bControlDown)
+    else if( wParam == VK_A && Orbiter::GetInstance()->m_bControlDown)
 #endif
     {
         ShowMainDialog();
-        g_pOrbiter->m_bControlDown = false;
+        Orbiter::GetInstance()->m_bControlDown = false;
     }
 
     if(wParam == VK_SHIFT)
-        g_pOrbiter->m_bShiftDownOnScreenKeyboard = false;
+        Orbiter::GetInstance()->m_bShiftDownOnScreenKeyboard = false;
 
-    g_pOrbiter->ProcessEvent(orbiterEvent);
+    Orbiter::GetInstance()->ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 {
-	RECT rect = { 0, 0, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight };
+	RECT rect = { 0, 0, Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight };
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
@@ -191,9 +153,9 @@ void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::OnQuit()
 {
-	g_pOrbiter->m_bQuit = true;
-	g_pOrbiter->m_bConnectionLost = true;
-	pthread_cond_broadcast( &g_pOrbiter->m_listMessageQueueCond );
+	Orbiter::GetInstance()->m_bQuit = true;
+	Orbiter::GetInstance()->m_bConnectionLost = true;
+	pthread_cond_broadcast( &Orbiter::GetInstance()->m_listMessageQueueCond );
 
 	//atexit(SDL_Quit);
 	//::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
@@ -206,7 +168,7 @@ void OrbiterSDL_Win32::OnQuit()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSDL_Win32::SelfUpdate()
 {
-	OrbiterSelfUpdate orbiterSelfUpdate;
+	OrbiterSelfUpdate orbiterSelfUpdate(Orbiter::GetInstance());
 
 	return orbiterSelfUpdate.Run();
 }

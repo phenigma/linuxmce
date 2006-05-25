@@ -25,10 +25,12 @@
 #include "SerializeClass/ShapesColors.h"
 #include "CallBackTypes.h"
 #include "pluto_main/Define_UI.h"
+#include "OrbiterFactory.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
 class OSDScreenHandler;
+class OrbiterRenderer;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -89,9 +91,30 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	*/
 	class Orbiter : public Orbiter_Command,  public OrbiterData
 	{
+		friend class OrbiterFactory; //only the factory can create an orbiter	
+
+	private:
+
+		OrbiterRenderer *m_pOrbiterRenderer;
+		static Orbiter *m_pInstance;
+
+		/**
+		* @brief constructor, assignes values to member data
+		*/
+		Orbiter(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
+			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
+			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
 
 	public:
 		
+		static Orbiter *CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
+			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
+			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
+		static void DestroyInstance();
+		static Orbiter *GetInstance();
+
+		OrbiterRenderer *Renderer() { return m_pOrbiterRenderer; }
+
 		void DumpScreenHistory(); // temporary function
 
 		//<-dceag-decl-e->
@@ -129,11 +152,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 	public:
 
-		/**
-		* @brief constructor, assignes values to member data
-		*/
-		Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
-			bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex = NULL );
 		/**
 		* @brief destructor
 		*/
@@ -1912,8 +1930,6 @@ light, climate, media, security, telecom */
 
 	//<-dceag-end-b->
 }
-
-extern Orbiter *g_pOrbiter;
 
 #endif
 //<-dceag-end-e->

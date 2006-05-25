@@ -1,77 +1,76 @@
 
 #include "OrbiterRenderer.h"
-#include "Orbiter.h"
 #include "Simulator.h"
 #include "ScreenHistory.h"
 #include "ScreenHandler.h"
 #include "MouseBehavior.h"
+
+#include "OrbiterRendererFactory.h"
 
 using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 
-
-OrbiterRenderer *g_pRenderer = NULL;
-
 void OrbiterRenderer::RenderScreen( bool bRenderGraphicsOnly )
 {
-	if( g_pOrbiter->m_bQuit )
+	if( Orbiter::GetInstance()->m_bQuit )
 		return;
-	if( !g_pOrbiter->m_pScreenHistory_Current || !g_pOrbiter->m_pScreenHistory_Current->GetObj() )
+
+	if( !Orbiter::GetInstance()->m_pScreenHistory_Current || !Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj() )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", g_pOrbiter->m_pScreenHistory_Current );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", Orbiter::GetInstance()->m_pScreenHistory_Current );
 		return;
 	}
 
 	if( !bRenderGraphicsOnly )
 	{
-		CallBackData *pCallBackData = g_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
+		CallBackData *pCallBackData = Orbiter::GetInstance()->m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
 		if(pCallBackData)
 		{
 			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = g_pOrbiter->m_pScreenHistory_Current->PK_Screen();
-			pRenderScreenCallBackData->m_pObj = g_pOrbiter->m_pScreenHistory_Current->GetObj();
+			pRenderScreenCallBackData->m_nPK_Screen = Orbiter::GetInstance()->m_pScreenHistory_Current->PK_Screen();
+			pRenderScreenCallBackData->m_pObj = Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj();
 		}
 
-		g_pOrbiter->ExecuteScreenHandlerCallback(cbOnRenderScreen);
+		Orbiter::GetInstance()->ExecuteScreenHandlerCallback(cbOnRenderScreen);
 	}
 
 #ifndef WINCE
-	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
+	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
 
 #if ( defined( PROFILING ) )
 	clock_t clkStart = clock();
 #endif
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );
+	PLUTO_SAFETY_LOCK( cm, Orbiter::GetInstance()->m_ScreenMutex );
 
-	if (g_pOrbiter->m_pBackgroundImage)
+	if (Orbiter::GetInstance()->m_pBackgroundImage)
 	{
-		RenderGraphic(g_pOrbiter->m_pBackgroundImage, PlutoRectangle(0, 0, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight), false);
+		RenderGraphic(Orbiter::GetInstance()->m_pBackgroundImage, PlutoRectangle(0, 0, Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight), false);
 	}
 
-	if ( g_pOrbiter->m_pScreenHistory_Current  )
+	if ( Orbiter::GetInstance()->m_pScreenHistory_Current  )
 	{
-		g_pOrbiter->m_pScreenHistory_Current->GetObj()->RenderObject( g_pOrbiter->m_pScreenHistory_Current->GetObj());
+		Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->RenderObject( Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj());
 	}
 
-	for(list<class PlutoPopup*>::iterator it=g_pOrbiter->m_listPopups.begin();it!=g_pOrbiter->m_listPopups.end();++it)
-		g_pOrbiter->RenderPopup(*it, (*it)->m_Position);
+	for(list<class PlutoPopup*>::iterator it=Orbiter::GetInstance()->m_listPopups.begin();it!=Orbiter::GetInstance()->m_listPopups.end();++it)
+		Orbiter::GetInstance()->RenderPopup(*it, (*it)->m_Position);
 
-	if( g_pOrbiter->m_pScreenHistory_Current  )
+	if( Orbiter::GetInstance()->m_pScreenHistory_Current  )
 	{
-		for(list<class PlutoPopup*>::iterator it=g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
-			g_pOrbiter->RenderPopup(*it, (*it)->m_Position);
+		for(list<class PlutoPopup*>::iterator it=Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
+			Orbiter::GetInstance()->RenderPopup(*it, (*it)->m_Position);
 	}
 
 	cm.Release(  );
 #if ( defined( PROFILING ) )
 	clock_t clkFinished = clock();
-	if(  g_pOrbiter->m_pScreenHistory_Current   )
+	if(  Orbiter::GetInstance()->m_pScreenHistory_Current   )
 	{
 		g_pPlutoLogger->Write( LV_CONTROLLER, "Render screen: %s took %d ms",
-			g_pOrbiter->m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), clkFinished-clkStart );
+			Orbiter::GetInstance()->m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), clkFinished-clkStart );
 	}
 #endif
 
@@ -79,14 +78,14 @@ void OrbiterRenderer::RenderScreen( bool bRenderGraphicsOnly )
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
+	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
 }
 
 
 /*virtual*/ void OrbiterRenderer::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-	if(sbNoSelection != g_pOrbiter->m_nSelectionBehaviour)
+	if(sbNoSelection != Orbiter::GetInstance()->m_nSelectionBehaviour)
 		for(int i = 0; i < 4; i++)
 			HollowRectangle(
 				point.X + pObj->m_rBackgroundPosition.X + i, point.Y + pObj->m_rBackgroundPosition.Y + i,
@@ -97,71 +96,71 @@ void OrbiterRenderer::RenderScreen( bool bRenderGraphicsOnly )
 
 /*virtual*/ void OrbiterRenderer::DoHighlightObject()
 {
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-	if(sbNoSelection == g_pOrbiter->m_nSelectionBehaviour || !g_pOrbiter->m_pObj_Highlighted->m_bOnScreen )
+	PLUTO_SAFETY_LOCK( cm, Orbiter::GetInstance()->m_ScreenMutex );  // Protect the highlighed object
+	if(sbNoSelection == Orbiter::GetInstance()->m_nSelectionBehaviour || !Orbiter::GetInstance()->m_pObj_Highlighted->m_bOnScreen )
 		return;
 	UnHighlightObject();
 
-	if( !g_pOrbiter->m_pObj_Highlighted )
+	if( !Orbiter::GetInstance()->m_pObj_Highlighted )
 		return;
 
-	g_pOrbiter->ExecuteCommandsInList( &g_pOrbiter->m_pObj_Highlighted->m_Action_HighlightList, g_pOrbiter->m_pObj_Highlighted, smHighlight, 0, 0 );
+	Orbiter::GetInstance()->ExecuteCommandsInList( &Orbiter::GetInstance()->m_pObj_Highlighted->m_Action_HighlightList, Orbiter::GetInstance()->m_pObj_Highlighted, smHighlight, 0, 0 );
 
-	if( g_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-		g_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted,g_pOrbiter->m_rectLastHighlight);
+	if( Orbiter::GetInstance()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		Orbiter::GetInstance()->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) Orbiter::GetInstance()->m_pObj_Highlighted,Orbiter::GetInstance()->m_rectLastHighlight);
 	else
-		g_pOrbiter->m_rectLastHighlight = g_pOrbiter->m_pObj_Highlighted->GetHighlightRegion();
+		Orbiter::GetInstance()->m_rectLastHighlight = Orbiter::GetInstance()->m_pObj_Highlighted->GetHighlightRegion();
 
-	g_pOrbiter->m_rectLastHighlight.X += g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X;
-	g_pOrbiter->m_rectLastHighlight.Y += g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y;
+	Orbiter::GetInstance()->m_rectLastHighlight.X += Orbiter::GetInstance()->m_pObj_Highlighted->m_pPopupPoint.X;
+	Orbiter::GetInstance()->m_rectLastHighlight.Y += Orbiter::GetInstance()->m_pObj_Highlighted->m_pPopupPoint.Y;
 
-	g_pOrbiter->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
-	g_pOrbiter->m_rectLastHighlight.Height++;
+	Orbiter::GetInstance()->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
+	Orbiter::GetInstance()->m_rectLastHighlight.Height++;
 
-	g_pOrbiter->m_pGraphicBeforeHighlight = GetBackground(g_pOrbiter->m_rectLastHighlight);
+	Orbiter::GetInstance()->m_pGraphicBeforeHighlight = GetBackground(Orbiter::GetInstance()->m_rectLastHighlight);
 
-	PlutoGraphic *pPlutoGraphic = g_pOrbiter->m_pGraphicBeforeHighlight->GetHighlightedVersion();
+	PlutoGraphic *pPlutoGraphic = Orbiter::GetInstance()->m_pGraphicBeforeHighlight->GetHighlightedVersion();
 	if(pPlutoGraphic)
 	{
-		RenderGraphic(pPlutoGraphic, g_pOrbiter->m_rectLastHighlight);
+		RenderGraphic(pPlutoGraphic, Orbiter::GetInstance()->m_rectLastHighlight);
 		delete pPlutoGraphic;
 		pPlutoGraphic = NULL;
 	}
 
 	for(int i = 0; i < 4; i++)
         HollowRectangle(
-			g_pOrbiter->m_rectLastHighlight.X + i, g_pOrbiter->m_rectLastHighlight.Y + i,
-			g_pOrbiter->m_rectLastHighlight.Width - 2 * i - 2, g_pOrbiter->m_rectLastHighlight.Height - 2 * i - 2,
+			Orbiter::GetInstance()->m_rectLastHighlight.X + i, Orbiter::GetInstance()->m_rectLastHighlight.Y + i,
+			Orbiter::GetInstance()->m_rectLastHighlight.Width - 2 * i - 2, Orbiter::GetInstance()->m_rectLastHighlight.Height - 2 * i - 2,
 			i < 2 ? PlutoColor::Red() : PlutoColor::White()
 		);
 
-	UpdateRect(g_pOrbiter->m_rectLastHighlight);
+	UpdateRect(Orbiter::GetInstance()->m_rectLastHighlight);
 }
 
 /*virtual*/ void OrbiterRenderer::UnHighlightObject( bool bDeleteOnly )
 {
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
+	PLUTO_SAFETY_LOCK( cm, Orbiter::GetInstance()->m_ScreenMutex );  // Protect the highlighed object
 
-	if( !g_pOrbiter->m_pGraphicBeforeHighlight )
+	if( !Orbiter::GetInstance()->m_pGraphicBeforeHighlight )
 		return;
 
-	if( !bDeleteOnly && g_pOrbiter->m_pObj_Highlighted)
+	if( !bDeleteOnly && Orbiter::GetInstance()->m_pObj_Highlighted)
 	{
-		g_pRenderer->RenderGraphic(g_pOrbiter->m_pGraphicBeforeHighlight, g_pOrbiter->m_rectLastHighlight);
-		UpdateRect(g_pOrbiter->m_rectLastHighlight);
+		RenderGraphic(Orbiter::GetInstance()->m_pGraphicBeforeHighlight, Orbiter::GetInstance()->m_rectLastHighlight);
+		UpdateRect(Orbiter::GetInstance()->m_rectLastHighlight);
 	}
 
-	delete g_pOrbiter->m_pGraphicBeforeHighlight;
-	g_pOrbiter->m_pGraphicBeforeHighlight=NULL;
+	delete Orbiter::GetInstance()->m_pGraphicBeforeHighlight;
+	Orbiter::GetInstance()->m_pGraphicBeforeHighlight=NULL;
 }
 
 int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"HandleNotOKStatus %s",sStatus.c_str());
 	if( sStatus=="R" || sStatus=="r" )
-		return MonitorRegen(g_pOrbiter->m_dwPK_Device);
+		return MonitorRegen(Orbiter::GetInstance()->m_dwPK_Device);
 
-	if( sStatus=="N" || ((sStatus=="D" || sStatus=="U") && !g_pOrbiter->m_dwPK_Device) )
+	if( sStatus=="N" || ((sStatus=="D" || sStatus=="U") && !Orbiter::GetInstance()->m_dwPK_Device) )
 	{
 		map<int,string> mapPrompts;
 		enum PromptsResp {prYes, prNo};
@@ -171,11 +170,11 @@ int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iR
 		if( iResponse==prYes )
 		{
 			string sResponse;
-			Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sHostName);
+			Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sHostName);
 			event_Impl.m_pClientSocket->SendString( "RELOAD" );
 			if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
 			{
-				g_pOrbiter->CannotReloadRouter();
+				Orbiter::GetInstance()->CannotReloadRouter();
 				g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 			}
 			Sleep(10000);
@@ -183,7 +182,7 @@ int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iR
 		}
 		else
 		{
-			g_pOrbiter->OnQuit();
+			Orbiter::GetInstance()->OnQuit();
 			exit(0);
 		}
 
@@ -191,8 +190,8 @@ int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iR
 	}
 	else if( sStatus=="n" )
 	{
-		PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(g_pOrbiter->m_dwPK_Device) + " and try later");
-		g_pOrbiter->OnQuit();
+		PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(Orbiter::GetInstance()->m_dwPK_Device) + " and try later");
+		Orbiter::GetInstance()->OnQuit();
 		exit(0);
 		return 0;
 	}
@@ -205,17 +204,17 @@ int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iR
 
 		int iResponse = prNo;
 		if( sStatus=="D" )
-			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(g_pOrbiter->m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
+			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(Orbiter::GetInstance()->m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 		else
-			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(g_pOrbiter->m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
+			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(Orbiter::GetInstance()->m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 
 		if( iResponse==prYes )
 		{
-			g_pOrbiter->m_dwPK_Device = 0;
+			Orbiter::GetInstance()->m_dwPK_Device = 0;
 			Simulator::GetInstance()->m_sDeviceID = "";
 			Simulator::GetInstance()->SaveConfigurationFile();
 		}
-		g_pOrbiter->OnQuit();
+		Orbiter::GetInstance()->OnQuit();
 		exit(0);
 		return 0;
 	}
@@ -226,11 +225,11 @@ int OrbiterRenderer::HandleNotOKStatus(string sStatus,string sRegenStatus,int iR
 bool OrbiterRenderer::RouterNeedsReload()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer::RouterNeedsReload");
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sIPAddress);
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sIPAddress);
 	string sStatus,sRegenStatus;
 	int iRegenPercent;
-	DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( g_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
-		g_pOrbiter->m_dwPK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
+	DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( Orbiter::GetInstance()->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
+		Orbiter::GetInstance()->m_dwPK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
 	CMD_Get_Orbiter_Status_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_Get_Orbiter_Status_DT.m_pMessage );
 	if( !pResponse || pResponse->m_dwID != 0 )
@@ -251,16 +250,16 @@ bool OrbiterRenderer::RouterNeedsReload()
 int OrbiterRenderer::DeviceIdInvalid()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer::DeviceIdInvalid");
-	if( g_pOrbiter->m_dwPK_Device )
+	if( Orbiter::GetInstance()->m_dwPK_Device )
 	{
-		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(g_pOrbiter->m_dwPK_Device) + ", is reported as invalid.");
-		g_pOrbiter->OnQuit();
+		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(Orbiter::GetInstance()->m_dwPK_Device) + ", is reported as invalid.");
+		Orbiter::GetInstance()->OnQuit();
 		exit(0);
 		return 0;
 	}
 
 	int PK_Device = 0;
-	if(g_pOrbiter->IsSelfInstallable())
+	if(Orbiter::GetInstance()->IsSelfInstallable())
 	{
 		//Skip prompt dialogs. Create the orbiter automatically, using preseeded install values
 		PK_Device = SetupNewOrbiter();
@@ -275,7 +274,7 @@ int OrbiterRenderer::DeviceIdInvalid()
 		int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
 		if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
 		{
-			g_pOrbiter->OnQuit();
+			Orbiter::GetInstance()->OnQuit();
 			exit(0);
 			return 0;
 		}
@@ -286,7 +285,7 @@ int OrbiterRenderer::DeviceIdInvalid()
 			PK_Device=PickOrbiterDeviceID();
 			if(PROMPT_CANCEL == PK_Device)
 			{
-				g_pOrbiter->OnQuit();
+				Orbiter::GetInstance()->OnQuit();
 				exit(0);
 				return 0;
 			}
@@ -295,7 +294,7 @@ int OrbiterRenderer::DeviceIdInvalid()
 
 	if( !PK_Device )
 	{
-		g_pOrbiter->OnQuit();
+		Orbiter::GetInstance()->OnQuit();
 		exit(0);
 	}
 
@@ -305,14 +304,14 @@ int OrbiterRenderer::DeviceIdInvalid()
 int OrbiterRenderer::PickOrbiterDeviceID()
 {
 	map<int,string> mapDevices;
-	g_pOrbiter->GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
+	Orbiter::GetInstance()->GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
 	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",0, &mapDevices);
 }
 //-----------------------------------------------------------------------------------------------------
 int OrbiterRenderer::SetupNewOrbiter()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"start SetupNewOrbiter");
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sIPAddress);
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sIPAddress);
 	while(true)
 	{
 		string sResponse;
@@ -373,8 +372,8 @@ int OrbiterRenderer::SetupNewOrbiter()
 		return 0;
 
 	int PK_Device=0;
-	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(g_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType,
-		PK_Users,g_pOrbiter->m_dwPK_DeviceTemplate,g_pOrbiter->m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
+	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(Orbiter::GetInstance()->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType,
+		PK_Users,Orbiter::GetInstance()->m_dwPK_DeviceTemplate,Orbiter::GetInstance()->m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
 
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );
@@ -397,7 +396,7 @@ int OrbiterRenderer::SetupNewOrbiter()
 		return 0;
 	}
 
-	Simulator::GetInstance()->m_sRouterIP = g_pOrbiter->m_sIPAddress;
+	Simulator::GetInstance()->m_sRouterIP = Orbiter::GetInstance()->m_sIPAddress;
 	Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(PK_Device);
 	Simulator::GetInstance()->SaveConfigurationFile();
 
@@ -405,7 +404,7 @@ int OrbiterRenderer::SetupNewOrbiter()
 
 	if( MonitorRegen(PK_Device)==0 )  // User hit cancel
 	{
-		g_pOrbiter->OnQuit();
+		Orbiter::GetInstance()->OnQuit();
 		exit(1);
 		return 0; // Don't retry to load now
 	}
@@ -417,12 +416,12 @@ int OrbiterRenderer::SetupNewOrbiter()
 int OrbiterRenderer::MonitorRegen(int PK_Device)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - starting");
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sIPAddress);
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sIPAddress);
 	while(true)
 	{
 		string sStatus,sRegenStatus;
 		int iRegenPercent;
-		DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( g_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
+		DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( Orbiter::GetInstance()->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
 			PK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
 
 		CMD_Get_Orbiter_Status_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
@@ -461,10 +460,10 @@ int OrbiterRenderer::MonitorRegen(int PK_Device)
 //-----------------------------------------------------------------------------------------------------
 int OrbiterRenderer::PromptFor(string sToken)
 {
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sIPAddress);
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sIPAddress);
 
 	string sResults;
-	DCE::CMD_Get_Orbiter_Options_DT CMD_Get_Orbiter_Options_DT(g_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
+	DCE::CMD_Get_Orbiter_Options_DT CMD_Get_Orbiter_Options_DT(Orbiter::GetInstance()->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
 		sToken,&sResults);
 
 	CMD_Get_Orbiter_Options_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
@@ -512,10 +511,10 @@ int OrbiterRenderer::PromptFor(string sToken)
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterRenderer::RegenOrbiter()
 {
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, g_pOrbiter->m_sIPAddress);
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, Orbiter::GetInstance()->m_sIPAddress);
 	string sResponse;
-	DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( g_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
-		g_pOrbiter->m_dwPK_Device,"","");
+	DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( Orbiter::GetInstance()->m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
+		Orbiter::GetInstance()->m_dwPK_Device,"","");
 	CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
 	if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
 	{

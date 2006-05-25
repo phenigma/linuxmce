@@ -34,6 +34,7 @@
 #include "SDLGraphic.h"
 #include "Splitter/TextWrapper.h"
 #include "Orbiter/ScreenHistory.h"
+#include "Orbiter.h"
 
 #include "SDL_rotozoom.h"
 #include <SDL_ttf.h>
@@ -71,6 +72,9 @@
 #include "../../pluto_main/Define_Effect.h"
 #endif
 
+using namespace DCE;
+
+
 bool g_bResettingVideoMode;
 void *HackThread2(void *p)
 {
@@ -100,31 +104,33 @@ void *HackThread2(void *p)
 
 void *Orbiter_OpenGLThread(void *p)
 {
-	OrbiterSDL * pRenderer = (OrbiterSDL*) g_pRenderer;
+	OrbiterSDL* pRenderer = (OrbiterSDL*)p;
 	// Create the OpenGL window and classes asociated with it
 	// OpenGL drawing operations, locked in the mutex
 	PLUTO_SAFETY_LOCK(cm, *(pRenderer->m_GLThreadMutex));
 
 	pRenderer->m_Desktop = OrbiterGL3D::GetInstance();
-	pRenderer->m_Desktop->BuildOrbiterGL();
+	pRenderer->m_Desktop->BuildOrbiterGL(pRenderer);
 	
+	/*
 	size_t iSize;
 	SDLGraphic *pCursorGraphic = NULL;
 	char * pData = FileUtils::ReadFileIntoBuffer("/home/pluto_cursor.png", iSize);
 	if (pData)
 	{
-		pCursorGraphic = (SDLGraphic*)g_pRenderer->CreateGraphic();
+		pCursorGraphic = pRenderer->CreateGraphic();
 		pCursorGraphic->LoadGraphic(pData, iSize);
 		delete [] pData;
 	}
 
 	Commons3D::Instance().SetMouseCursor(pCursorGraphic);
+	*/
 
 	cm.CondWait(); // This will unlock the mutex and lock it on awakening
 	
 	pRenderer->PaintDesktopGL = false;
 
-	while(!g_pOrbiter->m_bQuit)
+	while(!Orbiter::GetInstance()->m_bQuit)
 	{
 		//nothing to process. let's sleep...
 		cm.CondWait(); // This will unlock the mutex and lock it on awakening
@@ -132,7 +138,7 @@ void *Orbiter_OpenGLThread(void *p)
 		/// Thread is waken up, for more reasons as Quit event or there is one effect pending or 
 		/// is idle event
 		// Orbiter is in Quit state, end the thread
-		if(g_pOrbiter->m_bQuit)
+		if(Orbiter::GetInstance()->m_bQuit)
 			return NULL;
 
 		if (!pRenderer->m_Desktop->EffectBuilder->HasEffects()) {
@@ -160,15 +166,11 @@ void *Orbiter_OpenGLThread(void *p)
 }	
 #endif
 
-using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
-    pluto_pthread_mutex_t *pExternalScreenMutex/*=NULL*/, 
-	bool UseOpenGL /*=false*/)
- 
+OrbiterSDL::OrbiterSDL() : OrbiterRenderer()
 {
 	// Use OpenGL if is requested
-	EnableOpenGL = UseOpenGL;
+	EnableOpenGL = false;
 
 #ifdef DISABLE_OPENGL
 	EnableOpenGL = false;
@@ -177,7 +179,9 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 	m_spPendingGLEffects.reset(new PendingGLEffects());
 
 	m_pScreenImage = NULL;
-	m_bFullScreen=bFullScreen;
+
+	//todo : additional params could be passed to OrbiterRenderer's c-tor
+	//m_bFullScreen = bFullScreen;
 	if(EnableOpenGL)
 	{
 #ifndef DISABLE_OPENGL
@@ -194,7 +198,6 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
-	g_pOrbiter->KillMaintThread(); 
 	// We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor
 	g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 
@@ -237,14 +240,14 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 /*virtual*/ void OrbiterSDL::RenderScreen( bool bRenderGraphicsOnly )
 {
 	#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(g_pOrbiter->m_pScreenHistory_Current ? g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
+		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(Orbiter::GetInstance()->m_pScreenHistory_Current ? Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 	#endif
 	
 	if (!EnableOpenGL)
 	{
-		if (g_pOrbiter->m_pScreenHistory_Current)
+		if (Orbiter::GetInstance()->m_pScreenHistory_Current)
 		{
-			PLUTO_SAFETY_LOCK(cm, g_pOrbiter->m_ScreenMutex);
+			PLUTO_SAFETY_LOCK(cm, Orbiter::GetInstance()->m_ScreenMutex);
             X_LockDisplay();
             SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
             X_UnlockDisplay();
@@ -256,27 +259,27 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 	else //EnableOpenGL
 	{
 #ifndef DISABLE_OPENGL
-		PLUTO_SAFETY_LOCK(cm,g_pOrbiter->m_ScreenMutex);
+		PLUTO_SAFETY_LOCK(cm,Orbiter::GetInstance()->m_ScreenMutex);
 		PLUTO_SAFETY_LOCK(glm, *m_GLThreadMutex);
 		PlutoRectangle rectLastSelected(0, 0, 0, 0);
 	
 		//saving the surface before rendering the screen
         X_LockDisplay();
-        SDL_Surface *pBeforeRender = SDL_CreateRGBSurface(SDL_HWSURFACE, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight, 32,
+        SDL_Surface *pBeforeRender = SDL_CreateRGBSurface(SDL_HWSURFACE, Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight, 32,
              rmask, gmask, bmask, amask);
         X_UnlockDisplay();
 			
 		SDL_Rect ImageSize;
 		ImageSize.x = 0;
 		ImageSize.y = 0;
-		ImageSize.w = g_pOrbiter->m_iImageWidth;
-		ImageSize.h = g_pOrbiter->m_iImageHeight;
+		ImageSize.w = Orbiter::GetInstance()->m_iImageWidth;
+		ImageSize.h = Orbiter::GetInstance()->m_iImageHeight;
         X_LockDisplay();
         SDL_BlitSurface(m_pScreenImage, NULL, pBeforeRender, NULL);
         X_UnlockDisplay();
 	
 		m_spBeforeGraphic.reset(new SDLGraphic(pBeforeRender));
-		if (g_pOrbiter->m_pScreenHistory_Current)
+		if (Orbiter::GetInstance()->m_pScreenHistory_Current)
         {
             X_LockDisplay();
             SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
@@ -292,9 +295,9 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 	
 		m_spAfterGraphic.reset(new SDLGraphic(m_pScreenImage));
 		
-		if(g_pOrbiter->m_pObj_SelectedLastScreen)
+		if(Orbiter::GetInstance()->m_pObj_SelectedLastScreen)
 		{
-			rectLastSelected = PlutoRectangle(g_pOrbiter->m_pObj_SelectedLastScreen->m_rPosition);
+			rectLastSelected = PlutoRectangle(Orbiter::GetInstance()->m_pObj_SelectedLastScreen->m_rPosition);
 		}
 		else
 		{
@@ -308,8 +311,8 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 		g_pPlutoLogger->Write(LV_CRITICAL, "Last selected object rectangle : x %d, y %d, w %d, h %d",
 			rectLastSelected.X, rectLastSelected.Y, rectLastSelected.Width, rectLastSelected.Height);
 
-		if(g_pOrbiter->m_pObj_SelectedLastScreen)
-			m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = g_pOrbiter->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
+		if(Orbiter::GetInstance()->m_pObj_SelectedLastScreen)
+			m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = Orbiter::GetInstance()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
 
 
 		//TODO: Ciprian
@@ -322,7 +325,7 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 
 		//////////////////////////////////////////////////////////////////////////
 			//TODO: this is temporary
-		if(g_pOrbiter->UsesUIVersion2() && NULL != m_Desktop && NULL != m_Desktop->EffectBuilder)
+		if(Orbiter::GetInstance()->UsesUIVersion2() && NULL != m_Desktop && NULL != m_Desktop->EffectBuilder)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "ConfigureNextScreen");
 			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
@@ -344,8 +347,8 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 			}
 			else
 			{
-				int nCurrentDesignObjID = g_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-				PlutoRectangle rectStartEffect(0, 0, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight);
+				int nCurrentDesignObjID = Orbiter::GetInstance()->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+				PlutoRectangle rectStartEffect(0, 0, Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight);
 				int nPK_Effect = 0;
 				int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
 
@@ -357,13 +360,13 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 					break;
 
 				case DESIGNOBJ_mnuAmbiance_CONST:
-					rectStartEffect.Location(PlutoPoint(0, g_pOrbiter->m_iImageHeight - 40));
+					rectStartEffect.Location(PlutoPoint(0, Orbiter::GetInstance()->m_iImageHeight - 40));
 					rectStartEffect.Size(PlutoSize(100, 40));
 					nPK_Effect = EFFECT_Slide_from_left_CONST;
 					break;
 
 				case DESIGNOBJ_mnuSpeedControl_CONST:
-					rectStartEffect.Location(PlutoPoint(0, g_pOrbiter->m_iImageHeight - 40));
+					rectStartEffect.Location(PlutoPoint(0, Orbiter::GetInstance()->m_iImageHeight - 40));
 					rectStartEffect.Size(PlutoSize(100, 40));
 					nPK_Effect = EFFECT_Slide_from_top_CONST;
 					break;
@@ -416,7 +419,7 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 		//////////////////////////////////////////////////////////////////////////
 
 
-		if(g_pOrbiter->m_pObj_SelectedLastScreen)
+		if(Orbiter::GetInstance()->m_pObj_SelectedLastScreen)
 		{
 			//m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange = rand() % 9 + 1;
 
@@ -426,7 +429,7 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 				m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
 				GL2DEffect* Transit = m_Desktop->EffectBuilder->
 					CreateEffect(
-						m_Desktop->EffectBuilder->GetEffectCode(g_pOrbiter->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
+						m_Desktop->EffectBuilder->GetEffectCode(Orbiter::GetInstance()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
 						Simulator::GetInstance()->m_iMilisecondsTransition
 					);
 				if(!Transit)
@@ -458,12 +461,12 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 
 /*virtual*/ void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
 {
-	if(g_pOrbiter->m_bQuit)
+	if(Orbiter::GetInstance()->m_bQuit)
 		return;
 
 	if(!EnableOpenGL)
 	{
-		PLUTO_SAFETY_LOCK(cm,g_pOrbiter->m_ScreenMutex);
+		PLUTO_SAFETY_LOCK(cm,Orbiter::GetInstance()->m_ScreenMutex);
         X_LockDisplay();
 	
 	#ifndef USE_ONLY_SCREEN_SURFACE
@@ -484,14 +487,14 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
 {
-    PLUTO_SAFETY_LOCK(cm,g_pOrbiter->m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(cm,Orbiter::GetInstance()->m_ScreenMutex);
     OrbiterRenderer::RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
 
-    PLUTO_SAFETY_LOCK(cm,g_pOrbiter->m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(cm,Orbiter::GetInstance()->m_ScreenMutex);
 
 	SDL_Rect TextLocation;
 	TextLocation.x = point.X + Text->m_rPosition.X;
@@ -513,20 +516,20 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 #endif //win32
 
 	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,
-		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &g_pOrbiter->m_mapTextStyle);
+		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &Orbiter::GetInstance()->m_mapTextStyle);
 
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
 {
-	g_pOrbiter->ClipRectangle(X, Y, Width, Height);
+	Orbiter::GetInstance()->ClipRectangle(X, Y, Width, Height);
 	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);
 }
 
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-	g_pOrbiter->ClipRectangle(x, y, width, height);
+	Orbiter::GetInstance()->ClipRectangle(x, y, width, height);
 
 	SDL_Rect Rectangle;
 	Rectangle.x = x; Rectangle.y = y; Rectangle.w = width; Rectangle.h = height;
@@ -630,7 +633,7 @@ OrbiterSDL::OrbiterSDL(bool bFullScreen/*=false*/,
 
 PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 {
-	g_pOrbiter->ClipRectangle(rect);
+	Orbiter::GetInstance()->ClipRectangle(rect);
 
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
@@ -649,8 +652,6 @@ PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 
 void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
-    OrbiterRenderer::Initialize(Type, iPK_Room, iPK_EntertainArea);
-
 	if (!EnableOpenGL)
 	{
 		/// SDL 2D code, creates the SDL window
@@ -696,17 +697,17 @@ void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainAre
 		pthread_create(&hackthread, NULL, HackThread2, (void*)this);
 
         X_LockDisplay();
-        Screen = SDL_SetVideoMode(g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight, 0, uVideoModeFlags);
+        Screen = SDL_SetVideoMode(Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight, 0, uVideoModeFlags);
         X_UnlockDisplay();
         if (Screen == NULL)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight, SDL_GetError());
+			g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight, SDL_GetError());
 			exit(1);
 		}
 		g_bResettingVideoMode=false;
 	#endif
 	
-		g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight);
+		g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight);
 	
 	#ifdef USE_ONLY_SCREEN_SURFACE
 		m_pScreenImage = Screen;
@@ -717,7 +718,7 @@ void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainAre
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
 		}
 	#endif
-		g_pOrbiter->m_bWeCanRepeat = true;
+		Orbiter::GetInstance()->m_bWeCanRepeat = true;
 	
 		g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 	} //if (!EnableOpenGL)
@@ -728,7 +729,7 @@ void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainAre
 		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
 		/// creates 2D surface which is drawed with 2D engine the Orbiter
 		/// which lately will be used as a texture
-        m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight, 32,
+        m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight, 32,
             rmask, gmask, bmask, amask);
 		if (m_pScreenImage == NULL) {
 			g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
@@ -787,7 +788,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	if(EnableOpenGL)
 	{
 #ifndef DISABLE_OPENGL
-//		g_pOrbiter->CallMaintenanceInMiliseconds(0, (OrbiterCallBack)&OrbiterSDL::OpenGLUpdateScreen, NULL, pe_NO, true, this);
+//		Orbiter::GetInstance()->CallMaintenanceInMiliseconds(0, (OrbiterCallBack)&OrbiterSDL::OpenGLUpdateScreen, NULL, pe_NO, true, this);
 #endif
 	}
 }
@@ -795,8 +796,8 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 /*virtual*/ void OrbiterSDL::OnQuit()
 {
     g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
-    g_pOrbiter->m_bQuit = true;
-    pthread_cond_broadcast( &g_pOrbiter->m_listMessageQueueCond );
+    Orbiter::GetInstance()->m_bQuit = true;
+    pthread_cond_broadcast( &Orbiter::GetInstance()->m_listMessageQueueCond );
     SDL_Event *pEvent = new SDL_Event;
     pEvent->type = SDL_QUIT;
     SDL_PushEvent(pEvent);
@@ -815,12 +816,12 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
     localrect.X += point.X;
     localrect.Y += point.Y;
 
-	g_pOrbiter->ClipRectangle(localrect);
+	Orbiter::GetInstance()->ClipRectangle(localrect);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	if(!EnableOpenGL)
 	{
-	    PLUTO_SAFETY_LOCK(cm,g_pOrbiter->m_ScreenMutex);
+	    PLUTO_SAFETY_LOCK(cm,Orbiter::GetInstance()->m_ScreenMutex);
 
         X_LockDisplay();
         SDL_UpdateRect(Screen, localrect.Left(), localrect.Top(), localrect.Width, localrect.Height);
@@ -869,20 +870,20 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 {
 #ifndef DISABLE_OPENGL
 
-	if(sbNoSelection == g_pOrbiter->m_nSelectionBehaviour)
+	if(sbNoSelection == Orbiter::GetInstance()->m_nSelectionBehaviour)
 		return;
 
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-	if( g_pOrbiter->m_pGraphicBeforeHighlight )
+	PLUTO_SAFETY_LOCK( cm, Orbiter::GetInstance()->m_ScreenMutex );  // Protect the highlighed object
+	if( Orbiter::GetInstance()->m_pGraphicBeforeHighlight )
 		UnHighlightObject();
 
-	if( !g_pOrbiter->m_pObj_Highlighted )
+	if( !Orbiter::GetInstance()->m_pObj_Highlighted )
 		return;
 
-	if( g_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( Orbiter::GetInstance()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
-		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted;
-		PLUTO_SAFETY_LOCK( dg, g_pOrbiter->m_DatagridMutex );
+		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) Orbiter::GetInstance()->m_pObj_Highlighted;
+		PLUTO_SAFETY_LOCK( dg, Orbiter::GetInstance()->m_DatagridMutex );
 
 		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
 		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
@@ -903,7 +904,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 		if( !pCell )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
-				g_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
+				Orbiter::GetInstance()->m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
 			return;
 
 		}
@@ -913,32 +914,32 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 			pGrid->m_iHighlightedRow = 0;
 
 		PlutoRectangle r;
-		g_pOrbiter->GetGridCellDimensions( pGrid,  
+		Orbiter::GetInstance()->GetGridCellDimensions( pGrid,  
 			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
 			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
 			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
 			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
 			r.X,  r.Y,  r.Width,  r.Height );
 
-		g_pOrbiter->m_rectLastHighlight.X = max(0,r.X);
-		g_pOrbiter->m_rectLastHighlight.Y = max(0,r.Y);
-		g_pOrbiter->m_rectLastHighlight.Right( min(r.Right(),g_pOrbiter->m_Width-1) );
-		g_pOrbiter->m_rectLastHighlight.Bottom( min(r.Bottom(),g_pOrbiter->m_Height-1) );
+		Orbiter::GetInstance()->m_rectLastHighlight.X = max(0,r.X);
+		Orbiter::GetInstance()->m_rectLastHighlight.Y = max(0,r.Y);
+		Orbiter::GetInstance()->m_rectLastHighlight.Right( min(r.Right(),Orbiter::GetInstance()->m_Width-1) );
+		Orbiter::GetInstance()->m_rectLastHighlight.Bottom( min(r.Bottom(),Orbiter::GetInstance()->m_Height-1) );
 	}
 	else
-		g_pOrbiter->m_rectLastHighlight = g_pOrbiter->m_pObj_Highlighted->GetHighlightRegion();
+		Orbiter::GetInstance()->m_rectLastHighlight = Orbiter::GetInstance()->m_pObj_Highlighted->GetHighlightRegion();
 
-	g_pOrbiter->m_rectLastHighlight.X += g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X;
-	g_pOrbiter->m_rectLastHighlight.Y += g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y;
+	Orbiter::GetInstance()->m_rectLastHighlight.X += Orbiter::GetInstance()->m_pObj_Highlighted->m_pPopupPoint.X;
+	Orbiter::GetInstance()->m_rectLastHighlight.Y += Orbiter::GetInstance()->m_pObj_Highlighted->m_pPopupPoint.Y;
 
-	g_pOrbiter->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
-	g_pOrbiter->m_rectLastHighlight.Height++;
+	Orbiter::GetInstance()->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
+	Orbiter::GetInstance()->m_rectLastHighlight.Height++;
 
 	FloatRect HighLightArea;
-	HighLightArea.Left = (float)g_pOrbiter->m_rectLastHighlight.Left();
-	HighLightArea.Top = (float)g_pOrbiter->m_rectLastHighlight.Top();
-	HighLightArea.Width =  (float)g_pOrbiter->m_rectLastHighlight.Width;
-	HighLightArea.Height = (float)g_pOrbiter->m_rectLastHighlight.Height;
+	HighLightArea.Left = (float)Orbiter::GetInstance()->m_rectLastHighlight.Left();
+	HighLightArea.Top = (float)Orbiter::GetInstance()->m_rectLastHighlight.Top();
+	HighLightArea.Width =  (float)Orbiter::GetInstance()->m_rectLastHighlight.Width;
+	HighLightArea.Height = (float)Orbiter::GetInstance()->m_rectLastHighlight.Height;
 
 	Commons3D::Instance().SetHighLightArea(&HighLightArea);
 
@@ -948,7 +949,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 		Simulator::GetInstance()->m_iMilisecondsHighLight);
 
 	if(Effect)
-		Effect->Configure(&g_pOrbiter->m_rectLastHighlight);
+		Effect->Configure(&Orbiter::GetInstance()->m_rectLastHighlight);
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, ">> OrbiterSDL::DoHighlightObjectOpenGL : no effect???!");
 
@@ -1012,7 +1013,7 @@ void OrbiterSDL::RunEventLoop()
     // temporary hack --
     // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
     // For now I'll assume that shift + arrows scrolls a grid
-    while (!g_pOrbiter->m_bQuit && !g_pOrbiter->m_bReload)
+    while (!Orbiter::GetInstance()->m_bQuit && !Orbiter::GetInstance()->m_bReload)
     {
 		try
 		{
@@ -1040,7 +1041,7 @@ void OrbiterSDL::RunEventLoop()
 				orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
 				orbiterEvent.data.region.m_iX = Event.button.x;
 				orbiterEvent.data.region.m_iY = Event.button.y;
-				g_pOrbiter->ProcessEvent(orbiterEvent);
+				Orbiter::GetInstance()->ProcessEvent(orbiterEvent);
 			}
 
 #ifdef AUDIDEMO
@@ -1064,7 +1065,7 @@ void OrbiterSDL::RunEventLoop()
 						orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 						break;
 				}
-				g_pOrbiter->ProcessEvent(orbiterEvent);
+				Orbiter::GetInstance()->ProcessEvent(orbiterEvent);
 			}
 	#else
 			if (Event.type == SDL_MOUSEBUTTONDOWN)
@@ -1072,15 +1073,15 @@ void OrbiterSDL::RunEventLoop()
 				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
 				orbiterEvent.data.region.m_iX = Event.button.x;
 				orbiterEvent.data.region.m_iY = Event.button.y;
-				g_pOrbiter->ProcessEvent(orbiterEvent);
-//				g_pOrbiter->RecordMouseAction(Event.button.x, Event.button.y);
+				Orbiter::GetInstance()->ProcessEvent(orbiterEvent);
+//				Orbiter::GetInstance()->RecordMouseAction(Event.button.x, Event.button.y);
 			}
 			else if (Event.type == SDL_MOUSEBUTTONUP)
 			{
 				orbiterEvent.type = Orbiter::Event::REGION_UP;
 				orbiterEvent.data.region.m_iX = Event.button.x;
 				orbiterEvent.data.region.m_iY = Event.button.y;
-				g_pOrbiter->ProcessEvent(orbiterEvent);
+				Orbiter::GetInstance()->ProcessEvent(orbiterEvent);
 			}
 	#endif
 	} //if (SDL_Event_Pending)

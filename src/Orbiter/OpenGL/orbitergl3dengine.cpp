@@ -93,7 +93,7 @@ void OrbiterGL3D::EndAnimation()
 {
 #ifdef POCKETFROG
 	/*
-	OrbiterRenderer_PocketFrog *pOrbiterRenderer_PocketFrog = dynamic_cast<OrbiterRenderer_PocketFrog *>(g_pOrbiter);
+	OrbiterRenderer_PocketFrog *pOrbiterRenderer_PocketFrog = dynamic_cast<OrbiterRenderer_PocketFrog *>(Orbiter::GetInstance());
 	ReleaseDC(pOrbiterRenderer_PocketFrog->m_hWnd, hdc);
 	OpenGLProxy::GetInstance()->Detach();
 	*/
@@ -104,11 +104,11 @@ void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
 
-    if (g_pRenderer)
-        g_pRenderer->X_LockDisplay();
+    if (Renderer)
+        Renderer->X_LockDisplay();
     SDL_GL_SwapBuffers();
-    if (g_pRenderer)
-        g_pRenderer->X_UnlockDisplay();
+    if (Renderer)
+        Renderer->X_UnlockDisplay();
 
 #else // ndef POCKETFROG
 	SwapBuffers(hdc);
@@ -149,29 +149,28 @@ int OrbiterGL3D::InitOpenGL()
 
 	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
 
-	OrbiterSDL * pRenderer = (OrbiterSDL *)g_pRenderer;
+	OrbiterSDL * pRenderer = (OrbiterSDL *)Renderer;
 #if !defined(WIN32) || defined(WINCE)
-	if(g_pRenderer->m_bFullScreen)
+	if(Renderer->m_bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 	
-	if ((pRenderer->Screen = SDL_SetVideoMode(g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight, 
+	if ((pRenderer->Screen = SDL_SetVideoMode(Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight, 
 		0, uVideoModeFlags)) == NULL)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, 
 			"Failed to set video mode (%d x %d): %s", 
-			g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight,
+			Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight,
 			SDL_GetError());
 		exit(1);
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", 
-		g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight);
+		Orbiter::GetInstance()->m_iImageWidth, Orbiter::GetInstance()->m_iImageHeight);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 
 #else //#ifdef POCKETFROG
-	
-		OrbiterRenderer_PocketFrog *pRenderer = dynamic_cast<OrbiterRenderer_PocketFrog *>(g_pRenderer); 
+		OrbiterRenderer_PocketFrog *pRenderer = dynamic_cast<OrbiterRenderer_PocketFrog *>(Renderer); 
 		// remember the window handle (HWND)
 		HWND mhWnd = pRenderer->m_hWnd;
 
@@ -197,7 +196,7 @@ int OrbiterGL3D::InitOpenGL()
 
 		// make it the current render context
 		wglMakeCurrent( hdc, mhRC );
-		
+
 #endif //#ifndef POCKETFROG
 
 	/**
@@ -206,8 +205,8 @@ int OrbiterGL3D::InitOpenGL()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);  // Change Matrix Mode to Projection
 	glLoadIdentity();             // Reset View
-	glOrtho(0, g_pOrbiter->m_iImageWidth, 0, 
-		g_pOrbiter->m_iImageHeight, 0, g_pOrbiter->m_iImageWidth);
+	glOrtho(0, Orbiter::GetInstance()->m_iImageWidth, 0, 
+		Orbiter::GetInstance()->m_iImageHeight, 0, Orbiter::GetInstance()->m_iImageWidth);
 	glMatrixMode(GL_MODELVIEW);   // Change Projection to Matrix Mode
 	glLoadIdentity();
 
@@ -222,7 +221,7 @@ int OrbiterGL3D::InitOpenGL()
 	glEnable(GL_BLEND);
 
 	glScalef(1, -1.0f, 1);
-	glTranslatef(0, -(GLfloat)g_pOrbiter->m_iImageHeight, 0);
+	glTranslatef(0, -(GLfloat)Orbiter::GetInstance()->m_iImageHeight, 0);
 
 
     return 1;
@@ -242,9 +241,10 @@ OrbiterGL3D* OrbiterGL3D::GetInstance()
 	return new OrbiterGL3D();
 }
 
-int OrbiterGL3D::BuildOrbiterGL()
+int OrbiterGL3D::BuildOrbiterGL(OrbiterRenderer *pRenderer)
 {
-	FloatRect FullScreenSize(0.0f, 0.0f, float(g_pOrbiter->m_iImageWidth), float(g_pOrbiter->m_iImageHeight));
+	Renderer = pRenderer;
+	FloatRect FullScreenSize(0.0f, 0.0f, float(Orbiter::GetInstance()->m_iImageWidth), float(Orbiter::GetInstance()->m_iImageHeight));
 
 	if (!InitOpenGL())
 	{
@@ -255,8 +255,8 @@ int OrbiterGL3D::BuildOrbiterGL()
 	}
 
 	Widgets = new DrawingWidgetsEngine(
-		g_pOrbiter->m_iImageWidth, 
-		g_pOrbiter->m_iImageHeight
+		Orbiter::GetInstance()->m_iImageWidth, 
+		Orbiter::GetInstance()->m_iImageHeight
 		);
 
 	if(!Widgets)
