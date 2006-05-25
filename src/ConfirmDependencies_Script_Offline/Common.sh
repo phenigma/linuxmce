@@ -86,7 +86,7 @@ MessageBox()
 {
 	whiptail --msgbox "$(CatMessages "$@")" 0 0 --fb --title Pluto 2>&1 1>/dev/tty
 }
-/
+
 QuestionBox()
 {
 	whiptail --yesno "$(CatMessages "$@")" 0 0 --fb --title Pluto 1>/dev/tty 2>/dev/null && echo "y" || echo "n"
