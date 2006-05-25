@@ -218,10 +218,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 	int Times = atoi(sTimesText.c_str());
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
-	Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
 
-<<<<<<< .mine
-=======
 	while(Times--)
 	{
 		for(int i = 0; i < Count; i++)
@@ -235,10 +232,6 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			char lpszBuffer[256];
 	#endif
 			::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
->>>>>>> .r9538
-
-<<<<<<< .mine
-=======
 	#ifdef WINCE
 			char pItemBuffer[MAX_STRING_LEN];
 			wcstombs(pItemBuffer, lpszBuffer, MAX_STRING_LEN);
@@ -247,7 +240,6 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			string sItemBuffer = lpszBuffer;
 	#endif
 
->>>>>>> .r9538
 			string::size_type CurPos = 0;
 			string sAction = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 
@@ -255,12 +247,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			{
 				string sDelay = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 				long delay = atoi(sDelay.c_str());
-
-<<<<<<< .mine
-				g_pOrbiter->SimulateKeyPress(key);
-=======
 				Simulator::SimulateActionDelay(delay);
->>>>>>> .r9538
 			}
 			else
 			{
@@ -269,7 +256,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 					string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					long key = atoi(sKey.c_str());
 
-					pOrbiter->SimulateKeyPress(key);
+					g_pOrbiter->SimulateKeyPress(key);
 				}
 				else
 				{
@@ -278,15 +265,11 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 
 					CurPos++; //skip space too
 
-<<<<<<< .mine
-				g_pOrbiter->SimulateMouseClick(x, y);
-=======
 					string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					int y = atoi(sClickY.c_str());
 
-					pOrbiter->SimulateMouseClick(x, y);
+					g_pOrbiter->SimulateMouseClick(x, y);
 				}
->>>>>>> .r9538
 			}
 		}
 	}

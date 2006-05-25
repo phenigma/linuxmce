@@ -302,7 +302,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
-<<<<<<< .mine
 		#ifdef POCKETFROG
 				OrbiterRenderer_PocketFrog::Cleanup();
 		#else
@@ -312,10 +311,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
                 OrbiterSDL_Win32::Cleanup();
             #endif
 		#endif
-=======
-		ORBITER_CLASS::Cleanup();
->>>>>>> .r9538
-
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 		::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);

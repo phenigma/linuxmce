@@ -17,20 +17,6 @@ using namespace std;
 #include "Win32/OrbiterWin32Defs.h"
 
 using namespace DCE;
-<<<<<<< .mine
-
-#ifdef WINCE
-	#ifdef WINCE_x86
-		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
-	#else
-		const string csUpdateBinaryName("UpdateBinaryCE.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
-	#endif
-#else
-		const string csUpdateBinaryName("UpdateBinary.exe");
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
-#endif
 
 #ifdef POCKETFROG
 	#include "OrbiterRenderer_PocketFrog.h"
@@ -43,8 +29,6 @@ using namespace DCE;
 #endif 
 
 
-=======
->>>>>>> .r9538
 //-----------------------------------------------------------------------------------------------------
 #include "MainDialog.h"
 extern CommandLineParams CmdLineParams;
@@ -298,11 +282,7 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-<<<<<<< .mine
 	g_pOrbiter->WriteStatusOutput("Updating orbiter...");
-=======
-	ORBITER_CLASS::GetInstance()->WriteStatusOutput("Updating orbiter...");
->>>>>>> .r9538
 
 	if(LastUpdateFailed())
 	{	
