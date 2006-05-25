@@ -24,7 +24,7 @@ Description: NVIDIA binary XFree86 4.x driver
 
 Package: nvidia-glx
 Architecture: i386 amd64
-Depends: nvidia-kernel-#KVERS#, xserver-common (>= 4.0.3), xlibmesa-glu | libglu | libglu1, ${shlibs:Depends}, nvidia-driver (=1.1-1)
+Depends: nvidia-kernel-#KVERS#, x11-common | xserver-common (>= 4.0.3), xlibmesa-glu | libglu | libglu1, ${shlibs:Depends}, nvidia-driver (=1.1-1)
 Recommends: nvidia-kernel-source (>= #VERSION#)
 Suggests: nvidia-settings
 Conflicts: nvidia-glx-src
