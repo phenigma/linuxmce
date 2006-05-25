@@ -306,9 +306,19 @@ clear
                 echo "Installing extra packages from \"Pluto Bonus CD 1\""
                 echo "... PLEASE WAIT ..."
 
-                cd /cdrom/bonuscd1
-                dpkg -i *.deb 1>/dev/null
-                cd /cdrom/bonuscd1-cache
+		for files in $(ls /cdrom/bonuscd1); do
+		pkgname=$(echo $files | awk -F '_' '{print $1}')
+		pkginstalled=$(dpkg -l $pkgname)
+		        if [[ -n "$pkginstalled" ]]; then
+		                echo "Package $files is allready installed ... skipping ..."
+		        else
+                		echo "Installing package name : $files"
+		                cd /cdrom/bonuscd1
+                		dpkg -i $files 1>/dev/null
+		        fi
+		done
+
+		cd /cdrom/bonuscd1-cache
                 cp -r *.deb /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
                 cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
                 /usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
