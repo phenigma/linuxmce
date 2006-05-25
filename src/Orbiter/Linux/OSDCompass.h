@@ -9,7 +9,7 @@ class PlutoRectangle;
 class OSDCompass
 {
 public:
-	OSDCompass(Orbiter* pOrbiter, PlutoRectangle Area);
+	OSDCompass(PlutoRectangle Area);
 	~OSDCompass(void);
 
 	void Update(int NextMouseX, int NextMouseY, unsigned long ulAbsoluteTimeInMs);

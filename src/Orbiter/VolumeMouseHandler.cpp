@@ -29,10 +29,10 @@ void VolumeMouseHandler::Start()
 	m_pMouseBehavior->ConstrainMouse(rect);
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
 
-	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
-m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
-	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
+	NeedToRender render( g_pOrbiter, "start volume" );
+	g_pOrbiter->RenderObjectAsync(m_pObj);
+g_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
+	if( g_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
 		m_pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
@@ -47,7 +47,7 @@ m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 		m_pMouseBehavior->m_pMouseGovernor->SetBuffer(250);
 		m_bTapAndRelease=false;
 		m_pObj->m_GraphicToDisplay=1;
-		m_iCancelLevel = m_iLastNotch = atoi(m_pMouseBehavior->m_pOrbiter->GetEvents()->GetDeviceDataFromDatabase(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
+		m_iCancelLevel = m_iLastNotch = atoi(g_pOrbiter->GetEvents()->GetDeviceDataFromDatabase(g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,DEVICEDATA_Volume_Level_CONST).c_str());
 		int X = m_pObj->m_rPosition.Width * m_iLastNotch / 100;
 		m_iLastGoodPosition=X;
 		m_pMouseBehavior->SetMousePosition(m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
@@ -56,9 +56,9 @@ m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 
 void VolumeMouseHandler::Stop()
 {
-NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change to discrete volume" );
-PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
-m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+NeedToRender render( g_pOrbiter, "change to discrete volume" );
+PLUTO_SAFETY_LOCK(nd,g_pOrbiter->m_NeedRedrawVarMutex);
+g_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
 g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
 }
 
@@ -75,8 +75,8 @@ bool VolumeMouseHandler::ButtonUp(int PK_Button)
 	{
 		if( !m_bTapAndRelease )
 		{
-			DCE::CMD_Set_Volume CMD_Set_Volume(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
-			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Volume.m_pMessage);
+			DCE::CMD_Set_Volume CMD_Set_Volume(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
+			g_pOrbiter->SendMessage(CMD_Set_Volume.m_pMessage);
 		}
 		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing
@@ -103,8 +103,8 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 			Notch=7;
 		if( Notch!=m_iLastNotch )
 		{
-			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+			NeedToRender render( g_pOrbiter, "start volume" );
+			g_pOrbiter->RenderObjectAsync(m_pObj);
 			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500,this);
 			m_iLastNotch = Notch;
 		}
@@ -119,9 +119,9 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 			Notch=100;
 		if( Notch!=m_iLastNotch )
 		{
-			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
-			DCE::CMD_Set_Volume CMD_Set_Volume(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
+			NeedToRender render( g_pOrbiter, "start volume" );
+			g_pOrbiter->RenderObjectAsync(m_pObj);
+			DCE::CMD_Set_Volume CMD_Set_Volume(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Volume.m_pMessage);
 			m_iLastNotch = Notch;
 		}
@@ -146,7 +146,7 @@ void VolumeMouseHandler::CustomRender()
 	CurrentLevel = m_pObj->m_rPosition.Width * CurrentLevel / 100;
 	int Y = int(m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1);
 
-    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+    g_pRenderer->SolidRectangle(
 		m_pObj->m_rPosition.X, Y,
 		CurrentLevel, int(m_pObj->m_rPosition.Height * .1),
 		PlutoColor::White().SetAlpha(128));
@@ -154,8 +154,8 @@ void VolumeMouseHandler::CustomRender()
 
 void VolumeMouseHandler::DoIteration(int Parm)
 {
-	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+	NeedToRender render( g_pOrbiter, "start volume" );
+	g_pOrbiter->RenderObjectAsync(m_pObj);
 	m_iCancelLevel += Parm;
 	if( m_iCancelLevel > 100 )
 		m_iCancelLevel=100;
@@ -163,12 +163,12 @@ void VolumeMouseHandler::DoIteration(int Parm)
 		m_iCancelLevel = 0;
 	if( Parm<0 )
 	{
-		DCE::CMD_Vol_Down CMD_Vol_Down(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm*-1);
+		DCE::CMD_Vol_Down CMD_Vol_Down(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm*-1);
 		m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Down.m_pMessage);
 	}
 	else if( Parm>0 )
 	{
-		DCE::CMD_Vol_Up CMD_Vol_Up(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm);
+		DCE::CMD_Vol_Up CMD_Vol_Up(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm);
 		m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Up.m_pMessage);
 	}
 }

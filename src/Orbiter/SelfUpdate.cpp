@@ -17,15 +17,40 @@ using namespace std;
 #include "Win32/OrbiterWin32Defs.h"
 
 using namespace DCE;
+<<<<<<< .mine
+
+#ifdef WINCE
+	#ifdef WINCE_x86
+		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
+	#else
+		const string csUpdateBinaryName("UpdateBinaryCE.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
+	#endif
+#else
+		const string csUpdateBinaryName("UpdateBinary.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
+#endif
+
+#ifdef POCKETFROG
+	#include "OrbiterRenderer_PocketFrog.h"
+#else
+	#ifdef WINCE
+		#include "OrbiterSDL_WinCE.h"
+	#else
+		#include "OrbiterSDL_Win32.h"
+	#endif
+#endif 
+
+
+=======
+>>>>>>> .r9538
 //-----------------------------------------------------------------------------------------------------
 #include "MainDialog.h"
 extern CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter)
+OrbiterSelfUpdate::OrbiterSelfUpdate()
 {
-	assert(NULL != pOrbiter);
-	m_pOrbiter = pOrbiter;
-
 	char pProcessFilePath[256];
 	GetProcessFilePath(pProcessFilePath);
 	m_sOrbiterFilePath = string(pProcessFilePath);
@@ -33,7 +58,7 @@ OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter)
 //-----------------------------------------------------------------------------------------------------
 OrbiterSelfUpdate::~OrbiterSelfUpdate()
 {
-	m_pOrbiter = NULL;
+	g_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
@@ -83,7 +108,7 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 
 	//get the checksum for the update file
 	DCE::CMD_Request_File_And_Checksum_Cat CMD_Request_File_And_Checksum_Cat(
-		m_pOrbiter->m_dwPK_Device, 
+		g_pOrbiter->m_dwPK_Device, 
 		DEVICECATEGORY_General_Info_Plugins_CONST, 
 		false,
 		BL_SameHouse,
@@ -94,7 +119,7 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 		&bChecksumOnly
 		);
 
-	m_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
+	g_pOrbiter->SendCommand(CMD_Request_File_And_Checksum_Cat);
 
 	if(sChecksum == "") 
 	{
@@ -119,12 +144,12 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 	char *pUpdateFile = NULL;
 	int iSizeUpdateFile = 0;	
 
-	//string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	//string sUpdateName = g_pOrbiter->DATA_Get_Update_Name();
 	string sUpdateName = csUpdateBinaryName;
-	string sStoragePath = m_pOrbiter->DATA_Get_Path();
+	string sStoragePath = g_pOrbiter->DATA_Get_Path();
 
 	DCE::CMD_Request_File_Cat CMD_Request_File_Cat(
-		m_pOrbiter->m_dwPK_Device, 
+		g_pOrbiter->m_dwPK_Device, 
 		DEVICECATEGORY_General_Info_Plugins_CONST, 
 		false,
 		BL_SameHouse,
@@ -132,7 +157,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		&pUpdateFile,
 		&iSizeUpdateFile
 		);
-	m_pOrbiter->SendCommand(CMD_Request_File_Cat);
+	g_pOrbiter->SendCommand(CMD_Request_File_Cat);
 
 	if ( !iSizeUpdateFile )
 	{
@@ -185,7 +210,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::CreateCommunicationFile()
 {
-	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
 
 #ifdef WINCE
 	char sTextBuffer[256];
@@ -216,11 +241,11 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	si.lpReserved = 0;
 
 	string sUpdateName = csUpdateBinaryName;
-	string sStoragePath = m_pOrbiter->DATA_Get_Path();
-	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+	string sStoragePath = g_pOrbiter->DATA_Get_Path();
+	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
 	string sCmdLine = "";
 
-	sCmdLine += "-d " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device);
+	sCmdLine += "-d " + StringUtils::ltos(g_pOrbiter->m_dwPK_Device);
 	sCmdLine += " -r " + CmdLineParams.sRouter_IP;
 
 	sCmdLine += " -l " + sUpdateName + ".log";
@@ -263,7 +288,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::LastUpdateFailed()
 {
-	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+	string sCommFile = g_pOrbiter->DATA_Get_Communication_file();
 
 	if(FileUtils::FileExists(sCommFile))
 		return true; //UpdateBinary app should delete this file if everything was ok
@@ -273,7 +298,11 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
+<<<<<<< .mine
+	g_pOrbiter->WriteStatusOutput("Updating orbiter...");
+=======
 	ORBITER_CLASS::GetInstance()->WriteStatusOutput("Updating orbiter...");
+>>>>>>> .r9538
 
 	if(LastUpdateFailed())
 	{	

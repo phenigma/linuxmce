@@ -40,13 +40,9 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 OrbiterSDL_Win32 *OrbiterSDL_Win32::m_pInstance = NULL; //the one and only
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
-								   bool bLocalMode, int nImageWidth, int nImageHeight, 
-								   bool bFullScreen, bool bUseOpenGL)
+OrbiterSDL_Win32::OrbiterSDL_Win32(bool bFullScreen, bool bUseOpenGL)
 	:
-	  OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
-				sLocalDirectory, bLocalMode, nImageWidth, 
-				nImageHeight, bFullScreen, NULL, bUseOpenGL)
+	  OrbiterSDL(bFullScreen, NULL, bUseOpenGL)
 
 {
 	hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
@@ -85,17 +81,12 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 #pragma warning(default:4244)
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_Win32::BuildOrbiter(
-	int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-	int nImageWidth, int nImageHeight, bool bFullScreen, bool bUseOpenGL)
+/*static*/ void OrbiterSDL_Win32::BuildOrbiter( bool bFullScreen, bool bUseOpenGL)
 {
 	if(NULL == m_pInstance)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
-		m_pInstance = new OrbiterSDL_Win32(DeviceID, PK_DeviceTemplate, ServerAddress, 
-				sLocalDirectory, bLocalMode, nImageWidth, 
-				nImageHeight, bFullScreen, bUseOpenGL);
-		g_pCommand_Impl = m_pInstance;  
+		m_pInstance = new OrbiterSDL_Win32(bFullScreen, bUseOpenGL);
 	}
 	else
 	{
@@ -147,7 +138,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         orbiterEvent.type = Orbiter::Event::BUTTON_UP;
 
     if(!TranslateVirtualKeys2PlutoKeys(uMsg, wParam, lParam, orbiterEvent.data.button.m_iPK_Button, 
-        m_bShiftDown, m_bAltDown, m_bControlDown, m_bCapsLock)
+        g_pOrbiter->m_bShiftDown, g_pOrbiter->m_bAltDown, g_pOrbiter->m_bControlDown, g_pOrbiter->m_bCapsLock)
     )
         return; //prevent auto-repeted
 
@@ -159,22 +150,22 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #ifdef WINCE
     else if( wParam == VK_F10) 
 #else
-    else if( wParam == VK_A && m_bControlDown)
+    else if( wParam == VK_A && g_pOrbiter->m_bControlDown)
 #endif
     {
         ShowMainDialog();
-        m_bControlDown = false;
+        g_pOrbiter->m_bControlDown = false;
     }
 
     if(wParam == VK_SHIFT)
-        m_bShiftDownOnScreenKeyboard = false;
+        g_pOrbiter->m_bShiftDownOnScreenKeyboard = false;
 
-    Orbiter::ProcessEvent(orbiterEvent);
+    g_pOrbiter->ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 {
-	RECT rect = { 0, 0, m_iImageWidth, m_iImageHeight };
+	RECT rect = { 0, 0, g_pOrbiter->m_iImageWidth, g_pOrbiter->m_iImageHeight };
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
@@ -200,9 +191,9 @@ void OrbiterSDL_Win32::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::OnQuit()
 {
-	m_bQuit = true;
-	m_bConnectionLost = true;
-	pthread_cond_broadcast( &m_listMessageQueueCond );
+	g_pOrbiter->m_bQuit = true;
+	g_pOrbiter->m_bConnectionLost = true;
+	pthread_cond_broadcast( &g_pOrbiter->m_listMessageQueueCond );
 
 	//atexit(SDL_Quit);
 	//::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
@@ -215,7 +206,7 @@ void OrbiterSDL_Win32::OnQuit()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSDL_Win32::SelfUpdate()
 {
-	OrbiterSelfUpdate orbiterSelfUpdate(this);
+	OrbiterSelfUpdate orbiterSelfUpdate;
 
 	return orbiterSelfUpdate.Run();
 }

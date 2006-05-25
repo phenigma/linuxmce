@@ -52,12 +52,12 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 		eGF = GR_OCG;
 
 	PlutoGraphic *pGraphic
-#if defined(POCKETFROG)
-		= new PocketFrogGraphic(pOrbiter);
+#ifdef POCKETFROG
+		= new PocketFrogGraphic();
 #elif defined(ORBITER_OPENGL)
 		= NULL;
 #else
-		= new SDLGraphic(pOrbiter); //we won't load the graphic yet
+		= new SDLGraphic(); //we won't load the graphic yet
 #endif
 
 	if(NULL != pGraphic)

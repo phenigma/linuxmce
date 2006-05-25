@@ -2,8 +2,8 @@
 #define __ORBITER_WIN32_DEFS__
 
 #ifdef POCKETFROG
-	#include "Orbiter_PocketFrog.h"
-	#define ORBITER_CLASS Orbiter_PocketFrog
+	#include "OrbiterRenderer_PocketFrog.h"
+	#define ORBITER_CLASS OrbiterRenderer_PocketFrog
 #elif ORBITER_OPENGL
 	#include "Orbiter_OpenGL.h"
 	#define ORBITER_CLASS Orbiter_OpenGL

@@ -112,7 +112,7 @@ void MouseGovernor::SendMessage(Message *pMessage)
 
 void MouseGovernor::DoSendMessage(Message *pMessage)
 {
-	m_pMouseBehavior->m_pOrbiter->QueueMessageToRouter(pMessage);
+	g_pOrbiter->QueueMessageToRouter(pMessage);
 	m_dwTime_Last_SentMessage=ProcessUtils::GetMsTime();
 }
 

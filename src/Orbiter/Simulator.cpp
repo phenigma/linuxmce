@@ -19,6 +19,11 @@ using namespace DCE;
 		#include <commctrl.h>
 		#include <sipapi.h>
 
+		#ifdef POCKETFROG
+			#include "OrbiterRenderer_PocketFrog.h"
+		#else
+			#include "OrbiterSDL_WinCE.h"
+		#endif
 		#ifndef WINCE_x86
 			#include <aygshell.h>
 		#endif
@@ -31,6 +36,12 @@ using namespace DCE;
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
 		#elif defined(PROXY_ORBITER)
 			#include "Proxy_Orbiter/Proxy_Orbiter.h"
+		#else
+			#ifdef POCKETFROG
+				#include "OrbiterRenderer_PocketFrog.h"
+			#else
+				#include "OrbiterSDL_Win32.h"
+			#endif
 		#endif
 
 	#endif
@@ -84,23 +95,44 @@ void *GeneratorThread( void *p)
 	srand( (unsigned)time(NULL) );
 	static int Count = 0;
 
-#ifdef BLUETOOTH_DONGLE
+	
+/*#ifdef BLUETOOTH_DONGLE
 	Orbiter *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #elif defined(PROXY_ORBITER)
 	Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
 #else
 	#ifdef WIN32
+<<<<<<< .mine
+		#ifdef WINCE
+
+			#ifdef POCKETFROG
+				OrbiterRenderer_PocketFrog *pOrbiter = OrbiterRenderer_PocketFrog::GetInstance();
+			#else
+				OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+			#endif
+
+		#else
+
+			#ifdef POCKETFROG
+				OrbiterRenderer_PocketFrog *pOrbiter = OrbiterRenderer_PocketFrog::GetInstance();
+			#else
+				OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+			#endif
+
+		#endif
+=======
 		Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
+>>>>>>> .r9538
 	#else
 		Orbiter *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
 	#endif
-#endif
+#endif */
 
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
+		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", g_pOrbiter);
 
-		if(!pOrbiter || pOrbiter->m_bQuit)
+		if(!g_pOrbiter || g_pOrbiter->m_bQuit)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
 			pSimulator->m_bIsRunning = false;
@@ -113,13 +145,13 @@ void *GeneratorThread( void *p)
 			return NULL;
 		}
 
-		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
+		if(time(NULL) - g_pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
-				pOrbiter->GetCurrentScreenID().c_str());
+				g_pOrbiter->GetCurrentScreenID().c_str());
 
-			if(!pOrbiter->m_bQuit && HomeScreen != "")
-				pOrbiter->GotoDesignObj(HomeScreen);
+			if(!g_pOrbiter->m_bQuit && HomeScreen != "")
+				g_pOrbiter->GotoDesignObj(HomeScreen);
 		}
 
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);
@@ -129,11 +161,11 @@ void *GeneratorThread( void *p)
 		{
 			Count = 0;
 
-			x = rand() % pOrbiter->m_iImageWidth;
-			y = rand() % pOrbiter->m_iImageHeight;
+			x = rand() % g_pOrbiter->m_iImageWidth;
+			y = rand() % g_pOrbiter->m_iImageHeight;
 
-			if(!pOrbiter->m_bQuit && bGenerateMouseClicks)
-				pOrbiter->SimulateMouseClick(x, y);
+			if(!g_pOrbiter->m_bQuit && bGenerateMouseClicks)
+				g_pOrbiter->SimulateMouseClick(x, y);
 		}
 		else
 		{
@@ -157,8 +189,8 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % count;
 
-				if(!pOrbiter->m_bQuit)
-					pOrbiter->SimulateKeyPress(list[index]);
+				if(!g_pOrbiter->m_bQuit)
+					g_pOrbiter->SimulateKeyPress(list[index]);
 			}
 			else if(bOption2)
 			{
@@ -170,8 +202,8 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!pOrbiter->m_bQuit)
-					pOrbiter->SimulateKeyPress(list[index]);
+				if(!g_pOrbiter->m_bQuit)
+					g_pOrbiter->SimulateKeyPress(list[index]);
 			}
 			else if(bOption3) //phone keys
 			{
@@ -216,8 +248,8 @@ void *GeneratorThread( void *p)
 				};
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!pOrbiter->m_bQuit)
-					pOrbiter->SimulateKeyPress(list[index]);
+				if(!g_pOrbiter->m_bQuit)
+					g_pOrbiter->SimulateKeyPress(list[index]);
 			}
 		}
 	}

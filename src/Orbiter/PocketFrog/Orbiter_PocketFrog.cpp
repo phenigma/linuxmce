@@ -165,6 +165,7 @@ void *Orbiter_OpenGLThread(void *p)
 	}
 
 	delete pOrbiter->m_Desktop;
+	pOrbiter->m_Desktop = NULL;
 
 	return NULL;
 }	
@@ -1518,7 +1519,7 @@ void Orbiter_PocketFrog::OpenGL_RenderFrame(void *data) //callback
 	if(m_Desktop && m_Desktop->EffectBuilder && (m_Desktop->EffectBuilder->HasEffects()))
 	{
 		CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
-			NULL, pe_NO);
+			NULL, pe_NO, this);
 		OnIdle();
 	}
 #endif
@@ -1528,7 +1529,7 @@ void Orbiter_PocketFrog::StartAnimation()
 {
 	m_bPaintDesktop = false;
 	CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter_PocketFrog::OpenGL_RenderFrame, 
-		NULL, pe_NO);
+		NULL, pe_NO, this);
 	
 }
 //-----------------------------------------------------------------------------------------------------

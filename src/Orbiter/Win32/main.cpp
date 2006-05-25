@@ -28,7 +28,7 @@ extern HWND	g_hWndList; //maindialog logger list
 #endif
 
 #if defined(POCKETFROG)
-	#include "Orbiter_PocketFrog.h"
+	#include "OrbiterRenderer_PocketFrog.h"
 #elif defined(ORBITER_OPENGL)
 	#include "OpenGL/Orbiter_OpenGL.h"
 #else
@@ -280,7 +280,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
         if(Simulator::GetInstance()->IsRunning())
         {
-            Orbiter_PocketFrog::GetInstance()->OnQuit();
+            OrbiterRenderer_PocketFrog::GetInstance()->OnQuit();
 
             time_t tTime = time(NULL);
             while(true)
@@ -302,7 +302,19 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
+<<<<<<< .mine
+		#ifdef POCKETFROG
+				OrbiterRenderer_PocketFrog::Cleanup();
+		#else
+            #ifdef WINCE
+                OrbiterSDL_WinCE::Cleanup();
+            #else
+                OrbiterSDL_Win32::Cleanup();
+            #endif
+		#endif
+=======
 		ORBITER_CLASS::Cleanup();
+>>>>>>> .r9538
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

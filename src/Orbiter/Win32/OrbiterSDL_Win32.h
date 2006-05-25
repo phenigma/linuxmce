@@ -11,8 +11,7 @@ private:
 
 	static OrbiterSDL_Win32* m_pInstance; //the one and only instance of OrbiterSDL_Win32
 	
-	OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
+	OrbiterSDL_Win32(bool bFullScreen = false, bool bUseOpenGL = false);
 
 public:
 
@@ -34,8 +33,7 @@ public:
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	static void Cleanup();
-	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
+	static void BuildOrbiter(bool bFullScreen = false, bool bUseOpenGL = false);
 	static OrbiterSDL_Win32 *GetInstance();
 
 	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);

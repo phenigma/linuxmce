@@ -9,6 +9,7 @@ using namespace std;
 #include "../MouseBehavior.h"
 using namespace DCE;
 #include "OrbiterLinux.h"
+#include "OrbiterRendererSDLLinux.h"
 
 namespace DCE
 {
@@ -20,14 +21,14 @@ namespace DCE
 	class MouseBehavior_Linux : public MouseBehavior
 	{
 	public:
-		MouseBehavior_Linux(Orbiter *pOrbiter);
+		MouseBehavior_Linux();
 		~MouseBehavior_Linux();
 		virtual void SetMousePosition(int X,int Y);
 		virtual void ShowMouse(bool bShow);
         virtual bool ConstrainMouse(const PlutoRectangle &rect);
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle);
     protected:
-        OrbiterLinux * ptrOrbiterLinux();
+        OrbiterRendererSDLLinux * ptrOrbiterRendererSDLLinux();
 
         // activate   : both width and height must be > 0
         // deactivate : both width and height == 0

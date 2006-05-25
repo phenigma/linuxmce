@@ -8,7 +8,7 @@ using namespace std;
 #include <SDL.h>
 
 //-----------------------------------------------------------------------------------------------------
-#include "../Orbiter.h"
+#include "../OrbiterRenderer.h"
 #include "../DesignObj_Orbiter.h"
 
 #include "../OpenGL/PendingGLEffects.h"
@@ -19,7 +19,7 @@ class OrbiterGL3D;
 namespace DCE
 {
 
-class OrbiterSDL : public Orbiter
+class OrbiterSDL : public OrbiterRenderer
 {
 protected: 
 	/**
@@ -43,11 +43,8 @@ public:
 	 * @param pExternalScreenMutex
 	 * @param UseOpenGL Boolean variable that say if it should be used OpenGL code or doesn't
 	 */
-	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory,
-        bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false,
-        pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
+	OrbiterSDL(bool bFullScreen = false, pluto_pthread_mutex_t *pExternalScreenMutex = NULL, bool UseOpenGL = false);
 	virtual ~OrbiterSDL();
-    virtual bool GetConfig();
 
 	// Public virtual methods
 
@@ -88,6 +85,7 @@ public:
 	virtual void DoHighlightObjectOpenGL();
 	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 	void OnIdle();
+	virtual void RunEventLoop();
 
 	void OpenGLUpdateScreen(void* Data);
 
@@ -113,7 +111,6 @@ public:
 	auto_ptr<PlutoGraphic> m_spAfterGraphic;
 
 	SDL_Surface * Screen;
-	bool m_bFullScreen;
 
 protected:
 	pthread_t SDLGLthread;

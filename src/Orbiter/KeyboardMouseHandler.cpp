@@ -28,17 +28,17 @@ void KeyboardMouseHandler::Start()
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
 	m_b1Step = m_sOptions.find('1')!=string::npos;
 	if( !m_pObj )
-		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
-			m_pMouseBehavior->m_pOrbiter->m_Height/2);
+		m_pMouseBehavior->SetMousePosition(g_pOrbiter->m_Width/2,
+			g_pOrbiter->m_Height/2);
 	else
 	{
-		if ( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		if ( !g_pOrbiter->m_pObj_Highlighted )
 		{
 			m_pMouseBehavior->SelectFirstObject();
-			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-				m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+			if( g_pOrbiter->m_pObj_Highlighted )
+				m_pMouseBehavior->HighlightObject(g_pOrbiter->m_pObj_Highlighted);
 		}
-		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		if( g_pOrbiter->m_pObj_Highlighted )
 		{
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 			m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
@@ -48,8 +48,8 @@ void KeyboardMouseHandler::Start()
 		m_iLastNotch = -999;
 	}
 
-	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-		m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+	if( g_pOrbiter->m_pObj_Highlighted && g_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted);
 }
 
 void KeyboardMouseHandler::Stop()
@@ -57,9 +57,9 @@ void KeyboardMouseHandler::Stop()
 	if( m_pObj )
 	{
 		// temp hack -- todo.  temporary redraw the screen since the keyboard/speed indicators may be messed up
-NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change k/b" );
-PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
-m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+NeedToRender render( g_pOrbiter, "change k/b" );
+PLUTO_SAFETY_LOCK(nd,g_pOrbiter->m_NeedRedrawVarMutex);
+g_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
 	}
 }
 
@@ -69,13 +69,13 @@ bool KeyboardMouseHandler::ButtonDown(int PK_Button)
 	{
 		if( m_pObj )
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::itos(BUTTON_Enter_CONST),"");
+			g_pOrbiter->CMD_Simulate_Keypress(StringUtils::itos(BUTTON_Enter_CONST),"");
 		}
 		else
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Enter_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 	}
 	return false; // Keep processing
@@ -88,7 +88,7 @@ bool KeyboardMouseHandler::ButtonUp(int PK_Button)
 
 void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( !m_pObj && !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( !m_pObj && !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && g_pOrbiter->m_pObj_Highlighted )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
@@ -109,7 +109,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 		return;
 	}
 
-	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( !g_pOrbiter->m_pObj_Highlighted )
 	{
 		m_pMouseBehavior->SelectFirstObject();
 		return; // Shouldn't have happened
@@ -125,7 +125,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 	if( PK_Direction )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highlight %d at %d,%d",PK_Direction,X,Y);
-		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
+		DesignObj_Orbiter *pObj_Before = g_pOrbiter->m_pObj_Highlighted;
 
 		// Let's see if we've been highlighting a datagrid and moved past the top or bottom
 		// If so, we're going to engage special behavior where we start the iterator to do scroll
@@ -138,7 +138,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 			}
 		}
 		
-		if( !m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction) )
+		if( !g_pOrbiter->HighlightNextObject(PK_Direction) )
 		{
 /*
 			// We're off in no-mans land, and not moving toward any selectable object, get back on the highlighted object
@@ -149,18 +149,18 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 			return;
 		}
 
-		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
-			pObj_Before!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		if( g_pOrbiter->m_pObj_Highlighted && 
+			pObj_Before!=g_pOrbiter->m_pObj_Highlighted )
 		{
 g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s after direction %d",
-					  pObj_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(),PK_Direction);
-			m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+					  pObj_Before->m_ObjectID.c_str(),g_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(),PK_Direction);
+			m_pMouseBehavior->HighlightObject(g_pOrbiter->m_pObj_Highlighted);
 
 //			m_pMouseBehavior->PositionMouseAtObjectEdge(PK_Direction);
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 
-			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+			if( g_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted);
 		}
 	}
 }
@@ -168,21 +168,21 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 void KeyboardMouseHandler::MoveExternalApp1Step(int X,int Y)
 {
 	/*
-	int NotchSize = bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp : m_pMouseBehavior->m_pOrbiter->m_Height / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp;
-	int Diff = bHorizontal ? X-m_pMouseBehavior->m_pOrbiter->m_Width/2 : Y-m_pMouseBehavior->m_pOrbiter->m_Height/2;
+	int NotchSize = bHorizontal ? g_pOrbiter->m_Width / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp : g_pOrbiter->m_Height / m_pMouseBehavior->m_MouseSensitivity.NumNotchesForExternalApp;
+	int Diff = bHorizontal ? X-g_pOrbiter->m_Width/2 : Y-g_pOrbiter->m_Height/2;
 	if( abs(Diff)>NotchSize )
 	{
-		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_Width/2,
-			m_pMouseBehavior->m_pOrbiter->m_Height/2);
+		m_pMouseBehavior->SetMousePosition(g_pOrbiter->m_Width/2,
+			g_pOrbiter->m_Height/2);
 		int PK_Button;
 		if( bHorizontal )
 			PK_Button = Diff < 0 ? BUTTON_Left_Arrow_CONST : BUTTON_Right_Arrow_CONST;
 		else
 			PK_Button = Diff < 0 ? BUTTON_Up_Arrow_CONST : BUTTON_Down_Arrow_CONST;
 
-		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 			StringUtils::itos(PK_Button),"");
-		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+		g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 	}
 	*/
 }
@@ -191,7 +191,7 @@ void KeyboardMouseHandler::MoveExternalApp(int X,int Y)
 {
 	/*
 	bool bHorizontal = m_pMouseBehavior->m_cLocked_Axis_Current==AXIS_LOCK_X;
-	int NotchSize = (double) bHorizontal ? m_pMouseBehavior->m_pOrbiter->m_Width / 20 : m_pMouseBehavior->m_pOrbiter->m_Height / 20;
+	int NotchSize = (double) bHorizontal ? g_pOrbiter->m_Width / 20 : g_pOrbiter->m_Height / 20;
 	int Notch;
 	if( bHorizontal )
 		Notch = X/NotchSize - 10;
@@ -260,56 +260,56 @@ void KeyboardMouseHandler::IterateObject()
 	{
 		case 'U':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
 		}
 		break;
 
 		case 'D':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
 		}
 		break;
 
 		case 'u':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
 		}
 		break;
 
 		case 'd':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
 		}
 		break;
 
 		case 'L':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
 		}
 		break;
 
 		case 'R':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
 		}
 		break;
 
 		case 'l':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
 		}
 		break;
 
 		case 'r':
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
+			g_pOrbiter->CMD_Simulate_Keypress(
 				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
 		}
 		break;
@@ -322,65 +322,65 @@ void KeyboardMouseHandler::IterateExternalApp()
 	{
 		case 'U':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'D':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'u':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'd':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'L':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'R':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'l':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 
 		case 'r':
 		{
-			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
+			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,
 				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
-			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
+			g_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
 	}
@@ -389,7 +389,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 
 void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 {
-	DesignObj_Orbiter *pObj = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
+	DesignObj_Orbiter *pObj = g_pOrbiter->m_pObj_Highlighted;
 	if( !pObj || pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !pObj->m_pDataGridTable || !m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha )
 		return;
 	
@@ -412,11 +412,11 @@ void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 
 	float NotchWidth = ((float) m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Height)/27; // Allow for 0,A-Z
 	int NotchStart = int(cLetter * NotchWidth) + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Y + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.Y;
-	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
+	g_pRenderer->HollowRectangle(
 		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.X + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.X, NotchStart,
 		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Width, int(NotchWidth),
 		PlutoColor::White());
-	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
+	g_pRenderer->UpdateRect(m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
 
 }
 
@@ -425,7 +425,7 @@ bool KeyboardMouseHandler::SlowDrift(int &X,int &Y)
 	if( m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid )
 		return false;
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::SlowDrift");
-	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+	if( g_pOrbiter->m_pObj_Highlighted )
 	{
 		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,

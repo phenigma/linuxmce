@@ -5,8 +5,8 @@
 #include "PlutoUtils/Other.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-MouseBehavior_Win32::MouseBehavior_Win32(Orbiter *pOrbiter)
-	: MouseBehavior(pOrbiter)
+MouseBehavior_Win32::MouseBehavior_Win32()
+	: MouseBehavior()
 {
 }
 

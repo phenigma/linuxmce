@@ -12,6 +12,8 @@
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
+#include "DesignObj_DataGrid.h"
+typedef DesignObj_OrbiterMap ScreenMap;
 #endif
 
 // This is all the data for a Orbiter that we will serialize.  Be sure "ORBITER" is defined when including this in the Orbiter projects.
@@ -25,10 +27,7 @@
 
 typedef map<int, string> VariableMap;
 
-#ifdef ORBITER
-	#include "DesignObj_Orbiter.h"
-	typedef DesignObj_OrbiterMap ScreenMap;
-#else
+#ifndef ORBITER
 	#include "Orbiter/DesignObj_Data.h"
 	typedef DesignObj_DataMap ScreenMap;
 #endif
@@ -195,9 +194,9 @@ public:
 						ShowProgress(i * 50 / count);
 						DesignObj_Orbiter *pDesignObj_Data=NULL;
 						if( Type==DESIGNOBJTYPE_Datagrid_CONST )
-							pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *) m_pExtraSerializationData);
+							pDesignObj_Data = new DesignObj_DataGrid();
 						else
-							pDesignObj_Data = new DesignObj_Orbiter((class Orbiter *) m_pExtraSerializationData);
+							pDesignObj_Data = new DesignObj_Orbiter();
 #else
 							DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
 #endif

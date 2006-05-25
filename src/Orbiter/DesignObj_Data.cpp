@@ -17,6 +17,7 @@
  
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DesignObj_Orbiter.h"
+#include "DesignObj_DataGrid.h"
 #include "pluto_main/Define_DesignObjType.h"
 
 DesignObj_Data::~DesignObj_Data()
@@ -496,9 +497,9 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	#ifdef ORBITER
 				DesignObj_Orbiter *pDesignObj_Data=NULL;
 				if( Type==DESIGNOBJTYPE_Datagrid_CONST )
-					pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *) m_pExtraSerializationData);
+					pDesignObj_Data = new DesignObj_DataGrid();
 				else
-					pDesignObj_Data = new DesignObj_Orbiter((class Orbiter *) m_pExtraSerializationData);
+					pDesignObj_Data = new DesignObj_Orbiter();
 	#else
 				DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
 	#endif
