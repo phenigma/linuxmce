@@ -996,6 +996,8 @@
 #define TEXT_House_Wizard_CONST 1708
 #define TEXT_Media_Player_Wizard_CONST 1709
 #define TEXT_House_Setup_Wizard_CONST 1710
+#define TEXT_setup_with_admin_CONST 1711
+#define TEXT_Go_To_Admin_Site_CONST 1712
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

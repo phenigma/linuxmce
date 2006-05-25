@@ -78,7 +78,6 @@
 #define DATAGRID_IR_Codes_Variations_CONST 76
 #define DATAGRID_Device_Templates_By_Categ_CONST 77
 #define DATAGRID_IR_Commands_CONST 78
-#define DATAGRID_Cities_CONST 79
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
