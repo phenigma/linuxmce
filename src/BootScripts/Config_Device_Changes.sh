@@ -88,11 +88,32 @@ CleanupVideo()
 	if [[ -z "$SubComputer" ]]; then
 		SubComputer="$PK_Device"
 	fi
+
 	nV_dev="$(FindDevice_Template $SubComputer $DEVICETEMPLATE_GeForce_or_TNT2 'norecursion')"
 	echo "$(date -R) <-- Retreiving desired video card (nVidia)"
 	echo "$(date -R) --> Retreiving desired video card (ATI)"
 	ATI_dev="$(FindDevice_Template $SubComputer $DEVICETEMPLATE_Radeon_8500_or_newer 'norecursion')"
 	echo "$(date -R) <-- Retreiving desired video card (ATI)"
+
+	# Add proprietary video card Device and drivers if needed
+	# TODO: allow user to express his/her will in using the open source driver if he/she so desires
+	echo "$(date -R) --> Auto-create video card device"
+	VideoDriver=$(GetVideoDriver)
+	case "$VideoDriver" in
+		nv)
+			if [[ -z "$nV_dev" ]]; then
+				NewDeviceTemplate=$DEVICETEMPLATE_GeForce_or_TNT2
+				nV_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
+			fi
+		;;
+		ati|radeon)
+			if [[ -z "$ATI_dev" ]]; then
+				NewDeviceTemplate=$DEVICETEMPLATE_Radeon_8500_or_newer
+				ATI_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
+			fi
+		;;
+	esac
+	echo "$(date -R) <-- Auto-create video card device"
 
 	echo "$(date -R) --> Performing package purges"
 	if [[ -n "$nV_inst" && -z "$nV_dev" ]]; then

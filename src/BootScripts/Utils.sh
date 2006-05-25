@@ -141,3 +141,21 @@ FindInArray_Prefix()
 	done
 	return 1
 }
+
+GetVideoDriver()
+{
+	if [[ -n "$ForceVESA" ]]; then
+		echo vesa
+		return 0
+	fi
+	
+	lshwd -ox >/dev/null
+	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
+	rm /tmp/xinfo
+	case "$VideoDriver" in
+		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
+		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
+		"") VideoDrivers="vesa" ;; # just-in-case default
+	esac
+	echo "$VideoDriver"
+}
