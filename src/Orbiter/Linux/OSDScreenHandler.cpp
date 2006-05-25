@@ -307,7 +307,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 
 				string sCityRegion = m_pWizardLogic->GetCityRegion();
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sCityRegion);
-				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_PostalCode_CONST),TEXT_STATUS_CONST );
+				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_City_CONST),TEXT_STATUS_CONST );
 				if( pText )
 				{
 					if( PK_Country==COUNTRY_UNITED_STATES_CONST )  // Actually you can search for postal code no matter the country, but so far they're only populated for the U.S., and we call them 'Zip Codes'
@@ -317,7 +317,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 					}
 					else
 					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_postal_code_CONST];  // 1557
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_city_CONST];  // 1557
 						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"entercity");
 					}
 				}
@@ -325,7 +325,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 		}
 		break;
 
-		case DESIGNOBJ_PostalCode_CONST: // 4662
+		case DESIGNOBJ_City_CONST: // 4662
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butWizRooms_CONST )
 			{
