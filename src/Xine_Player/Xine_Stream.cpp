@@ -1109,10 +1109,10 @@ void Xine_Stream::DisplayOSDText( string sText )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
 		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( m_xine_osd_t )
 		{
 			xine_osd_free( m_xine_osd_t );
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			m_xine_osd_t = NULL;
 		}
 		return ;
