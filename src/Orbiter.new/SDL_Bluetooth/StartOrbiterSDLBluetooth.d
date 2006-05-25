@@ -1,0 +1,24 @@
+StartOrbiterSDLBluetooth.o:  \
+ ../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
+  ../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.h \
+  ../PlutoUtils/CommonIncludes.h ../DCE/Logger.h \
+  ../SerializeClass/SerializeClass.h ../PlutoUtils/FileUtils.h \
+  ../PlutoUtils/StringUtils.h ../PlutoUtils/Other.h ../PlutoUtils/getch.h \
+  ../PlutoUtils/MyStl.h ../PlutoUtils/MultiThreadIncludes.h \
+  ../DCE/PlutoLockLogger.h ../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.h \
+  /usr/include/SDL/SDL.h /usr/include/SDL/SDL_main.h \
+  /usr/include/SDL/SDL_types.h /usr/include/SDL/SDL_getenv.h \
+  /usr/include/SDL/SDL_error.h /usr/include/SDL/begin_code.h \
+  /usr/include/SDL/close_code.h /usr/include/SDL/SDL_rwops.h \
+  /usr/include/SDL/SDL_timer.h /usr/include/SDL/SDL_audio.h \
+  /usr/include/SDL/SDL_byteorder.h /usr/include/SDL/SDL_cdrom.h \
+  /usr/include/SDL/SDL_joystick.h /usr/include/SDL/SDL_events.h \
+  /usr/include/SDL/SDL_active.h /usr/include/SDL/SDL_keyboard.h \
+  /usr/include/SDL/SDL_keysym.h /usr/include/SDL/SDL_mouse.h \
+  /usr/include/SDL/SDL_video.h /usr/include/SDL/SDL_mutex.h \
+  /usr/include/SDL/SDL_quit.h /usr/include/SDL/SDL_version.h \
+  ../Orbiter/SDL/OrbiterSDL.h ../Orbiter/OrbiterRenderer.h \
+  ../Orbiter/DesignObj_Orbiter.h ../Orbiter/DesignObj_Data.h \
+  ../SerializeClass/ShapesColors.h ../Orbiter/TextStyle.h \
+  ../Orbiter/PlutoGraphic.h ../PlutoUtils/GraphicFormat.h \
+  ../Orbiter/OpenGL/PendingGLEffects.h
