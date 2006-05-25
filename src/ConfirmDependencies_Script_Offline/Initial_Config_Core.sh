@@ -62,7 +62,7 @@ Hybrid means this PC will not only be the main server, but you will also hook it
 Core means it is a server only, and will not be used as a media station.
 
 Should this be a Core, Hybrid or Other?
-" 0 0 3 C Core H Hybrid o Other --fb --nocancel --title Pluto 2>&1 1>/dev/tty)
+" 0 0 3 C - Core H - Hybrid o - Other --fb --nocancel --title Pluto 2>&1 1>/dev/tty)
 
 CoreDT=7
 if [[ "$Type" == o || "$Type" == O ]]; then
@@ -307,17 +307,16 @@ fi
 
 clear
 # XXX: No error checking
-	echo -e "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
+	MessageBox "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
         echo ""
-        BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
+        BonusCD=$(QuestionBox "Did you insert the \"Pluto Bonus CD 1\" in drive ?")
 	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 
                 /bin/mount /dev/cdrom 2>/dev/null
                 
 		        while [ ! -d "/cdrom/bonuscd1" ]; do
-                        	echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
+                        	MessageBox "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and press any key to continue"
 	                        /usr/bin/eject
-        	                echo "Press any key when you inserted the correct CD in drive."
                 	        read key
                                 if [[ ! -n "$key" ]]; then
                                         /bin/mount /dev/cdrom 2>/dev/null
@@ -346,35 +345,35 @@ clear
                 cd ..
                 /usr/bin/eject
                 echo ""
-                echo "\"Pluto Bonus CD 1\" succesfuly installed !"
+                MessageBox "\"Pluto Bonus CD 1\" succesfuly installed !"
                 echo ""
         else
-                echo "Skipping \"Pluto Bonus CD 1\" install ..."
+                MessageBox "Skipping \"Pluto Bonus CD 1\" install ..."
         fi
 
 
 while :; do
-	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
+	ExtraPkg=$(QuestionBox "Do you want to add extra packages?")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		while :; do
-			ExtraRepository=$(Ask "Add a new repository? [y/N]")
+			ExtraRepository=$(QuestionBox "Add a new repository? ")
 			if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
-				ExtraRepositoryPath=$(Ask "Enter repository path")
+				ExtraRepositoryPath=$(InputBox "Enter repository path")
 				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
 				apt-get update
 				break
 			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N ]]; then
 				break
 			else
-				echo "--> Invalid answer: '$ExtraRepository'"
+				MessageBox "--> Invalid answer: '$ExtraRepository'"
 			fi
 		done
-		ExtraPkgName=$(Ask "Enter package name")
+		ExtraPkgName=$(InputBox "Enter package name")
 		apt-get install "$ExtraPkgName"
 	elif [[ "$ExtraPkg" == n || "$ExtraPkg" == N ]]; then
 		break
 	else
-		echo "--> Invalid answer: '$ExtraPkg'"
+		MessageBox "--> Invalid answer: '$ExtraPkg'"
 	fi
 done
 exec 1>&3 3>&-
