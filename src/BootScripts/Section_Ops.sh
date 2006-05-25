@@ -33,6 +33,23 @@ PopulateSection()
 	mv "$File"{.$$,}
 }
 
+## Retrieves a section from a file
+GetSection()
+{
+	local File="$1"
+	local SectionName="$2"
+
+	## Return an empty string if file does not exist
+	if [[ ! -f "$File" ]]; then
+		return 1
+	fi
+
+	local Delimiter1 Delimiter2
+	Delimiter1="## BEGIN : $SectionName"
+	Delimiter2="## END : $SectionName"
+	awk "/^$Delimiter1/,/^$Delimiter2/ {print}" "$File" | grep -v "^$Delimiter1" | grep -v "^$Delimiter2"
+}
+
 ## Clears and removes a section from a file
 ClearSection()
 {
