@@ -28,7 +28,7 @@ case "$R" in
 	;;
 esac
 
-Message1="Congratulations.  Pluto installation has completed.  The system will now 
+Message1=$(MessageBox "Congratulations.  Pluto installation has completed.  The system will now 
 reboot.  The Pluto Core software will be started automatically.  As soon as 
 the computer finishes rebooting you will be able to access the Pluto Admin
 website to configure it, and you can start plugging in your media directors
@@ -36,12 +36,12 @@ and other plug-and-play devices.
 **Note**  The first boot will take an unusually long time while it sets up
 a lot of new devices, and builds user interfaces for any Orbiters.
 If you are an advanced Linux user and want to access a terminal before the
-reboot, press ALT+F2.  Otherwise..."
+reboot, press ALT+F2.  Otherwise...")
 Key="the Enter key"
 #Key="OK"
-Message2="Press $Key to reboot and startup your new Pluto $SysType."
+Message2=$(MessageBox "Press $Key to reboot and startup your new Pluto $SysType.")
 
-Message24="
+Message24=$(MessageBox "
 [1;5;31m*** WARNING ***[0m You installed the system using the 2.4 kernel.
 
 The system will reboot using a 2.6 kernel, but the two versions see
@@ -58,7 +58,7 @@ For now, you have to manually update these files:
 	need to specify 'root=/dev/sdY1' instead of 'root=/dev/hdX1'
 
 Switch to another console (Alt+F2), login as root and use an editor like
-'nano' or 'vi' to edit those files before you reboot"
+'nano' or 'vi' to edit those files before you reboot")
 
 # Set vimrc
 [[ -e /root/.vimrc ]] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
