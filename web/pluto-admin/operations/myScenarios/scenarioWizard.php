@@ -64,6 +64,9 @@ if($action=='form') {
 				<td><B>'.$TEXT_PICTURE_CONST.'</B> </td>
 				<td><input type="file" name="pic" value=""></td>
 			</tr>	
+			<tr>
+				<td colspan="2" align="center"><input type="submit" class="button_fixed" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+			</tr>	
 			<tr class="alternate_back">
 				<td colspan="2"><B>'.$TEXT_EDIT_SCENARIO_USING_WIZARD_CONST.'</B> <select name="wizard" onChange="document.scenarioWizard.submit();">
 					<option value="0" '.(($wizard==0)?'selected':'').'>'.$TEXT_LIGHTING_WIZARD_CONST.'</option>

@@ -117,7 +117,7 @@ if($action=='form') {
 }else{	
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	if(!$canModifyInstallation){
-		Header('Location: index.php?section=climateScenarios&error=You are not allowed to modify installation.');
+		Header('Location: index.php?section=climateScenarios&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST);
 		exit();
 	}
 

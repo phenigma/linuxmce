@@ -2499,6 +2499,8 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 
 	$insertID=exec($cmd);
 	$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
+	
+	return $insertID;
 }
 
 function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$controlledVia,$dbADO,$zeroOption='0,- Please Select -',$jsEvent='')
@@ -3234,6 +3236,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 				<td align="left"><B>MAC</B></td>
 				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
+		$jsValidation.=' frmvalidator.addValidation("mac_'.$deviceID.'","mac","'.$TEXT_INVALID_MAC_ADDRESS_CONST.'");';
 	}
 	$deviceDataBox.='</table>';
 	
@@ -5734,6 +5737,14 @@ function queryExternalServer($url){
 function import_remote_sql($remoteUrl,$dbADO,$table=''){
 	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
 
+	// call for WebDB_Get.sh
+	// all the rest will be removed
+	$cmd='/usr/pluto/bin/WebDB_Get.sh \''.$remoteUrl.'\' \''.$table.'\'';
+	$notImported=exec($cmd,$retArray);
+	//echo $cmd;
+	print_array($retArray);
+	return $notImported;
+	
 	// get data from plutohome server
 	$remoteData=queryExternalServer($remoteUrl);
 

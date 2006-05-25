@@ -461,7 +461,9 @@ function mediaDirectors($output,$dbADO) {
 					}
 					$videoDT=$_POST['VideoCard_'.$value];
 					if($videoDT!=$_POST['oldVideo_'.$value]){
-						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
+						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO,0,1);
+						$cmd='/usr/pluto/bin/Config_Device_Changes.sh';
+						exec($cmd);
 					}
 
 					processReceiver($value,$dbADO);
@@ -531,7 +533,7 @@ function getSubDevice($mdID,$categoryID,$dbADO)
 	}
 }
 
-function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO,$alternateCategory=0)
+function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO,$alternateCategory=0,$needConfigure=0)
 {
 	$deviceID=getSubDevice($mdID,$categoryID,$dbADO);
 	if($deviceID!=0){
@@ -543,7 +545,10 @@ function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO,$
 		}
 	}
 	if($dtID!=0){
-		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);
+		$newDevice=createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);
+		if($needConfigure==1 && $newDevice>0){
+			$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$newDevice);
+		}
 	}
 }
 

@@ -160,7 +160,7 @@ function installationSettings($output,$dbADO) {
 					$out.='
 					<tr>
 						<td><B>'.$TEXT_CITY_CONST.'</B></td>
-						<td>'.pulldownFromArray($citiesArray,'city_coords',@$selectedCity,'onChange="setCoordinates()"').generatePullDown('city_coords','City','PK_City','City',@$selectedCity,$dbADO,'WHERE FK_Region='.$selectedRegion,'onChange="setCoordinates()"').'</td>
+						<td>'.pulldownFromArray($citiesArray,'city_coords',@$selectedCity,'onChange="setCoordinates()"').'</td>
 					</tr>';
 					
 					}

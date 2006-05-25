@@ -732,7 +732,12 @@ function validateInput(strValidateStr,objValue,strError)
 		{
 			ret = TestSelectOneRadio(objValue,strError);
 		    break;
-		}		 
+		}
+        case "mac": 
+          { 
+			   ret = validateMAC(objValue.value,strError);
+               break; 
+          }				 
 		//Comparisons
 		case "eqelmnt": 
 		case "ltelmnt":
@@ -786,4 +791,15 @@ String.prototype.checkDateFormat=function(){
         return 2;
     }
     return 1;
+}
+
+function validateMAC(mac,strError) {
+	
+	var ismac = mac.match("^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$");
+	if(ismac == null){
+		alert(strError);
+		return false;
+	}else{
+		return true;
+	}	
 }

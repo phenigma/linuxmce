@@ -159,4 +159,5 @@ $TEXT_ERROR_INVALID_TIME_FORMAT_CONST='Invalid time format';
 $TEXT_ERROR_INVALID_DATE_FORMAT_CONST='Invalid date format, please enter dd/mm/yyyy';
 $TEXT_NONE_CONST='None';
 $TEXT_NOTES_CONST='Notes';
+$TEXT_INVALID_MAC_ADDRESS_CONST='Invalid MAC address';
 ?>
