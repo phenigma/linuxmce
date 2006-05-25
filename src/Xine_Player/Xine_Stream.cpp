@@ -137,7 +137,7 @@ bool Xine_Stream::ShutdownStream()
 	// stop the event thread first
 	if ( threadEventLoop )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Stopping event thread." );
+		g_pPlutoLogger->Write( LV_STATUS, "Stopping event processor." );
 		
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -457,9 +457,16 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
 			m_bExitThread = false;
 		}
 		
-		g_pPlutoLogger->Write( LV_STATUS, "Creating event processor" );
-		pthread_create( &threadEventLoop, NULL, EventProcessingLoop, this );
-		g_pPlutoLogger->Write( LV_STATUS, "Event processor started" );
+		
+		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			if (!threadEventLoop)
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Creating event processor" );
+				pthread_create( &threadEventLoop, NULL, EventProcessingLoop, this );
+				g_pPlutoLogger->Write( LV_STATUS, "Event processor started" );
+			}
+		}
 
 		if ( ! m_bHasVideo )
 		{
