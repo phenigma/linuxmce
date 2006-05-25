@@ -492,5 +492,7 @@ void* PlutoHalD::startUp(void *pnp)
 void PlutoHalD::shutDown()
 {
 	if( loop != NULL )
+	{
 		g_main_loop_quit(loop);
+	}
 }

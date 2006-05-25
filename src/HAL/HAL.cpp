@@ -82,11 +82,11 @@ HAL::~HAL()
 	{
 		PlutoHalD::shutDown();
 		
-/*		if( 0 != pthread_kill( d->hald_thread, SIGTERM) )
+		if( 0 != pthread_kill( d->hald_thread, SIGTERM) )
 		{
-			// try KILL
+			//try KILL
 			pthread_kill( d->hald_thread, SIGKILL);
-		}*/
+		}
 		
 		if( 0 != pthread_join( d->hald_thread, NULL ) )
 		{
