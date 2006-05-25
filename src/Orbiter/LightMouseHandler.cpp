@@ -42,9 +42,9 @@ void LightMouseHandler::Start()
 
 void LightMouseHandler::Stop()
 {
-NeedToRender render( g_pOrbiter, "change light" );
-PLUTO_SAFETY_LOCK(nd,g_pOrbiter->m_NeedRedrawVarMutex);
-g_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change light" );
+PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
+m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
 g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
 }
 
@@ -61,8 +61,8 @@ bool LightMouseHandler::ButtonUp(int PK_Button)
 	{
 		if( !m_bTapAndRelease )
 		{
-			DCE::CMD_Set_Level CMD_Set_Level(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
-			g_pOrbiter->SendMessage(CMD_Set_Level.m_pMessage);
+			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(m_iCancelLevel));
+			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Level.m_pMessage);
 		}
 		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing
@@ -94,11 +94,11 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	if( Notch!=m_iLastNotch )
 	{
-		NeedToRender render( g_pOrbiter, "LightMouseHandler" );
-		g_pOrbiter->RenderObjectAsync(m_pObj);
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler" );
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
 		if( m_bTapAndRelease==false )
 		{
-			DCE::CMD_Set_Level CMD_Set_Level(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
+			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 			m_iLastNotch = Notch;
 		}
@@ -131,7 +131,7 @@ void LightMouseHandler::CustomRender()
 	CurrentLevel = m_pObj->m_rPosition.Height * CurrentLevel / 100;
 	int X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width -  int(m_pObj->m_rPosition.Width * .1);
 
-    g_pRenderer->SolidRectangle(
+    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
 		PlutoColor::Green().SetAlpha(128));
@@ -141,7 +141,7 @@ void LightMouseHandler::CustomRender()
 		int NotchWidth = m_pObj->m_rPosition.Height/11; // Allow for 5 repeat levels in each direction
 		int NotchStart = (5-m_iLastNotch) * NotchWidth;
 		NotchStart = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + NotchStart;
-		g_pRenderer->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
 			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + int(m_pObj->m_rPosition.Width*.5), NotchStart,
 			int(m_pObj->m_rPosition.Width*.1), NotchWidth,
 			PlutoColor::Blue());
@@ -152,13 +152,13 @@ void LightMouseHandler::CustomRender()
 
 void LightMouseHandler::DoIteration(int Parm)
 {
-	NeedToRender render( g_pOrbiter, "LightMouseHandler it" );
-	g_pOrbiter->RenderObjectAsync(m_pObj);
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler it" );
+	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
 	m_iCancelLevel += (Parm*10);
 	if( m_iCancelLevel > 100 )
 		m_iCancelLevel=100;
 	if( m_iCancelLevel < 0 )
 		m_iCancelLevel = 0;
-	DCE::CMD_Set_Level CMD_Set_Level(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_LightingPlugIn,(Parm>0 ? "+" : "") + StringUtils::itos(Parm*10));
+	DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,(Parm>0 ? "+" : "") + StringUtils::itos(Parm*10));
 	m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Level.m_pMessage);
 }

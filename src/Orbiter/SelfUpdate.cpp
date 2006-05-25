@@ -17,13 +17,15 @@ using namespace std;
 #include "Win32/OrbiterWin32Defs.h"
 
 using namespace DCE;
-
 //-----------------------------------------------------------------------------------------------------
 #include "MainDialog.h"
 extern CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter) : m_pOrbiter(pOrbiter)
+OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter)
 {
+	assert(NULL != pOrbiter);
+	m_pOrbiter = pOrbiter;
+
 	char pProcessFilePath[256];
 	GetProcessFilePath(pProcessFilePath);
 	m_sOrbiterFilePath = string(pProcessFilePath);
@@ -31,6 +33,7 @@ OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter) : m_pOrbiter(pOrbiter)
 //-----------------------------------------------------------------------------------------------------
 OrbiterSelfUpdate::~OrbiterSelfUpdate()
 {
+	m_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
@@ -270,7 +273,7 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-	m_pOrbiter->WriteStatusOutput("Updating orbiter...");
+	ORBITER_CLASS::GetInstance()->WriteStatusOutput("Updating orbiter...");
 
 	if(LastUpdateFailed())
 	{	

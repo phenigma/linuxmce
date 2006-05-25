@@ -7,9 +7,9 @@
 class SDLGraphic : public PlutoGraphic
 {
 public:
-	SDLGraphic(string Filename, eGraphicManagement GraphicManagement);
+	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
 	SDLGraphic(struct SDL_Surface *pSDL_Surface);
-	SDLGraphic();
+	SDLGraphic(Orbiter *pCI);
 	~SDLGraphic();
 
 	void Initialize();

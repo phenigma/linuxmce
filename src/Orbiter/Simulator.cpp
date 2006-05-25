@@ -7,16 +7,6 @@
 
 using namespace DCE;
 
-#include "Orbiter.h"
-
-#ifdef WIN32
-	#include "Win32/OrbiterWin32Defs.h"
-	#include "Win32/MainDialog.h"
-	#include "StartOrbiter.h"
-#endif
-
-/*
-
 #ifdef WIN32
 
 	#include "Win32/OrbiterWin32Defs.h"
@@ -29,11 +19,6 @@ using namespace DCE;
 		#include <commctrl.h>
 		#include <sipapi.h>
 
-		#ifdef POCKETFROG
-			#include "OrbiterRenderer_PocketFrog.h"
-		#else
-			#include "OrbiterSDL_WinCE.h"
-		#endif
 		#ifndef WINCE_x86
 			#include <aygshell.h>
 		#endif
@@ -46,12 +31,6 @@ using namespace DCE;
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
 		#elif defined(PROXY_ORBITER)
 			#include "Proxy_Orbiter/Proxy_Orbiter.h"
-		#else
-			#ifdef POCKETFROG
-				#include "OrbiterRenderer_PocketFrog.h"
-			#else
-				#include "OrbiterSDL_Win32.h"
-			#endif
 		#endif
 
 	#endif
@@ -68,7 +47,6 @@ using namespace DCE;
 	#endif
 #endif //WIN32
 
-*/
 
 //------------------------------------------------------------------------------------------------------
 Simulator *Simulator::m_pInstance = NULL;
@@ -106,40 +84,17 @@ void *GeneratorThread( void *p)
 	srand( (unsigned)time(NULL) );
 	static int Count = 0;
 
-	
-/*#ifdef BLUETOOTH_DONGLE
+#ifdef BLUETOOTH_DONGLE
 	Orbiter *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #elif defined(PROXY_ORBITER)
 	Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
 #else
 	#ifdef WIN32
-<<<<<<< .mine
-		#ifdef WINCE
-
-			#ifdef POCKETFROG
-				OrbiterRenderer_PocketFrog *pOrbiter = OrbiterRenderer_PocketFrog::GetInstance();
-			#else
-				OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-			#endif
-
-		#else
-
-			#ifdef POCKETFROG
-				OrbiterRenderer_PocketFrog *pOrbiter = OrbiterRenderer_PocketFrog::GetInstance();
-			#else
-				OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
-			#endif
-
-		#endif
-=======
 		Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
->>>>>>> .r9538
 	#else
 		Orbiter *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
 	#endif
-#endif */
-
-	Orbiter *pOrbiter = Orbiter::GetInstance();
+#endif
 
 	while(true)
 	{

@@ -19,7 +19,7 @@ namespace DCE
 	class MouseBehavior_Win32 : public MouseBehavior
 	{
 	public:
-		MouseBehavior_Win32();
+		MouseBehavior_Win32(Orbiter *pOrbiter);
 		virtual void SetMousePosition(int X,int Y);
 		virtual void GetMousePosition(PlutoPoint *p) { POINT pt; GetCursorPos(&pt); p->X=pt.x; p->Y=pt.y; }
 		virtual void ShowMouse(bool bShow);

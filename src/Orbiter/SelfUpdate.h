@@ -6,9 +6,9 @@
 //-----------------------------------------------------------------------------------------------------
 class OrbiterSelfUpdate
 {
+	Orbiter *m_pOrbiter;
 	string m_sOrbiterFilePath;
     string m_sUpdateBinaryPath;
-	Orbiter *m_pOrbiter;
 
 public:
 	OrbiterSelfUpdate(Orbiter *pOrbiter);

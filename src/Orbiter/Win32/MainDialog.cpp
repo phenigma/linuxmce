@@ -10,17 +10,6 @@
 
 #include "Simulator.h"
 
-#ifdef POCKETFROG
-	#include "OrbiterRenderer_PocketFrog.h"
-#else
-	#ifndef WINCE
-		#include "Commctrl.h"
-		#include "OrbiterSDL_Win32.h"
-	#else
-		#include "OrbiterSDL_WinCE.h"
-	#endif
-#endif
-
 #if !defined(POCKETFROG) && !defined(WINCE)
 	#include "Commctrl.h"
 #endif
@@ -218,6 +207,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 	int Times = atoi(sTimesText.c_str());
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
+	Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
 
 	while(Times--)
 	{
@@ -232,6 +222,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			char lpszBuffer[256];
 	#endif
 			::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
+
 	#ifdef WINCE
 			char pItemBuffer[MAX_STRING_LEN];
 			wcstombs(pItemBuffer, lpszBuffer, MAX_STRING_LEN);
@@ -247,6 +238,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			{
 				string sDelay = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 				long delay = atoi(sDelay.c_str());
+
 				Simulator::SimulateActionDelay(delay);
 			}
 			else
@@ -256,7 +248,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 					string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					long key = atoi(sKey.c_str());
 
-					Orbiter::GetInstance()->SimulateKeyPress(key);
+					pOrbiter->SimulateKeyPress(key);
 				}
 				else
 				{
@@ -268,7 +260,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 					string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 					int y = atoi(sClickY.c_str());
 
-					Orbiter::GetInstance()->SimulateMouseClick(x, y);
+					pOrbiter->SimulateMouseClick(x, y);
 				}
 			}
 		}
@@ -631,8 +623,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 			{
 #ifdef POCKETFROG
-				if(OrbiterRenderer_PocketFrog::GetInstance())
-					OrbiterRenderer_PocketFrog::GetInstance()->OnQuit();
+				if(Orbiter_PocketFrog::GetInstance())
+					Orbiter_PocketFrog::GetInstance()->OnQuit();
 				Sleep(500);
 #else
 				HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						

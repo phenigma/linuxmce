@@ -16,8 +16,9 @@ using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 
-MouseBehavior_Linux::MouseBehavior_Linux()
-        : m_bIsActive_Mouse_Constrain(false)
+MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
+        : MouseBehavior(pOrbiter)
+        , m_bIsActive_Mouse_Constrain(false)
         , m_window_Mouse_Constrain(0)
 {
 }
@@ -27,18 +28,18 @@ MouseBehavior_Linux::~MouseBehavior_Linux()
     if (m_bIsActive_Mouse_Constrain)
     {
         // deactivate
-        X11_Mouse_Constrain( ptrOrbiterRendererSDLLinux()->getDisplay(),  ptrOrbiterRendererSDLLinux()->getWindow(), 0, 0, 0, 0);
+        X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), 0, 0, 0, 0);
     }
 }
 
-OrbiterRendererSDLLinux * MouseBehavior_Linux::ptrOrbiterRendererSDLLinux()
+OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 {
-    OrbiterRendererSDLLinux * pOrbiterLinux = dynamic_cast<OrbiterRendererSDLLinux *>(g_pRenderer);
+    OrbiterLinux * pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
     if (pOrbiterLinux == NULL)
     {
         g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux:: ptrOrbiterRendererSDLLinux() : NULL dynamic_cast<OrbiterLinux *>(%p)",
-            g_pRenderer
+            LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : NULL dynamic_cast<OrbiterLinux *>(%p)",
+            m_pOrbiter
             );
         return NULL;
     }
@@ -47,22 +48,22 @@ OrbiterRendererSDLLinux * MouseBehavior_Linux::ptrOrbiterRendererSDLLinux()
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
-    g_pRenderer->X_LockDisplay();
+    m_pOrbiter->X_LockDisplay();
 	MouseBehavior::SetMousePosition(X,Y);
-    Display *dpy =  ptrOrbiterRendererSDLLinux()->getDisplay();
+    Display *dpy = ptrOrbiterLinux()->getDisplay();
     Window rootwindow = DefaultRootWindow (dpy);
     g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",X,Y);
 
     XWarpPointer(dpy, rootwindow, rootwindow, 0, 0, 0, 0, X, Y);
 
-    g_pRenderer->X_UnlockDisplay();
+    m_pOrbiter->X_UnlockDisplay();
 }
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
 {
-    g_pRenderer->X_LockDisplay();
+    m_pOrbiter->X_LockDisplay();
 	SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
-    g_pRenderer->X_UnlockDisplay();
+    m_pOrbiter->X_UnlockDisplay();
 }
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
@@ -73,7 +74,7 @@ return false;
                           );
 
     // go to the right object
-    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(g_pRenderer);
+    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
     if (pOrbiterLinux == NULL)
     {
         g_pPlutoLogger->Write(
@@ -84,7 +85,7 @@ return false;
     }
     // call the real function
     std::string sErrorMessage;
-    bool bSuccess = X11_Mouse_Constrain( ptrOrbiterRendererSDLLinux()->getDisplay(),  ptrOrbiterRendererSDLLinux()->getWindow(), rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
+    bool bSuccess = X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
     // log the status
     if (bSuccess)
     {
@@ -107,7 +108,7 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
     g_pPlutoLogger->Write(LV_STATUS, "X11NewUI : MouseBehavior_Linux::SetMousePointerStyle(%d)");
     // go to the right object
-    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(g_pRenderer);
+    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
     if (pOrbiterLinux == NULL)
     {
         g_pPlutoLogger->Write(
@@ -126,7 +127,7 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
         case mcs_Normal:
             nShape = XC_top_left_arrow;
             if (! X11_Window_SetCursor_Font(
-                     ptrOrbiterRendererSDLLinux()->getDisplay(),  ptrOrbiterRendererSDLLinux()->getWindow(),
+                    ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(),
                     nShape, &sErr
                     ))
             {
@@ -164,13 +165,13 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
     std::string sPathMask = sPath + ".msk";
     // try to change the cursor
     if (! X11_Window_SetCursor_Image(
-             ptrOrbiterRendererSDLLinux()->getDisplay(),  ptrOrbiterRendererSDLLinux()->getWindow(),
+            ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(),
             sPath, sPathMask, &sErr
             ))
     {
         g_pPlutoLogger->Write(
             LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : X11_Window_SetCursor_Image(%s, %s) : %s",
-            mouseCursorStyle, sPath.c_str(), sPathMask.c_str(), sErr.c_str()
+            mouseCursorStyle, sPath, sPathMask, sErr.c_str()
             );
         return;
     }

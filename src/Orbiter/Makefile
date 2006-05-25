@@ -94,17 +94,13 @@ sources += \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
 	DesignObj_Data.cpp \
-	DesignObj_DataGrid.cpp \
 	DesignObj_Orbiter.cpp \
 	Simulator.cpp \
 	OrbiterFileBrowser.cpp \
-	OrbiterRenderer.cpp \
 	Linux/OrbiterLinux.cpp \
 	Linux/XRecordExtensionHandler.cpp \
-	Linux/OrbiterRendererSDLLinux.cpp \
 	RendererMNG.cpp \
 	GraphicBuilder.cpp \
-	PlutoGraphic.cpp \
 	TextStyle.cpp \
 	CacheImageManager.cpp \
 	RendererOCG.cpp \

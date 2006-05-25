@@ -8,7 +8,6 @@ using namespace std;
 
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
-#include "OrbiterRenderer.h"
 #include "PlutoUtils/ProcessUtils.h"
 using namespace DCE;
 
@@ -86,8 +85,6 @@ namespace DCE
 	class MouseBehavior
 	{
 		friend class Orbiter;
-		friend class OrbiterRenderer;
-
 		friend class MouseIterator;
 		friend class MouseGovernor;
 		friend class LightMouseHandler;
@@ -101,6 +98,7 @@ namespace DCE
 		
 
 	protected:
+		Orbiter *m_pOrbiter;
 		class MouseGovernor *m_pMouseGovernor;
 		class MouseIterator *m_pMouseIterator;
 		MouseSensitivity m_MouseSensitivity;
@@ -119,7 +117,7 @@ namespace DCE
 
 	public:
 		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
-		MouseBehavior();
+		MouseBehavior(Orbiter *pOrbiter);
 		virtual ~MouseBehavior();
 
 		void Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj);

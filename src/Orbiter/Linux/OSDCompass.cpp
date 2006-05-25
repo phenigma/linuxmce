@@ -1,6 +1,6 @@
 #include "OSDCompass.h"
 
-OSDCompass::OSDCompass(PlutoRectangle Area)
+OSDCompass::OSDCompass(Orbiter* pOrbiter, PlutoRectangle Area)
 {
 }
 

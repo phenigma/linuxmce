@@ -23,7 +23,6 @@
 #include "KeyboardMouseHandler.h"
 
 #include "Linux/OSDCompass.h"
-#include "Orbiter.h"
 
 using namespace DCE;
 
@@ -35,13 +34,14 @@ using namespace DCE;
 */
 
 //-----------------------------------------------------------------------------------------------------
-MouseBehavior::MouseBehavior()
+MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
 	//TODO: set custom position for the compass
-	m_spCompass.reset(new OSDCompass(PlutoRectangle(10, 10, 100, 100)));
+	m_spCompass.reset(new OSDCompass(pOrbiter, PlutoRectangle(10, 10, 100, 100)));
 
 	m_pMouseHandler=NULL;
 	ProcessUtils::ResetMsTime();
+	m_pOrbiter=pOrbiter;
 	m_pMouseGovernor = new MouseGovernor(this);
 	m_pMouseIterator = new MouseIterator(this);
 	m_iPK_Button_Mouse_Last=0;
@@ -57,7 +57,7 @@ MouseBehavior::~MouseBehavior()
 
 void MouseBehavior::Clear(bool bGotoMainMenu)
 {
-	PLUTO_SAFETY_LOCK(mb,g_pOrbiter->m_ScreenMutex);
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 
 	/* there's a logic flaw that when popups are put on screen they're added to the following
 	vect's, but not removed when the popup is removed, although they are marked as m_bOnScreen=false.
@@ -65,8 +65,8 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	Perhaps they should be changed to something else that's easier to remove entries from.
 	For now, with the new UI, we know that whenever the mouse behavior is reset we will
 	have no grids or tab stops on screen.  Reset them so the list doesn't grow indefinately. */
-//	g_pOrbiter->m_vectObjs_GridsOnScreen.clear();
-//	g_pOrbiter->m_vectObjs_TabStops.clear();
+//	m_pOrbiter->m_vectObjs_GridsOnScreen.clear();
+//	m_pOrbiter->m_vectObjs_TabStops.clear();
 
 	m_pObj_Locked=NULL;
 	ResetSamples();
@@ -81,20 +81,20 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 
 	if( bGotoMainMenu )
 	{
-		NeedToRender render( g_pOrbiter, "start speed" );
-		if( g_pOrbiter->m_bIsOSD && g_pOrbiter->m_iPK_Screen_RemoteOSD && g_pOrbiter->m_iLocation_Initial==g_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
-			g_pOrbiter->CMD_Goto_Screen("",g_pOrbiter->m_iPK_Screen_RemoteOSD);
-		else if( g_pOrbiter->m_iPK_Screen_Remote )
-			g_pOrbiter->CMD_Goto_Screen("",g_pOrbiter->m_iPK_Screen_Remote);
+		NeedToRender render( m_pOrbiter, "start speed" );
+		if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_RemoteOSD);
+		else if( m_pOrbiter->m_iPK_Screen_Remote )
+			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
 		else
-			g_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
 }
 
 // If options contains a 's', this will be selected by default
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
-	PLUTO_SAFETY_LOCK(mb,g_pOrbiter->m_ScreenMutex);
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
 					  sOptions.c_str(),(int) bExclusive,sDirection.c_str(),sDesignObj.c_str());
 	if( sOptions.size()==0 )
@@ -105,7 +105,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 	DesignObj_Orbiter *pObj=NULL;
 	if( sDesignObj.size() )
-		pObj = g_pOrbiter->FindObject(sDesignObj);
+		pObj = m_pOrbiter->FindObject(sDesignObj);
 
 	if( !pObj && sOptions[0] !='K' )  // Only the keyboard handler does not require an object
 	{
@@ -147,7 +147,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
-	PLUTO_SAFETY_LOCK(mb,g_pOrbiter->m_ScreenMutex);
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
 
@@ -158,7 +158,7 @@ void MouseBehavior::Move(int X,int Y)
 DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y)
 {
 	if( pObj_Parent==NULL )
-		pObj_Parent = g_pOrbiter->m_pScreenHistory_Current->GetObj();
+		pObj_Parent = m_pOrbiter->m_pScreenHistory_Current->GetObj();
 	DesignObj_DataList::iterator iHao;
 	for( iHao=pObj_Parent->m_ChildObjects.begin(  ); iHao != pObj_Parent->m_ChildObjects.end(  ); ++iHao )
 	{
@@ -183,8 +183,8 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 			return;
 		pSpeedMouseHandler->m_CurrentMedia_Stop = Stop;
 		pSpeedMouseHandler->m_CurrentMedia_Pos = Current;
-NeedToRender render( g_pOrbiter, "start speed" );
-g_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
+NeedToRender render( m_pOrbiter, "start speed" );
+m_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 
 	}
 }
@@ -192,65 +192,65 @@ g_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d",(int) PK_Button);
-	PLUTO_SAFETY_LOCK(mb,g_pOrbiter->m_ScreenMutex);
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
 	m_iTime_Last_Mouse_Up=0;
-	int PK_Screen_OnScreen = g_pOrbiter->m_pScreenHistory_Current->PK_Screen();
+	int PK_Screen_OnScreen = m_pOrbiter->m_pScreenHistory_Current->PK_Screen();
 
 	// Special case for the media control
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_mnuMainMenu2_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
-		NeedToRender render( g_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		g_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
 		/*
-		g_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
-		g_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
+		m_pOrbiter->CMD_Remove_Popup("",""); // Remove all popups
+		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popMainMenu_CONST),0,0,"","left",false,false);
 		Set_Mouse_Behavior("Lhu",true,"Y",StringUtils::itos(DESIGNOBJ_popMainMenu_CONST));
 		*/
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=SCREEN_mnuPlaybackControl_CONST 
-		&& PK_Screen_OnScreen!=g_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=g_pOrbiter->m_iPK_Screen_OSD_Track )
+		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
-		NeedToRender render( g_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		if( g_pOrbiter->m_iPK_Screen_OSD_Speed && g_pOrbiter->m_iPK_Screen_OSD_Track )
-			g_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
-		else if( g_pOrbiter->m_iPK_Screen_OSD_Speed )
-			g_pOrbiter->CMD_Goto_Screen("", g_pOrbiter->m_iPK_Screen_OSD_Speed);
-		else if( g_pOrbiter->m_iPK_Screen_OSD_Track )
-			g_pOrbiter->CMD_Goto_Screen("", g_pOrbiter->m_iPK_Screen_OSD_Track);
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
+			m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
+		else if( m_pOrbiter->m_iPK_Screen_OSD_Speed )
+			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Speed);
+		else if( m_pOrbiter->m_iPK_Screen_OSD_Track )
+			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
 			
 /*
-		DesignObj_Orbiter *pObj = g_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_popSpeedControl_temp_CONST);  // Temp until the widget is done and can set this
 		pObj->m_rPosition.Width=964;
 		pObj->m_rPosition.Height=90;
-		g_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_temp_CONST),263,526,"","horiz",false,false);
-		g_pOrbiter->CMD_Show_Popup(StringUtils::itos(g_pOrbiter->m_iPK_DesignObj_Remote_Popup),0,0,"","left",false,false);
+		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popSpeedControl_temp_CONST),263,526,"","horiz",false,false);
+		m_pOrbiter->CMD_Show_Popup(StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup),0,0,"","left",false,false);
 		Set_Mouse_Behavior("S",false,"X",StringUtils::itos(DESIGNOBJ_popSpeedControl_temp_CONST));
-		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(g_pOrbiter->m_iPK_DesignObj_Remote_Popup));
+		Set_Mouse_Behavior("T",false,"Y",StringUtils::itos(m_pOrbiter->m_iPK_DesignObj_Remote_Popup));
 */
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST 
 		&& PK_Screen_OnScreen!=SCREEN_mnuVolume_CONST && PK_Screen_OnScreen!=SCREEN_mnuLights_CONST )
 	{
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
-		NeedToRender render( g_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
-		g_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
+		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
 /*
-		DesignObj_Orbiter *pObj_Lights = g_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
-		DesignObj_Orbiter *pObj_Volume = g_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
+		DesignObj_Orbiter *pObj_Lights = m_pOrbiter->FindObject(DESIGNOBJ_popLightsInRoom_CONST);
+		DesignObj_Orbiter *pObj_Volume = m_pOrbiter->FindObject(DESIGNOBJ_popVolume_CONST);
 		if( pObj_Lights && pObj_Volume )
 		{
-			g_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popVolume_CONST),pObj_Lights->m_rPosition.Width + g_pOrbiter->m_Width/20,g_pOrbiter->m_Height*.95 - pObj_Volume->m_rPosition.Height,"","horiz",false,false);
-			g_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST),g_pOrbiter->m_Width/20,0,"","left",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popVolume_CONST),pObj_Lights->m_rPosition.Width + m_pOrbiter->m_Width/20,m_pOrbiter->m_Height*.95 - pObj_Volume->m_rPosition.Height,"","horiz",false,false);
+			m_pOrbiter->CMD_Show_Popup(StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST),m_pOrbiter->m_Width/20,0,"","left",false,false);
 			Set_Mouse_Behavior("V",false,"X",StringUtils::itos(DESIGNOBJ_popVolume_CONST));
 			Set_Mouse_Behavior("G",false,"Y",StringUtils::itos(DESIGNOBJ_popLightsInRoom_CONST));
 		}
 */
 	}
-	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==g_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==g_pOrbiter->m_iPK_Screen_OSD_Track)) ||
+	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_mnuMainMenu2_CONST) )
 	{
@@ -259,10 +259,10 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
-		if( g_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==g_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==g_pOrbiter->m_iPK_Screen_RemoteOSD) )
+		if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
-			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
-			g_pOrbiter->SendCommand(CMD_MH_Stop_Media);
+			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
+			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
 		}
 		Clear(true);
 	}
@@ -278,7 +278,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 bool MouseBehavior::ButtonUp(int PK_Button)
 {
     g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p",(int) PK_Button,m_pMouseHandler);
-    PLUTO_SAFETY_LOCK(mb,g_pOrbiter->m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
 
@@ -292,30 +292,30 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
-	DesignObj_Orbiter *pObj_Previously_Highlighted=g_pOrbiter->m_pObj_Highlighted;
+	DesignObj_Orbiter *pObj_Previously_Highlighted=m_pOrbiter->m_pObj_Highlighted;
 
-	g_pRenderer->UnHighlightObject();
+	m_pOrbiter->UnHighlightObject();
 	if( pObj_Previously_Highlighted && pObj!=pObj_Previously_Highlighted )
-		g_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
-	g_pOrbiter->m_pObj_Highlighted = pObj;
-	g_pRenderer->DoHighlightObject();
-//			m_pMouseBehavior->g_pOrbiter->RenderObjectAsync(m_pMouseBehavior->g_pOrbiter->m_pObj_Highlighted);
+		m_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
+	m_pOrbiter->m_pObj_Highlighted = pObj;
+	m_pOrbiter->DoHighlightObject();
+//			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }
 
 PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()
 {
-	if( g_pOrbiter->m_pObj_Highlighted )
+	if( m_pOrbiter->m_pObj_Highlighted )
 	{
-		if( g_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		if( m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
 			PlutoRectangle rect;
-			g_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted,rect);
+			m_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pOrbiter->m_pObj_Highlighted,rect);
 
 g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates %d,%d - %d,%d",rect.X,rect.Y,rect.Width,rect.Height);
-			return rect + g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+			return rect + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 		}
 		else
-			return g_pOrbiter->m_pObj_Highlighted->m_rPosition + g_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+			return m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 	}
 	return PlutoRectangle(0,0,0,0);
 }
@@ -323,7 +323,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates
 void MouseBehavior::SelectFirstObject(char cDirection,DesignObj_Orbiter *pObj_Parent)
 {
 	// Select the first object to highlight if we didn't already and center over it
-	DesignObj_Orbiter *pObj = g_pOrbiter->m_pObj_Highlighted = g_pOrbiter->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
 	if( pObj )
 	{
 		PlutoRectangle rect = GetHighlighedObjectCoordinates();
@@ -334,7 +334,7 @@ void MouseBehavior::SelectFirstObject(char cDirection,DesignObj_Orbiter *pObj_Pa
 
 int MouseBehavior::GetDirectionAwayFromHighlight(int X,int Y)
 {
-	DesignObj_Orbiter *pObj = g_pOrbiter->m_pObj_Highlighted; // Make the code look better
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
 
 	PlutoRectangle plutoRectangle = GetHighlighedObjectCoordinates();
 	if( plutoRectangle.Contains(X,Y) )
@@ -368,7 +368,7 @@ int MouseBehavior::GetDirectionAwayFromHighlight(int X,int Y)
 
 void MouseBehavior::PositionMouseAtObjectEdge(int PK_Direction)
 {
-	DesignObj_Orbiter *pObj = g_pOrbiter->m_pObj_Highlighted; // Make the code look better
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
 	PlutoRectangle rect = GetHighlighedObjectCoordinates();
 
 	switch(PK_Direction)

@@ -1,6 +1,22 @@
 #ifndef __ORBITER_WIN32_DEFS__
 #define __ORBITER_WIN32_DEFS__
 
+#ifdef POCKETFROG
+	#include "Orbiter_PocketFrog.h"
+	#define ORBITER_CLASS Orbiter_PocketFrog
+#elif ORBITER_OPENGL
+	#include "Orbiter_OpenGL.h"
+	#define ORBITER_CLASS Orbiter_OpenGL
+#else
+	#ifdef WINCE
+		#include "OrbiterSDL_WinCE.h"
+		#define ORBITER_CLASS OrbiterSDL_WinCE
+	#else
+		#include "OrbiterSDL_Win32.h"
+		#define ORBITER_CLASS OrbiterSDL_Win32
+	#endif //WINCE
+#endif //POCKETFROG
+
 #ifdef WINCE
 	#ifdef WINCE_x86
 		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");

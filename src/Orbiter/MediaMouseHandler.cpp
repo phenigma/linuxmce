@@ -51,23 +51,23 @@ void MediaMouseHandler::Start()
 			m_pMouseBehavior->SetMousePosition(X,Y);
 		}
 	}
-	g_pOrbiter->m_pObj_Highlighted=pObj_Grid;
+	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_Grid;
 }
 
 void MediaMouseHandler::Stop()
 {
-	g_pOrbiter->m_pObj_Highlighted=NULL;
+	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=NULL;
 }
 
 bool MediaMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
-		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
-		g_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
+		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
+		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 
 		if( PK_Button==BUTTON_Mouse_1_CONST )
-			g_pOrbiter->SelectedObject(m_pObj,smNavigation);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smNavigation);
 
 		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
@@ -79,9 +79,9 @@ bool MediaMouseHandler::ButtonUp(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_6_CONST && !m_bTapAndRelease )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
-		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(g_pOrbiter->m_dwPK_Device,g_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
-		g_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-		g_pOrbiter->SelectedObject(m_pObj,smNavigation);
+		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
+		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
+		m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smNavigation);
 		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
 	}
@@ -90,8 +90,8 @@ bool MediaMouseHandler::ButtonUp(int PK_Button)
 
 void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
-	PLUTO_SAFETY_LOCK( dng, g_pOrbiter->m_DatagridMutex );
+	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
+	PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
 	if( !m_pObj || m_pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Also shouldn't happen
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
@@ -112,12 +112,12 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			pObj_Grid->m_iHighlightedRow = 1;
 			pObj_Grid->m_GridCurRow = Row;
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
-			g_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 			delete pObj_Grid->m_pDataGridTable;
 			pObj_Grid->m_pDataGridTable=NULL;
 			pObj_Grid->bReAcquire=true;
-			NeedToRender render( g_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
-			g_pOrbiter->RenderObjectAsync(pObj_Grid);
+			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pObj_Grid);
 		}
 	}
 	else

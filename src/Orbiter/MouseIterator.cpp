@@ -25,7 +25,7 @@ void *IteratorThread(void *p)
 MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("Iterator")
 {
 	m_pMouseBehavior=pMouseBehavior;
-	m_pOrbiter=g_pOrbiter;
+	m_pOrbiter=m_pMouseBehavior->m_pOrbiter;
 
 	pthread_cond_init(&m_IteratorCond, NULL);
 	m_IteratorMutex.Init(NULL,&m_IteratorCond);
@@ -153,8 +153,8 @@ void MouseIterator::DoIteration()
 				return; // Shouldn't happen, this should be the datagris control
 
 			DesignObj_Orbiter *pObj_Child = (DesignObj_Orbiter *) *(m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_ChildObjects.begin());
-			PLUTO_SAFETY_LOCK( cm, g_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
-			PLUTO_SAFETY_LOCK( dng, g_pOrbiter->m_DatagridMutex );
+			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
+			PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
 			if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 				return; // Also shouldn't happen
 			DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj_Child;

@@ -3,7 +3,6 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "Simulator.h"
 #include "Win32/OrbiterWin32Defs.h"
-#include "OrbiterRenderer.h"
 
 using namespace DCE;
 using namespace std;
@@ -14,11 +13,7 @@ using namespace std;
 #include "ServerLogger.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#ifndef POCKETFROG
-//#include "OrbiterRenderer_SDL.h"
-#else
-#include "OrbiterRenderer_PocketFrog.h"
-#endif
+
 #include "MainDialog.h"
 //-----------------------------------------------------------------------------------------------------
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
@@ -59,10 +54,10 @@ enum OrbiterStages
 	osQuit
 };
 //-----------------------------------------------------------------------------------------------------
-bool EventLoop(Orbiter* pOrbiter);
+bool EventLoop(ORBITER_CLASS* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
+ORBITER_CLASS *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
 	int Width,int Height, bool bFullScreen, bool bUseOpenGL, bool &bMustQuit)
 {
     bMustQuit = false;
@@ -70,19 +65,19 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
-	Orbiter *pOrbiter = NULL;
-
 	try
 	{
-		//remove the old instance
-		if(NULL != Orbiter::GetInstance())
-			Orbiter::DestroyInstance();
+		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
+		ORBITER_CLASS::Cleanup();
+		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 
 		WriteStatusOutput("Building a new orbiter");
-
-		//create a new one
-		pOrbiter = Orbiter::CreateInstance(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height);
-			
+		ORBITER_CLASS::BuildOrbiter(
+			PK_Device, PK_DeviceTemplate, sRouter_IP,
+			sLocalDirectory, bLocalMode, 
+			Width, Height, bFullScreen, 
+			bUseOpenGL
+		); //the builder method
 		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
 	}
 	catch(string s)
@@ -98,6 +93,8 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		return NULL;
 	}
 
+	ORBITER_CLASS *pOrbiter = ORBITER_CLASS::GetInstance();
+
 	if(!bLocalMode)
 	{
 		WriteStatusOutput("Getting config and connecting...");
@@ -109,7 +106,7 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
                 bMustQuit = true;
             else
             {
-                //Orbiter::Cleanup();
+                ORBITER_CLASS::Cleanup();
                 return NULL;
             }
         }
@@ -118,7 +115,7 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	return pOrbiter;
 }
 //-----------------------------------------------------------------------------------------------------
-bool Run(Orbiter* pOrbiter, bool bLocalMode)
+bool Run(ORBITER_CLASS* pOrbiter, bool bLocalMode)
 {
 	WriteStatusOutput("Parsing configuration data...");
 	pOrbiter->WriteStatusOutput("Parsing configuration data...");
@@ -144,12 +141,99 @@ bool Run(Orbiter* pOrbiter, bool bLocalMode)
 	return EventLoop(pOrbiter);
 }
 //-----------------------------------------------------------------------------------------------------
-bool EventLoop(Orbiter* pOrbiter)
+bool EventLoop(ORBITER_CLASS* pOrbiter)
 {
 	if(Simulator::GetInstance()->m_bEnableGenerator)
 		Simulator::GetInstance()->StartRandomEventGenerator();
 
-	pOrbiter->Renderer()->RunEventLoop();
+#ifdef POCKETFROG
+	pOrbiter->Run();
+#else
+
+	int SDL_Event_Pending = 0;
+
+	SDL_Event Event;
+
+   // For now I'll assume that shift + arrows scrolls a grid
+    while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
+    {
+		SDL_Event_Pending = SDL_PollEvent(&Event);
+
+		if (SDL_Event_Pending)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Event: %d", Event.type);
+
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+
+			if (Event.type == SDL_QUIT)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				break;
+			}
+
+			if(Event.type == SDL_MOUSEMOTION)
+			{
+				orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+
+#ifdef AUDIDEMO
+			if (Event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
+
+				orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+				switch ( Event.button.button )
+				{
+					case 1:	orbiterEvent.data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
+					case 2: orbiterEvent.data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
+					case 3:	orbiterEvent.data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
+					case 4:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 		break;
+					case 5:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
+					case 6:	orbiterEvent.data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
+					case 7:	orbiterEvent.data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
+
+					default:
+						g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
+						orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+						break;
+				}
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+	#else
+			if (Event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+
+				RecordMouseAction(Event.button.x, Event.button.y);
+			}
+			else if (Event.type == SDL_MOUSEBUTTONUP)
+			{
+				orbiterEvent.type = Orbiter::Event::REGION_UP;
+				orbiterEvent.data.region.m_iX = Event.button.x;
+				orbiterEvent.data.region.m_iY = Event.button.y;
+				pOrbiter->ProcessEvent(orbiterEvent);
+			}
+	#endif
+		} //if (SDL_Event_Pending)
+		else
+		{
+			#ifdef ORBITER_OPENGL
+					((Orbiter_OpenGL*) pOrbiter)->OnIdle();
+			#else
+        			((OrbiterSDL*) pOrbiter)->OnIdle();
+			#endif
+		}
+
+    }  // while
+
+#endif //POCKETFROG vs. SDL
 
 	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
 		(int) pOrbiter->m_bReload, (int) pOrbiter->m_bConnectionLost, (int) pOrbiter->m_bQuit);
@@ -160,7 +244,7 @@ bool EventLoop(Orbiter* pOrbiter)
 void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 					int Width,int Height, bool bFullScreen, bool bUseOpenGL)
 {
-	Orbiter *pOrbiter = NULL;
+	ORBITER_CLASS *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
 
 	g_pDeadlockHandler=DeadlockHandler;

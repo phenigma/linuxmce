@@ -4,14 +4,15 @@
 //-----------------------------------------------------------------------------------------------------
 
 #include "../SDL/OrbiterSDL.h"
-#include "../OrbiterRendererFactory.h"
 //-----------------------------------------------------------------------------------------------------
 class OrbiterSDL_Win32 : public OrbiterSDL
 {
-	friend class OrbiterRendererFactory;
-
 private:
-	OrbiterSDL_Win32();
+
+	static OrbiterSDL_Win32* m_pInstance; //the one and only instance of OrbiterSDL_Win32
+	
+	OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
 
 public:
 
@@ -31,6 +32,11 @@ public:
 
 	//OrbiterSDL_Win32 public methods
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	static void Cleanup();
+	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+		int nImageWidth, int nImageHeight, bool bFullScreen = false, bool bUseOpenGL = false);
+	static OrbiterSDL_Win32 *GetInstance();
 
 	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
     bool DisplayProgress(string sMessage, int nProgress);

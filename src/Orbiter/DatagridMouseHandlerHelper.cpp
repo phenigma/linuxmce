@@ -17,18 +17,16 @@ DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandl
 { 
 	m_pMouseHandler=pMouseHandler;
 	m_pMouseBehavior=m_pMouseHandler->m_pMouseBehavior;
-	m_dwPK_Direction_ScrollGrid=0; 
-	m_pObj_MediaBrowser_Alpha=NULL;
-	m_pObj_ScrollingGrid=NULL;
+	m_dwPK_Direction_ScrollGrid=0; m_pObj_MediaBrowser_Alpha=m_pObj_ScrollingGrid=NULL;
 }
 
 void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid)
 {
 	m_dwPK_Direction_ScrollGrid = 0;
 	m_pObj_ScrollingGrid=pObj_ScrollingGrid;
-	m_pObj_MediaBrowser_Down = g_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
-	m_pObj_MediaBrowser_Up = g_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
-	m_pObj_MediaBrowser_Alpha = g_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
+	m_pObj_MediaBrowser_Down = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
+	m_pObj_MediaBrowser_Up = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
+	m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
 	if( m_pObj_MediaBrowser_Down && !m_pObj_MediaBrowser_Down->m_bOnScreen )
 		m_pObj_MediaBrowser_Down = NULL;
 	if( m_pObj_MediaBrowser_Up && !m_pObj_MediaBrowser_Up->m_bOnScreen )
@@ -83,10 +81,10 @@ if( Row_Before==Row && Column_Before==Column )
 int k=2;
 		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=Row_Before || m_pObj_ScrollingGrid->m_iHighlightedColumn!=Column_Before )
 		{
-			g_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
 
-//g_pOrbiter->HighlightNextObject(PK_Direction);
-			g_pOrbiter->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
+//m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
+			m_pMouseBehavior->m_pOrbiter->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
 		}
 		return true;
 	}
@@ -118,7 +116,7 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 		// Down is trickier since the last visible cell may not extend all the way to the bottom (the top cell is always the top)
 		// So get the coorindates of the last visible cell
 		PlutoRectangle r;
-		g_pOrbiter->GetGridCellDimensions( pObj,
+		m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( pObj,
 			1, // col span
 			1, // row span
 			0, // column
@@ -139,7 +137,7 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y );
 	}
 
-	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) g_pOrbiter->m_pObj_Highlighted;
+	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 	m_pMouseHandler->m_iLastNotch = -999; // Start with no movement
 	if( m_pObj_MediaBrowser_Down )
 		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
@@ -166,7 +164,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 				m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
 
 			PlutoRectangle r;
-			g_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
+			m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
 				1, // col span
 				1, // row span
 				0, // column
@@ -208,15 +206,15 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 	if( Notch!=m_pMouseHandler->m_iLastNotch )
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch %d",Notch);
-	NeedToRender render( g_pOrbiter, "scroll" );
-		g_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "scroll" );
+		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
 		// We know the notch can't go in reverse since that would stop the scrolling
 		if( Notch<=5 )
 		{
 			if( dwPK_Direction==DIRECTION_Up_CONST )
-				g_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Up_CONST);
+				m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Up_CONST);
 			else
-				g_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Down_CONST);
+				m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Down_CONST);
 
 			m_pMouseHandler->m_iLastNotch=Notch;
 			return;
@@ -230,12 +228,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 		if( dwPK_Direction==DIRECTION_Down_CONST && m_pObj_MediaBrowser_Down )
 		{
 			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			g_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
 		}
 		else if( dwPK_Direction==DIRECTION_Up_CONST && m_pObj_MediaBrowser_Up )
 		{
 			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			g_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
+			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
 		}
 //remus  m_pObj_ScrollingGrid->SetSpeed(Speed);
 	}

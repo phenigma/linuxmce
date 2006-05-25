@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../PocketFrog;../../../libs/Libraries/PocketFrog;../../../libs/CrossPlatform/lpng127/contrib/visupng"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;ENABLE_OPENGL;ENABLE_MOUSE_BEHAVIOR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;POCKETFROG;DEBUG;ENABLE_OPENGL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -29,8 +29,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CallingConvention="0"
-				ShowIncludes="FALSE"/>
+				CallingConvention="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -140,226 +139,168 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
-			<Filter
-				Name="Design Object Classes"
-				Filter="">
-				<File
-					RelativePath="..\DesignObj_Data.cpp">
-				</File>
-				<File
-					RelativePath="..\DesignObj_Datagrid.cpp">
-				</File>
-				<File
-					RelativePath="..\DesignObj_Orbiter.cpp">
-				</File>
-			</Filter>
-			<Filter
-				Name="OpenGL"
-				Filter="">
-				<File
-					RelativePath="..\OpenGL\GL2DWidgets\basewidget.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DWidgets\DrawingWidgetsEngine.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffect.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_prism.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_topleft.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectBlending.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromtop.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLight.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLightArea.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectNoEffect.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectselectedarea.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectTransitionNoEffect.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DEffects\GL2DEffectWipeIn.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\OpenGLProxy.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\OpenGLTextureConverter.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\OpenGLTextureConverter_PocketFrog.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\orbitergl3dengine.cpp">
-				</File>
-			</Filter>
-			<Filter
-				Name="Orbiter Main"
-				Filter="">
-				<File
-					RelativePath="..\OpenGL\GL2DWidgets\basicwindow.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\GL2DWidgets\bezierwindow.cpp">
-				</File>
-				<File
-					RelativePath="..\CacheImageManager.cpp">
-				</File>
-				<File
-					RelativePath="..\CallBackData.cpp">
-				</File>
-				<File
-					RelativePath="..\GraphicBuilder.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\main.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\MainDialog.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\math3dutils.cpp">
-				</File>
-				<File
-					RelativePath="..\Orbiter.cpp">
-				</File>
-				<File
-					RelativePath="..\OpenGL\Orbiter3DCommons.cpp">
-				</File>
-				<File
-					RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
-				</File>
-				<File
-					RelativePath="..\OrbiterFileBrowser.cpp">
-				</File>
-				<File
-					RelativePath="..\OrbiterRenderer.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\OrbiterRenderer_PocketFrog.cpp">
-				</File>
-				<File
-					RelativePath="..\Linux\OSDCompass.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\PFGHelper.cpp">
-				</File>
-				<File
-					RelativePath="..\PlutoGraphic.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\PNGWrapper.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\PocketFrogGraphic.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\PopupMessage.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\ProgressDialog.cpp">
-				</File>
-				<File
-					RelativePath="..\RendererMNG.cpp">
-				</File>
-				<File
-					RelativePath="..\RendererOCG.cpp">
-				</File>
-				<File
-					RelativePath="..\ScreenHandler.cpp">
-				</File>
-				<File
-					RelativePath="..\ScreenHistory.cpp">
-				</File>
-				<File
-					RelativePath="..\SelfUpdate.cpp">
-				</File>
-				<File
-					RelativePath="..\Simulator.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\StartOrbiter.cpp">
-				</File>
-				<File
-					RelativePath="..\TextStyle.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\VirtualKeysTranslator.cpp">
-				</File>
-			</Filter>
-			<Filter
-				Name="Mouse Handlers"
-				Filter="">
-				<File
-					RelativePath="..\DatagridMouseHandlerHelper.cpp">
-				</File>
-				<File
-					RelativePath="..\KeyboardMouseHandler.cpp">
-				</File>
-				<File
-					RelativePath="..\LightMouseHandler.cpp">
-				</File>
-				<File
-					RelativePath="..\LockedMouseHandler.cpp">
-				</File>
-				<File
-					RelativePath="..\MediaMouseHandler.cpp">
-				</File>
-				<File
-					RelativePath="..\MouseBehavior.cpp">
-				</File>
-				<File
-					RelativePath="..\Win32\MouseBehavior_Win32.cpp">
-				</File>
-				<File
-					RelativePath="..\MouseGovernor.cpp">
-				</File>
-				<File
-					RelativePath="..\MouseIterator.cpp">
-				</File>
-				<File
-					RelativePath="..\SpeedMouseHandler.cpp">
-				</File>
-			</Filter>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\basewidget.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\basicwindow.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\bezierwindow.cpp">
+			</File>
+			<File
+				RelativePath="..\CacheImageManager.cpp">
+			</File>
+			<File
+				RelativePath="..\CallBackData.cpp">
+			</File>
+			<File
+				RelativePath="..\DesignObj_Data.cpp">
+			</File>
+			<File
+				RelativePath="..\DesignObj_Orbiter.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DWidgets\DrawingWidgetsEngine.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffect.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_prism.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectbeziertranzit_topleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectBlending.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfactory.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromtop.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLight.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectHighLightArea.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectNoEffect.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectselectedarea.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffectslidefromleft.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\gl2deffecttransit.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectTransitionNoEffect.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\GL2DEffects\GL2DEffectWipeIn.cpp">
+			</File>
+			<File
+				RelativePath="..\GraphicBuilder.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\main.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\MainDialog.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\math3dutils.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\OpenGLProxy.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\OpenGLTextureConverter.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\OpenGLTextureConverter_PocketFrog.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\Orbiter3DCommons.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\Orbiter_PocketFrog.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
+			</File>
+			<File
+				RelativePath="..\OrbiterFileBrowser.cpp">
+			</File>
+			<File
+				RelativePath="..\OpenGL\orbitergl3dengine.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PFGHelper.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PNGWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PocketFrogGraphic.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\PopupMessage.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\ProgressDialog.cpp">
+			</File>
+			<File
+				RelativePath="..\RendererMNG.cpp">
+			</File>
+			<File
+				RelativePath="..\RendererOCG.cpp">
+			</File>
+			<File
+				RelativePath="..\ScreenHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\ScreenHistory.cpp">
+			</File>
+			<File
+				RelativePath="..\SelfUpdate.cpp">
+			</File>
+			<File
+				RelativePath="..\Simulator.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\StartOrbiter.cpp">
+			</File>
+			<File
+				RelativePath="..\TextStyle.cpp">
+			</File>
+			<File
+				RelativePath="..\Win32\VirtualKeysTranslator.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -369,9 +310,6 @@
 			</File>
 			<File
 				RelativePath="..\CallBackData.h">
-			</File>
-			<File
-				RelativePath="..\DatagridMouseHandlerHelper.h">
 			</File>
 			<File
 				RelativePath=".\GraphicBuilder.h">
@@ -392,13 +330,7 @@
 				RelativePath="..\Orbiter.h">
 			</File>
 			<File
-				RelativePath="..\OrbiterRenderer.h">
-			</File>
-			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.h">
-			</File>
-			<File
-				RelativePath="..\PlutoGraphic.h">
 			</File>
 			<File
 				RelativePath=".\Sdl\PlutoSDLDefs.h">
@@ -444,9 +376,6 @@
 			</File>
 			<File
 				RelativePath="..\Win32\VirtualKeysTranslator.h">
-			</File>
-			<File
-				RelativePath="..\VolumeMouseHandler.cpp">
 			</File>
 		</Filter>
 		<Filter

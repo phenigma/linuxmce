@@ -25,12 +25,10 @@
 #include "SerializeClass/ShapesColors.h"
 #include "CallBackTypes.h"
 #include "pluto_main/Define_UI.h"
-#include "OrbiterFactory.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
 class OSDScreenHandler;
-class OrbiterRenderer;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -91,30 +89,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	*/
 	class Orbiter : public Orbiter_Command,  public OrbiterData
 	{
-		friend class OrbiterFactory; //only the factory can create an orbiter	
-
 	private:
-
-		OrbiterRenderer *m_pOrbiterRenderer;
-		static Orbiter *m_pInstance;
-
-		/**
-		* @brief constructor, assignes values to member data
-		*/
-		Orbiter(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
-			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
-			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
-
-	public:
+		class PlutoGraphic * m_pBackgroundImage;
 		
-		static Orbiter *CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
-			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
-			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
-		static void DestroyInstance();
-		static Orbiter *GetInstance();
-
-		OrbiterRenderer *Renderer() { return m_pOrbiterRenderer; }
-
+	protected:
 		void DumpScreenHistory(); // temporary function
 
 		//<-dceag-decl-e->
@@ -152,6 +130,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 	public:
 
+		/**
+		* @brief constructor, assignes values to member data
+		*/
+		Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
+			bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex = NULL );
 		/**
 		* @brief destructor
 		*/
@@ -209,7 +192,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int, PendingCallBackInfo *> m_mapPendingCallbacks; //The map with pending callbacks
 		unsigned int m_nCallbackCounter; //a pending callback counter
 
-	public:
+	protected:
 
 		int m_dwPK_Users; /** < The current user */
 		int m_dwPK_DeviceTemplate;  /** < This is running as a specific device template */
@@ -259,7 +242,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio;  /** < set by the media engine, this is whatever media device is currently playing */
 		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume;
 		PlutoPopup *m_pActivePopup;
-		class PlutoGraphic * m_pBackgroundImage;
 
 		int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 		time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
@@ -291,8 +273,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
 		bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 		bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
-		bool m_bConnectionLost;
-
 
 		OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
 
@@ -381,6 +361,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief Render the screen in m_pScreenHistory_Current
 		*/
+		virtual void RenderScreen(bool bRenderGraphicsOnly);
 		virtual void BeginPaint() {};
 		virtual void EndPaint() {};
 		virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0)) {};
@@ -407,7 +388,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		//helper functions for the timer mechanism in screen handlers
 		void ServiceScreenHandler(void *data);
 		void StartScreenHandlerTimer(int nInterval /*in miliseconds*/);
-		void WriteStatusOutput(const char* pMessage) {};
 
 	public: // temp - remove this
 		/**
@@ -428,7 +408,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief renders an object on the screen sync
 		*/
-		//virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0) );
+		virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0) );
 		
 		/**
 		* @brief renders an object on the screen async; it will add the object to m_vectObjs_NeedRedraw vector to be re-rendered
@@ -540,10 +520,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief Render selected state for this object
 		*/
+		virtual void SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point = PlutoPoint(0, 0) );
 
 		/**
 		* @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 		*/
+		virtual void DoHighlightObject();
+		virtual void UnHighlightObject( bool bDeleteOnly=false );
 
 		/**
 		* @brief Find the first 'tab stop' object on screen and highlight it
@@ -598,6 +581,17 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief handle when Orbiter Plugin tells us it's not ok to load, passing in the response.
 		* If this returns 0, we will terminate, 1 we will load anyway, 2 we will try again to get an OK status
 		*/
+		virtual int HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent);
+		virtual bool RouterNeedsReload();
+		virtual int DeviceIdInvalid();
+		virtual int PickOrbiterDeviceID();
+		virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
+		virtual int SetupNewOrbiter();
+		virtual int MonitorRegen(int PK_Device);
+		virtual int PromptFor(string sToken);
+		virtual bool DisplayProgress(string sMessage, int nProgress);
+		virtual bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress) { return false; }
+		virtual bool RegenOrbiter(); // Send Orbiter plugin a command to regen this orbiter
 
 		/**
 		* @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
@@ -663,7 +657,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief renders a graphic object in the specified rectangle
 		* @todo ask
 		*/
+		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0)) = 0;
 
+		virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0) );
+
+		virtual PlutoGraphic *CreateGraphic() = 0;
 
 		/**
 		* @brief The derived class should implement this if it can.  It moves the mouse pointer to the given coordinates
@@ -676,16 +674,50 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button, bool bDown);
 
+		/**
+		* @brief renders text with the specified style
+		*/
+		virtual void RenderText( string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0) ) = 0;
+
+		/**
+		* @brief draws an rectangle
+		*/
+		virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
+
+		/**
+		* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
+		*/
+		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
+
+		/**
+		* @brief draws an line
+		*/
+		virtual void DrawLine( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
+
+		/**
+		* @brief replaces the specified color from within the specified rectangle with another one
+		*/
+		virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
+
+		/**
+		* @brief floods the region that containes the specified point, replacing one color
+		* A graphic is no longer on screen. Maybe remove it from cache.
+		*/
+		virtual void FloodFill( int iX, int iY, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
 
 		/**
 		* @brief sets the time to the one specified by the parameter
 		*/
+		virtual void SetTime( char *pcServerTimeString ) = 0;
 
 		/**
 		* @brief We're going to be redrawing something on top of this object. Save it's state, so that during the next redraw this will be used
 		*/
-		void ClipRectangle(int& x, int& y, int& width, int& height);
-		void ClipRectangle(PlutoRectangle &rect);
+		virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
+		virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) = 0;
+
+		virtual void ClipRectangle(int& x, int& y, int& width, int& height);
+		virtual void ClipRectangle(PlutoRectangle &rect);
 
 		/**
 		*	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT
@@ -733,7 +765,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual bool HandleButtonEvent(int PK_Button);
 
-	public:
+	protected:
 		/**
 		*	ACCEPT OUTSIDE INPUT
 		*/
@@ -770,6 +802,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual void StopRepeatRelatedEvents();
 
+	public:
 		/**
 		* @brief Something happened, like a touch or a button, reset any timeouts or screen saver.  Returns false if it should be ignored
 		*/
@@ -912,7 +945,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief We need the maintenance function to be called in this many clock ticks
 		*/
-		void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, ePurgeExisting e_PurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true, void *pThis=NULL );
+		void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, ePurgeExisting e_PurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true );
 
 		// Report our current EntArea/Room to orbiter plugin
 		void FireEntAreaRoomCommands();
@@ -1860,6 +1893,14 @@ light, climate, media, security, telecom */
 		*/
 		void CalculateGridRight( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
 
+		/**
+		* @brief locks the display, implemented in the Linux-derived class
+		*/
+        virtual void X_LockDisplay() {};
+		/**
+		* @brief unlocks the display, implemented in the Linux-derived class
+		*/
+        virtual void X_UnlockDisplay() {};
 	};
 
 	extern int g_iDontRender; /** < @todo ask */
@@ -1920,9 +1961,10 @@ light, climate, media, security, telecom */
 			m_bPurgeTaskWhenScreenIsChanged = bPurgeTaskWhenScreenIsChanged;
 		}
 
+		Orbiter *m_pOrbiter;
 		OrbiterCallBack m_fnCallBack;
 		timespec m_abstime;
-		void *m_pData, *m_pThis;
+		void *m_pData;
 		unsigned int m_nCallbackID; // A unique ID
 		bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
 		bool m_bPurgeTaskWhenScreenIsChanged;
@@ -1930,7 +1972,6 @@ light, climate, media, security, telecom */
 
 	//<-dceag-end-b->
 }
-
 #endif
 //<-dceag-end-e->
 //<-dceag-const2-b->!
