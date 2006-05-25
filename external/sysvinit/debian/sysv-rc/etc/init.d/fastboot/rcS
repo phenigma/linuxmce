@@ -267,6 +267,10 @@ if [ -x /etc/init.d/mysql ] ;then
     /etc/init.d/mysql start 2>/dev/null
 fi
 
+if [ -x /etc/init.d/dbus ] ;then
+    /etc/init.d/dbus start &
+fi
+
 
 ##########################################
 #### Starting Pluto Specific services ####
@@ -302,7 +306,7 @@ fi
 
 if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
 	Message "Setting ssh keys"
-	/etc/init.d/Pluto_SSH_Keys.sh
+	/etc/init.d/Pluto_SSH_Keys.sh &
 fi
 
 if [[ "$AVWizardDone" != "1" ]] ;then
@@ -349,11 +353,6 @@ if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
     /etc/init.d/Pluto_Start_DCERouter.sh
 fi
 
-if [ -x /usr/pluto/bin/PlutoHalDaemon.sh ] ;then
-	Message "Starting Pluto Hal Daemon"
-	/usr/pluto/bin/PlutoHalDaemon.sh
-fi
-
 if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
     Message "Starting OrbiterGen"
     /etc/init.d/Pluto_Start_OrbiterGen.sh
@@ -370,24 +369,11 @@ if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
 fi
 
 if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
-
-	Message "Waiting for devices to register to the system ..."
-	WaitTime=120
-	while [[ $WaitTime -gt 0 ]];do
-		WaitTime=$(( $WaitTime - 1))
-
-		if [[ -f /usr/pluto/locks/pluto-hald.wait ]]; then
-			sleep 0.5
-		else
-			WaitTime=-1
-		fi
-	done
-
     Message "Starting Local Devices"
     /etc/init.d/Pluto_Start_LocalDevices.sh
 fi
 
 if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
-	/usr/pluto/bin/StorageDevices_Setup.sh &
+	/usr/pluto/bin/StorageDevices_Setup.sh 1>/dev/null 2>/dev/null &
 fi
 
