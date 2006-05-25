@@ -4,7 +4,7 @@
 
 FindDevice_Template()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3"
+	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4"
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceTemplate" ]]; then
 		echo ""
@@ -12,9 +12,19 @@ FindDevice_Template()
 	fi
 
 	local i R Q
-	Q="SELECT PK_Device
-		FROM Device
-		WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'"
+	if [[ -z "$IncludeParent" ]]; then
+		Q="
+			SELECT PK_Device
+			FROM Device
+			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'
+		"
+	else
+		Q="
+			SELECT PK_Device
+			FROM Device
+			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceTemplate='$FK_DeviceTemplate')
+		"
+	fi
 	R="$(RunSQL "$Q")"
 
 	if [[ -z "$R" && -z "$NoRecusion" ]]; then
@@ -32,7 +42,7 @@ FindDevice_Template()
 
 FindDevice_Category()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}" NoRecursion="$3"
+	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}" NoRecursion="$3" IncludeParent="$4"
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceCategory" ]]; then
 		echo ""
@@ -40,10 +50,21 @@ FindDevice_Category()
 	fi
 
 	local i R Q
-	Q="SELECT PK_Device
-		FROM Device
-		JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory='$FK_DeviceCategory'"
+	if [[ -z "$IncludeParent" ]]; then
+		Q="
+			SELECT PK_Device
+			FROM Device
+			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory='$FK_DeviceCategory'
+		"
+	else
+		Q="
+			SELECT PK_Device
+			FROM Device
+			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceCategory='$FK_DeviceCategory'
+		"
+	fi
 	R="$(RunSQL "$Q")"
 
 	if [[ -z "$R" && -z "$NoRecursion" ]]; then
