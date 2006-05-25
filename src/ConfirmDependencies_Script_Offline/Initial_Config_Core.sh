@@ -286,7 +286,6 @@ fi
 
 clear
 # XXX: No error checking
-while :; do
 	echo -e "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
         echo ""
         BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
@@ -323,6 +322,7 @@ while :; do
         fi
 
 
+while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		while :; do
