@@ -1,5 +1,5 @@
 #include "OpenGLTextureConverter_PocketFrog.h"
-#include "Orbiter_PocketFrog.h"
+#include "OrbiterRenderer_PocketFrog.h"
 
 //open gl
 #include <GL/gl.h>
@@ -23,7 +23,7 @@ OpenGLTextureConverter_PocketFrog::~OpenGLTextureConverter_PocketFrog()
 
 OpenGLTexture OpenGLTextureConverter_PocketFrog::Convert()
 {
-	DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+	DisplayDevice *pDisplayDevice = OrbiterRenderer_PocketFrog::GetInstance()->GetOrbiterDisplay();
 	Surface *pSourceSurface = dynamic_cast<PocketFrogGraphic *>(m_spPlutoGraphic.get())->m_pSurface;
 
 	auto_ptr<Surface> spTextureSurface(

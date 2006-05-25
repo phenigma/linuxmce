@@ -2,16 +2,16 @@
 #define __POCKETFROG_GRAPHIC_H__
 //-------------------------------------------------------------------------------------------------------
 #include "../DesignObj_Orbiter.h"
-#include "Orbiter_PocketFrog.h"
+#include "OrbiterRenderer_PocketFrog.h"
 #include <PocketFrog.h>
 using namespace Frog;
 //-------------------------------------------------------------------------------------------------------
 class PocketFrogGraphic : public PlutoGraphic
 {
 public:
-	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
+	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement);
 	PocketFrogGraphic(Surface *pSurface);
-	PocketFrogGraphic(Orbiter *pCI);
+	PocketFrogGraphic();
 	~PocketFrogGraphic();
 
 	void Initialize();

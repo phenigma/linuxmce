@@ -2,7 +2,7 @@
 #include "../RendererOCG.h"
 #include "PlutoUtils/PlutoDefs.h"
 #include "PlutoUtils/FileUtils.h"
-#include "../PocketFrog/Orbiter_PocketFrog.h"
+#include "../PocketFrog/OrbiterRenderer_PocketFrog.h"
 #include "src/internal/graphicbuffer.h"
 
 //----------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 	{
 		if(iPixelsDataSize)
 		{
-			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
+			pSurface = OrbiterRenderer_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
 
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
