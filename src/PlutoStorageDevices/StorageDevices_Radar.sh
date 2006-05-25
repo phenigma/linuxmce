@@ -70,7 +70,6 @@ function Detect {
 	done
 	availPart=$auxPart
 
-3B
 	## Display the new internal disk drive found wizard on available orbiters
 	Q="
 		SELECT
@@ -117,7 +116,7 @@ function Detect {
 			Partition_Type=$(echo $fdisk_Output  | cut -d' ' -f6-14)
 			Partition_Size=$(( `fdisk -s /dev/$partition`  / 1024 ))
 			
-			InfoMessag="I detected $partition, a $Partition_Size MB $Partition_Type partition in computer '$Comp_Description' from room '$Comp_Room'"
+			InfoMessage="I detected $partition, a $Partition_Size MB $Partition_Type partition in computer '$Comp_Description' from room '$Comp_Room'"
 			/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$partition" 156 $PK_Device 163 "$InfoMessage"
 			
 			#TODO: change this hack, is only here so the detection looks like is serialized
