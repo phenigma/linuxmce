@@ -848,7 +848,7 @@
 #define TEXT_Other_family_members_CONST 1554
 #define TEXT_What_country_are_you_in_CONST 1555
 #define TEXT_Remove_user_CONST 1556
-#define TEXT_Confirm_postal_code_CONST 1557
+#define TEXT_Enter_city_CONST 1557
 #define TEXT_What_rooms_are_in_your_house_CONST 1558
 #define TEXT_TV_Provider_CONST 1559
 #define TEXT_Alarm_Panel_CONST 1560
@@ -998,6 +998,8 @@
 #define TEXT_House_Setup_Wizard_CONST 1710
 #define TEXT_setup_with_admin_CONST 1711
 #define TEXT_Go_To_Admin_Site_CONST 1712
+#define TEXT_No_remote_CONST 1713
+#define TEXT_add_user_instructions_CONST 1714
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

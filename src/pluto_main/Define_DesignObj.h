@@ -1799,7 +1799,7 @@
 #define DESIGNOBJ_Location_CONST 4659
 #define DESIGNOBJ_butRemoveUser_CONST 4660
 #define DESIGNOBJ_butPostalCode_CONST 4661
-#define DESIGNOBJ_PostalCode_CONST 4662
+#define DESIGNOBJ_City_CONST 4662
 #define DESIGNOBJ_butWizRooms_CONST 4663
 #define DESIGNOBJ_dgUsers_CONST 4664
 #define DESIGNOBJ_dgCountries_CONST 4665
@@ -2112,6 +2112,9 @@
 #define DESIGNOBJ_Which_Wizard_CONST 5066
 #define DESIGNOBJ_butCancelVideoWizard_CONST 5067
 #define DESIGNOBJ_butAdmin_Site_CONST 5068
+#define DESIGNOBJ_butNoRemote_TypeOfWizard_CONST 5069
+#define DESIGNOBJ_dgCities_CONST 5070
+#define DESIGNOBJ_butSearchCity_CONST 5071
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
