@@ -24,48 +24,69 @@ clear
 
 exec 3>&1 1>/dev/tty
 clear
-echo "** Initial config script"
-echo ""
-echo "I need to ask some basic questions"	
-echo "Please see http://plutohome.com/support"
-echo "click Quick Start Guide, and Installing Software"
-echo "for details."
-echo ""
+MessageBox "
+I need to ask some basic questions.
+
+Please see http://plutohome.com/support, click 
+Quick Start Guide, and Installing Software for details.
+
+"
 
 # Ask the questions
-Username=$(Ask "What username do you want for yourself?")
-Password=$(Ask "Please enter a password:")
-echo ""
-echo "Use that username and password to login to your Pluto-Admin site"
-echo ""
-Room=$(Ask "In what room is this PC?")
-clear
-echo "Note: Hybrid means this PC will not only be the main server, but you will"
-echo "also hook it up to a TV and use it as a media director.  Core means it is"
-echo "a server only, and will not be used as a media station."
-Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
+Username=
+while [[ $Username == "" ]] ;do
+	Username=$(InputBox "You need a username and a password for accesing the pluto-admin site.	
+
+What username do you want for yourself?")
+done
+
+ConfPassword=
+Password=
+while [[ $ConfPassword != $Password || $Password == "" ]] ;do
+
+	while [[ $Password == "" ]] ;do
+		Password=$(PasswordBox "Password for user $Username")
+	done
+	ConfPassword=$(PasswordBox "Confirm password for $Username")
+
+	if [[ $Password != $ConfPassword ]] ;then
+		MessageBox "Passwords do not match !" --title Error
+		Password=
+	fi
+done
+
+Room=$(InputBox "In what room is this PC?")
+
+Type=$(whiptail --menu "
+Hybrid means this PC will not only be the main server, but you will also hook it up to a TV and use it as a media director.
+Core means it is a server only, and will not be used as a media station.
+
+Should this be a Core, Hybrid or Other?
+" 0 0 3 C Core H Hybrid o Other --fb --nocancel --title Pluto 2>&1 1>/dev/tty)
 
 CoreDT=7
 if [[ "$Type" == o || "$Type" == O ]]; then
-	CoreDT=$(Ask "Enter the device template number")
+	CoreDT=$(InputBox "Enter the device template number")
 fi
 
-echo ""
-echo "If you have an active internet connection, Pluto can use it to perform"
-echo "various task : syncronize your computer clock, automaticaly send bug"
-echo "reports, install aditional software, perform updates ..."
-echo "You can also switch from online/offline mode later by using the web"
-echo "administration interface"
-echo
-echo "Important : Keep in mind that when you don't have an active internet"
-echo "connection, this tasks can slow down your computer and an negative"
-echo "answer here would be the right choice."
-UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
 
-echo ""
-echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
-echo "directors."
-DHCP=$(Ask "Run a DHCP server? [Y/n]")
+UseInternet=$(QuestionBox "If you have an active internet connection, Pluto can use it to perform
+various task : syncronize your computer clock, automaticaly send bug
+reports, install aditional software, perform updates ...
+
+You can also switch from online/offline mode later by using the web
+administration interface
+
+Important : Keep in mind that when you don't have an active internet
+connection, this tasks can slow down your computer and an negative
+answer here would be the right choice.
+
+Should Pluto use your internet connection ?")
+
+DHCP=$(QuestionBox "You need to answer Yes below if you want Plug-and-Play or extra media directors.
+
+Do you want to run a DHCP server ?
+")
 
 RestoreCoreConf()
 {
