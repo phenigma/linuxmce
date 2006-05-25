@@ -458,12 +458,13 @@ getxinfo ( char* devdesc, char* devdriver, char outputxinfo )
 						{
 							char xmodule[ 32 ];
 							char fullpath[ 128 ];
-							char fullpath_xorg [ 128 ];
+							char fullpath_xorg[ 128 ], fullpath_xorg7[ 128 ];
 							sscanf ( &buffer[ 7 ], "%31s", xmodule );
 							sprintf ( fullpath, XMODPATH "%.31s_drv.o", xmodule );
 							sprintf ( fullpath_xorg, XMODPATH "%.31s_drv.so", xmodule );
+							sprintf ( fullpath_xorg7, XMODPATH_XORG7 "%.31s_drv.so", xmodule );
 							
-							if ( exists ( fullpath ) || exists (fullpath_xorg) )
+							if ( exists ( fullpath ) || exists (fullpath_xorg) || exists (fullpath_xorg7) )
 							{
 								strncpy ( xi.xmodule, xmodule, sizeof( xi.xmodule ) );
 							} 

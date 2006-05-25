@@ -4,6 +4,7 @@
 #define CARDSDB "/usr/share/hwdata/Cards"
 #define XPATH "/usr/X11R6/bin/"
 #define XMODPATH "/usr/X11R6/lib/modules/drivers/"
+#define XMODPATH_XORG7 "/usr/lib/xorg/modules/drivers/"
 
 #define SHARED_PATH 		"/usr/share/hwdata"		/* shared path which contains \
 								   pcitable/usbtable/pcmciatable*/
