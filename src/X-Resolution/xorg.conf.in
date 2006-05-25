@@ -70,7 +70,9 @@ Section "Device"
 	VendorName	"Unknown Vendor Name"
 	BoardName	"Unknown Board Name"
 	#BusID		"PCI:0:2:0"
-	Option		"NoDDC"	"true"
+	Option		"NoDDC"				"true"
+	Option		"UseEDID"			"false"
+	Option		"ConnectedMonitor"	"CRT"
 EndSection
 
 Section "Screen"
