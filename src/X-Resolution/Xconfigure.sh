@@ -2,29 +2,12 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 resHD480=848x480
 resHD720=1280x720
 resHD1080=1920x1080
 resHD576=720x576 # SDTV actually, EDTV with doublescan, but nVidia calls it HD so...
-
-GetVideoDriver()
-{
-	if [[ -n "$ForceVESA" ]]; then
-		echo vesa
-		return 0
-	fi
-	
-	lshwd -ox >/dev/null
-	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
-	rm /tmp/xinfo
-	case "$VideoDriver" in
-		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
-		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
-		"") VideoDrivers="vesa" ;; # just-in-case default
-	esac
-	echo "$VideoDriver"
-}
 
 TestConfig()
 {
