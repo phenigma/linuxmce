@@ -328,7 +328,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(CreateControlButton(
 			"Btn1",
 			"Composite",
-			185, 285,
+			175, 285,
 			true
 		));
 
@@ -342,21 +342,21 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(CreateControlButton(
 			"Btn3",
 			"Component",
-			365, 285,
+			375, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn4",
 			"VGA",
-			442, 285,
+			462, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn5",
 			"DVI",
-			490, 285,
+			520, 285,
 			true
 		));
 
@@ -487,24 +487,21 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"Analog Stereo",
-		195,
-		285,
+		185, 285,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"SPDIF Coaxial",
-		320,
-		285,
+		320, 285,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn3",
 		"SPDIF Optical",
-		445,
-		285,
+		455, 285,
 		true
 		));
 
@@ -562,8 +559,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
 		ImageFolder + "left_off.png",
-		220,
-		270
+		220, 270
 		));
 
 	Page->AddChild(CreateControlImage(
@@ -864,17 +860,35 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 
 
 	std::string LabelCaption;
-	if(NoSelectedTab<3)
-		LabelCaption = "VIDEO SETTINGS";
-	else
-	if(NoSelectedTab<7)
-		LabelCaption = "AUDIO SETTINGS";
-	else
-		LabelCaption = "FINAL STEP";
-
-	if(NoSelectedTab<0)
-		LabelCaption = "WELCOME TO AVWIZARD";
-
+	switch(NoSelectedTab)
+	{
+		case 0:
+			LabelCaption = "VIDEO RATIO";
+			break;
+		case 1:
+			LabelCaption = "OUTPUT CONNECTOR";
+			break;
+		case 2:
+			LabelCaption = "RESOLUTION AND REFRESH";
+			break;
+		case 3:
+			LabelCaption = "AUDIO OUTPUT CONNECTOR";
+			break;
+		case 4:
+			LabelCaption = "AUDIO VOLUME";
+			break;
+		case 5:
+			LabelCaption = "DOLBY AUDIO TEST";
+			break;
+		case 6:
+			LabelCaption = "DTS AUDIO TEST";
+			break;
+		case 7:
+			LabelCaption = "FINAL SETUP";
+			break;
+		default:
+			LabelCaption = "WELCOME TO AVWIZARD";
+	};
 	SetFontStyle(24, "000000", "Regular");
 	Result->AddChild(CreateControlLabel(
 		"PageDesc" + Utils::Int32ToString(i+1), 
