@@ -309,13 +309,6 @@ if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
 	/etc/init.d/Pluto_SSH_Keys.sh &
 fi
 
-if [[ "$AVWizardDone" != "1" ]] ;then
-	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
-		Message "Starting Audio/Video Wizard"
-		/usr/pluto/bin/AVWizard_Run.sh
-	fi
-fi
-
 if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
     Message "Confirm Installation"
     /etc/init.d/Pluto_ConfirmInstallation.sh
@@ -361,6 +354,13 @@ fi
 if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
     Message "Configure Device Changes"
     /etc/init.d/Pluto_Config_Device_Changes.sh
+fi
+
+if [[ "$AVWizardDone" != "1" ]] ;then
+	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
+		Message "Starting Audio/Video Wizard"
+		/usr/pluto/bin/AVWizard_Run.sh
+	fi
 fi
 
 if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
