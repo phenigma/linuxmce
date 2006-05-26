@@ -101,11 +101,13 @@ UpdateOrbiterDimensions()
 {
 	DEVICETEMPLATE_OnScreen_Orbiter=62
 	DEVICETEMPLATE_OrbiterPlugin=12
+	DEVICECATEGORY_Media_Director=8
 	DEVICEDATA_ScreenWidth=100
 	DEVICEDATA_ScreenHeight=101
 	DEVICEDATA_PK_Size=25
 	DEVICEDATA_Video_settings=89
 
+	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 	OrbiterResolutionName=$(WizGet 'VideoResolution')
 	OrbiterAspectRatio=$(WizGet 'Video_Ratio')
@@ -127,7 +129,7 @@ UpdateOrbiterDimensions()
 	RunSQL "$Q"
 
 	Video_settings="$OrbiterWidth $OrbiterHeight/$OrbiterRefresh"
-	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_settings' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_settings' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'"
 	RunSQL "$Q"
 	
 	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolutionName%'"
