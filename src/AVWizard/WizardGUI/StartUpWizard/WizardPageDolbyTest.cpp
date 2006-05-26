@@ -19,7 +19,7 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ int WizardPageDolbyTest::DoApplySetting(SettingsDictionary* Dictionary)
 {
-	if(Dictionary == NULL)
+	if((Dictionary == NULL)|| (Selected == NULL))
 		return -1;
 	OutputValue = Selected->GetCaption();
 	Dictionary->Set("DolbyTest", OutputValue!= "No, I cannot hear it");
@@ -57,7 +57,7 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 {
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText.c_str());
-	if(ButtonIndex == 3)
+	if(ButtonIndex == 2)
 		return;
 	Selected->SetFocus(false);
 	ButtonIndex++;
