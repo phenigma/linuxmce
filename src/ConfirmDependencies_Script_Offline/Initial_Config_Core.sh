@@ -308,7 +308,7 @@ clear
 
 		for files in $(ls /cdrom/bonuscd1); do
 		pkgname=$(echo $files | awk -F '_' '{print $1}')
-		pkginstalled=$(dpkg -l $pkgname)
+		pkginstalled=$(dpkg -l $pkgname 1>/dev/null 2>/dev/null)
 		        if [[ -n "$pkginstalled" ]]; then
 		                echo "Package $files is allready installed ... skipping ..."
 		        else
