@@ -1,4 +1,4 @@
-#event process  06-Ian-06 17:00
+#Event process  26-May-06 11:00 Power5020
 
 #read event code from serial
 readLine()
@@ -25,13 +25,7 @@ when "501"     #Command error
 	log( "Command error: " )
 when "502"     #System error. Read 3 bytes for code error
 	param=readByte(3)
-	log( "System error: " + param + " " )
-	if $errCode.has_key?(param) then 
-		log( $errCode[param]  + "\n" ) 
-	else 
-		log( "Unknown error" + "\n" )
-	end
-
+	DSCError(param)
 when "550"    #Timedata HH::MM MM/DD/YY
 	$timeNo += 1
 	myData=readByte(10)

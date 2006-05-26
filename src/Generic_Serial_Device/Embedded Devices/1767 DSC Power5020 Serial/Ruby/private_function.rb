@@ -1,4 +1,4 @@
-#private functions  24-May-06 17:00 Power5020
+#private functions  26-May-06 11:00 Power5020
 class MyIO
 
 	def intialize
@@ -302,6 +302,32 @@ end
 
 end
 
+def DSCError(err)
+log( "System error: " + param + " " )
+if $errCode.has_key?(param) then 
+	log( $errCode[param]  + "\n" ) 
+else 
+	log( "Unknown error" + "\n" )
+end
+#if error on arm/disarm send a message
+if( err=23 || err==24) then
+changeStateEv= Command.new(idNo, -1001, 1, 2, 67);      #67 PanelChangeState		
+
+if(err=23) then 
+	changeStateEv.params_[30] = "0"
+end
+if(err==24)
+	changeStateEv.params_[30] = "1"
+end
+
+changeStateEv.params_[47]="0" 
+SendCommand(changeStateEv)
+
+log("Fire 67 event" + idNo.to + "-1001, 1, 2")
+end
+
+
+end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #  DSC function
