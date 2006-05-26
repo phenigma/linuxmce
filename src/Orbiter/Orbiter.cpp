@@ -1027,7 +1027,8 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		break;
 	case DESIGNOBJTYPE_App_Desktop_CONST:
 	case DESIGNOBJTYPE_wxWidgets_Applet_CONST:
-		if ( m_bYieldScreen )
+		//if ( m_bYieldScreen )//we cannot rely in this anymore
+		if(pObj->m_rPosition.Width == 0 && pObj->m_rPosition.Height == 0 && pObj->m_rPosition.X == 0 && pObj->m_rPosition.Y == 0)
 			RenderDesktop( pObj, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
 		else
 			RenderDesktop( pObj, pObj->m_rPosition, point );
