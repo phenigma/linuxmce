@@ -346,7 +346,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) min(255,m_Name.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) min((size_t)255,m_Name.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -373,7 +373,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Repository.c_str(), (unsigned long) min(65535,m_Repository.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Repository.c_str(), (unsigned long) min((size_t)65535,m_Repository.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -387,7 +387,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Version.c_str(), (unsigned long) min(30,m_Version.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Version.c_str(), (unsigned long) min((size_t)30,m_Version.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -401,7 +401,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parms.c_str(), (unsigned long) min(30,m_Parms.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parms.c_str(), (unsigned long) min((size_t)30,m_Parms.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -415,7 +415,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Replaces.c_str(), (unsigned long) min(255,m_Replaces.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Replaces.c_str(), (unsigned long) min((size_t)255,m_Replaces.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -481,7 +481,7 @@ if (is_null[12])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;

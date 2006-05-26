@@ -330,7 +330,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min((size_t)30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -344,7 +344,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[37];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_MacAddress.c_str(), (unsigned long) min(18,m_MacAddress.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_MacAddress.c_str(), (unsigned long) min((size_t)18,m_MacAddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -358,7 +358,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[25];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPAddress.c_str(), (unsigned long) min(12,m_IPAddress.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPAddress.c_str(), (unsigned long) min((size_t)12,m_IPAddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -372,7 +372,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_VendorModelId.c_str(), (unsigned long) min(60,m_VendorModelId.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_VendorModelId.c_str(), (unsigned long) min((size_t)60,m_VendorModelId.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -386,7 +386,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_SerialNumber.c_str(), (unsigned long) min(60,m_SerialNumber.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_SerialNumber.c_str(), (unsigned long) min((size_t)60,m_SerialNumber.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -465,7 +465,7 @@ if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
