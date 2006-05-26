@@ -494,6 +494,13 @@ switch ($section) {
 	    include_once('operations/categories/editCategory.php');
 	    editCategory($output,$dbADO);	    
 	break;
+	case 'addCategory':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/categories/addCategory.php');
+	    addCategory($output,$dbADO);	    
+	break;
+	
 	//my scenarios
 	case 'myScenarios':
 		$output = new Template($dbADO);

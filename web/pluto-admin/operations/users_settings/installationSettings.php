@@ -116,26 +116,26 @@ function installationSettings($output,$dbADO) {
 				</tr>		
 				<tr>
 					<td width="100"><B>'.$TEXT_DESCRIPTION_CONST.'&nbsp;*</B></td>
-					<td><input type="text" size="30" name="Description" value="'.$rowInstallation['Description'].'"></td>
+					<td><input type="text" size="30" name="Description" value="'.((isset($_REQUEST['Description']))?$_REQUEST['Description']:$rowInstallation['Description']).'"></td>
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_NAME_CONST.'</B></td>
-					<td><input type="text" size="30" name="Name" value="'.$rowInstallation['Name'].'"></td>
+					<td><input type="text" size="30" name="Name" value="'.((isset($_REQUEST['Name']))?$_REQUEST['Name']:$rowInstallation['Name']).'"></td>
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_ADDRESS_CONST.'</B></td>
-					<td><input type="text" size="30" name="Address" value="'.$rowInstallation['Address'].'"></td>
+					<td><input type="text" size="30" name="Address" value="'.((isset($_REQUEST['Address']))?$_REQUEST['Address']:$rowInstallation['Address']).'"></td>
 				</tr>
 				<tr>
 					<td colspan="2">'.$TEXT_ADDRESS_INFO_CONST.'</td>
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_CITY_CONST.'</B></td>
-					<td><input type="text" size="30" name="City" value="'.$rowInstallation['City'].'"></td>
+					<td><input type="text" size="30" name="City" value="'.((isset($_REQUEST['City']))?$_REQUEST['City']:$rowInstallation['City']).'"></td>
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_STATE_CONST.'</B></td>
-					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
+					<td><input type="text" size="30" name="State" value="'.((isset($_REQUEST['State']))?$_REQUEST['State']:$rowInstallation['State']).'"></td>
 				</tr>
 				<tr>
 					<td colspan="2" class="tablehead" align="center"><B>'.$TEXT_LONGITUDE_CONST.'/'.$TEXT_LATITUDE_CONST.'</B></td>

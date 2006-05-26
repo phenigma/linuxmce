@@ -5312,7 +5312,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<tr class="alternate_back">
 			<td valign="top"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 			<td valign="top">'.$deviceCategoryFormElement.'</td>
-			<td valign="top">&nbsp;</td>
+			<td valign="top"><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_CATEGORY_CONST.'" onclick="add_category_popup();"></td>
 		</tr>	
 		<tr class="alternate_back">
 			<td>&nbsp;</td>
@@ -5334,11 +5334,17 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			</td>
 		</tr>	
 		<tr>
+			<td colspan="3" align="center">&nbsp;</td>
+		</tr>		
+		<tr class="alternate_back">
 			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.@$dtstar.'</B></td>
 			<td>'.$deviceTemplatesPulldown.'</td>
-			<td>&nbsp;</td>
+			<td><input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();"></td>
 		</tr>
 		<tr>
+			<td colspan="3" align="center">&nbsp;</td>
+		</tr>		
+		<tr class="alternate_back">
 			<td colspan="3" align="center">
 				'.$TEXT_NEW_DEVICE_TEMPLATE_NOTICE_CONST.' **<br>
 				<input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();">
@@ -5352,7 +5358,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<tr>
 			<td colspan="3">
 			<table width="100%">
-				<tr class="tablehead">
+				<tr class="alternate_back">
 					<td align="center"><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
@@ -5367,7 +5373,6 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		</tr>	
 		<tr>
 			<td colspan="3" align="center">
-				<input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();"> 
 				<input type="reset" class="button_fixed" name="closeBtn" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 			</td>
 		</tr>	
@@ -5661,8 +5666,12 @@ function dtPickerJS($returnValue){
 	}
 	
 	function add_manufacturer_popup(){
+		windowOpen("index.php?section=addManufacturer","width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
+	}
+	
+	function add_category_popup(){
 		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
-		self.location="index.php?section=addManufacturer&dcID="+categ;
+		windowOpen("index.php?section=addCategory&parentID="+categ,"width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
 	}
 	</script>
 	';
@@ -5791,10 +5800,10 @@ function import_remote_sql($remoteUrl,$dbADO,$table=''){
 // PHP version of the .sh file who will do the same thing
 function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 	// TODO: comment all and call the sh instead
-	
-	// TODO: remove comment to use global variable instead of hard-coded devel one
-	//global $PlutoHomeHost;
-	$PlutoHomeHost='http://10.0.0.175/plutohome-com/';
+
+	$cmd='/usr/pluto/bin/WebDB_GetIR.sh '.(int)$deviceID.' '.$dtID;
+	//echo $cmd;
+	return exec($cmd);
 
 	// get device template ID and infrared group ID for the device
 	// if $dtID!=0 ignore device and only get FK_InfraredGroup
