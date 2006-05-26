@@ -38,6 +38,11 @@ function wizardOrbiters($output,$dbADO) {
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div class="confirm"><B>'.@stripslashes($_GET['msg']).'</B></div>
 	<form action="index.php" method="POST" name="devices">
+		
+	<script>
+	 	var frmvalidator = new formValidator("devices");
+	</script>
+		
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="page" value="'.$page.'">			
@@ -261,7 +266,7 @@ function wizardOrbiters($output,$dbADO) {
 				</tr>
 				<tr>
 					<td colspan="2" align="right">'.$linksBar.'</td>
-				</tr>			
+				</tr>
 			';
 			
 			
@@ -453,8 +458,10 @@ function formatDDRows($rowD,$dbADO)
 	
 	$ddHTML='';
 	$selectedMenu=0;
+	$jsValidation='';
 	$ddValue=$rowD['IK_DeviceData'];
 	if((@$rowD['ShowInWizard']==1 || @$rowD['ShowInWizard']=='') && $rowD['FK_DeviceData']!=91){
+		$formElementName='deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'];
 		if($rowD['FK_DeviceData']!=56){
 			$ddHTML.='
 				<tr>
@@ -476,6 +483,7 @@ function formatDDRows($rowD,$dbADO)
 				}
 				else
 					$ddHTML.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowD['AllowedToModify']) && $rowD['AllowedToModify']==0)?'disabled':'').'>';
+				$jsValidation.="frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n";
 				break;
 				case 'bool':
 					$ddHTML.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowD['AllowedToModify']) && $rowD['AllowedToModify']==0)?'disabled':'').'>';
@@ -505,7 +513,7 @@ function formatDDRows($rowD,$dbADO)
 		unset($ddValue);
 	}
 
-	return $ddHTML;
+	return $ddHTML.'<script>'.$jsValidation.'</script>';
 }
 
 function displayButtons($orbiter,$RegenInProgress){
@@ -569,8 +577,7 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 	$pos=0;
 	foreach ($content AS $orbiter=>$valueArray){
 		$pos++;
-		$color=($pos%2==1)?'#EEEEEE':'#FFFFFF';
-		$out.='<table width="100%" bgcolor="'.$color.'" border="0">
+		$out.='<table width="100%" bgcolor="#DEDEDE" border="0">
 			<tr>';
 			foreach ($valueArray AS $row){
 				$out.=$row;
@@ -585,10 +592,9 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 			$regenQueued=substr(@$_REQUEST['regen'],2);
 			$regenBox=($regenQueued==$orbiter || $regenQueued=='ALL' || $regenArray['regen']==1)?1:0;
 			$out.=displayButtons($orbiter,$regenBox);
-			
-			
 		$out.='</tr>
-		</table>';
+		</table>
+		<br>';
 	}
 
 	

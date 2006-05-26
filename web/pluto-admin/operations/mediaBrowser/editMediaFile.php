@@ -154,7 +154,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				</table></td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B></td>
+				<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B><br><em>'.$TEXT_JPG_ONLY_CONST.'</em></td>
 				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_PICTURE_CONST.'"></td>
 			</tr>
 			<tr>
@@ -314,6 +314,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if(isset($_REQUEST['addPic']) && isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
 			$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
+			$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
+			
 			$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
 			$mediadbADO->Execute($insertPicture,$picExtension);
 			$insertID=$mediadbADO->Insert_ID();

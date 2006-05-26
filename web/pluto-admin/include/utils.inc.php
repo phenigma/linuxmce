@@ -5742,7 +5742,7 @@ function import_remote_sql($remoteUrl,$dbADO,$table=''){
 	$cmd='/usr/pluto/bin/WebDB_Get.sh \''.$remoteUrl.'\' \''.$table.'\'';
 	$notImported=exec($cmd,$retArray);
 	//echo $cmd;
-	print_array($retArray);
+//	print_array($retArray);
 	return $notImported;
 	
 	// get data from plutohome server

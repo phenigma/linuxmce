@@ -20,4 +20,5 @@ $TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST='Upload fail, check the rights for pat
 $TEXT_PICTURE_UPLOADED_CONST='The picture was uploaded.';
 $TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST='Media plugin not found.';
 $TEXT_RESPONSE_CONST='Response';
+$TEXT_JPG_ONLY_CONST='JPG only';
 ?>

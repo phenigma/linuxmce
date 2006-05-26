@@ -24,6 +24,9 @@
  
  myformValidator.addValidation("LicProgram","selone","You must select at least one program!"); (radio)
 
+ frmvalidator.addValidation("MACAddress","mac","Please add a valid MAC address");
+ frmvalidator.addValidation("IPAddress","ip","Please add a valid IP address");
+
  
 */
 
@@ -738,6 +741,12 @@ function validateInput(strValidateStr,objValue,strError)
 			   ret = validateMAC(objValue.value,strError);
                break; 
           }				 
+        case "ip": 
+          { 
+			   ret = validateIP(objValue.value,strError);
+               break; 
+          }				 
+          
 		//Comparisons
 		case "eqelmnt": 
 		case "ltelmnt":
@@ -793,8 +802,11 @@ String.prototype.checkDateFormat=function(){
     return 1;
 }
 
+// allow empty string as valid too
 function validateMAC(mac,strError) {
-	
+	if(mac==''){
+		return true;
+	}
 	var ismac = mac.match("^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$");
 	if(ismac == null){
 		alert(strError);
@@ -803,3 +815,19 @@ function validateMAC(mac,strError) {
 		return true;
 	}	
 }
+
+// allow empty string as valid too
+function validateIP(ip,strError) {
+	if(ip==''){
+		return true;
+	}
+	
+	var isip = ip.match("^([a-zA-Z0-9_\-])+(\.([a-zA-Z0-9_\-])+)*@((\[(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5]))\]))|((([a-zA-Z0-9])+(([\-])+([a-zA-Z0-9])+)*\.)+([a-zA-Z])+(([\-])+([a-zA-Z0-9])+)*))$");
+	if(isip == null){
+		alert(strError);
+		return false;
+	}else{
+		return true;
+	}	
+}
+

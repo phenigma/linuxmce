@@ -67,7 +67,8 @@ function getCallersForMeArray($telecomADO){
 function getCallersForMeTable($dbADO,$telecomADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/callersForMe.lang.php');
-		
+	
+	$jsValidation='';	
 	$out='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
@@ -85,6 +86,7 @@ function getCallersForMeTable($dbADO,$telecomADO){
 	$idArray=array();
 	foreach ($users AS $userID=>$username){
 
+		$jsValidation.='frmvalidator.addValidation("new_phone_'.$userID.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
 		$out.='
 		<tr>
 			<td colspan="2" align="center" class="tablehead"><B>'.$username.'</B></td>
@@ -100,7 +102,7 @@ function getCallersForMeTable($dbADO,$telecomADO){
 				<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
 				<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_CALLER_FOR_ME_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callersForMe&action=del&did='.$id.'\'"></td>
 			</tr>';
-			
+			$jsValidation.='frmvalidator.addValidation("phone_'.$id.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
 		}
 		$out.='
 		<tr >
@@ -122,6 +124,10 @@ function getCallersForMeTable($dbADO,$telecomADO){
 	<input type="hidden" name="usersArray" value="'.join(',',array_keys($users)).'">
 	<input type="hidden" name="idArray" value="'.join(',',$idArray).'">
 	</form>
+	<script>
+	 	var frmvalidator = new formValidator("callersForMe");
+		'.$jsValidation.'
+	</script>	
 	';
 	
 	return $out;
