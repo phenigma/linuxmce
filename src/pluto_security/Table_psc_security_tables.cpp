@@ -215,7 +215,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min(60,m_Tablename.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min((size_t)60,m_Tablename.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -229,7 +229,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[511];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_filter.c_str(), (unsigned long) min(255,m_filter.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_filter.c_str(), (unsigned long) min((size_t)255,m_filter.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -347,7 +347,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_securit
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_security_tables=id;

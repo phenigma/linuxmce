@@ -60,7 +60,7 @@ class Table_psc_security_repset* psc_security_repset_get() { if( !tblpsc_securit
 class Table_psc_security_schema* psc_security_schema_get() { if( !tblpsc_security_schema ) CreateTable_psc_security_schema(); return tblpsc_security_schema; }
 class Table_psc_security_tables* psc_security_tables_get() { if( !tblpsc_security_tables ) CreateTable_psc_security_tables(); return tblpsc_security_tables; }
 string m_sLastMySqlError;
-bool Connect(string host, string user, string pass, string sDBName, int port);
+bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);

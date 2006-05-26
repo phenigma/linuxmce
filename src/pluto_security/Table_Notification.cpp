@@ -302,7 +302,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_NotificationTime.c_str(), (unsigned long) min(19,m_NotificationTime.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_NotificationTime.c_str(), (unsigned long) min((size_t)19,m_NotificationTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -316,7 +316,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Info.c_str(), (unsigned long) min(40,m_Info.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Info.c_str(), (unsigned long) min((size_t)40,m_Info.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -330,7 +330,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Result.c_str(), (unsigned long) min(40,m_Result.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Result.c_str(), (unsigned long) min((size_t)40,m_Result.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -396,7 +396,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -475,7 +475,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Notificatio
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Notification=id;
