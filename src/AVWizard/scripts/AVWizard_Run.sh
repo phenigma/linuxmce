@@ -108,9 +108,9 @@ UpdateOrbiterDimensions()
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 	OrbiterResolutionName=$(WizGet 'VideoResolution')
 	OrbiterAspectRatio=$(WizGet 'Video_Ratio')
-	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterAspectRatio" "$OrbiterResolution")
+	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterAspectRatio" "$OrbiterResolutionName")
 	if [[ "$OrbiterResolutionFullName" == *=* ]]; then
-		OrbiterResolution=${OrbiterResolutionFullName%*=}
+		OrbiterResolution=${OrbiterResolutionFullName#*=}
 		OrbiterResolution=${OrbiterResolution%i}
 		OrbiterResolution=${OrbiterResolution%p}
 	else
