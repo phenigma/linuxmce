@@ -107,6 +107,8 @@ namespace DCE
 			
 			int m_iPlaybackSpeed;
 			
+			void FireMenuOnScreen(int iButtons);
+			
 		public:
 			int m_iTimeCodeReportFrequency;
 			bool m_bIsVDR;   // Is this live tv from VDR?
@@ -164,6 +166,7 @@ namespace DCE
 			int m_iPrebuffer;
 			
 			int m_iStreamID;
+			int m_iRequestingObject;
 
 			KeySym translatePlutoKeySymToXKeySym( int plutoButton );
 
@@ -177,7 +180,7 @@ namespace DCE
 			bool m_isSlimClient;
 			bool m_bTrickModeActive;
 		public:
-			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0);
+			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0, int iRequestingObject=0);
 			~Xine_Stream();
 			
 			/**

@@ -271,15 +271,7 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	//TODO reenable, probably restructure
-	/*
-	DATA_Set_Subtitles("");
-	DATA_Set_Audio_Tracks("");
-	DATA_Set_Angles("");
-	m_iTitle=m_iChapter=-1;
-	*/
-	
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From);
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sFilename.c_str(),sMediaPosition.c_str(),pStream);
 	
@@ -1099,4 +1091,11 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 		return false;
 	
 	return true;
+}
+
+void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool bOnOff)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
+
+    EVENT_Menu_Onscreen(iStreamID, bOnOff);
 }

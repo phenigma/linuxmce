@@ -13,8 +13,8 @@ namespace DCE
 { // DCE namespace begin
 
 Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
-		m_pPlayer(pOwner),
-		m_factoryMutex("xine-stream-factory-access-mutex")
+		m_factoryMutex("xine-stream-factory-access-mutex"),
+		m_pPlayer(pOwner)
 {
 	pthread_mutexattr_t mutexAttr;
 	pthread_mutexattr_init( &mutexAttr );
@@ -251,7 +251,7 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 }
 
 // returns pointer to stream if exists/was created or NULL otherwise
-Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist)
+Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject)
 {
 	{
 		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
@@ -263,7 +263,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist)
 		
 	if (createIfNotExist)
 	{
-		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency());
+		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject);
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);

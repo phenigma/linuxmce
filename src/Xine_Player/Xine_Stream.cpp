@@ -42,7 +42,7 @@ static const char noCursorDataDescription[] =
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency) :
+Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency, int iRequestingObject) :
 		m_streamMutex("xine-stream-access-mutex"),
 		m_xine_osd_t(NULL)
 {
@@ -78,6 +78,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_bExitThread = false;
 	m_bTrickModeActive = false;
 	m_iStreamID = ID;
+	m_iRequestingObject = iRequestingObject;
 	
 	threadEventLoop = NULL;
 	m_pXineStreamEventQueue = NULL;
@@ -1325,11 +1326,9 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
 			g_pPlutoLogger->Write( LV_STATUS, "Menu with %d buttons", iButtons );
-			//TODO reenable
-			/*!
-			if ( pXineStream->m_pOwner->m_pAggregatorObject )
-				pXineStream->m_pOwner->m_pAggregatorObject->FireMenuOnScreen( pXineStream->m_iRequestingObject, pXineStream->m_iStreamID, iButtons != 0 );
-			*/
+									
+			pXineStream->FireMenuOnScreen(iButtons);
+			
 		}
 		break;
 
@@ -2400,6 +2399,11 @@ int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 		iPos = atoi( sMediaPosition.substr(pos+5).c_str() );
 
 	return iPos;
+}
+
+void Xine_Stream::FireMenuOnScreen(int iButtons)
+{
+	m_pFactory->m_pPlayer->FireMenuOnScreen( m_iRequestingObject, m_iStreamID, iButtons != 0 );
 }
 
 } // DCE namespace end

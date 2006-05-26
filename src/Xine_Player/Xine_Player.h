@@ -429,6 +429,7 @@ public:
 //<-dceag-h-e->
 	void ReportTimecode(int iStreamID, int Speed);
 	bool Connect(int iPK_DeviceTemplate );
+	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
