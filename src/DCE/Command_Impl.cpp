@@ -1020,7 +1020,7 @@ int Command_Impl::FindUnregisteredRelatives(map<int,bool> *p_mapUnregisteredRela
 
 void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<int,bool> *p_mapUnregisteredRelatives,bool bScanParent,int PK_Device_ExcludeChild)
 {
-	if( pDevice->m_dwPK_Device!=m_dwPK_Device && pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded ) // Exclude ourself, only non-embedded DCE Devices
+	if( pDevice->m_dwPK_Device!=m_dwPK_Device && pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded && !pDevice->m_bDisabled ) // Exclude ourself, only non-embedded DCE Devices
 	{
 		string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(pDevice->m_dwPK_Device));
 		if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
