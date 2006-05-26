@@ -1855,7 +1855,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		//	"%>",true);
 
 		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups, 
-			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", "0", "0", "0");
+			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", "1", "0", "0");
 		SendCommand(SCREEN_DialogGenericNoButtons_DL);
 	}
 
