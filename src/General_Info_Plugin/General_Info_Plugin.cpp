@@ -1916,7 +1916,10 @@ void General_Info_Plugin::CMD_Set_Active_Application(int iPK_Device,string sName
 void General_Info_Plugin::GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD)
 {
 	vector<DeviceData_Router *> vectDevice_AppServer;
-	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
+	if( pDevice_MD->m_pDevice_ControlledVia )  // Could be under the core
+		((DeviceData_Router *) pDevice_MD->m_pDevice_ControlledVia)->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
+	else
+		pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
 	if( vectDevice_AppServer.size() )
 		*pDevice_AppServer = vectDevice_AppServer[0];
 	else
