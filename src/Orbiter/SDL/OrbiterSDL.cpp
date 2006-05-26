@@ -76,7 +76,7 @@ void *HackThread2(void *p)
 {
     OrbiterSDL *pOrbiterSDL = (OrbiterSDL *) p;
     g_pPlutoLogger->Write(LV_STATUS,"Inside Hacktrhead #2");
-    Sleep(10000);
+    Sleep(2000);
     if( g_bResettingVideoMode )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "SDL_SetVideoMode hangs on init. Xorg is not initialized yet? Restarting...");
