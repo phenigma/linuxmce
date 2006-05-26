@@ -1,15 +1,12 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 DeviceID="$1"
 DeviceTemplate="${2:-0}"
 
 PlutohomeHost="http://10.0.0.175/plutohome-com/"
 #PlutohomeHost="http://plutohome.com/"
-
-if [[ -z "$URL" ]]; then
-	echo "ERROR. URL not specified"
-	exit 1
-fi
 
 if [[ -z "$DeviceID" && "$DeviceTemplate" -eq 0 ]]; then
 	echo "ERROR. Either the DeviceID or the DeviceTemplate pamaters has to be specified"
