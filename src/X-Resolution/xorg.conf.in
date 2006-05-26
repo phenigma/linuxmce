@@ -72,7 +72,7 @@ Section "Device"
 	#BusID		"PCI:0:2:0"
 	Option		"NoDDC"				"true"
 	Option		"UseEDID"			"false"
-	Option		"ConnectedMonitor"	"CRT"
+	Option		"ExactModeTimingsDVI"	"true"
 EndSection
 
 Section "Screen"
