@@ -21,9 +21,9 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting X server (client: $XClient; pa
 if [[ "$Background" == y ]]; then
 	screen -d -m -S XWindowSystem xinit "$XClient" "${XClientParm[@]}" -- :0 -ac -allowMouseOpenFail vt7 "${XServerParm[@]}"
 	# Start everouter for gyration mouse
-	if [[ -x /usr/pluto/bin/StartGyrationEvrouter.sh ]]; then
-		screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
-	fi
+	#if [[ -x /usr/pluto/bin/StartGyrationEvrouter.sh ]]; then
+	#	screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
+	#fi
 else
 	xinit "$XClient" "${XClientParm[@]}" -- :0 -ac -allowMouseOpenFail vt7 "${XServerParm[@]}"
 fi
