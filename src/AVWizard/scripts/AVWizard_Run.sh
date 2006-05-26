@@ -155,3 +155,4 @@ mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
 UpdateAudioSettings
 UpdateOrbiterDimensions
+/usr/pluto/bin/MessageSend "$DCERouter" 0 -1000 7 1 # reload the router
