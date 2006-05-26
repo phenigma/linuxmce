@@ -45,7 +45,7 @@ function Detect {
 	for Device in $InternalOwnStorageDevices; do
 		Device_ID=$(Field 1 "$Device")
 		Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_BLOCK_DEVICE" | sed 's/\/dev\///g')
-		confPars="$confPart $Device_BlockDevice"
+		confParts="$confPart $Device_BlockDevice"
 	done
 	availPart=$(substractParts "$availPart" "$confPart")
 
