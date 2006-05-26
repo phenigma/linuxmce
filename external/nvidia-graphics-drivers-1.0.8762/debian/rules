@@ -52,7 +52,7 @@ configure: configure-stamp
 configure-stamp: version-clean $(AUTOGEN)
 	dh_testdir
 
-	[ -e ${filename} ] || wget ftp://download.nvidia.com/XFree86/Linux-x86/1.0-8756/${filename}
+	[ -e ${filename} ] || wget ftp://download.nvidia.com/XFree86/Linux-x86/1.0-8762/${filename}
 	chmod +x ${filename}
 	./${filename} --extract-only
 	

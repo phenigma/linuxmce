@@ -1,3 +1,9 @@
+nvidia-graphics-drivers (1.0.8762-1) unstable; urgency=low
+
+  * built with 8762
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 26 May 2006 11:56:58 +0300
+
 nvidia-graphics-drivers (1.0.8756-2) unstable; urgency=low
 
   * built with 8756
