@@ -105,7 +105,7 @@ UpdateOrbiterDimensions()
 	DEVICEDATA_ScreenHeight=101
 	DEVICEDATA_PK_Size=25
 
-	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICEDATA_Audio_Settings")
+	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 	OrbiterResolutionName=$(WizGet 'VideoResolution')
 	OrbiterAspectRatio=$(WizGet 'Video_Ratio')
 	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterAspectRatio" "$OrbiterResolution")
@@ -128,6 +128,7 @@ UpdateOrbiterDimensions()
 	PK_Size=$(RunSQL "$Q")
 	if [[ -n "$PK_Size" ]]; then
 		Q="UPDATE Device_DeviceData SET IK_DeviceData='$PK_Size' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Size'"
+		RunSQL "$Q"
 	fi
 
 	# Regen Orbiter
