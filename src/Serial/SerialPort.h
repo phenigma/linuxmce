@@ -45,9 +45,16 @@ public:
 #else
 		return m_fdSerial;
 #endif
+
 	}
-			
-};	
+
+private:
+#ifndef WIN32
+	class Private;
+	Private * d;
+#endif
+
+};
 
 #endif
 

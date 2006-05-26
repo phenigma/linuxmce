@@ -75,13 +75,151 @@ void CSerialPort::Flush() {
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
+#include <pthread.h>
+
+#include <deque>
+
+class CSerialPort::Private
+{
+	public:
+	
+		Private(CSerialPort * parent);
+		
+		~Private();
+	
+		static void* receiveFunction(void *);
+		
+		bool receiveThread(bool);
+		
+		pthread_mutex_t mutex_serial;
+		pthread_mutex_t mutex_buffer;
+		pthread_t write_thread;
+		
+		bool running;
+		
+		std::deque<char> buffer;
+	
+	private:
+	
+		CSerialPort * parent_;
+};
+
+CSerialPort::Private::Private(CSerialPort * parent)
+	: running(false),
+	  parent_(parent)
+{
+}
+
+CSerialPort::Private::~Private()
+{
+}
+
+bool CSerialPort::Private::receiveThread(bool start)
+{
+	if( running != start )
+	{
+		if( running )
+		{
+			// stop
+			running = false;
+			pthread_join(write_thread, NULL);
+			pthread_mutex_destroy(&mutex_serial);
+			pthread_mutex_destroy(&mutex_buffer);
+			
+			buffer.clear();
+		}
+		else
+		{
+			// start
+			running = true;
+			pthread_mutex_init(&mutex_serial, NULL);
+			pthread_mutex_init(&mutex_buffer, NULL);
+			int stat = pthread_create(&write_thread, NULL, receiveFunction, (void*)this);
+			if( stat != 0)
+			{
+				running = false;
+				return false;
+			}
+		}
+	}
+	
+	return true;
+}
+
+void *CSerialPort::Private::receiveFunction(void * serialPrivate)
+{
+	CSerialPort::Private * priv = (CSerialPort::Private *) serialPrivate;
+	if( priv == NULL )
+	{
+		return NULL;
+	}
+	
+	CSerialPort * parent = priv->parent_;
+	if( parent == NULL )
+	{
+		return NULL;
+	}
+	
+	char mybuf[1024];
+	size_t len = sizeof(mybuf);
+	
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 10000;
+	
+	ssize_t retval = 0;
+	int ret = 0;
+	
+	while( priv->running )
+	{
+		pthread_mutex_lock( &priv->mutex_serial );
+		fd_set rfds;
+		
+		FD_ZERO(&rfds);
+		FD_SET(parent->m_fdSerial, &rfds);
+		
+		ret = select(parent->m_fdSerial+1, &rfds, NULL, NULL, &tv);
+		if (ret <= 0 || !FD_ISSET(parent->m_fdSerial, &rfds))
+		{
+			retval = -1;
+		}
+		else
+		{
+			retval = read(parent->m_fdSerial, mybuf, len);
+		}
+		pthread_mutex_unlock( &priv->mutex_serial );
+		
+		if(retval > 0 && (size_t)retval <= sizeof(mybuf))
+		{
+			pthread_mutex_lock( &priv->mutex_buffer );
+			for(size_t i=0; i<(size_t)retval; i++)
+			{
+				priv->buffer.push_back(mybuf[i]);
+			}
+			pthread_mutex_unlock( &priv->mutex_buffer );
+		}
+		
+		usleep(100);
+		
+	}
+	
+	pthread_exit(NULL);
+	
+	return NULL;
+}
 
 CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop, bool FlowControl)
 {
-    struct termios t;
-    
-    if ((m_fdSerial = open(string("/dev/"+Port).c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
-    {
+	d = new Private(this);
+	if( d == NULL )
+	{
+		throw string("Not enough memory!");
+	}
+	
+	struct termios t;
+	
+	if ((m_fdSerial = open(string("/dev/"+Port).c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
+	{
 	if (Port == "ttyS5")
 		system("mknod /dev/ttyS5 c 4 69");	    
         if (Port == "ttyS4")
@@ -153,12 +291,22 @@ CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop
         throw string("Baud rate not supported");
     }
     ::tcsetattr(m_fdSerial,TCSANOW,&t);
+	
+	if( !d->receiveThread(true) )
+	{
+		throw string("The receiving thread doesn't start.");
+	}
 }
 
 CSerialPort::~CSerialPort()
 {
+	d->receiveThread(false);
+	
 	::tcdrain(m_fdSerial);
-    close(m_fdSerial);  
+	close(m_fdSerial);
+	
+	delete d;
+	d = NULL;
 }
 
 void CSerialPort::Write(char *Buf, size_t Len)
@@ -170,8 +318,9 @@ void CSerialPort::Write(char *Buf, size_t Len)
    time_t end = 0;
    time_t start = time(NULL);
 
-   do
-   {
+	pthread_mutex_lock( &d->mutex_serial );
+	do
+	{
 		fd_set wrfds;
 		FD_ZERO(&wrfds);
 		FD_SET(m_fdSerial, &wrfds);
@@ -200,83 +349,75 @@ void CSerialPort::Write(char *Buf, size_t Len)
 		
 		end = time(NULL);
 	} while(BytesWritten < Len && (end-start) < timeoutSec);
+	pthread_mutex_unlock( &d->mutex_serial );
 }
 
 size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 {
-	struct timeval tv;
 	struct timeval now;
 	struct timeval last;
 	size_t bytes = 0;
-	ssize_t retval = 0;
-	fd_set rfds;
-	int ret = 0;
 	
 	gettimeofday(&now, NULL);
-
+	
 	last.tv_sec = now.tv_sec+Timeout/1000;
 	last.tv_usec = now.tv_usec+(Timeout % 1000) * 1000;
-
-	while(1)
+	
+	int iTimeout = 0;
+	while( iTimeout >= 0 )
 	{
-		FD_ZERO(&rfds);
-		FD_SET(m_fdSerial, &rfds);
-		tv.tv_sec = last.tv_sec - now.tv_sec;
-		tv.tv_usec = last.tv_usec - now.tv_usec;
-		if(tv.tv_usec < 0)
+		usleep(1000);
+		
+		pthread_mutex_lock( &d->mutex_buffer );
+		bytes = d->buffer.size();
+		pthread_mutex_unlock( &d->mutex_buffer );
+		if( MaxLen <= bytes )
 		{
-			tv.tv_sec--;
-			tv.tv_usec +=  1000000; /*1000*1000 = 1 sec*/
-		}
-		if(tv.tv_sec<0)
-		{
+			bytes = MaxLen;
 			break;
 		}
 		
-		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-		if (ret <= 0 || !FD_ISSET(m_fdSerial, &rfds))
-		{
-			break;
-		}
-		
-		retval = read(m_fdSerial, Buf+bytes, MaxLen-bytes);
-		if( retval < 0 )
-		{
-			break;
-		}
-		
-		bytes += retval;
-		if(bytes >= MaxLen)
-		{
-			break;
-		}
 		gettimeofday(&now, NULL);
+		iTimeout = (last.tv_sec - now.tv_sec) * 1000000 + (last.tv_usec - now.tv_usec);
 	}
+	
+	pthread_mutex_lock( &d->mutex_buffer );
+	for(size_t i=0; i<bytes; i++)
+	{
+		Buf[i] = d->buffer.front();
+		d->buffer.pop_front();
+	}
+	pthread_mutex_unlock( &d->mutex_buffer );
 	
 	return bytes;
 }
 
 bool CSerialPort::IsReadEmpty()
 {
-    struct timeval tv;
-	fd_set rfds;
+	if( d->buffer.empty() )
+	{
+		struct timeval tv;
+		fd_set rfds;
+			
+		FD_ZERO(&rfds);
+		FD_SET(m_fdSerial, &rfds);
+		int ret = 0;
 		
-	FD_ZERO(&rfds);
-	FD_SET(m_fdSerial, &rfds);
-	int ret = 0;
-	
-	tv.tv_sec = 0 ;
-	tv.tv_usec = 0;
-	
-    ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-    if ( ret <= 0 )
-	{
-		return true;
-    }
-	else
-	{
-		return false;
+		tv.tv_sec = 0 ;
+		tv.tv_usec = 0;
+		
+		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
+		if ( ret <= 0 )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
+	
+	return false;
 }
 
 
