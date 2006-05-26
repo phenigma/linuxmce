@@ -1138,8 +1138,6 @@ void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dicti
 	Dictionary->Set("PictureHighLeft", ImageFolder+"button_high_left.png");
 	Dictionary->Set("PictureHighRight", ImageFolder+"button_high_right.png");
 
-	std::cout<<ImageFolder+"button_high_right.png"<<std::endl;
-
 	Dictionary->Set("PictureArrowLeft", ImageFolder+"left_off.png");
 	Dictionary->Set("PictureArrowRight", ImageFolder+"right_off.png");
 	Dictionary->Set("PictureHighArrowLeft", ImageFolder+"left_on.png");
