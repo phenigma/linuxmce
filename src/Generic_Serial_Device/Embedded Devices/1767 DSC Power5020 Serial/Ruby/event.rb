@@ -1,4 +1,4 @@
-#Event process  26-May-06 12:06 Power5020
+#Event process  26-May-06 16:02 Power5020
 
 #read event code from serial
 readLine()
@@ -74,11 +74,11 @@ log( "Partition fault restore:" + partNo )
 when "609"    #Zone open.  3 bytes zone 
 	zoneNo=readByte(3)
 	log( "Zone number: " + zoneNo + "  " )
-	addSens(zoneNo,false,54)    #54 motion detector
+	addSens(zoneNo,true,54)    #54 motion detector
 when "610"    #Zone restore. 3 bytes zone
 	zoneNo=readByte(3)
 	log( "Zone number:" + zoneNo + "  " )
-	addSens(zoneNo,true,54)    #54 motion detector
+	addSens(zoneNo,false,54)    #54 motion detector
 
 when "620"    #Duress alarm 4 bytes
 data=readByte(4)
