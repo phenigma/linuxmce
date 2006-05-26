@@ -1,4 +1,4 @@
-#private functions  26-May-06 16:45 Power5020
+#private functions  26-May-06 17:28 Power5020
 class MyIO
 
 	def intialize
@@ -181,6 +181,7 @@ else                                #ready to process another command
 	send( buff2 )
 	$panelState=3
 	log( "Send comand" + "   " )
+	$lastCmdTime=Time.now()
 end
 
 logString(buff2)

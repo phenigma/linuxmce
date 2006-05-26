@@ -1,4 +1,4 @@
-#Init                      24-May-06 16:33
+#Init                      24-May-06 17:27
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
@@ -39,6 +39,7 @@ $bInit=false
 $cmdBuffer=Array.new
 $bCmdSuccess=true
 $timeNo=0
+$lastCmdTime=Time.now()
 
 #$myIo = MyIO.new
 
