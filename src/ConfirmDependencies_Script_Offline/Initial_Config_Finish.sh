@@ -37,8 +37,8 @@ and other plug-and-play devices.
 a lot of new devices, and builds user interfaces for any Orbiters.
 If you are an advanced Linux user and want to access a terminal before the
 reboot, press ALT+F2.  Otherwise..."
-#Key="the Enter key"
-Key="OK"
+Key="the Enter key"
+#Key="OK"
 Message2="Press $Key to reboot and startup your new Pluto $SysType."
 
 Message24="
@@ -76,9 +76,10 @@ if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
 	/usr/pluto/bin/alsaconf-noninteractive
 fi
 
-MessageBox "$Message1" "$Message2"
+echo "$(CatMessages "$Message1" "$Message2")" | fmt
 Kver=$(uname -r)
 if [ "${Kver:0:4}" == "2.4." ]; then
-	MessageBox "$Message24"
+	echo "$Message24"
 fi
 read
+#MessageBox "$Message1" "$Message2" "$Message3"

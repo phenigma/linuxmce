@@ -24,69 +24,48 @@ clear
 
 exec 3>&1 1>/dev/tty
 clear
-MessageBox "
-I need to ask some basic questions.
-
-Please see http://plutohome.com/support, click 
-Quick Start Guide, and Installing Software for details.
-
-"
+echo "** Initial config script"
+echo ""
+echo "I need to ask some basic questions"	
+echo "Please see http://plutohome.com/support"
+echo "click Quick Start Guide, and Installing Software"
+echo "for details."
+echo ""
 
 # Ask the questions
-Username=
-while [[ $Username == "" ]] ;do
-	Username=$(InputBox "You need a username and a password for accesing the pluto-admin site.	
-
-What username do you want for yourself?")
-done
-
-ConfPassword=
-Password=
-while [[ $ConfPassword != $Password || $Password == "" ]] ;do
-
-	while [[ $Password == "" ]] ;do
-		Password=$(PasswordBox "Password for user $Username")
-	done
-	ConfPassword=$(PasswordBox "Confirm password for $Username")
-
-	if [[ $Password != $ConfPassword ]] ;then
-		MessageBox "Passwords do not match !" --title Error
-		Password=
-	fi
-done
-
-Room=$(InputBox "In what room is this PC?")
-
-Type=$(whiptail --menu "
-Hybrid means this PC will not only be the main server, but you will also hook it up to a TV and use it as a media director.
-Core means it is a server only, and will not be used as a media station.
-
-Should this be a Core, Hybrid or Other?
-" 0 0 3 C - Core H - Hybrid o - Other --fb --nocancel --title Pluto 2>&1 1>/dev/tty)
+Username=$(Ask "What username do you want for yourself?")
+Password=$(Ask "Please enter a password:")
+echo ""
+echo "Use that username and password to login to your Pluto-Admin site"
+echo ""
+Room=$(Ask "In what room is this PC?")
+clear
+echo "Note: Hybrid means this PC will not only be the main server, but you will"
+echo "also hook it up to a TV and use it as a media director.  Core means it is"
+echo "a server only, and will not be used as a media station."
+Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
 
 CoreDT=7
 if [[ "$Type" == o || "$Type" == O ]]; then
-	CoreDT=$(InputBox "Enter the device template number")
+	CoreDT=$(Ask "Enter the device template number")
 fi
 
+echo ""
+echo "If you have an active internet connection, Pluto can use it to perform"
+echo "various task : syncronize your computer clock, automaticaly send bug"
+echo "reports, install aditional software, perform updates ..."
+echo "You can also switch from online/offline mode later by using the web"
+echo "administration interface"
+echo
+echo "Important : Keep in mind that when you don't have an active internet"
+echo "connection, this tasks can slow down your computer and an negative"
+echo "answer here would be the right choice."
+UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
 
-UseInternet=$(QuestionBox "If you have an active internet connection, Pluto can use it to perform
-various task : syncronize your computer clock, automaticaly send bug
-reports, install aditional software, perform updates ...
-
-You can also switch from online/offline mode later by using the web
-administration interface
-
-Important : Keep in mind that when you don't have an active internet
-connection, this tasks can slow down your computer and an negative
-answer here would be the right choice.
-
-Should Pluto use your internet connection ?")
-
-DHCP=$(QuestionBox "You need to answer Yes below if you want Plug-and-Play or extra media directors.
-
-Do you want to run a DHCP server ?
-")
+echo ""
+echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
+echo "directors."
+DHCP=$(Ask "Run a DHCP server? [Y/n]")
 
 RestoreCoreConf()
 {
@@ -307,16 +286,17 @@ fi
 
 clear
 # XXX: No error checking
-	MessageBox "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
+	echo -e "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
         echo ""
-        BonusCD=$(QuestionBox "Did you insert the \"Pluto Bonus CD 1\" in drive ?")
+        BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
 	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 
                 /bin/mount /dev/cdrom 2>/dev/null
                 
 		        while [ ! -d "/cdrom/bonuscd1" ]; do
-                        	MessageBox "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and press any key to continue"
+                        	echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
 	                        /usr/bin/eject
+        	                echo "Press any key when you inserted the correct CD in drive."
                 	        read key
                                 if [[ ! -n "$key" ]]; then
                                         /bin/mount /dev/cdrom 2>/dev/null
@@ -328,7 +308,7 @@ clear
 
 		for files in $(ls /cdrom/bonuscd1); do
 		pkgname=$(echo $files | awk -F '_' '{print $1}')
-		pkginstalled=$(dpkg -l $pkgname 1>/dev/null)
+		pkginstalled=$(dpkg -l $pkgname)
 		        if [[ -n "$pkginstalled" ]]; then
 		                echo "Package $files is allready installed ... skipping ..."
 		        else
@@ -345,35 +325,35 @@ clear
                 cd ..
                 /usr/bin/eject
                 echo ""
-                MessageBox "\"Pluto Bonus CD 1\" succesfuly installed !"
+                echo "\"Pluto Bonus CD 1\" succesfuly installed !"
                 echo ""
         else
-                MessageBox "Skipping \"Pluto Bonus CD 1\" install ..."
+                echo "Skipping \"Pluto Bonus CD 1\" install ..."
         fi
 
 
 while :; do
-	ExtraPkg=$(QuestionBox "Do you want to add extra packages?")
+	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		while :; do
-			ExtraRepository=$(QuestionBox "Add a new repository? ")
+			ExtraRepository=$(Ask "Add a new repository? [y/N]")
 			if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
-				ExtraRepositoryPath=$(InputBox "Enter repository path")
+				ExtraRepositoryPath=$(Ask "Enter repository path")
 				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
 				apt-get update
 				break
 			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N ]]; then
 				break
 			else
-				MessageBox "--> Invalid answer: '$ExtraRepository'"
+				echo "--> Invalid answer: '$ExtraRepository'"
 			fi
 		done
-		ExtraPkgName=$(InputBox "Enter package name")
+		ExtraPkgName=$(Ask "Enter package name")
 		apt-get install "$ExtraPkgName"
 	elif [[ "$ExtraPkg" == n || "$ExtraPkg" == N ]]; then
 		break
 	else
-		MessageBox "--> Invalid answer: '$ExtraPkg'"
+		echo "--> Invalid answer: '$ExtraPkg'"
 	fi
 done
 exec 1>&3 3>&-

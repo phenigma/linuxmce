@@ -72,11 +72,6 @@ NewDev()
 
 # TODO: make these work at install time (currently they mess up debconf)
 # the perl scripts that do this read the process stderr directly for the result
-PasswordBox()
-{
-	whiptail --passwordbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1 1>/dev/tty
-}
-
 InputBox()
 {
 	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1 1>/dev/tty
