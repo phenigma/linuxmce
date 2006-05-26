@@ -7030,6 +7030,7 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 		case '9': ch = '('; break;
 		case '-': ch = '_'; break;
 		case '+': ch = '='; break;
+		case '=': ch = '+'; break;
 		case ';': ch = ':'; break;
 		case '\'': ch = '"'; break;
 		}

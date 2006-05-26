@@ -93,7 +93,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_SHIFT:  iPK_Button = BUTTON_left_shift_CONST;    break;
 
 		case VK_OEM_MINUS:  iPK_Button = BUTTON_dash_CONST;    break;
-		case VK_OEM_PLUS:  iPK_Button = BUTTON_plus_CONST;    break;
+		case VK_OEM_PLUS:  iPK_Button = BUTTON_equals_sign_CONST;    break;
 
 		case VK_OEM_PERIOD:  iPK_Button = BUTTON_dot_CONST;    break;
 		case VK_OEM_COMMA:  iPK_Button = BUTTON_comma_CONST;    break;
@@ -111,7 +111,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
             case VK_RIGHT:  iPK_Button = BUTTON_Shift_Right_Arrow_CONST;			break;
 
 			case VK_OEM_MINUS:		iPK_Button = BUTTON_underscore_CONST;					break;
-			case VK_OEM_PLUS:		iPK_Button = BUTTON_plus_CONST;							break;
+			//case VK_OEM_PLUS:		iPK_Button = BUTTON_equals_sign_CONST;					break;
 			case VK_OEM_1:       iPK_Button = BUTTON_colon_CONST;						break;
 			case VK_OEM_7:       iPK_Button = BUTTON_double_quote_CONST;					break;
 
