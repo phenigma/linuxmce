@@ -843,7 +843,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 
 			sCode = sCode + "char *buf = new char[" + int2string(iSize) + "];\n";		
 			sCode = sCode + "mysql_real_escape_string(table->database->m_pMySQL, buf, m_" + (*i)->m_pcFieldName + 
-				".c_str(), (unsigned long) min(" + StringUtils::itos((*i)->m_iLength) + ",m_" + (*i)->m_pcFieldName + ".size()));\n";
+				".c_str(), (unsigned long) min((size_t)" + StringUtils::itos((*i)->m_iLength) + ",m_" + (*i)->m_pcFieldName + ".size()));\n";
 
 			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
 			sCode = sCode + "delete[] buf;\n";
