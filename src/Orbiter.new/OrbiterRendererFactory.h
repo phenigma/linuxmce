@@ -8,7 +8,7 @@ class OrbiterRenderer;
 class OrbiterRendererFactory
 {
 public:
-	static OrbiterRenderer *CreateRenderer();
+	static OrbiterRenderer *CreateRenderer(Orbiter *pOrbiter);
 };
 
 #endif //__ORBITER_RENDERER_FACTORY__

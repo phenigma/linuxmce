@@ -194,9 +194,9 @@ public:
 						ShowProgress(i * 50 / count);
 						DesignObj_Orbiter *pDesignObj_Data=NULL;
 						if( Type==DESIGNOBJTYPE_Datagrid_CONST )
-							pDesignObj_Data = new DesignObj_DataGrid();
+							pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *)m_pExtraSerializationData);
 						else
-							pDesignObj_Data = new DesignObj_Orbiter();
+							pDesignObj_Data = new DesignObj_Orbiter((class Orbiter *)m_pExtraSerializationData);
 #else
 							DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
 #endif

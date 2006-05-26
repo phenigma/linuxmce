@@ -7,6 +7,15 @@
 
 #include "PlutoUtils/GraphicFormat.h"
 
+namespace DCE
+{
+	class Orbiter;
+	class Logger;
+	class DataGridTable;
+	class PlutoPopup;
+}
+//-------------------------------------------------------------------------------------------------------
+using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 // Graphic memory management.  GR_DYNAMIC means that this is a dynamic image
 // and there's no reason to ever keep it.  Discardonchange may keep the image
@@ -32,8 +41,9 @@ enum GraphicType
 	gtSDLGraphic,
 	gtPocketFrogGraphic
 };
-//-------------------------------------------------------------------------------------------------------
 
+
+//-------------------------------------------------------------------------------------------------------
 //=======================================================================================================
 //Generic abstract class PlutoGraphic
 //-------------------------------------------------------------------------------------------------------
@@ -41,9 +51,13 @@ class PlutoGraphic
 {
 public:
 	PlutoGraphic();
-	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement);
+	PlutoGraphic(Orbiter *pOrbiter);
+	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
+
 	virtual ~PlutoGraphic();
 	virtual PlutoGraphic* Clone() = 0; //Must be implemented
+
+	Orbiter *m_pOrbiter;
 
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented

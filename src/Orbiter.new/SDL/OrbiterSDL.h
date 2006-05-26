@@ -29,7 +29,7 @@ protected:
 public:
 
 
-	OrbiterSDL();
+	OrbiterSDL(Orbiter *pOrbiter);
 	virtual ~OrbiterSDL();
 
 	// Public virtual methods

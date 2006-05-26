@@ -75,13 +75,11 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	try
 	{
 		//remove the old instance
-		if(NULL != Orbiter::GetInstance())
-			Orbiter::DestroyInstance();
-
+		// todo delete orbiter.
 		WriteStatusOutput("Building a new orbiter");
 
 		//create a new one
-		pOrbiter = Orbiter::CreateInstance(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height);
+		pOrbiter = new Orbiter(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height);
 			
 		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
 	}

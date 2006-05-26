@@ -15,8 +15,8 @@
 #include "../OrbiterRenderer.h"
 
 //-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement)
-					   : PlutoGraphic(Filename, GraphicManagement)
+SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
 {
 	Initialize();
 }
@@ -60,7 +60,7 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 			"Please uncheck 'Use OCG' device data for this device";
 
         g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
-		Orbiter::GetInstance()->Renderer()->PromptUser(sErrorMessage.c_str(), 100);
+		m_pOrbiter->Renderer()->PromptUser(sErrorMessage.c_str(), 100);
         exit(1);
 		return false;
 	}

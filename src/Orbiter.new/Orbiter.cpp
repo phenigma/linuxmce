@@ -192,11 +192,11 @@ Constructors/Destructor
 */
 
 //--------------------------------------------------------------------------------------------------
-Orbiter *Orbiter::m_pInstance = NULL; //the one and only
+//Orbiter *Orbiter::m_pInstance = NULL; //the one and only
 //--------------------------------------------------------------------------------------------------
-/*static*/ Orbiter *Orbiter::CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
+/*static Orbiter *Orbiter::CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
 	string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
-	pluto_pthread_mutex_t* pExternalScreenMutex/* = NULL*/)
+	pluto_pthread_mutex_t* pExternalScreenMutex)
 {
 	if(NULL == m_pInstance)
 	{
@@ -208,9 +208,9 @@ Orbiter *Orbiter::m_pInstance = NULL; //the one and only
 		throw string("Orbiter::CreateInstance: already created");
 
 	return NULL;
-}
+} */
 //--------------------------------------------------------------------------------------------------
-/*static*/ void Orbiter::DestroyInstance()
+/*static void Orbiter::DestroyInstance()
 {
 	if(NULL != m_pInstance)
 	{
@@ -220,12 +220,12 @@ Orbiter *Orbiter::m_pInstance = NULL; //the one and only
 	}
 
 	throw string("Orbiter::DestroyInstance: no instance to destroy"); //no std::logic_error under linux ?! :(
-}
+}*/
 //--------------------------------------------------------------------------------------------------
-/*static*/ Orbiter* Orbiter::GetInstance()
+/*static Orbiter* m_pOrbiter->
 {
 	return m_pInstance;
-}
+}*/
 //--------------------------------------------------------------------------------------------------
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,
@@ -239,7 +239,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput("Orbiter constructor");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
-	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer();
+	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer(this);
 
 	m_nCallbackCounter = 0;
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;

@@ -96,9 +96,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	private:
 
 		OrbiterRenderer *m_pOrbiterRenderer;
-		static Orbiter *m_pInstance;
 
-	protected:
+	public:
 	
 		/**
 		* @brief constructor, assignes values to member data
@@ -107,13 +106,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
 			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
 
-	public:
-		
-		static Orbiter *CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
+	
+/*		static Orbiter *CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
 			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
-			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
-		static void DestroyInstance();
-		static Orbiter *GetInstance();
+			pluto_pthread_mutex_t* pExternalScreenMutex = NULL); */
 
 		OrbiterRenderer *Renderer() { return m_pOrbiterRenderer; }
 

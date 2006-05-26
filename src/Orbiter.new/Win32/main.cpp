@@ -28,7 +28,9 @@ extern HWND	g_hWndList; //maindialog logger list
 #endif
 
 #include "Orbiter.h"
-
+#ifdef POCKETFROG
+#include "OrbiterRenderer_PocketFrog.h"
+#endif 
 namespace DCE
 {
 	Logger *g_pPlutoLogger = NULL;
@@ -270,7 +272,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
         if(Simulator::GetInstance()->IsRunning())
         {
-            OrbiterRenderer_PocketFrog::GetInstance()->OnQuit();
+			OrbiterRenderer_PocketFrog::GetInstance()->GetOrbiter()->OnQuit();
 
             time_t tTime = time(NULL);
             while(true)
@@ -292,7 +294,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
-		Orbiter::DestroyInstance();
+// TODO		Orbiter::DestroyInstance();
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

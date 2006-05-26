@@ -5,6 +5,7 @@
 #include "PlutoGraphic.h"
 #include "PlutoUtils/GraphicFormat.h"
 #include "../SerializeClass/ShapesColors.h"
+
 //-------------------------------------------------------------------------------------------------------
 namespace DCE
 {
@@ -27,7 +28,7 @@ typedef vector<DesignObj_Orbiter *> VectDesignObj_Orbiter;
 class DesignObj_Orbiter : public DesignObj_Data
 {
 public:
-	DesignObj_Orbiter();
+	DesignObj_Orbiter(Orbiter *pOrbiter);
 	virtual ~DesignObj_Orbiter();
 
 	virtual bool ObjectInRect(PlutoRectangle rect);
@@ -73,9 +74,10 @@ public:
 	PlutoRectangle GetHighlightRegion();
 
 	class Orbiter_CriteriaList *m_pCriteria;
+	Orbiter *m_pOrbiter;
 
 	bool IsHidden() { if( m_bHidden ) return true;  if( m_pParentObject ) return ((DesignObj_Orbiter *) m_pParentObject)->IsHidden(); return false; }
-
+	void SetOrbiter(Orbiter *pOrbiter) { m_pOrbiter = pOrbiter; };
 	// Runtime states
 	bool m_bActive, m_bHidden;
 

@@ -11,8 +11,8 @@
 #include "src/internal/graphicbuffer.h"
 #include "src/internal/raster2d.h"
 //-------------------------------------------------------------------------------------------------------
-PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement)
-					   : PlutoGraphic(Filename, GraphicManagement)
+PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
 {
 	Initialize();
 }

@@ -6,14 +6,16 @@
 #include "DesignObj_Orbiter.h"
 #include "PlutoGraphic.h"
 #include "SerializeClass/ShapesColors.h"
+#include "Orbiter.h"
 
 class OrbiterRenderer
 {
 	friend class OrbiterRendererFactory;
+	Orbiter *m_pOrbiter;
 
 protected:
 
-	OrbiterRenderer() {}
+	OrbiterRenderer(Orbiter *pOrbiter);
 
 public:
 
@@ -82,7 +84,7 @@ public:
 	virtual bool DisplayProgress(string sMessage, int nProgress) { return false; };
 	virtual bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress) { return false; }
 	virtual bool RegenOrbiter(); // Send Orbiter plugin a command to regen this orbiter
-
+	Orbiter *GetOrbiter() { return m_pOrbiter; }
 
 	bool m_bFullScreen;
 };

@@ -7,7 +7,7 @@
 class SDLGraphic : public PlutoGraphic
 {
 public:
-	SDLGraphic(string Filename, eGraphicManagement GraphicManagement);
+	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
 	SDLGraphic(struct SDL_Surface *pSDL_Surface);
 	SDLGraphic();
 	~SDLGraphic();
@@ -22,7 +22,7 @@ public:
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
 
 	struct SDL_Surface *m_pSDL_Surface;
-
+	
 	//helper methods
 	static Uint32 getpixel(struct SDL_Surface *pSDL_Surface,int x, int y);
 	static void putpixel(struct SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color);

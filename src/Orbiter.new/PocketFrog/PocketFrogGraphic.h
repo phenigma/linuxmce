@@ -9,7 +9,7 @@ using namespace Frog;
 class PocketFrogGraphic : public PlutoGraphic
 {
 public:
-	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement);
+	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
 	PocketFrogGraphic(Surface *pSurface);
 	PocketFrogGraphic();
 	~PocketFrogGraphic();

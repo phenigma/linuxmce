@@ -116,12 +116,12 @@ void OrbiterRendererSDLLinux::reinitGraphics()
     m_WinListManager.ShowSdlWindow(false);
 
     OrbiterCallBack callback = (OrbiterCallBack)&OrbiterRendererSDLLinux::setInputFocusToMe;
-	Orbiter::GetInstance()->CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL, this );
+	m_pOrbiter->CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL, this );
 }
 
 void OrbiterRendererSDLLinux::setInputFocusToMe(void *)
 {
-	Orbiter::GetInstance()->CallMaintenanceInMiliseconds( 7000, (OrbiterCallBack)&OrbiterRendererSDLLinux::setInputFocusToMe, NULL, pe_ALL, this ); // do this every 7 seconds
+	m_pOrbiter->CallMaintenanceInMiliseconds( 7000, (OrbiterCallBack)&OrbiterRendererSDLLinux::setInputFocusToMe, NULL, pe_ALL, this ); // do this every 7 seconds
 }
 
 void OrbiterRendererSDLLinux::setWindowName(string strWindowName)
@@ -335,7 +335,7 @@ bool OrbiterRendererSDLLinux::RenderDesktop( class DesignObj_Orbiter *pObj, Plut
 
     //Orbiter::RenderDesktop(pObj, rectTotal, point);
     vector<int> vectButtonMaps;
-	Orbiter::GetInstance()->GetButtonsInObject(pObj,vectButtonMaps);
+	m_pOrbiter->GetButtonsInObject(pObj,vectButtonMaps);
 
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterRendererSDLLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d]",
                           pObj,
@@ -383,7 +383,7 @@ bool OrbiterRendererSDLLinux::RenderDesktop( class DesignObj_Orbiter *pObj, Plut
         }
     }
     else
-        Orbiter::GetInstance()->CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterRendererSDLLinux::ActivateExternalWindowAsync, NULL, pe_ALL );
+        m_pOrbiter->CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterRendererSDLLinux::ActivateExternalWindowAsync, NULL, pe_ALL );
 }
 
 // public interface implementations below
@@ -391,13 +391,13 @@ bool OrbiterRendererSDLLinux::RenderDesktop( class DesignObj_Orbiter *pObj, Plut
 void OrbiterRendererSDLLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
     //we know here the ui version!
-    g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", Orbiter::GetInstance()->m_iUiVersion);
+    g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", m_pOrbiter->m_iUiVersion);
 
-    if(Orbiter::GetInstance()->UsesUIVersion2())
+    if(m_pOrbiter->UsesUIVersion2())
 	{
-		Orbiter::GetInstance()->m_pMouseBehavior = new MouseBehavior_Linux();
+		m_pOrbiter->m_pMouseBehavior = new MouseBehavior_Linux();
 	}
-    m_pRecordHandler->enableRecording(Orbiter::GetInstance(), true);
+    m_pRecordHandler->enableRecording(m_pOrbiter->, true);
 
     reinitGraphics();
     g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
@@ -447,7 +447,7 @@ bool OrbiterRendererSDLLinux::PreprocessEvent(Orbiter::Event &event)
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	if(Orbiter::GetInstance()->UsesUIVersion2())
+	if(m_pOrbiter->UsesUIVersion2())
 	{
 		switch (event.data.button.m_iPK_Button)
 		{

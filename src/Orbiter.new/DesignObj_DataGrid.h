@@ -9,7 +9,7 @@
 class DesignObj_DataGrid : public DesignObj_Orbiter 
 {
 public:
-	DesignObj_DataGrid()
+	DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pOrbiter) 
 	{
 		for(int i=0;i<CACHE_SIZE;++i)
 			m_pDataGridTableCache[i]=NULL;

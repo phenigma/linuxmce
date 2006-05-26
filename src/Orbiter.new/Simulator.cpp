@@ -139,7 +139,7 @@ void *GeneratorThread( void *p)
 	#endif
 #endif */
 
-	Orbiter *pOrbiter = Orbiter::GetInstance();
+	Orbiter *pOrbiter = pSimulator->m_pOrbiter;
 
 	while(true)
 	{

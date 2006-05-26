@@ -309,17 +309,17 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 bool CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
 {
-	Orbiter *pOrbiter = Orbiter::CreateInstance(
+	Orbiter *pOrbiter = new Orbiter(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
             sLocalDirectory, bLocalMode, Width, Height);
 
 	// Add a handler to take care of crashes
-	g_pCommand_Impl = Orbiter::GetInstance();
+	g_pCommand_Impl = m_pOrbiter->;
 	g_pDeadlockHandler=DeadlockHandler;
 	g_pSocketCrashHandler=SocketCrashHandler;
 
 	// Don't validate the device template, since the same binary is used for lots of devices
-	if (bLocalMode || (Orbiter::GetInstance()->GetConfig() && pOrbiter->Connect(0)))
+	if (bLocalMode || (m_pOrbiter->GetConfig() && pOrbiter->Connect(0)))
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		pOrbiter->Initialize(gtSDLGraphic);
@@ -342,13 +342,13 @@ bool CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string 
 
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
-    if (Orbiter::GetInstance()->m_bQuit)
+    if (m_pOrbiter->m_bQuit)
         return false;
     if(SDL_PollEvent(&sdl_event_loop_data.event))
     {
         if(sdl_event_loop_data.event.type == SDL_QUIT)
             return false;
-		//if(Orbiter::GetInstance()->UsesUIVersion2())
+		//if(m_pOrbiter->UsesUIVersion2())
 		//{
 		//	if(sdl_event_loop_data.event.type == SDL_QUIT)
 		//		return false;
@@ -357,12 +357,12 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 		//{
 		//	// convert the SDL into what we know to interpret.
 		//    translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState, 
-		//			Orbiter::GetInstance()->UsesUIVersion2());
+		//			m_pOrbiter->UsesUIVersion2());
 
 	    //    if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
 		//		return false;
 
-		//	Orbiter::GetInstance()->ProcessEvent(sdl_event_loop_data.orbiterEvent);
+		//	m_pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
 		//}
     }
     else
@@ -373,15 +373,15 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
     g_pPlutoLogger->Write(LV_STATUS, "SDL_Event_Loop_End()");
-    if (Orbiter::GetInstance() == NULL)
+    if (m_pOrbiter-> == NULL)
         return false;
-    bool bReload = Orbiter::GetInstance()->m_bReload;
+    bool bReload = m_pOrbiter->m_bReload;
     g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance, End of SDL loop with reload: %s", (bReload ? "Y" : "N"));
     delete g_pRenderer;
-	delete Orbiter::GetInstance();
+	delete m_pOrbiter->;
 	g_pRenderer = NULL;
-    Orbiter::GetInstance() = NULL;
-    g_pPlutoLogger->Write(LV_STATUS, "finished deleting Orbiter::GetInstance()");
+    m_pOrbiter-> = NULL;
+    g_pPlutoLogger->Write(LV_STATUS, "finished deleting m_pOrbiter->");
     return bReload;
 }
 
@@ -438,7 +438,7 @@ bool SDL_App_Object::Create()
         g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
         return false;
     }
-    g_pPlutoLogger->Write(LV_CRITICAL, "Created : ptr=%p", Orbiter::GetInstance());
+    g_pPlutoLogger->Write(LV_CRITICAL, "Created : ptr=%p", m_pOrbiter->);
     return true;
 };
 
@@ -451,7 +451,7 @@ bool SDL_App_Object::EventProcess()
     }
     if (! SDL_Event_Process(*m_pSDL_Event_Loop_Data))
     {
-        SetExitCode(Orbiter::GetInstance()->m_bReload ? 2 : 0);
+        SetExitCode(m_pOrbiter->m_bReload ? 2 : 0);
         g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
         return false;
     }

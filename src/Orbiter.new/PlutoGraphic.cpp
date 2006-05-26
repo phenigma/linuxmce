@@ -11,11 +11,22 @@ PlutoGraphic::PlutoGraphic()
 	Width = 0;
 	Height = 0;
 }
-//-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement)
+
+PlutoGraphic::PlutoGraphic(Orbiter *pOrbiter)
 {
 	Initialize();
 
+	m_pOrbiter = pOrbiter;
+	Width = 0;
+	Height = 0;
+}
+
+//-------------------------------------------------------------------------------------------------------
+PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+{
+	Initialize();
+
+	m_pOrbiter = pOrbiter;
 	m_Filename = Filename;
 	m_GraphicManagement = GraphicManagement;
 	Width = 0;

@@ -10,16 +10,16 @@
 	#include "SDL/OrbiterSDL.h"
 #endif
 
-/*static*/ OrbiterRenderer *OrbiterRendererFactory::CreateRenderer()
+/*static*/ OrbiterRenderer *OrbiterRendererFactory::CreateRenderer(Orbiter *pOrbiter)
 {
 #ifdef WIN32
 	#ifdef POCKETFROG
-		return new OrbiterRenderer_PocketFrog();
+		return new OrbiterRenderer_PocketFrog(pOrbiter);
 	#else
-		return new OrbiterSDL_Win32();
+		return new OrbiterSDL_Win32(pOrbiter);
 	#endif
 #else
-		return new OrbiterSDL();
+		return new OrbiterSDL(pOrbiter);
 #endif
 }
 
