@@ -143,3 +143,11 @@ for module in $modules; do
 	fi
 	modprobe $module
 done
+
+echo "Updating IR codes for all devices"
+Q="SELECT DISTINCT FK_DeviceTemplate FROM Device"
+Templates=$(RunSQL "$Q")
+
+for Template in $Templates; do
+	/usr/pluto/bin/WebDB_GetIR.sh 0 "$Template"
+done
