@@ -1,4 +1,4 @@
-#private functions  26-May-06 11:00 Power5020
+#private functions  26-May-06 12:09 Power5020
 class MyIO
 
 	def intialize
@@ -311,19 +311,19 @@ else
 end
 #if error on arm/disarm send a message
 if( err=23 || err==24) then
-changeStateEv= Command.new(idNo, -1001, 1, 2, 67);      #67 PanelChangeState		
+changeStateEv= Command.new(devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
 
 if(err=23) then 
-	changeStateEv.params_[30] = "0"
+	changeStateEv.params_[30] = "0," +$errCode[err] 
 end
 if(err==24)
-	changeStateEv.params_[30] = "1"
+	changeStateEv.params_[30] = "1," +$errCode[err] 
 end
 
-changeStateEv.params_[47]="0" 
+changeStateEv.params_[47]="1"
 SendCommand(changeStateEv)
 
-log("Fire 67 event" + idNo.to + "-1001, 1, 2")
+log("Fire 67 event" + devid_.to + "-1001, 1, 2")
 end
 
 
@@ -443,15 +443,7 @@ when "NODELAY"
 when "CODE"	
 	buff += "3"
 end	
-	
-#data - add the partition number partNo=0 -> all partititon
-#if( partNo==0 ) then
-#	$partStatus.each(){|key,value|
-#	buff += key.to_s
-#	if (type == "CODE")       then buff += password           end
-#	sendCmd(buff)
-#	}
-#else
+
 buff += partNo.to_s
 if (type == "CODE")       then buff += password           end
 sendCmd(buff)
@@ -475,14 +467,6 @@ if (partNo < 0) or (partNo > 8) then
 	return
 end
 
-#data  partNo=0 -> all partititon
-#if( partNo==0 ) then
-#$partStatus.each(){|key,value|
-#	buff += key.value
-#	buff += password
-#	sendCmd(buff)
-#	}
-#else
 buff += value
 buff += password
 sendCmd(buff)

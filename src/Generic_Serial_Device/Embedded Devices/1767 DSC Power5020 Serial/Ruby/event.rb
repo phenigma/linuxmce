@@ -1,4 +1,4 @@
-#Event process  26-May-06 11:00 Power5020
+#Event process  26-May-06 12:06 Power5020
 
 #read event code from serial
 readLine()
@@ -114,12 +114,24 @@ when "652"    #pPartition armed. 1 byte partition
 	if ($bPartDec == true) then mode=readByte(1) end
 	log( "Partition no:" + partNo + " Mode:" + mode.to_s + "   " )
 	addPart(partNo,true)
+	
+	#change state to arm without error
+	changeStateEv= Command.new(devid_, -1001, 1, 2, 67); 
+	changeStateEv.params_[30]="1"
+	changeStateEv.params_[47]=partNo.to_s
+	SendCommand(changeStateEv)
 when "654"    #Partition in alarm. 1 byte partition   
 	partNo=readByte(1)
 	log( "Partition no: " + partNo )
 when "655"    #Partition disarm. 1 byte partition
 	partNo=readByte(1)
 	log( "Partition no: " + partNo )
+	
+	#change state to disarm without error
+	changeStateEv= Command.new(devid_, -1001, 1, 2, 67); 
+	changeStateEv.params_[30]="0"
+	changeStateEv.params_[47]=partNo.to_s
+	SendCommand(changeStateEv)
 when "656"    #Exit delay    1 byte partition
 	partNo=readByte(1)
 	log( "Part no:" + partNo + "  " )
