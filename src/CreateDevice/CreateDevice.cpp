@@ -98,6 +98,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		return 0;
 	}
 
+	system((string("/usr/pluto/bin/WebDB_GetIR.sh 0 ") + StringUtils::itos(iPK_DeviceTemplate)).c_str());
+	
 	// Check if this device template has 'one per pc' set and ther's already one
 	// Use a temporary PK_Device_ControlledVia_temp because in rare circumstances this can't be determined until after the device is created
 	// because the controlling device doesn't exist.  In such cases we don't care because there can't be another such device if there's nothing
