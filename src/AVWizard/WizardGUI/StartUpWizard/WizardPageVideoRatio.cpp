@@ -33,19 +33,19 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		OutputValue = "16_9";
 		system(COMMAND_SET_RATIO_16_9);
 	}
-	Dictionary->Set("VideoRatio", OutputValue);
+	Dictionary->Set("Video_Ratio", OutputValue);
 	return 0;
 }
 
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
-	if(!AVWizardSettings->Exists("VideoRatio"))
+	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
 		RatioMode = 0;
 	}
 	else
 	{
-		OutputValue = AVWizardSettings->GetValue("VideoRatio");
+		OutputValue = AVWizardSettings->GetValue("Video_Ratio");
 		RatioMode = (OutputValue == "4_3");
 	}
 

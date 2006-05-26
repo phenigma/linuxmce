@@ -64,12 +64,12 @@ WizardPageFinalSelections::~WizardPageFinalSelections(void)
 std::string WizardPageFinalSelections::GetVideoRatio(SettingsDictionary* AVWizardSettings)
 {
 	int RatioMode = 0;
-	if(!AVWizardSettings->Exists("VideoRatio"))
+	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
 		RatioMode = 0;
 		return "4:3";
 	}
-	std::string RatioValue = AVWizardSettings->GetValue("VideoRatio");
+	std::string RatioValue = AVWizardSettings->GetValue("Video_Ratio");
 	RatioMode = (RatioValue == "4_3");
 
 	RatioValue = "16:9";
