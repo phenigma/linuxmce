@@ -87,7 +87,7 @@ while (1 eq 1)
 				{
 					$st->finish();
 					log_plugin("NEW DEVICE !!!","log");
-					for ($i=0;$i<100,$i++)
+					for ($i=0;$i<100;$i++)
 					{
 						system("/usr/pluto/bin/MessageSend localhost $PKDEV -1001 2 65 53 2 5 \"$mac_found\" 28 \"$ip_sent\"");
 						$errcode = system("echo $? 1>/dev/null");
