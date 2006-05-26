@@ -70,8 +70,15 @@ void WizardWidgetButton::PaintExpandedButton(
 			Dest.w = Src.w;	Dest.h = Src.h;
 			FrontEnd->Blit(BtnTexture, Src, Dest);
 		}
-	TColorDesc* Color = Page->GetFontColor();
-	FrontEnd->TextOutput((char*)Caption.c_str(), Left - FW2, Top - FH2, *Color, 0);
+	TColorDesc* Color = new TColorDesc(32, 32, 32);
+	FrontEnd->TextOutput((char*)Caption.c_str(), Left - FW2 + 1, Top - FH2, *Color, 0);
+	delete Color;
+	if(!Focused)
+		Color = new TColorDesc(127, 127, 127);
+	else
+		Color = new TColorDesc(255, 255, 255);
+	FrontEnd->TextOutput((char*)Caption.c_str(), Left - FW2, Top - FH2 - 1, *Color, 0);
+	delete Color;
 	Width += FontWidth;
 }
 
@@ -126,8 +133,18 @@ void WizardWidgetButton::PaintNonExpandedButton(
 			Dest.w = Src.w;	Dest.h = Src.h;
 			FrontEnd->Blit(BtnTexture, Src, Dest);
 		}
-		TColorDesc* Color = Page->GetFontColor();
-		FrontEnd->TextOutput((char*)Caption.c_str(), Left, Top - FH2, *Color, 1);
+
+	TColorDesc* Color = new TColorDesc(32, 32, 32);
+	FrontEnd->TextOutput((char*)Caption.c_str(), Left+1, Top - FH2+1, *Color, 1);
+	delete Color;
+	if(!Focused)
+		Color = new TColorDesc(127, 127, 127);
+	else
+		Color = new TColorDesc(255, 255, 255);
+
+	FrontEnd->TextOutput((char*)Caption.c_str(), Left, Top - FH2, *Color, 1);
+	delete Color;
+
 }
 
 /*virtual*/ void WizardWidgetButton::Paint()

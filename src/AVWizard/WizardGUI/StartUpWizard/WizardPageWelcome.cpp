@@ -24,6 +24,11 @@ WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 
 /*virtual*/ void WizardPageWelcome::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	WizardWidgetButton* Btn = dynamic_cast<WizardWidgetButton*>
+		(Page->GetChildRecursive("MainBtn"));
+	if(Btn == NULL)
+		return;
+	Btn->SetFocus(true);
 }
 
 /*virtual*/ int WizardPageWelcome::DoApplySetting(SettingsDictionary* Dictionary)

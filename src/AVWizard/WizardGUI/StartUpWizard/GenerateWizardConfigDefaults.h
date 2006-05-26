@@ -11,6 +11,7 @@ class GenerateWizardConfigDefaults
 	 *	Path to font name
 	 */
 	std::string FontName; 
+	std::string FontTitle, FontText, FontMiniTitle; 
 	int FontHeight;
 	std::string Color; 
 	std::string Style;

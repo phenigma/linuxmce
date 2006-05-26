@@ -56,8 +56,11 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	if(AVWizardSettings->Exists("AudioVolumeIncrement"))
 		AudioVolumeIncrement = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeIncrement"));
 
-	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
+
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
+	VolumeLabel->SetCaption(VolumeLabelCaption);
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 }
 
@@ -69,9 +72,13 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 
 	AudioVolumeCurrent = NewVolume;
 
-	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin) 
 		* 100 / (AudioVolumeMax - AudioVolumeMin)) + "%";
+
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
+	VolumeLabel->SetCaption(VolumeLabelCaption);
+
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 
 	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +
@@ -87,8 +94,11 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 		NewVolume = AudioVolumeMin;
 	AudioVolumeCurrent = NewVolume;
 
-	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
+
 	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
+	VolumeLabel->SetCaption(VolumeLabelCaption);
+	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	
 	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +

@@ -5,7 +5,9 @@
 #define DEFAULT_FONT_NAME "c:\\pluto\\src\\avwizard\\wizardgui\\StartUpWizard\\Fonts\\Zurchbc.ttf"
 #else
 //#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/kochi/kochi-gothic.ttf"
-#define DEFAULT_FONT_NAME "/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf"
+#define DEFAULT_FONT_STEP "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
+#define DEFAULT_FONT_MINITITLE "/usr/share/fonts/truetype/msttcorefonts/Trebuchet_MS.ttf"
+#define DEFAULT_FONT_TEXT "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf"
 #endif
 
 #define COMMAND_SET_RESOLUTION "/usr/pluto/bin/AVWizard_UpdateResolution.sh"

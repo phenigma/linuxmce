@@ -138,7 +138,7 @@ int SDLFrontEnd::PaintFont(char* Text,
 	SDL_color.r = Color.GetRed();
 	SDL_color.g = Color.GetGreen();
 	SDL_color.b = Color.GetBlue();
-	SDL_color.unused = 255;
+	SDL_color.unused = 0;
 
 
 	SDL_Surface * RenderedText = NULL;

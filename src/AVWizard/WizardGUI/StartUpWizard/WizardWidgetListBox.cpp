@@ -21,8 +21,10 @@ WizardWidgetListBox::~WizardWidgetListBox()
 
 	if(!Focused)
 	{
-		LeftArrow = Page->GetSurface(SURFACE_ARROW_LEFT);
-		RightArrow = Page->GetSurface(SURFACE_ARROW_RIGHT);
+		LeftArrow = NULL;
+		RightArrow = NULL;
+		//LeftArrow = Page->GetSurface(SURFACE_ARROW_LEFT);
+		//RightArrow = Page->GetSurface(SURFACE_ARROW_RIGHT);
 	}
 	else
 	{
@@ -38,12 +40,12 @@ WizardWidgetListBox::~WizardWidgetListBox()
 	SDL_Rect Src, Dest;
 	//Left button area
 	Src.x = 0; Src.y = 0; Src.w = RightArrow->w; Src.h = RightArrow->h;
-	Dest.x = Left - Width/2 - Src.w - 15; Dest.y = Top - Page->GetFontHeight(); Dest.w = Src.w; Dest.h = Src.h; 
+	Dest.x = Left - Width/2 - Src.w - 22; Dest.y = Top - Page->GetFontHeight(); Dest.w = Src.w; Dest.h = Src.h; 
 	FrontEnd->Blit(LeftArrow, Src, Dest);
 
 	//Right button area
 	Src.x = 0; Src.y = 0; Src.w = RightArrow->w; Src.h = RightArrow->h;
-	Dest.x = Left + Width/2 + 15; Dest.y = Top - Page->GetFontHeight(); Dest.w = Src.w; Dest.h = Src.h; 
+	Dest.x = Left + Width/2 + 22; Dest.y = Top - Page->GetFontHeight(); Dest.w = Src.w; Dest.h = Src.h; 
 	FrontEnd->Blit(RightArrow, Src, Dest);
 }
 

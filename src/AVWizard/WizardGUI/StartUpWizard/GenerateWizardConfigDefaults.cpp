@@ -6,12 +6,24 @@
 
 #include "Wizard.h"
 
+#include <iostream>
+
 GenerateWizardConfigDefaults::GenerateWizardConfigDefaults()
 {
-	FontName = DEFAULT_FONT_NAME;
-	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontName"))
-		FontName = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontName");
+	FontText = DEFAULT_FONT_TEXT;
+	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontText"))
+		FontText = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontText");
 
+	FontTitle = DEFAULT_FONT_STEP;
+	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontTitle"))
+		FontTitle = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontTitle");
+
+	FontMiniTitle = DEFAULT_FONT_MINITITLE;
+	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontMiniTitle"))
+		FontMiniTitle = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontMiniTitle");
+
+
+	FontName = FontText;
 }
 
 GenerateWizardConfigDefaults::~GenerateWizardConfigDefaults()
@@ -186,7 +198,7 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	Page->AddChild(CreateControlButton(
 		"MainBtn",
 		" Continue ",
-		565,
+		555,
 		440,
 		true
 	));
@@ -261,7 +273,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		" 4:3 ",
-		55,
+		65,
 		440,
 		true
 		));
@@ -269,7 +281,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		" 16:9 ",
-		585,
+		575,
 		440,
 		true
 		));
@@ -328,35 +340,35 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(CreateControlButton(
 			"Btn1",
 			"Composite",
-			175, 285,
+			100, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn2",
 			"S-Video",
-			275, 285,
+			230, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn3",
 			"Component",
-			375, 285,
+			355, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn4",
 			"VGA",
-			462, 285,
+			468, 285,
 			true
 		));
 
 	Page->AddChild(CreateControlButton(
 			"Btn5",
 			"DVI",
-			520, 285,
+			540, 285,
 			true
 		));
 
@@ -487,21 +499,21 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"Analog Stereo",
-		185, 285,
+		142, 285,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"SPDIF Coaxial",
-		320, 285,
+		315, 285,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn3",
 		"SPDIF Optical",
-		455, 285,
+		490, 285,
 		true
 		));
 
@@ -558,18 +570,26 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
-		ImageFolder + "left_off.png",
+		ImageFolder + "left_on.png",
 		220, 270
 		));
 
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
-		ImageFolder + "right_off.png",
+		ImageFolder + "right_on.png",
 		410,
 		270
 		));
 
 
+	SetFontStyle(40, "002900", "Regular");
+	Page->AddChild(CreateControlLabel(
+		"SpeakerVolumeTextShadow",
+		"50%",
+		321,
+		351,
+		"Center"
+		));
 	SetFontStyle(40, "009900", "Regular");
 	Page->AddChild(CreateControlLabel(
 		"SpeakerVolumeText",
@@ -634,14 +654,14 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"No, I cannot hear it",
-		175, 310,
+		155, 310,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"Yes, I can hear it",
-		475, 310,
+		495, 310,
 		true
 		));
 
@@ -709,14 +729,14 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"No, I cannot hear it",
-		175, 310,
+		155, 310,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"Yes, I can hear it",
-		475, 310,
+		495, 310,
 		true
 		));
 
@@ -832,7 +852,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		Dictionary = Control->GetDictionary();
 		
 
-		if(i == NoSelectedTab)
+		if(i <= NoSelectedTab)
 			snprintf(Buffer, sizeof(Buffer), "Step%dOn", i);
 		else
 			snprintf(Buffer, sizeof(Buffer), "Step%dOff", i);
@@ -840,7 +860,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		std::string ControlImageName = Buffer;
 
 		std::string FileImageName;
-		if(i == NoSelectedTab)
+		if(i <= NoSelectedTab)
 			FileImageName = ImageFolder + "button_on.png";
 		else
 			FileImageName = ImageFolder + "button_off.png";
@@ -855,6 +875,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 	Dictionary->SetType("Container");
 	Dictionary->SetName("BaseFrame");
 	Result->AddChild(Container);
+
 
 	Result->AddChild(CreateControlImage("BackImage", ImageFolder+"background.png", 0, 52));
 
@@ -898,6 +919,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		));
 
 	LabelCaption = "STEP " + Utils::Int32ToString(NoSelectedTab+1);
+
 	SetFontStyle(18, "009900", "Regular");
 	Result->AddChild(CreateControlLabel(
 		"PageDesc" + Utils::Int32ToString(i+1), 
@@ -908,6 +930,8 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		)
 	);
 
+	FontName = FontTitle;
+
 	for (i = 0; i< 8; i++)
 	{
 		std::string FontColor, Caption;
@@ -916,35 +940,62 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		if (i == NoSelectedTab)
 			FontColor = "000000";
 		else
-			FontColor = "ffffff";
+		if(i <= NoSelectedTab)
+			FontColor = "AfCfAf";
+		else
+			FontColor = "A0C0A0";
 
-		SetFontStyle(18, FontColor, "Regular");
+		SetFontStyle(19, "808080", "Regular");
+		Result->AddChild(CreateControlLabel(
+				"PageTab" + Utils::Int32ToString(i+1),
+				Caption, 
+				46+i*79,
+				7,
+				"Center"
+				));
+		SetFontStyle(19, FontColor, "Regular");
+
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),
 				Caption, 
 				45+i*79,
-				10,
+				6,
 				"Center"
 				));
 		
-		if(i<3)
-			Caption = "VIDEO SETTINGS";
-		else
-		if(i<7)
-			Caption = "AUDIO SETTINGS";
-		else
-			Caption = "FINAL STEP";
-
-
-		SetFontStyle(9, FontColor, "Regular");
-		Result->AddChild(CreateControlLabel(
-				"PageTabNote" + Utils::Int32ToString(i+1),
-				Caption,
-				45+i*79,
-				34,
-				"Center"				
-			));
 	}
+
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"video_settings.png", 6, 35));
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"audio_settings.png", 242, 35));
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"final.png", 558, 35));
+
+	FontName = FontMiniTitle;
+	SetFontStyle(14, "FFFFFF", "BOLD");
+	Result->AddChild(CreateControlLabel(
+		"StepDefineVideo_INFO" + Utils::Int32ToString(i+1),
+		"VIDEO SETTINGS", 
+		130,
+		37,
+		"Center"
+		));
+
+	Result->AddChild(CreateControlLabel(
+		"StepDefineAudio_INFO" + Utils::Int32ToString(i+1),
+		"AUDIO SETTINGS", 
+		400,
+		37,
+		"Center"
+		));
+
+	Result->AddChild(CreateControlLabel(
+		"FINAL_INFO",
+		"FINAL", 
+		600,
+		37,
+		"Center"
+		));
+
+	FontName = FontText;
 
 	return Result;
 }
@@ -1086,6 +1137,8 @@ void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dicti
 	Dictionary->Set("PictureHigh ", ImageFolder+"button_high_tex.png");
 	Dictionary->Set("PictureHighLeft", ImageFolder+"button_high_left.png");
 	Dictionary->Set("PictureHighRight", ImageFolder+"button_high_right.png");
+
+	std::cout<<ImageFolder+"button_high_right.png"<<std::endl;
 
 	Dictionary->Set("PictureArrowLeft", ImageFolder+"left_off.png");
 	Dictionary->Set("PictureArrowRight", ImageFolder+"right_off.png");
