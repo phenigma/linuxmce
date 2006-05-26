@@ -342,7 +342,7 @@ while :; do
 				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
 				apt-get update
 				break
-			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N ]]; then
+			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N || -z "$ExtraRepository" ]]; then
 				break
 			else
 				echo "--> Invalid answer: '$ExtraRepository'"
@@ -350,7 +350,7 @@ while :; do
 		done
 		ExtraPkgName=$(Ask "Enter package name")
 		apt-get install "$ExtraPkgName"
-	elif [[ "$ExtraPkg" == n || "$ExtraPkg" == N ]]; then
+	elif [[ "$ExtraPkg" == n || "$ExtraPkg" == N || -z "$ExtraPkg" ]]; then
 		break
 	else
 		echo "--> Invalid answer: '$ExtraPkg'"
