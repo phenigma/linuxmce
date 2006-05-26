@@ -112,7 +112,7 @@ function Detect {
                 Comp_Room=$(Field 2 "$Info")
 
 		for partition in $availPart ;do
-			fdisk_Output=$( fdisk -l $(echo "/dev/$partition" | sed s/[0-9]*$//) | grep ^/dev/$partition )
+			fdisk_Output=$( fdisk -l $(echo "/dev/$partition" | sed 's/[0-9]*$//') | grep ^/dev/$partition )
 			Partition_Type=$(echo $fdisk_Output  | cut -d' ' -f6-14)
 			Partition_Size=$(( `fdisk -s /dev/$partition`  / 1024 ))
 			
