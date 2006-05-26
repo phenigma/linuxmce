@@ -136,7 +136,7 @@ UpdateOrbiterDimensions()
 	RunSQL "$Q"
 	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
 	RunSQL "$Q"
-	#/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r"
+	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" &>/dev/null
 }
 
 Done=0
