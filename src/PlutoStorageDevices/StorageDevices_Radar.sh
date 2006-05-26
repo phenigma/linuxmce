@@ -117,7 +117,7 @@ function Detect {
 			Partition_Size=$(( `fdisk -s /dev/$partition`  / 1024 ))
 			
 			InfoMessage="I detected $partition, a $Partition_Size MB $Partition_Type partition in computer '$Comp_Description' from room '$Comp_Room'"
-			/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "$partition" 156 $PK_Device 163 "$InfoMessage"
+			/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "/dev/$partition" 156 $PK_Device 163 "$InfoMessage"
 			
 			#TODO: change this hack, is only here so the detection looks like is serialized
 			exit 0
@@ -127,7 +127,7 @@ function Detect {
 
 function Blacklist {
 	local BlockDevice=$1
-	echo $BlockDevice >> /usr/pluto/share/StorageDevices_Blacklist.txt
+	echo ${BlockDevice##*/} >> /usr/pluto/share/StorageDevices_Blacklist.txt
 }
 
 Params=("$@")
