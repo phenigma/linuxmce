@@ -386,9 +386,9 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	memset(lcdCommand.framebuffer,32,200);
 	lcdCommand.framebuffer[81]=0;
 	
-	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min(40,(*vectString)[0].size()));
+	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min((size_t)40,(*vectString)[0].size()));
 	if( vectString->size()>1 )
-		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[1].size()));
+		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min((size_t)40,(*vectString)[1].size()));
 
 	for(int i=0;i<=80;++i)
 		if( lcdCommand.framebuffer[i]<' ' || lcdCommand.framebuffer[i]>'~' )
