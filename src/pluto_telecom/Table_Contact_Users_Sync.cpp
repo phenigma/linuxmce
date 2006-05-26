@@ -308,7 +308,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_SyncID.c_str(), (unsigned long) min(30,m_SyncID.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_SyncID.c_str(), (unsigned long) min((size_t)30,m_SyncID.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -322,7 +322,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastModPluto.c_str(), (unsigned long) min(19,m_LastModPluto.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastModPluto.c_str(), (unsigned long) min((size_t)19,m_LastModPluto.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -336,7 +336,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastModSync.c_str(), (unsigned long) min(19,m_LastModSync.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_LastModSync.c_str(), (unsigned long) min((size_t)19,m_LastModSync.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -402,7 +402,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -486,7 +486,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Contact_asS
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			

@@ -376,7 +376,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[11];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_CountryCode.c_str(), (unsigned long) min(5,m_CountryCode.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_CountryCode.c_str(), (unsigned long) min((size_t)5,m_CountryCode.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -390,7 +390,7 @@ if (is_null[4])
 return "NULL";
 
 char *buf = new char[13];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_AreaCode.c_str(), (unsigned long) min(6,m_AreaCode.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_AreaCode.c_str(), (unsigned long) min((size_t)6,m_AreaCode.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -404,7 +404,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[31];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_PhoneNumber.c_str(), (unsigned long) min(15,m_PhoneNumber.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_PhoneNumber.c_str(), (unsigned long) min((size_t)15,m_PhoneNumber.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -418,7 +418,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[21];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Extension.c_str(), (unsigned long) min(10,m_Extension.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Extension.c_str(), (unsigned long) min((size_t)10,m_Extension.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -432,7 +432,7 @@ if (is_null[7])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_DialAs.c_str(), (unsigned long) min(20,m_DialAs.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_DialAs.c_str(), (unsigned long) min((size_t)20,m_DialAs.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -498,7 +498,7 @@ if (is_null[12])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -577,7 +577,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PhoneNumber
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_PhoneNumber=id;

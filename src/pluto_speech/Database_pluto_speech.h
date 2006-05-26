@@ -33,7 +33,7 @@ public:
 class Table_Alias* Alias_get() { if( !tblAlias ) CreateTable_Alias(); return tblAlias; }
 class Table_Keyword* Keyword_get() { if( !tblKeyword ) CreateTable_Keyword(); return tblKeyword; }
 string m_sLastMySqlError;
-bool Connect(string host, string user, string pass, string sDBName, int port);
+bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);

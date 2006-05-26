@@ -125,18 +125,20 @@ is_null[1] = true;
 is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
-m_EK_Users = 0;
 is_null[5] = true;
-m_psc_id = 0;
 is_null[6] = true;
-m_psc_batch = 0;
+m_EK_Users = 0;
 is_null[7] = true;
+m_psc_id = 0;
+is_null[8] = true;
+m_psc_batch = 0;
+is_null[9] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[8] = false;
+is_null[10] = false;
 m_psc_mod = "00000000000000";
-is_null[9] = false;
-is_null[10] = true;
+is_null[11] = false;
+is_null[12] = true;
 m_psc_restrict = 0;
 
 
@@ -154,9 +156,15 @@ return m_Name;}
 string Row_Contact::Company_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Company;}
+string Row_Contact::JobDescription_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_JobDescription;}
 string Row_Contact::Title_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Title;}
+string Row_Contact::Email_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Email;}
 long int Row_Contact::EK_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_EK_Users;}
@@ -189,30 +197,36 @@ m_Name = val; is_modified=true; is_null[1]=false;}
 void Row_Contact::Company_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Company = val; is_modified=true; is_null[2]=false;}
+void Row_Contact::JobDescription_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_JobDescription = val; is_modified=true; is_null[3]=false;}
 void Row_Contact::Title_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Title = val; is_modified=true; is_null[3]=false;}
+m_Title = val; is_modified=true; is_null[4]=false;}
+void Row_Contact::Email_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Email = val; is_modified=true; is_null[5]=false;}
 void Row_Contact::EK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_Users = val; is_modified=true; is_null[4]=false;}
+m_EK_Users = val; is_modified=true; is_null[6]=false;}
 void Row_Contact::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[5]=false;}
+m_psc_id = val; is_modified=true; is_null[7]=false;}
 void Row_Contact::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[6]=false;}
+m_psc_batch = val; is_modified=true; is_null[8]=false;}
 void Row_Contact::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[7]=false;}
+m_psc_user = val; is_modified=true; is_null[9]=false;}
 void Row_Contact::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[8]=false;}
+m_psc_frozen = val; is_modified=true; is_null[10]=false;}
 void Row_Contact::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[9]=false;}
+m_psc_mod = val; is_modified=true; is_null[11]=false;}
 void Row_Contact::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[10]=false;}
+m_psc_restrict = val; is_modified=true; is_null[12]=false;}
 
 		
 bool Row_Contact::Name_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -221,27 +235,33 @@ return is_null[1];}
 bool Row_Contact::Company_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Contact::Title_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::JobDescription_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Contact::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::Title_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Contact::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::Email_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Contact::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Contact::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Contact::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Contact::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Contact::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[9];}
+bool Row_Contact::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
+bool Row_Contact::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[12];}
 
 			
 void Row_Contact::Name_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -252,32 +272,40 @@ void Row_Contact::Company_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,tabl
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Contact::Title_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::JobDescription_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Contact::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::Title_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Contact::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::Email_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Contact::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Contact::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Contact::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Contact::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Contact::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[9]=val;
+is_modified=true;
+}
+void Row_Contact::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
+is_modified=true;
+}
+void Row_Contact::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[12]=val;
 is_modified=true;
 }
 	
@@ -303,7 +331,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) min(60,m_Name.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Name.c_str(), (unsigned long) min((size_t)60,m_Name.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -317,7 +345,21 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Company.c_str(), (unsigned long) min(60,m_Company.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Company.c_str(), (unsigned long) min((size_t)60,m_Company.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Contact::JobDescription_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char *buf = new char[121];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_JobDescription.c_str(), (unsigned long) min((size_t)60,m_JobDescription.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -327,11 +369,25 @@ string Row_Contact::Title_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Title.c_str(), (unsigned long) min(60,m_Title.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Title.c_str(), (unsigned long) min((size_t)60,m_Title.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Contact::Email_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[5])
+return "NULL";
+
+char *buf = new char[121];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Email.c_str(), (unsigned long) min((size_t)60,m_Email.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -341,7 +397,7 @@ string Row_Contact::EK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -354,7 +410,7 @@ string Row_Contact::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -367,7 +423,7 @@ string Row_Contact::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -380,7 +436,7 @@ string Row_Contact::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -393,7 +449,7 @@ string Row_Contact::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -406,11 +462,11 @@ string Row_Contact::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -420,7 +476,7 @@ string Row_Contact::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -467,10 +523,10 @@ bool Table_Contact::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInser
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Contact_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Company_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Contact_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Company_asSQL()+", "+pRow->JobDescription_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->Email_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Contact (`PK_Contact`, `Name`, `Company`, `Title`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Contact (`PK_Contact`, `Name`, `Company`, `JobDescription`, `Title`, `Email`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -489,7 +545,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Contact_asS
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_Contact=id;
@@ -526,7 +582,7 @@ condition = condition + "`PK_Contact`=" + tmp_PK_Contact;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Contact`="+pRow->PK_Contact_asSQL()+", `Name`="+pRow->Name_asSQL()+", `Company`="+pRow->Company_asSQL()+", `Title`="+pRow->Title_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Contact`="+pRow->PK_Contact_asSQL()+", `Name`="+pRow->Name_asSQL()+", `Company`="+pRow->Company_asSQL()+", `JobDescription`="+pRow->JobDescription_asSQL()+", `Title`="+pRow->Title_asSQL()+", `Email`="+pRow->Email_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Contact set " + update_values_list + " where " + condition;
@@ -671,89 +727,111 @@ pRow->m_Company = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Title = "";
+pRow->m_JobDescription = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Title = string(row[3],lengths[3]);
+pRow->m_JobDescription = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_EK_Users = 0;
+pRow->m_Title = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_EK_Users));
+pRow->m_Title = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_id = 0;
+pRow->m_Email = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_id));
+pRow->m_Email = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_batch = 0;
+pRow->m_EK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_batch));
+sscanf(row[6], "%li", &(pRow->m_EK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_user));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_psc_mod = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_restrict));
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -900,89 +978,111 @@ pRow->m_Company = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Title = "";
+pRow->m_JobDescription = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Title = string(row[3],lengths[3]);
+pRow->m_JobDescription = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_EK_Users = 0;
+pRow->m_Title = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_EK_Users));
+pRow->m_Title = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_id = 0;
+pRow->m_Email = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_id));
+pRow->m_Email = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_batch = 0;
+pRow->m_EK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_batch));
+sscanf(row[6], "%li", &(pRow->m_EK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_user));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_psc_mod = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_restrict));
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_psc_restrict));
 }
 
 

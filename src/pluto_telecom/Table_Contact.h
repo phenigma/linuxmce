@@ -80,7 +80,9 @@ class DECLSPECIFIER Row_Contact : public TableRow, public SerializeClass
 		long int m_PK_Contact;
 string m_Name;
 string m_Company;
+string m_JobDescription;
 string m_Title;
+string m_Email;
 long int m_EK_Users;
 long int m_psc_id;
 long int m_psc_batch;
@@ -89,13 +91,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[11];
+		bool is_null[13];
 	
 	public:
 		long int PK_Contact_get();
 string Name_get();
 string Company_get();
+string JobDescription_get();
 string Title_get();
+string Email_get();
 long int EK_Users_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -108,7 +112,9 @@ long int psc_restrict_get();
 		void PK_Contact_set(long int val);
 void Name_set(string val);
 void Company_set(string val);
+void JobDescription_set(string val);
 void Title_set(string val);
+void Email_set(string val);
 void EK_Users_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -120,7 +126,9 @@ void psc_restrict_set(long int val);
 		
 		bool Name_isNull();
 bool Company_isNull();
+bool JobDescription_isNull();
 bool Title_isNull();
+bool Email_isNull();
 bool EK_Users_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -131,7 +139,9 @@ bool psc_restrict_isNull();
 			
 		void Name_setNull(bool val);
 void Company_setNull(bool val);
+void JobDescription_setNull(bool val);
 void Title_setNull(bool val);
+void Email_setNull(bool val);
 void EK_Users_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -159,7 +169,7 @@ void PhoneNumber_FK_Contact_getrows(vector <class Row_PhoneNumber*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Contact+ m_Name+ m_Company+ m_Title+ m_EK_Users+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Contact+ m_Name+ m_Company+ m_JobDescription+ m_Title+ m_Email+ m_EK_Users+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -167,7 +177,9 @@ void PhoneNumber_FK_Contact_getrows(vector <class Row_PhoneNumber*> *rows);
 		string PK_Contact_asSQL();
 string Name_asSQL();
 string Company_asSQL();
+string JobDescription_asSQL();
 string Title_asSQL();
+string Email_asSQL();
 string EK_Users_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

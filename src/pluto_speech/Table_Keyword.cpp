@@ -246,7 +246,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword.c_str(), (unsigned long) min(30,m_Keyword.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword.c_str(), (unsigned long) min((size_t)30,m_Keyword.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -325,7 +325,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Keyword_asS
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 				
 			

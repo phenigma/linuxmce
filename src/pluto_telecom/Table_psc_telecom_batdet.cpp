@@ -242,7 +242,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[121];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min(60,m_Tablename.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min((size_t)60,m_Tablename.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -386,7 +386,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_telecom
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_psc_telecom_batdet=id;

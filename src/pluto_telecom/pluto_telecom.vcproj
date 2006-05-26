@@ -118,6 +118,9 @@
 				RelativePath=".\TableRow.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_CallersForMe.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Contact.cpp">
 			</File>
 			<File
@@ -125,6 +128,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_IncomingLog.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Line_HouseMode.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_OutgoingLog.cpp">
@@ -139,7 +145,13 @@
 				RelativePath=".\Table_PhoneType.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PriorityCallers.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_SpeedDial.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_UserRouting.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Users.cpp">

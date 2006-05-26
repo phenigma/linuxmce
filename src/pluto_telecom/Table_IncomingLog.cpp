@@ -333,7 +333,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_DateTime.c_str(), (unsigned long) min(19,m_DateTime.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_DateTime.c_str(), (unsigned long) min((size_t)19,m_DateTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -360,7 +360,7 @@ if (is_null[3])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_PhoneNumber.c_str(), (unsigned long) min(30,m_PhoneNumber.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_PhoneNumber.c_str(), (unsigned long) min((size_t)30,m_PhoneNumber.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -465,7 +465,7 @@ if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -544,7 +544,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_IncomingLog
 		{
 			
 			
-			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
 pRow->m_PK_IncomingLog=id;
