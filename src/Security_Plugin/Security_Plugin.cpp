@@ -262,6 +262,9 @@ bool Security_Plugin::Register()
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::SensorTrippedEvent) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
 
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::PanelChangeState) ,0,0,0,0,
+		MESSAGETYPE_EVENT,67);
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -368,6 +371,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
+		g_pPlutoLogger->Write(LV_WARNING,sql.str().c_str());
 		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, "", "***Invalid PIN***", TEXT_PIN_Code_CONST );
 		DCE::CMD_Set_Variable CMD_Set_Variable( 0, pMessage->m_dwPK_Device_From, VARIABLE_PasswordPin_CONST, "" );
 		CMD_Set_Text.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
@@ -639,6 +643,30 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	}
 	bool bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
 	return SensorTrippedEventHandler((DeviceData_Router *) pDeviceFrom,bTripped);
+}
+
+bool Security_Plugin::PanelChangeState(class Socket *pSocket,class Message *pMessage,
+class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	string sPartNo,sActualState,sErrorMsg;
+	string aux;
+	string::size_type pos=0;
+
+	sPartNo = pMessage->m_mapParameters[EVENTPARAMETER_ZoneNo_CONST];
+	aux = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+	sActualState = StringUtils::Tokenize(aux, ",", pos);
+	sErrorMsg = StringUtils::Tokenize(aux, ",", pos);
+
+	//for now only inform orbiter about error
+	if( !sErrorMsg.empty() )
+	{
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, 
+		m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+		sErrorMsg.c_str(), "0", "0", "0");
+		SendCommand(SCREEN_DialogGenericNoButtons_DL);
+	}
+
+	return false;
 }
 
 bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool bIsTripped)

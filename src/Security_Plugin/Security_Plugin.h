@@ -122,6 +122,7 @@ public:
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 	bool SensorTrippedEventHandler(class DeviceData_Router *pDevice,bool bIsTripped);
 	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool PanelChangeState(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Alarm callback
 	virtual void AlarmCallback(int id, void* param);
