@@ -70,7 +70,7 @@ for Device in $InternalOwnStorageDevices; do
 				userDir="user_$user"
 			fi
 			
-			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description"
+			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description [$Device_ID]"
 			if [[ "$Device_UsePlutoDirStructure" == "1" ]]; then
 				symlinkSource="/mnt/device/$Device_ID/$userDir/data/$mediaDir"
 			else
