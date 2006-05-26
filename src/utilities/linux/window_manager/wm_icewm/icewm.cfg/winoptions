@@ -15,7 +15,18 @@ Orbiter.Orbiter.ignoreNoFocusHint: 1
 SDL_App.SDL_App.ignoreNoFocusHint: 1
 
 # pointer-constrain window
-# pointer_constrain_name.pointer_constrain_class.layer: Below
-pointer_constrain_name.pointer_constrain_class.layer: Desktop
+# layer: Desktop / Below
+constrain_pointer.constrain_pointer.layer: Below
+constrain_mouse.constrain_mouse.layer: Below
+
+# ==== debugging ====
+# kdbgio.Xterm.allWorkspaces: 1
+# kdbgio.Xterm.layer: Menu
+# kdbg.Kdbg.allWorkspaces: 1
+# kdbg.Kdbg.layer: Menu
+# xterm.Xterm.allWorkspaces: 1
+# xterm.Xterm.layer: Menu
+# konsole.Konsole.allWorkspaces: 1
+# konsole.Konsole.layer: Menu
 
 # EOF
