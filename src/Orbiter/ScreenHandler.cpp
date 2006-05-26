@@ -328,7 +328,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 void ScreenHandler::SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
-	DisplayMessageOnOrbiter(PK_Screen, sInstructions, false);
+	DisplayMessageOnOrbiter(PK_Screen, sInstructions, true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine,
