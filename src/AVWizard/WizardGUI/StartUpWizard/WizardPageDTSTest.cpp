@@ -58,7 +58,7 @@ WizardPageDTSTest::~WizardPageDTSTest(void)
 {
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText);
-	if(ButtonIndex == 3)
+	if(ButtonIndex == 2)
 		return;
 	Selected->SetFocus(false);
 	ButtonIndex++;
