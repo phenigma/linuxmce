@@ -218,7 +218,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	SettingsDictionaryTree* Container;
 	SettingsDictionary* Dictionary;
 
-	Page = CreateControlPage("ScreenStep1", 640, 480, true, "AVWizard Configurator");
+	Page = CreateControlPage("ScreenStep1", 640, 480, true, "AV Wizard Configurator");
 	Dictionary = Page->GetDictionary();
 	SetDefaultBtnImages(Dictionary, ImageFolder);
 
@@ -309,7 +309,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Dictionary->Set("Width", 640);
 	Dictionary->Set("Height", 480);
 	Dictionary->Set("Fullscreen", 1);
-	Dictionary->Set("Caption", "AVWizard Configurator");
+	Dictionary->Set("Caption", "AV Wizard Configurator");
 
 	Dictionary->Set("Picture", ImageFolder+"button_tex.png");
 
@@ -908,7 +908,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 			LabelCaption = "FINAL SETUP";
 			break;
 		default:
-			LabelCaption = "WELCOME TO AVWIZARD";
+			LabelCaption = "WELCOME TO AV WIZARD";
 	};
 	SetFontStyle(24, "000000", "Regular");
 	Result->AddChild(CreateControlLabel(
@@ -1137,6 +1137,7 @@ void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dicti
 	Dictionary->Set("PictureHigh ", ImageFolder+"button_high_tex.png");
 	Dictionary->Set("PictureHighLeft", ImageFolder+"button_high_left.png");
 	Dictionary->Set("PictureHighRight", ImageFolder+"button_high_right.png");
+
 
 	Dictionary->Set("PictureArrowLeft", ImageFolder+"left_off.png");
 	Dictionary->Set("PictureArrowRight", ImageFolder+"right_off.png");
