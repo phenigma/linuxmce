@@ -4,18 +4,19 @@ DeviceID="$1"
 DeviceTemplate="${2:-0}"
 
 PlutohomeHost="http://10.0.0.175/plutohome-com/"
+#PlutohomeHost="http://plutohome.com/"
 
 if [[ -z "$URL" ]]; then
 	echo "ERROR. URL not specified"
 	exit 1
 fi
 
-if [[ -z "$DeviceID" && -z "$DeviceTemplate" ]]; then
+if [[ -z "$DeviceID" && "$DeviceTemplate" -eq 0 ]]; then
 	echo "ERROR. Either the DeviceID or the DeviceTemplate pamaters has to be specified"
 	exit 1
 fi
 
-if [[ -z "$DeviceTemplate" ]]; then
+if [[ "$DeviceTemplate" -eq 0 ]]; then
 	Q="
 		SELECT FK_DeviceTemplate,FK_InfraredGroup,FK_DeviceCategory,FK_Manufacturer
 		FROM Device
