@@ -1,4 +1,4 @@
-#private functions  26-May-06 12:09 Power5020
+#private functions  26-May-06 16:45 Power5020
 class MyIO
 
 	def intialize
@@ -203,6 +203,7 @@ end
 #return buff2
 end
 
+#status true if tripped
 def addSens(val,status,type)
 if $sensorStatus.has_key?(val) then 
 	log( "Already exist " + val.to_s + "\n" )
@@ -310,10 +311,10 @@ else
 	log( "Unknown error" + "\n" )
 end
 #if error on arm/disarm send a message
-if( err=23 || err==24) then
+if( err==23 || err==24) then
 changeStateEv= Command.new(devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
 
-if(err=23) then 
+if(err==23) then 
 	changeStateEv.params_[30] = "0," +$errCode[err] 
 end
 if(err==24)
