@@ -346,11 +346,6 @@ if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
     /etc/init.d/Pluto_Start_DCERouter.sh
 fi
 
-if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
-    Message "Starting OrbiterGen"
-    /etc/init.d/Pluto_Start_OrbiterGen.sh
-fi
-
 if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
     Message "Configure Device Changes"
     /etc/init.d/Pluto_Config_Device_Changes.sh
@@ -361,6 +356,11 @@ if [[ "$AVWizardDone" != "1" ]] ;then
 		Message "Starting Audio/Video Wizard"
 		/usr/pluto/bin/AVWizard_Run.sh
 	fi
+fi
+
+if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
+    Message "Starting OrbiterGen"
+    /etc/init.d/Pluto_Start_OrbiterGen.sh
 fi
 
 if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
