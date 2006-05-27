@@ -206,9 +206,9 @@ namespace DCE
 			
 			
 			// media functions
-			bool OpenMedia(string fileName, string &sMediaInfo);
+			bool OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition);
 			
-			bool playStream( string mediaPosition, bool playbackStopped = false );
+			bool playStream( string mediaPosition);
 			
     /**
 			 * @brief change the stream playback speed.

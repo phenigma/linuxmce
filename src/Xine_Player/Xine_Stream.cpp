@@ -389,7 +389,7 @@ bool Xine_Stream::InitXineAVOutput()
 	return true;
 }
 
-bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
+bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition)
 {
 	if (!m_bInitialized)
 	{
@@ -397,7 +397,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
 		return false;
 	}
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s", fileName.c_str() );
+	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_open" );
 	
@@ -406,11 +406,36 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
 		m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
 	}
 	
+	// getting possible suffix for media: chapters and titles
+	string sURLsuffix;
+	CalculatePosition( sMediaPosition, &sURLsuffix, NULL, NULL, NULL); 
+	
+	bool mediaOpened = false;
+	
+	if (sURLsuffix!="")
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Opening media with chapters/title position: %s ", (fileName+sURLsuffix).c_str() );
+		mediaOpened = xine_open( m_pXineStream, (fileName+sURLsuffix).c_str() );
+		if (!mediaOpened)
+			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
+	}
+	
+	if (!mediaOpened)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );
+		mediaOpened = xine_open( m_pXineStream, fileName.c_str() );
+		if (!mediaOpened)
+			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
+	}
+	
+	
 	// TODO: implement and enable
 	//!setXineStreamDebugging( streamID, true );
 	
+	
+	
 	// opening media
-	if ( xine_open( m_pXineStream, fileName.c_str() ) )
+	if ( mediaOpened )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Media opened " );
 
@@ -478,7 +503,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo)
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Open media failed!" );
+		g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::OpenMedia failed! Aborting!" );
 		return false;
 	}
 
@@ -681,7 +706,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 	int iCounter_TimeCode = 0;
 	
 	// 1/10th second interval counter
-	int iCounter = 0;
+	int iCounter = 0, jCounter = 0;
 	
 	XEvent event;
 	while ( ! pStream->m_bExitThread )
@@ -716,12 +741,23 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 			
 		}
 		
-		if ( pStream->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
+		// We need to wait 500ms after the stream starts before doing the seek!
+		if ( pStream->m_iSpecialOneTimeSeek )
 		{
-			pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
-			pStream->m_iSpecialOneTimeSeek = 0;
-			pStream->ReportTimecode();
+		 	jCounter++;
+			if ( jCounter > 5 ) 
+			{
+				pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
+				pStream->m_iSpecialOneTimeSeek = 0;
+				pStream->ReportTimecode();
+				pStream->changePlaybackSpeed( PLAYBACK_NORMAL );
+			}
 		}
+		else
+		{
+		  	jCounter = 0;
+		}
+		
 		
 		//updating time and speed when @trickplay mode
 		if (pStream->m_bTrickModeActive)
@@ -1517,7 +1553,7 @@ void Xine_Stream::pushCurrentButton()
 	xine_event_send( m_pXineStream, &event );
 }
 
-bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
+bool Xine_Stream::playStream( string mediaPosition)
 {
 	StopSpecialSeek();
 
@@ -1537,9 +1573,10 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 	
 	int pos = CalculatePosition( mediaPosition, NULL, &Subtitle, &Angle, &AudioTrack );
 
-	if ( xine_play( m_pXineStream, 0, 0 ) )
+	if ( xine_play( m_pXineStream, 0, 0) )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time( NULL ) - startTime, pos );
+			
 		if ( pos )
 		{
             // This functionality in xine keeps bouncing back and forth between working and not working
@@ -1556,11 +1593,13 @@ bool Xine_Stream::playStream( string mediaPosition, bool playbackStopped )
 		if ( AudioTrack != -2 )
 			setAudio( AudioTrack );
 
+/*
 		if ( playbackStopped )
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		else
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
-
+*/
+		
 		ReportTimecode();
 
 		return true;
