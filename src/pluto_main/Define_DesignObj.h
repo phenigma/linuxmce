@@ -1711,7 +1711,7 @@
 #define DESIGNOBJ_AVDevices_CONST 4558
 #define DESIGNOBJ_SelectPort_CONST 4559
 #define DESIGNOBJ_Lights_CONST 4560
-#define DESIGNOBJ_LightsSetup_CONST 4561
+#define DESIGNOBJ_CopyZWaveData_CONST 4561
 #define DESIGNOBJ_LightsSetupInclude_CONST 4562
 #define DESIGNOBJ_LightSetupRooms_CONST 4563
 #define DESIGNOBJ_AVDeviceAudioInputs_CONST 4564
@@ -1799,7 +1799,7 @@
 #define DESIGNOBJ_Location_CONST 4659
 #define DESIGNOBJ_butRemoveUser_CONST 4660
 #define DESIGNOBJ_butPostalCode_CONST 4661
-#define DESIGNOBJ_City_CONST 4662
+#define DESIGNOBJ_PostalCode_CONST 4662
 #define DESIGNOBJ_butWizRooms_CONST 4663
 #define DESIGNOBJ_dgUsers_CONST 4664
 #define DESIGNOBJ_dgCountries_CONST 4665
@@ -1822,7 +1822,7 @@
 #define DESIGNOBJ_dgEditRooms_CONST 4685
 #define DESIGNOBJ_butTV_CONST 4686
 #define DESIGNOBJ_butIHaveMonster_CONST 4688
-#define DESIGNOBJ_LightsPrepare_CONST 4689
+#define DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST 4689
 #define DESIGNOBJ_butMonsterLightsSetup_CONST 4690
 #define DESIGNOBJ_butLightsSetupLater_CONST 4691
 #define DESIGNOBJ_butLightsSetupRoom_CONST 4693
@@ -2115,6 +2115,7 @@
 #define DESIGNOBJ_butNoRemote_TypeOfWizard_CONST 5069
 #define DESIGNOBJ_dgCities_CONST 5070
 #define DESIGNOBJ_butSearchCity_CONST 5071
+#define DESIGNOBJ_HouseSetupPopupWizard_CONST 5072
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

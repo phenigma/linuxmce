@@ -862,8 +862,8 @@
 #define TEXT_Which_input_did_you_use_CONST 1568
 #define TEXT_Who_made_the_device_CONST 1569
 #define TEXT_AV_Outputs_CONST 1570
-#define TEXT_Do_you_have_a_Monster_lighting_system_CONST 1571
-#define TEXT_Prepare_Monster_Lighting_CONST 1572
+#define TEXT_No_Lighting_System_CONST 1571
+#define TEXT_Prepare_ZWave_Lighting_CONST 1572
 #define TEXT_Setup_later_CONST 1573
 #define TEXT_Do_you_have_an_alarm_panel_CONST 1574
 #define TEXT_Found_the_alarm_panel_CONST 1575
@@ -1000,6 +1000,8 @@
 #define TEXT_Go_To_Admin_Site_CONST 1712
 #define TEXT_No_remote_CONST 1713
 #define TEXT_add_user_instructions_CONST 1714
+#define TEXT_Continue_without_one_CONST 1715
+#define TEXT_Explain_pairing_CONST 1716
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
