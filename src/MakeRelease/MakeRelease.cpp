@@ -148,6 +148,11 @@ bool CopySourceFile(string sInput,string sOutput)
 
 		return StringUtils::Replace( sOutput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	}
+	// Little hack so we know what's a test installation
+	else if( !g_bSimulate && g_sDefines.find("-DDEBUG")!=string::npos && (sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos) )
+	{
+		return StringUtils::Replace( sInput, sOutput, "TestInstallation = 0", "TestInstallation = 1" );
+	}
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
 }
