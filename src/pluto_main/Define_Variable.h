@@ -45,6 +45,11 @@
 #define VARIABLE_Sort_CONST 42
 #define VARIABLE_Misc_Data_5_CONST 43
 #define VARIABLE_PK_DesignObj_CurrentSecti_CONST 44
+#define VARIABLE_Device_List_CONST 45
+#define VARIABLE_Message_1_CONST 46
+#define VARIABLE_Message_2_CONST 47
+#define VARIABLE_Message_3_CONST 48
+#define VARIABLE_Message_4_CONST 49
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

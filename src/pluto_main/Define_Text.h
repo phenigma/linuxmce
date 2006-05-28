@@ -828,7 +828,6 @@
 #define TEXT_yes_I_have_one_CONST 1533
 #define TEXT_Tell_me_more_CONST 1534
 #define TEXT_I_have_another_brand_CONST 1535
-#define TEXT_no_i_dont_have_lighting_system_CONST 1536
 #define TEXT_15_CONST 1537
 #define TEXT_Living_Room_CONST 1538
 #define TEXT_Master_Bedroom_CONST 1539
@@ -1002,6 +1001,21 @@
 #define TEXT_add_user_instructions_CONST 1714
 #define TEXT_Continue_without_one_CONST 1715
 #define TEXT_Explain_pairing_CONST 1716
+#define TEXT_Already_paired_lights_CONST 1717
+#define TEXT_No_add_lights_again_CONST 1718
+#define TEXT_Lighting_interface_with_no_lights_CONST 1719
+#define TEXT_confirm_tv_and_input_CONST 1720
+#define TEXT_Confirm_TV_CONST 1721
+#define TEXT_wrong_tv_CONST 1722
+#define TEXT_right_tv_wrong_input_CONST 1723
+#define TEXT_no_alarm_panel_CONST 1724
+#define TEXT_no_direct_connect_tv_CONST 1725
+#define TEXT_Use_Infrared_CONST 1726
+#define TEXT_Show_direct_connect_models_CONST 1727
+#define TEXT_Need_to_use_Pluto_Admin_CONST 1728
+#define TEXT_Proceed_with_ir_learning_CONST 1729
+#define TEXT_Found_power_codes_CONST 1730
+#define TEXT_Explain_connect_to_TV_CONST 1731
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
