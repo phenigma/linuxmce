@@ -123,7 +123,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1255 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4967 ) // || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4560 ||  m_pRow_DesignObj->PK_DesignObj_get()==4689 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/

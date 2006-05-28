@@ -507,10 +507,10 @@ bool Orbiter::GetConfig()
 
 	WriteStatusOutput("Got the config");
 
-	if( DATA_Get_Leave_Monitor_on_for_OSD() )
+	if( !m_bNewOrbiter && DATA_Get_Leave_Monitor_on_for_OSD() )
 		m_bDisplayOn=false;  // So the first touch will turn it on
 	else
-		m_bDisplayOn=true;  // The display should already be on
+		m_bDisplayOn=true;  // The display should already be on.  If this is the first time it's run, the user must have left the tv on already
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
@@ -525,9 +525,14 @@ bool Orbiter::GetConfig()
 	}
 
 	string::size_type pos=0;
-	string sTimeout = DATA_Get_Timeout();
-	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
-	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	if( m_bNewOrbiter )
+		m_iTimeoutScreenSaver=m_iTimeoutBlank=0;
+	else
+	{
+		string sTimeout = DATA_Get_Timeout();
+		m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+		m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	}
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
 
@@ -4809,8 +4814,8 @@ int k=2;
 				*/
 
 				string sParams;
-				if(pDesignObj_DataGrid_OnScreen)
-					sParams += SubstituteVariables( pDesignObj_DataGrid_OnScreen->m_sOptions, pObj, 0, 0 );
+//				if(pDesignObj_DataGrid_OnScreen)  
+//					sParams += SubstituteVariables( pDesignObj_DataGrid_OnScreen->m_sOptions, pObj, 0, 0 );  // AB 24-May-2006 What was the reason for this!  I resulted in a dup since the same options were below.  If we want the same options, wouldn't we just put them in the command parameters anyway??
 				sParams += SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 );
 				DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
 					GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
@@ -5063,6 +5068,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += m_sMainMenu;
 		else if(  Variable=="!"  )
 			Output += StringUtils::itos( m_dwPK_Device );
+		else if(  Variable=="LANIP"  )  // IP on local LAN
+		{
+			Output += m_sIPAddress;
+		}
 		else if(  Variable=="RIP"  )
 		{
 #ifdef WIN32
@@ -8464,7 +8473,7 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 		Message *pMessageOut = new Message(sMessage);
 		if( pMessageOut->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 			pMessageOut->m_dwPK_Device_To=m_dwPK_Device;
-		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST) )
+		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_DesignObj_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST) )
 			bContainsGoto=true;
 
 		for(vector<Message *>::iterator it = pMessageOut->m_vectExtraMessages.begin();
@@ -8473,7 +8482,7 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 			Message *pExtraMessage = *it;
 			if( pExtraMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 				pExtraMessage->m_dwPK_Device_To=m_dwPK_Device;
-			if( pExtraMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pExtraMessage->m_dwID==COMMAND_Go_back_CONST || pExtraMessage->m_dwID==COMMAND_Goto_Screen_CONST) )
+			if( pExtraMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pExtraMessage->m_dwID==COMMAND_Go_back_CONST || pExtraMessage->m_dwID==COMMAND_Goto_DesignObj_CONST || pExtraMessage->m_dwID==COMMAND_Goto_Screen_CONST) )
 				bContainsGoto=true;
 		}
 

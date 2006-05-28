@@ -249,6 +249,7 @@ MySqlDBName = pluto_main
 DCERouter = $Host
 MySqlPort = 3306
 DCERouterPort = 3450
+UseVideoWizard = 1
 PK_Device = $Device
 Activation_Code = $Code"
 	[ -f /etc/pluto.conf ] || echo "$pluto_conf" >/etc/pluto.conf

@@ -25,7 +25,7 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
+	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main_temp") )
 #else
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #endif
@@ -45,7 +45,7 @@ bool WizardLogic::Setup()
 			}
 	}
 
-	m_nPK_Device_ZWave = m_nPK_Device_AlarmPanel = 0;
+	m_nPK_Device_Lighting = m_nPK_Device_AlarmPanel = 0;
 	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=
 		m_nPK_Command_Input_Video_On_TV=0;
 	m_bUsingReceiverForVideo=false;
@@ -53,14 +53,14 @@ bool WizardLogic::Setup()
 	return true;
 }
 
-void WizardLogic::LookForZWave()
+void WizardLogic::LookForLighting()
 {
 	string sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_ZWave_CONST);
 	{
 		MYSQL_ROW row;
 		PlutoSqlResult result_set;
 		if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
-			m_nPK_Device_ZWave = atoi( row[0] );
+			m_nPK_Device_Lighting = atoi( row[0] );
 	}
 }
 
@@ -73,40 +73,57 @@ bool WizardLogic::HouseAlreadySetup()
 	return AlreadyHasUsers();	
 }
 
-bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
+int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription)
 {
 	int PK_Device_PC = DatabaseUtils::GetTopMostDevice(this,m_pOrbiter->m_dwPK_Device);
-	string sSQL = "SELECT * FROM Device "
+	string sSQL = "SELECT Device.PK_Device,Device.Description FROM Device "
 		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
-		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory " 
+		"JOIN DeviceCategory ON FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " " 
 		"LEFT JOIN Device As P1 ON Device.FK_Device_ControlledVia=P1.PK_Device "
 		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device "
 		"WHERE "
-		"(PK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) " OR FK_DeviceCategory_Parent=" TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) ") AND "
+		"(PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + ") AND "
 		"(Device.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P1.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
 
 	PlutoSqlResult result_set;
-	bool bResult = ( (result_set.r=mysql_query_result(sSQL)) && result_set.r->row_count>0 );
-	if( !bPopulateListOfOptions || bResult )
-		return bResult;
-	
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) && row[0] )
+	{
+		if( sDescription )
+			*sDescription = row[1];
+		return atoi(row[0]);
+	}
+	return 0;
+}
+
+bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
+{
+	int PK_Device_Remote = 	FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Remote_Controls_CONST);
+	if( !bPopulateListOfOptions || PK_Device_Remote )
+		return PK_Device_Remote!=0;
+
+	FindPnpDevices(DEVICECATEGORY_Infrared_Receivers_CONST);
+	return false;
+}
+
+void WizardLogic::FindPnpDevices(int PK_DeviceCategory)
+{
 	// We don't have a remote, and the user will want to see a list of possibilities
-	sSQL = "SELECT DeviceTemplate.Description,Manufacturer.Description FROM DeviceTemplate "
+	string sSQL = "SELECT DeviceTemplate.Description,Manufacturer.Description FROM DeviceTemplate "
 		"JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer "
 		"JOIN DHCPDevice ON FK_DeviceTemplate=PK_DeviceTemplate "
-		"WHERE DeviceTemplate.FK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Infrared_Receivers_CONST);
+		"WHERE DeviceTemplate.FK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory);
 
 	MYSQL_ROW row;
-	string sReceivers;
+	string sPnpDevices;
 	PlutoSqlResult result_set2;
     if( (result_set2.r=mysql_query_result(sSQL)) )
 		while ((row = mysql_fetch_row(result_set2.r)))
-			sReceivers += (sReceivers.size() ? ", " : "") + string(row[1]) + ":" + row[0];
+			sPnpDevices += (sPnpDevices.size() ? ", " : "") + string(row[1]) + ":" + row[0];
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sReceivers);
-	return false;
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPnpDevices);
 }
 
 /*
@@ -705,6 +722,24 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 		+ StringUtils::itos(PK_Pipe) + "," + StringUtils::itos(PK_Command_Input) + ")";
 
 	threaded_mysql_query(sSQL);
+}
+
+bool WizardLogic::GetAvPath(int PK_Device_From,long &PK_Device_To,int PK_Pipe,long &PK_Command_Input,string &sDescription,string &sCommandDescription)
+{
+	string sSQL = "SELECT PK_Device,Device.Description,FK_Command_Input,Command.Description FROM Device_Device_Pipe JOIN Device ON FK_Device_To=PK_Device "
+		" LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) +
+		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
+	MYSQL_ROW row;
+	PlutoSqlResult result_set;
+	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) && row[0] )
+	{
+		PK_Device_To = atoi( row[0] );
+		sDescription = row[1];
+		PK_Command_Input = row[2] ? atoi(row[2]) : 0;
+		sCommandDescription = row[3] ? row[3] : "";
+		return true;
+	}
+	return false;
 }
 
 //Insert all dsp modes in database

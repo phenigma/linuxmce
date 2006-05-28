@@ -285,7 +285,10 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	string sOption1, string sMessage1, string sOption2, string sMessage2,
 	string sOption3, string sMessage3, string sOption4, string sMessage4)
 {
-	string sPK_DesignObj = StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen));
+	int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
+	if( !PK_DesignObj )
+		PK_DesignObj = PK_Screen;  // Allow the user to pass in a design obj to use instead
+	string sPK_DesignObj = StringUtils::ltos(PK_DesignObj);
 
 	//if(sMessage == "")
 	//	sMessage = "Unable to save playlist";
@@ -303,25 +306,25 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMessage1);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_1_CONST, sMessage1);
 	}
 	if(sOption2.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sMessage2);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_2_CONST, sMessage2);
 	}
 	if(sOption3.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sMessage3);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_3_CONST, sMessage3);
 	}
 	if(sOption4.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sMessage4);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_4_CONST, sMessage4);
 	}
 }
 //-----------------------------------------------------------------------------------------------------

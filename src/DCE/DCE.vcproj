@@ -147,6 +147,9 @@
 				RelativePath=".\HandleRequestSocket.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\LinuxSerialUSB.cpp">
+			</File>
+			<File
 				RelativePath=".\Logger.cpp">
 			</File>
 			<File

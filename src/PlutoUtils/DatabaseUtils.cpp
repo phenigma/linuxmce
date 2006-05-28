@@ -65,6 +65,17 @@ int DatabaseUtils::GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device)
 		return PK_Device;
 }
 
+int DatabaseUtils::GetNumberOfChildDevices(MySqlHelper *pMySqlHelper,int PK_Device)
+{
+	string sSQL = "SELECT count(PK_Device) FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		return atoi(row[0]);
+	else
+		return 0;
+}
+
 int DatabaseUtils::GetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device)
 {
 	string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
@@ -251,7 +262,7 @@ bool DatabaseUtils::SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Devi
 
 int DatabaseUtils::GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate)
 {
-	string sSQL = "SELECT FK_CommMethod FROM DeviceTemplate JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+	string sSQL = "SELECT FK_CommMethod FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )!=NULL && (row=mysql_fetch_row(result.r))!=NULL && row[0] )

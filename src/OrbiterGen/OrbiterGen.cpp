@@ -1007,6 +1007,8 @@ m_bNoEffects = true;
 		m_iLocation_Initial = li->iLocation;
 	}
 
+bool bFirstLoop=true;
+loop_to_keep_looking_for_objs_to_include:
 	list<Row_DesignObj *> alNewDesignObjsToGenerate;  // Have to cache the list because I can't modify htgeneratedscreens while enumerating
 	list< pair<Row_DesignObj *,int> > alNewDesignObjLocationsToGenerate; 
 
@@ -1056,7 +1058,8 @@ m_bNoEffects = true;
 				else
 					pRow_DesignObj = oco->m_pRow_DesignObj;
 			}
-
+if( pRow_DesignObj->PK_DesignObj_get()==4560 )
+int k=2;
 			if( pRow_DesignObj!=NULL)
 			{
 				vector<Row_DesignObj *> vectros;
@@ -1393,6 +1396,7 @@ m_bNoEffects = true;
 		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
 	}
 
+	int iNumScreensPrior = m_htGeneratedScreens.size();
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
@@ -1417,7 +1421,7 @@ m_bNoEffects = true;
 	}
 
 	// Now include all the media sort options if this it UI version 2
-	if( m_pRow_UI->Version_get()==2 && (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
+	if( bFirstLoop && m_pRow_UI->Version_get()==2 && (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
 	{
 		Row_DesignObj *pRow_DesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_grpMediaSortOptions_CONST);
 		string sSQL = "select DISTINCT EK_MediaType FROM MediaType_AttributeType where MediaSortOption is not null";
@@ -1459,6 +1463,12 @@ m_bNoEffects = true;
 				SearchForGotos(ocDesignObj);
 			}
 		}
+	}
+
+	if( iNumScreensPrior != m_htGeneratedScreens.size() ) // Bad, bad code.  The problem is the above SearchForGotos may have drug in more screens which also have dependencies
+	{
+		bFirstLoop=false;
+		goto loop_to_keep_looking_for_objs_to_include;
 	}
 
 	int NumScreens=0;

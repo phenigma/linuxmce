@@ -142,6 +142,7 @@ MySqlDBName = pluto_main
 DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
+UseVideoWizard = 1
 PK_Device = 1
 Activation_Code = $Activation_Code
 PK_Installation = 1

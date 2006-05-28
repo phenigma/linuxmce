@@ -9,10 +9,12 @@ protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
+	bool m_bHasVideoWizardFiles;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 	~OSDScreenHandler();
+	void DisableAllVideo();
 
 	//
 	//Video Wizard Screens
@@ -44,15 +46,17 @@ public:
 	virtual void SCREEN_TV_provider(long PK_Screen);
 	virtual bool TV_provider_ObjectSelected(CallBackData *pData);
 
-	//5. A/V Connection
+	//5. TV Manuf.
 	virtual void SCREEN_TV_Manufacturer(long PK_Screen);
 	virtual bool TV_Manufacturer_ObjectSelected(CallBackData *pData);
 	virtual bool TV_Manufacturer_GridSelected(CallBackData *pData);
+	bool TV_OnTimer(CallBackData *pData);
 
 	//6. Receiver
 	virtual void SCREEN_Receiver(long PK_Screen);
 	virtual bool Receiver_ObjectSelected(CallBackData *pData);
 	virtual bool Receiver_GridSelected(CallBackData *pData);
+	virtual bool Receiver_OnTimer(CallBackData *pData);
 
 	//7. AV Devices
 	virtual void SCREEN_AV_Devices(long PK_Screen);
