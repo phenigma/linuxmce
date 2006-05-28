@@ -677,11 +677,26 @@ m_bNoEffects = true;
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
+		if( m_pRow_Orbiter->Size_get().size()==0  )
+			m_bNewOrbiter=true;
+
 		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << sSize << endl;
 		m_pRow_Orbiter->Size_set(sSize);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 		threaded_mysql_query(sSQL);
+	}
+
+	if( !m_bNewOrbiter )
+	{
+		vector<Row_Room *> vectRow_Room;
+		mds.Room_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Room);
+		
+		vector<Row_Users *> vectRow_Users;
+		mds.Users_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Users);
+
+		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 )
+			m_bNewOrbiter = true;
 	}
 
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenWidth_CONST);

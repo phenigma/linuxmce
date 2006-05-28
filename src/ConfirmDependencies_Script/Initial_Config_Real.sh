@@ -250,6 +250,7 @@ DCERouter = $Host
 MySqlPort = 3306
 DCERouterPort = 3450
 UseVideoWizard = 1
+TestInstallation = 0
 PK_Device = $Device
 Activation_Code = $Code"
 	[ -f /etc/pluto.conf ] || echo "$pluto_conf" >/etc/pluto.conf

@@ -61,6 +61,11 @@ fi
 rm -f /var/log/pluto
 ln -s /home/logs/pluto /var/log/pluto
 
+if [ "$TestInstallation" -eq 1 ]; then 
+	sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+	sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
+fi
+
 # update atftp entry in inet.d
 update-inetd --remove tftp
 update-inetd --group BOOT --add "tftp        dgram   udp wait    nobody /usr/sbin/tcpd /usr/sbin/in.tftpd --tftpd-timeout 300 --retry-timeout 5     --mcast-port 1758 --mcast-addr 239.255.0.0-255 --maxthread 100 --verbose=5 --no-blksize /tftpboot"

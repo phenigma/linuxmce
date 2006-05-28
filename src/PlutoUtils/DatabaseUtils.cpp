@@ -336,7 +336,7 @@ int DatabaseUtils::ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Devic
 {
 	PlutoSqlResult result,result2;
 
-	string sSQL = "SELECT IK_DeviceData FROM DeviceTemplate_DeviceData where FK_DeviceData=" TOSTRING(DEVICEDATA_Only_One_Per_PC_CONST) " AND FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	string sSQL = "SELECT IK_DeviceData FROM DeviceTemplate_DeviceData where FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Only_One_Per_PC_CONST) + " AND FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	DatabaseUtils::GetTopMostDevice(pMySqlHelper,PK_Device_ControlledVia_temp);
 	MYSQL_ROW row;
 	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || (row=mysql_fetch_row(result.r))==NULL || !atoi(row[0]) )

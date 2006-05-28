@@ -33,13 +33,6 @@ echo "for details."
 echo ""
 
 # Ask the questions
-Username=$(Ask "What username do you want for yourself?")
-Password=$(Ask "Please enter a password:")
-echo ""
-echo "Use that username and password to login to your Pluto-Admin site"
-echo ""
-Room=$(Ask "In what room is this PC?")
-clear
 echo "Note: Hybrid means this PC will not only be the main server, but you will"
 echo "also hook it up to a TV and use it as a media director.  Core means it is"
 echo "a server only, and will not be used as a media station."
@@ -143,6 +136,7 @@ DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
 UseVideoWizard = 1
+TestInstallation = 0
 PK_Device = 1
 Activation_Code = $Activation_Code
 PK_Installation = 1
@@ -166,38 +160,15 @@ fi
 Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '$Activation_Code')"
 RunSQL "$Q"
 
-# Create user
-PasswordUnix=$(mkpasswd -H md5 "$Password")
-PasswordSamba=$(/usr/pluto/bin/smbpass.pl "$Password")
-
-sqlUsername="${Username//\'/\'}"
-sqlPassword="${Password//\'/\'}"
-sqlPasswordUnix="${PasswordUnix//\'/\'}"
-sqlPasswordSamba="${PasswordSamba//\'/\'}"
-Q="INSERT INTO Users(UserName, Password, Password_Unix, Password_Samba, Extension)
-	VALUES('$sqlUsername', MD5('$sqlPassword'), '$sqlPasswordUnix', '$sqlPasswordSamba', 301)"
-RunSQL "$Q"
-
-# Add user to installation
-Q="INSERT INTO Installation_Users(FK_Installation, FK_Users, userCanModifyInstallation)
-	VALUES(1, 1, 1)"
-RunSQL "$Q"
-
-# Create room
-sqlRoom="${Room//\'/\'}"
-Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
-	VALUES(1, 9, '$sqlRoom')"
-RunSQL "$Q"
-
 # Add Core
 CoreDev=$(NewDev -d "$CoreDT")
-Q="UPDATE Device SET Description='CORE', FK_Room=1 WHERE PK_Device='$CoreDev'"
+Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$CoreDev'"
 RunSQL "$Q"
 
 # Create hybrid
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	HybDev=$(NewDev -d 28 -C "$CoreDev")
-	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
+	Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$HybDev'"
 	RunSQL "$Q"
 fi
 
