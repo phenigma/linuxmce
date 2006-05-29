@@ -46,4 +46,7 @@ WizardPageDolbyTest.cpp \
 WizardPageDTSTest.cpp \
 WizardPageFinalSelections.cpp \
 XinePlayer.cpp \
+SocketRemoteServer.cpp \
+SocketRemoteClient.cpp \
+SafetyLock.cpp \
 XUtilities.cpp 

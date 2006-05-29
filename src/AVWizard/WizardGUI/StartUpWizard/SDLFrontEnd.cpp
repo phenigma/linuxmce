@@ -96,7 +96,8 @@ void SDLFrontEnd::Flip()
 		SDL_FreeSurface(ScaledScreen);
 	}
 	SDL_Flip(Screen);	
-	SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 0, 0, 0, 255));
+	if (NeedScale)
+		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 0, 0, 0, 255));
 }
 
 void SDLFrontEnd::PaintBackground()

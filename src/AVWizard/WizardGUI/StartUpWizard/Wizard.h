@@ -40,12 +40,17 @@
 
 #include "SettingsDictionaryTree.h"
 
+#include "SocketRemoteServer.h"
+
+#include <pthread.h>
+
 /**
  *	Singleton class that consist all the wizard, is singleton because 
  *	is the core class of the AVWizard
  */
 class Wizard
 {
+	pthread_mutex_t SafeMutex;
 
 	int ExitCode;
 	/**
@@ -129,6 +134,7 @@ class Wizard
 
 	static Wizard* Instance;
 
+	SocketRemoteServer Server;
 public:
 	/**
 	 *	SettingsDictionary that keep global AVWizard Settings

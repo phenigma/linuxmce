@@ -20,13 +20,18 @@
 
 #include "WizardCommandLineParser.h"
 
+#include "SafetyLock.h"
+
 #ifndef WIN32
 void signal_handler(int signal)
 {
 	switch (signal)
 	{
+		case SIGPIPE:
+			std::cout<<"Signal SIGPIPE treated"<<std::endl;
+			break;
 		case SIGUSR1:
-			std::cout<<"Signal treated"<<std::endl;
+			std::cout<<"Signal SIGUSR1 treated"<<std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
 			break;
 	}
@@ -52,6 +57,7 @@ Wizard::Wizard()
 
 #ifndef WIN32
 	signal(SIGUSR1, signal_handler);
+	signal(SIGPIPE, signal_handler);
 #endif
 }
 
@@ -69,6 +75,14 @@ void Wizard::MainLoop()
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
+	
+	if(AVWizardOptions->GetDictionary()->Exists("RemoteAVWizardServerPort"))
+	{
+		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
+		Server.StartServer(Port);
+	}
+
+	PaintStatus();
 	while(!Quit)
 	{
 		while (!(Quit) && (FrontEnd->HasEventPending()))
@@ -76,16 +90,18 @@ void Wizard::MainLoop()
 			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
-			FrontEnd->TranslateEvent(Event);
-			EvaluateEvent(Event);
+			FrontEnd->TranslateEvent( Event);
+			EvaluateEvent( Event);
 		}
 
 		if(!Quit)
 		{
 			if(StatusChange)
-				PaintStatus();
-			else
 			{
+				PaintStatus();
+			}
+		else
+		{
 			#ifdef WIN32
 				Sleep(10);
 			#else
@@ -164,6 +180,7 @@ void Wizard::DoCancelScreen()
 		SetExitWithCode(1);
 	}
 	CreateDialogs();
+	StatusChange = true;
 }
 
 void Wizard::EvaluateEvent(WM_Event& Event)
@@ -172,29 +189,31 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 	switch(Event.Type) {
 	case WMET_QUIT:
 		Quit = true;
-		break;
+		return;
 	case WMET_LEFT_KEY:
 		DoDecreaseAction();
-		break;
+		return;
 	case WMET_RIGHT_KEY:
 		DoIncreaseAction();
-		break;
+		return;
 	case WMET_UP_KEY:
 		DoChangeActionBefore();
-		break;
+		return;
 	case WMET_DOWN_KEY:
 		DoChangeActionAfter();
-		break;
+		return;
 	case WMET_ENTER_KEY:
 		DoApplyScreen(AVWizardOptions->GetDictionary());
-		break;
+		return;
 	case WMET_SAVE:
 		AVWizardOptions->GetDictionary()->Set("ExitCode", this->ExitCode);
 		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
-		break;
+		return;
 	case WMET_ESCAPE_KEY:
-		DoCancelScreen();	
+		DoCancelScreen();
+		return;
 	}
+	StatusChange = false;
 }
 
 void Wizard::PaintStatus()

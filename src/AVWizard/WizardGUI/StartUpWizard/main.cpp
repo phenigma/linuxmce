@@ -13,6 +13,8 @@
 #include "GenerateWizardConfigDefaults.h"
 #include "ConfigureCommons.h"
 //---------------------------------------------------------------------------
+#include "SocketRemoteServer.h"
+//---------------------------------------------------------------------------
 bool IsConsole = false;
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
