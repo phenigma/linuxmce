@@ -75,7 +75,9 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 	try
 	{
 		//remove the old instance
-		// todo delete orbiter.
+		if(NULL != Orbiter::Instance())
+			Orbiter::DestroyInstance();
+
 		WriteStatusOutput("Building a new orbiter");
 
 		//create a new one

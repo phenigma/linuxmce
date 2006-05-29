@@ -155,12 +155,6 @@
 				RelativePath=".\Win32\MainDialog.cpp">
 			</File>
 			<File
-				RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
-			</File>
-			<File
-				RelativePath=".\Sdl\OpenGLTextureConverter_SDL.cpp">
-			</File>
-			<File
 				RelativePath="Orbiter.cpp">
 			</File>
 			<File
@@ -309,6 +303,12 @@
 				</File>
 				<File
 					RelativePath=".\OpenGL\math3dutils.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
+				</File>
+				<File
+					RelativePath=".\Sdl\OpenGLTextureConverter_SDL.cpp">
 				</File>
 				<File
 					RelativePath=".\OpenGL\orbitergl3dengine.cpp">

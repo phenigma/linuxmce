@@ -19,7 +19,7 @@ const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	OrbiterSDL_Win32 *pRenderer = OrbiterSDL_Win32::GetInstance();
+	OrbiterSDL_Win32 *pRenderer = dynamic_cast<OrbiterSDL_Win32 *>(Orbiter::Instance()->Renderer());
 
 	if(pRenderer == NULL)
 		return 0L;
@@ -36,9 +36,6 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 	return Result;
 }
-
-OrbiterSDL_Win32 *OrbiterSDL_Win32::m_pInstance = NULL; //the one and only
-
 //-----------------------------------------------------------------------------------------------------
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
@@ -185,28 +182,4 @@ bool OrbiterSDL_Win32::DisplayProgress(string sMessage, int nProgress)
 {
     return DialogProgressEx(sMessage, nProgress);
 }
-
-
-OrbiterSDL_Win32 *OrbiterSDL_Win32::GetInstance()
-{
-        if(!m_pInstance)
-                g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32:GetInstance The instance to orbiter is NULL");
-
-        return m_pInstance;
-}
-
-void OrbiterSDL_Win32::BuildOrbiter(Orbiter *pOrbiter)
-{
-        if(NULL == m_pInstance)
-        {
-                g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
-                m_pInstance = new OrbiterSDL_Win32(pOrbiter);
-				g_pCommand_Impl = pOrbiter;
-        }
-        else
-        {
-                throw "OrbiterSDL_Win32 already created!";
-        }
-}
-
 //-----------------------------------------------------------------------------------------------------

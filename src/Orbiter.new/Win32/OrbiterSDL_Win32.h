@@ -11,13 +11,9 @@ class OrbiterSDL_Win32 : public OrbiterSDL
 	friend class OrbiterRendererFactory;
 
 private:
-	static OrbiterSDL_Win32* m_pInstance; //the one and only instance of OrbiterSDL_Win32
-
 	OrbiterSDL_Win32(Orbiter *pOrbiter);
 
 public:
-
-	static OrbiterSDL_Win32 *GetInstance();
 
 	bool m_bConnectionLost;
 

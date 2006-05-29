@@ -294,7 +294,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
-// TODO		Orbiter::DestroyInstance();
+		if(NULL != Orbiter::Instance())
+			Orbiter::DestroyInstance();
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

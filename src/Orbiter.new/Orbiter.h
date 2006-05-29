@@ -96,6 +96,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	private:
 
 		OrbiterRenderer *m_pOrbiterRenderer;
+		static Orbiter *m_pInstance; 
 
 	public:
 	
@@ -105,6 +106,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		Orbiter(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  
 			string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight, 
 			pluto_pthread_mutex_t* pExternalScreenMutex = NULL);
+
+		//these two methods should not be used from within bluetooth dongle
+		static void DestroyInstance();
+		static Orbiter *Instance(); 
 
 	
 /*		static Orbiter *CreateInstance(int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  

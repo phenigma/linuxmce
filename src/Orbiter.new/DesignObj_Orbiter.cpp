@@ -50,7 +50,6 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 	m_vectSelectedGraphic.clear();
 	m_vectHighlightedGraphic.clear();
 	m_vectAltGraphics.clear();
-	m_pOrbiter=NULL;
 	m_pvectCurrentGraphic = NULL;
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentPlayingGraphic = NULL;
