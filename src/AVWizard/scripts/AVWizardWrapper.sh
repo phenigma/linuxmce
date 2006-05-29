@@ -18,7 +18,8 @@ while [[ "$Done" -eq 0 ]]; do
 	StartX -step "$NextStep"
 	Ret=$(WizGet ExitCode)
 	case "$Ret" in
-		0|1|255) exit $Ret ;;
+		2) : ;; # programmed exit
+		*) exit $Ret ;; # 0 = I agree; 1 = I do not agree; * = other
 	esac
 	WizStep=$(WizGet CurrentStep)
 	Video_Ratio=$(WizGet Video_Radio)
