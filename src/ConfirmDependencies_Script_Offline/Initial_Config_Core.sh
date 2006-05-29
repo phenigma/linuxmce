@@ -258,7 +258,10 @@ fi
 
 clear
 # XXX: No error checking
-	echo -e "The Pluto Bonus CD version 1 has some extras, such as a video setup wizard to help \nget you up and running. If you have the Pluto Bonus CD version 1, \nplease insert it into your drive now and choose Y after it is in. Otherwise, choose N."
+	echo "The Pluto Bonus CD version 1 has some extras, such as a video setup"
+	echo "wizard to help get you up and running. If you have the Pluto Bonus CD"
+	echo "version 1, please insert it into your drive now and choose Y after it is in."
+	echo "Otherwise, choose N."
         echo ""
         BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
 	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
