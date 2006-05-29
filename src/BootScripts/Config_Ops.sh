@@ -2,8 +2,47 @@
 
 NoSpace="s/ //g"
 LogSectionDelimiter="========== NEW LOG SECTION =========="
+ConfForbiddenNameChars="=\\"
+ConfForbiddenValueChars=""
 
 . /usr/pluto/bin/LockUtils.sh
+
+ConfLogError()
+{
+	local Value="$1" WhatItIs="$2"
+	{
+		echo "$LogSectionDelimiter"
+		date -R
+		echo "Value: $Value"
+		echo "Type: $WhatItIs"
+		ls -l /usr/pluto/locks/
+		ps axf
+	} >>/var/log/ConfError.log
+}
+
+ConfValidValue()
+{
+	local Value="$1" WhatItIs="$2" Forbidden="$3"
+	local i j
+	local ValueChar ForbiddenChar
+
+	for ((i = 0; i < "${#Value}"; i++)); do
+		ValueChar="${Value:$i:1}"
+		if [[ "$ValueChar" < " " || "$ValueChar" > "~" ]]; then
+				ConfLogError "$Value" "$WhatItIs"
+				return 1
+		fi
+		for ((j = 0; j < "${#Forbidden}"; j++)); do
+			ForbiddenChar="${Forbidden:$j:1}"
+			if [[ "$ValueChar" == "$ForbiddenChar" ]]; then
+				ConfLogError "$Value" "$WhatItIs"
+				return 1
+			fi
+		done
+	done
+
+	return 0
+}
 
 ConfEval()
 {
@@ -32,13 +71,21 @@ ConfSet()
 	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfSet" nolog
 	local Variable="$1" Value="$2"
+	local EscVariable="${Variable//\\\\/\\\\}" EscValue="${Value//\\\\/\\\\}"
+
+	if ! ConfValidValue "$Variable" "Variable" "$ConfForbiddenNameChars" || ! ConfValidValue "$Value" "Value" "$ConfForbiddenValueChars"; then
+		Unlock "pluto.conf" "Config_Ops-ConfSet" nolog
+		return 1
+	fi
+
 	local Line="$Variable = $Value"
-	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
+	local EscLine="${Line//\\\\/\\\\}"
+	if ! grep "$EscVariable.*=" /etc/pluto.conf &>/dev/null; then
 		echo "$Line" >> /etc/pluto.conf
 	else
-		sed -i "s/^.*$Variable.*=.*$/$Line/g" /etc/pluto.conf
+		sed -i "s/^.*$EscVariable.*=.*$/$EscLine/g" /etc/pluto.conf
 	fi
-	eval "export $Variable=\"$Value\"" &>/dev/null
+	eval "export $EscVariable=\"$EscValue\"" &>/dev/null
 	Unlock "pluto.conf" "Config_Ops-ConfSet" nolog
 	return $Ret
 }
