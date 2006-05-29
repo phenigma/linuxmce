@@ -33,9 +33,11 @@ while [[ $# -gt 0 ]]; do
 			ResY=${Resolution#*x}
 			if [[ "$ResY" == *i ]]; then
 				ResY="${ResY%i}"
+				Resolution="${Resolution%i}"
 				ScanType="interlace"
 			elif [[ "$ResY" == *p ]]; then
 				ResY="${ResY%p}"
+				Resolution="${Resolution%p}"
 				ScanType=
 			fi
 			
