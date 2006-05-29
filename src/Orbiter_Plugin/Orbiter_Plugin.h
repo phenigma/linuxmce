@@ -204,7 +204,7 @@ public:
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
-			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_1_CONST , sMessage1);
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Message_1_CONST , sMessage1);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption2.size() )
@@ -215,7 +215,7 @@ public:
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
-			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_2_CONST , sMessage2);
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Message_2_CONST , sMessage2);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption3.size() )
@@ -226,7 +226,7 @@ public:
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
-			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_3_CONST , sMessage3);
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Message_3_CONST , sMessage3);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption4.size() )
@@ -237,7 +237,7 @@ public:
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
-			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_4_CONST , sMessage4);
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Message_4_CONST , sMessage4);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 

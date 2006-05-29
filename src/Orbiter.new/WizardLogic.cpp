@@ -82,7 +82,7 @@ bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
 		"LEFT JOIN Device As P1 ON Device.FK_Device_ControlledVia=P1.PK_Device "
 		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device "
 		"WHERE "
-		"(PK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) " OR FK_DeviceCategory_Parent=" TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) ") AND "
+		"(PK_DeviceCategory = " + StringUtils::itos(DEVICECATEGORY_Remote_Controls_CONST) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Remote_Controls_CONST) + ") AND "
 		"(Device.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P1.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
@@ -96,7 +96,7 @@ bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
 	sSQL = "SELECT DeviceTemplate.Description,Manufacturer.Description FROM DeviceTemplate "
 		"JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer "
 		"JOIN DHCPDevice ON FK_DeviceTemplate=PK_DeviceTemplate "
-		"WHERE DeviceTemplate.FK_DeviceCategory = " TOSTRING(DEVICECATEGORY_Infrared_Receivers_CONST);
+		"WHERE DeviceTemplate.FK_DeviceCategory = " + StringUtils::itos(DEVICECATEGORY_Infrared_Receivers_CONST);
 
 	MYSQL_ROW row;
 	string sReceivers;

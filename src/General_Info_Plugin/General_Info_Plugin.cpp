@@ -213,10 +213,11 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVWhatDelay)), 
 		DATAGRID_TVWhatDelays_CONST,PK_DeviceTemplate_get());
-
+/*
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDiscret)), 
 		DATAGRID_Confirm_On_Off_Codes_CONST,PK_DeviceTemplate_get());
+		*/
 	//AV Wizard - Input 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVInputNotListed)), 
@@ -1289,7 +1290,7 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 
 	return pDataGrid;
 }
-
+/*
 class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
@@ -1357,7 +1358,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 
 	return pDataGrid;
 }
-
+*/
 //AV Wizard - Input type
 class DataGridTable *General_Info_Plugin::AVInputNotListed(string GridID, string Parms, void *ExtraData, 
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -2229,6 +2230,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device ) // Should always be there
 	{
+		m_listRow_Device_NewAdditions.push_back(pRow_Device);
 		if( iPK_Room==-1 )  // Means prompt, or just auto-assign.  As opposed to 0 which means put in no room
 		{
 			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
@@ -2408,12 +2410,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
 	{
 		if( !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
-		{
-			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
-			SendCommand(SCREEN_DialogGenericNoButtons_DL);
-		}
+			PromptUserToReloadAfterNewDevices();
 	}
 }
 
@@ -2424,12 +2421,7 @@ void General_Info_Plugin::DoneCheckingForUpdates()
 	// We must have started the check for updates because we added a new device.  However we finished
 	// getting room info from the user, so he's ready to go
 	if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
-	{
-		//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
-		SendCommand(SCREEN_DialogGenericNoButtons_DL);
-	}
+		PromptUserToReloadAfterNewDevices();
 }
 
 
@@ -2784,5 +2776,31 @@ void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_Contr
 				"--blacklist\t" + sBlock_Device, "", "", false, false, false);
 	
 		SendCommand (CMD_Spawn_Application);
+	}
+}
+
+void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
+{
+	bool bDevicesNeedingReload=false;
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices has %d devices",(int) m_listRow_Device_NewAdditions.size());
+	for(list<Row_Device *>::iterator it=m_listRow_Device_NewAdditions.begin();it!=m_listRow_Device_NewAdditions.end();++it)
+	{
+		Row_Device *pRow_Device = *it;
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Immediate_Reload_Isnt_Necessary_CONST);
+		if( !pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())!=1 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d needs reload",pRow_Device->PK_Device_get());
+			bDevicesNeedingReload=true;
+			break;
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d doesn't need reload",pRow_Device->PK_Device_get());
+	}
+
+	if( bDevicesNeedingReload )
+	{
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
+		SendCommand(SCREEN_DialogGenericNoButtons_DL);
 	}
 }

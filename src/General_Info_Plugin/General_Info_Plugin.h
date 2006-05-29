@@ -12,6 +12,7 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_pluto_main;
+class Row_Device;
 
 namespace DCE
 {
@@ -56,6 +57,7 @@ public:
 	map<int, LastApplication *> m_mapLastApplication;
 	LastApplication *m_mapLastApplication_Find(int PK_Device_MD) { map<int,class LastApplication *>::iterator it = m_mapLastApplication.find(PK_Device_MD); return it==m_mapLastApplication.end() ? NULL : (*it).second; }
 	class PostCreateOptions *m_pPostCreateOptions;
+	list<Row_Device *> m_listRow_Device_NewAdditions;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
@@ -122,6 +124,7 @@ public:
 	// Helper functions
 	void DoneCheckingForUpdates();
 	Row_Device *ProcessChildDevice(Row_Device *pRow_Device,string sLine);
+	void PromptUserToReloadAfterNewDevices();
 
 //<-dceag-h-b->
 	/*

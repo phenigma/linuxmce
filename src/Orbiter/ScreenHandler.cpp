@@ -84,6 +84,25 @@ int ScreenHandler::GetCurrentScreen_PK_DesignObj()
 	return m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line)
+{
+	string::size_type pos=0;
+	string sTitle = StringUtils::Tokenize(sText,"|",pos);
+	string sOption1 = StringUtils::Tokenize(sText,"|",pos);
+	string sOption2 = StringUtils::Tokenize(sText,"|",pos);
+	string sOption3 = StringUtils::Tokenize(sText,"|",pos);
+	string sOption4 = StringUtils::Tokenize(sText,"|",pos);
+
+	pos=0;
+	string sMessage1 = StringUtils::Tokenize(sCommand_Line,"|",pos);
+	string sMessage2 = StringUtils::Tokenize(sCommand_Line,"|",pos);
+	string sMessage3 = StringUtils::Tokenize(sCommand_Line,"|",pos);
+	string sMessage4 = StringUtils::Tokenize(sCommand_Line,"|",pos);
+
+	DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,sTitle,false,"0",false,
+		sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);

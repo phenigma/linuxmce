@@ -817,14 +817,18 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosN
 
 		if( pos_start>=sInput.size() )
 			return pArgs;
-
-		if( sInput[pos_start]=='\n' )  // There's another set of args that follows
+		
+		if( sInput[pos_start]=='\n' || (sInput[pos_start]=='&' && pos_start+1<sInput.size() && sInput[pos_start+1]==' ') )  // There's another set of args that follows, either separated by a \n or an & all by itself outside of any quotes
 		{
 			if( p_iPosNext )
-				*p_iPosNext = int(pos_start) + 1;
+			{
+				if( sInput[pos_start]=='&' )
+					*p_iPosNext = int(pos_start) + 2;
+				else
+					*p_iPosNext = int(pos_start) + 1;
+			}
 			return pArgs;
 		}
-
 		pos_end=sInput.find(' ',pos_start+1);
 		string::size_type pos_nextmessage = sInput.find('\n',pos_start+1);
 		if( pos_nextmessage!=string::npos &&

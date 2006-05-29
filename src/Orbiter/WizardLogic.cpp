@@ -3,6 +3,7 @@
 #include "WizardLogic.h"
 #include "CreateDevice/UserUtils.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommMethod.h"
 #include "pluto_main/Define_Country.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -78,7 +79,7 @@ int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string 
 	int PK_Device_PC = DatabaseUtils::GetTopMostDevice(this,m_pOrbiter->m_dwPK_Device);
 	string sSQL = "SELECT Device.PK_Device,Device.Description FROM Device "
 		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
-		"JOIN DeviceCategory ON FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " " 
+		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory " 
 		"LEFT JOIN Device As P1 ON Device.FK_Device_ControlledVia=P1.PK_Device "
 		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device "
 		"WHERE "
@@ -471,12 +472,12 @@ void WizardLogic::SetLongLat(string Latitude,string Longitude)
 		threaded_mysql_query(sSQL);
 	}
 }
+/*	//check if the manufacturerer is already in database
 
 int WizardLogic::AddAVDeviceTemplate()
 {	
 	string sSQL;
 
-	//check if the manufacturerer is already in database
 	if( !ExistManufacturer(m_ManufacturerName) )
 	{
 		sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
@@ -491,6 +492,7 @@ int WizardLogic::AddAVDeviceTemplate()
 		StringUtils::itos(m_nPKAVTemplate) + "," + "2" + "," + "7" + "," + "250" + ")";
 	threaded_mysql_query(sSQL);
 	return m_nPKAVTemplate;
+	return 0;
 }
 
 void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay)
@@ -680,6 +682,7 @@ int WizardLogic::GetAVInputType()
 	return 1;
 }
 
+
 int WizardLogic::GetParentDevice()
 {
 	PlutoSqlResult result_set;
@@ -710,6 +713,7 @@ void WizardLogic::UpdateAVTemplateToggle()
 	sSQL += "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
 	threaded_mysql_query(sSQL);
 }
+	*/
 
 void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)
 {
@@ -742,6 +746,7 @@ bool WizardLogic::GetAvPath(int PK_Device_From,long &PK_Device_To,int PK_Pipe,lo
 	return false;
 }
 
+/*
 //Insert all dsp modes in database
 void WizardLogic::InsertDSPModes()
 {
@@ -813,7 +818,7 @@ void WizardLogic::CreateIRGroup()
 		threaded_mysql_query(sql);
 	}
 }
-
+*/
 int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)
 {
 	int iPK_Device=0;
@@ -859,20 +864,34 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 		}
 }
 
-bool WizardLogic::ExistManufacturer(string name)
+int WizardLogic::FindManufacturer(string sName)
 {
-	string sSQL = "SELECT * FROM Manufacturer WHERE Description='" + name + "'";
+	sName = StringUtils::SQLEscape(sName);
+	string sSQL = "SELECT PK_Manufacturer FROM Manufacturer WHERE Description='" + sName + "'";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) )
-	{
-		if( (row = mysql_fetch_row(result_set.r)) )
-			return true;
-		else
-			return false;
-	}
+	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+		return atoi(row[0]);
 
-	return false;
+	sSQL = "INSERT INTO Manufacturer(Description) VALUES('" + sName + "')";
+	return threaded_mysql_query_withID(sSQL);
+}
+
+int WizardLogic::FindModel(int PK_DeviceCategory,string sModel)
+{
+	if( !m_dwPK_Manufacturer )
+		return 0; // Shouldn't happen
+
+	sModel = StringUtils::SQLEscape(sModel);
+	string sSQL = "SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_Manufacturer = " + StringUtils::itos(m_dwPK_Manufacturer) + " AND Description='" + sModel + "'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+		return atoi(row[0]);
+
+	sSQL = "INSERT INTO DeviceTemplate(Description,FK_DeviceCategory,FK_Manufacturer,FK_CommMethod) VALUES('" + sModel + "'," + StringUtils::itos(PK_DeviceCategory) + 
+		"," + StringUtils::itos(m_dwPK_Manufacturer) + "," TOSTRING(COMMMETHOD_Infrared_CONST) ")";
+	return threaded_mysql_query_withID(sSQL);
 }
 
 string WizardLogic::GetDeviceStatus(long nPK_Device)

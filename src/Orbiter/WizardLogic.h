@@ -27,33 +27,14 @@ private:
 	string GetDeviceStatus(long nPK_Device);
 	deque< pair<int,string> > m_dequeNumLights;
 
-	//AV Wizard
-	string m_ManufacturerName, m_AVTemplateName;
-	string m_AVTemplateNumericEntry;
+	int m_dwPK_Manufacturer,m_dwPK_DeviceTemplate;
 
-	bool m_bAVTogglePower,m_bAVToggleDSP,m_bAVToggleInput;
-
-	long m_nPKDeviceCategory,m_nPKAVTemplate,m_nPKManufacuter;
-	long m_nPKIRGroupPower,m_nPKIRGroup;
-	long m_nPKDevice,m_nPKParentDevice;
-	long m_nPKMediaType,m_nPKConnectorType;
 protected:
 	class Orbiter *m_pOrbiter;
 	class UserUtils *m_pUserUtils;
 public:
 	list< pair<int,string> > m_listRoomTypes;  // In the order to display them
 	map<int,string> m_mapRoomTypes; // For fast lookup
-
-	//AV Wizard
-	map<int,string> m_mapAVInputs;
-	list<string> m_listDSPModes;
-	string m_AVInputsId[3];
-	string m_firstId,m_secondId; 
-	string m_firstPos,m_secondPos;
-	string m_SelectId;
-
-	map<int,string> m_mapIRCommands;
-	set<int> m_listIRGroups;
 
 	WizardLogic(Orbiter *pOrbiter);
 	virtual ~WizardLogic();
@@ -104,52 +85,7 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
-	void SetManufacturer(string name){ m_ManufacturerName = name; }
-	void SetAVTemplateName(string name){ m_AVTemplateName = name; }
-	string GetAVTemplateName(){ return m_AVTemplateName; }
-	string GetManufactureName() { return m_ManufacturerName; }
 
-	void SetAVTemplateID(long id){ m_nPKAVTemplate = id; }
-	long GetAVTemplateId(){ return m_nPKAVTemplate; }
-	void SetManufacurerID(long id){ m_nPKManufacuter = id; }
-	long GetManufacturerId(){ return m_nPKManufacuter; }
-	void SetDeviceId(long id){ m_nPKDevice = id; }
-	void SetDeviceCategory(long id){ m_nPKDeviceCategory = id; }
-	long GetDeviceCategory(){ return m_nPKDeviceCategory; }
-	void SetIRGroupPower(long id){m_nPKIRGroupPower = id; }
-	long GetIRGroupPower(){ return m_nPKIRGroupPower; }
-
-	void SetAVTemplateTogglePower(bool state){ m_bAVTogglePower = state;}
-	bool GetAVTemplateTogglePower(){ return m_bAVTogglePower; }
-	void SetAVToggleDSP(bool state){ m_bAVToggleDSP = state; }
-	bool GetAVToggleDSP(){ return m_bAVToggleDSP; }
-	void SetAVToggleInput(bool state){ m_bAVToggleInput = state; }
-	bool GetAVToggleInput(){ return m_bAVToggleInput; }
-
-	void SetAVTemplateNumericEntry(string value){ m_AVTemplateNumericEntry = value; }
-	void SetPKAVTemplate(long PKTemplate){ m_nPKAVTemplate = PKTemplate; }
-	long GetPKAVTemplate(){ return m_nPKAVTemplate; }
-
-	void SetPKConnectorType(long id){ m_nPKConnectorType = id; }
-	void SetPKMediaType(long id){ m_nPKMediaType = id;}
-
-	// return value 0 unknown,1 toggle,2 discret
-	int GetAVIRCodesType();
-	int GetAVInputType();
-	int GetParentDevice();
-	bool IsIRCodes(string commands="");
-
-	int AddAVDeviceTemplate();
-	void UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDelay,string DigitDelay);
-	void UpdateAVTemplateSettings();
-	void UpdateAVTemplateToggle();
-	//AV Wizard Inputs
-	void AddAVMediaType();
-	void AddAVDeviceInput();
-	void InsertDSPModes();
-	void ChangeDSPOrder();
-	void ChangeInputOrder();
-	void CreateIRGroup();
 
 	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
@@ -171,7 +107,8 @@ public:
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}
 	int FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription=NULL);
-	bool ExistManufacturer(string name);
+	int FindManufacturer(string sName);
+	int FindModel(int PK_DeviceCategory,string sModel);
 	void FindPnpDevices(int PK_DeviceCategory);
 
 	/*

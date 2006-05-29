@@ -126,7 +126,11 @@ bool Infrared_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DeviceTemplateByMfrModel)),
 		DATAGRID_Device_Template_by_Mfr_Mo_CONST,PK_DeviceTemplate_get());
-
+/*
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&Infrared_Plugin::ConfirmIRCodes)), 
+		DATAGRID_Confirm_IR_Codes_CONST,PK_DeviceTemplate_get());
+*/
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::AvailableInputs)),
 		DATAGRID_Available_Inputs_CONST,PK_DeviceTemplate_get());

@@ -63,24 +63,6 @@ public:
 	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
 	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
 
-	virtual void SCREEN_TVConfirmOnOffDiscret(long nPK_Screen);
-	virtual void SCREEN_TVConfirmOnOffTogle(long nPK_Screen);
-	virtual void SCREEN_TVOnOffCodes(long nPK_Screen);
-	//for IR codes datagrid
-	virtual bool AVIRCodes_DatagridSelected(CallBackData *pData);
-	virtual bool AVIRCodes_ObjectSelected(CallBackData *pData);
-
-	virtual void SCREEN_TVMultipleInputs(long nPK_Screen);
-	virtual bool TVMultipleInputs_DatagridSelected(CallBackData *pData);
-	virtual bool TVMultipleInputs_ObjectSelected(CallBackData *pData);
-
-	virtual void SCREEN_TVDSPMode(long nPK_Screen);
-	virtual bool TVDSPMode_DatagridSelected(CallBackData *pData);
-	virtual bool TVDSPMode_ObjectSelected(CallBackData *pData);
-
-	bool GridSwapPos(int gridId,int nDiff,int nSelectId);
-
-	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);
 	virtual bool LightsSetup_SelectedGrid(CallBackData *pData);
@@ -110,6 +92,13 @@ public:
 	bool SpeedControlCreate(CallBackData *pData);
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
+
+	// New AV Equipment
+	// When working with new devices:
+	//	VARIABLE_Misc_Data_1_CONST (12) = WizardLogic::m_dwPK_Manufacturer = Manufacturer ID
+	//	VARIABLE_Misc_Data_2_CONST (13) = WizardLogic::m_dwPK_DeviceTemplate = Device Template
+
+	bool NewAvDevice_ObjectSelected(int PK_DeviceCategory,ObjectInfoBackData *pObjectInfoData);
 
     //virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	//virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
