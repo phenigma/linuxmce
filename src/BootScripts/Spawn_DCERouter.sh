@@ -5,6 +5,7 @@
 
 LogFile="/var/log/pluto/DCERouter.log";
 exec &> >(tee -a "$LogFile")
+echo "$LogSectionDelimiter"
 
 Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version"
 echo "$Version" >/home/pluto-version
