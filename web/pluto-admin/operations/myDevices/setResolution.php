@@ -19,7 +19,7 @@ function setResolution($output,$dbADO) {
 		'848 480 p'=>'480p (848x480 progressive)',
 		'1280 720 p'=>'720p (1280x720 progressive)',
 		'1920 1080 i'=>'1080i (1920x1080 interlaced)',
-		/*'1920 1080 p'=>'1080p (1920x1080 progressive)',*/
+		'1920 1080 p'=>'1080p (1920x1080 progressive)',
 	);
 	$refreshArray=array(
 		'50'=>'50 Hz',
