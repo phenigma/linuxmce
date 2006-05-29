@@ -60,7 +60,7 @@ public:
 	virtual void SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, string sHouseModeTime, 
 		string sExitDelay, string sAlerts);
 	virtual void SCREEN_CurrentlyActiveRemote(long PK_Screen);
-	void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
+	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
 	//dialogs
 	virtual void SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors);
 	virtual void SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_DeviceFrom, string sPK_RippingDevice);

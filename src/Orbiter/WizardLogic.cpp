@@ -138,7 +138,7 @@ bool WizardLogic::AlreadyHasUsers()
 
 int WizardLogic::AddUser(string sUsername)
 {
-	return m_pUserUtils->AddUser(sUsername);
+	return m_pUserUtils->AddUser(sUsername,m_pOrbiter);
 }
 
 void WizardLogic::RemoveUser(int PK_User)
@@ -966,7 +966,7 @@ void WizardLogic::ChangeDeviceTemplateForDevice(string sPK_Device, string sFK_De
 
 long WizardLogic::GetRoomForDevice(string sPK_Device)
 {
-	string sSQL = "SELECT FK_Room FROM Device WHERE PK_Device = " + sPK_Device;
+	string sSQL = "SELECT PK_Room FROM Device LEFT JOIN Room ON FK_Room=PK_Room AND Device.FK_Installation=Room.FK_Installation WHERE PK_Device = " + sPK_Device;  // Do a join so we know the room is valid
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;

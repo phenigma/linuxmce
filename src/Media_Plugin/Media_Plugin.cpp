@@ -765,6 +765,8 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			string sDirectory1 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/video_ts";
 			string sDirectory2 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/VIDEO_TS";
 			if( FileUtils::DirExists(sDirectory1) || FileUtils::DirExists(sDirectory2) )
+			{
+				(*p_dequeMediaFile)[0]->m_sPath = "dvd:/" + (*p_dequeMediaFile)[0]->m_sPath;
 				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",

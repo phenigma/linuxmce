@@ -18,7 +18,7 @@ public:
 	bool AlreadyHasMasterUsers();
 	string GetGoodExtension(map<int,bool> &mapUsedExtensions) ;
 	void CheckExtensions();
-	int AddUser(string sUsername);
+	int AddUser(string sUsername,Command_Impl *pCommand_Impl);
 	void RemoveUser(int PK_Users);
 };
 

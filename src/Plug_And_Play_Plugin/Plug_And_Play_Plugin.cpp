@@ -138,6 +138,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
+	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 	return true;
@@ -158,6 +159,7 @@ bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
+	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceRemoved %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 

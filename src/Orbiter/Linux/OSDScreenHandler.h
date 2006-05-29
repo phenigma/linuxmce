@@ -9,7 +9,7 @@ protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
-	bool m_bHasVideoWizardFiles;
+	bool m_bHasVideoWizardFiles,m_bWizardIsRunning;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
@@ -99,6 +99,7 @@ public:
 	//	VARIABLE_Misc_Data_2_CONST (13) = WizardLogic::m_dwPK_DeviceTemplate = Device Template
 
 	bool NewAvDevice_ObjectSelected(int PK_DeviceCategory,ObjectInfoBackData *pObjectInfoData);
+	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
 
     //virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	//virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);

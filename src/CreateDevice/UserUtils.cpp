@@ -2,8 +2,12 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
+#include "Gen_Devices/AllCommandsRequests.h"
+#include "DCE/Command_Impl.h"
 #include "PlutoUtils/MySQLHelper.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "UserUtils.h"
+using namespace DCE;
 
 UserUtils::UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation)
 {
@@ -78,7 +82,7 @@ void UserUtils::CheckExtensions(  )
 		}
 }
 
-int UserUtils::AddUser(string sUsername)
+int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 {
 	StringUtils::TrimSpaces(sUsername);
 	bool bExistingUsers=AlreadyHasMasterUsers();
@@ -108,9 +112,28 @@ int UserUtils::AddUser(string sUsername)
 	m_pMySqlHelper->threaded_mysql_query(sSQL);
 
 	CheckExtensions();
-	string sCmd = "/usr/pluto/bin/SetPasswords.sh " + StringUtils::itos(PK_Users) + " \"" + sUsername + "\"";
-	g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
-	system(sCmd.c_str());
+
+	if( pCommand_Impl )
+	{
+		DeviceData_Base *pDevice_Core = pCommand_Impl->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+		if( pDevice_Core )
+		{
+			DeviceData_Base *pDevice_AppServer = 
+				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+			if( pDevice_AppServer )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+					"/usr/pluto/bin/SetPasswords.sh","set passwords",StringUtils::itos(PK_Users) + "\t" + sUsername,"","",false,false,false);
+				pCommand_Impl->SendCommand(CMD_Spawn_Application);
+			}
+		}
+	}
+	else
+	{
+		string sCmd = "/usr/pluto/bin/SetPasswords.sh " + StringUtils::itos(PK_Users) + " \"" + sUsername + "\"";
+		g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+		system(sCmd.c_str());
+	}
 
 	MySqlHelper mySqlHelper_telecom(m_pMySqlHelper->m_sMySQLHost,m_pMySqlHelper->m_sMySQLUser,m_pMySqlHelper->m_sMySQLPass,"pluto_telecom");
 

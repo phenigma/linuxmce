@@ -41,6 +41,7 @@
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
         ScreenHandler(pOrbiter, p_MapDesignObj)
 {
+	m_bWizardIsRunning = false;
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
@@ -76,6 +77,7 @@ void OSDScreenHandler::DisableAllVideo()
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
 m_pOrbiter->m_bNewOrbiter=true;
+	m_bWizardIsRunning = true;
 	if( !m_bHasVideoWizardFiles )
 		DisableAllVideo();
 
@@ -424,23 +426,6 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
-
-		case DESIGNOBJ_InWhichRoomIsTheSystem_CONST:
-		{
-			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVProvider_CONST)
-			{
-				string sPK_Room = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
-				if(sPK_Room == "")
-					return true;
-
-				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
-				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
-                                      nPK_Device_TopMost, sPK_Room.c_str());
-				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
-				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
-			}
-		}
-		break;
 	}
 
 	return false;
@@ -490,25 +475,24 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
 {
-	if(!m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pOrbiter->m_dwPK_Device))
-	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-		//the user removed the initial room while picking the room types; redirecting
-		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_InWhichRoomIsTheSystem_CONST),
-                                        "", "", false, false);
-		return;
-	}
-
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST, StringUtils::itos(m_pWizardLogic->GetPostalCode()));
 
-	ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
-
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::TV_provider_ObjectSelected, 
 		new ObjectInfoBackData());
+
+	if(!m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pOrbiter->m_dwPK_Device))
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+		//the user removed the initial room while picking the room types; redirecting
+		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_InWhichRoomIsTheSystem_CONST),
+                                        "", "", false, false);
+	}
+	else
+		ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
@@ -517,6 +501,23 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
+		case DESIGNOBJ_InWhichRoomIsTheSystem_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVProvider_CONST)
+			{
+				string sPK_Room = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				if(sPK_Room == "")
+					return true;
+
+				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
+				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
+                                      nPK_Device_TopMost, sPK_Room.c_str());
+				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
+				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
+			}
+		}
+		break;
+
 		case DESIGNOBJ_TVProvider_CONST:
 		{
 			if(DESIGNOBJ_butTVBoxManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
@@ -2089,3 +2090,12 @@ bool OSDScreenHandler::PlayBackControlSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
 	return false;
 }
+
+void OSDScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
+{
+	if( m_bWizardIsRunning && sDescription=="new_device_reload" )
+		return;  // Don't display these messages during the wizard
+
+	ScreenHandler::SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
+}
+

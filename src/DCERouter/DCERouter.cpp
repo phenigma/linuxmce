@@ -806,6 +806,12 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
 			MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
 
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"DCERouter calling message interceptor for msg type %d id %d, device %d",
+				(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID,(pPlugIn ? pPlugIn->m_dwPK_Device : pMessageInterceptorCallBack->m_dwPK_Device));
+#endif
+
+
 			if( pMessageInterceptorFn )  // It's a plug-in
 				CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
 			else

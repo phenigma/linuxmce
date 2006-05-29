@@ -147,6 +147,7 @@ void PnpQueue::NewEntry(PnpQueueEntry *pPnpQueueEntry)
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
 		if( pPnpQueueEntry2->IsDuplicate(pPnpQueueEntry) )
 		{
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::NewEntry ignoring %d, it's a duplicate of %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get());
 			pPnpQueueEntry->m_pRow_PnpQueue->Processed_set(1);
 			m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 			delete pPnpQueueEntry;
@@ -154,6 +155,7 @@ void PnpQueue::NewEntry(PnpQueueEntry *pPnpQueueEntry)
 		}
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::NewEntry adding %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_mapPnpQueueEntry[pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()]=pPnpQueueEntry;
 	pnp.Release();
 	pthread_cond_broadcast( &m_pPlug_And_Play_Plugin->m_PnpCond );
