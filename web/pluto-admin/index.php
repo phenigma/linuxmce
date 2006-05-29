@@ -1417,6 +1417,12 @@ switch ($section) {
 	    include_once('operations/others/keyboardLayout.php');
 	    keyboardLayout($output,$dbADO);	    
 	break;	
+	case 'setTimezone':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/users_settings/setTimezone.php');
+	    setTimezone($output,$dbADO);	    
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

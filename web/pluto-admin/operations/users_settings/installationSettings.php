@@ -9,38 +9,10 @@ function installationSettings($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
-	$countriesFileArray=file('/usr/share/zoneinfo/iso3166.tab');
-	$zonesFileArray=file('/usr/share/zoneinfo/zone.tab');
-	$continentsArray=array('Africa', 'America', 'Antarctica', 'Arctic [Ocean]', 'Asia', 'Atlantic [Ocean]', 'Australia', 'Europe', 'Indian [Ocean]', 'Pacific [Ocean]');
-	$currentTimeZone=trim(implode('',file('/etc/timezone')));
+	$currentTimeZone=str_replace('/usr/share/zoneinfo/','',exec('readlink /etc/localtime'));
 	$ripFormats=array('mp3'=>'mp3','ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
 	
-	$countriesArray=array();
-	foreach ($countriesFileArray AS $line){
-		if($line[0]!='#'){
-			$parts=explode("\t",$line);
-			$countriesArray[$parts[0]]=trim($parts[1]);
-		}
-	}
-	
-	$zonesArray=array();
-	foreach ($zonesFileArray AS $line){
-		if($line[0]!='#'){
-			$parts=explode("\t",$line);
-			$tz=explode('/',$parts[2]);
-			$zonesArray[$tz[0]][$countriesArray[$parts[0]]][]=array($parts[2],@$parts[3]);
-			if(trim($parts[2])==$currentTimeZone){
-				$selContinent=$tz[0];
-				$selCountry=$countriesArray[$parts[0]];
-				$oldTimeZone=array($currentTimeZone,(isset($parts[3])?$parts[3]:$currentTimeZone));
-			}
-		}
-	}
-	
-	$selContinent=(isset($_POST['continent']))?$_POST['continent']:@$selContinent;	
-	$selCountry=(isset($_POST['country']))?$_POST['country']:@$selCountry;
-	
-	
+
 	$installationID = cleanInteger($_SESSION['installationID']);
 	$dceRouterID=getDeviceFromDT($installationID,$GLOBALS['rootDCERouter'],$dbADO);
 
@@ -97,6 +69,10 @@ function installationSettings($output,$dbADO) {
 			document.getElementById("flac_opt").style.display=show_flac;
 			document.getElementById("wav_opt").style.display=show_wav;
 		}
+		
+		function windowOpen(locationA,attributes) {
+			window.open(locationA,\'\',attributes);
+		}		
 		</script>
 		
 		
@@ -177,109 +153,16 @@ function installationSettings($output,$dbADO) {
 					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
 				</tr>
 				<tr>
-					<td colspan="2">
-					<table cellpadding="3" align="left" width="100%">';
-			if(isset($oldTimeZone)){
+					<td colspan="2" align="center" class="tablehead">Current timezone</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center" class="normal_row"><B>'.$currentTimeZone.'</B> <input type="button" class="button" name="setTimezone" value="'.$TEXT_SET_TIMEZONE_CONST.'" onclick="windowOpen(\'index.php?section=setTimezone\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"></td>
+				</tr>
 				
-				$out.='
-				<tr>
-					<td colspan="2" align="center" class="tablehead">Current timezone <B>'.$oldTimeZone[1].'</B></td>
-				</tr>
-				<input type="hidden" name="oldTimeZone" value="'.$oldTimeZone[0].'">
 				';
-			}else{
-				$out.='
-				<tr>
-					<td colspan="2" align="center" class="tablehead"><B>Timezone</B></td>
-				</tr>
-				';			
-			}		
-		$out.='
-			<tr>
-				<td><B>'.$TEXT_CONTINENT_CONST.'</B></td>
-				<td><select name="continent" onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();">
-					<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
-
-		foreach ($continentsArray AS $continent){
-			$cleanContinent=preg_replace('/ \[(\w+)\]/','',$continent);
-			$out.='<option value="'.$cleanContinent.'" '.(($cleanContinent==$selContinent)?'selected':'').'>'.$continent.'</option>';
-		}
-		$out.='
-				</select></td>
-			</tr>';
-		if($selContinent!=''){
-			$out.='
-			<tr>
-				<td><B>'.$TEXT_COUNTRY_CONST.'</B></td>
-				<td>';
-			if(count(array_keys($zonesArray[$selContinent]))==1){
-				$tmpArray=array_keys($zonesArray[$selContinent]);
-				$out.=$tmpArray[0];
-				$singleCountry=1;
-				$selCountry=$tmpArray[0];
-			}else{
-				$out.='
-				<select name="country" onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();">
-					<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
-				foreach (array_keys($zonesArray[$selContinent]) AS $country){
-					$out.='<option value="'.$country.'" '.(($country==@$selCountry)?'selected':'').'>'.$country.'</option>';
-				}
-				$out.='
-					</select>';
-			}
-			$out.='
-				</td>
-			</tr>';
-			if($selCountry!='' && isset($zonesArray[$selContinent][$selCountry])){
-				$out.='
-				<tr>
-					<td><B>'.$TEXT_ZONE_CONST.'</B></td>
-					<td>';
-				if(count($zonesArray[$selContinent][$selCountry])==1){
-					$tmpArray=$zonesArray[$selContinent][$selCountry][0];
-					$timeZoneLabel=((@$tmpArray[1]!='')?$tmpArray[1]:$tmpArray[0]);
-					$out.=$timeZoneLabel;
-					$timeZone=array($tmpArray[0],$timeZoneLabel);
-				}else{
-					$out.='
-						<select name="zone" onChange="document.installationSettings.timeZoneText.value=escape(document.installationSettings.zone[document.installationSettings.zone.selectedIndex].text);document.installationSettings.action.value=\'form\';document.installationSettings.submit();">
-							<option value="">- Please select -</option>';
-					$orderedZonesArray=$zonesArray[$selContinent][$selCountry];
-					asort($orderedZonesArray);
-					foreach ($orderedZonesArray AS $zone){
-						$out.='<option value="'.$zone[0].'" '.(($zone[0]==@$_POST['zone'])?'selected':'').'>'.str_replace($selContinent.'/','',$zone[0]).' - '.(($zone[1]!='')?$zone[1]:$zone[0]).'</option>';
-					}
-					$out.='
-						</select>';
-				}
-				$out.='	
-					</td>
-				</tr>';
-			}
-			if(isset($_POST['zone']) && $_POST['zone']!=''){
-				$timeZone=array($_POST['zone'],urldecode($_POST['timeZoneText']));
-			} 
-			if(isset($timeZone)){
-				
-				$out.='
-				<tr>
-					<td colspan="2" align="center">'.$TEXT_TIMEZONE_SELECTED_CONST.': <B>'.$timeZone[1].'</B></td>
-				</tr>
-				<tr>
-					<td align="center"><B>'.$TEXT_DEFAULT_LANGUAGE_CONST.'</B></td>
-					<td>'.generatePullDown('newLanguage','Language','PK_Language','Description',$defLanguage,$dbADO).'</td>
-				</tr>				
-				<input type="hidden" name="newTimeZone" value="'.$timeZone[0].'">
-				';
-			}
 			
-		}
 		$pulldownValue=(strpos($selectedRipFormat,';')!==false)?substr($selectedRipFormat,0,strpos($selectedRipFormat,';')):$selectedRipFormat;
 		$out.='
-					</table>
-		
-					</td>
-				</tr>
 				<tr>
 					<td colspan="2" align="center" class="tablehead"><B>'.$TEXT_MISCELANEOUS_CONST.'</B>:</td>
 				</tr>

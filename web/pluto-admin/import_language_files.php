@@ -39,7 +39,7 @@ foreach ($retArr AS $line){
 			$dbADO->Execute('UPDATE Text_LS SET Description=? WHERE FK_Text=? AND FK_Language=?',array($value,$plutoAdminFilenames[$variable],1));
 		}else{
 			//echo $variable.' '.$plutoAdminFilenames[$variable].'<br>';
-			$dbADO->Execute('INSERT INTO Text_LS (FK_Text,FK_Language,Description) VALUES (?,?,?)',array($plutoAdminFilenames[$variable],1,$value));		
+			$dbADO->Execute('INSERT IGNORE INTO Text_LS (FK_Text,FK_Language,Description) VALUES (?,?,?)',array($plutoAdminFilenames[$variable],1,$value));		
 		}
 	}else{
 		echo $line.'<br>';

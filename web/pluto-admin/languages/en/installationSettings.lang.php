@@ -24,4 +24,6 @@ $TEXT_BIT_RATE_CONST='Bit rate';
 $TEXT_QUALITY_CONST='Quality';
 $TEXT_NO_OPTIONS_AVAILABLE_CONST='No options available.';
 $TEXT_ERROR_IMPORT_FAILED_CONST='ERROR: database import failed.';
+$TEXT_SET_TIMEZONE_CONST='Set timezone';
+$TEXT_TIMEZONE_UPDATED_CONST='Timezone updated';
 ?>
