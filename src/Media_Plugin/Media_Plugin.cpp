@@ -2915,7 +2915,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		case RIP_RESULT_INVALID_DISC_TYPE:	sMessage = "Can't rip the disk that is in the unit at this moment (unknown format)!";	break;
 		case RIP_RESULT_FAILURE:			
 			if( pRippingJob->m_bAborted )	sMessage = "Ripping canceled";
-			else							sMessage = "Unspecified error while ripping the disk."; break;
+			else							sMessage = "While ripping the disk, pluto encountered a disk read problem. Please check if the disc is not scratched."; break;
 		case RIP_RESULT_SUCCESS:			sMessage = "The disk was ripped succesfully.";	break;
 		case RIP_RESULT_BEGIN_ENUM:
 		case RIP_RESULT_END_ENUM:

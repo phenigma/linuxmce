@@ -3,6 +3,11 @@
 
 #include "PlutoUtils/MySQLHelper.h"
 
+namespace DCE
+{
+	class Command_Impl;
+};
+
 class UserUtils
 {
 
@@ -18,7 +23,7 @@ public:
 	bool AlreadyHasMasterUsers();
 	string GetGoodExtension(map<int,bool> &mapUsedExtensions) ;
 	void CheckExtensions();
-	int AddUser(string sUsername,Command_Impl *pCommand_Impl);
+	int AddUser(string sUsername,DCE::Command_Impl *pCommand_Impl=NULL);
 	void RemoveUser(int PK_Users);
 };
 
