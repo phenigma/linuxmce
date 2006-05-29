@@ -30,9 +30,6 @@ PrevVer="$2"
 if [[ -n "$PrevVer" ]]; then
 	echo "Upgrading from version '$PrevVer'. Not setting up X again"
 else
-	echo "Configuring X"
-	/usr/pluto/bin/Xconfigure.sh --defaults
-
 	# only on standalone MDs, not hybrids
 	if ! PackageIsInstalled pluto-dcerouter; then
 		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
