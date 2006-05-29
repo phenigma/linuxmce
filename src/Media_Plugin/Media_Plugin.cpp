@@ -768,6 +768,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			{
 				(*p_dequeMediaFile)[0]->m_sPath = "dvd:/" + (*p_dequeMediaFile)[0]->m_sPath;
 				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
+			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",
 					(int) vectEntertainArea.size(),Extension.c_str());

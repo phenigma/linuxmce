@@ -1073,8 +1073,6 @@ loop_to_keep_looking_for_objs_to_include:
 				else
 					pRow_DesignObj = oco->m_pRow_DesignObj;
 			}
-if( pRow_DesignObj->PK_DesignObj_get()==4560 )
-int k=2;
 			if( pRow_DesignObj!=NULL)
 			{
 				vector<Row_DesignObj *> vectros;
