@@ -442,8 +442,19 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
     {
         if (bShow)
         {
+            // We want to get MapNotify events
+            XSelectInput(GetDisplay(), window, StructureNotifyMask);
+            // show here
             code = XMapWindow(GetDisplay(), window);
             _COND_XERROR_LOG_BREAK(code);
+            // Wait for the MapNotify event
+            for(;;)
+            {
+                XEvent xevent;
+                XNextEvent(GetDisplay(), &xevent);
+                if (xevent.type == MapNotify)
+                    break;
+            }
         }
         else
         {
@@ -748,6 +759,41 @@ bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY)
     return IsReturnCodeOk(code);
 }
 
+bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY)
+{
+    _LOG_NFO("pos==(%d, %d)", nPosX, nPosY);
+    Window window = Window_GetRoot();
+    int code = -1;
+    X11_Locker x11_locker(v_pDisplay);
+    do
+    {
+        Window root_return;
+        Window child_return;
+        int root_x_return;
+        int root_y_return;
+        int win_x_return;
+        int win_y_return;
+        unsigned int mask_return;
+        code = XQueryPointer(
+            v_pDisplay,
+            window,
+            &root_return,
+            &child_return,
+            &root_x_return,
+            &root_y_return,
+            &win_x_return,
+            &win_y_return,
+            &mask_return
+            );
+        _COND_XERROR_LOG_BREAK(code);
+        _LOG_NFO(
+            "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
+            root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
+            );
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
 bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window window_grab/*=None*/)
 {
     if (window_grab == None)
@@ -778,6 +824,7 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
             _LOG_XERROR_BREAK("window is already created");
         if (window > 0)
         {
+            _LOG_NFO("closing previous window");
             if (! Window_Destroy(window))
                 _LOG_XERROR_BREAK("cannot destroy window %d", window);
         }
@@ -788,11 +835,14 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
             _LOG_XERROR_BREAK("cannot set window class");
         if (! Window_Name(window, "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window name");
-        if (! Mouse_Grab(window_grab, window))
-            _LOG_XERROR_BREAK("cannot grab pointer to window %d", window);
         if (! Window_Lower(window))
-        {
             _LOG_WRN("cannot lower window");
+        if (! Mouse_Grab(window_grab, window))
+        {
+            _LOG_ERR("cannot grab pointer, closing window %d", window);
+            Window_Destroy(window);
+            window = 0;
+            break;
         }
         // done
         code = 0;
@@ -818,17 +868,16 @@ bool X11wrapper::Mouse_Constrain_Release()
         {
             _LOG_WRN("constrain not active");
             code = 0;
-            window = 0;
             break;
         }
-        v_bIsActive_Mouse_Constrain = false;
         if (! Mouse_Ungrab())
-            _LOG_XERROR_BREAK("Mouse_Ungrab");
+            _LOG_WRN("Mouse_Ungrab");
         if (! Window_Destroy(window))
-            _LOG_XERROR_BREAK("Window_Destroy");
+            _LOG_WRN("Window_Destroy");
         // done
         code = 0;
         window = 0;
+        v_bIsActive_Mouse_Constrain = false;
     } while (0);
     // not deleting the previous info
     return IsReturnCodeOk(code);

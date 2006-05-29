@@ -232,6 +232,7 @@ void wxDialog_Pointer::OnButtonMouseConstrainClick( wxCommandEvent& event )
     {
         v_pX11->Mouse_Constrain_ReactivateIfActive();
     }
+    //v_pX11->Mouse_SetPosition(500, 500);
 }
 
 /*!
