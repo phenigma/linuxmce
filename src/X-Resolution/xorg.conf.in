@@ -73,6 +73,7 @@ Section "Device"
 	Option		"NoDDC"				"true"
 	Option		"UseEDID"			"false"
 	Option		"ExactModeTimingsDVI"	"true"
+	Option		"NoLogo"			"true"
 EndSection
 
 Section "Screen"
