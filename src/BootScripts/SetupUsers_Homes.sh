@@ -44,6 +44,9 @@ UserList=
 for Users in $R; do
 	PlutoUserID=$(Field 1 "$Users")
 	UserName=$(Field 2 "$Users" | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
+	if [[ -z "$UserName" ]]; then
+		continue
+	fi
 	LinuxPassword=$(Field 3 "$Users")
 	SambaPassword=$(Field 4 "$Users")
 
