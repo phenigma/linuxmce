@@ -28,5 +28,4 @@ sed -i '\,/usr/pluto/bin/Update_Packages\.sh, d' /etc/crontab
 chmod 777 /usr/pluto/locks
 
 Version=$(dpkg -s pluto-boot-scripts | grep Version: | sed  's/Version: //')
-Version=${Version%*.*}
 ConfSet "PlutoVersion" "$Version"
