@@ -283,14 +283,9 @@ clear
 
 		for files in $(ls /cdrom/bonuscd1); do
 		pkgname=$(echo $files | awk -F '_' '{print $1}')
-		pkginstalled=$(dpkg -l $pkgname 1>/dev/null 2>/dev/null)
-		        if [[ -n "$pkginstalled" ]]; then
-		                echo "Package $files is allready installed ... skipping ..."
-		        else
-                		echo "Installing package name : $files"
-		                cd /cdrom/bonuscd1
-                		dpkg -i $files 1>/dev/null
-		        fi
+               	echo "Installing package name : $files"
+		cd /cdrom/bonuscd1
+                dpkg -i $files 1>/dev/null
 		done
 
 		cd /cdrom/bonuscd1-cache
