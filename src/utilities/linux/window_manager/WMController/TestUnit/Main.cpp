@@ -77,22 +77,24 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if(sVerbose == "1" || sVerbose == "0")
+    WMControllerImpl *pWMController = new WMControllerImpl();
+
+    if(sVerbose == "1" || sVerbose == "0")
 	{
-		WMController::Instance().SetVerbose(sVerbose == "1");
+		pWMController->SetVerbose(sVerbose == "1");
 	}
 
 	if(bListWindows)
     {
         list<WinInfo> dummy;
-		WMController::Instance().ListWindows(dummy);
+		pWMController->ListWindows(dummy);
     }
 
 	if(sWindowName != "")
 	{
 		if(bActivateWindow)
 		{
-			WMController::Instance().ActivateWindow(sWindowName);
+			pWMController->ActivateWindow(sWindowName);
 		}
 
 		if(sPosition != "")
@@ -101,7 +103,7 @@ int main(int argc, char *argv[])
 			Tokenize(sPosition, ",", vectItems);
 			if(vectItems.size() == 4)
 			{
-				WMController::Instance().SetPosition(sWindowName, atoi(vectItems[0].c_str()),
+				pWMController->SetPosition(sWindowName, atoi(vectItems[0].c_str()),
 					atoi(vectItems[1].c_str()), atoi(vectItems[2].c_str()), atoi(vectItems[3].c_str()));
 			}
 			else
@@ -110,22 +112,22 @@ int main(int argc, char *argv[])
 
 		if(sVisible == "1" || sVisible == "0")
 		{
-			WMController::Instance().SetVisible(sWindowName, sVisible == "1");
+			pWMController->SetVisible(sWindowName, sVisible == "1");
 		}
 
 		if(sMaximized == "1" || sMaximized == "0")
 		{
-			WMController::Instance().SetMaximized(sWindowName, sMaximized == "1");
+			pWMController->SetMaximized(sWindowName, sMaximized == "1");
 		}
 
 		if(sFullScreen == "1" || sFullScreen == "0")
 		{
-			WMController::Instance().SetFullScreen(sWindowName, sFullScreen == "1");
+			pWMController->SetFullScreen(sWindowName, sFullScreen == "1");
 		}
 
 		if(sLayer != "")
 		{
-			WMController::Instance().SetLayer(
+			pWMController->SetLayer(
                 sWindowName,
                 ( sLayer == "above" || sLayer == "a" ) ? LayerAbove :
                 ( sLayer == "below" || sLayer == "b" ) ? LayerBelow :
@@ -134,6 +136,8 @@ int main(int argc, char *argv[])
                 );
 		}
 	}
+    delete pWMController;
+    pWMController = NULL;
 
 	return 0;
 }

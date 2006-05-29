@@ -8,6 +8,7 @@ LDLIBS= -lSM -lICE -lX11 -lXmu  -lglib-2.0
 sources = \
 	../wmctrl.cpp \
 	../WMController.cpp \
+	../../../wrapper/wrapper_x11.cpp \
 	Main.cpp 
 
 all: $(sources:.cpp=.o)

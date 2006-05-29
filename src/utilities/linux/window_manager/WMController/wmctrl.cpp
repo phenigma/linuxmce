@@ -35,7 +35,7 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #define p_verbose(...) \
 { \
-	if(WMController::Instance().VerboseEnabled()) \
+	if(WMControllerImpl::VerboseEnabled()) \
 		fprintf(stdout, __VA_ARGS__); \
 }
 
