@@ -23,8 +23,13 @@ MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
 
 MouseBehavior_Linux::~MouseBehavior_Linux()
 {
-    if (ptrOrbiterLinux()->m_pX11->Mouse_IsConstrainActive())
-        ptrOrbiterLinux()->m_pX11->Mouse_Constrain_Release();
+    OrbiterLinux *pOrbiterLinux = ptrOrbiterLinux();
+    // ptr should not be null
+    // if it is, then this class was destroyed in the wrong place
+    // now fixed, but leave the check anyway, only here
+    if (pOrbiterLinux)
+        if (pOrbiterLinux->m_pX11->Mouse_IsConstrainActive())
+            pOrbiterLinux->m_pX11->Mouse_Constrain_Release();
 }
 
 OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()

@@ -81,6 +81,16 @@ public:
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
 
+    /**
+     * @brief initialize other classes, after the video mode was changed
+     */
+    virtual void InitializeAfterSetVideoMode() {};
+
+    /**
+     * @brief initialize other classes, after WaitForRelativesIfOSD
+     */
+    virtual void InitializeAfterRelatives() {};
+
 	/**
 	 *	Override the event of hilight area
 	 */
@@ -116,7 +126,7 @@ public:
 	bool m_bFullScreen;
 
 protected:
-	pthread_t SDLGLthread;
+    pthread_t SDLGLthread;
 };
 
 }

@@ -330,6 +330,7 @@ OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,
 			pCLinux->CreateChildren();
 			pCLinux->WaitForRelativesIfOSD();
 		}
+        pCLinux->InitializeAfterRelatives();
 
 		//pCLinux->Initialize_Display();
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");

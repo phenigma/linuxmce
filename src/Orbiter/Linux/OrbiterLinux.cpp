@@ -125,7 +125,7 @@ OrbiterLinux::~OrbiterLinux()
 
     KillMaintThread();
 
-    X11_Exit();
+    Destroy();
 }
 
 void OrbiterLinux::HideOtherWindows()
@@ -201,8 +201,7 @@ bool OrbiterLinux::X11_Init()
     bool bResult = SDL_GetWMInfo(&info);
     if (bResult == false)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
-        return false;
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
     }
     // save the SDL display
     m_pDisplay_SDL = info.info.x11.display;
@@ -352,8 +351,6 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     m_pRecordHandler->enableRecording(this, true);
 
     reinitGraphics();
-    GrabPointer(true);
-    GrabKeyboard(true);
 
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
 }
@@ -365,6 +362,28 @@ void OrbiterLinux::InitializeAfterSetVideoMode()
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : HideOtherWindows");
 	HideOtherWindows();
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : done");
+}
+
+void OrbiterLinux::InitializeAfterRelatives()
+{
+    // allow initial "extern" dialogs to receive clicks until this point
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives()");
+    GrabPointer(true);
+    GrabKeyboard(true);
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives() : done");
+}
+
+void OrbiterLinux::Destroy()
+{
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy()");
+    // crash fix
+    if (m_pMouseBehavior)
+    {
+        delete m_pMouseBehavior;
+        m_pMouseBehavior = NULL;
+    }
+    X11_Exit();
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
 void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )

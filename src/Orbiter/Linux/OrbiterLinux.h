@@ -96,8 +96,13 @@ public:
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
     virtual void InitializeAfterSetVideoMode();
+    virtual void InitializeAfterRelatives();
 
-	virtual bool PreprocessEvent( Orbiter::Event &event );
+    // called by the destructor
+    // can be called from outside
+    virtual void Destroy();
+
+    virtual bool PreprocessEvent( Orbiter::Event &event );
 
     virtual Display * GetDisplay(); // use this
     virtual Window GetMainWindow(); // use this
