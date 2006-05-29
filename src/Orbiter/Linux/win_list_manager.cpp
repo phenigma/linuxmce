@@ -4,20 +4,28 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 
-WinListManager::WinListManager(const string &sSdlWindowName)
+WinListManager::WinListManager(WMControllerImpl *pWMController, const string &sSdlWindowName)
         : m_WindowsMutex("Windows List Mutex")
+        , m_pWMController(pWMController)
         , m_sSdlWindowName(sSdlWindowName)
 {
     pthread_mutexattr_init( &m_WindowsMutexAttr );
     pthread_mutexattr_settype( &m_WindowsMutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
     m_WindowsMutex.Init(&m_WindowsMutexAttr);
-};
+}
 
 WinListManager::~WinListManager()
 {
     pthread_mutex_destroy(&m_WindowsMutex.mutex);
     pthread_mutexattr_destroy(&m_WindowsMutexAttr);
-};
+}
+
+void WinListManager::ActivateSdlWindow()
+{
+    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ActivateSdlWindow()");
+    m_pWMController->ActivateWindow(m_sSdlWindowName);
+}
 
 void WinListManager::ShowSdlWindow(bool bExclusive)
 {
@@ -29,10 +37,12 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     }
     // when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
-    WMController::Instance().SetVisible(m_sSdlWindowName, true);
-    WMController::Instance().SetMaximized(m_sSdlWindowName, true);
-    WMController::Instance().SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
-    WMController::Instance().SetFullScreen(m_sSdlWindowName, bExclusive);
+    m_pWMController->SetVisible(m_sSdlWindowName, true);
+    m_pWMController->SetMaximized(m_sSdlWindowName, true);
+    m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
+    if (bExclusive)
+        ActivateSdlWindow();
+    m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
     return;
 }
 
@@ -40,7 +50,7 @@ void WinListManager::ShowWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ShowWindow(%s)", sWindowName.c_str());
-    WMController::Instance().SetVisible(sWindowName, true);
+    m_pWMController->SetVisible(sWindowName, true);
     m_listVisibleWindows.push_back(sWindowName);
 }
 
@@ -48,8 +58,8 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
-	//WMController::Instance().SetVisible(sWindowName, false);
-	WMController::Instance().SetFullScreen(sWindowName, true);
+	//m_pWMController->SetVisible(sWindowName, false);
+	m_pWMController->SetFullScreen(sWindowName, true);
     ShowWindow(sWindowName);
 }
 
@@ -57,12 +67,12 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
-    //WMController::Instance().SetVisible(sWindowName, false);
-    WMController::Instance().SetFullScreen(sWindowName, false);
-	WMController::Instance().SetMaximized(sWindowName, false);
-    WMController::Instance().SetPosition(sWindowName, x, y, w, h);
+    //m_pWMController->SetVisible(sWindowName, false);
+    m_pWMController->SetFullScreen(sWindowName, false);
+	m_pWMController->SetMaximized(sWindowName, false);
+    m_pWMController->SetPosition(sWindowName, x, y, w, h);
     ShowWindow(sWindowName);
-    g_pPlutoLogger->Write(LV_WARNING, "Done WinListManager::PositionWindow(%s)", sWindowName.c_str());
+    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s) : done", sWindowName.c_str());
 }
 
 void WinListManager::HideAllWindows()
@@ -71,7 +81,7 @@ void WinListManager::HideAllWindows()
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::HideAllWindows()");
     for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
     {
-        WMController::Instance().SetVisible(*it, false);
+        m_pWMController->SetVisible(*it, false);
     }
     m_listVisibleWindows.clear();
 }
@@ -112,7 +122,7 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     list<WinInfo> listWinInfo;
-    if (! WMController::Instance().ListWindows(listWinInfo))
+    if (! m_pWMController->ListWindows(listWinInfo))
         return false;
     for (list<WinInfo>::iterator it = listWinInfo.begin(); it !=  listWinInfo.end(); ++it)
     {
@@ -126,12 +136,11 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 bool WinListManager::HideWindow(const string &sClassName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	WMController::Instance().SetVisible(sClassName, false);	
+	m_pWMController->SetVisible(sClassName, false);
 }
 
 void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	WMController::Instance().ListWindows(listWinInfo);
+	m_pWMController->ListWindows(listWinInfo);
 }
-

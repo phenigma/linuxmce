@@ -5482,10 +5482,13 @@ void *MaintThread(void *p)
 		if(pOrbiter->m_mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
+            g_pPlutoLogger->Write(LV_CRITICAL, "MaintThread(%p) : before cm.CondWait()", p);
 			cm.CondWait(); // This will unlock the mutex and lock it on awakening
+            g_pPlutoLogger->Write(LV_CRITICAL, "MaintThread(%p) : after  cm.CondWait()", p);
 		}
 		else
 		{
+            g_pPlutoLogger->Write(LV_CRITICAL, "MaintThread(%p) : processing callback", p);
 			// We've got stuff to check out
 			PendingCallBackInfo *pCallBackInfoGood = NULL;
 			timespec ts_NextCallBack,ts_now;

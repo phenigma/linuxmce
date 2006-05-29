@@ -9,6 +9,7 @@
 #include "XRecordExtensionHandler.h"
 
 #include "win_list_manager.h"
+#include "utilities/linux/wrapper/wrapper_x11.h"
 
 // should be deleted
 #include "XProgressWnd.h"
@@ -29,15 +30,13 @@ private:
     string m_strWindowName;
     string m_strDisplayName;
 
-    Display *XServerDisplay;
-
     bool findWindowByName();
 
     Window searchChildsWindowByName(Window current);
     string getWindowName(Window name);
 
-    bool openDisplay();
-    bool closeDisplay();
+    bool X11_Init();
+    bool X11_Exit();
 
     int m_nDesktopWidth;
     int m_nDesktopHeight;
@@ -60,12 +59,15 @@ protected:
 
     virtual void setInputFocusToMe(void *);
 
-    WinListManager m_WinListManager;
-
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
 
 	keyboardState m_keyboardState;
+
+    // grabbed once for info only
+    // do not use this
+    Display *m_pDisplay_SDL;
+
 public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,
@@ -75,24 +77,31 @@ public:
 
     virtual ~OrbiterLinux();
 
+    WinListManager *m_pWinListManager;
+    WMControllerImpl *m_pWMController;
+    X11wrapper *m_pX11;
+
 	/**
 	 * @brief Sets up the class right after the constructor is called
 	 */
 	//virtual bool GetConfig();
 
 	void HideOtherWindows();
-		
-	void setWindowName(string strDesktopWindowName);
+
+    void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);
 
     // overriden to handle the desktop window hiding
     virtual void RenderScreen( bool bRenderGraphicsOnly );
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
+    virtual void InitializeAfterSetVideoMode();
 
 	virtual bool PreprocessEvent( Orbiter::Event &event );
-    virtual Display *getDisplay();
-	virtual Window getWindow();
+
+    virtual Display * GetDisplay(); // use this
+    virtual Window GetMainWindow(); // use this
+    virtual Display * GetDisplay_MainWindow(); // do not use
 
 	// overridden to handle turning on and off the mouse pointer
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
@@ -122,7 +131,6 @@ public:
         }
 
     OrbiterSDL * OrbiterLinux::ptrOrbiterSDL();
-
 };
 
 #endif // __ORBITERLINUX_H__

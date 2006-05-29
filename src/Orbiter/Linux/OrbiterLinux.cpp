@@ -56,13 +56,6 @@
 
 using namespace std;
 
-// new calls to X(Un)LockDisplay activated by default
-//
-// to deactivate new calls to X(Un)LockDisplay
-// copy this in LaunchOrbiter.sh
-// export PLUTO_DISABLE_X11LOCK=
-bool g_useX11LOCK = (! getenv("PLUTO_DISABLE_X11LOCK"));
-
 OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            string ServerAddress, string sLocalDirectory,
                            bool bLocalMode,
@@ -80,25 +73,23 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
           m_strDisplayName(getenv("DISPLAY")),
 
           // initializations
-          XServerDisplay(NULL),
           m_pProgressWnd(NULL),
           m_pWaitGrid(NULL),
           m_bButtonPressed_WaitGrid(false),
           m_pWaitList(NULL),
           m_bButtonPressed_WaitList(false),
           m_pWaitUser(NULL),
-          m_WinListManager(m_strWindowName),
+          m_pWinListManager(NULL),
           m_bOrbiterReady(false),
-          m_bIsExclusiveMode(true)
+          m_bIsExclusiveMode(true),
+          m_pRecordHandler(NULL),
+          m_pWMController(NULL),
+          m_pX11(NULL),
+          m_pDisplay_SDL(NULL)
 
 {
-    openDisplay();
-    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
-
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
-
-	HideOtherWindows();
 }
 
 void *HackThread(void *p)
@@ -134,9 +125,7 @@ OrbiterLinux::~OrbiterLinux()
 
     KillMaintThread();
 
-    delete m_pRecordHandler;
-
-    closeDisplay();
+    X11_Exit();
 }
 
 void OrbiterLinux::HideOtherWindows()
@@ -144,7 +133,7 @@ void OrbiterLinux::HideOtherWindows()
 	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
 
 	list<WinInfo> listWinInfo;
-	m_WinListManager.GetWindows(listWinInfo);
+	m_pWinListManager->GetWindows(listWinInfo);
 
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
 	{
@@ -161,7 +150,7 @@ void OrbiterLinux::HideOtherWindows()
 		if(sClassName != "" && string::npos == sClassName.find("Orbiter"))
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows, hidding %s", sClassName.c_str());
-			m_WinListManager.HideWindow(sClassName);
+			m_pWinListManager->HideWindow(sClassName);
 		}
 	}
 }
@@ -169,10 +158,8 @@ void OrbiterLinux::HideOtherWindows()
 void OrbiterLinux::reinitGraphics()
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
-    if ( ! XServerDisplay && ! openDisplay() )
-        return;
 
-    m_WinListManager.ShowSdlWindow(false);
+    m_pWinListManager->ShowSdlWindow(false);
 
     OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
     CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL );
@@ -193,101 +180,86 @@ void OrbiterLinux::setDisplayName(string strDisplayName)
     m_strDisplayName = strDisplayName;
 }
 
-bool OrbiterLinux::openDisplay()
+bool OrbiterLinux::X11_Init()
 {
-    XServerDisplay = XOpenDisplay(m_strDisplayName.c_str());
-
-    int currentScreen;
-
-    if ( XServerDisplay == NULL )
-        return false;
-
-    XLockDisplay(XServerDisplay);
-    currentScreen = XDefaultScreen(XServerDisplay);
-    m_nDesktopWidth = DisplayWidth(XServerDisplay, currentScreen);
-    m_nDesktopHeight = DisplayHeight(XServerDisplay, currentScreen);
-    XUnlockDisplay(XServerDisplay);
-    return true;
-}
-
-bool OrbiterLinux::closeDisplay()
-{
-    if ( XServerDisplay )
-        XCloseDisplay(XServerDisplay);
-
-    XServerDisplay = NULL;
-
-    return true;
-}
-
-// we need to use the same Display and Window with SDL
-bool Get_SDL_SysWMinfo(SDL_SysWMinfo &info)
-{
+    if ((m_pX11 != NULL) && m_pX11->IsInitialized())
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init(): already initialized");
+        return true;
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init()");
+    OrbiterSDL *pOrbiterSDL = ptrOrbiterSDL();
+    if (pOrbiterSDL == NULL)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init() : NULL dynamic_cast<OrbiterSDL *>(%p)",
+                              this
+                              );
+    }
+    // we need to use the same Display and Window with SDL
+    SDL_SysWMinfo info;
     SDL_VERSION(&info.version); // this is important!
     bool bResult = SDL_GetWMInfo(&info);
     if (bResult == false)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Get_SDL_SysWMinfo() : error in SDL_GetWMInfo()");
+        g_pPlutoLogger->Write(LV_CRITICAL, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
         return false;
     }
+    // save the SDL display
+    m_pDisplay_SDL = info.info.x11.display;
+    // initialize the X11wrapper
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : X11wrapper");
+    m_pX11 = new X11wrapper();
+    m_pX11->Assign_MainWindow(info.info.x11.window);
+    m_pX11->Display_Open();
+    m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
+    // initialize other classes
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : WMController");
+    m_pWMController = new WMControllerImpl();
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : WinListManager");
+    m_pWinListManager = new WinListManager(m_pWMController, m_strWindowName);
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : XRecordExtensionHandler");
+    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
     return true;
 }
 
-Display *OrbiterLinux::getDisplay()
+bool OrbiterLinux::X11_Exit()
 {
-    if ( XServerDisplay )
-        return XServerDisplay;
-
-    OrbiterSDL *pOrbiterSDL = ptrOrbiterSDL();
-    if (pOrbiterSDL == NULL)
+    if (m_pX11 == NULL)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : NULL dynamic_cast<OrbiterSDL *>(%p)",
-                              this
-                              );
+        g_pPlutoLogger->Write(LV_CRITICAL, "OrbiterLinux::X11_Exit() : NULL pointer");
+        return false;
     }
-    else
-    {
-        SDL_SysWMinfo info;
-        if (Get_SDL_SysWMinfo(info))
-        {
-            XServerDisplay = info.info.x11.display;
-        }
-        else
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : error in SDL_GetWMInfo()");
-        }
-    }
-
-    if ( XServerDisplay == NULL )
-        openDisplay();
-    return XServerDisplay;
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
+    delete m_pRecordHandler;
+    m_pRecordHandler = NULL;
+    delete m_pWinListManager;
+    m_pWinListManager = NULL;
+    delete m_pWMController;
+    m_pWMController = NULL;
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
+    // display was opened by SDL, it should be closed by SDL
+    delete m_pX11;
+    m_pX11 = NULL;
+    m_pDisplay_SDL = NULL;
+    return true;
 }
 
-Window OrbiterLinux::getWindow()
+Display * OrbiterLinux::GetDisplay()
 {
-    Window window = 0;
+    //m_pX11 should be created by now
+    return m_pX11->GetDisplay();
+}
 
-    OrbiterSDL *pOrbiterSDL = ptrOrbiterSDL();
-    if (pOrbiterSDL == NULL)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getWindow() : NULL dynamic_cast<OrbiterSDL *>(%p)",
-                              this
-                              );
-    }
-    else
-    {
-        SDL_SysWMinfo info;
-        if (Get_SDL_SysWMinfo(info))
-        {
-            window = info.info.x11.window;
-        }
-        else
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::getDisplay() : error in SDL_GetWMInfo()");
-        }
-    }
+Window OrbiterLinux::GetMainWindow()
+{
+    //m_pX11 should be created by now
+    return m_pX11->GetMainWindow();
+}
 
-    return window;
+Display * OrbiterLinux::GetDisplay_MainWindow()
+{
+    return m_pDisplay_SDL;
 }
 
 OrbiterSDL * OrbiterLinux::ptrOrbiterSDL()
@@ -317,17 +289,17 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
                           pObj,
                           rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height
                           );
-    m_WinListManager.ShowSdlWindow(false);
+    m_pWinListManager->ShowSdlWindow(false);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
         //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());
         {
             // TODO : Set now playing is not sent in video wizard
             // we'll assume this is a xine for now
-            if (m_WinListManager.GetExternApplicationName() == "")
-                m_WinListManager.SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
+            if (m_pWinListManager->GetExternApplicationName() == "")
+                m_pWinListManager->SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
         }
-        m_WinListManager.SetExternApplicationPosition(rectTotal);
+        m_pWinListManager->SetExternApplicationPosition(rectTotal);
         ActivateExternalWindowAsync(NULL);
     }
 
@@ -337,25 +309,25 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 /*virtual*/ void OrbiterLinux::ActivateExternalWindowAsync(void *)
 {
-    string sWindowName = m_WinListManager.GetExternApplicationName();
+    string sWindowName = m_pWinListManager->GetExternApplicationName();
     PlutoRectangle rectTotal;
-    m_WinListManager.GetExternApplicationPosition(rectTotal);
+    m_pWinListManager->GetExternApplicationPosition(rectTotal);
 	g_pPlutoLogger->Write(LV_WARNING, "Is '%s' window available?", sWindowName.c_str());
-    bool bIsWindowAvailable = m_WinListManager.IsWindowAvailable(sWindowName);
+    bool bIsWindowAvailable = m_pWinListManager->IsWindowAvailable(sWindowName);
 	g_pPlutoLogger->Write(LV_WARNING, "==> %s", bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
     if (bIsWindowAvailable)
     {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
         {
             g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
-            m_WinListManager.MaximizeWindow(sWindowName);
+            m_pWinListManager->MaximizeWindow(sWindowName);
         }
         else
         {
             g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
             // HACK: stop activating xine or wxdialog several times per second
             // TODO: do the proper activating code for windows
-            m_WinListManager.PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+            m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
     }
     else
@@ -366,6 +338,8 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize()");
+
     OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
 
     //we know here the ui version!
@@ -378,9 +352,19 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     m_pRecordHandler->enableRecording(this, true);
 
     reinitGraphics();
-    g_pPlutoLogger->Write(LV_WARNING, "status of new calls to X(Un)LockDisplay : %d, env-variable PLUTO_DISABLE_X11LOCK %s", g_useX11LOCK, (! g_useX11LOCK) ? "exported" : "unset" );
     GrabPointer(true);
     GrabKeyboard(true);
+
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
+}
+
+void OrbiterLinux::InitializeAfterSetVideoMode()
+{
+    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode()");
+    X11_Init();
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : HideOtherWindows");
+	HideOtherWindows();
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : done");
 }
 
 void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
@@ -391,22 +375,17 @@ void OrbiterLinux::RenderScreen( bool bRenderGraphicsOnly )
 		return;
 	}
 
-    if ( XServerDisplay == NULL && ! openDisplay() )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't open the display: \"%s\"", m_strDisplayName.c_str());
-
-        return;
-    }
-
-    m_WinListManager.HideAllWindows();
+    m_pWinListManager->HideAllWindows();
 
     m_bIsExclusiveMode = true;
-    OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
+    {
+        X11_Locker lock(GetDisplay());
+        OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
+        XFlush(GetDisplay()); // TODO: test and remove this
+    }
 
     if(m_bOrbiterReady)
-        m_WinListManager.ShowSdlWindow(m_bIsExclusiveMode);
-
-    XFlush(XServerDisplay);
+        m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode);
 }
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
@@ -419,7 +398,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     char   buf[1];
 
     kevent.type = KeyPress;
-    kevent.display = getDisplay();
+    kevent.display = GetDisplay();
     kevent.state = 0;
     kevent.keycode = event.data.button.m_iPK_Button;;
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
@@ -609,9 +588,10 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	if( sOnOff!="X" )
 		return;
-    Display *dpy = getDisplay();
+    Display *dpy = GetDisplay();
     Window win = DefaultRootWindow (dpy);
 
+    // TODO: clean this code
     SDL_SysWMinfo sdlinfo;
     SDL_VERSION(&sdlinfo.version);
     int r2=SDL_GetWMInfo(&sdlinfo);
@@ -627,15 +607,11 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
     Cursor cursor;
 
     /* make a blank cursor */
-    X_LockDisplay();
+    X11_Locker lock(GetDisplay());
     blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
     if(blank == None) fprintf(stderr, "error: out of memory.\n");
     cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
     XFreePixmap (dpy, blank);
-    X_UnlockDisplay();
-
-    //GrabPointer();
-    //GrabKeyboard();
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -646,7 +622,7 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
-	m_WinListManager.SetExternApplicationName(sWindowName);
+	m_pWinListManager->SetExternApplicationName(sWindowName);
 }
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
@@ -656,8 +632,9 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
         g_pPlutoLogger->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
 
-        Display *dpy = getDisplay();
-        X_LockDisplay();
+        // TODO: clean this code
+        Display *dpy = GetDisplay();
+        X11_Locker lock(dpy);
 
 		if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), True, 0 );
@@ -667,33 +644,34 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 
         if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), False, 0 );
-
-        X_UnlockDisplay();
     }
     Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
 }
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
-    X_LockDisplay();
-    Display *dpy = getDisplay();
+    // TODO: clean this code
+    Display *dpy = GetDisplay();
+    X11_Locker lock(dpy);
     Window rootwindow = DefaultRootWindow (dpy);
     g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",iPosition_X,iPosition_Y);
 
     XWarpPointer(dpy, rootwindow,0 , 0, 0, 0, 0, iPosition_X, iPosition_Y);
-    X_UnlockDisplay();
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
 
-    X_LockDisplay();
-    XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
-    XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
-    X_UnlockDisplay();
+    {
+        Display *pDisplay = GetDisplay();
+        X11_Locker lock(pDisplay);
+        XTestFakeButtonEvent(pDisplay, 1, true, 0);
+        XTestFakeButtonEvent(pDisplay, 1, false, 0);
+    }
 
-    // again
+    // again ?
+    // TODO: clean this code
     Display *dpy = XOpenDisplay(NULL);
     XTestFakeButtonEvent(dpy, 1, true, 0);
     XTestFakeButtonEvent(dpy, 1, false, 0);
@@ -738,13 +716,13 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        m_WinListManager.MaximizeWindow("dialog.dialog");
+        m_pWinListManager->MaximizeWindow("dialog.dialog");
     }
     else
     {
         if (callbackType == cbOnDialogDelete)
 		{
-            m_WinListManager.HideAllWindows();
+            m_pWinListManager->HideAllWindows();
 			TaskManager::Instance().AddTaskAndWait(pTask);
 		}
 		else
@@ -763,7 +741,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         // create new window
         m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
         Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
-        m_WinListManager.MaximizeWindow("dialog.dialog");
+        m_pWinListManager->MaximizeWindow("dialog.dialog");
         return false;
     }
     if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
@@ -803,7 +781,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, const map<string, bool> &map
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        m_WinListManager.MaximizeWindow(m_pProgressWnd->m_wndName);
+        m_pWinListManager->MaximizeWindow(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -854,13 +832,13 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     if (callbackType == cbOnDialogCreate)
     {
         TaskManager::Instance().AddTaskAndWait(pTask);
-        m_WinListManager.MaximizeWindow("dialog.dialog");
+        m_pWinListManager->MaximizeWindow("dialog.dialog");
     }
     else
     {
         if (callbackType == cbOnDialogDelete)
 		{
-            m_WinListManager.HideAllWindows();
+            m_pWinListManager->HideAllWindows();
 			TaskManager::Instance().AddTaskAndWait(pTask);
 		}
 		else
@@ -880,7 +858,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // create new window
         m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
         Safe_Show<wxDialog_WaitList>(m_pWaitList);
-        m_WinListManager.MaximizeWindow("dialog.dialog");
+        m_pWinListManager->MaximizeWindow("dialog.dialog");
         return false;
     }
     if ( (m_pWaitList != NULL) && (nProgress >= 0) )
@@ -912,7 +890,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
-        m_WinListManager.MaximizeWindow(m_pProgressWnd->m_wndName);
+        m_pWinListManager->MaximizeWindow(m_pProgressWnd->m_wndName);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -950,13 +928,13 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
     pCallBackData->m_bShowFullScreen = true;
 	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTask);
-    m_WinListManager.MaximizeWindow("dialog.dialog");
+    m_pWinListManager->MaximizeWindow("dialog.dialog");
 	Task *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
 	TaskManager::Instance().AddTaskAndWait(pTaskWait);
     std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
 #else // (USE_TASK_MANAGER)
     m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
-    m_WinListManager.MaximizeWindow("dialog.dialog");
+    m_pWinListManager->MaximizeWindow("dialog.dialog");
     int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
     return nButtonId;
 #endif // (USE_TASK_MANAGER)
@@ -966,7 +944,7 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
-    m_WinListManager.MaximizeWindow(promptDlg.m_wndName);
+    m_pWinListManager->MaximizeWindow(promptDlg.m_wndName);
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
     return nUserAnswer;
@@ -982,76 +960,38 @@ int OrbiterLinux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string
 
 void OrbiterLinux::X_LockDisplay()
 {
-    if (g_useX11LOCK)
-        XLockDisplay(XServerDisplay);
+    m_pX11->Lock();
 }
 
 void OrbiterLinux::X_UnlockDisplay()
 {
-    if (g_useX11LOCK)
-    {
-        XSync(XServerDisplay, false);
-        XUnlockDisplay(XServerDisplay);
-    }
+    m_pX11->Unlock();
 }
 
 void OrbiterLinux::GrabPointer(bool bEnable)
 {
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d)", bEnable);
-    Display *pDisplay = getDisplay();
-    Window window = getWindow();
-    XLockDisplay(pDisplay);
-    int code = 0;
     if (bEnable)
     {
-        code = XGrabPointer(
-            pDisplay, window, false,
-            ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask,
-            GrabModeAsync, GrabModeAsync,
-            None, //win,
-            None, //cursor,
-            CurrentTime
-            );
+        m_pX11->Mouse_Grab(GetMainWindow());
     }
     else
     {
-        code = XUngrabPointer(pDisplay, CurrentTime);
+        m_pX11->Mouse_Ungrab();
     }
-    XSync(pDisplay, false);
-    {
-        // for GrabModeSync
-        // XAllowEvents(pDisplay, AsyncPointer, CurrentTime);
-        //XSync(pDisplay, false);
-    }
-    XUnlockDisplay(pDisplay);
-    g_pPlutoLogger->Write(LV_STATUS, "End OrbiterLinux::GrabPointer(%d) : %s", bEnable, X11_ErrorText(pDisplay, code).c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d) : done", bEnable);
 }
 
 void OrbiterLinux::GrabKeyboard(bool bEnable)
 {
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d)", bEnable);
-    Display *pDisplay = getDisplay();
-    Window window = getWindow();
-    XLockDisplay(pDisplay);
-    int code = 0;
     if (bEnable)
     {
-        code = XGrabKeyboard(
-        pDisplay, window, false,
-        GrabModeAsync, GrabModeAsync,
-        CurrentTime
-        );
+        m_pX11->Keyboard_Grab(GetMainWindow());
     }
     else
     {
-        code = XUngrabKeyboard(pDisplay, CurrentTime);
+        m_pX11->Keyboard_Ungrab();
     }
-    XSync(pDisplay, false);
-    {
-        // for GrabModeSync
-        // XAllowEvents(pDisplay, AsyncKeyboard, CurrentTime);
-        //XSync(pDisplay, false);
-    }
-    XUnlockDisplay(pDisplay);
-    g_pPlutoLogger->Write(LV_STATUS, "End OrbiterLinux::GrabKeyboard(%d) : %s", bEnable, X11_ErrorText(pDisplay, code).c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d) : done", bEnable);
 }

@@ -270,15 +270,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 		pthread_t hackthread;
 		pthread_create(&hackthread, NULL, HackThread2, (void*)this);
 
-        X_LockDisplay();
         Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags);
-        X_UnlockDisplay();
         if (Screen == NULL)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", m_iImageWidth, m_iImageHeight, SDL_GetError());
 			exit(1);
 		}
 		g_bResettingVideoMode=false;
+        InitializeAfterSetVideoMode();
 	#endif
 	
 		g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);

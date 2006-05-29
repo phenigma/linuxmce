@@ -18,18 +18,13 @@ using namespace DCE;
 
 MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
         : MouseBehavior(pOrbiter)
-        , m_bIsActive_Mouse_Constrain(false)
-        , m_window_Mouse_Constrain(0)
 {
 }
 
 MouseBehavior_Linux::~MouseBehavior_Linux()
 {
-    if (m_bIsActive_Mouse_Constrain)
-    {
-        // deactivate
-        X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), 0, 0, 0, 0);
-    }
+    if (ptrOrbiterLinux()->m_pX11->Mouse_IsConstrainActive())
+        ptrOrbiterLinux()->m_pX11->Mouse_Constrain_Release();
 }
 
 OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
@@ -48,75 +43,35 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
-    m_pOrbiter->X_LockDisplay();
 	MouseBehavior::SetMousePosition(X,Y);
-    Display *dpy = ptrOrbiterLinux()->getDisplay();
-    Window rootwindow = DefaultRootWindow (dpy);
     g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",X,Y);
-
-    XWarpPointer(dpy, rootwindow, rootwindow, 0, 0, 0, 0, X, Y);
-
-    m_pOrbiter->X_UnlockDisplay();
+    ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);
 }
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
 {
-    m_pOrbiter->X_LockDisplay();
+    X11_Locker lock(ptrOrbiterLinux()->GetDisplay());
 	SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
-    m_pOrbiter->X_UnlockDisplay();
 }
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
-return false;
-    g_pPlutoLogger->Write(LV_STATUS, "X11NewUI : MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
+    return false;
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
                           rect.X, rect.Y, rect.Width, rect.Height
                           );
-
-    // go to the right object
-    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
-    if (pOrbiterLinux == NULL)
-    {
-        g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : dynamic_cast error",
-            rect.X, rect.Y, rect.Width, rect.Height
-            );
-        return false;
-    }
-    // call the real function
-    std::string sErrorMessage;
-    bool bSuccess = X11_Mouse_Constrain(ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(), rect.X, rect.Y, rect.Width, rect.Height, &sErrorMessage);
-    // log the status
-    if (bSuccess)
-    {
-        g_pPlutoLogger->Write(
-            LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : ok",
-            rect.X, rect.Y, rect.Width, rect.Height
-            );
-    }
-    else
-    {
-        g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : %s",
-            rect.X, rect.Y, rect.Width, rect.Height, sErrorMessage.c_str()
-            );
-    }
-    return true;
+    bool bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
+    ptrOrbiterLinux()->m_pWinListManager->IsWindowAvailable("constrain");
+    ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
+                          rect.X, rect.Y, rect.Width, rect.Height
+                          );
+    return bResult;
 }
 
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "X11NewUI : MouseBehavior_Linux::SetMousePointerStyle(%d)");
-    // go to the right object
-    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
-    if (pOrbiterLinux == NULL)
-    {
-        g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : dynamic_cast error",
-            mouseCursorStyle
-            );
-        return;
-    }
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)");
     // convert enum values
     std::string sErr;
     std::string sDir = "/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/";
@@ -126,14 +81,11 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
     {
         case mcs_Normal:
             nShape = XC_top_left_arrow;
-            if (! X11_Window_SetCursor_Font(
-                    ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(),
-                    nShape, &sErr
-                    ))
+            if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Font(ptrOrbiterLinux()->GetMainWindow(), nShape))
             {
                 g_pPlutoLogger->Write(
-                    LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : X11_Window_SetCursor_Font(%d) : %s",
-                    mouseCursorStyle, nShape, sErr.c_str()
+                    LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : shape==%d",
+                    mouseCursorStyle, nShape
                     );
                 return;
             }
@@ -164,400 +116,12 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
     std::string sPath = sDir + sName;
     std::string sPathMask = sPath + ".msk";
     // try to change the cursor
-    if (! X11_Window_SetCursor_Image(
-            ptrOrbiterLinux()->getDisplay(), ptrOrbiterLinux()->getWindow(),
-            sPath, sPathMask, &sErr
-            ))
+    if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Image(ptrOrbiterLinux()->GetMainWindow(), sPath, sPathMask))
     {
         g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : X11_Window_SetCursor_Image(%s, %s) : %s",
-            mouseCursorStyle, sPath, sPathMask, sErr.c_str()
+            LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : path==%s, pathmask==%s",
+            mouseCursorStyle, sPath.c_str(), sPathMask.c_str()
             );
         return;
     }
 }
-
-std::string X11_ErrorText(Display * pDisplay, int error_code)
-{
-    if (error_code == 0)
-        return "";
-    static const int size_buffer = 10000;
-    char buffer[size_buffer];
-    buffer[0] = '\0';
-    buffer[0] = 0;
-    XGetErrorText(pDisplay, error_code, buffer, size_buffer);
-    return buffer;
-}
-
-bool X11_Pixmap_ReadFile(Display *pDisplay, Window window, const std::string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return, std::string *pStringError/*=NULL*/)
-{
-    // dummy error message string, used when no such string is required
-    std::string string_error_dummy;
-    if (pStringError == NULL)
-        pStringError = &string_error_dummy;
-    std::string &sErr = *pStringError;
-    sErr = "";
-
-    // X11 result or status
-    int code = 0;
-
-    // start
-    XLockDisplay(pDisplay);
-
-    do
-    {
-        // read x-bitmap from file
-        code = XReadBitmapFile(pDisplay, window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
-        if (code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        if (x_hot_return < 0)
-        {
-            x_hot_return = 0;
-        }
-        if (y_hot_return < 0)
-        {
-            y_hot_return = 0;
-        }
-    } while (0);
-
-    // end
-    XSync(pDisplay, false);
-    XUnlockDisplay(pDisplay);
-    if (sErr.size())
-        return false;
-    return true;
-}
-
-bool MouseBehavior_Linux::X11_Mouse_Constrain(Display *pDisplay, Window parent_window, int nPosX, int nPosY, unsigned int nWidth, int unsigned nHeight, std::string *pStringError/*=NULL*/)
-{
-    return true;
-    
-    // dummy error message string, used when no such string is required
-    std::string string_error_dummy;
-    if (pStringError == NULL)
-        pStringError = &string_error_dummy;
-    std::string &sErr = *pStringError;
-    sErr = "";
-
-    // X11 result or status
-    int code = 0;
-
-    // start
-    XLockDisplay(pDisplay);
-
-    do
-    {
-        Window &window = m_window_Mouse_Constrain;
-
-        // hide window case
-        if ( (nWidth == 0) && (nHeight == 0) )
-        {
-            if (! m_bIsActive_Mouse_Constrain)
-            {
-                sErr = "window not created";
-                break;
-            }
-            m_bIsActive_Mouse_Constrain = false;
-            code = XUngrabPointer(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-            code = XUnmapWindow(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-            code = XDestroyWindow(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-            break;
-        }
-
-        // check values
-        // Size (not including the border) must be nonzero (or a Value error results)
-        // Note: The Xlib manual doesn't mention this restriction ?
-        if ( (nWidth <= 0) || (nHeight <= 0) )
-        {
-            sErr = "bad arguments, size must be greater than 0";
-            break;
-        }
-
-        // show window
-        if (m_bIsActive_Mouse_Constrain)
-        {
-            sErr = "window is already created";
-            break;
-        }
-
-        if (window > 0)
-        {
-            code = XDestroyWindow(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-        }
-
-        window = XCreateSimpleWindow(
-            pDisplay,
-            parent_window,
-            nPosX, nPosY, nWidth, nHeight,
-            0, // BorderWidth,
-            0, // BorderColor
-            0 // BgColor
-            );
-        XSync(pDisplay, false);
-
-        if (window <= 0)
-        {
-            sErr = "cannot create window";
-            break;
-        }
-        XClassHint classHint;
-        classHint.res_name = "pointer_constrain_name";
-        classHint.res_class = "pointer_constrain_class";
-        code = XSetClassHint(pDisplay, window, &classHint);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        XSync(pDisplay, false);
-        code = XStoreName(pDisplay, window, "pointer_constrain_window");
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        XSync(pDisplay, false);
-        code = XMapWindow(pDisplay, window);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        XSync(pDisplay, false);
-        if (1)
-        {
-            code = XLowerWindow(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-        }
-        if (1)
-        {
-            code = XGrabPointer(
-                pDisplay, parent_window,
-                false,
-                ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask,
-                GrabModeAsync, // pointer_mode
-                GrabModeAsync, // keyboard_mode
-                //window, // confine_to_window
-                None, // confine_to_window
-                None, // cursor // TODO: This may need to be set to the cursor of this window
-                CurrentTime );
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            XSync(pDisplay, false);
-        }
-
-        // correct the window position (wm may change it after create or show)
-        code = XMoveResizeWindow(pDisplay, window, nPosX, nPosY, nWidth, nHeight);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        XSync(pDisplay, false);
-
-        m_bIsActive_Mouse_Constrain = true;
-
-    } while (0);
-
-    // end
-    XSync(pDisplay, false);
-    XUnlockDisplay(pDisplay);
-    if (sErr.size())
-        return false;
-    return true;
-}
-
-bool MouseBehavior_Linux::X11_Window_SetCursor_Font(Display *pDisplay, Window window, int nShape, std::string *pStringError/*=NULL*/)
-    {
-    // dummy error message string, used when no such string is required
-    std::string string_error_dummy;
-    if (pStringError == NULL)
-        pStringError = &string_error_dummy;
-    std::string &sErr = *pStringError;
-    sErr = "";
-
-    // X11 result or status
-    int code = 0;
-
-    // start
-    XLockDisplay(pDisplay);
-
-    do
-    {
-        // revert to the default cursor
-        if (nShape < 0)
-        {
-            code = XUndefineCursor(pDisplay, window);
-            if (! code)
-            {
-                sErr = X11_ErrorText(pDisplay, code);
-                break;
-            }
-            break;
-        }
-        // create the cursor
-        Cursor cursor = XCreateFontCursor(pDisplay, nShape);
-        if (! cursor)
-        {
-            sErr = "cannot create the font cursor";
-            break;
-        }
-        // change the cursor
-        code = XDefineCursor(pDisplay, window, cursor);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-    } while (0);
-
-    // end
-    XSync(pDisplay, false);
-    XUnlockDisplay(pDisplay);
-    if (sErr.size())
-        return false;
-    return true;
-}
-
-bool MouseBehavior_Linux::X11_Window_SetCursor_Image(Display *pDisplay, Window window, const std::string &sPath, const std::string &sPathMask, std::string *pStringError/*=NULL*/)
-{
-    // dummy error message string, used when no such string is required
-    std::string string_error_dummy;
-    if (pStringError == NULL)
-        pStringError = &string_error_dummy;
-    std::string &sErr = *pStringError;
-    sErr = "";
-
-    // X11 result or status
-    int code = 0;
-
-    // start
-    XLockDisplay(pDisplay);
-
-    Pixmap pixmap = None;
-    Pixmap pixmap_mask = None;
-    do
-    {
-        unsigned int width_return = 0;
-        unsigned int height_return = 0;
-        int x_hot_return = 0;
-        int y_hot_return = 0;
-        // read pixmap
-        if (! X11_Pixmap_ReadFile(pDisplay, window, sPath.c_str(), pixmap, width_return, height_return, x_hot_return, y_hot_return, &sErr))
-        {
-            break;
-        }
-        int x_hot_return_mask = 0;
-        int y_hot_return_mask = 0;
-        unsigned int width_return_mask = 0;
-        unsigned int height_return_mask = 0;
-        // read pixmap mask
-        if (! X11_Pixmap_ReadFile(pDisplay, window, sPathMask.c_str(), pixmap_mask, width_return_mask, height_return_mask, x_hot_return_mask, y_hot_return_mask, &sErr))
-        {
-            break;
-        }
-        // check values
-        if ( ( width_return != width_return_mask ) || ( height_return != height_return_mask ) )
-        {
-            sErr = "size of the x-bitmap and his mask differ";
-            break;
-        }
-        // prepare extra data
-        int nScreen = XDefaultScreen(pDisplay);
-        Colormap colormap = XDefaultColormap(pDisplay, nScreen);
-        XColor color_fg;
-        color_fg.pixel = BlackPixel(pDisplay, nScreen);
-        code = XQueryColor(pDisplay, colormap, &color_fg);
-        XSync(pDisplay, false);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        XColor color_bg;
-        color_bg.pixel = WhitePixel(pDisplay, nScreen);
-        code = XQueryColor(pDisplay, colormap, &color_bg);
-        XSync(pDisplay, false);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-        // create the cursor
-        Cursor cursor = XCreatePixmapCursor(pDisplay, pixmap, pixmap_mask, &color_fg, &color_bg, x_hot_return, y_hot_return);
-        if (! cursor)
-        {
-            sErr = "Cannot create pixmap cursor";
-            break;
-        }
-        // // recolor the cursor
-        //color_bg.red = 255;
-        //color_bg.green = 0;
-        //color_bg.blue = 0;
-        //color_fg.red = 0;
-        //color_fg.green = 255;
-        //color_fg.blue = 0;
-        //code = XRecolorCursor(pDisplay, cursor, &color_bg, &color_fg);
-        //if (! code)
-        //{
-        //    sErr = X11_ErrorText(pDisplay, code);
-        //    break;
-        //}
-        // change the cursor
-        code = XDefineCursor(pDisplay, window, cursor);
-        if (! code)
-        {
-            sErr = X11_ErrorText(pDisplay, code);
-            break;
-        }
-    } while (0);
-
-    // cleanup
-    if (pixmap != None)
-        XFreePixmap(pDisplay, pixmap);
-    if (pixmap_mask != None)
-        XFreePixmap(pDisplay, pixmap_mask);
-
-    // end
-    XSync(pDisplay, false);
-    XUnlockDisplay(pDisplay);
-    if (sErr.size())
-        return false;
-    return true;
-}
-

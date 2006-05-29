@@ -210,7 +210,7 @@ size_t RendererMNG::count() const
 
 RendererImage *RendererMNG::GetFrame(size_t number) const
 {
-	if (number < 0 || number >= count())
+	if (/*number < 0 ||*/ number >= count())
 		return NULL;
 
 	return m_vectMNGframes[number];
@@ -218,7 +218,7 @@ RendererImage *RendererMNG::GetFrame(size_t number) const
 
 void RendererMNG::ReplaceFrame(size_t number, RendererImage * frame)
 {
-	if (number < 0 || number >= count())
+	if (/*number < 0 ||*/ number >= count())
 		return;
 
 	if (m_vectMNGframes[number])
@@ -228,7 +228,7 @@ void RendererMNG::ReplaceFrame(size_t number, RendererImage * frame)
 
 void RendererMNG::InsertFrame(size_t number, RendererImage * frame)
 {
-	if (number < 0 || number >= count())
+	if (/*number < 0 ||*/ number >= count())
 		return;
 
 	vector<RendererImage>::iterator ivRI;
@@ -246,7 +246,7 @@ void RendererMNG::AppendFrame(RendererImage * frame)
 
 void RendererMNG::DeleteFrame(size_t number)
 {
-	if (number < 0 || number >= count())
+	if (/*number < 0 ||*/ number >= count())
 		return;
 
 	// Linux G++ 3.3.4 doesn't like this one

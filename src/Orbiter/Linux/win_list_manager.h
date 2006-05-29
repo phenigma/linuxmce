@@ -5,6 +5,7 @@
 
 #include "SerializeClass/ShapesColors.h"
 #include "utilities/linux/window_manager/WMController/WMController.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 #include <string>
 #include <list>
 using namespace std;
@@ -14,8 +15,10 @@ struct WinInfo;
 class WinListManager
 {
 public:
-    WinListManager(const string &sSdlWindowName);
+    WinListManager(WMControllerImpl *pWMController, const string &sSdlWindowName);
     ~WinListManager();
+
+    void ActivateSdlWindow();
 
     void ShowSdlWindow(bool bExclusive);
 
@@ -34,7 +37,7 @@ public:
 
     bool IsWindowAvailable(const string &sClassName);
 	bool HideWindow(const string &sClassName);
-	
+
 	void GetWindows(list<WinInfo>& listWinInfo);
 
 protected:
@@ -47,6 +50,7 @@ protected:
     PlutoRectangle m_coordExternalApplication;
     unsigned long m_pidExternalApplication;
 
+    WMControllerImpl *m_pWMController;
     string m_sSdlWindowName;
 };
 

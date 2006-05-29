@@ -91,6 +91,7 @@ sources += \
 	TaskManager.cpp \
 	../utilities/linux/window_manager/WMController/WMController.cpp \
 	../utilities/linux/window_manager/WMController/wmctrl.cpp \
+	../utilities/linux/wrapper/wrapper_x11.cpp \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
 	DesignObj_Data.cpp \
@@ -174,7 +175,7 @@ Orbiter.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Orbiter: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

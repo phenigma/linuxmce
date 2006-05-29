@@ -609,6 +609,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void Initialize( GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0 );
 
 		/**
+		* @brief initialize other classes, after the video mode was changed
+		* @todo ask
+		*/
+		virtual void InitializeAfterSetVideoMode() {};
+
+        /**
 		* @brief initializises the specified Grid
 		* @todo ask
 		*/

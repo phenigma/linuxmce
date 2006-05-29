@@ -32,7 +32,7 @@ namespace DCE
 		friend class MouseBehavior;
 
 		bool m_bHasTimeline;
-		const static int m_iSpeeds[MAX_SPEEDS];
+		static const int m_iSpeeds[MAX_SPEEDS];
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 		int m_iLastGoodPosition;
 

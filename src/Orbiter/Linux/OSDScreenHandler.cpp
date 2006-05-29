@@ -1937,7 +1937,7 @@ bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
         // when AppDesktop restores main window
         OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
         if(NULL != pOrbiterLinux)
-            WMController::Instance().SetVisible("dialog.dialog", false);
+            pOrbiterLinux->m_pWMController->SetVisible("dialog.dialog", false);
     }
 #else // (USE_TASK_MANAGER)
     wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();
