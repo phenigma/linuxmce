@@ -1209,4 +1209,7 @@ DesktopTransparencyImage=""
 # BorderSizeX=5
 # BorderSizeY=5
 # KeyWinClose="Alt+Shift+F4"
+# KeySysWorkspaceNext="Ctrl+Alt+Shift+Tab"
+# KeySysWorkspace1="Alt+Shift+F1"
+# KeySysWorkspace2="Alt+Shift+F2"
 # EOF
