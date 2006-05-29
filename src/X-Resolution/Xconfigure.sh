@@ -15,6 +15,14 @@ TestConfig()
 	return $?
 }
 
+GenModeline()
+{
+	local ResX="$1" ResY="$2" Refresh="$3" ScanType="$4"
+	local Modeline
+	Modeline=$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")
+	Modeline="${Modeline/@*\"/\"}"
+}
+
 OrigParams=("$@")
 ConfigFile="/etc/X11/xorg.conf"
 while [[ $# -gt 0 ]]; do
@@ -112,13 +120,13 @@ if [[ -n "$Resolution" ]]; then
 			break
 		fi
 	done
-	Modeline="$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	Modeline="${Modeline/@*\"/\"}"
+	Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* ]]; then
 		# don't use a modeline for standard refresh rates
 		# (X seems to know only 60 and 75 as "standard", all the others either not working, or giving different resolutions)
 		Modeline=
 	fi
+
 	if ! grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
 		# we don't have a nVidia card; we use the nvHD variable to detect non-VESA modes too (not a perfect way to do so though)
 		nvHD=
