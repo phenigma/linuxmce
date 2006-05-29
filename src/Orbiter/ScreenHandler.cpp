@@ -84,7 +84,7 @@ int ScreenHandler::GetCurrentScreen_PK_DesignObj()
 	return m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line)
+void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 {
 	string::size_type pos=0;
 	string sTitle = StringUtils::Tokenize(sText,"|",pos);
@@ -99,7 +99,7 @@ void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCo
 	string sMessage3 = StringUtils::Tokenize(sCommand_Line,"|",pos);
 	string sMessage4 = StringUtils::Tokenize(sCommand_Line,"|",pos);
 
-	DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,sTitle,false,"0",false,
+	DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,sTitle, sPromptToResetRouter == "1", sTimeout, sCannotGoBack == "1",
 		sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -186,12 +186,6 @@ void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>" + sErrors);
-}
-//-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DialogGenericNoButtons(long PK_Screen, string sDescription, string sPromptToResetRouter,
-								   string sTimeout, string sCannotGoBack)
-{
-	DisplayMessageOnOrbiter(PK_Screen, sDescription, sPromptToResetRouter == "1", sTimeout, sCannotGoBack == "1");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_DeviceFrom, string sPK_RippingDevice)
@@ -320,6 +314,14 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 
 	if(bPromptToResetRouter)
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
+
+	if( sOption1.size()==0 && sOption2.size()==0 && sOption3.size()==0 && sOption4.size()==0 )
+	{
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
+		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_1_CONST, "0 -300 1 " TOSTRING(COMMAND_Go_back_CONST) " " TOSTRING(COMMANDPARAMETER_Force_CONST) " 1");
+		return;
+	}
 
 	if(sOption1.size())
 	{

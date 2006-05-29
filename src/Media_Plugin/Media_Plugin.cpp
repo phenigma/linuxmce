@@ -1896,11 +1896,14 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				sDirectory=StringUtils::Tokenize(sFilename,"\t",posDirs);
 				if ( FileUtils::FindFiles(allFilesList, sDirectory, Extensions.c_str(), true, true) ) // we have hit the bottom
 				{
-					//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
-					SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, iPK_Device_Orbiter,
-						"You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.",
-						"0", "0", "0");
-					SendCommand(SCREEN_DialogGenericNoButtons);
+					SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, iPK_Device_Orbiter,
+						"You have more than 100 files in this folder. Only the first 100 of them have been added to the queue.", // Main message
+						"", // Command Line
+						"too_many_files", // Description
+						"0", // sPromptToResetRouter
+						"30", // sTimeout
+						"1"); // sCannotGoBack
+					SendCommand(SCREEN_PopupMessage);
 				}
 			}
 
@@ -2964,10 +2967,14 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 
 	if( pRippingJob->m_iPK_Orbiter )
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
-		SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pRippingJob->m_iPK_Orbiter,
-			sMessage, "0", "", "1");
-		SendCommand(SCREEN_DialogGenericNoButtons);
+		SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, pRippingJob->m_iPK_Orbiter,
+			sMessage, // Main message
+			"", // Command Line
+			"ripping_failed", // Description
+			"0", // sPromptToResetRouter
+			"0", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage);
 	}
 
 	for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )

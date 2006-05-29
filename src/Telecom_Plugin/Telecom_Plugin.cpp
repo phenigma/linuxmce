@@ -1439,8 +1439,14 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 	pthread_mutex_unlock(&mtx_err_messages);
 	if((iLevel == 7) && (sText.length()>0))
 	{
-		SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,sText,"0","0","0");
-		SendCommand(SCREEN_DialogGenericNoButtons_);
+		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+			sText, // Main message
+			"", // Command Line
+			"telecom_error", // Description
+			"0", // sPromptToResetRouter
+			"0", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage_DL);
 	}
 	return true;
 }

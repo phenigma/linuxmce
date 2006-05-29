@@ -2201,11 +2201,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_PopupMessage(long DeviceIDFrom, long DeviceIDTo,
-			string sText, string sCommand_Line)
+			string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2213,11 +2213,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_PopupMessage_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sText, string sCommand_Line)
+			string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2225,11 +2225,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_PopupMessage_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sText, string sCommand_Line)
+			string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2237,11 +2237,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_PopupMessage_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sText, string sCommand_Line)
+			string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -7165,54 +7165,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_DialogGenericNoButtons : public PreformedCommand
-	{
-	public:
-		SCREEN_DialogGenericNoButtons(long DeviceIDFrom, long DeviceIDTo,
-			string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "177" /* screen ID */,
-				163 /* Description */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
-		}
-	};
-
-	class SCREEN_DialogGenericNoButtons_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_DialogGenericNoButtons_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "177" /* screen ID */,
-				163 /* Description */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
-		}
-	};
-
-	class SCREEN_DialogGenericNoButtons_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_DialogGenericNoButtons_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "177" /* screen ID */,
-				163 /* Description */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
-		}
-	};
-
-	class SCREEN_DialogGenericNoButtons_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_DialogGenericNoButtons_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "177" /* screen ID */,
-				163 /* Description */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
-		}
-	};
-
 	class SCREEN_DialogRippingInProgress : public PreformedCommand
 	{
 	public:
@@ -9233,7 +9185,7 @@ namespace DCE
 		virtual void SCREEN_DVDMenu(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MapMedia(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AdvancedMediaOptions(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MusicRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_LinPhones(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Orbiters(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9355,7 +9307,6 @@ namespace DCE
 		virtual void SCREEN_AudiAudioRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VideoWizard(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_DialogGenericNoButtons(long PK_Screen, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_Device_From, string sPK_Device_Ripping){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogCheckingDrive(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogUnableToSavePlaylist(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9690,7 +9641,11 @@ namespace DCE
 				{
 					string sText = pMessage->m_mapParameters[9];
 					string sCommand_Line = pMessage->m_mapParameters[137];
-					SCREEN_PopupMessage(nPK_Screen, sText, sCommand_Line);
+					string sDescription = pMessage->m_mapParameters[163];
+					string sPromptToResetRouter = pMessage->m_mapParameters[181];
+					string sTimeout = pMessage->m_mapParameters[182];
+					string sCannotGoBack = pMessage->m_mapParameters[183];
+					SCREEN_PopupMessage(nPK_Screen, sText, sCommand_Line, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
 					break;
 				}
 				case 54:
@@ -10310,15 +10265,6 @@ namespace DCE
 				{
 					string sErrors = pMessage->m_mapParameters[18];
 					SCREEN_DialogCannotPlayMedia(nPK_Screen, sErrors);
-					break;
-				}
-				case 177:
-				{
-					string sDescription = pMessage->m_mapParameters[163];
-					string sPromptToResetRouter = pMessage->m_mapParameters[181];
-					string sTimeout = pMessage->m_mapParameters[182];
-					string sCannotGoBack = pMessage->m_mapParameters[183];
-					SCREEN_DialogGenericNoButtons(nPK_Screen, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
 					break;
 				}
 				case 178:

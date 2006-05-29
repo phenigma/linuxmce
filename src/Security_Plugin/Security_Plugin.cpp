@@ -660,10 +660,14 @@ class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 	//for now only inform orbiter about error
 	if( !sErrorMsg.empty() )
 	{
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, 
-		m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-		sErrorMsg.c_str(), "0", "0", "0");
-		SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+			sErrorMsg, // Main message
+			"", // Command Line
+			"security_error", // Description
+			"0", // sPromptToResetRouter
+			"0", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage_DL);
 	}
 
 	return false;

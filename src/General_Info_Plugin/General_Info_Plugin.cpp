@@ -2076,9 +2076,15 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 
 bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {  
-	SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-			"You system is running low on disk space", "0", "0", "0");
-	SendCommand(SCREEN_DialogGenericNoButtons_DL);
+	SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+		"You system is running low on disk space", // Main message
+		"", // Command Line
+		"low_disk_space", // Description
+		"0", // sPromptToResetRouter
+		"0", // sTimeout
+		"1"); // sCannotGoBack
+
+	SendCommand(SCREEN_PopupMessage_DL);
 	return true;
 }
 
@@ -2367,10 +2373,15 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	{
 		if( sName.size()==0 )
 		{
-			//DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
-			SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-				"You must type in a name for the room", "0", "0", "0");
-			SendCommand(SCREEN_DialogGenericNoButtons);
+			SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"You must type in a name for the room", // Main message
+				"", // Command Line
+				"bad_room", // Description
+				"0", // sPromptToResetRouter
+				"0", // sTimeout
+				"1"); // sCannotGoBack
+
+			SendCommand(SCREEN_PopupMessage);
 
 			return;
 		}
@@ -2799,8 +2810,13 @@ void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 
 	if( bDevicesNeedingReload )
 	{
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
-		SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
+			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", // Main message
+			"", // Command Line
+			"new_device_reload", // Description
+			"1", // sPromptToResetRouter
+			"0", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage_DL);
 	}
 }

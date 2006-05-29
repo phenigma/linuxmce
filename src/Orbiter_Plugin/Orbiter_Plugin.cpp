@@ -1773,9 +1773,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				string sMessage = "We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
 					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system";
-				SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, iPK_Device,
-					sMessage, "0", "0", "0");
-				SendCommand(SCREEN_DialogGenericNoButtons);
+				SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, iPK_Device,
+					sMessage, // Main message
+					"", // Command Line
+					"already_regen", // Description
+					"0", // sPromptToResetRouter
+					"0", // sTimeout
+					"1"); // sCannotGoBack
+				SendCommand(SCREEN_PopupMessage);
 				return;
 			}
 			else
@@ -1854,9 +1859,14 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		//DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
 		//	"%>",true);
 
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups, 
-			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", "1", "0", "0");
-		SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups,
+			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", // Main message
+			"", // Command Line
+			"regen_done", // Description
+			"1", // sPromptToResetRouter
+			"0", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage_DL);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
