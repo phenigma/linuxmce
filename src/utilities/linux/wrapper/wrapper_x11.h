@@ -146,6 +146,7 @@ public:
     bool Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return);
 
     bool Mouse_SetPosition(int nPosX, int nPosY);
+    bool Mouse_GetPosition(int &nPosX, int &nPosY);
 
     // activate   : both width and height must be > 0
     // deactivate : both width and height == 0
